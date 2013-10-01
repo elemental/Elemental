@@ -21,13 +21,13 @@ namespace elem {
 namespace qr {
 
 template<typename F>
-inline BASE(F)
-ColumnNorms( const Matrix<F>& A, std::vector<BASE(F)>& norms )
+inline Base<F>
+ColumnNorms( const Matrix<F>& A, std::vector<Base<F>>& norms )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::ColumnNorms");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     Real maxNorm = 0;
@@ -58,13 +58,13 @@ template<typename F>
 inline void
 BusingerGolub
 ( Matrix<F>& A, Matrix<F>& t, Matrix<Int>& p,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
 
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -147,7 +147,7 @@ template<typename F>
 inline void
 BusingerGolub
 ( Matrix<F>& A, Matrix<Int>& p,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
@@ -166,7 +166,7 @@ BusingerGolub
     CallStackEntry entry("qr::BusingerGolub");
 #endif
     // Use a tolerance of -1 so that we always perform numSteps iterations
-    BusingerGolub( A, t, p, numSteps, BASE(F)(-1), alwaysRecompute );
+    BusingerGolub( A, t, p, numSteps, Base<F>(-1), alwaysRecompute );
 }
 
 // If we don't need 't' from the above routine
@@ -207,14 +207,14 @@ BusingerGolub( Matrix<F>& A, Matrix<Int>& p, bool alwaysRecompute=false )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 FindColumnPivot
-( const DistMatrix<F>& A, const std::vector<BASE(F)>& norms, Int col )
+( const DistMatrix<F>& A, const std::vector<Base<F>>& norms, Int col )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::FindColumnPivot");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int rowShift = A.RowShift();
     const Int rowStride = A.RowStride();
     const Int localColsBefore = Length( col, rowShift, rowStride );
@@ -226,13 +226,13 @@ FindColumnPivot
 }
 
 template<typename F>
-inline BASE(F)
-ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
+inline Base<F>
+ColumnNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::ColumnNorms");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     mpi::Comm colComm = A.Grid().ColComm();
@@ -302,12 +302,12 @@ template<typename F>
 inline void
 ReplaceColumnNorms
 ( const DistMatrix<F>& A, std::vector<Int>& inaccurateNorms, 
-  std::vector<BASE(F)>& norms, std::vector<BASE(F)>& origNorms )
+  std::vector<Base<F>>& norms, std::vector<Base<F>>& origNorms )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::ReplaceColumnNorms");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int numInaccurate = inaccurateNorms.size();
     mpi::Comm colComm = A.Grid().ColComm();
@@ -375,14 +375,14 @@ template<typename F>
 inline void
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Int,VR,STAR>& p,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
     if( A.Grid() != p.Grid() || A.Grid() != t.Grid() )
         LogicError("A, t, and p must have the same grid");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -533,7 +533,7 @@ template<typename F>
 inline void
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
@@ -552,7 +552,7 @@ BusingerGolub
     CallStackEntry entry("qr::BusingerGolub");
 #endif
     // Use a tolerance of -1 so that we always perform numSteps iterations
-    BusingerGolub( A, t, p, numSteps, BASE(F)(-1), alwaysRecompute );
+    BusingerGolub( A, t, p, numSteps, Base<F>(-1), alwaysRecompute );
 }
 
 // If we don't need 't' from the above routine

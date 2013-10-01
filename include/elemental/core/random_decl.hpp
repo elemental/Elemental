@@ -28,12 +28,12 @@ T Uniform( T a=0, T b=UnitCell<T>() );
 // imaginary components are independently drawn with the same standard 
 // deviation, but different means.
 template<typename T=double>
-T Normal( T mean=0, BASE(T) stddev=1 );
+T Normal( T mean=0, Base<T> stddev=1 );
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.
 template<typename T> 
-T SampleBall( T center=0, BASE(T) radius=1 );
+T SampleBall( T center=0, Base<T> radius=1 );
 
 } // namespace elem
 

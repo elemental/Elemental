@@ -63,7 +63,7 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 #ifndef SWIG
 template<typename T>
 inline void
-Axpy( BASE(T) alpha, const Matrix<T>& X, Matrix<T>& Y )
+Axpy( Base<T> alpha, const Matrix<T>& X, Matrix<T>& Y )
 { Axpy( T(alpha), X, Y ); }
 #endif
 
@@ -94,7 +94,7 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 template<typename T,Distribution U,Distribution V>
 inline void
 Axpy
-( BASE(T) alpha,
+( Base<T> alpha,
   const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 { Axpy( T(alpha), X, Y ); }
 #endif

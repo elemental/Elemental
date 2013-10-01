@@ -22,7 +22,7 @@ template<typename T>
 class DistMatrix<T,STAR,MC> : public AbstractDistMatrix<T>
 {
 public:
-    typedef AbstractDistMatrix<T> baseType;
+    typedef AbstractDistMatrix<T> admType;
     typedef DistMatrix<T,STAR,MC> type;
 
     // Create a 0 x 0 distributed matrix
@@ -102,10 +102,10 @@ public:
     //
 
     // Distribution alignment
+    virtual void AlignWith( const admType& A );
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignWith( const baseType& A );
+    virtual void AlignRowsWith( const admType& A );
     virtual void AlignRowsWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const baseType& A );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,MC] distribution                              //
@@ -115,11 +115,11 @@ public:
     // Collective routines
     //
 
+    bool AlignedWithDiagonal( const admType& A, Int offset=0 ) const;
     bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-    bool AlignedWithDiagonal( const baseType& A, Int offset=0 ) const;
 
+    void AlignWithDiagonal( const admType& A, Int offset=0 );
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
-    void AlignWithDiagonal( const baseType& A, Int offset=0 );
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach

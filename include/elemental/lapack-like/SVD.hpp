@@ -24,7 +24,7 @@ namespace elem {
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
+SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("SVD");
@@ -38,7 +38,7 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
 template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& U, Matrix<F>& V )
+  Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianSVD");
@@ -52,7 +52,7 @@ inline void HermitianSVD
     U.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
     {
-        const BASE(F) sigma = s.Get( j, 0 );
+        const Base<F> sigma = s.Get( j, 0 );
         F* UCol = U.Buffer( 0, j );
         const F* VCol = V.LockedBuffer( 0, j );
         if( sigma >= 0 )
@@ -79,7 +79,7 @@ inline void HermitianSVD
 template<typename F>
 inline void
 SVD
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
@@ -92,7 +92,7 @@ SVD
 template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, 
-  DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
+  DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianSVD");
@@ -102,7 +102,7 @@ inline void HermitianSVD
     HermitianEig( uplo, A, s, V );
 
     // Redistribute the singular values into an [MR,* ] distribution
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& grid = A.Grid();
     DistMatrix<Real,MR,STAR> s_MR_STAR( grid );
     s_MR_STAR.AlignWith( V.DistData() );
@@ -148,7 +148,7 @@ inline void HermitianSVD
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
+SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 {
 #ifndef RELEASE
     CallStackEntry cse("SVD");
@@ -161,7 +161,7 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& s )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianSVD");
@@ -183,7 +183,7 @@ inline void HermitianSVD
 
 template<typename F>
 inline void
-SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
+SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
     CallStackEntry cse("SVD");
@@ -194,7 +194,7 @@ SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianSVD");
@@ -207,7 +207,7 @@ inline void HermitianSVD
     const Int numLocalVals = s.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
-        const BASE(F) sigma = s.GetLocal(iLoc,0);
+        const Base<F> sigma = s.GetLocal(iLoc,0);
         s.SetLocal(iLoc,0,Abs(sigma));
     }
 

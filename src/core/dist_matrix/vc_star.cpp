@@ -412,46 +412,46 @@ DM<T>::GetDiagonal( DistMatrix<T,STAR,VC>& d, Int offset ) const
 
 template<typename T>
 void
-DM<T>::GetRealPartOfDiagonal( DistMatrix<BASE(T),VC,STAR>& d, Int offset ) const
+DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal");
 #endif
     this->GetDiagonalHelper
-    ( d, offset, []( BASE(T)& alpha, T beta ) { alpha = RealPart(beta); } );
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
 }
 
 template<typename T>
 void
-DM<T>::GetRealPartOfDiagonal( DistMatrix<BASE(T),STAR,VC>& d, Int offset ) const
+DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal");
 #endif
     this->GetDiagonalHelper
-    ( d, offset, []( BASE(T)& alpha, T beta ) { alpha = RealPart(beta); } );
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
 }
 
 template<typename T>
 void
-DM<T>::GetImagPartOfDiagonal( DistMatrix<BASE(T),VC,STAR>& d, Int offset ) const
+DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal");
 #endif
     this->GetDiagonalHelper
-    ( d, offset, []( BASE(T)& alpha, T beta ) { alpha = ImagPart(beta); } );
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
 }
 
 template<typename T>
 void
-DM<T>::GetImagPartOfDiagonal( DistMatrix<BASE(T),STAR,VC>& d, Int offset ) const
+DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal");
 #endif
     this->GetDiagonalHelper
-    ( d, offset, []( BASE(T)& alpha, T beta ) { alpha = ImagPart(beta); } );
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
 }
 
 template<typename T>
@@ -464,19 +464,19 @@ DM<T>::GetDiagonal( Int offset ) const
 }
 
 template<typename T>
-DistMatrix<BASE(T),VC,STAR>
+DistMatrix<Base<T>,VC,STAR>
 DM<T>::GetRealPartOfDiagonal( Int offset ) const
 {
-    DistMatrix<BASE(T),VC,STAR> d( this->Grid() );
+    DistMatrix<Base<T>,VC,STAR> d( this->Grid() );
     GetRealPartOfDiagonal( d, offset );
     return d;
 }
 
 template<typename T>
-DistMatrix<BASE(T),VC,STAR>
+DistMatrix<Base<T>,VC,STAR>
 DM<T>::GetImagPartOfDiagonal( Int offset ) const
 {
-    DistMatrix<BASE(T),VC,STAR> d( this->Grid() );
+    DistMatrix<Base<T>,VC,STAR> d( this->Grid() );
     GetImagPartOfDiagonal( d, offset );
     return d;
 }
@@ -602,50 +602,50 @@ DM<T>::SetDiagonal( const DistMatrix<T,STAR,VC>& d, Int offset )
 
 template<typename T>
 void
-DM<T>::SetRealPartOfDiagonal( const DistMatrix<BASE(T),VC,STAR>& d, Int offset )
+DM<T>::SetRealPartOfDiagonal( const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::SetRealPartOfDiagonal");
 #endif
     this->SetDiagonalHelper
     ( d, offset, 
-      []( T& alpha, BASE(T) beta ) { elem::SetRealPart(alpha,beta); } );
+      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
 }
 
 template<typename T>
 void
-DM<T>::SetRealPartOfDiagonal( const DistMatrix<BASE(T),STAR,VC>& d, Int offset )
+DM<T>::SetRealPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::SetRealPartOfDiagonal");
 #endif
     this->SetDiagonalHelper
     ( d, offset, 
-      []( T& alpha, BASE(T) beta ) { elem::SetRealPart(alpha,beta); } );
+      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
 }
 
 template<typename T>
 void
-DM<T>::SetImagPartOfDiagonal( const DistMatrix<BASE(T),VC,STAR>& d, Int offset )
+DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::SetImagPartOfDiagonal");
 #endif
     this->SetDiagonalHelper
     ( d, offset, 
-      []( T& alpha, BASE(T) beta ) { elem::SetImagPart(alpha,beta); } );
+      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
 }
 
 template<typename T>
 void
-DM<T>::SetImagPartOfDiagonal( const DistMatrix<BASE(T),STAR,VC>& d, Int offset )
+DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
 {
 #ifndef RELEASE
     CallStackEntry cse("[VC,* ]::SetImagPartOfDiagonal");
 #endif
     this->SetDiagonalHelper
     ( d, offset, 
-      []( T& alpha, BASE(T) beta ) { elem::SetImagPart(alpha,beta); } );
+      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
 }
 
 //

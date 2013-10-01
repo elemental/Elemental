@@ -22,7 +22,7 @@ Helmholtz( Matrix<F>& H, Int n, F shift )
 #ifndef RELEASE
     CallStackEntry cse("Helmholtz");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Zeros( H, n, n );
 
     const R hInv = n+1; 
@@ -55,7 +55,7 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 #ifndef RELEASE
     CallStackEntry cse("Helmholtz");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = nx*ny;
     Zeros( H, n, n );
 
@@ -98,7 +98,7 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 #ifndef RELEASE
     CallStackEntry cse("Helmholtz");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
@@ -148,7 +148,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
 #ifndef RELEASE
     CallStackEntry cse("Helmholtz");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Zeros( H, n, n );
 
     const R hInv = n+1; 
@@ -187,7 +187,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
 #ifndef RELEASE
     CallStackEntry cse("Helmholtz");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = nx*ny;
     Zeros( H, n, n );
 
@@ -235,7 +235,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
 #ifndef RELEASE
     CallStackEntry cse("Helmholtz");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = nx*ny*nz;
     Zeros( H, n, n );
 

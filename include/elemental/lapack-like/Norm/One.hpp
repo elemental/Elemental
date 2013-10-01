@@ -13,13 +13,13 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 OneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("OneNorm");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R maxColSum = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -34,13 +34,13 @@ OneNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianOneNorm");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
     R maxColSum = 0;
@@ -73,7 +73,7 @@ HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -83,13 +83,13 @@ SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline BASE(F)
+inline Base<F>
 OneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("OneNorm");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -123,13 +123,13 @@ OneNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianOneNorm");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
     const Int height = A.Height();
@@ -239,7 +239,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE

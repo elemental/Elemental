@@ -47,7 +47,7 @@ void PanelL
     if( !t.AlignedWithDiagonal(A,-1) )
         LogicError("t is not aligned with A's subdiagonal.");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int c = g.Width();

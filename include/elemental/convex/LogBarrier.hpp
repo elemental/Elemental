@@ -15,7 +15,7 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F) 
+inline Base<F> 
 LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -27,7 +27,7 @@ LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 
 #ifndef SWIG
 template<typename F>
-inline BASE(F)
+inline Base<F>
 LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
@@ -39,7 +39,7 @@ LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 #endif
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
@@ -51,7 +51,7 @@ LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 
 #ifndef SWIG
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE

@@ -15,13 +15,13 @@ namespace elem {
 // TODO: Add options for FastAbs instead of Abs
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 VectorMax( const Matrix<F>& x )
 {
 #ifndef RELEASE
     CallStackEntry cse("VectorMax");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
 #ifndef RELEASE
@@ -60,13 +60,13 @@ VectorMax( const Matrix<F>& x )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 VectorMax( const DistMatrix<F,U,V>& x )
 {
 #ifndef RELEASE
     CallStackEntry cse("VectorMax");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
 #ifndef RELEASE
@@ -117,13 +117,13 @@ VectorMax( const DistMatrix<F,U,V>& x )
 }
 
 template<typename F>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 Max( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("Max");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -148,13 +148,13 @@ Max( const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 Max( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("Max");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     ValueIntPair<Real> pivot;
     if( A.Participating() )
     {
@@ -195,13 +195,13 @@ Max( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("SymmetricMax");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 

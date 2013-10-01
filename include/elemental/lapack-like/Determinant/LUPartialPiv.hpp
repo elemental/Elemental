@@ -28,7 +28,7 @@ AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& p )
     if( A.Height() != p.Height() )
         LogicError("Pivot vector is incorrect length");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
 
     Matrix<F> d;
@@ -87,7 +87,7 @@ AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
     if( A.Height() != p.Height() )
         LogicError("Pivot vector is incorrect length");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 

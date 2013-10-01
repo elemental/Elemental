@@ -34,7 +34,7 @@ Scale( T alpha, Matrix<T>& X )
 #ifndef SWIG
 template<typename T>
 inline void
-Scale( BASE(T) alpha, Matrix<T>& X )
+Scale( Base<T> alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
 #endif
 
@@ -46,7 +46,7 @@ Scal( T alpha, Matrix<T>& X )
 #ifndef SWIG
 template<typename T>
 inline void
-Scal( BASE(T) alpha, Matrix<T>& X )
+Scal( Base<T> alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
 #endif
 
@@ -58,7 +58,7 @@ Scale( T alpha, DistMatrix<T,U,V>& A )
 #ifndef SWIG
 template<typename T,Distribution U,Distribution V>
 inline void
-Scale( BASE(T) alpha, DistMatrix<T,U,V>& A )
+Scale( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
 #endif
 
@@ -70,7 +70,7 @@ Scal( T alpha, DistMatrix<T,U,V>& A )
 #ifndef SWIG
 template<typename T,Distribution U,Distribution V>
 inline void
-Scal( BASE(T) alpha, DistMatrix<T,U,V>& A )
+Scal( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A ); }
 #endif
 

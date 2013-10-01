@@ -48,8 +48,8 @@ matrix and the latter in a normal (in fact, unitary) matrix.
 Pseudoinverse
 -------------
 
-.. cpp:function:: Pseudoinverse( Matrix<F>& A, typename Base<F>::type tolerance=0 )
-.. cpp:function:: Pseudoinverse( DistMatrix<F>& A, typename Base<F>::type tolerance=0 )
+.. cpp:function:: Pseudoinverse( Matrix<F>& A, Base<F> tolerance=0 )
+.. cpp:function:: Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance=0 )
 
    Computes the pseudoinverse of a general matrix through computing its SVD,
    modifying the singular values with the function
@@ -67,8 +67,8 @@ Pseudoinverse
    If a nonzero value for `tolerance` was specified, it is used instead of 
    :math:`\epsilon n \| A \|_2`.
 
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, typename Base<F>::type tolerance=0 )
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A, typename Base<F>::type tolerance=0 )
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance=0 )
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance=0 )
 
    Computes the pseudoinverse of a Hermitian matrix through a customized version
    of :cpp:func:`RealHermitianFunction` which used the eigenvalue mapping 
@@ -124,8 +124,8 @@ where each eigenvalue :math:`\lambda = r e^{i\theta}` maps to
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: int square_root::Newton( Matrix<F>& A, int maxIts=100, typename Base<F>::tol=0 )
-.. cpp:function:: int square_root::Newton( DistMatrix<F>& A, int maxIts=100, typename Base<F>::tol=0 )
+.. cpp:function:: int square_root::Newton( Matrix<F>& A, int maxIts=100, Base<F> tol=0 )
+.. cpp:function:: int square_root::Newton( DistMatrix<F>& A, int maxIts=100, Base<F> tol=0 )
 
    Performs at most ``maxIts`` Newton steps in an attempt to compute the 
    matrix square-root within the specified tolerance, which defaults to 
@@ -170,8 +170,8 @@ Detailed interface
    iteration for the matrix sign function. It must be either ``NONE``, 
    ``DETERMINANT``, or ``FROB_NORM`` (the default).
 
-.. cpp:function:: int sign::Newton( Matrix<F>& A, sign::Scaling scaling=FROB_NORM, int maxIts=100, typename Base<F>::type tol=0 )
-.. cpp:function:: int sign::Newton( DistMatrix<F>& A, sign::Scaling scaling=FROB_NORM, int maxIts=100, typename Base<F>::type tol=0 )
+.. cpp:function:: int sign::Newton( Matrix<F>& A, sign::Scaling scaling=FROB_NORM, int maxIts=100, Base<F> tol=0 )
+.. cpp:function:: int sign::Newton( DistMatrix<F>& A, sign::Scaling scaling=FROB_NORM, int maxIts=100, Base<F> tol=0 )
 
    Runs a (scaled) Newton iteration for at most ``maxIts`` iterations with 
    the specified tolerance, which, if undefined, is set to :math:`n \epsilon`,

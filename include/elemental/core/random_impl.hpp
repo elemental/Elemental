@@ -21,7 +21,7 @@ inline Int CoinFlip()
 template<typename T>
 inline T UnitCell()
 {
-    typedef BASE(T) Real;
+    typedef Base<T> Real;
     T cell;
     SetRealPart( cell, Real(1) );
     if( IsComplex<T>::val )
@@ -32,7 +32,7 @@ inline T UnitCell()
 template<typename T>
 inline T Uniform( T a, T b )
 {
-    typedef BASE(T) Real;
+    typedef Base<T> Real;
     std::mt19937& gen = Generator();
     T sample;
 
@@ -49,9 +49,9 @@ inline T Uniform( T a, T b )
 }
 
 template<typename T>
-inline T Normal( T mean, BASE(T) stddev )
+inline T Normal( T mean, Base<T> stddev )
 {
-    typedef BASE(T) Real;
+    typedef Base<T> Real;
     std::mt19937& gen = Generator();
     T sample;
 

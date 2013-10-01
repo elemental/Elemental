@@ -24,7 +24,7 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
 #ifndef RELEASE
     CallStackEntry entry("lu::Panel");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 #ifndef RELEASE
@@ -80,7 +80,7 @@ Panel
     if( A.Height() != p.Height() || p.Width() != 1 )
         LogicError("p must be a vector that conforms with A");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int colShift = B.ColShift();

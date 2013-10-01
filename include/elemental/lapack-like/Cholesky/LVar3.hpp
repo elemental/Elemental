@@ -25,7 +25,7 @@ LVar3Unb( Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
@@ -55,7 +55,7 @@ ReverseLVar3Unb( Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
     F* ABuffer = A.Buffer();

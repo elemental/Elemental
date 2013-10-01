@@ -22,7 +22,7 @@ inline void
 HermitianFromEVD
 ( UpperOrLower uplo,
         Matrix<F>& A,
-  const Matrix<BASE(F)>& w,
+  const Matrix<Base<F>>& w,
   const Matrix<F>& Z )
 {
 #ifndef RELEASE
@@ -54,7 +54,7 @@ template<typename F>
 inline Matrix<F>
 HermitianFromEVD
 ( UpperOrLower uplo,
-  const Matrix<BASE(F)>& w,
+  const Matrix<Base<F>>& w,
   const Matrix<F>& Z )
 {
     Matrix<F> A;
@@ -67,14 +67,14 @@ inline void
 HermitianFromEVD
 ( UpperOrLower uplo,
         DistMatrix<F>& A,
-  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<Base<F>,VR,STAR>& w,
   const DistMatrix<F>& Z )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianFromEVD");
 #endif
     const Grid& g = A.Grid();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     DistMatrix<F,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<F,VR,  STAR> Z1_VR_STAR(g);
@@ -113,7 +113,7 @@ template<typename F>
 inline DistMatrix<F>
 HermitianFromEVD
 ( UpperOrLower uplo,
-  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<Base<F>,VR,STAR>& w,
   const DistMatrix<F>& Z )
 {
     DistMatrix<F> A(w.Grid());

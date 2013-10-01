@@ -26,11 +26,11 @@ void TestCorrectness
 ( bool print,
   UpperOrLower uplo,
   const DistMatrix<F>& A,
-  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<Base<F>,VR,STAR>& w,
   const DistMatrix<F>& Z,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = Z.Height();
     const Int k = Z.Width();
@@ -100,9 +100,9 @@ template<typename F>
 void TestHermitianEig
 ( bool testCorrectness, bool print,
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, Int m, 
-  BASE(F) vl, BASE(F) vu, Int il, Int iu, SortType sort, const Grid& g )
+  Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort, const Grid& g )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     DistMatrix<F> A(g), AOrig(g), Z(g);
     DistMatrix<Real,VR,STAR> w(g);
 

@@ -22,7 +22,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
+Spy( const Matrix<T>& A, std::string title="Default", Base<T> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");
@@ -46,7 +46,7 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
+Spy( const DistMatrix<T,U,V>& A, std::string title="Default", Base<T> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");
@@ -60,7 +60,7 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 template<typename T>
 inline void
 Spy
-( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
+( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", Base<T> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");
@@ -71,7 +71,7 @@ Spy
 template<typename T>
 inline void
 Spy
-( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
+( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", Base<T> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");

@@ -116,16 +116,16 @@ public:
     //
 
     T Get( Int i, Int j ) const;
-    BASE(T) GetRealPart( Int i, Int j ) const;
-    BASE(T) GetImagPart( Int i, Int j ) const;
+    Base<T> GetRealPart( Int i, Int j ) const;
+    Base<T> GetImagPart( Int i, Int j ) const;
     void Set( Int i, Int j, T alpha );
-    void SetRealPart( Int i, Int j, BASE(T) alpha );
+    void SetRealPart( Int i, Int j, Base<T> alpha );
     // Only valid for complex data
-    void SetImagPart( Int i, Int j, BASE(T) alpha );
+    void SetImagPart( Int i, Int j, Base<T> alpha );
     void Update( Int i, Int j, T alpha );
-    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
+    void UpdateRealPart( Int i, Int j, Base<T> alpha );
     // Only valid for complex data
-    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
+    void UpdateImagPart( Int i, Int j, Base<T> alpha );
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 
@@ -134,16 +134,16 @@ public:
     //
 
     T GetLocal( Int iLoc, Int jLoc ) const;
-    BASE(T) GetLocalRealPart( Int iLoc, Int jLoc ) const;
-    BASE(T) GetLocalImagPart( Int iLoc, Int jLoc ) const;
+    Base<T> GetLocalRealPart( Int iLoc, Int jLoc ) const;
+    Base<T> GetLocalImagPart( Int iLoc, Int jLoc ) const;
     void SetLocal( Int iLoc, Int jLoc, T alpha );
-    void SetLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
     // Only valid for complex data
-    void SetLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
     void UpdateLocal( Int iLoc, Int jLoc, T alpha );
-    void UpdateLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
     // Only valid for complex data
-    void UpdateLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
     void MakeRealLocal( Int i, Int j );
     void ConjugateLocal( Int i, Int j );
 

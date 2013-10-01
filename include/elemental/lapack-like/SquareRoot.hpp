@@ -42,7 +42,7 @@ NewtonStep
     lu::SolveAfter( NORMAL, XTmp, p, XNew );
 
     // XNew := 1/2 ( X + XNew )
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Axpy( R(1)/R(2), X, XNew );
 }
 
@@ -63,18 +63,18 @@ NewtonStep
     lu::SolveAfter( NORMAL, XTmp, p, XNew );
 
     // XNew := 1/2 ( X + XNew )
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Axpy( R(1)/R(2), X, XNew );
 }
 
 template<typename F>
 inline int
-Newton( Matrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
+Newton( Matrix<F>& A, Int maxIts=100, Base<F> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("square_root::Newton");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
 
@@ -104,12 +104,12 @@ Newton( Matrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
 
 template<typename F>
 inline int
-Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
+Newton( DistMatrix<F>& A, Int maxIts=100, Base<F> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("square_root::Newton");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     DistMatrix<F> B(A), C(A.Grid()), XTmp(A.Grid());
     DistMatrix<F> *X=&B, *XNew=&C;
 
@@ -170,7 +170,7 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HPSDSquareRoot");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
 
     // Get the EVD of A
     Matrix<R> w;
@@ -219,7 +219,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     CallStackEntry entry("HPSDSquareRoot");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef Base<F> R;
 
     // Get the EVD of A
     const Grid& g = A.Grid();

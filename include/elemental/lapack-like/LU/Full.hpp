@@ -70,7 +70,7 @@ Full
     if( A.Grid() != p.Grid() || p.Grid() != q.Grid() )
         LogicError("Matrices must be distributed over the same grid");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);

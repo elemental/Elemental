@@ -28,12 +28,12 @@ namespace ldl {
 // Currently using Algorithm A Bunch-Kaufman.
 template<typename F>
 inline Int
-ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
+ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( pivotType != BUNCH_KAUFMAN_A )
         LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
@@ -65,12 +65,12 @@ ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
 
 template<typename F>
 inline Int
-ChoosePivot( const DistMatrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
+ChoosePivot( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( pivotType != BUNCH_KAUFMAN_A )
         LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
@@ -104,12 +104,12 @@ template<typename F>
 inline Int
 ChoosePivot
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
-  Int k, LDLPivotType pivotType, BASE(F) gamma )
+  Int k, LDLPivotType pivotType, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( pivotType != BUNCH_KAUFMAN_A )
         LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
@@ -178,12 +178,12 @@ inline Int
 ChoosePivot
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
-  Int k, LDLPivotType pivotType, BASE(F) gamma )
+  Int k, LDLPivotType pivotType, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( pivotType != BUNCH_KAUFMAN_A )
         LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
@@ -258,7 +258,7 @@ inline void
 UnblockedPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
+  Base<F> gamma=(1+Sqrt(Base<F>(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::UnblockedPivoted");
@@ -336,7 +336,7 @@ inline void
 UnblockedPivoted
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
+  Base<F> gamma=(1+Sqrt(Base<F>(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::UnblockedPivoted");
@@ -416,7 +416,7 @@ PanelPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
+  Base<F> gamma=(1+Sqrt(Base<F>(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::PanelPivoted");
@@ -529,7 +529,7 @@ PanelPivoted
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
+  Base<F> gamma=(1+Sqrt(Base<F>(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::PanelPivoted");
@@ -650,7 +650,7 @@ inline void
 Pivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
+  Base<F> gamma=(1+Sqrt(Base<F>(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Pivoted");
@@ -692,7 +692,7 @@ inline void
 Pivoted
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
+  Base<F> gamma=(1+Sqrt(Base<F>(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Pivoted");

@@ -24,7 +24,7 @@ void TestCorrectness
   const DistMatrix<F,MD,STAR>& t,
         DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();

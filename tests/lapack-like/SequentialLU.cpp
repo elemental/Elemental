@@ -25,7 +25,7 @@ void TestCorrectness
   const Matrix<Int>& p,
   const Matrix<F>& AOrig )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = AOrig.Height();
 
     cout << "Testing error..." << endl;

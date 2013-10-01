@@ -19,13 +19,13 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 Condition( const Matrix<F>& A, NormType type=TWO_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("Condition");
 #endif
-    BASE(F) norm = 0;
+    Base<F> norm = 0;
     switch( type )
     {
     case FROBENIUS_NORM:
@@ -50,13 +50,13 @@ Condition( const Matrix<F>& A, NormType type=TWO_NORM )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline BASE(F)
+inline Base<F>
 Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("Condition");
 #endif
-    BASE(F) norm = 0;
+    Base<F> norm = 0;
     switch( type )
     {
     case FROBENIUS_NORM:

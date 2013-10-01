@@ -86,38 +86,38 @@ public:
     // logically apply to real data.
     //
 
-    BASE(T) GetRealPart( Int i, Int j ) const;
-    BASE(T) GetImagPart( Int i, Int j ) const;
-    void SetRealPart( Int i, Int j, BASE(T) alpha );
+    Base<T> GetRealPart( Int i, Int j ) const;
+    Base<T> GetImagPart( Int i, Int j ) const;
+    void SetRealPart( Int i, Int j, Base<T> alpha );
     // Only valid for complex data
-    void SetImagPart( Int i, Int j, BASE(T) alpha );
-    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
+    void SetImagPart( Int i, Int j, Base<T> alpha );
+    void UpdateRealPart( Int i, Int j, Base<T> alpha );
     // Only valid for complex data
-    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
+    void UpdateImagPart( Int i, Int j, Base<T> alpha );
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 
-    void GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
-    Matrix<BASE(T)> GetRealPartOfDiagonal( Int offset=0 ) const;
-    Matrix<BASE(T)> GetImagPartOfDiagonal( Int offset=0 ) const;
+    void GetRealPartOfDiagonal( Matrix<Base<T> >& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal( Matrix<Base<T> >& d, Int offset=0 ) const;
+    Matrix<Base<T> > GetRealPartOfDiagonal( Int offset=0 ) const;
+    Matrix<Base<T> > GetImagPartOfDiagonal( Int offset=0 ) const;
 
-    void SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
+    void SetRealPartOfDiagonal( const Matrix<Base<T> >& d, Int offset=0 );
     // Only valid for complex data
-    void SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
+    void SetImagPartOfDiagonal( const Matrix<Base<T> >& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal( const Matrix<Base<T> >& d, Int offset=0 );
     // Only valid for complex data
-    void UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal( const Matrix<Base<T> >& d, Int offset=0 );
 
     //
     // Viewing other matrix instances (or buffers)
     //
 
-    bool Owner()       const;
-    bool Shrinkable()  const;
-    bool FixedSize()   const;
-    bool Viewing()     const;
-    bool Locked()      const;
+    bool Owner()      const;
+    bool Shrinkable() const;
+    bool FixedSize()  const;
+    bool Viewing()    const;
+    bool Locked()     const;
 
     void Attach( Int height, Int width, T* buffer, Int ldim );
     void LockedAttach

@@ -18,10 +18,10 @@ namespace svd {
 
 template<typename F>
 inline bool
-CheckScale( DistMatrix<F>& A, BASE(F)& scale )
+CheckScale( DistMatrix<F>& A, Base<F>& scale )
 {
     scale = 1;
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Real oneNormOfA = OneNorm( A );
     const Real safeMin = lapack::MachineSafeMin<Real>();
     const Real precision = lapack::MachinePrecision<Real>();
@@ -46,7 +46,7 @@ CheckScale( DistMatrix<F>& A, BASE(F)& scale )
 
 template<typename F>
 inline void
-DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
+DivideAndConquerSVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::DivideAndConquerSVD");
@@ -67,7 +67,7 @@ DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 
 template<typename F>
 inline void
-QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
+QRSVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::QRSVD");

@@ -61,7 +61,7 @@ PanelU
         A.RowAlign() != Y.RowAlign() )
         LogicError("A and Y must be aligned");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
 
     DistMatrix<F> q21(g), s01(g);

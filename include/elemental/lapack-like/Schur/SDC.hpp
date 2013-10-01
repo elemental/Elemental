@@ -33,13 +33,13 @@ namespace elem {
 namespace schur {
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 ComputePartition( Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::ComputePartition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( n == 0 ) 
     {
@@ -82,13 +82,13 @@ ComputePartition( Matrix<F>& A )
 // most practical computations, it is at least O(n^2) work, which should dwarf
 // the O(n lg p) unparallelized component of this algorithm.
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 ComputePartition( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::ComputePartition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     if( n == 0 ) 
@@ -149,13 +149,13 @@ ComputePartition( DistMatrix<F>& A )
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SignDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     // G := sgn(G)
@@ -191,13 +191,13 @@ SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SignDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 
@@ -234,15 +234,15 @@ SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( Matrix<F>& A, Matrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
+  bool returnQ=false, Int maxIts=1, Base<F> relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::RandomizedSignDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
     if( relTol == Real(0) )
@@ -295,15 +295,15 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
+  bool returnQ=false, Int maxIts=1, Base<F> relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::RandomizedSignDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
@@ -772,8 +772,8 @@ SpectralDivide
 template<typename F>
 inline void
 SDC
-( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Int cutoff=256, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -793,7 +793,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    Matrix<COMPLEX(F)> wT, wB;
+    Matrix<Complex<Base<F>>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
@@ -804,9 +804,9 @@ SDC
 template<typename F>
 inline void
 SDC
-( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Matrix<F>& Q, 
+( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
-  BASE(F) relTol=0 )
+  Base<F> relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -827,7 +827,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    Matrix<COMPLEX(F)> wT, wB;
+    Matrix<Complex<Base<F>>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
     Matrix<F> QL, QR;
     PartitionRight( Q, QL, QR, part.index );
@@ -878,8 +878,8 @@ template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<COMPLEX(F),VR,STAR>& wT,    DistMatrix<COMPLEX(F),VR,STAR>& wB,
-  DistMatrix<COMPLEX(F),VR,STAR>& wTSub, DistMatrix<COMPLEX(F),VR,STAR>& wBSub )
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wT,    DistMatrix<Complex<Base<F>>,VR,STAR>& wB,
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wTSub, DistMatrix<Complex<Base<F>>,VR,STAR>& wBSub )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::PushSubproblems");
@@ -907,8 +907,8 @@ template<typename F>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<COMPLEX(F),VR,STAR>& wT,    DistMatrix<COMPLEX(F),VR,STAR>& wB,
-  DistMatrix<COMPLEX(F),VR,STAR>& wTSub, DistMatrix<COMPLEX(F),VR,STAR>& wBSub )
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wT,    DistMatrix<Complex<Base<F>>,VR,STAR>& wB,
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wTSub, DistMatrix<Complex<Base<F>>,VR,STAR>& wBSub )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::PullSubproblems");
@@ -920,20 +920,20 @@ inline void PullSubproblems
     //wT = wTSub;
     //wB = wBSub;
     {
-        DistMatrix<COMPLEX(F)> wTSub_MC_MR( wTSub.Grid() );
+        DistMatrix<Complex<Base<F>>> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent();
-        DistMatrix<COMPLEX(F)> wT_MC_MR(wT.Grid()); 
+        DistMatrix<Complex<Base<F>>> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
     }
     {
-        DistMatrix<COMPLEX(F)> wBSub_MC_MR( wBSub.Grid() );
+        DistMatrix<Complex<Base<F>>> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent();
-        DistMatrix<COMPLEX(F)> wB_MC_MR(wB.Grid());
+        DistMatrix<Complex<Base<F>>> wB_MC_MR(wB.Grid());
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
@@ -955,8 +955,8 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( DistMatrix<F>& A, DistMatrix<COMPLEX(F)>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>>& w, Int cutoff=256, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -972,7 +972,7 @@ SDC
     if( n <= cutoff )
     {
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
-        DistMatrix<COMPLEX(F),CIRC,CIRC> w_CIRC_CIRC( w );
+        DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( w );
         if( g.VCRank() == A_CIRC_CIRC.Root() )
             schur::QR( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix() );
         A = A_CIRC_CIRC;
@@ -987,11 +987,11 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    DistMatrix<COMPLEX(F),VR,STAR> wT(g), wB(g);
+    DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
 
     DistMatrix<F> ATLSub, ABRSub;
-    DistMatrix<COMPLEX(F),VR,STAR> wTSub, wBSub;
+    DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
     PushSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
     if( ATLSub.Participating() )
         SDC( ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, relTol );
@@ -1004,8 +1004,8 @@ template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<COMPLEX(F),VR,STAR>& wT,    DistMatrix<COMPLEX(F),VR,STAR>& wB,
-  DistMatrix<COMPLEX(F),VR,STAR>& wTSub, DistMatrix<COMPLEX(F),VR,STAR>& wBSub,
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wT,    DistMatrix<Complex<Base<F>>,VR,STAR>& wB,
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wTSub, DistMatrix<Complex<Base<F>>,VR,STAR>& wBSub,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
 #ifndef RELEASE
@@ -1038,8 +1038,8 @@ template<typename F>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<COMPLEX(F),VR,STAR>& wT,    DistMatrix<COMPLEX(F),VR,STAR>& wB,
-  DistMatrix<COMPLEX(F),VR,STAR>& wTSub, DistMatrix<COMPLEX(F),VR,STAR>& wBSub,
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wT,    DistMatrix<Complex<Base<F>>,VR,STAR>& wB,
+  DistMatrix<Complex<Base<F>>,VR,STAR>& wTSub, DistMatrix<Complex<Base<F>>,VR,STAR>& wBSub,
   DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
@@ -1058,20 +1058,20 @@ inline void PullSubproblems
     //wT = wTSub;
     //wB = wBSub;
     {
-        DistMatrix<COMPLEX(F)> wTSub_MC_MR( wTSub.Grid() );
+        DistMatrix<Complex<Base<F>>> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent();
-        DistMatrix<COMPLEX(F)> wT_MC_MR(wT.Grid()); 
+        DistMatrix<Complex<Base<F>>> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
     }
     {
-        DistMatrix<COMPLEX(F)> wBSub_MC_MR( wBSub.Grid() );
+        DistMatrix<Complex<Base<F>>> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent();
-        DistMatrix<COMPLEX(F)> wB_MC_MR(wB.Grid()); 
+        DistMatrix<Complex<Base<F>>> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
@@ -1098,14 +1098,14 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w, DistMatrix<F>& Q, 
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q, 
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
-  BASE(F) relTol=0 )
+  Base<F> relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
@@ -1118,7 +1118,7 @@ SDC
     if( n <= cutoff )
     {
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
-        DistMatrix<COMPLEX(F),CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
+        DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
         if( g.VCRank() == A_CIRC_CIRC.Root() )
             schur::QR
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
@@ -1137,14 +1137,14 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    DistMatrix<COMPLEX(F),VR,STAR> wT(g), wB(g);
+    DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
     DistMatrix<F> QL(g), QR(g);
     PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;
-    DistMatrix<COMPLEX(F),VR,STAR> wTSub, wBSub;
+    DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
     PushSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub );
     if( ATLSub.Participating() )

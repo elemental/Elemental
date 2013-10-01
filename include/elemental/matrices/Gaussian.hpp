@@ -15,7 +15,7 @@ namespace elem {
 // Draw each entry from a normal PDF
 template<typename T>
 inline void
-MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
+MakeGaussian( Matrix<T>& A, T mean=0, Base<T> stddev=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("MakeGaussian");
@@ -29,7 +29,7 @@ MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
 
 template<typename T>
 inline void
-Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("Gaussian");
@@ -40,7 +40,7 @@ Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 
 template<typename T>
 inline Matrix<T>
-Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     Matrix<T> A( m, n );
     MakeGaussian( A, mean, stddev );
@@ -52,13 +52,13 @@ namespace internal {
 template<typename T,Distribution U,Distribution V>
 struct MakeGaussianHelper
 {
-    static void Func( DistMatrix<T,U,V>& A, T mean, BASE(T) stddev );  
+    static void Func( DistMatrix<T,U,V>& A, T mean, Base<T> stddev );  
 };
 
 template<typename T>
 struct MakeGaussianHelper<T,CIRC,CIRC>
 {
-    static void Func( DistMatrix<T,CIRC,CIRC>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,CIRC,CIRC>& A, T mean, Base<T> stddev )
     {
         if( A.Grid().VCRank() == A.Root() )
         {
@@ -74,7 +74,7 @@ struct MakeGaussianHelper<T,CIRC,CIRC>
 template<typename T>
 struct MakeGaussianHelper<T,MC,MR>
 {
-    static void Func( DistMatrix<T,MC,MR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,MC,MR>& A, T mean, Base<T> stddev )
     {
         const Int localHeight = A.LocalHeight(); 
         const Int localWidth = A.LocalWidth();
@@ -87,7 +87,7 @@ struct MakeGaussianHelper<T,MC,MR>
 template<typename T>
 struct MakeGaussianHelper<T,MC,STAR>
 {
-    static void Func( DistMatrix<T,MC,STAR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,MC,STAR>& A, T mean, Base<T> stddev )
     {
         const Grid& grid = A.Grid();
         if( grid.InGrid() )
@@ -123,7 +123,7 @@ struct MakeGaussianHelper<T,MC,STAR>
 template<typename T>
 struct MakeGaussianHelper<T,MD,STAR>
 {
-    static void Func( DistMatrix<T,MD,STAR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,MD,STAR>& A, T mean, Base<T> stddev )
     {
         const Int n = A.Width();
         const Int localHeight = A.LocalHeight();
@@ -136,7 +136,7 @@ struct MakeGaussianHelper<T,MD,STAR>
 template<typename T>
 struct MakeGaussianHelper<T,MR,MC>
 {
-    static void Func( DistMatrix<T,MR,MC>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,MR,MC>& A, T mean, Base<T> stddev )
     {
         const Int localHeight = A.LocalHeight(); 
         const Int localWidth = A.LocalWidth();
@@ -149,7 +149,7 @@ struct MakeGaussianHelper<T,MR,MC>
 template<typename T>
 struct MakeGaussianHelper<T,MR,STAR>
 {
-    static void Func( DistMatrix<T,MR,STAR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,MR,STAR>& A, T mean, Base<T> stddev )
     {
         const Grid& grid = A.Grid();
         const Int n = A.Width();
@@ -179,7 +179,7 @@ struct MakeGaussianHelper<T,MR,STAR>
 template<typename T>
 struct MakeGaussianHelper<T,STAR,MC>
 {
-    static void Func( DistMatrix<T,STAR,MC>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,STAR,MC>& A, T mean, Base<T> stddev )
     {
         const Grid& grid = A.Grid();
         const Int m = A.Height();
@@ -212,7 +212,7 @@ struct MakeGaussianHelper<T,STAR,MC>
 template<typename T>
 struct MakeGaussianHelper<T,STAR,MD>
 {
-    static void Func( DistMatrix<T,STAR,MD>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,STAR,MD>& A, T mean, Base<T> stddev )
     {
         const Int m = A.Height();
         const Int localWidth = A.LocalWidth();
@@ -225,7 +225,7 @@ struct MakeGaussianHelper<T,STAR,MD>
 template<typename T>
 struct MakeGaussianHelper<T,STAR,MR>
 {
-    static void Func( DistMatrix<T,STAR,MR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,STAR,MR>& A, T mean, Base<T> stddev )
     {
         const Grid& grid = A.Grid();
         const Int m = A.Height();
@@ -258,7 +258,7 @@ struct MakeGaussianHelper<T,STAR,MR>
 template<typename T>
 struct MakeGaussianHelper<T,STAR,STAR>
 {
-    static void Func( DistMatrix<T,STAR,STAR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,STAR,STAR>& A, T mean, Base<T> stddev )
     {
         const Grid& grid = A.Grid();
         const Int m = A.Height();
@@ -293,7 +293,7 @@ struct MakeGaussianHelper<T,STAR,STAR>
 template<typename T>
 struct MakeGaussianHelper<T,STAR,VC>
 {
-    static void Func( DistMatrix<T,STAR,VC>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,STAR,VC>& A, T mean, Base<T> stddev )
     {
         const Int m = A.Height();
         const Int localWidth = A.LocalWidth();
@@ -306,7 +306,7 @@ struct MakeGaussianHelper<T,STAR,VC>
 template<typename T>
 struct MakeGaussianHelper<T,STAR,VR>
 {
-    static void Func( DistMatrix<T,STAR,VR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,STAR,VR>& A, T mean, Base<T> stddev )
     {
         const Int m = A.Height();
         const Int localWidth = A.LocalWidth();
@@ -319,7 +319,7 @@ struct MakeGaussianHelper<T,STAR,VR>
 template<typename T>
 struct MakeGaussianHelper<T,VC,STAR>
 {
-    static void Func( DistMatrix<T,VC,STAR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,VC,STAR>& A, T mean, Base<T> stddev )
     {
         const Int n = A.Width();
         const Int localHeight = A.LocalHeight();
@@ -332,7 +332,7 @@ struct MakeGaussianHelper<T,VC,STAR>
 template<typename T>
 struct MakeGaussianHelper<T,VR,STAR>
 {
-    static void Func( DistMatrix<T,VR,STAR>& A, T mean, BASE(T) stddev )
+    static void Func( DistMatrix<T,VR,STAR>& A, T mean, Base<T> stddev )
     {
         const Int n = A.Width();
         const Int localHeight = A.LocalHeight();
@@ -346,7 +346,7 @@ struct MakeGaussianHelper<T,VR,STAR>
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
+MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, Base<T> stddev=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("Gaussian");
@@ -356,7 +356,7 @@ MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("Gaussian");
@@ -367,7 +367,7 @@ Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 
 template<typename T,Distribution U=MC,Distribution V=MR>
 inline DistMatrix<T,U,V>
-Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( const Grid& g, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DistMatrix<T,U,V> A( m, n, g );
     MakeGaussian( A, mean, stddev );

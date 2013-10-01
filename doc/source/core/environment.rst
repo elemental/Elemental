@@ -225,8 +225,8 @@ Complex data
    .. cpp:type:: type
 
       The underlying real datatype of the (potentially complex) datatype `F`.
-      For example, ``typename Base<Complex<double>>::type`` and 
-      ``typename Base<double>::type`` are both equivalent to ``double``.
+      For example, ``Base<Complex<double>>`` and 
+      ``Base<double>`` are both equivalent to ``double``.
       This is often extremely useful in implementing routines which are 
       templated over real and complex datatypes but still make use of real 
       datatypes.
@@ -246,7 +246,7 @@ Complex data
 Scalar manipulation
 -------------------
 
-.. cpp:function:: typename Base<F>::type Abs( const F& alpha )
+.. cpp:function:: Base<F> Abs( const F& alpha )
 
    Return the absolute value of the real or complex variable :math:`\alpha`.
 
@@ -264,16 +264,16 @@ Scalar manipulation
    Return the real (imaginary) part of the real or complex variable 
    :math:`\alpha`.
 
-.. cpp:function:: void SetRealPart( F& alpha, typename Base<F>::type& beta )
-.. cpp:function:: void SetImagPart( F& alpha, typename Base<F>::type& beta )
+.. cpp:function:: void SetRealPart( F& alpha, Base<F>& beta )
+.. cpp:function:: void SetImagPart( F& alpha, Base<F>& beta )
 
    Set the real (imaginary) part of the real or complex variable 
    :math:`\alpha` to :math:`\beta`. 
    If :math:`\alpha` has a real type, an error is thrown when an attempt is
    made to set the imaginary component.
 
-.. cpp:function:: void UpdateRealPart( F& alpha, typename Base<F>::type& beta )
-.. cpp:function:: void UpdateImagPart( F& alpha, typename Base<F>::type& beta )
+.. cpp:function:: void UpdateRealPart( F& alpha, Base<F>& beta )
+.. cpp:function:: void UpdateImagPart( F& alpha, Base<F>& beta )
 
    Update the real (imaginary) part of the real or complex variable 
    :math:`\alpha` to :math:`\beta`.
@@ -308,7 +308,7 @@ Scalar manipulation
 
    Returns the hyperbolic sine of the real or complex variable :math:`\alpha`.
 
-.. cpp:function:: typename Base<F>::type Arg( const F& alpha )
+.. cpp:function:: Base<F> Arg( const F& alpha )
 
    Returns the argument of the real or complex variable :math:`\alpha`.
 

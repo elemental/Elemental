@@ -29,12 +29,12 @@ void TestCorrectness
   UpperOrLower uplo,
   const DistMatrix<F>& A,
   const DistMatrix<F>& B,
-  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<Base<F>,VR,STAR>& w,
   const DistMatrix<F>& X,
   const DistMatrix<F>& AOrig,
   const DistMatrix<F>& BOrig )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = X.Height();
     const Int k = X.Width();
@@ -238,10 +238,10 @@ void TestHermitianGenDefiniteEig
 ( bool testCorrectness, bool print,
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigvals, UpperOrLower uplo, 
-  Int m, char range, BASE(F) vl, BASE(F) vu, Int il, Int iu, SortType sort,
+  Int m, char range, Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort,
   const Grid& g )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F> B(g), BOrig(g);
     DistMatrix<Real,VR,STAR> w(g);

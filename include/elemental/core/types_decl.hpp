@@ -84,7 +84,7 @@ template<typename F>
 struct SafeProduct
 {
     F rho;
-    BASE(F) kappa;
+    Base<F> kappa;
     Int n;
 
     SafeProduct( Int numEntries );

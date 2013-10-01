@@ -90,7 +90,7 @@ UpdateImagPart( Complex<Real>& alpha, const Real& beta )
 { alpha.imag( alpha.imag()+beta ); }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 Abs( const F& alpha )
 { return std::abs(alpha); }
 
@@ -105,7 +105,7 @@ SafeAbs( const Complex<Real>& alpha )
 { return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 FastAbs( const F& alpha )
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
@@ -190,7 +190,7 @@ Atanh( const F& alpha )
 { return std::atanh(alpha); }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 Arg( const F& alpha )
 { return Atan2( ImagPart(alpha), RealPart(alpha) ); }
 

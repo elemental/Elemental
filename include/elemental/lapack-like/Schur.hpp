@@ -18,7 +18,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w )
+Schur( Matrix<F>& A, Matrix<Complex<Base<F>>>& w )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
@@ -28,7 +28,7 @@ Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w )
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Matrix<F>& Q )
+Schur( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
@@ -38,7 +38,7 @@ Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Matrix<F>& Q )
 
 template<typename F>
 inline void
-Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w )
+Schur( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
@@ -48,7 +48,8 @@ Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w )
 
 template<typename F>
 inline void
-Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w, DistMatrix<F>& Q )
+Schur
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");

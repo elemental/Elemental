@@ -19,7 +19,7 @@ template<typename T>
 class DistMatrix<T,CIRC,CIRC> : public AbstractDistMatrix<T>
 {
 public:
-    typedef AbstractDistMatrix<T> baseType;
+    typedef AbstractDistMatrix<T> admType;
     typedef DistMatrix<T,CIRC,CIRC> type;
 
     // TODO: Construct from a Matrix. How to handle from non-root process?

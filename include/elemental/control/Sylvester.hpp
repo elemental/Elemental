@@ -48,7 +48,7 @@ Sylvester( Int m, Matrix<F>& W, Matrix<F>& X )
 
     // TODO: Think of how to probe for checks on other quadrants.
     /*
-    typedef BASE(F) Real; 
+    typedef Base<F> Real; 
     UpdateDiagonal( WTL, F(-1) );
     const Real errorWTL = FrobeniusNorm( WTL );
     const Int n = W.Height() - m;
@@ -82,7 +82,7 @@ Sylvester( Int m, DistMatrix<F>& W, DistMatrix<F>& X )
     // TODO: Think of how to probe for checks on other quadrants.
     //       Add UpdateDiagonal routine to avoid explicit identity Axpy?
     /*
-    typedef BASE(F) Real; 
+    typedef Base<F> Real; 
     UpdateDiagonal( WTL, F(-1) );
     const Real errorWTL = FrobeniusNorm( WTL );
     const Int n = W.Height() - m;

@@ -21,7 +21,7 @@ template<typename T>
 class DistMatrix<T,STAR,MR> : public AbstractDistMatrix<T>
 {
 public:
-    typedef AbstractDistMatrix<T> baseType;
+    typedef AbstractDistMatrix<T> admType;
     typedef DistMatrix<T,STAR,MR> type;
 
     // Create a 0 x 0 distributed matrix
@@ -101,10 +101,10 @@ public:
     //
 
     // Distribution alignments
+    virtual void AlignWith( const admType& A );
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignWith( const baseType& A );
+    virtual void AlignRowsWith( const admType& A );
     virtual void AlignRowsWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const baseType& A );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,MR] distribution                              //

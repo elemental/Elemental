@@ -319,7 +319,7 @@ Matrix<T>::Get( Int i, Int j ) const
 }
 
 template<typename T>
-BASE(T)
+Base<T>
 Matrix<T>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -330,7 +330,7 @@ Matrix<T>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T>
-BASE(T)
+Base<T>
 Matrix<T>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -355,7 +355,7 @@ Matrix<T>::Set( Int i, Int j, T alpha )
 
 template<typename T>
 void 
-Matrix<T>::SetRealPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetRealPart");
@@ -368,7 +368,7 @@ Matrix<T>::SetRealPart( Int i, Int j, BASE(T) alpha )
 
 template<typename T>
 void 
-Matrix<T>::SetImagPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetImagPart");
@@ -395,7 +395,7 @@ Matrix<T>::Update( Int i, Int j, T alpha )
 
 template<typename T>
 void 
-Matrix<T>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateRealPart");
@@ -408,7 +408,7 @@ Matrix<T>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
 
 template<typename T>
 void 
-Matrix<T>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateImagPart");
@@ -465,7 +465,7 @@ Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 
 template<typename T>
 void
-Matrix<T>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
+Matrix<T>::GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
 { 
 #ifndef RELEASE
     CallStackEntry cse("Matrix::GetRealPartOfDiagonal");
@@ -482,7 +482,7 @@ Matrix<T>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 
 template<typename T>
 void
-Matrix<T>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
+Matrix<T>::GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
 { 
 #ifndef RELEASE
     CallStackEntry cse("Matrix::GetImagPartOfDiagonal");
@@ -507,19 +507,19 @@ Matrix<T>::GetDiagonal( Int offset ) const
 }
 
 template<typename T>
-Matrix<BASE(T)>
+Matrix<Base<T>>
 Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
 { 
-    Matrix<BASE(T)> d;
+    Matrix<Base<T>> d;
     GetRealPartOfDiagonal( d, offset );
     return d;
 }
 
 template<typename T>
-Matrix<BASE(T)>
+Matrix<Base<T>>
 Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
 { 
-    Matrix<BASE(T)> d;
+    Matrix<Base<T>> d;
     GetImagPartOfDiagonal( d, offset );
     return d;
 }
@@ -542,7 +542,7 @@ Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 
 template<typename T>
 void
-Matrix<T>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetRealPartOfDiagonal");
@@ -558,7 +558,7 @@ Matrix<T>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 
 template<typename T>
 void
-Matrix<T>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetImagPartOfDiagonal");
@@ -591,7 +591,7 @@ Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
 
 template<typename T>
 void
-Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateRealPartOfDiagonal");
@@ -607,7 +607,7 @@ Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 
 template<typename T>
 void
-Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateImagPartOfDiagonal");

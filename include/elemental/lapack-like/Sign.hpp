@@ -39,7 +39,7 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonStep");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Calculate mu while forming XNew := inv(X)
     Real mu;
@@ -74,7 +74,7 @@ NewtonStep
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonStep");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Calculate mu while forming B := inv(X)
     Real mu;
@@ -108,7 +108,7 @@ NewtonSchulzStep( const Matrix<F>& X, Matrix<F>& XTmp, Matrix<F>& XNew )
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonSchulzStep");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = X.Height();
  
     // XTmp := 3I - X^2
@@ -127,7 +127,7 @@ NewtonSchulzStep
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonSchulzStep");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = X.Height();
 
     // XTmp := 3I - X^2
@@ -141,12 +141,12 @@ NewtonSchulzStep
 template<typename F>
 inline Int
 Newton
-( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, BASE(F) tol=0 )
+( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, Base<F> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
@@ -178,12 +178,12 @@ template<typename F>
 inline Int
 Newton
 ( DistMatrix<F>& A, Scaling scaling=FROB_NORM, 
-  Int maxIts=100, BASE(F) tol=0 )
+  Int maxIts=100, Base<F> tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
@@ -274,7 +274,7 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HermitianSign");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
@@ -302,7 +302,7 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N )
 #ifndef RELEASE
     CallStackEntry entry("HermitianSign");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
@@ -339,7 +339,7 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
     CallStackEntry entry("HermitianSign");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -369,7 +369,7 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
     CallStackEntry entry("HermitianSign");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();

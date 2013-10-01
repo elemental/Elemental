@@ -13,13 +13,13 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 MaxNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("MaxNorm");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R maxAbs = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -35,7 +35,7 @@ MaxNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -44,7 +44,7 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R maxAbs = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -74,7 +74,7 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -84,13 +84,13 @@ SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline BASE(F)
+inline Base<F>
 MaxNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("MaxNorm");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -112,7 +112,7 @@ MaxNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
@@ -126,7 +126,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const Int colShift = A.ColShift();
     const Int rowShift = A.RowShift();
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R localMaxAbs = 0;
     const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
@@ -161,7 +161,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE

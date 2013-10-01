@@ -12,34 +12,50 @@
 
 namespace elem {
 
+
+
+
+#ifndef SWIG
 template<typename Real>
 using Complex = std::complex<Real>;
+#else
+// This is a hack for SWIG...
+#define Complex std::complex
+#endif
+
+#ifndef SWIG
+// For extracting the underlying real datatype, 
+// e.g., Base<Scalar> a = 3.0;
+template<typename Real>
+struct BaseHelper { typedef Real type; };
+template<typename Real>
+struct BaseHelper<Complex<Real>> { typedef Real type; };
+
+template<typename F>
+using Base = typename BaseHelper<F>::type;
+
+// Defined for legacy reasons; it is now deprecated
+#define BASE(F) Base<F>
+#else
+template<typename Real> struct BaseHelper { };
+%template(BaseHelper_i) BaseHelper<Int>;
+%extend BaseHelper<Int> { typedef Int type; }
+%template(BaseHelper_s) BaseHelper<float>;
+%extend BaseHelper<float> { typedef float type; }
+%template(BaseHelper_d) BaseHelper<double>;
+%extend BaseHelper<double> { typedef double type; }
+%template(BaseHelper_c) BaseHelper<Complex<float> >;
+%extend BaseHelper<Complex<float> > { typedef float type; }
+%template(BaseHelper_z) BaseHelper<Complex<double> >;
+%extend BaseHelper<Complex<double> > { typedef double type; }
+
+#define BASE(F) typename BaseHelper<F>::type 
+// This is a hack for SWIG...
+#define Base BASE
+#endif
 
 template<typename Real>
 std::ostream& operator<<( std::ostream& os, Complex<Real> alpha );
-
-// For extracting the underlying real datatype, 
-// e.g., typename Base<Scalar>::type a = 3.0;
-#ifndef SWIG
-template<typename Real>
-struct Base { typedef Real type; };
-template<typename Real>
-struct Base<Complex<Real>> { typedef Real type; };
-#else
-template<typename Real> struct Base { };
-%template(Base_i) Base<Int>;
-%extend Base<Int> { typedef Int type; }
-%template(Base_s) Base<float>;
-%extend Base<float> { typedef float type; }
-%template(Base_d) Base<double>;
-%extend Base<double> { typedef double type; }
-%template(Base_c) Base<Complex<float> >;
-%extend Base<Complex<float> > { typedef float type; }
-%template(Base_z) Base<Complex<double> >;
-%extend Base<Complex<double> > { typedef double type; }
-#endif
-#define BASE(F) typename Base<F>::type 
-#define COMPLEX(F) Complex<BASE(F)>
 
 // For querying whether or not a scalar is complex,
 // e.g., IsComplex<Scalar>::val
@@ -80,13 +96,13 @@ void UpdateImagPart( Complex<Real>& alpha, const Real& beta );
 
 // Euclidean (l_2) magnitudes
 template<typename F>
-BASE(F) Abs( const F& alpha );
+Base<F> Abs( const F& alpha );
 template<typename F>
-BASE(F) SafeAbs( const F& alpha );
+Base<F> SafeAbs( const F& alpha );
 
 // Square-root free (l_1) magnitudes
 template<typename F>
-BASE(F) FastAbs( const F& alpha );
+Base<F> FastAbs( const F& alpha );
 
 // Conjugation
 template<typename Real>

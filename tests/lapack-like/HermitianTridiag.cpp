@@ -27,7 +27,7 @@ void TestCorrectness
         DistMatrix<F>& AOrig,
   bool print, bool display )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
     const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );

@@ -47,7 +47,7 @@ void U( Matrix<F>& A, Matrix<F>& t )
         auto alpha01B = ViewRange( A, k-1, k, k,   k+1 );
 
         const F tau = Reflector( alpha01B, a01T );
-        const BASE(F) epsilon1 = alpha01B.GetRealPart(0,0);
+        const Base<F> epsilon1 = alpha01B.GetRealPart(0,0);
         t.Set( k-1, 0, tau );
         alpha01B.Set(0,0,F(1));
 

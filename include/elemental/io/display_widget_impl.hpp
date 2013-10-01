@@ -52,7 +52,7 @@ DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayReal");
 #endif
-    typedef BASE(T) R;
+    typedef Base<T> R;
     const Int m = A->Height();
     const Int n = A->Width();
 
@@ -77,7 +77,7 @@ DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 template<typename T>
 inline void 
 DisplayWidget<T>::DisplayReal
-( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal )
+( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal )
 {
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayReal");
@@ -123,7 +123,7 @@ DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayImag");
 #endif
-    typedef BASE(T) R;
+    typedef Base<T> R;
     const Int m = A->Height();
     const Int n = A->Width();
 
@@ -148,7 +148,7 @@ DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 template<typename T>
 inline void 
 DisplayWidget<T>::DisplayImag
-( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal )
+( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal )
 {
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayImag");

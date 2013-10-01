@@ -118,8 +118,8 @@ Returns :math:`||x||_2 = \sqrt{(x,x)} = \sqrt{x^H x}`. As with most other
 routines, even if :math:`x` is stored as a row vector, it will be interpreted
 as a column vector.
 
-.. cpp:function:: typename Base<F>::type Nrm2( const Matrix<F>& x )
-.. cpp:function:: typename Base<F>::type Nrm2( const DistMatrix<F>& x )
+.. cpp:function:: Base<F> Nrm2( const Matrix<F>& x )
+.. cpp:function:: Base<F> Nrm2( const DistMatrix<F>& x )
 
 Scal
 ----

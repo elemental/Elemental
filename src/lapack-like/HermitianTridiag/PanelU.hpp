@@ -44,7 +44,7 @@ void PanelU
         LogicError
         ("t must be a column vector of the same length as W's width.");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int c = g.Width();

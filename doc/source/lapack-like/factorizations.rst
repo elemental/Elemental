@@ -277,8 +277,8 @@ representing the remaining columns in terms of the selected columns of
    `numSteps` steps of a pivoted QR factorization are used to return an 
    Interpolative Decomposition of :math:`A`.
 
-.. cpp:function:: void ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int maxSteps, typename Base<F>::type tol )
-.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, int maxSteps, typename Base<F>::type tol )
+.. cpp:function:: void ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int maxSteps, Base<F> tol )
+.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, int maxSteps, Base<F> tol )
 
    Either `maxSteps` steps of a pivoted QR factorization are used, or 
    executation stopped after the maximum remaining column norm was less than or
@@ -299,8 +299,8 @@ where :math:`A_C` is a (small) selection of columns of :math:`A`,
 (small) square matrix. When :math:`Z` is allowed to be rectangular, it is more
 common to call this a CUR decomposition.
 
-.. cpp:function:: void Skeleton( const Matrix<F>& A, Matrix<int>& pR, Matrix<int>& pC, Matrix<F>& Z, int maxSteps, typename Base<F>::type tol )
-.. cpp:function:: void Skeleton( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& pR, DistMatrix<int,VR,STAR>& pC, int maxSteps, typename Base<F>::type tol )
+.. cpp:function:: void Skeleton( const Matrix<F>& A, Matrix<int>& pR, Matrix<int>& pC, Matrix<F>& Z, int maxSteps, Base<F> tol )
+.. cpp:function:: void Skeleton( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& pR, DistMatrix<int,VR,STAR>& pC, int maxSteps, Base<F> tol )
 
    Rather than returning :math:`A_R` and :math:`A_C`, the permutation matrices
    which implicitly define them are returned instead. At most `maxSteps` steps 

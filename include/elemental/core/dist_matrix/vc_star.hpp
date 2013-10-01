@@ -21,7 +21,7 @@ template<typename T>
 class DistMatrix<T,VC,STAR> : public AbstractDistMatrix<T>
 {
 public:
-    typedef AbstractDistMatrix<T> baseType;
+    typedef AbstractDistMatrix<T> admType;
     typedef DistMatrix<T,VC,STAR> type;
 
     // Create a 0 x 0 distributed matrix
@@ -101,10 +101,10 @@ public:
     //
 
     // Distribution alignment
+    virtual void AlignWith( const admType& A );
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignWith( const baseType& A );
+    virtual void AlignColsWith( const admType& A );
     virtual void AlignColsWith( const elem::DistData& data );
-    virtual void AlignColsWith( const baseType& A );
 
     //------------------------------------------------------------------------//
     // Routines specific to [VC,* ] distribution                              //
@@ -117,35 +117,35 @@ public:
     void GetDiagonal( type& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,VC>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<Base<T>,VC,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<Base<T>,VC,STAR>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 ) const;
+    ( DistMatrix<Base<T>,STAR,VC>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 ) const;
+    ( DistMatrix<Base<T>,STAR,VC>& d, Int offset=0 ) const;
     type GetDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),VC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),VC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<Base<T>,VC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<Base<T>,VC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const type& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,VC>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
+    ( const DistMatrix<Base<T>,VC,STAR>& d, Int offset=0 );
     // Only valid for complex data
     void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
+    ( const DistMatrix<Base<T>,VC,STAR>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 );
+    ( const DistMatrix<Base<T>,STAR,VC>& d, Int offset=0 );
     // Only valid for complex data
     void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 );
+    ( const DistMatrix<Base<T>,STAR,VC>& d, Int offset=0 );
 
+    bool AlignedWithDiagonal( const admType& A, Int offset=0 ) const;
     bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-    bool AlignedWithDiagonal( const baseType& A, Int offset=0 ) const;
 
+    void AlignWithDiagonal( const admType& A, Int offset=0 );
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
-    void AlignWithDiagonal( const baseType& A, Int offset=0 );
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach

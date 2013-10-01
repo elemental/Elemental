@@ -23,7 +23,7 @@ void TestCorrectness
 ( bool print, UpperOrLower uplo, UnitOrNonUnit diag,
   const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 

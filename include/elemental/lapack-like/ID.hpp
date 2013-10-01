@@ -23,12 +23,12 @@ namespace id {
 
 template<typename F>
 inline void
-PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
+PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::PseudoTrsm");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = RR.Height();
     const Int n = RR.Width();
 
@@ -70,7 +70,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
 // RR
 template<typename F>
 inline void
-PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
+PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, Base<F> tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::PseudoTrsm");
@@ -89,12 +89,12 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
+( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int maxSteps, Base<F> tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::BusingerGolub");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization
@@ -121,12 +121,12 @@ template<typename F>
 inline void
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  Int maxSteps, BASE(F) tol )
+  Int maxSteps, Base<F> tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::BusingerGolub");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A
@@ -155,7 +155,7 @@ template<typename F>
 inline void
 ID
 ( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
-  Int maxSteps, BASE(F) tol )
+  Int maxSteps, Base<F> tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -169,7 +169,7 @@ template<typename F>
 inline void
 ID
 ( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
-  Int maxSteps, BASE(F) tol, bool canOverwrite=false )
+  Int maxSteps, Base<F> tol, bool canOverwrite=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -190,7 +190,7 @@ ID( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps )
 #ifndef RELEASE
     CallStackEntry entry("ID");
 #endif
-    ID( A, p, Z, numSteps, BASE(F)(-1) );
+    ID( A, p, Z, numSteps, Base<F>(-1) );
 }
 
 #ifndef SWIG
@@ -203,7 +203,7 @@ ID
 #ifndef RELEASE
     CallStackEntry entry("ID");
 #endif
-    ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
+    ID( A, p, Z, numSteps, Base<F>(-1), canOverwrite );
 }
 #endif // ifndef SWIG
 
@@ -211,7 +211,7 @@ template<typename F>
 inline void
 ID
 ( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  Int maxSteps, BASE(F) tol )
+  Int maxSteps, Base<F> tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -225,7 +225,7 @@ template<typename F>
 inline void
 ID
 ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  Int maxSteps, BASE(F) tol, bool canOverwrite=false )
+  Int maxSteps, Base<F> tol, bool canOverwrite=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -248,7 +248,7 @@ ID
 #ifndef RELEASE
     CallStackEntry entry("ID");
 #endif
-    ID( A, p, Z, numSteps, BASE(F)(-1) );
+    ID( A, p, Z, numSteps, Base<F>(-1) );
 }
 
 #ifndef SWIG
@@ -261,7 +261,7 @@ ID
 #ifndef RELEASE
     CallStackEntry entry("ID");
 #endif
-    ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
+    ID( A, p, Z, numSteps, Base<F>(-1), canOverwrite );
 }
 #endif // ifndef SWIG
 

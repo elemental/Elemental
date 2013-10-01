@@ -26,13 +26,13 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 UnitaryCoherence( Matrix<F>& U )
 {
 #ifndef RELEASE
     CallStackEntry entry("UnitaryCoherence");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = U.Height();
     const Int r = U.Width();
 
@@ -54,13 +54,13 @@ UnitaryCoherence( Matrix<F>& U )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 UnitaryCoherence( DistMatrix<F>& U )
 {
 #ifndef RELEASE
     CallStackEntry entry("UnitaryCoherence");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Grid& grid = U.Grid();
     const Int n = U.Height();
     const Int r = U.Width();

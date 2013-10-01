@@ -559,7 +559,7 @@ AbstractDistMatrix<T>::Get( Int i, Int j ) const
 }
 
 template<typename T>
-BASE(T)
+Base<T>
 AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -567,7 +567,7 @@ AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
     if( !grid_->InGrid() )
         LogicError("Get should only be called in-grid");
 #endif
-    BASE(T) value;
+    Base<T> value;
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -584,7 +584,7 @@ AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T>
-BASE(T)
+Base<T>
 AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -592,7 +592,7 @@ AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
     if( !grid_->InGrid() )
         LogicError("Get should only be called in-grid");
 #endif
-    BASE(T) value;
+    Base<T> value;
     if( IsComplex<T>::val )
     {
         if( CrossRank() == Root() )
@@ -634,7 +634,7 @@ AbstractDistMatrix<T>::Set( Int i, Int j, T value )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::SetRealPart( Int i, Int j, BASE(T) value )
+AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 {
 #ifndef RELEASE
     CallStackEntry cse("ADM::SetRealPart");
@@ -653,7 +653,7 @@ AbstractDistMatrix<T>::SetRealPart( Int i, Int j, BASE(T) value )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::SetImagPart( Int i, Int j, BASE(T) value )
+AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 {
 #ifndef RELEASE
     CallStackEntry cse("ADM::SetImagPart");
@@ -691,7 +691,7 @@ AbstractDistMatrix<T>::Update( Int i, Int j, T value )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, BASE(T) value )
+AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 {
 #ifndef RELEASE
     CallStackEntry cse("ADM::UpdateRealPart");
@@ -710,7 +710,7 @@ AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, BASE(T) value )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, BASE(T) value )
+AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 {
 #ifndef RELEASE
     CallStackEntry cse("ADM::UpdateImagPart");
@@ -771,12 +771,12 @@ AbstractDistMatrix<T>::GetLocal( Int i, Int j ) const
 { return matrix_.Get(i,j); }
 
 template<typename T>
-BASE(T)
+Base<T>
 AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetRealPart(iLoc,jLoc); }
 
 template<typename T>
-BASE(T)
+Base<T>
 AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetImagPart(iLoc,jLoc); }
 
@@ -788,13 +788,13 @@ AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalRealPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
+( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalImagPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
+( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>
@@ -805,13 +805,13 @@ AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalRealPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
+( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::UpdateLocalImagPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
+( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
 
 template<typename T>

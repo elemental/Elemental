@@ -16,13 +16,13 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 MaxCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("MaxCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     Matrix<F> B( A );
     const Real maxNorm = MaxNorm( B );
     try { Inverse( B ); }
@@ -33,13 +33,13 @@ MaxCondition( const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline BASE(F)
+inline Base<F>
 MaxCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("MaxCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real maxNorm = MaxNorm( B );
     try { Inverse( B ); }

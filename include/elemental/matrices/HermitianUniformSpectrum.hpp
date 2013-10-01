@@ -21,14 +21,14 @@ namespace elem {
 
 template<typename F>
 inline void
-MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
+MakeHermitianUniformSpectrum( Matrix<F>& A, Base<F> lower=0, Base<F> upper=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const bool isComplex = IsComplex<F>::val;
 
     // Form d and D
@@ -55,7 +55,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 template<typename F,Distribution U,Distribution V>
 inline void
 MakeHermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
+( DistMatrix<F,U,V>& A, Base<F> lower=0, Base<F> upper=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("MakeHermitianUniformSpectrum");
@@ -63,7 +63,7 @@ MakeHermitianUniformSpectrum
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
     const Grid& grid = A.Grid();
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const bool isComplex = IsComplex<F>::val;
     const bool standardDist = ( U == MC && V == MR );
 
@@ -126,7 +126,7 @@ MakeHermitianUniformSpectrum
 template<typename F>
 inline void
 HermitianUniformSpectrum
-( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+( Matrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianUniformSpectrum");
@@ -137,7 +137,7 @@ HermitianUniformSpectrum
 
 template<typename F>
 inline Matrix<F>
-HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
+HermitianUniformSpectrum( Int n, Base<F> lower=0, Base<F> upper=1 )
 {
     Matrix<F> A( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
@@ -147,7 +147,7 @@ HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
 template<typename F,Distribution U,Distribution V>
 inline void
 HermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+( DistMatrix<F,U,V>& A, Int n, Base<F> lower=0, Base<F> upper=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianUniformSpectrum");
@@ -159,7 +159,7 @@ HermitianUniformSpectrum
 template<typename F,Distribution U=MC,Distribution V=MR>
 inline DistMatrix<F,U,V>
 HermitianUniformSpectrum
-( const Grid& g, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+( const Grid& g, Int n, Base<F> lower=0, Base<F> upper=1 )
 {
     DistMatrix<F,U,V> A( n, n, g );
     MakeHermitianUniformSpectrum( A, lower, upper );

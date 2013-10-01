@@ -38,7 +38,7 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
 #ifndef RELEASE
     CallStackEntry entry("Corrupt");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     Int numLocalCorrupt = 0;
     const Int localHeight = A.LocalHeight();
@@ -81,14 +81,14 @@ void NormalizeEntries( DistMatrix<F,U,V>& A )
 template<typename F>
 void RPCA_ADMM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
-  BASE(F) beta, 
-  BASE(F) tau, 
-  BASE(F) tol, 
+  Base<F> beta, 
+  Base<F> tau, 
+  Base<F> tol, 
   Int numStepsQR,
   Int maxIts,
   bool print )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = M.Height();
     const Int n = M.Width();
     const Int commRank = mpi::CommRank( M.Grid().Comm() );
@@ -183,10 +183,10 @@ void RPCA_ADMM
 template<typename F>
 void RPCA_ALM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
-  BASE(F) beta, BASE(F) tau, BASE(F) rho, BASE(F) tol, 
+  Base<F> beta, Base<F> tau, Base<F> rho, Base<F> tol, 
   Int numStepsQR, Int maxIts, bool print )
 {
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     const Int m = M.Height();
     const Int n = M.Width();
