@@ -1,6 +1,6 @@
 Functionality
 =============
-- QuasiDiagonalScale (and finish all options for QuasiDiagonalSolve)
+- Finish all options for QuasiDiagonal{Scale,Solve}
 - Distribute between different grids for any distribution
 - Consistently implement 'GetDiagonal' functionality for DistMatrix
 - Ability to change default grid with command-line options
@@ -39,7 +39,7 @@ Functionality
 
 Maintenance
 ===========
-- Documentation for QuasiDiagonalSolve and Symmetric2x2Solve
+- Documentation for QuasiDiagonal{Scale,Solve} and Symmetric2x2{Scale,Solve}
 - Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 - README's in each directory explaining the contents of the folder
 - Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]

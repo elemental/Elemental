@@ -17,6 +17,8 @@ void LocalLDL( DistMatrix<F,STAR,STAR>& A, bool conjugate=false );
 
 #include "./LDL/Var3.hpp"
 #include "./LDL/Pivoted.hpp"
+
+#include "./LDL/MultiplyAfter.hpp"
 #include "./LDL/SolveAfter.hpp"
 
 namespace elem {

@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_LAPACK_LDL_SOLVEAFTER_HPP
-#define ELEM_LAPACK_LDL_SOLVEAFTER_HPP
+#ifndef ELEM_LAPACK_LDL_MULTIPLYAFTER_HPP
+#define ELEM_LAPACK_LDL_MULTIPLYAFTER_HPP
 
-#include "elemental/blas-like/level1/DiagonalSolve.hpp"
-#include "elemental/blas-like/level1/QuasiDiagonalSolve.hpp"
-#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level1/QuasiDiagonalScale.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
 
 namespace elem {
@@ -20,29 +20,28 @@ namespace ldl {
 
 template<typename F> 
 inline void
-SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated=false )
+MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ldl::SolveAfter");
+    CallStackEntry entry("ldl::MultiplyAfter");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height");
 #endif
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const bool checkIfSingular = false;
     const auto d = A.GetDiagonal();
-    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    DiagonalSolve( LEFT, NORMAL, d, B, checkIfSingular );
-    Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    DiagonalScale( LEFT, NORMAL, d, B );
+    Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
 }
 
 template<typename F> 
 inline void
-SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated=false )
+MultiplyAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("lu::SolveAfter");
+    CallStackEntry entry("lu::MultiplyAfter");
     if( A.Grid() != B.Grid() )
         LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -51,21 +50,20 @@ SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated=false )
         LogicError("A and B must be the same height");
 #endif
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
-    const bool checkIfSingular = false;
     const auto d = A.GetDiagonal();
-    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    DiagonalSolve( LEFT, NORMAL, d, B, checkIfSingular );
-    Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    DiagonalScale( LEFT, NORMAL, d, B );
+    Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
 }
 
 template<typename F> 
 inline void
-SolveAfter
+MultiplyAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub, const Matrix<Int>& p, 
   Matrix<F>& B, bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("lu::SolveAfter");
+    CallStackEntry entry("lu::MultiplyAfter");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( A.Height() != B.Height() )
@@ -77,20 +75,20 @@ SolveAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
-    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    QuasiDiagonalSolve( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
-    Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    QuasiDiagonalScale( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
+    Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     ApplyInverseRowPivots( B, p );
 }
 
 template<typename F> 
 inline void
-SolveAfter
+MultiplyAfter
 ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, 
   const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B, bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("lu::SolveAfter");
+    CallStackEntry entry("lu::MultiplyAfter");
     if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
         LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -104,13 +102,13 @@ SolveAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
-    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    QuasiDiagonalSolve( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
-    Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+    QuasiDiagonalScale( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
+    Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     ApplyInverseRowPivots( B, p );
 }
 
 } // namespace ldl
 } // namespace elem
 
-#endif // ifndef ELEM_LAPACK_LDL_SOLVEAFTER_HPP
+#endif // ifndef ELEM_LAPACK_LDL_MULTIPLYAFTER_HPP
