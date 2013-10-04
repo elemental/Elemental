@@ -90,6 +90,12 @@ struct SafeProduct
     SafeProduct( Int numEntries );
 };
 
+// The basic eigenvalue structure of a Hermitian matrix
+struct Inertia
+{
+    Int numPositive, numNegative, numZero;
+};
+
 namespace conjugation_wrapper {
 enum Conjugation
 {

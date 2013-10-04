@@ -21,6 +21,8 @@ void LocalLDL( DistMatrix<F,STAR,STAR>& A, bool conjugate=false );
 #include "./LDL/MultiplyAfter.hpp"
 #include "./LDL/SolveAfter.hpp"
 
+#include "./LDL/Inertia.hpp"
+
 namespace elem {
 
 template<typename F>
@@ -113,6 +115,39 @@ LDLT
     CallStackEntry cse("LDLT");
 #endif
     ldl::Pivoted( A, dSub, p, false );
+}
+
+// The nonsingular qualifier is here because Bunch-Parlett (complete pivoting)
+// should be used when the matrix might be singular. Not only are more 
+// comparisons performed, but blocking is essentially impossible.
+template<typename F>
+inline elem::Inertia
+NonsingularHermitianInertia( UpperOrLower uplo, Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("NonsingularHermitianInertia");
+#endif
+    if( uplo == UPPER )
+        LogicError("This option not yet supported");
+    Matrix<Int> p;
+    Matrix<F> dSub;
+    ldl::Pivoted( A, dSub, p, true ); 
+    return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
+}
+
+template<typename F>
+inline elem::Inertia
+NonsingularHermitianInertia( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("NonsingularHermitianInertia");
+#endif
+    if( uplo == UPPER )
+        LogicError("This option not yet supported");
+    DistMatrix<Int,VC,STAR> p( A.Grid() );
+    DistMatrix<F,MD,STAR> dSub( A.Grid() );
+    ldl::Pivoted( A, dSub, p, true ); 
+    return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
 } // namespace elem

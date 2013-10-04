@@ -10,6 +10,7 @@
 #ifndef ELEM_LAPACK_LDL_PIVOTED_HPP
 #define ELEM_LAPACK_LDL_PIVOTED_HPP
 
+#include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level1/Max.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/Swap.hpp"

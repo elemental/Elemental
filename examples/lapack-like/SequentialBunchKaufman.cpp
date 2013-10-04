@@ -18,8 +18,8 @@
 #include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
 #include "elemental/matrices/Uniform.hpp"
+#include "elemental/matrices/Wigner.hpp"
 #include "elemental/matrices/Zeros.hpp"
 using namespace std;
 using namespace elem;
@@ -52,9 +52,7 @@ main( int argc, char* argv[] )
         Matrix<C> A;
         if( conjugate )
         {
-            // Wigner yields an excessively high (and inaccurate) determinant
-            //Wigner( A, n, mean, stddev );
-            HermitianUniformSpectrum( A, n, 1., 2. );
+            Wigner( A, n, mean, stddev );
         }
         else
         {
@@ -104,6 +102,21 @@ main( int argc, char* argv[] )
             std::cout << "|| A ||_F = " << AFrob << "\n"
                       << "|| X ||_F = " << XFrob << "\n"
                       << "|| X - inv(A) A X ||_F = " << errFrob << std::endl;
+        }
+
+        if( conjugate )
+        {
+            // Compute the inertia of A now that we are done with it.
+            // NOTE: Bunch-Kaufman is reperformed to demonstrate simple 
+            //       interface
+            Inertia inertia = NonsingularHermitianInertia( LOWER, A );
+            if( mpi::WorldRank() == 0 )
+            {
+                std::cout << "numPositive=" << inertia.numPositive << "\n"
+                          << "numNegative=" << inertia.numNegative << "\n"
+                          << "numZero    =" << inertia.numZero << "\n"
+                          << std::endl;
+            }
         }
     }
     catch( exception& e ) { ReportException(e); }
