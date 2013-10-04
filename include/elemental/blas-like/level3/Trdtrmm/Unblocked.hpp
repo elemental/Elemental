@@ -10,114 +10,180 @@
 #ifndef ELEM_BLAS_TRDTRMM_UNBLOCKED_HPP
 #define ELEM_BLAS_TRDTRMM_UNBLOCKED_HPP
 
+#include "elemental/blas-like/level1/Symmetric2x2Inv.hpp"
+#include "elemental/blas-like/level2/Trr.hpp"
+
 namespace elem {
 namespace internal {
 
 template<typename F>
 inline void
-TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
+TrdtrmmLUnblocked( Matrix<F>& L, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmLUnblocked");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
-    if( orientation == NORMAL )
-        LogicError("Trdtrmm requires (conjugate-)transpose");
 #endif
     const Int n = L.Height();
-
-    F* LBuffer = L.Buffer();
     const Int ldim = L.LDim();
-    for( Int j=0; j<n; ++j )
-    {
-        const F delta11 = LBuffer[j+j*ldim];
-        if( delta11 == F(0) )
-            throw SingularMatrixException();
 
-        F* RESTRICT l10 = &LBuffer[j];
-        if( orientation == ADJOINT )
+    Matrix<F> s10;
+
+    for( Int k=0; k<n; ++k )
+    {
+        auto L00 = ViewRange( L, 0, 0, k,   k );
+        auto l10 = ViewRange( L, k, 0, k+1, k );
+
+        // S10 := L10
+        s10 = l10;
+
+        // L10 := L10 / delta11
+        const F deltaInv = F(1)/L.Get(k,k);
+        Scale( deltaInv, l10 );
+
+        // L00 := L00 + l10' s10
+        const F* l10Buf = l10.LockedBuffer();
+        if( conjugate )
         {
-            // L00 := L00 + l10^H (l10 / delta11)
-            for( Int k=0; k<j; ++k )
+            for( Int j=0; j<k; ++j )
             {
-                const F gamma = l10[k*ldim] / delta11; 
-                F* RESTRICT L00Col = &LBuffer[k*ldim];
-                for( Int i=k; i<j; ++i )
-                    L00Col[i] += Conj(l10[i*ldim])*gamma;
+                F* L00Col = L00.Buffer(0,j);
+                const F gamma = s10.Get(0,j);
+                for( Int i=j; i<k; ++i )
+                    L00Col[i] += Conj(l10Buf[i*ldim])*gamma;
             }
         }
         else
         {
-            // L00 := L00 + l10^T (l10 / delta11)
-            for( Int k=0; k<j; ++k )
+            for( Int j=0; j<k; ++j )
             {
-                const F gamma = l10[k*ldim] / delta11;
-                F* RESTRICT L00Col = &LBuffer[k*ldim];
-                for( Int i=k; i<j; ++i )
-                    L00Col[i] += l10[i*ldim]*gamma;
+                F* L00Col = L00.Buffer(0,j);
+                const F gamma = s10.Get(0,j);
+                for( Int i=j; i<k; ++i )
+                    L00Col[i] += l10Buf[i*ldim]*gamma;
             }
         }
 
-        // l10 := l10 / delta11
-        for( Int k=0; k<j; ++k )
-            l10[k*ldim] /= delta11;
-
-        // lambda11 := 1 / delta11
-        LBuffer[j+j*ldim] = F(1) / delta11;
+        // L11 := 1 / delta11
+        L.Set( k, k, deltaInv );
     }
 }
 
 template<typename F>
 inline void
-TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
+TrdtrmmLUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("internal::TrdtrmmLUnblocked");
+    if( L.Height() != L.Width() )
+        LogicError("L must be square");
+#endif
+    const Int n = L.Height();
+    const Int ldim = L.LDim();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    Matrix<F> s10, S10, D11;
+
+    Int k=0;
+    while( k < n )
+    {
+        const Int nb = ( k<n-1 && dSub.Get(k,0) != F(0) ? 2 : 1 );
+
+        if( nb == 1 )
+        {
+            auto L00 = ViewRange( L, 0, 0, k,    k );
+            auto l10 = ViewRange( L, k, 0, k+nb, k );
+
+            // S10 := L10
+            s10 = l10;
+
+            // L10 := L10 / delta11
+            const F deltaInv = F(1)/L.Get(k,k);
+            Scale( deltaInv, l10 );
+
+            // L00 := L00 + l10' s10
+            // TODO: Extend Trr for this case and then switch
+            const F* l10Buf = l10.LockedBuffer();
+            if( conjugate )
+            {
+                for( Int j=0; j<k; ++j )
+                {
+                    F* L00Col = L00.Buffer(0,j);
+                    const F gamma = s10.Get(0,j);
+                    for( Int i=j; i<k; ++i )
+                        L00Col[i] += Conj(l10Buf[i*ldim])*gamma;
+                }
+            }
+            else
+            {
+                for( Int j=0; j<k; ++j )
+                {
+                    F* L00Col = L00.Buffer(0,j);
+                    const F gamma = s10.Get(0,j);
+                    for( Int i=j; i<k; ++i )
+                        L00Col[i] += l10Buf[i*ldim]*gamma;
+                }
+            }
+
+            // lambda11 := 1 / delta11
+            L.Set( k, k, deltaInv );
+        }
+        else
+        {
+            auto L00 = ViewRange( L, 0, 0, k,    k    );
+            auto L10 = ViewRange( L, k, 0, k+nb, k    );
+            auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+
+            // S10 := L10
+            S10 = L10;
+
+            // L10 := L10 / D11
+            D11.Set( 0, 0, L11.Get(0,0) );
+            D11.Set( 1, 1, L11.Get(1,1) );
+            D11.Set( 1, 0, dSub.Get(k,0) );
+            Symmetric2x2Solve( RIGHT, LOWER, D11, L10, conjugate );
+
+            // L00 := L00 + L10' S10
+            Trrk( LOWER, orientation, NORMAL, F(1), L10, S10, F(1), L00 );
+
+            // L11 := inv(D11)
+            Symmetric2x2Inv( LOWER, D11, conjugate );
+        }
+
+        k += nb;
+    }
+}
+
+template<typename F>
+inline void
+TrdtrmmUUnblocked( Matrix<F>& U, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmUUnblocked");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
-    if( orientation == NORMAL )
-        LogicError("Trdtrmm requires (conjugate-)transpose");
 #endif
     const Int n = U.Height();
 
-    F* UBuffer = U.Buffer();
-    const Int ldim = U.LDim();
-    for( Int j=0; j<n; ++j )
-    {
-        const F delta11 = UBuffer[j+j*ldim];
-        if( delta11 == F(0) )
-            throw SingularMatrixException();
+    Matrix<F> s01;
 
-        F* RESTRICT u01 = &UBuffer[j*ldim];
-        if( orientation == ADJOINT )
-        {
-            // U00 := U00 + u01 (u01 / conj(delta11))^H
-            for( Int k=0; k<j; ++k )
-            {
-                const F gamma = Conj(u01[k]) / delta11;
-                F* RESTRICT U00Col = &UBuffer[k*ldim];
-                for( Int i=0; i<=k; ++i )
-                    U00Col[i] += u01[i]*gamma;
-            }
-        }
-        else
-        {
-            // U00 := U00 + u01 (u01 / delta11)^T
-            for( Int k=0; k<j; ++k )
-            {
-                const F gamma = u01[k] / delta11;
-                F* RESTRICT U00Col = &UBuffer[k*ldim];
-                for( Int i=0; i<=k; ++i )
-                    U00Col[i] += u01[i]*gamma;
-            }
-        }
+    for( Int k=0; k<n; ++k )
+    {
+        auto U00 = ViewRange( U, 0, 0, k, k   );
+        auto u01 = ViewRange( U, 0, k, k, k+1 );
+
+        s01 = u01;
 
         // u01 := u01 / delta11
-        for( Int k=0; k<j; ++k )
-            u01[k] /= delta11;
+        const F deltaInv = F(1)/U.Get(k,k);
+        Scale( deltaInv, u01 );
+
+        // U00 := U00 + s01 u01'
+        Trr( UPPER, F(1), s01, u01, U00, conjugate );
 
         // lambda11 := 1 / delta11
-        UBuffer[j+j*ldim] = F(1) / delta11;
+        U.Set( k, k, deltaInv );
     }
 }
 

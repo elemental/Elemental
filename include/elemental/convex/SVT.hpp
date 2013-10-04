@@ -11,7 +11,7 @@
 #define ELEM_CONVEX_SVT_HPP
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/lapack-like/ApplyRowPivots.hpp"
+#include "elemental/blas-like/level2/ApplyRowPivots.hpp"
 #include "elemental/lapack-like/QR/BusingerGolub.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 #include "elemental/convex/SoftThreshold.hpp"

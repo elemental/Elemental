@@ -18,70 +18,84 @@ namespace internal {
 
 template<typename F>
 inline void
-TrdtrmmLVar1( Orientation orientation, Matrix<F>& L )
+TrdtrmmLVar1( Matrix<F>& L, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
-    if( orientation == NORMAL )
-        LogicError("Orientation must be (conjugate-)transpose");
 #endif
-    Matrix<F>
-        LTL, LTR,  L00, L01, L02,
-        LBL, LBR,  L10, L11, L12,
-                   L20, L21, L22;
-    Matrix<F> d1, S10;
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    Matrix<F> S10;
 
-    PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------/
-        L11.GetDiagonal( d1 );
+        auto L00 = ViewRange( L, 0, 0, k,    k    );
+        auto L10 = ViewRange( L, k, 0, k+nb, k    );
+        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        auto d1 = L11.GetDiagonal();
+       
         S10 = L10;
         DiagonalSolve( LEFT, NORMAL, d1, L10, true );
         Trrk( LOWER, orientation, NORMAL, F(1), S10, L10, F(1), L00 );
         Trmm( LEFT, LOWER, orientation, UNIT, F(1), L11, L10 );
-        TrdtrmmLUnblocked( orientation, L11 );
-        //--------------------------------------------------------------------/
-
-        SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+        TrdtrmmLUnblocked( L11, conjugate );
     }
 }
 
 template<typename F>
 inline void
-TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
+TrdtrmmLVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
-    if( orientation == NORMAL )
-        LogicError("Orientation must be (conjugate-)transpose");
+#endif
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    Matrix<F> S10;
+
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
+    Int k=0;
+    while( k < n )
+    {
+        const Int nbProp = Min(bsize,n-k);
+        const bool in2x2 = ( k+nbProp<n && dSub.Get(k+nbProp-1,0) != F(0) );
+        const Int nb = ( in2x2 ? nbProp+1 : nbProp );
+        auto dSub1 = LockedViewRange( dSub, k, 0, k+nb-1, 1 );
+
+        auto L00 = ViewRange( L, 0, 0, k,    k    );
+        auto L10 = ViewRange( L, k, 0, k+nb, k    );
+        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        auto d1 = L11.GetDiagonal();
+
+        S10 = L10;
+        QuasiDiagonalSolve( LEFT, LOWER, NORMAL, d1, dSub1, L10, true );
+        Trrk( LOWER, orientation, NORMAL, F(1), S10, L10, F(1), L00 );
+        Trmm( LEFT, LOWER, orientation, UNIT, F(1), L11, L10 );
+        TrdtrmmLUnblocked( L11, dSub1, conjugate );
+
+        k += nb;
+    }
+}
+
+template<typename F>
+inline void
+TrdtrmmLVar1( DistMatrix<F>& L, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("internal::TrdtrmmLVar1");
+    if( L.Height() != L.Width() )
+        LogicError("L must be square");
 #endif
     const Grid& g = L.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<F>
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-    DistMatrix<F,MD,STAR> d1(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
     DistMatrix<F,STAR,MC  > S10_STAR_MC(g);
@@ -93,19 +107,16 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
     S10_STAR_MC.AlignWith( L );
     L10_STAR_MR.AlignWith( L );
 
-    PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal 
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------//
-        L11.GetDiagonal( d1 );
+        auto L00 = ViewRange( L, 0, 0, k,    k    );
+        auto L10 = ViewRange( L, k, 0, k+nb, k    );
+        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        auto d1 = L11.GetDiagonal();
 
         L10_STAR_VR = L10;
         S10_STAR_VC = L10_STAR_VR;
@@ -120,15 +131,74 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
         ( LEFT, LOWER, orientation, UNIT, F(1), L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
-        LocalTrdtrmm( orientation, LOWER, L11_STAR_STAR );
+        LocalTrdtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
-        //--------------------------------------------------------------------//
+    }
+}
 
-        SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+template<typename F>
+inline void
+TrdtrmmLVar1
+( DistMatrix<F>& L, const DistMatrix<F,MD,STAR>& dSub, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("internal::TrdtrmmLVar1");
+    if( L.Height() != L.Width() )
+        LogicError("L must be square");
+#endif
+    const Grid& g = L.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
+    DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
+    DistMatrix<F,STAR,MC  > S10_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), 
+                            d1_STAR_STAR(g), dSub1_STAR_STAR(g);
+
+    L10_STAR_VR.AlignWith( L );
+    S10_STAR_VC.AlignWith( L );
+    S10_STAR_MC.AlignWith( L );
+    L10_STAR_MR.AlignWith( L );
+
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
+    Int k=0;
+    while( k < n )
+    {
+        const Int nbProp = Min(bsize,n-k);
+        const bool in2x2 = ( k+nbProp<n && dSub.Get(k+nbProp-1,0) != F(0) );
+        const Int nb = ( in2x2 ? nbProp+1 : nbProp );
+        auto dSub1 = LockedViewRange( dSub, k, 0, k+nb-1, 1 );
+
+        auto L00 = ViewRange( L, 0, 0, k,    k    );
+        auto L10 = ViewRange( L, k, 0, k+nb, k    );
+        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        auto d1 = L11.GetDiagonal();
+
+        L10_STAR_VR = L10;
+        S10_STAR_VC = L10_STAR_VR;
+        S10_STAR_MC = S10_STAR_VC;
+        d1_STAR_STAR = d1;
+        dSub1_STAR_STAR = dSub1;
+        // TODO: LocalQuasiDiagonalSolve?
+        QuasiDiagonalSolve
+        ( LEFT, LOWER, NORMAL, 
+          d1_STAR_STAR.LockedMatrix(), dSub1_STAR_STAR.LockedMatrix(), 
+          L10_STAR_VR.Matrix(), true );
+        L10_STAR_MR = L10_STAR_VR;
+        LocalTrrk
+        ( LOWER, orientation, F(1), S10_STAR_MC, L10_STAR_MR, F(1), L00 );
+
+        L11_STAR_STAR = L11;
+        LocalTrmm
+        ( LEFT, LOWER, orientation, UNIT, F(1), L11_STAR_STAR, L10_STAR_VR );
+        L10 = L10_STAR_VR;
+
+        LocalTrdtrmm( LOWER, L11_STAR_STAR, dSub1_STAR_STAR, conjugate );
+        L11 = L11_STAR_STAR;
+
+        k += nb;
     }
 }
 

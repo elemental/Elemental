@@ -32,6 +32,7 @@
 #include "./level1/ScaleTrapezoid.hpp"
 #include "./level1/SetDiagonal.hpp"
 #include "./level1/Swap.hpp"
+#include "./level1/Symmetric2x2Inv.hpp"
 #include "./level1/Symmetric2x2Scale.hpp"
 #include "./level1/Symmetric2x2Solve.hpp"
 #include "./level1/Transpose.hpp"

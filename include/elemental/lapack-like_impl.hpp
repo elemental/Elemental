@@ -11,11 +11,8 @@
 #define ELEM_LAPACK_IMPL_HPP
 
 #include "./lapack-like/ApplyPackedReflectors.hpp"
-#include "./lapack-like/ApplyColumnPivots.hpp"
-#include "./lapack-like/ApplyRowPivots.hpp"
 #include "./lapack-like/Bidiag.hpp"
 #include "./lapack-like/Cholesky.hpp"
-#include "./lapack-like/ComposePivots.hpp"
 #include "./lapack-like/Condition.hpp"
 #include "./lapack-like/Determinant.hpp"
 #include "./lapack-like/ExpandPackedReflectors.hpp"

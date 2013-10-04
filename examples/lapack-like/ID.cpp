@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level2/ApplyColumnPivots.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/ApplyColumnPivots.hpp"
 #include "elemental/lapack-like/ID.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Uniform.hpp"

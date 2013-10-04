@@ -15,14 +15,12 @@ namespace internal {
 
 template<typename T>
 inline void
-TrtrmmLUnblocked( Orientation orientation, Matrix<T>& L )
+TrtrmmLUnblocked( Matrix<T>& L, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtrmmLUnblocked");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
-    if( orientation == NORMAL )
-        LogicError("Trtrmm requires (conjugate-)transpose");
 #endif
     const Int n = L.Height();
 
@@ -31,7 +29,7 @@ TrtrmmLUnblocked( Orientation orientation, Matrix<T>& L )
     for( Int j=0; j<n; ++j )
     {
         T* RESTRICT l10 = &LBuffer[j];
-        if( orientation == ADJOINT )
+        if( conjugate )
         {
             // L00 := L00 + l10^H l10
             for( Int k=0; k<j; ++k )
@@ -60,7 +58,7 @@ TrtrmmLUnblocked( Orientation orientation, Matrix<T>& L )
             l10[k*ldim] *= lambda11;
 
         // lambda11 := lambda11^2 or |lambda11|^2
-        if( orientation == ADJOINT )
+        if( conjugate )
             LBuffer[j+j*ldim] = lambda11*Conj(lambda11);
         else
             LBuffer[j+j*ldim] = lambda11*lambda11;
@@ -69,14 +67,12 @@ TrtrmmLUnblocked( Orientation orientation, Matrix<T>& L )
 
 template<typename T>
 inline void
-TrtrmmUUnblocked( Orientation orientation, Matrix<T>& U )
+TrtrmmUUnblocked( Matrix<T>& U, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtrmmUUnblocked");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
-    if( orientation == NORMAL )
-        LogicError("Trtrmm requires (conjugate-)transpose");
 #endif
     const Int n = U.Height();
 
@@ -85,7 +81,7 @@ TrtrmmUUnblocked( Orientation orientation, Matrix<T>& U )
     for( Int j=0; j<n; ++j )
     {
         T* RESTRICT u01 = &UBuffer[j*ldim];
-        if( orientation == ADJOINT )
+        if( conjugate )
         {
             // U00 := U00 + u01 u01^H
             for( Int k=0; k<j; ++k )
@@ -114,7 +110,7 @@ TrtrmmUUnblocked( Orientation orientation, Matrix<T>& U )
             u01[k] *= upsilon11;
 
         // upsilon11 := upsilon11^2 or |upsilon11|^2
-        if( orientation == ADJOINT )
+        if( conjugate )
             UBuffer[j+j*ldim] = upsilon11*Conj(upsilon11);
         else
             UBuffer[j+j*ldim] = upsilon11*upsilon11;

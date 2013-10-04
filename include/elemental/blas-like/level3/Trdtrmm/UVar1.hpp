@@ -18,123 +18,86 @@ namespace internal {
 
 template<typename F>
 inline void
-TrdtrmmUVar1( Orientation orientation, Matrix<F>& U )
+TrdtrmmUVar1( Matrix<F>& U, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtdrmmUVar1");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
-    if( orientation == NORMAL )
-        LogicError("Orientation must be (conjugate-)transpose");
 #endif
-    Matrix<F>
-        UTL, UTR,  U00, U01, U02,
-        UBL, UBR,  U10, U11, U12,
-                   U20, U21, U22;
-    Matrix<F> d1, S01;
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    PartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
+    Matrix<F> S01;
+
+    const Int n = U.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = bsize*( n%bsize ? n/bsize : (n/bsize)-1 );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------/
-        U11.GetDiagonal( d1 );
+        auto U00 = LockedView( U, 0, 0, k,    k    );
+        auto U01 = LockedView( U, 0, k, k,    k+nb );
+        auto U11 = LockedView( U, k, k, k+nb, k+nb );
+        auto d1 = U11.GetDiagonal();
+
         S01 = U01;
         DiagonalSolve( LEFT, NORMAL, d1, U01, true );
         Trrk( UPPER, NORMAL, orientation, F(1), U01, S01, F(1), U00 );
-        Trmm( RIGHT, UPPER, ADJOINT, UNIT, F(1), U11, U01 );
-        TrdtrmmUUnblocked( orientation, U11 );
-        //--------------------------------------------------------------------/
-
-        SlidePartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+        Trmm( RIGHT, UPPER, orientation, UNIT, F(1), U11, U01 );
+        TrdtrmmUUnblocked( U11, conjugate );
     }
 }
 
 template<typename F>
 inline void
-TrdtrmmUVar1( Orientation orientation, DistMatrix<F>& U )
+TrdtrmmUVar1( DistMatrix<F>& U, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmUVar1");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
-    if( orientation == NORMAL )
-        LogicError("Orientation must be (conjugate-)transpose");
 #endif
     const Grid& g = U.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<F>
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
-    DistMatrix<F,MD,STAR> d1(g);
-
-    // Temporary distributions
     DistMatrix<F,MC,  STAR> S01_MC_STAR(g);
     DistMatrix<F,VC,  STAR> S01_VC_STAR(g);
     DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
-    DistMatrix<F,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
+    DistMatrix<F,STAR,MR  > U01Trans_STAR_MR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
 
     S01_MC_STAR.AlignWith( U );
     S01_VC_STAR.AlignWith( U );
     U01_VR_STAR.AlignWith( U );
-    U01AdjOrTrans_STAR_MR.AlignWith( U );
+    U01Trans_STAR_MR.AlignWith( U );
 
-    PartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
+    const Int n = U.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = bsize*( n%bsize ? n/bsize : (n/bsize)-1 );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionDownDiagonal 
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------//
-        U11.GetDiagonal( d1 );
+        auto U00 = LockedView( U, 0, 0, k,    k    );
+        auto U01 = LockedView( U, 0, k, k,    k+nb );
+        auto U11 = LockedView( U, k, k, k+nb, k+nb );
+        auto d1 = U11.GetDiagonal();
+
         S01_MC_STAR = U01;
         S01_VC_STAR = S01_MC_STAR;
         U01_VR_STAR = S01_VC_STAR;
-        if( orientation == TRANSPOSE )
-        {
-            DiagonalSolve( RIGHT, NORMAL, d1, U01_VR_STAR );
-            U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
-        }
-        else
-        {
-            DiagonalSolve( RIGHT, ADJOINT, d1, U01_VR_STAR );
-            U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
-        }
-        LocalTrrk( UPPER, F(1), S01_MC_STAR, U01AdjOrTrans_STAR_MR, F(1), U00 );
+        DiagonalSolve( RIGHT, NORMAL, d1, U01_VR_STAR );
+        U01Trans_STAR_MR.TransposeFrom( U01_VR_STAR, conjugate );
+        LocalTrrk( UPPER, F(1), S01_MC_STAR, U01Trans_STAR_MR, F(1), U00 );
 
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( RIGHT, UPPER, ADJOINT, UNIT, F(1), U11_STAR_STAR, U01_VR_STAR );
+        ( RIGHT, UPPER, orientation, UNIT, F(1), U11_STAR_STAR, U01_VR_STAR );
         U01 = U01_VR_STAR;
 
-        LocalTrdtrmm( orientation, UPPER, U11_STAR_STAR );
+        LocalTrdtrmm( UPPER, U11_STAR_STAR, conjugate );
         U11 = U11_STAR_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
 }
 

@@ -10,6 +10,9 @@
 #ifndef ELEM_LAPACK_INVERSE_HPP
 #define ELEM_LAPACK_INVERSE_HPP
 
+#include "elemental/blas-like/level2/ApplySymmetricPivots.hpp"
+#include "elemental/lapack-like/LDL.hpp"
+
 #include "elemental/lapack-like/Inverse/CholeskyLVar2.hpp"
 #include "elemental/lapack-like/Inverse/CholeskyUVar2.hpp"
 #include "elemental/lapack-like/Inverse/LUPartialPiv.hpp"
@@ -37,6 +40,46 @@ HPDInverse( UpperOrLower uplo, Matrix<F>& A )
         hpd_inverse::CholeskyLVar2( A );
     else
         hpd_inverse::CholeskyUVar2( A );
+}
+
+template<typename F>
+inline void
+SymmetricInverse( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry cse("SymmetricInverse");
+#endif
+    if( uplo == LOWER )
+    {
+        Matrix<Int> p;
+        Matrix<F> dSub;
+        ldl::Pivoted( A, dSub, p, conjugate );
+        TriangularInverse( LOWER, UNIT, A ); 
+        Trdtrmm( LOWER, A, dSub, conjugate );
+        ApplySymmetricPivots( LOWER, A, p, conjugate );
+    }
+    else
+        LogicError("This option is not yet supported");
+}
+
+template<typename F>
+inline void
+SymmetricInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry cse("SymmetricInverse");
+#endif
+    if( uplo == LOWER )
+    {
+        DistMatrix<Int,VC,STAR> p( A.Grid() );
+        DistMatrix<F,MD,STAR> dSub( A.Grid() );
+        ldl::Pivoted( A, dSub, p, conjugate );
+        TriangularInverse( LOWER, UNIT, A ); 
+        Trdtrmm( LOWER, A, dSub, conjugate );
+        ApplySymmetricPivots( LOWER, A, p, conjugate );
+    }
+    else
+        LogicError("This option is not yet supported");
 }
 
 template<typename F> 

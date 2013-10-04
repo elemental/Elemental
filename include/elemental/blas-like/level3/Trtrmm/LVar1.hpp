@@ -17,13 +17,12 @@ namespace internal {
 
 template<typename T>
 inline void
-TrtrmmLVar1( Orientation orientation, Matrix<T>& L )
+TrtrmmLVar1( Matrix<T>& L, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtrmmLVar1");
-    if( orientation == NORMAL )
-        LogicError("Must be (conjugate-)transposed");
 #endif
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<T>
         LTL, LTR,  L00, L01, L02,
         LBL, LBR,  L10, L11, L12,
@@ -43,7 +42,7 @@ TrtrmmLVar1( Orientation orientation, Matrix<T>& L )
         //--------------------------------------------------------------------/
         Trrk( LOWER, orientation, NORMAL, T(1), L10, L10, T(1), L00 );
         Trmm( LEFT, LOWER, orientation, NON_UNIT, T(1), L11, L10 );
-        TrtrmmLUnblocked( orientation, L11 );
+        TrtrmmLUnblocked( L11, conjugate );
         //--------------------------------------------------------------------/
 
         SlidePartitionDownDiagonal
@@ -56,16 +55,15 @@ TrtrmmLVar1( Orientation orientation, Matrix<T>& L )
 
 template<typename T>
 inline void
-TrtrmmLVar1( Orientation orientation, DistMatrix<T>& L )
+TrtrmmLVar1( DistMatrix<T>& L, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
-    if( orientation == NORMAL )
-        LogicError("Must be (conjugate-)transposed");
 #endif
     const Grid& g = L.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     // Matrix views
     DistMatrix<T>
@@ -110,7 +108,7 @@ TrtrmmLVar1( Orientation orientation, DistMatrix<T>& L )
           T(1), L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
-        LocalTrtrmm( orientation, LOWER, L11_STAR_STAR );
+        LocalTrtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
         //--------------------------------------------------------------------//
 

@@ -10,7 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/UpdateDiagonal.hpp"
-#include "elemental/lapack-like/ApplyColumnPivots.hpp"
+#include "elemental/blas-like/level2/ApplyColumnPivots.hpp"
 #include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Identity.hpp"

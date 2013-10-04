@@ -112,12 +112,11 @@ Var3( DistMatrix<F>& A, bool conjugate=false )
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), d1_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
     DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
     DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
-    DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
+    DistMatrix<F,STAR,MR  > A21Trans_STAR_MR(g);
 
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -143,11 +142,11 @@ Var3( DistMatrix<F>& A, bool conjugate=false )
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
         A21_VR_STAR.AlignWith( A22 );
         A21_VR_STAR = A21_VC_STAR;
-        A21AdjOrTrans_STAR_MR.AlignWith( A22 );
-        A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR, conjugate );
+        A21Trans_STAR_MR.AlignWith( A22 );
+        A21Trans_STAR_MR.TransposeFrom( A21_VR_STAR, conjugate );
         LocalTrrk
         ( LOWER, TRANSPOSE,
-          F(-1), S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, F(1), A22 );
+          F(-1), S21Trans_STAR_MC, A21Trans_STAR_MR, F(1), A22 );
 
         A21 = A21_VC_STAR;
     }

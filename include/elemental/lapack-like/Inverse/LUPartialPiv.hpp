@@ -12,9 +12,9 @@
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/Zero.hpp"
+#include "elemental/blas-like/level2/ApplyColumnPivots.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/lapack-like/ApplyColumnPivots.hpp"
 #include "elemental/lapack-like/LU.hpp"
 #include "elemental/lapack-like/TriangularInverse.hpp"
 #include "elemental/matrices/Zeros.hpp"

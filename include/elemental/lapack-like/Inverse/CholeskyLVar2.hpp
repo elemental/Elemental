@@ -63,7 +63,7 @@ CholeskyLVar2( Matrix<F>& A )
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A10 );
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11, A21 );
         TriangularInverse( LOWER, NON_UNIT, A11 );
-        Trtrmm( ADJOINT, LOWER, A11 );
+        Trtrmm( LOWER, A11, true );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -156,7 +156,7 @@ CholeskyLVar2( DistMatrix<F>& A )
 
         LocalTriangularInverse( LOWER, NON_UNIT, A11_STAR_STAR );
 
-        LocalTrtrmm( ADJOINT, LOWER, A11_STAR_STAR );
+        LocalTrtrmm( LOWER, A11_STAR_STAR, true );
 
         A11 = A11_STAR_STAR;
         A10 = A10_STAR_VR;

@@ -21,6 +21,7 @@ Symmetric2x2Solve
 #ifndef RELEASE    
     CallStackEntry cse("Symmetric2x2Solve");
 #endif
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     if( side == LEFT && uplo == LOWER )
@@ -29,14 +30,14 @@ Symmetric2x2Solve
             LogicError("A must have height 2");
         if( conjugate )
         {
-            const F delta11 = D.GetRealPart(0,0);
+            const Real delta11 = D.GetRealPart(0,0);
             const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
+            const Real delta22 = D.GetRealPart(1,1);
+            const Real delta21Abs = SafeAbs( delta21 );
+            const Real phi21To11 = delta22 / delta21Abs;
+            const Real phi21To22 = delta11 / delta21Abs;
             const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+            const Real xi = (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
             for( Int j=0; j<n; ++j )
             {
@@ -74,14 +75,14 @@ Symmetric2x2Solve
             LogicError("A must have width 2");
         if( conjugate )
         {
-            const F delta11 = D.GetRealPart(0,0);
+            const Real delta11 = D.GetRealPart(0,0);
             const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
+            const Real delta22 = D.GetRealPart(1,1);
+            const Real delta21Abs = SafeAbs( delta21 );
+            const Real phi21To11 = delta22 / delta21Abs;
+            const Real phi21To22 = delta11 / delta21Abs;
             const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+            const Real xi = (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
             for( Int i=0; i<m; ++i )
             {
@@ -128,6 +129,7 @@ FirstHalfOfSymmetric2x2Solve
     if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
         LogicError("a1 and a2 must be the same size");
 #endif
+    typedef Base<F> Real;
     F* a1Buf = a1.Buffer();
     const F* a2Buf = a2.LockedBuffer();
     const Int a1LDim = a1.LDim();
@@ -141,14 +143,14 @@ FirstHalfOfSymmetric2x2Solve
         const Int n = a1.Width();
         if( conjugate )
         {
-            const F delta11 = D.GetRealPart(0,0);
+            const Real delta11 = D.GetRealPart(0,0);
             const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
+            const Real delta22 = D.GetRealPart(1,1);
+            const Real delta21Abs = SafeAbs( delta21 );
+            const Real phi21To11 = delta22 / delta21Abs;
+            const Real phi21To22 = delta11 / delta21Abs;
             const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+            const Real xi = (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
             for( Int j=0; j<n; ++j )
             {
@@ -183,14 +185,14 @@ FirstHalfOfSymmetric2x2Solve
         const Int m = a1.Height();
         if( conjugate )
         {
-            const F delta11 = D.GetRealPart(0,0);
+            const Real delta11 = D.GetRealPart(0,0);
             const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
+            const Real delta22 = D.GetRealPart(1,1);
+            const Real delta21Abs = SafeAbs( delta21 );
+            const Real phi21To11 = delta22 / delta21Abs;
+            const Real phi21To22 = delta11 / delta21Abs;
             const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+            const Real xi = (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
             for( Int i=0; i<m; ++i )
             {
@@ -231,6 +233,7 @@ SecondHalfOfSymmetric2x2Solve
     if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
         LogicError("a1 and a2 must be the same size");
 #endif
+    typedef Base<F> Real;
     const F* a1Buf = a1.LockedBuffer();
     F* a2Buf = a2.Buffer();
     const Int a1LDim = a1.LDim();
@@ -244,14 +247,14 @@ SecondHalfOfSymmetric2x2Solve
         const Int n = a1.Width();
         if( conjugate )
         {
-            const F delta11 = D.GetRealPart(0,0);
+            const Real delta11 = D.GetRealPart(0,0);
             const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
+            const Real delta22 = D.GetRealPart(1,1);
+            const Real delta21Abs = SafeAbs( delta21 );
+            const Real phi21To11 = delta22 / delta21Abs;
+            const Real phi21To22 = delta11 / delta21Abs;
             const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+            const Real xi = (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
             for( Int j=0; j<n; ++j )
             {
@@ -286,14 +289,14 @@ SecondHalfOfSymmetric2x2Solve
         const Int m = a1.Height();
         if( conjugate )
         {
-            const F delta11 = D.GetRealPart(0,0);
+            const Real delta11 = D.GetRealPart(0,0);
             const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
+            const Real delta22 = D.GetRealPart(1,1);
+            const Real delta21Abs = SafeAbs( delta21 );
+            const Real phi21To11 = delta22 / delta21Abs;
+            const Real phi21To22 = delta11 / delta21Abs;
             const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+            const Real xi = (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
             for( Int i=0; i<m; ++i )
             {
@@ -332,6 +335,7 @@ Symmetric2x2Solve
 #ifndef RELEASE    
     CallStackEntry cse("Symmetric2x2Solve");
 #endif
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
@@ -386,14 +390,15 @@ Symmetric2x2Solve
         {
             if( conjugate )
             {
-                const F delta11 = D.GetLocalRealPart(0,0);
+                const Real delta11 = D.GetLocalRealPart(0,0);
                 const F delta21 = D.GetLocal(1,0);
-                const F delta22 = D.GetLocalRealPart(1,1);
-                const F delta21Abs = SafeAbs( delta21 );
-                const F phi21To11 = delta22 / delta21Abs;
-                const F phi21To22 = delta11 / delta21Abs;
+                const Real delta22 = D.GetLocalRealPart(1,1);
+                const Real delta21Abs = SafeAbs( delta21 );
+                const Real phi21To11 = delta22 / delta21Abs;
+                const Real phi21To22 = delta11 / delta21Abs;
                 const F phi21 = delta21 / delta21Abs;
-                const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
+                const Real xi = 
+                    (Real(1)/(phi21To11*phi21To22-Real(1)))/delta21Abs;
 
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {

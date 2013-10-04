@@ -10,7 +10,7 @@
 #ifndef ELEM_LAPACK_APPLYCOLUMNPIVOTS_HPP
 #define ELEM_LAPACK_APPLYCOLUMNPIVOTS_HPP
 
-#include "elemental/lapack-like/ComposePivots.hpp"
+#include "elemental/blas-like/level2/ComposePivots.hpp"
 
 namespace elem {
 

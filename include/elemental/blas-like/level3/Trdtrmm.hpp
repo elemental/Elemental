@@ -15,12 +15,25 @@ namespace elem {
 template<typename T>
 inline void
 LocalTrdtrmm
-( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
+( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalTrdtrmm");
 #endif
-    Trdtrmm( orientation, uplo, A.Matrix() );
+    Trdtrmm( uplo, A.Matrix(), conjugate );
+}
+
+template<typename T>
+inline void
+LocalTrdtrmm
+( UpperOrLower uplo, 
+  DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& dOff, 
+  bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LocalTrdtrmm");
+#endif
+    Trdtrmm( uplo, A.Matrix(), dOff.LockedMatrix(), conjugate );
 }
 
 } // namespace elem
@@ -33,7 +46,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
+Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("Trdtrdmm");
@@ -41,14 +54,30 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
         LogicError("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::TrdtrmmLVar1( orientation, A );
+        internal::TrdtrmmLVar1( A, conjugate );
     else
-        internal::TrdtrmmUVar1( orientation, A );
+        internal::TrdtrmmUVar1( A, conjugate );
 }
 
 template<typename F>
 inline void
-Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
+Trdtrmm
+( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Trdtrdmm");
+    if( A.Height() != A.Width() )
+        LogicError("A must be square");
+#endif
+    if( uplo == LOWER )
+        internal::TrdtrmmLVar1( A, dOff, conjugate );
+    else
+        LogicError("Not yet written");
+}
+
+template<typename F>
+inline void
+Trdtrmm( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("Trdtrmm");
@@ -56,9 +85,26 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
         LogicError("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::TrdtrmmLVar1( orientation, A );
+        internal::TrdtrmmLVar1( A, conjugate );
     else
-        internal::TrdtrmmUVar1( orientation, A );
+        internal::TrdtrmmUVar1( A, conjugate );
+}
+
+template<typename F>
+inline void
+Trdtrmm
+( UpperOrLower uplo, 
+  DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dOff, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Trdtrmm");
+    if( A.Height() != A.Width() )
+        LogicError("A must be square");
+#endif
+    if( uplo == LOWER )
+        internal::TrdtrmmLVar1( A, dOff, conjugate );
+    else
+        LogicError("Not yet written");
 }
 
 } // namespace elem

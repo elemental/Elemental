@@ -10,8 +10,8 @@
 #ifndef ELEM_LAPACK_LU_SOLVEAFTER_HPP
 #define ELEM_LAPACK_LU_SOLVEAFTER_HPP
 
+#include "elemental/blas-like/level2/ApplyRowPivots.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/lapack-like/ApplyRowPivots.hpp"
 
 namespace elem {
 namespace lu {

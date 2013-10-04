@@ -12,8 +12,8 @@
 
 #include "elemental/blas-like/level1/DiagonalSolve.hpp"
 #include "elemental/blas-like/level1/QuasiDiagonalSolve.hpp"
+#include "elemental/blas-like/level2/ApplyRowPivots.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/lapack-like/ApplyRowPivots.hpp"
 
 namespace elem {
 namespace ldl {

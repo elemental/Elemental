@@ -19,17 +19,17 @@ namespace elem {
 template<typename T>
 inline void
 LocalTrtrmm
-( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
+( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalTrtrmm");
 #endif
-    Trtrmm( orientation, uplo, A.Matrix() );
+    Trtrmm( uplo, A.Matrix(), conjugate );
 }
 
 template<typename T>
 inline void
-Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
+Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("Trtrmm");
@@ -37,14 +37,14 @@ Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
         LogicError("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::TrtrmmLVar1( orientation, A );
+        internal::TrtrmmLVar1( A, conjugate );
     else
-        internal::TrtrmmUVar1( orientation, A );
+        internal::TrtrmmUVar1( A, conjugate );
 }
 
 template<typename T>
 inline void
-Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T>& A )
+Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("Trtrmm");
@@ -52,9 +52,9 @@ Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T>& A )
         LogicError("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::TrtrmmLVar1( orientation, A );
+        internal::TrtrmmLVar1( A, conjugate );
     else
-        internal::TrtrmmUVar1( orientation, A );
+        internal::TrtrmmUVar1( A, conjugate );
 }
 
 } // namespace elem
