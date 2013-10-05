@@ -82,6 +82,26 @@ SymmetricInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
         LogicError("This option is not yet supported");
 }
 
+template<typename F>
+inline void
+HermitianInverse( UpperOrLower uplo, Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianInverse");
+#endif
+    SymmetricInverse( uplo, A, true );
+}
+
+template<typename F>
+inline void
+HermitianInverse( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianInverse");
+#endif
+    SymmetricInverse( uplo, A, true );
+}
+
 template<typename F> 
 inline void
 Inverse( DistMatrix<F>& A )

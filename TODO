@@ -39,6 +39,7 @@ Functionality
 
 Maintenance
 ===========
+- Documentation for NonsingularHermitianInertia and SymmetricInverse
 - Documentation for QuasiDiagonal{Scale,Solve} and Symmetric2x2{Scale,Solve}
 - Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 - README's in each directory explaining the contents of the folder
