@@ -227,7 +227,9 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
     }
     else
     {
-        for( Int j=0; j<n; ++j ) { for( Int i=0; i<=j; ++i )
+        for( Int j=0; j<n; ++j ) 
+        { 
+            for( Int i=0; i<=j; ++i )
             {
                 const Real abs = Abs(A.Get(i,j));
                 if( abs > pivot.value )

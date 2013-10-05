@@ -275,7 +275,7 @@ UnblockedPivoted
     }
     Zeros( dSub, n-1, 1 );
     p.ResizeTo( n, 1 );
-
+     
     Matrix<F> Y21;
 
     Int k=0;
@@ -433,7 +433,7 @@ PanelPivoted
     if( p.Height() != n || p.Width() != 1 )
         LogicError("pivot vector is the wrong size");
 #endif
-    auto ABR = LockedViewRange( A, off, off, n, n );
+    auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
     Zeros( Y, n-off, bsize );
 
@@ -466,6 +466,8 @@ PanelPivoted
             auto y10 = LockedViewRange( Y,   k, 0, k+1,   k   );
             auto aB1 =       ViewRange( ABR, k, k, n-off, k+1 );
             Gemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
+            if( conjugate )
+                ABR.MakeReal(k,k);
 
             // Store x21 := a21/delta11 and y21 := a21
             const F delta11Inv = F(1)/ABR.Get(k,k);
@@ -491,6 +493,11 @@ PanelPivoted
             const F psi = AB1.Get(0,1);
             Gemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
             AB1.Set(0,1,psi);
+            if( conjugate )
+            {
+                ABR.MakeReal(k  ,k  );
+                ABR.MakeReal(k+1,k+1);
+            }
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
             auto D11 = ViewRange( ABR, k,   k, k+2,   k+2 );
@@ -510,14 +517,6 @@ PanelPivoted
             D11.Set( 1, 0, 0 );
             p.Set( off+k,   0, off+k );
             p.Set( off+k+1, 0, from  );
-        }
-
-        if( conjugate )
-        {
-            // Force the active diagonal entries to be real
-            A.MakeReal( off+k, off+k );
-            A.MakeReal( to,    to    );
-            A.MakeReal( from,  from  );
         }
 
         k += nb;
@@ -546,7 +545,7 @@ PanelPivoted
     if( p.Height() != n || p.Width() != 1 )
         LogicError("pivot vector is the wrong size");
 #endif
-    auto ABR = LockedViewRange( A, off, off, n, n );
+    auto ABR = ViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
     Y.AlignWith( ABR );
     Zeros( X, n-off, bsize );
@@ -586,6 +585,8 @@ PanelPivoted
                 auto y10 = LockedViewRange( Y, k, 0, k+1,   k );
                 LocalGemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
             }
+            if( conjugate )
+                ABR.MakeReal(k,k);
 
             // Store x21 := a21/delta11 and y21 := a21
             const F delta11Inv = F(1)/ABR.Get(k,k);
@@ -612,6 +613,11 @@ PanelPivoted
             const F psi = AB1.Get(0,1);
             LocalGemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
             AB1.Set(0,1,psi);
+            if( conjugate )
+            {
+                ABR.MakeReal(k,  k  );
+                ABR.MakeReal(k+1,k+1);
+            }
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
             auto D11 = ViewRange( ABR, k,   k, k+2,   k+2 );
@@ -632,14 +638,6 @@ PanelPivoted
             D11.Set( 1, 0, 0 );
             p.Set( off+k,   0, off+k );
             p.Set( off+k+1, 0, from  );
-        }
-
-        if( conjugate )
-        {
-            // Force the active diagonal entries to be real
-            A.MakeReal( off+k, off+k );
-            A.MakeReal( to,    to    );
-            A.MakeReal( from,  from  );
         }
 
         k += nb;
