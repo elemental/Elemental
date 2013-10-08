@@ -44,7 +44,7 @@ be thrown.
 :math:`LDL` factorization
 -------------------------
 
-.. cpp::type:: enum LDLPivotType
+.. cpp:type:: enum LDLPivotType
 
    An enum for specifying the symmetric pivoting strategy. The current
    (not yet all supported) options include:
