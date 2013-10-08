@@ -46,6 +46,9 @@ be thrown.
 
 .. cpp::type:: enum LDLPivotType
 
+   An enum for specifying the symmetric pivoting strategy. The current
+   (not yet all supported) options include:
+
    * ``BUNCH_KAUFMAN_A`` 
    * ``BUNCH_KAUFMAN_C`` (not yet supported)
    * ``BUNCH_KAUFMAN_D``
