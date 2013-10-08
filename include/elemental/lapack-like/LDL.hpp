@@ -47,12 +47,14 @@ LDLH( Matrix<F>& A )
 
 template<typename F>
 inline void
-LDLH( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p )
+LDLH
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::Pivoted( A, dSub, p, true );
+    ldl::Pivoted( A, dSub, p, true, pivotType );
 }
 
 template<typename F>
@@ -68,12 +70,13 @@ LDLH( DistMatrix<F>& A )
 template<typename F>
 inline void
 LDLH
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::Pivoted( A, dSub, p, true );
+    ldl::Pivoted( A, dSub, p, true, pivotType );
 }
 
 template<typename F>
@@ -88,12 +91,14 @@ LDLT( Matrix<F>& A )
 
 template<typename F>
 inline void
-LDLT( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p )
+LDLT
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::Pivoted( A, dSub, p, false );
+    ldl::Pivoted( A, dSub, p, false, pivotType );
 }
 
 template<typename F>
@@ -109,44 +114,44 @@ LDLT( DistMatrix<F>& A )
 template<typename F>
 inline void
 LDLT
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::Pivoted( A, dSub, p, false );
+    ldl::Pivoted( A, dSub, p, false, pivotType );
 }
 
-// The nonsingular qualifier is here because Bunch-Parlett (complete pivoting)
-// should be used when the matrix might be singular. Not only are more 
-// comparisons performed, but blocking is essentially impossible.
 template<typename F>
 inline elem::Inertia
-NonsingularHermitianInertia( UpperOrLower uplo, Matrix<F>& A )
+HermitianInertia
+( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
 {
 #ifndef RELEASE
-    CallStackEntry cse("NonsingularHermitianInertia");
+    CallStackEntry cse("HermitianInertia");
 #endif
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     Matrix<Int> p;
     Matrix<F> dSub;
-    ldl::Pivoted( A, dSub, p, true ); 
+    ldl::Pivoted( A, dSub, p, true, pivotType ); 
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
 template<typename F>
 inline elem::Inertia
-NonsingularHermitianInertia( UpperOrLower uplo, DistMatrix<F>& A )
+HermitianInertia
+( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
 {
 #ifndef RELEASE
-    CallStackEntry cse("NonsingularHermitianInertia");
+    CallStackEntry cse("HermitianInertia");
 #endif
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     DistMatrix<Int,VC,STAR> p( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
-    ldl::Pivoted( A, dSub, p, true ); 
+    ldl::Pivoted( A, dSub, p, true, pivotType ); 
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 

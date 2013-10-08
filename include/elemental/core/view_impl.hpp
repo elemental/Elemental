@@ -32,6 +32,8 @@ inline void View( Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("View");
+    if( IsLocked(B.viewType_) )
+        LogicError("Cannot grab an unlocked view of a locked matrix");
 #endif
     A.memory_.Empty();
     A.height_   = B.height_;
@@ -161,6 +163,8 @@ inline void View
             << "of " << B.Height() << " x " << B.Width() << " Matrix.";
         LogicError( msg.str() );
     }
+    if( IsLocked(B.viewType_) )
+        LogicError("Cannot grab an unlocked view of a locked matrix");
 #endif
     A.memory_.Empty();
     A.height_   = height;
@@ -419,6 +423,8 @@ inline void View1x2
 {
 #ifndef RELEASE
     CallStackEntry entry("View1x2");
+    if( IsLocked(BL.viewType_) || IsLocked(BR.viewType_) )
+        LogicError("Cannot grab an unlocked view of a locked matrix");
     if( BL.Height() != BR.Height() )
         LogicError("1x2 must have consistent height to combine");
     if( BL.LDim() != BR.LDim() )
@@ -555,6 +561,8 @@ inline void View2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x1");
+    if( IsLocked(BT.viewType_) || IsLocked(BB.viewType_) )
+        LogicError("Cannot grab an unlocked view of a locked matrix");
     if( BT.Width() != BB.Width() )
         LogicError("2x1 must have consistent width to combine");
     if( BT.LDim() != BB.LDim() )
@@ -695,6 +703,9 @@ inline void View2x2
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x2");
+    if( IsLocked(BTL.viewType_) || IsLocked(BTR.viewType_) ||
+        IsLocked(BBL.viewType_) || IsLocked(BBR.viewType_) )
+        LogicError("Cannot grab an unlocked view of a locked matrix");
     if( BTL.Width() != BBL.Width()   ||
         BTR.Width() != BBR.Width()   ||
         BTL.Height() != BTR.Height() ||

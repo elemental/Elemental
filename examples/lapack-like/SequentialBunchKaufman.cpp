@@ -42,11 +42,13 @@ main( int argc, char* argv[] )
         const double imagMean = Input("--imagMean","imag mean",0.);
         const double stddev = Input("--stddev","standard dev.",1.);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
+        const Int pivotInt = Input("--pivot","pivot type",0);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
         SetBlocksize( nb );
+        const auto pivotType = static_cast<LDLPivotType>(pivotInt);
 
         C mean( realMean, imagMean );
         Matrix<C> A;
@@ -65,9 +67,9 @@ main( int argc, char* argv[] )
         Matrix<C> dSub, factA( A );
         MakeTriangular( LOWER, factA );
         if( conjugate )
-            LDLH( factA, dSub, p );
+            LDLH( factA, dSub, p, pivotType );
         else
-            LDLT( factA, dSub, p );
+            LDLT( factA, dSub, p, pivotType );
         if( print && mpi::WorldRank()==0 )
         {
             Print( A,     "A"     );
@@ -107,9 +109,7 @@ main( int argc, char* argv[] )
         if( conjugate )
         {
             // Compute the inertia of A now that we are done with it.
-            // NOTE: Bunch-Kaufman is reperformed to demonstrate simple 
-            //       interface
-            Inertia inertia = NonsingularHermitianInertia( LOWER, A );
+            Inertia inertia = HermitianInertia( LOWER, A, pivotType );
             if( mpi::WorldRank() == 0 )
             {
                 std::cout << "numPositive=" << inertia.numPositive << "\n"

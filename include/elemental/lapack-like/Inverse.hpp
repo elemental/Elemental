@@ -44,7 +44,9 @@ HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F>
 inline void
-SymmetricInverse( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false )
+SymmetricInverse
+( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("SymmetricInverse");
@@ -53,7 +55,7 @@ SymmetricInverse( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false )
     {
         Matrix<Int> p;
         Matrix<F> dSub;
-        ldl::Pivoted( A, dSub, p, conjugate );
+        ldl::Pivoted( A, dSub, p, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
         ApplySymmetricPivots( LOWER, A, p, conjugate );
@@ -64,7 +66,9 @@ SymmetricInverse( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false )
 
 template<typename F>
 inline void
-SymmetricInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
+SymmetricInverse
+( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false,
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("SymmetricInverse");
@@ -73,7 +77,7 @@ SymmetricInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
     {
         DistMatrix<Int,VC,STAR> p( A.Grid() );
         DistMatrix<F,MD,STAR> dSub( A.Grid() );
-        ldl::Pivoted( A, dSub, p, conjugate );
+        ldl::Pivoted( A, dSub, p, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
         ApplySymmetricPivots( LOWER, A, p, conjugate );
@@ -84,22 +88,24 @@ SymmetricInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
 
 template<typename F>
 inline void
-HermitianInverse( UpperOrLower uplo, Matrix<F>& A )
+HermitianInverse
+( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianInverse");
 #endif
-    SymmetricInverse( uplo, A, true );
+    SymmetricInverse( uplo, A, true, pivotType );
 }
 
 template<typename F>
 inline void
-HermitianInverse( UpperOrLower uplo, DistMatrix<F>& A )
+HermitianInverse
+( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
 #ifndef RELEASE
     CallStackEntry cse("HermitianInverse");
 #endif
-    SymmetricInverse( uplo, A, true );
+    SymmetricInverse( uplo, A, true, pivotType );
 }
 
 template<typename F> 
@@ -143,6 +149,30 @@ LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
     CallStackEntry entry("LocalHPDInverse");
 #endif
     HPDInverse( uplo, A.Matrix() );
+}
+
+template<typename F>
+inline void
+LocalSymmetricInverse
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LocalSymmetricInverse");
+#endif
+    SymmetricInverse( uplo, A.Matrix(), conjugate, pivotType );
+}
+
+template<typename F>
+inline void
+LocalHermitianInverse
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LocalHermitianInverse");
+#endif
+    SymmetricInverse( uplo, A.Matrix(), true, pivotType );
 }
 
 } // namespace elem

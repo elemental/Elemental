@@ -96,13 +96,20 @@ using namespace hermitian_gen_definite_eig_type_wrapper;
 namespace ldl_pivot_type_wrapper {
 enum LDLPivotType
 {
-    BUNCH_KAUFMAN_A,
-    BUNCH_KAUFMAN_D,
-    BUNCH_KAUFMAN_BOUNDED,
-    BUNCH_PARLETT
+    BUNCH_KAUFMAN_A=0,
+    BUNCH_KAUFMAN_C=1,
+    BUNCH_KAUFMAN_D=2,
+    BUNCH_KAUFMAN_BOUNDED=3,
+    BUNCH_PARLETT=4
 };
 }
 using namespace ldl_pivot_type_wrapper;
+
+struct LDLPivot
+{
+    Int nb;
+    Int from[2];
+};
 
 } // namespace elem
 

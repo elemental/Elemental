@@ -303,6 +303,16 @@ by :math:`C = A \circ B`.
 .. cpp:function:: void Hadamard( const Matrix<F>& A, const Matrix<F>& B, Matrix<F>& C )
 .. cpp:function:: void Hadamard( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B, DistMatrix<F,U,V>& C )
 
+HermitianInertia
+----------------
+
+.. cpp:function:: void HermitianInertia( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
+.. cpp:function:: void HermitianInertia( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
+
+   Returns the triplet containing the number of positive, negative, and 
+   zero eigenvalues of the Hermitian matrix by analyzing the block diagonal
+   resulting from a pivoted LDL factorization.
+
 HilbertSchmidt
 --------------
 The Hilbert-Schmidt inner-product of two :math:`m \times n` matrices :math:`A`

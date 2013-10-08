@@ -73,47 +73,54 @@ VectorMax( const DistMatrix<F,U,V>& x )
     if( m != 1 && n != 1 )
         LogicError("Input should have been a vector");
 #endif
-
-    ValueInt<Real> localPivot;
-    localPivot.index = 0;
-    localPivot.value = 0;
-    if( n == 1 )
+    ValueInt<Real> pivot;
+    if( x.Participating() )
     {
-        if( x.RowRank() == x.RowAlign() )
+        ValueInt<Real> localPivot;
+        localPivot.index = 0;
+        localPivot.value = 0;
+        if( n == 1 )
         {
-            const Int mLocal = x.LocalHeight();
-            const Int colShift = x.ColShift();
-            const Int colStride = x.ColStride();
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            if( x.RowRank() == x.RowAlign() )
             {
-                const Real abs = Abs(x.GetLocal(iLoc,0));
-                if( abs > localPivot.value )
+                const Int mLocal = x.LocalHeight();
+                const Int colShift = x.ColShift();
+                const Int colStride = x.ColStride();
+                for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
-                    localPivot.index = colShift + iLoc*colStride;
-                    localPivot.value = abs;
+                    const Real abs = Abs(x.GetLocal(iLoc,0));
+                    if( abs > localPivot.value )
+                    {
+                        localPivot.index = colShift + iLoc*colStride;
+                        localPivot.value = abs;
+                    }
                 }
             }
         }
-    }
-    else
-    {
-        if( x.ColRank() == x.ColAlign() )
+        else
         {
-            const Int nLocal = x.LocalWidth();
-            const Int rowShift = x.RowShift();
-            const Int rowStride = x.RowStride();
-            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            if( x.ColRank() == x.ColAlign() )
             {
-                const Real abs = Abs(x.GetLocal(0,jLoc));
-                if( abs > localPivot.value )
+                const Int nLocal = x.LocalWidth();
+                const Int rowShift = x.RowShift();
+                const Int rowStride = x.RowStride();
+                for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
-                    localPivot.index = rowShift + jLoc*rowStride;
-                    localPivot.value = abs;
+                    const Real abs = Abs(x.GetLocal(0,jLoc));
+                    if( abs > localPivot.value )
+                    {
+                        localPivot.index = rowShift + jLoc*rowStride;
+                        localPivot.value = abs;
+                    }
                 }
             }
         }
+        pivot = mpi::AllReduce
+                ( localPivot, mpi::MaxLocOp<Real>(), x.DistComm() );
     }
-    return mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), x.DistComm() );
+    mpi::Broadcast( pivot.index, x.Root(), x.CrossComm() );
+    mpi::Broadcast( pivot.value, x.Root(), x.CrossComm() );
+    return pivot;
 }
 
 template<typename F>
@@ -200,9 +207,10 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("SymmetricMax");
+    if( A.Height() != A.Width() )
+        LogicError("A must be square");
 #endif
     typedef Base<F> Real;
-    const Int m = A.Height();
     const Int n = A.Width();
 
     ValueIntPair<Real> pivot;
@@ -242,6 +250,99 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
         }
     }
     return pivot;
+}
+
+template<typename F>
+inline ValueIntPair<Base<F>>
+SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("SymmetricMax");
+    if( A.Height() != A.Width() )
+        LogicError("A must be square");
+#endif
+    typedef Base<F> Real;
+    const Int mLocal = A.LocalHeight();
+    const Int nLocal = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+
+    ValueIntPair<Real> pivot;
+    if( A.Participating() )
+    {
+        ValueIntPair<Real> localPivot;
+        localPivot.value = 0;
+        localPivot.indices[0] = 0;
+        localPivot.indices[1] = 0;
+
+        if( uplo == LOWER )
+        {
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            {
+                const Int j = rowShift + jLoc*rowStride;
+                const Int mLocBefore = Length(j,colShift,colStride);
+                for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
+                {
+                    const Int i = colShift + iLoc*colStride;
+                    const Real abs = Abs(A.GetLocal(iLoc,jLoc));
+                    if( abs > localPivot.value )
+                    {
+                        localPivot.value = abs;
+                        localPivot.indices[0] = i;
+                        localPivot.indices[1] = j;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            {
+                const Int j = rowShift + jLoc*rowStride;
+                const Int mLocBefore = Length(j+1,colShift,colStride);
+                for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
+                {
+                    const Int i = colShift + iLoc*colStride;
+                    const Real abs = Abs(A.GetLocal(iLoc,jLoc));
+                    if( abs > localPivot.value )
+                    {
+                        localPivot.value = abs;
+                        localPivot.indices[0] = i;
+                        localPivot.indices[1] = j;
+                    }
+                }
+            }
+        }
+
+        // Compute and store the location of the new pivot
+        pivot = mpi::AllReduce
+                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
+    }
+    mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
+    mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
+    return pivot;
+}
+
+template<typename F>
+inline ValueInt<Base<F>>
+DiagonalMax( const Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("DiagonalMax");
+#endif
+    return VectorMax( A.GetDiagonal() );
+}
+
+template<typename F>
+inline ValueInt<Base<F>>
+DiagonalMax( const DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("DiagonalMax");
+#endif
+    return VectorMax( A.GetDiagonal() );
 }
 
 } // namespace elem

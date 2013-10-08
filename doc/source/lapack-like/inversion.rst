@@ -20,6 +20,19 @@ row pivots in reverse order to the columns of the result.
 
    Overwrites the general matrix `A` with its inverse.
 
+Symmetric inversion
+-------------------
+
+.. cpp:function:: void SymmetricInverse( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+.. cpp:function:: void SymmetricInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+
+   Invert a symmetric or Hermitian matrix using a pivoted LDL factorization.
+
+.. cpp:function:: void HermitianInverse( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+.. cpp:function:: void HermitianInverse( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+
+   Invert a Hermitian matrix using a pivoted LDL factorization.
+
 HPD inversion
 -------------
 This routine uses a custom algorithm for computing the inverse of a

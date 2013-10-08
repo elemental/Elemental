@@ -235,7 +235,11 @@ inline void SymmetricSwap
         LogicError("A must be square");
 #endif
     if( to == from )
+    {
+        if( conjugate )
+            A.MakeReal( to, to );
         return;
+    }
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( uplo == LOWER )
@@ -263,6 +267,11 @@ inline void SymmetricSwap
             const F value = A.Get(from,from);
             A.Set( from, from, A.Get(to,to) );
             A.Set( to,   to,   value        );
+            if( conjugate )
+            {
+                A.MakeReal( to, to );
+                A.MakeReal( from, from );
+            }
         }
         // Left swap
         if( to > 0 )
@@ -288,7 +297,11 @@ inline void SymmetricSwap
         LogicError("A must be square");
 #endif
     if( to == from )
+    {
+        if( conjugate )
+            A.MakeReal( to, to );
         return;
+    }
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( uplo == LOWER )
@@ -316,6 +329,11 @@ inline void SymmetricSwap
             const F value = A.Get(from,from);
             A.Set( from, from, A.Get(to,to) );
             A.Set( to,   to,   value        );
+            if( conjugate )
+            {
+                A.MakeReal( to, to );
+                A.MakeReal( from, from );
+            }
         }
         // Left swap
         if( to > 0 )

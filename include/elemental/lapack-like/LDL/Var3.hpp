@@ -36,7 +36,7 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
 
         const F alpha11 = ABuffer[j+j*ldim];
         if( alpha11 == F(0) )
-            throw SingularMatrixException();
+            throw ZeroPivotException();
 
         F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
         if( conjugate )

@@ -1,5 +1,7 @@
 Functionality
 =============
+- Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
+- Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
 - Finish all options for QuasiDiagonal{Scale,Solve}
 - Distribute between different grids for any distribution
 - Consistently implement 'GetDiagonal' functionality for DistMatrix
@@ -17,7 +19,7 @@ Functionality
 - Strong RRQR and RRLQ 
 - CUR decompositions (already have (pseudo-)skeleton)
 - Complete Orthogonal Decompositions (especially URV)
-- LU with rook pivoting
+- LU and LDL with rook pivoting
 - Square process grid specialization of LDL (used to exist...)
 - (Blocked) Aasen's
 - TSQR
@@ -39,7 +41,6 @@ Functionality
 
 Maintenance
 ===========
-- Documentation for NonsingularHermitianInertia and SymmetricInverse
 - Documentation for QuasiDiagonal{Scale,Solve} and Symmetric2x2{Scale,Solve}
 - Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 - README's in each directory explaining the contents of the folder

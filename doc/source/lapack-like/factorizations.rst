@@ -44,18 +44,34 @@ be thrown.
 :math:`LDL` factorization
 -------------------------
 
-.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& dSub, Matrix<int>& p )
-.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& dSub, Matrix<int>& p )
-.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<int,VC,STAR>& p )
-.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<int,VC,STAR>& p )
+.. cpp::type:: enum LDLPivotType
 
-   Blocked Bunch-Kaufman. More details to come.
+   * ``BUNCH_KAUFMAN_A`` 
+   * ``BUNCH_KAUFMAN_C`` (not yet supported)
+   * ``BUNCH_KAUFMAN_D``
+   * ``BUNCH_KAUFMAN_BOUNDED`` (not yet supported)
+   * ``BUNCH_PARLETT``
+
+.. cpp:type:: struct LDLPivot
+
+   .. cpp:member:: int nb
+   .. cpp:member:: int from[2]
+
+.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& dSub, Matrix<int>& p, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& dSub, Matrix<int>& p, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<int,VC,STAR>& p, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<int,VC,STAR>& p, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+
+   Pivoted LDL factorization. The Bunch-Kaufman pivoting rules are used within
+   a higher-performance blocked algorithm, whereas the Bunch-Parlett strategy
+   uses an unblocked algorithm.
 
 Though the Cholesky factorization is ideal for most HPD matrices, the 
-:math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
-factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
-and diagonal :math:`D` such that :math:`A = L D L^H`. If a zero pivot is 
-attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
+unpivoted `LDL` factorizations exist as slight relaxation of the Cholesky 
+factorization and compute lower-triangular (with unit diagonal) :math:`L`
+and diagonal :math:`D` such that :math:`A = L D L^H` or :math:`A = L D L^T`. 
+If a zero pivot is attempted, then a :cpp:type:`ZeroPivotException` will 
+be thrown.
 
    .. warning::
 
