@@ -283,17 +283,19 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
     }
 }
 
+// TODO: Switch to the simpler panel update scheme used for Cholesky
+
 template<typename F>
 inline LDLPivot
 PanelBunchKaufmanA
-( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
-  Int k, Base<F> gamma )
+( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA");
 #endif
     typedef Base<F> Real;
     const Int n = A.Height();
+    const Int k = X.Width();
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
@@ -376,13 +378,14 @@ inline LDLPivot
 PanelBunchKaufmanA
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
-  Int k, Base<F> gamma )
+  Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA");
 #endif
     typedef Base<F> Real;
     const Int n = A.Height();
+    const Int k = X.Width();
     if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
         LogicError("X and Y were not properly aligned with A");
     if( gamma == Real(0) )
@@ -468,14 +471,14 @@ PanelBunchKaufmanA
 template<typename F>
 inline LDLPivot
 PanelBunchKaufmanD
-( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
-  Int k, Base<F> gamma )
+( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD");
 #endif
     typedef Base<F> Real;
     const Int n = A.Height();
+    const Int k = X.Width();
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
 
@@ -550,13 +553,14 @@ inline LDLPivot
 PanelBunchKaufmanD
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
-  Int k, Base<F> gamma )
+  Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD");
 #endif
     typedef Base<F> Real;
     const Int n = A.Height();
+    const Int k = X.Width();
     if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
         LogicError("X and Y were not properly aligned with A");
     if( gamma == Real(0) )
@@ -676,7 +680,7 @@ ChoosePivot( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 template<typename F>
 inline LDLPivot
 ChoosePanelPivot
-( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Int k, 
+( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
   LDLPivotType pivotType, Base<F> gamma )
 {
 #ifndef RELEASE
@@ -687,10 +691,10 @@ ChoosePanelPivot
     {
     case BUNCH_KAUFMAN_A: 
     case BUNCH_KAUFMAN_C:
-        pivot = pivot::PanelBunchKaufmanA( A, X, Y, k, gamma ); 
+        pivot = pivot::PanelBunchKaufmanA( A, X, Y, gamma ); 
         break;
     case BUNCH_KAUFMAN_D: 
-        pivot = pivot::PanelBunchKaufmanD( A, X, Y, k, gamma ); 
+        pivot = pivot::PanelBunchKaufmanD( A, X, Y, gamma ); 
         break;
     default: 
         LogicError("This pivot type not yet supported");
@@ -704,7 +708,7 @@ ChoosePanelPivot
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, 
   const DistMatrix<F,MR,STAR>& Y, 
-  Int k, LDLPivotType pivotType, Base<F> gamma )
+  LDLPivotType pivotType, Base<F> gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePanelPivot");
@@ -714,10 +718,10 @@ ChoosePanelPivot
     {
     case BUNCH_KAUFMAN_A: 
     case BUNCH_KAUFMAN_C:
-        pivot = pivot::PanelBunchKaufmanA( A, X, Y, k, gamma ); 
+        pivot = pivot::PanelBunchKaufmanA( A, X, Y, gamma ); 
         break;
     case BUNCH_KAUFMAN_D: 
-        pivot = pivot::PanelBunchKaufmanD( A, X, Y, k, gamma ); 
+        pivot = pivot::PanelBunchKaufmanD( A, X, Y, gamma ); 
         break;
     default: 
         LogicError("This pivot type not yet supported");
@@ -756,9 +760,9 @@ UnblockedPivoted
         auto ABR = ViewRange( A, k, k, n, n );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
+            LogicError("Have not yet generalized pivot storage");
             const auto diagMax = DiagonalMax( ABR );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
-            LogicError("Have not yet generalized pivot storage");
         }
         const LDLPivot pivot = ChoosePivot( ABR, pivotType, gamma );
 
@@ -833,9 +837,9 @@ UnblockedPivoted
         auto ABR = ViewRange( A, k, k, n, n );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
+            LogicError("Have not yet generalized pivot storage");
             const auto diagMax = DiagonalMax( ABR );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
-            LogicError("Have not yet generalized pivot storage");
         }
         const LDLPivot pivot = ChoosePivot( ABR, pivotType, gamma );
 
@@ -914,16 +918,19 @@ PanelPivoted
     while( k < bsize )
     {
         // Determine the pivot (block)
+        auto X0 = ViewRange( X, 0, 0, n-off, k );
+        auto Y0 = ViewRange( Y, 0, 0, n-off, k );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
+            LogicError("Have not yet generalized pivot storage");
+            // TODO: Form updated diagonal and select maximum
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
             const auto diagMax = DiagonalMax( ABRBR );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
-            RowSwap( X, k, k+diagMax.index );
-            RowSwap( Y, k, k+diagMax.index );
-            LogicError("Have not yet generalized pivot storage");
+            RowSwap( X0, k, k+diagMax.index );
+            RowSwap( Y0, k, k+diagMax.index );
         }
-        const auto pivot = ChoosePanelPivot( ABR, X, Y, k, pivotType, gamma );
+        const auto pivot = ChoosePanelPivot( ABR, X0, Y0, pivotType, gamma );
         const Int from = off + pivot.from[pivot.nb-1];
         const Int to = (off+k) + (pivot.nb-1);
         if( k+pivot.nb > bsize )
@@ -935,11 +942,10 @@ PanelPivoted
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( X, to-off, from-off );
-        RowSwap( Y, to-off, from-off );
+        RowSwap( X0, to-off, from-off );
+        RowSwap( Y0, to-off, from-off );
 
         // Update the active columns and then store the new update factors
-        // TODO: Reuse updates from pivot selection where possible
         if( pivot.nb == 1 ) 
         {
             // Update ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T
@@ -1038,16 +1044,19 @@ PanelPivoted
     while( k < bsize )
     {
         // Determine the pivot (block)
+        auto X0 = ViewRange( X, 0, 0, n-off, k );
+        auto Y0 = ViewRange( Y, 0, 0, n-off, k );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
+            LogicError("Have not yet generalized pivot storage");
+            // TODO: Form updated diagonal and select maximum
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
             const auto diagMax = DiagonalMax( ABRBR );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
-            RowSwap( X, k, k+diagMax.index );
-            RowSwap( Y, k, k+diagMax.index );
-            LogicError("Have not yet generalized pivot storage");
+            RowSwap( X0, k, k+diagMax.index );
+            RowSwap( Y0, k, k+diagMax.index );
         }
-        const auto pivot = ChoosePanelPivot( ABR, X, Y, k, pivotType, gamma );
+        const auto pivot = ChoosePanelPivot( ABR, X0, Y0, pivotType, gamma );
         const Int from = off + pivot.from[pivot.nb-1];
         const Int to = (off+k) + (pivot.nb-1);
         if( k+pivot.nb > bsize )
@@ -1059,11 +1068,10 @@ PanelPivoted
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( X, to-off, from-off );
-        RowSwap( Y, to-off, from-off );
+        RowSwap( X0, to-off, from-off );
+        RowSwap( Y0, to-off, from-off );
 
         // Update the active columns and then store the new update factors
-        // TODO: Reuse updates from pivot selection where possible
         if( pivot.nb == 1 ) 
         {
             // Update ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T

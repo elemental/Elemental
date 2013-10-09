@@ -242,10 +242,10 @@ inline void SymmetricSwap
     }
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    if( to > from )
+        std::swap( to, from );
     if( uplo == LOWER )
     { 
-        if( to > from )
-            std::swap( to, from );
         // Bottom swap
         if( from+1 < n )
         {
@@ -282,7 +282,39 @@ inline void SymmetricSwap
     }
     else
     {
-        LogicError("This option not yet supported");
+        // Right swap
+        if( from+1 < n )
+        {
+            auto ARight = ViewRange( A, 0, from+1, n, n );
+            RowSwap( ARight, to, from );
+        }
+        // Inner swap
+        if( to+1 < from )
+        {
+            auto aToInner   = ViewRange( A, to,   to+1, to+1, from   );
+            auto aFromInner = ViewRange( A, to+1, from, from, from+1 );
+            Swap( orientation, aToInner, aFromInner );
+        }
+        // Corner swap
+        if( conjugate )
+            A.Conjugate( to, from );
+        // Diagonal swap
+        {
+            const F value = A.Get(from,from);
+            A.Set( from, from, A.Get(to,to) );
+            A.Set( to,   to,   value        );
+            if( conjugate )
+            {
+                A.MakeReal( to, to );
+                A.MakeReal( from, from );
+            }
+        }
+        // Top swap
+        if( to > 0 )
+        {
+            auto ATop = ViewRange( A, 0, 0, to, n );
+            ColumnSwap( ATop, to, from ); 
+        }
     }
 }
 
@@ -304,10 +336,10 @@ inline void SymmetricSwap
     }
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+    if( to > from )
+        std::swap( to, from );
     if( uplo == LOWER )
     { 
-        if( to > from )
-            std::swap( to, from );
         // Bottom swap
         if( from+1 < n )
         {
@@ -344,8 +376,59 @@ inline void SymmetricSwap
     }
     else
     {
-        LogicError("This option not yet supported");
+        // Right swap
+        if( from+1 < n )
+        {
+            auto ARight = ViewRange( A, 0, from+1, n, n );
+            RowSwap( ARight, to, from );
+        }
+        // Inner swap
+        if( to+1 < from )
+        {
+            auto aToInner   = ViewRange( A, to,   to+1, to+1, from   );
+            auto aFromInner = ViewRange( A, to+1, from, from, from+1 );
+            Swap( orientation, aToInner, aFromInner );
+        }
+        // Corner swap
+        if( conjugate )
+            A.Conjugate( to, from );
+        // Diagonal swap
+        {
+            const F value = A.Get(from,from);
+            A.Set( from, from, A.Get(to,to) );
+            A.Set( to,   to,   value        );
+            if( conjugate )
+            {
+                A.MakeReal( to, to );
+                A.MakeReal( from, from );
+            }
+        }
+        // Top swap
+        if( to > 0 )
+        {
+            auto ATop = ViewRange( A, 0, 0, to, n );
+            ColumnSwap( ATop, to, from ); 
+        }
     }
+}
+
+template<typename F>
+inline void HermitianSwap( UpperOrLower uplo, Matrix<F>& A, int to, int from )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianSwap");
+#endif
+    SymmetricSwap( uplo, A, to, from, true );
+}
+
+template<typename F,Distribution U,Distribution V>
+inline void HermitianSwap
+( UpperOrLower uplo, DistMatrix<F,U,V>& A, int to, int from )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianSwap");
+#endif
+    SymmetricSwap( uplo, A, to, from, true );
 }
 
 } // namespace elem

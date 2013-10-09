@@ -15,6 +15,11 @@ thrown.
 
    Overwrite the `uplo` triangle of the HPD matrix `A` with its Cholesky factor.
 
+.. cpp:function:: void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<int>& p )
+.. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F>& A, Matrix<int>& p )
+
+   Performs Cholesky factorization with full (diagonal) pivoting.
+
 It is possible to compute the Cholesky factor of a Hermitian positive
 semi-definite (HPSD) matrix through its eigenvalue decomposition, though it
 is significantly more expensive than the HPD case: Let :math:`A = U \Lambda U^H`
@@ -40,6 +45,19 @@ be thrown.
 
    Overwrite the `uplo` triangle of the potentially singular matrix `A` with
    its Cholesky factor.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: cholesky::SolveAfter( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+.. cpp:function:: cholesky::SolveAfter( UpperOrLower uplo, Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+
+   Solve linear systems using an unpivoted Cholesky factorization.
+
+.. cpp:function:: cholesky::SolveAfter( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& B, Matrix<int>& p )
+.. cpp:function:: cholesky::SolveAfter( UpperOrLower uplo, Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<int,VC,STAR>& p )
+
+   Solve linear systems using a pivoted Cholesky factorization.
 
 :math:`LDL` factorization
 -------------------------

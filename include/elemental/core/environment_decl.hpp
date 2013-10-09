@@ -99,6 +99,7 @@ public:
 // may not actually be singular
 class ZeroPivotException : public std::runtime_error
 {
+public:
     ZeroPivotException( const char* msg="Zero pivot was chosen" )
     : std::runtime_error( msg ) { }
 };

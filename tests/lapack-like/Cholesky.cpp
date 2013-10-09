@@ -20,81 +20,61 @@ using namespace elem;
 
 template<typename F>
 void TestCorrectness
-( bool printMatrices, UpperOrLower uplo,
+( bool pivot, UpperOrLower uplo,
   const DistMatrix<F>& A,
+  const DistMatrix<Int,VC,STAR>& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
+    // Test correctness by multiplying a random set of vectors by A, then
+    // using the Cholesky factorization to solve.
     auto X = Uniform<F>( g, m, 100 );
-    auto Y( X );
+    auto Y = Zeros<F>( g, m, 100 );
+    Hemm( LEFT, uplo, F(1), AOrig, X, F(0), Y );
+    const Real maxNormL = HermitianMaxNorm( uplo, A );
+    const Real maxNormA = HermitianMaxNorm( uplo, AOrig );
+    const Real infNormA = HermitianInfinityNorm( uplo, AOrig );
+    const Real frobNormA = HermitianFrobeniusNorm( uplo, AOrig );
+    const Real oneNormY = OneNorm( Y );
+    const Real infNormY = InfinityNorm( Y );
+    const Real frobNormY = FrobeniusNorm( Y );
 
-    if( uplo == LOWER )
-    {
-        // Test correctness by comparing the application of AOrig against a 
-        // random set of 100 vectors to the application of tril(A) tril(A)^H
-        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, Y );
-        Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, Y );
-        Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-        const Real oneNormOfError = OneNorm( Y );
-        const Real infNormOfError = InfinityNorm( Y );
-        const Real frobNormOfError = FrobeniusNorm( Y );
-        const Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        const Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        const Real oneNormOfX = OneNorm( X );
-        const Real infNormOfX = InfinityNorm( X );
-        const Real frobNormOfX = FrobeniusNorm( X );
-        if( g.Rank() == 0 )
-        {
-            cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
-                 << "||A||_F              = " << frobNormOfA << "\n"
-                 << "||X||_1              = " << oneNormOfX << "\n"
-                 << "||X||_oo             = " << infNormOfX << "\n"
-                 << "||X||_F              = " << frobNormOfX << "\n"
-                 << "||A X - L L^H X||_1  = " << oneNormOfError << "\n"
-                 << "||A X - L L^H X||_oo = " << infNormOfError << "\n"
-                 << "||A X - L L^H X||_F  = " << frobNormOfError << endl;
-        }
-    }
+    if( pivot )
+        cholesky::SolveAfter( uplo, NORMAL, A, p, Y );
     else
+        cholesky::SolveAfter( uplo, NORMAL, A, Y );
+    Axpy( F(-1), Y, X );
+    const Real oneNormE = OneNorm( X );
+    const Real infNormE = InfinityNorm( X );
+    const Real frobNormE = FrobeniusNorm( X );
+
+    if( g.Rank() == 0 )
     {
-        // Test correctness by comparing the application of AOrig against a 
-        // random set of 100 vectors to the application of triu(A)^H triu(A)
-        Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
-        Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, Y );
-        Hemm( LEFT, UPPER, F(-1), AOrig, X, F(1), Y );
-        const Real oneNormOfError = OneNorm( Y );
-        const Real infNormOfError = InfinityNorm( Y );
-        const Real frobNormOfError = FrobeniusNorm( Y );
-        const Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        const Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        const Real oneNormOfX = OneNorm( X );
-        const Real infNormOfX = InfinityNorm( X );
-        const Real frobNormOfX = FrobeniusNorm( X );
-        if( g.Rank() == 0 )
-        {
-            cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
-                 << "||A||_F              = " << frobNormOfA << "\n"
-                 << "||X||_1              = " << oneNormOfX << "\n"
-                 << "||X||_oo             = " << infNormOfX << "\n"
-                 << "||X||_F              = " << frobNormOfX << "\n"
-                 << "||A X - U^H U X||_1  = " << oneNormOfError << "\n"
-                 << "||A X - U^H U X||_oo = " << infNormOfError << "\n"
-                 << "||A X - U^H U X||_F  = " << frobNormOfError << endl;
-        }
+        cout << "||L||_max            = " << maxNormL << "\n"
+             << "||A||_max            = " << maxNormA << "\n"
+             << "||A||_1 = ||A||_oo   = " << infNormA << "\n"
+             << "||A||_F              = " << frobNormA << "\n"
+             << "||Y||_1              = " << oneNormY << "\n"
+             << "||Y||_oo             = " << infNormY << "\n"
+             << "||Y||_F              = " << frobNormY << "\n"
+             << "||X - inv(A) X||_1  = " << oneNormE << "\n"
+             << "||X - inv(A) X||_oo = " << infNormE << "\n"
+             << "||X - inv(A) X||_F  = " << frobNormE << endl;
     }
 }
 
 template<typename F> 
 void TestCholesky
-( bool testCorrectness, bool printMatrices, 
+( bool testCorrectness, bool pivot, bool unblocked, bool print, bool printDiag,
   UpperOrLower uplo, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
+    DistMatrix<Int,VC,STAR> p(g);
 
-    HermitianUniformSpectrum( A, m, 1, 10 );
+    HermitianUniformSpectrum( A, m, 1e-9, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -106,7 +86,7 @@ void TestCholesky
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         Print( A, "A" );
 
     if( g.Rank() == 0 )
@@ -116,7 +96,20 @@ void TestCholesky
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    Cholesky( uplo, A );
+    if( pivot )
+    {
+        if( unblocked )
+        {
+            if( uplo == LOWER )
+                cholesky::LUnblockedPivoted( A, p );
+            else
+                cholesky::UUnblockedPivoted( A, p );
+        }
+        else
+            Cholesky( uplo, A, p );
+    }
+    else
+        Cholesky( uplo, A );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -127,10 +120,16 @@ void TestCholesky
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
+    { 
         Print( A, "A after factorization" );
+        if( pivot )
+            Print( p, "p" );
+    }
+    if( printDiag )
+        Print( A.GetRealPartOfDiagonal(), "diag(A)" );
     if( testCorrectness )
-        TestCorrectness( printMatrices, uplo, A, AOrig );
+        TestCorrectness( pivot, uplo, A, p, AOrig );
 }
 
 int 
@@ -148,9 +147,12 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool pivot = Input("--pivot","use pivoting?",false);
+        const bool unblocked = Input("--unblocked","unblocked pivoting?",false);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
-        const bool printMatrices = Input("--print","print matrices?",false);
+        const bool print = Input("--print","print matrices?",false);
+        const bool printDiag = Input("--printDiag","print diag of fact?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -172,7 +174,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestCholesky<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
 
         if( commRank == 0 )
         {
@@ -181,7 +183,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestCholesky<Complex<double>>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

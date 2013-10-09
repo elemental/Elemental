@@ -20,8 +20,10 @@ void LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 #include "./Cholesky/LVar3.hpp"
 #include "./Cholesky/LVar3Square.hpp"
+#include "./Cholesky/LVar3Pivoted.hpp"
 #include "./Cholesky/UVar3.hpp"
 #include "./Cholesky/UVar3Square.hpp"
+#include "./Cholesky/UVar3Pivoted.hpp"
 #include "./Cholesky/SolveAfter.hpp"
 
 namespace elem {
@@ -46,6 +48,8 @@ LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
     ReverseCholesky( uplo, A.Matrix() );
 }
 
+// TODO: Pivoted Reverse Cholesky?
+
 template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
@@ -59,6 +63,21 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
         cholesky::LVar3( A );
     else
         cholesky::UVar3( A );
+}
+
+template<typename F>
+inline void
+Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Cholesky");
+    if( A.Height() != A.Width() )
+        LogicError("A must be square");
+#endif
+    if( uplo == LOWER )
+        cholesky::LVar3( A, p );
+    else
+        cholesky::UVar3( A, p );
 }
 
 template<typename F>
@@ -98,6 +117,19 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
         else
             cholesky::UVar3( A );
     }
+}
+
+template<typename F> 
+inline void
+Cholesky( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Cholesky");
+#endif
+    if( uplo == LOWER )
+        cholesky::LVar3( A, p );
+    else
+        cholesky::UVar3( A, p );
 }
 
 template<typename F> 
