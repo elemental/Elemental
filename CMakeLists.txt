@@ -395,9 +395,18 @@ set(RANDOM_CODE
          std::normal_distribution<double> dist(0,1);
          const double x = dist(mt);
      }")
+set(ALIAS_CODE
+    "#include <complex>
+     template<typename Real>
+     using Complex = std::complex<Real>;
+     int main()
+     {
+         Complex<double> a;
+     }")
 check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
-if(NOT HAVE_NORMAL_DIST)
-  message(FATAL_ERROR "C++11 random number generation not found. You may want to add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
+check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
+if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
+  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7) and add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
 endif()
 
 # Check for MPI_IN_PLACE (essentially MPI2 support)
