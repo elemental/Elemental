@@ -24,7 +24,6 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
 #ifndef RELEASE
     CallStackEntry entry("lu::Panel");
 #endif
-    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 #ifndef RELEASE
