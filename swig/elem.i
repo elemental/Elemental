@@ -137,10 +137,10 @@ AbDMT(T,size_t,AllocatedMemory)
 %attribute_custom(%arg(elem::AbstractDistMatrix<T >),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
 %attribute_readonly(%arg(elem::AbstractDistMatrix<T >),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
 %attribute_readonly(%arg(elem::AbstractDistMatrix<T >),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
-AbDMT(T,bool,ConstrainedColAlignment)
-AbDMT(T,bool,ConstrainedRowAlignment)
-AbDMT(T,Int,ColAlignment)
-AbDMT(T,Int,RowAlignment)
+AbDMT(T,bool,ColConstrained)
+AbDMT(T,bool,RowConstrained)
+AbDMT(T,Int,ColAlign)
+AbDMT(T,Int,RowAlign)
 AbDMT(T,Int,ColShift)
 AbDMT(T,Int,RowShift)
 AbDMT(T,Int,ColStride)
@@ -158,6 +158,8 @@ AbDM(elem::Complex<float>)
 AbDM(elem::Complex<double>)
 #undef AbDMT
 #undef AbDM
+
+%nodefaultctor DistData;
 
 %include "elemental/core/dist_matrix_forward_decl.hpp"
 %include "elemental/core/dist_matrix.hpp"

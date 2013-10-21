@@ -26,12 +26,12 @@ namespace elem {
 
 template<typename F> 
 inline void
-MakeExtendedKahan( Matrix<F>& A, Base<F> phi, Base<F> mu )
+MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
     CallStackEntry cse("MakeExtendedKahan");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
 
     if( A.Height() != A.Width() )
         LogicError("Extended Kahan matrices must be square");
@@ -72,12 +72,12 @@ MakeExtendedKahan( Matrix<F>& A, Base<F> phi, Base<F> mu )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-MakeExtendedKahan( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
+MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
     CallStackEntry cse("MakeExtendedKahan");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
 
     if( A.Height() != A.Width() )
         LogicError("Extended Kahan matrices must be square");
@@ -123,7 +123,7 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
 
 template<typename F>
 inline void
-ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
+ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
     CallStackEntry cse("ExtendedKahan");
@@ -135,7 +135,7 @@ ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 
 template<typename F>
 inline Matrix<F>
-ExtendedKahan( Int k, Base<F> phi, Base<F> mu )
+ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
 {
     const Int n = 3*(1u<<k);
     Matrix<F> A( n, n );
@@ -145,7 +145,7 @@ ExtendedKahan( Int k, Base<F> phi, Base<F> mu )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
+ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
     CallStackEntry cse("ExtendedKahan");
@@ -157,7 +157,7 @@ ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
 
 template<typename F,Distribution U=MC,Distribution V=MR>
 inline DistMatrix<F,U,V>
-ExtendedKahan( const Grid& g, Int k, Base<F> phi, Base<F> mu )
+ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
 {
     const Int n = 3*(1u<<k);
     DistMatrix<F,U,V> A( n, n, g );

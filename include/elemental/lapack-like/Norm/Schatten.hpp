@@ -17,13 +17,13 @@
 namespace elem {
 
 template<typename F> 
-inline Base<F>
-SchattenNorm( const Matrix<F>& A, Base<F> p )
+inline BASE(F)
+SchattenNorm( const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("SchattenNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -37,14 +37,14 @@ SchattenNorm( const Matrix<F>& A, Base<F> p )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianSchattenNorm
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianSchattenNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
@@ -58,14 +58,14 @@ HermitianSchattenNorm
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricSchattenNorm
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricSchattenNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -80,13 +80,13 @@ SymmetricSchattenNorm
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline Base<F>
-SchattenNorm( const DistMatrix<F,U,V>& A, Base<F> p )
+inline BASE(F)
+SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("SchattenNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -101,14 +101,14 @@ SchattenNorm( const DistMatrix<F,U,V>& A, Base<F> p )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline Base<F>
+inline BASE(F)
 HermitianSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianSchattenNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -123,14 +123,14 @@ HermitianSchattenNorm
 }
 
 template<typename F,Distribution U,Distribution V>
-inline Base<F>
+inline BASE(F)
 SymmetricSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricSchattenNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

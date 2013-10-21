@@ -31,7 +31,7 @@ SVD( Matrix<F>& A )
     CallStackEntry entry("polar::SVD");
 #endif
     // Get the SVD of A
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<R> s;
     Matrix<F> U, V;
     U = A;
@@ -49,7 +49,7 @@ SVD( Matrix<F>& A, Matrix<F>& P )
     CallStackEntry entry("polar::SVD");
 #endif
     // Get the SVD of A
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<R> s;
     Matrix<F> U, V;
     U = A;
@@ -70,7 +70,7 @@ SVD( DistMatrix<F>& A )
     CallStackEntry entry("polar::SVD");
 #endif
     // Get the SVD of A
-    typedef Base<F> R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
@@ -89,7 +89,7 @@ SVD( DistMatrix<F>& A, DistMatrix<F>& P )
     CallStackEntry entry("polar::SVD");
 #endif
     // Get the SVD of A
-    typedef Base<F> R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);

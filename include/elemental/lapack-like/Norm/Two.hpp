@@ -18,13 +18,13 @@
 namespace elem {
 
 template<typename F> 
-inline Base<F>
+inline BASE(F)
 TwoNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("TwoNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -32,13 +32,13 @@ TwoNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTwoNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
@@ -46,13 +46,13 @@ HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricTwoNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -61,13 +61,13 @@ SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline Base<F>
+inline BASE(F)
 TwoNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("TwoNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -75,13 +75,13 @@ TwoNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline Base<F>
+inline BASE(F)
 HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTwoNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -89,13 +89,13 @@ HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline Base<F>
+inline BASE(F)
 SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricTwoNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

@@ -20,12 +20,12 @@ namespace elem {
 
 template<typename F>
 inline Int
-SVT( Matrix<F>& A, Base<F> tau )
+SVT( Matrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     Matrix<F> U( A );
     Matrix<Real> s;
     Matrix<F> V;
@@ -41,14 +41,14 @@ SVT( Matrix<F>& A, Base<F> tau )
 // Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
 inline Int
-SVT( Matrix<F>& A, Base<F> tau, Int numSteps )
+SVT( Matrix<F>& A, BASE(F) tau, Int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
     if( numSteps > std::min(A.Height(),A.Width()) )
         LogicError("number of steps is too large");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<F> ACopy( A ), t;
@@ -76,12 +76,12 @@ SVT( Matrix<F>& A, Base<F> tau, Int numSteps )
 
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, Base<F> tau )
+SVT( DistMatrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     DistMatrix<F> U( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     DistMatrix<F> V( A.Grid() );
@@ -97,14 +97,14 @@ SVT( DistMatrix<F>& A, Base<F> tau )
 // Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, Base<F> tau, Int numSteps )
+SVT( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
     if( numSteps > std::min(A.Height(),A.Width()) )
         LogicError("number of steps is too large");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();

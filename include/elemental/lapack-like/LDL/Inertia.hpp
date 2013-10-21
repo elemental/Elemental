@@ -34,12 +34,12 @@ namespace ldl {
 
 template<typename F>
 inline elem::Inertia
-Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
+Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::Inertia");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = d.Height();
 #ifndef RELEASE
     if( n != 0 && dSub.Height() != n-1 )
@@ -77,15 +77,15 @@ Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 template<typename F>
 inline elem::Inertia
 Inertia
-( const DistMatrix<Base<F>,MC,STAR>& d, 
-  const DistMatrix<Base<F>,MC,STAR>& dPrev, 
+( const DistMatrix<BASE(F),MC,STAR>& d, 
+  const DistMatrix<BASE(F),MC,STAR>& dPrev, 
   const DistMatrix<F,MC,STAR>& dSub, 
   const DistMatrix<F,MC,STAR>& dSubPrev )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::Inertia");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
 
     const Int n = d.Height();
 #ifndef RELEASE
@@ -160,12 +160,12 @@ Inertia
 
 template<typename F,Distribution U,Distribution V>
 inline elem::Inertia
-Inertia( const DistMatrix<Base<F>,U,V>& d, const DistMatrix<F,U,V>& dSub )
+Inertia( const DistMatrix<BASE(F),U,V>& d, const DistMatrix<F,U,V>& dSub )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Inertia");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = d.Grid();
     const Int colStride = g.Height();
 

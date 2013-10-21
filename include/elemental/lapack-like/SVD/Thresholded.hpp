@@ -20,7 +20,7 @@ namespace svd {
 
 template<typename F>
 inline void
-ThresholdedTall( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
+ThresholdedTall( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedTall");
@@ -29,7 +29,7 @@ ThresholdedTall( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
     if( tol < 0 )
         LogicError("negative threshold does not make sense");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -71,8 +71,8 @@ ThresholdedTall( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
 template<typename F>
 inline void
 ThresholdedTall
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0 )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+  BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedTall");
@@ -82,7 +82,7 @@ ThresholdedTall
         LogicError("negative threshold does not make sense");
 #endif
     EnsurePMRRR();
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Real frobNorm = FrobeniusNorm( A );
@@ -132,7 +132,7 @@ ThresholdedTall
 
 template<typename F>
 inline void
-ThresholdedWide( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
+ThresholdedWide( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedWide");
@@ -141,7 +141,7 @@ ThresholdedWide( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
     if( tol < 0 )
         LogicError("negative threshold does not make sense");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
@@ -182,8 +182,8 @@ ThresholdedWide( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
 template<typename F>
 inline void
 ThresholdedWide
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0 )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+  BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedWide");
@@ -193,7 +193,7 @@ ThresholdedWide
         LogicError("negative threshold does not make sense");
 #endif
     EnsurePMRRR();
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -243,7 +243,7 @@ ThresholdedWide
 
 template<typename F>
 inline void
-Thresholded( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
+Thresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::Thresholded");
@@ -257,8 +257,8 @@ Thresholded( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
 template<typename F>
 inline void
 Thresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0 )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+  BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::Thresholded");

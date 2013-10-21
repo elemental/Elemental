@@ -122,29 +122,29 @@ public:
     void GetDiagonal( DistMatrix<T,MD,STAR>& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MD>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<Base<T>,MD,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<Base<T>,MD,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<Base<T>,STAR,MD>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<Base<T>,STAR,MD>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
     DistMatrix<T,MD,STAR> GetDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,MD,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,MD,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MD,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MD,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const DistMatrix<T,MD,STAR>& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,MD>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<Base<T>,MD,STAR>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<Base<T>,MD,STAR>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<Base<T>,STAR,MD>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<Base<T>,STAR,MD>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach

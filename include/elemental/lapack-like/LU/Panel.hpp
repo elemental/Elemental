@@ -79,7 +79,7 @@ Panel
     if( A.Height() != p.Height() || p.Width() != 1 )
         LogicError("p must be a vector that conforms with A");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int colShift = B.ColShift();

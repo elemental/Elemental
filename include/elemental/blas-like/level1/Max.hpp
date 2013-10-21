@@ -15,13 +15,13 @@ namespace elem {
 // TODO: Add options for FastAbs instead of Abs
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 VectorMax( const Matrix<F>& x )
 {
 #ifndef RELEASE
     CallStackEntry cse("VectorMax");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = x.Height();
     const Int n = x.Width();
 #ifndef RELEASE
@@ -60,16 +60,16 @@ VectorMax( const Matrix<F>& x )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 VectorMax( const DistMatrix<F,U,V>& x )
 {
 #ifndef RELEASE
     CallStackEntry cse("VectorMax");
 #endif
-    typedef Base<F> Real;
-    const Int m = x.Height();
+    typedef BASE(F) Real;
     const Int n = x.Width();
 #ifndef RELEASE
+    const Int m = x.Height();
     if( m != 1 && n != 1 )
         LogicError("Input should have been a vector");
 #endif
@@ -124,13 +124,13 @@ VectorMax( const DistMatrix<F,U,V>& x )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
+inline ValueIntPair<BASE(F)>
 Max( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("Max");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -140,7 +140,7 @@ Max( const Matrix<F>& A )
     pivot.indices[1] = 0;
     for( Int j=0; j<n; ++j )
     {
-        for( Int i=0; i<n; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const Real abs = Abs(A.Get(i,j));
             if( abs > pivot.value )
@@ -155,13 +155,13 @@ Max( const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline ValueIntPair<Base<F>>
+inline ValueIntPair<BASE(F)>
 Max( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("Max");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     ValueIntPair<Real> pivot;
     if( A.Participating() )
     {
@@ -202,7 +202,7 @@ Max( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
+inline ValueIntPair<BASE(F)>
 SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -210,7 +210,7 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Width();
 
     ValueIntPair<Real> pivot;
@@ -253,7 +253,7 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
+inline ValueIntPair<BASE(F)>
 SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
@@ -261,7 +261,7 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     const Int colShift = A.ColShift();
@@ -326,7 +326,7 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 DiagonalMax( const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -336,7 +336,7 @@ DiagonalMax( const Matrix<F>& A )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 DiagonalMax( const DistMatrix<F>& A )
 {
 #ifndef RELEASE

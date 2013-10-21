@@ -13,30 +13,10 @@
 namespace elem {
 
 
+#ifdef SWIG
 
-
-#ifndef SWIG
-template<typename Real>
-using Complex = std::complex<Real>;
-#else
-// This is a hack for SWIG...
 #define Complex std::complex
-#endif
 
-#ifndef SWIG
-// For extracting the underlying real datatype, 
-// e.g., Base<Scalar> a = 3.0;
-template<typename Real>
-struct BaseHelper { typedef Real type; };
-template<typename Real>
-struct BaseHelper<Complex<Real>> { typedef Real type; };
-
-template<typename F>
-using Base = typename BaseHelper<F>::type;
-
-// Defined for legacy reasons; it is now deprecated
-#define BASE(F) Base<F>
-#else
 template<typename Real> struct BaseHelper { };
 %template(BaseHelper_i) BaseHelper<Int>;
 %extend BaseHelper<Int> { typedef Int type; }
@@ -50,8 +30,25 @@ template<typename Real> struct BaseHelper { };
 %extend BaseHelper<Complex<double> > { typedef double type; }
 
 #define BASE(F) typename BaseHelper<F>::type 
-// This is a hack for SWIG...
-#define Base BASE
+
+#else /* ifndef SWIG */
+
+template<typename Real>
+using Complex = std::complex<Real>;
+
+// For extracting the underlying real datatype
+template<typename Real>
+struct BaseHelper { typedef Real type; };
+template<typename Real>
+struct BaseHelper<Complex<Real>> { typedef Real type; };
+
+template<typename F>
+using Base = typename BaseHelper<F>::type;
+
+// I would like to deprecate BASE(F), but it is the best compromise which
+// allows the same code to be used for the limited SWIG C++ parser
+#define BASE(F) Base<F>
+
 #endif
 
 template<typename Real>
@@ -96,13 +93,15 @@ void UpdateImagPart( Complex<Real>& alpha, const Real& beta );
 
 // Euclidean (l_2) magnitudes
 template<typename F>
-Base<F> Abs( const F& alpha );
-template<typename F>
-Base<F> SafeAbs( const F& alpha );
+BASE(F) Abs( const F& alpha );
+template<typename Real>
+Real SafeAbs( const Real& alpha );
+template<typename Real>
+Real SafeAbs( const Complex<Real>& alpha );
 
 // Square-root free (l_1) magnitudes
 template<typename F>
-Base<F> FastAbs( const F& alpha );
+BASE(F) FastAbs( const F& alpha );
 
 // Conjugation
 template<typename Real>

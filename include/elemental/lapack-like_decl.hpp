@@ -23,62 +23,62 @@ inline void EnsurePMRRR()
 // Compute the eigenvalues of a Hermitian matrix
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort=UNSORTED );
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, 
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
   SortType sort=UNSORTED );
 
 // Compute the full eigenvalue decomposition of a Hermitian matrix
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z, 
   SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
   SortType sort=UNSORTED );
 
 // Compute the eigenvalues of a Hermitian matrix within a selected range
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED );
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, 
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
   Int lowerBound, Int upperBound, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
 
 // Compute a selected set of eigenpairs of a Hermitian matrix
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
+  Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED );
+  Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED );
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
 
 //
 // HermitianGenDefiniteEig (Hermitian Generalized-Definite Eigensolver) 

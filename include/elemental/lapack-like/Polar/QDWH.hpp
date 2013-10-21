@@ -44,12 +44,12 @@ namespace polar {
 template<typename F>
 inline Int 
 QDWHInner
-( Matrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
+( Matrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWHInner");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     typedef Complex<Real> Cpx;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -137,7 +137,7 @@ QDWH( Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
 
@@ -188,12 +188,12 @@ QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, Int maxIts=20 )
 template<typename F>
 inline Int 
 QDWHInner
-( DistMatrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
+( DistMatrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWHInner");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     typedef Complex<Real> Cpx;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -282,7 +282,7 @@ QDWH( DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
 
@@ -338,7 +338,7 @@ namespace hermitian_polar {
 template<typename F>
 inline int
 QDWHInner
-( UpperOrLower uplo, Matrix<F>& A, Base<F> sMinUpper, 
+( UpperOrLower uplo, Matrix<F>& A, BASE(F) sMinUpper, 
   bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
@@ -347,7 +347,7 @@ QDWHInner
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     typedef Complex<Real> Cpx;
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
@@ -440,7 +440,7 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
@@ -481,7 +481,7 @@ QDWH
 template<typename F>
 inline int
 QDWHInner
-( UpperOrLower uplo, DistMatrix<F>& A, Base<F> sMinUpper, 
+( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) sMinUpper, 
   bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
@@ -490,7 +490,7 @@ QDWHInner
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     typedef Complex<Real> Cpx;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -582,7 +582,7 @@ QDWH( UpperOrLower uplo, DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );

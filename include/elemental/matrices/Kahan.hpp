@@ -23,7 +23,7 @@ MakeKahan( Matrix<F>& A, F phi )
 #ifndef RELEASE
     CallStackEntry cse("MakeKahan");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -32,7 +32,7 @@ MakeKahan( Matrix<F>& A, F phi )
     if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
         LogicError("|phi| must be in (0,1)");
 
-    const F zeta = Sqrt(1-phi*Conj(phi));
+    const F zeta = Sqrt(F(1)-phi*Conj(phi));
 
     MakeZeros( A );
     for( Int i=0; i<n; ++i )
@@ -51,7 +51,7 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
 #ifndef RELEASE
     CallStackEntry cse("MakeKahan");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -60,7 +60,7 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
     if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
         LogicError("|phi| must be in (0,1)");
 
-    const F zeta = Sqrt(1-phi*Conj(phi));
+    const F zeta = Sqrt(F(1)-phi*Conj(phi));
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

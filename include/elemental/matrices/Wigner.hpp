@@ -17,7 +17,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
+Wigner( Matrix<T>& A, Int n, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("Wigner");
@@ -28,7 +28,7 @@ Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
 
 template<typename T>
 inline Matrix<T>
-Wigner( Int n, T mean=0, Base<T> stddev=1 )
+Wigner( Int n, T mean=0, BASE(T) stddev=1 )
 {
     auto A = Gaussian<T>( n, n, mean, stddev );
     MakeHermitian( LOWER, A );
@@ -37,7 +37,7 @@ Wigner( Int n, T mean=0, Base<T> stddev=1 )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, Base<T> stddev=1 )
+Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
     CallStackEntry cse("Wigner");
@@ -48,7 +48,7 @@ Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, Base<T> stddev=1 )
 
 template<typename T,Distribution U=MC,Distribution V=MR>
 inline DistMatrix<T,U,V>
-Wigner( const Grid& g, Int n, T mean=0, Base<T> stddev=1 )
+Wigner( const Grid& g, Int n, T mean=0, BASE(T) stddev=1 )
 {
     auto A = Gaussian<T,U,V>( g, n, n, mean, stddev );
     MakeHermitian( LOWER, A );

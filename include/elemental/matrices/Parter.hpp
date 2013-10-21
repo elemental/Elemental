@@ -23,7 +23,7 @@ Parter( Matrix<F>& P, Int n )
     P.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
-            P.Set( i, j, F(1)/(i-j+oneHalf) );
+            P.Set( i, j, F(1)/(F(i)-F(j)+oneHalf) );
 }
 
 template<typename F> 
@@ -56,7 +56,7 @@ Parter( DistMatrix<F,U,V>& P, Int n )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-            P.SetLocal( iLoc, jLoc, F(1)/(i-j+oneHalf) );
+            P.SetLocal( iLoc, jLoc, F(1)/(F(i)-F(j)+oneHalf) );
         }
     }
 }

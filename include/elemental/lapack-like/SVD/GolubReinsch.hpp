@@ -26,12 +26,12 @@ namespace svd {
 template<typename F>
 inline void
 GolubReinschUpper
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::GolubReinschUpper");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -105,12 +105,12 @@ GolubReinschUpper
 template<typename F>
 inline void
 GolubReinschUpper_FLA
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::GolubReinschUpper_FLA");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -200,12 +200,12 @@ template<typename F>
 inline void
 GolubReinschUpper
 ( DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& s )
+  DistMatrix<BASE(F),VR,STAR>& s )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::GolubReinschUpper");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );

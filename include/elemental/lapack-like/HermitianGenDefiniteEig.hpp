@@ -27,7 +27,7 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort=UNSORTED )
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -48,7 +48,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, SortType sort=UNSORTED )
+  DistMatrix<BASE(F),VR,STAR>& w, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -73,7 +73,7 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
   SortType sort=UNSORTED )
 {
 #ifndef RELEASE
@@ -105,7 +105,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
   SortType sort=UNSORTED )
 {
 #ifndef RELEASE
@@ -141,7 +141,7 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w,
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
   Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
@@ -163,7 +163,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w,
+  DistMatrix<BASE(F),VR,STAR>& w,
   Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
@@ -189,7 +189,7 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
   Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
@@ -221,7 +221,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
   Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
@@ -257,8 +257,8 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w,
-  Base<F> a, Base<F> b, SortType sort=UNSORTED )
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -278,8 +278,8 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<Base<F>,VR,STAR>& w,
-  Base<F> a, Base<F> b, SortType sort=UNSORTED )
+  DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<BASE(F),VR,STAR>& w,
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -304,8 +304,8 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
-  Base<F> a, Base<F> b, SortType sort=UNSORTED )
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -336,8 +336,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
-  Base<F> a, Base<F> b, SortType sort=UNSORTED )
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");

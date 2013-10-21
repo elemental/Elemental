@@ -119,29 +119,29 @@ public:
     void GetDiagonal( type& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MC>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<Base<T>,MC,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<Base<T>,MC,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<Base<T>,STAR,MC>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<Base<T>,STAR,MC>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
     type GetDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,MC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,MC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const type& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,MC>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<Base<T>,MC,STAR>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<Base<T>,MC,STAR>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<Base<T>,STAR,MC>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<Base<T>,STAR,MC>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
 
     void AlignWithDiagonal( const admType& A, Int offset=0 );
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );

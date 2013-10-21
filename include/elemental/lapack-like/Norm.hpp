@@ -24,13 +24,13 @@
 namespace elem {
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("Norm");
 #endif
-    Base<F> norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -61,14 +61,14 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricNorm");
 #endif
-    Base<F> norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -99,14 +99,14 @@ SymmetricNorm
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianNorm");
 #endif
-    Base<F> norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -137,13 +137,13 @@ HermitianNorm
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline Base<F>
+inline BASE(F)
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("Norm");
 #endif
-    Base<F> norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -174,14 +174,14 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricNorm");
 #endif
-    Base<F> norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -212,14 +212,14 @@ SymmetricNorm
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianNorm");
 #endif
-    Base<F> norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute

@@ -34,12 +34,12 @@ namespace schur {
 
 template<typename F>
 inline int
-InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
+InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSign");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
         LogicError("X must be 2n x n");
@@ -103,12 +103,12 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 
 template<typename F>
 inline int
-InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, Base<F> tau=0 )
+InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSign");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -172,13 +172,13 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 InverseFreeSignDivide( Matrix<F>& X )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSignDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
         LogicError("Matrix should be 2n x n");
@@ -215,13 +215,13 @@ InverseFreeSignDivide( Matrix<F>& X )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 InverseFreeSignDivide( DistMatrix<F>& X )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSignDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();
     if( X.Height() != 2*n )

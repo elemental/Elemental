@@ -19,7 +19,7 @@ Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate=false )
 #ifndef RELEASE    
     CallStackEntry cse("Symmetric2x2Inv");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     if( uplo == LOWER )
     {
         if( conjugate )

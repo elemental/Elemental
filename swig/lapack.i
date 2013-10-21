@@ -13,6 +13,8 @@
 %include "common.swg"
 %import "elem.i"
 
+%include "elemental/lapack-like_decl.hpp"
+
 /*
  * INVARIANTS, INNER PRODUCTS, NORMS, ETC.
  */
@@ -157,7 +159,6 @@ OVERLOAD0(TriangularInverse)
  * REDUCTION TO CONDENSED FORM
  */
 
-%include "elemental/lapack-like_decl.hpp"
 %include "elemental/lapack-like/Bidiag.hpp"
 %include "elemental/lapack-like/HermitianTridiag.hpp"
 

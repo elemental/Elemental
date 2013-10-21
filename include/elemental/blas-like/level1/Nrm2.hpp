@@ -15,7 +15,7 @@
 namespace elem {
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 Nrm2( const Matrix<F>& x )
 {
 #ifndef RELEASE
@@ -23,7 +23,7 @@ Nrm2( const Matrix<F>& x )
     if( x.Height() != 1 && x.Width() != 1 )
         LogicError("Expected vector input");
 #endif
-    Base<F> norm;
+    BASE(F) norm;
     if( x.Width() == 1 )
         norm = blas::Nrm2( x.Height(), x.LockedBuffer(), 1 );
     else
@@ -32,7 +32,7 @@ Nrm2( const Matrix<F>& x )
 }
 
 template<typename F>
-inline Base<F> 
+inline BASE(F)
 Nrm2( const DistMatrix<F>& x )
 {
 #ifndef RELEASE

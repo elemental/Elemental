@@ -15,13 +15,13 @@
 namespace elem {
 
 template<typename F> 
-inline Base<F>
+inline BASE(F)
 InfinityNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("InfinityNorm");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     R maxRowSum = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -36,7 +36,7 @@ InfinityNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -46,7 +46,7 @@ HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -56,14 +56,14 @@ SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline Base<F>
+inline BASE(F)
 InfinityNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[U,V]
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     Real norm;
     if( A.Participating() )
     {
@@ -95,7 +95,7 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A )
 {
@@ -106,7 +106,7 @@ HermitianInfinityNorm
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE

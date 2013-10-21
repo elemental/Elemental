@@ -19,7 +19,7 @@
 namespace elem {
 
 template<typename F>
-inline Base<F> 
+inline BASE(F) 
 LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
@@ -30,7 +30,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
         LogicError
         ("A and B must be square matrices of the same size");
 
-    typedef Base<F> R;
+    typedef BASE(F) R;
     const Int n = A.Height();
 
     Matrix<F> ACopy( A ), BCopy( B );
@@ -60,7 +60,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 }
 
 template<typename F>
-inline Base<F> 
+inline BASE(F) 
 LogDetDivergence
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
@@ -73,7 +73,7 @@ LogDetDivergence
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");
 
-    typedef Base<F> R;
+    typedef BASE(F) R;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 

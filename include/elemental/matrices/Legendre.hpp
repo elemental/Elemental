@@ -28,8 +28,8 @@ MakeLegendre( Matrix<F>& A )
     const Int n = A.Width();
     for( Int j=0; j<n-1; ++j )
     {
-        const F gamma = F(1) / Pow( F(2)*(j+1), F(2) );
-        const F beta = F(1) / (2*Sqrt(F(1)-gamma));
+        const F gamma = F(1) / Pow( F(2)*F(j+1), F(2) );
+        const F beta = F(1) / (F(2)*Sqrt(F(1)-gamma));
         A.Set( j+1, j, beta );
         A.Set( j, j+1, beta );
     }
@@ -61,8 +61,8 @@ MakeLegendre( DistMatrix<F,U,V>& A )
             if( j == i+1 || j == i-1 )
             {
                 const Int k = Max( i, j );
-                const F gamma = F(1) / Pow( F(2)*k, F(2) );
-                const F beta = F(1) / (2*Sqrt(F(1)-gamma));
+                const F gamma = F(1) / Pow( F(2)*F(k), F(2) );
+                const F beta = F(1) / (F(2)*Sqrt(F(1)-gamma));
                 A.SetLocal( iLoc, jLoc, beta );
             }
         }

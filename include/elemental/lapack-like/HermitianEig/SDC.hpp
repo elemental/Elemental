@@ -34,8 +34,8 @@ template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Base<F>,VR,STAR>& wT,    DistMatrix<Base<F>,VR,STAR>& wB,
-  DistMatrix<Base<F>,VR,STAR>& wTSub, DistMatrix<Base<F>,VR,STAR>& wBSub )
+  DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
+  DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::PushSubproblems");
@@ -63,8 +63,8 @@ template<typename F>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Base<F>,VR,STAR>& wT,    DistMatrix<Base<F>,VR,STAR>& wB,
-  DistMatrix<Base<F>,VR,STAR>& wTSub, DistMatrix<Base<F>,VR,STAR>& wBSub )
+  DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
+  DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::PullSubproblems");
@@ -75,20 +75,20 @@ inline void PullSubproblems
     //wT = wTSub;
     //wB = wBSub;
     {
-        DistMatrix<Base<F>> wTSub_MC_MR( wTSub.Grid() );
+        DistMatrix<BASE(F)> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent();
-        DistMatrix<Base<F>> wT_MC_MR(wT.Grid());
+        DistMatrix<BASE(F)> wT_MC_MR(wT.Grid());
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
     }
     {
-        DistMatrix<Base<F>> wBSub_MC_MR( wBSub.Grid() );
+        DistMatrix<BASE(F)> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent();
-        DistMatrix<Base<F>> wB_MC_MR(wB.Grid());
+        DistMatrix<BASE(F)> wB_MC_MR(wB.Grid());
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
@@ -110,8 +110,8 @@ template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Base<F>,VR,STAR>& wT,    DistMatrix<Base<F>,VR,STAR>& wB,
-  DistMatrix<Base<F>,VR,STAR>& wTSub, DistMatrix<Base<F>,VR,STAR>& wBSub,
+  DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
+  DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
 #ifndef RELEASE
@@ -144,8 +144,8 @@ template<typename F>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Base<F>,VR,STAR>& wT,    DistMatrix<Base<F>,VR,STAR>& wB,
-  DistMatrix<Base<F>,VR,STAR>& wTSub, DistMatrix<Base<F>,VR,STAR>& wBSub,
+  DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
+  DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub,
   DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
@@ -162,20 +162,20 @@ inline void PullSubproblems
     //wT = wTSub;
     //wB = wBSub;
     {
-        DistMatrix<Base<F>> wTSub_MC_MR( wTSub.Grid() );
+        DistMatrix<BASE(F)> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent();
-        DistMatrix<Base<F>> wT_MC_MR(wT.Grid());
+        DistMatrix<BASE(F)> wT_MC_MR(wT.Grid());
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
     }
     {
-        DistMatrix<Base<F>> wBSub_MC_MR( wBSub.Grid() );
+        DistMatrix<BASE(F)> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent();
-        DistMatrix<Base<F>> wB_MC_MR(wB.Grid());
+        DistMatrix<BASE(F)> wB_MC_MR(wB.Grid());
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
@@ -204,13 +204,13 @@ inline void PullSubproblems
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::QDWHDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
 
     // G := sgn(G)
@@ -247,14 +247,14 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 QDWHDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::QDWHDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 
@@ -292,15 +292,15 @@ QDWHDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, Base<F> relTol=0 )
+  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::RandomizedSignDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real oneA = OneNorm( A );
@@ -354,15 +354,15 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, Base<F> relTol=0 )
+  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::RandomizedSignDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -418,15 +418,15 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, Matrix<F>& A, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const auto median = Median(A.GetRealPartOfDiagonal());
@@ -469,15 +469,15 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const auto median = Median(A.GetRealPartOfDiagonal());
@@ -520,15 +520,15 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const auto median = Median(A.GetRealPartOfDiagonal());
@@ -572,15 +572,15 @@ SpectralDivide
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
+inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real infNorm = InfinityNorm(A);
@@ -626,13 +626,13 @@ SpectralDivide
 template<typename F>
 inline void
 SDC
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Int cutoff=256, 
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     if( n <= cutoff )
@@ -660,13 +660,13 @@ SDC
 template<typename F>
 inline void
 SDC
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Q, 
-  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Q, 
+  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     Q.ResizeTo( n, n );
@@ -704,13 +704,13 @@ SDC
 template<typename F>
 inline void
 SDC
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, 
-  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
+  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
@@ -751,13 +751,13 @@ template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& Q, 
-  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, Base<F> relTol=0 )
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Q, 
+  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );

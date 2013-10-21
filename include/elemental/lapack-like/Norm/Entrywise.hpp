@@ -13,14 +13,14 @@
 namespace elem {
 
 template<typename F> 
-inline Base<F>
-EntrywiseNorm( const Matrix<F>& A, Base<F> p )
+inline BASE(F)
+EntrywiseNorm( const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("EntrywiseNorm");
 #endif
     // TODO: Make this more numerically stable
-    typedef Base<F> R;
+    typedef BASE(F) R;
     R sum = 0;
     const Int width = A.Width();
     const Int height = A.Height();
@@ -31,9 +31,9 @@ EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianEntrywiseNorm
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEntrywiseNorm");
@@ -42,7 +42,7 @@ HermitianEntrywiseNorm
         LogicError("Hermitian matrices must be square.");
 
     // TODO: make this more numerically stable
-    typedef Base<F> R;
+    typedef BASE(F) R;
     R sum = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -78,9 +78,9 @@ HermitianEntrywiseNorm
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricEntrywiseNorm
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricEntrywiseNorm");
@@ -89,13 +89,13 @@ SymmetricEntrywiseNorm
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline Base<F>
-EntrywiseNorm( const DistMatrix<F,U,V>& A, Base<F> p )
+inline BASE(F)
+EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("EntrywiseNorm");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     Real norm;
     if( A.Participating() )
     {
@@ -113,8 +113,8 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, Base<F> p )
 }
 
 template<typename F>
-inline Base<F>
-HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> p )
+inline BASE(F)
+HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEntrywiseNorm");
@@ -127,7 +127,7 @@ HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> p )
     const Int colShift = A.ColShift();
     const Int rowShift = A.RowShift();
 
-    typedef Base<F> R;
+    typedef BASE(F) R;
     R localSum = 0;
     const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
@@ -171,9 +171,9 @@ HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> p )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline Base<F>
+inline BASE(F)
 SymmetricEntrywiseNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricEntrywiseNorm");

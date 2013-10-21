@@ -15,13 +15,13 @@
 namespace elem {
 
 template<typename F> 
-inline Base<F>
+inline BASE(F)
 TwoCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("TwoCondition");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -34,13 +34,13 @@ TwoCondition( const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline Base<F>
+inline BASE(F)
 TwoCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("TwoCondition");
 #endif
-    typedef Base<F> R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );

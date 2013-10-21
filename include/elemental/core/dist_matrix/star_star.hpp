@@ -98,19 +98,19 @@ public:
 
     void GetDiagonal( type& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<Base<T>,STAR,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<Base<T>,STAR,STAR>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
     type GetDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,STAR,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,STAR,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),STAR,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),STAR,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const type& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<Base<T>,STAR,STAR>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<Base<T>,STAR,STAR>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
     
     // (Immutable) view of a distributed matrix's buffer
     void Attach

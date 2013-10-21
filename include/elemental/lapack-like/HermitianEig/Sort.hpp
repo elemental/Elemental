@@ -18,7 +18,7 @@ namespace hermitian_eig {
 
 template<typename F>
 inline void
-Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING )
+Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, SortType sort=ASCENDING )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::Sort");
@@ -27,7 +27,7 @@ Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING )
         return;
 
     // Initialize the pairs of indices and eigenvalues
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     std::vector<ValueInt<Real>> pairs = TaggedSort( w, sort );
 
     // Reorder the eigenvectors and eigenvalues using the new ordering
@@ -45,7 +45,7 @@ Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Sort( DistMatrix<Base<F>,U,V>& w, DistMatrix<F>& Z, SortType sort=ASCENDING )
+Sort( DistMatrix<BASE(F),U,V>& w, DistMatrix<F>& Z, SortType sort=ASCENDING )
 {
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::Sort");
@@ -54,7 +54,7 @@ Sort( DistMatrix<Base<F>,U,V>& w, DistMatrix<F>& Z, SortType sort=ASCENDING )
         return;
 
     // Get the sorted eigenvalue information
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     std::vector<ValueInt<Real>> pairs = TaggedSort( w, sort );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering

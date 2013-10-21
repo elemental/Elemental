@@ -23,9 +23,9 @@ public:
     ~DisplayWidget();
     // TODO: Generalize to function which displays f(A), where f is functor
     void DisplayReal( const Matrix<T>* A );
-    void DisplayReal( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal );
+    void DisplayReal( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal );
     void DisplayImag( const Matrix<T>* A );
-    void DisplayImag( const Matrix<T>* A, Base<T> minVal, Base<T> maxVal );
+    void DisplayImag( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal );
     // TODO: Add colorbar
 
     void SavePng( std::string basename ) const;

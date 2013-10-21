@@ -19,13 +19,13 @@
 namespace elem {
 
 template<typename F>
-inline Base<F>
-TwoNormEstimate( const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+inline BASE(F)
+TwoNormEstimate( const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
 #ifndef RELEASE
     CallStackEntry entry("TwoNormEstimate");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -54,13 +54,13 @@ TwoNormEstimate( const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
 }
 
 template<typename F>
-inline Base<F>
-TwoNormEstimate( const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+inline BASE(F)
+TwoNormEstimate( const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
 #ifndef RELEASE
     CallStackEntry entry("TwoNormEstimate");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -90,14 +90,14 @@ TwoNormEstimate( const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianTwoNormEstimate
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTwoNormEstimate");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
 
     Matrix<F> x, y;
@@ -126,14 +126,14 @@ HermitianTwoNormEstimate
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 HermitianTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTwoNormEstimate");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 
@@ -163,14 +163,14 @@ HermitianTwoNormEstimate
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricTwoNormEstimate
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricTwoNormEstimate");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Int n = A.Height();
 
     Matrix<F> x, y;
@@ -201,14 +201,14 @@ SymmetricTwoNormEstimate
 }
 
 template<typename F>
-inline Base<F>
+inline BASE(F)
 SymmetricTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
 #ifndef RELEASE
     CallStackEntry entry("SymmetricTwoNormEstimate");
 #endif
-    typedef Base<F> Real;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 

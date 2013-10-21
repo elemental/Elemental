@@ -143,7 +143,7 @@ inline F Determinant( const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
+inline BASE(F) HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HPDDeterminant");
@@ -153,7 +153,7 @@ inline Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F> HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
+inline BASE(F) HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HPDDeterminant");
@@ -184,7 +184,7 @@ inline F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline Base<F> 
+inline BASE(F) 
 HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
@@ -195,7 +195,7 @@ HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline Base<F> 
+inline BASE(F) 
 HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE

@@ -47,14 +47,19 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
         A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
 
-    F localSum(0);
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            localSum += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
-
-    return mpi::AllReduce( localSum, A.Comm() );
+    F innerProd;
+    if( A.Participating() )
+    {
+        F localInnerProd(0);
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                localInnerProd += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
+        innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
+    }
+    mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
+    return innerProd;
 }
 
 } // namespace elem

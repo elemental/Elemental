@@ -29,7 +29,7 @@ inline void
 Skeleton
 ( const Matrix<F>& A, 
   Matrix<Int>& pR, Matrix<Int>& pC, 
-  Matrix<F>& Z, Int maxSteps, Base<F> tol )
+  Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("Skeleton");
@@ -69,7 +69,7 @@ inline void
 Skeleton
 ( const DistMatrix<F>& A, 
   DistMatrix<Int,VR,STAR>& pR, DistMatrix<Int,VR,STAR>& pC, 
-  DistMatrix<F>& Z, Int maxSteps, Base<F> tol )
+  DistMatrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("Skeleton");

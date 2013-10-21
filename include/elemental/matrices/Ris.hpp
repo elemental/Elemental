@@ -23,7 +23,7 @@ Ris( Matrix<F>& R, Int n )
     R.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
-            R.Set( i, j, oneHalf/(n-i-j-oneHalf) );
+            R.Set( i, j, oneHalf/(F(n-i-j)-oneHalf) );
 }
 
 template<typename F> 
@@ -56,7 +56,7 @@ Ris( DistMatrix<F,U,V>& R, Int n )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-            R.SetLocal( iLoc, jLoc, oneHalf/(n-i-j-oneHalf) );
+            R.SetLocal( iLoc, jLoc, oneHalf/(F(n-i-j)-oneHalf) );
         }
     }
 }

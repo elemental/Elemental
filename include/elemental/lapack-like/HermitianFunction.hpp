@@ -31,7 +31,7 @@ RealHermitianFunction
 #endif
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef Base<F> R;
+    typedef BASE(F) R;
 
     // Get the EVD of A
     Matrix<R> w;
@@ -61,7 +61,7 @@ RealHermitianFunction
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef Base<F> R;
+    typedef BASE(F) R;
 
     // Get the EVD of A
     const Grid& g = A.Grid();

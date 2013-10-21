@@ -359,6 +359,14 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 %template(Y) X<float>;
 %template(Y) X<double>;
 %enddef
+%define OVERLOAD0_RCompat(X,Y)
+%template(Y) X<float,float>;
+%template(Y) X<double,double>;
+%template(Y) X<Complex<float>,float>;
+%template(Y) X<Complex<float>,Complex<float> >;
+%template(Y) X<Complex<double>,double>;
+%template(Y) X<Complex<double>,Complex<double> >;
+%enddef
 %define OVERLOAD0_int_R(X,Y)
 %template(Y) X<Int>;
 %template(Y) X<float>;
@@ -424,6 +432,14 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 %template(Y) X<float,MC,MR,MC,MR>;
 %template(Y) X<double,MC,MR,MC,MR>;
 %enddef
+%define OVERLOAD2_RCompat(X,Y)
+%template(Y) X<float,float,MC,MR,MC,MR>;
+%template(Y) X<double,double,MC,MR,MC,MR>;
+%template(Y) X<Complex<float>,float,MC,MR,MC,MR>;
+%template(Y) X<Complex<float>,Complex<float>,MC,MR,MC,MR>;
+%template(Y) X<Complex<double>,double,MC,MR,MC,MR>;
+%template(Y) X<Complex<double>,Complex<double>,MC,MR,MC,MR>;
+%enddef
 %define OVERLOAD2_int_R(X,Y)
 %template(Y) X<Int,MC,MR,MC,MR>;
 %template(Y) X<float,MC,MR,MC,MR>;
@@ -436,6 +452,7 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 #define OVERLOAD01_cpx_R(X,Y)  OVERLOAD0_cpx_R(X,Y) OVERLOAD1_cpx_R(X,Y)
 #define OVERLOAD01_int_R(X,Y)  OVERLOAD0_int_R(X,Y) OVERLOAD1_int_R(X,Y)
 #define OVERLOAD02_R(X,Y)      OVERLOAD0_R(X,Y)     OVERLOAD2_R(X,Y)
+#define OVERLOAD02_RCompat(X,Y) OVERLOAD0_RCompat(X,Y) OVERLOAD2_RCompat(X,Y)
 #define OVERLOAD02_cpx_R(X,Y)  OVERLOAD0_cpx_R(X,Y) OVERLOAD2_cpx_R(X,Y)
 #define OVERLOAD02_int_R(X,Y)  OVERLOAD0_int_R(X,Y) OVERLOAD2_int_R(X,Y)
 #define OVERLOAD012_R(X,Y)     OVERLOAD0_R(X,Y)     OVERLOAD1_R(X,Y)     OVERLOAD2_R(X,Y)
@@ -457,6 +474,7 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 #define OVERLOAD02(X)      OVERLOAD02_R(X,X)
 #define OVERLOAD02_cpx(X)  OVERLOAD02_cpx_R(X,X)
 #define OVERLOAD02_int(X)  OVERLOAD02_int_R(X,X)
+#define OVERLOAD02_Compat(X) OVERLOAD02_RCompat(X,X)
 #define OVERLOAD012(X)     OVERLOAD012_R(X,X)
 #define OVERLOAD012_cpx(X) OVERLOAD012_cpx_R(X,X)
 #define OVERLOAD012_int(X) OVERLOAD012_int_R(X,X)
