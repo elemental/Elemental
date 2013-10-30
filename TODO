@@ -28,6 +28,7 @@ Fundamental functionality additions
 [-] Successive Band Reduction
 [-] Reduction to Hessenberg form
 [-] Nonsymmetric (generalized) eigensolver via QR/QZ algorithm
+[-] Axpy interface implementation using one-sided communication
 
 Incremental functionality improvements
 --------------------------------------
@@ -82,6 +83,7 @@ Consistency
     centralized within the method rather than in every usage.
 [-] Consistent implementation of unblocked routines
 [-] Separate out local blas-like and lapack-like operations
+[-] Safe down-casting of integers in BLAS/LAPACK calls
 
 Documentation
 -------------
@@ -98,8 +100,18 @@ Build system
 [o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
     and BLIS
 [o] Use C++11's extern templates
+[x] Resolve Blue Gene/Q issues with V1R2M1 and C++11 via Clang/LLVM
 
 Python interface
 ----------------
 [x] Update SWIG interface to support routines added since 0.81
 [o] Update SWIG interface to allow for Int != int
+
+MPI and Threading
+-----------------
+[-] Implement message-splitting in collectives for count > 2^31
+[-] Use MPI contiguous datatype for all messages with count > 2^31 
+    (may not work with older MPIs)
+[-] Detect oversubsription using sysconf/sysctl and {OMP,MKL,*}_NUM_THREADS
+[-] Add MPI wrappers for all nonblocking collectives
+[-] Add MPI wrappers for RMA
