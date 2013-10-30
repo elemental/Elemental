@@ -47,13 +47,10 @@ though usually either a row-major or column-major ordering of the first
    .. note::
    
       The first algorithm heavily depends upon the performance of distributed 
-      :cpp:func:`Symv` and :cpp:func:`Hemv` (for real and complex data, 
-      respectively), so users interested in maximizing the performance of the 
+      :cpp:func:`Symv`, so users interested in maximizing the performance of the
       first algorithm will likely want to investigate different values for the 
-      local blocksizes through the routines 
-      ``SetLocalSymvBlocksize<T>( int blocksize )`` and 
-      ``SetLocalHemvBlocksize<T>( int blocksize )``; the default values 
-      are both 64.
+      local blocksizes through the routine
+      ``SetLocalSymvBlocksize<T>( int blocksize )``; the default value is 64.
 
 .. cpp:function:: void SetHermitianTridiagApproach( HermitianTridiagApproach approach )
 

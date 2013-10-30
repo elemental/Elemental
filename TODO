@@ -1,68 +1,105 @@
-Functionality
-=============
-- Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
-- Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
-- Finish all options for QuasiDiagonal{Scale,Solve}
-- Distribute between different grids for any distribution
-- Consistently implement 'GetDiagonal' functionality for DistMatrix
-- Ability to change default grid with command-line options
-- Quadratic-time Haar generation via random Householder reflectors
-- Have matrix data zeroed by default? (to prevent NaN initialization bugs)
-- Way for DistMatrix with single process to view Matrix, and operator=
-- (Generalized) Spectral Divide and Conquer
-- More Sign algorithms
-- Ostrowski matrices
-- Power-method-like p-norm estimation
-- Support for BLIS and fused Trmv's to accelerate HermitianEig
-- Transpose option for LeastSquares
-- QL factorization
-- Strong RRQR and RRLQ 
-- CUR decompositions (already have (pseudo-)skeleton)
-- Complete Orthogonal Decompositions (especially URV)
-- LU and LDL with rook pivoting
-- Square process grid specialization of LDL (used to exist...)
-- (Blocked) Aasen's
-- TSQR
-- TSLU (via tournament pivoting)
-- Lower version of reduction to bidiagonal form
-- Reduction to Hessenberg form
-- Nonsymmetric (generalized) eigensolver via QR algorithm
-- Visualization similar to EigTool or Higham's Matrix Computation Toolbox
-- Wrappers for more LAPACK eigensolvers
-- Sequential versions of Trr2k 
-- More explicit expansions of packed Householder reflectors
-- More Trtrmm/Trtrsm routines
-- Compressed pseudoinverse solves which avoid unnecessary backtransformations
-- Means of easily tracking/plotting heap memory usage over time
-- Provide way to zoom in/out and add colorbar to DisplayWidget
-- Better organization of test matrices into relevant classes, e.g., Hermitian,
-  normal, triangular, Hessenberg, etc., so that each test driver can easily
-  test each member from that class.
+Each of the following categories lists goals in an order which roughly 
+corresponds to the order in which they are hoped to be added.
+Items are marked using the following code:
+  [x] ~ planned to be finished before the next release (0.82)
+  [o] ~ hopefully started in the near future 
+  [-] ~ marked for eventual development
 
-Maintenance
-===========
-- Documentation for QuasiDiagonal{Scale,Solve} and Symmetric2x2{Scale,Solve}
-- Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
-- README's in each directory explaining the contents of the folder
-- Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
-  and BLIS
-- Move AdjointFrom and TransposeFrom into Adjoint and Transpose
-- Find cause of occasional invalid reads in PMR_process_r_queue
-- Find cause of minor memory leak in schur::SDC
-- Document SDC for HermitianEig
-- Document move semantics for (Dist)Matrix
-- Document Int
-- Update SWIG interface to allow for Int != int
-- Convert 'AlignWith' routines to be requirements rather than actions, similar
-  to 'ResizeTo', which simplifies error-handling by allowing it to be 
-  centralized within the method rather than in every usage.
-- Documentation for detailed interfaces which reside in sub-namespaces
-- Update elemvariables to support usage of Qt5
-- Many more references
-- Update documentation for special matrices
-- Update documentation for imported routines (and in general)
-- References for Interpolative and Skeleton Decomposition 
-- Document UnitaryCoherence (and see if simpler implementation possible)
-- Separate out local blas-like and lapack-like operations
-- Consistent handling of unblocked routines
-- Use C++11's extern templates, and perhaps std::thread
+Functionality priorities
+========================
+
+Fundamental functionality additions
+-----------------------------------
+[o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
+[o] Rank-one modifications of QR
+[o] Rank-one modifications of Cholesky
+[o] Finishing prototype generalized Spectral Divide and Conquer
+[-] Windowed QR with column pivoting
+[-] Power-method-like p-norm estimation
+[-] QL factorization
+[-] Strong RRQR and RRLQ 
+[-] CUR decompositions (already have (pseudo-)skeleton)
+[-] Complete Orthogonal Decompositions (especially URV)
+[-] LU and LDL with rook pivoting
+[-] (Blocked) Aasen's
+[-] TSQR
+[-] TSLU (via tournament pivoting)
+[-] Pseudospectrum computation
+[-] Successive Band Reduction
+[-] Reduction to Hessenberg form
+[-] Nonsymmetric (generalized) eigensolver via QR/QZ algorithm
+
+Incremental functionality improvements
+--------------------------------------
+[o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
+[o] Quadratic-time Haar generation via random Householder reflectors
+[-] Square process grid specializations of LDL and Bunch-Kaufman
+[-] Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
+[-] Finish all options for QuasiDiagonal{Scale,Solve}
+[-] More Sign algorithms (switch to Newton-Schulz near convergence)
+[-] Distribute between different grids for any distribution
+[-] Way for DistMatrix with single process to view Matrix, and operator=
+[-] Ostrowski matrices
+[-] Transpose option for LeastSquares
+[-] Lower version of reduction to bidiagonal form
+[-] Various approaches (e.g., HJS) for parallel tridiagonalization
+[-] Wrappers for more LAPACK eigensolvers
+[-] Sequential versions of Trr2k 
+[-] More explicit expansions of packed Householder reflectors
+[-] More Trtrmm/Trtrsm routines
+[-] Compressed pseudoinverse solves which avoid unnecessary backtransformations
+
+Performance priorities
+======================
+[o] Accelerator support for local Gemm calls
+[o] Support for BLIS and fused Trmv's to accelerate HermitianEig
+
+Maintenance priorities
+======================
+
+Bug avoidance
+-------------
+[x] Update elemvariables to support usage of Qt5
+[-] Have matrix data zeroed by default? (to prevent NaN initialization bugs)
+[-] Investigate (potential) minor memory leak in schur::SDC
+[-] Investigate (potential) occasional invalid reads in PMR_process_r_queue
+
+Instrumentation/visualization/testing
+-------------------------------------
+[-] Means of easily tracking/plotting heap memory usage over time
+[-] Provide way to zoom in/out and add colorbar to DisplayWidget
+[-] Better organization of test matrices into relevant classes, e.g., Hermitian,
+    normal, triangular, Hessenberg, etc., so that each test driver can easily
+    test each member from that class.
+
+Consistency
+-----------
+[-] Consistently implement 'GetDiagonal' functionality for DistMatrix
+[-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
+[-] Move AdjointFrom and TransposeFrom into Adjoint and Transpose
+[-] Convert 'AlignWith' routines to be requirements rather than actions, similar
+    to 'ResizeTo', which simplifies error-handling by allowing it to be 
+    centralized within the method rather than in every usage.
+[-] Consistent implementation of unblocked routines
+[-] Separate out local blas-like and lapack-like operations
+
+Documentation
+-------------
+[x] Documentation for QuasiDiagonal{Scale,Solve} and Symmetric2x2{Scale,Solve}
+[x] Document move semantics for (Dist)Matrix
+[x] README's in each directory explaining the contents of the folder
+[o] Update documentation for special matrices and imported routines
+[-] Document Int
+[-] Documentation for detailed interfaces which reside in sub-namespaces
+[-] References for Interpolative and Skeleton Decomposition 
+
+Build system
+------------
+[o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
+    and BLIS
+[o] Use C++11's extern templates
+
+Python interface
+----------------
+[x] Update SWIG interface to support routines added since 0.81
+[o] Update SWIG interface to allow for Int != int

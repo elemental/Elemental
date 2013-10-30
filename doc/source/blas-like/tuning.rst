@@ -25,14 +25,14 @@ LocalTrrkBlocksize
 .. cpp:function:: void SetLocalTrrkBlocksize<T>( int blocksize )
 
    Sets the local blocksize for the distributed 
-   ``internal::LocalTrrk`` routine for datatype ``T``. It is
+   ``LocalTrrk`` routine for datatype ``T``. It is
    set to 64 by default and is important for routines that perform distributed
    :cpp:func:`Syrk` or :cpp:func:`Herk` updates, e.g., Cholesky factorization.
 
 .. cpp:function:: int LocalTrrkBlocksize<T>()
 
    Retrieves the local blocksize for the distributed 
-   ``internal::LocalTrrk`` routine for datatype ``T``.
+   ``LocalTrrk`` routine for datatype ``T``.
 
 LocalTrr2kBlocksize
 -------------------
@@ -40,7 +40,7 @@ LocalTrr2kBlocksize
 .. cpp:function:: void SetLocalTrr2kBlocksize<T>( int blocksize )
 
    Sets the local blocksize for the distributed
-   ``internal::LocalTrr2k`` routine for datatype ``T``. It is
+   ``LocalTrr2k`` routine for datatype ``T``. It is
    set to 64 by default and is important for routines that perform distributed
    :cpp:func:`Syr2k` or :cpp:func:`Her2k` updates, e.g., Householder 
    tridiagonalization.
@@ -48,4 +48,4 @@ LocalTrr2kBlocksize
 .. cpp:function:: int LocalTrr2kBlocksize<T>()
 
    Retrieves the local blocksize for the distributed 
-   ``internal::LocalTrr2k`` routine for datatype ``T``.
+   ``LocalTrr2k`` routine for datatype ``T``.
