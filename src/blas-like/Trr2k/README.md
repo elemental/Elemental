@@ -1,8 +1,7 @@
-### Current directory
+### `src/blas-like/Trr2k`
 
-This is the root of Elemental's `src/blas-like/Trr2k` folder, which contains 
-the underlying implementations of rank-2k triangular updates.
-In particular, in addition to this file, it holds:
+This folder contains the underlying implementations of rank-2k triangular 
+updates. In particular, in addition to this file, it holds:
 
 -  `Local.hpp`: all sequential implementations
 -  `NNNN.hpp`: parallel normal/normal/normal/normal implementations
