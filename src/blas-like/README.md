@@ -1,7 +1,7 @@
-### Current directory
+### `src/blas-like`
 
-This is the root of Elemental's `src/blas-like` folder, which contains 
-Elemental's source files for BLAS-like routines. In addition to the files:
+This folder contains Elemental's source files for BLAS-like routines. 
+In addition to the files:
 
 -  `Trr2k.cpp`: the high-level interface to rank-2k triangular updates
 -  `Trrk.cpp`: the high-level interface to rank-k triangular updates

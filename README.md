@@ -30,7 +30,7 @@ Note that [PETSc](https://www.mcs.anl.gov/petsc/) contains interfaces for both
 [Elemental](http://github.com/elemental/Elemental.git) and
 [Clique](http://github.com/poulson/Clique.git).
 
-### Current directory
+### Elemental's root directory
 
 This is the root directory of the entire project, and it contains:
 
