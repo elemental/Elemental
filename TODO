@@ -97,10 +97,10 @@ Documentation
 
 Build system
 ------------
+[x] Resolve Blue Gene/Q issues with V1R2M1 and C++11 via Clang/LLVM
 [o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
     and BLIS
 [o] Use C++11's extern templates
-[x] Resolve Blue Gene/Q issues with V1R2M1 and C++11 via Clang/LLVM
 
 Python interface
 ----------------

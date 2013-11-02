@@ -29,3 +29,27 @@ Wrappers:
 Note that [PETSc](https://www.mcs.anl.gov/petsc/) contains interfaces for both 
 [Elemental](http://github.com/elemental/Elemental.git) and
 [Clique](http://github.com/poulson/Clique.git).
+
+### Layout
+
+This is the root directory of the entire project, and it contains:
+
+-  `AUTHORS`: the list of source code contributors
+-  `CMakeLists.txt`: the CMake configuration file
+-  `LICENSE`: the New BSD License file
+-  `PUBLICATIONS`: publications directly related to this source code
+-  `README.md`: this file
+-  `REFERENCES`: some publications referenced in the creation of this software
+-  `TODO`: a list of near/long-term goals of the project
+
+The subdirectories are as follows:
+
+-  `cmake/`: auxiliary files for CMake configuration
+-  `doc/`: Sphinx documentation 
+-  `examples/`: various concise examples of Elemental's functionality
+-  `experimental/`: experimental code which is not yet library quality
+-  `external/`: non-standard external code which Elemental builds on top of
+-  `include/`: Elemental's header files; most of the library resides here
+-  `src/`: Elemental's source files; a small portion of the library is here
+-  `swig/`: Elemental's Python interface (via SWIG)
+-  `tests/`: programs meant to test the accuracy of Elemental
