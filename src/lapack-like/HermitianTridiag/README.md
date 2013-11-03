@@ -1,0 +1,18 @@
+### `src/lapack-like/HermitianTridiag`
+
+This folder contains Elemental's code for reducing a Hermitian matrix to 
+real symmetric tridiagonal form. The various pieces are organized as follows:
+
+-  `L.hpp`: Lower-triangular storage
+-  `LSquare.hpp`: Lower-triangular storage specialized to
+   square process grids
+-  `PanelL.hpp`: Panel portion of a blocked algorithm for lower-triangular 
+   storage
+-  `PanelLSquare.hpp`: Panel portion of a blocked algorithm for lower-triangular
+   storage specialized to square process grids
+-  `PanelU.hpp`: Panel portion of a blocked algorithm for upper-triangular 
+   storage
+-  `PanelUSquare.hpp`: Panel portion of a blocked algorithm for upper-triangular
+   storage specialized to square process grids
+-  `U.hpp`: Upper-triangular storage
+-  `USquare.hpp`: Upper-triangular storage specialized to square process grids

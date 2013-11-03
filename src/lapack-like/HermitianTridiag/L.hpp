@@ -22,6 +22,7 @@
 namespace elem {
 namespace hermitian_tridiag {
 
+// TODO: Sequential blocked implementation
 template<typename F>
 void L( Matrix<F>& A, Matrix<F>& t )
 {
