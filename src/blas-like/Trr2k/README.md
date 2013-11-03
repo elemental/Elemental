@@ -20,3 +20,10 @@ updates. In particular, in addition to this file, it holds:
 -  `TTNT.hpp`
 -  `TTTN.hpp`
 -  `TTTT.hpp`
+
+#### Notes
+
+There are currently two TODO items related to this folder:
+
+1. Making the orientation options of LocalTrr2k more consistent with Trr2k
+2. Implementing sequential versions of Trr2k
