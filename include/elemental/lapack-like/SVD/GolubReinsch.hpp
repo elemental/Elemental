@@ -137,7 +137,7 @@ GolubReinschUpper_FLA
     Identity( U_VC_STAR, m, k );
     Identity( V_VC_STAR, n, k );
 
-    FlaSVD
+    FlaBidiagSVD
     ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(),
       d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
       U_VC_STAR.Buffer(), U_VC_STAR.LDim(),

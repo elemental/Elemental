@@ -1,8 +1,9 @@
 ### `src/core/dist_matrix`
 
 This folder contains the source code for the various partial specializations of
-the `DistMatrix` class. Each specialization involves choosing a sensical pairing
-of distributions for the rows and columns of the matrix:
+the `DistMatrix` class; please see `include/elemental/core/dist_matrix` for the 
+corresponding header-level prototypes. Each specialization involves choosing a 
+sensical pairing of distributions for the rows and columns of the matrix:
 
 -  `CIRC`/"o": Only give the data to a single process
 -  `STAR`/"\*": Give the data to every process
@@ -17,16 +18,22 @@ of distributions for the rows and columns of the matrix:
 
 The valid pairings are:
 
-|                    | DistComm  | CrossComm | RedundantComm |
-|:------------------:|:---------:|:---------:|:-------------:|
-| `(o ,o )`          | self      | `VC`/`VR` | self          |
-| `(* ,* )`          | self      | self      | `VC`/`VR`     |
-| `(MD,* )`/`(* ,MD)`| `MD`      | `MDPerp`  | self          |
-| `(MC,MR)`/`(MR,MC)`| `VC`/`VR` | self      | self          |
-| `(MC,* )`/`(* ,MC)`| `MC`      | self      | `MR`          |
-| `(MR,* )`/`(* ,MR)`| `MR`      | self      | `MC`          |
-| `(VC,* )`/`(* ,VC)`| `VC`      | self      | self          |
-| `(VR,* )`/`(* ,VR)`| `VR`      | self      | self          |
+| Distribution | ColComm | RowComm | DistComm  | RedundantComm | CrossComm |
+|:------------:|:-------:|:-------:|:---------:|:-------------:|:---------:|
+| `(o ,o )`    | self    | self    | self      | self          | `VC`      |
+| `(* ,* )`    | self    | self    | self      | `VC`          | self      |
+| `(MD,* )`    | `MD`    | self    | `MD`      | self          | `MDPerp`  |
+| `(* ,MD)`    | self    | `MD`    | `MD`      | self          | `MDPerp`  |
+| `(MC,MR)`    | `MC`    | `MR`    | `VC`      | self          | self      |
+| `(MR,MC)`    | `MR`    | `MC`    | `VR`      | self          | self      |
+| `(MC,* )`    | `MC`    | self    | `MC`      | `MR`          | self      |
+| `(* ,MC)`    | self    | `MC`    | `MC`      | `MR`          | self      |
+| `(MR,* )`    | `MR`    | self    | `MR`      | `MC`          | self      |
+| `(* ,MR)`    | self    | `MR`    | `MR`      | `MC`          | self      |
+| `(VC,* )`    | `VC`    | self    | `VC`      | self          | self      |
+| `(* ,VC)`    | self    | `VC`    | `VC`      | self          | self      |
+| `(VR,* )`    | `VR`    | self    | `VR`      | self          | self      |
+| `(* ,VR)`    | self    | `VR`    | `VR`      | self          | self      |
 
 where `DistComm` refers to the communicator that the entire matrix (rather than
 just the rows or columns) is distributed over. When the matrix is distributed
@@ -37,6 +44,10 @@ the entire matrix on each such subset of processes (e.g., within each row of a
 communicator where each member process stores the same information, and the 
 `CrossComm` is the communicator where only a single process (the *root*) is 
 assigned any data.
+
+To make this discussion more precise, each valid matrix distribution for 
+`DistMatrix` logically arranges the set of `p` processes of the `r` by `c` 
+process grid into a 4D mesh: `ColComm` x `RowComm` x `RedundantComm` x `CrossComm`, where `DistComm` is equal to `ColComm` x `RowComm`.
 
 We are now ready to describe the contents of this folder (in addition to this
 file):
