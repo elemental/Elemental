@@ -89,12 +89,7 @@ Consistency
 
 Documentation
 -------------
-[x] Documentation for QuasiDiagonal{Scale,Solve} and Symmetric2x2{Scale,Solve}
-[x] Document move semantics for (Dist)Matrix
 [x] README's in each directory explaining the contents of the folder
-[o] Update documentation for special matrices and imported routines
-[-] Document Int
-[-] Documentation for detailed interfaces which reside in sub-namespaces
 [-] References for Interpolative and Skeleton Decomposition 
 
 Build system
