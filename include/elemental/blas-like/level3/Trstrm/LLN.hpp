@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRTRSM_LLN_HPP
-#define ELEM_BLAS_TRTRSM_LLN_HPP
+#ifndef ELEM_BLAS_TRSTRM_LLN_HPP
+#define ELEM_BLAS_TRSTRM_LLN_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
@@ -20,10 +20,10 @@ namespace internal {
 
 template<typename F>
 inline void
-TrtrsmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
+TrstrmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrsmLLNUnb");
+    CallStackEntry entry("internal::TrstrmLLNUnb");
 #endif
     const bool isUnit = ( diag==UNIT );
     const Int n = L.Height();
@@ -58,12 +58,12 @@ TrtrsmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 
 template<typename F>
 inline void
-TrtrsmLLN
+TrstrmLLN
 ( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X,
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrsmLLN");
+    CallStackEntry entry("internal::TrstrmLLN");
 #endif
     // Matrix views
     Matrix<F> 
@@ -101,7 +101,7 @@ TrtrsmLLN
 
         //--------------------------------------------------------------------//
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), L11, X10, checkIfSingular );
-        TrtrsmLLNUnb( diag, F(1), L11, X11 );
+        TrstrmLLNUnb( diag, F(1), L11, X11 );
         Gemm( NORMAL, NORMAL, F(-1), L21, X10, F(1), X20 );
         Z11 = X11;
         MakeTriangular( LOWER, Z11 );
@@ -124,12 +124,12 @@ TrtrsmLLN
 
 template<typename F>
 inline void
-TrtrsmLLN
+TrstrmLLN
 ( UnitOrNonUnit diag, F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrsmLLN");
+    CallStackEntry entry("internal::TrstrmLLN");
 #endif
     const Grid& g = L.Grid();
 
@@ -184,7 +184,7 @@ TrtrsmLLN
         LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X10_STAR_VR,
           checkIfSingular );
-        LocalTrtrsm
+        LocalTrstrm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X11_STAR_STAR,
           checkIfSingular );
         X11 = X11_STAR_STAR;
@@ -218,4 +218,4 @@ TrtrsmLLN
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRTRSM_LLN_HPP
+#endif // ifndef ELEM_BLAS_TRSTRM_LLN_HPP

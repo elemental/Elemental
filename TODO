@@ -55,6 +55,7 @@ Performance priorities
 ======================
 [o] Accelerator support for local Gemm calls
 [o] Support for BLIS and fused Trmv's to accelerate HermitianEig
+[-] Optimized version of ApplySymmetricPivots
 
 Maintenance priorities
 ======================

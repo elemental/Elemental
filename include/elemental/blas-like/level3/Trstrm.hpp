@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRTRSM_HPP
-#define ELEM_BLAS_TRTRSM_HPP
+#ifndef ELEM_BLAS_TRSTRM_HPP
+#define ELEM_BLAS_TRSTRM_HPP
 
 namespace elem {
 
 template<typename F>
 inline void
-LocalTrtrsm
+LocalTrstrm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
@@ -22,42 +22,42 @@ LocalTrtrsm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrtrsm");
+    CallStackEntry entry("LocalTrstrm");
 #endif
-    Trtrsm
+    Trstrm
     ( side, uplo, orientation, diag,
       alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
 }
 
 } // namespace elem
 
-#include "./Trtrsm/LLN.hpp"
+#include "./Trstrm/LLN.hpp"
 
 namespace elem {
 
 template<typename F>
 inline void
-Trtrsm
+Trstrm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const Matrix<F>& A, Matrix<F>& X,
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trtrsm");
+    CallStackEntry entry("Trstrm");
     if( A.Height() != A.Width() || X.Height() != X.Width() )
         LogicError("Triangular matrices must be square");
     if( A.Height() != X.Height() )
-        LogicError("Nonconformal Trtrsm");
+        LogicError("Nonconformal Trstrm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmLLN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmLLN( diag, alpha, A, X, checkIfSingular );
         else
             LogicError("This option not yet implemented");
         /*
-            internal::TrtrsmLLT
+            internal::TrstrmLLT
             ( orientation, diag, alpha, A, X, checkIfSingular );
         */
     }
@@ -67,25 +67,25 @@ Trtrsm
     else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmLUN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmLUN( diag, alpha, A, X, checkIfSingular );
         else
-            internal::TrtrsmLUT
+            internal::TrstrmLUT
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmRLN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmRLN( diag, alpha, A, X, checkIfSingular );
         else
-            internal::TrtrsmRLT
+            internal::TrstrmRLT
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmRUN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmRUN( diag, alpha, A, X, checkIfSingular );
         else
-            internal::TrtrsmRUT
+            internal::TrstrmRUT
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     */
@@ -93,23 +93,23 @@ Trtrsm
 
 template<typename F>
 inline void
-Trtrsm
+Trstrm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F>& A, DistMatrix<F>& X,
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trtrsm");
+    CallStackEntry entry("Trstrm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmLLN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmLLN( diag, alpha, A, X, checkIfSingular );
         else
             LogicError("This option not yet implemented");
         /*
-            internal::TrtrsmLLT
+            internal::TrstrmLLT
             ( orientation, diag, alpha, A, X, checkIfSingular );
         */
     }
@@ -119,25 +119,25 @@ Trtrsm
     else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmLUN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmLUN( diag, alpha, A, X, checkIfSingular );
         else
-            internal::TrtrsmLUT
+            internal::TrstrmLUT
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmRLN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmRLN( diag, alpha, A, X, checkIfSingular );
         else
-            internal::TrtrsmRLT
+            internal::TrstrmRLT
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            internal::TrtrsmRUN( diag, alpha, A, X, checkIfSingular );
+            internal::TrstrmRUN( diag, alpha, A, X, checkIfSingular );
         else
-            internal::TrtrsmRUT
+            internal::TrstrmRUT
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     */
@@ -145,4 +145,4 @@ Trtrsm
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRTRSM_HPP
+#endif // ifndef ELEM_BLAS_TRSTRM_HPP

@@ -193,6 +193,14 @@ whether :math:`A` is treated as unit-diagonal or not).
 
 .. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, F alpha, const DistMatrix<F>& A, DistMatrix<F>& B )
 
+Trstrm
+------
+Performs a triangular solve against a triangular matrix. Only the Left Lower 
+Normal option is currently supported.
+
+.. cpp:function:: void Trstrm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, F alpha, const Matrix<F>& A, Matrix<F>& X, bool checkIfSingular=true )
+.. cpp:function:: void Trstrm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, F alpha, const DistMatrix<F>& A, DistMatrix<F>& X, bool checkIfSingular=true )
+
 Two-sided Trmm
 --------------
 Performs a two-sided triangular multiplication with multiple right-hand sides 

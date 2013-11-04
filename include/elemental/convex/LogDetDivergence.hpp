@@ -12,7 +12,7 @@
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/blas-like/level3/Trtrsm.hpp"
+#include "elemental/blas-like/level3/Trstrm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 
@@ -39,7 +39,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 
     if( uplo == LOWER )
     {
-        Trtrsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
+        Trstrm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
     }
     else
     {
@@ -83,7 +83,7 @@ LogDetDivergence
 
     if( uplo == LOWER )
     {
-        Trtrsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
+        Trstrm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
     }
     else
     {
