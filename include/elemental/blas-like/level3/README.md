@@ -1,4 +1,4 @@
-### `include/elemental/blas-like/level3`
+### `include/elemental/blas-like/level3/`
 
 The level-3 BLAS-like routines implemented in this folder are:
 

@@ -1,4 +1,4 @@
-### `src/blas-like/Trrk`
+### `src/blas-like/Trrk/`
 
 This folder contains the underlying implementations of rank-k triangular 
 updates. In particular, in addition to this file, it holds:

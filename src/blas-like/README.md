@@ -1,4 +1,4 @@
-### `src/blas-like`
+### `src/blas-like/`
 
 This folder contains Elemental's source files for BLAS-like routines. 
 The vast majority are in the `include/elemental/blas-like` folder, but 

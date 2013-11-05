@@ -29,6 +29,7 @@ Fundamental functionality additions
 [-] Reduction to Hessenberg form
 [-] Nonsymmetric (generalized) eigensolver via QR/QZ algorithm
 [-] Axpy interface implementation using one-sided communication
+[-] Generalized Sylvester equations
 
 Incremental functionality improvements
 --------------------------------------
@@ -56,6 +57,7 @@ Performance priorities
 [o] Accelerator support for local Gemm calls
 [o] Support for BLIS and fused Trmv's to accelerate HermitianEig
 [-] Optimized version of ApplySymmetricPivots
+[-] Exploit structure in matrix sign based control solvers
 
 Maintenance priorities
 ======================
@@ -79,7 +81,6 @@ Consistency
 -----------
 [-] Consistently implement 'GetDiagonal' functionality for DistMatrix
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
-[-] Move AdjointFrom and TransposeFrom into Adjoint and Transpose
 [-] Convert 'AlignWith' routines to be requirements rather than actions, similar
     to 'ResizeTo', which simplifies error-handling by allowing it to be 
     centralized within the method rather than in every usage.

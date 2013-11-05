@@ -1,4 +1,4 @@
-### `include/elemental/blas-like/level2`
+### `include/elemental/blas-like/level2/`
 
 The level-2 BLAS-like routines implemented in this folder are:
 

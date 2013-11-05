@@ -1,4 +1,4 @@
-### `src/core/imports`
+### `src/core/imports/`
 
 This folder contains the directly-instantiated portions of Elemental's wrappers
 for external libraries, such as BLAS, LAPACK, and PMRRR. Please see 

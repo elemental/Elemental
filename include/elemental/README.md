@@ -1,4 +1,4 @@
-### `include/elemental`
+### `include/elemental/`
 
 The structure of the header files in this folder follows a particular pattern.
 For instance, for BLAS-like functionality, the relevant header files are as

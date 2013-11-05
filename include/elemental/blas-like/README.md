@@ -1,4 +1,4 @@
-### `include/elemental/blas-like`
+### `include/elemental/blas-like/`
 
 Elemental's BLAS-like functionality is categorized into the typical 'levels':
 

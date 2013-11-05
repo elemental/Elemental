@@ -1,4 +1,4 @@
-### `src/core`
+### `src/core/`
 
 This folder contains the directly-instantiated portions of Elemental's core
 functionality, such as the `Matrix` and `DistMatrix` classes, and wrappers of

@@ -1,4 +1,4 @@
-### `src/io`
+### `src/io/`
 
 This folder contains the source-level implementations of Elemental's 
 input/output functionality. Please see `include/elemental/io` for the 

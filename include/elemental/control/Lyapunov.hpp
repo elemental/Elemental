@@ -15,7 +15,7 @@
 
 namespace elem {
 
-// A is assumed to have all of its eigenvalues in the open-half plane.
+// A is assumed to have all of its eigenvalues in the open right-half plane.
 // X is then returned as the solution of the system of equations:
 //    A X + X A^H = C
 //
