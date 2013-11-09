@@ -16,7 +16,6 @@
 
 namespace elem {
 namespace qr {
-namespace ts {
 
 template<typename F>
 struct TreeData
@@ -45,6 +44,8 @@ struct TreeData
         return *this;
     }
 };
+
+namespace ts {
 
 template<typename F,Distribution U>
 inline void
@@ -280,10 +281,10 @@ FormQ( DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 } // namespace ts
 
 template<typename F,Distribution U>
-inline ts::TreeData<F>
+inline TreeData<F>
 TS( const DistMatrix<F,U,STAR>& A )
 {
-    ts::TreeData<F> treeData;
+    TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
     QR( treeData.QR0, treeData.t0 );
 
@@ -292,7 +293,7 @@ TS( const DistMatrix<F,U,STAR>& A )
     {
         ts::Reduce( A, treeData );
         if( A.ColRank() == 0 )
-            QR( RootQR(A,treeData), RootPhases(A,treeData) );
+            QR( ts::RootQR(A,treeData), ts::RootPhases(A,treeData) );
     }
     return treeData;
 }
