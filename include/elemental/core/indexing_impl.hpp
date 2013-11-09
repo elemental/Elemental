@@ -133,6 +133,23 @@ inline Int Shift( Int rank, Int alignment, Int stride )
 inline Int Shift_( Int rank, Int alignment, Int stride )
 { return (rank + stride - alignment) % stride; }
 
+inline Unsigned Log2( Unsigned n )
+{
+    Unsigned result = 0;
+    for( Unsigned powerOfTwo=4u*sizeof(Unsigned); powerOfTwo!=0; powerOfTwo/=2 )
+    {
+        if( n >= (1u<<powerOfTwo) )
+        {
+            n >>= powerOfTwo;
+            result += powerOfTwo;
+        }
+    }
+    return result;
+}
+
+inline bool PowerOfTwo( Unsigned n )
+{ return n && !(n & (n-1)); }
+
 } // namespace elem
 
 #endif // ifndef ELEM_CORE_INDEXING_IMPL_HPP

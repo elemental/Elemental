@@ -629,7 +629,7 @@ if(ELEM_TESTS)
     TwoSidedTrsm)
   set(lapack-like_TESTS 
     ApplyPackedReflectors Cholesky CholeskyQR HermitianTridiag LDL LU LQ QR RQ
-    SequentialLU TriangularInverse)
+    SequentialLU TriangularInverse TSQR)
   if(HAVE_PMRRR)
     list(APPEND lapack-like_TESTS HermitianEig HermitianGenDefiniteEig)
   endif()

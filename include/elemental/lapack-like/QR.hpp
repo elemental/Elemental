@@ -15,6 +15,7 @@
 #include "elemental/lapack-like/QR/Cholesky.hpp"
 #include "elemental/lapack-like/QR/Householder.hpp"
 #include "elemental/lapack-like/QR/Explicit.hpp"
+#include "elemental/lapack-like/QR/TS.hpp"
 
 namespace elem {
 

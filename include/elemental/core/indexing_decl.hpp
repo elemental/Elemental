@@ -31,6 +31,9 @@ Int MaxLength_( Int n, Int numProcs );
 Int Shift( Int rank, Int firstRank, Int numProcs );
 Int Shift_( Int rank, Int firstRank, Int numProcs );
 
+Unsigned Log2( Unsigned n );
+bool PowerOfTwo( Unsigned n );
+
 } // namespace elem
 
 #endif // ifndef ELEM_CORE_INDEXING_DECL_HPP

@@ -22,7 +22,7 @@ Fundamental functionality additions
 [-] Complete Orthogonal Decompositions (especially URV)
 [-] LU and LDL with rook pivoting
 [-] (Blocked) Aasen's
-[-] TSQR
+[-] TSQR for non-powers-of-two
 [-] TSLU (via tournament pivoting)
 [-] Pseudospectrum computation
 [-] Successive Band Reduction
@@ -51,6 +51,7 @@ Incremental functionality improvements
 [-] More explicit expansions of packed Householder reflectors
 [-] More Trtrmm/Trtrsm routines
 [-] Compressed pseudoinverse solves which avoid unnecessary backtransformations
+[-] Additional CIRC distributions, e.g., (MC,CIRC)
 
 Performance priorities
 ======================

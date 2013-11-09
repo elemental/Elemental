@@ -69,22 +69,22 @@ void TestQR
 ( bool testCorrectness, bool print,
   Int m, Int n, const Grid& g )
 {
-    DistMatrix<F,VC,STAR> A(g), Q(g);
+    DistMatrix<F,VC,STAR> A(g), AFact(g);
     DistMatrix<F,STAR,STAR> R(g);
 
     Uniform( A, m, n );
     if( print )
         Print( A, "A" );
-    Q = A;
+    AFact = A;
 
     if( g.Rank() == 0 )
     {
-        cout << "  Starting Cholesky QR factorization...";
+        cout << "  Starting TSQR factorization...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    qr::Cholesky( Q, R );
+    qr::ExplicitTS( AFact, R );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double mD = double(m);
@@ -98,11 +98,11 @@ void TestQR
     }
     if( print )
     {
-        Print( Q, "Q" );
+        Print( AFact, "Q" );
         Print( R, "R" );
     }
     if( testCorrectness )
-        TestCorrectness( Q, R, A );
+        TestCorrectness( AFact, R, A );
 }
 
 int 
@@ -127,7 +127,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test CholeskyQR" << endl;
+            cout << "Will test TSQR" << endl;
 
         if( commRank == 0 )
         {
