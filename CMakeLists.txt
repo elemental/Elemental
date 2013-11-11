@@ -621,7 +621,7 @@ endif()
 # Build the test drivers if necessary
 if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
-  set(TEST_TYPES core blas-like lapack-like)
+  set(TEST_TYPES core blas-like lapack-like convex)
 
   set(core_TESTS AxpyInterface DifferentGrids DistMatrix Matrix Version)
   set(blas-like_TESTS 
@@ -633,6 +633,7 @@ if(ELEM_TESTS)
   if(HAVE_PMRRR)
     list(APPEND lapack-like_TESTS HermitianEig HermitianGenDefiniteEig)
   endif()
+  set(convex_TESTS TSSVT)
 
   foreach(TYPE ${TEST_TYPES})
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")

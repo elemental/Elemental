@@ -12,7 +12,8 @@
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level2/ApplyRowPivots.hpp"
-#include "elemental/lapack-like/QR/BusingerGolub.hpp"
+#include "elemental/lapack-like/Norm/Zero.hpp"
+#include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 #include "elemental/convex/SoftThreshold.hpp"
 
@@ -130,6 +131,31 @@ SVT( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
     Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
 
     return ZeroNorm( s );
+}
+
+// Singular-value soft-thresholding based on TSQR
+template<typename F,Distribution U>
+inline Int
+SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau )
+{
+#ifndef RELEASE
+    CallStackEntry entry("SVT");
+#endif
+    const Int p = mpi::CommSize( A.ColComm() );
+    if( p == 1 )
+        return SVT( A.Matrix(), tau );
+
+    Int zeroNorm;
+    qr::TreeData<F> treeData;
+    treeData.QR0 = A.LockedMatrix();
+    QR( treeData.QR0, treeData.t0 );
+    qr::ts::Reduce( A, treeData );
+    if( A.ColRank() == 0 )
+        zeroNorm = SVT( qr::ts::RootQR(A,treeData), tau );
+    qr::ts::Scatter( A, treeData );
+
+    mpi::Broadcast( zeroNorm, 0, A.ColComm() );
+    return zeroNorm;
 }
 
 } // namespace elem

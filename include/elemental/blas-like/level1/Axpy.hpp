@@ -67,9 +67,10 @@ Axpy( BASE(T) alpha, const Matrix<T>& X, Matrix<T>& Y )
 { Axpy( T(alpha), X, Y ); }
 #endif
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
-Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+Axpy( T alpha, const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 {
 #ifndef RELEASE
     CallStackEntry entry("Axpy");
@@ -77,13 +78,14 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
         LogicError
         ("X and Y must be distributed over the same grid");
 #endif
-    if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
+    if( U1 == V1 && U2 == V2 && 
+        X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {
         Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
     }
     else
     {
-        DistMatrix<T,U,V> XCopy( X.Grid() );
+        DistMatrix<T,U2,V2> XCopy( X.Grid() );
         XCopy.AlignWith( Y );
         XCopy = X;
         Axpy( alpha, XCopy.LockedMatrix(), Y.Matrix() );
@@ -91,11 +93,12 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 }
 
 #ifndef SWIG
-template<typename T,Distribution U,Distribution V>
+template<typename T,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
 Axpy
 ( BASE(T) alpha,
-  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+  const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 { Axpy( T(alpha), X, Y ); }
 #endif
 
