@@ -48,6 +48,13 @@ inline T Uniform( T a, T b )
     return sample;
 }
 
+inline Int Uniform( Int a, Int b )
+{
+    std::mt19937& gen = Generator();
+    std::uniform_int_distribution<Int> intDist(a,b-1); 
+    return intDist(gen);
+}
+
 template<typename T>
 inline T Normal( T mean, BASE(T) stddev )
 {
