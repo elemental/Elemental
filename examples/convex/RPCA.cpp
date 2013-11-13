@@ -47,7 +47,7 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
     {
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            if( Uniform<Real>() <= probCorrupt )
+            if( SampleUniform<Real>() <= probCorrupt )
             {
                 ++numLocalCorrupt;
                 const F perturb = SampleBall<F>();
