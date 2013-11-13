@@ -48,7 +48,8 @@ inline T SampleUniform( T a, T b )
     return sample;
 }
 
-inline Int SampleUniform( Int a, Int b )
+template<>
+inline Int SampleUniform<Int>( Int a, Int b )
 {
     std::mt19937& gen = Generator();
     std::uniform_int_distribution<Int> intDist(a,b-1); 
