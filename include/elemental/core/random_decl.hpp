@@ -21,16 +21,16 @@ template<typename T>
 T UnitCell();
 
 template<typename T=double>
-T Uniform( T a=0, T b=UnitCell<T>() );
+T SampleUniform( T a=0, T b=UnitCell<T>() );
 
-Int Uniform( Int a, Int b );
+Int SampleUniform( Int a, Int b );
 
 // The complex extension of the normal distribution can actually be quite
 // technical, and so we will use the simplest case, where both the real and
 // imaginary components are independently drawn with the same standard 
 // deviation, but different means.
 template<typename T=double>
-T Normal( T mean=0, BASE(T) stddev=1 );
+T SampleNormal( T mean=0, BASE(T) stddev=1 );
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.

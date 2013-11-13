@@ -429,7 +429,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const Real angle = Uniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
         G = A;
         Scale( gamma, G );
@@ -531,7 +531,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const Real angle = Uniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
         Q = A;
         Scale( gamma, Q );
@@ -633,7 +633,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const Real angle = Uniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
         G = A;
@@ -738,7 +738,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const Real angle = Uniform<Real>(0,2*Pi);
+        const Real angle = SampleUniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
         Q = A;

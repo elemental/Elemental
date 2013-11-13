@@ -13,7 +13,7 @@
 namespace elem {
 
 inline bool BooleanCoinFlip()
-{ return Uniform<double>(0,1) >= 0.5; }
+{ return SampleUniform<double>(0,1) >= 0.5; }
 
 inline Int CoinFlip()
 { return ( BooleanCoinFlip() ? 1 : -1 ); }
@@ -30,7 +30,7 @@ inline T UnitCell()
 }
 
 template<typename T>
-inline T Uniform( T a, T b )
+inline T SampleUniform( T a, T b )
 {
     typedef BASE(T) Real;
     std::mt19937& gen = Generator();
@@ -48,7 +48,7 @@ inline T Uniform( T a, T b )
     return sample;
 }
 
-inline Int Uniform( Int a, Int b )
+inline Int SampleUniform( Int a, Int b )
 {
     std::mt19937& gen = Generator();
     std::uniform_int_distribution<Int> intDist(a,b-1); 
@@ -56,7 +56,7 @@ inline Int Uniform( Int a, Int b )
 }
 
 template<typename T>
-inline T Normal( T mean, BASE(T) stddev )
+inline T SampleNormal( T mean, BASE(T) stddev )
 {
     typedef BASE(T) Real;
     std::mt19937& gen = Generator();
@@ -76,19 +76,19 @@ inline T Normal( T mean, BASE(T) stddev )
 template<>
 inline float
 SampleBall<float>( float center, float radius )
-{ return Uniform<float>(center-radius/2,center+radius/2); }
+{ return SampleUniform<float>(center-radius/2,center+radius/2); }
 
 template<>
 inline double
 SampleBall<double>( double center, double radius )
-{ return Uniform<double>(center-radius/2,center+radius/2); }
+{ return SampleUniform<double>(center-radius/2,center+radius/2); }
 
 template<>
 inline Complex<float>
 SampleBall<Complex<float>>( Complex<float> center, float radius )
 {
-    const float r = Uniform<float>(0,radius);
-    const float angle = Uniform<float>(0.f,float(2*Pi));
+    const float r = SampleUniform<float>(0,radius);
+    const float angle = SampleUniform<float>(0.f,float(2*Pi));
     return center + Complex<float>(r*cos(angle),r*sin(angle));
 }
 
@@ -96,8 +96,8 @@ template<>
 inline Complex<double>
 SampleBall<Complex<double>>( Complex<double> center, double radius )
 {
-    const double r = Uniform<double>(0,radius);
-    const double angle = Uniform<double>(0.,2*Pi);
+    const double r = SampleUniform<double>(0,radius);
+    const double angle = SampleUniform<double>(0.,2*Pi);
     return center + Complex<double>(r*cos(angle),r*sin(angle));
 }
 

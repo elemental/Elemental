@@ -24,7 +24,7 @@ MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, Normal( mean, stddev ) );
+            A.Set( i, j, SampleNormal( mean, stddev ) );
 }
 
 template<typename T>
@@ -66,7 +66,7 @@ struct MakeGaussianHelper<T,CIRC,CIRC>
             const Int width = A.Width();
             for( Int j=0; j<width; ++j )
                 for( Int i=0; i<height; ++i )
-                    A.SetLocal( i, j, Normal( mean, stddev ) );
+                    A.SetLocal( i, j, SampleNormal( mean, stddev ) );
         }
     }
 };
@@ -80,7 +80,7 @@ struct MakeGaussianHelper<T,MC,MR>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, Normal( mean, stddev ) );
+                A.SetLocal( iLoc, jLoc, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -102,7 +102,8 @@ struct MakeGaussianHelper<T,MC,STAR>
             {
                 for( Int j=0; j<n; ++j )
                     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                        buffer[iLoc+j*localHeight] = Normal( mean, stddev );
+                        buffer[iLoc+j*localHeight] = 
+                            SampleNormal( mean, stddev );
             }
             mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
@@ -129,7 +130,7 @@ struct MakeGaussianHelper<T,MD,STAR>
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, Normal( mean, stddev ) );
+                A.SetLocal( iLoc, j, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -142,7 +143,7 @@ struct MakeGaussianHelper<T,MR,MC>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, Normal( mean, stddev ) );
+                A.SetLocal( iLoc, jLoc, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -162,7 +163,7 @@ struct MakeGaussianHelper<T,MR,STAR>
         {
             for( Int j=0; j<n; ++j )
                 for( Int i=0; i<localHeight; ++i )
-                    buffer[i+j*localHeight] = Normal( mean, stddev );
+                    buffer[i+j*localHeight] = SampleNormal( mean, stddev );
         }
         mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
@@ -192,7 +193,7 @@ struct MakeGaussianHelper<T,STAR,MC>
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
                 for( Int i=0; i<m; ++i )
-                    buffer[i+jLoc*m] = Normal( mean, stddev );
+                    buffer[i+jLoc*m] = SampleNormal( mean, stddev );
         }
         mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
@@ -218,7 +219,7 @@ struct MakeGaussianHelper<T,STAR,MD>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, Normal( mean, stddev ) );
+                A.SetLocal( i, jLoc, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -238,7 +239,7 @@ struct MakeGaussianHelper<T,STAR,MR>
         {
             for( Int j=0; j<localWidth; ++j )
                 for( Int i=0; i<m; ++i )
-                    buffer[i+j*m] = Normal( mean, stddev );
+                    buffer[i+j*m] = SampleNormal( mean, stddev );
         }
         mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
@@ -272,7 +273,7 @@ struct MakeGaussianHelper<T,STAR,STAR>
             {
                 for( Int j=0; j<n; ++j )
                     for( Int i=0; i<m; ++i )
-                        buffer[i+j*m] = Normal( mean, stddev );
+                        buffer[i+j*m] = SampleNormal( mean, stddev );
             }
             mpi::Broadcast( buffer.data(), bufSize, 0, grid.Comm() );
 
@@ -299,7 +300,7 @@ struct MakeGaussianHelper<T,STAR,VC>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, Normal( mean, stddev ) );
+                A.SetLocal( i, jLoc, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -312,7 +313,7 @@ struct MakeGaussianHelper<T,STAR,VR>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, Normal( mean, stddev ) );
+                A.SetLocal( i, jLoc, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -325,7 +326,7 @@ struct MakeGaussianHelper<T,VC,STAR>
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, Normal( mean, stddev ) );
+                A.SetLocal( iLoc, j, SampleNormal( mean, stddev ) );
     }
 };
 
@@ -338,7 +339,7 @@ struct MakeGaussianHelper<T,VR,STAR>
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, Normal( mean, stddev ) );
+                A.SetLocal( iLoc, j, SampleNormal( mean, stddev ) );
     }
 };
 

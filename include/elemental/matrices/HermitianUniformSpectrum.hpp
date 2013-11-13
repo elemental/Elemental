@@ -35,7 +35,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     const Int n = A.Height();
     std::vector<F> d( n );
     for( Int j=0; j<n; ++j )
-        d[j] = Uniform<R>( lower, upper );
+        d[j] = SampleUniform<R>( lower, upper );
     Diagonal( A, d );
 
     // Apply a Haar matrix from both sides
@@ -72,7 +72,7 @@ MakeHermitianUniformSpectrum
     std::vector<F> d( n );
     if( grid.Rank() == 0 )
         for( Int j=0; j<n; ++j )
-            d[j] = Uniform<R>( lower, upper );
+            d[j] = SampleUniform<R>( lower, upper );
     mpi::Broadcast( d.data(), n, 0, grid.Comm() );
     DistMatrix<F> ABackup( grid );
     if( standardDist )
