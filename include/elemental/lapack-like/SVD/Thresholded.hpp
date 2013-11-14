@@ -20,10 +20,10 @@ namespace svd {
 
 template<typename F>
 inline void
-ThresholdedTall( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+TallThresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svd::ThresholdedTall");
+    CallStackEntry entry("svd::TallThresholded");
     if( A.Height() < A.Width() )
         LogicError("A must be at least as tall as it is wide");
     if( tol < 0 )
@@ -70,12 +70,12 @@ ThresholdedTall( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 
 template<typename F>
 inline void
-ThresholdedTall
+TallThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svd::ThresholdedTall");
+    CallStackEntry entry("svd::TallThresholded");
     if( A.Height() < A.Width() )
         LogicError("A must be at least as tall as it is wide");
     if( tol < 0 )
@@ -132,10 +132,75 @@ ThresholdedTall
 
 template<typename F>
 inline void
-ThresholdedWide( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+TallThresholded
+( DistMatrix<F,VC,STAR>& A, 
+  DistMatrix<BASE(F),STAR,STAR>& s, 
+  DistMatrix<F,STAR,STAR>& V,
+  BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svd::ThresholdedWide");
+    CallStackEntry entry("svd::TallThresholded");
+    if( A.Height() < A.Width() )
+        LogicError("A must be at least as tall as it is wide");
+    if( tol < 0 )
+        LogicError("negative threshold does not make sense");
+#endif
+    EnsurePMRRR();
+    typedef BASE(F) Real;
+    const Grid& g = A.Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
+    {
+        const Real eps = lapack::MachineEpsilon<Real>();
+        tol = m*frobNorm*eps;
+    }
+
+    // C := A^H A
+    DistMatrix<F,STAR,STAR> C(g);
+    Zeros( C, n, n );
+    Herk( LOWER, ADJOINT, F(1), A.LockedMatrix(), F(0), C.Matrix() );
+    C.SumOverGrid();
+
+    // [V,Sigma^2] := eig(C), where each sigma > tol
+    s.ResizeTo( n, 1 );
+    V.ResizeTo( n, n );
+    HermitianEig
+    ( LOWER, C.Matrix(), s.Matrix(), V.Matrix(), tol*tol, frobNorm*frobNorm );
+    
+    // Sigma := sqrt(Sigma^2)
+    for( Int i=0; i<n; ++i )
+        s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
+
+    // Y := A V
+    DistMatrix<F,VC,STAR> Y(g);
+    Y.AlignWith( A );
+    Zeros( Y, m, n );
+    LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+
+    // Set each column of A to be the corresponding normalized column of Y
+    // NOTE: A (potentially better) alternative would be to compute the norm of
+    //       each column of A and normalize via it, as it might vary slightly
+    //       from the corresponding computed singular value.
+    A = Y;
+    {
+        const Int localHeight = A.LocalHeight();
+        for( Int j=0; j<n; ++j )
+        {
+            const Real sigma = s.GetLocal( j, 0 );
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, j, A.GetLocal(iLoc,j)/sigma );
+        }
+    }
+}
+
+template<typename F>
+inline void
+WideThresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("svd::WideThresholded");
     if( A.Width() < A.Height() )
         LogicError("A must be at least as wide as it is tall");
     if( tol < 0 )
@@ -181,12 +246,12 @@ ThresholdedWide( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 
 template<typename F>
 inline void
-ThresholdedWide
+WideThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svd::ThresholdedWide");
+    CallStackEntry entry("svd::WideThresholded");
     if( A.Width() < A.Height() )
         LogicError("A must be at least as wide as it is tall");
     if( tol < 0 )
@@ -241,6 +306,9 @@ ThresholdedWide
     A = U;
 }
 
+// NOTE: [* ,VR] WideThresholded would produce U with different distribution
+//       than A. It makes more sense to overwrite A with V'.
+
 template<typename F>
 inline void
 Thresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
@@ -249,9 +317,9 @@ Thresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
     CallStackEntry entry("svd::Thresholded");
 #endif
     if( A.Height() >= A.Width() )
-        ThresholdedTall( A, s, V, tol );
+        TallThresholded( A, s, V, tol );
     else
-        ThresholdedWide( A, s, V, tol );
+        WideThresholded( A, s, V, tol );
 }
 
 template<typename F>
@@ -265,9 +333,9 @@ Thresholded
 #endif
     EnsurePMRRR();
     if( A.Height() >= A.Width() )
-        ThresholdedTall( A, s, V, tol );
+        TallThresholded( A, s, V, tol );
     else
-        ThresholdedWide( A, s, V, tol );
+        WideThresholded( A, s, V, tol );
 }
 
 } // namespace svd

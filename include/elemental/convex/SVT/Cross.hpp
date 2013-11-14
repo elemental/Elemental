@@ -59,6 +59,26 @@ Cross( DistMatrix<F>& A, BASE(F) tau )
     return ZeroNorm( s );
 }
 
+template<typename F>
+inline Int
+TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau )
+{
+#ifndef RELEASE
+    CallStackEntry entry("svt::TallCross");
+#endif
+    typedef Base<F> Real;
+    DistMatrix<F,VC,STAR> U( A );
+    DistMatrix<Real,STAR,STAR> s( A.Grid() );
+    DistMatrix<F,STAR,STAR> V( A.Grid() );
+
+    svd::TallThresholded( U, s, V, tau );
+    SoftThreshold( s, tau );
+    DiagonalScale( RIGHT, NORMAL, s, U );
+    LocalGemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+
+    return ZeroNorm( s );
+}
+
 } // namespace svt
 } // namespace elem
 
