@@ -10,12 +10,11 @@
 #ifndef ELEM_CONVEX_SVT_HPP
 #define ELEM_CONVEX_SVT_HPP
 
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/blas-like/level2/ApplyRowPivots.hpp"
-#include "elemental/lapack-like/Norm/Zero.hpp"
-#include "elemental/lapack-like/QR.hpp"
-#include "elemental/lapack-like/SVD.hpp"
-#include "elemental/convex/SoftThreshold.hpp"
+#include "elemental/convex/SVT/Normal.hpp"
+
+#include "elemental/convex/SVT/Cross.hpp"
+#include "elemental/convex/SVT/PivotedQR.hpp"
+#include "elemental/convex/SVT/TSQR.hpp"
 
 namespace elem {
 
@@ -26,53 +25,7 @@ SVT( Matrix<F>& A, BASE(F) tau )
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    typedef BASE(F) Real;
-    Matrix<F> U( A );
-    Matrix<Real> s;
-    Matrix<F> V;
-
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
-    DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
-
-    return ZeroNorm( s );
-}
-
-// Preprocess with numSteps iterations of pivoted QR factorization
-template<typename F>
-inline Int
-SVT( Matrix<F>& A, BASE(F) tau, Int numSteps )
-{
-#ifndef RELEASE
-    CallStackEntry entry("SVT");
-    if( numSteps > std::min(A.Height(),A.Width()) )
-        LogicError("number of steps is too large");
-#endif
-    typedef BASE(F) Real;
-    const Int m = A.Height();
-    const Int n = A.Width();
-    Matrix<F> ACopy( A ), t;
-    Matrix<Int> p;
-    qr::BusingerGolub( ACopy, t, p, numSteps );
-    Matrix<F> ACopyUpper;
-    LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
-
-    Matrix<F> U( ACopyUpper ), V;
-    Matrix<Real> s;
-    MakeTriangular( UPPER, U );
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
-    DiagonalScale( RIGHT, NORMAL, s, U );
-    ApplyInverseRowPivots( V, p );
-    Matrix<F> RThresh;
-    Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
-
-    ACopy.ResizeTo( m, numSteps );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, ACopy, t );
-    Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
-
-    return ZeroNorm( s );
+    return svt::Normal( A, tau );
 }
 
 template<typename F>
@@ -82,55 +35,30 @@ SVT( DistMatrix<F>& A, BASE(F) tau )
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    typedef BASE(F) Real;
-    DistMatrix<F> U( A );
-    DistMatrix<Real,VR,STAR> s( A.Grid() );
-    DistMatrix<F> V( A.Grid() );
-
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
-    DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
-
-    return ZeroNorm( s );
+    // NOTE: This should be less accurate (but faster) than svt::Normal
+    return svt::Cross( A, tau );
 }
 
-// Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
+SVT( Matrix<F>& A, BASE(F) tau, Int relaxedRank )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
-    if( numSteps > std::min(A.Height(),A.Width()) )
-        LogicError("number of steps is too large");
 #endif
-    typedef BASE(F) Real;
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Grid& g = A.Grid();
-    DistMatrix<F> ACopy( A );
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    qr::BusingerGolub( ACopy, t, p, numSteps );
-    DistMatrix<F> ACopyUpper(g);
-    LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
+    // Preprocess with numSteps iterations of pivoted QR factorization
+    return svt::PivotedQR( A, tau, relaxedRank );
+}
 
-    DistMatrix<F> U( ACopyUpper ), V(g);
-    DistMatrix<Real,VR,STAR> s(g);
-    MakeTriangular( UPPER, U );
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
-    DiagonalScale( RIGHT, NORMAL, s, U );
-    ApplyInverseRowPivots( V, p );
-    DistMatrix<F> RThresh(g);
-    Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
-
-    ACopy.ResizeTo( m, numSteps );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, ACopy, t );
-    Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
-
-    return ZeroNorm( s );
+template<typename F>
+inline Int
+SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank )
+{
+#ifndef RELEASE
+    CallStackEntry entry("SVT");
+#endif
+    // Preprocess with numSteps iterations of pivoted QR factorization
+    return svt::PivotedQR( A, tau, relaxedRank );
 }
 
 // Singular-value soft-thresholding based on TSQR
@@ -141,21 +69,7 @@ SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau )
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    const Int p = mpi::CommSize( A.ColComm() );
-    if( p == 1 )
-        return SVT( A.Matrix(), tau );
-
-    Int zeroNorm;
-    qr::TreeData<F> treeData;
-    treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.t0 );
-    qr::ts::Reduce( A, treeData );
-    if( A.ColRank() == 0 )
-        zeroNorm = SVT( qr::ts::RootQR(A,treeData), tau );
-    qr::ts::Scatter( A, treeData );
-
-    mpi::Broadcast( zeroNorm, 0, A.ColComm() );
-    return zeroNorm;
+    return svt::TSQR( A, tau );
 }
 
 } // namespace elem
