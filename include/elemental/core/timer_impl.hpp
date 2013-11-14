@@ -12,25 +12,18 @@
 
 namespace elem {
 
-inline 
-Timer::Timer()
-: running_(false), time_(0), name_("[blank]")
+inline Timer::Timer( const std::string& name )
+: name_(name)
 { }
 
-inline 
-Timer::Timer( const std::string name )
-: running_(false), time_(0), name_(name)
-{ }
-
-inline void 
+inline void
 Timer::Start()
 {
 #ifndef RELEASE
-    CallStackEntry entry("Timer::Start");
     if( running_ )
-        LogicError("Forgot to stop timer before restarting");
+        throw std::logic_error("Forgot to stop timer before restarting.");
 #endif
-    lastStartTime_ = mpi::Time();
+    lastTime_ = steady_clock::now();
     running_ = true;
 }
 
@@ -38,40 +31,48 @@ inline double
 Timer::Stop()
 {
 #ifndef RELEASE
-    CallStackEntry entry("Timer::Stop");
     if( !running_ )
-        LogicError("Tried to stop a timer before starting it");
+        throw std::logic_error("Tried to stop a timer before starting it.");
 #endif
-    const double partial = Partial();  
-    time_ += partial;
+    lastPartialTime_ = Partial();
     running_ = false;
-    return partial;
+    totalTime_ += lastPartialTime_;
+    return lastPartialTime_;
 }
 
-inline void 
-Timer::Reset()
-{ time_ = 0; }
+inline void
+Timer::Reset( const std::string& name )
+{ 
+    name_ = name;
+    running_ = false;
+    totalTime_ = 0; 
+    lastPartialTime_ = 0;
+}
 
-inline const std::string 
+inline const std::string&
 Timer::Name() const
 { return name_; }
 
-inline double 
+inline double
 Timer::Partial() const
-{
-#ifndef RELEASE
-    CallStackEntry entry("Timer::Partial");
-#endif
-    return mpi::Time()-lastStartTime_;
+{ 
+    if( running_ )
+    {
+        auto now = steady_clock::now();
+        auto timeSpan = duration_cast<duration<double>>(now-lastTime_);
+        return timeSpan.count();
+    }
+    else
+        return lastPartialTime_; 
 }
 
-inline double 
+inline double
 Timer::Total() const
 {
-#ifndef RELEASE
-    CallStackEntry entry("Timer::Total");
-#endif
-    return time_;
+    if( running_ )
+        return totalTime_ + Partial();
+    else
+        return totalTime_;
 }
 
 } // namespace elem

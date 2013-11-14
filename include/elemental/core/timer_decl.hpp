@@ -10,27 +10,32 @@
 #ifndef ELEM_CORE_TIMER_DECL_HPP
 #define ELEM_CORE_TIMER_DECL_HPP
 
+#include <chrono>
+
 namespace elem {
+
+using std::chrono::duration;
+using std::chrono::duration_cast;
+using std::chrono::steady_clock;
 
 class Timer
 {
 public:
-    Timer();
-    Timer( const std::string name );
+    Timer( const std::string& name="[blank]" );
+
+    const std::string& Name() const;
 
     void Start();
     double Stop();
-    void Reset();
+    double Partial() const; // time since last start
+    double Total() const; // total elapsed time
 
-    const std::string Name() const;
-    double Partial() const;
-    double Total() const;
-    
+    void Reset( const std::string& name="[blank]" );
 private:
-    bool running_;
-    double lastStartTime_;
-    double time_;
-    const std::string name_;
+    bool running_ = false;
+    std::string name_ = "[blank]";
+    double totalTime_=0, lastPartialTime_=0;
+    steady_clock::time_point lastTime_;
 };
 
 } // namespace elem
