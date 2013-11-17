@@ -741,6 +741,8 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
+    vu = std::max(vl,vu);
+
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -762,6 +764,8 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
+    upperBound = std::max(lowerBound,upperBound);
+
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
@@ -847,6 +851,8 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
+    vu = std::max(vl,vu);
+
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -870,6 +876,8 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
+    upperBound = std::max(lowerBound,upperBound);
+
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
