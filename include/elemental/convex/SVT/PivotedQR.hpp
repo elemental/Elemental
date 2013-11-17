@@ -23,7 +23,7 @@ namespace svt {
 
 template<typename F>
 inline Int
-PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps )
+PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::PivotedQR");
@@ -42,8 +42,8 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps )
     Matrix<F> U( ACopyUpper ), V;
     Matrix<Real> s;
     MakeTriangular( UPPER, U );
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
+    svd::Thresholded( U, s, V, tau, relative );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     ApplyInverseRowPivots( V, p );
     Matrix<F> RThresh;
@@ -59,7 +59,7 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps )
 
 template<typename F>
 inline Int
-PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
+PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::PivotedQR");
@@ -80,8 +80,8 @@ PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
     DistMatrix<F> U( ACopyUpper ), V(g);
     DistMatrix<Real,VR,STAR> s(g);
     MakeTriangular( UPPER, U );
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
+    svd::Thresholded( U, s, V, tau, relative );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     ApplyInverseRowPivots( V, p );
     DistMatrix<F> RThresh(g);

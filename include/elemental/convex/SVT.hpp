@@ -20,56 +20,56 @@ namespace elem {
 
 template<typename F>
 inline Int
-SVT( Matrix<F>& A, BASE(F) tau )
+SVT( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    return svt::Normal( A, tau );
+    return svt::Normal( A, tau, relative );
 }
 
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, BASE(F) tau )
+SVT( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
     // NOTE: This should be less accurate (but faster) than svt::Normal
-    return svt::Cross( A, tau );
+    return svt::Cross( A, tau, relative );
 }
 
 template<typename F>
 inline Int
-SVT( Matrix<F>& A, BASE(F) tau, Int relaxedRank )
+SVT( Matrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
     // Preprocess with numSteps iterations of pivoted QR factorization
-    return svt::PivotedQR( A, tau, relaxedRank );
+    return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
 
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank )
+SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
     // Preprocess with numSteps iterations of pivoted QR factorization
-    return svt::PivotedQR( A, tau, relaxedRank );
+    return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
 
 // Singular-value soft-thresholding based on TSQR
 template<typename F,Distribution U>
 inline Int
-SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau )
+SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
-    return svt::TSQR( A, tau );
+    return svt::TSQR( A, tau, relative );
 }
 
 } // namespace elem

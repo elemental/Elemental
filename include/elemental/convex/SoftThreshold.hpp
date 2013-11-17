@@ -10,6 +10,8 @@
 #ifndef ELEM_CONVEX_SOFTTHRESHOLD_HPP
 #define ELEM_CONVEX_SOFTTHRESHOLD_HPP
 
+#include "elemental/lapack-like/Norm/Max.hpp"
+
 namespace elem {
 
 template<typename F>
@@ -28,11 +30,17 @@ SoftThreshold( F alpha, BASE(F) tau )
 
 template<typename F>
 inline void
-SoftThreshold( Matrix<F>& A, BASE(F) tau )
+SoftThreshold( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SoftThreshold");
 #endif
+    typedef Base<F> Real;
+    if( relative )
+    {
+        const Real maxNorm = MaxNorm( A );
+        tau *= maxNorm;
+    }
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -42,12 +50,18 @@ SoftThreshold( Matrix<F>& A, BASE(F) tau )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau )
+SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SoftThreshold");
 #endif
-    SoftThreshold( A.Matrix(), tau );
+    typedef Base<F> Real;
+    if( relative )
+    {
+        const Real maxNorm = MaxNorm( A );
+        tau *= maxNorm;
+    }
+    SoftThreshold( A.Matrix(), tau, false );
 }
 
 } // namespace elem

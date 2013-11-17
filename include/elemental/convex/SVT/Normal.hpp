@@ -11,6 +11,7 @@
 #define ELEM_CONVEX_SVT_NORMAL_HPP
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/Norm/Zero.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 #include "elemental/convex/SoftThreshold.hpp"
@@ -21,7 +22,7 @@ namespace svt {
 
 template<typename F>
 inline Int
-Normal( Matrix<F>& A, BASE(F) tau )
+Normal( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::Normal");
@@ -32,7 +33,7 @@ Normal( Matrix<F>& A, BASE(F) tau )
     Matrix<F> V;
 
     SVD( U, s, V );
-    SoftThreshold( s, tau );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
@@ -41,7 +42,7 @@ Normal( Matrix<F>& A, BASE(F) tau )
 
 template<typename F>
 inline Int
-Normal( DistMatrix<F>& A, BASE(F) tau )
+Normal( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::Normal");
@@ -52,7 +53,7 @@ Normal( DistMatrix<F>& A, BASE(F) tau )
     DistMatrix<F> V( A.Grid() );
 
     SVD( U, s, V );
-    SoftThreshold( s, tau );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 

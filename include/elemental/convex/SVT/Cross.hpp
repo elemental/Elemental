@@ -21,7 +21,7 @@ namespace svt {
 
 template<typename F>
 inline Int
-Cross( Matrix<F>& A, BASE(F) tau )
+Cross( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::Cross");
@@ -31,8 +31,8 @@ Cross( Matrix<F>& A, BASE(F) tau )
     Matrix<Real> s;
     Matrix<F> V;
 
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
+    svd::Thresholded( U, s, V, tau, relative );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
@@ -41,7 +41,7 @@ Cross( Matrix<F>& A, BASE(F) tau )
 
 template<typename F>
 inline Int
-Cross( DistMatrix<F>& A, BASE(F) tau )
+Cross( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::Cross");
@@ -51,8 +51,8 @@ Cross( DistMatrix<F>& A, BASE(F) tau )
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     DistMatrix<F> V( A.Grid() );
 
-    svd::Thresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
+    svd::Thresholded( U, s, V, tau, relative );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
@@ -61,7 +61,7 @@ Cross( DistMatrix<F>& A, BASE(F) tau )
 
 template<typename F>
 inline Int
-TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau )
+TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("svt::TallCross");
@@ -71,8 +71,8 @@ TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau )
     DistMatrix<Real,STAR,STAR> s( A.Grid() );
     DistMatrix<F,STAR,STAR> V( A.Grid() );
 
-    svd::TallThresholded( U, s, V, tau );
-    SoftThreshold( s, tau );
+    svd::TallThresholded( U, s, V, tau, relative );
+    SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     LocalGemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 

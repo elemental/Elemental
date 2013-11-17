@@ -20,14 +20,14 @@ namespace svt {
 
 template<typename F,Distribution U>
 inline Int
-TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau )
+TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("SVT");
 #endif
     const Int p = mpi::CommSize( A.ColComm() );
     if( p == 1 )
-        return SVT( A.Matrix(), tau );
+        return SVT( A.Matrix(), tau, relative );
 
     Int zeroNorm;
     qr::TreeData<F> treeData;
@@ -35,7 +35,7 @@ TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau )
     QR( treeData.QR0, treeData.t0 );
     qr::ts::Reduce( A, treeData );
     if( A.ColRank() == 0 )
-        zeroNorm = SVT( qr::ts::RootQR(A,treeData), tau );
+        zeroNorm = SVT( qr::ts::RootQR(A,treeData), tau, relative );
     qr::ts::Scatter( A, treeData );
 
     mpi::Broadcast( zeroNorm, 0, A.ColComm() );
