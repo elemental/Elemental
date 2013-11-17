@@ -57,6 +57,12 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w,
   BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<BASE(F),STAR,STAR>& w,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
 
 // Compute a selected set of eigenpairs of a Hermitian matrix
 template<typename F>
@@ -78,6 +84,13 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo,
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<BASE(F),STAR,STAR>& w, 
+  DistMatrix<F,STAR,STAR>& Z,
   BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED );
 
 //

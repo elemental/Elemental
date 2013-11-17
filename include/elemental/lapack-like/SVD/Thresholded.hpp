@@ -188,8 +188,7 @@ TallThresholded
     // [V,Sigma^2] := eig(C), where each sigma > tol
     s.ResizeTo( n, 1 );
     V.ResizeTo( n, n );
-    HermitianEig
-    ( LOWER, C.Matrix(), s.Matrix(), V.Matrix(), tol*tol, frobNorm*frobNorm );
+    HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
     
     // Sigma := sqrt(Sigma^2)
     for( Int i=0; i<n; ++i )

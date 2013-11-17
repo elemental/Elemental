@@ -761,6 +761,32 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<Base<F>,STAR,STAR>& w, Base<F> vl, Base<F> vu, SortType sort )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianEig");
+#endif
+    if( vl >= vu )
+    {
+        w.ResizeTo(0,1);
+        return; 
+    }
+
+    typedef Base<F> Real;
+    const Int n = A.Height();
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const Real absTol = 0; // use the default value for now
+    w.ResizeTo( n, 1 );
+    const Int numEigs = lapack::HermitianEig
+    ( 'N', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
+      w.Buffer(), 0, 1 );
+    w.ResizeTo( numEigs, 1 );
+    Sort( w, sort );
+}
+
+template<typename F>
+void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, Base<F> lowerBound, Base<F> upperBound,
   SortType sort )
@@ -878,6 +904,38 @@ void HermitianEig
     w.ResizeTo( numEigs, 1 );
     Z.ResizeTo( n, numEigs );
     hermitian_eig::Sort( w, Z, sort );
+}
+
+template<typename F>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<F,STAR,STAR>& A, 
+  DistMatrix<Base<F>,STAR,STAR>& w, 
+  DistMatrix<F,STAR,STAR>& Z, 
+  Base<F> vl, Base<F> vu, SortType sort )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianEig");
+#endif
+    typedef Base<F> Real;
+    const Int n = A.Height();
+    if( vl >= vu )
+    {
+        w.ResizeTo(0,1);
+        Z.ResizeTo(n,0);
+        return; 
+    }
+
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const Real absTol = 0; // use the default value for now
+    w.ResizeTo( n, 1 );
+    Z.ResizeTo( n, n );
+    const Int numEigs = lapack::HermitianEig
+    ( 'V', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
+      w.Buffer(), Z.Buffer(), Z.LDim() );
+    w.ResizeTo( numEigs, 1 );
+    Z.ResizeTo( n, numEigs );
+    hermitian_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
 template<typename F>
@@ -1099,18 +1157,26 @@ void HermitianEig<Complex<float>>
 #define FLOAT_EIGVAL(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,\
-    Base<F> vl, Base<F> iu, SortType sort ); \
+    Base<F> vl, Base<F> vu, SortType sort ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
+    DistMatrix<Base<F>,STAR,STAR>& w,\
+    Base<F> vl, Base<F> vu, SortType sort ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    Base<F> il, Base<F> iu, SortType sort )
+    Base<F> vl, Base<F> vu, SortType sort )
 // Floating-point range of eigenpairs
 #define FLOAT_EIGPAIR(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
-    Base<F> vl, Base<F> iu, SortType sort ); \
+    Base<F> vl, Base<F> vu, SortType sort ); \
+  template void HermitianEig\
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
+    DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
+    Base<F> vl, Base<F> vu, SortType sort ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    DistMatrix<F>& Z, Base<F> il, Base<F> iu, SortType sort )
+    DistMatrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort )
 // All options
 #define ALL_OPTS(F) \
   FULL_EIGVAL(F);\
