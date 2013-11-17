@@ -229,6 +229,7 @@ WideThresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
         LogicError("negative threshold does not make sense");
 #endif
     typedef BASE(F) Real;
+    const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
@@ -289,6 +290,7 @@ WideThresholded
     EnsurePMRRR();
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
+    const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )

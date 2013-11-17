@@ -894,7 +894,7 @@ void HermitianEig
     if( lowerBound >= upperBound )
     {
         w.ResizeTo(0,1);
-        Z.ResizeTo(n,0);
+        paddedZ.ResizeTo(n,0);
         return; 
     }
 
