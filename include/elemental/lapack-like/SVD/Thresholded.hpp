@@ -196,7 +196,7 @@ TallThresholded
     // Y := A V
     DistMatrix<F,VC,STAR> Y(g);
     Y.AlignWith( A );
-    Zeros( Y, m, n );
+    Zeros( Y, m, k );
     LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
