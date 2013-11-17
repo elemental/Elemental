@@ -66,6 +66,7 @@ Maintenance priorities
 Bug avoidance
 -------------
 [x] Update elemvariables to support usage of Qt5
+[o] More error checks in (Dist)Matrix, e.g., in GetLocal and (Locked)Buffer
 [-] Have matrix data zeroed by default? (to prevent NaN initialization bugs)
 [-] Investigate (potential) minor memory leak in schur::SDC
 [-] Investigate (potential) occasional invalid reads in PMR_process_r_queue

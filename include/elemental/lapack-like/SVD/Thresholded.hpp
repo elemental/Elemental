@@ -186,12 +186,11 @@ TallThresholded
     C.SumOverGrid();
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
-    s.ResizeTo( n, 1 );
-    V.ResizeTo( n, n );
     HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
+    const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
-    for( Int i=0; i<n; ++i )
+    for( Int i=0; i<k; ++i )
         s.SetLocal( i, 0, Sqrt(s.GetLocal(i,0)) );
 
     // Y := A V
@@ -207,7 +206,7 @@ TallThresholded
     A = Y;
     {
         const Int localHeight = A.LocalHeight();
-        for( Int j=0; j<n; ++j )
+        for( Int j=0; j<k; ++j )
         {
             const Real sigma = s.GetLocal( j, 0 );
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
