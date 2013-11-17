@@ -38,6 +38,13 @@ TallThresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
         const Real eps = lapack::MachineEpsilon<Real>();
         tol = m*frobNorm*eps;
     }
+    if( tol >= frobNorm )
+    {
+        A.ResizeTo( m, 0 );        
+        s.ResizeTo( 0, 1 );
+        V.ResizeTo( n, 0 );
+        return;
+    }
 
     // C := A^H A
     Matrix<F> C;
@@ -85,11 +92,19 @@ TallThresholded
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
+    const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
         const Real eps = lapack::MachineEpsilon<Real>();
         tol = m*frobNorm*eps;
+    }
+    if( tol >= frobNorm )
+    {
+        A.ResizeTo( m, 0 );        
+        s.ResizeTo( 0, 1 );
+        V.ResizeTo( n, 0 );
+        return;
     }
 
     // C := A^H A
@@ -156,6 +171,13 @@ TallThresholded
         const Real eps = lapack::MachineEpsilon<Real>();
         tol = m*frobNorm*eps;
     }
+    if( tol >= frobNorm )
+    {
+        A.ResizeTo( m, 0 );        
+        s.ResizeTo( 0, 1 );
+        V.ResizeTo( n, 0 );
+        return;
+    }
 
     // C := A^H A
     DistMatrix<F,STAR,STAR> C(g);
@@ -214,6 +236,13 @@ WideThresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
         const Real eps = lapack::MachineEpsilon<Real>();
         tol = n*frobNorm*eps;
     }
+    if( tol >= frobNorm )
+    {
+        A.ResizeTo( m, 0 );        
+        s.ResizeTo( 0, 1 );
+        V.ResizeTo( n, 0 );
+        return;
+    }
 
     // C := A A^H
     Matrix<F> C;
@@ -266,6 +295,13 @@ WideThresholded
     {
         const Real eps = lapack::MachineEpsilon<Real>();
         tol = n*frobNorm*eps;
+    }
+    if( tol >= frobNorm )
+    {
+        A.ResizeTo( m, 0 );        
+        s.ResizeTo( 0, 1 );
+        V.ResizeTo( n, 0 );
+        return;
     }
 
     // C := A A^H

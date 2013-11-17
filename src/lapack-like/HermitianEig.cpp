@@ -741,7 +741,11 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
-    vu = std::max(vl,vu);
+    if( vl >= vu )
+    {
+        w.ResizeTo(0,1);
+        return; 
+    }
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -764,7 +768,11 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
-    upperBound = std::max(lowerBound,upperBound);
+    if( lowerBound >= upperBound )
+    {
+        w.ResizeTo(0,1);
+        return; 
+    }
 
     typedef Base<F> Real;
     EnsurePMRRR();
@@ -851,10 +859,15 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
-    vu = std::max(vl,vu);
-
     typedef Base<F> Real;
     const Int n = A.Height();
+    if( vl >= vu )
+    {
+        w.ResizeTo(0,1);
+        Z.ResizeTo(n,0);
+        return; 
+    }
+
     const char uploChar = UpperOrLowerToChar( uplo );
     const Real absTol = 0; // use the default value for now
     w.ResizeTo( n, 1 );
@@ -876,14 +889,18 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry cse("HermitianEig");
 #endif
-    upperBound = std::max(lowerBound,upperBound);
-
     typedef Base<F> Real;
+    const Int n = A.Height();
+    if( lowerBound >= upperBound )
+    {
+        w.ResizeTo(0,1);
+        Z.ResizeTo(n,0);
+        return; 
+    }
+
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-
-    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
