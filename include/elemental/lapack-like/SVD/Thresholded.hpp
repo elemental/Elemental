@@ -411,6 +411,7 @@ TallRelativeThresholded
         {
             s.ResizeTo( i, 1 );
             V.ResizeTo( n, i );
+            break;
         }
         else
             s.SetLocal( i, 0, sigma );
@@ -547,6 +548,7 @@ WideRelativeThresholded
         {
             s.ResizeTo( i, 1 );
             U.ResizeTo( m, i );
+            break;
         }
         else
             s.Set( i, 0, sigma );
