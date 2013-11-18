@@ -101,7 +101,7 @@ TallRelativeThresholded
     Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, V );
+    HermitianEig( LOWER, C, s, V, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -244,7 +244,7 @@ TallRelativeThresholded
     Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, V );
+    HermitianEig( LOWER, C, s, V, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -400,7 +400,7 @@ TallRelativeThresholded
     C.SumOverGrid();
 
     // [V,Sigma^2] := eig(C)
-    HermitianEig( LOWER, C, s, V );
+    HermitianEig( LOWER, C, s, V, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
@@ -537,7 +537,7 @@ WideRelativeThresholded
 
     // [U,Sigma^2] := eig(C)
     Matrix<F> U;
-    HermitianEig( LOWER, C, s, U );
+    HermitianEig( LOWER, C, s, U, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
@@ -680,7 +680,7 @@ WideRelativeThresholded
 
     // [U,Sigma^2] := eig(C)
     DistMatrix<F> U(g);
-    HermitianEig( LOWER, C, s, U );
+    HermitianEig( LOWER, C, s, U, DESCENDING );
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
