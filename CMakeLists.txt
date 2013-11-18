@@ -382,33 +382,6 @@ check_function_exists(MPI_Type_create_struct HAVE_MPI_TYPE_CREATE_STRUCT)
 if(NOT HAVE_MPI_TYPE_CREATE_STRUCT)
   message(FATAL_ERROR "Could not find MPI_Type_create_struct")
 endif()
-
-# Check for C++11 support
-include(CheckCXXSourceCompiles)
-set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
-set(RANDOM_CODE
-    "#include <random>
-     int main()
-     {
-         std::random_device rd;
-         std::mt19937 mt(rd());
-         std::normal_distribution<double> dist(0,1);
-         const double x = dist(mt);
-     }")
-set(ALIAS_CODE
-    "#include <complex>
-     template<typename Real>
-     using Complex = std::complex<Real>;
-     int main()
-     {
-         Complex<double> a;
-     }")
-check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
-check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
-if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
-  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7) and add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
-endif()
-
 # Check for MPI_IN_PLACE (essentially MPI2 support)
 include(CheckCSourceCompiles)
 set(MPI_IN_PLACE_CODE
@@ -437,6 +410,34 @@ check_c_source_compiles("${MPI_LONG_LONG_CODE}" HAVE_MPI_LONG_LONG)
 if(USE_64BIT_INTS AND NOT HAVE_MPI_LONG_LONG)
   message(FATAL_ERROR 
     "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
+endif()
+
+# Check for C++11 support
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES)
+set(CMAKE_REQUIRED_LIBRARIES)
+set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
+set(RANDOM_CODE
+    "#include <random>
+     int main()
+     {
+         std::random_device rd;
+         std::mt19937 mt(rd());
+         std::normal_distribution<double> dist(0,1);
+         const double x = dist(mt);
+     }")
+set(ALIAS_CODE
+    "#include <complex>
+     template<typename Real>
+     using Complex = std::complex<Real>;
+     int main()
+     {
+         Complex<double> a;
+     }")
+check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
+check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
+if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
+  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7) and add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
 endif()
 
 # Look for restrict support

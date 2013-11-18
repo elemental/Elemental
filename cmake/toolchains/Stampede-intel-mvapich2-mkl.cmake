@@ -1,5 +1,5 @@
 # The serial Intel compilers
-set(COMPILER_DIR /opt/apps/intel/13/composer_xe_2013.2.146/bin/intel64)
+set(COMPILER_DIR /opt/apps/intel/13/composer_xe_2013.3.163/bin/intel64)
 set(CMAKE_C_COMPILER       ${COMPILER_DIR}/icc)
 set(CMAKE_CXX_COMPILER     ${COMPILER_DIR}/icpc)
 set(CMAKE_Fortran_COMPILER ${COMPILER_DIR}/ifort)
