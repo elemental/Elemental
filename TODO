@@ -92,7 +92,7 @@ Consistency
 
 Documentation
 -------------
-[x] README's in each directory explaining the contents of the folder
+[o] Finish adding per-directory README's (e.g., swig/ and cmake/toolchains/)
 [-] References for Interpolative and Skeleton Decomposition 
 
 Build system
