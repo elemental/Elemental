@@ -97,7 +97,6 @@ Documentation
 
 Build system
 ------------
-[x] Resolve Blue Gene/Q issues with V1R2M1 and C++11 via Clang/LLVM
 [o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
 [o] Support for BLIS
 [o] Support for automatically downloading and building netlib BLAS and LAPACK
@@ -105,7 +104,7 @@ Build system
 
 Python interface
 ----------------
-[x] Update SWIG interface to support routines added since 0.81
+[o] Update SWIG interface to support routines added since 0.81
 [o] Update SWIG interface to allow for Int != int
 
 MPI and Threading

@@ -31,12 +31,12 @@
 // If defined, the _OPENMP macro contains the date of the specification
 #ifdef HAVE_OPENMP
 # include <omp.h>
-# if _OPENMP >= 200805
+# define PARALLEL_FOR _Pragma("omp parallel for")
+# ifdef HAVE_OMP_COLLAPSE
 #  define COLLAPSE(N) collapse(N)
 # else
-#  define COLLAPSE(N) 
+#  define COLLAPSE(N)
 # endif
-# define PARALLEL_FOR _Pragma("omp parallel for")
 #else
 # define PARALLEL_FOR 
 # define COLLAPSE(N) 

@@ -42,6 +42,7 @@
 /* Basic configuration options */
 #define RESTRICT @RESTRICT@
 #cmakedefine HAVE_OPENMP
+#cmakedefine HAVE_OMP_COLLAPSE
 #cmakedefine HAVE_QT5
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine HAVE_PMRRR

@@ -8,6 +8,12 @@
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 cmake_minimum_required(VERSION 2.8.8)
+include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
+include(CheckFunctionExists)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+include(GetGitRevisionDescription)
+include(language_support_v2)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
@@ -119,7 +125,7 @@ mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
 
 # "CXX_FLAGS"
-#   Override the default optimization (and debugging/symbol) flags
+#   Optimization, C++11, and debugging/symbol flags
 
 # "OpenMP_CXX_FLAGS"
 #   Overrides the default compile flags for adding OpenMP support to CXX code
@@ -143,8 +149,6 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 endif()
 
 # Get the Git revision
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
-include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
 # Extract a few booleans from the build type and default to PureRelease
@@ -187,7 +191,6 @@ endif()
 
 # Go ahead and check for Fortran, but keep in mind that CMake's 'OPTIONAL' 
 # argument for enable_language is still completely broken as of 2.8.8
-include(./cmake/language_support_v2.cmake)
 workaround_9220(Fortran FORTRAN_WORKS)
 if(FORTRAN_WORKS)
   enable_language(Fortran)  
@@ -206,15 +209,113 @@ if(FORTRAN_WORKS)
   endif()
 endif()
 
-# Make sure that MPI is available
+#
+# Check C++ support
+#
+set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
+set(RANDOM_CODE
+    "#include <random>
+     int main()
+     {
+         std::random_device rd;
+         std::mt19937 mt(rd());
+         std::normal_distribution<double> dist(0,1);
+         const double x = dist(mt);
+     }")
+set(ALIAS_CODE
+    "#include <complex>
+     template<typename Real>
+     using Complex = std::complex<Real>;
+     int main()
+     {
+         Complex<double> a;
+     }")
+check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
+check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
+if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
+  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7) and add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
+endif()
+# Check for restrict
+set(RESTRICT_CODE "int main() { int* RESTRICT a; return 0; }")
+set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
+check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
+set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
+check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
+set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
+check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
+if(HAVE___restrict__)
+  set(RESTRICT "__restrict__")
+  message(STATUS "Using __restrict__ keyword.")
+elseif(HAVE___restrict)
+  set(RESTRICT "__restrict")
+  message(STATUS "Using __restrict keyword.")
+elseif(HAVE_restrict)
+  set(RESTRICT "restrict")
+  message(STATUS "Using restrict keyword.")
+else()
+  set(RESTRICT "")
+  message(STATUS "Could not find a restrict keyword.")
+endif()
+
+#
+# Check for MPI support
+#
 find_package(MPI)
 if(NOT MPI_CXX_FOUND)
   message(FATAL_ERROR "MPI C++ compiler was not found and is required")
 endif()
 include_directories(${MPI_CXX_INCLUDE_PATH})
 set(EXTRA_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
+# Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
+set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
+set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
+set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
+check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
+if(NOT HAVE_MPI_REDUCE_SCATTER)
+  message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
+endif()
+check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
+check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
+check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
+check_function_exists(MPI_Init_thread HAVE_MPI_INIT_THREAD)
+check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
+check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
+check_function_exists(MPI_Type_create_struct HAVE_MPI_TYPE_CREATE_STRUCT)
+if(NOT HAVE_MPI_TYPE_CREATE_STRUCT)
+  message(FATAL_ERROR "Could not find MPI_Type_create_struct")
+endif()
+# Check for MPI_IN_PLACE (essentially MPI2 support)
+set(MPI_IN_PLACE_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] ) 
+     {
+         MPI_Init( &argc, &argv );
+         float a;
+         MPI_Allreduce
+         ( MPI_IN_PLACE, &a, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD );
+         MPI_Finalize(); 
+         return 0; 
+     }")
+set(MPI_LONG_LONG_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Datatype lli = MPI_LONG_LONG_INT;
+         MPI_Datatype llu = MPI_UNSIGNED_LONG_LONG;
+         MPI_Finalize();
+         return 0;
+     }")
+check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
+check_c_source_compiles("${MPI_LONG_LONG_CODE}" HAVE_MPI_LONG_LONG)
+if(USE_64BIT_INTS AND NOT HAVE_MPI_LONG_LONG)
+  message(FATAL_ERROR 
+    "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
+endif()
 
-# Search for OpenMP if necessary
+#
+# Check for OpenMP support if necessary
+#
 if(HYBRID)
   if(OpenMP_CXX_FLAGS)
     set(HAVE_OPENMP TRUE)
@@ -232,7 +333,25 @@ if(HYBRID)
   endif()
   set(EXTRA_FLAGS "${OpenMP_CXX_FLAGS} ${EXTRA_FLAGS}")
 endif()
+# See if we have 'collapse' support, since Clang is currently setting _OPENMP
+# greater than 200805 despite not supporting OpenMP 3.0 (i.e., collapse)
+set(CMAKE_REQUIRED_FLAGS ${OpenMP_CXX_FLAGS})
+set(OMP_COLLAPSE_CODE
+    "#include <omp.h>
+     int main( int argc, char* argv[] ) 
+     {
+         int k[100];
+     #pragma omp collapse(2)
+         for( int i=0; i<10; ++i ) 
+             for( int j=0; j<10; ++j )
+                 k[i+j*10] = i+j; 
+         return 0; 
+     }")
+check_cxx_source_compiles("${OMP_COLLAPSE_CODE}" HAVE_OMP_COLLAPSE)
 
+#
+# Check for Qt5 support
+#
 set(HAVE_QT5 FALSE)
 if(Qt5_LIBDIR)
   set(Qt5Widgets_DIR "${Qt5_LIBDIR}/cmake/Qt5Widgets")
@@ -259,6 +378,9 @@ if(USE_QT5 OR Qt5Widgets_DIR)
   endif()
 endif()
 
+#
+# Check for SWIG support
+#
 set(HAVE_SWIG FALSE)
 if(USE_SWIG)
   # Search for SWIG, Python, and NumPy
@@ -278,9 +400,6 @@ if(USE_SWIG)
   endif()
 endif()
 
-# Now append the extra flags
-set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS} ${EXTRA_FLAGS}")
-
 # Set the library type from the 'SHARED_LIBRARIES' option
 if(SHARED_LIBRARIES OR HAVE_SWIG)
   if(NOT SHARED_LIBRARIES)
@@ -291,8 +410,9 @@ else()
   set(LIBRARY_TYPE STATIC)
 endif()
 
-# Since the CMake find_blas for some reason requires a Fortran compiler, we
-# must build our own.
+#
+# Check for BLAS and LAPACK support
+#
 if(PURE)
   set(MATH_DESC "Unthreaded BLAS/LAPACK link flags")
 else()
@@ -328,13 +448,12 @@ else()
     message(FATAL_ERROR "Could not find BLAS/LAPACK. Please specify MATH_LIBS")
   endif()
 endif()
-
-# Attempt to detect the BLAS and LAPACK underscore conventions. 
-# We currently only handle whether or not there is an underscore appended.
-include(CheckFunctionExists)
+# Check the BLAS and LAPACK underscore conventions
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(daxpy  HAVE_DAXPY)
 check_function_exists(daxpy_ HAVE_DAXPY_POST)
+check_function_exists(dpotrf  HAVE_DPOTRF)
+check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
 if(HAVE_DAXPY)
   set(BLAS_POST FALSE)
   set(BLAS_DEFS "")
@@ -344,8 +463,6 @@ elseif(HAVE_DAXPY_POST)
 else()
   message(FATAL_ERROR "Could not determine BLAS format.")
 endif()
-check_function_exists(dpotrf  HAVE_DPOTRF)
-check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
 if(HAVE_DPOTRF)
   set(LAPACK_POST FALSE)
   set(LAPACK_DEFS "")
@@ -355,7 +472,6 @@ elseif(HAVE_DPOTRF_POST)
 else()
   message(FATAL_ERROR "Could not determine LAPACK format.")
 endif()
-
 # Ensure that we have a relatively new version of LAPACK
 if(HAVE_DPOTRF)
   check_function_exists(dsyevr HAVE_DSYEVR)
@@ -369,108 +485,14 @@ else()
   endif()
 endif()
 
-# Check whether or not the FLAME bidiagonal QR routines are available
+#
+# Check for libFLAME support
+#
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(FLA_Bsvd_v_opd_var1 HAVE_FLA_BSVD)
 
-# Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
-set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
-set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
-set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
-check_function_exists(MPI_Reduce_scatter       HAVE_MPI_REDUCE_SCATTER)
-if(NOT HAVE_MPI_REDUCE_SCATTER)
-  message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
-endif()
-check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
-check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
-check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
-check_function_exists(MPI_Init_thread HAVE_MPI_INIT_THREAD)
-check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
-check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
-check_function_exists(MPI_Type_create_struct HAVE_MPI_TYPE_CREATE_STRUCT)
-if(NOT HAVE_MPI_TYPE_CREATE_STRUCT)
-  message(FATAL_ERROR "Could not find MPI_Type_create_struct")
-endif()
-# Check for MPI_IN_PLACE (essentially MPI2 support)
-include(CheckCSourceCompiles)
-set(MPI_IN_PLACE_CODE
-    "#include \"mpi.h\"
-     int main( int argc, char* argv[] ) 
-     {
-         MPI_Init( &argc, &argv );
-         float a;
-         MPI_Allreduce
-         ( MPI_IN_PLACE, &a, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD );
-         MPI_Finalize(); 
-         return 0; 
-     }")
-set(MPI_LONG_LONG_CODE
-    "#include \"mpi.h\"
-     int main( int argc, char* argv[] )
-     {
-         MPI_Init( &argc, &argv );
-         MPI_Datatype lli = MPI_LONG_LONG_INT;
-         MPI_Datatype llu = MPI_UNSIGNED_LONG_LONG;
-         MPI_Finalize();
-         return 0;
-     }")
-check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
-check_c_source_compiles("${MPI_LONG_LONG_CODE}" HAVE_MPI_LONG_LONG)
-if(USE_64BIT_INTS AND NOT HAVE_MPI_LONG_LONG)
-  message(FATAL_ERROR 
-    "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
-endif()
-
-# Check for C++11 support
-include(CheckCXXSourceCompiles)
-set(CMAKE_REQUIRED_INCLUDES)
-set(CMAKE_REQUIRED_LIBRARIES)
-set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
-set(RANDOM_CODE
-    "#include <random>
-     int main()
-     {
-         std::random_device rd;
-         std::mt19937 mt(rd());
-         std::normal_distribution<double> dist(0,1);
-         const double x = dist(mt);
-     }")
-set(ALIAS_CODE
-    "#include <complex>
-     template<typename Real>
-     using Complex = std::complex<Real>;
-     int main()
-     {
-         Complex<double> a;
-     }")
-check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
-check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
-if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
-  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7) and add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
-endif()
-
-# Look for restrict support
-include(CheckCXXSourceCompiles)
-set(RESTRICT_CODE "int main() { int* RESTRICT a; return 0; }")
-set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
-check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
-set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
-check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
-set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
-check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
-if(HAVE___restrict__)
-  set(RESTRICT "__restrict__")
-  message(STATUS "Using __restrict__ keyword.")
-elseif(HAVE___restrict)
-  set(RESTRICT "__restrict")
-  message(STATUS "Using __restrict keyword.")
-elseif(HAVE_restrict)
-  set(RESTRICT "restrict")
-  message(STATUS "Using restrict keyword.")
-else()
-  set(RESTRICT "")
-  message(STATUS "Could not find a restrict keyword.")
-endif()
+# Now append the extra flags
+set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS} ${EXTRA_FLAGS}")
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 # if necessary
