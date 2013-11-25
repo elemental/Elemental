@@ -77,8 +77,6 @@ Trr2
     if( X.Width() != 2 || Y.Width() != 2 )
         LogicError("X and Y must be of width 2");
 #endif
-    const Int m = A.Height();
-    const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     const Int colShift = A.ColShift();
@@ -86,7 +84,7 @@ Trr2
     const Int colStride = A.ColStride();
     const Int rowStride = A.RowStride();
 #ifndef RELEASE
-    if( X.Height() != m || Y.Height() != n )
+    if( X.Height() != A.Height() || Y.Height() != A.Width() )
         LogicError("X and Y must conform with A");
 #endif
     DistMatrix<T,MC,STAR> X_MC_STAR( A.Grid() );

@@ -76,13 +76,10 @@ inline void Swap
     CallStackEntry cse("Swap");
 #endif
     const Grid& g = X.Grid();
-    const Int mX = X.Height();
-    const Int nX = X.Width();
-
     if( orientation == NORMAL )
     {
 #ifndef RELEASE
-        if( Y.Height() != mX || Y.Width() != nX )
+        if( Y.Height() != X.Height() || Y.Width() != X.Width() )
             LogicError("Invalid submatrix sizes");
 #endif
         // TODO: Optimize communication
@@ -102,7 +99,7 @@ inline void Swap
     {
         const bool conjugate = ( orientation==ADJOINT );
 #ifndef RELEASE
-        if( Y.Width() != mX || Y.Height() != nX )
+        if( Y.Width() != X.Height() || Y.Height() != X.Width() )
             LogicError("Invalid submatrix sizes");
 #endif
 

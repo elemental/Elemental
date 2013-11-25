@@ -61,7 +61,7 @@ void InPlaceRedist
         const Int thisColShift = Shift(k,colAlign,r);
         const Int thisLocalHeight = Length(height,thisColShift,r);
 
-        INNER_PARALLEL_FOR COLLAPSE(2)
+        INNER_PARALLEL_FOR_COLLAPSE2
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 

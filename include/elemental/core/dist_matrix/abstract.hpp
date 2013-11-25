@@ -12,21 +12,6 @@
 
 namespace elem {
 
-#ifndef RELEASE
-template<typename T>
-void AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
-
-template<typename T>
-void AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
-
-template<typename T>
-void AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
-#endif // ifndef RELEASE
-
 template<typename T> 
 class AbstractDistMatrix
 {
@@ -89,12 +74,6 @@ public:
     Int RowShift() const;
     Int ColRank() const;
     Int RowRank() const;
-    // Return the rank (within ColComm()) owning row i
-    Int RowOwner( Int i ) const;
-    // Return the rank (within RowComm()) owning column j
-    Int ColOwner( Int j ) const;
-    // Return the rank (within DistComm()) owning entry (i,j)
-    Int Owner( Int i, Int j ) const;
 
     Int DistRank() const;
     Int CrossRank() const;
@@ -105,8 +84,19 @@ public:
     Int Root() const;
     void SetRoot( Int root );
     bool Participating() const;
-    void MakeConsistent();
 
+    Int RowOwner( Int i ) const;     // rank in ColComm
+    Int ColOwner( Int j ) const;     // rank in RowComm
+    Int Owner( Int i, Int j ) const; // rank in DistComm
+
+    Int LocalRow( Int i ) const; // debug throws if row i is not locally owned
+    Int LocalCol( Int j ) const; // debug throws if col j is not locally owned
+
+    bool IsLocalRow( Int i ) const; 
+    bool IsLocalCol( Int j ) const;
+    bool IsLocal( Int i, Int j ) const;
+
+    void MakeConsistent();
     void Align( Int colAlign, Int rowAlign );
     void AlignCols( Int colAlign );
     void AlignRows( Int rowAlign );
@@ -271,6 +261,21 @@ protected:
     friend class DistMatrix;
 #endif // ifndef SWIG
 };
+
+#ifndef RELEASE
+template<typename T>
+void AssertConforming1x2
+( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
+
+template<typename T>
+void AssertConforming2x1
+( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
+
+template<typename T>
+void AssertConforming2x2
+( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
+  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
+#endif // ifndef RELEASE
 
 } // namespace elem
 

@@ -30,6 +30,7 @@ struct DistData
         grid = &A.Grid();
     }
 };
+
 } // namespace elem
 
 #include "elemental/core/dist_matrix/abstract.hpp"

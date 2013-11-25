@@ -67,9 +67,8 @@ BusingerGolub
     typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = Min(m,n);
 #ifndef RELEASE
-    if( maxSteps > minDim )
+    if( maxSteps > Min(m,n) )
         LogicError("Too many steps requested");
 #endif
     p.ResizeTo( maxSteps, 1 );
@@ -385,9 +384,8 @@ BusingerGolub
     typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = Min(m,n);
 #ifndef RELEASE
-    if( maxSteps > minDim )
+    if( maxSteps > Min(m,n) )
         LogicError("Too many steps requested");
 #endif
     t.ResizeTo( maxSteps, 1 );

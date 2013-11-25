@@ -100,9 +100,9 @@ Inertia
 
     const Int colShift = d.ColShift();
     const Int colStride = d.ColStride();
+#ifndef RELEASE
     const Int colAlign = d.ColAlign();
     const Int colAlignPrev = (colAlign+colStride-1) % colStride;
-#ifndef RELEASE
     if( dSub.ColAlign() != colAlign )
         LogicError("dSub was improperly aligned");
     if( dPrev.ColAlign() != colAlignPrev )

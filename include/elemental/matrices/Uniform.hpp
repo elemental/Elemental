@@ -170,7 +170,7 @@ struct MakeUniformHelper<T,MR,STAR>
         // Unpack
         T* localBuffer = A.Buffer();
         const Int ldim = A.LDim();
-        PARALLEL_FOR COLLAPSE(2)
+        PARALLEL_FOR_COLLAPSE2
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 localBuffer[iLoc+j*ldim] = buffer[iLoc+j*localHeight];

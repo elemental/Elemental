@@ -11,6 +11,14 @@
 namespace elem {
 
 template<typename T>
+using ADM = AbstractDistMatrix<T>;
+
+// NOTE: It seems that member functions cannot be defined using a 
+//       fully-specified template alias, e.g., ADM<T>::AbstractDistMatrix(),
+//       but DM<T> is okay if it is only partially specified, e.g., 
+//       DM<T> = DistMatrix<T,MC,MR> and DM<T>::DistMatrix()
+
+template<typename T>
 AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
 : viewType_(OWNER),
   height_(0), width_(0), 
@@ -24,7 +32,7 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
 { }
 
 template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
+AbstractDistMatrix<T>::AbstractDistMatrix( ADM<T>&& A )
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
@@ -38,8 +46,8 @@ AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
 }
 
 template<typename T>
-AbstractDistMatrix<T>& 
-AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
+ADM<T>& 
+AbstractDistMatrix<T>::operator=( ADM<T>&& A )
 {
     auxMemory_.ShallowSwap( A.auxMemory_ );
     matrix_.ShallowSwap( A.matrix_ );
@@ -63,7 +71,7 @@ AbstractDistMatrix<T>::~AbstractDistMatrix()
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
+AbstractDistMatrix<T>::ShallowSwap( ADM<T>& A )
 {
     matrix_.ShallowSwap( A.matrix_ );
     auxMemory_.ShallowSwap( A.auxMemory_ );
@@ -147,8 +155,7 @@ AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
 
 template<typename T> 
 void
-AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR )
+AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
 {
     if( AL.Height() != AR.Height() )    
     {
@@ -164,8 +171,7 @@ AssertConforming1x2
 
 template<typename T> 
 void
-AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB )
+AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
 {
     if( AT.Width() != AB.Width() )
     {
@@ -182,8 +188,8 @@ AssertConforming2x1
 template<typename T> 
 void
 AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR ) 
+( const ADM<T>& ATL, const ADM<T>& ATR,
+  const ADM<T>& ABL, const ADM<T>& ABR ) 
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
         ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
@@ -252,7 +258,7 @@ AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignWith( const AbstractDistMatrix<T>& A )
+AbstractDistMatrix<T>::AlignWith( const ADM<T>& A )
 { AlignWith( A.DistData() ); }
 
 template<typename T>
@@ -267,7 +273,7 @@ AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignColsWith( const AbstractDistMatrix<T>& A )
+AbstractDistMatrix<T>::AlignColsWith( const ADM<T>& A )
 { AlignColsWith( A.DistData() ); }
 
 template<typename T>
@@ -282,7 +288,7 @@ AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignRowsWith( const AbstractDistMatrix<T>& A )
+AbstractDistMatrix<T>::AlignRowsWith( const ADM<T>& A )
 { AlignRowsWith( A.DistData() ); }
 
 template<typename T>
@@ -475,6 +481,45 @@ template<typename T>
 Int
 AbstractDistMatrix<T>::Owner( Int i, Int j ) const
 { return this->RowOwner(i)+this->ColOwner(j)*this->ColStride(); }
+
+template<typename T>
+Int 
+AbstractDistMatrix<T>::LocalRow( Int i ) const
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("AbstractDistMatrix::LocalRow");
+    if( !IsLocalRow(i) )
+        LogicError("Requested local index of non-local row");
+#endif
+    return (i-ColShift()) / ColStride();
+}
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::LocalCol( Int j ) const
+{
+#ifndef RELEASE
+    CallStackEntry cse("AbstractDistMatrix::LocalCol");
+    if( !IsLocalCol(j) )
+        LogicError("Requested local index of non-local column");
+#endif
+    return (j-RowShift()) / RowStride();
+}
+
+template<typename T>
+bool
+AbstractDistMatrix<T>::IsLocalRow( Int i ) const
+{ return Participating() && ((i-ColShift()) % ColStride()) == 0; }
+
+template<typename T>
+bool
+AbstractDistMatrix<T>::IsLocalCol( Int j ) const
+{ return Participating() && ((j-RowShift()) % RowStride()) == 0; }
+
+template<typename T>
+bool
+AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
+{ return IsLocalRow(i) && IsLocalCol(j); }
 
 template<typename T>
 const elem::Grid&
@@ -1022,13 +1067,11 @@ PROTO(Complex<double>);
 #ifndef RELEASE
 
 #define CONFORMING(T) \
-  template void AssertConforming1x2\
-  ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR ); \
-  template void AssertConforming2x1\
-  ( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB ); \
+  template void AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR ); \
+  template void AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB ); \
   template void AssertConforming2x2\
-  ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,\
-    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR )
+  ( const ADM<T>& ATL, const ADM<T>& ATR,\
+    const ADM<T>& ABL, const ADM<T>& ABR )
 
 CONFORMING(Int);
 #ifndef DISABLE_FLOAT

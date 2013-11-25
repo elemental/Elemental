@@ -110,9 +110,9 @@ LeftQuasiDiagonalSolve
     const Int mLocal = X.LocalHeight();
     const Int colShift = X.ColShift();
     const Int colStride = X.ColStride();
+#ifndef RELEASE
     const Int colAlignPrev = (X.ColAlign()+colStride-1) % colStride;
     const Int colAlignNext = (X.ColAlign()+1) % colStride;
-#ifndef RELEASE
     if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
         LogicError("data is not properly aligned");
     if( XPrev.ColAlign() != colAlignPrev ||

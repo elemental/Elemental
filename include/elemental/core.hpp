@@ -29,17 +29,18 @@
 #include <vector>
 
 // If defined, the _OPENMP macro contains the date of the specification
+
 #ifdef HAVE_OPENMP
 # include <omp.h>
 # define PARALLEL_FOR _Pragma("omp parallel for")
 # ifdef HAVE_OMP_COLLAPSE
-#  define COLLAPSE(N) collapse(N)
+#  define PARALLEL_FOR_COLLAPSE2 _Pragma("omp parallel for collapse(2)")
 # else
-#  define COLLAPSE(N)
+#  define PARALLEL_FOR_COLLAPSE2 PARALLEL_FOR
 # endif
 #else
 # define PARALLEL_FOR 
-# define COLLAPSE(N) 
+# define PARALLEL_FOR_COLLAPSE2
 #endif
 
 #ifdef AVOID_OMP_FMA
@@ -48,11 +49,15 @@
 # define FMA_PARALLEL_FOR PARALLEL_FOR
 #endif
 #ifdef PARALLELIZE_INNER_LOOPS
-# define INNER_PARALLEL_FOR PARALLEL_FOR
+# define INNER_PARALLEL_FOR           PARALLEL_FOR
+# define INNER_PARALLEL_FOR_COLLAPSE2 PARALLEL_FOR_COLLAPSE2
 # define OUTER_PARALLEL_FOR 
+# define OUTER_PARALLEL_FOR_COLLAPSE2
 #else
 # define INNER_PARALLEL_FOR
-# define OUTER_PARALLEL_FOR PARALLEL_FOR
+# define INNER_PARALLEL_FOR_COLLAPSE2
+# define OUTER_PARALLEL_FOR           PARALLEL_FOR
+# define OUTER_PARALLEL_FOR_COLLAPSE2 PARALLEL_FOR_COLLAPSE2
 #endif
 
 #if defined(BLAS_POST)

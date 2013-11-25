@@ -359,7 +359,7 @@ Symmetric2x2Solve
         if( !inFirstCol && !inSecondCol )
             return;
 
-        F *ALocCol1, *ALocCol2;
+        F *ALocCol1=nullptr, *ALocCol2=nullptr;
         std::vector<F> buffer;
         {
             if( inFirstCol && inSecondCol )
