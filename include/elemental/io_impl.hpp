@@ -10,15 +10,11 @@
 #ifndef ELEM_IO_IMPL_HPP
 #define ELEM_IO_IMPL_HPP
 
-#include "elemental/io/Print.hpp"
-#include "elemental/io/Write.hpp"
-
-#ifdef HAVE_QT5
 #include "elemental/io/ColorMap.hpp"
-#include "elemental/io/Spy.hpp"
-// TODO: Distribution plot
-#endif // ifdef HAVE_QT5
-
 #include "elemental/io/Display.hpp"
+// TODO: Distribution plot
+#include "elemental/io/Print.hpp"
+#include "elemental/io/Spy.hpp"
+#include "elemental/io/Write.hpp"
 
 #endif // ifndef ELEM_IO_IMPL_HPP

@@ -15,7 +15,6 @@
 #include "elemental/lapack-like/Norm/Nuclear.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 #include "elemental/matrices/Hilbert.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

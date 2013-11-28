@@ -11,7 +11,6 @@
 #include "elemental/matrices/Lehmer.hpp"
 #include "elemental/matrices/Parter.hpp"
 #include "elemental/matrices/Ris.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

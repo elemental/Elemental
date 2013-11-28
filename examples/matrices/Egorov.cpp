@@ -9,7 +9,6 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Egorov.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 template<typename Real>

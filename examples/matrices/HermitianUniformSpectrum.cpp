@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Norm.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

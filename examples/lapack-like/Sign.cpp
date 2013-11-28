@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Sign.hpp"
 #include "elemental/matrices/Uniform.hpp"
-#include "elemental/io.hpp"
 using namespace std;
 using namespace elem;
 

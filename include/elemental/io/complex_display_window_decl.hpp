@@ -17,7 +17,14 @@
 #include <QScrollArea>
 #include <QWidget>
 
-#include "elemental-lite.hpp"
+#include "elemental/config.h"
+#ifdef HAVE_F90_INTERFACE
+# include "elemental/FCMangle.h"
+#endif
+#include "elemental/core.hpp"
+#include "elemental/blas-like_decl.hpp"
+#include "elemental/lapack-like_decl.hpp"
+#include "elemental/convex_decl.hpp"
 #include "elemental/io/display_widget_decl.hpp"
 
 namespace elem {

@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Inverse.hpp"
 #include "elemental/matrices/Helmholtz.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

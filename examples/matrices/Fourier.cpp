@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 #include "elemental/matrices/Fourier.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

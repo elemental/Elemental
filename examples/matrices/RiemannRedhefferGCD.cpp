@@ -11,7 +11,6 @@
 #include "elemental/matrices/GCDMatrix.hpp"
 #include "elemental/matrices/Redheffer.hpp"
 #include "elemental/matrices/Riemann.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

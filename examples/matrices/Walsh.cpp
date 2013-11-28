@@ -12,7 +12,6 @@
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/matrices/Walsh.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

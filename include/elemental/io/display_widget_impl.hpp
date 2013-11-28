@@ -52,12 +52,12 @@ DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayReal");
 #endif
-    typedef BASE(T) R;
+    typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
 
     // Compute the range of the real values in A
-    R minVal=0, maxVal=0;
+    Real minVal=0, maxVal=0;
     if( m != 0 && n != 0 )
     {
         minVal = maxVal = A->GetRealPart( 0, 0 );
@@ -123,12 +123,12 @@ DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayImag");
 #endif
-    typedef BASE(T) R;
+    typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
 
     // Compute the range of the real values in A
-    R minVal=0, maxVal=0;
+    Real minVal=0, maxVal=0;
     if( m != 0 && n != 0 )
     {
         minVal = maxVal = A->GetImagPart( 0, 0 );

@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Zeros.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 int 

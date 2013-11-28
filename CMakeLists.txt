@@ -17,7 +17,7 @@ include(language_support_v2)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 82-dev)
+set(Elemental_VERSION_MINOR 83-dev)
 
 ################################################################################
 # Common build options                                                         #
@@ -54,7 +54,7 @@ else()
 endif()
 
 # Whether or not to use Qt5 for visualization if it is found (experimental)
-# NOTE: Setting Qt5Widgets_DIR or Qt5_LIBDIR overrides this variable
+# NOTE: Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
 option(USE_QT5 "Attempt to use Qt5?" OFF)
 
 # Whether or not to attempt to build a Python interface via SWIG (experimental)
@@ -353,6 +353,9 @@ check_cxx_source_compiles("${OMP_COLLAPSE_CODE}" HAVE_OMP_COLLAPSE)
 # Check for Qt5 support
 #
 set(HAVE_QT5 FALSE)
+if(Qt5_DIR)
+  set(Qt5_LIBDIR "${Qt5_DIR}/lib")
+endif()
 if(Qt5_LIBDIR)
   set(Qt5Widgets_DIR "${Qt5_LIBDIR}/cmake/Qt5Widgets")
 endif()

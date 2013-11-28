@@ -12,7 +12,6 @@
 #include "elemental/matrices/Circulant.hpp"
 #include "elemental/matrices/Fourier.hpp"
 #include "elemental/matrices/Zeros.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 typedef double Real;

@@ -17,7 +17,6 @@
 #include "elemental/lapack-like/Norm/Zero.hpp"
 #include "elemental/convex/SVT.hpp"
 #include "elemental/matrices/Uniform.hpp"
-#include "elemental/io.hpp"
 using namespace elem;
 
 //

@@ -10,13 +10,13 @@
 #ifndef ELEM_IO_SPY_HPP
 #define ELEM_IO_SPY_HPP
 
-#ifdef HAVE_QT5
-
 #include "elemental/io/spy_window_decl.hpp"
 #include "elemental/io/spy_widget_impl.hpp"
 #include "elemental/io/Display.hpp" // for ProcessEvents
 
-#include <QApplication>
+#ifdef HAVE_QT5
+# include <QApplication>
+#endif
 
 namespace elem {
 
@@ -27,6 +27,7 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 #ifndef RELEASE
     CallStackEntry entry("Spy");
 #endif
+#ifdef HAVE_QT5
     // Convert A to double-precision since Qt's MOC does not support templates
     const Int m = A.Height();
     const Int n = A.Width();
@@ -42,6 +43,9 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 
     // Spend at most 200 milliseconds rendering
     ProcessEvents( 200 );
+#else
+    LogicError("Qt5 not available");
+#endif // ifdef HAVE_QT5
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -51,9 +55,13 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 #ifndef RELEASE
     CallStackEntry entry("Spy");
 #endif
+#ifdef HAVE_QT5
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
         Spy( A_CIRC_CIRC.Matrix(), title, tol );
+#else
+    LogicError("Qt5 not available");
+#endif // ifdef HAVE_QT5
 }
 
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
@@ -65,8 +73,12 @@ Spy
 #ifndef RELEASE
     CallStackEntry entry("Spy");
 #endif
+#ifdef HAVE_QT5
     if( A.Grid().Rank() == 0 )
         Spy( A.LockedMatrix(), title, tol );
+#else
+    LogicError("Qt5 not available");
+#endif // ifdef HAVE_QT5
 }
 template<typename T>
 inline void
@@ -76,12 +88,14 @@ Spy
 #ifndef RELEASE
     CallStackEntry entry("Spy");
 #endif
+#ifdef HAVE_QT5
     if( A.Grid().Rank() == A.Root() )
         Spy( A.LockedMatrix(), title, tol );
+#else
+    LogicError("Qt5 not available");
+#endif // ifdef HAVE_QT5
 }
 
 } // namespace elem
-
-#endif // ifdef HAVE_QT5
 
 #endif // ifndef ELEM_IO_SPY_HPP

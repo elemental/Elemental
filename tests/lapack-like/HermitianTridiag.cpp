@@ -15,7 +15,6 @@
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 #include "elemental/matrices/Wigner.hpp"
-#include "elemental/io/Display.hpp"
 using namespace std;
 using namespace elem;
 

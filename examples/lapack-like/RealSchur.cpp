@@ -12,7 +12,6 @@
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Uniform.hpp"
-#include "elemental/io/Display.hpp"
 using namespace std;
 using namespace elem;
 

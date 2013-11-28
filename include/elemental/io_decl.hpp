@@ -9,6 +9,25 @@
 #pragma once
 #ifndef ELEM_IO_DECL_HPP
 #define ELEM_IO_DECL_HPP
+
+namespace elem {
+
+// TODO: Distributed file formats?
+enum FileFormat
+{
+    ASCII,
+    MATLAB_ASCII,
+    BMP,
+    JPG,
+    JPEG,
+    PNG,
+    PPM,
+    XBM,
+    XPM
+};
+
+} // namespace elem
+
 #ifdef HAVE_QT5
 
 #include "elemental/io/display_widget_decl.hpp"
@@ -34,4 +53,5 @@ void UpdateMaxImagWindowVal( double maxVal );
 } // namespace elem
 
 #endif // ifdef HAVE_QT5
+
 #endif // ifndef ELEM_IO_DECL_HPP
