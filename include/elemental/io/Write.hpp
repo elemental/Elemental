@@ -55,6 +55,7 @@ MatlabAscii
     file << "];\n";
 }
 
+#ifdef HAVE_QT5
 inline void
 Pixmap
 ( const QPixmap& pixmap, FileFormat format=PNG, std::string basename="matrix" )
@@ -124,6 +125,7 @@ Pixmap
     default: LogicError("Invalid image type");
     }
 }
+#endif // ifdef HAVE_QT5
 
 template<typename T>
 inline void
