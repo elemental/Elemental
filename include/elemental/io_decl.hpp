@@ -13,6 +13,7 @@
 namespace elem {
 
 // TODO: Distributed file formats?
+namespace file_format_wrapper {
 enum FileFormat
 {
     ASCII,
@@ -25,16 +26,22 @@ enum FileFormat
     XBM,
     XPM
 };
+}
+using namespace file_format_wrapper;
 
-} // namespace elem
+// TODO: Many more color maps
+namespace color_map_wrapper {
+enum ColorMap
+{
+    GRAYSCALE,
+    RED_BLACK_GREEN,
+    BLUE_RED
+};
+}
+using namespace color_map_wrapper;
 
-#ifdef HAVE_QT5
-
-#include "elemental/io/display_widget_decl.hpp"
-#include "elemental/io/display_window_decl.hpp"
-#include "elemental/io/complex_display_window_decl.hpp"
-
-namespace elem {
+void SetColorMap( ColorMap colorMap );
+ColorMap GetColorMap();
 
 // When Elemental is finalized, if no window was opened, then it must call 
 // app.exit() instead
@@ -52,6 +59,10 @@ void UpdateMaxImagWindowVal( double maxVal );
 
 } // namespace elem
 
+#ifdef HAVE_QT5
+# include "elemental/io/display_widget_decl.hpp"
+# include "elemental/io/display_window_decl.hpp"
+# include "elemental/io/complex_display_window_decl.hpp"
 #endif // ifdef HAVE_QT5
 
 #endif // ifndef ELEM_IO_DECL_HPP

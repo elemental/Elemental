@@ -7,27 +7,20 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental.hpp"
+#include "elemental-lite.hpp"
 #ifdef HAVE_QT5
  #include <QApplication>
 #endif
 
 namespace {
+using namespace elem;
 
-elem::Int numElemInits = 0;
+Int numElemInits = 0;
 bool elemInitializedMpi = false;
-#ifdef HAVE_QT5
-bool elemInitializedQt = false;
-bool elemOpenedWindow = false;
-QCoreApplication* coreApp;
-bool haveMinRealWindowVal=false, haveMaxRealWindowVal=false,
-     haveMinImagWindowVal=false, haveMaxImagWindowVal=false;
-double minRealWindowVal, maxRealWindowVal,
-       minImagWindowVal, maxImagWindowVal;
-#endif
-std::stack<elem::Int> blocksizeStack;
-elem::Grid* defaultGrid = 0;
-elem::Args* args = 0;
+
+std::stack<Int> blocksizeStack;
+Grid* defaultGrid = 0;
+Args* args = 0;
 
 // A common Mersenne twister configuration
 std::mt19937 generator;
@@ -38,25 +31,36 @@ std::stack<std::string> callStack;
 #endif
 
 // Tuning parameters for basic routines
-elem::Int localSymvFloatBlocksize = 64;
-elem::Int localSymvDoubleBlocksize = 64;
-elem::Int localSymvComplexFloatBlocksize = 64;
-elem::Int localSymvComplexDoubleBlocksize = 64;
+Int localSymvFloatBlocksize = 64;
+Int localSymvDoubleBlocksize = 64;
+Int localSymvComplexFloatBlocksize = 64;
+Int localSymvComplexDoubleBlocksize = 64;
 
-elem::Int localTrr2kFloatBlocksize = 64;
-elem::Int localTrr2kDoubleBlocksize = 64;
-elem::Int localTrr2kComplexFloatBlocksize = 64;
-elem::Int localTrr2kComplexDoubleBlocksize = 64;
+Int localTrr2kFloatBlocksize = 64;
+Int localTrr2kDoubleBlocksize = 64;
+Int localTrr2kComplexFloatBlocksize = 64;
+Int localTrr2kComplexDoubleBlocksize = 64;
 
-elem::Int localTrrkFloatBlocksize = 64;
-elem::Int localTrrkDoubleBlocksize = 64;
-elem::Int localTrrkComplexFloatBlocksize = 64;
-elem::Int localTrrkComplexDoubleBlocksize = 64;
+Int localTrrkFloatBlocksize = 64;
+Int localTrrkDoubleBlocksize = 64;
+Int localTrrkComplexFloatBlocksize = 64;
+Int localTrrkComplexDoubleBlocksize = 64;
 
 // Tuning parameters for advanced routines
-using namespace elem;
 HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_DEFAULT;
 GridOrder gridOrder = ROW_MAJOR;
+
+// Qt5
+ColorMap colorMap=RED_BLACK_GREEN;
+#ifdef HAVE_QT5
+bool elemInitializedQt = false;
+bool elemOpenedWindow = false;
+QCoreApplication* coreApp;
+bool haveMinRealWindowVal=false, haveMaxRealWindowVal=false,
+     haveMinImagWindowVal=false, haveMaxImagWindowVal=false;
+double minRealWindowVal, maxRealWindowVal,
+       minImagWindowVal, maxImagWindowVal;
+#endif
 }
 
 namespace elem {
@@ -132,6 +136,12 @@ void PrintCxxCompilerInfo( std::ostream& os )
        << "  MPI_CXX_LIBRARIES:     " << MPI_CXX_LIBRARIES << "\n"
        << std::endl;
 }
+
+void SetColorMap( ColorMap map )
+{ ::colorMap = map; }
+
+ColorMap GetColorMap()
+{ return ::colorMap; }
 
 #ifdef HAVE_QT5
 void OpenedWindow()

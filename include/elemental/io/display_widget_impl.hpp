@@ -102,7 +102,7 @@ DisplayWidget<T>::DisplayReal
         for( Int iPix=0; iPix<mPix; ++iPix )
         {
             const Int i = mRatio*iPix;
-            QRgb color = ColorMap( A->GetRealPart(i,j), minVal, maxVal );
+            QRgb color = SampleColorMap( A->GetRealPart(i,j), minVal, maxVal );
             painter.setPen( color );
             painter.drawPoint( jPix, iPix );
         }
@@ -173,7 +173,7 @@ DisplayWidget<T>::DisplayImag
         for( Int iPix=0; iPix<mPix; ++iPix )
         {
             const Int i = mRatio*iPix;
-            QRgb color = ColorMap( A->GetImagPart(i,j), minVal, maxVal );
+            QRgb color = SampleColorMap( A->GetImagPart(i,j), minVal, maxVal );
             painter.setPen( color );
             painter.drawPoint( jPix, iPix );
         }

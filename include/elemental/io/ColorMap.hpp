@@ -9,44 +9,47 @@
 #pragma once
 #ifndef ELEM_IO_COLORMAP_HPP
 #define ELEM_IO_COLORMAP_HPP
-#ifdef HAVE_QT5
 
 namespace elem {
 
+#ifdef HAVE_QT5
 inline QRgb
-ColorMap( double value, double minVal, double maxVal )
+SampleColorMap( double value, double minVal, double maxVal )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ColorMap");
+    CallStackEntry entry("SampleColorMap");
 #endif
     const double percent = (value-minVal) / (maxVal-minVal);
+    const ColorMap colorMap = GetColorMap();
 
-    // Grey-scale
-    /*
-    const Int red = 255*percent;
-    const Int green = 255*percent;
-    const Int blue = 255*percent;
-    const Int alpha = 255;
-    */
-
-    // 0: Red, 0.5: Black, 1: Green
-    const Int red = ( percent<=0.5 ? 255*(1.-2*percent) : 0 );
-    const Int green = ( percent>=0.5 ? 255*(2*(percent-0.5)) : 0 );
-    const Int blue = 0;
-    const Int alpha = 255;
-
-    // Red and blue mixture
-    /*
-    const Int red = 255*percent;
-    const Int green = 0;
-    const Int blue = 255*(R(1)-percent/2);
-    const Int alpha = 255;
-    */
+    int red, green, blue, alpha;
+    switch( colorMap )
+    {
+    case RED_BLACK_GREEN:
+        red = ( percent<=0.5 ? 255*(1.-2*percent) : 0 );
+        green = ( percent>=0.5 ? 255*(2*(percent-0.5)) : 0 );
+        blue = 0;
+        alpha = 255;
+        break;
+    case BLUE_RED:
+        red = 255*percent;
+        green = 0;
+        blue = 255*(1.-percent/2);
+        alpha = 255;
+        break;
+    case GRAYSCALE:
+    default:
+        red = 255*percent;
+        green = 255*percent;
+        blue = 255*percent;
+        alpha = 255;
+        break;
+    }
 
     return qRgba( red, green, blue, alpha );
 }
+#endif // ifdef HAVE_QT5
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
 #endif // ifndef ELEM_IO_COLORMAP_HPP

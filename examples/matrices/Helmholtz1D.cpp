@@ -26,10 +26,13 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrix?",false);
         const bool write = Input("--write","write matrix?",false);
         const Int formatInt = Input("--format","write format",2);
+        const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
         PrintInputReport();
 
         FileFormat format = static_cast<FileFormat>(formatInt);
+        ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
+        SetColorMap( colorMap );
 
         Complex<double> shift( realShift, imagShift );
         auto H = Helmholtz( DefaultGrid(), n, shift );
