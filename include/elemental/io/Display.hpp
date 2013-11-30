@@ -36,6 +36,12 @@ Display( const Matrix<T>& A, std::string title="Default" )
     CallStackEntry entry("Display");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+    {
+        Print( A, title );
+        return;
+    }
+
     // Convert A to double-precision since Qt's MOC does not support templates
     const Int m = A.Height();
     const Int n = A.Width();
@@ -64,6 +70,12 @@ Display( const Matrix<Complex<T> >& A, std::string title="Default" )
     CallStackEntry entry("Display");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+    {
+        Print( A, title );
+        return;
+    }
+
     // Convert A to double-precision since Qt's MOC does not support templates
     const Int m = A.Height();
     const Int n = A.Width();
@@ -99,6 +111,12 @@ Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
     CallStackEntry entry("Display");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+    {
+        Print( A, title );
+        return;
+    }
+
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
         Display( A_CIRC_CIRC.Matrix(), title );
@@ -116,6 +134,12 @@ Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
     CallStackEntry entry("Display");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+    {
+        Print( A, title );
+        return;
+    }
+
     if( A.Grid().Rank() == 0 )
         Display( A.LockedMatrix(), title );
 #else
@@ -130,6 +154,12 @@ Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
     CallStackEntry entry("Display");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+    {
+        Print( A, title );
+        return;
+    }
+
     if( A.Grid().Rank() == A.Root() )
         Display( A.LockedMatrix(), title );
 #else

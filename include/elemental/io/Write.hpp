@@ -14,8 +14,8 @@
 
 #ifdef HAVE_QT5
 # include <QFile>
+# include <QImage>
 # include <QPainter>
-# include <QPixmap>
 # include <QStylePainter>
 #endif
 
@@ -57,11 +57,11 @@ MatlabAscii
 
 #ifdef HAVE_QT5
 inline void
-Pixmap
-( const QPixmap& pixmap, FileFormat format=PNG, std::string basename="matrix" )
+SaveQImage
+( const QImage& image, FileFormat format=PNG, std::string basename="matrix" )
 {
 #ifndef RELEASE
-    CallStackEntry cse("write::Pixmap");
+    CallStackEntry cse("write::Image");
 #endif
     std::string filename;
     switch( format )
@@ -71,7 +71,7 @@ Pixmap
         filename = basename + ".bmp";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "BMP" ); 
+        image.save( &file, "BMP" ); 
         break;
     }
     case JPG:  
@@ -79,7 +79,7 @@ Pixmap
         filename = basename + ".jpg";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "JPG" ); 
+        image.save( &file, "JPG" ); 
         break;
     }
     case JPEG: 
@@ -87,7 +87,7 @@ Pixmap
         filename = basename + ".jpeg";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "JPEG" ); 
+        image.save( &file, "JPEG" ); 
         break;
     }
     case PNG:  
@@ -95,7 +95,7 @@ Pixmap
         filename = basename + ".png";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "PNG" ); 
+        image.save( &file, "PNG" ); 
         break;
     }
     case PPM:  
@@ -103,7 +103,7 @@ Pixmap
         filename = basename + ".ppm";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "PPM" ); 
+        image.save( &file, "PPM" ); 
         break;
     }
     case XBM:  
@@ -111,7 +111,7 @@ Pixmap
         filename = basename + ".xbm";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "XBM" ); 
+        image.save( &file, "XBM" ); 
         break;
     }
     case XPM:  
@@ -119,7 +119,7 @@ Pixmap
         filename = basename + ".xpm";
         QFile file( filename.c_str() );
         file.open( QIODevice::WriteOnly );
-        pixmap.save( &file, "XPM" ); 
+        image.save( &file, "XPM" ); 
         break;
     }
     default: LogicError("Invalid image type");
@@ -160,8 +160,7 @@ RealPartImage
     const Int nPix = Max( 500, 2*n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
-    QPixmap pixmap( nPix, mPix );
-    QPainter painter( &pixmap ); 
+    QImage image( nPix, mPix, QImage::Format_RGB32 );
     for( Int jPix=0; jPix<nPix; ++jPix )
     {
         const Int j = nRatio*jPix;
@@ -169,12 +168,11 @@ RealPartImage
         {
             const Int i = mRatio*iPix;
             QRgb color = SampleColorMap( A.GetRealPart(i,j), minVal, maxVal );
-            painter.setPen( color );
-            painter.drawPoint( jPix, iPix );
+            image.setPixel( jPix, iPix, color );
         }
     }
 
-    Pixmap( pixmap, format, basename );
+    SaveQImage( image, format, basename );
 #else
     LogicError("Qt5 not available");
 #endif // ifdef HAVE_QT5
@@ -213,8 +211,7 @@ ImagPartImage
     const Int nPix = Max( 500, 2*n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
-    QPixmap pixmap( nPix, mPix );
-    QPainter painter( &pixmap ); 
+    QImage image( nPix, mPix, QImage::Format_RGB32 );
     for( Int jPix=0; jPix<nPix; ++jPix )
     {
         const Int j = nRatio*jPix;
@@ -222,12 +219,11 @@ ImagPartImage
         {
             const Int i = mRatio*iPix;
             QRgb color = SampleColorMap( A.GetImagPart(i,j), minVal, maxVal );
-            painter.setPen( color );
-            painter.drawPoint( jPix, iPix );
+            image.setPixel( jPix, iPix, color );
         }
     }
 
-    Pixmap( pixmap, format, basename );
+    SaveQImage( image, format, basename );
 #else
     LogicError("Qt5 not available");
 #endif // ifdef HAVE_QT5

@@ -53,6 +53,7 @@ GridOrder gridOrder = ROW_MAJOR;
 // Qt5
 ColorMap colorMap=RED_BLACK_GREEN;
 #ifdef HAVE_QT5
+bool guiDisabled;
 bool elemInitializedQt = false;
 bool elemOpenedWindow = false;
 QCoreApplication* coreApp;
@@ -144,6 +145,9 @@ ColorMap GetColorMap()
 { return ::colorMap; }
 
 #ifdef HAVE_QT5
+bool GuiDisabled()
+{ return ::guiDisabled; }
+
 void OpenedWindow()
 { ::elemOpenedWindow = true; }
 
@@ -268,7 +272,15 @@ void Initialize( int& argc, char**& argv )
     ::coreApp = QCoreApplication::instance();
     if( ::coreApp == 0 )
     {
-        ::coreApp = new QApplication( argc, argv );        
+        // Test for whether the GUI should be disabled
+        ::guiDisabled = false;
+        for( int i=1; i<argc; ++i )
+            if( !qstrcmp(argv[i],"-no-gui") )
+                ::guiDisabled = true;
+        if( ::guiDisabled )
+            ::coreApp = new QCoreApplication( argc, argv );
+        else
+            ::coreApp = new QApplication( argc, argv );        
         ::elemInitializedQt = true;
     }
 #endif

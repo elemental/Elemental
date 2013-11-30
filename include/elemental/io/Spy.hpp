@@ -28,6 +28,9 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
     CallStackEntry entry("Spy");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+        LogicError("GUI was disabled");
+
     // Convert A to double-precision since Qt's MOC does not support templates
     const Int m = A.Height();
     const Int n = A.Width();
@@ -56,6 +59,8 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
     CallStackEntry entry("Spy");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+        LogicError("GUI was disabled");
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
         Spy( A_CIRC_CIRC.Matrix(), title, tol );
@@ -74,6 +79,8 @@ Spy
     CallStackEntry entry("Spy");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+        LogicError("GUI was disabled");
     if( A.Grid().Rank() == 0 )
         Spy( A.LockedMatrix(), title, tol );
 #else
@@ -89,6 +96,8 @@ Spy
     CallStackEntry entry("Spy");
 #endif
 #ifdef HAVE_QT5
+    if( GuiDisabled() )
+        LogicError("GUI was disabled");
     if( A.Grid().Rank() == A.Root() )
         Spy( A.LockedMatrix(), title, tol );
 #else

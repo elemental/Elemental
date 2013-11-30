@@ -43,6 +43,10 @@ using namespace color_map_wrapper;
 void SetColorMap( ColorMap colorMap );
 ColorMap GetColorMap();
 
+// Return true if Qt5 was detected, but no GUI is allowed.
+// This is useful if images are to be written to file using Qt5's wrappers.
+bool GuiDisabled();
+
 // When Elemental is finalized, if no window was opened, then it must call 
 // app.exit() instead
 void OpenedWindow();
