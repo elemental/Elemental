@@ -125,7 +125,7 @@ mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
 
 # "CXX_FLAGS"
-#   Optimization, C++11, and debugging/symbol flags
+#   Optimization and debugging/symbol flags
 
 # "OpenMP_CXX_FLAGS"
 #   Overrides the default compile flags for adding OpenMP support to CXX code
@@ -212,7 +212,10 @@ endif()
 #
 # Check C++ support
 #
-set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
+include(FindCXXFeatures)
+message(STATUS "CXX11_COMPILER_FLAGS=${CXX11_COMPILER_FLAGS}")
+set(EXTRA_FLAGS "${CXX11_COMPILER_FLAGS}")
+set(CMAKE_REQUIRED_FLAGS ${CXX11_COMPILER_FLAGS})
 set(RANDOM_CODE
     "#include <random>
      int main()
@@ -233,7 +236,7 @@ set(ALIAS_CODE
 check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
 check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
 if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
-  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7) and add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
+  message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7)")
 endif()
 # Check for restrict
 set(RESTRICT_CODE "int main() { int* RESTRICT a; return 0; }")
@@ -265,7 +268,7 @@ if(NOT MPI_CXX_FOUND)
   message(FATAL_ERROR "MPI C++ compiler was not found and is required")
 endif()
 include_directories(${MPI_CXX_INCLUDE_PATH})
-set(EXTRA_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
+set(EXTRA_FLAGS "${EXTRA_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 # Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
