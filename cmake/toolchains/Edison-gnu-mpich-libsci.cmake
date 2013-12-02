@@ -14,14 +14,13 @@ set(MPI_C_COMPILER ${CMAKE_C_COMPILER})
 set(MPI_CXX_COMPILER ${CMAKE_CXX_COMPILER})
 set(MPI_Fortran_COMPILER ${CMAKE_Fortran_COMPILER})
 
-# TODO: Check if -std=c++11 if the right way to add C++11 support (probably not)
 if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
    CMAKE_BUILD_TYPE MATCHES HybridDebug)
   set(C_FLAGS   "-g -static -Wl,-Bstatic")
-  set(CXX_FLAGS "-g -static -Wl,-Bstatic -std=c++11")
+  set(CXX_FLAGS "-g -static -Wl,-Bstatic")
 else()
   set(C_FLAGS   "-O3 -static -Wl,-Bstatic")
-  set(CXX_FLAGS "-O3 -static -Wl,-Bstatic -std=c++11")
+  set(CXX_FLAGS "-O3 -static -Wl,-Bstatic")
 endif()
 
 set(OpenMP_CXX_FLAGS "-fopenmp")

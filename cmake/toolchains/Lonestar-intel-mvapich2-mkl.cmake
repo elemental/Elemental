@@ -27,9 +27,9 @@ set(MPI_Fortran_LIBRARIES "-limf -lmpichf90 ${MPI_BASE_LIBS}")
 
 if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
    CMAKE_BUILD_TYPE MATCHES HybridDebug)
-  set(CXX_FLAGS "-g -std=c++11")
+  set(CXX_FLAGS "-g")
 else()
-  set(CXX_FLAGS "-O3 -std=c++11")
+  set(CXX_FLAGS "-O3")
 endif()
 
 set(OpenMP_CXX_FLAGS "-openmp")

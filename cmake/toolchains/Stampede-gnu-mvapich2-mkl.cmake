@@ -10,26 +10,11 @@ set(MPI_C_COMPILER       ${MPI_COMPILER_DIR}/mpicc)
 set(MPI_CXX_COMPILER     ${MPI_COMPILER_DIR}/mpicxx)
 set(MPI_Fortran_COMPILER ${MPI_COMPILER_DIR}/mpif90)
 
-#set(MPI_C_COMPILE_FLAGS "")
-#set(MPI_CXX_COMPILE_FLAGS "")
-#set(MPI_Fortran_COMPILE_FLAGS "")
-#set(MPI_C_INCLUDE_PATH       /opt/apps/gcc4_7/mvapich2/1.9/include)
-#set(MPI_CXX_INCLUDE_PATH     ${MPI_C_INCLUDE_PATH})
-#set(MPI_Fortran_INCLUDE_PATH ${MPI_C_INCLUDE_PATH})
-#set(MPI_C_LINK_FLAGS "-Wl,-rpath,/opt/apps/limic2/0.5.5/lib -L/opt/apps/limic2/0.5.5/lib -L/opt/apps/gcc4_7/mvapich2/1.9/lib -L/opt/ofed/lib64/")
-#set(MPI_CXX_LINK_FLAGS ${MPI_C_LINK_FLAGS})
-#set(MPI_Fortran_LINK_FLAGS ${MPI_C_LINK_FLAGS})
-#set(MPI_BASE_LIBS 
-#    "-lmpich -lopa -llimic2 -lpthread -lrdmacm -libverbs -libumad -ldl -lrt")
-#set(MPI_C_LIBRARIES "${MPI_BASE_LIBS}")
-#set(MPI_CXX_LIBRARIES "-lmpichcxx ${MPI_BASE_LIBS}")
-#set(MPI_Fortran_LIBRARIES "-lmpichf90 ${MPI_BASE_LIBS}")
-
 if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
    CMAKE_BUILD_TYPE MATCHES HybridDebug)
-  set(CXX_FLAGS "-g -std=c++11")
+  set(CXX_FLAGS "-g")
 else()
-  set(CXX_FLAGS "-O3 -std=c++11")
+  set(CXX_FLAGS "-O3")
 endif()
 
 set(OpenMP_CXX_FLAGS "-fopenmp")
