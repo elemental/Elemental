@@ -1,5 +1,5 @@
 <p align="left" style="padding: 20px">
-http://libelemental.org/_static/elemental.png
+<img src="http://libelemental.org/_static/elemental.png">
 </p>
 
 **Elemental** is a modern C++ library for distributed-memory dense linear 
