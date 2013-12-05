@@ -123,6 +123,11 @@ MemZero( T* buffer, std::size_t numEntries )
     std::memset( buffer, 0, numEntries*sizeof(T) );
 }
 
+template<typename T>
+inline void
+SwapClear( T& x )
+{ T().swap( x ); }
+
 } // namespace elem
 
 #endif // ifndef ELEM_CORE_ENVIRONMENT_IMPL_HPP
