@@ -81,6 +81,10 @@ void StridedMemCopy
 template<typename T>
 void MemZero( T* buffer, std::size_t numEntries );
 
+// Clear the contents of x by swapping with an empty object of the same type
+template<typename T>
+void SwapClear( T& x );
+
 inline void LogicError( std::string msg="LogicError" )
 { throw std::logic_error( msg.c_str() ); }
 

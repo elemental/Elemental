@@ -1104,8 +1104,8 @@ void HermitianEig
         pmrrr::Estimate estimate = pmrrr::EigEstimate
         ( int(n), dVector.data(), eVector.data(), wVector.data(), g.VRComm(), 
           lowerBound, upperBound );
-        std::vector<Real>().swap( dVector );
-        std::vector<Real>().swap( eVector );
+        SwapClear( dVector );
+        SwapClear( eVector );
 
         // Ensure that the paddedZ is sufficiently large
         Int k = estimate.numGlobalEigenvalues;
