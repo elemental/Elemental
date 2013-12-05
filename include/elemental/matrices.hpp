@@ -10,7 +10,7 @@
 #ifndef ELEM_MATRICES_HPP
 #define ELEM_MATRICES_HPP
 
-#include "elemental/matrices_decl.hpp"
-#include "elemental/matrices_impl.hpp"
+#include "elemental/matrices/decl.hpp"
+#include "elemental/matrices/impl.hpp"
 
 #endif // ifndef ELEM_MATRICES_HPP

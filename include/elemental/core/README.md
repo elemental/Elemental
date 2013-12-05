@@ -2,31 +2,26 @@
 
 #### Axpy interface
 
--  `axpy_interface_decl.hpp`:
+-  `axpy_interface/`:
 -  `axpy_interface.hpp`:
--  `axpy_interface_impl.hpp`:
 
 #### Complex arithmetic 
 
--  `complex_decl.hpp`:
+-  `complex/`:
 -  `complex.hpp`:
--  `complex_impl.hpp`:
 
 #### `DistMatrix`
 
 -  `dist_matrix/`:
--  `dist_matrix_forward_decl.hpp`:
 -  `dist_matrix.hpp`:
 
 #### Basic environment
 
--  `environment_decl.hpp`:
--  `environment_impl.hpp`:
+-  `environment/`:
 
 #### Process grid
 
--  `grid_decl.hpp`:
--  `grid_impl.hpp`:
+-  `grid/`:
 
 #### Imported functionality
 
@@ -34,50 +29,41 @@
 
 #### Indexing utilities
 
--  `indexing_decl.hpp`:
--  `indexing_impl.hpp`:
+-  `indexing/`:
 
 #### `Matrix`
 
--  `matrix_forward_decl.hpp`:
+-  `matrix/`:
 -  `matrix.hpp`:
 
 #### Memory
 
--  `memory_decl.hpp`:
--  `memory_impl.hpp`:
+-  `memory/`:
 
 #### Partitioning
 
--  `partition_decl.hpp`:
--  `partition_impl.hpp`:
+-  `partition/`:
 
 #### Random number generation
 
--  `random_decl.hpp`:
--  `random_impl.hpp`:
+-  `random/`:
 
 #### Repartitioning
 
--  `repartition_decl.hpp`:
--  `repartition_impl.hpp`:
+-  `repartition/`:
 
 #### Sliding partitions
 
--  `slide_partition_decl.hpp`:
--  `slide_partition_impl.hpp`:
+-  `slide_partition/`:
 
 #### Timings
 
--  `timer_decl.hpp`:
--  `timer_impl.hpp`:
+-  `timer/`:
 
 #### Datatypes
 
--  `types_decl.hpp`:
--  `types_impl.hpp`:
+-  `types/`:
 
 #### Viewing (sub)matrices
 
--  `view_decl.hpp`:
--  `view_impl.hpp`:
+-  `view/`:

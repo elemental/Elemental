@@ -19,7 +19,7 @@
 
 #include "elemental/io/ColorMap.hpp"
 
-#include "elemental/io/display_widget_decl.hpp"
+#include "./decl.hpp"
 
 namespace elem {
 

@@ -64,9 +64,9 @@ void UpdateMaxImagWindowVal( double maxVal );
 } // namespace elem
 
 #ifdef HAVE_QT5
-# include "elemental/io/display_widget_decl.hpp"
-# include "elemental/io/display_window_decl.hpp"
-# include "elemental/io/complex_display_window_decl.hpp"
+# include "./display_widget/decl.hpp"
+# include "./display_window/decl.hpp"
+# include "./complex_display_window/decl.hpp"
 #endif // ifdef HAVE_QT5
 
 #endif // ifndef ELEM_IO_DECL_HPP

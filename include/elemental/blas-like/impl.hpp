@@ -10,12 +10,12 @@
 #ifndef ELEM_BLAS_IMPL_HPP
 #define ELEM_BLAS_IMPL_HPP
 
-#include "./matrices_decl.hpp"
-#include "./matrices/Identity.hpp"
-#include "./matrices/Zeros.hpp"
+#include "elemental/matrices/decl.hpp"
+#include "elemental/matrices/Identity.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
-#include "./blas-like/level1.hpp"
-#include "./blas-like/level2.hpp"
-#include "./blas-like/level3.hpp"
+#include "./level1.hpp"
+#include "./level2.hpp"
+#include "./level3.hpp"
 
 #endif // ifndef ELEM_BLAS_IMPL_HPP

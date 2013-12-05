@@ -22,10 +22,10 @@
 # include "elemental/FCMangle.h"
 #endif
 #include "elemental/core.hpp"
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/convex_decl.hpp"
-#include "elemental/io/display_widget_decl.hpp"
+#include "elemental/blas-like/decl.hpp"
+#include "elemental/lapack-like/decl.hpp"
+#include "elemental/convex/decl.hpp"
+#include "elemental/io/display_widget/decl.hpp"
 
 namespace elem {
 

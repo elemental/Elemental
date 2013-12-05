@@ -10,8 +10,8 @@
 #ifndef ELEM_IO_SPY_HPP
 #define ELEM_IO_SPY_HPP
 
-#include "elemental/io/spy_window_decl.hpp"
-#include "elemental/io/spy_widget_impl.hpp"
+#include "elemental/io/spy_window/decl.hpp"
+#include "elemental/io/spy_widget/impl.hpp"
 #include "elemental/io/Display.hpp" // for ProcessEvents
 
 #ifdef HAVE_QT5

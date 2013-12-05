@@ -10,7 +10,7 @@
 #ifndef ELEM_CORE_AXPYINTERFACE_HPP
 #define ELEM_CORE_AXPYINTERFACE_HPP
 
-#include "elemental/core/axpy_interface_decl.hpp"
-#include "elemental/core/axpy_interface_impl.hpp"
+#include "./axpy_interface/decl.hpp"
+#include "./axpy_interface/impl.hpp"
 
 #endif // ifndef ELEM_CORE_AXPYINTERFACE_HPP

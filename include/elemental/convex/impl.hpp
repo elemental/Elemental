@@ -7,11 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONTROL_IMPL_HPP
-#define ELEM_CONTROL_IMPL_HPP
+#ifndef ELEM_CONVEX_IMPL_HPP
+#define ELEM_CONVEX_IMPL_HPP
 
-#include "elemental/control/Lyapunov.hpp"
-#include "elemental/control/Sylvester.hpp"
-#include "elemental/control/Ricatti.hpp"
+#include "./LogBarrier.hpp"
+#include "./LogDetDivergence.hpp"
+#include "./SoftThreshold.hpp"
+#include "./SVT.hpp"
+#include "./UnitaryCoherence.hpp"
 
-#endif // ifndef ELEM_CONTROL_IMPL_HPP
+#endif // ifndef ELEM_CONVEX_IMPL_HPP

@@ -10,7 +10,7 @@
 #ifndef ELEM_IO_HPP
 #define ELEM_IO_HPP
 
-#include "elemental/io_decl.hpp"
-#include "elemental/io_impl.hpp"
+#include "./io/decl.hpp"
+#include "./io/impl.hpp"
 
 #endif // ifndef ELEM_IO_HPP

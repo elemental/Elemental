@@ -10,7 +10,7 @@
 #ifndef ELEM_CONVEX_HPP
 #define ELEM_CONVEX_HPP
 
-#include "elemental/convex_decl.hpp"
-#include "elemental/convex_impl.hpp"
+#include "./convex/decl.hpp"
+#include "./convex/impl.hpp"
 
 #endif // ifndef ELEM_CONVEX_HPP

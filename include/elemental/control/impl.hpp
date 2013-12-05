@@ -7,10 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONTROL_HPP
-#define ELEM_CONTROL_HPP
+#ifndef ELEM_CONTROL_IMPL_HPP
+#define ELEM_CONTROL_IMPL_HPP
 
-#include "./control/decl.hpp"
-#include "./control/impl.hpp"
+#include "./Lyapunov.hpp"
+#include "./Sylvester.hpp"
+#include "./Ricatti.hpp"
 
-#endif // ifndef ELEM_CONTROL_HPP
+#endif // ifndef ELEM_CONTROL_IMPL_HPP

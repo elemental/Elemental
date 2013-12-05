@@ -10,7 +10,7 @@
 #ifndef ELEM_LAPACK_HERMITIANEIG_HPP
 #define ELEM_LAPACK_HERMITIANEIG_HPP
 
-// NOTE: HermitianEig declarations are in lapack-like_decl.hpp
+// NOTE: HermitianEig declarations are in lapack-like/decl.hpp
 
 #include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/HermitianEig/SDC.hpp"

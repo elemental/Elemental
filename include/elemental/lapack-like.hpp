@@ -10,7 +10,7 @@
 #ifndef ELEM_LAPACK_HPP
 #define ELEM_LAPACK_HPP
 
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+#include "elemental/lapack-like/decl.hpp"
+#include "elemental/lapack-like/impl.hpp"
 
 #endif // ifndef ELEM_LAPACK_HPP
