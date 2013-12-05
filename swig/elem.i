@@ -67,7 +67,7 @@ import elem_mpi
  * TYPES, GRID, MPI
  */
 
-// We do not need to %include complex_decl.hpp or matrix.hpp, because we are using
+// We do not need to %include complex/decl.hpp or matrix.hpp, because we are using
 // typemaps to convert the Elemental classes to equivalent Python and NumPy objects.
 // Using %import prevents SWIG from generating any wrappers.
 
@@ -107,13 +107,13 @@ GATTP(ViewingComm)
 #undef GATTP
 #undef GATTB
 
-%import  "elemental/core/complex_decl.hpp"
+%import  "elemental/core/complex/decl.hpp"
 %import  "elemental/core/imports/mpi.hpp"
 %import  "elemental/core/imports/choice.hpp"
 %include "elemental/core/imports/mpi_choice.hpp"
-%include "elemental/core/types_decl.hpp"
-%include "elemental/core/environment_decl.hpp"
-%include "elemental/core/grid_decl.hpp"
+%include "elemental/core/types/decl.hpp"
+%include "elemental/core/environment/decl.hpp"
+%include "elemental/core/grid/decl.hpp"
 %import  "elemental/core/matrix.hpp"
 
 /*
@@ -161,7 +161,7 @@ AbDM(elem::Complex<double>)
 
 %nodefaultctor DistData;
 
-%include "elemental/core/dist_matrix_forward_decl.hpp"
+%include "elemental/core/dist_matrix/forward_decl.hpp"
 %include "elemental/core/dist_matrix.hpp"
 %include "elemental/core/dist_matrix/abstract.hpp"
 

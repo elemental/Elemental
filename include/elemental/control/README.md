@@ -1,5 +1,8 @@
 ### `include/elemental/control/`
 
+- `decl.hpp`: include all declarations of control-related routines
+- `impl.hpp`: include all implementations of control-related routines
+
 A few matrix sign function based solvers for control theory:
 
 -  `Lyapunov.hpp`: Solves A X + X A' = C for X when A has its eigenvalues

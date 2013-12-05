@@ -23,7 +23,7 @@ NO_OVERLOAD(SetLocalTrrkBlocksize,int);
 NO_OVERLOAD(LocalTrrkBlocksize);
 NO_OVERLOAD(SetLocalTrr2kBlocksize,int);
 NO_OVERLOAD(LocalTrr2kBlocksize);
-%include "elemental/blas-like_decl.hpp"
+%include "elemental/blas-like/decl.hpp"
 
 /*
  * BLAS LEVEL 1

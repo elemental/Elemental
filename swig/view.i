@@ -13,8 +13,8 @@
 %include "common.swg"
 %import "elem.i"
 
-%include "elemental/core/view_decl.hpp"
-%include "elemental/core/partition_decl.hpp"
+%include "elemental/core/view/decl.hpp"
+%include "elemental/core/partition/decl.hpp"
 
 namespace elem {
 

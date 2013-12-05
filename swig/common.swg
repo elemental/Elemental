@@ -22,7 +22,7 @@
 
 %{
 #include "elemental.hpp"
-#include "elemental/core/types_decl.hpp"
+#include "elemental/core/types/decl.hpp"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
 #include "numpy/ndarraytypes.h"

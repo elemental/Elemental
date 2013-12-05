@@ -1,5 +1,8 @@
 ### `include/elemental/convex/`
 
+- `decl.hpp`: include all declarations of convex opt. related routines
+- `impl.hpp`: include all implementations of convex opt. related routines
+
 This folder contains a few utilities for convex optimization; the only 
 nontrivial one is for Singular Value soft-Thresholding (SVT).
 

@@ -13,7 +13,7 @@
 %include "common.swg"
 %import "elem.i"
 
-%include "elemental/lapack-like_decl.hpp"
+%include "elemental/lapack-like/decl.hpp"
 
 /*
  * INVARIANTS, INNER PRODUCTS, NORMS, ETC.
