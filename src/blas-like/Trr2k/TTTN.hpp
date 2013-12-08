@@ -25,7 +25,7 @@ void Trr2kTTTN
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::Trr2kTTTN");
+    CallStackEntry cse("internal::Trr2kTTTN");
 #endif
     Trr2kTNTT
     ( uplo, orientationOfC, orientationOfA, orientationOfB,

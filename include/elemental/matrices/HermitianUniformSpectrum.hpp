@@ -23,12 +23,10 @@ template<typename F>
 inline void
 MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeHermitianUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeHermitianUniformSpectrum"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const bool isComplex = IsComplex<F>::val;
 
     // Form d and D
@@ -57,13 +55,11 @@ inline void
 MakeHermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeHermitianUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeHermitianUniformSpectrum"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
     const Grid& grid = A.Grid();
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const bool isComplex = IsComplex<F>::val;
     const bool standardDist = ( U == MC && V == MR );
 
@@ -128,9 +124,7 @@ inline void
 HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
     A.ResizeTo( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
@@ -149,9 +143,7 @@ inline void
 HermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
     A.ResizeTo( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
 }

@@ -19,7 +19,7 @@ inline F
 Dot( const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Dot");
+    CallStackEntry cse("Dot");
 #endif
     return HilbertSchmidt( A, B );
 }
@@ -29,7 +29,7 @@ inline F
 Dot( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Dot");
+    CallStackEntry cse("Dot");
 #endif
     return HilbertSchmidt( A, B );
 }

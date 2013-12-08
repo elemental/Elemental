@@ -16,9 +16,7 @@ template<typename F1,typename F2>
 inline void
 Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Cauchy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
     A.ResizeTo( m, n );
@@ -28,16 +26,16 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
     {
         for( Int i=0; i<m; ++i )
         {
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy matrices";
-                LogicError( msg.str() );
-            }
-#endif
+            DEBUG_ONLY(
+                // TODO: Use tolerance instead?
+                if( x[i] == y[j] )
+                {
+                    std::ostringstream msg;
+                    msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
+                        << ") is not allowed for Cauchy matrices";
+                    LogicError( msg.str() );
+                }
+            ) 
             A.Set( i, j, one/(x[i]-y[j]) );
         }
     }
@@ -57,9 +55,7 @@ inline void
 Cauchy
 ( DistMatrix<F1,U,V>& A, const std::vector<F2>& x, const std::vector<F2>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Cauchy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
     A.ResizeTo( m, n );
@@ -77,16 +73,16 @@ Cauchy
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy matrices";
-                LogicError( msg.str() );
-            }
-#endif
+            DEBUG_ONLY(
+                // TODO: Use tolerance instead?
+                if( x[i] == y[j] )
+                {
+                    std::ostringstream msg;
+                    msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
+                        << ") is not allowed for Cauchy matrices";
+                    LogicError( msg.str() );
+                }
+            )
             A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
         }
     }

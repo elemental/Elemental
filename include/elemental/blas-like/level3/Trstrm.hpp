@@ -22,7 +22,7 @@ LocalTrstrm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrstrm");
+    CallStackEntry cse("LocalTrstrm");
 #endif
     Trstrm
     ( side, uplo, orientation, diag,
@@ -44,7 +44,7 @@ Trstrm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trstrm");
+    CallStackEntry cse("Trstrm");
     if( A.Height() != A.Width() || X.Height() != X.Width() )
         LogicError("Triangular matrices must be square");
     if( A.Height() != X.Height() )
@@ -100,7 +100,7 @@ Trstrm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trstrm");
+    CallStackEntry cse("Trstrm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {

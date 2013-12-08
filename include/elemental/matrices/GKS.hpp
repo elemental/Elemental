@@ -21,9 +21,7 @@ template<typename F>
 inline void
 MakeGKS( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeGKS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeGKS"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
@@ -43,9 +41,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 MakeGKS( DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeGKS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeGKS"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
@@ -87,9 +83,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 GKS( DistMatrix<F,U,V>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("GKS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.ResizeTo( n, n );
     MakeGKS( A );
 }

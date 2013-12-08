@@ -25,7 +25,7 @@ Syr2k
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Syr2k");
+    CallStackEntry cse("Syr2k");
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -68,7 +68,7 @@ Syr2k
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Syr2k");
+    CallStackEntry cse("Syr2k");
 #endif
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
@@ -84,7 +84,7 @@ Syr2k
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Syr2k");
+    CallStackEntry cse("Syr2k");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
         internal::Syr2kLN( alpha, A, B, beta, C, conjugate );
@@ -105,7 +105,7 @@ Syr2k
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Syr2k");
+    CallStackEntry cse("Syr2k");
 #endif 
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );

@@ -18,9 +18,7 @@ template<typename T>
 inline void
 MakeIdentity( Matrix<T>& I )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeIdentity");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I );
     const Int m = I.Height();
     const Int n = I.Width();
@@ -32,9 +30,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeIdentity( DistMatrix<T,U,V>& I )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeIdentity");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I.Matrix() );
 
     const Int localHeight = I.LocalHeight();
@@ -59,9 +55,7 @@ template<typename T>
 inline void
 Identity( Matrix<T>& I, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Identity");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Identity"))
     I.ResizeTo( m, n );
     MakeIdentity( I );
 }
@@ -79,9 +73,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Identity( DistMatrix<T,U,V>& I, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Identity");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Identity"))
     I.ResizeTo( m, n );
     MakeIdentity( I );
 }

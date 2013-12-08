@@ -28,7 +28,7 @@ TrsmRUT
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmRUT");
+    CallStackEntry cse("internal::TrsmRUT");
     if( orientation == NORMAL )
         LogicError("TrsmRUT expects a (Conjugate)Transpose option");
 #endif

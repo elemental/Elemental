@@ -20,7 +20,7 @@ template<typename T>
 inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hadamard");
+    CallStackEntry cse("Hadamard");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
@@ -38,7 +38,7 @@ inline void Hadamard
 ( const DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B, DistMatrix<T,U,V>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hadamard");
+    CallStackEntry cse("Hadamard");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");

@@ -19,7 +19,7 @@ inline F
 Dotu( const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Dotu");
+    CallStackEntry cse("Dotu");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
@@ -37,7 +37,7 @@ inline F
 Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Dotu");
+    CallStackEntry cse("Dotu");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");

@@ -18,9 +18,7 @@ template<typename T>
 inline void
 Wilkinson( Matrix<T>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Wilkinson");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
     A.ResizeTo( n, n );
     MakeZeros( A );
@@ -52,9 +50,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Wilkinson( DistMatrix<T,U,V>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Wilkinson");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
     A.ResizeTo( n, n );
     MakeZeros( A );

@@ -23,7 +23,7 @@ Syr2kUN
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::Syr2kUN");
+    CallStackEntry cse("internal::Syr2kUN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must be distributed over the same grid");
     if( A.Height() != C.Height() || A.Height() != C.Width() ||

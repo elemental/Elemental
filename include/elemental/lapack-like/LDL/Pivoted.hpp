@@ -33,10 +33,8 @@ template<typename F>
 inline LDLPivot
 BunchKaufmanA( const Matrix<F>& A, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::BunchKaufmanA");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanA"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
@@ -85,10 +83,8 @@ template<typename F>
 inline LDLPivot
 BunchKaufmanA( const DistMatrix<F>& A, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::BunchKaufmanA");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanA"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
@@ -137,10 +133,8 @@ template<typename F>
 inline LDLPivot
 BunchKaufmanD( const Matrix<F>& A, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::BunchKaufmanD");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanD"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
@@ -182,10 +176,8 @@ template<typename F>
 inline LDLPivot
 BunchKaufmanD( const DistMatrix<F>& A, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::BunchKaufmanD");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanD"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
@@ -227,10 +219,8 @@ template<typename F>
 inline LDLPivot
 BunchParlett( const Matrix<F>& A, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::BunchParlett");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
+    typedef Base<F> Real;
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
@@ -257,10 +247,8 @@ template<typename F>
 inline LDLPivot
 BunchParlett( const DistMatrix<F>& A, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::BunchParlett");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
+    typedef Base<F> Real;
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
@@ -290,10 +278,8 @@ inline LDLPivot
 PanelBunchKaufmanA
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();
     if( gamma == Real(0) )
@@ -380,10 +366,8 @@ PanelBunchKaufmanA
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
   BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();
     if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
@@ -473,10 +457,8 @@ inline LDLPivot
 PanelBunchKaufmanD
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();
     if( gamma == Real(0) )
@@ -555,10 +537,8 @@ PanelBunchKaufmanD
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
   BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int k = X.Width();
     if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
@@ -641,9 +621,7 @@ template<typename F>
 inline LDLPivot
 ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::ChoosePivot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePivot"))
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -661,9 +639,7 @@ template<typename F>
 inline LDLPivot
 ChoosePivot( const DistMatrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::ChoosePivot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePivot"))
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -683,9 +659,7 @@ ChoosePanelPivot
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
   LDLPivotType pivotType, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::ChoosePanelPivot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePanelPivot"))
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -710,9 +684,7 @@ ChoosePanelPivot
   const DistMatrix<F,MR,STAR>& Y, 
   LDLPivotType pivotType, BASE(F) gamma )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::ChoosePanelPivot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePanelPivot"))
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -736,11 +708,11 @@ UnblockedPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::UnblockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::UnblockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     if( n == 0 )
     {
@@ -815,13 +787,13 @@ UnblockedPivoted
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::UnblockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Grid() != dSub.Grid() || dSub.Grid() != p.Grid() )
-        LogicError("A, dSub, and p must share the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::UnblockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Grid() != dSub.Grid() || dSub.Grid() != p.Grid() )
+            LogicError("A, dSub, and p must share the same grid");
+    )
     const Int n = A.Height();
     dSub.AlignWithDiagonal( A, -1 );
     Zeros( dSub, n-1, 1 );
@@ -896,20 +868,18 @@ PanelPivoted
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::PanelPivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
     const Int n = A.Height();
     if( n == 0 )
         return;
-#ifndef RELEASE
-    if( A.Width() != n )
-        LogicError("A must be square");
-    if( dSub.Height() != n-1 || dSub.Width() != 1 )
-        LogicError("dSub is the wrong size" );
-    if( p.Height() != n || p.Width() != 1 )
-        LogicError("pivot vector is the wrong size");
-#endif
+    DEBUG_ONLY(
+        if( A.Width() != n )
+            LogicError("A must be square");
+        if( dSub.Height() != n-1 || dSub.Width() != 1 )
+            LogicError("dSub is the wrong size" );
+        if( p.Height() != n || p.Width() != 1 )
+            LogicError("pivot vector is the wrong size");
+    )
     auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
     Zeros( Y, n-off, bsize );
@@ -1018,20 +988,18 @@ PanelPivoted
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::PanelPivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
     const Int n = A.Height();
     if( n == 0 )
         return;
-#ifndef RELEASE
-    if( A.Width() != n )
-        LogicError("A must be square");
-    if( dSub.Height() != n-1 || dSub.Width() != 1 )
-        LogicError("dSub is the wrong size" );
-    if( p.Height() != n || p.Width() != 1 )
-        LogicError("pivot vector is the wrong size");
-#endif
+    DEBUG_ONLY(
+        if( A.Width() != n )
+            LogicError("A must be square");
+        if( dSub.Height() != n-1 || dSub.Width() != 1 )
+            LogicError("dSub is the wrong size" );
+        if( p.Height() != n || p.Width() != 1 )
+            LogicError("pivot vector is the wrong size");
+    )
     auto ABR = ViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
     Y.AlignWith( ABR );
@@ -1147,11 +1115,11 @@ BlockedPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::BlockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::BlockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     if( n == 0 )
     {
@@ -1189,11 +1157,11 @@ BlockedPivoted
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::BlockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::BlockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Grid& g = A.Grid();
     const Int n = A.Height();
     if( n == 0 )
@@ -1233,9 +1201,7 @@ Pivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::Pivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
     switch( pivotType )
     {
     case BUNCH_KAUFMAN_A:
@@ -1255,9 +1221,7 @@ Pivoted
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::Pivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
     switch( pivotType )
     {
     case BUNCH_KAUFMAN_A:

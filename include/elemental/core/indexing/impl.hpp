@@ -50,7 +50,7 @@ inline Int GCD_( Int a, Int b )
 inline Int Length( Int n, Int shift, Int stride )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Length");
+    CallStackEntry cse("Length");
     if( n < 0 )
         LogicError("n must be non-negative");
     if( shift < 0 || shift >= stride )
@@ -75,7 +75,7 @@ inline Int
 Length( Int n, Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Length");
+    CallStackEntry cse("Length");
 #endif
     Int shift = Shift( rank, alignment, stride );
     return Length( n, shift, stride );
@@ -91,7 +91,7 @@ inline Int Length_
 inline Int MaxLength( Int n, Int stride )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MaxLength");
+    CallStackEntry cse("MaxLength");
     if( n < 0 )
         LogicError("n must be non-negative");
     if( stride <= 0 )
@@ -109,7 +109,7 @@ inline Int MaxLength_( Int n, Int stride )
 inline Int Shift( Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Shift");
+    CallStackEntry cse("Shift");
     if( rank < 0 || rank >= stride )
     {
         std::ostringstream msg;

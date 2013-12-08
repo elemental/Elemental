@@ -40,7 +40,7 @@ void Trr2k
   T beta,        Matrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trr2k");
+    CallStackEntry cse("Trr2k");
 #endif
     const bool normalA = orientationOfA == NORMAL;
     const bool normalB = orientationOfB == NORMAL;
@@ -133,7 +133,7 @@ void Trr2k
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trr2k");
+    CallStackEntry cse("Trr2k");
 #endif
     const bool normalA = orientationOfA == NORMAL;
     const bool normalB = orientationOfB == NORMAL;

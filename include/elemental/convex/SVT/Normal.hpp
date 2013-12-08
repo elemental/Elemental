@@ -25,7 +25,7 @@ inline Int
 Normal( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::Normal");
+    CallStackEntry cse("svt::Normal");
 #endif
     typedef Base<F> Real;
     Matrix<F> U( A );
@@ -45,7 +45,7 @@ inline Int
 Normal( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::Normal");
+    CallStackEntry cse("svt::Normal");
 #endif
     typedef Base<F> Real;
     DistMatrix<F> U( A );

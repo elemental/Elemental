@@ -17,7 +17,7 @@ inline void
 Zero( Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Zero");
+    CallStackEntry cse("Zero");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -31,7 +31,7 @@ inline void
 Zero( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Zero");
+    CallStackEntry cse("Zero");
 #endif
     Zero( A.Matrix() );
 }

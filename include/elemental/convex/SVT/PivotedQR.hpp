@@ -26,11 +26,11 @@ inline Int
 PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::PivotedQR");
+    CallStackEntry cse("svt::PivotedQR");
     if( numSteps > std::min(A.Height(),A.Width()) )
         LogicError("number of steps is too large");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<F> ACopy( A ), t;
@@ -62,11 +62,11 @@ inline Int
 PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::PivotedQR");
+    CallStackEntry cse("svt::PivotedQR");
     if( numSteps > std::min(A.Height(),A.Width()) )
         LogicError("number of steps is too large");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();

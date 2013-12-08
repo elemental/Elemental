@@ -16,9 +16,7 @@ template<typename F>
 inline void
 Fiedler( Matrix<F>& A, const std::vector<F>& c )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Fiedler");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
     A.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -39,9 +37,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Fiedler");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
     A.ResizeTo( n, n );
     const Int localHeight = A.LocalHeight();

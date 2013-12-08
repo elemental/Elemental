@@ -17,7 +17,7 @@ inline void
 MakeReal( Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeReal");
+    CallStackEntry cse("MakeReal");
 #endif
     T* ABuffer = A.Buffer();
     const Int height = A.Height();
@@ -33,7 +33,7 @@ inline void
 MakeReal( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeReal");
+    CallStackEntry cse("MakeReal");
 #endif
     MakeReal( A.Matrix() );
 }

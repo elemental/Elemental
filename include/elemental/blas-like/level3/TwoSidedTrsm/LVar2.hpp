@@ -26,7 +26,7 @@ inline void
 TwoSidedTrsmLVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TwoSidedTrsmLVar2");
+    CallStackEntry cse("internal::TwoSidedTrsmLVar2");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( L.Height() != L.Width() )
@@ -117,7 +117,7 @@ TwoSidedTrsmLVar2
 ( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& L )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TwoSidedTrsmLVar2");
+    CallStackEntry cse("internal::TwoSidedTrsmLVar2");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( L.Height() != L.Width() )

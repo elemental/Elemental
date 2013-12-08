@@ -46,7 +46,7 @@ inline void
 LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("expand_packed_reflectors::LV");
+    CallStackEntry cse("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         LogicError("Transforms out of bounds");
     if( t.Height() != H.DiagonalLength( offset ) )
@@ -167,7 +167,7 @@ LV
   DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("expand_packed_reflectors::LV");
+    CallStackEntry cse("expand_packed_reflectors::LV");
     if( H.Grid() != t.Grid() )
         LogicError("H and t must be distributed over same grid");
     if( offset > 0 || offset < -H.Height() )

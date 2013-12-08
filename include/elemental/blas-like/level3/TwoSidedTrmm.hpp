@@ -18,7 +18,7 @@ inline void
 TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TwoSidedTrmmLUnb");
+    CallStackEntry cse("internal::TwoSidedTrmmLUnb");
 #endif
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
@@ -80,7 +80,7 @@ inline void
 TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TwoSidedTrmmUUnb");
+    CallStackEntry cse("internal::TwoSidedTrmmUUnb");
 #endif
     // Use the Variant 4 algorithm
     const Int n = A.Height();
@@ -139,7 +139,7 @@ LocalTwoSidedTrmm
   DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTwoSidedTrmm");
+    CallStackEntry cse("LocalTwoSidedTrmm");
 #endif
     TwoSidedTrmm( uplo, diag, A.Matrix(), B.LockedMatrix() );
 }
@@ -157,7 +157,7 @@ TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TwoSidedTrmm");
+    CallStackEntry cse("TwoSidedTrmm");
 #endif
     if( uplo == LOWER )
         internal::TwoSidedTrmmLVar4( diag, A, B );
@@ -172,7 +172,7 @@ TwoSidedTrmm
   DistMatrix<T>& A, const DistMatrix<T>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TwoSidedTrmm");
+    CallStackEntry cse("TwoSidedTrmm");
 #endif
     if( uplo == LOWER )
         internal::TwoSidedTrmmLVar4( diag, A, B );

@@ -18,9 +18,7 @@ template<typename T>
 inline void
 MakeOneTwoOne( Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeOneTwoOne");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
     MakeZeros( A );
@@ -41,9 +39,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeOneTwoOne( DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeOneTwoOne");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
     MakeZeros( A );
@@ -72,9 +68,7 @@ template<typename T>
 inline void
 OneTwoOne( Matrix<T>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("OneTwoOne");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     A.ResizeTo( n, n );
     MakeOneTwoOne( A );
 }
@@ -92,9 +86,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 OneTwoOne( DistMatrix<T,U,V>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("OneTwoOne");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     A.ResizeTo( n, n );
     MakeOneTwoOne( A );
 }

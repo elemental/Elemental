@@ -23,7 +23,7 @@ inline void
 TrstrmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrstrmLLNUnb");
+    CallStackEntry cse("internal::TrstrmLLNUnb");
 #endif
     const bool isUnit = ( diag==UNIT );
     const Int n = L.Height();
@@ -63,7 +63,7 @@ TrstrmLLN
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrstrmLLN");
+    CallStackEntry cse("internal::TrstrmLLN");
 #endif
     // Matrix views
     Matrix<F> 
@@ -129,7 +129,7 @@ TrstrmLLN
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrstrmLLN");
+    CallStackEntry cse("internal::TrstrmLLN");
 #endif
     const Grid& g = L.Grid();
 

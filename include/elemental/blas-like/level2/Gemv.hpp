@@ -28,7 +28,7 @@ inline void LocalGemv
   T beta,        DistMatrix<T,yColDist,yRowDist>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalGemv");
+    CallStackEntry cse("LocalGemv");
     // TODO: Add error checking here
 #endif
     Gemv
@@ -44,7 +44,7 @@ Gemv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemv");
+    CallStackEntry cse("Gemv");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
     {
@@ -107,7 +107,7 @@ Gemv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemv");
+    CallStackEntry cse("Gemv");
 #endif
     if( orientation == NORMAL )
         Zeros( y, A.Height(), 1 );
@@ -125,7 +125,7 @@ Gemv
   T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemv");
+    CallStackEntry cse("Gemv");
 #endif
     if( orientation == NORMAL )
         internal::GemvN( alpha, A, x, beta, y );
@@ -142,7 +142,7 @@ Gemv
                  DistMatrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemv");
+    CallStackEntry cse("Gemv");
 #endif
     y.AlignWith( A );
     if( orientation == NORMAL )
@@ -161,7 +161,7 @@ Gemv
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemv");
+    CallStackEntry cse("Gemv");
 #endif
     if( orientation == NORMAL )
         internal::GemvN( alpha, A, x, beta, y );
@@ -178,7 +178,7 @@ Gemv
                  DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemv");
+    CallStackEntry cse("Gemv");
 #endif
     y.AlignWith( A );
     if( orientation == NORMAL )

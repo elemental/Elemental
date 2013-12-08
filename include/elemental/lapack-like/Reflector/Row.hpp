@@ -53,19 +53,19 @@ template<typename R>
 inline R
 Row( DistMatrix<R>& chi, DistMatrix<R>& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("reflector::Row");
-    if( chi.Grid() != x.Grid() )
-        LogicError("chi and x must be distributed over the same grid");
-    if( chi.Height() != 1 || chi.Width() != 1 )
-        LogicError("chi must be a scalar");
-    if( x.Height() != 1 )
-        LogicError("x must be a row vector");
-    if( chi.Grid().Row() != chi.ColAlign() )
-        LogicError("Reflecting with incorrect row of processes");
-    if( x.Grid().Row() != x.ColAlign() )
-        LogicError("Reflecting with incorrect row of processes");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("reflector::Row");
+        if( chi.Grid() != x.Grid() )
+            LogicError("chi and x must be distributed over the same grid");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Height() != 1 )
+            LogicError("x must be a row vector");
+        if( chi.Grid().Row() != chi.ColAlign() )
+            LogicError("Reflecting with incorrect row of processes");
+        if( x.Grid().Row() != x.ColAlign() )
+            LogicError("Reflecting with incorrect row of processes");
+    )
     const Grid& grid = x.Grid();
     mpi::Comm rowComm = grid.RowComm();
     const Int gridCol = grid.Col();
@@ -135,19 +135,19 @@ template<typename R>
 inline Complex<R>
 Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("reflector::Row");    
-    if( chi.Grid() != x.Grid() )
-        LogicError("chi and x must be distributed over the same grid");
-    if( chi.Height() != 1 || chi.Width() != 1 )
-        LogicError("chi must be a scalar");
-    if( x.Height() != 1 )
-        LogicError("x must be a row vector");
-    if( chi.Grid().Row() != chi.ColAlign() )
-        LogicError("Reflecting with incorrect row of processes");
-    if( x.Grid().Row() != x.ColAlign() )
-        LogicError("Reflecting with incorrect row of processes");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("reflector::Row");    
+        if( chi.Grid() != x.Grid() )
+            LogicError("chi and x must be distributed over the same grid");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Height() != 1 )
+            LogicError("x must be a row vector");
+        if( chi.Grid().Row() != chi.ColAlign() )
+            LogicError("Reflecting with incorrect row of processes");
+        if( x.Grid().Row() != x.ColAlign() )
+            LogicError("Reflecting with incorrect row of processes");
+    )
     typedef Complex<R> C;
     const Grid& grid = x.Grid();
     mpi::Comm rowComm = grid.RowComm();

@@ -26,9 +26,7 @@ template<typename F>
 inline void
 SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVD"))
     if( useQR )
         svd::QRSVD( A, s, V );
     else
@@ -40,9 +38,7 @@ inline void HermitianSVD
 ( UpperOrLower uplo,
   Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& U, Matrix<F>& V )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #if 1
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
@@ -82,9 +78,7 @@ SVD
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
     svd::Chan( A, s, V, heightRatio );
 }
@@ -94,15 +88,13 @@ inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, 
   DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #ifdef HAVE_PMRRR
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
 
     // Redistribute the singular values into an [MR,* ] distribution
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& grid = A.Grid();
     DistMatrix<Real,MR,STAR> s_MR_STAR( grid );
     s_MR_STAR.AlignWith( V.DistData() );
@@ -150,9 +142,7 @@ template<typename F>
 inline void
 SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVD"))
     const Int m = A.Height();
     const Int n = A.Width();
     s.ResizeTo( Min(m,n), 1 );
@@ -163,9 +153,7 @@ template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& s )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #if 1
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
@@ -185,9 +173,7 @@ template<typename F>
 inline void
 SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
     svd::Chan( A, s, heightRatio );
 }
@@ -196,9 +182,7 @@ template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #ifdef HAVE_PMRRR
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );

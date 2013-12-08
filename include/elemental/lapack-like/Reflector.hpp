@@ -46,9 +46,7 @@ template<typename Real>
 inline Real
 Reflector( Matrix<Real>& chi, Matrix<Real>& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Reflector");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Reflector"))
     Real norm = Nrm2( x );
     if( norm == Real(0) )
     {
@@ -99,9 +97,7 @@ template<typename Real>
 inline Real
 Reflector( Real& chi, Int m, Real* x, Int incx )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Reflector");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Reflector"))
     Real norm = blas::Nrm2( m, x, incx );
     if( norm == 0 )
     {
@@ -171,9 +167,7 @@ template<typename Real>
 inline Complex<Real>
 Reflector( Matrix<Complex<Real> >& chi, Matrix<Complex<Real> >& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Reflector");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Reflector"))
     typedef Complex<Real> C;
 
     Real norm = Nrm2( x );
@@ -227,9 +221,7 @@ template<typename Real>
 inline Complex<Real>
 Reflector( Complex<Real>& chi, Int m, Complex<Real>* x, Int incx )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Reflector");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Reflector"))
     typedef Complex<Real> C;
 
     Real norm = blas::Nrm2( m, x, incx );
@@ -284,15 +276,15 @@ template<typename F>
 inline F
 Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Reflector");
-    if( chi.Grid() != x.Grid() )
-        LogicError("chi and x must be distributed over the same grid");
-    if( chi.Height() != 1 || chi.Width() != 1 )
-        LogicError("chi must be a scalar");
-    if( x.Height() != 1 && x.Width() != 1 )
-        LogicError("x must be a vector");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Reflector");
+        if( chi.Grid() != x.Grid() )
+            LogicError("chi and x must be distributed over the same grid");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("x must be a vector");
+    )
     const Grid& g = x.Grid();
     F tau;
     if( x.Width() == 1 && x.RowAlign() == chi.RowAlign() )

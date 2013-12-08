@@ -28,7 +28,7 @@ TrsmRLN
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmRLN");
+    CallStackEntry cse("internal::TrsmRLN");
 #endif
     const Grid& g = L.Grid();
 

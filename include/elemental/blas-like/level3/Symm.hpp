@@ -25,7 +25,7 @@ Symm
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Symm");
+    CallStackEntry cse("Symm");
 #endif
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -56,7 +56,7 @@ Symm
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Symm");
+    CallStackEntry cse("Symm");
 #endif
     if( side == LEFT && uplo == LOWER )
         internal::SymmLL( alpha, A, B, beta, C, conjugate );

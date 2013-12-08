@@ -21,14 +21,14 @@ inline SafeProduct<F>
 AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("determinant::AfterLUPartialPiv");
+    CallStackEntry cse("determinant::AfterLUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
     if( A.Height() != p.Height() )
         LogicError("Pivot vector is incorrect length");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
 
     Matrix<F> d;
@@ -54,7 +54,7 @@ inline SafeProduct<F>
 LUPartialPiv( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("determinant::LUPartialPiv");
+    CallStackEntry cse("determinant::LUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
@@ -78,7 +78,7 @@ inline SafeProduct<F>
 AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("determinant::AfterLUPartialPiv");
+    CallStackEntry cse("determinant::AfterLUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
@@ -87,7 +87,7 @@ AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
     if( A.Height() != p.Height() )
         LogicError("Pivot vector is incorrect length");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -123,7 +123,7 @@ inline SafeProduct<F>
 LUPartialPiv( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("determinant::LUPartialPiv");
+    CallStackEntry cse("determinant::LUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");

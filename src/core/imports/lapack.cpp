@@ -363,9 +363,7 @@ int HermitianEig
   float vl, float vu, int il, int iu, float abstol, 
   float* w, float* Z, int ldz )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     if( n == 0 )
         return 0;
 
@@ -403,9 +401,7 @@ int HermitianEig
   double vl, double vu, int il, int iu, double abstol, 
   double* w, double* Z, int ldz )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     if( n == 0 )
         return 0;
 
@@ -443,9 +439,7 @@ int HermitianEig
   float vl, float vu, int il, int iu, float abstol, 
   float* w, scomplex* Z, int ldz )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     if( n == 0 )
         return 0;
 
@@ -486,9 +480,7 @@ int HermitianEig
   double vl, double vu, int il, int iu, double abstol, 
   double* w, dcomplex* Z, int ldz )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     if( n == 0 )
         return 0;
 
@@ -531,9 +523,7 @@ int HermitianEig
 
 void BidiagDQDS( int n, float* d, float* e )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::BidiagDQDS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagDQDS"))
     int info;
     std::vector<float> work( 4*n );
     LAPACK(slasq1)( &n, d, e, work.data(), &info );
@@ -554,9 +544,7 @@ void BidiagDQDS( int n, float* d, float* e )
 
 void BidiagDQDS( int n, double* d, double* e )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::BidiagDQDS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagDQDS"))
     int info;
     std::vector<double> work( 4*n );
     LAPACK(dlasq1)( &n, d, e, work.data(), &info );
@@ -583,9 +571,7 @@ void BidiagQRAlg
 ( char uplo, int n, int numColsVTrans, int numRowsU,
   float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::BidiagQRAlg");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -611,9 +597,7 @@ void BidiagQRAlg
 ( char uplo, int n, int numColsVTrans, int numRowsU, 
   double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::BidiagQRAlg");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -639,9 +623,7 @@ void BidiagQRAlg
 ( char uplo, int n, int numColsVAdj, int numRowsU, 
   float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::BidiagQRAlg");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -667,9 +649,7 @@ void BidiagQRAlg
 ( char uplo, int n, int numColsVAdj, int numRowsU, 
   double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::BidiagQRAlg");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
         return;
 
@@ -699,9 +679,7 @@ void DivideAndConquerSVD
 ( int m, int n, float* A, int lda, 
   float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::DivideAndConquerSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -736,9 +714,7 @@ void DivideAndConquerSVD
 ( int m, int n, double* A, int lda, 
   double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::DivideAndConquerSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -773,9 +749,7 @@ void DivideAndConquerSVD
 ( int m, int n, scomplex* A, int lda, 
   float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::DivideAndConquerSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -813,9 +787,7 @@ void DivideAndConquerSVD
 ( int m, int n, dcomplex* A, int lda, 
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::DivideAndConquerSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -857,9 +829,7 @@ void QRSVD
 ( int m, int n, float* A, int lda, 
   float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::QRSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -892,9 +862,7 @@ void QRSVD
 ( int m, int n, double* A, int lda, 
   double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::QRSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -927,9 +895,7 @@ void QRSVD
 ( int m, int n, scomplex* A, int lda, 
   float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::QRSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -964,9 +930,7 @@ void QRSVD
 ( int m, int n, dcomplex* A, int lda, 
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::QRSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1003,9 +967,7 @@ void QRSVD
 
 void SVD( int m, int n, float* A, int lda, float* s )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1036,9 +998,7 @@ void SVD( int m, int n, float* A, int lda, float* s )
 
 void SVD( int m, int n, double* A, int lda, double* s )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1069,9 +1029,7 @@ void SVD( int m, int n, double* A, int lda, double* s )
 
 void SVD( int m, int n, scomplex* A, int lda, float* s )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1104,9 +1062,7 @@ void SVD( int m, int n, scomplex* A, int lda, float* s )
 
 void SVD( int m, int n, dcomplex* A, int lda, double* s )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
@@ -1143,9 +1099,7 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
 
 void HessenbergEig( int n, float* H, int ldh, scomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
     if( n == 0 )
         return;
 
@@ -1180,9 +1134,7 @@ void HessenbergEig( int n, float* H, int ldh, scomplex* w )
 
 void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
     if( n == 0 )
         return;
 
@@ -1217,9 +1169,7 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
 
 void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
     if( n == 0 )
         return;
 
@@ -1250,9 +1200,7 @@ void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
 
 void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
     if( n == 0 )
         return;
 
@@ -1283,9 +1231,7 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
 
 void HessenbergSchur( int n, float* H, int ldh, float* Q, int ldq, scomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergSchur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
     LogicError("This routine not yet written");
@@ -1294,9 +1240,7 @@ void HessenbergSchur( int n, float* H, int ldh, float* Q, int ldq, scomplex* w )
 void HessenbergSchur
 ( int n, double* H, int ldh, double* Q, int ldq, dcomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergSchur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
     LogicError("This routine not yet written");
@@ -1305,9 +1249,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( int n, scomplex* H, int ldh, scomplex* Q, int ldq, scomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergSchur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
     LogicError("This routine not yet written");
@@ -1316,9 +1258,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( int n, dcomplex* H, int ldh, dcomplex* Q, int ldq, dcomplex* w )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::HessenbergSchur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
     LogicError("This routine not yet written");
@@ -1330,9 +1270,7 @@ void HessenbergSchur
 
 void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
     if( n == 0 )
         return;
 
@@ -1386,9 +1324,7 @@ void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle )
 
 void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
     if( n == 0 )
         return;
 
@@ -1442,9 +1378,7 @@ void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
 
 void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
     if( n == 0 )
         return;
 
@@ -1493,9 +1427,7 @@ void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
 
 void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
     if( n == 0 )
         return;
 
@@ -1545,9 +1477,7 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
 void Schur
 ( int n, float* A, int lda, float* Q, int ldq, scomplex* w, bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1622,9 +1552,7 @@ void Schur
 ( int n, double* A, int lda, double* Q, int ldq, dcomplex* w, 
   bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1699,9 +1627,7 @@ void Schur
 ( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w, 
   bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1771,9 +1697,7 @@ void Schur
 ( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w, 
   bool fullTriangle )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lapack::Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 

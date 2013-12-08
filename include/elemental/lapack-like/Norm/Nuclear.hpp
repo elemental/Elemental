@@ -18,9 +18,7 @@ template<typename F>
 inline BASE(F)
 NuclearNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("NuclearNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("NuclearNorm"))
     return SchattenNorm( A, BASE(F)(1) );
 }
 
@@ -28,9 +26,7 @@ template<typename F>
 inline BASE(F)
 HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianNuclearNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianNuclearNorm"))
     return HermitianSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
@@ -38,9 +34,7 @@ template<typename F>
 inline BASE(F)
 SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricNuclearNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricNuclearNorm"))
     return SymmetricSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
@@ -48,9 +42,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 NuclearNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("NuclearNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("NuclearNorm"))
     return SchattenNorm( A, BASE(F)(1) );
 }
 
@@ -58,9 +50,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianNuclearNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianNuclearNorm"))
     return HermitianSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
@@ -68,9 +58,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricNuclearNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricNuclearNorm"))
     return SymmetricSchattenNorm( uplo, A, BASE(F)(1) );
 }
 

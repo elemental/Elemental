@@ -34,9 +34,7 @@ template<typename F>
 inline void
 QR( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::Householder( A );
 }
 
@@ -44,9 +42,7 @@ template<typename F>
 inline void
 QR( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::Householder( A );
 }
 
@@ -54,9 +50,7 @@ template<typename F>
 inline void
 QR( Matrix<F>& A, Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::Householder( A, t );
 }
 
@@ -64,9 +58,7 @@ template<typename F>
 inline void
 QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::Householder( A, t );
 }
 
@@ -78,9 +70,7 @@ template<typename F>
 inline void
 QR( Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::BusingerGolub( A, p );
 }
 
@@ -88,9 +78,7 @@ template<typename F>
 inline void
 QR( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::BusingerGolub( A, p );
 }
 
@@ -98,9 +86,7 @@ template<typename F>
 inline void
 QR( Matrix<F>& A, Matrix<F>& t, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::BusingerGolub( A, t, p );
 }
 
@@ -108,9 +94,7 @@ template<typename F>
 inline void
 QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Int,VR,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("QR");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::BusingerGolub( A, t, p );
 }
 

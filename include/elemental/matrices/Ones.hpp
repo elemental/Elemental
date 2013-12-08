@@ -16,9 +16,7 @@ template<typename T>
 inline void
 MakeOnes( Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeOnes");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeOnes"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -30,9 +28,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeOnes( DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeOnes");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeOnes"))
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -44,9 +40,7 @@ template<typename T>
 inline void
 Ones( Matrix<T>& A, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Ones");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Ones"))
     A.ResizeTo( m, n );
     MakeOnes( A );
 }
@@ -64,9 +58,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Ones( DistMatrix<T,U,V>& A, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Ones");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Ones"))
     A.ResizeTo( m, n );
     MakeOnes( A );
 }

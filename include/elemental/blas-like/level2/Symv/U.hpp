@@ -29,7 +29,7 @@ LocalSymvColAccumulateU
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::LocalSymvColAccumulateU");
+    CallStackEntry cse("internal::LocalSymvColAccumulateU");
     if( A.Grid() != x_MC_STAR.Grid() ||
         x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
         x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
@@ -140,7 +140,7 @@ LocalSymvRowAccumulateU
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::LocalSymvRowAccumulateU");
+    CallStackEntry cse("internal::LocalSymvRowAccumulateU");
     if( A.Grid() != x_STAR_MC.Grid() ||
         x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
         x_STAR_MR.Grid() != z_STAR_MC.Grid() ||

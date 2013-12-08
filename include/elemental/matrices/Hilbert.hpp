@@ -16,9 +16,7 @@ template<typename F>
 inline void
 MakeHilbert( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeHilbert");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeHilbert"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
@@ -34,9 +32,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 MakeHilbert( DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeHilbert");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeHilbert"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
@@ -64,9 +60,7 @@ template<typename F>
 inline void
 Hilbert( Matrix<F>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hilbert");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.ResizeTo( n, n );
     MakeHilbert( A );
 }
@@ -84,9 +78,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Hilbert( DistMatrix<F,U,V>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hilbert");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.ResizeTo( n, n );
     MakeHilbert( A );
 }

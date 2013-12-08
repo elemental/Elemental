@@ -16,9 +16,7 @@ template<typename R,class RealFunctor>
 inline void
 MakeEgorov( Matrix<Complex<R> >& A, const RealFunctor& phase )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeEgorov");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -37,9 +35,7 @@ template<typename R,Distribution U,Distribution V,class RealFunctor>
 inline void
 MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeEgorov");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const Int colShift = A.ColShift();
@@ -64,9 +60,7 @@ template<typename R,class RealFunctor>
 inline void
 Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Egorov");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.ResizeTo( n, n );
     MakeEgorov( A, phase );
 }
@@ -84,9 +78,7 @@ template<typename R,Distribution U,Distribution V,class RealFunctor>
 inline void
 Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Egorov");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.ResizeTo( n, n );
     MakeEgorov( A, phase );
 }

@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Pei( Matrix<T>& P, Int n, T alpha )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Pei");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Pei"))
     P.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
@@ -40,9 +38,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Pei");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Pei"))
     P.ResizeTo( n, n );
     const Int localHeight = P.LocalHeight();
     const Int localWidth = P.LocalWidth();

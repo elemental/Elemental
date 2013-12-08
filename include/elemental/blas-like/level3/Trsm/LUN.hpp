@@ -27,7 +27,7 @@ TrsmLUNLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLUNLarge");
+    CallStackEntry cse("internal::TrsmLUNLarge");
 #endif
     const Grid& g = U.Grid();
 
@@ -108,7 +108,7 @@ TrsmLUNMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLUNMedium");
+    CallStackEntry cse("internal::TrsmLUNMedium");
 #endif
     const Grid& g = U.Grid();
 
@@ -191,7 +191,7 @@ TrsmLUNSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLUNSmall");
+    CallStackEntry cse("internal::TrsmLUNSmall");
     if( U.Grid() != X.Grid() )
         LogicError("U and X must be distributed over the same grid");
     if( U.Height() != U.Width() || U.Width() != X.Height() )

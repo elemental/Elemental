@@ -24,7 +24,7 @@ TrsvUT
   const DistMatrix<F>& U, DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsvUT");
+    CallStackEntry cse("internal::TrsvUT");
     if( U.Grid() != x.Grid() )
         LogicError("{U,x} must be distributed over the same grid");
     if( orientation == NORMAL )

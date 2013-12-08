@@ -20,7 +20,7 @@ Syr2
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Syr2");
+    CallStackEntry cse("Syr2");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( (x.Width() != 1 && x.Height() != 1) ||
@@ -61,7 +61,7 @@ Syr2
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Syr2");
+    CallStackEntry cse("Syr2");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         LogicError
         ("{A,x,y} must be distributed over the same grid");

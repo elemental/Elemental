@@ -17,9 +17,7 @@ template<typename T>
 inline void
 MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeUniform");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -31,9 +29,7 @@ template<typename T>
 inline void
 Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Uniform");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Uniform"))
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
 }
@@ -350,9 +346,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Uniform");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Uniform"))
     internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
 }
 
@@ -360,9 +354,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Uniform");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Uniform"))
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
 }

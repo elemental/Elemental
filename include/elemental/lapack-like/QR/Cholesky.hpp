@@ -29,9 +29,7 @@ template<typename F>
 inline void
 Cholesky( Matrix<F>& A, Matrix<F>& R )
 {
-#ifndef RELEASE
-    CallStackEntry entry("qr::Cholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::Cholesky"))
     const Int height = A.Height();
     const Int width = A.Width();
     if( height < width )
@@ -45,9 +43,7 @@ template<typename F>
 inline void
 Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
 {
-#ifndef RELEASE
-    CallStackEntry entry("qr::Cholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::Cholesky"))
     const Int height = A.Height();
     const Int width = A.Width();
     if( height < width )

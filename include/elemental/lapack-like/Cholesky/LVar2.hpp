@@ -26,7 +26,7 @@ inline void
 LVar2( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LVar2");
+    CallStackEntry cse("cholesky::LVar2");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
@@ -52,7 +52,7 @@ inline void
 LVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LVar2");
+    CallStackEntry cse("cholesky::LVar2");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif

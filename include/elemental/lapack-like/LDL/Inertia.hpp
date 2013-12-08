@@ -36,15 +36,13 @@ template<typename F>
 inline elem::Inertia
 Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::Inertia");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
+    typedef Base<F> Real;
     const Int n = d.Height();
-#ifndef RELEASE
-    if( n != 0 && dSub.Height() != n-1 )
-        LogicError("dSub was the wrong length");
-#endif
+    DEBUG_ONLY(
+        if( n != 0 && dSub.Height() != n-1 )
+            LogicError("dSub was the wrong length");
+    )
     elem::Inertia inertia;
     inertia.numPositive = inertia.numNegative = inertia.numZero = 0;
 
@@ -82,34 +80,32 @@ Inertia
   const DistMatrix<F,MC,STAR>& dSub, 
   const DistMatrix<F,MC,STAR>& dSubPrev )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ldl::Inertia");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
+    typedef Base<F> Real;
 
     const Int n = d.Height();
-#ifndef RELEASE
-    if( dPrev.Height() != n )
-        LogicError("dPrev was the wrong length");
-    if( n != 0 )
-    {
-        if( dSub.Height() != n-1 || dSubPrev.Height() != n-1 )
-            LogicError("dSub or dSubPrev was wrong length");
-    }
-#endif
+    DEBUG_ONLY(
+        if( dPrev.Height() != n )
+            LogicError("dPrev was the wrong length");
+        if( n != 0 )
+        {
+            if( dSub.Height() != n-1 || dSubPrev.Height() != n-1 )
+                LogicError("dSub or dSubPrev was wrong length");
+        }
+    )
 
     const Int colShift = d.ColShift();
     const Int colStride = d.ColStride();
-#ifndef RELEASE
-    const Int colAlign = d.ColAlign();
-    const Int colAlignPrev = (colAlign+colStride-1) % colStride;
-    if( dSub.ColAlign() != colAlign )
-        LogicError("dSub was improperly aligned");
-    if( dPrev.ColAlign() != colAlignPrev )
-        LogicError("dPrev was improperly aligned");
-    if( dSubPrev.ColAlign() != colAlignPrev )
-        LogicError("dSubPrev was improperly aligned");
-#endif
+    DEBUG_ONLY(
+        const Int colAlign = d.ColAlign();
+        const Int colAlignPrev = (colAlign+colStride-1) % colStride;
+        if( dSub.ColAlign() != colAlign )
+            LogicError("dSub was improperly aligned");
+        if( dPrev.ColAlign() != colAlignPrev )
+            LogicError("dPrev was improperly aligned");
+        if( dSubPrev.ColAlign() != colAlignPrev )
+            LogicError("dSubPrev was improperly aligned");
+    )
 
     // It is best to separate the case where colStride is 1
     if( colStride == 1 )
@@ -162,10 +158,8 @@ template<typename F,Distribution U,Distribution V>
 inline elem::Inertia
 Inertia( const DistMatrix<BASE(F),U,V>& d, const DistMatrix<F,U,V>& dSub )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::Inertia");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
+    typedef Base<F> Real;
     const Grid& g = d.Grid();
     const Int colStride = g.Height();
 

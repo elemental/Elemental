@@ -33,7 +33,7 @@ inline void
 LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalCholesky");
+    CallStackEntry cse("LocalCholesky");
 #endif
     Cholesky( uplo, A.Matrix() );
 }
@@ -43,7 +43,7 @@ inline void
 LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalReverseCholesky");
+    CallStackEntry cse("LocalReverseCholesky");
 #endif
     ReverseCholesky( uplo, A.Matrix() );
 }
@@ -55,7 +55,7 @@ inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Cholesky");
+    CallStackEntry cse("Cholesky");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -70,7 +70,7 @@ inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Cholesky");
+    CallStackEntry cse("Cholesky");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -85,7 +85,7 @@ inline void
 ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ReverseCholesky");
+    CallStackEntry cse("ReverseCholesky");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -100,7 +100,7 @@ inline void
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Cholesky");
+    CallStackEntry cse("Cholesky");
 #endif
     const Grid& g = A.Grid();
     if( g.Height() == g.Width() )
@@ -124,7 +124,7 @@ inline void
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Cholesky");
+    CallStackEntry cse("Cholesky");
 #endif
     if( uplo == LOWER )
         cholesky::LVar3( A, p );
@@ -137,7 +137,7 @@ inline void
 ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ReverseCholesky");
+    CallStackEntry cse("ReverseCholesky");
 #endif
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );
@@ -177,7 +177,7 @@ inline void
 HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HPSDCholesky");
+    CallStackEntry cse("HPSDCholesky");
 #endif
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -199,7 +199,7 @@ inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HPSDCholesky");
+    CallStackEntry cse("HPSDCholesky");
 #endif
     EnsurePMRRR();
 

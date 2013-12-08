@@ -19,13 +19,13 @@ namespace elem {
 inline bool
 PivotParity( const Matrix<Int>& p, Int pivotOffset=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("PivotParity");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( pivotOffset < 0 )
-        LogicError("pivot offset cannot be negative");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("PivotParity");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( pivotOffset < 0 )
+            LogicError("pivot offset cannot be negative");
+    )
     const Int n = p.Height();
     bool isOdd = false;
     for( Int i=0; i<n; ++i )
@@ -37,13 +37,13 @@ PivotParity( const Matrix<Int>& p, Int pivotOffset=0 )
 inline bool
 PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset=0 ) 
 {
-#ifndef RELEASE
-    CallStackEntry entry("PivotParity");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( pivotOffset < 0 )
-        LogicError("pivot offset cannot be negative");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("PivotParity");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( pivotOffset < 0 )
+            LogicError("pivot offset cannot be negative");
+    )
     const Int mLocal = p.LocalHeight();
     const Grid& g = p.Grid();
 

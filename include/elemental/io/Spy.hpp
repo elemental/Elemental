@@ -25,7 +25,7 @@ inline void
 Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Spy");
+    CallStackEntry cse("Spy");
 #endif
 #ifdef HAVE_QT5
     if( GuiDisabled() )
@@ -56,7 +56,7 @@ inline void
 Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Spy");
+    CallStackEntry cse("Spy");
 #endif
 #ifdef HAVE_QT5
     if( GuiDisabled() )
@@ -76,7 +76,7 @@ Spy
 ( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Spy");
+    CallStackEntry cse("Spy");
 #endif
 #ifdef HAVE_QT5
     if( GuiDisabled() )
@@ -93,7 +93,7 @@ Spy
 ( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Spy");
+    CallStackEntry cse("Spy");
 #endif
 #ifdef HAVE_QT5
     if( GuiDisabled() )

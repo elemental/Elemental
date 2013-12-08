@@ -20,11 +20,11 @@ template<typename F>
 inline void
 UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 {
-#ifndef RELEASE
-    CallStackEntry entry("triangular_inverse::UVar3Unb");
-    if( U.Height() != U.Width() )
-        LogicError("Nonsquare matrices cannot be triangular");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("triangular_inverse::UVar3Unb");
+        if( U.Height() != U.Width() )
+            LogicError("Nonsquare matrices cannot be triangular");
+    )
     const Int n = U.Height();
     const Int ldu = U.LDim();
     F* UBuffer = U.Buffer();
@@ -50,11 +50,11 @@ template<typename F>
 inline void
 UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 {
-#ifndef RELEASE
-    CallStackEntry entry("triangular_inverse::UVar3");
-    if( U.Height() != U.Width() )
-        LogicError("Nonsquare matrices cannot be triangular");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("triangular_inverse::UVar3");
+        if( U.Height() != U.Width() )
+            LogicError("Nonsquare matrices cannot be triangular");
+    )
     const Int n = U.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( n, bsize );
@@ -78,11 +78,11 @@ template<typename F>
 inline void
 UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 {
-#ifndef RELEASE
-    CallStackEntry entry("triangular_inverse::UVar3");
-    if( U.Height() != U.Width() )
-        LogicError("Nonsquare matrices cannot be triangular");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("triangular_inverse::UVar3");
+        if( U.Height() != U.Width() )
+            LogicError("Nonsquare matrices cannot be triangular");
+    )
     const Grid& g = U.Grid();
     DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);

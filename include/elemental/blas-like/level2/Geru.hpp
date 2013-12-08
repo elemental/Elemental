@@ -17,7 +17,7 @@ inline void
 Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Geru");
+    CallStackEntry cse("Geru");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         LogicError("x and y must be vectors");
@@ -43,7 +43,7 @@ Geru
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Geru");
+    CallStackEntry cse("Geru");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
        LogicError("{A,x,y} must be distributed over the same grid");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||

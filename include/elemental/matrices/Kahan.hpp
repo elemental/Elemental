@@ -20,10 +20,8 @@ template<typename F>
 inline void
 MakeKahan( Matrix<F>& A, F phi )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeKahan");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
+    typedef Base<F> R;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -48,10 +46,8 @@ template<typename F,Distribution U,Distribution V>
 inline void
 MakeKahan( DistMatrix<F,U,V>& A, F phi )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeKahan");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
+    typedef Base<F> R;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -89,9 +85,7 @@ template<typename F>
 inline void
 Kahan( Matrix<F>& A, Int n, F phi )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Kahan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Kahan"))
     A.ResizeTo( n, n );
     MakeKahan( A, phi );
 }
@@ -109,9 +103,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Kahan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Kahan"))
     A.ResizeTo( n, n );
     MakeKahan( A, phi );
 }

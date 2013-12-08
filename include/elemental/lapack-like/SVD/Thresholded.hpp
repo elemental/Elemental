@@ -16,7 +16,6 @@
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 
-
 // TODO: Use a relative-truncated HermitianEig for relative thresholding
 
 namespace elem {
@@ -27,14 +26,14 @@ inline void
 TallAbsoluteThresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallAbsoluteThresholded");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( tol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::TallAbsoluteThresholded");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( tol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -85,14 +84,14 @@ inline void
 TallRelativeThresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) relTol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallRelativeThresholded");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( relTol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::TallRelativeThresholded");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( relTol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -142,9 +141,7 @@ TallThresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, 
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallThresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
         TallRelativeThresholded( A, s, V, tol );
     else
@@ -157,15 +154,15 @@ TallAbsoluteThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallAbsoluteThresholded");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( tol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::TallAbsoluteThresholded");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( tol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -227,15 +224,15 @@ TallRelativeThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) relTol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallRelativeThresholded");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( relTol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::TallRelativeThresholded");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( relTol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Width();
 
@@ -293,9 +290,7 @@ TallThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallThresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
         TallRelativeThresholded( A, s, V, tol );
     else
@@ -310,15 +305,15 @@ TallAbsoluteThresholded
   DistMatrix<F,STAR,STAR>& V,
   BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallAbsoluteThresholded");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( tol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::TallAbsoluteThresholded");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( tol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -380,15 +375,15 @@ TallRelativeThresholded
   DistMatrix<F,STAR,STAR>& V,
   BASE(F) relTol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallRelativeThresholded");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( relTol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::TallRelativeThresholded");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( relTol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -448,9 +443,7 @@ TallThresholded
   DistMatrix<F,STAR,STAR>& V,
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::TallThresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
         TallRelativeThresholded( A, s, V, tol );
     else
@@ -462,14 +455,14 @@ inline void
 WideAbsoluteThresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::WideAbsoluteThresholded");
-    if( A.Width() < A.Height() )
-        LogicError("A must be at least as wide as it is tall");
-    if( tol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::WideAbsoluteThresholded");
+        if( A.Width() < A.Height() )
+            LogicError("A must be at least as wide as it is tall");
+        if( tol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -520,14 +513,14 @@ inline void
 WideRelativeThresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) relTol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::WideThresholded");
-    if( A.Width() < A.Height() )
-        LogicError("A must be at least as wide as it is tall");
-    if( relTol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::WideThresholded");
+        if( A.Width() < A.Height() )
+            LogicError("A must be at least as wide as it is tall");
+        if( relTol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -577,9 +570,7 @@ WideThresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, 
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::WideThresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
         WideRelativeThresholded( A, s, V, tol );
     else
@@ -592,15 +583,15 @@ WideAbsoluteThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::WideAbsoluteThresholded");
-    if( A.Width() < A.Height() )
-        LogicError("A must be at least as wide as it is tall");
-    if( tol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::WideAbsoluteThresholded");
+        if( A.Width() < A.Height() )
+            LogicError("A must be at least as wide as it is tall");
+        if( tol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -662,15 +653,15 @@ WideRelativeThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) relTol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::WideRelativeThresholded");
-    if( A.Width() < A.Height() )
-        LogicError("A must be at least as wide as it is tall");
-    if( relTol < 0 )
-        LogicError("negative threshold does not make sense");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::WideRelativeThresholded");
+        if( A.Width() < A.Height() )
+            LogicError("A must be at least as wide as it is tall");
+        if( relTol < 0 )
+            LogicError("negative threshold does not make sense");
+    )
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
 
@@ -728,9 +719,7 @@ WideThresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::WideThresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
         WideRelativeThresholded( A, s, V, tol );
     else
@@ -746,9 +735,7 @@ Thresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, 
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::Thresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )
         TallThresholded( A, s, V, tol, relative );
     else
@@ -761,9 +748,7 @@ Thresholded
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   BASE(F) tol=0, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::Thresholded");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     EnsurePMRRR();
     if( A.Height() >= A.Width() )
         TallThresholded( A, s, V, tol, relative );

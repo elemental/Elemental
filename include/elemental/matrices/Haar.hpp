@@ -19,9 +19,7 @@ template<typename F>
 inline void
 Haar( Matrix<F>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Haar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -41,9 +39,7 @@ template<typename F>
 inline void
 ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ImplicitHaar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ImplicitHaar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -54,9 +50,7 @@ template<typename F>
 inline void
 Haar( DistMatrix<F>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Haar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
@@ -76,9 +70,7 @@ template<typename F>
 inline void
 ImplicitHaar( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Haar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );

@@ -23,18 +23,16 @@ template<typename F>
 inline void
 PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lq::PanelHouseholder");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     Matrix<F> z, aTopRowConj;
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-#ifndef RELEASE
-    if( t.Height() != minDim || t.Width() != 1 )
-        LogicError("t must be a vector of length minDim(A)");
-#endif
+    DEBUG_ONLY(
+        if( t.Height() != minDim || t.Width() != 1 )
+            LogicError("t must be a vector of length minDim(A)");
+    )
     for( Int k=0; k<minDim; ++k )
     {
         auto alpha11    = ViewRange( A, k,   k,   k+1, k+1 );
@@ -61,9 +59,7 @@ template<typename F>
 inline void
 PanelHouseholder( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lq::PanelHouseholder");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     Matrix<F> t;
     PanelHouseholder( A, t );
 }
@@ -72,13 +68,13 @@ template<typename F>
 inline void
 PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lq::PanelHouseholder");
-    if( A.Grid() != t.Grid() )
-        LogicError("{A,t} must be distributed over the same grid");
-    if( !t.AlignedWithDiagonal( A, 0 ) )
-        LogicError("t must be aligned with A's main diagonal");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("lq::PanelHouseholder");
+        if( A.Grid() != t.Grid() )
+            LogicError("{A,t} must be distributed over the same grid");
+        if( !t.AlignedWithDiagonal( A, 0 ) )
+            LogicError("t must be aligned with A's main diagonal");
+    )
     const Grid& g = A.Grid();
     DistMatrix<F> aTopRowConj(g);
     DistMatrix<F,STAR,MR  > aTopRowConj_STAR_MR(g);
@@ -87,10 +83,10 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-#ifndef RELEASE
-    if( t.Height() != minDim || t.Width() != 1 )
-        LogicError("t must be a vector of length minDim(A)");
-#endif
+    DEBUG_ONLY(
+        if( t.Height() != minDim || t.Width() != 1 )
+            LogicError("t must be a vector of length minDim(A)");
+    )
     for( Int k=0; k<minDim; ++k )
     {
         auto alpha11    = ViewRange( A, k,   k,   k+1, k+1 );
@@ -133,9 +129,7 @@ template<typename F>
 inline void
 PanelHouseholder( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lq::PanelHouseholder");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
     PanelHouseholder( A, t );
 }

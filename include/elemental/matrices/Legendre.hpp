@@ -18,9 +18,7 @@ template<typename F>
 inline void
 MakeLegendre( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeLegendre");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     MakeZeros( A );
@@ -39,9 +37,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 MakeLegendre( DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeLegendre");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     MakeZeros( A );
@@ -73,9 +69,7 @@ template<typename F>
 inline void
 Legendre( Matrix<F>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Legendre");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.ResizeTo( n, n );
     MakeLegendre( A );
 }
@@ -93,9 +87,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Legendre( DistMatrix<F,U,V>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Legendre");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.ResizeTo( n, n );
     MakeLegendre( A );
 }

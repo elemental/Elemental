@@ -21,9 +21,7 @@ template<typename F>
 inline void
 Explicit( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("lq::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     Matrix<F> t;
     LQ( A, t );
 
@@ -38,9 +36,7 @@ template<typename F>
 inline void
 Explicit( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("lq::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t( g );
     LQ( A, t );
@@ -57,9 +53,7 @@ template<typename F>
 inline void
 Explicit( Matrix<F>& L, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("lq::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     Matrix<F> t;
     LQ( A, t );
     L = A;
@@ -76,9 +70,7 @@ template<typename F>
 inline void
 Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("lq::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t( g );
     LQ( A, t );

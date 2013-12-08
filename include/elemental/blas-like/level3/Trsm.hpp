@@ -24,7 +24,7 @@ LocalTrsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrsm");
+    CallStackEntry cse("LocalTrsm");
     if( (side == LEFT && XColDist != STAR) ||
         (side == RIGHT && XRowDist != STAR) )
         LogicError("Distribution of RHS must conform with that of triangle");
@@ -56,7 +56,7 @@ Trsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trsm");
+    CallStackEntry cse("Trsm");
     if( A.Height() != A.Width() )
         LogicError("Triangular matrix must be square");
     if( side == LEFT )
@@ -95,7 +95,7 @@ Trsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trsm");
+    CallStackEntry cse("Trsm");
     if( A.Grid() != B.Grid() )
         LogicError("A and B must use the same grid");
     if( A.Height() != A.Width() )

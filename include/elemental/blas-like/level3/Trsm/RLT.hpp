@@ -28,7 +28,7 @@ TrsmRLT
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmRLT");
+    CallStackEntry cse("internal::TrsmRLT");
     if( orientation == NORMAL )
         LogicError("TrsmRLT expects a (Conjugate)Transpose option");
 #endif

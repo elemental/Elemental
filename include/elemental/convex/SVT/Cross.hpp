@@ -24,7 +24,7 @@ inline Int
 Cross( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::Cross");
+    CallStackEntry cse("svt::Cross");
 #endif
     typedef Base<F> Real;
     Matrix<F> U( A );
@@ -44,7 +44,7 @@ inline Int
 Cross( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::Cross");
+    CallStackEntry cse("svt::Cross");
 #endif
     typedef Base<F> Real;
     DistMatrix<F> U( A );
@@ -64,7 +64,7 @@ inline Int
 TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("svt::TallCross");
+    CallStackEntry cse("svt::TallCross");
 #endif
     typedef Base<F> Real;
     DistMatrix<F,VC,STAR> U( A );

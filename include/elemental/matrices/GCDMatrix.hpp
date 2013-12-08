@@ -16,9 +16,7 @@ template<typename T>
 inline void
 MakeGCDMatrix( Matrix<T>& G )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeGCDMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
     const Int m = G.Height();
     const Int n = G.Width();
     for( Int j=0; j<n; ++j )
@@ -30,9 +28,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeGCDMatrix( DistMatrix<T,U,V>& G )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeGCDMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
     const Int localHeight = G.LocalHeight();
     const Int localWidth = G.LocalWidth();
     const Int colShift = G.ColShift();
@@ -54,9 +50,7 @@ template<typename T>
 inline void
 GCDMatrix( Matrix<T>& G, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("GCDMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.ResizeTo( m, n );
     MakeGCDMatrix( G );
 }
@@ -74,9 +68,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("GCDMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.ResizeTo( m, n );
     MakeGCDMatrix( G );
 }

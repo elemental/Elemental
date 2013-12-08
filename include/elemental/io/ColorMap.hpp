@@ -17,7 +17,7 @@ inline QRgb
 SampleColorMap( double value, double minVal, double maxVal )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SampleColorMap");
+    CallStackEntry cse("SampleColorMap");
 #endif
     const double percent = (value-minVal) / (maxVal-minVal);
     const ColorMap colorMap = GetColorMap();

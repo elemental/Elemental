@@ -17,7 +17,7 @@ inline void
 AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyTriangle");
+    CallStackEntry cse("AxpyTriangle");
     if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
         X.Height() != Y.Height() )
         LogicError("Nonconformal AxpyTriangle");
@@ -50,7 +50,7 @@ AxpyTriangle
 ( UpperOrLower uplo, T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyTriangle");
+    CallStackEntry cse("AxpyTriangle");
     if( X.Grid() != Y.Grid() )
         LogicError
         ("X and Y must be distributed over the same grid");

@@ -31,9 +31,7 @@ inline void
 NewtonStep
 ( const Matrix<F>& A, const Matrix<F>& X, Matrix<F>& XNew, Matrix<F>& XTmp )
 {
-#ifndef RELEASE
-    CallStackEntry entry("square_root::NewtonStep");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
     Matrix<Int> p;
@@ -42,7 +40,7 @@ NewtonStep
     lu::SolveAfter( NORMAL, XTmp, p, XNew );
 
     // XNew := 1/2 ( X + XNew )
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Axpy( R(1)/R(2), X, XNew );
 }
 
@@ -52,9 +50,7 @@ NewtonStep
 ( const DistMatrix<F>& A, const DistMatrix<F>& X, 
   DistMatrix<F>& XNew, DistMatrix<F>& XTmp )
 {
-#ifndef RELEASE
-    CallStackEntry entry("square_root::NewtonStep");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
     Matrix<Int> p;
@@ -63,7 +59,7 @@ NewtonStep
     lu::SolveAfter( NORMAL, XTmp, p, XNew );
 
     // XNew := 1/2 ( X + XNew )
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Axpy( R(1)/R(2), X, XNew );
 }
 
@@ -71,10 +67,8 @@ template<typename F>
 inline int
 Newton( Matrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("square_root::Newton");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
+    typedef Base<F> R;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
 
@@ -106,10 +100,8 @@ template<typename F>
 inline int
 Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("square_root::Newton");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
+    typedef Base<F> R;
     DistMatrix<F> B(A), C(A.Grid()), XTmp(A.Grid());
     DistMatrix<F> *X=&B, *XNew=&C;
 
@@ -143,9 +135,7 @@ template<typename F>
 inline void
 SquareRoot( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SquareRoot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A );
 }
 
@@ -153,9 +143,7 @@ template<typename F>
 inline void
 SquareRoot( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SquareRoot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A );
 }
 
@@ -167,10 +155,8 @@ template<typename F>
 inline void
 HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HPSDSquareRoot");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
+    typedef Base<F> R;
 
     // Get the EVD of A
     Matrix<R> w;
@@ -215,11 +201,9 @@ template<typename F>
 inline void
 HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HPSDSquareRoot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef Base<F> R;
 
     // Get the EVD of A
     const Grid& g = A.Grid();

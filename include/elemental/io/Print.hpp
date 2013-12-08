@@ -17,7 +17,7 @@ inline void
 Print( const Matrix<T>& A, std::string title="", std::ostream& os=std::cout )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Print");
+    CallStackEntry cse("Print");
 #endif
     if( title != "" )
         os << title << std::endl;
@@ -39,7 +39,7 @@ Print
 ( const DistMatrix<T,U,V>& A, std::string title="", std::ostream& os=std::cout )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Print"); 
+    CallStackEntry cse("Print"); 
 #endif
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A.Grid().VCRank() == A_CIRC_CIRC.Root() )
@@ -54,7 +54,7 @@ Print
   std::ostream& os=std::cout )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Print"); 
+    CallStackEntry cse("Print"); 
 #endif
     if( A.Grid().VCRank() == 0 )
         Print( A.LockedMatrix(), title, os );
@@ -66,7 +66,7 @@ Print
   std::ostream& os=std::cout )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Print"); 
+    CallStackEntry cse("Print"); 
 #endif
     if( A.Grid().VCRank() == A.Root() )
         Print( A.LockedMatrix(), title, os );

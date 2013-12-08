@@ -22,7 +22,7 @@ inline bool
 AxpyInterface<T>::Finished()
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::Finished");
+    CallStackEntry cse("AxpyInterface::Finished");
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         LogicError("Not attached");
 #endif
@@ -48,7 +48,7 @@ inline void
 AxpyInterface<T>::HandleEoms()
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::HandleEoms");
+    CallStackEntry cse("AxpyInterface::HandleEoms");
 #endif
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
@@ -114,7 +114,7 @@ inline void
 AxpyInterface<T>::HandleLocalToGlobalData()
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::HandleLocalToGlobalData");
+    CallStackEntry cse("AxpyInterface::HandleLocalToGlobalData");
 #endif
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     const Grid& g = Y.Grid();
@@ -221,7 +221,7 @@ inline void
 AxpyInterface<T>::HandleGlobalToLocalRequest()
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::HandleGlobalToLocalRequest");
+    CallStackEntry cse("AxpyInterface::HandleGlobalToLocalRequest");
 #endif
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
     const Grid& g = X.Grid();
@@ -303,7 +303,7 @@ inline
 AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::AxpyInterface");
+    CallStackEntry cse("AxpyInterface::AxpyInterface");
 #endif
     if( type == LOCAL_TO_GLOBAL )
     {
@@ -345,7 +345,7 @@ AxpyInterface<T>::AxpyInterface
 ( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::AxpyInterface");
+    CallStackEntry cse("AxpyInterface::AxpyInterface");
 #endif
     if( type == LOCAL_TO_GLOBAL )
     {
@@ -414,7 +414,7 @@ inline void
 AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::Attach");
+    CallStackEntry cse("AxpyInterface::Attach");
 #endif
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         LogicError("Must detach before reattaching.");
@@ -454,7 +454,7 @@ inline void
 AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::Attach");
+    CallStackEntry cse("AxpyInterface::Attach");
 #endif
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         LogicError("Must detach before reattaching.");
@@ -493,7 +493,7 @@ inline void
 AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::Axpy");
+    CallStackEntry cse("AxpyInterface::Axpy");
 #endif
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
@@ -508,7 +508,7 @@ inline void
 AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::Axpy");
+    CallStackEntry cse("AxpyInterface::Axpy");
 #endif
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
@@ -525,7 +525,7 @@ AxpyInterface<T>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, Int i, Int j )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::AxpyLocalToGlobal");
+    CallStackEntry cse("AxpyInterface::AxpyLocalToGlobal");
 #endif
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     if( i < 0 || j < 0 )
@@ -609,7 +609,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
 ( T alpha, Matrix<T>& Y, Int i, Int j )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::AxpyGlobalToLocal");
+    CallStackEntry cse("AxpyInterface::AxpyGlobalToLocal");
 #endif
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
 
@@ -705,7 +705,7 @@ AxpyInterface<T>::ReadyForSend
   std::deque<bool>& requestStatuses )
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::ReadyForSend");
+    CallStackEntry cse("AxpyInterface::ReadyForSend");
 #endif
     const Int numCreated = sendVectors.size();
 #ifndef RELEASE
@@ -743,7 +743,7 @@ inline void
 AxpyInterface<T>::UpdateRequestStatuses()
 {
 #ifndef RELEASE
-    CallStackEntry entry("AxpyInterface::UpdateRequestStatuses");
+    CallStackEntry cse("AxpyInterface::UpdateRequestStatuses");
 #endif
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
@@ -775,7 +775,7 @@ inline void
 AxpyInterface<T>::Detach()
 {
 #ifndef RELEASE    
-    CallStackEntry entry("AxpyInterface::Detach");
+    CallStackEntry cse("AxpyInterface::Detach");
 #endif
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         LogicError("Must attach before detaching.");

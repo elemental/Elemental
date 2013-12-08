@@ -51,9 +51,7 @@ template<typename F,Distribution U>
 inline void
 Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 {
-#ifndef RELEASE
-    CallStackEntry cse("qr::ts::Reduce");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::ts::Reduce"))
     const Int m =  A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
@@ -172,9 +170,7 @@ template<typename F,Distribution U>
 inline void
 Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 {
-#ifndef RELEASE
-    CallStackEntry cse("qr::ts::Scatter");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::ts::Scatter"))
     const Int m =  A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();

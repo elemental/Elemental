@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Circulant( Matrix<T>& A, const std::vector<T>& a )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Circulant");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -39,9 +37,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Circulant");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.ResizeTo( n, n );
 

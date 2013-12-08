@@ -19,11 +19,11 @@ inline F
 SoftThreshold( F alpha, BASE(F) tau )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SoftThreshold");
+    CallStackEntry cse("SoftThreshold");
     if( tau < 0 )
         LogicError("Negative threshold does not make sense");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const R scale = Abs(alpha);
     return ( scale <= tau ? F(0) : alpha-(alpha/scale)*tau );
 }
@@ -33,7 +33,7 @@ inline void
 SoftThreshold( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SoftThreshold");
+    CallStackEntry cse("SoftThreshold");
 #endif
     typedef Base<F> Real;
     if( relative )
@@ -53,7 +53,7 @@ inline void
 SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SoftThreshold");
+    CallStackEntry cse("SoftThreshold");
 #endif
     typedef Base<F> Real;
     if( relative )

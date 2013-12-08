@@ -27,7 +27,7 @@ GemvN
   T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemvN");
+    CallStackEntry cse("internal::GemvN");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         LogicError("{A,x,y} must be distributed over the same grid");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
@@ -126,7 +126,7 @@ GemvN
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemvN");
+    CallStackEntry cse("internal::GemvN");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         LogicError("{A,x,y} must be distributed over the same grid");
     if( x.Width() != 1 || y.Width() != 1 )

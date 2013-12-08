@@ -19,7 +19,7 @@ inline void
 UpdateDiagonal( Matrix<T>& A, T alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UpdateDiagonal");
+    CallStackEntry cse("UpdateDiagonal");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -33,7 +33,7 @@ inline void
 UpdateDiagonal( Matrix<T>& A, T alpha, Int offset, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UpdateDiagonal");
+    CallStackEntry cse("UpdateDiagonal");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -62,7 +62,7 @@ inline void
 UpdateDiagonal( DistMatrix<T,U,V>& A, T alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UpdateDiagonal");
+    CallStackEntry cse("UpdateDiagonal");
 #endif
     const Int height = A.Height();
     const Int rowShift = A.RowShift();
@@ -87,7 +87,7 @@ UpdateDiagonal
 ( DistMatrix<T,U,V>& A, T alpha, Int offset, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UpdateDiagonal");
+    CallStackEntry cse("UpdateDiagonal");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();

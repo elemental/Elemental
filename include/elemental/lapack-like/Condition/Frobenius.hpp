@@ -20,9 +20,9 @@ inline BASE(F)
 FrobeniusCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("FrobeniusCondition");
+    CallStackEntry cse("FrobeniusCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     Matrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );
     try { Inverse( B ); }
@@ -37,9 +37,9 @@ inline BASE(F)
 FrobeniusCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("FrobeniusCondition");
+    CallStackEntry cse("FrobeniusCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );
     try { Inverse( B ); }

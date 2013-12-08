@@ -25,9 +25,7 @@ HermitianFromEVD
   const Matrix<BASE(F)>& w,
   const Matrix<F>& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianFromEVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
     Matrix<F> Z1Copy, Y1;
 
     const Int m = Z.Height();
@@ -70,11 +68,9 @@ HermitianFromEVD
   const DistMatrix<BASE(F),VR,STAR>& w,
   const DistMatrix<F>& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianFromEVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
     const Grid& g = A.Grid();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     DistMatrix<F,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<F,VR,  STAR> Z1_VR_STAR(g);

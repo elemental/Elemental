@@ -17,9 +17,7 @@ template<typename F>
 inline void
 QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool formATR=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::qr");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     lapack::Eig( n, A.Buffer(), A.LDim(), w.Buffer(), formATR );
@@ -30,9 +28,7 @@ inline void
 QR
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, bool formATR=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::qr");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
     Q.ResizeTo( n, n );
     w.ResizeTo( n, 1 );

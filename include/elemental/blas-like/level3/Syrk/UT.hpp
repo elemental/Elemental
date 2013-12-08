@@ -22,7 +22,7 @@ SyrkUT
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::SyrkUT");
+    CallStackEntry cse("internal::SyrkUT");
     if( A.Grid() != C.Grid() )
         LogicError("A and C must be distributed over the same grid");
     if( A.Width() != C.Height() || A.Width() != C.Width() )

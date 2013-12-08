@@ -31,9 +31,7 @@ template<typename F>
 inline void
 LQ( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LQ"))
     Matrix<F> t;
     lq::Householder( A, t );
 }
@@ -42,9 +40,7 @@ template<typename F>
 inline void
 LQ( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LQ"))
     DistMatrix<F,MD,STAR> t(A.Grid());
     lq::Householder( A, t );
 }
@@ -53,9 +49,7 @@ template<typename F>
 inline void
 LQ( Matrix<F>& A, Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LQ"))
     lq::Householder( A, t );
 }
 
@@ -63,11 +57,11 @@ template<typename F>
 inline void
 LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LQ");
-    if( A.Grid() != t.Grid() )
-        LogicError("{A,t} must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LQ");
+        if( A.Grid() != t.Grid() )
+            LogicError("{A,t} must be distributed over the same grid");
+    )
     lq::Householder( A, t );
 }
 

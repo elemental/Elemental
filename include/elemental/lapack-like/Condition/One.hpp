@@ -20,9 +20,9 @@ inline BASE(F)
 OneCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("OneCondition");
+    CallStackEntry cse("OneCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     Matrix<F> B( A );
     const Real oneNorm = OneNorm( B );
     try { Inverse( B ); }
@@ -37,9 +37,9 @@ inline BASE(F)
 OneCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("OneCondition");
+    CallStackEntry cse("OneCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real oneNorm = OneNorm( B );
     try { Inverse( B ); }

@@ -28,10 +28,8 @@ inline void
 GolubReinschUpper
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::GolubReinschUpper");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -107,10 +105,8 @@ inline void
 GolubReinschUpper_FLA
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::GolubReinschUpper_FLA");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper_FLA"))
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
@@ -177,9 +173,7 @@ inline void
 GolubReinschUpper
 ( DistMatrix<double>& A, DistMatrix<double,VR,STAR>& s, DistMatrix<double>& V )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::GolubReinschUpper");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
     GolubReinschUpper_FLA( A, s, V );
 }
 
@@ -189,9 +183,7 @@ GolubReinschUpper
 ( DistMatrix<Complex<double> >& A, 
   DistMatrix<double,VR,STAR>& s, DistMatrix<Complex<double> >& V )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::GolubReinschUpper");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
     GolubReinschUpper_FLA( A, s, V );
 }
 #endif // HAVE_FLA_BSVD
@@ -202,10 +194,8 @@ GolubReinschUpper
 ( DistMatrix<F>& A,
   DistMatrix<BASE(F),VR,STAR>& s )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::GolubReinschUpper");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );

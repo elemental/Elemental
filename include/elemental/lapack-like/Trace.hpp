@@ -15,9 +15,7 @@ namespace elem {
 template<typename F>
 inline F Trace( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Trace");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
 
@@ -33,9 +31,7 @@ inline F Trace( const Matrix<F>& A )
 template<typename F> 
 inline F Trace( const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Trace");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
     const Grid& g = A.Grid();

@@ -20,7 +20,7 @@ ApplySymmetricPivots
 ( UpperOrLower uplo, Matrix<F>& A, const Matrix<Int>& p, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplySymmetricPivots");
+    CallStackEntry cse("ApplySymmetricPivots");
     if( p.Width() != 1 )
         LogicError("p must be a column vector");
     if( p.Height() > A.Width() )
@@ -41,7 +41,7 @@ ApplySymmetricPivots
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplySymmetricPivots");
+    CallStackEntry cse("ApplySymmetricPivots");
     if( p.Width() != 1 )
         LogicError("p must be a column vector");
     if( p.Height() > A.Width() )

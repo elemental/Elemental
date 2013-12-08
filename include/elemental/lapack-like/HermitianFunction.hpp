@@ -27,11 +27,11 @@ RealHermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, RealFunction func )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RealHermitianFunction");
+    CallStackEntry cse("RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef BASE(F) R;
+    typedef Base<F> R;
 
     // Get the EVD of A
     Matrix<R> w;
@@ -56,12 +56,12 @@ RealHermitianFunction
 ( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RealHermitianFunction");
+    CallStackEntry cse("RealHermitianFunction");
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef BASE(F) R;
+    typedef Base<F> R;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -94,7 +94,7 @@ ComplexHermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<R> >& A, Function func )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexHermitianFunction");
+    CallStackEntry cse("ComplexHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
@@ -124,7 +124,7 @@ ComplexHermitianFunction
 ( UpperOrLower uplo, DistMatrix<Complex<R> >& A, Function func )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexHermitianFunction");
+    CallStackEntry cse("ComplexHermitianFunction");
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() )

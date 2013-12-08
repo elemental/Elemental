@@ -23,7 +23,7 @@ inline BASE(F)
 Condition( const Matrix<F>& A, NormType type=TWO_NORM )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Condition");
+    CallStackEntry cse("Condition");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -54,7 +54,7 @@ inline BASE(F)
 Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Condition");
+    CallStackEntry cse("Condition");
 #endif
     BASE(F) norm = 0;
     switch( type )

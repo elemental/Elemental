@@ -19,7 +19,7 @@ inline void
 ApplyRowPivots( Matrix<F>& A, const Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyRowPivots");
+    CallStackEntry cse("ApplyRowPivots");
     if( p.Width() != 1 )
         LogicError("p must be a column vector");
     if( p.Height() > A.Height() )
@@ -51,7 +51,7 @@ inline void
 ApplyInverseRowPivots( Matrix<F>& A, const Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyInverseRowPivots");
+    CallStackEntry cse("ApplyInverseRowPivots");
     if( p.Width() != 1 )
         LogicError("p must be a column vector");
     if( p.Height() > A.Height() )
@@ -83,7 +83,7 @@ inline void
 ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyRowPivots");
+    CallStackEntry cse("ApplyRowPivots");
 #endif
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ApplyRowPivots( A, p_STAR_STAR );
@@ -95,7 +95,7 @@ ApplyInverseRowPivots
 ( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyInverseRowPivots");
+    CallStackEntry cse("ApplyInverseRowPivots");
 #endif
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ApplyInverseRowPivots( A, p_STAR_STAR );
@@ -106,7 +106,7 @@ inline void
 ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyRowPivots");
+    CallStackEntry cse("ApplyRowPivots");
 #endif
     std::vector<Int> image, preimage;
     ComposePivots( p, image, preimage );
@@ -119,7 +119,7 @@ ApplyInverseRowPivots
 ( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyInverseRowPivots");
+    CallStackEntry cse("ApplyInverseRowPivots");
 #endif
     std::vector<Int> image, preimage;
     ComposePivots( p, image, preimage );
@@ -135,7 +135,7 @@ ApplyRowPivots
 {
     const Int b = image.size();
 #ifndef RELEASE
-    CallStackEntry entry("ApplyRowPivots");
+    CallStackEntry cse("ApplyRowPivots");
     if( A.Height() < b || b != (int)preimage.size() )
         LogicError
         ("image and preimage must be vectors of equal length that are not "
@@ -188,7 +188,7 @@ ApplyRowPivots
 {
     const Int b = image.size();
 #ifndef RELEASE
-    CallStackEntry entry("ApplyRowPivots");
+    CallStackEntry cse("ApplyRowPivots");
     if( A.Height() < b || b != (int)preimage.size() )
         LogicError
         ("image and preimage must be vectors of equal length that are not "

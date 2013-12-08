@@ -21,7 +21,7 @@ inline void LocalGer
                  DistMatrix<T,AColDist,ARowDist>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalGer");
+    CallStackEntry cse("LocalGer");
     // TODO: Add error checking here
 #endif
     Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
@@ -32,7 +32,7 @@ inline void
 Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Ger");
+    CallStackEntry cse("Ger");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         LogicError("x and y must be vectors");
@@ -70,7 +70,7 @@ Ger
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Ger");
+    CallStackEntry cse("Ger");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         LogicError
         ("{A,x,y} must be distributed over the same grid");

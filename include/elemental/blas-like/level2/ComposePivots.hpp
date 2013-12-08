@@ -23,7 +23,7 @@ ComposePivots
   std::vector<Int>& image, std::vector<Int>& preimage )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComposePivots");
+    CallStackEntry cse("ComposePivots");
     if( p.Width() != 1 )
         LogicError("p must be a column vector");
 #endif
@@ -62,7 +62,7 @@ ComposePivots
   std::vector<Int>& image, std::vector<Int>& preimage )
 {
 #ifndef RELEASE    
-    CallStackEntry entry("ComposePivots");
+    CallStackEntry cse("ComposePivots");
 #endif
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ComposePivots( p_STAR_STAR, image, preimage );
@@ -84,7 +84,7 @@ ComposePivots
   std::vector<Int>& image, std::vector<Int>& preimage )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComposePivots");
+    CallStackEntry cse("ComposePivots");
     if( p.Width() != 1 )
         LogicError("p must be a column vector");
     if( pivotOffset < 0 )

@@ -22,7 +22,7 @@ inline void
 TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsvUN");
+    CallStackEntry cse("internal::TrsvUN");
     if( U.Grid() != x.Grid() )
         LogicError("{U,x} must be distributed over the same grid");
     if( U.Height() != U.Width() )

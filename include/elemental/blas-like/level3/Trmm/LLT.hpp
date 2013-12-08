@@ -33,7 +33,7 @@ LocalTrmmAccumulateLLT
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::LocalTrmmAccumulateLLT");
+    CallStackEntry cse("internal::LocalTrmmAccumulateLLT");
     if( L.Grid() != X_MC_STAR.Grid() ||
         X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
         LogicError("{L,X,Z} must be distributed over the same grid");
@@ -149,7 +149,7 @@ TrmmLLTA
         DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmLLTA");
+    CallStackEntry cse("internal::TrmmLLTA");
     if( L.Grid() != X.Grid() )
         LogicError("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
@@ -214,7 +214,7 @@ TrmmLLTCOld
         DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmLLTCOld");
+    CallStackEntry cse("internal::TrmmLLTCOld");
     if( L.Grid() != X.Grid() )
         LogicError("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
@@ -314,7 +314,7 @@ TrmmLLTC
         DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmLLTC");
+    CallStackEntry cse("internal::TrmmLLTC");
     if( L.Grid() != X.Grid() )
         LogicError("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
@@ -413,7 +413,7 @@ TrmmLLT
         DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmLLT");
+    CallStackEntry cse("internal::TrmmLLT");
 #endif
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )

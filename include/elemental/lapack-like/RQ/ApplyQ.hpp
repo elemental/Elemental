@@ -21,9 +21,7 @@ ApplyQ
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("rq::ApplyQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -39,9 +37,7 @@ ApplyQ
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("rq::ApplyQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -57,9 +53,7 @@ ApplyQ
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("rq::ApplyQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const Int offset = A.Width()-A.Height();
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );

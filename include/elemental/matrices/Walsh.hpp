@@ -16,9 +16,7 @@ template<typename T>
 inline void
 MakeWalsh( Matrix<T>& A, Int k, bool binary=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeWalsh");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeWalsh"))
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
 
@@ -61,9 +59,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeWalsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeWalsh");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeWalsh"))
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
 
@@ -113,9 +109,7 @@ template<typename T>
 inline void
 Walsh( Matrix<T>& A, Int k, bool binary=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Walsh");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Walsh"))
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -136,9 +130,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Walsh");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Walsh"))
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;

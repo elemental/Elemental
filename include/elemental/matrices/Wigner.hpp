@@ -19,9 +19,7 @@ template<typename T>
 inline void
 Wigner( Matrix<T>& A, Int n, T mean=0, BASE(T) stddev=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Wigner");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }
@@ -39,9 +37,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, BASE(T) stddev=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Wigner");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }

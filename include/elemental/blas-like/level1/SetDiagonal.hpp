@@ -17,7 +17,7 @@ inline void
 SetDiagonal( Matrix<T>& A, T alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SetDiagonal");
+    CallStackEntry cse("SetDiagonal");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -31,7 +31,7 @@ inline void
 SetDiagonal( Matrix<T>& A, T alpha, Int offset, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SetDiagonal");
+    CallStackEntry cse("SetDiagonal");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -60,7 +60,7 @@ inline void
 SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SetDiagonal");
+    CallStackEntry cse("SetDiagonal");
 #endif
     const Int height = A.Height();
     const Int rowShift = A.RowShift();
@@ -85,7 +85,7 @@ SetDiagonal
 ( DistMatrix<T,U,V>& A, T alpha, Int offset, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SetDiagonal");
+    CallStackEntry cse("SetDiagonal");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();

@@ -20,13 +20,11 @@ template<typename F>
 inline BASE(F)
 KyFanNorm( const Matrix<F>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry entry("KyFanNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("KyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -41,13 +39,11 @@ template<typename F>
 inline BASE(F)
 HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianKyFanNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
@@ -62,13 +58,11 @@ template<typename F>
 inline BASE(F)
 SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricKyFanNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -84,13 +78,11 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry entry("KyFanNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("KyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -108,13 +100,11 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianKyFanNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -132,13 +122,11 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricKyFanNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

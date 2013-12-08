@@ -27,7 +27,7 @@ PartitionUp
         M& AB, Int heightAB )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionUp [Matrix]");
+    CallStackEntry cse("PartitionUp [Matrix]");
 #endif
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
@@ -39,7 +39,7 @@ PartitionUp
          DM& AB, Int heightAB )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionUp [DistMatrix]");
+    CallStackEntry cse("PartitionUp [DistMatrix]");
 #endif
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
@@ -51,7 +51,7 @@ LockedPartitionUp
               M& AB, Int heightAB )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionUp [Matrix]");
+    CallStackEntry cse("LockedPartitionUp [Matrix]");
 #endif
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
@@ -63,7 +63,7 @@ LockedPartitionUp
                DM& AB, Int heightAB )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionUp [DistMatrix]");
+    CallStackEntry cse("LockedPartitionUp [DistMatrix]");
 #endif
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
@@ -79,7 +79,7 @@ PartitionDown
         M& AB, Int heightAT ) 
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionDown [Matrix]");
+    CallStackEntry cse("PartitionDown [Matrix]");
 #endif
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
@@ -94,7 +94,7 @@ PartitionDown
          DM& AB, Int heightAT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionDown [DistMatrix]");
+    CallStackEntry cse("PartitionDown [DistMatrix]");
 #endif
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
@@ -109,7 +109,7 @@ LockedPartitionDown
               M& AB, Int heightAT ) 
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionDown [Matrix]");
+    CallStackEntry cse("LockedPartitionDown [Matrix]");
 #endif
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
@@ -124,7 +124,7 @@ LockedPartitionDown
                DM& AB, Int heightAT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionDown [DistMatrix]");
+    CallStackEntry cse("LockedPartitionDown [DistMatrix]");
 #endif
     heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
@@ -141,7 +141,7 @@ inline void
 PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionLeft [Matrix]");
+    CallStackEntry cse("PartitionLeft [Matrix]");
 #endif
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
@@ -151,7 +151,7 @@ inline void
 PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionLeft [DistMatrix]");
+    CallStackEntry cse("PartitionLeft [DistMatrix]");
 #endif
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
@@ -161,7 +161,7 @@ inline void
 LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionLeft [Matrix]");
+    CallStackEntry cse("LockedPartitionLeft [Matrix]");
 #endif
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
@@ -171,7 +171,7 @@ inline void
 LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionLeft [DistMatrix]");
+    CallStackEntry cse("LockedPartitionLeft [DistMatrix]");
 #endif
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
@@ -185,7 +185,7 @@ inline void
 PartitionRight( M& A, M& AL, M& AR, Int widthAL )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionRight [Matrix]");
+    CallStackEntry cse("PartitionRight [Matrix]");
 #endif
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
@@ -198,7 +198,7 @@ inline void
 PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionRight [DistMatrix]");
+    CallStackEntry cse("PartitionRight [DistMatrix]");
 #endif
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
@@ -211,7 +211,7 @@ inline void
 LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionRight [Matrix]");
+    CallStackEntry cse("LockedPartitionRight [Matrix]");
 #endif
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
@@ -224,7 +224,7 @@ inline void
 LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionRight [DistMatrix]");
+    CallStackEntry cse("LockedPartitionRight [DistMatrix]");
 #endif
     widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
@@ -243,7 +243,7 @@ PartitionUpDiagonal
         M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionUpDiagonal [Matrix]");
+    CallStackEntry cse("PartitionUpDiagonal [Matrix]");
 #endif
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -255,7 +255,7 @@ PartitionUpDiagonal
          DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionUpDiagonal [DistMatrix]");
+    CallStackEntry cse("PartitionUpDiagonal [DistMatrix]");
 #endif
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -267,7 +267,7 @@ LockedPartitionUpDiagonal
               M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionUpDiagonal [Matrix]");
+    CallStackEntry cse("LockedPartitionUpDiagonal [Matrix]");
 #endif
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -279,7 +279,7 @@ LockedPartitionUpDiagonal
                DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionUpDiagonal [DistMatrix]");
+    CallStackEntry cse("LockedPartitionUpDiagonal [DistMatrix]");
 #endif
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -296,7 +296,7 @@ PartitionUpOffsetDiagonal
         M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionUpOffsetDiagonal [Matrix]");
+    CallStackEntry cse("PartitionUpOffsetDiagonal [Matrix]");
 #endif
     PartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
@@ -310,7 +310,7 @@ PartitionUpOffsetDiagonal
          DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionUpOffsetDiagonal [DistMatrix]");
+    CallStackEntry cse("PartitionUpOffsetDiagonal [DistMatrix]");
 #endif
     PartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
@@ -324,7 +324,7 @@ LockedPartitionUpOffsetDiagonal
               M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionUpOffsetDiagonal [Matrix]");
+    CallStackEntry cse("LockedPartitionUpOffsetDiagonal [Matrix]");
 #endif
     LockedPartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
@@ -338,7 +338,7 @@ LockedPartitionUpOffsetDiagonal
                DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionUpOffsetDiagonal [DistMatrix]");
+    CallStackEntry cse("LockedPartitionUpOffsetDiagonal [DistMatrix]");
 #endif
     LockedPartitionDownOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
@@ -355,7 +355,7 @@ PartitionDownDiagonal
         M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionDownDiagonal [Matrix]");
+    CallStackEntry cse("PartitionDownDiagonal [Matrix]");
 #endif
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -367,7 +367,7 @@ PartitionDownDiagonal
          DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionDownDiagonal [DistMatrix]");
+    CallStackEntry cse("PartitionDownDiagonal [DistMatrix]");
 #endif
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -379,7 +379,7 @@ LockedPartitionDownDiagonal
               M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionDownDiagonal [Matrix]");
+    CallStackEntry cse("LockedPartitionDownDiagonal [Matrix]");
 #endif
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -391,7 +391,7 @@ LockedPartitionDownDiagonal
                DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionDownDiagonal [DistMatrix]");
+    CallStackEntry cse("LockedPartitionDownDiagonal [DistMatrix]");
 #endif
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
@@ -408,7 +408,7 @@ PartitionDownOffsetDiagonal
         M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionDownOffsetDiagonal [Matrix]");
+    CallStackEntry cse("PartitionDownOffsetDiagonal [Matrix]");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -431,7 +431,7 @@ PartitionDownOffsetDiagonal
          DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("PartitionDownOffsetDiagonal [DistMatrix]");
+    CallStackEntry cse("PartitionDownOffsetDiagonal [DistMatrix]");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -454,7 +454,7 @@ LockedPartitionDownOffsetDiagonal
               M& ABL, M& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionDownOffsetDiagonal [Matrix]");
+    CallStackEntry cse("LockedPartitionDownOffsetDiagonal [Matrix]");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -477,7 +477,7 @@ LockedPartitionDownOffsetDiagonal
                DM& ABL, DM& ABR, Int diagDist )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedPartitionDownOffsetDiagonal [DistMatrix]");
+    CallStackEntry cse("LockedPartitionDownOffsetDiagonal [DistMatrix]");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();

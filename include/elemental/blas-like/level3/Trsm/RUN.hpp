@@ -25,7 +25,7 @@ TrsmRUN
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmRUN");
+    CallStackEntry cse("internal::TrsmRUN");
 #endif
     const Grid& g = U.Grid();
 

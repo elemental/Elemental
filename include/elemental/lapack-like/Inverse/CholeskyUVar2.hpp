@@ -31,7 +31,7 @@ inline void
 CholeskyUVar2( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hpd_inverse::CholeskyUVar2");
+    CallStackEntry cse("hpd_inverse::CholeskyUVar2");
     if( A.Height() != A.Width() )
         LogicError("Nonsquare matrices cannot be triangular");
 #endif
@@ -79,7 +79,7 @@ inline void
 CholeskyUVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hpd_inverse::CholeskyUVar2");
+    CallStackEntry cse("hpd_inverse::CholeskyUVar2");
     if( A.Height() != A.Width() )
         LogicError("Nonsquare matrices cannot be triangular");
 #endif

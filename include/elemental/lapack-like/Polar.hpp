@@ -25,9 +25,7 @@ template<typename F>
 inline void
 Polar( Matrix<F>& A, Matrix<F>& P )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Polar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Polar"))
     polar::SVD( A, P );
 }
 
@@ -35,9 +33,7 @@ template<typename F>
 inline void
 Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Polar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Polar"))
     polar::SVD( A, P );
 }
 
@@ -45,9 +41,7 @@ template<typename F>
 inline void
 HermitianPolar( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianPolar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
     HermitianSign( uplo, A );
 }
 
@@ -55,9 +49,7 @@ template<typename F>
 inline void
 HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianPolar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
     HermitianSign( uplo, A );
 }
 
@@ -65,9 +57,7 @@ template<typename F>
 inline void
 HermitianPolar( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianPolar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
     HermitianSign( uplo, A, P );
 }
 
@@ -75,9 +65,7 @@ template<typename F>
 inline void
 HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianPolar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianPolar"))
     HermitianSign( uplo, A, P );
 }
 

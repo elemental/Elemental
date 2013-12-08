@@ -16,9 +16,7 @@ template<typename S,typename T>
 inline void
 Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Toeplitz");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
@@ -42,9 +40,7 @@ template<typename S,typename T,Distribution U,Distribution V>
 inline void
 Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Toeplitz");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");

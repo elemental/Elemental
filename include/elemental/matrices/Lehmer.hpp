@@ -16,9 +16,7 @@ template<typename F>
 inline void
 Lehmer( Matrix<F>& L, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lehmer");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
     {
@@ -42,9 +40,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Lehmer( DistMatrix<F,U,V>& L, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lehmer");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.ResizeTo( n, n );
     const Int localHeight = L.LocalHeight();
     const Int localWidth = L.LocalWidth();

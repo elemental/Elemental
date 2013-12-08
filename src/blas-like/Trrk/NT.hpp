@@ -22,7 +22,7 @@ void TrrkNT
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrrkNT");
+    CallStackEntry cse("internal::TrrkNT");
     if( C.Height() != C.Width() ||
         A.Height() != C.Height() || 
         B.Height() != C.Width() ||

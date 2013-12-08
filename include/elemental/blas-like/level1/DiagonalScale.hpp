@@ -19,7 +19,7 @@ DiagonalScale
   const Matrix<TDiag>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DiagonalScale");
+    CallStackEntry cse("DiagonalScale");
 #endif
     const Int m = X.Height();
     const Int n = X.Width();
@@ -63,7 +63,7 @@ DiagonalScale
   const DistMatrix<TDiag,U,V>& d, DistMatrix<T,W,Z>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DiagonalScale");
+    CallStackEntry cse("DiagonalScale");
 #endif
     if( side == LEFT )
     {

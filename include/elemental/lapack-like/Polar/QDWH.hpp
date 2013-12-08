@@ -46,10 +46,8 @@ inline Int
 QDWHInner
 ( Matrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::QDWHInner");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
+    typedef Base<F> Real;
     typedef Complex<Real> Cpx;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -134,10 +132,8 @@ template<typename F>
 inline Int 
 QDWH( Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::QDWH");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
+    typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
 
@@ -174,9 +170,7 @@ template<typename F>
 inline Int 
 QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::QDWH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
     Matrix<F> ACopy( A );
     const Int numIts = QDWH( A, colPiv, maxIts );
     Zeros( P, A.Height(), A.Height() );
@@ -190,10 +184,8 @@ inline Int
 QDWHInner
 ( DistMatrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::QDWHInner");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
+    typedef Base<F> Real;
     typedef Complex<Real> Cpx;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -279,10 +271,8 @@ template<typename F>
 inline Int 
 QDWH( DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::QDWH");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
+    typedef Base<F> Real;
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
 
@@ -320,9 +310,7 @@ inline Int
 QDWH
 ( DistMatrix<F>& A, DistMatrix<F>& P, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::QDWH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
     DistMatrix<F> ACopy( A );
     const Int numIts = QDWH( A, colPiv, maxIts );
     Zeros( P, A.Height(), A.Height() );
@@ -341,13 +329,11 @@ QDWHInner
 ( UpperOrLower uplo, Matrix<F>& A, BASE(F) sMinUpper, 
   bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_polar::QDWH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_polar::QDWH"))
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     typedef Complex<Real> Cpx;
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
@@ -437,10 +423,8 @@ template<typename F>
 inline Int 
 QDWH( UpperOrLower uplo, Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_polar::QDWH");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("hermitian_polar::QDWH"))
+    typedef Base<F> Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
@@ -466,9 +450,7 @@ QDWH
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P,
   bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_polar::QDWH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_polar::QDWH"))
     Matrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
@@ -484,13 +466,11 @@ QDWHInner
 ( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) sMinUpper, 
   bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_polar::QDWH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_polar::QDWH"))
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     typedef Complex<Real> Cpx;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -579,10 +559,8 @@ template<typename F>
 inline Int 
 QDWH( UpperOrLower uplo, DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_polar::QDWH");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("hermitian_polar::QDWH"))
+    typedef Base<F> Real;
     MakeHermitian( uplo, A );
     const Real twoEst = TwoNormEstimate( A );
     Scale( F(1)/twoEst, A );
@@ -608,9 +586,7 @@ QDWH
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P, 
   bool colPiv=false, Int maxIts=20 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_polar::QDWH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_polar::QDWH"))
     DistMatrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );

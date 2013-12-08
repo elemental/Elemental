@@ -23,7 +23,7 @@ inline void
 UVar3Square( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UVar3Square");
+    CallStackEntry cse("cholesky::UVar3Square");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices.");
     if( A.Grid().Height() != A.Grid().Width() )

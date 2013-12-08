@@ -27,10 +27,8 @@ template<typename F>
 inline BASE(F)
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Norm");
-#endif
-    BASE(F) norm = 0;
+    DEBUG_ONLY(CallStackEntry cse("Norm"))
+    Base<F> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -65,10 +63,8 @@ inline BASE(F)
 SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricNorm");
-#endif
-    BASE(F) norm = 0;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricNorm"))
+    Base<F> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -103,10 +99,8 @@ inline BASE(F)
 HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianNorm");
-#endif
-    BASE(F) norm = 0;
+    DEBUG_ONLY(CallStackEntry cse("HermitianNorm"))
+    Base<F> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -140,10 +134,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Norm");
-#endif
-    BASE(F) norm = 0;
+    DEBUG_ONLY(CallStackEntry cse("Norm"))
+    Base<F> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -178,10 +170,8 @@ inline BASE(F)
 SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricNorm");
-#endif
-    BASE(F) norm = 0;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricNorm"))
+    Base<F> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -216,10 +206,8 @@ inline BASE(F)
 HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianNorm");
-#endif
-    BASE(F) norm = 0;
+    DEBUG_ONLY(CallStackEntry cse("HermitianNorm"))
+    Base<F> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute

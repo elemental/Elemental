@@ -24,9 +24,7 @@ inline void
 MakeNormalUniformSpectrum
 ( Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeNormalUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeNormalUniformSpectrum"))
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix normal");
@@ -50,9 +48,7 @@ inline void
 MakeNormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeNormalUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeNormalUniformSpectrum"))
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix normal");
@@ -99,9 +95,7 @@ inline void
 NormalUniformSpectrum
 ( Matrix<Complex<R> >& A, Int n, Complex<R> center=0, R radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("NormalUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
     A.ResizeTo( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
 }
@@ -120,9 +114,7 @@ inline void
 NormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Int n, Complex<R> center=0, R radius=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("NormalUniformSpectrum");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
     A.ResizeTo( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
 }

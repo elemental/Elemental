@@ -28,7 +28,7 @@ TrsmLLNLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLNLarge");
+    CallStackEntry cse("internal::TrsmLLNLarge");
 #endif
     const Grid& g = L.Grid();
 
@@ -112,7 +112,7 @@ TrsmLLNMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLNMedium");
+    CallStackEntry cse("internal::TrsmLLNMedium");
 #endif
     const Grid& g = L.Grid();
 
@@ -195,7 +195,7 @@ TrsmLLNSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLNSmall");
+    CallStackEntry cse("internal::TrsmLLNSmall");
     if( L.ColAlign() != X.ColAlign() )
         LogicError("L and X are assumed to be aligned");
 #endif

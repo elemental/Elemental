@@ -16,9 +16,7 @@ template<typename T>
 inline void
 MinIJ( Matrix<T>& M, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MinIJ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
@@ -38,9 +36,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MinIJ( DistMatrix<T,U,V>& M, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MinIJ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.ResizeTo( n, n );
     const Int localHeight = M.LocalHeight();
     const Int localWidth = M.LocalWidth();

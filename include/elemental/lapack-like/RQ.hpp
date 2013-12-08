@@ -20,9 +20,7 @@ template<typename F>
 inline void
 RQ( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("RQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RQ"))
     rq::Householder( A );
 }
 
@@ -30,9 +28,7 @@ template<typename F>
 inline void
 RQ( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("RQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RQ"))
     rq::Householder( A );
 }
 
@@ -40,9 +36,7 @@ template<typename F>
 inline void
 RQ( Matrix<F>& A, Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("RQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RQ"))
     rq::Householder( A, t );
 }
 
@@ -50,9 +44,7 @@ template<typename F>
 inline void
 RQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry entry("RQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RQ"))
     rq::Householder( A, t );
 }
 

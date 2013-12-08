@@ -24,7 +24,7 @@ SolveAfter
   const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::SolveAfter");
+    CallStackEntry cse("cholesky::SolveAfter");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( A.Height() != B.Height() )
@@ -53,7 +53,7 @@ SolveAfter
   const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::SolveAfter");
+    CallStackEntry cse("cholesky::SolveAfter");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( p.Height() != A.Height() )
@@ -86,7 +86,7 @@ SolveAfter
   const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::SolveAfter");
+    CallStackEntry cse("cholesky::SolveAfter");
     if( A.Grid() != B.Grid() )
         LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -117,7 +117,7 @@ SolveAfter
   const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::SolveAfter");
+    CallStackEntry cse("cholesky::SolveAfter");
     if( A.Grid() != B.Grid() )
         LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )

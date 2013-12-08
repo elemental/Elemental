@@ -19,9 +19,7 @@ template<typename F>
 inline void
 Laplacian( Matrix<F>& L, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Laplacian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
 }
 
@@ -35,9 +33,7 @@ template<typename F>
 inline void
 Laplacian( Matrix<F>& L, Int nx, Int ny )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Laplacian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
 }
 
@@ -51,9 +47,7 @@ template<typename F>
 inline void
 Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Laplacian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
@@ -67,9 +61,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Laplacian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
 }
 
@@ -83,9 +75,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Laplacian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
 }
 
@@ -99,9 +89,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Laplacian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 

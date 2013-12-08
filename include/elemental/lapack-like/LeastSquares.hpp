@@ -22,11 +22,11 @@ inline void
 LeastSquares
 ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LeastSquares");
-    if( orientation == TRANSPOSE )
-        LogicError("Invalid orientation");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LeastSquares");
+        if( orientation == TRANSPOSE )
+            LogicError("Invalid orientation");
+    )
     // TODO: Add scaling
     const Int m = A.Height();
     const Int n = A.Width();
@@ -129,13 +129,13 @@ LeastSquares
 ( Orientation orientation, 
   DistMatrix<F>& A, const DistMatrix<F>& B, DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LeastSquares");
-    if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
-        LogicError("Grids do not match");
-    if( orientation == TRANSPOSE )
-        LogicError("Invalid orientation");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LeastSquares");
+        if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
+            LogicError("Grids do not match");
+        if( orientation == TRANSPOSE )
+            LogicError("Invalid orientation");
+    )
     const Grid& g = A.Grid();
 
     // TODO: Add scaling

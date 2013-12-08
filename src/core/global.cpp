@@ -26,9 +26,7 @@ Args* args = 0;
 std::mt19937 generator;
 
 // Debugging
-#ifndef RELEASE
-std::stack<std::string> callStack;
-#endif
+DEBUG_ONLY(std::stack<std::string> callStack)
 
 // Tuning parameters for basic routines
 Int localSymvFloatBlocksize = 64;
@@ -319,9 +317,7 @@ void Initialize( int& argc, char**& argv )
 
 void Finalize()
 {
-#ifndef RELEASE
-    CallStackEntry entry("Finalize");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Finalize"))
     if( ::numElemInits <= 0 )
         LogicError("Finalized Elemental more than initialized");
     --::numElemInits;
@@ -400,13 +396,13 @@ void PopBlocksizeStack()
 
 const Grid& DefaultGrid()
 {
-#ifndef RELEASE
-    CallStackEntry entry("DefaultGrid");
-    if( ::defaultGrid == 0 )
-        LogicError
-        ("Attempted to return a non-existant default grid. Please ensure that "
-         "Elemental is initialized before creating a DistMatrix.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("DefaultGrid");
+        if( ::defaultGrid == 0 )
+            LogicError
+            ("Attempted to return a non-existant default grid. Please ensure "
+             "that Elemental is initialized before creating a DistMatrix.");
+    )
     return *::defaultGrid;
 }
 
@@ -414,37 +410,40 @@ std::mt19937& Generator()
 { return ::generator; }
 
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
-#ifndef RELEASE
-void PushCallStack( std::string s )
-{ 
-#ifdef HAVE_OPENMP
-    if( omp_get_thread_num() != 0 )
-        return;
-#endif // HAVE_OPENMP
-    ::callStack.push(s); 
-}
+DEBUG_ONLY(
 
-void PopCallStack()
-{ 
+    void PushCallStack( std::string s )
+    { 
 #ifdef HAVE_OPENMP
-    if( omp_get_thread_num() != 0 )
-        return;
+        if( omp_get_thread_num() != 0 )
+            return;
 #endif // HAVE_OPENMP
-    ::callStack.pop(); 
-}
-
-void DumpCallStack( std::ostream& os )
-{
-    std::ostringstream msg;
-    while( ! ::callStack.empty() )
-    {
-        msg << "[" << ::callStack.size() << "]: " << ::callStack.top() << "\n";
-        ::callStack.pop();
+        ::callStack.push(s); 
     }
-    os << msg.str();
-    os.flush();
-}
-#endif // RELEASE
+
+    void PopCallStack()
+    { 
+#ifdef HAVE_OPENMP
+        if( omp_get_thread_num() != 0 )
+            return;
+#endif // HAVE_OPENMP
+        ::callStack.pop(); 
+    }
+
+    void DumpCallStack( std::ostream& os )
+    {
+        std::ostringstream msg;
+        while( ! ::callStack.empty() )
+        {
+            msg << "[" << ::callStack.size() << "]: " << ::callStack.top() 
+                << "\n";
+            ::callStack.pop();
+        }
+        os << msg.str();
+        os.flush();
+    }
+
+) // DEBUG_ONLY
 
 template<>
 void SetLocalSymvBlocksize<float>( Int blocksize )

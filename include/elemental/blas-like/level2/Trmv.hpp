@@ -21,7 +21,7 @@ Trmv
   const Matrix<T>& A, Matrix<T>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trmv");
+    CallStackEntry cse("Trmv");
     if( x.Height() != 1 && x.Width() != 1 )
         LogicError("x must be a vector");
     if( A.Height() != A.Width() )

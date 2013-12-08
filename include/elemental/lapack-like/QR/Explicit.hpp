@@ -21,9 +21,7 @@ template<typename F>
 inline void
 Explicit( Matrix<F>& A, bool colPiv=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("qr::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
     if( colPiv )
     {
@@ -41,9 +39,7 @@ template<typename F>
 inline void
 Explicit( DistMatrix<F>& A, bool colPiv=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("qr::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     if( colPiv )
@@ -62,9 +58,7 @@ template<typename F>
 inline void
 Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("qr::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
     if( colPiv )
     {
@@ -89,9 +83,7 @@ template<typename F>
 inline void
 Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("qr::Explicit");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     if( colPiv )

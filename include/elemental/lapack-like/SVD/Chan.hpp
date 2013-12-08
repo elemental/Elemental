@@ -27,13 +27,13 @@ ChanUpper
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::ChanUpper");
-    if( A.Height() < A.Width() )
-        LogicError("A must be at least as tall as it is wide");
-    if( heightRatio <= 1.0 )
-        LogicError("Nonsensical switchpoint for SVD");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::ChanUpper");
+        if( A.Height() < A.Width() )
+            LogicError("A must be at least as tall as it is wide");
+        if( heightRatio <= 1.0 )
+            LogicError("Nonsensical switchpoint for SVD");
+    )
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -62,11 +62,11 @@ inline void
 ChanUpper
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::ChanUpper");    
-    if( heightRatio <= 1.0 )
-        LogicError("Nonsensical switchpoint");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::ChanUpper");    
+        if( heightRatio <= 1.0 )
+            LogicError("Nonsensical switchpoint");
+    )
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -95,11 +95,11 @@ Chan
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::Chan");
-    if( heightRatio <= 1.0 )
-        LogicError("Nonsensical switchpoint for SVD");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svd::Chan");
+        if( heightRatio <= 1.0 )
+            LogicError("Nonsensical switchpoint for SVD");
+    )
     // Check if we need to rescale the matrix, and do so if necessary
     BASE(F) scale;
     bool needRescaling = svd::CheckScale( A, scale );
@@ -133,9 +133,7 @@ template<typename F>
 inline void
 Chan( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::Chan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::Chan"))
     // Check if we need to rescale the matrix, and do so if necessary
     BASE(F) scale;
     bool needRescaling = svd::CheckScale( A, scale );

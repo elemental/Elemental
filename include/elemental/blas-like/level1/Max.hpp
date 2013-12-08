@@ -21,7 +21,7 @@ VectorMax( const Matrix<F>& x )
 #ifndef RELEASE
     CallStackEntry cse("VectorMax");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
 #ifndef RELEASE
@@ -66,7 +66,7 @@ VectorMax( const DistMatrix<F,U,V>& x )
 #ifndef RELEASE
     CallStackEntry cse("VectorMax");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = x.Width();
 #ifndef RELEASE
     const Int m = x.Height();
@@ -130,7 +130,7 @@ Max( const Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("Max");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -161,7 +161,7 @@ Max( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry cse("Max");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     ValueIntPair<Real> pivot;
     if( A.Participating() )
     {
@@ -210,7 +210,7 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Width();
 
     ValueIntPair<Real> pivot;
@@ -261,7 +261,7 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     const Int colShift = A.ColShift();

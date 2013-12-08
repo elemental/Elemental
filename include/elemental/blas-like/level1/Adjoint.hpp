@@ -19,7 +19,7 @@ inline void
 Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Adjoint");
+    CallStackEntry cse("Adjoint");
 #endif
     Transpose( A, B, true );
 }
@@ -30,7 +30,7 @@ inline void
 Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Adjoint");
+    CallStackEntry cse("Adjoint");
 #endif
     Transpose( A, B, true );
 }

@@ -45,9 +45,7 @@ Estimate EigEstimate
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::EigEstimate");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::EigEstimate"))
     Estimate estimate;
 #ifdef HAVE_PMRRR
     char jobz='C';
@@ -78,9 +76,7 @@ Estimate EigEstimate
 // Compute all of the eigenvalues
 Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
     Info info;
 #ifdef HAVE_PMRRR
     char jobz='N';
@@ -114,9 +110,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
     Info info;
 #ifdef HAVE_PMRRR
     char jobz='V';
@@ -150,9 +144,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
     Info info;
 #ifdef HAVE_PMRRR
     char jobz='N';
@@ -186,9 +178,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
     Info info;
 #ifdef HAVE_PMRRR
     char jobz='V';
@@ -221,9 +211,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
     Info info;
 #ifdef HAVE_PMRRR
     ++lowerBound;
@@ -260,9 +248,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-#ifndef RELEASE
-    CallStackEntry entry("pmrrr::Eig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
     Info info;
 #ifdef HAVE_PMRRR
     ++lowerBound;

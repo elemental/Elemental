@@ -29,7 +29,7 @@ Symv
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Symv");
+    CallStackEntry cse("Symv");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -70,7 +70,7 @@ Symv
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Symv");
+    CallStackEntry cse("Symv");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         LogicError
         ("{A,x,y} must be distributed over the same grid");

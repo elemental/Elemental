@@ -29,7 +29,7 @@ void PanelLSquare
     const Int n = A.Height();
     const Int nW = W.Width();
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_tridiag::PanelLSquare");
+    CallStackEntry cse("hermitian_tridiag::PanelLSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         LogicError("A, W, and t must be distributed over the same grid");
     if( n != A.Width() )

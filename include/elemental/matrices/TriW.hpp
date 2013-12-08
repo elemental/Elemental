@@ -18,9 +18,7 @@ template<typename T>
 inline void
 TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TriW");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     const Int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
@@ -45,9 +43,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TriW");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     const Int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );

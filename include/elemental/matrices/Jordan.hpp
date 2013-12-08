@@ -18,9 +18,7 @@ template<typename T>
 inline void
 MakeJordan( Matrix<T>& J, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeJordan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeJordan"))
     Zero( J );
     const Int m = J.Height();
     const Int n = J.Width();
@@ -36,9 +34,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeJordan( DistMatrix<T,U,V>& J, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeJordan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeJordan"))
     Zero( J.Matrix() );
 
     const Int localHeight = J.LocalHeight();
@@ -65,9 +61,7 @@ template<typename T>
 inline void
 Jordan( Matrix<T>& J, Int n, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Jordan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Jordan"))
     J.ResizeTo( n, n );
     MakeJordan( J, lambda );
 }
@@ -85,9 +79,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Jordan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Jordan"))
     J.ResizeTo( n, n );
     MakeJordan( J, lambda );
 }

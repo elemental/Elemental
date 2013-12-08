@@ -36,10 +36,8 @@ template<typename F>
 inline int
 InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSign");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
+    typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
         LogicError("X must be 2n x n");
@@ -105,10 +103,8 @@ template<typename F>
 inline int
 InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSign");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
+    typedef Base<F> Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -175,10 +171,8 @@ template<typename F>
 inline BASE(F)
 InverseFreeSignDivide( Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSignDivide");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
+    typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
         LogicError("Matrix should be 2n x n");
@@ -218,10 +212,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 InverseFreeSignDivide( DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSignDivide");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
+    typedef Base<F> Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();
     if( X.Height() != 2*n )

@@ -17,7 +17,7 @@ inline void
 Scale( T alpha, Matrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Scale");
+    CallStackEntry cse("Scale");
 #endif
     if( alpha != T(1) )
     {

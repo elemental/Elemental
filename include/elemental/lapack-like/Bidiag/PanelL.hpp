@@ -25,7 +25,7 @@ PanelL
   DistMatrix<F,STAR,MR>& ARowPan_STAR_MR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::PanelL");
+    CallStackEntry cse("bidiag::PanelL");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 

@@ -26,7 +26,7 @@ inline
 Grid::Grid( mpi::Comm comm )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Grid::Grid");
+    CallStackEntry cse("Grid::Grid");
 #endif
     inGrid_ = true; // this is true by assumption for this constructor
 
@@ -52,7 +52,7 @@ inline
 Grid::Grid( mpi::Comm comm, int height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Grid::Grid");
+    CallStackEntry cse("Grid::Grid");
 #endif
     inGrid_ = true; // this is true by assumption for this constructor
 
@@ -79,7 +79,7 @@ inline void
 Grid::SetUpGrid()
 {
 #ifndef RELEASE
-    CallStackEntry entry("Grid::SetUpGrid");
+    CallStackEntry cse("Grid::SetUpGrid");
 #endif
     if( size_ != height_*width_ )
     {
@@ -321,7 +321,7 @@ inline
 Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Grid::Grid");
+    CallStackEntry cse("Grid::Grid");
 #endif
 
     // Extract our rank and the underlying group from the viewing comm

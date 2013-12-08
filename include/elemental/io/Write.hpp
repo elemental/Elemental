@@ -264,7 +264,7 @@ Write
   std::string basename="matrix", std::string title="" )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Write");
+    CallStackEntry cse("Write");
 #endif
     std::string filename;
     switch( format )
@@ -296,7 +296,7 @@ Write
   std::string basename="matrix", std::string title="" )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Write"); 
+    CallStackEntry cse("Write"); 
 #endif
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
@@ -312,7 +312,7 @@ Write
   std::string basename="matrix", std::string title="" )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Write"); 
+    CallStackEntry cse("Write"); 
 #endif
     if( A.Grid().VCRank() == 0 )
         Write( A.LockedMatrix(), format, basename, title );
@@ -324,7 +324,7 @@ Write
   std::string basename="matrix", std::string title="" )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Write");
+    CallStackEntry cse("Write");
 #endif
     if( A.CrossRank() == A.Root() )
         Write( A.LockedMatrix(), format, basename, title );

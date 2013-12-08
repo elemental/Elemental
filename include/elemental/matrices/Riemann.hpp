@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Riemann( Matrix<T>& R, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Riemann");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
     {
@@ -45,9 +43,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Riemann( DistMatrix<T,U,V>& R, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Riemann");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.ResizeTo( n, n );
     const Int localHeight = R.LocalHeight();
     const Int localWidth = R.LocalWidth();

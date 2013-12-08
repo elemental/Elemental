@@ -21,7 +21,7 @@ Her2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her2");
+    CallStackEntry cse("Her2");
 #endif
     Syr2( uplo, alpha, x, y, A, true );
 }
@@ -35,7 +35,7 @@ Her2
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her2");
+    CallStackEntry cse("Her2");
 #endif
     Syr2( uplo, alpha, x, y, A, true );
 }

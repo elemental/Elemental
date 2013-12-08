@@ -22,9 +22,7 @@ template<typename F>
 inline void
 UnbFLAME( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::UnbFLAME");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lu::UnbFLAME"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -47,9 +45,7 @@ template<typename F>
 inline void
 Unb( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::Unb");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lu::Unb"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<Min(m,n); ++j )

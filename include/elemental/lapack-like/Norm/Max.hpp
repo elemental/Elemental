@@ -16,10 +16,8 @@ template<typename F>
 inline BASE(F)
 MaxNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("MaxNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    typedef Base<F> R;
     R maxAbs = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -38,13 +36,11 @@ template<typename F>
 inline BASE(F)
 HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianMaxNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R maxAbs = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -77,9 +73,7 @@ template<typename F>
 inline BASE(F)
 SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricMaxNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 
@@ -87,10 +81,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 MaxNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("MaxNorm");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
+    typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -115,9 +107,7 @@ template<typename F>
 inline BASE(F)
 HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianMaxNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -126,7 +116,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const Int colShift = A.ColShift();
     const Int rowShift = A.RowShift();
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R localMaxAbs = 0;
     const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
@@ -164,9 +154,7 @@ template<typename F>
 inline BASE(F)
 SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricMaxNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 

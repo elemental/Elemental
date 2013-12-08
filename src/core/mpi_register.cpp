@@ -94,9 +94,7 @@ Datatype& ValueIntPairType<double>()
 template<typename T>
 void CreateValueIntType()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateValueIntType");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateValueIntType"))
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
     typeList[1] = TypeMap<Int>();
@@ -126,9 +124,7 @@ template void CreateValueIntType<double>();
 template<typename T>
 void DestroyValueIntType()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyValueIntType");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyValueIntType"))
     Datatype& type = ValueIntType<T>();
     MPI_Type_free( &type );
 }
@@ -139,9 +135,7 @@ template void DestroyValueIntType<double>();
 template<typename T>
 void CreateValueIntPairType()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateValueIntPairType");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateValueIntPairType"))
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
     typeList[1] = TypeMap<Int>();
@@ -171,9 +165,7 @@ template void CreateValueIntPairType<double>();
 template<typename T>
 void DestroyValueIntPairType()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyValueIntPairType");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyValueIntPairType"))
     Datatype& type = ValueIntPairType<T>();
     MPI_Type_free( &type );
 }
@@ -184,54 +176,42 @@ template void DestroyValueIntPairType<double>();
 template<>
 void CreateMaxLocOp<Int>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateMaxLocOp<Int>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocOp<Int>"))
     OpCreate( (UserFunction*)MaxLocFunc<Int>, true, ::maxLocIntOp );
 }
 
 template<>
 void CreateMaxLocOp<float>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateMaxLocOp<float>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocOp<float>"))
     OpCreate( (UserFunction*)MaxLocFunc<float>, true, ::maxLocFloatOp );
 }
 
 template<>
 void CreateMaxLocOp<double>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateMaxLocOp<double>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocOp<double>"))
     OpCreate( (UserFunction*)MaxLocFunc<double>, true, ::maxLocDoubleOp );
 }
 
 template<>
 void CreateMaxLocPairOp<Int>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateMaxLocPairOp<Int>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<Int>"))
     OpCreate( (UserFunction*)MaxLocPairFunc<Int>, true, ::maxLocPairIntOp );
 }
 
 template<>
 void CreateMaxLocPairOp<float>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateMaxLocPairOp<float>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<float>"))
     OpCreate( (UserFunction*)MaxLocPairFunc<float>, true, ::maxLocPairFloatOp );
 }
 
 template<>
 void CreateMaxLocPairOp<double>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("CreateMaxLocPairOp<double>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<double>"))
     OpCreate
     ( (UserFunction*)MaxLocPairFunc<double>, true, ::maxLocPairDoubleOp );
 }
@@ -239,108 +219,84 @@ void CreateMaxLocPairOp<double>()
 template<>
 void DestroyMaxLocOp<Int>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyMaxLocOp<Int>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocOp<Int>"))
     OpFree( ::maxLocIntOp );
 }
 
 template<>
 void DestroyMaxLocOp<float>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyMaxLocOp<float>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocOp<float>"))
     OpFree( ::maxLocFloatOp );
 }
 
 template<>
 void DestroyMaxLocOp<double>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyMaxLocOp<double>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocOp<double>"))
     OpFree( ::maxLocDoubleOp );
 }
 
 template<>
 void DestroyMaxLocPairOp<Int>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyMaxLocPairOp<Int>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<Int>"))
     OpFree( ::maxLocPairIntOp );
 }
 
 template<>
 void DestroyMaxLocPairOp<float>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyMaxLocPairOp<float>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<float>"))
     OpFree( ::maxLocPairFloatOp );
 }
 
 template<>
 void DestroyMaxLocPairOp<double>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DestroyMaxLocPairOp<double>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<double>"))
     OpFree( ::maxLocPairDoubleOp );
 }
 
 template<>
 Op MaxLocOp<Int>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLocOp<Int>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxLocOp<Int>"))
     return ::maxLocIntOp;
 }
 
 template<>
 Op MaxLocOp<float>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLocOp<float>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxLocOp<float>"))
     return ::maxLocFloatOp;
 }
 
 template<>
 Op MaxLocOp<double>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLocOp<double>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxLocOp<double>"))
     return ::maxLocDoubleOp;
 }
 
 template<>
 Op MaxLocPairOp<Int>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLocPairOp<Int>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<Int>"))
     return ::maxLocPairIntOp;
 }
 
 template<>
 Op MaxLocPairOp<float>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLocPairOp<float>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<float>"))
     return ::maxLocPairFloatOp;
 }
 
 template<>
 Op MaxLocPairOp<double>()
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLocPairOp<double>");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<double>"))
     return ::maxLocPairDoubleOp;
 }
 

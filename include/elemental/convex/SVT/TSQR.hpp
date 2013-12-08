@@ -23,7 +23,7 @@ inline Int
 TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SVT");
+    CallStackEntry cse("SVT");
 #endif
     const Int p = mpi::CommSize( A.ColComm() );
     if( p == 1 )

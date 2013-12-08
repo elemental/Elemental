@@ -25,7 +25,7 @@ template<typename F>
 inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::L");
+    CallStackEntry cse("bidiag::L");
 #endif
     // TODO: Sequential blocked implementation
     LUnb( A, tP, tQ );
@@ -36,7 +36,7 @@ inline void
 L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::L");
+    CallStackEntry cse("bidiag::L");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
         LogicError("{A,tP,tQ} must be distributed over the same grid");
     if( A.Height() > A.Width() )

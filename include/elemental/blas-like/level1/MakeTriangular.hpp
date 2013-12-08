@@ -17,7 +17,7 @@ inline void
 MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeTriangular");
+    CallStackEntry cse("MakeTriangular");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -49,7 +49,7 @@ inline void
 MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeTriangular");
+    CallStackEntry cse("MakeTriangular");
 #endif
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();

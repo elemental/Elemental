@@ -23,7 +23,7 @@ inline void
 MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeSymmetric");
+    CallStackEntry cse("MakeSymmetric");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
@@ -50,7 +50,7 @@ inline void
 MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeSymmetric");
+    CallStackEntry cse("MakeSymmetric");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");

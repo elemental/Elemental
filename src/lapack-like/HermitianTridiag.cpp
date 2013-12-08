@@ -25,7 +25,7 @@ void HermitianTridiag
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianTridiag");
+    CallStackEntry cse("HermitianTridiag");
 #endif
     if( uplo == LOWER )
         hermitian_tridiag::L( A, t );
@@ -37,7 +37,7 @@ template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianTridiag");
+    CallStackEntry cse("HermitianTridiag");
 #endif
     Matrix<F> t;
     HermitianTridiag( uplo, A, t );
@@ -49,7 +49,7 @@ HermitianTridiag
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianTridiag");
+    CallStackEntry cse("HermitianTridiag");
 #endif
     const Grid& g = A.Grid();
     const HermitianTridiagApproach approach = GetHermitianTridiagApproach();
@@ -133,7 +133,7 @@ void
 HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianTridiag");
+    CallStackEntry cse("HermitianTridiag");
 #endif
     DistMatrix<F,STAR,STAR> t(A.Grid());
     HermitianTridiag( uplo, A, t );

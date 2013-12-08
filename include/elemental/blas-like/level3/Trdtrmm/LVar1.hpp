@@ -21,7 +21,7 @@ inline void
 TrdtrmmLVar1( Matrix<F>& L, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrdtrmmLVar1");
+    CallStackEntry cse("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
 #endif
@@ -52,7 +52,7 @@ inline void
 TrdtrmmLVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrdtrmmLVar1");
+    CallStackEntry cse("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
 #endif
@@ -89,7 +89,7 @@ inline void
 TrdtrmmLVar1( DistMatrix<F>& L, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrdtrmmLVar1");
+    CallStackEntry cse("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
 #endif
@@ -142,7 +142,7 @@ TrdtrmmLVar1
 ( DistMatrix<F>& L, const DistMatrix<F,MD,STAR>& dSub, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrdtrmmLVar1");
+    CallStackEntry cse("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
 #endif

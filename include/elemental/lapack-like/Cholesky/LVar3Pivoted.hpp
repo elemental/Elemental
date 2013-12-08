@@ -122,7 +122,7 @@ inline void
 LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LUnblockedPivoted");
+    CallStackEntry cse("cholesky::LUnblockedPivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -158,7 +158,7 @@ inline void
 LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LUnblockedPivoted");
+    CallStackEntry cse("cholesky::LUnblockedPivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( A.Grid() != p.Grid() )
@@ -200,7 +200,7 @@ LPanelPivoted
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LPanelPivoted");
+    CallStackEntry cse("cholesky::LPanelPivoted");
 #endif
     const Int n = A.Height();
 #ifndef RELEASE
@@ -258,7 +258,7 @@ LPanelPivoted
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LPanelPivoted");
+    CallStackEntry cse("cholesky::LPanelPivoted");
 #endif
     const Int n = A.Height();
 #ifndef RELEASE
@@ -319,7 +319,7 @@ inline void
 LVar3( Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LVar3");
+    CallStackEntry cse("cholesky::LVar3");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -346,7 +346,7 @@ inline void
 LVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LVar3");
+    CallStackEntry cse("cholesky::LVar3");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif

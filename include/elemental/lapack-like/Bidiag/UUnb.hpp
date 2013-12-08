@@ -23,7 +23,7 @@ template<typename F>
 inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::UUnb");
+    CallStackEntry cse("bidiag::UUnb");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -112,7 +112,7 @@ inline void UUnb
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tP, DistMatrix<F,MD,STAR>& tQ )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::UUnb");
+    CallStackEntry cse("bidiag::UUnb");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
         LogicError("Process grids do not match");
 #endif

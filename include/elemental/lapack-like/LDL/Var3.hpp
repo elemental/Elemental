@@ -21,11 +21,11 @@ template<typename F>
 inline void
 Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::Var3Unb");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::Var3Unb");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
 
     F* ABuffer = A.Buffer();
@@ -73,11 +73,11 @@ template<typename F>
 inline void
 Var3( Matrix<F>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::Var3");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::Var3");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -103,11 +103,11 @@ template<typename F>
 inline void
 Var3( DistMatrix<F>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::Var3");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::Var3");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );

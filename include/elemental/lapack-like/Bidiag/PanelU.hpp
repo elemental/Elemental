@@ -34,7 +34,7 @@ PanelU
     const Int nA = A.Width();
     const Int nX = X.Width();
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::PanelU");
+    CallStackEntry cse("bidiag::PanelU");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -61,7 +61,7 @@ PanelU
         A.RowAlign() != Y.RowAlign() )
         LogicError("A and Y must be aligned");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
 
     DistMatrix<F> q21(g), s01(g);

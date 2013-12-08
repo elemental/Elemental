@@ -21,7 +21,7 @@ LocalTrmm
                  DistMatrix<T,BColDist,BRowDist>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrmm");
+    CallStackEntry cse("LocalTrmm");
     if( (side == LEFT && BColDist != STAR) ||
         (side == RIGHT && BRowDist != STAR) )
         LogicError
@@ -52,7 +52,7 @@ Trmm
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trmm");
+    CallStackEntry cse("Trmm");
     if( A.Height() != A.Width() )
         LogicError("Triangular matrix must be square");
     if( side == LEFT )
@@ -83,7 +83,7 @@ Trmm
   T alpha, const DistMatrix<T>& A, DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trmm");
+    CallStackEntry cse("Trmm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {

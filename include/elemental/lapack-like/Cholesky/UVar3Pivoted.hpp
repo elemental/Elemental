@@ -20,7 +20,7 @@ inline void
 UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UUnblockedPivoted");
+    CallStackEntry cse("cholesky::UUnblockedPivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -59,7 +59,7 @@ inline void
 UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UUnblockedPivoted");
+    CallStackEntry cse("cholesky::UUnblockedPivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( A.Grid() != p.Grid() )
@@ -104,7 +104,7 @@ UPanelPivoted
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UPanelPivoted");
+    CallStackEntry cse("cholesky::UPanelPivoted");
 #endif
     const Int n = A.Height();
 #ifndef RELEASE
@@ -162,7 +162,7 @@ UPanelPivoted
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UPanelPivoted");
+    CallStackEntry cse("cholesky::UPanelPivoted");
 #endif
     const Int n = A.Height();
 #ifndef RELEASE
@@ -223,7 +223,7 @@ inline void
 UVar3( Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UVar3");
+    CallStackEntry cse("cholesky::UVar3");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -250,7 +250,7 @@ inline void
 UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UVar3");
+    CallStackEntry cse("cholesky::UVar3");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif

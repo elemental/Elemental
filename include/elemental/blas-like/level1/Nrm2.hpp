@@ -19,7 +19,7 @@ inline BASE(F)
 Nrm2( const Matrix<F>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Nrm2");
+    CallStackEntry cse("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         LogicError("Expected vector input");
 #endif
@@ -36,7 +36,7 @@ inline BASE(F)
 Nrm2( const DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Nrm2");
+    CallStackEntry cse("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         LogicError("x must be a vector");
 #endif

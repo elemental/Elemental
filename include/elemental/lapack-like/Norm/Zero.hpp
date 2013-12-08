@@ -18,9 +18,7 @@ template<typename F>
 inline Int
 ZeroNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ZeroNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -35,9 +33,7 @@ template<typename F,Distribution U,Distribution V>
 inline Int
 ZeroNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ZeroNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros;
     if( A.Participating() )
     {

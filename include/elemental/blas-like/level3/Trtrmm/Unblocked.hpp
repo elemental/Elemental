@@ -18,7 +18,7 @@ inline void
 TrtrmmLUnblocked( Matrix<T>& L, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrmmLUnblocked");
+    CallStackEntry cse("internal::TrtrmmLUnblocked");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
 #endif
@@ -70,7 +70,7 @@ inline void
 TrtrmmUUnblocked( Matrix<T>& U, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrmmUUnblocked");
+    CallStackEntry cse("internal::TrtrmmUUnblocked");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
 #endif

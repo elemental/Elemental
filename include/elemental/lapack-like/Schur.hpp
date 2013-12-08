@@ -20,9 +20,7 @@ template<typename F>
 inline void
 Schur( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Schur"))
     schur::QR( A, w );
 }
 
@@ -30,9 +28,7 @@ template<typename F>
 inline void
 Schur( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Schur"))
     schur::QR( A, w, Q );
 }
 
@@ -40,9 +36,7 @@ template<typename F>
 inline void
 Schur( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Schur"))
     schur::SDC( A, w );
 }
 
@@ -51,9 +45,7 @@ inline void
 Schur
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Schur");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Schur"))
     schur::SDC( A, w, Q );
 }
 

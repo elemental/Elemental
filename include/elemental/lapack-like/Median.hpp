@@ -16,9 +16,7 @@ template<typename Real>
 inline ValueInt<Real>
 Median( const Matrix<Real>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Median");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Median"))
     if( IsComplex<Real>::val )
         LogicError("Complex numbers do not have a natural ordering");
     const Int m = x.Height();
@@ -45,9 +43,7 @@ template<typename Real,Distribution U,Distribution V>
 inline ValueInt<Real>
 Median( const DistMatrix<Real,U,V>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Median");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Median"))
     if( U==STAR && V==STAR )
     {
         return Median( x.LockedMatrix() );

@@ -30,7 +30,7 @@ TrsmLUTLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLUTLarge");
+    CallStackEntry cse("internal::TrsmLUTLarge");
     if( orientation == NORMAL )
         LogicError("TrsmLUT expects a (Conjugate)Transpose option");
 #endif
@@ -118,7 +118,7 @@ TrsmLUTMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLUTMedium");
+    CallStackEntry cse("internal::TrsmLUTMedium");
     if( orientation == NORMAL )
         LogicError("TrsmLUT expects a (Conjugate)Transpose option");
 #endif
@@ -215,7 +215,7 @@ TrsmLUTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLUTSmall");
+    CallStackEntry cse("internal::TrsmLUTSmall");
     if( U.Grid() != X.Grid() )
         LogicError
         ("U and X must be distributed over the same grid");

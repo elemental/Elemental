@@ -17,7 +17,7 @@ inline void
 Copy( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Copy");
+    CallStackEntry cse("Copy");
 #endif
     B = A;
 }
@@ -28,7 +28,7 @@ inline void
 Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Copy");
+    CallStackEntry cse("Copy");
 #endif
     B = A;
 }

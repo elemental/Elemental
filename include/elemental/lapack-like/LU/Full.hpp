@@ -22,9 +22,7 @@ template<typename F>
 inline void
 Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q, Int pivotOffset=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::Panel");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lu::Panel"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -65,11 +63,11 @@ Full
   DistMatrix<Int,VC,STAR>& q,
   Int pivotOffset=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::Panel");
-    if( A.Grid() != p.Grid() || p.Grid() != q.Grid() )
-        LogicError("Matrices must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("lu::Panel");
+        if( A.Grid() != p.Grid() || p.Grid() != q.Grid() )
+            LogicError("Matrices must be distributed over the same grid");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);

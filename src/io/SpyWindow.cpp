@@ -19,7 +19,7 @@ SpyWindow::SpyWindow( QWidget* parent )
 : QWidget(parent)
 {
 #ifndef RELEASE
-    CallStackEntry entry("SpyWindow::SpyWindow");
+    CallStackEntry cse("SpyWindow::SpyWindow");
 #endif
     matrix_ = 0;
 
@@ -44,7 +44,7 @@ void
 SpyWindow::Spy( const Matrix<Int>* matrix, QString title )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SpyWindow::Spy");
+    CallStackEntry cse("SpyWindow::Spy");
 #endif
     if( matrix_ != 0 )
         delete matrix_;

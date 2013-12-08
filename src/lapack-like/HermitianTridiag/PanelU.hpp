@@ -31,7 +31,7 @@ void PanelU
     const Int nW = W.Width();
     //const Int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_tridiag::PanelU");
+    CallStackEntry cse("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         LogicError("A, W, and t must be distributed over the same grid.");
     if( n != A.Width() )

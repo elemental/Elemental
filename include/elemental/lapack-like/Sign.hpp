@@ -36,10 +36,8 @@ template<typename F>
 inline void
 NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("sign::NewtonStep");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("sign::NewtonStep"))
+    typedef Base<F> Real;
 
     // Calculate mu while forming XNew := inv(X)
     Real mu;
@@ -71,10 +69,8 @@ inline void
 NewtonStep
 ( const DistMatrix<F>& X, DistMatrix<F>& XNew, Scaling scaling=FROB_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry entry("sign::NewtonStep");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("sign::NewtonStep"))
+    typedef Base<F> Real;
 
     // Calculate mu while forming B := inv(X)
     Real mu;
@@ -105,10 +101,8 @@ template<typename F>
 inline void
 NewtonSchulzStep( const Matrix<F>& X, Matrix<F>& XTmp, Matrix<F>& XNew )
 {
-#ifndef RELEASE
-    CallStackEntry entry("sign::NewtonSchulzStep");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("sign::NewtonSchulzStep"))
+    typedef Base<F> Real;
     const Int n = X.Height();
  
     // XTmp := 3I - X^2
@@ -124,10 +118,8 @@ inline void
 NewtonSchulzStep
 ( const DistMatrix<F>& X, DistMatrix<F>& XTmp, DistMatrix<F>& XNew )
 {
-#ifndef RELEASE
-    CallStackEntry entry("sign::NewtonSchulzStep");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("sign::NewtonSchulzStep"))
+    typedef Base<F> Real;
     const Int n = X.Height();
 
     // XTmp := 3I - X^2
@@ -143,10 +135,8 @@ inline Int
 Newton
 ( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("sign::Newton");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
+    typedef Base<F> Real;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
@@ -180,10 +170,8 @@ Newton
 ( DistMatrix<F>& A, Scaling scaling=FROB_NORM, 
   Int maxIts=100, BASE(F) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("sign::Newton");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
+    typedef Base<F> Real;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
@@ -219,9 +207,7 @@ template<typename F>
 inline void
 Sign( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sign");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sign"))
     sign::Newton( A );
 }
 
@@ -229,9 +215,7 @@ template<typename F>
 inline void
 Sign( Matrix<F>& A, Matrix<F>& N )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sign");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sign"))
     Matrix<F> ACopy( A );
     sign::Newton( A );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
@@ -241,9 +225,7 @@ template<typename F>
 inline void
 Sign( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sign");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sign"))
     sign::Newton( A );
 }
 
@@ -251,9 +233,7 @@ template<typename F>
 inline void
 Sign( DistMatrix<F>& A, DistMatrix<F>& N )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sign");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sign"))
     DistMatrix<F> ACopy( A );
     sign::Newton( A );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
@@ -271,10 +251,8 @@ template<typename F>
 inline void
 HermitianSign( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianSign");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
+    typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
@@ -299,10 +277,8 @@ template<typename F>
 inline void
 HermitianSign( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianSign");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
+    typedef Base<F> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
@@ -335,11 +311,9 @@ template<typename F>
 inline void
 HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianSign");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -365,11 +339,9 @@ template<typename F>
 inline void
 HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianSign");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     EnsurePMRRR();
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();

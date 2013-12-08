@@ -28,8 +28,13 @@
 #include <random>
 #include <vector>
 
-// If defined, the _OPENMP macro contains the date of the specification
+#ifdef RELEASE
+# define DEBUG_ONLY(cmd) 
+#else
+# define DEBUG_ONLY(cmd) cmd;
+#endif
 
+// If defined, the _OPENMP macro contains the date of the specification
 #ifdef HAVE_OPENMP
 # include <omp.h>
 # define PARALLEL_FOR _Pragma("omp parallel for")

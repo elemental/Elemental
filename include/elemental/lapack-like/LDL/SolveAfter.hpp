@@ -22,13 +22,13 @@ template<typename F>
 inline void
 SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("ldl::SolveAfter");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ldl::SolveAfter");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+    )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
     const auto d = A.GetDiagonal();
@@ -41,15 +41,15 @@ template<typename F>
 inline void
 SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::SolveAfter");
-    if( A.Grid() != B.Grid() )
-        LogicError("{A,B} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("lu::SolveAfter");
+        if( A.Grid() != B.Grid() )
+            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+    )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
     const auto d = A.GetDiagonal();
@@ -64,16 +64,16 @@ SolveAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub, const Matrix<Int>& p, 
   Matrix<F>& B, bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::SolveAfter");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-    if( p.Height() != A.Height() )
-        LogicError("A and p must be the same height");
-    // TODO: Check for dSub
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("lu::SolveAfter");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+        if( p.Height() != A.Height() )
+            LogicError("A and p must be the same height");
+        // TODO: Check for dSub
+    )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
@@ -89,18 +89,18 @@ SolveAfter
 ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, 
   const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B, bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::SolveAfter");
-    if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
-        LogicError("{A,B} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-    if( A.Height() != p.Height() )
-        LogicError("A and p must be the same height");
-    // TODO: Check for dSub
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("lu::SolveAfter");
+        if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
+            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+        if( A.Height() != p.Height() )
+            LogicError("A and p must be the same height");
+        // TODO: Check for dSub
+    )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );

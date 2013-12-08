@@ -21,7 +21,7 @@ inline bool
 CheckScale( DistMatrix<F>& A, BASE(F)& scale )
 {
     scale = 1;
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Real oneNormOfA = OneNorm( A );
     const Real safeMin = lapack::MachineSafeMin<Real>();
     const Real precision = lapack::MachinePrecision<Real>();
@@ -48,9 +48,7 @@ template<typename F>
 inline void
 DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::DivideAndConquerSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::DivideAndConquerSVD"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);
@@ -69,9 +67,7 @@ template<typename F>
 inline void
 QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 {
-#ifndef RELEASE
-    CallStackEntry entry("svd::QRSVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svd::QRSVD"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);

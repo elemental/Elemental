@@ -17,7 +17,7 @@ inline void
 Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Transpose");
+    CallStackEntry cse("Transpose");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -43,7 +43,7 @@ Transpose
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Transpose");
+    CallStackEntry cse("Transpose");
 #endif
     if( U == Z && V == W && 
         A.ColAlign() == B.RowAlign() &&

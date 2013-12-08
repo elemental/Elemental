@@ -18,9 +18,7 @@ template<typename T>
 inline void
 Hanowa( Matrix<T>& A, Int n, T mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hanowa");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hanowa"))
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
     A.ResizeTo( n, n );
@@ -58,9 +56,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hanowa");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hanowa"))
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
     A.ResizeTo( n, n );

@@ -18,9 +18,7 @@ template<typename T>
 inline void
 MakeZeros( Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeZeros");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeZeros"))
     Zero( A );
 }
 
@@ -28,9 +26,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeZeros( DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeZeros");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeZeros"))
     Zero( A.Matrix() );
 }
 
@@ -38,9 +34,7 @@ template<typename T>
 inline void
 Zeros( Matrix<T>& A, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Zeros");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Zeros"))
     A.ResizeTo( m, n );
     MakeZeros( A );
 }
@@ -58,9 +52,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Zeros");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Zeros"))
     A.ResizeTo( m, n );
     MakeZeros( A );
 }

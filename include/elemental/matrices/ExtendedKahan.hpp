@@ -28,10 +28,8 @@ template<typename F>
 inline void
 MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeExtendedKahan");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
+    typedef Base<F> R;
 
     if( A.Height() != A.Width() )
         LogicError("Extended Kahan matrices must be square");
@@ -74,10 +72,8 @@ template<typename F,Distribution U,Distribution V>
 inline void
 MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeExtendedKahan");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
+    typedef Base<F> R;
 
     if( A.Height() != A.Width() )
         LogicError("Extended Kahan matrices must be square");
@@ -125,9 +121,7 @@ template<typename F>
 inline void
 ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ExtendedKahan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
     A.ResizeTo( n, n );
     MakeExtendedKahan( A, phi, mu );
@@ -147,9 +141,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ExtendedKahan");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
     A.ResizeTo( n, n );
     MakeExtendedKahan( A, phi, mu );

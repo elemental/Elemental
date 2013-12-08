@@ -17,9 +17,7 @@ void
 Check( DistMatrix<T,AColDist,ARowDist>& A, 
        DistMatrix<T,BColDist,BRowDist>& B )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Check");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Check"))
     const Grid& g = A.Grid();
 
     const Int commRank = g.Rank();
@@ -72,9 +70,7 @@ template<typename T>
 void
 DistMatrixTest( Int m, Int n, const Grid& g )
 {
-#ifndef RELEASE
-    CallStackEntry entry("DistMatrixTest");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DistMatrixTest"))
     DistMatrix<T,MC,  MR  > A_MC_MR(g);
     DistMatrix<T,MC,  STAR> A_MC_STAR(g);
     DistMatrix<T,STAR,MR  > A_STAR_MR(g);

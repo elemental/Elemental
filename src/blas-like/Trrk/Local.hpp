@@ -263,7 +263,7 @@ TrrkNNKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TrrkNNKernel");
+    CallStackEntry cse("TrrkNNKernel");
     CheckInputNN( A, B, C );
 #endif
     Matrix<T> AT,
@@ -307,7 +307,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrkKernel");
+    CallStackEntry cse("LocalTrrkKernel");
     CheckInput( A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -355,7 +355,7 @@ TrrkNTKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TrrkNTKernel");
+    CallStackEntry cse("TrrkNTKernel");
     CheckInputNT( orientationOfB, A, B, C );
 #endif
     Matrix<T> AT,
@@ -403,7 +403,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrkKernel");
+    CallStackEntry cse("LocalTrrkKernel");
     CheckInput( orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -454,7 +454,7 @@ TrrkTNKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TrrkTNKernel");
+    CallStackEntry cse("TrrkTNKernel");
     CheckInputTN( orientationOfA, A, B, C );
 #endif
     Matrix<T> AL, AR;
@@ -496,7 +496,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrkKernel");
+    CallStackEntry cse("LocalTrrkKernel");
     CheckInput( orientationOfA, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -542,7 +542,7 @@ TrrkTTKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TrrkTTKernel");
+    CallStackEntry cse("TrrkTTKernel");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
 #endif
     Matrix<T> AL, AR;
@@ -588,7 +588,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrkKernel");
+    CallStackEntry cse("LocalTrrkKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -639,7 +639,7 @@ void TrrkNN
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrrkNN");
+    CallStackEntry cse("internal::TrrkNN");
     CheckInputNN( A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -686,7 +686,7 @@ void TrrkNT
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrrkNT");
+    CallStackEntry cse("internal::TrrkNT");
     CheckInputNT( orientationOfB, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -736,7 +736,7 @@ void TrrkTN
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrrkTN");
+    CallStackEntry cse("internal::TrrkTN");
     CheckInputTN( orientationOfA, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -780,7 +780,7 @@ void TrrkTT
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrrkTT");
+    CallStackEntry cse("internal::TrrkTT");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -832,7 +832,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrk");
+    CallStackEntry cse("LocalTrrk");
     CheckInput( A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -882,7 +882,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrk");
+    CallStackEntry cse("LocalTrrk");
     CheckInput( orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -935,7 +935,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrk");
+    CallStackEntry cse("LocalTrrk");
     CheckInput( orientationOfA, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -982,7 +982,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrrk");
+    CallStackEntry cse("LocalTrrk");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();

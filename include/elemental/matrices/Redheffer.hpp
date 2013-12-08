@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Redheffer( Matrix<T>& R, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Redheffer");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Redheffer"))
     R.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
     {
@@ -45,9 +43,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Redheffer( DistMatrix<T,U,V>& R, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Redheffer");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Redheffer"))
     R.ResizeTo( n, n );
     const Int localHeight = R.LocalHeight();
     const Int localWidth = R.LocalWidth();

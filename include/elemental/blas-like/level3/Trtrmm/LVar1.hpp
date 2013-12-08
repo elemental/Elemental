@@ -20,7 +20,7 @@ inline void
 TrtrmmLVar1( Matrix<T>& L, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrmmLVar1");
+    CallStackEntry cse("internal::TrtrmmLVar1");
 #endif
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<T>
@@ -58,7 +58,7 @@ inline void
 TrtrmmLVar1( DistMatrix<T>& L, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtrmmLVar1");
+    CallStackEntry cse("internal::TrtrmmLVar1");
     if( L.Height() != L.Width() )
         LogicError("L must be square");
 #endif

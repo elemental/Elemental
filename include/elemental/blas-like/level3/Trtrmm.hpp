@@ -22,7 +22,7 @@ LocalTrtrmm
 ( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrtrmm");
+    CallStackEntry cse("LocalTrtrmm");
 #endif
     Trtrmm( uplo, A.Matrix(), conjugate );
 }
@@ -32,7 +32,7 @@ inline void
 Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trtrmm");
+    CallStackEntry cse("Trtrmm");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -47,7 +47,7 @@ inline void
 Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trtrmm");
+    CallStackEntry cse("Trtrmm");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif

@@ -21,11 +21,11 @@ inline void
 UVar3Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UVar3Unb");
+    CallStackEntry cse("cholesky::UVar3Unb");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
@@ -51,11 +51,11 @@ inline void
 ReverseUVar3Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::ReverseUVar3Unb");
+    CallStackEntry cse("cholesky::ReverseUVar3Unb");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
@@ -81,7 +81,7 @@ inline void
 UVar3( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UVar3");
+    CallStackEntry cse("cholesky::UVar3");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
@@ -105,7 +105,7 @@ inline void
 ReverseUVar3( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::ReverseUVar3");
+    CallStackEntry cse("cholesky::ReverseUVar3");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
@@ -131,7 +131,7 @@ inline void
 UVar3( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::UVar3");
+    CallStackEntry cse("cholesky::UVar3");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
@@ -174,7 +174,7 @@ inline void
 ReverseUVar3( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::ReverseUVar3");
+    CallStackEntry cse("cholesky::ReverseUVar3");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif

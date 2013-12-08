@@ -20,7 +20,7 @@ ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
 : QWidget(parent)
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::ComplexDisplayWindow");
+    CallStackEntry cse("ComplexDisplayWindow::ComplexDisplayWindow");
 #endif
     matrix_ = 0;
     QVBoxLayout* mainLayout = new QVBoxLayout();
@@ -69,7 +69,7 @@ ComplexDisplayWindow::Display
 ( const Matrix<Complex<double>>* matrix, QString title )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::Display");
+    CallStackEntry cse("ComplexDisplayWindow::Display");
 #endif
     if( matrix_ != 0 )
         delete matrix_; 
@@ -88,7 +88,7 @@ ComplexDisplayWindow::Display
   QString title )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::Display");
+    CallStackEntry cse("ComplexDisplayWindow::Display");
 #endif
     if( matrix_ != 0 )
         delete matrix_;
@@ -103,7 +103,7 @@ void
 ComplexDisplayWindow::SaveReal()
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::SaveReal");
+    CallStackEntry cse("ComplexDisplayWindow::SaveReal");
 #endif
     std::ostringstream os;
     os << windowTitle().toStdString() << " (real)";
@@ -114,7 +114,7 @@ void
 ComplexDisplayWindow::SaveImag()
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::SaveImag");
+    CallStackEntry cse("ComplexDisplayWindow::SaveImag");
 #endif
     std::ostringstream os;
     os << windowTitle().toStdString() << " (imag)";
@@ -125,7 +125,7 @@ void
 ComplexDisplayWindow::SetScale( bool global )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::SetScale");
+    CallStackEntry cse("ComplexDisplayWindow::SetScale");
 #endif
     if( global )
     {

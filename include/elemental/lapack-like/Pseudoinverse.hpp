@@ -26,10 +26,8 @@ template<typename F>
 inline void
 Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Pseudoinverse");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
+    typedef Base<F> R;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -70,10 +68,8 @@ template<typename F>
 inline void
 HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianPseudoinverse");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
+    typedef Base<F> R;
     const Int n = A.Height();
 
     // Get the EVD of A
@@ -106,10 +102,8 @@ template<typename F>
 inline void
 Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Pseudoinverse");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
+    typedef Base<F> R;
 
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -152,11 +146,9 @@ inline void
 HermitianPseudoinverse
 ( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) tolerance=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianPseudoinverse");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
 
     // Get the EVD of A

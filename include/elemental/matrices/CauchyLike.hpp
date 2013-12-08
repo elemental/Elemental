@@ -19,9 +19,7 @@ CauchyLike
   const std::vector<F2>& r, const std::vector<F2>& s,
   const std::vector<F2>& x, const std::vector<F2>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("CauchyLike");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CauchyLike"))
     const Int m = r.size();
     const Int n = s.size();
     if( x.size() != (Unsigned)m )
@@ -67,9 +65,7 @@ CauchyLike
   const std::vector<F2>& r, const std::vector<F2>& s, 
   const std::vector<F2>& x, const std::vector<F2>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("CauchyLike");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("CauchyLike"))
     const Int m = r.size();
     const Int n = s.size();
     if( x.size() != (Unsigned)m )

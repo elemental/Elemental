@@ -20,7 +20,7 @@ inline void
 RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RowEchelon");
+    CallStackEntry cse("RowEchelon");
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height");
 #endif
@@ -62,7 +62,7 @@ inline void
 RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RowEchelon");
+    CallStackEntry cse("RowEchelon");
     if( A.Grid() != B.Grid() )
         LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != B.Height() )
@@ -147,7 +147,7 @@ inline void
 GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("GaussianElimination");
+    CallStackEntry cse("GaussianElimination");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( A.Height() != B.Height() )
@@ -162,7 +162,7 @@ inline void
 GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("GaussianElimination");
+    CallStackEntry cse("GaussianElimination");
     if( A.Grid() != B.Grid() )
         LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )

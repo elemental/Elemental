@@ -26,9 +26,9 @@ inline void
 PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("id::PseudoTrsm");
+    CallStackEntry cse("id::PseudoTrsm");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = RR.Height();
     const Int n = RR.Width();
 
@@ -73,7 +73,7 @@ inline void
 PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("id::PseudoTrsm");
+    CallStackEntry cse("id::PseudoTrsm");
 #endif
 
     DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
@@ -92,9 +92,9 @@ BusingerGolub
 ( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("id::BusingerGolub");
+    CallStackEntry cse("id::BusingerGolub");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization
@@ -124,9 +124,9 @@ BusingerGolub
   Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("id::BusingerGolub");
+    CallStackEntry cse("id::BusingerGolub");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A
@@ -158,7 +158,7 @@ ID
   Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     Matrix<F> B( A );
     id::BusingerGolub( B, p, Z, maxSteps, tol );
@@ -172,7 +172,7 @@ ID
   Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     Matrix<F> B;
     if( canOverwrite )
@@ -188,7 +188,7 @@ inline void
 ID( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
@@ -201,7 +201,7 @@ ID
   bool canOverwrite=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
@@ -214,7 +214,7 @@ ID
   Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     DistMatrix<F> B( A );
     id::BusingerGolub( B, p, Z, maxSteps, tol );
@@ -228,7 +228,7 @@ ID
   Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
@@ -246,7 +246,7 @@ ID
   Int numSteps )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
@@ -259,7 +259,7 @@ ID
   Int numSteps, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry cse("ID");
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }

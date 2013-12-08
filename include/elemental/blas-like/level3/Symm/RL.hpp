@@ -33,7 +33,7 @@ LocalSymmetricAccumulateRL
         DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::LocalSymmetricAccumulateRL");
+    CallStackEntry cse("internal::LocalSymmetricAccumulateRL");
     if( A.Grid() != B_STAR_MC.Grid() ||
         B_STAR_MC.Grid() != BTrans_MR_STAR.Grid() ||
         BTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() ||
@@ -200,7 +200,7 @@ SymmRLA
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::SymmRLA");
+    CallStackEntry cse("internal::SymmRLA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must be distributed over the same grid");
 #endif
@@ -293,7 +293,7 @@ SymmRLC
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::SymmRLC");
+    CallStackEntry cse("internal::SymmRLC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must be distributed over the same grid");
 #endif
@@ -394,7 +394,7 @@ SymmRL
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::SymmRL");
+    CallStackEntry cse("internal::SymmRL");
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )

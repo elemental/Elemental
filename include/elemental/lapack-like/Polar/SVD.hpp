@@ -27,11 +27,9 @@ template<typename F>
 inline void
 SVD( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
     // Get the SVD of A
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<R> s;
     Matrix<F> U, V;
     U = A;
@@ -45,11 +43,9 @@ template<typename F>
 inline void
 SVD( Matrix<F>& A, Matrix<F>& P )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
     // Get the SVD of A
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<R> s;
     Matrix<F> U, V;
     U = A;
@@ -66,11 +62,9 @@ template<typename F>
 inline void
 SVD( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
     // Get the SVD of A
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
@@ -85,11 +79,9 @@ template<typename F>
 inline void
 SVD( DistMatrix<F>& A, DistMatrix<F>& P )
 {
-#ifndef RELEASE
-    CallStackEntry entry("polar::SVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
     // Get the SVD of A
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);

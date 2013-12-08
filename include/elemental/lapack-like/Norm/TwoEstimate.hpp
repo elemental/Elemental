@@ -22,10 +22,8 @@ template<typename F>
 inline BASE(F)
 TwoNormEstimate( const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("TwoNormEstimate");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -57,10 +55,8 @@ template<typename F>
 inline BASE(F)
 TwoNormEstimate( const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("TwoNormEstimate");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -94,10 +90,8 @@ inline BASE(F)
 HermitianTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianTwoNormEstimate");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     Matrix<F> x, y;
@@ -130,10 +124,8 @@ inline BASE(F)
 HermitianTwoNormEstimate
 ( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianTwoNormEstimate");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 
@@ -167,10 +159,8 @@ inline BASE(F)
 SymmetricTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricTwoNormEstimate");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     Matrix<F> x, y;
@@ -205,10 +195,8 @@ inline BASE(F)
 SymmetricTwoNormEstimate
 ( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricTwoNormEstimate");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 

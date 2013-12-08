@@ -29,9 +29,7 @@ template<typename F>
 inline void
 LocalLDL( DistMatrix<F,STAR,STAR>& A, bool conjugate )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalLDL");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalLDL"))
     ldl::Var3( A.Matrix(), conjugate );
 }
 
@@ -39,9 +37,7 @@ template<typename F>
 inline void
 LDLH( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLH"))
     ldl::Var3( A, true );
 }
 
@@ -51,9 +47,7 @@ LDLH
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLH"))
     ldl::Pivoted( A, dSub, p, true, pivotType );
 }
 
@@ -61,9 +55,7 @@ template<typename F>
 inline void 
 LDLH( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLH"))
     ldl::Var3( A, true );
 }
 
@@ -73,9 +65,7 @@ LDLH
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLH");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLH"))
     ldl::Pivoted( A, dSub, p, true, pivotType );
 }
 
@@ -83,9 +73,7 @@ template<typename F>
 inline void
 LDLT( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLT"))
     ldl::Var3( A, false );
 }
 
@@ -95,9 +83,7 @@ LDLT
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLT"))
     ldl::Pivoted( A, dSub, p, false, pivotType );
 }
 
@@ -105,9 +91,7 @@ template<typename F>
 inline void 
 LDLT( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLT"))
     ldl::Var3( A, false );
 }
 
@@ -117,9 +101,7 @@ LDLT
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LDLT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LDLT"))
     ldl::Pivoted( A, dSub, p, false, pivotType );
 }
 
@@ -128,9 +110,7 @@ inline elem::Inertia
 HermitianInertia
 ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianInertia");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianInertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     Matrix<Int> p;
@@ -144,9 +124,7 @@ inline elem::Inertia
 HermitianInertia
 ( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianInertia");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianInertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     DistMatrix<Int,VC,STAR> p( A.Grid() );

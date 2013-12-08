@@ -16,10 +16,8 @@ template<typename F>
 inline BASE(F)
 FrobeniusNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("FrobeniusNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    typedef Base<F> R;
     R scale = 0;
     R scaledSquare = 1;
     const Int width = A.Width();
@@ -52,13 +50,11 @@ template<typename F>
 inline BASE(F)
 HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianFrobeniusNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R scale = 0;
     R scaledSquare = 1;
     const Int height = A.Height();
@@ -148,9 +144,7 @@ template<typename F>
 inline BASE(F)
 SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricFrobeniusNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 
@@ -158,10 +152,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 FrobeniusNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("FrobeniusNorm");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
+    typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -214,9 +206,7 @@ template<typename F>
 inline BASE(F)
 HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianFrobeniusNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -225,7 +215,7 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const Int colShift = A.ColShift();
     const Int rowShift = A.RowShift();
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R localScale = 0;
     R localScaledSquare = 1;
     const Int localWidth = A.LocalWidth();
@@ -323,9 +313,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricFrobeniusNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 

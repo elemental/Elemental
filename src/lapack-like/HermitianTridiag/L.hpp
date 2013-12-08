@@ -27,7 +27,7 @@ template<typename F>
 void L( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_tridiag::L");
+    CallStackEntry cse("hermitian_tridiag::L");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -65,7 +65,7 @@ template<typename F>
 void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_tridiag::L");
+    CallStackEntry cse("hermitian_tridiag::L");
     if( A.Grid() != t.Grid() )
         LogicError("{A,t} must be distributed over the same grid");
     if( A.Height() != A.Width() )

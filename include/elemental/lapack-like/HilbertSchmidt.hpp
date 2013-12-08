@@ -19,7 +19,7 @@ inline F
 HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HilbertSchmidt");
+    CallStackEntry cse("HilbertSchmidt");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
@@ -37,7 +37,7 @@ inline F
 HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HilbertSchmidt");
+    CallStackEntry cse("HilbertSchmidt");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");

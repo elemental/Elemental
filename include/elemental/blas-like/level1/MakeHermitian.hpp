@@ -19,7 +19,7 @@ inline void
 MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeHermitian");
+    CallStackEntry cse("MakeHermitian");
 #endif
     MakeSymmetric( uplo, A, true );
 }
@@ -29,7 +29,7 @@ inline void
 MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeHermitian");
+    CallStackEntry cse("MakeHermitian");
 #endif
     MakeSymmetric( uplo, A, true );
 }

@@ -22,7 +22,7 @@ QuasiDiagonalSolve
   Matrix<F>& X, bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("QuasiDiagonalSolve");
+    CallStackEntry cse("QuasiDiagonalSolve");
 #endif
     const Int m = X.Height();
     const Int n = X.Width();
@@ -103,7 +103,7 @@ LeftQuasiDiagonalSolve
   bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LeftQuasiDiagonalSolve");
+    CallStackEntry cse("LeftQuasiDiagonalSolve");
 #endif
     if( uplo == UPPER || orientation != NORMAL )
         LogicError("This option not yet supported");
@@ -189,7 +189,7 @@ QuasiDiagonalSolve
   DistMatrix<F>& X, bool conjugated=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("QuasiDiagonalSolve");
+    CallStackEntry cse("QuasiDiagonalSolve");
 #endif
     const Grid& g = X.Grid();
     const Int colAlign = X.ColAlign();

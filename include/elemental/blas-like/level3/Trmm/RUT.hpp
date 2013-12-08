@@ -33,7 +33,7 @@ LocalTrmmAccumulateRUT
         DistMatrix<T,MC,STAR>& ZTrans_MC_STAR )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::LocalTrmmAccumulateRUT");
+    CallStackEntry cse("internal::LocalTrmmAccumulateRUT");
     if( U.Grid() != XTrans_MR_STAR.Grid() ||
         XTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() )
         LogicError("{U,X,Z} must be distributed over the same grid");
@@ -148,7 +148,7 @@ TrmmRUTA
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmRUTA");
+    CallStackEntry cse("internal::TrmmRUTA");
     if( U.Grid() != X.Grid() )
         LogicError("{U,X} must be distributed over the same grid");
 #endif
@@ -208,7 +208,7 @@ TrmmRUTC
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmRUTC");
+    CallStackEntry cse("internal::TrmmRUTC");
     if( U.Grid() != X.Grid() )
         LogicError("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
@@ -298,7 +298,7 @@ TrmmRUT
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrmmRUT");
+    CallStackEntry cse("internal::TrmmRUT");
 #endif
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )

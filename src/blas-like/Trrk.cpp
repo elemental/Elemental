@@ -24,7 +24,7 @@ void Trrk
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trrk");
+    CallStackEntry cse("Trrk");
 #endif
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
         internal::TrrkNN( uplo, alpha, A, B, beta, C );
@@ -44,7 +44,7 @@ void Trrk
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trrk");
+    CallStackEntry cse("Trrk");
 #endif
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
         internal::TrrkNN( uplo, alpha, A, B, beta, C );

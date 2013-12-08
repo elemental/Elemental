@@ -16,10 +16,8 @@ template<typename F>
 inline BASE(F)
 EntrywiseOneNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("EntrywiseOneNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseOneNorm"))
+    typedef Base<F> R;
     R norm = 0;
     const Int width = A.Width();
     const Int height = A.Height();
@@ -33,13 +31,11 @@ template<typename F>
 inline BASE(F)
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianEntrywiseOneNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseOneNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R norm = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -78,9 +74,7 @@ template<typename F>
 inline BASE(F)
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricEntrywiseOneNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseOneNorm"))
     return HermitianEntrywiseOneNorm( uplo, A );
 }
 
@@ -88,10 +82,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("EntrywiseOneNorm");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseOneNorm"))
+    typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -111,9 +103,7 @@ template<typename F>
 inline BASE(F)
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianEntrywiseOneNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseOneNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -122,7 +112,7 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const Int colShift = A.ColShift();
     const Int rowShift = A.RowShift();
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     R localSum = 0;
     const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
@@ -168,9 +158,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricEntrywiseOneNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseOneNorm"))
     return HermitianEntrywiseOneNorm( uplo, A );
 }
 

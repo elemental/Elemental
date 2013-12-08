@@ -44,19 +44,19 @@ template<typename R>
 inline R
 Col( DistMatrix<R>& chi, DistMatrix<R>& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("reflector::Col");
-    if( chi.Grid() != x.Grid() )
-        LogicError("chi and x must be distributed over the same grid");
-    if( chi.Height() != 1 || chi.Width() != 1 )
-        LogicError("chi must be a scalar");
-    if( x.Width() != 1 )
-        LogicError("x must be a column vector");
-    if( chi.Grid().Col() != chi.RowAlign() )
-        LogicError("Reflecting with incorrect column of processes");
-    if( x.Grid().Col() != x.RowAlign() )
-        LogicError("Reflecting with incorrect column of processes");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("reflector::Col");
+        if( chi.Grid() != x.Grid() )
+            LogicError("chi and x must be distributed over the same grid");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Width() != 1 )
+            LogicError("x must be a column vector");
+        if( chi.Grid().Col() != chi.RowAlign() )
+            LogicError("Reflecting with incorrect column of processes");
+        if( x.Grid().Col() != x.RowAlign() )
+            LogicError("Reflecting with incorrect column of processes");
+    )
     const Grid& grid = x.Grid();
     mpi::Comm colComm = grid.ColComm();
     const Int gridHeight = grid.Height();
@@ -126,19 +126,19 @@ template<typename R>
 inline Complex<R>
 Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 {
-#ifndef RELEASE
-    CallStackEntry entry("reflector::Col");
-    if( chi.Grid() != x.Grid() )
-        LogicError("chi and x must be distributed over the same grid");
-    if( chi.Height() != 1 || chi.Width() != 1 )
-        LogicError("chi must be a scalar");
-    if( x.Width() != 1 )
-        LogicError("x must be a column vector");
-    if( chi.Grid().Col() != chi.RowAlign() )
-        LogicError("Reflecting with incorrect column of processes");
-    if( x.Grid().Col() != x.RowAlign() )
-        LogicError("Reflecting with incorrect column of processes");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("reflector::Col");
+        if( chi.Grid() != x.Grid() )
+            LogicError("chi and x must be distributed over the same grid");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Width() != 1 )
+            LogicError("x must be a column vector");
+        if( chi.Grid().Col() != chi.RowAlign() )
+            LogicError("Reflecting with incorrect column of processes");
+        if( x.Grid().Col() != x.RowAlign() )
+            LogicError("Reflecting with incorrect column of processes");
+    )
     typedef Complex<R> C;
     const Grid& grid = x.Grid();
     mpi::Comm colComm = grid.ColComm();

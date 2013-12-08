@@ -30,9 +30,9 @@ inline BASE(F)
 UnitaryCoherence( Matrix<F>& U )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UnitaryCoherence");
+    CallStackEntry cse("UnitaryCoherence");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = U.Height();
     const Int r = U.Width();
 
@@ -58,9 +58,9 @@ inline BASE(F)
 UnitaryCoherence( DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UnitaryCoherence");
+    CallStackEntry cse("UnitaryCoherence");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Grid& grid = U.Grid();
     const Int n = U.Height();
     const Int r = U.Width();

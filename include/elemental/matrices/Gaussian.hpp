@@ -17,9 +17,7 @@ template<typename T>
 inline void
 MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeGaussian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -31,9 +29,7 @@ template<typename T>
 inline void
 Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gaussian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.ResizeTo( m, n );
     MakeGaussian( A, mean, stddev );
 }
@@ -349,9 +345,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gaussian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     internal::MakeGaussianHelper<T,U,V>::Func( A, mean, stddev );
 }
 
@@ -359,9 +353,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gaussian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.ResizeTo( m, n );
     MakeGaussian( A, mean, stddev );
 }

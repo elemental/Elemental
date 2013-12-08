@@ -23,14 +23,14 @@ inline BASE(F)
 LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LogDetDivergence");
+    CallStackEntry cse("LogDetDivergence");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
         LogicError
         ("A and B must be square matrices of the same size");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
 
     Matrix<F> ACopy( A ), BCopy( B );
@@ -65,7 +65,7 @@ LogDetDivergence
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LogDetDivergence");
+    CallStackEntry cse("LogDetDivergence");
 #endif
     if( A.Grid() != B.Grid() )
         LogicError("A and B must use the same grid");
@@ -73,7 +73,7 @@ LogDetDivergence
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");
 
-    typedef BASE(F) R;
+    typedef Base<F> R;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 

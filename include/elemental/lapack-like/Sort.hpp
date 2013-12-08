@@ -18,9 +18,7 @@ template<typename Real>
 inline void
 Sort( Matrix<Real>& X, SortType sort=ASCENDING )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sort");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sort"))
     if( IsComplex<Real>::val )
         LogicError("Complex numbers do not have a natural ordering");
     if( sort == UNSORTED )
@@ -41,9 +39,7 @@ template<typename Real,Distribution U,Distribution V>
 inline void
 Sort( DistMatrix<Real,U,V>& X, SortType sort=ASCENDING )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sort");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sort"))
     if( sort == UNSORTED )
         return;
 
@@ -70,9 +66,7 @@ template<typename Real>
 inline std::vector<ValueInt<Real> >
 TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TaggedSort");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
     if( IsComplex<Real>::val )
         LogicError("Complex numbers do not have a natural ordering");
     const Int m = x.Height();
@@ -103,9 +97,7 @@ template<typename Real,Distribution U,Distribution V>
 inline std::vector<ValueInt<Real> >
 TaggedSort( const DistMatrix<Real,U,V>& x, SortType sort=ASCENDING )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TaggedSort");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
     if( U==STAR && V==STAR )
     {
         return TaggedSort( x.LockedMatrix(), sort );

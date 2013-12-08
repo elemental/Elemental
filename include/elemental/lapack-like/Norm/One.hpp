@@ -16,10 +16,8 @@ template<typename F>
 inline BASE(F)
 OneNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("OneNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("OneNorm"))
+    typedef Base<F> R;
     R maxColSum = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -37,10 +35,8 @@ template<typename F>
 inline BASE(F)
 HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianOneNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
+    typedef Base<F> R;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
     R maxColSum = 0;
@@ -76,9 +72,7 @@ template<typename F>
 inline BASE(F)
 SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricOneNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
@@ -86,10 +80,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 OneNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("OneNorm");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("OneNorm"))
+    typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -126,10 +118,8 @@ template<typename F>
 inline BASE(F)
 HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianOneNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
+    typedef Base<F> R;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
     const Int height = A.Height();
@@ -242,9 +232,7 @@ template<typename F>
 inline BASE(F)
 SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricOneNorm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );
 }
 

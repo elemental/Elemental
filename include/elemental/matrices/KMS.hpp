@@ -16,9 +16,7 @@ template<typename T>
 inline void
 KMS( Matrix<T>& K, Int n, T rho )
 {
-#ifndef RELEASE
-    CallStackEntry cse("KMS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("KMS"))
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<j; ++i )
@@ -41,9 +39,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 KMS( DistMatrix<T,U,V>& K, Int n, T rho )
 {
-#ifndef RELEASE
-    CallStackEntry cse("KMS");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("KMS"))
     const Int localHeight = K.LocalHeight();
     const Int localWidth = K.LocalWidth();
     const Int colShift = K.ColShift();

@@ -18,9 +18,7 @@ template<typename T>
 inline void
 Grcar( Matrix<T>& A, Int n, Int k=3 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Grcar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Grcar"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     const Int numDiags = ( n>0 ? 2*n-1 : 0 );
@@ -47,9 +45,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Grcar");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Grcar"))
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
     const Int numDiags = ( n>0 ? 2*n-1 : 0 );

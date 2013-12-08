@@ -24,9 +24,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, Matrix<Real>& wImag, 
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
     Int n = G.Height();
@@ -55,9 +53,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
   Matrix<Real>& wImag, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
@@ -75,9 +71,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
   DistMatrix<Real,VR,STAR>& wImag, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
@@ -111,9 +105,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
   DistMatrix<Real,VR,STAR>& wImag, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
@@ -136,9 +128,7 @@ SkewHermitianEig
   Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
     Int n = G.Height();
@@ -169,9 +159,7 @@ SkewHermitianEig
   Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
 
@@ -190,9 +178,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
@@ -227,9 +213,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -252,9 +236,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
   Matrix<Real>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     Int n = G.Height();
@@ -284,9 +266,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
   Matrix<Real>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
@@ -304,9 +284,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
   DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -340,9 +318,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
   DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -366,9 +342,7 @@ SkewHermitianEig
   Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     Int n = G.Height();
@@ -399,9 +373,7 @@ SkewHermitianEig
   Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
@@ -420,9 +392,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -457,9 +427,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -482,9 +450,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
   Matrix<Real>& wImag, Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     Int n = G.Height();
@@ -514,9 +480,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
   Matrix<Real>& wImag, Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
@@ -534,9 +498,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
   DistMatrix<Real,VR,STAR>& wImag, Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -571,9 +533,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag,
   Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
@@ -597,9 +557,7 @@ SkewHermitianEig
   Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
   Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
     Int n = G.Height();
@@ -630,9 +588,7 @@ SkewHermitianEig
   Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
   Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
@@ -651,9 +607,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
   Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
@@ -688,9 +642,7 @@ SkewHermitianEig
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
   Real a, Real b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SkewHermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     

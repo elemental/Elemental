@@ -22,7 +22,7 @@ void Trr2kNTTN
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::Trr2kNTTN");
+    CallStackEntry cse("internal::Trr2kNTTN");
     if( E.Height() != E.Width()  || A.Width()  != C.Height() ||
         A.Height() != E.Height() || C.Width()  != E.Height() ||
         B.Height() != E.Width()  || D.Width()  != E.Width()  ||

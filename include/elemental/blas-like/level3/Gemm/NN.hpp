@@ -24,7 +24,7 @@ Cannon_NN
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::Cannon_NN");
+    CallStackEntry cse("gemm::Cannon_NN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
@@ -109,7 +109,7 @@ SUMMA_NNA
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_NNA");
+    CallStackEntry cse("gemm::SUMMA_NNA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
@@ -185,7 +185,7 @@ SUMMA_NNB
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_NNB");
+    CallStackEntry cse("gemm::SUMMA_NNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must be distributed over the same grid");
     if( A.Height() != C.Height() ||
@@ -272,7 +272,7 @@ SUMMA_NNC
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_NNC");
+    CallStackEntry cse("gemm::SUMMA_NNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must be distributed over the same grid");
     if( A.Height() != C.Height() ||
@@ -348,7 +348,7 @@ SUMMA_NNDot
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_NNDot");
+    CallStackEntry cse("gemm::SUMMA_NNDot");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
@@ -544,7 +544,7 @@ SUMMA_NN
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_NN");
+    CallStackEntry cse("gemm::SUMMA_NN");
 #endif
     const Int m = C.Height();
     const Int n = C.Width();

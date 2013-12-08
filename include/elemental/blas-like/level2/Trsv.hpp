@@ -24,7 +24,7 @@ Trsv
   const Matrix<F>& A, Matrix<F>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trsv");
+    CallStackEntry cse("Trsv");
     if( x.Height() != 1 && x.Width() != 1 )
         LogicError("x must be a vector");
     if( A.Height() != A.Width() )
@@ -53,7 +53,7 @@ Trsv
         DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trsv");
+    CallStackEntry cse("Trsv");
 #endif
     if( uplo == LOWER )
     {

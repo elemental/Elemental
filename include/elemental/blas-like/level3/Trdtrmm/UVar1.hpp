@@ -21,7 +21,7 @@ inline void
 TrdtrmmUVar1( Matrix<F>& U, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrtdrmmUVar1");
+    CallStackEntry cse("internal::TrtdrmmUVar1");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
 #endif
@@ -54,7 +54,7 @@ inline void
 TrdtrmmUVar1( DistMatrix<F>& U, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrdtrmmUVar1");
+    CallStackEntry cse("internal::TrdtrmmUVar1");
     if( U.Height() != U.Width() )
         LogicError("U must be square");
 #endif

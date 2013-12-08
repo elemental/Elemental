@@ -34,9 +34,7 @@ using namespace elem;
 template<typename F>
 int Corrupt( DistMatrix<F>& A, double probCorrupt )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Corrupt");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Corrupt"))
     typedef Base<F> Real;
 
     Int numLocalCorrupt = 0;

@@ -18,9 +18,7 @@ template<typename T>
 inline void
 MakeForsythe( Matrix<T>& J, T alpha, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeForsythe");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeForsythe"))
     MakeJordan( J, lambda );
     const Int m = J.Height();
     const Int n = J.Width();
@@ -32,9 +30,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeForsythe");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeForsythe"))
     MakeJordan( J, lambda );
     const Int m = J.Height();
     const Int n = J.Width();
@@ -55,9 +51,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Forsythe");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Forsythe"))
     J.ResizeTo( n, n );
     MakeForsythe( J, alpha, lambda );
 }

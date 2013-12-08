@@ -822,7 +822,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -883,7 +883,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -947,7 +947,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1007,7 +1007,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1070,7 +1070,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1134,7 +1134,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1199,7 +1199,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1265,7 +1265,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1331,7 +1331,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1391,7 +1391,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1454,7 +1454,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1514,7 +1514,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1574,7 +1574,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1640,7 +1640,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfB, orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1709,7 +1709,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1771,7 +1771,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2kKernel");
+    CallStackEntry cse("LocalTrr2kKernel");
     CheckInput
     ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
       A, B, C, D, E );
@@ -1836,7 +1836,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1896,7 +1896,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1959,7 +1959,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2018,7 +2018,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2087,7 +2087,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2150,7 +2150,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2219,7 +2219,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2289,7 +2289,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2360,7 +2360,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2419,7 +2419,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2486,7 +2486,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2550,7 +2550,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2617,7 +2617,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2689,7 +2689,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2763,7 +2763,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2834,7 +2834,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrr2k");
+    CallStackEntry cse("LocalTrr2k");
     CheckInput
     ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
       A, B, C, D, E );

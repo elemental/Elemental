@@ -23,7 +23,7 @@ template<typename F>
 inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::LUnb");
+    CallStackEntry cse("bidiag::LUnb");
     if( A.Height() > A.Width() )
         LogicError("A must be at least as wide as it is tall");
 #endif
@@ -116,7 +116,7 @@ inline void LUnb
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tP, DistMatrix<F,MD,STAR>& tQ )
 {
 #ifndef RELEASE
-    CallStackEntry entry("bidiag::LUnb");
+    CallStackEntry cse("bidiag::LUnb");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
         LogicError("Process grids do not match");
     if( A.Height() > A.Width() )

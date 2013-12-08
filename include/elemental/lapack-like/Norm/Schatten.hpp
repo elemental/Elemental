@@ -20,10 +20,8 @@ template<typename F>
 inline BASE(F)
 SchattenNorm( const Matrix<F>& A, BASE(F) p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SchattenNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("SchattenNorm"))
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -41,10 +39,8 @@ inline BASE(F)
 HermitianSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianSchattenNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianSchattenNorm"))
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
@@ -62,10 +58,8 @@ inline BASE(F)
 SymmetricSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricSchattenNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSchattenNorm"))
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -83,10 +77,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SchattenNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("SchattenNorm"))
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -105,10 +97,8 @@ inline BASE(F)
 HermitianSchattenNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianSchattenNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianSchattenNorm"))
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -127,10 +117,8 @@ inline BASE(F)
 SymmetricSchattenNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricSchattenNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricSchattenNorm"))
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

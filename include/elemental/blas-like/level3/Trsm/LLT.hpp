@@ -30,7 +30,7 @@ TrsmLLTLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLTLarge");
+    CallStackEntry cse("internal::TrsmLLTLarge");
     if( orientation == NORMAL )
         LogicError("TrsmLLT expects a (Conjugate)Transpose option");
 #endif
@@ -117,7 +117,7 @@ TrsmLLTMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLTMedium");
+    CallStackEntry cse("internal::TrsmLLTMedium");
     if( orientation == NORMAL )
         LogicError("TrsmLLT expects a (Conjugate)Transpose option");
 #endif
@@ -209,7 +209,7 @@ inline void AddInLocalData
 ( const DistMatrix<F,VC,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::AddInLocalData");
+    CallStackEntry cse("internal::AddInLocalData");
 #endif
     const Int width = X1.Width();
     const Int localHeight = X1.LocalHeight();
@@ -233,7 +233,7 @@ TrsmLLTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLTSmall");
+    CallStackEntry cse("internal::TrsmLLTSmall");
     if( L.Grid() != X.Grid() )
         LogicError
         ("L and X must be distributed over the same grid");
@@ -324,7 +324,7 @@ TrsmLLTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TrsmLLTSmall");
+    CallStackEntry cse("internal::TrsmLLTSmall");
     if( L.Grid() != X.Grid() )
         LogicError
         ("L and X must be distributed over the same grid");

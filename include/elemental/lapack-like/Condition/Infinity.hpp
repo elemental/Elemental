@@ -20,9 +20,9 @@ inline BASE(F)
 InfinityCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("InfinityCondition");
+    CallStackEntry cse("InfinityCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     Matrix<F> B( A );
     const Real infNorm = InfinityNorm( B );
     try { Inverse( B ); }
@@ -37,9 +37,9 @@ inline BASE(F)
 InfinityCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("InfinityCondition");
+    CallStackEntry cse("InfinityCondition");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real infNorm = InfinityNorm( B );
     try { Inverse( B ); }

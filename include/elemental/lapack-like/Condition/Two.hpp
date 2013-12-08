@@ -19,9 +19,9 @@ inline BASE(F)
 TwoCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TwoCondition");
+    CallStackEntry cse("TwoCondition");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -38,9 +38,9 @@ inline BASE(F)
 TwoCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TwoCondition");
+    CallStackEntry cse("TwoCondition");
 #endif
-    typedef BASE(F) R;
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );

@@ -19,7 +19,7 @@ inline BASE(F)
 LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LogBarrier");
+    CallStackEntry cse("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
@@ -31,7 +31,7 @@ inline BASE(F)
 LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LogBarrier");
+    CallStackEntry cse("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
@@ -43,7 +43,7 @@ inline BASE(F)
 LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LogBarrier");
+    CallStackEntry cse("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
@@ -55,7 +55,7 @@ inline BASE(F)
 LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LogBarrier");
+    CallStackEntry cse("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;

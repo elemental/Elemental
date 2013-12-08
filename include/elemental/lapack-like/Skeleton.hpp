@@ -31,9 +31,7 @@ Skeleton
   Matrix<Int>& pR, Matrix<Int>& pC, 
   Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Skeleton");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Skeleton"))
     // Find the row permutation
     Matrix<F> B;
     Adjoint( A, B );
@@ -71,9 +69,7 @@ Skeleton
   DistMatrix<Int,VR,STAR>& pR, DistMatrix<Int,VR,STAR>& pC, 
   DistMatrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Skeleton");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Skeleton"))
     const Grid& g = A.Grid();
 
     // Find the row permutation

@@ -24,7 +24,7 @@ inline void
 LVar3Square( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("cholesky::LVar3Square");
+    CallStackEntry cse("cholesky::LVar3Square");
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
     if( A.Grid().Height() != A.Grid().Width() )

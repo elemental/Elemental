@@ -21,7 +21,7 @@ Hemv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hemv");
+    CallStackEntry cse("Hemv");
 #endif
     Symv( uplo, alpha, A, x, beta, y, true );
 }
@@ -35,7 +35,7 @@ Hemv
   T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hemv");
+    CallStackEntry cse("Hemv");
 #endif
     Symv( uplo, alpha, A, x, beta, y, true );
 }

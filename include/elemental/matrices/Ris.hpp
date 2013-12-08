@@ -16,9 +16,7 @@ template<typename F>
 inline void
 Ris( Matrix<F>& R, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Ris");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Ris"))
     const F oneHalf = F(1)/F(2);
     R.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -39,9 +37,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Ris( DistMatrix<F,U,V>& R, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Ris");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Ris"))
     const F oneHalf = F(1)/F(2);
     R.ResizeTo( n, n );
     const Int localHeight = R.LocalHeight();

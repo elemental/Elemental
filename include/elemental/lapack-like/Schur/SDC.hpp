@@ -36,10 +36,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 ComputePartition( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::ComputePartition");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::ComputePartition"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     if( n == 0 ) 
     {
@@ -85,10 +83,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 ComputePartition( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::ComputePartition");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::ComputePartition"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     if( n == 0 ) 
@@ -152,10 +148,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SignDivide");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     // G := sgn(G)
@@ -194,10 +188,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SignDivide");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 
@@ -239,10 +231,8 @@ RandomizedSignDivide
 ( Matrix<F>& A, Matrix<F>& G, 
   bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::RandomizedSignDivide");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
     if( relTol == Real(0) )
@@ -300,10 +290,8 @@ RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, 
   bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::RandomizedSignDivide");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
@@ -362,9 +350,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const ValueInt<Real> median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
@@ -411,9 +397,7 @@ SpectralDivide
 ( Matrix<Complex<Real> >& A, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -464,9 +448,7 @@ SpectralDivide
 ( Matrix<Real>& A, Matrix<Real>& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const auto median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
@@ -513,9 +495,7 @@ SpectralDivide
 ( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -565,9 +545,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const auto median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
@@ -615,9 +593,7 @@ SpectralDivide
 ( DistMatrix<Complex<Real> >& A, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -670,9 +646,7 @@ SpectralDivide
 ( DistMatrix<Real>& A, DistMatrix<Real>& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(A.GetDiagonal());
@@ -720,9 +694,7 @@ SpectralDivide
 ( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
   Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
@@ -775,9 +747,7 @@ SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Int cutoff=256, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     if( n <= cutoff )
@@ -808,9 +778,7 @@ SDC
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
   BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     Q.ResizeTo( n, n );
@@ -881,9 +849,7 @@ inline void PushSubproblems
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::PushSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     // The trivial push
     /*
     ATLSub = View( ATL );
@@ -910,9 +876,7 @@ inline void PullSubproblems
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::PullSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
     // The trivial pull is empty
     ATL = ATLSub;
     ABR = ABRSub;
@@ -958,9 +922,7 @@ SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>>& w, Int cutoff=256, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
@@ -1004,13 +966,13 @@ template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::PushSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     // The trivial push
     /*
     ATLSub = View( ATL );
@@ -1038,14 +1000,14 @@ template<typename F>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
   DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::PullSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
     // The trivial pull
     /*
     ZT = View( ZTSub );
@@ -1102,10 +1064,8 @@ SDC
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
   BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("schur::SDC");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );

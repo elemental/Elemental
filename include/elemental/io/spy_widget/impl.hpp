@@ -32,7 +32,7 @@ inline void
 SpyWidget::paintEvent( QPaintEvent* event )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SpyWidget::paintEvent");
+    CallStackEntry cse("SpyWidget::paintEvent");
 #endif
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
@@ -42,7 +42,7 @@ inline void
 SpyWidget::Spy( const Matrix<Int>* A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SpyWidget::Spy");
+    CallStackEntry cse("SpyWidget::Spy");
 #endif
     const Int m = A->Height();
     const Int n = A->Width();

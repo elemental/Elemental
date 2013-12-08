@@ -16,9 +16,7 @@ template<typename R>
 inline void
 MakeFourier( Matrix<Complex<R> >& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeFourier");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
     typedef Complex<R> F;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -43,9 +41,7 @@ template<typename R,Distribution U,Distribution V>
 inline void
 MakeFourier( DistMatrix<Complex<R>,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeFourier");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
     typedef Complex<R> F;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -78,9 +74,7 @@ template<typename R>
 inline void
 Fourier( Matrix<Complex<R> >& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Fourier");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.ResizeTo( n, n );
     MakeFourier( A );
 }
@@ -98,9 +92,7 @@ template<typename R,Distribution U,Distribution V>
 inline void
 Fourier( DistMatrix<Complex<R>,U,V>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Fourier");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.ResizeTo( n, n );
     MakeFourier( A );
 }

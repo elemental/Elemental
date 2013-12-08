@@ -19,9 +19,7 @@ template<typename T>
 inline void
 Lauchli( Matrix<T>& A, Int n, T mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lauchli");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lauchli"))
     A.ResizeTo( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );
@@ -45,9 +43,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lauchli");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lauchli"))
     A.ResizeTo( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );

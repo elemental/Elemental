@@ -19,7 +19,7 @@ ScaleTrapezoid
   Int offset=0, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ScaleTrapezoid");
+    CallStackEntry cse("ScaleTrapezoid");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
@@ -81,7 +81,7 @@ ScaleTrapezoid
   Int offset=0, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ScaleTrapezoid");
+    CallStackEntry cse("ScaleTrapezoid");
 #endif
     const Int height = A.Height();
     const Int width = A.Width();

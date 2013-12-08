@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hankel");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
@@ -42,9 +40,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hankel");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");

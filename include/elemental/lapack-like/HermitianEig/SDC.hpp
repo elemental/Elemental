@@ -210,7 +210,7 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::QDWHDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     // G := sgn(G)
@@ -254,7 +254,7 @@ QDWHDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::QDWHDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
 
@@ -300,7 +300,7 @@ RandomizedSignDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::RandomizedSignDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real oneA = OneNorm( A );
@@ -362,7 +362,7 @@ RandomizedSignDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::RandomizedSignDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -426,7 +426,7 @@ SpectralDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const auto median = Median(A.GetRealPartOfDiagonal());
@@ -477,7 +477,7 @@ SpectralDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const auto median = Median(A.GetRealPartOfDiagonal());
@@ -528,7 +528,7 @@ SpectralDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const auto median = Median(A.GetRealPartOfDiagonal());
@@ -580,7 +580,7 @@ SpectralDivide
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SpectralDivide");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real infNorm = InfinityNorm(A);
@@ -632,7 +632,7 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     if( n <= cutoff )
@@ -666,7 +666,7 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     Q.ResizeTo( n, n );
@@ -710,7 +710,7 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
@@ -757,7 +757,7 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("hermitian_eig::SDC");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );

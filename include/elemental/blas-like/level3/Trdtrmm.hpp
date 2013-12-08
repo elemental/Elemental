@@ -18,7 +18,7 @@ LocalTrdtrmm
 ( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrdtrmm");
+    CallStackEntry cse("LocalTrdtrmm");
 #endif
     Trdtrmm( uplo, A.Matrix(), conjugate );
 }
@@ -31,7 +31,7 @@ LocalTrdtrmm
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalTrdtrmm");
+    CallStackEntry cse("LocalTrdtrmm");
 #endif
     Trdtrmm( uplo, A.Matrix(), dOff.LockedMatrix(), conjugate );
 }
@@ -49,7 +49,7 @@ inline void
 Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trdtrdmm");
+    CallStackEntry cse("Trdtrdmm");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -65,7 +65,7 @@ Trdtrmm
 ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trdtrdmm");
+    CallStackEntry cse("Trdtrdmm");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -80,7 +80,7 @@ inline void
 Trdtrmm( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trdtrmm");
+    CallStackEntry cse("Trdtrmm");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
@@ -97,7 +97,7 @@ Trdtrmm
   DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dOff, bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trdtrmm");
+    CallStackEntry cse("Trdtrmm");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif

@@ -23,7 +23,7 @@ Trr2
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trr2");
+    CallStackEntry cse("Trr2");
     if( X.Width() != 2 || Y.Width() != 2 )
         LogicError("X and Y must be of width 2");
 #endif
@@ -73,7 +73,7 @@ Trr2
   bool conjugate=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Trr2");
+    CallStackEntry cse("Trr2");
     if( X.Width() != 2 || Y.Width() != 2 )
         LogicError("X and Y must be of width 2");
 #endif

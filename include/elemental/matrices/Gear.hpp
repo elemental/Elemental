@@ -18,9 +18,7 @@ template<typename T>
 inline void
 Gear( Matrix<T>& G, Int n, Int s, Int t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gear");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gear"))
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )
@@ -57,9 +55,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gear");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gear"))
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )

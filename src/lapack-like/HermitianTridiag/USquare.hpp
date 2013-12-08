@@ -18,7 +18,7 @@ template<typename F>
 void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_tridiag::USquare");
+    CallStackEntry cse("hermitian_tridiag::USquare");
     if( A.Grid() != t.Grid() )
         LogicError("{A,t} must be distributed over the same grid");
     if( A.Height() != A.Width() )

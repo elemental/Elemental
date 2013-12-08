@@ -21,7 +21,7 @@ Hemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hemm");
+    CallStackEntry cse("Hemm");
 #endif
     Symm( side, uplo, alpha, A, B, beta, C, true );
 }
@@ -35,7 +35,7 @@ Hemm
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hemm");
+    CallStackEntry cse("Hemm");
 #endif
     Symm( side, uplo, alpha, A, B, beta, C, true );
 }

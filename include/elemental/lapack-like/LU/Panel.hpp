@@ -21,15 +21,13 @@ template<typename F>
 inline void
 Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::Panel");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("lu::Panel"))
     const Int m = A.Height();
     const Int n = A.Width();
-#ifndef RELEASE
-    if( m < n )
-        LogicError("Must be a column panel");
-#endif
+    DEBUG_ONLY(
+        if( m < n )
+            LogicError("Must be a column panel");
+    )
     p.ResizeTo( n, 1 );
 
     for( Int k=0; k<n; ++k )
@@ -70,16 +68,16 @@ Panel
   DistMatrix<Int,STAR,STAR>& p, 
   Int pivotOffset=0 )
 {
-#ifndef RELEASE
-    CallStackEntry entry("lu::Panel");
-    if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
-        LogicError("Matrices must be distributed over the same grid");
-    if( A.Width() != B.Width() )
-        LogicError("A and B must be the same width");
-    if( A.Height() != p.Height() || p.Width() != 1 )
-        LogicError("p must be a vector that conforms with A");
-#endif
-    typedef BASE(F) Real;
+    DEBUG_ONLY(
+        CallStackEntry cse("lu::Panel");
+        if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
+            LogicError("Matrices must be distributed over the same grid");
+        if( A.Width() != B.Width() )
+            LogicError("A and B must be the same width");
+        if( A.Height() != p.Height() || p.Width() != 1 )
+            LogicError("p must be a vector that conforms with A");
+    )
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int colShift = B.ColShift();

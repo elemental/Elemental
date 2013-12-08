@@ -26,7 +26,7 @@ inline void
 TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TwoSidedTrmmUVar5");
+    CallStackEntry cse("internal::TwoSidedTrmmUVar5");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( U.Height() != U.Width() )
@@ -111,7 +111,7 @@ TwoSidedTrmmUVar5
 ( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::TwoSidedTrmmUVar5");
+    CallStackEntry cse("internal::TwoSidedTrmmUVar5");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( U.Height() != U.Width() )

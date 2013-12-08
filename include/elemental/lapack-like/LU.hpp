@@ -26,9 +26,7 @@ template<typename F>
 inline void
 LocalLU( DistMatrix<F,STAR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LocalLU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalLU"))
     LU( A.Matrix() );
 }
 
@@ -38,9 +36,7 @@ template<typename F>
 inline void
 LU( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LU"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -64,9 +60,7 @@ template<typename F>
 inline void
 LU( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LU"))
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
@@ -115,9 +109,7 @@ template<typename F>
 inline void
 LU( Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LU"))
     std::vector<Int> image, preimage;
 
     const Int m = A.Height();
@@ -152,9 +144,7 @@ template<typename F>
 inline void
 LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LU"))
     p.ResizeTo( Min(A.Height(),A.Width()), 1 );
     q.ResizeTo( Min(A.Height(),A.Width()), 1 );
     lu::Full( A, p, q );
@@ -164,11 +154,11 @@ template<typename F>
 inline void
 LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LU");
-    if( A.Grid() != p.Grid() )
-        LogicError("{A,p} must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LU");
+        if( A.Grid() != p.Grid() )
+            LogicError("{A,p} must be distributed over the same grid");
+    )
     std::vector<Int> image, preimage;
 
     const Grid& g = A.Grid();
@@ -226,9 +216,7 @@ template<typename F>
 inline void
 LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, DistMatrix<Int,VC,STAR>& q )
 {
-#ifndef RELEASE
-    CallStackEntry entry("LU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LU"))
     p.ResizeTo( Min(A.Height(),A.Width()), 1 );
     q.ResizeTo( Min(A.Height(),A.Width()), 1 );
     lu::Full( A, p, q );

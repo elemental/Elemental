@@ -39,7 +39,7 @@ inline void
 DisplayWidget<T>::paintEvent( QPaintEvent* event )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWidget::paintEvent");
+    CallStackEntry cse("DisplayWidget::paintEvent");
 #endif
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
@@ -50,7 +50,7 @@ inline void
 DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWidget::DisplayReal");
+    CallStackEntry cse("DisplayWidget::DisplayReal");
 #endif
     typedef Base<T> Real;
     const Int m = A->Height();
@@ -80,7 +80,7 @@ DisplayWidget<T>::DisplayReal
 ( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWidget::DisplayReal");
+    CallStackEntry cse("DisplayWidget::DisplayReal");
 #endif
     const Int m = A->Height();
     const Int n = A->Width();
@@ -121,7 +121,7 @@ inline void
 DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWidget::DisplayImag");
+    CallStackEntry cse("DisplayWidget::DisplayImag");
 #endif
     typedef Base<T> Real;
     const Int m = A->Height();
@@ -151,7 +151,7 @@ DisplayWidget<T>::DisplayImag
 ( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWidget::DisplayImag");
+    CallStackEntry cse("DisplayWidget::DisplayImag");
 #endif
     const Int m = A->Height();
     const Int n = A->Width();
@@ -192,7 +192,7 @@ inline void
 DisplayWidget<T>::SavePng( std::string basename ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWidget::SavePng");
+    CallStackEntry cse("DisplayWidget::SavePng");
 #endif
     std::ostringstream os;
     os << basename << ".png";

@@ -21,7 +21,7 @@ Symmetric2x2Solve
 #ifndef RELEASE    
     CallStackEntry cse("Symmetric2x2Solve");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     if( side == LEFT && uplo == LOWER )
@@ -129,7 +129,7 @@ FirstHalfOfSymmetric2x2Solve
     if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
         LogicError("a1 and a2 must be the same size");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     F* a1Buf = a1.Buffer();
     const F* a2Buf = a2.LockedBuffer();
     const Int a1LDim = a1.LDim();
@@ -233,7 +233,7 @@ SecondHalfOfSymmetric2x2Solve
     if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
         LogicError("a1 and a2 must be the same size");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const F* a1Buf = a1.LockedBuffer();
     F* a2Buf = a2.Buffer();
     const Int a1LDim = a1.LDim();
@@ -335,7 +335,7 @@ Symmetric2x2Solve
 #ifndef RELEASE    
     CallStackEntry cse("Symmetric2x2Solve");
 #endif
-    typedef BASE(F) Real;
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();

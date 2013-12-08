@@ -26,7 +26,7 @@ SUMMA_TNA
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_TNA");    
+    CallStackEntry cse("gemm::SUMMA_TNA");    
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
@@ -108,7 +108,7 @@ SUMMA_TNB
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_TNB");
+    CallStackEntry cse("gemm::SUMMA_TNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
@@ -201,7 +201,7 @@ SUMMA_TNC
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_TNC");
+    CallStackEntry cse("gemm::SUMMA_TNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         LogicError("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
@@ -291,7 +291,7 @@ SUMMA_TN
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("gemm::SUMMA_TN");
+    CallStackEntry cse("gemm::SUMMA_TN");
 #endif
     const Int m = C.Height();
     const Int n = C.Width();

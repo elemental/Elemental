@@ -81,6 +81,7 @@ Instrumentation/visualization/testing
 
 Consistency
 -----------
+[-] Finish propagating DEBUG_ONLY macro
 [-] Consistently implement 'GetDiagonal' functionality for DistMatrix
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 [-] Convert 'AlignWith' routines to be requirements rather than actions, similar

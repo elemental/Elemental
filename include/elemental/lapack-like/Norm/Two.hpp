@@ -21,10 +21,8 @@ template<typename F>
 inline BASE(F)
 TwoNorm( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("TwoNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -35,10 +33,8 @@ template<typename F>
 inline BASE(F)
 HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianTwoNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
@@ -49,10 +45,8 @@ template<typename F>
 inline BASE(F)
 SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricTwoNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
+    typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -64,10 +58,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 TwoNorm( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("TwoNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
+    typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -78,10 +70,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("HermitianTwoNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
+    typedef Base<F> R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -92,10 +82,8 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry entry("SymmetricTwoNorm");
-#endif
-    typedef BASE(F) R;
+    DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
+    typedef Base<F> R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

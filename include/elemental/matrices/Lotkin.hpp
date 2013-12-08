@@ -18,9 +18,7 @@ template<typename F>
 inline void
 Lotkin( Matrix<F>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lotkin");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );
     // Set first row to all ones
     for( Int j=0; j<n; ++j )
@@ -40,9 +38,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Lotkin( DistMatrix<F,U,V>& A, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lotkin");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );
     // Set first row to all ones
     if( A.ColShift() == 0 )

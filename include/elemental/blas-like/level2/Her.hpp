@@ -19,7 +19,7 @@ inline void
 Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her");
+    CallStackEntry cse("Her");
 #endif
     Syr( uplo, alpha, x, A, true );
 }
@@ -32,7 +32,7 @@ Her
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her");
+    CallStackEntry cse("Her");
 #endif
     Syr( uplo, alpha, x, A, true );
 }

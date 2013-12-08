@@ -39,7 +39,7 @@ ApplyPackedReflectors
   Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyPackedReflectors");
+    CallStackEntry cse("ApplyPackedReflectors");
 #endif
     if( side == LEFT )
     {
@@ -103,7 +103,7 @@ ApplyPackedReflectors
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyPackedReflectors");
+    CallStackEntry cse("ApplyPackedReflectors");
 #endif
     if( side == LEFT )
     {
@@ -167,7 +167,7 @@ ApplyPackedReflectors
   const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ApplyPackedReflectors");
+    CallStackEntry cse("ApplyPackedReflectors");
 #endif
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );

@@ -25,7 +25,7 @@ inline void
 Conjugate( Matrix<Complex<Z>>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Conjugate (in-place)");
+    CallStackEntry cse("Conjugate (in-place)");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -40,7 +40,7 @@ inline void
 Conjugate( Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Conjugate (in-place)");
+    CallStackEntry cse("Conjugate (in-place)");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -55,7 +55,7 @@ inline void
 Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Conjugate");
+    CallStackEntry cse("Conjugate");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -70,7 +70,7 @@ inline void
 Conjugate( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Conjugate (in-place)");
+    CallStackEntry cse("Conjugate (in-place)");
 #endif
     Conjugate( A.Matrix() );
 }
@@ -81,7 +81,7 @@ inline void
 Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Conjugate");
+    CallStackEntry cse("Conjugate");
 #endif
     B = A;
     Conjugate( B );

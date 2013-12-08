@@ -25,7 +25,7 @@ inline void LocalGemm
   T beta,        DistMatrix<T,CColDist,CRowDist>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalGemm");
+    CallStackEntry cse("LocalGemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( AColDist != CColDist ||
@@ -138,7 +138,7 @@ inline void LocalGemm
                  DistMatrix<T,CColDist,CRowDist>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalGemm");
+    CallStackEntry cse("LocalGemm");
 #endif
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
@@ -162,7 +162,7 @@ Gemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemm");
+    CallStackEntry cse("Gemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( A.Height() != C.Height() ||
@@ -217,7 +217,7 @@ Gemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemm");
+    CallStackEntry cse("Gemm");
 #endif
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
@@ -233,7 +233,7 @@ Gemm
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemm");
+    CallStackEntry cse("Gemm");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
@@ -261,7 +261,7 @@ Gemm
                  DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gemm");
+    CallStackEntry cse("Gemm");
 #endif
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );

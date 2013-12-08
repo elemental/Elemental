@@ -16,9 +16,7 @@ template<typename F>
 inline void
 Parter( Matrix<F>& P, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Parter");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Parter"))
     const F oneHalf = F(1)/F(2);
     P.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -39,9 +37,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Parter( DistMatrix<F,U,V>& P, Int n )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Parter");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Parter"))
     const F oneHalf = F(1)/F(2);
     P.ResizeTo( n, n );
     const Int localHeight = P.LocalHeight();

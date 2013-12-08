@@ -18,9 +18,7 @@ template<typename S,typename T>
 inline void
 Diagonal( Matrix<S>& D, const std::vector<T>& d )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Diagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -41,9 +39,7 @@ template<typename S,typename T,Distribution U,Distribution V>
 inline void
 Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Diagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
     Zeros( D, n, n );
 

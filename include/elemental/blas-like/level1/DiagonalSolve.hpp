@@ -19,7 +19,7 @@ DiagonalSolve
   const Matrix<FDiag>& d, Matrix<F>& X, bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DiagonalSolve");
+    CallStackEntry cse("DiagonalSolve");
 #endif
     const Int m = X.Height();
     const Int n = X.Width();
@@ -70,7 +70,7 @@ DiagonalSolve
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DiagonalSolve");
+    CallStackEntry cse("DiagonalSolve");
 #endif
     if( side == LEFT )
     {

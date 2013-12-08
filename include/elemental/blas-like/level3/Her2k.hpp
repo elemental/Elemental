@@ -21,7 +21,7 @@ Her2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her2k");
+    CallStackEntry cse("Her2k");
 #endif
     Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
 }
@@ -33,7 +33,7 @@ Her2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her2k");
+    CallStackEntry cse("Her2k");
 #endif
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
@@ -48,7 +48,7 @@ Her2k
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her2k");
+    CallStackEntry cse("Her2k");
 #endif
     Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
 }
@@ -61,7 +61,7 @@ Her2k
                  DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Her2k");
+    CallStackEntry cse("Her2k");
 #endif
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );

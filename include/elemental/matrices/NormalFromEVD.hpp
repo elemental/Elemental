@@ -25,9 +25,7 @@ NormalFromEVD
   const Matrix<Complex<R> >& w,
   const Matrix<Complex<R> >& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("NormalFromEVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
     typedef Complex<R> C;
 
     Matrix<C> Y1, Z1Copy;
@@ -66,9 +64,7 @@ NormalFromEVD
   const DistMatrix<Complex<R>,VR,STAR>& w,
   const DistMatrix<Complex<R> >& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("NormalFromEVD");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
     typedef Complex<R> C;
     const Grid& g = A.Grid();
     DistMatrix<C,MC,  STAR> Z1_MC_STAR(g);

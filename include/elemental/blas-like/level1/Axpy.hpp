@@ -17,7 +17,7 @@ inline void
 Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Axpy");
+    CallStackEntry cse("Axpy");
 #endif
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
@@ -73,7 +73,7 @@ inline void
 Axpy( T alpha, const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Axpy");
+    CallStackEntry cse("Axpy");
     if( X.Grid() != Y.Grid() )
         LogicError
         ("X and Y must be distributed over the same grid");
