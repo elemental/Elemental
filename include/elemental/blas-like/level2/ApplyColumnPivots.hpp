@@ -76,9 +76,10 @@ ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<Int>& p )
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
-ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
+ApplyColumnPivots( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyColumnPivots");
@@ -87,10 +88,11 @@ ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
     ApplyColumnPivots( A, p_STAR_STAR );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
 ApplyInverseColumnPivots
-( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
+( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyInverseColumnPivots");
@@ -99,9 +101,9 @@ ApplyInverseColumnPivots
     ApplyInverseColumnPivots( A, p_STAR_STAR );
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
-ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
+ApplyColumnPivots( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyColumnPivots");
@@ -111,10 +113,10 @@ ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
     ApplyColumnPivots( A, image, preimage );
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
 ApplyInverseColumnPivots
-( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
+( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyInverseColumnPivots");
@@ -172,10 +174,10 @@ ApplyColumnPivots
     }
 }
 
-template<typename F> 
+template<typename F,Distribution U,Distribution V> 
 inline void
 ApplyColumnPivots
-( DistMatrix<F>& A, 
+( DistMatrix<F,U,V>& A, 
   const std::vector<Int>& image,
   const std::vector<Int>& preimage )
 {
@@ -188,30 +190,29 @@ ApplyColumnPivots
          "wider than A.");
 #endif
     const Int localHeight = A.LocalHeight();
-    if( A.Height() == 0 || A.Width() == 0 )
+    if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
 
-    // Extract the relevant process grid information
-    const Grid& g = A.Grid();
-    const Int c = g.Width();
+    const Int rowStride = A.RowStride();
     const Int rowAlign = A.RowAlign();
     const Int rowShift = A.RowShift();
-    const Int myCol = g.Col();
+    const Int rowRank = A.RowRank();
+    mpi::Comm rowComm = A.RowComm();
 
     // Extract the send and recv counts from the image and preimage.
     // This process's sends may be logically partitioned into two sets:
     //   (a) sends from rows [0,...,b-1]
     //   (b) sends from rows [b,...]
     // The latter is analyzed with preimage, the former deduced with image.
-    std::vector<int> sendCounts(c,0), recvCounts(c,0);
-    for( Int j=rowShift; j<b; j+=c )
+    std::vector<int> sendCounts(rowStride,0), recvCounts(rowStride,0);
+    for( Int j=rowShift; j<b; j+=rowStride )
     {
         const Int sendCol = image[j];         
-        const Int sendTo = (rowAlign+sendCol) % c; 
+        const Int sendTo = (rowAlign+sendCol) % rowStride; 
         sendCounts[sendTo] += localHeight;
 
         const Int recvCol = preimage[j];
-        const Int recvFrom = (rowAlign+recvCol) % c;
+        const Int recvFrom = (rowAlign+recvCol) % rowStride;
         recvCounts[recvFrom] += localHeight;
     }
     for( Int j=0; j<b; ++j )
@@ -219,10 +220,10 @@ ApplyColumnPivots
         const Int sendCol = image[j];
         if( sendCol >= b )
         {
-            const Int sendTo = (rowAlign+sendCol) % c;
-            if( sendTo == myCol )
+            const Int sendTo = (rowAlign+sendCol) % rowStride;
+            if( sendTo == rowRank )
             {
-                const Int sendFrom = (rowAlign+j) % c;
+                const Int sendFrom = (rowAlign+j) % rowStride;
                 recvCounts[sendFrom] += localHeight;
             }
         }
@@ -230,19 +231,19 @@ ApplyColumnPivots
         const Int recvCol = preimage[j];
         if( recvCol >= b )
         {
-            const Int recvFrom = (rowAlign+recvCol) % c;
-            if( recvFrom == myCol )
+            const Int recvFrom = (rowAlign+recvCol) % rowStride;
+            if( recvFrom == rowRank )
             {
-                const Int recvTo = (rowAlign+j) % c;
+                const Int recvTo = (rowAlign+j) % rowStride;
                 sendCounts[recvTo] += localHeight;
             }
         }
     }
 
     // Construct the send and recv displacements from the counts
-    std::vector<int> sendDispls(c), recvDispls(c);
+    std::vector<int> sendDispls(rowStride), recvDispls(rowStride);
     Int totalSend=0, totalRecv=0;
-    for( Int i=0; i<c; ++i )
+    for( Int i=0; i<rowStride; ++i )
     {
         sendDispls[i] = totalSend;
         recvDispls[i] = totalRecv;
@@ -261,12 +262,12 @@ ApplyColumnPivots
 
     // Fill vectors with the send data
     std::vector<F> sendData( mpi::Pad(totalSend) );
-    std::vector<int> offsets(c,0);
-    const Int localWidth = Length( b, rowShift, c );
+    std::vector<int> offsets(rowStride,0);
+    const Int localWidth = Length( b, rowShift, rowStride );
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int sendCol = image[rowShift+jLoc*c];
-        const Int sendTo = (rowAlign+sendCol) % c;
+        const Int sendCol = image[rowShift+jLoc*rowStride];
+        const Int sendTo = (rowAlign+sendCol) % rowStride;
         const Int offset = sendDispls[sendTo]+offsets[sendTo];
         MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
         offsets[sendTo] += localHeight;
@@ -276,11 +277,11 @@ ApplyColumnPivots
         const Int recvCol = preimage[j];
         if( recvCol >= b )
         {
-            const Int recvFrom = (rowAlign+recvCol) % c; 
-            if( recvFrom == myCol )
+            const Int recvFrom = (rowAlign+recvCol) % rowStride; 
+            if( recvFrom == rowRank )
             {
-                const Int recvTo = (rowAlign+j) % c;
-                const Int jLoc = (recvCol-rowShift) / c;
+                const Int recvTo = (rowAlign+j) % rowStride;
+                const Int jLoc = (recvCol-rowShift) / rowStride;
                 const Int offset = sendDispls[recvTo]+offsets[recvTo];
                 MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
                 offsets[recvTo] += localHeight;
@@ -292,21 +293,21 @@ ApplyColumnPivots
     std::vector<F> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
     ( sendData.data(), sendCounts.data(), sendDispls.data(),
-      recvData.data(), recvCounts.data(), recvDispls.data(), g.RowComm() );
+      recvData.data(), recvCounts.data(), recvDispls.data(), rowComm );
 
     // Unpack the recv data
-    for( Int k=0; k<c; ++k )
+    for( Int k=0; k<rowStride; ++k )
     {
         offsets[k] = 0;
-        Int thisRowShift = Shift( k, rowAlign, c );
-        for( Int j=thisRowShift; j<b; j+=c )
+        Int thisRowShift = Shift( k, rowAlign, rowStride );
+        for( Int j=thisRowShift; j<b; j+=rowStride )
         {
             const Int sendCol = image[j];
-            const Int sendTo = (rowAlign+sendCol) % c;
-            if( sendTo == myCol )
+            const Int sendTo = (rowAlign+sendCol) % rowStride;
+            if( sendTo == rowRank )
             {
                 const Int offset = recvDispls[k]+offsets[k];
-                const Int jLoc = (sendCol-rowShift) / c;
+                const Int jLoc = (sendCol-rowShift) / rowStride;
                 MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );
                 offsets[k] += localHeight;
             }
@@ -317,11 +318,11 @@ ApplyColumnPivots
         const Int recvCol = preimage[j];
         if( recvCol >= b )
         {
-            const Int recvTo = (rowAlign+j) % c;
-            if( recvTo == myCol )
+            const Int recvTo = (rowAlign+j) % rowStride;
+            if( recvTo == rowRank )
             {
-                const Int recvFrom = (rowAlign+recvCol) % c; 
-                const Int jLoc = (j-rowShift) / c;
+                const Int recvFrom = (rowAlign+recvCol) % rowStride; 
+                const Int jLoc = (j-rowShift) / rowStride;
                 const Int offset = recvDispls[recvFrom]+offsets[recvFrom];
                 MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );
                 offsets[recvFrom] += localHeight;

@@ -78,9 +78,10 @@ ApplyInverseRowPivots( Matrix<F>& A, const Matrix<Int>& p )
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
-ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
+ApplyRowPivots( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyRowPivots");
@@ -89,10 +90,11 @@ ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
     ApplyRowPivots( A, p_STAR_STAR );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
 ApplyInverseRowPivots
-( DistMatrix<F>& A, const DistMatrix<Int,U,V>& p )
+( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyInverseRowPivots");
@@ -101,9 +103,9 @@ ApplyInverseRowPivots
     ApplyInverseRowPivots( A, p_STAR_STAR );
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
-ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
+ApplyRowPivots( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyRowPivots");
@@ -113,10 +115,10 @@ ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
     ApplyRowPivots( A, image, preimage );
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
 ApplyInverseRowPivots
-( DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& p )
+( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("ApplyInverseRowPivots");
@@ -179,10 +181,10 @@ ApplyRowPivots
     }
 }
 
-template<typename F> 
+template<typename F,Distribution U,Distribution V> 
 inline void
 ApplyRowPivots
-( DistMatrix<F>& A, 
+( DistMatrix<F,U,V>& A, 
   const std::vector<Int>& image,
   const std::vector<Int>& preimage )
 {
@@ -195,30 +197,29 @@ ApplyRowPivots
          "taller than A.");
 #endif
     const Int localWidth = A.LocalWidth();
-    if( A.Height() == 0 || A.Width() == 0 )
+    if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
     
-    // Extract the relevant process grid information
-    const Grid& g = A.Grid();
-    const Int r = g.Height();
+    const Int colStride = A.ColStride();
     const Int colAlign = A.ColAlign();
     const Int colShift = A.ColShift();
-    const Int myRow = g.Row();
+    const Int colRank = A.ColRank();
+    const mpi::Comm colComm = A.ColComm();
 
     // Extract the send and recv counts from the image and preimage.
     // This process's sends may be logically partitioned into two sets:
     //   (a) sends from rows [0,...,b-1]
     //   (b) sends from rows [b,...]
     // The latter is analyzed with preimage, the former deduced with image.
-    std::vector<int> sendCounts(r,0), recvCounts(r,0);
-    for( Int i=colShift; i<b; i+=r )
+    std::vector<int> sendCounts(colStride,0), recvCounts(colStride,0);
+    for( Int i=colShift; i<b; i+=colStride )
     {
         const Int sendRow = image[i];         
-        const Int sendTo = (colAlign+sendRow) % r; 
+        const Int sendTo = (colAlign+sendRow) % colStride; 
         sendCounts[sendTo] += localWidth;
 
         const Int recvRow = preimage[i];
-        const Int recvFrom = (colAlign+recvRow) % r;
+        const Int recvFrom = (colAlign+recvRow) % colStride;
         recvCounts[recvFrom] += localWidth;
     }
     for( Int i=0; i<b; ++i )
@@ -226,10 +227,10 @@ ApplyRowPivots
         const Int sendRow = image[i];
         if( sendRow >= b )
         {
-            const Int sendTo = (colAlign+sendRow) % r;
-            if( sendTo == myRow )
+            const Int sendTo = (colAlign+sendRow) % colStride;
+            if( sendTo == colRank )
             {
-                const Int sendFrom = (colAlign+i) % r;
+                const Int sendFrom = (colAlign+i) % colStride;
                 recvCounts[sendFrom] += localWidth;
             }
         }
@@ -237,19 +238,19 @@ ApplyRowPivots
         const Int recvRow = preimage[i];
         if( recvRow >= b )
         {
-            const Int recvFrom = (colAlign+recvRow) % r;
-            if( recvFrom == myRow )
+            const Int recvFrom = (colAlign+recvRow) % colStride;
+            if( recvFrom == colRank )
             {
-                const Int recvTo = (colAlign+i) % r;
+                const Int recvTo = (colAlign+i) % colStride;
                 sendCounts[recvTo] += localWidth;
             }
         }
     }
 
     // Construct the send and recv displacements from the counts
-    std::vector<int> sendDispls(r), recvDispls(r);
+    std::vector<int> sendDispls(colStride), recvDispls(colStride);
     Int totalSend=0, totalRecv=0;
-    for( Int i=0; i<r; ++i )
+    for( Int i=0; i<colStride; ++i )
     {
         sendDispls[i] = totalSend;
         recvDispls[i] = totalRecv;
@@ -269,12 +270,12 @@ ApplyRowPivots
     // Fill vectors with the send data
     const Int ALDim = A.LDim();
     std::vector<F> sendData( mpi::Pad(totalSend) );
-    std::vector<int> offsets(r,0);
-    const Int localHeight = Length( b, colShift, r );
+    std::vector<int> offsets(colStride,0);
+    const Int localHeight = Length( b, colShift, colStride );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int sendRow = image[colShift+iLoc*r];
-        const Int sendTo = (colAlign+sendRow) % r;
+        const Int sendRow = image[colShift+iLoc*colStride];
+        const Int sendTo = (colAlign+sendRow) % colStride;
         const Int offset = sendDispls[sendTo]+offsets[sendTo];
         const F* ABuffer = A.Buffer(iLoc,0);
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -286,11 +287,11 @@ ApplyRowPivots
         const Int recvRow = preimage[i];
         if( recvRow >= b )
         {
-            const Int recvFrom = (colAlign+recvRow) % r; 
-            if( recvFrom == myRow )
+            const Int recvFrom = (colAlign+recvRow) % colStride; 
+            if( recvFrom == colRank )
             {
-                const Int recvTo = (colAlign+i) % r;
-                const Int iLoc = (recvRow-colShift) / r;
+                const Int recvTo = (colAlign+i) % colStride;
+                const Int iLoc = (recvRow-colShift) / colStride;
                 const Int offset = sendDispls[recvTo]+offsets[recvTo];
                 const F* ABuffer = A.Buffer(iLoc,0);
                 for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -304,21 +305,21 @@ ApplyRowPivots
     std::vector<F> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
     ( sendData.data(), sendCounts.data(), sendDispls.data(),
-      recvData.data(), recvCounts.data(), recvDispls.data(), g.ColComm() );
+      recvData.data(), recvCounts.data(), recvDispls.data(), colComm );
 
     // Unpack the recv data
-    for( Int k=0; k<r; ++k )
+    for( Int k=0; k<colStride; ++k )
     {
         offsets[k] = 0;
-        Int thisColShift = Shift( k, colAlign, r );
-        for( Int i=thisColShift; i<b; i+=r )
+        Int thisColShift = Shift( k, colAlign, colStride );
+        for( Int i=thisColShift; i<b; i+=colStride )
         {
             const Int sendRow = image[i];
-            const Int sendTo = (colAlign+sendRow) % r;
-            if( sendTo == myRow )
+            const Int sendTo = (colAlign+sendRow) % colStride;
+            if( sendTo == colRank )
             {
                 const Int offset = recvDispls[k]+offsets[k];
-                const Int iLoc = (sendRow-colShift) / r;
+                const Int iLoc = (sendRow-colShift) / colStride;
                 F* ABuffer = A.Buffer(iLoc,0);
                 for( Int jLoc=0; jLoc<localWidth; ++jLoc )
                     ABuffer[jLoc*ALDim] = recvData[offset+jLoc];
@@ -331,11 +332,11 @@ ApplyRowPivots
         const Int recvRow = preimage[i];
         if( recvRow >= b )
         {
-            const Int recvTo = (colAlign+i) % r;
-            if( recvTo == myRow )
+            const Int recvTo = (colAlign+i) % colStride;
+            if( recvTo == colRank )
             {
-                const Int recvFrom = (colAlign+recvRow) % r; 
-                const Int iLoc = (i-colShift) / r;
+                const Int recvFrom = (colAlign+recvRow) % colStride; 
+                const Int iLoc = (i-colShift) / colStride;
                 const Int offset = recvDispls[recvFrom]+offsets[recvFrom];
                 F* ABuffer = A.Buffer(iLoc,0);
                 for( Int jLoc=0; jLoc<localWidth; ++jLoc )
