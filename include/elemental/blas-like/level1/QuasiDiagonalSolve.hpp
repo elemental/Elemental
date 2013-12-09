@@ -205,15 +205,15 @@ RightQuasiDiagonalSolve
     DEBUG_ONLY(
         const Int rowAlignPrev = (X.RowAlign()+rowStride-1) % rowStride;
         const Int rowAlignNext = (X.RowAlign()+1) % rowStride;
-        if( d.RowAlign() != X.RowAlign() || dSub.RowAlign() != X.RowAlign() )
+        if( d.ColAlign() != X.RowAlign() || dSub.RowAlign() != X.RowAlign() )
             LogicError("data is not properly aligned");
         if( XPrev.RowAlign() != rowAlignPrev ||
-            dPrev.RowAlign() != rowAlignPrev || 
-            dSubPrev.RowAlign() != rowAlignPrev )
+            dPrev.ColAlign() != rowAlignPrev || 
+            dSubPrev.ColAlign() != rowAlignPrev )
             LogicError("'previous' data is not properly aligned");
         if( XNext.RowAlign() != rowAlignNext || 
-            dNext.RowAlign() != rowAlignNext || 
-            dSubNext.RowAlign() != rowAlignNext )
+            dNext.ColAlign() != rowAlignNext || 
+            dSubNext.ColAlign() != rowAlignNext )
             LogicError("'next' data is not properly aligned");
     )
     const Int rowShiftPrev = XPrev.RowShift();

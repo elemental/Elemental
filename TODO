@@ -41,7 +41,6 @@ Incremental functionality improvements
     buffers in (Dist)Matrix
 [-] Square process grid specializations of LDL and Bunch-Kaufman
 [-] Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
-[-] Finish all options for QuasiDiagonal{Scale,Solve}
 [-] More Sign algorithms (switch to Newton-Schulz near convergence)
 [-] Distribute between different grids for any distribution
 [-] Way for DistMatrix with single process to view Matrix, and operator=
