@@ -37,6 +37,8 @@ Incremental functionality improvements
 [o] Sequential blocked reduction to tridiagonal form
 [o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
 [o] Quadratic-time Haar generation via random Householder reflectors
+[-] 'Control' equivalents to 'Attach' for DistMatrix, and ability to forfeit
+    buffers in (Dist)Matrix
 [-] Square process grid specializations of LDL and Bunch-Kaufman
 [-] Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
 [-] Finish all options for QuasiDiagonal{Scale,Solve}

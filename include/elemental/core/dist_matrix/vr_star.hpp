@@ -121,6 +121,10 @@ public:
     void LockedAttach
     ( Int height, Int width, Int colAlign,
       const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach
+    ( Matrix<T>& A, Int colAlign, const elem::Grid& grid );
+    void LockedAttach
+    ( const Matrix<T>& A, Int colAlign, const elem::Grid& grid );
    
     void SumScatterFrom( const DistMatrix<T,MR,  STAR>& A );
     void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A );

@@ -325,6 +325,25 @@ DM<T>::LockedAttach
 }
 
 template<typename T>
+void
+DM<T>::Attach
+( Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& g )
+{
+    this->Attach
+    ( A.Height(), A.Width(), colAlign, rowAlign, A.Buffer(), A.LDim(), g );
+}
+
+template<typename T>
+void
+DM<T>::LockedAttach
+( const Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), colAlign, rowAlign,
+      A.LockedBuffer(), A.LDim(), g );
+}
+
+template<typename T>
 template<typename S,class Function>
 void
 DM<T>::GetDiagonalHelper

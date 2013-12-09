@@ -108,11 +108,13 @@ public:
 
     // (Immutable) view of the matrix's buffer (only valid pointer on root)
     void Attach
-    ( Int height, Int width,
-      T* buffer, Int ldim, const elem::Grid& grid, Int root );
+    ( Int height, Int width, Int root,
+      T* buffer, Int ldim, const elem::Grid& grid );
     void LockedAttach
-    ( Int height, Int width, 
-      const T* buffer, Int ldim, const elem::Grid& grid, Int root );
+    ( Int height, Int width, Int root,
+      const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach( Matrix<T>& A, Int root, const elem::Grid& grid );
+    void LockedAttach( const Matrix<T>& A, Int root, const elem::Grid& grid );
 
 private:
 #ifndef SWIG

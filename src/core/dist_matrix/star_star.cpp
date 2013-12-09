@@ -164,6 +164,16 @@ DM<T>::LockedAttach
 }
 
 template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, const elem::Grid& g )
+{ this->LockedAttach( A.Height(), A.Width(), A.LockedBuffer(), A.LDim(), g ); }
+
+template<typename T>
 template<typename S,class Function>
 void
 DM<T>::GetDiagonalHelper

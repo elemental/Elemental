@@ -380,6 +380,24 @@ DM<T>::LockedAttach
     }
 }
 
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int rowAlign, Int root, const elem::Grid& g )
+{
+    this->Attach
+    ( A.Height(), A.Width(), rowAlign, root, A.Buffer(), A.LDim(), g );
+}
+
+template<typename T>
+void
+DM<T>::LockedAttach
+( const Matrix<T>& A, Int rowAlign, Int root, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), rowAlign, root,
+      A.LockedBuffer(), A.LDim(), g );
+}
+
 //
 // Utility functions, e.g., operator=
 //

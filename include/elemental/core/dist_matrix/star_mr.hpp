@@ -121,6 +121,10 @@ public:
     void LockedAttach
     ( Int height, Int width, Int rowAlign,
       const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach
+    ( Matrix<T>& A, Int rowAlign, const elem::Grid& grid );
+    void LockedAttach
+    ( const Matrix<T>& A, Int rowAlign, const elem::Grid& grid );
 
     // AllReduce sum over process column
     void SumOverCol();

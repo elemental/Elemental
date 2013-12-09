@@ -150,11 +150,15 @@ public:
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach
-    ( Int height, Int width, Int colAlignment,
+    ( Int height, Int width, Int colAlign,
       T* buffer, Int ldim, const elem::Grid& grid );
     void LockedAttach
-    ( Int height, Int width, Int colAlignment,
+    ( Int height, Int width, Int colAlign,
       const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach
+    ( Matrix<T>& A, Int colAlign, const elem::Grid& grid );
+    void LockedAttach
+    ( const Matrix<T>& A, Int colAlign, const elem::Grid& grid );
 
     // AllReduce sum over process row
     void SumOverRow();

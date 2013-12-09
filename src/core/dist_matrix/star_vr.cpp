@@ -222,6 +222,19 @@ DM<T>::LockedAttach
     }
 }
 
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int rowAlign, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), rowAlign, A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, Int rowAlign, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), rowAlign, A.LockedBuffer(), A.LDim(), g );
+}
+
 //
 // Utility functions, e.g., AdjointFrom
 //

@@ -119,6 +119,8 @@ public:
     void LockedAttach
     ( Int height, Int width, 
       const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach( Matrix<T>& A, const elem::Grid& grid );
+    void LockedAttach( const Matrix<T>& A, const elem::Grid& grid );
 
     void SumOverCol();
     void SumOverRow();

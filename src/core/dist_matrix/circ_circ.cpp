@@ -66,7 +66,7 @@ DM<T>::DistMatrix
         LogicError("Invalid root");
 #endif
     this->root_ = root;
-    this->LockedAttach( height, width, buffer, ldim, g, root );
+    this->LockedAttach( height, width, root, buffer, ldim, g );
 }
 
 template<typename T>
@@ -80,7 +80,7 @@ DM<T>::DistMatrix
         LogicError("Invalid root");
 #endif
     this->root_ = root;
-    this->Attach( height, width, buffer, ldim, g, root );
+    this->Attach( height, width, root, buffer, ldim, g );
 }
 
 template<typename T>
@@ -180,8 +180,8 @@ DM<T>::RowStride() const
 template<typename T>
 void
 DM<T>::Attach
-( Int height, Int width, 
-  T* buffer, Int ldim, const elem::Grid& grid, Int root )
+( Int height, Int width, Int root,
+  T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
     CallStackEntry cse("[o ,o ]::Attach");
@@ -198,8 +198,8 @@ DM<T>::Attach
 template<typename T>
 void
 DM<T>::LockedAttach
-( Int height, Int width, 
-  const T* buffer, Int ldim, const elem::Grid& grid, Int root )
+( Int height, Int width, Int root,
+  const T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
     CallStackEntry cse("[o ,o ]::LockedAttach");
@@ -211,6 +211,19 @@ DM<T>::LockedAttach
     this->viewType_ = LOCKED_VIEW;
     if( this->Participating() )
         this->matrix_.LockedAttach_( height, width, buffer, ldim );
+}
+
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int root, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), root, A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, Int root, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), root, A.LockedBuffer(), A.LDim(), g );
 }
 
 //

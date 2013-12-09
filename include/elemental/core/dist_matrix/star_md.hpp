@@ -129,6 +129,10 @@ public:
     void LockedAttach
     ( Int height, Int width, Int rowAlign, Int root,
       const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach
+    ( Matrix<T>& A, Int rowAlign, Int root, const elem::Grid& grid );
+    void LockedAttach
+    ( const Matrix<T>& A, Int rowAlign, Int root, const elem::Grid& grid );
 
 private:
 #ifndef SWIG
