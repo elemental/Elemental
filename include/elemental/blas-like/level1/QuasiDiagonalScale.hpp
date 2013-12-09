@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_QUASIDIAGONALSOLVE_HPP
-#define ELEM_BLAS_QUASIDIAGONALSOLVE_HPP
+#ifndef ELEM_BLAS_QUASIDIAGONALSCALE_HPP
+#define ELEM_BLAS_QUASIDIAGONALSCALE_HPP
 
 #include "elemental/blas-like/level1/Symmetric2x2Scale.hpp"
 
@@ -109,8 +109,8 @@ LeftQuasiDiagonalScale
     const Int colShift = X.ColShift();
     const Int colStride = X.ColStride();
     DEBUG_ONLY(
-        const Int colAlignPrev = (X.ColAlign()+colStride-1) % colStride;
-        const Int colAlignNext = (X.ColAlign()+1) % colStride;
+        const Int colAlignPrev = (X.ColAlign()+1) % colStride;
+        const Int colAlignNext = (X.ColAlign()+colStride-1) % colStride;
         if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
             LogicError("data is not properly aligned");
         if( XPrev.ColAlign() != colAlignPrev ||
@@ -203,8 +203,8 @@ RightQuasiDiagonalScale
     const Int rowShift = X.RowShift();
     const Int rowStride = X.RowStride();
     DEBUG_ONLY(
-        const Int rowAlignPrev = (X.RowAlign()+rowStride-1) % rowStride;
-        const Int rowAlignNext = (X.RowAlign()+1) % rowStride;
+        const Int rowAlignPrev = (X.RowAlign()+1) % rowStride;
+        const Int rowAlignNext = (X.RowAlign()+rowStride-1) % rowStride;
         if( d.ColAlign() != X.RowAlign() || dSub.ColAlign() != X.RowAlign() )
             LogicError("data is not properly aligned");
         if( XPrev.RowAlign() != rowAlignPrev ||
@@ -306,8 +306,8 @@ QuasiDiagonalScale
         DistMatrix<FMain,U2,STAR> dPrev_U2_STAR(g), dNext_U2_STAR(g);
         DistMatrix<F,U2,STAR> dSubPrev_U2_STAR(g), dSubNext_U2_STAR(g);
         DistMatrix<F,U2,V2> XPrev(g), XNext(g);
-        const Int colAlignPrev = (colAlign+colStride-1) % colStride;
-        const Int colAlignNext = (colAlign+1) % colStride;
+        const Int colAlignPrev = (colAlign+1) % colStride;
+        const Int colAlignNext = (colAlign+colStride-1) % colStride;
         dPrev_U2_STAR.AlignCols( colAlignPrev );
         dNext_U2_STAR.AlignCols( colAlignNext );
         dSubPrev_U2_STAR.AlignCols( colAlignPrev );
@@ -371,4 +371,4 @@ QuasiDiagonalScale
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_QUASIDIAGONALSOLVE_HPP
+#endif // ifndef ELEM_BLAS_QUASIDIAGONALSCALE_HPP

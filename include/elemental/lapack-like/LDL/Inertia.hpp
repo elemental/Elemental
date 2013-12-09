@@ -98,7 +98,7 @@ Inertia
     const Int colStride = d.ColStride();
     DEBUG_ONLY(
         const Int colAlign = d.ColAlign();
-        const Int colAlignPrev = (colAlign+colStride-1) % colStride;
+        const Int colAlignPrev = (colAlign+1) % colStride;
         if( dSub.ColAlign() != colAlign )
             LogicError("dSub was improperly aligned");
         if( dPrev.ColAlign() != colAlignPrev )
@@ -176,7 +176,7 @@ Inertia( const DistMatrix<BASE(F),U,V>& d, const DistMatrix<F,U,V>& dSub )
 
     DistMatrix<Real,MC,STAR> dPrev_MC_STAR(g);
     DistMatrix<F,MC,STAR> dSubPrev_MC_STAR(g);
-    const Int colAlignPrev = colStride-1;
+    const Int colAlignPrev = 1 % colStride;
     dPrev_MC_STAR.AlignCols( colAlignPrev );
     dSubPrev_MC_STAR.AlignCols( colAlignPrev );
     dPrev_MC_STAR = d;
