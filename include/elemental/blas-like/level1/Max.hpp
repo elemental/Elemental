@@ -18,16 +18,14 @@ template<typename F>
 inline ValueInt<BASE(F)>
 VectorMax( const Matrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("VectorMax");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
-#ifndef RELEASE
-    if( m != 1 && n != 1 )
-        LogicError("Input should have been a vector");
-#endif
+    DEBUG_ONLY(
+        if( m != 1 && n != 1 )
+            LogicError("Input should have been a vector");
+    )
 
     ValueInt<Real> pivot;
     pivot.index = 0;
@@ -63,16 +61,14 @@ template<typename F,Distribution U,Distribution V>
 inline ValueInt<BASE(F)>
 VectorMax( const DistMatrix<F,U,V>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("VectorMax");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
     typedef Base<F> Real;
     const Int n = x.Width();
-#ifndef RELEASE
-    const Int m = x.Height();
-    if( m != 1 && n != 1 )
-        LogicError("Input should have been a vector");
-#endif
+    DEBUG_ONLY(
+        const Int m = x.Height();
+        if( m != 1 && n != 1 )
+            LogicError("Input should have been a vector");
+    )
     ValueInt<Real> pivot;
     if( x.Participating() )
     {
@@ -127,9 +123,7 @@ template<typename F>
 inline ValueIntPair<BASE(F)>
 Max( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Max");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Max"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -158,9 +152,7 @@ template<typename F,Distribution U,Distribution V>
 inline ValueIntPair<BASE(F)>
 Max( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Max");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Max"))
     typedef Base<F> Real;
     ValueIntPair<Real> pivot;
     if( A.Participating() )
@@ -205,11 +197,11 @@ template<typename F>
 inline ValueIntPair<BASE(F)>
 SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SymmetricMax");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("SymmetricMax");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     typedef Base<F> Real;
     const Int n = A.Width();
 
@@ -256,11 +248,11 @@ template<typename F>
 inline ValueIntPair<BASE(F)>
 SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SymmetricMax");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("SymmetricMax");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     typedef Base<F> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -329,9 +321,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 DiagonalMax( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DiagonalMax");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
     return VectorMax( A.GetDiagonal() );
 }
 
@@ -339,9 +329,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 DiagonalMax( const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DiagonalMax");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
     return VectorMax( A.GetDiagonal() );
 }
 

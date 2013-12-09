@@ -16,9 +16,7 @@ template<typename F>
 inline void
 Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate=false )
 {
-#ifndef RELEASE    
-    CallStackEntry cse("Symmetric2x2Inv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Inv"))
     typedef Base<F> Real;
     if( uplo == LOWER )
     {

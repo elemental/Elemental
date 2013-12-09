@@ -22,9 +22,7 @@ template<typename T>
 inline void
 MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeSymmetric");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -49,9 +47,7 @@ template<typename T>
 inline void
 MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeSymmetric");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 

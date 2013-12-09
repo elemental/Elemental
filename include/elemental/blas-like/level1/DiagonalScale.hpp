@@ -18,9 +18,7 @@ DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const Matrix<TDiag>& d, Matrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DiagonalScale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     const Int m = X.Height();
     const Int n = X.Width();
     const Int ldim = X.LDim();
@@ -62,9 +60,7 @@ DiagonalScale
 ( LeftOrRight side, Orientation orientation,
   const DistMatrix<TDiag,U,V>& d, DistMatrix<T,W,Z>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DiagonalScale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     if( side == LEFT )
     {
         if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )

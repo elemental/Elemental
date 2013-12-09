@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Copy( const Matrix<T>& A, Matrix<T>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Copy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
     B = A;
 }
 
@@ -27,9 +25,7 @@ template<typename T,Distribution U,Distribution V,
 inline void
 Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Copy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
     B = A;
 }
 

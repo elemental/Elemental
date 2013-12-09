@@ -18,9 +18,7 @@ Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<F>& D, Matrix<F>& A, bool conjugate=false )
 {
-#ifndef RELEASE    
-    CallStackEntry cse("Symmetric2x2Scale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Scale"))
     const Int m = A.Height();
     const Int n = A.Width();
     if( side == LEFT && uplo == LOWER )
@@ -67,21 +65,21 @@ FirstHalfOfSymmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate=false )
 {
-#ifndef RELEASE    
-    CallStackEntry cse("FirstHalfOfSymmetric2x2Scale");
-    if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
-        LogicError("a1 and a2 must be the same size");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("FirstHalfOfSymmetric2x2Scale");
+        if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
+            LogicError("a1 and a2 must be the same size");
+    )
     F* a1Buf = a1.Buffer();
     const F* a2Buf = a2.LockedBuffer();
     const Int a1LDim = a1.LDim();
     const Int a2LDim = a2.LDim();
     if( side == LEFT && uplo == LOWER )
     {
-#ifndef RELEASE
-        if( a1.Height() != 1 )
-            LogicError("a1 and a2 must be row vectors");
-#endif
+        DEBUG_ONLY(
+            if( a1.Height() != 1 )
+                LogicError("a1 and a2 must be row vectors");
+        )
         const Int n = a1.Width();
         const F delta11 = ( conjugate ? D.GetRealPart(0,0) : D.Get(0,0) );
         const F delta21 = D.Get(1,0);
@@ -96,10 +94,10 @@ FirstHalfOfSymmetric2x2Scale
     }
     else if( side == RIGHT && uplo == LOWER )
     {
-#ifndef RELEASE
-        if( a1.Width() != 1 )
-            LogicError("a1 and a2 must be column vectors");
-#endif
+        DEBUG_ONLY(
+            if( a1.Width() != 1 )
+                LogicError("a1 and a2 must be column vectors");
+        )
         const Int m = a1.Height();
         const F delta11 = ( conjugate ? D.GetRealPart(0,0) : D.Get(0,0) );
         const F delta21 = D.Get(1,0);
@@ -121,21 +119,21 @@ SecondHalfOfSymmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate=false )
 {
-#ifndef RELEASE    
-    CallStackEntry cse("SecondHalfOfSymmetric2x2Scale");
-    if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
-        LogicError("a1 and a2 must be the same size");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("SecondHalfOfSymmetric2x2Scale");
+        if( a1.Height() != a2.Height() || a1.Width() != a2.Width() )
+            LogicError("a1 and a2 must be the same size");
+    )
     const F* a1Buf = a1.LockedBuffer();
     F* a2Buf = a2.Buffer();
     const Int a1LDim = a1.LDim();
     const Int a2LDim = a2.LDim();
     if( side == LEFT && uplo == LOWER )
     {
-#ifndef RELEASE
-        if( a1.Height() != 1 )
-            LogicError("a1 and a2 must be row vectors");
-#endif
+        DEBUG_ONLY(
+            if( a1.Height() != 1 )
+                LogicError("a1 and a2 must be row vectors");
+        )
         const Int n = a1.Width();
         const F delta21 = D.Get(1,0);
         const F delta22 = ( conjugate ? D.GetRealPart(1,1) : D.Get(1,1) );
@@ -149,10 +147,10 @@ SecondHalfOfSymmetric2x2Scale
     }
     else if( side == RIGHT && uplo == LOWER )
     {
-#ifndef RELEASE
-        if( a1.Width() != 1 )
-            LogicError("a1 and a2 must be column vectors");
-#endif
+        DEBUG_ONLY(
+            if( a1.Width() != 1 )
+                LogicError("a1 and a2 must be column vectors");
+        )
         const Int m = a1.Height();
         const F delta21 = D.Get(1,0);
         const F delta12 = ( conjugate ? Conj(delta21) : delta21 );
@@ -169,15 +167,13 @@ SecondHalfOfSymmetric2x2Scale
         LogicError("This option not yet supported");
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
 Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,STAR,STAR>& D, DistMatrix<F>& A, bool conjugate=false )
+  const DistMatrix<F,STAR,STAR>& D, DistMatrix<F,U,V>& A, bool conjugate=false )
 {
-#ifndef RELEASE    
-    CallStackEntry cse("Symmetric2x2Scale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Scale"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();

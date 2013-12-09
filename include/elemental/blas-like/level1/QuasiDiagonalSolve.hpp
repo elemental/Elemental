@@ -21,9 +21,7 @@ QuasiDiagonalSolve
   const Matrix<FMain>& d, const Matrix<F>& dSub, 
   Matrix<F>& X, bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("QuasiDiagonalSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalSolve"))
     const Int m = X.Height();
     const Int n = X.Width();
     Matrix<F> D( 2, 2 );
@@ -87,49 +85,49 @@ QuasiDiagonalSolve
         LogicError("This option not yet supported");
 }
 
-template<typename F,typename FMain>
+template<typename F,typename FMain,Distribution U,Distribution V>
 inline void
 LeftQuasiDiagonalSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<FMain,MC,STAR> d,
-  const DistMatrix<FMain,MC,STAR> dPrev,
-  const DistMatrix<FMain,MC,STAR> dNext,
-  const DistMatrix<FMain,MC,STAR> dSub,
-  const DistMatrix<FMain,MC,STAR> dSubPrev,
-  const DistMatrix<FMain,MC,STAR> dSubNext,
-        DistMatrix<F>& X,
-  const DistMatrix<F>& XPrev,
-  const DistMatrix<F>& XNext,
+  const DistMatrix<FMain,U,STAR> d,
+  const DistMatrix<FMain,U,STAR> dPrev,
+  const DistMatrix<FMain,U,STAR> dNext,
+  const DistMatrix<FMain,U,STAR> dSub,
+  const DistMatrix<FMain,U,STAR> dSubPrev,
+  const DistMatrix<FMain,U,STAR> dSubNext,
+        DistMatrix<F,U,V>& X,
+  const DistMatrix<F,U,V>& XPrev,
+  const DistMatrix<F,U,V>& XNext,
   bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LeftQuasiDiagonalSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LeftQuasiDiagonalSolve"))
     if( uplo == UPPER || orientation != NORMAL )
         LogicError("This option not yet supported");
     const Int mLocal = X.LocalHeight();
     const Int colShift = X.ColShift();
     const Int colStride = X.ColStride();
-#ifndef RELEASE
-    const Int colAlignPrev = (X.ColAlign()+colStride-1) % colStride;
-    const Int colAlignNext = (X.ColAlign()+1) % colStride;
-    if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
-        LogicError("data is not properly aligned");
-    if( XPrev.ColAlign() != colAlignPrev ||
-        dPrev.ColAlign() != colAlignPrev || 
-        dSubPrev.ColAlign() != colAlignPrev )
-        LogicError("'previous' data is not properly aligned");
-    if( XNext.ColAlign() != colAlignNext || 
-        dNext.ColAlign() != colAlignNext || 
-        dSubNext.ColAlign() != colAlignNext )
-        LogicError("'next' data is not properly aligned");
-#endif
+    DEBUG_ONLY(
+        const Int colAlignPrev = (X.ColAlign()+colStride-1) % colStride;
+        const Int colAlignNext = (X.ColAlign()+1) % colStride;
+        if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
+            LogicError("data is not properly aligned");
+        if( XPrev.ColAlign() != colAlignPrev ||
+            dPrev.ColAlign() != colAlignPrev || 
+            dSubPrev.ColAlign() != colAlignPrev )
+            LogicError("'previous' data is not properly aligned");
+        if( XNext.ColAlign() != colAlignNext || 
+            dNext.ColAlign() != colAlignNext || 
+            dSubNext.ColAlign() != colAlignNext )
+            LogicError("'next' data is not properly aligned");
+    )
     const Int colShiftPrev = XPrev.ColShift();
     const Int colShiftNext = XNext.ColShift();
     const Int prevOff = ( colShiftPrev==colShift-1 ? 0 : -1 );
     const Int nextOff = ( colShiftNext==colShift+1 ? 0 : +1 );
     const Int m = X.Height();
     const Int nLocal = X.LocalWidth();
+    if( !X.Participating() )
+        return;
 
     // It is best to separate the case where colStride is 1
     if( colStride == 1 )
@@ -181,58 +179,57 @@ LeftQuasiDiagonalSolve
     }
 }
 
-template<typename F,typename FMain,Distribution U,Distribution V>
+template<typename F,typename FMain,Distribution U1,Distribution V1,
+                                   Distribution U2,Distribution V2>
 inline void
 QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<FMain,U,V>& d, const DistMatrix<F,U,V>& dSub, 
-  DistMatrix<F>& X, bool conjugated=false )
+  const DistMatrix<FMain,U1,V1>& d, const DistMatrix<F,U1,V1>& dSub, 
+  DistMatrix<F,U2,V2>& X, bool conjugated=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("QuasiDiagonalSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalSolve"))
     const Grid& g = X.Grid();
     const Int colAlign = X.ColAlign();
     const Int rowAlign = X.RowAlign();
     const Int colStride = X.ColStride();
     if( side == LEFT )
     {
-        DistMatrix<FMain,MC,STAR> d_MC_STAR(g);
-        DistMatrix<F,MC,STAR> dSub_MC_STAR(g);
-        d_MC_STAR.AlignWith( X );
-        dSub_MC_STAR.AlignWith( X );
-        d_MC_STAR = d;
-        dSub_MC_STAR = dSub;
+        DistMatrix<FMain,U2,STAR> d_U2_STAR(g);
+        DistMatrix<F,U2,STAR> dSub_U2_STAR(g);
+        d_U2_STAR.AlignWith( X );
+        dSub_U2_STAR.AlignWith( X );
+        d_U2_STAR = d;
+        dSub_U2_STAR = dSub;
         if( colStride == 1 )
         {
             QuasiDiagonalSolve
             ( side, uplo, orientation, 
-              d_MC_STAR.LockedMatrix(), dSub_MC_STAR.LockedMatrix(),
+              d_U2_STAR.LockedMatrix(), dSub_U2_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
         }
 
-        DistMatrix<FMain,MC,STAR> dPrev_MC_STAR(g), dNext_MC_STAR(g);
-        DistMatrix<F,MC,STAR> dSubPrev_MC_STAR(g), dSubNext_MC_STAR(g);
-        DistMatrix<F> XPrev(g), XNext(g);
+        DistMatrix<FMain,U2,STAR> dPrev_U2_STAR(g), dNext_U2_STAR(g);
+        DistMatrix<F,U2,STAR> dSubPrev_U2_STAR(g), dSubNext_U2_STAR(g);
+        DistMatrix<F,U2,V2> XPrev(g), XNext(g);
         const Int colAlignPrev = (colAlign+colStride-1) % colStride;
         const Int colAlignNext = (colAlign+1) % colStride;
-        dPrev_MC_STAR.AlignCols( colAlignPrev );
-        dNext_MC_STAR.AlignCols( colAlignNext );
-        dSubPrev_MC_STAR.AlignCols( colAlignPrev );
-        dSubNext_MC_STAR.AlignCols( colAlignNext );
+        dPrev_U2_STAR.AlignCols( colAlignPrev );
+        dNext_U2_STAR.AlignCols( colAlignNext );
+        dSubPrev_U2_STAR.AlignCols( colAlignPrev );
+        dSubNext_U2_STAR.AlignCols( colAlignNext );
         XPrev.Align( colAlignPrev, rowAlign );
         XNext.Align( colAlignNext, rowAlign );
-        dPrev_MC_STAR = d;
-        dNext_MC_STAR = d;
-        dSubPrev_MC_STAR = dSub;
-        dSubNext_MC_STAR = dSub;
+        dPrev_U2_STAR = d;
+        dNext_U2_STAR = d;
+        dSubPrev_U2_STAR = dSub;
+        dSubNext_U2_STAR = dSub;
         XPrev = X;
         XNext = X;
         LeftQuasiDiagonalSolve
         ( uplo, orientation, 
-          d_MC_STAR, dPrev_MC_STAR, dNext_MC_STAR,
-          dSub_MC_STAR, dSubPrev_MC_STAR, dSubNext_MC_STAR,
+          d_U2_STAR, dPrev_U2_STAR, dNext_U2_STAR,
+          dSub_U2_STAR, dSubPrev_U2_STAR, dSubNext_U2_STAR,
           X, XPrev, XNext, conjugated );
     }
     else

@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Axpy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Axpy"))
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
     if( X.Height()==1 || X.Width()==1 )
@@ -26,20 +24,20 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
         const Int XLength = ( X.Width()==1 ? X.Height() : X.Width() );
         const Int XStride = ( X.Width()==1 ? 1          : X.LDim() );
         const Int YStride = ( Y.Width()==1 ? 1          : Y.LDim() );
-#ifndef RELEASE
-        const Int YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
-        if( XLength != YLength )
-            LogicError("Nonconformal Axpy");
-#endif
+        DEBUG_ONLY(
+            const Int YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
+            if( XLength != YLength )
+                LogicError("Nonconformal Axpy");
+        )
         blas::Axpy
         ( XLength, alpha, X.LockedBuffer(), XStride, Y.Buffer(), YStride );
     }
     else
     {
-#ifndef RELEASE
-        if( X.Height() != Y.Height() || X.Width() != Y.Width() )
-            LogicError("Nonconformal Axpy");
-#endif
+        DEBUG_ONLY(
+            if( X.Height() != Y.Height() || X.Width() != Y.Width() )
+                LogicError("Nonconformal Axpy");
+        )
         if( X.Width() <= X.Height() )
         {
             for( Int j=0; j<X.Width(); ++j )
@@ -72,12 +70,11 @@ template<typename T,Distribution U1,Distribution V1,
 inline void
 Axpy( T alpha, const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Axpy");
-    if( X.Grid() != Y.Grid() )
-        LogicError
-        ("X and Y must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Axpy");
+        if( X.Grid() != Y.Grid() )
+            LogicError("X and Y must be distributed over the same grid");
+    )
     if( U1 == V1 && U2 == V2 && 
         X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {

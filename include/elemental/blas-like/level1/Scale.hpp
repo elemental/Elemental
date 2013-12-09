@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Scale( T alpha, Matrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Scale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Scale"))
     if( alpha != T(1) )
     {
         if( alpha == T(0) )

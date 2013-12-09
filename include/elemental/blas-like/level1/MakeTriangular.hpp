@@ -16,9 +16,7 @@ template<typename T>
 inline void
 MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeTriangular");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -48,9 +46,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeTriangular");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

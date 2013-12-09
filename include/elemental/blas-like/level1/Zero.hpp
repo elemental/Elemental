@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Zero( Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Zero");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Zero"))
     const Int height = A.Height();
     const Int width = A.Width();
     PARALLEL_FOR
@@ -30,9 +28,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Zero( DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Zero");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Zero"))
     Zero( A.Matrix() );
 }
 

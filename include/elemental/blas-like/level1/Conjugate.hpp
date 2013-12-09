@@ -24,9 +24,7 @@ template<typename Z>
 inline void
 Conjugate( Matrix<Complex<Z>>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Conjugate (in-place)");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -39,9 +37,7 @@ template<typename T>
 inline void
 Conjugate( Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Conjugate (in-place)");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -54,9 +50,7 @@ template<typename T>
 inline void
 Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Conjugate");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Conjugate"))
     const Int m = A.Height();
     const Int n = A.Width();
     B.ResizeTo( m, n );
@@ -69,9 +63,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Conjugate( DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Conjugate (in-place)");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
     Conjugate( A.Matrix() );
 }
 
@@ -80,9 +72,7 @@ template<typename T,Distribution U,Distribution V,
 inline void
 Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Conjugate");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Conjugate"))
     B = A;
     Conjugate( B );
 }

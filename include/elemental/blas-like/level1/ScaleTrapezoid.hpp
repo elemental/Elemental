@@ -18,9 +18,7 @@ ScaleTrapezoid
 ( T alpha, UpperOrLower uplo, Matrix<T>& A, 
   Int offset=0, LeftOrRight side=LEFT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ScaleTrapezoid");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -80,9 +78,7 @@ ScaleTrapezoid
 ( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, 
   Int offset=0, LeftOrRight side=LEFT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ScaleTrapezoid");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int localHeight = A.LocalHeight();

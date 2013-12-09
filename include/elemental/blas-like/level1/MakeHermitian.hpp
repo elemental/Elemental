@@ -18,9 +18,7 @@ template<typename T>
 inline void
 MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeHermitian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
 }
 
@@ -28,9 +26,7 @@ template<typename T>
 inline void
 MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeHermitian");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
     MakeSymmetric( uplo, A, true );
 }
 

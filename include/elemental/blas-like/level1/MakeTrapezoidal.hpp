@@ -17,9 +17,7 @@ inline void
 MakeTrapezoidal
 ( UpperOrLower uplo, Matrix<T>& A, Int offset=0, LeftOrRight side=LEFT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeTrapezoidal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -80,9 +78,7 @@ inline void
 MakeTrapezoidal
 ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0, LeftOrRight side=LEFT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeTrapezoidal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int localHeight = A.LocalHeight();

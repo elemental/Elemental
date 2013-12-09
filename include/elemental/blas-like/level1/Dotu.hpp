@@ -18,9 +18,7 @@ template<typename F>
 inline F
 Dotu( const Matrix<F>& A, const Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Dotu");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     F sum(0);
@@ -36,9 +34,7 @@ template<typename F,Distribution U,Distribution V>
 inline F
 Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Dotu");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     if( A.Grid() != B.Grid() )

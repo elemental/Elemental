@@ -15,18 +15,16 @@ namespace elem {
 template<typename F>
 inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Swap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Swap"))
     const Int mX = X.Height();
     const Int nX = X.Width();
 
     if( orientation == NORMAL )
     {
-#ifndef RELEASE
-        if( Y.Height() != mX || Y.Width() != nX )
-            LogicError("Invalid submatrix sizes");
-#endif
+        DEBUG_ONLY(
+            if( Y.Height() != mX || Y.Width() != nX )
+                LogicError("Invalid submatrix sizes");
+        )
         // TODO: Optimize memory access patterns
         if( mX > nX )
         {
@@ -43,10 +41,10 @@ inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
     else
     {
         const bool conjugate = ( orientation==ADJOINT );
-#ifndef RELEASE
-        if( Y.Width() != mX || Y.Height() != nX )
-            LogicError("Invalid submatrix sizes");
-#endif
+        DEBUG_ONLY(
+            if( Y.Width() != mX || Y.Height() != nX )
+                LogicError("Invalid submatrix sizes");
+        )
         // TODO: Optimize memory access patterns
         for( Int j=0; j<nX; ++j )
         {
@@ -72,16 +70,14 @@ template<typename F,Distribution U1,Distribution V1,
 inline void Swap
 ( Orientation orientation, DistMatrix<F,U1,V1>& X, DistMatrix<F,U2,V2>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Swap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Swap"))
     const Grid& g = X.Grid();
     if( orientation == NORMAL )
     {
-#ifndef RELEASE
-        if( Y.Height() != X.Height() || Y.Width() != X.Width() )
-            LogicError("Invalid submatrix sizes");
-#endif
+        DEBUG_ONLY(
+            if( Y.Height() != X.Height() || Y.Width() != X.Width() )
+                LogicError("Invalid submatrix sizes");
+        )
         // TODO: Optimize communication
 
         DistMatrix<F,U1,V1> YLikeX(g);
@@ -98,10 +94,10 @@ inline void Swap
     else
     {
         const bool conjugate = ( orientation==ADJOINT );
-#ifndef RELEASE
-        if( Y.Width() != X.Height() || Y.Height() != X.Width() )
-            LogicError("Invalid submatrix sizes");
-#endif
+        DEBUG_ONLY(
+            if( Y.Width() != X.Height() || Y.Height() != X.Width() )
+                LogicError("Invalid submatrix sizes");
+        )
 
         // TODO: Optimize communication
 
@@ -121,9 +117,7 @@ inline void Swap
 template<typename F>
 inline void RowSwap( Matrix<F>& A, Int to, Int from )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RowSwap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RowSwap"))
     if( to == from )
         return;
     const Int n = A.Width();
@@ -135,9 +129,7 @@ inline void RowSwap( Matrix<F>& A, Int to, Int from )
 template<typename F,Distribution U,Distribution V>
 inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RowSwap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RowSwap"))
     if( to == from )
         return;
     if( !A.Participating() )
@@ -178,9 +170,7 @@ inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 template<typename F>
 inline void ColumnSwap( Matrix<F>& A, Int to, Int from )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ColumnSwap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ColumnSwap"))
     if( to == from )
         return;
     const Int m = A.Height();
@@ -192,9 +182,7 @@ inline void ColumnSwap( Matrix<F>& A, Int to, Int from )
 template<typename F,Distribution U,Distribution V>
 inline void ColumnSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ColumnSwap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ColumnSwap"))
     if( to == from )
         return;
     if( !A.Participating() )
@@ -226,11 +214,11 @@ template<typename F>
 inline void SymmetricSwap
 ( UpperOrLower uplo, Matrix<F>& A, int to, int from, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SymmetricSwap");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("SymmetricSwap");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( to == from )
     {
         if( conjugate )
@@ -320,11 +308,11 @@ inline void SymmetricSwap
 ( UpperOrLower uplo, DistMatrix<F,U,V>& A, 
   int to, int from, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SymmetricSwap");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("SymmetricSwap");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( to == from )
     {
         if( conjugate )
@@ -412,9 +400,7 @@ inline void SymmetricSwap
 template<typename F>
 inline void HermitianSwap( UpperOrLower uplo, Matrix<F>& A, int to, int from )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianSwap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSwap"))
     SymmetricSwap( uplo, A, to, from, true );
 }
 
@@ -422,9 +408,7 @@ template<typename F,Distribution U,Distribution V>
 inline void HermitianSwap
 ( UpperOrLower uplo, DistMatrix<F,U,V>& A, int to, int from )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianSwap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianSwap"))
     SymmetricSwap( uplo, A, to, from, true );
 }
 

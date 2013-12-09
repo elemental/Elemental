@@ -16,12 +16,12 @@ template<typename T>
 inline void
 AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyTriangle");
-    if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
-        X.Height() != Y.Height() )
-        LogicError("Nonconformal AxpyTriangle");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("AxpyTriangle");
+        if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+            X.Height() != Y.Height() )
+            LogicError("Nonconformal AxpyTriangle");
+    )
     if( uplo == UPPER )
     {
         for( Int j=0; j<X.Width(); ++j )
@@ -49,15 +49,15 @@ inline void
 AxpyTriangle
 ( UpperOrLower uplo, T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyTriangle");
-    if( X.Grid() != Y.Grid() )
-        LogicError
-        ("X and Y must be distributed over the same grid");
-    if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
-        X.Height() != Y.Height() )
-        LogicError("Nonconformal AxpyTriangle");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("AxpyTriangle");
+        if( X.Grid() != Y.Grid() )
+            LogicError
+            ("X and Y must be distributed over the same grid");
+        if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+            X.Height() != Y.Height() )
+            LogicError("Nonconformal AxpyTriangle");
+    )
     if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {
         const Int localHeight = X.LocalHeight();

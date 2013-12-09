@@ -16,9 +16,7 @@ template<typename T>
 inline void
 MakeReal( Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeReal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeReal"))
     T* ABuffer = A.Buffer();
     const Int height = A.Height();
     const Int width = A.Width();
@@ -32,9 +30,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 MakeReal( DistMatrix<T,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MakeReal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MakeReal"))
     MakeReal( A.Matrix() );
 }
 

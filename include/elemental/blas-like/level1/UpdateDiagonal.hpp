@@ -18,9 +18,7 @@ template<typename T>
 inline void
 UpdateDiagonal( Matrix<T>& A, T alpha )
 {
-#ifndef RELEASE
-    CallStackEntry cse("UpdateDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
     PARALLEL_FOR
@@ -32,9 +30,7 @@ template<typename T>
 inline void
 UpdateDiagonal( Matrix<T>& A, T alpha, Int offset, LeftOrRight side=LEFT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("UpdateDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
     if( side == LEFT )
@@ -61,9 +57,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 UpdateDiagonal( DistMatrix<T,U,V>& A, T alpha )
 {
-#ifndef RELEASE
-    CallStackEntry cse("UpdateDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
     const Int height = A.Height();
     const Int rowShift = A.RowShift();
     const Int colShift = A.ColShift();
@@ -86,9 +80,7 @@ inline void
 UpdateDiagonal
 ( DistMatrix<T,U,V>& A, T alpha, Int offset, LeftOrRight side=LEFT )
 {
-#ifndef RELEASE
-    CallStackEntry cse("UpdateDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int rowShift = A.RowShift();

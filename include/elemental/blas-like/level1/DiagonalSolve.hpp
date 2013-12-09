@@ -18,9 +18,7 @@ DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<FDiag>& d, Matrix<F>& X, bool checkIfSingular=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DiagonalSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
     const Int m = X.Height();
     const Int n = X.Width();
     const Int ldim = X.LDim();
@@ -69,9 +67,7 @@ DiagonalSolve
   const DistMatrix<FDiag,U,V>& d, DistMatrix<F,W,Z>& X,
   bool checkIfSingular=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DiagonalSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
     if( side == LEFT )
     {
         if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )

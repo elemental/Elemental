@@ -18,11 +18,11 @@ template<typename F>
 inline BASE(F)
 Nrm2( const Matrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Nrm2");
-    if( x.Height() != 1 && x.Width() != 1 )
-        LogicError("Expected vector input");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Nrm2");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("Expected vector input");
+    )
     BASE(F) norm;
     if( x.Width() == 1 )
         norm = blas::Nrm2( x.Height(), x.LockedBuffer(), 1 );
@@ -35,11 +35,11 @@ template<typename F>
 inline BASE(F)
 Nrm2( const DistMatrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Nrm2");
-    if( x.Height() != 1 && x.Width() != 1 )
-        LogicError("x must be a vector");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Nrm2");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("x must be a vector");
+    )
     return FrobeniusNorm( x );
 }
 

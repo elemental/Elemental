@@ -18,9 +18,7 @@ template<typename F>
 inline F
 Dot( const Matrix<F>& A, const Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Dot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 
@@ -28,9 +26,7 @@ template<typename F,Distribution U,Distribution V>
 inline F
 Dot( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Dot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 

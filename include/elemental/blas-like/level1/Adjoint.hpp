@@ -18,9 +18,7 @@ template<typename T>
 inline void
 Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Adjoint");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
     Transpose( A, B, true );
 }
 
@@ -29,9 +27,7 @@ template<typename T,Distribution U,Distribution V,
 inline void
 Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Adjoint");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
     Transpose( A, B, true );
 }
 
