@@ -83,7 +83,7 @@ TrdtrmmLUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
     const Int ldim = L.LDim();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    Matrix<F> s10, S10, D11;
+    Matrix<F> s10, S10, D11(2,2);
 
     Int k=0;
     while( k < n )
@@ -138,17 +138,20 @@ TrdtrmmLUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
             // S10 := L10
             S10 = L10;
 
-            // L10 := L10 / D11
+            // L10 := inv(D11) L10 
             D11.Set( 0, 0, L11.Get(0,0) );
             D11.Set( 1, 1, L11.Get(1,1) );
             D11.Set( 1, 0, dSub.Get(k,0) );
-            Symmetric2x2Solve( RIGHT, LOWER, D11, L10, conjugate );
+            Symmetric2x2Solve( LEFT, LOWER, D11, L10, conjugate );
 
             // L00 := L00 + L10' S10
             Trrk( LOWER, orientation, NORMAL, F(1), L10, S10, F(1), L00 );
 
             // L11 := inv(D11)
             Symmetric2x2Inv( LOWER, D11, conjugate );
+            L11.Set( 0, 0, D11.Get(0,0) );
+            L11.Set( 1, 0, D11.Get(1,0) );
+            L11.Set( 1, 1, D11.Get(1,1) );
         }
 
         k += nb;

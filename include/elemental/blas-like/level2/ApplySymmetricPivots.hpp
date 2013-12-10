@@ -31,7 +31,7 @@ ApplySymmetricPivots
     // TODO: Optimize this
     const Int n = A.Height();
     for( Int k=0; k<n; ++k )
-        SymmetricSwap( uplo, A, p.Get(k,0), conjugate );
+        SymmetricSwap( uplo, A, k, p.Get(k,0), conjugate );
 }
 
 template<typename F>
@@ -52,7 +52,48 @@ ApplySymmetricPivots
     // TODO: Optimize this
     const Int n = A.Height();
     for( Int k=0; k<n; ++k )
-        SymmetricSwap( uplo, A, p.Get(k,0), conjugate );
+        SymmetricSwap( uplo, A, k, p.Get(k,0), conjugate );
+}
+
+template<typename F>
+inline void
+ApplyInverseSymmetricPivots
+( UpperOrLower uplo, Matrix<F>& A, const Matrix<Int>& p, bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ApplyInverseSymmetricPivots");
+    if( p.Width() != 1 )
+        LogicError("p must be a column vector");
+    if( p.Height() > A.Width() )
+        LogicError("p cannot be longer than width of A");
+    if( A.Height() != A.Width() )
+        LogicError("A must be symmetric");
+#endif
+    // TODO: Optimize this
+    const Int n = A.Height();
+    for( Int k=n-1; k>=0; --k )
+        SymmetricSwap( uplo, A, k, p.Get(k,0), conjugate );
+}
+
+template<typename F>
+inline void
+ApplyInverseSymmetricPivots
+( UpperOrLower uplo, DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, 
+  bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ApplyInverseSymmetricPivots");
+    if( p.Width() != 1 )
+        LogicError("p must be a column vector");
+    if( p.Height() > A.Width() )
+        LogicError("p cannot be longer than width of A");
+    if( A.Height() != A.Width() )
+        LogicError("A must be symmetric");
+#endif
+    // TODO: Optimize this
+    const Int n = A.Height();
+    for( Int k=n-1; k>=0; --k )
+        SymmetricSwap( uplo, A, k, p.Get(k,0), conjugate );
 }
 
 } // namespace elem

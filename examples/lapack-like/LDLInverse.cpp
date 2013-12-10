@@ -58,7 +58,7 @@ main( int argc, char* argv[] )
 
         // Make a copy of A and then overwrite it with its inverse
         DistMatrix<C> invA( A );
-        SymmetricInverse( LOWER, A );
+        SymmetricInverse( LOWER, invA, conjugate );
 
         // Form I - invA*A and print the relevant norms
         DistMatrix<C> E;

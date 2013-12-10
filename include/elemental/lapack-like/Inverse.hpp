@@ -58,7 +58,7 @@ SymmetricInverse
         ldl::Pivoted( A, dSub, p, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
-        ApplySymmetricPivots( LOWER, A, p, conjugate );
+        ApplyInverseSymmetricPivots( LOWER, A, p, conjugate );
     }
     else
         LogicError("This option is not yet supported");
@@ -80,7 +80,7 @@ SymmetricInverse
         ldl::Pivoted( A, dSub, p, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
-        ApplySymmetricPivots( LOWER, A, p, conjugate );
+        ApplyInverseSymmetricPivots( LOWER, A, p, conjugate );
     }
     else
         LogicError("This option is not yet supported");
