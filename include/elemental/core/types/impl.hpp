@@ -39,7 +39,9 @@ DistToString( Distribution distribution )
 inline Distribution 
 StringToDist( std::string s )
 {
-    Distribution distribution;
+    // Most compilers' logic for detecting potentially uninitialized variables
+    // is horrendously bad.
+    Distribution distribution=MC;
     if( s == "MC" )
         distribution = MC;
     else if( s == "MD" )
@@ -53,11 +55,9 @@ StringToDist( std::string s )
     else if( s == "* " || s == " *" || s == "*" )
         distribution = STAR;
     else
-    {
         LogicError
         ("StringToDist expects string in "
          "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}");
-    }
     return distribution;
 }
 
@@ -80,7 +80,9 @@ LeftOrRightToChar( LeftOrRight side )
 inline LeftOrRight 
 CharToLeftOrRight( char c )
 {
-    LeftOrRight side;
+    // Most compilers' logic for detecting potentially uninitialized variables
+    // is horrendously bad.
+    LeftOrRight side=LEFT;
     switch( c )
     {
         case 'L': side = LEFT;  break;
@@ -111,7 +113,9 @@ OrientationToChar( Orientation orientation )
 inline Orientation 
 CharToOrientation( char c )
 {
-    Orientation orientation;
+    // Most compilers' logic for detecting potentially uninitialized variables
+    // is horrendously bad.
+    Orientation orientation=NORMAL;
     switch( c )
     {
         case 'N': orientation = NORMAL;    break;
@@ -143,7 +147,9 @@ UnitOrNonUnitToChar( UnitOrNonUnit diag )
 inline UnitOrNonUnit 
 CharToUnitOrNonUnit( char c )
 {
-    UnitOrNonUnit diag;
+    // Most compilers' logic for detecting potentially uninitialized variables
+    // is horrendously bad.
+    UnitOrNonUnit diag=NON_UNIT;
     switch( c )
     {
         case 'N': diag = NON_UNIT; break;
@@ -173,7 +179,9 @@ UpperOrLowerToChar( UpperOrLower uplo )
 inline UpperOrLower 
 CharToUpperOrLower( char c )
 {
-    UpperOrLower uplo;
+    // Most compilers' logic for detecting potentially uninitialized variables
+    // is horrendously bad.
+    UpperOrLower uplo=LOWER;
     switch( c )
     {
         case 'L': uplo = LOWER; break;

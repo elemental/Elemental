@@ -24,19 +24,19 @@ Syrk
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syrk");
-    if( orientation == NORMAL )
-    {
-        if( A.Height() != C.Height() || A.Height() != C.Width() )
-            LogicError("Nonconformal Syrk");
-    }
-    else
-    {
-        if( A.Width() != C.Height() || A.Width() != C.Width() )
-            LogicError("Nonconformal Syrk");
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Syrk");
+        if( orientation == NORMAL )
+        {
+            if( A.Height() != C.Height() || A.Height() != C.Width() )
+                LogicError("Nonconformal Syrk");
+        }
+        else
+        {
+            if( A.Width() != C.Height() || A.Width() != C.Width() )
+                LogicError("Nonconformal Syrk");
+        }
+    )
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const Int k = ( orientation == NORMAL ? A.Width() : A.Height() );
@@ -63,9 +63,7 @@ Syrk
   T alpha, const Matrix<T>& A, Matrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syrk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
@@ -78,9 +76,7 @@ Syrk
   T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syrk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Syrk"))
     if( uplo == LOWER && orientation == NORMAL )
         internal::SyrkLN( alpha, A, beta, C, conjugate );
     else if( uplo == LOWER )
@@ -98,9 +94,7 @@ Syrk
   T alpha, const DistMatrix<T>& A, DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syrk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );

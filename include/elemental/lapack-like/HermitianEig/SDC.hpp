@@ -37,9 +37,7 @@ inline void PushSubproblems
   DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
   DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::PushSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::PushSubproblems"))
     // The trivial push
     /*
     ATLSub = View( ATL );
@@ -66,9 +64,7 @@ inline void PullSubproblems
   DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
   DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::PullSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::PullSubproblems"))
     // The trivial pull is empty
 
     // This is a hack
@@ -114,9 +110,7 @@ inline void PushSubproblems
   DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::PushSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::PushSubproblems"))
     // The trivial push
     /*
     ATLSub = View( ATL );
@@ -149,9 +143,7 @@ inline void PullSubproblems
   DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::PullSubproblems");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::PullSubproblems"))
     // The trivial pull
     /*
     ZT = View( ZTSub );
@@ -207,11 +199,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::QDWHDivide");
-#endif
-    typedef Base<F> Real;
-    const Int n = A.Height();
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::QDWHDivide"))
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -226,7 +214,7 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 
     // A := Q^H A Q
     MakeHermitian( uplo, A );
-    const Real oneA = OneNorm( A );
+    const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
         ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
@@ -251,12 +239,7 @@ inline ValueInt<BASE(F)>
 QDWHDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::QDWHDivide");
-#endif
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
-    const Int n = A.Height();
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::QDWHDivide"))
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -265,13 +248,14 @@ QDWHDivide
     Scale( F(1)/F(2), G );
 
     // Compute the pivoted QR decomposition of the spectral projection 
+    const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Int,VR,STAR> p(g);
     elem::QR( G, t, p );
 
     // A := Q^H A Q
     MakeHermitian( uplo, A );
-    const Real oneA = OneNorm( A );
+    const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
         ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
@@ -297,9 +281,8 @@ RandomizedSignDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, 
   bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::RandomizedSignDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::RandomizedSignDivide"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -359,9 +342,8 @@ RandomizedSignDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, 
   bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::RandomizedSignDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::RandomizedSignDivide"))
+
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -423,9 +405,8 @@ SpectralDivide
 ( UpperOrLower uplo, Matrix<F>& A, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SpectralDivide"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -474,9 +455,8 @@ SpectralDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SpectralDivide"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -525,9 +505,8 @@ SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SpectralDivide"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -577,9 +556,8 @@ SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SpectralDivide");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SpectralDivide"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     MakeHermitian( uplo, A );
@@ -629,9 +607,8 @@ SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Int cutoff=256, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
@@ -663,9 +640,8 @@ SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Q, 
   Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
+
     typedef Base<F> Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
@@ -707,9 +683,8 @@ SDC
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
   Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
+
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -754,9 +729,8 @@ SDC
   DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Q, 
   Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::SDC");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
+
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();

@@ -25,9 +25,7 @@ template<typename F>
 inline void
 PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry cse("id::PseudoTrsm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
     typedef Base<F> Real;
     const Int m = RR.Height();
     const Int n = RR.Width();
@@ -72,10 +70,7 @@ template<typename F>
 inline void
 PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry cse("id::PseudoTrsm");
-#endif
-
+    DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
     DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
     PseudoTrsm( RL_STAR_STAR.Matrix(), RR.Matrix(), tol );
 }
@@ -91,9 +86,7 @@ inline void
 BusingerGolub
 ( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry cse("id::BusingerGolub");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
     const Int n = A.Width();
 
@@ -123,9 +116,7 @@ BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
   Int maxSteps, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry cse("id::BusingerGolub");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
     const Int n = A.Width();
 
@@ -157,9 +148,7 @@ ID
 ( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
   Int maxSteps, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     Matrix<F> B( A );
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
@@ -171,9 +160,7 @@ ID
 ( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
   Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
@@ -187,9 +174,7 @@ template<typename F>
 inline void
 ID( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
 
@@ -200,9 +185,7 @@ ID
 ( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps, 
   bool canOverwrite=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
 #endif // ifndef SWIG
@@ -213,9 +196,7 @@ ID
 ( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
   Int maxSteps, BASE(F) tol )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     DistMatrix<F> B( A );
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
@@ -227,9 +208,7 @@ ID
 ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
   Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
         View( B, A );
@@ -245,9 +224,7 @@ ID
 ( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
   Int numSteps )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
 
@@ -258,9 +235,7 @@ ID
 ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
   Int numSteps, bool canOverwrite=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ID");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ID"))
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
 #endif // ifndef SWIG

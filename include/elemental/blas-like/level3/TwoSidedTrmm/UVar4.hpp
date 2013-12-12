@@ -26,15 +26,15 @@ template<typename F>
 inline void
 TwoSidedTrmmUVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TwoSidedTrmmUVar4");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( U.Height() != U.Width() )
-        LogicError("Triangular matrices must be square");
-    if( A.Height() != U.Height() )
-        LogicError("A and U must be the same size");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TwoSidedTrmmUVar4");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( U.Height() != U.Width() )
+            LogicError("Triangular matrices must be square");
+        if( A.Height() != U.Height() )
+            LogicError("A and U must be the same size");
+    )
     // Matrix views
     Matrix<F>
         ATL, ATR,  A00, A01, A02,
@@ -114,15 +114,15 @@ inline void
 TwoSidedTrmmUVar4
 ( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TwoSidedTrmmUVar4");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( U.Height() != U.Width() )
-        LogicError("Triangular matrices must be square");
-    if( A.Height() != U.Height() )
-        LogicError("A and U must be the same size");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TwoSidedTrmmUVar4");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( U.Height() != U.Width() )
+            LogicError("Triangular matrices must be square");
+        if( A.Height() != U.Height() )
+            LogicError("A and U must be the same size");
+    )
     const Grid& g = A.Grid();
 
     // Matrix views

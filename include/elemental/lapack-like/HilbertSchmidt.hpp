@@ -18,9 +18,7 @@ template<typename F>
 inline F
 HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HilbertSchmidt");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     F innerProd(0);
@@ -36,9 +34,7 @@ template<typename F,Distribution U,Distribution V>
 inline F
 HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HilbertSchmidt");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     if( A.Grid() != B.Grid() )

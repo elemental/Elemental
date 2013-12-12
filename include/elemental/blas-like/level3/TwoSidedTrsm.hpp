@@ -17,9 +17,7 @@ template<typename F>
 inline void 
 TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TwoSidedTrsmLUnb");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TwoSidedTrsmLUnb"))
     // Use the Variant 4 algorithm
     const Int n = A.Height();
     const Int lda = A.LDim();
@@ -72,9 +70,7 @@ template<typename F>
 inline void 
 TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TwoSidedTrsmUUnb");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TwoSidedTrsmUUnb"))
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
     const Int n = A.Height();
@@ -139,9 +135,7 @@ LocalTwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTwoSidedTrsm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalTwoSidedTrsm"))
     TwoSidedTrsm( uplo, diag, A.Matrix(), B.LockedMatrix() );
 }
 
@@ -157,9 +151,7 @@ inline void
 TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TwoSidedTrsm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TwoSidedTrsm"))
     if( uplo == LOWER )
         internal::TwoSidedTrsmLVar4( diag, A, B );
     else
@@ -172,9 +164,7 @@ TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
   DistMatrix<F>& A, const DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TwoSidedTrsm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TwoSidedTrsm"))
     if( uplo == LOWER )
         internal::TwoSidedTrsmLVar4( diag, A, B );
     else

@@ -149,8 +149,6 @@ inline ValueInt<BASE(F)>
 SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
-    typedef Base<F> Real;
-    const Int n = A.Height();
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -164,7 +162,7 @@ SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
     elem::QR( G, t, p );
 
     // A := Q^H A Q
-    const Real oneA = OneNorm( A );
+    const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
         ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
@@ -189,9 +187,7 @@ inline ValueInt<BASE(F)>
 SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
-    typedef Base<F> Real;
     const Grid& g = A.Grid();
-    const Int n = A.Height();
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -205,7 +201,7 @@ SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
     elem::QR( G, t, p );
 
     // A := Q^H A Q
-    const Real oneA = OneNorm( A );
+    const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
         ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );

@@ -24,105 +24,105 @@ inline void LocalGemm
            const DistMatrix<T,BColDist,BRowDist>& B,
   T beta,        DistMatrix<T,CColDist,CRowDist>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalGemm");
-    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-    {
-        if( AColDist != CColDist ||
-            ARowDist != BColDist ||
-            BRowDist != CRowDist )
-            LogicError("C[X,Y] = A[X,Z] B[Z,Y]");
-        if( A.ColAlign() != C.ColAlign() )
-            LogicError("A's cols must align with C's rows");
-        if( A.RowAlign() != B.ColAlign() )
-            LogicError("A's rows must align with B's cols");
-        if( B.RowAlign() != C.RowAlign() )
-            LogicError("B's rows must align with C's rows");
-        if( A.Height() != C.Height() ||
-            A.Width() != B.Height() ||
-            B.Width() != C.Width() )
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalGemm");
+        if( orientationOfA == NORMAL && orientationOfB == NORMAL )
         {
-            std::ostringstream msg;
-            msg << "Nonconformal LocalGemmNN:\n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                << "  C ~ " << C.Height() << " x " << C.Width();
-            LogicError( msg.str() );
+            if( AColDist != CColDist ||
+                ARowDist != BColDist ||
+                BRowDist != CRowDist )
+                LogicError("C[X,Y] = A[X,Z] B[Z,Y]");
+            if( A.ColAlign() != C.ColAlign() )
+                LogicError("A's cols must align with C's rows");
+            if( A.RowAlign() != B.ColAlign() )
+                LogicError("A's rows must align with B's cols");
+            if( B.RowAlign() != C.RowAlign() )
+                LogicError("B's rows must align with C's rows");
+            if( A.Height() != C.Height() ||
+                A.Width() != B.Height() ||
+                B.Width() != C.Width() )
+            {
+                std::ostringstream msg;
+                msg << "Nonconformal LocalGemmNN:\n"
+                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                    << "  C ~ " << C.Height() << " x " << C.Width();
+                LogicError( msg.str() );
+            }
         }
-    }
-    else if( orientationOfA == NORMAL )
-    {
-        if( AColDist != CColDist ||
-            ARowDist != BRowDist ||
-            BColDist != CRowDist )
-            LogicError("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
-        if( A.ColAlign() != C.ColAlign() )
-            LogicError("A's cols must align with C's rows");
-        if( A.RowAlign() != B.RowAlign() )
-            LogicError("A's rows must align with B's rows");
-        if( B.ColAlign() != C.RowAlign() )
-            LogicError("B's cols must align with C's rows");
-        if( A.Height() != C.Height() ||
-            A.Width() != B.Width() ||
-            B.Height() != C.Width() )
+        else if( orientationOfA == NORMAL )
         {
-            std::ostringstream msg;
-            msg << "Nonconformal LocalGemmNT:\n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                << "  C ~ " << C.Height() << " x " << C.Width();
-            LogicError( msg.str() );
+            if( AColDist != CColDist ||
+                ARowDist != BRowDist ||
+                BColDist != CRowDist )
+                LogicError("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
+            if( A.ColAlign() != C.ColAlign() )
+                LogicError("A's cols must align with C's rows");
+            if( A.RowAlign() != B.RowAlign() )
+                LogicError("A's rows must align with B's rows");
+            if( B.ColAlign() != C.RowAlign() )
+                LogicError("B's cols must align with C's rows");
+            if( A.Height() != C.Height() ||
+                A.Width() != B.Width() ||
+                B.Height() != C.Width() )
+            {
+                std::ostringstream msg;
+                msg << "Nonconformal LocalGemmNT:\n"
+                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                    << "  C ~ " << C.Height() << " x " << C.Width();
+                LogicError( msg.str() );
+            }
         }
-    }
-    else if( orientationOfB == NORMAL )
-    {
-        if( ARowDist != CColDist ||
-            AColDist != BColDist ||
-            BRowDist != CRowDist )
-            LogicError("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
-        if( A.RowAlign() != C.ColAlign() )
-            LogicError("A's rows must align with C's cols");
-        if( A.ColAlign() != B.ColAlign() )
-            LogicError("A's cols must align with B's cols");
-        if( B.RowAlign() != C.RowAlign() )
-            LogicError("B's rows must align with C's rows");
-        if( A.Width() != C.Height() ||
-            A.Height() != B.Height() ||
-            B.Width() != C.Width() )
+        else if( orientationOfB == NORMAL )
         {
-            std::ostringstream msg;
-            msg << "Nonconformal LocalGemmTN:\n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                << "  C ~ " << C.Height() << " x " << C.Width();
-            LogicError( msg.str() );
+            if( ARowDist != CColDist ||
+                AColDist != BColDist ||
+                BRowDist != CRowDist )
+                LogicError("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
+            if( A.RowAlign() != C.ColAlign() )
+                LogicError("A's rows must align with C's cols");
+            if( A.ColAlign() != B.ColAlign() )
+                LogicError("A's cols must align with B's cols");
+            if( B.RowAlign() != C.RowAlign() )
+                LogicError("B's rows must align with C's rows");
+            if( A.Width() != C.Height() ||
+                A.Height() != B.Height() ||
+                B.Width() != C.Width() )
+            {
+                std::ostringstream msg;
+                msg << "Nonconformal LocalGemmTN:\n"
+                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                    << "  C ~ " << C.Height() << " x " << C.Width();
+                LogicError( msg.str() );
+            }
         }
-    }
-    else
-    {
-        if( ARowDist != CColDist ||
-            AColDist != BRowDist ||
-            BColDist != CRowDist )
-            LogicError("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
-        if( A.RowAlign() != C.ColAlign() )
-            LogicError("A's rows must align with C's cols");
-        if( A.ColAlign() != B.RowAlign() )
-            LogicError("A's cols must align with B's rows");
-        if( B.ColAlign() != C.RowAlign() )
-            LogicError("B's cols must align with C's rows");
-        if( A.Width() != C.Height() ||
-            A.Height() != B.Width() ||
-            B.Height() != C.Width() )
+        else
         {
-            std::ostringstream msg;
-            msg << "Nonconformal LocalGemmTT:\n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                << "  C ~ " << C.Height() << " x " << C.Width();
-            LogicError( msg.str() );
+            if( ARowDist != CColDist ||
+                AColDist != BRowDist ||
+                BColDist != CRowDist )
+                LogicError("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
+            if( A.RowAlign() != C.ColAlign() )
+                LogicError("A's rows must align with C's cols");
+            if( A.ColAlign() != B.RowAlign() )
+                LogicError("A's cols must align with B's rows");
+            if( B.ColAlign() != C.RowAlign() )
+                LogicError("B's cols must align with C's rows");
+            if( A.Width() != C.Height() ||
+                A.Height() != B.Width() ||
+                B.Height() != C.Width() )
+            {
+                std::ostringstream msg;
+                msg << "Nonconformal LocalGemmTT:\n"
+                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                    << "  C ~ " << C.Height() << " x " << C.Width();
+                LogicError( msg.str() );
+            }
         }
-    }
-#endif
+    )
     Gemm
     ( orientationOfA , orientationOfB,
       alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
@@ -137,9 +137,7 @@ inline void LocalGemm
            const DistMatrix<T,BColDist,BRowDist>& B,
                  DistMatrix<T,CColDist,CRowDist>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalGemm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalGemm"))
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );
@@ -161,37 +159,37 @@ Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gemm");
-    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-    {
-        if( A.Height() != C.Height() ||
-            B.Width()  != C.Width()  ||
-            A.Width()  != B.Height() )
-            LogicError("Nonconformal GemmNN");
-    }
-    else if( orientationOfA == NORMAL )
-    {
-        if( A.Height() != C.Height() ||
-            B.Height() != C.Width()  ||
-            A.Width()  != B.Width() )
-            LogicError("Nonconformal GemmN(T/C)");
-    }
-    else if( orientationOfB == NORMAL )
-    {
-        if( A.Width()  != C.Height() ||
-            B.Width()  != C.Width()  ||
-            A.Height() != B.Height() )
-            LogicError("Nonconformal Gemm(T/C)N");
-    }
-    else
-    {
-        if( A.Width()  != C.Height() ||
-            B.Height() != C.Width()  ||
-            A.Height() != B.Width() )
-            LogicError("Nonconformal Gemm(T/C)(T/C)");
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Gemm");
+        if( orientationOfA == NORMAL && orientationOfB == NORMAL )
+        {
+            if( A.Height() != C.Height() ||
+                B.Width()  != C.Width()  ||
+                A.Width()  != B.Height() )
+                LogicError("Nonconformal GemmNN");
+        }
+        else if( orientationOfA == NORMAL )
+        {
+            if( A.Height() != C.Height() ||
+                B.Height() != C.Width()  ||
+                A.Width()  != B.Width() )
+                LogicError("Nonconformal GemmN(T/C)");
+        }
+        else if( orientationOfB == NORMAL )
+        {
+            if( A.Width()  != C.Height() ||
+                B.Width()  != C.Width()  ||
+                A.Height() != B.Height() )
+                LogicError("Nonconformal Gemm(T/C)N");
+        }
+        else
+        {
+            if( A.Width()  != C.Height() ||
+                B.Height() != C.Width()  ||
+                A.Height() != B.Width() )
+                LogicError("Nonconformal Gemm(T/C)(T/C)");
+        }
+    )
     const char transA = OrientationToChar( orientationOfA );
     const char transB = OrientationToChar( orientationOfB );
     const Int m = C.Height();
@@ -216,9 +214,7 @@ Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gemm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gemm"))
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );
@@ -232,9 +228,7 @@ Gemm
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gemm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gemm"))
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         gemm::SUMMA_NN( alpha, A, B, beta, C );
@@ -260,9 +254,7 @@ Gemm
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
                  DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Gemm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Gemm"))
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
     const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );

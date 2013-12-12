@@ -18,13 +18,13 @@ template<typename F>
 inline void
 ApplyRowPivots( Matrix<F>& A, const Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyRowPivots");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( p.Height() > A.Height() )
-        LogicError("p cannot be larger than height of A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyRowPivots");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( p.Height() > A.Height() )
+            LogicError("p cannot be larger than height of A");
+    )
     const Int height = A.Height();
     const Int width = A.Width();
     if( height == 0 || width == 0 )
@@ -50,13 +50,13 @@ template<typename F>
 inline void
 ApplyInverseRowPivots( Matrix<F>& A, const Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyInverseRowPivots");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( p.Height() > A.Height() )
-        LogicError("p cannot be larger than height of A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyInverseRowPivots");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( p.Height() > A.Height() )
+            LogicError("p cannot be larger than height of A");
+    )
     const Int height = A.Height();
     const Int width = A.Width();
     if( height == 0 || width == 0 )
@@ -83,9 +83,7 @@ template<typename F,Distribution U1,Distribution V1,
 inline void
 ApplyRowPivots( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyRowPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyRowPivots"))
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ApplyRowPivots( A, p_STAR_STAR );
 }
@@ -96,9 +94,7 @@ inline void
 ApplyInverseRowPivots
 ( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyInverseRowPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyInverseRowPivots"))
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ApplyInverseRowPivots( A, p_STAR_STAR );
 }
@@ -107,9 +103,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 ApplyRowPivots( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyRowPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyRowPivots"))
     std::vector<Int> image, preimage;
     ComposePivots( p, image, preimage );
     ApplyRowPivots( A, image, preimage );
@@ -120,9 +114,7 @@ inline void
 ApplyInverseRowPivots
 ( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyInverseRowPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyInverseRowPivots"))
     std::vector<Int> image, preimage;
     ComposePivots( p, image, preimage );
     ApplyRowPivots( A, preimage, image );
@@ -136,13 +128,13 @@ ApplyRowPivots
   const std::vector<Int>& preimage )
 {
     const Int b = image.size();
-#ifndef RELEASE
-    CallStackEntry cse("ApplyRowPivots");
-    if( A.Height() < b || b != (int)preimage.size() )
-        LogicError
-        ("image and preimage must be vectors of equal length that are not "
-         "taller than A.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyRowPivots");
+        if( A.Height() < b || b != (int)preimage.size() )
+            LogicError
+            ("image and preimage must be vectors of equal length that are not "
+             "taller than A.");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     if( m == 0 || n == 0 )
@@ -189,13 +181,13 @@ ApplyRowPivots
   const std::vector<Int>& preimage )
 {
     const Int b = image.size();
-#ifndef RELEASE
-    CallStackEntry cse("ApplyRowPivots");
-    if( A.Height() < b || b != (int)preimage.size() )
-        LogicError
-        ("image and preimage must be vectors of equal length that are not "
-         "taller than A.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyRowPivots");
+        if( A.Height() < b || b != (int)preimage.size() )
+            LogicError
+            ("image and preimage must be vectors of equal length that are not "
+             "taller than A.");
+    )
     const Int localWidth = A.LocalWidth();
     if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
@@ -257,15 +249,15 @@ ApplyRowPivots
         totalSend += sendCounts[i];
         totalRecv += recvCounts[i];
     }
-#ifndef RELEASE
-    if( totalSend != totalRecv )
-    {
-        std::ostringstream msg;
-        msg << "Send and recv counts do not match: (send,recv)=" 
-             << totalSend << "," << totalRecv;
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        if( totalSend != totalRecv )
+        {
+            std::ostringstream msg;
+            msg << "Send and recv counts do not match: (send,recv)=" 
+                 << totalSend << "," << totalRecv;
+            LogicError( msg.str() );
+        }
+    )
 
     // Fill vectors with the send data
     const Int ALDim = A.LDim();

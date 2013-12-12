@@ -24,21 +24,21 @@ Syr2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr2k");
-    if( orientation == NORMAL )
-    {
-        if( A.Height() != C.Height() || A.Height() != C.Width() ||
-            B.Height() != C.Height() ||B.Height() != C.Width()    )
-            LogicError("Nonconformal Syr2k");
-    }
-    else 
-    {
-        if( A.Width() != C.Height() || A.Width() != C.Width() ||
-            B.Width() != C.Height() || B.Width() != C.Width()   )
-            LogicError("Nonconformal Syr2k");
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Syr2k");
+        if( orientation == NORMAL )
+        {
+            if( A.Height() != C.Height() || A.Height() != C.Width() ||
+                B.Height() != C.Height() ||B.Height() != C.Width()    )
+                LogicError("Nonconformal Syr2k");
+        }
+        else 
+        {
+            if( A.Width() != C.Height() || A.Width() != C.Width() ||
+                B.Width() != C.Height() || B.Width() != C.Width()   )
+                LogicError("Nonconformal Syr2k");
+        }
+    )
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const Int k = ( orientation == NORMAL ? A.Width() : A.Height() );
@@ -67,9 +67,7 @@ Syr2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr2k");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
@@ -83,9 +81,7 @@ Syr2k
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr2k");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Syr2k"))
     if( uplo == LOWER && orientation == NORMAL )
         internal::Syr2kLN( alpha, A, B, beta, C, conjugate );
     else if( uplo == LOWER )
@@ -104,9 +100,7 @@ Syr2k
                  DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr2k");
-#endif 
+    DEBUG_ONLY(CallStackEntry cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );

@@ -20,9 +20,7 @@ inline void
 HPDSolve
 ( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HPDSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
@@ -33,9 +31,7 @@ HPDSolve
 ( UpperOrLower uplo, Orientation orientation, 
   DistMatrix<F>& A, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HPDSolve");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HPDSolve"))
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }

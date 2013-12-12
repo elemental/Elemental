@@ -21,9 +21,7 @@ LocalTrstrm
                  DistMatrix<F,STAR,STAR>& X,
   bool checkIfSingular=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrstrm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalTrstrm"))
     Trstrm
     ( side, uplo, orientation, diag,
       alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
@@ -43,13 +41,13 @@ Trstrm
   F alpha, const Matrix<F>& A, Matrix<F>& X,
   bool checkIfSingular=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trstrm");
-    if( A.Height() != A.Width() || X.Height() != X.Width() )
-        LogicError("Triangular matrices must be square");
-    if( A.Height() != X.Height() )
-        LogicError("Nonconformal Trstrm");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trstrm");
+        if( A.Height() != A.Width() || X.Height() != X.Width() )
+            LogicError("Triangular matrices must be square");
+        if( A.Height() != X.Height() )
+            LogicError("Nonconformal Trstrm");
+    )
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -99,9 +97,7 @@ Trstrm
   F alpha, const DistMatrix<F>& A, DistMatrix<F>& X,
   bool checkIfSingular=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trstrm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Trstrm"))
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )

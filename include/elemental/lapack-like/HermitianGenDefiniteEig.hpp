@@ -29,9 +29,7 @@ HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -50,9 +48,7 @@ HermitianGenDefiniteEig
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
@@ -76,9 +72,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -108,9 +102,7 @@ HermitianGenDefiniteEig
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
   SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
@@ -144,9 +136,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -166,9 +156,7 @@ HermitianGenDefiniteEig
   DistMatrix<BASE(F),VR,STAR>& w,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
@@ -192,9 +180,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -224,9 +210,7 @@ HermitianGenDefiniteEig
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
   Int a, Int b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
@@ -260,9 +244,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
   BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -281,9 +263,7 @@ HermitianGenDefiniteEig
   DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<BASE(F),VR,STAR>& w,
   BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
@@ -307,9 +287,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
   BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -339,9 +317,7 @@ HermitianGenDefiniteEig
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
   BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianGenDefiniteEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");

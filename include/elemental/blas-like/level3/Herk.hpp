@@ -20,9 +20,7 @@ Herk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Herk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
     Syrk( uplo, orientation, alpha, A, beta, C, true );
 }
 
@@ -32,9 +30,7 @@ Herk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Herk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, true );
@@ -46,9 +42,7 @@ Herk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Herk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
     Syrk( uplo, orientation, alpha, A, beta, C, true );
 }
 
@@ -58,9 +52,7 @@ Herk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Herk");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, true );

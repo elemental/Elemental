@@ -20,13 +20,13 @@ LocalTrmm
   T alpha, const DistMatrix<T,STAR,STAR>& A,
                  DistMatrix<T,BColDist,BRowDist>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrmm");
-    if( (side == LEFT && BColDist != STAR) ||
-        (side == RIGHT && BRowDist != STAR) )
-        LogicError
-        ("Distribution of RHS must conform with that of triangle");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrmm");
+        if( (side == LEFT && BColDist != STAR) ||
+            (side == RIGHT && BRowDist != STAR) )
+            LogicError
+            ("Distribution of RHS must conform with that of triangle");
+    )
     Trmm
     ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
 }
@@ -51,21 +51,21 @@ Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trmm");
-    if( A.Height() != A.Width() )
-        LogicError("Triangular matrix must be square");
-    if( side == LEFT )
-    {
-        if( A.Height() != B.Height() )
-            LogicError("Nonconformal Trmm");
-    }
-    else
-    {
-        if( A.Height() != B.Width() )
-            LogicError("Nonconformal Trmm");
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trmm");
+        if( A.Height() != A.Width() )
+            LogicError("Triangular matrix must be square");
+        if( side == LEFT )
+        {
+            if( A.Height() != B.Height() )
+                LogicError("Nonconformal Trmm");
+        }
+        else
+        {
+            if( A.Height() != B.Width() )
+                LogicError("Nonconformal Trmm");
+        }
+    )
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
@@ -82,9 +82,7 @@ Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const DistMatrix<T>& A, DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trmm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Trmm"))
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )

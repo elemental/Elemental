@@ -18,13 +18,13 @@ template<typename F>
 inline void
 ApplyColumnPivots( Matrix<F>& A, const Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyColumnPivots");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( p.Height() > A.Width() )
-        LogicError("p cannot be longer than width of A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyColumnPivots");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( p.Height() > A.Width() )
+            LogicError("p cannot be longer than width of A");
+    )
     const Int height = A.Height();
     const Int width = A.Width();
     if( height == 0 || width == 0 )
@@ -49,13 +49,13 @@ template<typename F>
 inline void
 ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyInverseColumnPivots");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( p.Height() > A.Width() )
-        LogicError("p cannot be larger than width of A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyInverseColumnPivots");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( p.Height() > A.Width() )
+            LogicError("p cannot be larger than width of A");
+    )
     const Int height = A.Height();
     const Int width = A.Width();
     if( height == 0 || width == 0 )
@@ -81,9 +81,7 @@ template<typename F,Distribution U1,Distribution V1,
 inline void
 ApplyColumnPivots( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyColumnPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyColumnPivots"))
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ApplyColumnPivots( A, p_STAR_STAR );
 }
@@ -94,9 +92,7 @@ inline void
 ApplyInverseColumnPivots
 ( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyInverseColumnPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyInverseColumnPivots"))
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ApplyInverseColumnPivots( A, p_STAR_STAR );
 }
@@ -105,9 +101,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 ApplyColumnPivots( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyColumnPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyColumnPivots"))
     std::vector<Int> image, preimage;
     ComposePivots( p, image, preimage );
     ApplyColumnPivots( A, image, preimage );
@@ -118,9 +112,7 @@ inline void
 ApplyInverseColumnPivots
 ( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyInverseColumnPivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyInverseColumnPivots"))
     std::vector<Int> image, preimage;
     ComposePivots( p, image, preimage );
     ApplyColumnPivots( A, preimage, image );
@@ -134,13 +126,13 @@ ApplyColumnPivots
   const std::vector<Int>& preimage )
 {
     const Int b = image.size();
-#ifndef RELEASE
-    CallStackEntry cse("ApplyColumnPivots");
-    if( A.Width() < b || b != int(preimage.size()) )
-        LogicError
-        ("image and preimage must be vectors of equal length that are not "
-         "wider than A.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyColumnPivots");
+        if( A.Width() < b || b != int(preimage.size()) )
+            LogicError
+            ("image and preimage must be vectors of equal length that are not "
+             "wider than A.");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     if( m == 0 || n == 0 )
@@ -182,13 +174,13 @@ ApplyColumnPivots
   const std::vector<Int>& preimage )
 {
     const Int b = image.size();
-#ifndef RELEASE
-    CallStackEntry cse("ApplyColumnPivots");
-    if( A.Width() < b || b != int(preimage.size()) )
-        LogicError
-        ("image and preimage must be vectors of equal length that are not "
-         "wider than A.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ApplyColumnPivots");
+        if( A.Width() < b || b != int(preimage.size()) )
+            LogicError
+            ("image and preimage must be vectors of equal length that are not "
+             "wider than A.");
+    )
     const Int localHeight = A.LocalHeight();
     if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
@@ -250,15 +242,15 @@ ApplyColumnPivots
         totalSend += sendCounts[i];
         totalRecv += recvCounts[i];
     }
-#ifndef RELEASE
-    if( totalSend != totalRecv )
-    {
-        std::ostringstream msg;
-        msg << "Send and recv counts do not match: (send,recv)=" 
-             << totalSend << "," << totalRecv;
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        if( totalSend != totalRecv )
+        {
+            std::ostringstream msg;
+            msg << "Send and recv counts do not match: (send,recv)=" 
+                 << totalSend << "," << totalRecv;
+            LogicError( msg.str() );
+        }
+    )
 
     // Fill vectors with the send data
     std::vector<F> sendData( mpi::Pad(totalSend) );

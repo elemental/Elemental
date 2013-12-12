@@ -21,9 +21,7 @@ inline void
 LocalTrtrmm
 ( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrtrmm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalTrtrmm"))
     Trtrmm( uplo, A.Matrix(), conjugate );
 }
 
@@ -31,11 +29,11 @@ template<typename T>
 inline void
 Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trtrmm");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trtrmm");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( uplo == LOWER )
         internal::TrtrmmLVar1( A, conjugate );
     else
@@ -46,11 +44,11 @@ template<typename T>
 inline void
 Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trtrmm");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trtrmm");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( uplo == LOWER )
         internal::TrtrmmLVar1( A, conjugate );
     else

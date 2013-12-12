@@ -30,11 +30,11 @@ template<typename F>
 inline void
 CholeskyUVar2( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hpd_inverse::CholeskyUVar2");
-    if( A.Height() != A.Width() )
-        LogicError("Nonsquare matrices cannot be triangular");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("hpd_inverse::CholeskyUVar2");
+        if( A.Height() != A.Width() )
+            LogicError("Nonsquare matrices cannot be triangular");
+    )
     // Matrix views
     Matrix<F> 
         ATL, ATR,  A00, A01, A02,
@@ -78,11 +78,11 @@ template<typename F>
 inline void
 CholeskyUVar2( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hpd_inverse::CholeskyUVar2");
-    if( A.Height() != A.Width() )
-        LogicError("Nonsquare matrices cannot be triangular");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("hpd_inverse::CholeskyUVar2");
+        if( A.Height() != A.Width() )
+            LogicError("Nonsquare matrices cannot be triangular");
+    )
     const Grid& g = A.Grid();
 
     // Matrix views

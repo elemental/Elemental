@@ -22,17 +22,17 @@ Trr2
   T alpha, const Matrix<T>& X, const Matrix<T>& Y, Matrix<T>& A, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trr2");
-    if( X.Width() != 2 || Y.Width() != 2 )
-        LogicError("X and Y must be of width 2");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trr2");
+        if( X.Width() != 2 || Y.Width() != 2 )
+            LogicError("X and Y must be of width 2");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
-#ifndef RELEASE
-    if( X.Height() != m || Y.Height() != n )
-        LogicError("X and Y must conform with A");
-#endif
+    DEBUG_ONLY(
+        if( X.Height() != m || Y.Height() != n )
+            LogicError("X and Y must conform with A");
+    )
     const T* XCol0 = X.LockedBuffer(0,0);
     const T* XCol1 = X.LockedBuffer(0,1);
     const T* YCol0 = Y.LockedBuffer(0,0);
@@ -72,21 +72,21 @@ Trr2
   T alpha, const DistMatrix<T>& X, const DistMatrix<T>& Y, DistMatrix<T>& A, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trr2");
-    if( X.Width() != 2 || Y.Width() != 2 )
-        LogicError("X and Y must be of width 2");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trr2");
+        if( X.Width() != 2 || Y.Width() != 2 )
+            LogicError("X and Y must be of width 2");
+    )
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     const Int colShift = A.ColShift();
     const Int rowShift = A.RowShift();
     const Int colStride = A.ColStride();
     const Int rowStride = A.RowStride();
-#ifndef RELEASE
-    if( X.Height() != A.Height() || Y.Height() != A.Width() )
-        LogicError("X and Y must conform with A");
-#endif
+    DEBUG_ONLY(
+        if( X.Height() != A.Height() || Y.Height() != A.Width() )
+            LogicError("X and Y must conform with A");
+    )
     DistMatrix<T,MC,STAR> X_MC_STAR( A.Grid() );
     DistMatrix<T,MR,STAR> Y_MR_STAR( A.Grid() );
     X_MC_STAR.AlignWith( A );

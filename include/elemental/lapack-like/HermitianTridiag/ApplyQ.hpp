@@ -21,9 +21,7 @@ ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::ApplyQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_tridiag::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = 
@@ -40,9 +38,7 @@ ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::ApplyQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_tridiag::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = 
@@ -59,9 +55,7 @@ ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::ApplyQ");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_tridiag::ApplyQ"))
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );

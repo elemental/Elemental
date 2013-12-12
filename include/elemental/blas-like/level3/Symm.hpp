@@ -24,9 +24,7 @@ Symm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Symm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Symm"))
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
     if( conjugate )
@@ -55,9 +53,7 @@ Symm
   T beta,        DistMatrix<T>& C, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Symm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Symm"))
     if( side == LEFT && uplo == LOWER )
         internal::SymmLL( alpha, A, B, beta, C, conjugate );
     else if( side == LEFT )

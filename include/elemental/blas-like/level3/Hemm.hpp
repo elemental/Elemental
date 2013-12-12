@@ -20,9 +20,7 @@ Hemm
 ( LeftOrRight side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hemm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hemm"))
     Symm( side, uplo, alpha, A, B, beta, C, true );
 }
 
@@ -34,9 +32,7 @@ Hemm
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hemm");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hemm"))
     Symm( side, uplo, alpha, A, B, beta, C, true );
 }
 

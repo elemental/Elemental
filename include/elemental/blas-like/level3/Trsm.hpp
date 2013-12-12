@@ -23,12 +23,13 @@ LocalTrsm
                  DistMatrix<F,XColDist,XRowDist>& X,
   bool checkIfSingular=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrsm");
-    if( (side == LEFT && XColDist != STAR) ||
-        (side == RIGHT && XRowDist != STAR) )
-        LogicError("Distribution of RHS must conform with that of triangle");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrsm");
+        if( (side == LEFT && XColDist != STAR) ||
+            (side == RIGHT && XRowDist != STAR) )
+            LogicError
+            ("Distribution of RHS must conform with that of triangle");
+    )
     Trsm
     ( side, uplo, orientation, diag,
       alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
@@ -55,21 +56,21 @@ Trsm
   F alpha, const Matrix<F>& A, Matrix<F>& B,
   bool checkIfSingular=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trsm");
-    if( A.Height() != A.Width() )
-        LogicError("Triangular matrix must be square");
-    if( side == LEFT )
-    {
-        if( A.Height() != B.Height() )
-            LogicError("Nonconformal Trsm");
-    }
-    else
-    {
-        if( A.Height() != B.Width() )
-            LogicError("Nonconformal Trsm");
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trsm");
+        if( A.Height() != A.Width() )
+            LogicError("Triangular matrix must be square");
+        if( side == LEFT )
+        {
+            if( A.Height() != B.Height() )
+                LogicError("Nonconformal Trsm");
+        }
+        else
+        {
+            if( A.Height() != B.Width() )
+                LogicError("Nonconformal Trsm");
+        }
+    )
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
@@ -94,23 +95,23 @@ Trsm
   F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
   bool checkIfSingular=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trsm");
-    if( A.Grid() != B.Grid() )
-        LogicError("A and B must use the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( side == LEFT )
-    {
-        if( A.Height() != B.Height() )
-            LogicError("Nonconformal Trsm");
-    }
-    else
-    {
-        if( A.Height() != B.Width() )
-            LogicError("Nonconformal Trsm");
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trsm");
+        if( A.Grid() != B.Grid() )
+            LogicError("A and B must use the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( side == LEFT )
+        {
+            if( A.Height() != B.Height() )
+                LogicError("Nonconformal Trsm");
+        }
+        else
+        {
+            if( A.Height() != B.Width() )
+                LogicError("Nonconformal Trsm");
+        }
+    )
     // Call the single right-hand side algorithm if appropriate
     if( side == LEFT && B.Width() == 1 )
     {
