@@ -22,13 +22,13 @@ template<typename F>
 inline void
 UVar3Square( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UVar3Square");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices.");
-    if( A.Grid().Height() != A.Grid().Width() )
-        LogicError("CholeskyUVar3Square assumes a square process grid.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UVar3Square");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices.");
+        if( A.Grid().Height() != A.Grid().Width() )
+            LogicError("CholeskyUVar3Square assumes a square process grid.");
+    )
     // Find the process holding our transposed data
     const Grid& g = A.Grid();
     const Int r = g.Height();

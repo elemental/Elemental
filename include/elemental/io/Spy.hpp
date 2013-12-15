@@ -24,9 +24,7 @@ template<typename T>
 inline void
 Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Spy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
@@ -55,9 +53,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Spy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
@@ -75,9 +71,7 @@ inline void
 Spy
 ( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Spy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
@@ -92,9 +86,7 @@ inline void
 Spy
 ( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Spy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");

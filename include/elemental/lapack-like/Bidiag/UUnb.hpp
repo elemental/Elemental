@@ -22,17 +22,15 @@ namespace bidiag {
 template<typename F>
 inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::UUnb");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::UUnb"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int tPHeight = Max(n-1,0);
     const Int tQHeight = n;
-#ifndef RELEASE
-    if( m < n )
-        LogicError("A must be at least as tall as it is wide");
-#endif
+    DEBUG_ONLY(
+        if( m < n )
+            LogicError("A must be at least as tall as it is wide");
+    )
     tP.ResizeTo( tPHeight, 1 );
     tQ.ResizeTo( tQHeight, 1 );
 
@@ -111,17 +109,17 @@ template<typename F>
 inline void UUnb
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tP, DistMatrix<F,MD,STAR>& tQ )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::UUnb");
-    if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-        LogicError("Process grids do not match");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("bidiag::UUnb");
+        if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
+            LogicError("Process grids do not match");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
-#ifndef RELEASE
-    if( m < n )
-        LogicError("A must be at least as tall as it is wide");
-#endif
+    DEBUG_ONLY(
+        if( m < n )
+            LogicError("A must be at least as tall as it is wide");
+    )
     const Grid& g = A.Grid();
     const Int tPHeight = Max(n-1,0);
     const Int tQHeight = n;

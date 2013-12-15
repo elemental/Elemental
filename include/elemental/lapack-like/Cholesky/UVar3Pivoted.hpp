@@ -19,11 +19,11 @@ template<typename F>
 inline void
 UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UUnblockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UUnblockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
      
@@ -58,13 +58,13 @@ template<typename F>
 inline void
 UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UUnblockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Grid() != p.Grid() )
-        LogicError("A and p must share the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UUnblockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Grid() != p.Grid() )
+            LogicError("A and p must share the same grid");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
 
@@ -103,16 +103,14 @@ UPanelPivoted
 ( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UPanelPivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
     const Int n = A.Height();
-#ifndef RELEASE
-    if( A.Width() != n )
-        LogicError("A must be square");
-    if( p.Height() != n || p.Width() != 1 )
-        LogicError("pivot vector is the wrong size");
-#endif
+    DEBUG_ONLY(
+        if( A.Width() != n )
+            LogicError("A must be square");
+        if( p.Height() != n || p.Width() != 1 )
+            LogicError("pivot vector is the wrong size");
+    )
     auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
     Zeros( Y, n-off, bsize );
@@ -161,16 +159,14 @@ UPanelPivoted
 ( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UPanelPivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
     const Int n = A.Height();
-#ifndef RELEASE
-    if( A.Width() != n )
-        LogicError("A must be square");
-    if( p.Height() != n || p.Width() != 1 )
-        LogicError("pivot vector is the wrong size");
-#endif
+    DEBUG_ONLY(
+        if( A.Width() != n )
+            LogicError("A must be square");
+        if( p.Height() != n || p.Width() != 1 )
+            LogicError("pivot vector is the wrong size");
+    )
     auto ABR = ViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
     Y.AlignWith( ABR );
@@ -222,11 +218,11 @@ template<typename F>
 inline void
 UVar3( Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UVar3");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UVar3");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
 
@@ -249,11 +245,11 @@ template<typename F>
 inline void
 UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UVar3");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UVar3");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
 

@@ -19,10 +19,10 @@ inline Timer::Timer( const std::string& name )
 inline void
 Timer::Start()
 {
-#ifndef RELEASE
-    if( running_ )
-        throw std::logic_error("Forgot to stop timer before restarting.");
-#endif
+    DEBUG_ONLY(
+        if( running_ )
+            LogicError("Forgot to stop timer before restarting.");
+    )
     lastTime_ = steady_clock::now();
     running_ = true;
 }
@@ -30,10 +30,10 @@ Timer::Start()
 inline double
 Timer::Stop()
 {
-#ifndef RELEASE
-    if( !running_ )
-        throw std::logic_error("Tried to stop a timer before starting it.");
-#endif
+    DEBUG_ONLY(
+        if( !running_ )
+            LogicError("Tried to stop a timer before starting it.");
+    )
     lastPartialTime_ = Partial();
     running_ = false;
     totalTime_ += lastPartialTime_;

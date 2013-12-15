@@ -708,7 +708,7 @@ if(ELEM_EXAMPLES)
   set(EXAMPLE_TYPES convex core blas-like lapack-like matrices)
 
   set(convex_EXAMPLES LogDetDivergence RPCA)
-  set(core_EXAMPLES Constructors)
+  set(core_EXAMPLES Constructors LogicError)
   set(blas-like_EXAMPLES Cannon Gemm Gemv)
   set(lapack-like_EXAMPLES 
     BunchKaufman BusingerGolub GaussianElimination HermitianQDWH HermitianSDC 

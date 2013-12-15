@@ -25,13 +25,13 @@ template<typename F>
 inline int
 Lyapunov( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Lyapunov");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( C.Height() != A.Height() || C.Width() != A.Height() )
-        LogicError("C must conform with A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Lyapunov");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( C.Height() != A.Height() || C.Width() != A.Height() )
+            LogicError("C must conform with A");
+    )
     const Int m = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
@@ -49,15 +49,15 @@ template<typename F>
 inline int
 Lyapunov( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( C.Height() != A.Height() || C.Width() != A.Height() )
-        LogicError("C must conform with A");
-    if( A.Grid() != C.Grid() )
-        LogicError("A and C must have the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Sylvester");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( C.Height() != A.Height() || C.Width() != A.Height() )
+            LogicError("C must conform with A");
+        if( A.Grid() != C.Grid() )
+            LogicError("A and C must have the same grid");
+    )
     const Grid& g = A.Grid();
     const Int m = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),

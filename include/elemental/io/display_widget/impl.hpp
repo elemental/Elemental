@@ -38,9 +38,7 @@ template<typename T>
 inline void 
 DisplayWidget<T>::paintEvent( QPaintEvent* event )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWidget::paintEvent");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::paintEvent"))
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
 }
@@ -49,9 +47,7 @@ template<typename T>
 inline void 
 DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWidget::DisplayReal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayReal"))
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
@@ -79,9 +75,7 @@ inline void
 DisplayWidget<T>::DisplayReal
 ( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWidget::DisplayReal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayReal"))
     const Int m = A->Height();
     const Int n = A->Width();
 
@@ -120,9 +114,7 @@ template<typename T>
 inline void 
 DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWidget::DisplayImag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayImag"))
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
@@ -150,9 +142,7 @@ inline void
 DisplayWidget<T>::DisplayImag
 ( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWidget::DisplayImag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayImag"))
     const Int m = A->Height();
     const Int n = A->Width();
 
@@ -191,12 +181,9 @@ template<typename T>
 inline void 
 DisplayWidget<T>::SavePng( std::string basename ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWidget::SavePng");
-#endif
-    std::ostringstream os;
-    os << basename << ".png";
-    QFile file( os.str().c_str() );
+    DEBUG_ONLY(CallStackEntry cse("DisplayWidget::SavePng"))
+    std::string filename = basename + ".png";
+    QFile file( filename.c_str() );
     file.open( QIODevice::WriteOnly );
     pixmap_.save( &file, "PNG" );
 }

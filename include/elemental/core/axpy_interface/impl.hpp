@@ -21,11 +21,11 @@ template<typename T>
 inline bool
 AxpyInterface<T>::Finished()
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::Finished");
-    if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
-        LogicError("Not attached");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("AxpyInterface::Finished");
+        if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
+            LogicError("Not attached");
+    )
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
                       globalToLocalMat_->Grid() );
@@ -47,9 +47,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::HandleEoms()
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::HandleEoms");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::HandleEoms"))
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
                       globalToLocalMat_->Grid() );
@@ -113,9 +111,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::HandleLocalToGlobalData()
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::HandleLocalToGlobalData");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::HandleLocalToGlobalData"))
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     const Grid& g = Y.Grid();
     const Int r = g.Height();
@@ -128,10 +124,10 @@ AxpyInterface<T>::HandleLocalToGlobalData()
     {
         // Message exists, so recv and pack    
         const Int count = mpi::GetCount<byte>( status );
-#ifndef RELEASE
-        if( count < Int(4*sizeof(Int)+sizeof(T)) )
-            LogicError("Count was too small");
-#endif
+        DEBUG_ONLY(
+            if( count < Int(4*sizeof(Int)+sizeof(T)) )
+                LogicError("Count was too small");
+        )
         const Int source = status.MPI_SOURCE;
         recvVector_.resize( count );
         byte* recvBuffer = recvVector_.data();
@@ -149,47 +145,32 @@ AxpyInterface<T>::HandleLocalToGlobalData()
         head += sizeof(Int);
         const T alpha = *reinterpret_cast<const T*>(head); 
         head += sizeof(T);
-#ifndef RELEASE
-        if( height < 0 || width < 0 )
-        {
-            std::ostringstream os;
-            os << "Unpacked heights were negative:\n"
-               << "  i=     " << i << std::hex << "(" << i << ")\n" << std::dec
-               << "  j=     " << j << std::hex << "(" << j << ")\n" << std::dec
-               << "  height=" << height << std::hex << "(" << height << ")\n"
-                              << std::dec
-               << "  width= " << width << std::hex << "(" << width << ")\n"
-                              << std::dec
-               << "  alpha= " << alpha  << std::endl;
-            RuntimeError( os.str() );
-        }
-        if( i < 0 || j < 0 )
-        {
-            std::ostringstream os;
-            os << "Unpacked offsets were negative:\n"
-               << "  i=     " << i << std::hex << "(" << i << ")\n" << std::dec
-               << "  j=     " << j << std::hex << "(" << j << ")\n" << std::dec
-               << "  height=" << height << std::hex << "(" << height << ")\n"
-                              << std::dec
-               << "  width= " << width << std::hex << "(" << width << ")\n"
-                              << std::dec
-               << "  alpha= " << alpha  << std::endl;
-            RuntimeError( os.str() );
-        }
-        if( i+height > Y.Height() || j+width > Y.Width() )
-        {
-            std::ostringstream os;
-            os << "Unpacked submatrix was out of bounds:\n"
-               << "  i=     " << i << std::hex << "(" << i << ")\n" << std::dec
-               << "  j=     " << j << std::hex << "(" << j << ")\n" << std::dec
-               << "  height=" << height << std::hex << "(" << height << ")\n"
-                              << std::dec
-               << "  width= " << width << std::hex << "(" << width << ")\n"
-                              << std::dec
-               << "  alpha= " << alpha  << std::endl;
-            RuntimeError( os.str() );
-        }
-#endif
+        DEBUG_ONLY(
+            if( height < 0 || width < 0 )
+                RuntimeError
+                ("Unpacked heights were negative:\n",
+                 "  i=     ",i,std::hex,"(",i,")\n",std::dec,
+                 "  j=     ",j,std::hex,"(",j,")\n",std::dec,
+                 "  height=",height,std::hex,"(",height,")\n",std::dec, 
+                 "  width= ",width,std::hex,"(",width,")\n",std::dec,
+                 "  alpha= ",alpha);
+            if( i < 0 || j < 0 )
+                RuntimeError
+                ("Unpacked offsets were negative:\n",
+                 "  i=     ",i,std::hex,"(",i,")\n",std::dec,
+                 "  j=     ",j,std::hex,"(",j,")\n",std::dec,
+                 "  height=",height,std::hex,"(",height,")\n",std::dec,
+                 "  width= ",width,std::hex,"(",width,")\n",std::dec,
+                 "  alpha= ",alpha);
+            if( i+height > Y.Height() || j+width > Y.Width() )
+                RuntimeError
+                ("Unpacked submatrix was out of bounds:\n",
+                 "  i=     ",i,std::hex,"(",i,")\n",std::dec,
+                 "  j=     ",j,std::hex,"(",j,")\n",std::dec,
+                 "  height=",height,std::hex,"(",height,")\n",std::dec, 
+                 "  width= ",width,std::hex,"(",width,")\n",std::dec,
+                 "  alpha= ",alpha);
+        )
 
         // Update Y
         const T* XBuffer = reinterpret_cast<const T*>(head);
@@ -220,9 +201,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::HandleGlobalToLocalRequest()
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::HandleGlobalToLocalRequest");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::HandleGlobalToLocalRequest"))
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
     const Grid& g = X.Grid();
     const Int r = g.Height();
@@ -302,9 +281,7 @@ template<typename T>
 inline
 AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::AxpyInterface");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyInterface"))
     if( type == LOCAL_TO_GLOBAL )
     {
         attachedForLocalToGlobal_ = true;
@@ -344,9 +321,7 @@ inline
 AxpyInterface<T>::AxpyInterface
 ( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::AxpyInterface");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyInterface"))
     if( type == LOCAL_TO_GLOBAL )
     {
         LogicError("Cannot update a constant matrix");
@@ -398,9 +373,7 @@ AxpyInterface<T>::~AxpyInterface()
                  "call stack (if not in RELEASE mode) since the program will "
                  "likely hang:" << std::endl;
            std::cerr << os.str();
-#ifndef RELEASE
-           DumpCallStack();
-#endif
+           DEBUG_ONLY(DumpCallStack())
         }
         else
         {
@@ -413,9 +386,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::Attach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Attach"))
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         LogicError("Must detach before reattaching.");
 
@@ -453,9 +424,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::Attach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Attach"))
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         LogicError("Must detach before reattaching.");
 
@@ -492,9 +461,7 @@ template<typename T>
 inline void 
 AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::Axpy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Axpy"))
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
     else if( attachedForGlobalToLocal_ )
@@ -507,9 +474,7 @@ template<typename T>
 inline void 
 AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::Axpy");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Axpy"))
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
     else if( attachedForGlobalToLocal_ )
@@ -524,9 +489,7 @@ inline void
 AxpyInterface<T>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, Int i, Int j )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::AxpyLocalToGlobal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyLocalToGlobal"))
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     if( i < 0 || j < 0 )
         LogicError("Submatrix offsets must be non-negative");
@@ -564,10 +527,10 @@ AxpyInterface<T>::AxpyLocalToGlobal
                 ReadyForSend
                 ( bufferSize, dataVectors_[destination], 
                   dataSendRequests_[destination], sendingData_[destination] );
-#ifndef RELEASE
-            if( Int(dataVectors_[destination][index].size()) != bufferSize )
-                LogicError("Error in ReadyForSend");
-#endif
+            DEBUG_ONLY(
+                if( Int(dataVectors_[destination][index].size()) != bufferSize )
+                    LogicError("Error in ReadyForSend");
+            )
 
             // Pack the header
             byte* sendBuffer = dataVectors_[destination][index].data();
@@ -608,9 +571,7 @@ inline void
 AxpyInterface<T>::AxpyGlobalToLocal
 ( T alpha, Matrix<T>& Y, Int i, Int j )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::AxpyGlobalToLocal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyGlobalToLocal"))
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
 
     const Int height = Y.Height();
@@ -704,15 +665,13 @@ AxpyInterface<T>::ReadyForSend
   std::deque<mpi::Request>& requests, 
   std::deque<bool>& requestStatuses )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::ReadyForSend");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::ReadyForSend"))
     const Int numCreated = sendVectors.size();
-#ifndef RELEASE
-    if( numCreated != Int(requests.size()) || 
-        numCreated != Int(requestStatuses.size()) )
-        LogicError("size mismatch");
-#endif
+    DEBUG_ONLY(
+        if( numCreated != Int(requests.size()) || 
+            numCreated != Int(requestStatuses.size()) )
+            LogicError("size mismatch");
+    )
     for( Int i=0; i<numCreated; ++i )
     {
         // If this request is still running, test to see if it finished.
@@ -742,9 +701,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::UpdateRequestStatuses()
 {
-#ifndef RELEASE
-    CallStackEntry cse("AxpyInterface::UpdateRequestStatuses");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::UpdateRequestStatuses"))
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
                       globalToLocalMat_->Grid() );
@@ -774,9 +731,7 @@ template<typename T>
 inline void
 AxpyInterface<T>::Detach()
 {
-#ifndef RELEASE    
-    CallStackEntry cse("AxpyInterface::Detach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Detach"))
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         LogicError("Must attach before detaching.");
 

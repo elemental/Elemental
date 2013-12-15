@@ -19,9 +19,7 @@ template<typename F>
 inline BASE(F)
 MaxCondition( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxCondition"))
     typedef Base<F> Real;
     Matrix<F> B( A );
     const Real maxNorm = MaxNorm( B );
@@ -36,9 +34,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 MaxCondition( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("MaxCondition"))
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real maxNorm = MaxNorm( B );

@@ -25,9 +25,7 @@ Grid::FindFactor( int p )
 inline 
 Grid::Grid( mpi::Comm comm )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Grid::Grid");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
     inGrid_ = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
@@ -51,9 +49,7 @@ Grid::Grid( mpi::Comm comm )
 inline 
 Grid::Grid( mpi::Comm comm, int height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Grid::Grid");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
     inGrid_ = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
@@ -78,17 +74,11 @@ Grid::Grid( mpi::Comm comm, int height )
 inline void 
 Grid::SetUpGrid()
 {
-#ifndef RELEASE
-    CallStackEntry cse("Grid::SetUpGrid");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Grid::SetUpGrid"))
     if( size_ != height_*width_ )
-    {
-        std::ostringstream msg;
-        msg << "Number of processes must match grid size:\n"
-            << "  size=" << size_ << ", (height,width)=(" 
-            << height_ << "," << width_ << ")";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ( "Number of processes must match grid size:\n  size=", size_, 
+          ", (height,width)=(", height_, ",", width_, ")" );
 
     gcd_ = elem::GCD( height_, width_ );
     int lcm = size_ / gcd_;
@@ -165,20 +155,14 @@ Grid::SetUpGrid()
         mpi::CommSplit
         ( cartComm_, DiagPathRank(), DiagPath(), matrixDiagPerpComm_ );
 
-#ifndef RELEASE
-        mpi::ErrorHandlerSet
-        ( matrixColComm_, mpi::ERRORS_RETURN );
-        mpi::ErrorHandlerSet
-        ( matrixRowComm_, mpi::ERRORS_RETURN );
-        mpi::ErrorHandlerSet
-        ( vectorColComm_, mpi::ERRORS_RETURN );
-        mpi::ErrorHandlerSet
-        ( vectorRowComm_, mpi::ERRORS_RETURN );
-        mpi::ErrorHandlerSet
-        ( matrixDiagComm_, mpi::ERRORS_RETURN );
-        mpi::ErrorHandlerSet
-        ( matrixDiagPerpComm_, mpi::ERRORS_RETURN );
-#endif
+        DEBUG_ONLY(
+            mpi::ErrorHandlerSet( matrixColComm_,      mpi::ERRORS_RETURN );
+            mpi::ErrorHandlerSet( matrixRowComm_,      mpi::ERRORS_RETURN );
+            mpi::ErrorHandlerSet( vectorColComm_,      mpi::ERRORS_RETURN );
+            mpi::ErrorHandlerSet( vectorRowComm_,      mpi::ERRORS_RETURN );
+            mpi::ErrorHandlerSet( matrixDiagComm_,     mpi::ERRORS_RETURN );
+            mpi::ErrorHandlerSet( matrixDiagPerpComm_, mpi::ERRORS_RETURN );
+        )
     }
     else
     {
@@ -320,9 +304,7 @@ Grid::Comm() const
 inline 
 Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Grid::Grid");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
 
     // Extract our rank and the underlying group from the viewing comm
     mpi::CommDup( viewers, viewingComm_ );

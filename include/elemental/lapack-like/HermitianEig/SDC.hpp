@@ -439,12 +439,9 @@ SpectralDivide
             A = ACopy;
     }
     if( part.value > relTol )
-    {
-        std::ostringstream os;
-        os << "Unable to split spectrum to specified accuracy: part.value="
-           << part.value << ", relTol=" << relTol << std::endl;
-        RuntimeError( os.str() );
-    }
+        RuntimeError
+        ( "Unable to split spectrum to specified accuracy: part.value=",
+          part.value, ", relTol=", relTol );
 
     return part;
 }
@@ -489,12 +486,9 @@ SpectralDivide
             A = ACopy;
     }
     if( part.value > relTol )
-    {
-        std::ostringstream os;
-        os << "Unable to split spectrum to specified accuracy: part.value="
-           << part.value << ", relTol=" << relTol << std::endl;
-        RuntimeError( os.str() );
-    }
+        RuntimeError
+        ( "Unable to split spectrum to specified accuracy: part.value=",
+          part.value, ", relTol=", relTol );
 
     return part;
 }
@@ -540,12 +534,9 @@ SpectralDivide
             A = ACopy;
     }
     if( part.value > relTol )
-    {
-        std::ostringstream os;
-        os << "Unable to split spectrum to specified accuracy: part.value="
-           << part.value << ", relTol=" << relTol << std::endl;
-        RuntimeError( os.str() );
-    }
+        RuntimeError
+        ( "Unable to split spectrum to specified accuracy: part.value=",
+          part.value, ", relTol=", relTol );
 
     return part;
 }
@@ -591,12 +582,9 @@ SpectralDivide
             A = ACopy;
     }
     if( part.value > relTol )
-    {
-        std::ostringstream os;
-        os << "Unable to split spectrum to specified accuracy: part.value="
-           << part.value << ", relTol=" << relTol << std::endl;
-        RuntimeError( os.str() );
-    }
+        RuntimeError
+        ( "Unable to split spectrum to specified accuracy: part.value=",
+          part.value, ", relTol=", relTol );
 
     return part;
 }

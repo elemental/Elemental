@@ -24,9 +24,7 @@ namespace bidiag {
 template<typename F>
 inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::U");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::U"))
     // TODO: Sequential blocked implementation
     UUnb( A, tP, tQ );
 }
@@ -35,21 +33,21 @@ template<typename F>
 inline void
 U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::U");
-    if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-        LogicError
-        ("{A,tP,tQ} must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("bidiag::U");
+        if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
+            LogicError
+            ("{A,tP,tQ} must be distributed over the same grid");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
-#ifndef RELEASE
-    if( m < n ) 
-        LogicError("A must be at least as tall as it is wide");
-    // Are these requirements necessary?!?
-    if( tP.Viewing() || tQ.Viewing() )
-        LogicError("tP and tQ must not be views");
-#endif
+    DEBUG_ONLY(
+        if( m < n ) 
+            LogicError("A must be at least as tall as it is wide");
+        // Are these requirements necessary?!?
+        if( tP.Viewing() || tQ.Viewing() )
+            LogicError("tP and tQ must not be views");
+    )
     const Grid& g = A.Grid();
     const Int tPHeight = Max(n-1,0);
     const Int tQHeight = n;

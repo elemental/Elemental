@@ -19,9 +19,7 @@ template<typename F>
 inline SafeProduct<F> 
 AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hpd_determinant::AfterCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hpd_determinant::AfterCholesky"))
     typedef Base<F> R;
     const Int n = A.Height();
 
@@ -44,9 +42,7 @@ template<typename F>
 inline SafeProduct<F> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hpd_determinant::Cholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hpd_determinant::Cholesky"))
     SafeProduct<F> det( A.Height() );
     try
     {
@@ -65,9 +61,7 @@ template<typename F>
 inline SafeProduct<F> 
 AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hpd_determinant::AfterCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hpd_determinant::AfterCholesky"))
     typedef Base<F> R;
     const Int n = A.Height();
     const Grid& g = A.Grid();
@@ -96,9 +90,7 @@ template<typename F>
 inline SafeProduct<F> 
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hpd_determinant::Cholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hpd_determinant::Cholesky"))
     SafeProduct<F> det( A.Height() );
     try
     {

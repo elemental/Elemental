@@ -44,17 +44,17 @@ LUVF
 ( Conjugation conjugation, Int offset, 
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("apply_packed_reflectors::LUVF");
-    if( H.Height() != A.Height() )
-        LogicError("H and A must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("apply_packed_reflectors::LUVF");
+        if( H.Height() != A.Height() )
+            LogicError("H and A must be the same height");
+    )
     const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
-#ifndef RELEASE
-    if( t.Height() != diagLength )
-        LogicError("t must be the same length as H's offset diag");
-#endif
+    DEBUG_ONLY(
+        if( t.Height() != diagLength )
+            LogicError("t must be the same length as H's offset diag");
+    )
     Matrix<F> HPanCopy, SInv, Z;
 
     const Int iOff = ( offset>=0 ? 0      : -offset );
@@ -89,21 +89,21 @@ LUVF
 ( Conjugation conjugation, Int offset, 
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("apply_packed_reflectors::LUVF");
-    if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
-        LogicError("{H,t,A} must be distributed over the same grid");
-    if( H.Height() != A.Height() )
-        LogicError("H and A must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("apply_packed_reflectors::LUVF");
+        if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
+            LogicError("{H,t,A} must be distributed over the same grid");
+        if( H.Height() != A.Height() )
+            LogicError("H and A must be the same height");
+    )
     const Int nA = A.Width();
     const Int diagLength = H.DiagonalLength(offset);
-#ifndef RELEASE
-    if( t.Height() != diagLength )
-        LogicError("t must be the same length as H's offset diag");
-    if( !t.AlignedWithDiagonal( H, offset ) )
-        LogicError("t must be aligned with H's 'offset' diagonal");
-#endif
+    DEBUG_ONLY(
+        if( t.Height() != diagLength )
+            LogicError("t must be the same length as H's offset diag");
+        if( !t.AlignedWithDiagonal( H, offset ) )
+            LogicError("t must be aligned with H's 'offset' diagonal");
+    )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);

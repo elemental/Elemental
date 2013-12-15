@@ -21,9 +21,7 @@ ApplyU
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::ApplyU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyU"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -39,9 +37,7 @@ ApplyV
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::ApplyV");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyV"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -57,9 +53,7 @@ ApplyU
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::ApplyU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyU"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -75,9 +69,7 @@ ApplyU
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::ApplyU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyU"))
     const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
@@ -91,9 +83,7 @@ ApplyV
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::ApplyV");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyV"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -109,9 +99,7 @@ ApplyV
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("bidiag::ApplyV");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyV"))
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );

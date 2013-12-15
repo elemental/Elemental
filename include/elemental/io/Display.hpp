@@ -32,9 +32,7 @@ template<typename T>
 inline void
 Display( const Matrix<T>& A, std::string title="Default" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
     {
@@ -66,9 +64,7 @@ template<typename T>
 inline void
 Display( const Matrix<Complex<T> >& A, std::string title="Default" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
     {
@@ -107,9 +103,7 @@ template<typename T,Distribution U,Distribution V>
 inline void
 Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
     {
@@ -130,9 +124,7 @@ template<typename T>
 inline void
 Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
     {
@@ -150,9 +142,7 @@ template<typename T>
 inline void
 Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef HAVE_QT5
     if( GuiDisabled() )
     {

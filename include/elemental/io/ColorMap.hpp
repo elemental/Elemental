@@ -16,9 +16,7 @@ namespace elem {
 inline QRgb
 SampleColorMap( double value, double minVal, double maxVal )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SampleColorMap");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SampleColorMap"))
     const double percent = (value-minVal) / (maxVal-minVal);
     const ColorMap colorMap = GetColorMap();
 

@@ -22,15 +22,12 @@ template<typename F>
 inline BASE(F) 
 LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LogDetDivergence");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LogDetDivergence"))
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
-        LogicError
-        ("A and B must be square matrices of the same size");
+        LogicError("A and B must be square matrices of the same size");
 
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     Matrix<F> ACopy( A ), BCopy( B );
@@ -48,15 +45,15 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     }
 
     MakeTriangular( uplo, ACopy );
-    const R frobNorm = FrobeniusNorm( ACopy );
+    const Real frobNorm = FrobeniusNorm( ACopy );
 
     Matrix<F> d;
     ACopy.GetDiagonal( d );
-    R logDet(0);
+    Real logDet(0);
     for( Int i=0; i<n; ++i )
         logDet += 2*Log( RealPart(d.Get(i,0)) );
 
-    return frobNorm*frobNorm - logDet - R(n);
+    return frobNorm*frobNorm - logDet - Real(n);
 }
 
 template<typename F>
@@ -64,16 +61,14 @@ inline BASE(F)
 LogDetDivergence
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LogDetDivergence");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LogDetDivergence"))
     if( A.Grid() != B.Grid() )
         LogicError("A and B must use the same grid");
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");
 
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -92,9 +87,9 @@ LogDetDivergence
     }
 
     MakeTriangular( uplo, ACopy );
-    const R frobNorm = FrobeniusNorm( ACopy );
+    const Real frobNorm = FrobeniusNorm( ACopy );
 
-    R localLogDet(0);
+    Real localLogDet(0);
     DistMatrix<F,MD,STAR> d(g);
     ACopy.GetDiagonal( d );
     if( d.Participating() )
@@ -102,12 +97,12 @@ LogDetDivergence
         const Int nLocalDiag = d.LocalHeight();
         for( Int iLocal=0; iLocal<nLocalDiag; ++iLocal )
         {
-            const R delta = RealPart(d.GetLocal(iLocal,0));
+            const Real delta = RealPart(d.GetLocal(iLocal,0));
             localLogDet += 2*Log(delta);
         }
     }
-    const R logDet = mpi::AllReduce( localLogDet, g.VCComm() );
-    return frobNorm*frobNorm - logDet - R(n);
+    const Real logDet = mpi::AllReduce( localLogDet, g.VCComm() );
+    return frobNorm*frobNorm - logDet - Real(n);
 }
 
 } // namespace elem

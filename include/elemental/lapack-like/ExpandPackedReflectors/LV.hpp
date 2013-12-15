@@ -45,13 +45,13 @@ template<typename F>
 inline void
 LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("expand_packed_reflectors::LV");
-    if( offset > 0 || offset < -H.Height() )
-        LogicError("Transforms out of bounds");
-    if( t.Height() != H.DiagonalLength( offset ) )
-        LogicError("t must be the same length as H's offset diag");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("expand_packed_reflectors::LV");
+        if( offset > 0 || offset < -H.Height() )
+            LogicError("Transforms out of bounds");
+        if( t.Height() != H.DiagonalLength( offset ) )
+            LogicError("t must be the same length as H's offset diag");
+    )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
@@ -166,17 +166,17 @@ LV
 ( Conjugation conjugation, Int offset, 
   DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("expand_packed_reflectors::LV");
-    if( H.Grid() != t.Grid() )
-        LogicError("H and t must be distributed over same grid");
-    if( offset > 0 || offset < -H.Height() )
-        LogicError("Transforms out of bounds");
-    if( t.Height() != H.DiagonalLength( offset ) )
-        LogicError("t must be the same length as H's offset diag");
-    if( !t.AlignedWithDiagonal( H, offset ) )
-        LogicError("t must be aligned with H's 'offset' diagonal");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("expand_packed_reflectors::LV");
+        if( H.Grid() != t.Grid() )
+            LogicError("H and t must be distributed over same grid");
+        if( offset > 0 || offset < -H.Height() )
+            LogicError("Transforms out of bounds");
+        if( t.Height() != H.DiagonalLength( offset ) )
+            LogicError("t must be the same length as H's offset diag");
+        if( !t.AlignedWithDiagonal( H, offset ) )
+            LogicError("t must be aligned with H's 'offset' diagonal");
+    )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )

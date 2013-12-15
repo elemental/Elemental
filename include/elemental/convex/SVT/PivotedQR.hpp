@@ -25,11 +25,11 @@ template<typename F>
 inline Int
 PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("svt::PivotedQR");
-    if( numSteps > std::min(A.Height(),A.Width()) )
-        LogicError("number of steps is too large");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svt::PivotedQR");
+        if( numSteps > std::min(A.Height(),A.Width()) )
+            LogicError("number of steps is too large");
+    )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -61,11 +61,11 @@ template<typename F>
 inline Int
 PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("svt::PivotedQR");
-    if( numSteps > std::min(A.Height(),A.Width()) )
-        LogicError("number of steps is too large");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("svt::PivotedQR");
+        if( numSteps > std::min(A.Height(),A.Width()) )
+            LogicError("number of steps is too large");
+    )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

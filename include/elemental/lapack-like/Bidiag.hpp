@@ -23,9 +23,7 @@ namespace elem {
 template<typename F>
 inline void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Bidiag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     if( A.Height() >= A.Width() )
         bidiag::U( A, tP, tQ );
     else
@@ -36,9 +34,7 @@ template<typename F>
 inline void Bidiag
 ( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Bidiag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     if( A.Height() >= A.Width() )
         bidiag::U( A, tP, tQ );
     else
@@ -48,9 +44,7 @@ inline void Bidiag
 template<typename F>
 inline void Bidiag( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Bidiag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     Matrix<F> tP, tQ;
     Bidiag( A, tP, tQ );
 }
@@ -58,9 +52,7 @@ inline void Bidiag( Matrix<F>& A )
 template<typename F> 
 inline void Bidiag( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Bidiag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
 }

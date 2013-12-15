@@ -27,9 +27,7 @@ RepartitionUp
          M& A1,
   M& AB, M& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionUp [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionUp"))
     PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
@@ -41,9 +39,7 @@ RepartitionUp
           DM& A1,
   DM& AB, DM& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionUp [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionUp"))
     PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
@@ -55,9 +51,7 @@ LockedRepartitionUp
                M& A1,
   const M& AB, M& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionUp [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUp"))
     LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
@@ -69,9 +63,7 @@ LockedRepartitionUp
                 DM& A1,
   const DM& AB, DM& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionUp [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUp"))
     LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
@@ -87,9 +79,7 @@ RepartitionDown
          M& A1,
   M& AB, M& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionDown [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionDown"))
     View( A0, AT );
     PartitionDown( AB, A1, A2, A1Height );
 }
@@ -101,9 +91,7 @@ RepartitionDown
           DM& A1,
   DM& AB, DM& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionDown [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionDown"))
     View( A0, AT );
     PartitionDown( AB, A1, A2, A1Height );
 }
@@ -115,9 +103,7 @@ LockedRepartitionDown
                M& A1,
   const M& AB, M& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionDown [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDown"))
     LockedView( A0, AT );
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
@@ -129,9 +115,7 @@ LockedRepartitionDown
                 DM& A1,
   const DM& AB, DM& A2, Int A1Height )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionDown [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDown"))
     LockedView( A0, AT );
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
@@ -146,9 +130,7 @@ RepartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionLeft [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionLeft"))
     PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
@@ -159,9 +141,7 @@ RepartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionLeft [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionLeft"))
     PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
@@ -172,9 +152,7 @@ LockedRepartitionLeft
 ( const M& AL, const M& AR,
   M& A0, M& A1, M& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionLeft [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionLeft"))
     LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
@@ -185,9 +163,7 @@ LockedRepartitionLeft
 ( const DM& AL, const DM& AR,
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionLeft [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionLeft"))
     LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
@@ -202,9 +178,7 @@ RepartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionRight [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionRight"))
     View( A0, AL );
     PartitionRight( AR, A1, A2, A1Width );
 }
@@ -215,9 +189,7 @@ RepartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionRight [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionRight"))
     View( A0, AL );
     PartitionRight( AR, A1, A2, A1Width );
 }
@@ -228,9 +200,7 @@ LockedRepartitionRight
 ( const M& AL, const M& AR,
   M& A0, M& A1, M& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionRight [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionRight"))
     LockedView( A0, AL );
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
@@ -241,9 +211,7 @@ LockedRepartitionRight
 ( const DM& AL, const DM& AR,
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionRight [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionRight"))
     LockedView( A0, AL );
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
@@ -259,9 +227,7 @@ RepartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionUpDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionUpDiagonal"))
     PartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -278,9 +244,7 @@ RepartitionUpDiagonal
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionUpDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionUpDiagonal"))
     PartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -297,9 +261,7 @@ LockedRepartitionUpDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionUpDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUpDiagonal"))
     LockedPartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -316,9 +278,7 @@ LockedRepartitionUpDiagonal
                                 DM& A10, DM& A11, DM& A12,
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionUpDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionUpDiagonal"))
     LockedPartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -339,9 +299,7 @@ RepartitionDownDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionDownDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionDownDiagonal"))
     View( A00, ATL );
     PartitionDownDiagonal( ABR, A11, A12,
                                 A21, A22, bsize );
@@ -356,9 +314,7 @@ RepartitionDownDiagonal
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("RepartitionDownDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("RepartitionDownDiagonal"))
     View( A00, ATL );
     PartitionDownDiagonal( ABR, A11, A12,
                                 A21, A22, bsize );
@@ -373,9 +329,7 @@ LockedRepartitionDownDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionDownDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDownDiagonal"))
     LockedView( A00, ATL );
     LockedPartitionDownDiagonal( ABR, A11, A12,
                                       A21, A22, bsize );
@@ -390,9 +344,7 @@ LockedRepartitionDownDiagonal
                                 DM& A10, DM& A11, DM& A12,
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedRepartitionDownDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedRepartitionDownDiagonal"))
     LockedView( A00, ATL );
     LockedPartitionDownDiagonal( ABR, A11, A12,
                                       A21, A22, bsize );

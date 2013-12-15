@@ -18,16 +18,16 @@ Syr
 ( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( x.Width() != 1 && x.Height() != 1 )
-        LogicError("x must be a vector");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    if( xLength != A.Height() )
-        LogicError("x must conform with A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Syr");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( x.Width() != 1 && x.Height() != 1 )
+            LogicError("x must be a vector");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        if( xLength != A.Height() )
+            LogicError("x must conform with A");
+    )
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int m = A.Height();
     const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
@@ -51,22 +51,19 @@ Syr
                  DistMatrix<T>& A,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr");
-    if( A.Grid() != x.Grid() )
-        LogicError("A and x must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    if( A.Height() != xLength )
-    {
-        std::ostringstream msg;
-        msg << "A must conform with x: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  x ~ " << x.Height() << " x " << x.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Syr");
+        if( A.Grid() != x.Grid() )
+            LogicError("A and x must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        if( A.Height() != xLength )
+            LogicError
+            ("A must conform with x: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x ~ ",x.Height()," x ",x.Width(),"\n");
+    )
     const Grid& g = A.Grid();
 
     const Int localHeight = A.LocalHeight();

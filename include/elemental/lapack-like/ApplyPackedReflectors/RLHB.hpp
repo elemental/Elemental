@@ -44,17 +44,17 @@ RLHB
 ( Conjugation conjugation, Int offset, 
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("apply_packed_reflectors::RLHB");
-    if( A.Width() != H.Width() )
-        LogicError("H and A must have the same width");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("apply_packed_reflectors::RLHB");
+        if( A.Width() != H.Width() )
+            LogicError("H and A must have the same width");
+    )
     const Int m = A.Height();
     const Int diagLength = H.DiagonalLength(offset);
-#ifndef RELEASE
-    if( t.Height() != diagLength )
-        LogicError("t must be the same length as H's offset diag");
-#endif
+    DEBUG_ONLY(
+        if( t.Height() != diagLength )
+            LogicError("t must be the same length as H's offset diag");
+    )
     Matrix<F> HPanCopy, SInv, Z;
 
     const Int iOff = ( offset>=0 ? 0      : -offset );
@@ -91,19 +91,19 @@ RLHB
 ( Conjugation conjugation, Int offset, 
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("apply_packed_reflectors::RLHB");
-    if( H.Grid() != A.Grid() || A.Grid() != t.Grid() )
-        LogicError("{H,t,A} must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("apply_packed_reflectors::RLHB");
+        if( H.Grid() != A.Grid() || A.Grid() != t.Grid() )
+            LogicError("{H,t,A} must be distributed over the same grid");
+    )
     const Int m = A.Height();
     const Int diagLength = H.DiagonalLength(offset);
-#ifndef RELEASE
-    if( t.Height() != diagLength )
-        LogicError("t must be the same length as H's offset diag");
-    if( !t.AlignedWithDiagonal( H, offset ) )
-        LogicError("t must be aligned with H's 'offset' diagonal");
-#endif
+    DEBUG_ONLY(
+        if( t.Height() != diagLength )
+            LogicError("t must be the same length as H's offset diag");
+        if( !t.AlignedWithDiagonal( H, offset ) )
+            LogicError("t must be aligned with H's 'offset' diagonal");
+    )
     const Grid& g = H.Grid();
     DistMatrix<F> HPanCopy(g);
     DistMatrix<F,STAR,VR  > HPan_STAR_VR(g);

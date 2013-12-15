@@ -28,18 +28,18 @@ Symv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Symv");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 ) )
-        LogicError("x and y must be vectors");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( A.Height() != xLength || A.Height() != yLength )
-        LogicError("A must conform with x and y");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Symv");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( ( x.Height() != 1 && x.Width() != 1 ) ||
+            ( y.Height() != 1 && y.Width() != 1 ) )
+            LogicError("x and y must be vectors");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( A.Height() != xLength || A.Height() != yLength )
+            LogicError("A must conform with x and y");
+    )
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int m = A.Height();
     const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
@@ -69,28 +69,24 @@ Symv
   T beta,        DistMatrix<T>& y,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Symv");
-    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        LogicError
-        ("{A,x,y} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( ( x.Width() != 1 && x.Height() != 1 ) ||
-        ( y.Width() != 1 && y.Height() != 1 ) )
-        LogicError("x and y are assumed to be vectors");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( A.Height() != xLength || A.Height() != yLength )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal Symv: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-            << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Symv");
+        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+            LogicError("{A,x,y} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( ( x.Width() != 1 && x.Height() != 1 ) ||
+            ( y.Width() != 1 && y.Height() != 1 ) )
+            LogicError("x and y are assumed to be vectors");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( A.Height() != xLength || A.Height() != yLength )
+            LogicError
+            ("Nonconformal Symv: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x ~ ",x.Height()," x ",x.Width(),"\n",
+             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+    )
     const Grid& g = A.Grid();
 
     if( x.Width() == 1 && y.Width() == 1 )

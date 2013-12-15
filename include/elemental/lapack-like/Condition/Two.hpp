@@ -18,9 +18,7 @@ template<typename F>
 inline BASE(F)
 TwoCondition( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TwoCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
     typedef Base<F> R;
     Matrix<F> B( A );
     Matrix<R> s;
@@ -37,9 +35,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 TwoCondition( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TwoCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
     typedef Base<F> R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );

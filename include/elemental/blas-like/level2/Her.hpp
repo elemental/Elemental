@@ -18,9 +18,7 @@ template<typename T>
 inline void
 Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Her");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Her"))
     Syr( uplo, alpha, x, A, true );
 }
 
@@ -31,9 +29,7 @@ Her
   T alpha, const DistMatrix<T>& x,
                  DistMatrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Her");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Her"))
     Syr( uplo, alpha, x, A, true );
 }
 

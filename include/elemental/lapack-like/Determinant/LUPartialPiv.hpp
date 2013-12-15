@@ -20,9 +20,7 @@ template<typename F>
 inline SafeProduct<F> 
 AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("determinant::AfterLUPartialPiv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("determinant::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
     if( A.Height() != p.Height() )
@@ -53,9 +51,7 @@ template<typename F>
 inline SafeProduct<F> 
 LUPartialPiv( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("determinant::LUPartialPiv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("determinant::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
     SafeProduct<F> det( A.Height() );
@@ -77,9 +73,7 @@ template<typename F>
 inline SafeProduct<F> 
 AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("determinant::AfterLUPartialPiv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("determinant::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
     if( A.Grid() != p.Grid() )
@@ -122,9 +116,7 @@ template<typename F>
 inline SafeProduct<F> 
 LUPartialPiv( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("determinant::LUPartialPiv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("determinant::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute determinant of nonsquare matrix");
     SafeProduct<F> det( A.Height() );

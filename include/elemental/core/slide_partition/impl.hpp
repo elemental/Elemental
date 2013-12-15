@@ -27,9 +27,7 @@ SlidePartitionUp
          M& A1,
   M& AB, M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionUp [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
     View( AT, A0 );
     View2x1( AB, A1, A2 );
 }
@@ -41,9 +39,7 @@ SlidePartitionUp
           DM& A1,
   DM& AB, DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionUp [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
     View( AT, A0 );
     View2x1( AB, A1, A2 );
 }
@@ -55,9 +51,7 @@ SlideLockedPartitionUp
          const M& A1,
   M& AB, const M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionUp [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
     LockedView( AT, A0 );
     LockedView2x1( AB, A1, A2 );
 }
@@ -69,9 +63,7 @@ SlideLockedPartitionUp
           const DM& A1,
   DM& AB, const DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionUp [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
     LockedView( AT, A0 );
     LockedView2x1( AB, A1, A2 );
 }
@@ -87,9 +79,7 @@ SlidePartitionDown
          M& A1,
   M& AB, M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionDown [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
     View2x1( AT, A0, A1 );
     View( AB, A2 );
 }
@@ -101,9 +91,7 @@ SlidePartitionDown
           DM& A1,
   DM& AB, DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionDown [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
     View2x1( AT, A0, A1 );
     View( AB, A2 );
 }
@@ -115,9 +103,7 @@ SlideLockedPartitionDown
          const M& A1,
   M& AB, const M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionDown [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
     LockedView2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
@@ -129,9 +115,7 @@ SlideLockedPartitionDown
           const DM& A1,
   DM& AB, const DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionDown [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
     LockedView2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
@@ -146,9 +130,7 @@ SlidePartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionLeft [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionLeft"))
     View( AL, A0 );
     View1x2( AR, A1, A2 );
 }
@@ -159,9 +141,7 @@ SlidePartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionLeft [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionLeft"))
     View( AL, A0 );
     View1x2( AR, A1, A2 );
 }
@@ -172,9 +152,7 @@ SlideLockedPartitionLeft
 ( M& AL, M& AR,
   const M& A0, const M& A1, const M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionLeft [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionLeft"))
     LockedView( AL, A0 );
     LockedView1x2( AR, A1, A2 );
 }
@@ -185,9 +163,7 @@ SlideLockedPartitionLeft
 ( DM& AL, DM& AR,
   const DM& A0, const DM& A1, const DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionLeft [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionLeft"))
     LockedView( AL, A0 );
     LockedView1x2( AR, A1, A2 );
 }
@@ -202,9 +178,7 @@ SlidePartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionRight [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionRight"))
     View1x2( AL, A0, A1 );
     View( AR, A2 );
 }
@@ -215,9 +189,7 @@ SlidePartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionRight [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionRight"))
     View1x2( AL, A0, A1 );
     View( AR, A2 );
 }
@@ -228,9 +200,7 @@ SlideLockedPartitionRight
 ( M& AL, M& AR,
   const M& A0, const M& A1, const M& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionRight [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionRight"))
     LockedView1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
@@ -241,9 +211,7 @@ SlideLockedPartitionRight
 ( DM& AL, DM& AR,
   const DM& A0, const DM& A1, const DM& A2 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionRight [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionRight"))
     LockedView1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
@@ -259,9 +227,7 @@ SlidePartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionUpDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUpDiagonal"))
     View( ATL, A00 );
     View1x2( ATR, A01, A02 );
     View2x1( ABL, A10, A20 );
@@ -276,9 +242,7 @@ SlidePartitionUpDiagonal
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionUpDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionUpDiagonal"))
     View( ATL, A00 );
     View1x2( ATR, A01, A02 );
     View2x1( ABL, A10, A20 );
@@ -293,9 +257,7 @@ SlideLockedPartitionUpDiagonal
                   const M& A10, const M& A11, const M& A12,
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionUpDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUpDiagonal"))
     LockedView( ATL, A00 );
     LockedView1x2( ATR, A01, A02 );
     LockedView2x1( ABL, A10, A20 );
@@ -310,9 +272,7 @@ SlideLockedPartitionUpDiagonal
                     const DM& A10, const DM& A11, const DM& A12,
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionUpDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUpDiagonal"))
     LockedView( ATL, A00 );
     LockedView1x2( ATR, A01, A02 );
     LockedView2x1( ABL, A10, A20 );
@@ -331,9 +291,7 @@ SlidePartitionDownDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionDownDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDownDiagonal"))
     View2x2( ATL, A00, A01,
                   A10, A11 );
     View2x1( ATR, A02, A12 );
@@ -348,9 +306,7 @@ SlidePartitionDownDiagonal
                     DM& A10, DM& A11, DM& A12,
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlidePartitionDownDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlidePartitionDownDiagonal"))
     View2x2( ATL, A00, A01,
                   A10, A11 );
     View2x1( ATR, A02, A12 );
@@ -365,9 +321,7 @@ SlideLockedPartitionDownDiagonal
                   const M& A10, const M& A11, const M& A12,
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionDownDiagonal [Matrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDownDiagonal"))
     LockedView2x2( ATL, A00, A01,
                         A10, A11 );
     LockedView2x1( ATR, A02, A12 );
@@ -382,9 +336,7 @@ SlideLockedPartitionDownDiagonal
                     const DM& A10, const DM& A11, const DM& A12,
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SlideLockedPartitionDownDiagonal [DistMatrix]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDownDiagonal"))
     LockedView2x2( ATL, A00, A01,
                         A10, A11 );
     LockedView2x1( ATR, A02, A12 );

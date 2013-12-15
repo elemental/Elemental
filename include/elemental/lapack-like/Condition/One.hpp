@@ -19,9 +19,7 @@ template<typename F>
 inline BASE(F)
 OneCondition( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("OneCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("OneCondition"))
     typedef Base<F> Real;
     Matrix<F> B( A );
     const Real oneNorm = OneNorm( B );
@@ -36,9 +34,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 OneCondition( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("OneCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("OneCondition"))
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real oneNorm = OneNorm( B );

@@ -53,9 +53,7 @@ template<typename Real>
 inline void
 SetImagPart( Real& alpha, const Real& beta )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SetImagPart");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SetImagPart"))
     LogicError("Nonsensical assignment");
 }
 
@@ -78,9 +76,7 @@ template<typename Real>
 inline void
 UpdateImagPart( Real& alpha, const Real& beta )
 {
-#ifndef RELEASE
-    CallStackEntry cse("UpdateImagPart");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("UpdateImagPart"))
     LogicError("Nonsensical update");
 }
 

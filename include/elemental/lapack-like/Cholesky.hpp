@@ -32,9 +32,7 @@ template<typename F>
 inline void
 LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalCholesky"))
     Cholesky( uplo, A.Matrix() );
 }
 
@@ -42,9 +40,7 @@ template<typename F>
 inline void
 LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalReverseCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LocalReverseCholesky"))
     ReverseCholesky( uplo, A.Matrix() );
 }
 
@@ -54,11 +50,11 @@ template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Cholesky");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Cholesky");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( uplo == LOWER )
         cholesky::LVar3( A );
     else
@@ -69,11 +65,11 @@ template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Cholesky");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Cholesky");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( uplo == LOWER )
         cholesky::LVar3( A, p );
     else
@@ -84,11 +80,11 @@ template<typename F>
 inline void
 ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ReverseCholesky");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ReverseCholesky");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );
     else
@@ -99,9 +95,7 @@ template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Cholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Cholesky"))
     const Grid& g = A.Grid();
     if( g.Height() == g.Width() )
     {
@@ -123,9 +117,7 @@ template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Cholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Cholesky"))
     if( uplo == LOWER )
         cholesky::LVar3( A, p );
     else
@@ -136,9 +128,7 @@ template<typename F>
 inline void
 ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ReverseCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ReverseCholesky"))
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );
     else
@@ -176,9 +166,7 @@ template<typename F>
 inline void
 HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HPSDCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
@@ -198,9 +186,7 @@ template<typename F>
 inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HPSDCholesky");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
     EnsurePMRRR();
 
     HPSDSquareRoot( uplo, A );

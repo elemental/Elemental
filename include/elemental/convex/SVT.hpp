@@ -22,9 +22,7 @@ template<typename F>
 inline Int
 SVT( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVT"))
     return svt::Normal( A, tau, relative );
 }
 
@@ -32,9 +30,7 @@ template<typename F>
 inline Int
 SVT( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVT"))
     // NOTE: This should be less accurate (but faster) than svt::Normal
     return svt::Cross( A, tau, relative );
 }
@@ -43,9 +39,7 @@ template<typename F>
 inline Int
 SVT( Matrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVT"))
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
@@ -54,9 +48,7 @@ template<typename F>
 inline Int
 SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVT"))
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
@@ -66,9 +58,7 @@ template<typename F,Distribution U>
 inline Int
 SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVT"))
     return svt::TSQR( A, tau, relative );
 }
 

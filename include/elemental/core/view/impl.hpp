@@ -30,11 +30,11 @@ inline void HandleDiagPath
 template<typename T>
 inline void View( Matrix<T>& A, Matrix<T>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View");
-    if( IsLocked(B.viewType_) )
-        LogicError("Cannot grab an unlocked view of a locked matrix");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View");
+        if( IsLocked(B.viewType_) )
+            LogicError("Cannot grab an unlocked view of a locked matrix");
+    )
     A.memory_.Empty();
     A.height_   = B.height_;
     A.width_    = B.width_;
@@ -54,9 +54,7 @@ inline Matrix<T> View( Matrix<T>& B )
 template<typename T,Distribution U,Distribution V>
 inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("View"))
     A.Empty();
     A.grid_ = B.grid_;
     A.height_ = B.Height();
@@ -89,9 +87,7 @@ inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
 template<typename T>
 inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedView"))
     A.memory_.Empty();
     A.height_   = B.height_;
     A.width_    = B.width_;
@@ -111,9 +107,7 @@ inline Matrix<T> LockedView( const Matrix<T>& B )
 template<typename T,Distribution U,Distribution V>
 inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedView"))
     A.Empty();
     A.grid_ = B.grid_;
     A.height_ = B.Height();
@@ -148,24 +142,20 @@ inline void View
 ( Matrix<T>& A, Matrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View");
-    if( i < 0 || j < 0 )
-        LogicError("Indices must be non-negative");
-    if( height < 0 || width < 0 )
-        LogicError("Height and width must be non-negative");
-    if( (i+height) > B.Height() || (j+width) > B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Trying to view outside of a Matrix: "
-            << "(" << i << "," << j << ") up to (" 
-            << i+height-1 << "," << j+width-1 << ") "
-            << "of " << B.Height() << " x " << B.Width() << " Matrix.";
-        LogicError( msg.str() );
-    }
-    if( IsLocked(B.viewType_) )
-        LogicError("Cannot grab an unlocked view of a locked matrix");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View");
+        if( i < 0 || j < 0 )
+            LogicError("Indices must be non-negative");
+        if( height < 0 || width < 0 )
+            LogicError("Height and width must be non-negative");
+        if( (i+height) > B.Height() || (j+width) > B.Width() )
+            LogicError
+            ("Trying to view outside of a Matrix: (",i,",",j,") up to (", 
+             i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
+             " Matrix");
+        if( IsLocked(B.viewType_) )
+            LogicError("Cannot grab an unlocked view of a locked matrix");
+    )
     A.memory_.Empty();
     A.height_   = height;
     A.width_    = width;
@@ -187,10 +177,10 @@ inline void View
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View");
-    B.AssertValidSubmatrix( i, j, height, width );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View");
+        B.AssertValidSubmatrix( i, j, height, width );
+    )
     A.Empty();
 
     const elem::Grid& g = B.Grid();
@@ -244,22 +234,18 @@ inline void LockedView
 ( Matrix<T>& A, const Matrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView");
-    if( i < 0 || j < 0 )
-        LogicError("Indices must be non-negative");
-    if( height < 0 || width < 0 )
-        LogicError("Height and width must be non-negative");
-    if( (i+height) > B.Height() || (j+width) > B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Trying to view outside of a Matrix: "
-            << "(" << i << "," << j << ") up to (" 
-            << i+height-1 << "," << j+width-1 << ") "
-            << "of " << B.Height() << " x " << B.Width() << " Matrix.";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView");
+        if( i < 0 || j < 0 )
+            LogicError("Indices must be non-negative");
+        if( height < 0 || width < 0 )
+            LogicError("Height and width must be non-negative");
+        if( (i+height) > B.Height() || (j+width) > B.Width() )
+            LogicError
+            ("Trying to view outside of a Matrix: (",i,",",j,") up to (",
+             i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
+             " Matrix");
+    )
     A.memory_.Empty();
     A.height_   = height;
     A.width_    = width;
@@ -282,10 +268,10 @@ inline void LockedView
 ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView");
-    B.AssertValidSubmatrix( i, j, height, width );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView");
+        B.AssertValidSubmatrix( i, j, height, width );
+    )
     A.Empty();
 
     const elem::Grid& g = B.Grid();
@@ -338,9 +324,7 @@ template<typename T>
 void ViewRange
 ( Matrix<T>& A, Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("ViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ViewRange"))
     View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -348,9 +332,7 @@ template<typename T>
 Matrix<T> ViewRange
 ( Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ViewRange"))
     return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -359,9 +341,7 @@ void ViewRange
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ViewRange"))
     View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -369,9 +349,7 @@ template<typename T,Distribution U,Distribution V>
 DistMatrix<T,U,V> ViewRange
 ( DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ViewRange"))
     return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 } 
 
@@ -379,9 +357,7 @@ template<typename T>
 void LockedViewRange
 ( Matrix<T>& A, const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
     LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -389,9 +365,7 @@ template<typename T>
 Matrix<T> LockedViewRange
 ( const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
     return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -400,9 +374,7 @@ void LockedViewRange
 ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
     LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -410,9 +382,7 @@ template<typename T,Distribution U,Distribution V>
 DistMatrix<T,U,V> LockedViewRange
 ( const DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedViewRange");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
     return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
@@ -421,17 +391,17 @@ inline void View1x2
 ( Matrix<T>& A,
   Matrix<T>& BL, Matrix<T>& BR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View1x2");
-    if( IsLocked(BL.viewType_) || IsLocked(BR.viewType_) )
-        LogicError("Cannot grab an unlocked view of a locked matrix");
-    if( BL.Height() != BR.Height() )
-        LogicError("1x2 must have consistent height to combine");
-    if( BL.LDim() != BR.LDim() )
-        LogicError("1x2 must have consistent ldims to combine");
-    if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
-        LogicError("1x2 must have contiguous memory");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View1x2");
+        if( IsLocked(BL.viewType_) || IsLocked(BR.viewType_) )
+            LogicError("Cannot grab an unlocked view of a locked matrix");
+        if( BL.Height() != BR.Height() )
+            LogicError("1x2 must have consistent height to combine");
+        if( BL.LDim() != BR.LDim() )
+            LogicError("1x2 must have consistent ldims to combine");
+        if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
+            LogicError("1x2 must have contiguous memory");
+    )
     A.memory_.Empty();
     A.height_   = BL.height_;
     A.width_    = BL.width_ + BR.width_;
@@ -452,11 +422,11 @@ template<typename T,Distribution U,Distribution V>
 inline void View1x2
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View1x2");
-    AssertConforming1x2( BL, BR );
-    BL.AssertSameGrid( BR.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View1x2");
+        AssertConforming1x2( BL, BR );
+        BL.AssertSameGrid( BR.Grid() );
+    )
     A.Empty();
     A.grid_ = BL.grid_;
     A.height_ = BL.Height();
@@ -490,15 +460,15 @@ template<typename T>
 inline void LockedView1x2
 ( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView1x2");
-    if( BL.Height() != BR.Height() )
-        LogicError("1x2 must have consistent height to combine");
-    if( BL.LDim() != BR.LDim() )
-        LogicError("1x2 must have consistent ldims to combine");
-    if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
-        LogicError("1x2 must have contiguous memory");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView1x2");
+        if( BL.Height() != BR.Height() )
+            LogicError("1x2 must have consistent height to combine");
+        if( BL.LDim() != BR.LDim() )
+            LogicError("1x2 must have consistent ldims to combine");
+        if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
+            LogicError("1x2 must have contiguous memory");
+    )
     A.memory_.Empty();
     A.height_   = BL.height_;
     A.width_    = BL.width_ + BR.width_;
@@ -521,11 +491,11 @@ inline void LockedView1x2
   const DistMatrix<T,U,V>& BL,
   const DistMatrix<T,U,V>& BR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView1x2");
-    AssertConforming1x2( BL, BR );
-    BL.AssertSameGrid( BR.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView1x2");
+        AssertConforming1x2( BL, BR );
+        BL.AssertSameGrid( BR.Grid() );
+    )
     A.Empty();
     A.grid_ = BL.grid_;
     A.height_ = BL.Height();
@@ -559,17 +529,17 @@ inline DistMatrix<T,U,V> LockedView1x2
 template<typename T>
 inline void View2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View2x1");
-    if( IsLocked(BT.viewType_) || IsLocked(BB.viewType_) )
-        LogicError("Cannot grab an unlocked view of a locked matrix");
-    if( BT.Width() != BB.Width() )
-        LogicError("2x1 must have consistent width to combine");
-    if( BT.LDim() != BB.LDim() )
-        LogicError("2x1 must have consistent ldim to combine");
-    if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
-        LogicError("2x1 must have contiguous memory");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View2x1");
+        if( IsLocked(BT.viewType_) || IsLocked(BB.viewType_) )
+            LogicError("Cannot grab an unlocked view of a locked matrix");
+        if( BT.Width() != BB.Width() )
+            LogicError("2x1 must have consistent width to combine");
+        if( BT.LDim() != BB.LDim() )
+            LogicError("2x1 must have consistent ldim to combine");
+        if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
+            LogicError("2x1 must have contiguous memory");
+    )
     A.memory_.Empty();
     A.height_   = BT.height_ + BB.height_;
     A.width_    = BT.width_;
@@ -590,11 +560,11 @@ template<typename T,Distribution U,Distribution V>
 inline void View2x1
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View2x1");
-    AssertConforming2x1( BT, BB );
-    BT.AssertSameGrid( BB.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View2x1");
+        AssertConforming2x1( BT, BB );
+        BT.AssertSameGrid( BB.Grid() );
+    )
     A.Empty();
     A.grid_ = BT.grid_;
     A.height_ = BT.Height() + BB.Height();
@@ -628,15 +598,15 @@ template<typename T>
 inline void LockedView2x1
 ( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView2x1");
-    if( BT.Width() != BB.Width() )
-        LogicError("2x1 must have consistent width to combine");
-    if( BT.LDim() != BB.LDim() )
-        LogicError("2x1 must have consistent ldim to combine");
-    if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
-        LogicError("2x1 must have contiguous memory");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView2x1");
+        if( BT.Width() != BB.Width() )
+            LogicError("2x1 must have consistent width to combine");
+        if( BT.LDim() != BB.LDim() )
+            LogicError("2x1 must have consistent ldim to combine");
+        if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
+            LogicError("2x1 must have contiguous memory");
+    )
     A.memory_.Empty();
     A.height_   = BT.height_ + BB.height_;
     A.width_    = BT.width_;
@@ -660,11 +630,11 @@ inline void LockedView2x1
   const DistMatrix<T,U,V>& BT,
   const DistMatrix<T,U,V>& BB )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView2x1");
-    AssertConforming2x1( BT, BB );
-    BT.AssertSameGrid( BB.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView2x1");
+        AssertConforming2x1( BT, BB );
+        BT.AssertSameGrid( BB.Grid() );
+    )
     A.Empty();
     A.grid_ = BT.grid_;
     A.height_ = BT.Height() + BB.Height();
@@ -701,25 +671,25 @@ inline void View2x2
   Matrix<T>& BTL, Matrix<T>& BTR,
   Matrix<T>& BBL, Matrix<T>& BBR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View2x2");
-    if( IsLocked(BTL.viewType_) || IsLocked(BTR.viewType_) ||
-        IsLocked(BBL.viewType_) || IsLocked(BBR.viewType_) )
-        LogicError("Cannot grab an unlocked view of a locked matrix");
-    if( BTL.Width() != BBL.Width()   ||
-        BTR.Width() != BBR.Width()   ||
-        BTL.Height() != BTR.Height() ||
-        BBL.Height() != BBR.Height()   )
-        LogicError("2x2 must conform to combine");
-    if( BTL.LDim() != BTR.LDim() ||
-        BTR.LDim() != BBL.LDim() ||
-        BBL.LDim() != BBR.LDim()   )
-        LogicError("2x2 must have consistent ldims to combine");
-    if( BBL.Buffer() != (BTL.Buffer() + BTL.Height()) ||
-        BBR.Buffer() != (BTR.Buffer() + BTR.Height()) ||
-        BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
-        LogicError("2x2 must have contiguous memory");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View2x2");
+        if( IsLocked(BTL.viewType_) || IsLocked(BTR.viewType_) ||
+            IsLocked(BBL.viewType_) || IsLocked(BBR.viewType_) )
+            LogicError("Cannot grab an unlocked view of a locked matrix");
+        if( BTL.Width() != BBL.Width()   ||
+            BTR.Width() != BBR.Width()   ||
+            BTL.Height() != BTR.Height() ||
+            BBL.Height() != BBR.Height()   )
+            LogicError("2x2 must conform to combine");
+        if( BTL.LDim() != BTR.LDim() ||
+            BTR.LDim() != BBL.LDim() ||
+            BBL.LDim() != BBR.LDim()   )
+            LogicError("2x2 must have consistent ldims to combine");
+        if( BBL.Buffer() != (BTL.Buffer() + BTL.Height()) ||
+            BBR.Buffer() != (BTR.Buffer() + BTR.Height()) ||
+            BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
+            LogicError("2x2 must have contiguous memory");
+    )
     A.memory_.Empty();
     A.height_   = BTL.height_ + BBL.height_;
     A.width_    = BTL.width_ + BTR.width_;
@@ -744,13 +714,13 @@ inline void View2x2
   DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
   DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("View2x2");
-    AssertConforming2x2( BTL, BTR, BBL, BBR );
-    BTL.AssertSameGrid( BTR.Grid() );
-    BTL.AssertSameGrid( BBL.Grid() );
-    BTL.AssertSameGrid( BBR.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("View2x2");
+        AssertConforming2x2( BTL, BTR, BBL, BBR );
+        BTL.AssertSameGrid( BTR.Grid() );
+        BTL.AssertSameGrid( BBL.Grid() );
+        BTL.AssertSameGrid( BBR.Grid() );
+    )
     A.Empty();
     A.grid_ = BTL.grid_;
     A.height_ = BTL.Height() + BBL.Height();
@@ -792,22 +762,22 @@ inline void LockedView2x2
   const Matrix<T>& BBL,
   const Matrix<T>& BBR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView2x2");
-    if( BTL.Width() != BBL.Width()   ||
-        BTR.Width() != BBR.Width()   ||
-        BTL.Height() != BTR.Height() ||
-        BBL.Height() != BBR.Height()   )
-        LogicError("2x2 must conform to combine");
-    if( BTL.LDim() != BTR.LDim() ||
-        BTR.LDim() != BBL.LDim() ||
-        BBL.LDim() != BBR.LDim()   )
-        LogicError("2x2 must have consistent ldims to combine");
-    if( BBL.LockedBuffer() != (BTL.LockedBuffer() + BTL.Height()) ||
-        BBR.LockedBuffer() != (BTR.LockedBuffer() + BTR.Height()) ||
-        BTR.LockedBuffer() != (BTL.LockedBuffer() + BTL.LDim()*BTL.Width()) )
-        LogicError("2x2 must have contiguous memory");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView2x2");
+        if( BTL.Width() != BBL.Width()   ||
+            BTR.Width() != BBR.Width()   ||
+            BTL.Height() != BTR.Height() ||
+            BBL.Height() != BBR.Height()   )
+            LogicError("2x2 must conform to combine");
+        if( BTL.LDim() != BTR.LDim() ||
+            BTR.LDim() != BBL.LDim() ||
+            BBL.LDim() != BBR.LDim()   )
+            LogicError("2x2 must have consistent ldims to combine");
+        if( BBL.LockedBuffer() != (BTL.LockedBuffer()+BTL.Height()) ||
+            BBR.LockedBuffer() != (BTR.LockedBuffer()+BTR.Height()) ||
+            BTR.LockedBuffer() != (BTL.LockedBuffer()+BTL.LDim()*BTL.Width()) )
+            LogicError("2x2 must have contiguous memory");
+    )
     A.memory_.Empty();
     A.height_   = BTL.height_ + BBL.height_;
     A.width_    = BTL.width_ + BTR.width_;
@@ -832,13 +802,13 @@ inline void LockedView2x2
   const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
   const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LockedView2x2");
-    AssertConforming2x2( BTL, BTR, BBL, BBR );
-    BTL.AssertSameGrid( BTR.Grid() );
-    BTL.AssertSameGrid( BBL.Grid() );
-    BTL.AssertSameGrid( BBR.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView2x2");
+        AssertConforming2x2( BTL, BTR, BBL, BBR );
+        BTL.AssertSameGrid( BTR.Grid() );
+        BTL.AssertSameGrid( BBL.Grid() );
+        BTL.AssertSameGrid( BBR.Grid() );
+    )
     A.Empty();
     A.grid_ = BTL.grid_;
     A.height_ = BTL.Height() + BBL.Height();

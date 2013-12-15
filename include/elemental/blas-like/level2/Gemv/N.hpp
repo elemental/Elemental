@@ -26,25 +26,22 @@ GemvN
            const DistMatrix<T>& x,
   T beta,        DistMatrix<T>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::GemvN");
-    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        LogicError("{A,x,y} must be distributed over the same grid");
-    if( ( x.Width() != 1 && x.Height() != 1 ) ||
-        ( y.Width() != 1 && y.Height() != 1 )   )
-        LogicError("x and y are assumed to be vectors");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( A.Height() != yLength || A.Width() != xLength )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal GemvN: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-            << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::GemvN");
+        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+            LogicError("{A,x,y} must be distributed over the same grid");
+        if( ( x.Width() != 1 && x.Height() != 1 ) ||
+            ( y.Width() != 1 && y.Height() != 1 )   )
+            LogicError("x and y are assumed to be vectors");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( A.Height() != yLength || A.Width() != xLength )
+            LogicError
+            ("Nonconformal GemvN: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x ~ ",x.Height()," x ",x.Width(),"\n",
+             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+    )
     const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -125,22 +122,19 @@ GemvN
            const DistMatrix<T,VC,STAR>& x,
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::GemvN");
-    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        LogicError("{A,x,y} must be distributed over the same grid");
-    if( x.Width() != 1 || y.Width() != 1 )
-        LogicError("x and y are assumed to be column vectors");
-    if( A.Height() != y.Height() || A.Width() != x.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal GemvN: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-            << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::GemvN");
+        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+            LogicError("{A,x,y} must be distributed over the same grid");
+        if( x.Width() != 1 || y.Width() != 1 )
+            LogicError("x and y are assumed to be column vectors");
+        if( A.Height() != y.Height() || A.Width() != x.Height() )
+            LogicError
+            ("Nonconformal GemvN: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x ~ ",x.Height()," x ",x.Width(),"\n",
+             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+    )
     const Grid& g = A.Grid();
 
     DistMatrix<T,MR,STAR> x_MR_STAR(g);

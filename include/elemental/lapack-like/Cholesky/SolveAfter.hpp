@@ -23,13 +23,13 @@ SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::SolveAfter");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::SolveAfter");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+    )
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -52,15 +52,15 @@ SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::SolveAfter");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( p.Height() != A.Height() )
-        LogicError("Pivot vector is wrong size");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::SolveAfter");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( p.Height() != A.Height() )
+            LogicError("Pivot vector is wrong size");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+    )
     ApplyRowPivots( B, p );
     if( orientation == TRANSPOSE )
         Conjugate( B );
@@ -85,15 +85,15 @@ SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
   const DistMatrix<F>& A, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::SolveAfter");
-    if( A.Grid() != B.Grid() )
-        LogicError("{A,B} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::SolveAfter");
+        if( A.Grid() != B.Grid() )
+            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+    )
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -116,17 +116,17 @@ SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::SolveAfter");
-    if( A.Grid() != B.Grid() )
-        LogicError("{A,B} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Height() != p.Height() )
-        LogicError("Pivot vector is wrong height");
-    if( A.Height() != B.Height() )
-        LogicError("A and B must be the same height");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::SolveAfter");
+        if( A.Grid() != B.Grid() )
+            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Height() != p.Height() )
+            LogicError("Pivot vector is wrong height");
+        if( A.Height() != B.Height() )
+            LogicError("A and B must be the same height");
+    )
     ApplyRowPivots( B, p );
     if( orientation == TRANSPOSE )
         Conjugate( B );

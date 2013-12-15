@@ -20,9 +20,7 @@ template<typename F>
 inline void
 Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, SortType sort=ASCENDING )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::Sort");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::Sort"))
     if( sort == UNSORTED )
         return;
 
@@ -47,9 +45,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 Sort( DistMatrix<BASE(F),U,V>& w, DistMatrix<F>& Z, SortType sort=ASCENDING )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_eig::Sort");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::Sort"))
     if( sort == UNSORTED )
         return;
 

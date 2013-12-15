@@ -19,18 +19,18 @@ Syr2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr2");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( (x.Width() != 1 && x.Height() != 1) ||
-        (y.Width() != 1 && y.Height() != 1) )
-        LogicError("x and y must be vectors");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( xLength != A.Height() || yLength != A.Height() )
-        LogicError("x and y must conform with A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Syr2");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( (x.Width() != 1 && x.Height() != 1) ||
+            (y.Width() != 1 && y.Height() != 1) )
+            LogicError("x and y must be vectors");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( xLength != A.Height() || yLength != A.Height() )
+            LogicError("x and y must conform with A");
+    )
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int m = A.Height();
     const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
@@ -60,25 +60,21 @@ Syr2
                  DistMatrix<T>& A,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Syr2");
-    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        LogicError
-        ("{A,x,y} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( A.Height() != xLength || A.Height() != yLength )
-    {
-        std::ostringstream msg;
-        msg << "A must conform with x: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-            << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Syr2");
+        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+            LogicError("{A,x,y} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( A.Height() != xLength || A.Height() != yLength )
+            LogicError
+            ("A must conform with x: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x ~ ",x.Height()," x ",x.Width(),"\n",
+             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+    )
     const Grid& g = A.Grid();
 
     const Int localHeight = A.LocalHeight();

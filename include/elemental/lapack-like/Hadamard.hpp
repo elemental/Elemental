@@ -19,9 +19,7 @@ namespace elem {
 template<typename T> 
 inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hadamard");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hadamard"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     C.ResizeTo( A.Height(), A.Width() );
@@ -37,9 +35,7 @@ template<typename T,Distribution U,Distribution V>
 inline void Hadamard
 ( const DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B, DistMatrix<T,U,V>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hadamard");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hadamard"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     if( A.Grid() != B.Grid() )

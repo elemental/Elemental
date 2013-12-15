@@ -38,9 +38,7 @@ ApplyPackedReflectors
   Conjugation conjugation,
   Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyPackedReflectors");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -102,9 +100,7 @@ ApplyPackedReflectors
   Int offset,
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyPackedReflectors");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -166,9 +162,7 @@ ApplyPackedReflectors
   Int offset,
   const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ApplyPackedReflectors");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;

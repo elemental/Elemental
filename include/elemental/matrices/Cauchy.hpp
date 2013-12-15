@@ -29,12 +29,9 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
-                {
-                    std::ostringstream msg;
-                    msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                        << ") is not allowed for Cauchy matrices";
-                    LogicError( msg.str() );
-                }
+                    LogicError
+                    ( "x[", i, "] = y[", j, "] (", x[i], 
+                      ") is not allowed for Cauchy matrices" );
             ) 
             A.Set( i, j, one/(x[i]-y[j]) );
         }
@@ -76,12 +73,9 @@ Cauchy
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
-                {
-                    std::ostringstream msg;
-                    msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                        << ") is not allowed for Cauchy matrices";
-                    LogicError( msg.str() );
-                }
+                    LogicError
+                    ( "x[", i, "] = y[", j, "] (", x[i], 
+                      ") is not allowed for Cauchy matrices" );
             )
             A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
         }

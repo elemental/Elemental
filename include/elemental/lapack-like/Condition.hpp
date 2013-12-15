@@ -22,9 +22,7 @@ template<typename F>
 inline BASE(F)
 Condition( const Matrix<F>& A, NormType type=TWO_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Condition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Condition"))
     BASE(F) norm = 0;
     switch( type )
     {
@@ -53,9 +51,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Condition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Condition"))
     BASE(F) norm = 0;
     switch( type )
     {

@@ -20,9 +20,7 @@ Her2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Her2");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Her2"))
     Syr2( uplo, alpha, x, y, A, true );
 }
 
@@ -34,9 +32,7 @@ Her2
            const DistMatrix<T>& y,
                  DistMatrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Her2");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Her2"))
     Syr2( uplo, alpha, x, y, A, true );
 }
 

@@ -33,9 +33,7 @@ template<typename F>
 inline int
 Ricatti( Matrix<F>& W, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Ricatti");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Ricatti"))
     const Int numIts = sign::Newton( W );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
@@ -60,9 +58,7 @@ template<typename F>
 inline int
 Ricatti( DistMatrix<F>& W, DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Ricatti");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Ricatti"))
     const Grid& g = W.Grid();
     const Int numIts = sign::Newton( W );
     const Int n = W.Height()/2;
@@ -90,17 +86,17 @@ Ricatti
 ( UpperOrLower uplo, 
   const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( K.Height() != K.Width() )
-        LogicError("K must be square");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-    if( A.Height() != K.Height() || A.Height() != L.Height() )
-        LogicError("A, K, and L must be the same size");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Sylvester");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( K.Height() != K.Width() )
+            LogicError("K must be square");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+        if( A.Height() != K.Height() || A.Height() != L.Height() )
+            LogicError("A, K, and L must be the same size");
+    )
     const Int n = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
@@ -124,19 +120,19 @@ Ricatti
   const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, 
   DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( K.Height() != K.Width() )
-        LogicError("K must be square");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-    if( A.Height() != K.Height() || A.Height() != L.Height() )
-        LogicError("A, K, and L must be the same size");
-    if( A.Grid() != K.Grid() || K.Grid() != L.Grid() )
-        LogicError("A, K, and L must have the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Sylvester");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( K.Height() != K.Width() )
+            LogicError("K must be square");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+        if( A.Height() != K.Height() || A.Height() != L.Height() )
+            LogicError("A, K, and L must be the same size");
+        if( A.Grid() != K.Grid() || K.Grid() != L.Grid() )
+            LogicError("A, K, and L must have the same grid");
+    )
     const Grid& g = A.Grid();
     const Int n = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),

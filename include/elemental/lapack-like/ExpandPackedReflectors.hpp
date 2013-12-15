@@ -22,9 +22,7 @@ ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ExpandPackedReflectors");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
@@ -37,9 +35,7 @@ ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ExpandPackedReflectors");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
@@ -52,9 +48,7 @@ ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ExpandPackedReflectors");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
     DistMatrix<F,MD,STAR> tDiag(H.Grid());
     tDiag.AlignWithDiagonal( H, offset );
     tDiag = t;

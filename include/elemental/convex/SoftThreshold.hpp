@@ -18,13 +18,12 @@ template<typename F>
 inline F
 SoftThreshold( F alpha, BASE(F) tau )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SoftThreshold");
-    if( tau < 0 )
-        LogicError("Negative threshold does not make sense");
-#endif
-    typedef Base<F> R;
-    const R scale = Abs(alpha);
+    DEBUG_ONLY(
+        CallStackEntry cse("SoftThreshold");
+        if( tau < 0 )
+            LogicError("Negative threshold does not make sense");
+    )
+    const Base<F> scale = Abs(alpha);
     return ( scale <= tau ? F(0) : alpha-(alpha/scale)*tau );
 }
 
@@ -32,15 +31,9 @@ template<typename F>
 inline void
 SoftThreshold( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SoftThreshold");
-#endif
-    typedef Base<F> Real;
+    DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
-    {
-        const Real maxNorm = MaxNorm( A );
-        tau *= maxNorm;
-    }
+        tau *= MaxNorm(A);
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -52,15 +45,9 @@ template<typename F,Distribution U,Distribution V>
 inline void
 SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SoftThreshold");
-#endif
-    typedef Base<F> Real;
+    DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
-    {
-        const Real maxNorm = MaxNorm( A );
-        tau *= maxNorm;
-    }
+        tau *= MaxNorm(A);
     SoftThreshold( A.Matrix(), tau, false );
 }
 

@@ -20,11 +20,11 @@ template<typename F>
 inline void
 UVar3Unb( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UVar3Unb");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UVar3Unb");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     typedef Base<F> Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
@@ -50,11 +50,11 @@ template<typename F>
 inline void
 ReverseUVar3Unb( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::ReverseUVar3Unb");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::ReverseUVar3Unb");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     typedef Base<F> Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
@@ -80,11 +80,11 @@ template<typename F>
 inline void
 UVar3( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UVar3");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UVar3");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     const Int n = A.Height();
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -104,11 +104,11 @@ template<typename F>
 inline void
 ReverseUVar3( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::ReverseUVar3");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::ReverseUVar3");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     const Int n = A.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( n, bsize );
@@ -130,11 +130,11 @@ template<typename F>
 inline void
 UVar3( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::UVar3");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::UVar3");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
@@ -173,11 +173,11 @@ template<typename F>
 inline void
 ReverseUVar3( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::ReverseUVar3");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::ReverseUVar3");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A01_VC_STAR(g);

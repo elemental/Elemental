@@ -19,9 +19,7 @@ template<typename F>
 inline BASE(F)
 InfinityCondition( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("InfinityCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("InfinityCondition"))
     typedef Base<F> Real;
     Matrix<F> B( A );
     const Real infNorm = InfinityNorm( B );
@@ -36,9 +34,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 InfinityCondition( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("InfinityCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("InfinityCondition"))
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real infNorm = InfinityNorm( B );

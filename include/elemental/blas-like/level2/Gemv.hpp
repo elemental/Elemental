@@ -27,10 +27,8 @@ inline void LocalGemv
            const DistMatrix<T,xColDist,xRowDist>& x,
   T beta,        DistMatrix<T,yColDist,yRowDist>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalGemv");
+    DEBUG_ONLY(CallStackEntry cse("LocalGemv"))
     // TODO: Add error checking here
-#endif
     Gemv
     ( orientation ,
       alpha, A.LockedMatrix(), x.LockedMatrix(),

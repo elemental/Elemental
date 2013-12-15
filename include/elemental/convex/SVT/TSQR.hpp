@@ -22,9 +22,7 @@ template<typename F,Distribution U>
 inline Int
 TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("SVT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("SVT"))
     const Int p = mpi::CommSize( A.ColComm() );
     if( p == 1 )
         return SVT( A.Matrix(), tau, relative );

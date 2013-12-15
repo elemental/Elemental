@@ -23,9 +23,7 @@ template<typename F>
 inline Int
 Cross( Matrix<F>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("svt::Cross");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
     Matrix<F> U( A );
     Matrix<Real> s;
@@ -43,9 +41,7 @@ template<typename F>
 inline Int
 Cross( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("svt::Cross");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
     DistMatrix<F> U( A );
     DistMatrix<Real,VR,STAR> s( A.Grid() );
@@ -63,9 +59,7 @@ template<typename F>
 inline Int
 TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau, bool relative=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("svt::TallCross");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("svt::TallCross"))
     typedef Base<F> Real;
     DistMatrix<F,VC,STAR> U( A );
     DistMatrix<Real,STAR,STAR> s( A.Grid() );

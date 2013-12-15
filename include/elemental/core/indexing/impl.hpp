@@ -32,10 +32,10 @@ DiagonalLength( Int height, Int width, Int offset )
 
 inline Int GCD( Int a, Int b )
 {
-#ifndef RELEASE
-    if( a < 0 || b < 0 )
-        LogicError("GCD called with negative argument");
-#endif
+    DEBUG_ONLY(
+        if( a < 0 || b < 0 )
+            LogicError("GCD called with negative argument");
+    )
     return GCD_( a, b );
 }
 
@@ -49,20 +49,15 @@ inline Int GCD_( Int a, Int b )
 
 inline Int Length( Int n, Int shift, Int stride )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Length");
-    if( n < 0 )
-        LogicError("n must be non-negative");
-    if( shift < 0 || shift >= stride )
-    {
-        std::ostringstream msg;
-        msg << "Invalid shift: "
-            << "shift=" << shift << ", stride=" << stride;
-        LogicError( msg.str() );
-    }
-    if( stride <= 0 )
-        LogicError("Modulus must be positive");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Length");
+        if( n < 0 )
+            LogicError("n must be non-negative");
+        if( shift < 0 || shift >= stride )
+            LogicError("Invalid shift: shift=",shift,", stride=",stride);
+        if( stride <= 0 )
+            LogicError("Modulus must be positive");
+    )
     return Length_( n, shift, stride );
 }
 
@@ -74,9 +69,7 @@ inline Int Length_( Int n, Int shift, Int stride )
 inline Int
 Length( Int n, Int rank, Int alignment, Int stride )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Length");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Length"))
     Int shift = Shift( rank, alignment, stride );
     return Length( n, shift, stride );
 }
@@ -90,13 +83,13 @@ inline Int Length_
 
 inline Int MaxLength( Int n, Int stride )
 {
-#ifndef RELEASE
-    CallStackEntry cse("MaxLength");
-    if( n < 0 )
-        LogicError("n must be non-negative");
-    if( stride <= 0 )
-        LogicError("Modulus must be positive");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("MaxLength");
+        if( n < 0 )
+            LogicError("n must be non-negative");
+        if( stride <= 0 )
+            LogicError("Modulus must be positive");
+    )
     return MaxLength_( n, stride );
 }
 
@@ -108,25 +101,16 @@ inline Int MaxLength_( Int n, Int stride )
 // For determining the first index assigned to a given rank
 inline Int Shift( Int rank, Int alignment, Int stride )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Shift");
-    if( rank < 0 || rank >= stride )
-    {
-        std::ostringstream msg;
-        msg << "Invalid rank: "
-            << "rank=" << rank << ", stride=" << stride;
-        LogicError( msg.str() );
-    }
-    if( alignment < 0 || alignment >= stride )
-    {
-        std::ostringstream msg;
-        msg << "Invalid alignment: "
-            << "alignment=" << alignment << ", stride=" << stride;
-        LogicError( msg.str() );
-    }
-    if( stride <= 0 )
-        LogicError("Stride must be positive");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Shift");
+        if( rank < 0 || rank >= stride )
+            LogicError("Invalid rank: rank=",rank,", stride=",stride);
+        if( alignment < 0 || alignment >= stride )
+            LogicError
+            ("Invalid alignment: alignment=",alignment,", stride=",stride);
+        if( stride <= 0 )
+            LogicError("Stride must be positive");
+    )
     return Shift_( rank, alignment, stride );
 }
 

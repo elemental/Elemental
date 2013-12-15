@@ -19,9 +19,7 @@ template<typename F>
 inline BASE(F)
 FrobeniusCondition( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("FrobeniusCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))
     typedef Base<F> Real;
     Matrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );
@@ -36,9 +34,7 @@ template<typename F,Distribution U,Distribution V>
 inline BASE(F)
 FrobeniusCondition( const DistMatrix<F,U,V>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("FrobeniusCondition");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))
     typedef Base<F> Real;
     DistMatrix<F> B( A );
     const Real oneNorm = FrobeniusNorm( B );

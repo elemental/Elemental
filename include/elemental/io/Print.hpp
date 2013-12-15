@@ -16,9 +16,7 @@ template<typename T>
 inline void
 Print( const Matrix<T>& A, std::string title="", std::ostream& os=std::cout )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Print");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Print"))
     if( title != "" )
         os << title << std::endl;
     
@@ -38,9 +36,7 @@ inline void
 Print
 ( const DistMatrix<T,U,V>& A, std::string title="", std::ostream& os=std::cout )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Print"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Print"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A.Grid().VCRank() == A_CIRC_CIRC.Root() )
         Print( A_CIRC_CIRC.LockedMatrix(), title, os );
@@ -53,9 +49,7 @@ Print
 ( const DistMatrix<T,STAR,STAR>& A, std::string title="", 
   std::ostream& os=std::cout )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Print"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Print"))
     if( A.Grid().VCRank() == 0 )
         Print( A.LockedMatrix(), title, os );
 }
@@ -65,9 +59,7 @@ Print
 ( const DistMatrix<T,CIRC,CIRC>& A, std::string title="", 
   std::ostream& os=std::cout )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Print"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Print"))
     if( A.Grid().VCRank() == A.Root() )
         Print( A.LockedMatrix(), title, os );
 }

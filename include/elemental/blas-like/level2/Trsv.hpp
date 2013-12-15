@@ -23,16 +23,16 @@ Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const Matrix<F>& A, Matrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trsv");
-    if( x.Height() != 1 && x.Width() != 1 )
-        LogicError("x must be a vector");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    if( xLength != A.Height() )
-        LogicError("x must conform with A");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Trsv");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("x must be a vector");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        if( xLength != A.Height() )
+            LogicError("x must conform with A");
+    )
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const char diagChar = UnitOrNonUnitToChar( diag );
@@ -52,9 +52,7 @@ Trsv
   const DistMatrix<F>& A,
         DistMatrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Trsv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Trsv"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )

@@ -68,21 +68,20 @@ inline void ReportException( const std::exception& e, std::ostream& os )
         os << "Process " << mpi::WorldRank() << " caught error message:\n"
            << e.what() << std::endl;
     }
-#ifndef RELEASE
-    DumpCallStack( os );
-#endif
+    DEBUG_ONLY(DumpCallStack(os))
 }
 
 inline void ComplainIfDebug()
 {
-#ifndef RELEASE
-    if( mpi::WorldRank() == 0 )
-    {
-        std::cout << "==========================================\n"
-                  << " In debug mode! Performance will be poor! \n"
-                  << "==========================================" << std::endl;
-    }
-#endif
+    DEBUG_ONLY(
+        if( mpi::WorldRank() == 0 )
+        {
+            std::cout << "==========================================\n"
+                      << " In debug mode! Performance will be poor! \n"
+                      << "==========================================" 
+                      << std::endl;
+        }
+    )
 }
 
 template<typename T>

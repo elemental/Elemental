@@ -25,11 +25,11 @@ template<typename F>
 inline void
 LVar2( Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LVar2");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::LVar2");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     const Int n = A.Height();
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
@@ -51,11 +51,11 @@ template<typename F>
 inline void
 LVar2( DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LVar2");
-    if( A.Height() != A.Width() )
-        LogicError("Can only compute Cholesky factor of square matrices");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::LVar2");
+        if( A.Height() != A.Width() )
+            LogicError("Can only compute Cholesky factor of square matrices");
+    )
     const Grid& g = A.Grid();
     DistMatrix<F,MR,  STAR> A10Adj_MR_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);

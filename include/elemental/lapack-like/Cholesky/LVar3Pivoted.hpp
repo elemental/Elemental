@@ -25,9 +25,7 @@ template<typename F>
 inline LDLPivot
 Full( const Matrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::pivot::Full");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
     const auto diagMax = DiagonalMax( A );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -39,9 +37,7 @@ template<typename F>
 inline LDLPivot
 Full( const DistMatrix<F>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::pivot::Full");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
     const auto diagMax = DiagonalMax( A );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -53,9 +49,7 @@ template<typename F>
 inline LDLPivot
 PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::pivot::PanelFull");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::PanelFull"))
     // Form updated diagonal
     auto d = A.GetDiagonal();
     const Int height = d.Height();
@@ -78,11 +72,11 @@ PanelFull
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::pivot::PanelFull");
-    if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
-        LogicError("A, X, and Y are not properly aligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::pivot::PanelFull");
+        if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
+            LogicError("A, X, and Y are not properly aligned");
+    )
     // Form updated diagonal
     auto d = A.GetDiagonal();
     if( d.Participating() )
@@ -121,11 +115,11 @@ template<typename F>
 inline void
 LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LUnblockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::LUnblockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
      
@@ -157,13 +151,13 @@ template<typename F>
 inline void
 LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LUnblockedPivoted");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( A.Grid() != p.Grid() )
-        LogicError("A and p must share the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::LUnblockedPivoted");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( A.Grid() != p.Grid() )
+            LogicError("A and p must share the same grid");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
 
@@ -199,16 +193,14 @@ LPanelPivoted
 ( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LPanelPivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
     const Int n = A.Height();
-#ifndef RELEASE
-    if( A.Width() != n )
-        LogicError("A must be square");
-    if( p.Height() != n || p.Width() != 1 )
-        LogicError("pivot vector is the wrong size");
-#endif
+    DEBUG_ONLY(
+        if( A.Width() != n )
+            LogicError("A must be square");
+        if( p.Height() != n || p.Width() != 1 )
+            LogicError("pivot vector is the wrong size");
+    )
     auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
     Zeros( Y, n-off, bsize );
@@ -257,16 +249,14 @@ LPanelPivoted
 ( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LPanelPivoted");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
     const Int n = A.Height();
-#ifndef RELEASE
-    if( A.Width() != n )
-        LogicError("A must be square");
-    if( p.Height() != n || p.Width() != 1 )
-        LogicError("pivot vector is the wrong size");
-#endif
+    DEBUG_ONLY(
+        if( A.Width() != n )
+            LogicError("A must be square");
+        if( p.Height() != n || p.Width() != 1 )
+            LogicError("pivot vector is the wrong size");
+    )
     auto ABR = ViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
     Y.AlignWith( ABR );
@@ -318,11 +308,11 @@ template<typename F>
 inline void
 LVar3( Matrix<F>& A, Matrix<Int>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LVar3");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::LVar3");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
 
@@ -345,11 +335,11 @@ template<typename F>
 inline void
 LVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
-#ifndef RELEASE
-    CallStackEntry cse("cholesky::LVar3");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("cholesky::LVar3");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     p.ResizeTo( n, 1 );
 

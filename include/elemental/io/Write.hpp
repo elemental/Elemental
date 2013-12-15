@@ -27,9 +27,7 @@ inline void
 Ascii
 ( const Matrix<T>& A, std::string filename="matrix.txt", std::string title="" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::Ascii");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::Ascii"))
     std::ofstream file( filename.c_str() );
     file.setf( std::ios::scientific );
     Print( A, title, file );
@@ -41,9 +39,7 @@ MatlabAscii
 ( const Matrix<T>& A, std::string filename="matrix.m", 
   std::string title="matrix" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::MatlabAscii");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::MatlabAscii"))
     // Empty titles are not legal
     if( title == "" )
         title = "matrix";
@@ -60,9 +56,7 @@ inline void
 SaveQImage
 ( const QImage& image, FileFormat format=PNG, std::string basename="matrix" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::Image");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::Image"))
     std::string filename;
     switch( format )
     {
@@ -132,9 +126,7 @@ inline void
 RealPartImage
 ( const Matrix<T>& A, FileFormat format=PNG, std::string basename="matrix" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::RealPartImage");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::RealPartImage"))
 #ifdef HAVE_QT5
     typedef Base<T> Real;
     const Int m = A.Height();
@@ -183,9 +175,7 @@ inline void
 ImagPartImage
 ( const Matrix<T>& A, FileFormat format=PNG, std::string basename="matrix" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::ImagPartImage");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::ImagPartImage"))
 #ifdef HAVE_QT5
     typedef Base<T> Real;
     const Int m = A.Height();
@@ -234,9 +224,7 @@ inline void
 Image
 ( const Matrix<Real>& A, FileFormat format=PNG, std::string basename="matrix" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::Image");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::Image"))
     RealPartImage( A, format, basename );
 }
 
@@ -246,9 +234,7 @@ Image
 ( const Matrix<Complex<Real>>& A, FileFormat format=PNG, 
   std::string basename="matrix" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("write::Image");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("write::Image"))
     std::string realBasename = basename + "_real";
     std::string imagBasename = basename + "_imag";
     RealPartImage( A, format, realBasename );
@@ -263,9 +249,7 @@ Write
 ( const Matrix<T>& A, FileFormat format=ASCII, 
   std::string basename="matrix", std::string title="" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Write");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Write"))
     std::string filename;
     switch( format )
     {
@@ -295,9 +279,7 @@ Write
 ( const DistMatrix<T,U,V>& A, FileFormat format=ASCII, 
   std::string basename="matrix", std::string title="" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Write"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Write"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
         Write( A_CIRC_CIRC.LockedMatrix(), format, basename, title );
@@ -311,9 +293,7 @@ Write
 ( const DistMatrix<T,STAR,STAR>& A, FileFormat format=ASCII,
   std::string basename="matrix", std::string title="" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Write"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Write"))
     if( A.Grid().VCRank() == 0 )
         Write( A.LockedMatrix(), format, basename, title );
 }
@@ -323,9 +303,7 @@ Write
 ( const DistMatrix<T,CIRC,CIRC>& A, FileFormat format=ASCII,
   std::string basename="matrix", std::string title="" )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Write");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Write"))
     if( A.CrossRank() == A.Root() )
         Write( A.LockedMatrix(), format, basename, title );
 }

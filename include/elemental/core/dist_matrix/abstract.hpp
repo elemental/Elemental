@@ -31,15 +31,15 @@ public:
     type& operator=( type&& A );
 #endif
 
-#ifndef RELEASE
-    void AssertNotLocked() const;
-    void AssertNotStoringData() const;
-    void AssertValidEntry( Int i, Int j ) const;
-    void AssertValidSubmatrix
-    ( Int i, Int j, Int height, Int width ) const;
-    void AssertSameGrid( const elem::Grid& grid ) const;
-    void AssertSameSize( Int height, Int width ) const;
-#endif // ifndef RELEASE
+    DEBUG_ONLY(
+        void AssertNotLocked() const;
+        void AssertNotStoringData() const;
+        void AssertValidEntry( Int i, Int j ) const;
+        void AssertValidSubmatrix
+        ( Int i, Int j, Int height, Int width ) const;
+        void AssertSameGrid( const elem::Grid& grid ) const;
+        void AssertSameSize( Int height, Int width ) const;
+    )
 
     //
     // Basic information
@@ -262,20 +262,20 @@ protected:
 #endif // ifndef SWIG
 };
 
-#ifndef RELEASE
-template<typename T>
-void AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
+DEBUG_ONLY(
+    template<typename T>
+    void AssertConforming1x2
+    ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
 
-template<typename T>
-void AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
+    template<typename T>
+    void AssertConforming2x1
+    ( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
 
-template<typename T>
-void AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
-#endif // ifndef RELEASE
+    template<typename T>
+    void AssertConforming2x2
+    ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
+      const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
+)
 
 } // namespace elem
 

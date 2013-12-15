@@ -32,9 +32,7 @@ template<typename F>
 inline int
 Sylvester( Int m, Matrix<F>& W, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sylvester"))
     const Int numIts = sign::Newton( W );
     Matrix<F> WTL, WTR,
               WBL, WBR;
@@ -64,9 +62,7 @@ template<typename F>
 inline int
 Sylvester( Int m, DistMatrix<F>& W, DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Sylvester"))
     const Grid& g = W.Grid();
     const Int numIts = sign::Newton( W );
     DistMatrix<F> WTL(g), WTR(g),
@@ -100,15 +96,15 @@ inline int
 Sylvester
 ( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( B.Height() != B.Width() )
-        LogicError("B must be square");
-    if( C.Height() != A.Height() || C.Width() != B.Height() )
-        LogicError("C must conform with A and B");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Sylvester");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( B.Height() != B.Width() )
+            LogicError("B must be square");
+        if( C.Height() != A.Height() || C.Width() != B.Height() )
+            LogicError("C must conform with A and B");
+    )
     const Int m = C.Height();
     const Int n = C.Width();
     Matrix<F> W, WTL, WTR,
@@ -129,17 +125,17 @@ Sylvester
 ( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C, 
   DistMatrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Sylvester");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( B.Height() != B.Width() )
-        LogicError("B must be square");
-    if( C.Height() != A.Height() || C.Width() != B.Height() )
-        LogicError("C must conform with A and B");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("A, B, and C must have the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Sylvester");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( B.Height() != B.Width() )
+            LogicError("B must be square");
+        if( C.Height() != A.Height() || C.Width() != B.Height() )
+            LogicError("C must conform with A and B");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("A, B, and C must have the same grid");
+    )
     const Int m = C.Height();
     const Int n = C.Width();
     const Grid& g = A.Grid();

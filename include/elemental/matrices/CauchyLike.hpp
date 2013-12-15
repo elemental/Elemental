@@ -32,16 +32,13 @@ CauchyLike
     {
         for( Int i=0; i<m; ++i )
         {
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy-like matrices";
-                LogicError( msg.str() );
-            }
-#endif
+            DEBUG_ONLY(
+                // TODO: Use tolerance instead?
+                if( x[i] == y[j] )
+                    LogicError
+                    ( "x[", i, "] = y[", j, "] (", x[i],
+                      ") is not allowed for Cauchy-like matrices" );
+            )
             A.Set( i, j, r[i]*s[j]/(x[i]-y[j]) );
         }
     }
@@ -86,16 +83,13 @@ CauchyLike
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy-like matrices";
-                LogicError( msg.str() );
-            }
-#endif
+            DEBUG_ONLY(
+                // TODO: Use tolerance instead?
+                if( x[i] == y[j] )
+                    LogicError
+                    ( "x[", i, "] = y[", j, "] (", x[i],
+                      ") is not allowed for Cauchy-like matrices" );
+            )
             A.SetLocal( iLoc, jLoc, r[i]*s[j]/(x[i]-y[j]) );
         }
     }
