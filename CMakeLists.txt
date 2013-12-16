@@ -315,6 +315,19 @@ if(USE_64BIT_INTS AND NOT HAVE_MPI_LONG_LONG)
   message(FATAL_ERROR 
     "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
 endif()
+# We cannot simply use check_function_exists, since MPI_Comm_f2c is 
+# a macro in some MPI implementations
+set(MPI_COMM_F2C_CODE
+"#include \"mpi.h\"
+ int main( int argc, char* argv[] )
+ {
+     MPI_Init( &argc, &argv );
+     MPI_Fint fint;
+     MPI_Comm comm = MPI_Comm_f2c( fint );
+     MPI_Finalize();
+     return 0;
+ }")
+check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
 
 #
 # Check for OpenMP support if necessary
@@ -565,19 +578,6 @@ if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
     if(NOT MPI_Fortran_FOUND)
       message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
     endif()
-    # We cannot simply use check_function_exists, since MPI_Comm_f2c is 
-    # a macro in some MPI implementations
-    set(MPI_COMM_F2C_CODE
-    "#include \"mpi.h\"
-     int main( int argc, char* argv[] )
-     {
-         MPI_Init( &argc, &argv );
-         MPI_Fint fint;
-         MPI_Comm comm = MPI_Comm_f2c( fint );
-         MPI_Finalize();
-         return 0;
-     }")
-    check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
     if(NOT HAVE_MPI_COMM_F2C)
       message(FATAL_ERROR
         "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
