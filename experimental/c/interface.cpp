@@ -411,6 +411,6 @@ void ElemHermitianAxBxIndices
 //
 
 int ElemLength( int n, int shift, int modulus )
-{ return Length<int>(n,shift,modulus); }
+{ return Length(n,shift,modulus); }
 
 } // extern "C"

@@ -467,7 +467,7 @@ void FC_GLOBAL_(elem_symmetric_eig,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianEig( LOWER, A, w_VR_STAR, X );
+        HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -483,7 +483,7 @@ void FC_GLOBAL_(elem_hermitian_eig,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianEig( LOWER, A, w_VR_STAR, X );
+        HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -553,7 +553,7 @@ void FC_GLOBAL_(elem_symmetric_axbx,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
+        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -571,7 +571,8 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING );
         w = w_VR_STAR; 
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -593,7 +594,8 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -611,7 +613,8 @@ void FC_GLOBAL_(elem_hermitian_axbx,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -630,7 +633,8 @@ void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -653,7 +657,8 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
     try
     {
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC, ASCENDING );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }

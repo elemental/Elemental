@@ -30,14 +30,18 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",20);
         const Int n = Input("--width","width of matrix",100);
+        const Int r = Input("--rank","rank of matrix",5);
         const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
         const double tol = Input("--tol","tolerance for ID",-1.);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
+        DistMatrix<C> U, V;
+        Uniform( U, m, r );
+        Uniform( V, n, r );
         DistMatrix<C> A;
-        Uniform( A, m, n );
+        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );

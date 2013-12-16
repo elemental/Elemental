@@ -56,8 +56,16 @@ void PopBlocksizeStack();
 
 std::mt19937& Generator();
 
+template<typename T>
+inline T Max( T m, T n )
+{ return std::max(m,n); }
+
 inline Int Max( Int m, Int n )
 { return std::max(m,n); }
+
+template<typename T>
+inline T Min( T m, T n )
+{ return std::min(m,n); }
 
 inline Int Min( Int m, Int n )
 { return std::min(m,n); }
@@ -123,9 +131,9 @@ DimsString( const Matrix<T>& A, std::string label="Matrix" )
     return os.str();
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T>
 inline std::string
-DimsString( const DistMatrix<T,U,V>& A, std::string label="DistMatrix" )
+DimsString( const AbstractDistMatrix<T>& A, std::string label="DistMatrix" )
 {
     std::ostringstream os;
     os << label << " ~ " << A.Height() << " x " << A.Width();

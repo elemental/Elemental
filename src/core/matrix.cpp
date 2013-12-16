@@ -50,14 +50,9 @@ Matrix<T>::AssertValidEntry( Int i, Int j ) const
     DEBUG_ONLY(CallStackEntry cse("Matrix::AssertValidEntry"))
     if( i < 0 || j < 0 )
         LogicError("Indices must be non-negative");
-    if( i > this->Height() || j > this->Width() )
-    {
-        std::ostringstream msg;
-        msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << this->Height()
-            << " x " << this->Width() << " Matrix.";
-        LogicError( msg.str() );
-    }
+    if( i > Height() || j > Width() )
+        LogicError
+        ("Out of bounds: (",i,",",j,") of ",Height()," x ",Width()," Matrix");
 }
 
 //
@@ -706,7 +701,7 @@ Matrix<T>::operator=( const Matrix<T>& A )
     const Int ldim = LDim();
     const Int ldimOfA = A.LDim();
     const T* src = A.LockedBuffer();
-    T* dst = this->Buffer();
+    T* dst = Buffer();
     PARALLEL_FOR
     for( Int j=0; j<width; ++j )
         MemCopy( &dst[j*ldim], &src[j*ldimOfA], height );

@@ -97,18 +97,14 @@ void
 ComplexDisplayWindow::SaveReal()
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::SaveReal"))
-    std::ostringstream os;
-    os << windowTitle().toStdString() << " (real)";
-    realDisplay_->SavePng( os.str() );
+    realDisplay_->SavePng( windowTitle().toStdString()+" (real)" );
 }
 
 void
 ComplexDisplayWindow::SaveImag()
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::SaveImag"))
-    std::ostringstream os;
-    os << windowTitle().toStdString() << " (imag)";
-    imagDisplay_->SavePng( os.str() );
+    imagDisplay_->SavePng( windowTitle().toStdString()+" (imag)" );
 }
 
 void 

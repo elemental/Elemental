@@ -88,135 +88,113 @@ AbstractDistMatrix<T>::ShallowSwap( ADM<T>& A )
     std::swap( grid_, A.grid_ );
 }
 
-#ifndef RELEASE
-template<typename T>
-void
-AbstractDistMatrix<T>::AssertNotLocked() const
-{
-    if( Locked() )
-        LogicError("Assertion that matrix not be a locked view failed");
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::AssertNotStoringData() const
-{
-    if( matrix_.MemorySize() > 0 )
-        LogicError("Assertion that matrix not be storing data failed");
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
-{
-    if( i < 0 || i >= Height() || j < 0 || j >= Width() )
+DEBUG_ONLY(
+    template<typename T>
+    void
+    AbstractDistMatrix<T>::AssertNotLocked() const
     {
-        std::ostringstream msg;
-        msg << "Entry (" << i << "," << j << ") is out of bounds of "
-            << Height() << " x " << Width() << " matrix.";
-        LogicError( msg.str() );
+        if( Locked() )
+            LogicError("Assertion that matrix not be a locked view failed");
     }
-}
 
-template<typename T>
-void
-AbstractDistMatrix<T>::AssertValidSubmatrix
-( Int i, Int j, Int height, Int width ) const
-{
-    if( i < 0 || j < 0 )
-        LogicError("Indices of submatrix were negative");
-    if( height < 0 || width < 0 )
-        LogicError("Dimensions of submatrix were negative");
-    if( (i+height) > Height() || (j+width) > Width() )
+    template<typename T>
+    void
+    AbstractDistMatrix<T>::AssertNotStoringData() const
     {
-        std::ostringstream msg;
-        msg << "Submatrix is out of bounds: accessing up to (" << i+height-1
-            << "," << j+width-1 << ") of " << Height() << " x "
-            << Width() << " matrix.";
-        LogicError( msg.str() );
+        if( matrix_.MemorySize() > 0 )
+            LogicError("Assertion that matrix not be storing data failed");
     }
-}
 
-template<typename T> 
-void
-AbstractDistMatrix<T>::AssertSameGrid( const elem::Grid& grid ) const
-{
-    if( Grid() != grid )
-        LogicError("Assertion that grids match failed");
-}
-
-template<typename T> 
-void
-AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
-{
-    if( Height() != height || Width() != width )
-        LogicError("Assertion that matrices be the same size failed");
-}
-
-template<typename T> 
-void
-AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
-{
-    if( AL.Height() != AR.Height() )    
+    template<typename T>
+    void
+    AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
     {
-        std::ostringstream msg;
-        msg << "1x2 not conformant. Left is " << AL.Height() << " x " 
-            << AL.Width() << ", right is " << AR.Height() << " x " 
-            << AR.Width();
-        LogicError( msg.str() );
+        if( i < 0 || i >= Height() || j < 0 || j >= Width() )
+            LogicError
+            ("Entry (",i,",",j,") is out of bounds of ",Height(),
+             " x ",Width()," matrix");
     }
-    if( AL.ColAlign() != AR.ColAlign() )
-        LogicError("1x2 is misaligned");
-}
 
-template<typename T> 
-void
-AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
-{
-    if( AT.Width() != AB.Width() )
+    template<typename T>
+    void
+    AbstractDistMatrix<T>::AssertValidSubmatrix
+    ( Int i, Int j, Int height, Int width ) const
     {
-        std::ostringstream msg;        
-        msg << "2x1 is not conformant. Top is " << AT.Height() << " x " 
-            << AT.Width() << ", bottom is " << AB.Height() << " x " 
-            << AB.Width();
-        LogicError( msg.str() );
+        if( i < 0 || j < 0 )
+            LogicError("Indices of submatrix were negative");
+        if( height < 0 || width < 0 )
+            LogicError("Dimensions of submatrix were negative");
+        if( (i+height) > Height() || (j+width) > Width() )
+            LogicError
+            ("Submatrix is out of bounds: accessing up to (",i+height-1,
+             ",",j+width-1,") of ",Height()," x ",Width()," matrix");
     }
-    if( AT.RowAlign() != AB.RowAlign() )
-        LogicError("2x1 is not aligned");
-}
 
-template<typename T> 
-void
-AssertConforming2x2
-( const ADM<T>& ATL, const ADM<T>& ATR,
-  const ADM<T>& ABL, const ADM<T>& ABR ) 
-{
-    if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
-        ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
+    template<typename T> 
+    void
+    AbstractDistMatrix<T>::AssertSameGrid( const elem::Grid& grid ) const
     {
-        std::ostringstream msg;
-        msg << "2x2 is not conformant: " << std::endl
-            << "  TL is " << ATL.Height() << " x " << ATL.Width() << std::endl
-            << "  TR is " << ATR.Height() << " x " << ATR.Width() << std::endl
-            << "  BL is " << ABL.Height() << " x " << ABL.Width() << std::endl
-            << "  BR is " << ABR.Height() << " x " << ABR.Width();
-        LogicError( msg.str() );
+        if( Grid() != grid )
+            LogicError("Assertion that grids match failed");
     }
-    if( ATL.ColAlign() != ATR.ColAlign() ||
-        ABL.ColAlign() != ABR.ColAlign() ||
-        ATL.RowAlign() != ABL.RowAlign() ||
-        ATR.RowAlign() != ABR.RowAlign() )
-        LogicError("2x2 set of matrices must aligned to combine");
-}
-#endif // RELEASE
+
+    template<typename T> 
+    void
+    AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
+    {
+        if( Height() != height || Width() != width )
+            LogicError("Assertion that matrices be the same size failed");
+    }
+
+    template<typename T> 
+    void
+    AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
+    {
+        if( AL.Height() != AR.Height() )    
+            LogicError
+            ("1x2 not conformant:\n",
+             DimsString(AL,"Left"),"\n",DimsString(AR,"Right"));
+        if( AL.ColAlign() != AR.ColAlign() )
+            LogicError("1x2 is misaligned");
+    }
+
+    template<typename T> 
+    void
+    AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
+    {
+        if( AT.Width() != AB.Width() )
+            LogicError
+            ("2x1 is not conformant:\n",
+             DimsString(AT,"Top"),"\n",DimsString(AB,"Bottom"));
+        if( AT.RowAlign() != AB.RowAlign() )
+            LogicError("2x1 is not aligned");
+    }
+
+    template<typename T> 
+    void
+    AssertConforming2x2
+    ( const ADM<T>& ATL, const ADM<T>& ATR,
+      const ADM<T>& ABL, const ADM<T>& ABR ) 
+    {
+        if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
+            ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
+            LogicError
+            ("2x2 is not conformant:\n",
+             DimsString(ATL,"TL"),"\n",DimsString(ATR,"TR"),"\n",
+             DimsString(ABL,"BL"),"\n",DimsString(ABR,"BR"));
+        if( ATL.ColAlign() != ATR.ColAlign() ||
+            ABL.ColAlign() != ABR.ColAlign() ||
+            ATL.RowAlign() != ABL.RowAlign() ||
+            ATR.RowAlign() != ABR.RowAlign() )
+            LogicError("2x2 set of matrices must aligned to combine");
+    }
+)
 
 template<typename T>
 void
 AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::Align");    
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::Align"))
     Empty();
     colAlign_ = colAlign;
     rowAlign_ = rowAlign;
@@ -229,9 +207,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignCols( Int colAlign )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::AlignCols"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignCols"))
     EmptyData();
     colAlign_ = colAlign;
     colConstrained_ = true;
@@ -242,9 +218,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignRows( Int rowAlign )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::AlignRows"); 
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignRows"))
     EmptyData();
     rowAlign_ = rowAlign;
     rowConstrained_ = true;
@@ -296,9 +270,7 @@ void
 AbstractDistMatrix<T>::AlignAndResize
 ( Int colAlign, Int rowAlign, Int height, Int width, bool force )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::AlignAndResize");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignAndResize"))
     if( !Viewing() )
     {
         if( !ColConstrained() )
@@ -323,9 +295,7 @@ void
 AbstractDistMatrix<T>::AlignColsAndResize
 ( Int colAlign, Int height, Int width, bool force )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::AlignColsAndResize");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignColsAndResize"))
     if( !Viewing() && !ColConstrained() )
     {
         colAlign_ = colAlign;
@@ -341,9 +311,7 @@ void
 AbstractDistMatrix<T>::AlignRowsAndResize
 ( Int rowAlign, Int height, Int width, bool force )
 {
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::AlignRowsAndResize");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignRowsAndResize"))
     if( !Viewing() && !RowConstrained() )
     {
         rowAlign_ = rowAlign;
@@ -486,11 +454,11 @@ template<typename T>
 Int 
 AbstractDistMatrix<T>::LocalRow( Int i ) const
 { 
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::LocalRow");
-    if( !IsLocalRow(i) )
-        LogicError("Requested local index of non-local row");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("AbstractDistMatrix::LocalRow");
+        if( !IsLocalRow(i) )
+            LogicError("Requested local index of non-local row");
+    )
     return (i-ColShift()) / ColStride();
 }
 
@@ -498,11 +466,11 @@ template<typename T>
 Int
 AbstractDistMatrix<T>::LocalCol( Int j ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::LocalCol");
-    if( !IsLocalCol(j) )
-        LogicError("Requested local index of non-local column");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("AbstractDistMatrix::LocalCol");
+        if( !IsLocalCol(j) )
+            LogicError("Requested local index of non-local column");
+    )
     return (j-RowShift()) / RowStride();
 }
 
@@ -550,10 +518,10 @@ template<typename T>
 void
 AbstractDistMatrix<T>::ResizeTo( Int height, Int width )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::ResizeTo");
-    AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::ResizeTo");
+        AssertNotLocked();
+    )
     height_ = height; 
     width_ = width;
     if( Participating() )
@@ -566,10 +534,10 @@ template<typename T>
 void
 AbstractDistMatrix<T>::ResizeTo( Int height, Int width, Int ldim )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::ResizeTo");
-    AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::ResizeTo");
+        AssertNotLocked();
+    )
     height_ = height; 
     width_ = width;
     if( Participating() )
@@ -582,11 +550,11 @@ template<typename T>
 T
 AbstractDistMatrix<T>::Get( Int i, Int j ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::Get");
-    if( !grid_->InGrid() )
-        LogicError("Get should only be called in-grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::Get");
+        if( !grid_->InGrid() )
+            LogicError("Get should only be called in-grid");
+    )
     T value;
     if( CrossRank() == Root() )
     {
@@ -607,11 +575,11 @@ template<typename T>
 Base<T>
 AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::GetRealPart");
-    if( !grid_->InGrid() )
-        LogicError("Get should only be called in-grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::GetRealPart");
+        if( !grid_->InGrid() )
+            LogicError("Get should only be called in-grid");
+    )
     Base<T> value;
     if( CrossRank() == Root() )
     {
@@ -632,11 +600,11 @@ template<typename T>
 Base<T>
 AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::GetImagPart");
-    if( !grid_->InGrid() )
-        LogicError("Get should only be called in-grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::GetImagPart");
+        if( !grid_->InGrid() )
+            LogicError("Get should only be called in-grid");
+    )
     Base<T> value;
     if( IsComplex<T>::val )
     {
@@ -662,9 +630,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Set( Int i, Int j, T value )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::Set");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::Set"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -681,9 +647,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::SetRealPart");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPart"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -700,9 +664,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::SetImagPart");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPart"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -719,9 +681,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Update( Int i, Int j, T value )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::Update");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::Update"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -738,9 +698,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::UpdateRealPart");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPart"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -757,9 +715,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::UpdateImagPart");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPart"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -776,9 +732,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeReal( Int i, Int j )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::MakeReal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeReal"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -795,9 +749,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::Conjugate");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ADM::Conjugate"))
     if( CrossRank() == Root() )
     {
         const Int owner = Owner( i, j );
@@ -967,11 +919,11 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetRoot( Int root )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ADM::SetRoot");
-    if( root < 0 || root >= mpi::CommSize(CrossComm()) )
-        LogicError("Invalid root");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::SetRoot");
+        if( root < 0 || root >= mpi::CommSize(CrossComm()) )
+            LogicError("Invalid root");
+    )
     if( root != root_ )
         Empty();
     root_ = root;
@@ -994,9 +946,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeConsistent()
 {
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::MakeConsistent");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::MakeConsistent"))
     const elem::Grid& g = *grid_;
     const Int vcRoot = g.VCToViewingMap(0);
     Int message[8];
@@ -1031,23 +981,23 @@ AbstractDistMatrix<T>::MakeConsistent()
         SetShifts();
         ResizeTo( newHeight, newWidth );
     }
-#ifndef RELEASE
-    else
-    {
-        if( viewType_ != newViewType )
-            LogicError("Inconsistent ViewType");
-        if( height_ != newHeight )
-            LogicError("Inconsistent height");
-        if( width_ != newWidth )
-            LogicError("Inconsistent width");
-        if( colConstrained_ != newConstrainedCol || colAlign_ != newColAlign )
-            LogicError("Inconsistent column constraint");
-        if( rowConstrained_ != newConstrainedRow || rowAlign_ != newRowAlign )
-            LogicError("Inconsistent row constraint");
-        if( root != root_ )
-            LogicError("Inconsistent root");
-    }
-#endif
+    DEBUG_ONLY(
+        else
+        {
+            if( viewType_ != newViewType )
+                LogicError("Inconsistent ViewType");
+            if( height_ != newHeight )
+                LogicError("Inconsistent height");
+            if( width_ != newWidth )
+                LogicError("Inconsistent width");
+            if( colConstrained_ != newConstrainedCol || colAlign_ != newColAlign )
+                LogicError("Inconsistent column constraint");
+            if( rowConstrained_ != newConstrainedRow || rowAlign_ != newRowAlign )
+                LogicError("Inconsistent row constraint");
+            if( root != root_ )
+                LogicError("Inconsistent root");
+        }
+    )
 }
 
 #define PROTO(T) template class AbstractDistMatrix<T>

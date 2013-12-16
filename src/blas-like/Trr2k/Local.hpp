@@ -31,35 +31,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Width() != E.Width() ||
         C.Height() != E.Height() || D.Width() != E.Width() ||
         A.Width()  != B.Height() || C.Width() != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k: \n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[* ,MR]"),"\n",
+         DimsString(C,"C[MC,* ]"),"\n",
+         DimsString(D,"D[* ,MR]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.RowAlign() != E.RowAlign() ||
         C.ColAlign() != E.ColAlign() ||
         D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n"
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
+         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
+         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),",",E.RowAlign());
 }
 
 // E := alpha (A B + C D^{T/H}) + beta E
@@ -78,35 +67,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Width()  != E.Width() ||
         C.Height() != E.Height() || D.Height() != E.Width() ||
         A.Width()  != B.Height() || C.Width()  != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[* ,MR]"),"\n",
+         DimsString(C,"C[MC,* ]"),"\n",
+         DimsString(D,"D[MR,* ]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.RowAlign() != E.RowAlign() ||
         C.ColAlign() != E.ColAlign() ||
         D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
+         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
+         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A B + C^{T/H} D) + beta E
@@ -125,35 +103,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Width()  != E.Width() ||
         C.Width()  != E.Height() || D.Width()  != E.Width() ||
         A.Width()  != B.Height() || C.Height() != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[* ,MR]"),"\n",
+         DimsString(C,"C[* ,MC]"),"\n",
+         DimsString(D,"D[* ,MR]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.RowAlign() != E.RowAlign() ||
         C.RowAlign() != E.ColAlign() ||
         D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
+         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
+         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A B + C^{T/H} D^{T/H}) + beta E
@@ -174,35 +141,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Width()  != E.Width() ||
         C.Width()  != E.Height() || D.Height() != E.Width() ||
         A.Width()  != B.Height() || C.Height() != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[* ,MR]"),"\n",
+         DimsString(C,"C[* ,MC]"),"\n",
+         DimsString(D,"D[MR,* ]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.RowAlign() != E.RowAlign() ||
         C.RowAlign() != E.ColAlign() ||
         D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
+         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
+         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A B^{T/H} + C D) + beta E
@@ -221,35 +177,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Height() != E.Width() ||
         C.Height() != E.Height() || D.Width()  != E.Width() ||
         A.Width()  != B.Width()  || C.Width()  != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[MR,* ]"),"\n",
+         DimsString(C,"C[MC,* ]"),"\n",
+         DimsString(D,"D[* ,MR]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.ColAlign() != E.RowAlign() ||
         C.ColAlign() != E.ColAlign() ||
         D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
+         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
+         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A B^{T/H} + C D^{T/H}) + beta E
@@ -271,35 +216,24 @@ void CheckInput
         A.Height() != C.Height() || A.Width()  != C.Width()  ||
         B.Width()  != D.Width()  || B.Height() != D.Height() ||
         A.Width()  != B.Width()  || C.Width()  != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[MR,* ]"),"\n",
+         DimsString(C,"C[MC,* ]"),"\n",
+         DimsString(D,"D[MR,* ]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.ColAlign() != E.RowAlign() ||
         A.ColAlign() != C.ColAlign() ||
         B.ColAlign() != D.ColAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
+         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
+         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D) + beta E
@@ -320,35 +254,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Height() != E.Width() ||
         C.Width()  != E.Height() || D.Width()  != E.Width() ||
         A.Width()  != B.Width()  || C.Height() != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                                << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[MR,* ]"),"\n",
+         DimsString(C,"C[* ,MC]"),"\n",
+         DimsString(D,"D[* ,MR]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.ColAlign() != E.RowAlign() ||
         C.RowAlign() != E.ColAlign() ||
         D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
+         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
+         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D^{T/H}) + beta E
@@ -373,35 +296,24 @@ void CheckInput
     if( A.Height() != E.Height() || B.Height() != E.Width() ||
         C.Width()  != E.Height() || D.Height() != E.Width() ||
         A.Width()  != B.Width()  || C.Height() != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrr2k:\n",
+         DimsString(A,"A[MC,* ]"),"\n",
+         DimsString(B,"B[MR,* ]"),"\n",
+         DimsString(C,"C[* ,MC]"),"\n",
+         DimsString(D,"D[MR,* ]"),"\n",
+         DimsString(E,"E[MC,MR]"));
     if( A.ColAlign() != E.ColAlign() ||
         B.ColAlign() != E.RowAlign() ||
         C.RowAlign() != E.ColAlign() ||
         D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Misaligned LocalTrr2k:\n",
+         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
+         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
+         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
+         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
+         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
 }
 
 // E := alpha (A^{T/H} B + C D) + beta E
@@ -821,10 +733,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),  CT(g),
@@ -882,10 +794,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),  CT(g),
@@ -946,10 +858,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),
@@ -1006,10 +918,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),
@@ -1069,10 +981,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfB, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfB, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),  CT(g),
@@ -1133,10 +1045,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),  CT(g),
@@ -1198,10 +1110,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),
@@ -1264,10 +1176,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),
@@ -1330,10 +1242,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -1390,10 +1302,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -1453,10 +1365,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g),
@@ -1513,10 +1425,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g),
@@ -1573,10 +1485,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -1639,10 +1551,10 @@ LocalTrr2kKernel
            const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, orientationOfB, orientationOfB, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, orientationOfB, orientationOfB, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -1708,10 +1620,10 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g),
@@ -1770,12 +1682,12 @@ LocalTrr2kKernel
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2kKernel");
-    CheckInput
-    ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
-      A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2kKernel");
+        CheckInput
+        ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
+          A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g),
@@ -1835,10 +1747,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -1895,10 +1807,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -1958,10 +1870,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2017,10 +1929,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2086,10 +1998,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfB, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfB, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2149,10 +2061,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2218,10 +2130,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2288,10 +2200,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2359,10 +2271,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2418,10 +2330,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2485,10 +2397,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2549,10 +2461,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2616,10 +2528,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2688,10 +2600,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, orientationOfB, orientationOfD, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, orientationOfB, orientationOfD, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2762,10 +2674,10 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )
@@ -2833,12 +2745,12 @@ void LocalTrr2k
   T beta,        DistMatrix<T>& E  )
 {
     using namespace trr2k;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrr2k");
-    CheckInput
-    ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
-      A, B, C, D, E );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrr2k");
+        CheckInput
+        ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
+          A, B, C, D, E );
+    )
     const Grid& g = E.Grid();
 
     if( E.Height() < g.Width()*LocalTrr2kBlocksize<T>() )

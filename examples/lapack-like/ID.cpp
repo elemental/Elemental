@@ -29,6 +29,7 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",20);
         const Int n = Input("--width","width of matrix",100);
+        const Int r = Input("--rank","rank of matrix",5);
         const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
         const double tol = Input("--tol","tolerance for ID",-1.);
         const bool print = Input("--print","print matrices?",false);
@@ -36,7 +37,10 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Grid& g = DefaultGrid();
-        auto A = Uniform<C>( g, m, n );
+        DistMatrix<C> U(g), V(g), A(g);
+        Uniform( U, m, r );
+        Uniform( V, n, r );
+        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );
