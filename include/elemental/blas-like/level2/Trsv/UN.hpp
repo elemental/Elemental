@@ -21,18 +21,18 @@ template<typename F>
 inline void
 TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsvUN");
-    if( U.Grid() != x.Grid() )
-        LogicError("{U,x} must be distributed over the same grid");
-    if( U.Height() != U.Width() )
-        LogicError("U must be square");
-    if( x.Width() != 1 && x.Height() != 1 )
-        LogicError("x must be a vector");
-    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-    if( U.Width() != xLength )
-        LogicError("Nonconformal TrsvUN");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsvUN");
+        if( U.Grid() != x.Grid() )
+            LogicError("{U,x} must be distributed over the same grid");
+        if( U.Height() != U.Width() )
+            LogicError("U must be square");
+        if( x.Width() != 1 && x.Height() != 1 )
+            LogicError("x must be a vector");
+        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        if( U.Width() != xLength )
+            LogicError("Nonconformal TrsvUN");
+    )
     const Grid& g = U.Grid();
 
     if( x.Width() == 1 )

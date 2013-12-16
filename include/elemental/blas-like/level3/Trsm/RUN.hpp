@@ -24,9 +24,7 @@ TrsmRUN
 ( UnitOrNonUnit diag, F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmRUN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrsmRUN"))
     const Grid& g = U.Grid();
 
     // Matrix views

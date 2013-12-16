@@ -386,11 +386,7 @@ int HermitianEig
       w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork, 
       &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("ssyevr's failed");
     return m;
@@ -424,11 +420,7 @@ int HermitianEig
       w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork, 
       &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("dsyevr's failed");
     return m;
@@ -465,11 +457,7 @@ int HermitianEig
       w, Z, &ldz, isuppz.data(), work.data(), &lwork, rwork.data(), &lrwork,
       iwork.data(), &liwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("cheevr's failed");
     return m;
@@ -506,11 +494,7 @@ int HermitianEig
       w, Z, &ldz, isuppz.data(), work.data(), &lwork, rwork.data(), &lrwork,
       iwork.data(), &liwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("zheevr's failed");
     return m;
@@ -582,15 +566,10 @@ void BidiagQRAlg
     LAPACK(sbdsqr)
     ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
       U, &ldU, C, &ldC, work.data(), &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        if( info < 0 )
-            msg << "Argument " << -info << " had illegal value";
-        else
-            msg << "sbdsqr had " << info << " elements of e not converge";
-        RuntimeError( msg.str() );
-    }
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("sbdsqr had ",info," elements of e not converge");
 }
 
 void BidiagQRAlg
@@ -608,15 +587,10 @@ void BidiagQRAlg
     LAPACK(dbdsqr)
     ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
       U, &ldU, C, &ldC, work.data(), &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        if( info < 0 )
-            msg << "Argument " << -info << " had illegal value";
-        else
-            msg << "dbdsqr had " << info << " elements of e not converge";
-        RuntimeError( msg.str() );
-    }
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("dbdsqr had ",info," elements of e not converge");
 }
 
 void BidiagQRAlg
@@ -634,15 +608,10 @@ void BidiagQRAlg
     LAPACK(cbdsqr)
     ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
       U, &ldU, C, &ldC, work.data(), &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        if( info < 0 )
-            msg << "Argument " << -info << " had illegal value";
-        else
-            msg << "cbdsqr had " << info << " elements of e not converge";
-        RuntimeError( msg.str() );
-    }
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("cbdsqr had ",info," elements of e not converge");
 }
 
 void BidiagQRAlg
@@ -660,15 +629,10 @@ void BidiagQRAlg
     LAPACK(zbdsqr)
     ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
       U, &ldU, C, &ldC, work.data(), &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        if( info < 0 )
-            msg << "Argument " << -info << " had illegal value";
-        else
-            msg << "zbdsqr had " << info << " elements of e not converge";
-        RuntimeError( msg.str() );
-    }
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("zbdsqr had ",info," elements of e not converge");
 }
 
 //
@@ -699,15 +663,9 @@ void DivideAndConquerSVD
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, work.data(), &lwork,
       iwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("sgesdd's updating process failed");
-    }
 }
 
 void DivideAndConquerSVD
@@ -734,15 +692,9 @@ void DivideAndConquerSVD
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, work.data(), &lwork,
       iwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("dgesdd's updating process failed");
-    }
 }
 
 void DivideAndConquerSVD
@@ -772,15 +724,9 @@ void DivideAndConquerSVD
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, work.data(), &lwork,
       rwork.data(), iwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("cgesdd's updating process failed");
-    }
 }
 
 void DivideAndConquerSVD
@@ -810,15 +756,9 @@ void DivideAndConquerSVD
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, work.data(), &lwork,
       rwork.data(), iwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("zgesdd's updating process failed");
-    }
 }
 
 //
@@ -847,15 +787,9 @@ void QRSVD
     ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("sgesvd's updating process failed");
-    }
 }
 
 void QRSVD
@@ -880,15 +814,9 @@ void QRSVD
     ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("dgesvd's updating process failed");
-    }
 }
 
 void QRSVD
@@ -915,15 +843,9 @@ void QRSVD
     ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
       work.data(), &lwork, rwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("cgesvd's updating process failed");
-    }
 }
 
 void QRSVD
@@ -950,15 +872,9 @@ void QRSVD
     ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
       work.data(), &lwork, rwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("zgesvd's updating process failed");
-    }
 }
 
 //
@@ -985,15 +901,9 @@ void SVD( int m, int n, float* A, int lda, float* s )
     ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("sgesvd's updating process failed");
-    }
 }
 
 void SVD( int m, int n, double* A, int lda, double* s )
@@ -1016,15 +926,9 @@ void SVD( int m, int n, double* A, int lda, double* s )
     ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("dgesvd's updating process failed");
-    }
 }
 
 void SVD( int m, int n, scomplex* A, int lda, float* s )
@@ -1049,15 +953,9 @@ void SVD( int m, int n, scomplex* A, int lda, float* s )
     ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &lwork, rwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("cgesvd's updating process failed");
-    }
 }
 
 void SVD( int m, int n, dcomplex* A, int lda, double* s )
@@ -1082,15 +980,9 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
     ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &lwork, rwork.data(), &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("zgesvd's updating process failed");
-    }
 }
 
 // 
@@ -1118,15 +1010,9 @@ void HessenbergEig( int n, float* H, int ldh, scomplex* w )
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("shseqr's failed to compute all eigenvalues");
-    }
 
     for( int i=0; i<n; ++i )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
@@ -1153,15 +1039,9 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("dhseqr's failed to compute all eigenvalues");
-    }
     
     for( int i=0; i<n; ++i )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
@@ -1187,15 +1067,9 @@ void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("chseqr's failed to compute all eigenvalues");
-    }
 }
 
 void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
@@ -1218,15 +1092,9 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("zhseqr's failed to compute all eigenvalues");
-    }
 }
 
 void HessenbergSchur( int n, float* H, int ldh, float* Q, int ldq, scomplex* w )
@@ -1296,26 +1164,16 @@ void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle )
     LAPACK(sgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     LAPACK(shseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("shseqr's failed to compute all eigenvalues");
-    }
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
@@ -1350,26 +1208,16 @@ void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
     LAPACK(dgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     LAPACK(dhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("dhseqr's failed to compute all eigenvalues");
-    }
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
@@ -1403,26 +1251,16 @@ void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
     LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("chseqr's failed to compute all eigenvalues");
-    }
 }
 
 void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
@@ -1452,26 +1290,16 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
     LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("zhseqr's failed to compute all eigenvalues");
-    }
 }
 
 void Schur
@@ -1508,11 +1336,7 @@ void Schur
     LAPACK(sgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
@@ -1522,26 +1346,16 @@ void Schur
     LAPACK(sorghr)
     ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of formation had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     LAPACK(shseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), Q, &ldq, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("shseqr's failed to compute all eigenvalues");
-    }
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
@@ -1583,11 +1397,7 @@ void Schur
     LAPACK(dgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
@@ -1597,26 +1407,16 @@ void Schur
     LAPACK(dorghr)
     ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of formation had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     LAPACK(dhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), Q, &ldq, 
       work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("dhseqr's failed to compute all eigenvalues");
-    }
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
@@ -1657,11 +1457,7 @@ void Schur
     LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
@@ -1671,26 +1467,16 @@ void Schur
     LAPACK(cunghr)
     ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of formation had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, work.data(), &lwork, 
       &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("chseqr's failed to compute all eigenvalues");
-    }
 }
 
 void Schur
@@ -1727,11 +1513,7 @@ void Schur
     LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of reduction had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
@@ -1741,26 +1523,16 @@ void Schur
     LAPACK(zunghr)
     ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of formation had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, work.data(), &lwork, 
       &info );
     if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "Argument " << -info << " of QR alg had illegal value";
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
-    {
         RuntimeError("chseqr's failed to compute all eigenvalues");
-    }
 }
 
 } // namespace lapack

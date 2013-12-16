@@ -29,11 +29,11 @@ TrsmLLTLarge
   F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLTLarge");
-    if( orientation == NORMAL )
-        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLLTLarge");
+        if( orientation == NORMAL )
+            LogicError("TrsmLLT expects a (Conjugate)Transpose option");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -116,11 +116,11 @@ TrsmLLTMedium
   F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLTMedium");
-    if( orientation == NORMAL )
-        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLLTMedium");
+        if( orientation == NORMAL )
+            LogicError("TrsmLLT expects a (Conjugate)Transpose option");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -208,9 +208,7 @@ template<typename F>
 inline void AddInLocalData
 ( const DistMatrix<F,VC,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::AddInLocalData");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::AddInLocalData"))
     const Int width = X1.Width();
     const Int localHeight = X1.LocalHeight();
     const Int stride = X1.Grid().Size();
@@ -232,24 +230,20 @@ TrsmLLTSmall
   F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLTSmall");
-    if( L.Grid() != X.Grid() )
-        LogicError
-        ("L and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLT: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( L.ColAlign() != X.ColAlign() )
-        LogicError("L and X must be aligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLLTSmall");
+        if( L.Grid() != X.Grid() )
+            LogicError("L and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrsmLLT expects a (Conjugate)Transpose option");
+        if( L.Height() != L.Width() || L.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrsmLLT: \n",
+             "  L ~ ",L.Height()," x ",L.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+        if( L.ColAlign() != X.ColAlign() )
+            LogicError("L and X must be aligned");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -323,24 +317,20 @@ TrsmLLTSmall
   F alpha, const DistMatrix<F,STAR,VR>& L, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLTSmall");
-    if( L.Grid() != X.Grid() )
-        LogicError
-        ("L and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLT: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( L.RowAlign() != X.ColAlign() )
-        LogicError("L and X must be aligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLLTSmall");
+        if( L.Grid() != X.Grid() )
+            LogicError("L and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrsmLLT expects a (Conjugate)Transpose option");
+        if( L.Height() != L.Width() || L.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrsmLLT: \n",
+             "  L ~ ",L.Height()," x ",L.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+        if( L.RowAlign() != X.ColAlign() )
+            LogicError("L and X must be aligned");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views

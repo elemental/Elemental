@@ -21,19 +21,16 @@ SyrkLN
 ( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::SyrkLN");
-    if( A.Grid() != C.Grid() )
-        LogicError("A and C must be distributed over the same grid");
-    if( A.Height() != C.Height() || A.Height() != C.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal SyrkLN:\n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::SyrkLN");
+        if( A.Grid() != C.Grid() )
+            LogicError("A and C must be distributed over the same grid");
+        if( A.Height() != C.Height() || A.Height() != C.Width() )
+            LogicError
+            ("Nonconformal SyrkLN:\n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  C ~ ",C.Height()," x ",C.Width());
+    )
     const Grid& g = A.Grid();
 
     // Matrix views

@@ -37,14 +37,9 @@ Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
         const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
         const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
         if( xLength != A.Height() || yLength != A.Width() )
-        {
-            std::ostringstream msg;
-            msg << "Nonconformal Ger:\n"
-                << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-                << "  y ~ " << y.Height() << " x " << y.Width() << "\n"
-                << "  A ~ " << A.Height() << " x " << A.Width();
-            LogicError( msg.str() );
-        }
+            LogicError
+            ("Nonconformal Ger:\n",
+             DimsString(x,"x"),"\n",DimsString(y,"y"),"\n",DimsString(A,"A"));
     )
     const Int m = A.Height();
     const Int n = A.Width();
@@ -77,14 +72,9 @@ Ger
         const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
         const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
         if( A.Height() != xLength || A.Width() != yLength )
-        {
-            std::ostringstream msg;
-            msg << "Nonconformal Ger: \n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-                << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-            LogicError( msg.str() );
-        }
+            LogicError
+            ("Nonconformal Ger:\n",
+             DimsString(A,"A"),"\n",DimsString(x,"x"),"\n",DimsString(y,"y"));
     )
     const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )

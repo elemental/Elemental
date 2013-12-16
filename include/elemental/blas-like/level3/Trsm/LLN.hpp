@@ -27,9 +27,7 @@ TrsmLLNLarge
   F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLNLarge");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLLNLarge"))
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -111,9 +109,7 @@ TrsmLLNMedium
   F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLNMedium");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLLNMedium"))
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -194,11 +190,11 @@ TrsmLLNSmall
   F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLLNSmall");
-    if( L.ColAlign() != X.ColAlign() )
-        LogicError("L and X are assumed to be aligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLLNSmall");
+        if( L.ColAlign() != X.ColAlign() )
+            LogicError("L and X are assumed to be aligned");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views

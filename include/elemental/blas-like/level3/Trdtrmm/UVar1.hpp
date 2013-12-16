@@ -20,11 +20,11 @@ template<typename F>
 inline void
 TrdtrmmUVar1( Matrix<F>& U, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrtdrmmUVar1");
-    if( U.Height() != U.Width() )
-        LogicError("U must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrtdrmmUVar1");
+        if( U.Height() != U.Width() )
+            LogicError("U must be square");
+    )
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     Matrix<F> S01;
@@ -53,11 +53,11 @@ template<typename F>
 inline void
 TrdtrmmUVar1( DistMatrix<F>& U, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmUVar1");
-    if( U.Height() != U.Width() )
-        LogicError("U must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmUVar1");
+        if( U.Height() != U.Width() )
+            LogicError("U must be square");
+    )
     const Grid& g = U.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 

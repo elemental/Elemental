@@ -29,11 +29,11 @@ TrsmLUTLarge
   F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLUTLarge");
-    if( orientation == NORMAL )
-        LogicError("TrsmLUT expects a (Conjugate)Transpose option");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLUTLarge");
+        if( orientation == NORMAL )
+            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -117,11 +117,11 @@ TrsmLUTMedium
   F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLUTMedium");
-    if( orientation == NORMAL )
-        LogicError("TrsmLUT expects a (Conjugate)Transpose option");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLUTMedium");
+        if( orientation == NORMAL )
+            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -214,24 +214,20 @@ TrsmLUTSmall
   F alpha, const DistMatrix<F,STAR,VR>& U, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLUTSmall");
-    if( U.Grid() != X.Grid() )
-        LogicError
-        ("U and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrsmLUT expects a (Conjugate)Transpose option");
-    if( U.Height() != U.Width() || U.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLUT: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( U.RowAlign() != X.ColAlign() )
-        LogicError("U and X are assumed to be aligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLUTSmall");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+        if( U.Height() != U.Width() || U.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrsmLUT: \n",
+             "  U ~ ",U.Height()," x ",U.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+        if( U.RowAlign() != X.ColAlign() )
+            LogicError("U and X are assumed to be aligned");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views

@@ -29,24 +29,25 @@ void PanelL
 {
     const Int n = A.Height();
     const Int nW = W.Width();
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::PanelL");
-    if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
-        LogicError("A, W, and t must be distributed over the same grid.");
-    if( n != A.Width() )
-        LogicError("A must be square");
-    if( n != W.Height() )
-        LogicError("A and W must be the same height");
-    if( n <= nW )
-        LogicError("W must be a column panel");
-    if( W.ColAlign() != A.ColAlign() || 
-        W.RowAlign() != A.RowAlign() )
-        LogicError("W and A must be aligned");
-    if( t.Height() != nW || t.Width() != 1 )
-        LogicError("t must be a column vector of the same length as W's width");
-    if( !t.AlignedWithDiagonal(A,-1) )
-        LogicError("t is not aligned with A's subdiagonal.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("hermitian_tridiag::PanelL");
+        if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
+            LogicError("A, W, and t must be distributed over the same grid.");
+        if( n != A.Width() )
+            LogicError("A must be square");
+        if( n != W.Height() )
+            LogicError("A and W must be the same height");
+        if( n <= nW )
+            LogicError("W must be a column panel");
+        if( W.ColAlign() != A.ColAlign() || 
+            W.RowAlign() != A.RowAlign() )
+            LogicError("W and A must be aligned");
+        if( t.Height() != nW || t.Width() != 1 )
+            LogicError
+            ("t must be a column vector of the same length as W's width");
+        if( !t.AlignedWithDiagonal(A,-1) )
+            LogicError("t is not aligned with A's subdiagonal.");
+    )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();

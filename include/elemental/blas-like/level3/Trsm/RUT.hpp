@@ -27,11 +27,11 @@ TrsmRUT
   F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmRUT");
-    if( orientation == NORMAL )
-        LogicError("TrsmRUT expects a (Conjugate)Transpose option");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmRUT");
+        if( orientation == NORMAL )
+            LogicError("TrsmRUT expects a (Conjugate)Transpose option");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views

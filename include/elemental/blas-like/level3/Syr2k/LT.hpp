@@ -22,24 +22,17 @@ Syr2kLT
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::Syr2kLT");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must be distributed over the same grid");
-    if( A.Width() != C.Height() || 
-        A.Width() != C.Width()  ||
-        B.Width() != C.Height() ||
-        B.Width() != C.Width()  ||
-        A.Height() != B.Height()  )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal Syr2kLT:\n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::Syr2kLT");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must be distributed over the same grid");
+        if( A.Width() != C.Height() || A.Width() != C.Width()  ||
+            B.Width() != C.Height() || B.Width() != C.Width()  ||
+            A.Height() != B.Height() )
+            LogicError
+            ("Nonconformal Syr2kLT:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 

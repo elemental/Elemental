@@ -56,9 +56,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[VC,* ]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DistMatrix[VC,* ]::DistMatrix"))
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -71,9 +69,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[VC,* ]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DistMatrix[VC,* ]::DistMatrix"))
     this->SetShifts();
     if( VC != U || STAR != V || 
         reinterpret_cast<const DM<T>*>(&A) != this )
@@ -143,9 +139,7 @@ template<typename T>
 void
 DM<T>::AlignWith( const elem::DistData& data )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::AlignWith");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignWith"))
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
     
@@ -153,9 +147,7 @@ DM<T>::AlignWith( const elem::DistData& data )
         this->colAlign_ = data.colAlign;
     else if( data.rowDist == MC || data.rowDist == VC )
         this->colAlign_ = data.rowAlign;
-#ifndef RELEASE
-    else LogicError("Nonsensical alignment");
-#endif
+    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
     this->colConstrained_ = true;
     this->SetShifts();
 }
@@ -179,9 +171,7 @@ template<typename T>
 bool
 DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::AlignedWithDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignedWithDiagonal"))
     const Grid& grid = this->Grid();
     if( grid != *data.grid )
         return false;
@@ -216,9 +206,7 @@ template<typename T>
 void
 DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::AlignWithDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignWithDiagonal"))
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
 
@@ -240,9 +228,7 @@ DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
         this->colConstrained_ = true;
         this->SetShifts();
     }
-#ifndef RELEASE
-    else LogicError("Invalid diagonal alignment");
-#endif
+    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
 }
 
 template<typename T>
@@ -256,9 +242,7 @@ DM<T>::Attach
 ( Int height, Int width, Int colAlign,
   T* buffer, Int ldim, const elem::Grid& g )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::Attach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::Attach"))
     this->Empty();
 
     this->grid_ = &g;
@@ -280,9 +264,7 @@ DM<T>::LockedAttach
 ( Int height, Int width, Int colAlign,
   const T* buffer, Int ldim, const elem::Grid& g )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::LockedAttach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::LockedAttach"))
     this->Empty();
 
     this->grid_ = &g;
@@ -317,14 +299,14 @@ void
 DM<T>::GetDiagonalHelper
 ( DistMatrix<S,VC,STAR>& d, Int offset, Function func ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
-    if( d.Viewing() )
-        this->AssertSameGrid( d.Grid() );
-    if( (d.Viewing() || d.ColConstrained() ) &&
-        !d.AlignedWithDiagonal( *this, offset ) )
-        LogicError("d must be aligned with the 'offset' diagonal");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
+        if( d.Viewing() )
+            this->AssertSameGrid( d.Grid() );
+        if( (d.Viewing() || d.ColConstrained() ) &&
+            !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
@@ -362,14 +344,14 @@ void
 DM<T>::GetDiagonalHelper
 ( DistMatrix<S,STAR,VC>& d, Int offset, Function func ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
-    if( d.Viewing() )
-        this->AssertSameGrid( d.Grid() );
-    if( ( d.Viewing() || d.RowConstrained() ) &&
-        !d.AlignedWithDiagonal( *this, offset ) )
-        LogicError("d must be aligned with the 'offset' diagonal");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
+        if( d.Viewing() )
+            this->AssertSameGrid( d.Grid() );
+        if( ( d.Viewing() || d.RowConstrained() ) &&
+            !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
     {
@@ -405,9 +387,7 @@ template<typename T>
 void
 DM<T>::GetDiagonal( DM<T>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
 }
@@ -416,9 +396,7 @@ template<typename T>
 void
 DM<T>::GetDiagonal( DistMatrix<T,STAR,VC>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
 }
@@ -427,9 +405,7 @@ template<typename T>
 void
 DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
 }
@@ -438,9 +414,7 @@ template<typename T>
 void
 DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
 }
@@ -449,9 +423,7 @@ template<typename T>
 void
 DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
 }
@@ -460,9 +432,7 @@ template<typename T>
 void
 DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
 }
@@ -500,24 +470,21 @@ void
 DM<T>::SetDiagonalHelper
 ( const DistMatrix<S,VC,STAR>& d, Int offset, Function func )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[VC,* ]::SetDiagonalHelper");
-    this->AssertSameGrid( d.Grid() );
-    if( d.Width() != 1 )
-        LogicError("d must be a column vector");
-    const Int diagLength = this->DiagonalLength(offset);
-    if( diagLength != d.Height() )
-    {
-        std::ostringstream msg;
-        msg << "d is not of the same length as the diagonal:\n"
-            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
-            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-            << "  A diag length: " << diagLength << "\n";
-        LogicError( msg.str() );
-    }
-    if( !d.AlignedWithDiagonal( *this, offset ) )
-        LogicError("d must be aligned with the 'offset' diagonal");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::SetDiagonalHelper");
+        this->AssertSameGrid( d.Grid() );
+        if( d.Width() != 1 )
+            LogicError("d must be a column vector");
+        const Int diagLength = this->DiagonalLength(offset);
+        if( diagLength != d.Height() )
+            LogicError
+            ("d is not of the same length as the diagonal:\n",
+             DimsString(*this,"A"),"\n",
+             DimsString(d,"d"),"\n",
+             "  A diag length: ",diagLength);
+        if( !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
     const elem::Grid& g = this->Grid();
     if( !this->Participating() )
         return;

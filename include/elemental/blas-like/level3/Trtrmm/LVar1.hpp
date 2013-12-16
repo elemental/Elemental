@@ -19,9 +19,7 @@ template<typename T>
 inline void
 TrtrmmLVar1( Matrix<T>& L, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrtrmmLVar1");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrtrmmLVar1"))
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<T>
         LTL, LTR,  L00, L01, L02,
@@ -57,11 +55,11 @@ template<typename T>
 inline void
 TrtrmmLVar1( DistMatrix<T>& L, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrtrmmLVar1");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrtrmmLVar1");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Grid& g = L.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 

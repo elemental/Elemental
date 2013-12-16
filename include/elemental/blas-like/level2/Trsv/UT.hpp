@@ -23,20 +23,20 @@ TrsvUT
 ( Orientation orientation, UnitOrNonUnit diag, 
   const DistMatrix<F>& U, DistMatrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsvUT");
-    if( U.Grid() != x.Grid() )
-        LogicError("{U,x} must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrsvUT expects a (conjugate-)transpose option");
-    if( U.Height() != U.Width() )
-        LogicError("U must be square");
-    if( x.Width() != 1 && x.Height() != 1 )
-        LogicError("x must be a vector");
-    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-    if( U.Width() != xLength )
-        LogicError("Nonconformal TrsvUT");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsvUT");
+        if( U.Grid() != x.Grid() )
+            LogicError("{U,x} must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrsvUT expects a (conjugate-)transpose option");
+        if( U.Height() != U.Width() )
+            LogicError("U must be square");
+        if( x.Width() != 1 && x.Height() != 1 )
+            LogicError("x must be a vector");
+        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        if( U.Width() != xLength )
+            LogicError("Nonconformal TrsvUT");
+    )
     const Grid& g = U.Grid();
 
     if( x.Width() == 1 )

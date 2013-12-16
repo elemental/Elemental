@@ -32,28 +32,23 @@ LocalTrmmAccumulateLUT
   const DistMatrix<T,MC,STAR>& X_MC_STAR,
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::LocalTrmmAccumulateLUT");
-    if( U.Grid() != X_MC_STAR.Grid() ||
-        X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
-        LogicError("{U,X,Z} must be distributed over the same grid");
-    if( U.Height() != U.Width() ||
-        U.Height() != X_MC_STAR.Height() ||
-        U.Height() != Z_MR_STAR.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrmmAccumulateLUT: " << "\n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X[MC,* ] ~ " << X_MC_STAR.Height() << " x "
-                               << X_MC_STAR.Width() << "\n"
-            << "  Z[MR,* ] ` " << Z_MR_STAR.Height() << " x "
-                               << Z_MR_STAR.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( X_MC_STAR.ColAlign() != U.ColAlign() ||
-        Z_MR_STAR.ColAlign() != U.RowAlign() )
-        LogicError("Partial matrix distributions are misaligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::LocalTrmmAccumulateLUT");
+        if( U.Grid() != X_MC_STAR.Grid() ||
+            X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
+            LogicError("{U,X,Z} must be distributed over the same grid");
+        if( U.Height() != U.Width() ||
+            U.Height() != X_MC_STAR.Height() ||
+            U.Height() != Z_MR_STAR.Height() )
+            LogicError
+            ("Nonconformal LocalTrmmAccumulateLUT:\n",
+             "  U        ~ ",U.Height()," x ",U.Width(),"\n",
+             "  X[MC,* ] ~ ",X_MC_STAR.Height()," x ",X_MC_STAR.Width(),"\n",
+             "  Z[MR,* ] ~ ",Z_MR_STAR.Height()," x ",Z_MR_STAR.Width(),"\n");
+        if( X_MC_STAR.ColAlign() != U.ColAlign() ||
+            Z_MR_STAR.ColAlign() != U.RowAlign() )
+            LogicError("Partial matrix distributions are misaligned");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -148,21 +143,18 @@ TrmmLUTA
   const DistMatrix<T>& U,
         DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUTA");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrmmLUTA expects a (Conjugate)Transpose option");
-    if( U.Height() != U.Width() || U.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLUTA: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLUTA");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrmmLUTA expects a (Conjugate)Transpose option");
+        if( U.Height() != U.Width() || U.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLUTA: \n",
+             "  U ~ ",U.Height()," x ",U.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -213,21 +205,18 @@ TrmmLUTCOld
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUTCOld");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
-    if( U.Height() != U.Width() || U.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLUTC: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLUTCOld");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
+        if( U.Height() != U.Width() || U.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLUTC: \n",
+             "  U ~ ",U.Height()," x ",U.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+    )
     const Grid& g = U.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
@@ -313,21 +302,18 @@ TrmmLUTC
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUTC");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
-    if( U.Height() != U.Width() || U.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLUTC: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLUTC");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
+        if( U.Height() != U.Width() || U.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLUTC: \n",
+             "  U ~ ",U.Height()," x ",U.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -412,9 +398,7 @@ TrmmLUT
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrmmLUT"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         TrmmLUTA( orientation, diag, alpha, U, X );

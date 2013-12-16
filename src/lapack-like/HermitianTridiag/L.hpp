@@ -26,11 +26,11 @@ namespace hermitian_tridiag {
 template<typename F>
 void L( Matrix<F>& A, Matrix<F>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::L");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("hermitian_tridiag::L");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+    )
     const Int n = A.Height();
     if( n == 0 )
     {
@@ -64,15 +64,15 @@ void L( Matrix<F>& A, Matrix<F>& t )
 template<typename F> 
 void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::L");
-    if( A.Grid() != t.Grid() )
-        LogicError("{A,t} must be distributed over the same grid");
-    if( A.Height() != A.Width() )
-        LogicError("A must be square");
-    if( t.Viewing() )
-        LogicError("t must not be a view");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("hermitian_tridiag::L");
+        if( A.Grid() != t.Grid() )
+            LogicError("{A,t} must be distributed over the same grid");
+        if( A.Height() != A.Width() )
+            LogicError("A must be square");
+        if( t.Viewing() )
+            LogicError("t must not be a view");
+    )
     const Int n = A.Height();
     if( n == 0 )
     {

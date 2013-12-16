@@ -168,158 +168,67 @@ ApplyColumnPivots
 
 template<typename F,Distribution U,Distribution V> 
 inline void
-ApplyColumnPivots
-( DistMatrix<F,U,V>& A, 
-  const std::vector<Int>& image,
-  const std::vector<Int>& preimage )
+ApplyColumnPivots( DistMatrix<F,U,V>& A, const PivotMeta& oldMeta )
 {
-    const Int b = image.size();
     DEBUG_ONLY(
         CallStackEntry cse("ApplyColumnPivots");
-        if( A.Width() < b || b != int(preimage.size()) )
-            LogicError
-            ("image and preimage must be vectors of equal length that are not "
-             "wider than A.");
+        if( A.RowComm() != oldMeta.comm )
+            LogicError("Invalid communicator in metadata");
+        if( A.RowAlign() != oldMeta.align )
+            LogicError("Invalid alignment in metadata");
     )
-    const Int localHeight = A.LocalHeight();
     if( A.Height() == 0 || A.Width() == 0 || !A.Participating() )
         return;
 
-    const Int rowStride = A.RowStride();
-    const Int rowAlign = A.RowAlign();
-    const Int rowShift = A.RowShift();
-    const Int rowRank = A.RowRank();
-    mpi::Comm rowComm = A.RowComm();
-
-    // Extract the send and recv counts from the image and preimage.
-    // This process's sends may be logically partitioned into two sets:
-    //   (a) sends from rows [0,...,b-1]
-    //   (b) sends from rows [b,...]
-    // The latter is analyzed with preimage, the former deduced with image.
-    std::vector<int> sendCounts(rowStride,0), recvCounts(rowStride,0);
-    for( Int j=rowShift; j<b; j+=rowStride )
-    {
-        const Int sendCol = image[j];         
-        const Int sendTo = (rowAlign+sendCol) % rowStride; 
-        sendCounts[sendTo] += localHeight;
-
-        const Int recvCol = preimage[j];
-        const Int recvFrom = (rowAlign+recvCol) % rowStride;
-        recvCounts[recvFrom] += localHeight;
-    }
-    for( Int j=0; j<b; ++j )
-    {
-        const Int sendCol = image[j];
-        if( sendCol >= b )
-        {
-            const Int sendTo = (rowAlign+sendCol) % rowStride;
-            if( sendTo == rowRank )
-            {
-                const Int sendFrom = (rowAlign+j) % rowStride;
-                recvCounts[sendFrom] += localHeight;
-            }
-        }
-
-        const Int recvCol = preimage[j];
-        if( recvCol >= b )
-        {
-            const Int recvFrom = (rowAlign+recvCol) % rowStride;
-            if( recvFrom == rowRank )
-            {
-                const Int recvTo = (rowAlign+j) % rowStride;
-                sendCounts[recvTo] += localHeight;
-            }
-        }
-    }
-
-    // Construct the send and recv displacements from the counts
-    std::vector<int> sendDispls(rowStride), recvDispls(rowStride);
-    Int totalSend=0, totalRecv=0;
-    for( Int i=0; i<rowStride; ++i )
-    {
-        sendDispls[i] = totalSend;
-        recvDispls[i] = totalRecv;
-        totalSend += sendCounts[i];
-        totalRecv += recvCounts[i];
-    }
-    DEBUG_ONLY(
-        if( totalSend != totalRecv )
-        {
-            std::ostringstream msg;
-            msg << "Send and recv counts do not match: (send,recv)=" 
-                 << totalSend << "," << totalRecv;
-            LogicError( msg.str() );
-        }
-    )
+    const Int localHeight = A.LocalHeight();
+    PivotMeta meta = oldMeta;
+    meta.ScaleUp( localHeight );
 
     // Fill vectors with the send data
+    auto offsets = meta.sendDispls;
+    const int totalSend = meta.TotalSend();
     std::vector<F> sendData( mpi::Pad(totalSend) );
-    std::vector<int> offsets(rowStride,0);
-    const Int localWidth = Length( b, rowShift, rowStride );
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    const int numSends = meta.sendIdx.size();
+    for( int send=0; send<numSends; ++send )
     {
-        const Int sendCol = image[rowShift+jLoc*rowStride];
-        const Int sendTo = (rowAlign+sendCol) % rowStride;
-        const Int offset = sendDispls[sendTo]+offsets[sendTo];
-        MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
-        offsets[sendTo] += localHeight;
-    }
-    for( Int j=0; j<b; ++j )
-    {
-        const Int recvCol = preimage[j];
-        if( recvCol >= b )
-        {
-            const Int recvFrom = (rowAlign+recvCol) % rowStride; 
-            if( recvFrom == rowRank )
-            {
-                const Int recvTo = (rowAlign+j) % rowStride;
-                const Int jLoc = (recvCol-rowShift) / rowStride;
-                const Int offset = sendDispls[recvTo]+offsets[recvTo];
-                MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
-                offsets[recvTo] += localHeight;
-            }
-        }
+        const int jLoc = meta.sendIdx[send];
+        const int rank = meta.sendRanks[send];
+        MemCopy
+        ( &sendData[offsets[rank]], A.LockedBuffer(0,jLoc), localHeight );
+        offsets[rank] += localHeight;
     }
 
     // Communicate all pivot rows
+    const int totalRecv = meta.TotalRecv();
     std::vector<F> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
-    ( sendData.data(), sendCounts.data(), sendDispls.data(),
-      recvData.data(), recvCounts.data(), recvDispls.data(), rowComm );
+    ( sendData.data(), meta.sendCounts.data(), meta.sendDispls.data(),
+      recvData.data(), meta.recvCounts.data(), meta.recvDispls.data(), 
+      meta.comm );
 
     // Unpack the recv data
-    for( Int k=0; k<rowStride; ++k )
+    offsets = meta.recvDispls;
+    const int numRecvs = meta.recvIdx.size();
+    for( int recv=0; recv<numRecvs; ++recv )
     {
-        offsets[k] = 0;
-        Int thisRowShift = Shift( k, rowAlign, rowStride );
-        for( Int j=thisRowShift; j<b; j+=rowStride )
-        {
-            const Int sendCol = image[j];
-            const Int sendTo = (rowAlign+sendCol) % rowStride;
-            if( sendTo == rowRank )
-            {
-                const Int offset = recvDispls[k]+offsets[k];
-                const Int jLoc = (sendCol-rowShift) / rowStride;
-                MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );
-                offsets[k] += localHeight;
-            }
-        }
+        const int jLoc = meta.recvIdx[recv];
+        const int rank = meta.recvRanks[recv];
+        MemCopy
+        ( A.Buffer(0,jLoc), &recvData[offsets[rank]], localHeight );
+        offsets[rank] += localHeight;
     }
-    for( Int j=0; j<b; ++j )
+}
+
+template<typename F,Distribution U,Distribution V> 
+inline void
+ApplyColumnPivots
+( DistMatrix<F,U,V>& A, 
+  const std::vector<Int>& image, const std::vector<Int>& preimage )
+{
+    if( A.Participating() )
     {
-        const Int recvCol = preimage[j];
-        if( recvCol >= b )
-        {
-            const Int recvTo = (rowAlign+j) % rowStride;
-            if( recvTo == rowRank )
-            {
-                const Int recvFrom = (rowAlign+recvCol) % rowStride; 
-                const Int jLoc = (j-rowShift) / rowStride;
-                const Int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );
-                offsets[recvFrom] += localHeight;
-            }
-        }
+        auto meta = FormPivotMeta( A.RowComm(), A.RowAlign(), image, preimage );
+        ApplyColumnPivots( A, meta );
     }
 }
 

@@ -32,28 +32,23 @@ LocalTrmmAccumulateLLT
   const DistMatrix<T,MC,STAR>& X_MC_STAR,
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::LocalTrmmAccumulateLLT");
-    if( L.Grid() != X_MC_STAR.Grid() ||
-        X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
-        LogicError("{L,X,Z} must be distributed over the same grid");
-    if( L.Height() != L.Width() ||
-        L.Height() != X_MC_STAR.Height() ||
-        L.Height() != Z_MR_STAR.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrmmAccumulateLLT: " << "\n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X[MC,* ] ~ " << X_MC_STAR.Height() << " x "
-                               << X_MC_STAR.Width() << "\n"
-            << "  Z[MR,* ] ` " << Z_MR_STAR.Height() << " x "
-                               << Z_MR_STAR.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( X_MC_STAR.ColAlign() != L.ColAlign() ||
-        Z_MR_STAR.ColAlign() != L.RowAlign() )
-        LogicError("Partial matrix distributions are misaligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::LocalTrmmAccumulateLLT");
+        if( L.Grid() != X_MC_STAR.Grid() ||
+            X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
+            LogicError("{L,X,Z} must be distributed over the same grid");
+        if( L.Height() != L.Width() ||
+            L.Height() != X_MC_STAR.Height() ||
+            L.Height() != Z_MR_STAR.Height() )
+            LogicError
+            ("Nonconformal LocalTrmmAccumulateLLT:\n",
+             "  L        ~ ",L.Height()," x ",L.Width(),"\n",
+             "  X[MC,* ] ~ ",X_MC_STAR.Height()," x ",X_MC_STAR.Width(),"\n",
+             "  Z[MR,* ] ~ ",Z_MR_STAR.Height()," x ",Z_MR_STAR.Width(),"\n");
+        if( X_MC_STAR.ColAlign() != L.ColAlign() ||
+            Z_MR_STAR.ColAlign() != L.RowAlign() )
+            LogicError("Partial matrix distributions are misaligned");
+    )
     const Grid& g = L.Grid();
     
     // Matrix views
@@ -148,21 +143,18 @@ TrmmLLTA
   const DistMatrix<T>& L,
         DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLLTA");
-    if( L.Grid() != X.Grid() )
-        LogicError("L and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrmmLLTA expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLLTA: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLLTA");
+        if( L.Grid() != X.Grid() )
+            LogicError("L and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrmmLLTA expects a (Conjugate)Transpose option");
+        if( L.Height() != L.Width() || L.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLLTA: \n",
+             "  L ~ ",L.Height()," x ",L.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -213,21 +205,18 @@ TrmmLLTCOld
   const DistMatrix<T>& L,
         DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLLTCOld");
-    if( L.Grid() != X.Grid() )
-        LogicError("L and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrmmLLT expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLLTC: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLLTCOld");
+        if( L.Grid() != X.Grid() )
+            LogicError("L and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrmmLLT expects a (Conjugate)Transpose option");
+        if( L.Height() != L.Width() || L.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLLTC: \n",
+             "  L ~ ",L.Height()," x ",L.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+    )
     const Grid& g = L.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
@@ -313,21 +302,18 @@ TrmmLLTC
   const DistMatrix<T>& L,
         DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLLTC");
-    if( L.Grid() != X.Grid() )
-        LogicError("L and X must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrmmLLT expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLLTC: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLLTC");
+        if( L.Grid() != X.Grid() )
+            LogicError("L and X must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrmmLLT expects a (Conjugate)Transpose option");
+        if( L.Height() != L.Width() || L.Height() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLLTC: \n",
+             "  L ~ ",L.Height()," x ",L.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+    )
     const Grid& g = L.Grid();
 
     // Matrix views
@@ -412,9 +398,7 @@ TrmmLLT
   const DistMatrix<T>& L,
         DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLLT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrmmLLT"))
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
         TrmmLLTA( orientation, diag, alpha, L, X );

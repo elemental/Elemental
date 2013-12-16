@@ -22,11 +22,11 @@ ComposePivots
 ( const Matrix<Int>& p,
   std::vector<Int>& image, std::vector<Int>& preimage )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComposePivots");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ComposePivots");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+    )
     const Int n = p.Height();
     if( n == 0 )
     {
@@ -61,9 +61,7 @@ ComposePivots
 ( const DistMatrix<Int,VC,STAR>& p,
   std::vector<Int>& image, std::vector<Int>& preimage )
 {
-#ifndef RELEASE    
-    CallStackEntry cse("ComposePivots");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComposePivots"))
     DistMatrix<Int,STAR,STAR> p_STAR_STAR( p );
     ComposePivots( p_STAR_STAR, image, preimage );
 }
@@ -83,13 +81,13 @@ ComposePivots
 ( const Matrix<Int>& p, Int pivotOffset,
   std::vector<Int>& image, std::vector<Int>& preimage )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComposePivots");
-    if( p.Width() != 1 )
-        LogicError("p must be a column vector");
-    if( pivotOffset < 0 )
-        LogicError("pivotOffset must be non-negative");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("ComposePivots");
+        if( p.Width() != 1 )
+            LogicError("p must be a column vector");
+        if( pivotOffset < 0 )
+            LogicError("pivotOffset must be non-negative");
+    )
     const Int b = p.Height();
     const Int* pBuffer = p.LockedBuffer();
 
@@ -129,6 +127,95 @@ ComposePivots
 ( const DistMatrix<Int,STAR,STAR>& p, Int pivotOffset,
   std::vector<Int>& image, std::vector<Int>& preimage )
 { ComposePivots( p.LockedMatrix(), pivotOffset, image, preimage ); }
+
+inline PivotMeta
+FormPivotMeta
+( mpi::Comm comm, Int align,
+  const std::vector<Int>& image,
+  const std::vector<Int>& preimage )
+{
+    DEBUG_ONLY(CallStackEntry cse("FormPivotMeta"))
+    PivotMeta meta;
+    meta.comm = comm;
+    meta.align = align;
+
+    const Int b = image.size();
+    const Int rank = mpi::CommRank( comm );
+    const Int stride = mpi::CommSize( comm );
+    const Int shift = Shift( rank, align, stride );
+
+    // Form the metadata
+    //
+    // Extract the send and recv counts from the image and preimage.
+    // There are three different types of exchanges:
+    //   1. [0,b) -> [0,b)
+    //   2. [0,b) -> [b,n)
+    //   3. [b,n) -> [0,b)
+    // The fourth possibility, [b,n) -> [b,n), is impossible due to the 
+    // fact that indices pulled in from [b,n) are stuck in [0,b) due to the
+    // fact that the i'th pivot exchanges index i with some index k >= i.
+    // 
+    meta.sendCounts.resize( stride, 0 );
+    meta.recvCounts.resize( stride, 0 );
+
+    for( Int j=0; j<b; ++j )
+    {
+        // Handle send 
+        if( rank == ((align+j)%stride) )
+        {
+            const Int jLoc = (j-shift) / stride;
+            const Int sendTo = (align+image[j]) % stride;
+            meta.sendIdx.push_back( jLoc );
+            meta.sendRanks.push_back( sendTo );
+            ++meta.sendCounts[sendTo];
+        }
+        if( preimage[j] >= b && rank == ((align+preimage[j])%stride) )
+        {
+            const Int jLoc = (preimage[j]-shift) / stride;
+            const Int sendTo = (align+j) % stride;
+            meta.sendIdx.push_back( jLoc );
+            meta.sendRanks.push_back( sendTo );
+            ++meta.sendCounts[sendTo];
+        }
+        // Handle recv
+        if( rank == ((align+image[j])%stride) )
+        {
+            const Int jLoc = (image[j]-shift) / stride;     
+            const Int recvFrom = (align+j) % stride;
+            meta.recvIdx.push_back( jLoc );
+            meta.recvRanks.push_back( recvFrom );
+            ++meta.recvCounts[recvFrom];
+        }
+        if( preimage[j] >= b && rank == ((align+j)%stride) )
+        {
+            const Int jLoc = (j-shift) / stride;
+            const Int recvFrom = (align+preimage[j]) % stride;
+            meta.recvIdx.push_back( jLoc );
+            meta.recvRanks.push_back( recvFrom );
+            ++meta.recvCounts[recvFrom];
+        }
+    }
+
+    // Construct the send and recv displacements from the counts
+    meta.sendDispls.resize( stride );
+    meta.recvDispls.resize( stride );
+    Int totalSend=0, totalRecv=0;
+    for( Int i=0; i<stride; ++i )
+    {
+        meta.sendDispls[i] = totalSend;
+        meta.recvDispls[i] = totalRecv;
+        totalSend += meta.sendCounts[i];
+        totalRecv += meta.recvCounts[i];
+    }
+    DEBUG_ONLY(
+        if( totalSend != totalRecv )
+            LogicError
+            ("Send and recv counts do not match: send=",totalSend,", recv=",
+             totalRecv);
+    )
+
+    return meta;
+}
 
 } // namespace elem
 

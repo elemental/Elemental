@@ -31,42 +31,34 @@ LocalSymmetricAccumulateRU
         DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR,
         DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::LocalSymmetricAccumulateRU");
-    if( A.Grid() != B_STAR_MC.Grid() ||
-        B_STAR_MC.Grid() != BTrans_MR_STAR.Grid() ||
-        BTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() ||
-        ZTrans_MC_STAR.Grid() != ZTrans_MR_STAR.Grid() )
-        LogicError
-        ("{A,B,C} must be distributed over the same grid");
-    if( A.Height() != A.Width() ||
-        A.Height() != B_STAR_MC.Width() ||
-        A.Height() != BTrans_MR_STAR.Height() ||
-        A.Height() != ZTrans_MC_STAR.Height() ||
-        A.Height() != ZTrans_MR_STAR.Height() ||
-        B_STAR_MC.Height() != BTrans_MR_STAR.Width() ||
-        BTrans_MR_STAR.Width() != ZTrans_MC_STAR.Width() ||
-        ZTrans_MC_STAR.Width() != ZTrans_MR_STAR.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalSymmetricAccumulateRU: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B[* ,MC] ~ " << B_STAR_MC.Height() << " x "
-                               << B_STAR_MC.Width() << "\n"
-            << "  B^H/T[MR,* ] ~ " << BTrans_MR_STAR.Height() << " x "
-                                   << BTrans_MR_STAR.Width() << "\n"
-            << "  Z^H/T[MC,* ] ~ " << ZTrans_MC_STAR.Height() << " x "
-                                   << ZTrans_MC_STAR.Width() << "\n"
-            << "  Z^H/T[MR,* ] ~ " << ZTrans_MR_STAR.Height() << " x "
-                                   << ZTrans_MR_STAR.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( B_STAR_MC.RowAlign() != A.ColAlign() ||
-        BTrans_MR_STAR.ColAlign() != A.RowAlign() ||
-        ZTrans_MC_STAR.ColAlign() != A.ColAlign() ||
-        ZTrans_MR_STAR.ColAlign() != A.RowAlign() )
-        LogicError("Partial matrix distributions are misaligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::LocalSymmetricAccumulateRU");
+        if( A.Grid() != B_STAR_MC.Grid() ||
+            B_STAR_MC.Grid() != BTrans_MR_STAR.Grid() ||
+            BTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() ||
+            ZTrans_MC_STAR.Grid() != ZTrans_MR_STAR.Grid() )
+            LogicError("{A,B,C} must be distributed over the same grid");
+        if( A.Height() != A.Width() ||
+            A.Height() != B_STAR_MC.Width() ||
+            A.Height() != BTrans_MR_STAR.Height() ||
+            A.Height() != ZTrans_MC_STAR.Height() ||
+            A.Height() != ZTrans_MR_STAR.Height() ||
+            B_STAR_MC.Height() != BTrans_MR_STAR.Width() ||
+            BTrans_MR_STAR.Width() != ZTrans_MC_STAR.Width() ||
+            ZTrans_MC_STAR.Width() != ZTrans_MR_STAR.Width() )
+            LogicError
+            ("Nonconformal LocalSymmetricAccumulateRU:\n",
+             DimsString(A,"A"),"\n",
+             DimsString(B_STAR_MC,"B[* ,MC]"),"\n",
+             DimsString(BTrans_MR_STAR,"B'[MR,* ]"),"\n",
+             DimsString(ZTrans_MC_STAR,"Z'[MC,* ]"),"\n",
+             DimsString(ZTrans_MR_STAR,"Z'[MR,* ]"));
+        if( B_STAR_MC.RowAlign() != A.ColAlign() ||
+            BTrans_MR_STAR.ColAlign() != A.RowAlign() ||
+            ZTrans_MC_STAR.ColAlign() != A.ColAlign() ||
+            ZTrans_MR_STAR.ColAlign() != A.RowAlign() )
+            LogicError("Partial matrix distributions are misaligned");
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -200,12 +192,11 @@ SymmRUA
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::SymmRUA");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError
-        ("{A,B,C} must be distributed over the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::SymmRUA");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must be distributed over the same grid");
+    )
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -294,11 +285,11 @@ SymmRUC
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::SymmRUC");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must be distributed on the same grid");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::SymmRUC");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must be distributed on the same grid");
+    )
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -396,9 +387,7 @@ SymmRU
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::SymmRU");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::SymmRU"))
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
         SymmRUA( alpha, A, B, beta, C, conjugate );

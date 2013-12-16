@@ -17,11 +17,11 @@ template<typename T>
 inline void
 TrtrmmLUnblocked( Matrix<T>& L, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrtrmmLUnblocked");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrtrmmLUnblocked");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Int n = L.Height();
 
     T* LBuffer = L.Buffer();
@@ -69,11 +69,11 @@ template<typename T>
 inline void
 TrtrmmUUnblocked( Matrix<T>& U, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrtrmmUUnblocked");
-    if( U.Height() != U.Width() )
-        LogicError("U must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrtrmmUUnblocked");
+        if( U.Height() != U.Width() )
+            LogicError("U must be square");
+    )
     const Int n = U.Height();
 
     T* UBuffer = U.Buffer();

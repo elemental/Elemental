@@ -23,22 +23,16 @@ Cannon_NN
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::Cannon_NN");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( A.Height() != C.Height() ||
-        B.Width()  != C.Width()  ||
-        A.Width()  != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::Cannon_NN");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( A.Height() != C.Height() || B.Width() != C.Width() ||
+            A.Width() != B.Height() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
     if( g.Height() != g.Width() )
         LogicError("Process grid must be square for Cannon's");
@@ -108,22 +102,16 @@ SUMMA_NNA
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NNA");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( A.Height() != C.Height() ||
-        B.Width()  != C.Width()  ||
-        A.Width()  != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NNA");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( A.Height() != C.Height() || B.Width() != C.Width() ||
+            A.Width() != B.Height() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -184,22 +172,16 @@ SUMMA_NNB
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NNB");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must be distributed over the same grid");
-    if( A.Height() != C.Height() ||
-        B.Width()  != C.Width()  ||
-        A.Width()  != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NNB");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must be distributed over the same grid");
+        if( A.Height() != C.Height() || B.Width() != C.Width() ||
+            A.Width() != B.Height() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -271,22 +253,16 @@ SUMMA_NNC
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NNC");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must be distributed over the same grid");
-    if( A.Height() != C.Height() ||
-        B.Width()  != C.Width()  ||
-        A.Width()  != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NNC");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must be distributed over the same grid");
+        if( A.Height() != C.Height() || B.Width() != C.Width() ||
+            A.Width() != B.Height() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -347,22 +323,16 @@ SUMMA_NNDot
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NNDot");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( A.Height() != C.Height() ||
-        B.Width()  != C.Width()  ||
-        A.Width()  != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NNDot");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( A.Height() != C.Height() || B.Width() != C.Width() ||
+            A.Width() != B.Height() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     if( A.Height() > B.Width() )
@@ -543,9 +513,7 @@ SUMMA_NN
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_NN"))
     const Int m = C.Height();
     const Int n = C.Width();
     const Int k = A.Width();

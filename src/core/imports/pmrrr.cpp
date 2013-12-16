@@ -59,11 +59,7 @@ Estimate EigEstimate
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
       &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;
-        msg << "PMRRR returned " << retval; 
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     estimate.numLocalEigenvalues = nz;
     estimate.numGlobalEigenvalues = mpi::AllReduce( nz, comm );
@@ -91,11 +87,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
       &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;        
-        msg << "PMRRR returned " << retval;
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
@@ -124,11 +116,7 @@ Info Eig
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
       &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;        
-        msg << "PMRRR returned " << retval;
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
@@ -158,11 +146,7 @@ Info Eig
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
       &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;        
-        msg << "PMRRR returned " << retval;
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
@@ -191,11 +175,7 @@ Info Eig
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
       &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;        
-        msg << "PMRRR returned " << retval;
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
@@ -227,11 +207,7 @@ Info Eig
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
       &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;        
-        msg << "PMRRR returned " << retval;
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
@@ -263,11 +239,7 @@ Info Eig
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
       &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
-    {
-        std::ostringstream msg;        
-        msg << "PMRRR returned " << retval;
-        RuntimeError( msg.str() );
-    }
+        RuntimeError("PMRRR returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;

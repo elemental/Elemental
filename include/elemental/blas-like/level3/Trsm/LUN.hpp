@@ -26,9 +26,7 @@ TrsmLUNLarge
   F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLUNLarge");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLUNLarge"))
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -107,9 +105,7 @@ TrsmLUNMedium
 ( UnitOrNonUnit diag, F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLUNMedium");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLUNMedium"))
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -190,21 +186,18 @@ TrsmLUNSmall
   F alpha, const DistMatrix<F,VC,STAR>& U, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmLUNSmall");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( U.Height() != U.Width() || U.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLUN: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( U.ColAlign() != X.ColAlign() )
-        LogicError("U and X are assumed to be aligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsmLUNSmall");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( U.Height() != U.Width() || U.Width() != X.Height() )
+            LogicError
+            ("Nonconformal TrsmLUN: \n",
+             "  U ~ ",U.Height()," x ",U.Width(),"\n",
+             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+        if( U.ColAlign() != X.ColAlign() )
+            LogicError("U and X are assumed to be aligned");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views

@@ -28,20 +28,20 @@ void PanelUSquare
 {
     const Int n = A.Height();
     const Int nW = W.Width();
-#ifndef RELEASE
-    CallStackEntry cse("hermitian_tridiag::PanelUSquare");
-    if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
-        LogicError("A, W, and t must be distributed over the same grid.");
-    if( n != A.Width() )
-        LogicError("A must be square.");
-    if( n != W.Height() )
-        LogicError( "A and W must be the same height.");
-    if( n <= nW )
-        LogicError("W must be a column panel.");
-    if( t.Height() != nW || t.Width() != 1 )
-        LogicError
-        ("t must be a column vector of the same length as W's width.");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("hermitian_tridiag::PanelUSquare");
+        if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
+            LogicError("A, W, and t must be distributed over the same grid.");
+        if( n != A.Width() )
+            LogicError("A must be square.");
+        if( n != W.Height() )
+            LogicError( "A and W must be the same height.");
+        if( n <= nW )
+            LogicError("W must be a column panel.");
+        if( t.Height() != nW || t.Width() != 1 )
+            LogicError
+            ("t must be a column vector of the same length as W's width.");
+    )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();

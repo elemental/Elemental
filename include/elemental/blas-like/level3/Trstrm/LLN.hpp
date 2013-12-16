@@ -22,9 +22,7 @@ template<typename F>
 inline void
 TrstrmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrstrmLLNUnb");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrstrmLLNUnb"))
     const bool isUnit = ( diag==UNIT );
     const Int n = L.Height();
     const Int LLDim = L.LDim();
@@ -62,9 +60,7 @@ TrstrmLLN
 ( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X,
   bool checkIfSingular=true )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrstrmLLN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrstrmLLN"))
     // Matrix views
     Matrix<F> 
         LTL, LTR,  L00, L01, L02,
@@ -128,9 +124,7 @@ TrstrmLLN
 ( UnitOrNonUnit diag, F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrstrmLLN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrstrmLLN"))
     const Grid& g = L.Grid();
 
     // Matrix views

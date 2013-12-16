@@ -32,29 +32,24 @@ LocalTrmmAccumulateLUN
   const DistMatrix<T,STAR,MR  >& XTrans_STAR_MR,
         DistMatrix<T,MC,  STAR>& Z_MC_STAR )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::LocalTrmmAccumulateLUN");
-    if( U.Grid() != XTrans_STAR_MR.Grid() ||
-        XTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() )
-        LogicError("{U,X,Z} must be distributed over the same grid");
-    if( U.Height() != U.Width() ||
-        U.Height() != XTrans_STAR_MR.Width() ||
-        U.Height() != Z_MC_STAR.Height() ||
-        XTrans_STAR_MR.Height() != Z_MC_STAR.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrmmAccumulateLUN: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X^H/T[* ,MR] ~ " << XTrans_STAR_MR.Height() << " x "
-                                   << XTrans_STAR_MR.Width() << "\n"
-            << "  Z[MC,* ] ~ " << Z_MC_STAR.Height() << " x "
-                               << Z_MC_STAR.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( XTrans_STAR_MR.RowAlign() != U.RowAlign() ||
-        Z_MC_STAR.ColAlign() != U.ColAlign() )
-        LogicError("Partial matrix distributions are misaligned");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::LocalTrmmAccumulateLUN");
+        if( U.Grid() != XTrans_STAR_MR.Grid() ||
+            XTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() )
+            LogicError("{U,X,Z} must be distributed over the same grid");
+        if( U.Height() != U.Width() ||
+            U.Height() != XTrans_STAR_MR.Width() ||
+            U.Height() != Z_MC_STAR.Height() ||
+            XTrans_STAR_MR.Height() != Z_MC_STAR.Width() )
+            LogicError
+            ("Nonconformal LocalTrmmAccumulateLUN:\n",
+             DimsString(U,"U"),"\n",
+             DimsString(XTrans_STAR_MR,"X'[* ,MR]"),"\n",
+             DimsString(Z_MC_STAR,"Z[MC,* ]"));
+        if( XTrans_STAR_MR.RowAlign() != U.RowAlign() ||
+            Z_MC_STAR.ColAlign() != U.ColAlign() )
+            LogicError("Partial matrix distributions are misaligned");
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -142,19 +137,15 @@ TrmmLUNA
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmULNA");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( U.Height() != U.Width() || U.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLUNA: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmULNA");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( U.Height() != U.Width() || U.Width() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLUNA:\n",
+             DimsString(U,"U"),"\n",DimsString(X,"X"));
+    )
     const Grid& g = U.Grid();
 
     DistMatrix<T>
@@ -199,19 +190,15 @@ TrmmLUNCOld
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUNCOld");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( U.Height() != U.Width() || U.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLUN: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLUNCOld");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( U.Height() != U.Width() || U.Width() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLUN:\n",
+             DimsString(U,"U"),"\n",DimsString(X,"X"));
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -294,19 +281,15 @@ TrmmLUNC
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUNC");
-    if( U.Grid() != X.Grid() )
-        LogicError("U and X must be distributed over the same grid");
-    if( U.Height() != U.Width() || U.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrmmLUN: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrmmLUNC");
+        if( U.Grid() != X.Grid() )
+            LogicError("U and X must be distributed over the same grid");
+        if( U.Height() != U.Width() || U.Width() != X.Height() )
+            LogicError
+            ("Nonconformal TrmmLUN:\n",
+             DimsString(U,"U"),"\n",DimsString(X,"X"));
+    )
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -385,9 +368,7 @@ TrmmLUN
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrmmLUN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrmmLUN"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         TrmmLUNA( diag, alpha, U, X );

@@ -41,14 +41,11 @@ inline void LocalGemm
             if( A.Height() != C.Height() ||
                 A.Width() != B.Height() ||
                 B.Width() != C.Width() )
-            {
-                std::ostringstream msg;
-                msg << "Nonconformal LocalGemmNN:\n"
-                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                    << "  C ~ " << C.Height() << " x " << C.Width();
-                LogicError( msg.str() );
-            }
+                LogicError
+                ("Nonconformal LocalGemmNN:\n",
+                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
+                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
+                 "  C ~ ",C.Height()," x ",C.Width());
         }
         else if( orientationOfA == NORMAL )
         {
@@ -65,14 +62,11 @@ inline void LocalGemm
             if( A.Height() != C.Height() ||
                 A.Width() != B.Width() ||
                 B.Height() != C.Width() )
-            {
-                std::ostringstream msg;
-                msg << "Nonconformal LocalGemmNT:\n"
-                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                    << "  C ~ " << C.Height() << " x " << C.Width();
-                LogicError( msg.str() );
-            }
+                LogicError
+                ("Nonconformal LocalGemmNT:\n",
+                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
+                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
+                 "  C ~ ",C.Height()," x ",C.Width());
         }
         else if( orientationOfB == NORMAL )
         {
@@ -89,14 +83,11 @@ inline void LocalGemm
             if( A.Width() != C.Height() ||
                 A.Height() != B.Height() ||
                 B.Width() != C.Width() )
-            {
-                std::ostringstream msg;
-                msg << "Nonconformal LocalGemmTN:\n"
-                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                    << "  C ~ " << C.Height() << " x " << C.Width();
-                LogicError( msg.str() );
-            }
+                LogicError
+                ("Nonconformal LocalGemmTN:\n",
+                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
+                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
+                 "  C ~ ",C.Height()," x ",C.Width());
         }
         else
         {
@@ -113,14 +104,11 @@ inline void LocalGemm
             if( A.Width() != C.Height() ||
                 A.Height() != B.Width() ||
                 B.Height() != C.Width() )
-            {
-                std::ostringstream msg;
-                msg << "Nonconformal LocalGemmTT:\n"
-                    << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                    << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-                    << "  C ~ " << C.Height() << " x " << C.Width();
-                LogicError( msg.str() );
-            }
+                LogicError
+                ("Nonconformal LocalGemmTT:\n",
+                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
+                 "  B ~ ",B.Height()," x ",B.Width(),"\n",
+                 "  C ~ ",C.Height()," x ",C.Width());
         }
     )
     Gemm

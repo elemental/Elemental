@@ -26,24 +26,18 @@ SUMMA_TTA
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_TTA");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
-        LogicError("A and B must be (Conjugate)Transposed");
-    if( A.Width()  != C.Height() ||
-        B.Height() != C.Width()  ||
-        A.Height() != B.Width()    )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_TTA");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( orientationOfA == NORMAL || orientationOfB == NORMAL )
+            LogicError("A and B must be (Conjugate)Transposed");
+        if( A.Width() != C.Height() || B.Height() != C.Width() ||
+            A.Height() != B.Width() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -117,24 +111,18 @@ SUMMA_TTB
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_TTB");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
-        LogicError("A and B must be (Conjugate)Transposed");
-    if( A.Width()  != C.Height() ||
-        B.Height() != C.Width()  ||
-        A.Height() != B.Width()    )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_TTB");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( orientationOfA == NORMAL || orientationOfB == NORMAL )
+            LogicError("A and B must be (Conjugate)Transposed");
+        if( A.Width() != C.Height() || B.Height() != C.Width() ||
+            A.Height() != B.Width() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -214,24 +202,18 @@ SUMMA_TTC
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_TTC");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
-        LogicError("A and B must be (Conjugate)Transposed");
-    if( A.Width()  != C.Height() ||
-        B.Height() != C.Width()  ||
-        A.Height() != B.Width()    )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_TTC");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( orientationOfA == NORMAL || orientationOfB == NORMAL )
+            LogicError("A and B must be (Conjugate)Transposed");
+        if( A.Width() != C.Height() || B.Height() != C.Width() ||
+            A.Height() != B.Width() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -304,9 +286,7 @@ SUMMA_TT
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_TT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_TT"))
     const Int m = C.Height();
     const Int n = C.Width();
     const Int k = A.Height();

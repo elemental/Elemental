@@ -21,19 +21,16 @@ SyrkLT
 ( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, 
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::SyrkLT");
-    if( A.Grid() != C.Grid() )
-        LogicError("A and C must be distributed over the same grid");
-    if( A.Width() != C.Height() || A.Width() != C.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal SyrkLT:\n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::SyrkLT");
+        if( A.Grid() != C.Grid() )
+            LogicError("A and C must be distributed over the same grid");
+        if( A.Width() != C.Height() || A.Width() != C.Width() )
+            LogicError
+            ("Nonconformal SyrkLT:\n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  C ~ ",C.Height()," x ",C.Width());
+    )
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 

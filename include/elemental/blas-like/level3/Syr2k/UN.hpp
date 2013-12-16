@@ -22,22 +22,17 @@ Syr2kUN
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::Syr2kUN");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must be distributed over the same grid");
-    if( A.Height() != C.Height() || A.Height() != C.Width() ||
-        B.Height() != C.Height() || B.Height() != C.Width() ||
-        A.Width() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal Syr2kUN:\n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::Syr2kUN");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must be distributed over the same grid");
+        if( A.Height() != C.Height() || A.Height() != C.Width() ||
+            B.Height() != C.Height() || B.Height() != C.Width() ||
+            A.Width() != B.Width() )
+            LogicError
+            ("Nonconformal Syr2kUN:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = C.Grid();
 
     // Matrix views 

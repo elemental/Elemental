@@ -20,11 +20,11 @@ template<typename F>
 inline void
 TrdtrmmLUnblocked( Matrix<F>& L, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmLUnblocked");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmLUnblocked");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Int n = L.Height();
     const Int ldim = L.LDim();
 
@@ -74,11 +74,11 @@ template<typename F>
 inline void
 TrdtrmmLUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmLUnblocked");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmLUnblocked");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Int n = L.Height();
     const Int ldim = L.LDim();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -162,11 +162,11 @@ template<typename F>
 inline void
 TrdtrmmUUnblocked( Matrix<F>& U, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmUUnblocked");
-    if( U.Height() != U.Width() )
-        LogicError("U must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmUUnblocked");
+        if( U.Height() != U.Width() )
+            LogicError("U must be square");
+    )
     const Int n = U.Height();
 
     Matrix<F> s01;

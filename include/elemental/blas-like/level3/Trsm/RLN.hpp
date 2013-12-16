@@ -27,9 +27,7 @@ TrsmRLN
 ( UnitOrNonUnit diag, F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsmRLN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::TrsmRLN"))
     const Grid& g = L.Grid();
 
     // Matrix views

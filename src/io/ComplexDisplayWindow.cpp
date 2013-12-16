@@ -19,9 +19,7 @@ namespace elem {
 ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
 : QWidget(parent)
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComplexDisplayWindow::ComplexDisplayWindow");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::ComplexDisplayWindow"))
     matrix_ = 0;
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -68,9 +66,7 @@ void
 ComplexDisplayWindow::Display
 ( const Matrix<Complex<double>>* matrix, QString title )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComplexDisplayWindow::Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::Display"))
     if( matrix_ != 0 )
         delete matrix_; 
     matrix_ = matrix;
@@ -87,9 +83,7 @@ ComplexDisplayWindow::Display
   double minImagVal, double maxImagVal,
   QString title )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComplexDisplayWindow::Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::Display"))
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;
@@ -102,9 +96,7 @@ ComplexDisplayWindow::Display
 void
 ComplexDisplayWindow::SaveReal()
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComplexDisplayWindow::SaveReal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::SaveReal"))
     std::ostringstream os;
     os << windowTitle().toStdString() << " (real)";
     realDisplay_->SavePng( os.str() );
@@ -113,9 +105,7 @@ ComplexDisplayWindow::SaveReal()
 void
 ComplexDisplayWindow::SaveImag()
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComplexDisplayWindow::SaveImag");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::SaveImag"))
     std::ostringstream os;
     os << windowTitle().toStdString() << " (imag)";
     imagDisplay_->SavePng( os.str() );
@@ -124,9 +114,7 @@ ComplexDisplayWindow::SaveImag()
 void 
 ComplexDisplayWindow::SetScale( bool global )
 {
-#ifndef RELEASE
-    CallStackEntry cse("ComplexDisplayWindow::SetScale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("ComplexDisplayWindow::SetScale"))
     if( global )
     {
         const double minRealVal = MinRealWindowVal();

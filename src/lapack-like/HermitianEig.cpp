@@ -139,9 +139,7 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -158,9 +156,7 @@ void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<F,STAR,STAR>& A, DistMatrix<Base<F>,STAR,STAR>& w, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -177,9 +173,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
@@ -263,9 +257,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
   Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -283,9 +275,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -303,9 +293,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
@@ -472,9 +460,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
   Matrix<Base<F>>& w, Int il, Int iu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -494,9 +480,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, Int il, Int iu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -517,9 +501,7 @@ void HermitianEig
   DistMatrix<Base<F>,VR,STAR>& w, Int lowerBound, Int upperBound, 
   SortType sort ) 
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
@@ -607,9 +589,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
   Matrix<Base<F>>& w, Matrix<F>& Z, Int il, Int iu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -631,9 +611,7 @@ void HermitianEig
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
   Int il, Int iu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -655,9 +633,7 @@ void HermitianEig
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ, 
   Int lowerBound, Int upperBound, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
@@ -823,9 +799,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
   Matrix<Base<F>>& w, Base<F> vl, Base<F> vu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( vl >= vu )
     {
         w.ResizeTo(0,1);
@@ -849,9 +823,7 @@ void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, Base<F> vl, Base<F> vu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( vl >= vu )
     {
         w.ResizeTo(0,1);
@@ -876,9 +848,7 @@ void HermitianEig
   DistMatrix<Base<F>,VR,STAR>& w, Base<F> lowerBound, Base<F> upperBound,
   SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( lowerBound >= upperBound )
     {
         w.ResizeTo(0,1);
@@ -967,9 +937,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
   Base<F> vl, Base<F> vu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     if( vl >= vu )
@@ -999,9 +967,7 @@ void HermitianEig
   DistMatrix<F,STAR,STAR>& Z, 
   Base<F> vl, Base<F> vu, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     if( vl >= vu )
@@ -1029,9 +995,7 @@ void HermitianEig
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
   Base<F> lowerBound, Base<F> upperBound, SortType sort )
 {
-#ifndef RELEASE
-    CallStackEntry cse("HermitianEig");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
     if( lowerBound >= upperBound )

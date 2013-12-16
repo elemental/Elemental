@@ -23,20 +23,20 @@ TrsvLT
 ( Orientation orientation, UnitOrNonUnit diag, 
   const DistMatrix<F>& L, DistMatrix<F>& x )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrsvLT");
-    if( L.Grid() != x.Grid() )
-        LogicError("{L,x} must be distributed over the same grid");
-    if( orientation == NORMAL )
-        LogicError("TrsvLT expects a (conjugate-)transpose option");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-    if( x.Width() != 1 && x.Height() != 1 )
-        LogicError("x must be a vector");
-    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-    if( L.Width() != xLength )
-        LogicError("Nonconformal TrsvLT");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrsvLT");
+        if( L.Grid() != x.Grid() )
+            LogicError("{L,x} must be distributed over the same grid");
+        if( orientation == NORMAL )
+            LogicError("TrsvLT expects a (conjugate-)transpose option");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+        if( x.Width() != 1 && x.Height() != 1 )
+            LogicError("x must be a vector");
+        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        if( L.Width() != xLength )
+            LogicError("Nonconformal TrsvLT");
+    )
     const Grid& g = L.Grid();
 
     if( x.Width() == 1 )

@@ -19,9 +19,7 @@ namespace elem {
 DisplayWindow::DisplayWindow( QWidget* parent )
 : QWidget(parent)
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWindow::DisplayWindow");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWindow::DisplayWindow"))
     matrix_ = 0;
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -58,9 +56,7 @@ DisplayWindow::~DisplayWindow()
 void
 DisplayWindow::Display( const Matrix<double>* matrix, QString title )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWindow::Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWindow::Display"))
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;
@@ -73,9 +69,7 @@ void
 DisplayWindow::Display
 ( const Matrix<double>* matrix, double minVal, double maxVal, QString title )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWindow::Display");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWindow::Display"))
     if( matrix_ != 0 )
         delete matrix_;
     matrix_ = matrix;
@@ -87,18 +81,14 @@ DisplayWindow::Display
 void
 DisplayWindow::Save()
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWindow::Save");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWindow::Save"))
     display_->SavePng( windowTitle().toStdString() );
 }
 
 void
 DisplayWindow::SetScale( bool global )
 {
-#ifndef RELEASE
-    CallStackEntry cse("DisplayWindow::SetScale");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("DisplayWindow::SetScale"))
     if( global )
     {
         const double minVal = MinRealWindowVal();

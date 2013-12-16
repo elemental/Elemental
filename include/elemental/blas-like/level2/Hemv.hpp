@@ -20,9 +20,7 @@ Hemv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hemv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hemv"))
     Symv( uplo, alpha, A, x, beta, y, true );
 }
 
@@ -34,9 +32,7 @@ Hemv
            const DistMatrix<T>& x,
   T beta,        DistMatrix<T>& y )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Hemv");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Hemv"))
     Symv( uplo, alpha, A, x, beta, y, true );
 }
 

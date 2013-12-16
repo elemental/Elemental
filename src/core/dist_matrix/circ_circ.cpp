@@ -19,11 +19,11 @@ template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g, Int root )
 : ADM<T>(g)
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->CrossSize() )
-        LogicError("Invalid root");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ]::DistMatrix");
+        if( root < 0 || root >= this->CrossSize() )
+            LogicError("Invalid root");
+    )
     this->root_ = root; 
 }
 
@@ -31,11 +31,11 @@ template<typename T>
 DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g, Int root )
 : ADM<T>(g)
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->CrossSize() )
-        LogicError("Invalid root");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ]::DistMatrix");
+        if( root < 0 || root >= this->CrossSize() )
+            LogicError("Invalid root");
+    )
     this->root_ = root;
     this->ResizeTo( height, width );
 }
@@ -45,11 +45,11 @@ DM<T>::DistMatrix
 ( Int height, Int width, Int ldim, const elem::Grid& g, Int root )
 : ADM<T>(g)
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->CrossSize() )
-        LogicError("Invalid root");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ]::DistMatrix");
+        if( root < 0 || root >= this->CrossSize() )
+            LogicError("Invalid root");
+    )
     this->root_ = root;
     this->ResizeTo( height, width, ldim );
 }
@@ -60,11 +60,11 @@ DM<T>::DistMatrix
   Int root )
 : ADM<T>(g)
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->CrossSize() )
-        LogicError("Invalid root");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ]::DistMatrix");
+        if( root < 0 || root >= this->CrossSize() )
+            LogicError("Invalid root");
+    )
     this->root_ = root;
     this->LockedAttach( height, width, root, buffer, ldim, g );
 }
@@ -74,11 +74,11 @@ DM<T>::DistMatrix
 ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, Int root )
 : ADM<T>(g)
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->CrossSize() )
-        LogicError("Invalid root");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ]::DistMatrix");
+        if( root < 0 || root >= this->CrossSize() )
+            LogicError("Invalid root");
+    )
     this->root_ = root;
     this->Attach( height, width, root, buffer, ldim, g );
 }
@@ -87,9 +87,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[o ,o ]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::DistMatrix"))
     this->root_ = A.Root();
     if( &A != this )
         *this = A;
@@ -102,9 +100,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[o ,o ]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::DistMatrix"))
     this->root_ = 0;
     if( CIRC != U || CIRC != V || 
         reinterpret_cast<const DM<T>*>(&A) != this )
@@ -183,9 +179,7 @@ DM<T>::Attach
 ( Int height, Int width, Int root,
   T* buffer, Int ldim, const elem::Grid& grid )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::Attach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::Attach"))
     this->grid_ = &grid;
     this->SetRoot( root );
     this->height_ = height;
@@ -201,9 +195,7 @@ DM<T>::LockedAttach
 ( Int height, Int width, Int root,
   const T* buffer, Int ldim, const elem::Grid& grid )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::LockedAttach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::LockedAttach"))
     this->grid_ = &grid;
     this->SetRoot( root );
     this->height_ = height;
@@ -234,9 +226,7 @@ template<typename T>
 void
 DM<T>::CopyFromRoot( const Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::CopyFromRoot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromRoot"))
     const Grid& grid = this->Grid();
     if( grid.VCRank() != this->Root() )
         LogicError("Called CopyFromRoot from non-root");
@@ -254,9 +244,7 @@ template<typename T>
 void
 DM<T>::CopyFromNonRoot()
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ]::CopyFromNonRoot");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromNonRoot"))
     const Grid& grid = this->Grid();
     if( grid.VCRank() == this->Root() )
         LogicError("Called CopyFromNonRoot from root");
@@ -271,11 +259,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,MR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [MC,MR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [MC,MR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -354,11 +342,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [MC,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [MC,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -428,11 +416,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [* ,MR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [* ,MR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -499,11 +487,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [MD,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [MD,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -584,11 +572,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [* ,MD]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [* ,MD]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -665,11 +653,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MR,MC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [MR,MC]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [MR,MC]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -748,11 +736,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [MR,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [MR,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -823,11 +811,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [* ,MC]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [* ,MC]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -894,11 +882,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [VC,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [VC,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -966,11 +954,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [o ,o ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [o ,o ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( A.Height(), A.Width() );
@@ -1033,11 +1021,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [VR,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [VR,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -1108,11 +1096,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [* ,VR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [* ,VR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );
@@ -1178,9 +1166,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [* ,* ]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ] = [* ,* ]"))
     this->ResizeTo( A.Height(), A.Width() );
     if( A.Grid().VCRank() == this->Root() )
         this->matrix_ = A.LockedMatrix();
@@ -1191,11 +1177,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DM<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[o ,o ] = [o ,o ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[o ,o ] = [o ,o ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     this->ResizeTo( m, n );

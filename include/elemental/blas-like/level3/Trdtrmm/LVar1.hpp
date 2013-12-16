@@ -20,11 +20,11 @@ template<typename F>
 inline void
 TrdtrmmLVar1( Matrix<F>& L, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmLVar1");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmLVar1");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<F> S10;
 
@@ -51,11 +51,11 @@ template<typename F>
 inline void
 TrdtrmmLVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmLVar1");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmLVar1");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     Matrix<F> S10;
 
@@ -88,11 +88,11 @@ template<typename F>
 inline void
 TrdtrmmLVar1( DistMatrix<F>& L, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmLVar1");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmLVar1");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Grid& g = L.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -141,11 +141,11 @@ inline void
 TrdtrmmLVar1
 ( DistMatrix<F>& L, const DistMatrix<F,MD,STAR>& dSub, bool conjugate=false )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrdtrmmLVar1");
-    if( L.Height() != L.Width() )
-        LogicError("L must be square");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrdtrmmLVar1");
+        if( L.Height() != L.Width() )
+            LogicError("L must be square");
+    )
     const Grid& g = L.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 

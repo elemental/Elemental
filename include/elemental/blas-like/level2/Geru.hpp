@@ -16,16 +16,16 @@ template<typename T>
 inline void
 Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Geru");
-    if( ( x.Height() != 1 && x.Width() != 1 ) ||
-        ( y.Height() != 1 && y.Width() != 1 ) )
-        LogicError("x and y must be vectors");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( xLength != A.Height() || yLength != A.Width() )
-        LogicError("Nonconformal Geru");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Geru");
+        if( ( x.Height() != 1 && x.Width() != 1 ) ||
+            ( y.Height() != 1 && y.Width() != 1 ) )
+            LogicError("x and y must be vectors");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( xLength != A.Height() || yLength != A.Width() )
+            LogicError("Nonconformal Geru");
+    )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
@@ -42,25 +42,22 @@ Geru
            const DistMatrix<T>& y,
                  DistMatrix<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("Geru");
-    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-       LogicError("{A,x,y} must be distributed over the same grid");
-    if( ( x.Width() != 1 && x.Height() != 1 ) ||
-        ( y.Width() != 1 && y.Height() != 1 )   )
-        LogicError("x and y are assumed to be vectors");
-    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-    if( A.Height() != xLength || A.Width() != yLength )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal Geru: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
-            << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("Geru");
+        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+           LogicError("{A,x,y} must be distributed over the same grid");
+        if( ( x.Width() != 1 && x.Height() != 1 ) ||
+            ( y.Width() != 1 && y.Height() != 1 )   )
+            LogicError("x and y are assumed to be vectors");
+        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        if( A.Height() != xLength || A.Width() != yLength )
+            LogicError
+            ("Nonconformal Geru: \n",
+             "  A ~ ",A.Height()," x ",A.Width(),"\n",
+             "  x ~ ",x.Height()," x ",x.Width(),"\n",
+             "  y ~ ",y.Height()," x ",y.Width(),"\n")
+    )
     const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )
     {

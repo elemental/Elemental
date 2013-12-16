@@ -114,6 +114,24 @@ inline void RuntimeError( Args... args )
 }
 #endif // ifndef SWIG
 
+template<typename T>
+inline std::string 
+DimsString( const Matrix<T>& A, std::string label="Matrix" )
+{ 
+    std::ostringstream os;
+    os << label << " ~ " << A.Height() << " x " << A.Width();
+    return os.str();
+}
+
+template<typename T,Distribution U,Distribution V>
+inline std::string
+DimsString( const DistMatrix<T,U,V>& A, std::string label="DistMatrix" )
+{
+    std::ostringstream os;
+    os << label << " ~ " << A.Height() << " x " << A.Width();
+    return os.str();
+}
+
 // An exception which signifies that a matrix was unexpectedly singular.
 class SingularMatrixException : public std::runtime_error 
 {

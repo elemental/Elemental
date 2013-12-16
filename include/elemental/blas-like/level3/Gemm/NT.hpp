@@ -25,24 +25,18 @@ SUMMA_NTA
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NTA");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( orientationOfB == NORMAL )
-        LogicError("B must be (Conjugate)Transposed");
-    if( A.Height() != C.Height() ||
-        B.Height() != C.Width()  ||
-        A.Width()  != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NTA");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( orientationOfB == NORMAL )
+            LogicError("B must be (Conjugate)Transposed");
+        if( A.Height() != C.Height() || B.Height() != C.Width() ||
+            A.Width() != B.Width() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
     const bool conjugate = ( orientationOfB == ADJOINT );
 
@@ -109,24 +103,19 @@ SUMMA_NTB
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NTB");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( orientationOfB == NORMAL )
-        LogicError("B must be (Conjugate)Transposed");
-    if( A.Height() != C.Height() ||
-        B.Height() != C.Width()  ||
-        A.Width()  != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NTB");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( orientationOfB == NORMAL )
+            LogicError("B must be (Conjugate)Transposed");
+        if( A.Height() != C.Height() ||
+            B.Height() != C.Width() ||
+            A.Width() != B.Width() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -206,24 +195,19 @@ SUMMA_NTC
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NTC");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grid");
-    if( orientationOfB == NORMAL )
-        LogicError("B must be (Conjugate)Transposed");
-    if( A.Height() != C.Height() ||
-        B.Height() != C.Width()  ||
-        A.Width()  != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal matrices: \n"
-            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("gemm::SUMMA_NTC");
+        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+            LogicError("{A,B,C} must have the same grid");
+        if( orientationOfB == NORMAL )
+            LogicError("B must be (Conjugate)Transposed");
+        if( A.Height() != C.Height() ||
+            B.Height() != C.Width() ||
+            A.Width() != B.Width() )
+            LogicError
+            ("Nonconformal matrices:\n",
+             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+    )
     const Grid& g = A.Grid();
     const bool conjugate = ( orientationOfB == ADJOINT );
 
@@ -284,9 +268,7 @@ SUMMA_NT
            const DistMatrix<T>& B,
   T beta, DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("gemm::SUMMA_NT");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_NT"))
     const Int m = C.Height();
     const Int n = C.Width();
     const Int k = A.Width();
