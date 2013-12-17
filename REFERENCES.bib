@@ -1,0 +1,273 @@
+NOTE: This list is new will hopefully grow rapidly. I would like to move towards
+      making Elemental (and my other open source efforts) closer to 
+      publications.
+
+
+Spectral Divide and Conquer
+===========================
+
+Elemental contains preliminary implementations of spectral divide and conquer
+algorithms derived from the following paper:
+@article{
+  author={Z. Bai and J. Demmel and J. Dongarra and A. Petitet and H. Robinson
+          and K. Stanley},
+  title={The spectral decomposition of nonsymmetric matrices on distributed
+         memory parallel computers},
+  journal={SIAM J. Sci. Comput},
+  volume=18,
+  number=5,
+  pages={1446--1461}, 
+  year=1997,
+}
+
+The randomized approach from the following paper is used in order to avoid a
+pivoted QR decomposition:
+@article{
+  author={J. Demmel and I. Dumitriu and O. Holtz},
+  title={Fast linear algebra is stable},
+  journal={Numerische Mathematik},
+  volume=108,
+  number=1,
+  pages={59--91},
+  year=2007
+}
+
+TODO: Add later Ballard et al. paper
+
+Pivoted QR
+==========
+
+This paper introduced the Businger-Golub algorithm for column-pivoted QR
+decompositions.
+@article{
+  author={P.A. Businger and G.H. Golub},
+  title={Linear least squares solutions by {H}ouseholder transformations},
+  journal={Numerische Mathematik},
+  volume=7,
+  number=3,
+  pages={269--276},
+  year=1965
+}
+
+Elemental uses the same norm updating strategy as this paper and the 
+corresponding LAPACK implementation of dgeqpf.f
+@article{
+  author={Z. Drmac and Z. Bujanovic},
+  title={On the failure of {R}ank-{R}evealing {QR} factorization software --
+         a case study},
+  journal={ACM Trans. Math. Soft},
+  volume=35,
+  number=2,
+  pages={12:1--12:28},
+  year=2008
+}
+
+Introduced GKS matrix, which the greedy RRQR fails on.
+@techreport{
+  author={G.H. Golub and V. Klema and G.W. Stewart},
+  title={Rank degeneracy and least squares problems},
+  institution={Stanford University}, 
+  number={STAN-CS-76-559},
+  year=1976
+}
+
+Standard reference for (strong) RRQR factorizations, which will hopefully be 
+added to Elemental in the near future.
+@article{
+  author={M. Gu and S. Eisenstat},
+  title={Efficient algorithms for computing a strong rank-revealing {QR}
+         factorization},
+  journal={SIAM J. Sci. Comput},
+  volume=17,
+  number=4,
+  pages={848--869},
+  year=1996
+}
+
+Singular Value Decomposition
+============================
+
+This paper introduced the idea of using a QR decomposition as a first
+step in the SVD of a non-square matrix in order to accelerate the 
+computation (well, an earlier Golub paper mentioned it as well).
+
+@article{
+  author={T.F. Chan},
+  title={An improved algorithm for computing the {S}ingular {V}alue
+         {D}ecomposition},
+  journal={ACM Trans. Math. Soft},
+  volume=8,
+  number=1,
+  pages={72--83},
+  year=1982
+}
+
+This paper introduced the standard algorithm for computing the SVD.
+@article{
+  author={G.H. Golub and C. Reinsch},
+  title={Singular value decomposition and least squares solutions},
+  journal={Numerische Mathematik},
+  volume=14,
+  number=5,
+  pages={403--420},
+  year=1970
+}
+
+This could serve as a foundation for achieving high absolute accuracy
+in a cross-product based algorithm for computing the SVD. Such an
+approach should be more scalable than the current 
+bidiagonalization-based approach.
+@article{
+  author={Z. Jia},
+  title={Using cross-product matrices to compute the {SVD}},
+  journal={Numerical Algorithms},
+  volume=42,
+  number=1,
+  pages={31--61},
+  year=2006
+}
+
+Symmetric positive-definite inversion
+=====================================
+
+The variant 2 single-sweep algorithm from Fig. 9 was parallelized for
+Elemental's HPD inversion.
+@article{
+  author={P. Bientinesi and B. Gunter and R.A. van de Geijn},
+  title={Families of algorithms related to the inversion of a {S}ymmetric
+         {P}ositive {D}efinite matrix},
+  journal={ACM Trans. Math. Soft},
+  volume=35,
+  number=1,
+  pages={3:1--3:22},
+  year=2008
+}
+
+Interpolative and skeleton decompositions
+=========================================
+
+Standard reference for (pseudo-)skeleton approximations, which are also referred
+to as CUR decompositions, especially when the center matrix is non-square.
+@article{
+  author={S.A. Goreinov and E.E. Tyrtyshnikov and N.L. Zamarashkin},
+  title={A theory of pseudoskeleton approximations},
+  journal={Linear Algebra and Appl},
+  volume=261,
+  number=1--3,
+  pages={1--21}, 
+  year=1997
+}
+
+Introduced effective randomized approximations of interpolative decompositions
+@article{
+  author={E. Liberty and F. Woolfe and P.-G. Martinsson and V. Rokhlin and 
+          M. Tygert},
+  title={Randomized algorithms for the low-rank approximation of matrices},
+  journal={Proc. Natl. Acad. Sci, USA},
+  volume=104,
+  pages={20167--20172},
+  year=2007
+}
+
+Contains a thorough analysis of many randomized algorithms for (pseudoskeleton)
+decompositions using RRQR factorizations.
+@article{
+  author={J. Chiu and L. Demanet},
+  title={Sublinear randomized algorithms for skeleton decompositions},
+  journal={SIAM J. Matrix Anal. \& Appl},
+  volume=34, 
+  number=3,
+  pages={1361--1383},
+  year=2013
+}
+
+Householder tridiagonalization
+==============================
+
+One of the origins for the square-grid tridiagonalization algorithm used in
+Elemental (which was later refined by Stanley et al.).
+@article{
+  author={B. Hendrickson and E. Jessup and C. Smith},
+  title={Towards an efficient parallel eigensolver for dense symmetric 
+         matrices},
+  journal={SIAM J. Sci. Comput},
+  volume=20,
+  number=3,
+  pages={1132--1154},
+  year=1999
+}
+
+Contains the algorithm used for Elemental's square-grid tridiagonalization.
+@techreport{
+  author={K. Stanley},
+  title={Execution time of symmetric eigensolvers},
+  type={{Ph.D.} {D}issertation},
+  number={CSD-99-1039},
+  pages=183,
+  institution={University of California at Berkeley},
+  year=1997
+}
+
+Two-sided triangular transformations
+====================================
+
+Contains the main algorithm used for Elemental's two-sided triangular solves.
+@inproceedings{
+  author={M.P. Sears and K. Stanley and G. Henry},
+  title={Application of a high performance parallel eigensolver to electronic
+         structure calculation},
+  booktitle={Proceedings of the ACM/IEEE Conf. on Supercomputing},
+  publisher={IEEE Computer Society},
+  year=1998
+}
+
+Matrix functions
+================
+
+Heavily used for Elemental's Sign implementation
+@book{
+  author={Nicholas J. Higham},
+  title={Functions of {M}atrices: {T}heory and {C}omputation}, 
+  publisher={SIAM},
+  year=2008
+}
+
+Fast Haar generation
+====================
+
+Useful for randomized rank-revealing factorizations of rank-deficient matrices
+@article{
+  author={G.W. Stewart},
+  title={The efficient generation of random orthogonal matrices with an 
+         application to condition estimators},
+  journal={SIAM J. Numer. Anal},
+  volume=17,
+  number=3,
+  pages={403--409},
+  year=1980
+}
+
+Miscellaneous
+=============
+
+This paper is used for the definition of the coherence of a subspace with
+respect to the standard unit basis vectors.
+@article{
+  author={E.J. Candes and B. Recht},
+  title={Exact matrix completion via convex optimization},
+  journal={Foundations of Comput. Math},
+  volume=9,
+  number=6,
+  pages={717--772},
+  year=2009
+}
+
+Added for definition of Kahan matrix (pg. 260)
+@book{
+  author={G.H. Golub and C.F. van Loan},
+  title={Matrix {C}omputations},
+  edition={3rd}, 
+  publisher={Johns Hopkins University Press},
+  address={Baltimore},
+  year=1996
+}

@@ -448,6 +448,22 @@ void FC_GLOBAL_(elem_print_dist_mat_star_star,NAME)( int* AHandle )
 // Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
 //
 
+void FC_GLOBAL_(elem_cholesky,NAME)
+( int* AHandle )
+{
+    auto& A = GetDistMat( *AHandle );
+    try { Cholesky( LOWER, A ); }
+    catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_cpx_cholesky,NAME)
+( int* AHandle )
+{
+    auto& A = GetCpxDistMat( *AHandle );
+    try { Cholesky( LOWER, A ); }
+    catch( std::exception& e ) { Cleanup(e); }
+}
+
 void FC_GLOBAL_(elem_symmetric_eig,NAME)
 ( int* AHandle, int* wHandle, int* XHandle )
 {

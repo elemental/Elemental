@@ -1,0 +1,82 @@
+Journal publications
+====================
+
+The first major publication on Elemental, which includes numerous benchmarks on
+Blue Gene/P.
+@article{
+  author={J. Poulson and B. Marker and R.A. van de Geijn and 
+          J.R. Hammond and N.A. Romero},
+  title={Elemental: {A} new framework for distributed memory dense matrix
+         computations},
+  journal={ACM Trans. Math. Soft},
+  volume=39,
+  number=2,
+  pages={13:1--13:24},
+  year=2013
+}
+
+Contains detailed benchmarks of Elemental's MRRR-based Hermitian eigensolvers.
+@article{
+  author={M. Petschow and E. Peise and P. Bientinesi},
+  title={High-performance solvers for dense {H}ermitian eigenproblems},
+  journal={SIAM J. Sci. Comput},
+  volume=35, 
+  number=1,
+  pages={C1--C22},
+  year=2013
+}
+
+Used Elemental (via the sparse-direct solver Clique) for the solution of 
+high-frequency heterogeneous Helmholtz equations via a sweeping preconditioner
+@article{
+  author={J. Poulson and B. Engquist and S. Li and L. Ying},
+  title={A parallel sweeping preconditioner for heterogeneous {3D} {H}elmholtz 
+         equations},
+  journal={SIAM J. Sci. Comput},
+  volume=35,
+  number=3,
+  pages={C194--C212},
+  year=2013 
+}
+
+Distributed-memory parallelization of the butterfly algorithm which motivated
+Elemental's implementation of pivoted QR and interpolative decompositions
+@article{
+  author={J. Poulson and L. Demanet and N. Maxwell and L. Ying},
+  title={A parallel butterfly algorithm},
+  journal={SIAM J. Sci. Comput},
+  note={To appear.}
+}
+
+Case study of porting an early version of Elemental to the Intel SCC
+@article{
+  author={B. Marker and E. Chan and J. Poulson and R. van de Geijn and 
+          R.F. van der Wijngaart and T.G. Mattson and T.E. Kubaska},
+  title={Programming many-core architectures - a case study: dense matrix
+         computations on the {I}ntel single-chip cloud computer processor},
+  journal = {Concurrency and Computation: Practice and Experience},
+  volume=24,
+  number=12,
+  pages={1317--1333},
+  year=2012
+}
+
+Technical Reports
+=================
+
+@techreport{
+  author={J. Poulson and R.A. van de Geijn and J. Bennighof},
+  title={Parallel algorithms for reducing the generalized {H}ermitian-definite
+         eigenvalue problem},
+  institution={University of Texas at Austin},
+  number={TR-11-05},
+  year=2011
+}
+
+@techreport{
+  author={M. Schatz and J. Poulson and R.A. van de Geijn},
+  title={Parallel Matrix Multiplication: {2D} and {3D}},
+  institution={University of Texas at Austin},
+  number={TR-12-13},
+  year=2012
+}
