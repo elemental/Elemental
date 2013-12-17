@@ -20,10 +20,10 @@
 # it is safe to invoke ENABLE_LANGUAGE(Fortran OPTIONAL)
 
 function(workaround_9220 language language_works)
-  #message("DEBUG: language = ${language}")
   set(text
     "project(test NONE)
 cmake_minimum_required(VERSION 2.6.0)
+set(CMAKE_${language}_COMPILER ${CMAKE_${language}_COMPILER})
 enable_language(${language} OPTIONAL)
 "
     )
@@ -57,9 +57,3 @@ enable_language(${language} OPTIONAL)
     set(${language_works} OFF PARENT_SCOPE)
   endif(return_code EQUAL 0)
 endfunction(workaround_9220)
-
-# Temporary tests of the above function.
-#workaround_9220(CXX CXX_language_works)
-#message("CXX_language_works = ${CXX_language_works}")
-#workaround_9220(CXXp CXXp_language_works)
-#message("CXXp_language_works = ${CXXp_language_works}")

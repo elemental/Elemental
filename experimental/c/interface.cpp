@@ -17,15 +17,18 @@ extern "C" {
 
 namespace {
 
+typedef double Real;
+typedef Complex<Real> Cpx;
+
 const unsigned maxUnsigned = std::numeric_limits<unsigned>::max();
 
 std::vector<Grid*> gridList;
 
-std::vector<DistMatrix<double>*> distMatList;
-std::vector<DistMatrix<Complex<double> >*> cpxDistMatList;
+std::vector<DistMatrix<Real>*> distMatList;
+std::vector<DistMatrix<Cpx >*> cpxDistMatList;
 
-std::vector<DistMatrix<double,VC,STAR>*> distMatList_VC_STAR;
-std::vector<DistMatrix<double,VR,STAR>*> distMatList_VR_STAR;
+std::vector<DistMatrix<Real,VC,STAR>*> distMatList_VC_STAR;
+std::vector<DistMatrix<Real,VR,STAR>*> distMatList_VR_STAR;
 
 const Grid& GetGrid( ElemGrid grid )
 { 
@@ -35,16 +38,16 @@ const Grid& GetGrid( ElemGrid grid )
         return *gridList[grid]; 
 }
 
-DistMatrix<double>& GetDistMat( ElemDistMat A )
+DistMatrix<Real>& GetDistMat( ElemDistMat A )
 { return *distMatList[A]; }
 
-DistMatrix<Complex<double> >& GetCpxDistMat( ElemCpxDistMat A )
+DistMatrix<Cpx>& GetCpxDistMat( ElemCpxDistMat A )
 { return *cpxDistMatList[A]; }
 
-DistMatrix<double,VC,STAR>& GetDistMat_VC_STAR( ElemDistMat_VC_STAR A )
+DistMatrix<Real,VC,STAR>& GetDistMat_VC_STAR( ElemDistMat_VC_STAR A )
 { return *distMatList_VC_STAR[A]; }
 
-DistMatrix<double,VR,STAR>& GetDistMat_VR_STAR( ElemDistMat_VR_STAR A )
+DistMatrix<Real,VR,STAR>& GetDistMat_VR_STAR( ElemDistMat_VR_STAR A )
 { return *distMatList_VR_STAR[A]; }
 
 template<typename T>
@@ -62,28 +65,28 @@ unsigned GetOpenIndex( std::vector<T*>& list )
 ElemDistMat CreateDistMat( const Grid& grid )
 {
     const unsigned index = GetOpenIndex( distMatList );
-    distMatList[index] = new DistMatrix<double>( grid );
+    distMatList[index] = new DistMatrix<Real>( grid );
     return index;
 }
 
 ElemCpxDistMat CreateCpxDistMat( const Grid& grid )
 {
     const unsigned index = GetOpenIndex( cpxDistMatList );
-    cpxDistMatList[index] = new DistMatrix<Complex<double> >( grid );
+    cpxDistMatList[index] = new DistMatrix<Cpx>( grid );
     return index;
 }
 
 ElemDistMat_VC_STAR CreateDistMat_VC_STAR( const Grid& grid )
 {
     const unsigned index = GetOpenIndex( distMatList_VC_STAR );
-    distMatList_VC_STAR[index] = new DistMatrix<double,VC,STAR>( grid );
+    distMatList_VC_STAR[index] = new DistMatrix<Real,VC,STAR>( grid );
     return index;
 }
 
 ElemDistMat_VR_STAR CreateDistMat_VR_STAR( const Grid& grid )
 {
     const unsigned index = GetOpenIndex( distMatList_VR_STAR );
-    distMatList_VR_STAR[index] = new DistMatrix<double,VR,STAR>( grid );
+    distMatList_VR_STAR[index] = new DistMatrix<Real,VR,STAR>( grid );
     return index;
 }
 
@@ -164,12 +167,12 @@ void ElemFreeGrid( ElemGrid grid )
 
 ElemDistMat ElemRegisterDistMat
 ( int height, int width, int colAlignment, int rowAlignment, 
-  double* buffer, int ldim, ElemGrid gridHandle )
+  Real* buffer, int ldim, ElemGrid gridHandle )
 {
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( distMatList );
     distMatList[index] = 
-        new DistMatrix<double>
+        new DistMatrix<Real>
         (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
     return index;
 }
@@ -178,7 +181,7 @@ ElemDistMat ElemCreateDistMat( ElemGrid gridHandle )
 {
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( distMatList );
-    distMatList[index] = new DistMatrix<double>( grid );
+    distMatList[index] = new DistMatrix<Real>( grid );
     return index;
 }
 
@@ -186,13 +189,12 @@ ElemCpxDistMat ElemRegisterCpxDistMat
 ( int height, int width, int colAlignment, int rowAlignment, 
   void* voidBuffer, int ldim, ElemGrid gridHandle )
 {
-    typedef Complex<double> C;
-    C* buffer = static_cast<C*>(voidBuffer);
+    Cpx* buffer = static_cast<Cpx*>(voidBuffer);
 
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( cpxDistMatList );
     cpxDistMatList[index] = 
-        new DistMatrix<Complex<double> >
+        new DistMatrix<Cpx>
         (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
     return index;
 }
@@ -201,19 +203,19 @@ ElemCpxDistMat ElemCreateCpxDistMat( ElemGrid gridHandle )
 {
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( cpxDistMatList );
-    cpxDistMatList[index] = new DistMatrix<Complex<double> >( grid );
+    cpxDistMatList[index] = new DistMatrix<Cpx>( grid );
     return index;
 }
 
 void ElemUniformDistMat( ElemDistMat AHandle, int height, int width )
 {
-    DistMatrix<double>& A = GetDistMat( AHandle );
+    auto& A = GetDistMat( AHandle );
     Uniform( A, height, width );
 }
 
 void ElemUniformCpxDistMat( ElemCpxDistMat AHandle, int height, int width )
 {
-    DistMatrix<Complex<double> >& A = GetCpxDistMat( AHandle );
+    auto& A = GetCpxDistMat( AHandle );
     Uniform( A, height, width );
 }
 
@@ -237,14 +239,13 @@ void ElemFreeCpxDistMat( ElemCpxDistMat A )
 
 void ElemPrintDistMat( ElemDistMat AHandle )
 {
-    const DistMatrix<double>& A = GetDistMat( AHandle );
+    const auto& A = GetDistMat( AHandle );
     Print( A );
 }
 
 void ElemPrintCpxDistMat( ElemCpxDistMat AHandle )
 {
-    typedef Complex<double> C;
-    const DistMatrix<C>& A = GetCpxDistMat( AHandle );
+    const auto& A = GetCpxDistMat( AHandle );
     Print( A );
 }
 
@@ -256,7 +257,7 @@ ElemDistMat_VC_STAR ElemCreateDistMat_VC_STAR( ElemGrid gridHandle )
 {
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( distMatList_VC_STAR );
-    distMatList_VC_STAR[index] = new DistMatrix<double,VC,STAR>( grid );
+    distMatList_VC_STAR[index] = new DistMatrix<Real,VC,STAR>( grid );
     return index;
 }
 
@@ -271,7 +272,7 @@ void ElemFreeDistMat_VC_STAR( ElemDistMat_VC_STAR A )
 
 void ElemPrintDistMat_VC_STAR( ElemDistMat_VC_STAR AHandle )
 {
-    const DistMatrix<double,VC,STAR>& A = GetDistMat_VC_STAR( AHandle );
+    const auto& A = GetDistMat_VC_STAR( AHandle );
     Print( A );
 }
 
@@ -283,7 +284,7 @@ ElemDistMat_VR_STAR ElemCreateDistMat_VR_STAR( ElemGrid gridHandle )
 {
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( distMatList_VR_STAR );
-    distMatList_VR_STAR[index] = new DistMatrix<double,VR,STAR>( grid );
+    distMatList_VR_STAR[index] = new DistMatrix<Real,VR,STAR>( grid );
     return index;
 }
 
@@ -298,7 +299,7 @@ void ElemFreeDistMat_VR_STAR( ElemDistMat_VR_STAR A )
 
 void ElemPrintDistMat_VR_STAR( ElemDistMat_VR_STAR AHandle )
 {
-    const DistMatrix<double,VR,STAR>& A = GetDistMat_VR_STAR( AHandle );
+    const auto& A = GetDistMat_VR_STAR( AHandle );
     Print( A );
 }
 
@@ -310,13 +311,13 @@ void ElemSymmetricAxBx
 ( ElemDistMat AHandle, ElemDistMat BHandle,
   ElemDistMat_VR_STAR* wHandle, ElemDistMat* XHandle )
 {
-    DistMatrix<double>& A = GetDistMat( AHandle );
-    DistMatrix<double>& B = GetDistMat( BHandle );
+    auto& A = GetDistMat( AHandle );
+    auto& B = GetDistMat( BHandle );
 
     *wHandle = CreateDistMat_VR_STAR( A.Grid() ); 
     *XHandle = CreateDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
-    DistMatrix<double>& X = GetDistMat( *XHandle );
+    auto& w = GetDistMat_VR_STAR( *wHandle );
+    auto& X = GetDistMat( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X );
 }
@@ -324,15 +325,15 @@ void ElemSymmetricAxBx
 void ElemSymmetricAxBxRange
 ( ElemDistMat AHandle, ElemDistMat BHandle,
   ElemDistMat_VR_STAR* wHandle, ElemDistMat* XHandle,
-  double a, double b )
+  Real a, Real b )
 {
-    DistMatrix<double>& A = GetDistMat( AHandle );
-    DistMatrix<double>& B = GetDistMat( BHandle );
+    auto& A = GetDistMat( AHandle );
+    auto& B = GetDistMat( BHandle );
     
     *wHandle = CreateDistMat_VR_STAR( A.Grid() ); 
     *XHandle = CreateDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
-    DistMatrix<double>& X = GetDistMat( *XHandle );
+    auto& w = GetDistMat_VR_STAR( *wHandle );
+    auto& X = GetDistMat( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
@@ -342,13 +343,13 @@ void ElemSymmetricAxBxIndices
   ElemDistMat_VR_STAR* wHandle, ElemDistMat* XHandle,
   int a, int b )
 {
-    DistMatrix<double>& A = GetDistMat( AHandle );
-    DistMatrix<double>& B = GetDistMat( BHandle );
+    auto& A = GetDistMat( AHandle );
+    auto& B = GetDistMat( BHandle );
 
     *wHandle = CreateDistMat_VR_STAR( A.Grid() ); 
     *XHandle = CreateDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
-    DistMatrix<double>& X = GetDistMat( *XHandle );
+    auto& w = GetDistMat_VR_STAR( *wHandle );
+    auto& X = GetDistMat( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
@@ -357,15 +358,13 @@ void ElemHermitianAxBx
 ( ElemCpxDistMat AHandle, ElemCpxDistMat BHandle,
   ElemDistMat_VR_STAR* wHandle, ElemCpxDistMat* XHandle )
 {
-    typedef Complex<double> C;
-
-    DistMatrix<C>& A = GetCpxDistMat( AHandle );
-    DistMatrix<C>& B = GetCpxDistMat( BHandle );
+    auto& A = GetCpxDistMat( AHandle );
+    auto& B = GetCpxDistMat( BHandle );
     
     *wHandle = CreateDistMat_VR_STAR( A.Grid() ); 
     *XHandle = CreateCpxDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
-    DistMatrix<C>& X = GetCpxDistMat( *XHandle );
+    auto& w = GetDistMat_VR_STAR( *wHandle );
+    auto& X = GetCpxDistMat( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X );
 }
@@ -373,17 +372,15 @@ void ElemHermitianAxBx
 void ElemHermitianAxBxRange
 ( ElemCpxDistMat AHandle, ElemCpxDistMat BHandle,
   ElemDistMat_VR_STAR* wHandle, ElemCpxDistMat* XHandle,
-  double a, double b )
+  Real a, Real b )
 {
-    typedef Complex<double> C;
-
-    DistMatrix<C>& A = GetCpxDistMat( AHandle );
-    DistMatrix<C>& B = GetCpxDistMat( BHandle );
+    auto& A = GetCpxDistMat( AHandle );
+    auto& B = GetCpxDistMat( BHandle );
 
     *wHandle = CreateDistMat_VR_STAR( A.Grid() ); 
     *XHandle = CreateCpxDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
-    DistMatrix<C>& X = GetCpxDistMat( *XHandle );
+    auto& w = GetDistMat_VR_STAR( *wHandle );
+    auto& X = GetCpxDistMat( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
@@ -393,15 +390,13 @@ void ElemHermitianAxBxIndices
   ElemDistMat_VR_STAR* wHandle, ElemCpxDistMat* XHandle,
   int a, int b )
 {
-    typedef Complex<double> C;
-
-    DistMatrix<C>& A = GetCpxDistMat( AHandle );
-    DistMatrix<C>& B = GetCpxDistMat( BHandle );
+    auto& A = GetCpxDistMat( AHandle );
+    auto& B = GetCpxDistMat( BHandle );
 
     *wHandle = CreateDistMat_VR_STAR( A.Grid() ); 
     *XHandle = CreateCpxDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
-    DistMatrix<C>& X = GetCpxDistMat( *XHandle );
+    auto& w = GetDistMat_VR_STAR( *wHandle );
+    auto& X = GetCpxDistMat( *XHandle );
     
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, a, b );
 }
