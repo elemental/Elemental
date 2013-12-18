@@ -20,6 +20,7 @@ enum FileFormat
     ASCII,
     ASCII_MATLAB,
     BINARY,
+    BINARY_FLAT,
     BMP,
     JPG,
     JPEG,

@@ -63,6 +63,30 @@ Binary( Matrix<T>& A, const std::string filename )
             file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
 }
 
+template<typename T>
+inline void
+BinaryFlat( Matrix<T>& A, Int height, Int width, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
+    std::ifstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    const Int numBytes = FileSize( file );
+    const Int numBytesExp = height*width*sizeof(T);
+    if( numBytes != numBytesExp )
+        RuntimeError
+        ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
+
+    A.ResizeTo( height, width );
+    if( A.Height() == A.LDim() )
+        file.read( (char*)A.Buffer(), height*width*sizeof(T) );
+    else
+        for( Int j=0; j<width; ++j )
+            file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
+}
+
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Binary( DistMatrix<T,U,V>& A, const std::string filename )
@@ -104,6 +128,43 @@ Binary( DistMatrix<T,U,V>& A, const std::string filename )
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline void
+BinaryFlat
+( DistMatrix<T,U,V>& A, Int height, Int width, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    std::ifstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    const Int numBytes = FileSize( file );
+    const Int numBytesExp = height*width*sizeof(T);
+    if( numBytes != numBytesExp )
+        RuntimeError
+        ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
+
+    A.ResizeTo( height, width );
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift(); 
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = colShift + iLoc*colStride;
+            const Int localIndex = i+j*height;
+            const std::streamoff pos = localIndex*sizeof(T);
+            file.seekg( pos );
+            file.read( (char*)A.Buffer(iLoc,jLoc), sizeof(T) );
+        }
+    }
+}
+
 template<typename T,Distribution V>
 inline void
 Binary( DistMatrix<T,STAR,V>& A, const std::string filename )
@@ -133,6 +194,36 @@ Binary( DistMatrix<T,STAR,V>& A, const std::string filename )
         const Int j = rowShift + jLoc*rowStride;
         const Int localIndex = j*height;
         const std::streamoff pos = metaBytes + localIndex*sizeof(T);
+        file.seekg( pos );
+        file.read( (char*)A.Buffer(0,jLoc), height*sizeof(T) );
+    }
+}
+
+template<typename T,Distribution V>
+inline void
+BinaryFlat
+( DistMatrix<T,STAR,V>& A, Int height, Int width, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
+    std::ifstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    const Int numBytes = FileSize( file );
+    const Int numBytesExp = height*width*sizeof(T);
+    if( numBytes != numBytesExp )
+        RuntimeError
+        ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
+
+    A.ResizeTo( height, width );
+    const Int localWidth = A.LocalWidth();
+    const Int rowShift = A.RowShift();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = rowShift + jLoc*rowStride;
+        const Int localIndex = j*height;
+        const std::streamoff pos = localIndex*sizeof(T);
         file.seekg( pos );
         file.read( (char*)A.Buffer(0,jLoc), height*sizeof(T) );
     }
@@ -168,6 +259,31 @@ Binary( DistMatrix<T,STAR,STAR>& A, const std::string filename )
 
 template<typename T>
 inline void
+BinaryFlat
+( DistMatrix<T,STAR,STAR>& A, Int height, Int width, 
+  const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
+    std::ifstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    const Int numBytes = FileSize( file );
+    const Int numBytesExp = height*width*sizeof(T);
+    if( numBytes != numBytesExp )
+        RuntimeError
+        ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
+
+    A.ResizeTo( height, width );
+    if( A.Height() == A.LDim() )
+        file.read( (char*)A.Buffer(), height*width*sizeof(T) );
+    else
+        for( Int j=0; j<width; ++j )
+            file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
+}
+
+template<typename T>
+inline void
 Binary( DistMatrix<T,CIRC,CIRC>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::Binary"))
@@ -182,6 +298,34 @@ Binary( DistMatrix<T,CIRC,CIRC>& A, const std::string filename )
     const Int metaBytes = 2*sizeof(Int);
     const Int dataBytes = height*width*sizeof(T);
     const Int numBytesExp = metaBytes + dataBytes;
+    if( numBytes != numBytesExp )
+        RuntimeError
+        ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
+
+    A.ResizeTo( height, width );
+    if( A.CrossRank() == A.Root() )
+    {
+        if( A.Height() == A.LDim() )
+            file.read( (char*)A.Buffer(), height*width*sizeof(T) );
+        else
+            for( Int j=0; j<width; ++j )
+                file.read( (char*)A.Buffer(0,j), height*sizeof(T) );
+    }
+}
+
+template<typename T>
+inline void
+BinaryFlat
+( DistMatrix<T,CIRC,CIRC>& A, Int height, Int width, 
+  const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    std::ifstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    const Int numBytes = FileSize( file );
+    const Int numBytesExp = height*width*sizeof(T);
     if( numBytes != numBytesExp )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);

@@ -60,6 +60,24 @@ AsciiMatlab
 
 template<typename T>
 inline void
+BinaryFlat( const Matrix<T>& A, std::string basename="matrix" )
+{
+    DEBUG_ONLY(CallStackEntry cse("write::BinaryFlat"))
+    
+    std::string filename = basename + "." + FileExtension(BINARY_FLAT);
+    std::ofstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    if( A.Height() == A.LDim() )
+        file.write( (char*)A.LockedBuffer(), A.Height()*A.Width()*sizeof(T) );
+    else
+        for( Int j=0; j<A.Width(); ++j )
+            file.write( (char*)A.LockedBuffer(0,j), A.Height()*sizeof(T) );
+}
+
+template<typename T>
+inline void
 Binary( const Matrix<T>& A, std::string basename="matrix" )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Binary"))
@@ -222,15 +240,10 @@ Write
     DEBUG_ONLY(CallStackEntry cse("Write"))
     switch( format )
     {
-    case ASCII:
-        write::Ascii( A, basename, title );
-        break;
-    case ASCII_MATLAB:
-        write::AsciiMatlab( A, basename, title );
-        break;
-    case BINARY:
-        write::Binary( A, basename );
-        break;
+    case ASCII:        write::Ascii( A, basename, title );       break;
+    case ASCII_MATLAB: write::AsciiMatlab( A, basename, title ); break;
+    case BINARY:       write::Binary( A, basename );             break;
+    case BINARY_FLAT:  write::BinaryFlat( A, basename );         break;
     case BMP:
     case JPG:
     case JPEG:
@@ -238,8 +251,9 @@ Write
     case PPM:
     case XBM:
     case XPM:
-        write::Image( A, basename, format );
-        break;
+        write::Image( A, basename, format ); break;
+    default:
+        LogicError("Invalid file format");
     }
 }
 

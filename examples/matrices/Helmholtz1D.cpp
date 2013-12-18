@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
 
         if( formatInt < 1 || formatInt >= FileFormat_MAX )
             LogicError("Invalid file format integer, should be in [1,",
-                       FileFormat_MAX);
+                       FileFormat_MAX,")");
 
         FileFormat format = static_cast<FileFormat>(formatInt);
         ColorMap colorMap = static_cast<ColorMap>(colorMapInt);

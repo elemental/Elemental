@@ -39,16 +39,17 @@ inline std::string FileExtension( FileFormat format )
 {
     switch( format )
     {
-    case ASCII:        return "txt";  break;
-    case ASCII_MATLAB: return "m";    break;
-    case BINARY:       return "mat";  break;
-    case BMP:          return "bmp";  break;
-    case JPG:          return "jpg";  break;
-    case JPEG:         return "jpeg"; break;
-    case PNG:          return "png";  break;
-    case PPM:          return "ppm";  break;
-    case XBM:          return "xbm";  break;
-    case XPM:          return "xpm";  break;
+    case ASCII:            return "txt";  break;
+    case ASCII_MATLAB:     return "m";    break;
+    case BINARY:           return "bin";  break;
+    case BINARY_FLAT:      return "dat";  break;
+    case BMP:              return "bmp";  break;
+    case JPG:              return "jpg";  break;
+    case JPEG:             return "jpeg"; break;
+    case PNG:              return "png";  break;
+    case PPM:              return "ppm";  break;
+    case XBM:              return "xbm";  break;
+    case XPM:              return "xpm";  break;
     default: LogicError("Format not found"); return "N/A"; break;
     }
 }
