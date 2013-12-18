@@ -16,18 +16,28 @@ namespace elem {
 namespace file_format_wrapper {
 enum FileFormat
 {
+    AUTO, // Automatically detect from file extension
     ASCII,
-    MATLAB_ASCII,
+    ASCII_MATLAB,
+    BINARY,
     BMP,
     JPG,
     JPEG,
     PNG,
     PPM,
     XBM,
-    XPM
+    XPM,
+    FileFormat_MAX // For detecting number of entries in enum
 };
 }
 using namespace file_format_wrapper;
+
+const char* QtImageFormat( FileFormat format );
+std::string FileExtension( FileFormat format );
+FileFormat FormatFromExtension( const std::string ext );
+FileFormat DetectFormat( const std::string filename );
+
+std::streamoff FileSize( std::ifstream& file );
 
 // TODO: Many more color maps
 namespace color_map_wrapper {

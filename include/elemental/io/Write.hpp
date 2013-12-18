@@ -24,107 +24,77 @@ namespace write {
 
 template<typename T>
 inline void
-Ascii
-( const Matrix<T>& A, std::string filename="matrix.txt", std::string title="" )
+Ascii( const Matrix<T>& A, std::string basename="matrix", std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Ascii"))
+    std::string filename = basename + "." + FileExtension(ASCII);
     std::ofstream file( filename.c_str() );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
     file.setf( std::ios::scientific );
     Print( A, title, file );
 }
 
 template<typename T>
 inline void
-MatlabAscii
-( const Matrix<T>& A, std::string filename="matrix.m", 
+AsciiMatlab
+( const Matrix<T>& A, std::string basename="matrix", 
   std::string title="matrix" )
 {
-    DEBUG_ONLY(CallStackEntry cse("write::MatlabAscii"))
+    DEBUG_ONLY(CallStackEntry cse("write::AsciiMatlab"))
     // Empty titles are not legal
     if( title == "" )
         title = "matrix";
 
+    std::string filename = basename + "." + FileExtension(ASCII_MATLAB);
     std::ofstream file( filename.c_str() );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
     file.setf( std::ios::scientific );
     file << title << " = [\n";
     Print( A, "", file );
     file << "];\n";
 }
 
+template<typename T>
+inline void
+Binary( const Matrix<T>& A, std::string basename="matrix" )
+{
+    DEBUG_ONLY(CallStackEntry cse("write::Binary"))
+    
+    std::string filename = basename + "." + FileExtension(BINARY);
+    std::ofstream file( filename.c_str(), std::ios::binary );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    file << A.Height() << A.Width();
+    if( A.Height() == A.LDim() )
+        file.write( (char*)A.LockedBuffer(), A.Height()*A.Width()*sizeof(T) );
+    else
+        for( Int j=0; j<A.Width(); ++j )
+            file.write( (char*)A.LockedBuffer(0,j), A.Height()*sizeof(T) );
+}
+
 #ifdef HAVE_QT5
 inline void
 SaveQImage
-( const QImage& image, FileFormat format=PNG, std::string basename="matrix" )
+( const QImage& image, std::string basename="matrix", 
+  FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Image"))
-    std::string filename;
-    switch( format )
-    {
-    case BMP:  
-    {
-        filename = basename + ".bmp";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "BMP" ); 
-        break;
-    }
-    case JPG:  
-    {
-        filename = basename + ".jpg";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "JPG" ); 
-        break;
-    }
-    case JPEG: 
-    {
-        filename = basename + ".jpeg";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "JPEG" ); 
-        break;
-    }
-    case PNG:  
-    {
-        filename = basename + ".png";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "PNG" ); 
-        break;
-    }
-    case PPM:  
-    {
-        filename = basename + ".ppm";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "PPM" ); 
-        break;
-    }
-    case XBM:  
-    {
-        filename = basename + ".xbm";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "XBM" ); 
-        break;
-    }
-    case XPM:  
-    {
-        filename = basename + ".xpm";
-        QFile file( filename.c_str() );
-        file.open( QIODevice::WriteOnly );
-        image.save( &file, "XPM" ); 
-        break;
-    }
-    default: LogicError("Invalid image type");
-    }
+    std::string filename = basename + "." + FileExtension(format);
+    QFile file( filename.c_str() );
+    file.open( QIODevice::WriteOnly );
+    image.save( &file, QtImageFormat(format) );
 }
 #endif // ifdef HAVE_QT5
 
 template<typename T>
 inline void
 RealPartImage
-( const Matrix<T>& A, FileFormat format=PNG, std::string basename="matrix" )
+( const Matrix<T>& A, std::string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::RealPartImage"))
 #ifdef HAVE_QT5
@@ -164,7 +134,8 @@ RealPartImage
         }
     }
 
-    SaveQImage( image, format, basename );
+    std::string filename = basename + "." + FileExtension(format);
+    SaveQImage( image, filename, format );
 #else
     LogicError("Qt5 not available");
 #endif // ifdef HAVE_QT5
@@ -173,7 +144,7 @@ RealPartImage
 template<typename T>
 inline void
 ImagPartImage
-( const Matrix<T>& A, FileFormat format=PNG, std::string basename="matrix" )
+( const Matrix<T>& A, std::string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::ImagPartImage"))
 #ifdef HAVE_QT5
@@ -213,7 +184,8 @@ ImagPartImage
         }
     }
 
-    SaveQImage( image, format, basename );
+    std::string filename = basename + "." + FileExtension(format);
+    SaveQImage( image, filename, format );
 #else
     LogicError("Qt5 not available");
 #endif // ifdef HAVE_QT5
@@ -222,23 +194,21 @@ ImagPartImage
 template<typename Real>
 inline void
 Image
-( const Matrix<Real>& A, FileFormat format=PNG, std::string basename="matrix" )
+( const Matrix<Real>& A, std::string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Image"))
-    RealPartImage( A, format, basename );
+    RealPartImage( A, basename, format );
 }
 
 template<typename Real>
 inline void
 Image
-( const Matrix<Complex<Real>>& A, FileFormat format=PNG, 
-  std::string basename="matrix" )
+( const Matrix<Complex<Real>>& A, std::string basename="matrix", 
+  FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Image"))
-    std::string realBasename = basename + "_real";
-    std::string imagBasename = basename + "_imag";
-    RealPartImage( A, format, realBasename );
-    ImagPartImage( A, format, imagBasename );
+    RealPartImage( A, basename+"_real", format );
+    ImagPartImage( A, basename+"_imag", format );
 }
 
 } // namespace write
@@ -246,20 +216,20 @@ Image
 template<typename T>
 inline void
 Write
-( const Matrix<T>& A, FileFormat format=ASCII, 
-  std::string basename="matrix", std::string title="" )
+( const Matrix<T>& A, std::string basename="matrix", FileFormat format=BINARY, 
+  std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
-    std::string filename;
     switch( format )
     {
     case ASCII:
-        filename = basename + ".txt";
-        write::Ascii( A, filename, title );
+        write::Ascii( A, basename, title );
         break;
-    case MATLAB_ASCII:
-        filename = basename + ".m";
-        write::MatlabAscii( A, filename, title );
+    case ASCII_MATLAB:
+        write::AsciiMatlab( A, basename, title );
+        break;
+    case BINARY:
+        write::Binary( A, basename );
         break;
     case BMP:
     case JPG:
@@ -268,7 +238,7 @@ Write
     case PPM:
     case XBM:
     case XPM:
-        write::Image( A, format, basename );
+        write::Image( A, basename, format );
         break;
     }
 }
@@ -276,13 +246,13 @@ Write
 template<typename T,Distribution U,Distribution V>
 inline void
 Write
-( const DistMatrix<T,U,V>& A, FileFormat format=ASCII, 
-  std::string basename="matrix", std::string title="" )
+( const DistMatrix<T,U,V>& A, std::string basename="matrix", 
+  FileFormat format=BINARY, std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-        Write( A_CIRC_CIRC.LockedMatrix(), format, basename, title );
+        Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
 }
 
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
@@ -290,22 +260,22 @@ Write
 template<typename T>
 inline void
 Write
-( const DistMatrix<T,STAR,STAR>& A, FileFormat format=ASCII,
-  std::string basename="matrix", std::string title="" )
+( const DistMatrix<T,STAR,STAR>& A, std::string basename="matrix", 
+  FileFormat format=BINARY, std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( A.Grid().VCRank() == 0 )
-        Write( A.LockedMatrix(), format, basename, title );
+        Write( A.LockedMatrix(), basename, format, title );
 }
 template<typename T>
 inline void
 Write
-( const DistMatrix<T,CIRC,CIRC>& A, FileFormat format=ASCII,
-  std::string basename="matrix", std::string title="" )
+( const DistMatrix<T,CIRC,CIRC>& A, std::string basename="matrix", 
+  FileFormat format=BINARY, std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( A.CrossRank() == A.Root() )
-        Write( A.LockedMatrix(), format, basename, title );
+        Write( A.LockedMatrix(), basename, format, title );
 }
 
 } // namespace elem

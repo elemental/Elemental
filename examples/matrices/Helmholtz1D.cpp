@@ -30,6 +30,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        if( formatInt < 1 || formatInt >= FileFormat_MAX )
+            LogicError("Invalid file format integer, should be in [1,",
+                       FileFormat_MAX);
+
         FileFormat format = static_cast<FileFormat>(formatInt);
         ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
@@ -41,7 +45,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( H, "Helmholtz matrix:" );
         if( write )
-            Write( H, format, "H" );
+            Write( H, "H", format );
 
         // (Attempt to) invert the Helmholtz matrix
         Inverse( H );
@@ -50,7 +54,7 @@ main( int argc, char* argv[] )
         if( print )
             Print( H, "Inverse of Helmholtz matrix:" );
         if( write )
-            Write( H, format, "invH" );
+            Write( H, "invH", format );
 
         // TODO: Extend to allow for computing SVD of submatrix
     }
