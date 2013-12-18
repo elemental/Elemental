@@ -21,14 +21,14 @@ void Trr2kNNTT
            const DistMatrix<T>& C, const DistMatrix<T>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::Trr2kNNTT");
-    if( E.Height() != E.Width()  || A.Width()  != C.Height() ||
-        A.Height() != E.Height() || C.Width()  != E.Height() ||
-        B.Width()  != E.Width()  || D.Height() != E.Width()  ||
-        A.Width()  != B.Height() || C.Height() != D.Width() )
-        LogicError("Nonconformal Trr2kNNTT");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::Trr2kNNTT");
+        if( E.Height() != E.Width()  || A.Width()  != C.Height() ||
+            A.Height() != E.Height() || C.Width()  != E.Height() ||
+            B.Width()  != E.Width()  || D.Height() != E.Width()  ||
+            A.Width()  != B.Height() || C.Height() != D.Width() )
+            LogicError("Nonconformal Trr2kNNTT");
+    )
     const Grid& g = E.Grid();
 
     DistMatrix<T> AL(g), AR(g),

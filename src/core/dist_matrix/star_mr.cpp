@@ -55,9 +55,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[* ,MR]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::DistMatrix"))
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -70,9 +68,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[* ,MR]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::DistMatrix"))
     this->SetShifts();
     if( STAR != U || MR != V || 
         reinterpret_cast<const DM<T>*>(&A) != this )   
@@ -142,9 +138,7 @@ template<typename T>
 void
 DM<T>::AlignWith( const elem::DistData& data )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR]::AlignWith");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::AlignWith"))
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
 
@@ -156,17 +150,10 @@ DM<T>::AlignWith( const elem::DistData& data )
         this->rowAlign_ = data.colAlign % this->RowStride();
     else if( data.rowDist == VR )
         this->rowAlign_ = data.rowAlign % this->RowStride();
-#ifndef RELEASE
-    else LogicError("Nonsensical alignment");
-#endif
+    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
     this->rowConstrained_ = true;
     this->SetShifts();
 }
-
-template<typename T>
-void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
 
 template<typename T>
 void
@@ -175,18 +162,11 @@ DM<T>::AlignRowsWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignRowsWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::Attach
 ( Int height, Int width, Int rowAlign,
   T* buffer, Int ldim, const elem::Grid& g )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR]::Attach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::Attach"))
     this->Empty();
 
     this->grid_ = &g;
@@ -208,9 +188,7 @@ DM<T>::LockedAttach
 ( Int height, Int width, Int rowAlign,
   const T* buffer, Int ldim, const elem::Grid& g )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR]::LockedAttach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::LockedAttach"))
     this->Empty();
 
     this->grid_ = &g;
@@ -247,10 +225,10 @@ template<typename T>
 void
 DM<T>::SumOverCol()
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR]::SumOverCol");
-    this->AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR]::SumOverCol");
+        this->AssertNotLocked();
+    )
     const Grid& g = this->Grid();
     if( !this->Participating() )
         return;
@@ -292,9 +270,7 @@ template<typename T>
 void
 DM<T>::AdjointFrom( const DistMatrix<T,VR,STAR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR]::AdjointFrom");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::AdjointFrom"))
     this->TransposeFrom( A, true );
 }
 
@@ -302,11 +278,11 @@ template<typename T>
 void
 DM<T>::TransposeFrom( const DistMatrix<T,VR,STAR>& A, bool conjugate )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR]::TransposeFrom");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR]::TransposeFrom");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->AlignRowsAndResize( A.ColAlign()%g.Width(), A.Width(), A.Height() );
     if( !this->Participating() )
@@ -474,11 +450,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,MR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [MC,MR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR] = [MC,MR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
 #ifdef CACHE_WARNINGS
     if( A.Height() != 1 && g.Rank() == 0 )
@@ -697,13 +673,13 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [MC,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-    if( this->Viewing() )
-        this->AssertSameSize( A.Height(), A.Width() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR] = [MC,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+        if( this->Viewing() )
+            this->AssertSameSize( A.Height(), A.Width() );
+    )
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlign(),g);
 
@@ -716,11 +692,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DM<T>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [* ,MR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR] = [* ,MR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->AlignRowsAndResize( A.RowAlign(), A.Height(), A.Width() );
     if( !this->Participating() )
@@ -791,9 +767,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [MD,* ]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MD,* ]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -804,9 +778,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [* ,MD]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,MD]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -817,9 +789,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MR,MC>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [MR,MC]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MR,MC]"))
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
     ( new DistMatrix<T,STAR,VC>(g) );
@@ -838,9 +808,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [MR,* ]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MR,* ]"))
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
     ( new DistMatrix<T,VR,STAR>(g) );
@@ -864,9 +832,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [* ,MC]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,MC]"))
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
     ( new DistMatrix<T,STAR,VC>(g) );
@@ -890,9 +856,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [VC,* ]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [VC,* ]"))
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlign(),g);
     A_MC_MR = A;
@@ -904,9 +868,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [* ,VC]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,VC]"))
     const elem::Grid& g = this->Grid();
     DistMatrix<T,STAR,VR> A_STAR_VR(true,this->RowAlign(),g);
     A_STAR_VR = A;
@@ -918,9 +880,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [VR,* ]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [VR,* ]"))
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(g) );
@@ -939,11 +899,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [* ,VR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR] = [* ,VR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->AlignRowsAndResize( A.RowAlign()%g.Width(), A.Height(), A.Width() );
     if( !this->Participating() )
@@ -1082,11 +1042,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [* ,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,MR] = [* ,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
@@ -1115,9 +1075,7 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,MR] = [o ,o ]");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [o ,o ]"))
     DistMatrix<T,MC,MR> A_MC_MR( A );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;

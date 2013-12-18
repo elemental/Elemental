@@ -232,11 +232,6 @@ AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignWith( const ADM<T>& A )
-{ AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
 { 
     EmptyData(); 
@@ -247,11 +242,6 @@ AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignColsWith( const ADM<T>& A )
-{ AlignColsWith( A.DistData() ); }
-
-template<typename T>
-void
 AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
 { 
     EmptyData(); 
@@ -259,11 +249,6 @@ AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
     rowConstrained_ = false;
     SetShifts(); 
 }
-
-template<typename T>
-void
-AbstractDistMatrix<T>::AlignRowsWith( const ADM<T>& A )
-{ AlignRowsWith( A.DistData() ); }
 
 template<typename T>
 void

@@ -156,18 +156,8 @@ DM<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignColsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
-
-template<typename T>
-void
-DM<T>::AlignColsWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
 
 template<typename T>
 void

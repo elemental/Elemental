@@ -55,7 +55,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix[* ,VR]::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("[* ,VR]::DistMatrix"))
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -68,7 +68,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix[* ,VR]::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("[* ,VR]::DistMatrix"))
     this->SetShifts();
     if( STAR != U || VR != V || 
         reinterpret_cast<const DM<T>*>(&A) != this ) 
@@ -153,18 +153,8 @@ DM<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
-
-template<typename T>
-void
-DM<T>::AlignRowsWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
 
 template<typename T>
 void

@@ -18,56 +18,69 @@ namespace elem {
 namespace trrk {
 
 #ifndef RELEASE
+
+template<typename T>
+void EnsureSameGrids
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+  const AbstractDistMatrix<T>& C )
+{
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        LogicError("{A,B,C} must have the same grids");
+}
+
+template<typename T>
+void EnsureConformal
+( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& C, std::string name )
+{
+    if( A.Height() != C.Height() || A.ColAlign() != C.ColAlign() )
+        LogicError(name," not conformal with C");
+}
+
+template<typename T>
+void EnsureConformal
+( const DistMatrix<T,STAR,MC>& A, const DistMatrix<T>& C, std::string name )
+{
+    if( A.Width() != C.Height() || A.RowAlign() != C.ColAlign() )
+        LogicError(name," not conformal with C");
+}
+
+template<typename T>
+void EnsureConformal
+( const DistMatrix<T,MR,STAR>& A, const DistMatrix<T>& C, std::string name )
+{
+    if( A.Height() != C.Width() || A.ColAlign() != C.RowAlign() )
+        LogicError(name," not conformal with C");
+}
+
+template<typename T>
+void EnsureConformal
+( const DistMatrix<T,STAR,MR>& A, const DistMatrix<T>& C, std::string name )
+{
+    if( A.Width() != C.Width() || A.RowAlign() != C.RowAlign() )
+        LogicError(name," not conformal with C");
+}
+
+template<typename T,Distribution UA,Distribution VA,
+                    Distribution UB,Distribution VB>
+void CheckInput
+( const DistMatrix<T,UA,VA>& A, const DistMatrix<T,UB,VB>& B,
+  const DistMatrix<T>& C )
+{
+    EnsureSameGrids( A, B, C );
+    EnsureConformal( A, C, "A" );
+    EnsureConformal( B, C, "B" );
+}
+
 // Local C := alpha A B + beta C
 template<typename T>
 void CheckInputNN( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
 {
     if( A.Height() != C.Height() || B.Width()  != C.Width() ||
         A.Width()  != B.Height() || A.Height() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A ~ " << A.Height() << " x "
-                        << A.Width()  << "\n"
-            << "  B ~ " << B.Height() << " x "
-                        << B.Width()  << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// Distributed C := alpha A B + beta C
-template<typename T>
-void CheckInput
-( const DistMatrix<T,MC,  STAR>& A, 
-  const DistMatrix<T,STAR,MR  >& B,
-  const DistMatrix<T>& C )
-{
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("A, B, and C must be distributed over the same grid");
-    if( A.Height() != C.Height() || B.Width()  != C.Width() ||
-        A.Width()  != B.Height() || A.Height() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.ColAlign() != C.ColAlign() ||
-        B.RowAlign() != C.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrrk: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
-                                  C.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrrk:\n",
+         DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
 // Local C := alpha A B^{T/H} + beta C
@@ -80,53 +93,9 @@ void CheckInputNT
         LogicError("B must be (Conjugate)Transpose'd");
     if( A.Height() != C.Height() || B.Height() != C.Width() ||
         A.Width()  != B.Width()  || A.Height() != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A ~ " << A.Height() << " x "
-                        << A.Width()  << "\n"
-            << "  B ~ " << B.Height() << " x "
-                        << B.Width()  << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// Distributed C := alpha A B^{T/H} + beta C
-template<typename T>
-void CheckInput
-( Orientation orientationOfB,
-  const DistMatrix<T,MC,STAR>& A,
-  const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T>& C )
-{
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("A, B, and C must be distributed over the same grid");
-    if( A.Height() != C.Height() || B.Height() != C.Width() ||
-        A.Width()  != B.Width()  || A.Height() != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A[MC,* ] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.ColAlign() != C.ColAlign() ||
-        B.ColAlign() != C.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrrk: \n"
-            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
-                                  C.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrrk:\n",
+         DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
 // Local C := alpha A^{T/H} B + beta C
@@ -139,53 +108,9 @@ void CheckInputTN
         LogicError("A must be (Conjugate)Transpose'd");
     if( A.Width() != C.Height() || B.Width() != C.Width() ||
         A.Height() != B.Height() || A.Width() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A ~ " << A.Height() << " x "
-                        << A.Width()  << "\n"
-            << "  B ~ " << B.Height() << " x "
-                        << B.Width()  << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// Distributed C := alpha A^{T/H} B + beta C
-template<typename T>
-void CheckInput
-( Orientation orientationOfA,
-  const DistMatrix<T,STAR,MC>& A,
-  const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T>& C )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("A, B, and C must be distributed over the same grid");
-    if( A.Width() != C.Height() || B.Width() != C.Width() ||
-        A.Height() != B.Height() || A.Width() != B.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != C.ColAlign() ||
-        B.RowAlign() != C.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrrk: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
-                                  C.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrrk:\n",
+         DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + beta C
@@ -201,56 +126,9 @@ void CheckInputTT
         LogicError("B must be (Conjugate)Transpose'd");
     if( A.Width() != C.Height() || B.Height() != C.Width() ||
         A.Height() != B.Width() || A.Width() != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A ~ " << A.Height() << " x "
-                        << A.Width()  << "\n"
-            << "  B ~ " << B.Height() << " x "
-                        << B.Width()  << "\n"
-            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// Distributed C := alpha A^{T/H} B^{T/H} + beta C
-template<typename T>
-void CheckInput
-( Orientation orientationOfA,
-  Orientation orientationOfB,
-  const DistMatrix<T,STAR,MC  >& A,
-  const DistMatrix<T,MR,  STAR>& B,
-  const DistMatrix<T>& C )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("A, B, and C must be distributed over the same grid");
-    if( A.Width() != C.Height() || B.Height() != C.Width() ||
-        A.Height() != B.Width() || A.Width() != B.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrrk: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != C.ColAlign() ||
-        B.ColAlign() != C.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrrk: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
-                                  C.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+        LogicError
+        ("Nonconformal LocalTrrk:\n",
+         DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 #endif // ifndef RELEASE
 
@@ -262,12 +140,11 @@ TrrkNNKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TrrkNNKernel");
-    CheckInputNN( A, B, C );
-#endif
-    Matrix<T> AT,
-              AB;
+    DEBUG_ONLY(
+        CallStackEntry cse("TrrkNNKernel");
+        CheckInputNN( A, B, C );
+    )
+    Matrix<T> AT, AB;
     Matrix<T> BL, BR;
     Matrix<T> CTL, CTR,
               CBL, CBR;
@@ -275,15 +152,12 @@ TrrkNNKernel
 
     const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
+    LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
     else
@@ -294,7 +168,6 @@ TrrkNNKernel
 
     Gemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Distributed C := alpha A B + beta C
@@ -306,14 +179,13 @@ LocalTrrkKernel
            const DistMatrix<T,STAR,MR  >& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrkKernel");
-    CheckInput( A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrkKernel");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g), 
-                          AB(g);
+    DistMatrix<T,MC,STAR> AT(g), AB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
     DistMatrix<T> CTL(g), CTR(g),
                   CBL(g), CBR(g);
@@ -321,28 +193,24 @@ LocalTrrkKernel
 
     const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
+    LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    DTL.AlignWith( CTL );
-    DBR.AlignWith( CBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
     else
         LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
+    DTL.AlignWith( CTL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
+    DBR.AlignWith( CBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Local C := alpha A B^{T/H} + beta C
@@ -354,31 +222,24 @@ TrrkNTKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TrrkNTKernel");
-    CheckInputNT( orientationOfB, A, B, C );
-#endif
-    Matrix<T> AT,
-              AB;
-    Matrix<T> BT,
-              BB;
+    DEBUG_ONLY(
+        CallStackEntry cse("TrrkNTKernel");
+        CheckInputNT( orientationOfB, A, B, C );
+    )
+    Matrix<T> AT, AB;
+    Matrix<T> BT, BB;
     Matrix<T> CTL, CTR,
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
     const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-    LockedPartitionDown
-    ( B, BT, 
-         BB, half );
+    LockedPartitionDown( A, AT, AB, half );
+    LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
     else
@@ -389,7 +250,6 @@ TrrkNTKernel
 
     Gemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Distributed C := alpha A B^{T/H} + beta C
@@ -402,46 +262,38 @@ LocalTrrkKernel
            const DistMatrix<T,MR,STAR>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrkKernel");
-    CheckInput( orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrkKernel");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g),
-                          AB(g);
-    DistMatrix<T,MR,STAR> BT(g), 
-                          BB(g);
+    DistMatrix<T,MC,STAR> AT(g), AB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
     DistMatrix<T> CTL(g), CTR(g),
                   CBL(g), CBR(g);
     DistMatrix<T> DTL(g), DBR(g);
 
     const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-    LockedPartitionDown
-    ( B, BT, 
-         BB, half );
+    LockedPartitionDown( A, AT, AB, half );
+    LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    DTL.AlignWith( CTL );
-    DBR.AlignWith( CBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
     else
         LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
+    DTL.AlignWith( CTL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
+    DBR.AlignWith( CBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Local C := alpha A^{T/H} B + beta C
@@ -453,10 +305,10 @@ TrrkTNKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TrrkTNKernel");
-    CheckInputTN( orientationOfA, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("TrrkTNKernel");
+        CheckInputTN( orientationOfA, A, B, C );
+    )
     Matrix<T> AL, AR;
     Matrix<T> BL, BR;
     Matrix<T> CTL, CTR,
@@ -471,7 +323,6 @@ TrrkTNKernel
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
     else
@@ -482,7 +333,6 @@ TrrkTNKernel
 
     Gemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Distributed C := alpha A^{T/H} B + beta C
@@ -495,10 +345,10 @@ LocalTrrkKernel
            const DistMatrix<T,STAR,MR>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrkKernel");
-    CheckInput( orientationOfA, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrkKernel");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
@@ -515,20 +365,18 @@ LocalTrrkKernel
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    DTL.AlignWith( CTL );
-    DBR.AlignWith( CBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
     else
         LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
+    DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
+    DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + beta C
@@ -541,13 +389,12 @@ TrrkTTKernel
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("TrrkTTKernel");
-    CheckInputTT( orientationOfA, orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("TrrkTTKernel");
+        CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+    )
     Matrix<T> AL, AR;
-    Matrix<T> BT,
-              BB;
+    Matrix<T> BT, BB;
     Matrix<T> CTL, CTR,
               CBL, CBR;
     Matrix<T> DTL, DBR;
@@ -555,14 +402,11 @@ TrrkTTKernel
     const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown
-    ( B, BT, 
-         BB, half );
+    LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
     else
@@ -573,7 +417,6 @@ TrrkTTKernel
 
     Gemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
@@ -587,15 +430,14 @@ LocalTrrkKernel
            const DistMatrix<T,MR,  STAR>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrkKernel");
-    CheckInput( orientationOfA, orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrkKernel");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,MR,STAR> BT(g), 
-                          BB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
     DistMatrix<T> CTL(g), CTR(g),
                   CBL(g), CBR(g);
     DistMatrix<T> DTL(g), DBR(g);
@@ -603,27 +445,23 @@ LocalTrrkKernel
     const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown
-    ( B, BT, 
-         BB, half );
+    LockedPartitionDown( B, BT, BB, half );
     PartitionDownDiagonal
     ( C, CTL, CTR,
          CBL, CBR, half );
 
-    DTL.AlignWith( CTL );
-    DBR.AlignWith( CBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
         LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
     else
         LocalGemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
+    DTL.AlignWith( CTL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
+    DBR.AlignWith( CBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
-    //------------------------------------------------------------------------//
 }
 
 } // namespace trrk
@@ -638,10 +476,10 @@ void TrrkNN
   T beta,        Matrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrrkNN");
-    CheckInputNN( A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrrkNN");
+        CheckInputNN( A, B, C );
+    )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkNNKernel( uplo, alpha, A, B, beta, C );
@@ -650,16 +488,13 @@ void TrrkNN
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AT,
-                  AB;
+        Matrix<T> AT, AB;
         Matrix<T> BL, BR;
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
         const Int half = C.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
+        LockedPartitionDown( A, AT, AB, half );
         LockedPartitionRight( B, BL, BR, half );
         PartitionDownDiagonal
         ( C, CTL, CTR,
@@ -685,10 +520,10 @@ void TrrkNT
   T beta,        Matrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrrkNT");
-    CheckInputNT( orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrrkNT");
+        CheckInputNT( orientationOfB, A, B, C );
+    )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkNTKernel( uplo, orientationOfB, alpha, A, B, beta, C );
@@ -697,20 +532,14 @@ void TrrkNT
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        Matrix<T> AT,
-                  AB;
-        Matrix<T> BT,
-                  BB;
+        Matrix<T> AT, AB;
+        Matrix<T> BT, BB;
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
         const Int half = C.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT, 
-             BB, half );
+        LockedPartitionDown( A, AT, AB, half );
+        LockedPartitionDown( B, BT, BB, half );
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
@@ -735,10 +564,10 @@ void TrrkTN
   T beta,        Matrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrrkTN");
-    CheckInputTN( orientationOfA, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrrkTN");
+        CheckInputTN( orientationOfA, A, B, C );
+    )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkTNKernel( uplo, orientationOfA, alpha, A, B, beta, C );
@@ -779,10 +608,10 @@ void TrrkTT
   T beta,        Matrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrrkTT");
-    CheckInputTT( orientationOfA, orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrrkTT");
+        CheckInputTT( orientationOfA, orientationOfB, A, B, C );
+    )
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
         TrrkTTKernel
@@ -793,16 +622,13 @@ void TrrkTT
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
         Matrix<T> AL, AR;
-        Matrix<T> BT,
-                  BB;
+        Matrix<T> BT, BB;
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
         const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown
-        ( B, BT, 
-             BB, half );
+        LockedPartitionDown( B, BT, BB, half );
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
@@ -831,10 +657,10 @@ void LocalTrrk
   T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrk");
-    CheckInput( A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrk");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
@@ -845,16 +671,13 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g);
+        DistMatrix<T,MC,STAR> AT(g), AB(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g);
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
+        LockedPartitionDown( A, AT, AB, half );
         LockedPartitionRight( B, BL, BR, half );
         PartitionDownDiagonal
         ( C, CTL, CTR,
@@ -881,10 +704,10 @@ void LocalTrrk
   T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrk");
-    CheckInput( orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrk");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
@@ -895,20 +718,14 @@ void LocalTrrk
     {
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g);
-        DistMatrix<T,MR,STAR> BT(g), 
-                              BB(g);
+        DistMatrix<T,MC,STAR> AT(g), AB(g);
+        DistMatrix<T,MR,STAR> BT(g), BB(g);
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT, 
-             BB, half );
+        LockedPartitionDown( A, AT, AB, half );
+        LockedPartitionDown( B, BT, BB, half );
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
@@ -934,10 +751,10 @@ void LocalTrrk
   T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrk");
-    CheckInput( orientationOfA, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrk");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
@@ -981,10 +798,10 @@ void LocalTrrk
   T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
-#ifndef RELEASE
-    CallStackEntry cse("LocalTrrk");
-    CheckInput( orientationOfA, orientationOfB, A, B, C );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalTrrk");
+        CheckInput( A, B, C );
+    )
     const Grid& g = C.Grid();
 
     if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
@@ -997,30 +814,23 @@ void LocalTrrk
         // Split C in four roughly equal pieces, perform a large gemm on corner
         // and recurse on CTL and CBR.
         DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,MR,STAR> BT(g), 
-                              BB(g);
+        DistMatrix<T,MR,STAR> BT(g), BB(g);
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
         const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown
-        ( B, BT, 
-             BB, half );
+        LockedPartitionDown( B, BT, BB, half );
         PartitionDownDiagonal
         ( C, CTL, CTR,
              CBL, CBR, half );
 
         if( uplo == LOWER )
-        { 
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, CBL );
-        }
         else
-        {
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
-        }
 
         // Recurse
         LocalTrrk

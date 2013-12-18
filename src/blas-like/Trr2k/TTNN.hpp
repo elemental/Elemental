@@ -23,9 +23,7 @@ void Trr2kTTNN
            const DistMatrix<T>& C, const DistMatrix<T>& D,
   T beta,        DistMatrix<T>& E )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::Trr2kTTNN");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("internal::Trr2kTTNN"))
     Trr2kNNTT
     ( uplo, orientationOfA, orientationOfB, alpha, C, D, A, B, beta, E );
 }

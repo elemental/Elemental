@@ -164,11 +164,8 @@ public:
     //------------------------------------------------------------------------//
 
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignWith( const type& A );
     virtual void AlignColsWith( const elem::DistData& data );
-    virtual void AlignColsWith( const type& A );
     virtual void AlignRowsWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const type& A );
 
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //

@@ -46,9 +46,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[* ,* ]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::DistMatrix"))
     if( &A != this )
         *this = A;
     else
@@ -60,9 +58,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-#ifndef RELEASE
-    CallStackEntry cse("DistMatrix[* ,* ]::DistMatrix");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::DistMatrix"))
     if( STAR != U || STAR != V || 
         reinterpret_cast<const DM<T>*>(&A) != this )
         *this = A;
@@ -133,9 +129,7 @@ DM<T>::Attach
 ( Int height, Int width, 
   T* buffer, Int ldim, const elem::Grid& grid )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::Attach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::Attach"))
     this->Empty();
     this->grid_ = &grid;
     this->height_ = height;
@@ -151,9 +145,7 @@ DM<T>::LockedAttach
 ( Int height, Int width, 
   const T* buffer, Int ldim, const elem::Grid& grid )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::LockedAttach");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::LockedAttach"))
     this->Empty();
     this->grid_ = &grid;
     this->height_ = height;
@@ -179,11 +171,11 @@ void
 DM<T>::GetDiagonalHelper
 ( DistMatrix<S,STAR,STAR>& d, Int offset, Function func ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetDiagonalHelper");
-    if( d.Viewing() )
-        this->AssertSameGrid( d.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ]::GetDiagonalHelper");
+        if( d.Viewing() )
+            this->AssertSameGrid( d.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
         d.SetGrid( g );
@@ -205,9 +197,7 @@ template<typename T>
 void
 DM<T>::GetDiagonal( DM<T>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::GetDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
 }
@@ -217,9 +207,7 @@ void
 DM<T>::GetRealPartOfDiagonal
 ( DistMatrix<Base<T>,STAR,STAR>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetRealPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::GetRealPartOfDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
 }
@@ -229,9 +217,7 @@ void
 DM<T>::GetImagPartOfDiagonal
 ( DistMatrix<Base<T>,STAR,STAR>& d, Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetImagPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::GetImagPartOfDiagonal"))
     this->GetDiagonalHelper
     ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
 }
@@ -240,9 +226,7 @@ template<typename T>
 DM<T>
 DM<T>::GetDiagonal( Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::GetDiagonal"))
     DM<T> d( this->Grid() );
     GetDiagonal( d, offset );
     return d;
@@ -252,9 +236,7 @@ template<typename T>
 DistMatrix<Base<T>,STAR,STAR>
 DM<T>::GetRealPartOfDiagonal( Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetRealPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::GetRealPartOfDiagonal"))
     DistMatrix<Base<T>,STAR,STAR> d( this->Grid() );
     GetRealPartOfDiagonal( d, offset );
     return d;
@@ -264,9 +246,7 @@ template<typename T>
 DistMatrix<Base<T>,STAR,STAR>
 DM<T>::GetImagPartOfDiagonal( Int offset ) const
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::GetImagPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::GetImagPartOfDiagonal"))
     DistMatrix<Base<T>,STAR,STAR> d( this->Grid() );
     GetImagPartOfDiagonal( d, offset );
     return d;
@@ -278,28 +258,28 @@ void
 DM<T>::SetDiagonalHelper
 ( const DistMatrix<S,STAR,STAR>& d, Int offset, Function func )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SetDiagonalHelper");
-    this->AssertSameGrid( d.Grid() );
-    if( d.Height() != 1 && d.Width() != 1 )
-        LogicError("d must be a vector");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ]::SetDiagonalHelper");
+        this->AssertSameGrid( d.Grid() );
+        if( d.Height() != 1 && d.Width() != 1 )
+            LogicError("d must be a vector");
+    )
     const Int diagLength = this->DiagonalLength(offset);
     Int dStride;
     if( d.Width() == 1 )
     {
-#ifndef RELEASE
-        if( d.Height() != diagLength )
-            LogicError("d is not the right length");
-#endif
+        DEBUG_ONLY(
+            if( d.Height() != diagLength )
+                LogicError("d is not the right length");
+        )
         dStride = 1;
     }
     else
     {
-#ifndef RELEASE
-        if( d.Width() != diagLength )
-            LogicError("d is not the right length");
-#endif
+        DEBUG_ONLY(
+            if( d.Width() != diagLength )
+                LogicError("d is not the right length");
+        )
         dStride = d.LDim();
     }
     const Int iStart = ( offset>=0 ? 0      : -offset );
@@ -315,9 +295,7 @@ template<typename T>
 void
 DM<T>::SetDiagonal( const DM<T>& d, Int offset )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SetDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::SetDiagonal"))
     this->SetDiagonalHelper
     ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
 }
@@ -327,9 +305,7 @@ void
 DM<T>::SetRealPartOfDiagonal
 ( const DistMatrix<Base<T>,STAR,STAR>& d, Int offset )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SetRealPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::SetRealPartOfDiagonal"))
     this->SetDiagonalHelper
     ( d, offset, 
       []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
@@ -340,9 +316,7 @@ void
 DM<T>::SetImagPartOfDiagonal
 ( const DistMatrix<Base<T>,STAR,STAR>& d, Int offset )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SetImagPartOfDiagonal");
-#endif
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::SetImagPartOfDiagonal"))
     this->SetDiagonalHelper
     ( d, offset, 
       []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
@@ -356,11 +330,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,MR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [MC,MR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [MC,MR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -429,11 +403,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [MC,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [MC,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -490,11 +464,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [* ,MR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [* ,MR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -547,11 +521,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [MD,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [MD,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -620,11 +594,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [* ,MD]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [* ,MD]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -690,11 +664,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MR,MC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [MR,MC]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [MR,MC]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -763,11 +737,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [MR,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [MR,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -824,11 +798,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [* ,MC]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [* ,MC]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -881,11 +855,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [VC,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [VC,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -942,11 +916,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [* ,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [* ,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -999,11 +973,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [VR,* ]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [VR,* ]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -1060,11 +1034,11 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [* ,VR]");
-    this->AssertNotLocked();
-    this->AssertSameGrid( A.Grid() );
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [* ,VR]");
+        this->AssertNotLocked();
+        this->AssertSameGrid( A.Grid() );
+    )
     const elem::Grid& g = this->Grid();
     this->ResizeTo( A.Height(), A.Width() );
     if( !this->Participating() )
@@ -1117,10 +1091,10 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DM<T>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [* ,* ]");
-    this->AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [* ,* ]");
+        this->AssertNotLocked();
+    )
     this->ResizeTo( A.Height(), A.Width() );
 
     if( this->Grid() == A.Grid() )
@@ -1193,10 +1167,10 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ] = [o ,o ]");
-    this->AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ] = [o ,o ]");
+        this->AssertNotLocked();
+    )
     const Grid& g = A.Grid();
     const Int m = A.Height(); 
     const Int n = A.Width();
@@ -1235,10 +1209,10 @@ template<typename T>
 void
 DM<T>::SumOverCol()
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SumOverCol");
-    this->AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ]::SumOverCol");
+        this->AssertNotLocked();
+    )
     const Grid& g = this->Grid();
     if( !this->Participating() )
         return;
@@ -1275,10 +1249,10 @@ template<typename T>
 void
 DM<T>::SumOverRow()
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SumOverRow");
-    this->AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ]::SumOverRow");
+        this->AssertNotLocked();
+    )
     const Grid& g = this->Grid();
     if( !this->Participating() )
         return;
@@ -1315,10 +1289,10 @@ template<typename T>
 void
 DM<T>::SumOverGrid()
 {
-#ifndef RELEASE
-    CallStackEntry cse("[* ,* ]::SumOverGrid");
-    this->AssertNotLocked();
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("[* ,* ]::SumOverGrid");
+        this->AssertNotLocked();
+    )
     const Grid& g = this->Grid();
     if( !this->Participating() )
         return;

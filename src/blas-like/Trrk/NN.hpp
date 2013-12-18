@@ -20,14 +20,12 @@ void TrrkNN
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrrkNN");
-    if( C.Height() != C.Width() ||
-        A.Height() != C.Height() || 
-        B.Width() != C.Width() ||
-        A.Width() != B.Height() )
-        LogicError("Nonconformal TrrkNN");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrrkNN");
+        if( C.Height() != C.Width() || A.Height() != C.Height() || 
+            B.Width() != C.Width() || A.Width() != B.Height() )
+            LogicError("Nonconformal TrrkNN");
+    )
     const Grid& g = C.Grid();
 
     DistMatrix<T> AL(g), AR(g),

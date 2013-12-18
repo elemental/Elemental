@@ -66,7 +66,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix[MC,MR]::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::DistMatrix"))
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -79,7 +79,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix[MC,MR]::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::DistMatrix"))
     this->SetShifts();
     if( MC != U || MR != V ||
         reinterpret_cast<const DM<T>*>(&A) != this )
@@ -212,11 +212,6 @@ DM<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignColsWith( const elem::DistData& data )
 {
     DEBUG_ONLY(
@@ -239,11 +234,6 @@ DM<T>::AlignColsWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignColsWith( const ADM<T>& A )
-{ this->AlignColsWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 {
     DEBUG_ONLY(
@@ -263,11 +253,6 @@ DM<T>::AlignRowsWith( const elem::DistData& data )
     this->rowConstrained_ = true;
     this->SetShifts();
 }
-
-template<typename T>
-void
-DM<T>::AlignRowsWith( const ADM<T>& A )
-{ this->AlignRowsWith( A.DistData() ); }
 
 template<typename T>
 void
@@ -542,14 +527,11 @@ DM<T>::SetDiagonalHelper
             LogicError("d must be a column vector");
         const Int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Height() )
-        {
-            std::ostringstream msg;
-            msg << "d is not of the same length as the diagonal:\n"
-                << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
-                << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-                << "  A diag length: " << diagLength << "\n";
-            LogicError( msg.str() );
-        }
+            LogicError
+            ("d is not of the same length as the diagonal:\n",
+             DimsString(*this,"A"),"\n",
+             DimsString(d,"d"),"\n",
+             "  A diag length: ",diagLength);
         if( !d.AlignedWithDiagonal( *this, offset ) )
             LogicError("d must be aligned with the 'offset' diagonal");
     )
@@ -592,14 +574,11 @@ DM<T>::SetDiagonalHelper
             LogicError("d must be a row vector");
         const Int diagLength = this->DiagonalLength(offset);
         if( diagLength != d.Width() )
-        {
-            std::ostringstream msg;
-            msg << "d is not of the same length as the diagonal:\n"
-                << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
-                << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
-                << "  A diag length: " << diagLength << "\n";
-            LogicError( msg.str() );
-        }
+            LogicError
+            ("d is not of the same length as the diagonal:\n",
+             DimsString(*this,"A"),"\n",
+             DimsString(d,"d"),"\n",
+             "  A diag length: ",diagLength);
         if( !d.AlignedWithDiagonal( *this, offset ) )
             LogicError("d must be aligned with the 'offset' diagonal");
     )

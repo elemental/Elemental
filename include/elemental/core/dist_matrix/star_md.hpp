@@ -103,9 +103,7 @@ public:
     //
 
     // Distribution alignment
-    virtual void AlignWith( const admType& A );
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const admType& A );
     virtual void AlignRowsWith( const elem::DistData& data );
 
     //------------------------------------------------------------------------//
@@ -116,10 +114,7 @@ public:
     // Collective routines
     //
 
-    bool AlignedWithDiagonal( const admType& A, Int offset=0 ) const;
     bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-
-    void AlignWithDiagonal( const admType& A, Int offset=0 );
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
 
     // (Immutable) view of a distributed matrix's buffer

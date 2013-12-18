@@ -103,9 +103,7 @@ public:
     //
 
     // Distribution alignment
-    virtual void AlignWith( const admType& A );
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignColsWith( const admType& A );
     virtual void AlignColsWith( const elem::DistData& data );
 
     //------------------------------------------------------------------------//
@@ -143,9 +141,7 @@ public:
     void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
 
-    void AlignWithDiagonal( const admType& A, Int offset=0 );
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
-    bool AlignedWithDiagonal( const admType& A, Int offset=0 ) const;
     bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
 
     // (Immutable) view of a distributed matrix's buffer

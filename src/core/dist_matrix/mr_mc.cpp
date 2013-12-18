@@ -203,11 +203,6 @@ DM<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignColsWith( const elem::DistData& data )
 {
     DEBUG_ONLY(
@@ -230,11 +225,6 @@ DM<T>::AlignColsWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignColsWith( const ADM<T>& A )
-{ this->AlignColsWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 {
     DEBUG_ONLY(
@@ -254,11 +244,6 @@ DM<T>::AlignRowsWith( const elem::DistData& data )
     this->rowConstrained_ = true;
     this->SetShifts();
 }
-
-template<typename T>
-void
-DM<T>::AlignRowsWith( const ADM<T>& A )
-{ this->AlignRowsWith( A.DistData() ); }
 
 template<typename T>
 void

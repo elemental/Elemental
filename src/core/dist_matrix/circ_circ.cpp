@@ -129,9 +129,7 @@ DM<T>::~DistMatrix()
 template<typename T>
 void
 DM<T>::ShallowSwap( DM<T>& A )
-{
-    ADM<T>::ShallowSwap( A );        
-}
+{ ADM<T>::ShallowSwap( A ); }
 
 template<typename T>
 elem::DistData

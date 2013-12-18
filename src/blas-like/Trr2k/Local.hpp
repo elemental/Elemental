@@ -18,709 +18,65 @@ namespace elem {
 namespace trr2k {
 
 #ifndef RELEASE
-// E := alpha (A B + C D) + beta E
 template<typename T>
-void CheckInput
-( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B, 
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E  )
+void EnsureSameGrids
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+  const AbstractDistMatrix<T>& C,
+  const AbstractDistMatrix<T>& D,
+  const AbstractDistMatrix<T>& E )
 {
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
         C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Width() != E.Width() ||
-        C.Height() != E.Height() || D.Width() != E.Width() ||
-        A.Width()  != B.Height() || C.Width() != D.Height() )
-        LogicError
-        ("Nonconformal LocalTrr2k: \n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[* ,MR]"),"\n",
-         DimsString(C,"C[MC,* ]"),"\n",
-         DimsString(D,"D[* ,MR]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n"
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
-         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
-         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),",",E.RowAlign());
+        LogicError("{A,B,C,D,E} must have the same grids");
 }
 
-// E := alpha (A B + C D^{T/H}) + beta E
 template<typename T>
-void CheckInput
-( Orientation orientationOfD,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
+void EnsureConformal
+( const DistMatrix<T,MC,STAR>& A, const DistMatrix<T>& E, std::string name )
 {
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Width()  != E.Width() ||
-        C.Height() != E.Height() || D.Height() != E.Width() ||
-        A.Width()  != B.Height() || C.Width()  != D.Width() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[* ,MR]"),"\n",
-         DimsString(C,"C[MC,* ]"),"\n",
-         DimsString(D,"D[MR,* ]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
-         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
-         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
+    if( A.Height() != E.Height() || A.ColAlign() != E.ColAlign() )
+        LogicError(name," not conformal with E");
 }
 
-// E := alpha (A B + C^{T/H} D) + beta E
 template<typename T>
-void CheckInput
-( Orientation orientationOfC,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
+void EnsureConformal
+( const DistMatrix<T,STAR,MC>& A, const DistMatrix<T>& E, std::string name )
 {
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Width()  != E.Width() ||
-        C.Width()  != E.Height() || D.Width()  != E.Width() ||
-        A.Width()  != B.Height() || C.Height() != D.Height() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[* ,MR]"),"\n",
-         DimsString(C,"C[* ,MC]"),"\n",
-         DimsString(D,"D[* ,MR]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
-         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
-         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
+    if( A.Width() != E.Height() || A.RowAlign() != E.ColAlign() )
+        LogicError(name," not conformal with E");
 }
 
-// E := alpha (A B + C^{T/H} D^{T/H}) + beta E
 template<typename T>
-void CheckInput
-( Orientation orientationOfC, Orientation orientationOfD,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
+void EnsureConformal
+( const DistMatrix<T,MR,STAR>& A, const DistMatrix<T>& E, std::string name )
 {
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Width()  != E.Width() ||
-        C.Width()  != E.Height() || D.Height() != E.Width() ||
-        A.Width()  != B.Height() || C.Height() != D.Width() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[* ,MR]"),"\n",
-         DimsString(C,"C[* ,MC]"),"\n",
-         DimsString(D,"D[MR,* ]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[* ,MR] ~ ",B.RowAlign(),"\n",
-         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
-         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
+    if( A.Height() != E.Width() || A.ColAlign() != E.RowAlign() )
+        LogicError(name," not conformal with E");
 }
 
-// E := alpha (A B^{T/H} + C D) + beta E
 template<typename T>
-void CheckInput
-( Orientation orientationOfB,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
+void EnsureConformal
+( const DistMatrix<T,STAR,MR>& A, const DistMatrix<T>& E, std::string name )
 {
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Height() != E.Width() ||
-        C.Height() != E.Height() || D.Width()  != E.Width() ||
-        A.Width()  != B.Width()  || C.Width()  != D.Height() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[MR,* ]"),"\n",
-         DimsString(C,"C[MC,* ]"),"\n",
-         DimsString(D,"D[* ,MR]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
-         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
-         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
+    if( A.Width() != E.Width() || A.RowAlign() != E.RowAlign() )
+        LogicError(name," not conformal with E");
 }
 
-// E := alpha (A B^{T/H} + C D^{T/H}) + beta E
-template<typename T>
+template<typename T,Distribution UA,Distribution VA,
+                    Distribution UB,Distribution VB,
+                    Distribution UC,Distribution VC,
+                    Distribution UD,Distribution VD>
 void CheckInput
-( Orientation orientationOfB, Orientation orientationOfD,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B, 
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
+( const DistMatrix<T,UA,VA>& A, const DistMatrix<T,UB,VB>& B, 
+  const DistMatrix<T,UC,VC>& C, const DistMatrix<T,UD,VD>& D,
   const DistMatrix<T>& E )
 {
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Height() != E.Width()  ||
-        A.Height() != C.Height() || A.Width()  != C.Width()  ||
-        B.Width()  != D.Width()  || B.Height() != D.Height() ||
-        A.Width()  != B.Width()  || C.Width()  != D.Width() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[MR,* ]"),"\n",
-         DimsString(C,"C[MC,* ]"),"\n",
-         DimsString(D,"D[MR,* ]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        A.ColAlign() != C.ColAlign() ||
-        B.ColAlign() != D.ColAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
-         "  C[MC,* ] ~ ",C.ColAlign(),"\n",
-         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
-}
-
-// E := alpha (A B^{T/H} + C^{T/H} D) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfB, Orientation orientationOfC,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Height() != E.Width() ||
-        C.Width()  != E.Height() || D.Width()  != E.Width() ||
-        A.Width()  != B.Width()  || C.Height() != D.Height() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[MR,* ]"),"\n",
-         DimsString(C,"C[* ,MC]"),"\n",
-         DimsString(D,"D[* ,MR]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
-         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
-         "  D[* ,MR] ~ ",D.RowAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
-}
-
-// E := alpha (A B^{T/H} + C^{T/H} D^{T/H}) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfB,
-  Orientation orientationOfC,
-  Orientation orientationOfD,
-  const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Height() != E.Height() || B.Height() != E.Width() ||
-        C.Width()  != E.Height() || D.Height() != E.Width() ||
-        A.Width()  != B.Width()  || C.Height() != D.Width() )
-        LogicError
-        ("Nonconformal LocalTrr2k:\n",
-         DimsString(A,"A[MC,* ]"),"\n",
-         DimsString(B,"B[MR,* ]"),"\n",
-         DimsString(C,"C[* ,MC]"),"\n",
-         DimsString(D,"D[MR,* ]"),"\n",
-         DimsString(E,"E[MC,MR]"));
-    if( A.ColAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-        LogicError
-        ("Misaligned LocalTrr2k:\n",
-         "  A[MC,* ] ~ ",A.ColAlign(),"\n",
-         "  B[MR,* ] ~ ",B.ColAlign(),"\n",
-         "  C[* ,MC] ~ ",C.RowAlign(),"\n",
-         "  D[MR,* ] ~ ",D.ColAlign(),"\n",
-         "  E[MC,MR] ~ ",E.ColAlign(),", ",E.RowAlign());
-}
-
-// E := alpha (A^{T/H} B + C D) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B, 
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Width() != E.Width() ||
-        C.Height() != E.Height() || D.Width() != E.Width() || 
-        A.Height() != B.Height() || C.Width() != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B + C D^{T/H}) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA, Orientation orientationOfD,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Width()  != E.Width() ||
-        C.Height() != E.Height() || D.Height() != E.Width() ||
-        A.Height() != B.Height() || C.Width()  != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B + C^{T/H} D) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA, Orientation orientationOfC,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B, 
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Width()  != E.Width() ||
-        C.Width()  != E.Height() || D.Width()  != E.Width() ||
-        A.Height() != B.Height() || C.Height() != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA,
-  Orientation orientationOfC,
-  Orientation orientationOfD,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Width()  != E.Width() ||
-        C.Width()  != E.Height() || D.Height() != E.Width() ||
-        A.Height() != B.Height() || C.Height() != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[* ,MR] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.RowAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B^{T/H} + C D) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA, Orientation orientationOfB,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B, 
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Height() != E.Width() ||
-        C.Height() != E.Height() || D.Width()  != E.Width() ||
-        A.Height() != B.Width()  || C.Width()  != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B^{T/H} + C D^{T/H}) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA,
-  Orientation orientationOfB,
-  Orientation orientationOfD,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Height() != E.Width() ||
-        C.Height() != E.Height() || D.Height() != E.Width() ||
-        A.Height() != B.Width()  || C.Width()  != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[MC,* ] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.ColAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B^{T/H} + C^{T/H} D) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA,
-  Orientation orientationOfB,
-  Orientation orientationOfC,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width() != E.Height() || B.Height() != E.Width() ||
-        C.Width() != E.Height() || D.Width()  != E.Width() ||
-        A.Height() != B.Width() || C.Height() != D.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[* ,MR] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.RowAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
-}
-
-// E := alpha (A^{T/H} B^{T/H} + C^{T/H} D^{T/H}) + beta E
-template<typename T>
-void CheckInput
-( Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
-  const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B, 
-  const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
-  const DistMatrix<T>& E )
-{
-    if( orientationOfA == NORMAL )
-        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfB == NORMAL )
-        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
-    if( orientationOfC == NORMAL )
-        LogicError("C[* ,MC] must be (Conjugate)Transpose'd");
-    if( orientationOfD == NORMAL )
-        LogicError("D[MR,* ] must be (Conjugate)Transpose'd");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("A, B, C, D, and E must be distributed over the same grid");
-    if( A.Width()  != E.Height() || B.Height() != E.Width() ||
-        C.Width()  != E.Height() || D.Height() != E.Width() ||
-        A.Height() != B.Width()  || C.Height() != D.Width() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.Height() << " x "
-                               << A.Width()  << "\n"
-            << "  B[MR,* ] ~ " << B.Height() << " x "
-                               << B.Width()  << "\n"
-            << "  C[* ,MC] ~ " << C.Height() << " x "
-                               << C.Width()  << "\n"
-            << "  D[MR,* ] ~ " << D.Height() << " x "
-                               << D.Width()  << "\n"
-            << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
-        LogicError( msg.str() );
-    }
-    if( A.RowAlign() != E.ColAlign() ||
-        B.ColAlign() != E.RowAlign() ||
-        C.RowAlign() != E.ColAlign() ||
-        D.ColAlign() != E.RowAlign() )
-    {
-        std::ostringstream msg;
-        msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
-                                  E.RowAlign() << "\n";
-        LogicError( msg.str() );
-    }
+    EnsureSameGrids( A, B, C, D, E );
+    EnsureConformal( A, E, "A" );
+    EnsureConformal( B, E, "B" );
+    EnsureConformal( C, E, "C" );
+    EnsureConformal( D, E, "D" );
 }
 #endif // ifndef RELEASE
 
@@ -749,21 +105,14 @@ LocalTrr2kKernel
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
+    LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
+    LockedPartitionDown( C, CT, CB, half );
     LockedPartitionRight( D, DL, DR, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
@@ -775,14 +124,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, FTL );
     LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, FBR );
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B + C D^{T/H}) + beta C
@@ -796,7 +146,7 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -811,23 +161,14 @@ LocalTrr2kKernel
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
+    LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( C, CT, CB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
@@ -839,14 +180,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, FTL );
     LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, FBR );
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B + C^{T/H} D) + beta E
@@ -860,12 +202,11 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g),
-                          AB(g);
+    DistMatrix<T,MC,STAR> AT(g), AB(g);
     DistMatrix<T,STAR,MC> CL(g), CR(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g),
                           DL(g), DR(g);
@@ -875,9 +216,7 @@ LocalTrr2kKernel
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
+    LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
     LockedPartitionRight( D, DL, DR, half );
@@ -885,9 +224,6 @@ LocalTrr2kKernel
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
@@ -899,14 +235,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, FTL );
     LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, FBR );
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B + C^{T/H} D^{T/H}) + beta E
@@ -920,37 +257,28 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g),
-                          AB(g);
+    DistMatrix<T,MC,STAR> AT(g), AB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
     DistMatrix<T,STAR,MC> CL(g), CR(g);
-    DistMatrix<T,MR,STAR> DT(g),
-                          DB(g);
+    DistMatrix<T,MR,STAR> DT(g), DB(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
     DistMatrix<T> FTL(g), FBR(g);
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
+    LockedPartitionDown( A, AT, AB, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
@@ -962,14 +290,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, NORMAL, alpha, AT, BL, FTL );
     LocalGemm( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, FBR );
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B^{T/H} + C D) + beta C
@@ -983,14 +312,13 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfB, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,MC,STAR> AT(g),  CT(g),
                           AB(g),  CB(g);
-    DistMatrix<T,MR,STAR> BT(g), 
-                          BB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
@@ -998,23 +326,14 @@ LocalTrr2kKernel
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
+    LockedPartitionDown( A, AT, AB, half );
+    LockedPartitionDown( B, BT, BB, half );
+    LockedPartitionDown( C, CT, CB, half );
     LockedPartitionRight( D, DL, DR, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
@@ -1026,14 +345,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, FTL );
     LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, FBR );
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B^{T/H} + C D^{T/H}) + beta C
@@ -1047,7 +367,7 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -1061,25 +381,14 @@ LocalTrr2kKernel
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( A, AT, AB, half );
+    LockedPartitionDown( B, BT, BB, half );
+    LockedPartitionDown( C, CT, CB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
@@ -1091,14 +400,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, FTL );
     LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, FBR );
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D) + beta E
@@ -1112,14 +422,12 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g),
-                          AB(g);
-    DistMatrix<T,MR,STAR> BT(g),
-                          BB(g);
+    DistMatrix<T,MC,STAR> AT(g), AB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
     DistMatrix<T,STAR,MC> CL(g), CR(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
     DistMatrix<T> ETL(g), ETR(g),
@@ -1128,21 +436,14 @@ LocalTrr2kKernel
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
+    LockedPartitionDown( A, AT, AB, half );
+    LockedPartitionDown( B, BT, BB, half );
     LockedPartitionRight( C, CL, CR, half );
     LockedPartitionRight( D, DL, DR, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
@@ -1154,14 +455,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, FTL );
     LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, FBR );
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D^{T/H}) + beta C
@@ -1178,40 +480,28 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,STAR> AT(g),
-                          AB(g);
-    DistMatrix<T,MR,STAR> BT(g), 
-                          BB(g);
+    DistMatrix<T,MC,STAR> AT(g), AB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
     DistMatrix<T,STAR,MC> CL(g), CR(g);
-    DistMatrix<T,MR,STAR> DT(g), 
-                          DB(g);
+    DistMatrix<T,MR,STAR> DT(g), DB(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
     DistMatrix<T> FTL(g), FBR(g);
 
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
-    LockedPartitionDown
-    ( A, AT,
-         AB, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
+    LockedPartitionDown( A, AT, AB, half );
+    LockedPartitionDown( B, BT, BB, half );
     LockedPartitionRight( C, CL, CR, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
@@ -1223,14 +513,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, FTL );
     LocalGemm( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, FBR );
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B + C D) + beta E
@@ -1244,13 +535,12 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,MC,STAR> CT(g),
-                          CB(g);
+    DistMatrix<T,MC,STAR> CT(g), CB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g),
                           DL(g), DR(g);
     DistMatrix<T> ETL(g), ETR(g),
@@ -1261,17 +551,12 @@ LocalTrr2kKernel
     ScaleTrapezoid( beta, uplo, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
+    LockedPartitionDown( C, CT, CB, half );
     LockedPartitionRight( D, DL, DR, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
@@ -1283,14 +568,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, FTL );
     LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, FBR );
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B + C D^{T/H}) + beta E
@@ -1304,16 +590,14 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T,MC,STAR> CT(g),
-                          CB(g);
-    DistMatrix<T,MR,STAR> DT(g),
-                          DB(g);
+    DistMatrix<T,MC,STAR> CT(g), CB(g);
+    DistMatrix<T,MR,STAR> DT(g), DB(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
     DistMatrix<T> FTL(g), FBR(g);
@@ -1322,19 +606,12 @@ LocalTrr2kKernel
     ScaleTrapezoid( beta, uplo, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( C, CT, CB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
@@ -1346,14 +623,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, FTL );
     LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, FBR );
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B + C^{T/H} D) + beta E
@@ -1367,7 +645,7 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -1389,9 +667,6 @@ LocalTrr2kKernel
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
@@ -1403,14 +678,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, FTL );
     LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, FBR );
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
@@ -1427,15 +703,14 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g),
                           CL(g), CR(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T,MR,STAR> DT(g),
-                          DB(g);
+    DistMatrix<T,MR,STAR> DT(g), DB(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
     DistMatrix<T> FTL(g), FBR(g);
@@ -1445,16 +720,11 @@ LocalTrr2kKernel
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
@@ -1466,14 +736,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, FTL );
     LocalGemm( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, FBR );
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C D) + beta E
@@ -1487,15 +758,13 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,MR,STAR> BT(g),
-                          BB(g);
-    DistMatrix<T,MC,STAR> CT(g),
-                          CB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
+    DistMatrix<T,MC,STAR> CT(g), CB(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
@@ -1504,20 +773,13 @@ LocalTrr2kKernel
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
     LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
+    LockedPartitionDown( B, BT, BB, half );
+    LockedPartitionDown( C, CT, CB, half );
     LockedPartitionRight( D, DL, DR, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
@@ -1529,14 +791,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, FTL );
     LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, FBR );
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C D^{T/H}) + beta C
@@ -1553,17 +816,14 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, orientationOfB, orientationOfB, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
-    DistMatrix<T,MR,STAR> BT(g), 
-                          BB(g);
-    DistMatrix<T,MC,STAR> CT(g),
-                          CB(g);
-    DistMatrix<T,MR,STAR> DT(g), 
-                          DB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
+    DistMatrix<T,MC,STAR> CT(g), CB(g);
+    DistMatrix<T,MR,STAR> DT(g), DB(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
     DistMatrix<T> FTL(g), FBR(g);
@@ -1571,22 +831,13 @@ LocalTrr2kKernel
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
     LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
-    LockedPartitionDown
-    ( C, CT,
-         CB, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( B, BT, BB, half );
+    LockedPartitionDown( C, CT, CB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
@@ -1598,14 +849,15 @@ LocalTrr2kKernel
         LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, FTL );
     LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, FBR );
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D) + beta E
@@ -1622,14 +874,13 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
     DistMatrix<T,STAR,MC> AL(g), AR(g),
                           CL(g), CR(g);
-    DistMatrix<T,MR,STAR> BT(g),
-                          BB(g);
+    DistMatrix<T,MR,STAR> BT(g), BB(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
     DistMatrix<T> ETL(g), ETR(g),
                   EBL(g), EBR(g);
@@ -1638,18 +889,13 @@ LocalTrr2kKernel
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
     LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
+    LockedPartitionDown( B, BT, BB, half );
     LockedPartitionRight( C, CL, CR, half );
     LockedPartitionRight( D, DL, DR, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
@@ -1661,14 +907,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, FTL );
     LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, FBR );
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D^{T/H}) + beta C
@@ -1684,9 +931,7 @@ LocalTrr2kKernel
 {
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2kKernel");
-        CheckInput
-        ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
-          A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -1701,20 +946,13 @@ LocalTrr2kKernel
     const Int half = E.Height()/2;
     ScaleTrapezoid( beta, uplo, E );
     LockedPartitionRight( A, AL, AR, half );
-    LockedPartitionDown
-    ( B, BT,
-         BB, half );
+    LockedPartitionDown( B, BT, BB, half );
     LockedPartitionRight( C, CL, CR, half );
-    LockedPartitionDown
-    ( D, DT,
-         DB, half );
+    LockedPartitionDown( D, DT, DB, half );
     PartitionDownDiagonal
     ( E, ETL, ETR,
          EBL, EBR, half );
 
-    FTL.AlignWith( ETL );
-    FBR.AlignWith( EBR );
-    //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
         LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
@@ -1726,14 +964,15 @@ LocalTrr2kKernel
         LocalGemm( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    FTL.AlignWith( ETL );
     LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, FTL );
     LocalGemm( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    FBR.AlignWith( EBR );
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, FBR );
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
-    //------------------------------------------------------------------------//
 }
 
 } // namespace trr2k
@@ -1769,13 +1008,9 @@ void LocalTrr2k
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
+        LockedPartitionDown( A, AT, AB, half );
         LockedPartitionRight( B, BL, BR, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
+        LockedPartitionDown( C, CT, CB, half );
         LockedPartitionRight( D, DL, DR, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
@@ -1809,7 +1044,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -1824,22 +1059,15 @@ void LocalTrr2k
         DistMatrix<T,MC,STAR> AT(g),  CT(g),
                               AB(g),  CB(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T,MR,STAR> DT(g), 
-                              DB(g);
+        DistMatrix<T,MR,STAR> DT(g), DB(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
+        LockedPartitionDown( A, AT, AB, half );
         LockedPartitionRight( B, BL, BR, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( C, CT, CB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -1872,7 +1100,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -1884,8 +1112,7 @@ void LocalTrr2k
     {
         // Split E in four roughly equal pieces, perform a large gemm on corner
         // and recurse on ETL and EBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g);
+        DistMatrix<T,MC,STAR> AT(g), AB(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g),
                               DL(g), DR(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
@@ -1893,9 +1120,7 @@ void LocalTrr2k
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
+        LockedPartitionDown( A, AT, AB, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionRight( C, CL, CR, half );
         LockedPartitionRight( D, DL, DR, half );
@@ -1931,7 +1156,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -1944,24 +1169,18 @@ void LocalTrr2k
     {
         // Split E in four roughly equal pieces, perform a large gemm on corner
         // and recurse on ETL and EBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g); 
+        DistMatrix<T,MC,STAR> AT(g), AB(g); 
         DistMatrix<T,STAR,MR> BL(g), BR(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
-        DistMatrix<T,MR,STAR> DT(g),
-                              DB(g);
+        DistMatrix<T,MR,STAR> DT(g), DB(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
+        LockedPartitionDown( A, AT, AB, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionRight( C, CL, CR, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -2000,7 +1219,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfB, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2014,22 +1233,15 @@ void LocalTrr2k
         // and recurse on ETL and EBR.
         DistMatrix<T,MC,STAR> AT(g),  CT(g),
                               AB(g),  CB(g);
-        DistMatrix<T,MR,STAR> BT(g), 
-                              BB(g);
+        DistMatrix<T,MR,STAR> BT(g), BB(g);
         DistMatrix<T,STAR,MR> DL(g), DR(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
+        LockedPartitionDown( A, AT, AB, half );
+        LockedPartitionDown( B, BT, BB, half );
+        LockedPartitionDown( C, CT, CB, half );
         LockedPartitionRight( D, DL, DR, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
@@ -2063,7 +1275,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2084,18 +1296,10 @@ void LocalTrr2k
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( A, AT, AB, half );
+        LockedPartitionDown( B, BT, BB, half );
+        LockedPartitionDown( C, CT, CB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -2132,7 +1336,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2145,22 +1349,16 @@ void LocalTrr2k
     {
         // Split E in four roughly equal pieces, perform a large gemm on corner
         // and recurse on ETL and EBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g); 
-        DistMatrix<T,MR,STAR> BT(g),
-                              BB(g);
+        DistMatrix<T,MC,STAR> AT(g), AB(g); 
+        DistMatrix<T,MR,STAR> BT(g), BB(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
         DistMatrix<T,STAR,MR> DL(g), DR(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
+        LockedPartitionDown( A, AT, AB, half );
+        LockedPartitionDown( B, BT, BB, half );
         LockedPartitionRight( C, CL, CR, half );
         LockedPartitionRight( D, DL, DR, half );
         PartitionDownDiagonal
@@ -2202,7 +1400,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2216,8 +1414,7 @@ void LocalTrr2k
     {
         // Split E in four roughly equal pieces, perform a large gemm on corner
         // and recurse on ETL and EBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g); 
+        DistMatrix<T,MC,STAR> AT(g), AB(g); 
         DistMatrix<T,MR,STAR> BT(g),  DT(g),
                               BB(g),  DB(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
@@ -2225,16 +1422,10 @@ void LocalTrr2k
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
+        LockedPartitionDown( A, AT, AB, half );
+        LockedPartitionDown( B, BT, BB, half );
         LockedPartitionRight( C, CL, CR, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -2273,7 +1464,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2288,17 +1479,14 @@ void LocalTrr2k
         DistMatrix<T,STAR,MC> AL(g), AR(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g),
                               DL(g), DR(g);
-        DistMatrix<T,MC,STAR> CT(g),
-                              CB(g);
+        DistMatrix<T,MC,STAR> CT(g), CB(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
+        LockedPartitionDown( C, CT, CB, half );
         LockedPartitionRight( D, DL, DR, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
@@ -2332,7 +1520,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2347,22 +1535,16 @@ void LocalTrr2k
         // and recurse on ETL and EBR.
         DistMatrix<T,STAR,MC> AL(g), AR(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T,MC,STAR> CT(g),
-                              CB(g); 
-        DistMatrix<T,MR,STAR> DT(g),
-                              DB(g);
+        DistMatrix<T,MC,STAR> CT(g), CB(g); 
+        DistMatrix<T,MR,STAR> DT(g), DB(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( C, CT, CB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -2399,7 +1581,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2463,7 +1645,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2480,8 +1662,7 @@ void LocalTrr2k
         DistMatrix<T,STAR,MC> AL(g), AR(g),
                               CL(g), CR(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T,MR,STAR> DT(g),
-                              DB(g);
+        DistMatrix<T,MR,STAR> DT(g), DB(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
@@ -2489,9 +1670,7 @@ void LocalTrr2k
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         LockedPartitionRight( C, CL, CR, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -2530,7 +1709,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2544,22 +1723,16 @@ void LocalTrr2k
         // Split E in four roughly equal pieces, perform a large gemm on corner
         // and recurse on ETL and EBR.
         DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,MR,STAR> BT(g),
-                              BB(g);
-        DistMatrix<T,MC,STAR> CT(g),
-                              CB(g); 
+        DistMatrix<T,MR,STAR> BT(g), BB(g);
+        DistMatrix<T,MC,STAR> CT(g), CB(g); 
         DistMatrix<T,STAR,MR> DL(g), DR(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
+        LockedPartitionDown( B, BT, BB, half );
+        LockedPartitionDown( C, CT, CB, half );
         LockedPartitionRight( D, DL, DR, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
@@ -2602,7 +1775,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, orientationOfB, orientationOfD, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2619,22 +1792,15 @@ void LocalTrr2k
         DistMatrix<T,STAR,MC> AL(g), AR(g);
         DistMatrix<T,MR,STAR> BT(g),  DT(g),
                               BB(g),  DB(g);
-        DistMatrix<T,MC,STAR> CT(g),
-                              CB(g); 
+        DistMatrix<T,MC,STAR> CT(g), CB(g); 
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
-        LockedPartitionDown
-        ( C, CT,
-             CB, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( B, BT, BB, half );
+        LockedPartitionDown( C, CT, CB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );
@@ -2676,7 +1842,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2692,17 +1858,14 @@ void LocalTrr2k
         // and recurse on ETL and EBR.
         DistMatrix<T,STAR,MC> AL(g), AR(g),
                               CL(g), CR(g);
-        DistMatrix<T,MR,STAR> BT(g),
-                              BB(g);
+        DistMatrix<T,MR,STAR> BT(g), BB(g);
         DistMatrix<T,STAR,MR> DL(g), DR(g);
         DistMatrix<T> ETL(g), ETR(g),
                       EBL(g), EBR(g);
 
         const Int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown
-        ( B, BT, 
-             BB, half );
+        LockedPartitionDown( B, BT, BB, half );
         LockedPartitionRight( C, CL, CR, half );
         LockedPartitionRight( D, DL, DR, half );
         PartitionDownDiagonal
@@ -2747,9 +1910,7 @@ void LocalTrr2k
     using namespace trr2k;
     DEBUG_ONLY(
         CallStackEntry cse("LocalTrr2k");
-        CheckInput
-        ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
-          A, B, C, D, E );
+        CheckInput( A, B, C, D, E );
     )
     const Grid& g = E.Grid();
 
@@ -2772,13 +1933,9 @@ void LocalTrr2k
 
         const Int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionDown
-        ( B, BT,
-             BB, half );
+        LockedPartitionDown( B, BT, BB, half );
         LockedPartitionRight( C, CL, CR, half );
-        LockedPartitionDown
-        ( D, DT,
-             DB, half );
+        LockedPartitionDown( D, DT, DB, half );
         PartitionDownDiagonal
         ( E, ETL, ETR,
              EBL, EBR, half );

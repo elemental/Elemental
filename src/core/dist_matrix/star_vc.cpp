@@ -55,7 +55,7 @@ template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
 : ADM<T>(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix[* ,VC]::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::DistMatrix"))
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -68,7 +68,7 @@ template<Distribution U,Distribution V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrix[* ,VC]::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::DistMatrix"))
     this->SetShifts();
     if( STAR != U || VC != V || 
         reinterpret_cast<const DM<T>*>(&A) != this )
@@ -153,18 +153,8 @@ DM<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
-
-template<typename T>
-void
-DM<T>::AlignRowsWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
 
 template<typename T>
 bool
@@ -198,12 +188,6 @@ DM<T>::AlignedWithDiagonal
 }
 
 template<typename T>
-bool
-DM<T>::AlignedWithDiagonal
-( const ADM<T>& A, Int offset ) const
-{ return this->AlignedWithDiagonal( A.DistData(), offset ); }
-
-template<typename T>
 void
 DM<T>::AlignWithDiagonal
 ( const elem::DistData& data, Int offset )
@@ -232,12 +216,6 @@ DM<T>::AlignWithDiagonal
     }
     DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
 }
-
-template<typename T>
-void
-DM<T>::AlignWithDiagonal
-( const ADM<T>& A, Int offset )
-{ this->AlignWithDiagonal( A.DistData(), offset ); }
 
 template<typename T>
 void

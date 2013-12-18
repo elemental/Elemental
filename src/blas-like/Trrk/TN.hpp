@@ -21,16 +21,14 @@ void TrrkTN
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
-#ifndef RELEASE
-    CallStackEntry cse("internal::TrrkTN");
-    if( C.Height() != C.Width() ||
-        A.Width() != C.Height() || 
-        B.Width() != C.Width() ||
-        A.Height() != B.Height() )
-        LogicError("Nonconformal TrrkTN");
-    if( orientationOfA == NORMAL )
-        LogicError("Orientation must be ADJOINT or NORMAL");
-#endif
+    DEBUG_ONLY(
+        CallStackEntry cse("internal::TrrkTN");
+        if( C.Height() != C.Width() || A.Width() != C.Height() || 
+            B.Width() != C.Width() || A.Height() != B.Height() )
+            LogicError("Nonconformal TrrkTN");
+        if( orientationOfA == NORMAL )
+            LogicError("Orientation must be ADJOINT or NORMAL");
+    )
     const Grid& g = C.Grid();
 
     DistMatrix<T> AT(g),  A0(g),

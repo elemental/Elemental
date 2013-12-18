@@ -101,9 +101,7 @@ public:
     //
 
     // Distribution alignment
-    virtual void AlignWith( const admType& A );
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const admType& A );
     virtual void AlignRowsWith( const elem::DistData& data );
 
     //------------------------------------------------------------------------//

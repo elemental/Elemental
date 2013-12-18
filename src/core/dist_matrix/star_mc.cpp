@@ -158,18 +158,8 @@ DM<T>::AlignWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::AlignWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T>
-void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
-
-template<typename T>
-void
-DM<T>::AlignRowsWith( const ADM<T>& A )
-{ this->AlignWith( A.DistData() ); }
 
 template<typename T>
 bool
@@ -202,11 +192,6 @@ DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
 }
 
 template<typename T>
-bool
-DM<T>::AlignedWithDiagonal( const ADM<T>& A, Int offset ) const
-{ return this->AlignedWithDiagonal( A.DistData(), offset ); }
-
-template<typename T>
 void
 DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
 {
@@ -234,11 +219,6 @@ DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
     }
     DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
 }
-
-template<typename T>
-void
-DM<T>::AlignWithDiagonal( const ADM<T>& A, Int offset )
-{ this->AlignWithDiagonal( A.DistData(), offset ); }
 
 template<typename T>
 void
