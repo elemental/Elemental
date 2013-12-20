@@ -18,69 +18,80 @@ namespace pspec {
 
 template<typename F>
 inline void
-FrobNorms( const Matrix<Complex<BASE(F)> >& X, Matrix<BASE(F)>& norms )
+FrobNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FrobNorms"));
+    DEBUG_ONLY(CallStackEntry cse("pspec::FrobNorms"))
     const Int m = X.Height();
     const Int n = X.Width();
     norms.ResizeTo( n, 1 );
     for( Int j=0; j<n; ++j )
-        norms.Set( j, 0, Nrm2(m,X.LockedBuffer(0,j),1) );
+        norms.Set( j, 0, blas::Nrm2(m,X.LockedBuffer(0,j),1) );
 }
 
 template<typename F>
 inline void
 FrobNorms
-( const DistMatrix<Complex<BASE(F)> >& X, DistMatrix<BASE(F),MR,STAR>& norms )
+( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FrobNorms"));
+    DEBUG_ONLY(CallStackEntry cse("pspec::FrobNorms"))
+    const Int n = X.Width();
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
     const Grid& g = X.Grid();
 
+    // TODO: Switch to more stable parallel norm computation using scaling
     norms.AlignWith( X );
-    norms.ResizeTo( nLocal, 1 ); 
+    norms.ResizeTo( n, 1 ); 
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        norms.SetLocal( jLoc, 0, Nrms(mLocal,X.LockedBuffer(0,jLoc),1) );
+    {
+        const Base<F> localNorm = blas::Nrm2(mLocal,X.LockedBuffer(0,jLoc),1);
+        norms.SetLocal( jLoc, 0, localNorm*localNorm );
+    }
 
     mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, X.ColComm() );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        norms.SetLocal( jLoc, 0, Sqrt(norms.GetLocal(jLoc,0)) );
 }
 
 template<typename F>
 inline void
-FixZeroColumns( Matrix<Complex<BASE(F)> >& X )
+FixColumns( Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FixZeroColumns"));
-    Matrix<Complex<Base<F>>> norms;
+    DEBUG_ONLY(CallStackEntry cse("pspec::FixColumns"))
+    typedef Base<F> Real;
+    Matrix<Real> norms;
     FrobNorms( X, norms );
     const Int m = X.Height();
     const Int n = X.Width();
     for( Int j=0; j<n; ++j )
     {
-        if( norms.Get(j,0) == Base<F>(0) )
-        {
-            auto x = View( X, 0, j, m, 1 );
+        auto x = View( X, 0, j, m, 1 );
+        const Real norm = norms.Get(j,0);
+        if( norm == Real(0) )
             MakeGaussian( x );
-        }
+        else
+            Scale( Real(1)/norm, x );
     }
 }
 
 template<typename F>
 inline void
-FixZeroColumns( DistMatrix<Complex<BASE(F)> >& X )
+FixColumns( DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FixZeroColumns"));
-    DistMatrix<Complex<Base<F>>,MR,STAR> norms( X.Grid() );
+    DEBUG_ONLY(CallStackEntry cse("pspec::FixZeroColumns"))
+    typedef Base<F> Real;
+    DistMatrix<Real,MR,STAR> norms( X.Grid() );
     FrobNorms( X, norms );
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        if( norms.Get(jLoc,0) == Base<F>(0) )
-        {
-            auto xLoc = View( X.Matrix(), 0, jLoc, mLocal, 1 );
+        auto xLoc = View( X.Matrix(), 0, jLoc, mLocal, 1 );
+        const Real norm = norms.GetLocal(jLoc,0);
+        if( norm == Base<F>(0) )
             MakeGaussian( xLoc );
-        }
+        else
+            Scale( Real(1)/norm, xLoc );
     }
 }
 
@@ -89,11 +100,16 @@ inline void
 ShiftedTrsmLUNUnb
 ( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUNUnb"));
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::ShiftedTrsmLUNUnb");
+        if( shifts.Height() != X.Width() )
+            LogicError("Incompatible number of shifts");
+    )
     auto diag = U.GetDiagonal();
     const Int n = U.Height();
     const Int ldim = U.LDim();
-    for( Int j=0; j<n; ++j )
+    const Int numShifts = shifts.Height();
+    for( Int j=0; j<numShifts; ++j )
     {
         UpdateDiagonal( U, -shifts.Get(j,0) );
         blas::Trsv
@@ -107,7 +123,7 @@ inline void
 ShiftedTrsmLUN
 ( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUN"));
+    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUN"))
 
     Matrix<F>
         UTL, UTR,  U00, U01, U02,
@@ -117,7 +133,7 @@ ShiftedTrsmLUN
               XB,  X1,
                    X2;
 
-    LockedPartitionUpDiagonal
+    PartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
     PartitionUp
@@ -125,7 +141,7 @@ ShiftedTrsmLUN
          XB, 0 );
     while( XT.Height() > 0 )
     {
-        LockedRepartitionUpDiagonal
+        RepartitionUpDiagonal
         ( UTL, /**/ UTR,   U00, U01, /**/ U02,
                /**/        U10, U11, /**/ U12,
          /*************/  /******************/
@@ -142,7 +158,7 @@ ShiftedTrsmLUN
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
         //--------------------------------------------------------------------//
 
-        SlideLockedPartitionUpDiagonal
+        SlidePartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,
          /*************/ /******************/
                /**/       U10, /**/ U11, U12,
@@ -163,7 +179,7 @@ ShiftedTrsmLUN
   const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
         DistMatrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUN"));
+    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUN"))
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -240,11 +256,16 @@ inline void
 ShiftedTrsmLUTUnb
 ( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUTUnb"));
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::ShiftedTrsmLUTUnb");
+        if( shifts.Height() != X.Width() )
+            LogicError("Incompatible number of shifts");
+    )
     auto diag = U.GetDiagonal();
     const Int n = U.Height();
     const Int ldim = U.LDim();
-    for( Int j=0; j<n; ++j )
+    const Int numShifts = shifts.Height();
+    for( Int j=0; j<numShifts; ++j )
     {
         UpdateDiagonal( U, -shifts.Get(j,0) );
         blas::Trsv
@@ -256,10 +277,10 @@ ShiftedTrsmLUTUnb
 template<typename F>
 inline void
 ShiftedTrsmLUT
-( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts,
-        Matrix<F>& X ) 
+( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts,
+  Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"));
+    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"))
 
     Matrix<F>
         UTL, UTR,  U00, U01, U02,
@@ -270,7 +291,7 @@ ShiftedTrsmLUT
               XB,  X1,
                    X2;
 
-    LockedPartitionDownDiagonal
+    PartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
     PartitionDown
@@ -278,7 +299,7 @@ ShiftedTrsmLUT
          XB, 0 );
     while( XB.Height() > 0 )
     {
-        LockedRepartitionDownDiagonal
+        RepartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,
          /*************/ /******************/
                /**/       U10, /**/ U11, U12,
@@ -295,7 +316,7 @@ ShiftedTrsmLUT
         Gemm( ADJOINT, NORMAL, F(-1), U12, X1, F(1), X2 );
         //--------------------------------------------------------------------//
 
-        SlideLockedPartitionDownDiagonal
+        SlidePartitionDownDiagonal
         ( UTL, /**/ UTR,   U00, U01, /**/ U02,
                /**/        U10, U11, /**/ U12,
          /*************/  /******************/
@@ -307,7 +328,6 @@ ShiftedTrsmLUT
          /**/ /**/
           XB,  X2 );
     }
-
 }
 
 template<typename F>
@@ -316,7 +336,7 @@ ShiftedTrsmLUT
 ( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
         DistMatrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"));
+    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"))
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -396,8 +416,8 @@ ShiftedTrsmLUT
 template<typename F>
 inline void
 Pseudospectrum
-( const Matrix<F>& A, Matrix<Complex<BASE(F)> >& shifts, 
-  Int maxIts=1000, BASE(F) tol=1e-6 )
+( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
+  Matrix<BASE(F)>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -417,21 +437,22 @@ Pseudospectrum
     Matrix<C> X;
     Gaussian( X, n, numShifts );
     Int numIts=0;
-    Matrix<Real> estimates(numShifts,1), 
+    Matrix<Real> estimates(numShifts,1),
                  lastEsts(numShifts,1), 
                  diffs(numShifts,1);
+    Zeros( estimates, numShifts, 1 );
     while( true )
     {
         lastEsts = estimates;
         pspec::ShiftedTrsmLUN( T, shifts, X );
-        pspec::FixZeroColumns( X );
+        pspec::FixColumns( X );
         pspec::ShiftedTrsmLUT( T, shifts, X );
+        pspec::FrobNorms( X, estimates );
 
         ++numIts;
         if( numIts >= maxIts )
             break;
-        
-        pspec::FrobNorms( X, estimates );
+
         diffs = estimates;
         Axpy( Real(-1), lastEsts, diffs );
         const Real maxDiff = MaxNorm( diffs );
@@ -439,17 +460,20 @@ Pseudospectrum
             break;
     } 
     
-    Axpy( Real(-1), lastEsts, estimates );
-    const Real maxDiff = MaxNorm( estimates );
+    diffs = estimates;
+    Axpy( Real(-1), lastEsts, diffs );
+    const Real maxDiff = MaxNorm( diffs );
     if( maxDiff > tol*n )
         RuntimeError("Two-norm estimate did not converge in time");
+
+    invNorms = estimates;
 }
 
 template<typename F>
 inline void
 Pseudospectrum
-( const Matrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  Int maxIts=1000, BASE(F) tol=1e-6 )
+( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
+  DistMatrix<BASE(F),VR,STAR>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -461,7 +485,7 @@ Pseudospectrum
 
     DistMatrix<C> T( g );
     T.AlignWith( A );
-    T.ResizeTo( A.Height(), A.Width() );
+    T.ResizeTo( n, n );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             T.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
@@ -480,21 +504,21 @@ Pseudospectrum
     estimates.AlignWith( X );
     lastEsts.AlignWith( X );
     diffs.AlignWith( X );
-    estimates.ResizeTo( numShifts, 1 );
+    Zeros( estimates, numShifts, 1 );
     lastEsts.ResizeTo( numShifts, 1 );
     diffs.ResizeTo( numShifts, 1 );
     while( true )
     {
         lastEsts = estimates;
         pspec::ShiftedTrsmLUN( T, shifts, X );
-        pspec::FixZeroColumns( X );
+        pspec::FixColumns( X );
         pspec::ShiftedTrsmLUT( T, shifts, X );
+        pspec::FrobNorms( X, estimates );
 
         ++numIts;
         if( numIts >= maxIts )
             break;
-        
-        pspec::FrobNorms( X, estimates );
+
         diffs = estimates;
         Axpy( Real(-1), lastEsts, diffs );
         const Real maxDiff = MaxNorm( diffs );
@@ -502,10 +526,13 @@ Pseudospectrum
             break;
     } 
     
-    Axpy( Real(-1), lastEsts, estimates );
-    const Real maxDiff = MaxNorm( estimates );
+    diffs = estimates;
+    Axpy( Real(-1), lastEsts, diffs );
+    const Real maxDiff = MaxNorm( diffs );
     if( maxDiff > tol*n )
         RuntimeError("Two-norm estimate did not converge in time");
+
+    invNorms = estimates;
 }
 
 } // namespace elem

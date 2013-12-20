@@ -177,12 +177,12 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 if(NOT WIN32) # I forget why we need this guard
   set(LANGUAGES CXX C Fortran)
   foreach(LANG ${LANGUAGES})
-    if(NOT ${LANG}_FLAGS_${UPPER_BUILD_TYPE})
+    if(NOT ${LANG}_FLAGS)
       if(DEBUG)
-        set(${LANG}_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
+        set(${LANG}_FLAGS "-O2 -g" CACHE STRING
           "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
       else()
-        set(${LANG}_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
+        set(${LANG}_FLAGS "-O3" CACHE STRING
           "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
       endif()
     endif()
@@ -717,8 +717,8 @@ if(ELEM_EXAMPLES)
   set(lapack-like_EXAMPLES 
     BunchKaufman BusingerGolub GaussianElimination HermitianQDWH HermitianSDC 
     HPDInverse ID KyFanAndSchatten LDL LDLInverse LeastSquares Polar 
-    Pseudoinverse QDWH RealSchur Schur SequentialBunchKaufman SequentialQR 
-    SequentialSVD Skeleton QR Sign SimpleSVD SVD)
+    Pseudoinverse Pseudospectrum QDWH RealSchur Schur SequentialBunchKaufman 
+    SequentialQR SequentialSVD Skeleton QR Sign SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal Egorov Fourier Hankel Helmholtz1D
     Helmholtz2D Helmholtz3D HermitianUniformSpectrum Hilbert Identity Kahan 
