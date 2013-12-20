@@ -35,6 +35,7 @@
 #include "./PivotParity.hpp"
 #include "./Polar.hpp"
 #include "./Pseudoinverse.hpp"
+#include "./Pseudospectrum.hpp"
 #include "./QR.hpp"
 #include "./Reflector.hpp"
 #include "./RQ.hpp"

@@ -24,7 +24,6 @@ Fundamental functionality additions
 [-] (Blocked) Aasen's
 [-] TSQR for non-powers-of-two
 [-] TSLU (via tournament pivoting)
-[-] Pseudospectrum computation
 [-] Successive Band Reduction
 [-] Reduction to Hessenberg form
 [-] Nonsymmetric (generalized) eigensolver via QR/QZ algorithm
@@ -82,7 +81,6 @@ Instrumentation/visualization/testing
 
 Consistency
 -----------
-[-] Finish propagating DEBUG_ONLY macro
 [-] Consistently implement 'GetDiagonal' functionality for DistMatrix
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 [-] Convert 'AlignWith' routines to be requirements rather than actions, similar
@@ -95,7 +93,6 @@ Consistency
 Documentation
 -------------
 [o] Finish adding per-directory README's (e.g., swig/ and cmake/toolchains/)
-[-] References for Interpolative and Skeleton Decomposition 
 
 Build system
 ------------
