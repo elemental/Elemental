@@ -384,7 +384,7 @@ if(USE_QT5 OR Qt5Widgets_DIR)
   find_package(Qt5Widgets)
   if(Qt5Widgets_FOUND)
     set(ELEM_HEADERS_PREMOC 
-        "include/elemental/io/display_window_decl.hpp;include/elemental/io/complex_display_window_decl.hpp")
+        "include/elemental/io/display_window-premoc.hpp;include/elemental/io/complex_display_window-premoc.hpp")
     qt_wrap_cpp(elemental ELEM_MOC_SRC ${ELEM_HEADERS_PREMOC})
     include_directories(${Qt5Widgets_INCLUDE_DIRS})
     add_definitions(${Qt5Widgets_DEFINITIONS})

@@ -76,8 +76,8 @@ void UpdateMaxImagWindowVal( double maxVal );
 
 #ifdef HAVE_QT5
 # include "./display_widget/decl.hpp"
-# include "./display_window/decl.hpp"
-# include "./complex_display_window/decl.hpp"
+# include "./display_window-premoc.hpp"
+# include "./complex_display_window-premoc.hpp"
 #endif // ifdef HAVE_QT5
 
 #endif // ifndef ELEM_IO_DECL_HPP

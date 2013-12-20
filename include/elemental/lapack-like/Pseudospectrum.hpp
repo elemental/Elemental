@@ -417,7 +417,7 @@ ShiftedTrsmLUT
 } // namespace pspec
 
 template<typename F>
-inline void
+inline Int
 Pseudospectrum
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
   Matrix<BASE(F)>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
@@ -470,10 +470,11 @@ Pseudospectrum
         RuntimeError("Two-norm estimate did not converge in time");
 
     invNorms = estimates;
+    return numIts;
 }
 
 template<typename F>
-inline void
+inline Int
 Pseudospectrum
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
@@ -536,6 +537,89 @@ Pseudospectrum
         RuntimeError("Two-norm estimate did not converge in time");
 
     invNorms = estimates;
+    return numIts;
+}
+
+template<typename F>
+inline Int
+Pseudospectrum
+( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) halfWidth,
+  Int xSize, Int ySize, Int maxIts=1000, BASE(F) tol=1e-6 )
+{
+    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    if( halfWidth == Real(0) )
+        halfWidth = FrobeniusNorm( A );
+    const Real xStep = 2*halfWidth/(xSize-1);
+    const Real yStep = 2*halfWidth/(ySize-1);
+    const C corner = center - C(halfWidth,halfWidth);
+    Matrix<C> shifts( xSize*ySize, 1, A.Grid() );
+    for( Int j=0; j<xSize*ySize; ++j )
+    {
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    Matrix<Real> invNorms;
+    const Int numIts = Pseudospectrum( A, shifts, invNorms, maxIts, tol );
+
+    // Rearrange the vector into a grid 
+    invNormMap.ResizeTo( xSize, ySize );
+    for( Int j=0; j<xSize; ++j )
+    {
+        auto gridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
+        gridSub = shiftSub;
+    }
+
+    return numIts;
+}
+
+template<typename F>
+inline Int
+Pseudospectrum
+( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
+  Int maxIts=1000, BASE(F) tol=1e-6 )
+{
+    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    if( halfWidth == Real(0) )
+        halfWidth = FrobeniusNorm( A );
+    const Real xStep = 2*halfWidth/(xSize-1);
+    const Real yStep = 2*halfWidth/(ySize-1);
+    const C corner = center - C(halfWidth,halfWidth);
+    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, A.Grid() );
+    const Int numLocShifts = shifts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    DistMatrix<Real,VR,STAR> invNorms( A.Grid() );
+    const Int numIts = Pseudospectrum( A, shifts, invNorms, maxIts, tol );
+
+    // Rearrange the vector into a grid 
+    invNormMap.ResizeTo( xSize, ySize );
+    for( Int j=0; j<xSize; ++j )
+    {
+        auto gridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
+        gridSub = shiftSub;
+    }
+
+    return numIts;
 }
 
 } // namespace elem

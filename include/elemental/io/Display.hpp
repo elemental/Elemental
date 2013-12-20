@@ -11,8 +11,8 @@
 #define ELEM_IO_DISPLAY_HPP
 
 #ifdef HAVE_QT5
-# include "elemental/io/display_window/decl.hpp"
-# include "elemental/io/complex_display_window/decl.hpp"
+# include "elemental/io/display_window-premoc.hpp"
+# include "elemental/io/complex_display_window-premoc.hpp"
 # include "elemental/io/display_widget/impl.hpp"
 # include <QApplication>
 #endif
