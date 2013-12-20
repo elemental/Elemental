@@ -36,11 +36,13 @@ TwoNormEstimate( const Matrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
     {
         lastEst = estimate;
         Gemv( NORMAL, F(1), A, y, x );
-        const Real xNorm = FrobeniusNorm( x );
+        Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
+        {
             Gaussian( x, m, 1 );    
-        else
-            Scale( Real(1)/xNorm, x );
+            xNorm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/xNorm, x );
         Gemv( ADJOINT, F(1), A, x, y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*Max(m,n) );
@@ -70,11 +72,13 @@ TwoNormEstimate( const DistMatrix<F>& A, BASE(F) tol=1e-6, Int maxIts=1000 )
     {
         lastEst = estimate;
         Gemv( NORMAL, F(1), A, y, x );
-        const Real xNorm = FrobeniusNorm( x );
+        Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
+        {
             Gaussian( x, m, 1 );    
-        else
-            Scale( Real(1)/xNorm, x );
+            xNorm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/xNorm, x );
         Gemv( ADJOINT, F(1), A, x, y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*Max(m,n) );
@@ -104,11 +108,13 @@ HermitianTwoNormEstimate
     {
         lastEst = estimate;
         Hemv( uplo, F(1), A, y, F(0), x );
-        const Real xNorm = FrobeniusNorm( x );
+        Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
+        {
             Gaussian( x, n, 1 );    
-        else
-            Scale( Real(1)/xNorm, x );
+            xNorm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/xNorm, x );
         Hemv( uplo, F(1), A, x, F(0), y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
@@ -139,11 +145,13 @@ HermitianTwoNormEstimate
     {
         lastEst = estimate;
         Hemv( uplo, F(1), A, y, F(0), x );
-        const Real xNorm = FrobeniusNorm( x );
+        Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
+        {
             Gaussian( x, n, 1 );    
-        else
-            Scale( Real(1)/xNorm, x );
+            xNorm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/xNorm, x );
         Hemv( uplo, F(1), A, x, F(0), y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
@@ -173,11 +181,13 @@ SymmetricTwoNormEstimate
     {
         lastEst = estimate;
         Symv( uplo, F(1), A, y, F(0), x );
-        const Real xNorm = FrobeniusNorm( x );
+        Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
+        {
             Gaussian( x, n, 1 );    
-        else
-            Scale( Real(1)/xNorm, x );
+            xNorm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/xNorm, x );
         Conjugate( x );
         Symv( uplo, F(1), A, x, F(0), y );
         Conjugate( y );
@@ -210,11 +220,13 @@ SymmetricTwoNormEstimate
     {
         lastEst = estimate;
         Symv( uplo, F(1), A, y, F(0), x );
-        const Real xNorm = FrobeniusNorm( x );
+        Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
+        {
             Gaussian( x, n, 1 );    
-        else
-            Scale( Real(1)/xNorm, x );
+            xNorm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/xNorm, x );
         Conjugate( x );
         Symv( uplo, F(1), A, x, F(0), y );
         Conjugate( y );

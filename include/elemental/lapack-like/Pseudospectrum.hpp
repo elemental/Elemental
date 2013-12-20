@@ -30,8 +30,7 @@ FrobNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
 
 template<typename F>
 inline void
-FrobNorms
-( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
+FrobNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::FrobNorms"))
     const Int n = X.Width();
@@ -66,11 +65,13 @@ FixColumns( Matrix<F>& X )
     for( Int j=0; j<n; ++j )
     {
         auto x = View( X, 0, j, m, 1 );
-        const Real norm = norms.Get(j,0);
+        Real norm = norms.Get(j,0);
         if( norm == Real(0) )
+        {
             MakeGaussian( x );
-        else
-            Scale( Real(1)/norm, x );
+            norm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/norm, x );
     }
 }
 
@@ -82,16 +83,19 @@ FixColumns( DistMatrix<F>& X )
     typedef Base<F> Real;
     DistMatrix<Real,MR,STAR> norms( X.Grid() );
     FrobNorms( X, norms );
-    const Int mLocal = X.LocalHeight();
+    const Int m = X.Height();
     const Int nLocal = X.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        auto xLoc = View( X.Matrix(), 0, jLoc, mLocal, 1 );
-        const Real norm = norms.GetLocal(jLoc,0);
-        if( norm == Base<F>(0) )
-            MakeGaussian( xLoc );
-        else
-            Scale( Real(1)/norm, xLoc );
+        const Int j = X.RowShift() + jLoc*X.RowStride();
+        auto x = View( X, 0, j, m, 1 );
+        Real norm = norms.GetLocal(jLoc,0);
+        if( norm == Real(0) )
+        {
+            MakeGaussian( x );
+            norm = FrobeniusNorm( x );
+        }
+        Scale( Real(1)/norm, x );
     }
 }
 
@@ -277,8 +281,7 @@ ShiftedTrsmLUTUnb
 template<typename F>
 inline void
 ShiftedTrsmLUT
-( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts,
-  Matrix<F>& X ) 
+( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"))
 
@@ -383,7 +386,7 @@ ShiftedTrsmLUT
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
-        // X1[* ,VR] := U11^-[T/H][*,*] X1[* ,VR]
+        // X1[* ,VR] := U11^-'[*,*] X1[* ,VR]
         ShiftedTrsmLUT
         ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), X1_STAR_VR.Matrix() );
 
@@ -391,8 +394,8 @@ ShiftedTrsmLUT
         X1          = X1_STAR_MR; // X1[MC,MR]  <- X1[* ,MR]
         U12_STAR_MC = U12;        // U12[* ,MC] <- U12[MC,MR]
 
-        // X2[MC,MR] -= (U12[* ,MC])^(T/H) X1[* ,MR]
-        //            = U12^(T/H)[MC,*] X1[* ,MR]
+        // X2[MC,MR] -= (U12[* ,MC])' X1[* ,MR]
+        //            = U12'[MC,*] X1[* ,MR]
         LocalGemm
         ( ADJOINT, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
