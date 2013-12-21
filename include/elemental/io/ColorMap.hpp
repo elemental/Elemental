@@ -17,29 +17,36 @@ inline QRgb
 SampleColorMap( double value, double minVal, double maxVal )
 {
     DEBUG_ONLY(CallStackEntry cse("SampleColorMap"))
-    const double percent = (value-minVal) / (maxVal-minVal);
+    const double portion = (value-minVal) / (maxVal-minVal);
+    const double discretePortion = int(portion*1000)/1000.;
     const ColorMap colorMap = GetColorMap();
 
     int red, green, blue, alpha;
     switch( colorMap )
     {
     case RED_BLACK_GREEN:
-        red = ( percent<=0.5 ? 255*(1.-2*percent) : 0 );
-        green = ( percent>=0.5 ? 255*(2*(percent-0.5)) : 0 );
+        red = ( portion<=0.5 ? 255*(1.-2*portion) : 0 );
+        green = ( portion>=0.5 ? 255*(2*(portion-0.5)) : 0 );
         blue = 0;
         alpha = 255;
         break;
     case BLUE_RED:
-        red = 255*percent;
+        red = 255*portion;
         green = 0;
-        blue = 255*(1.-percent/2);
+        blue = 255*(1.-portion/2);
+        alpha = 255;
+        break;
+    case GRAYSCALE_DISCRETE:
+        red = 255*discretePortion;
+        green = 255*discretePortion;
+        blue = 255*discretePortion;
         alpha = 255;
         break;
     case GRAYSCALE:
     default:
-        red = 255*percent;
-        green = 255*percent;
-        blue = 255*percent;
+        red = 255*portion;
+        green = 255*portion;
+        blue = 255*portion;
         alpha = 255;
         break;
     }

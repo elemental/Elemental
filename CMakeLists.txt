@@ -718,7 +718,8 @@ if(ELEM_EXAMPLES)
     BunchKaufman BusingerGolub GaussianElimination HermitianQDWH HermitianSDC 
     HPDInverse ID KyFanAndSchatten LDL LDLInverse LeastSquares Polar 
     Pseudoinverse Pseudospectrum QDWH RealSchur Schur SequentialBunchKaufman 
-    SequentialQR SequentialSVD Skeleton QR Sign SimpleSVD SVD)
+    SequentialQR SequentialSVD Skeleton QR Sign SimpleSVD SVD 
+    TriangularPseudospectrum)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal Egorov Fourier Hankel Helmholtz1D
     Helmholtz2D Helmholtz3D HermitianUniformSpectrum Hilbert Identity Kahan 

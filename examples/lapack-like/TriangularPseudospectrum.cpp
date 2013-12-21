@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const Int matType = 
+        const Int matType =
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar",0);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
@@ -64,6 +64,7 @@ main( int argc, char* argv[] )
             A = Lotkin<C>( g, n );
         else
             A = Grcar<C>( g, n, 3 );
+        MakeTriangular( UPPER, A );
         if( display )
             Display( A, "A" );
         if( write )
@@ -72,7 +73,7 @@ main( int argc, char* argv[] )
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
-        auto itCountMap = Pseudospectrum
+        auto itCountMap = TriangularPseudospectrum
         ( A, invNormMap, center, halfWidth, xSize, ySize, 
           deflate, maxIts, tol, progress );
         const Int numIts = MaxNorm( itCountMap );

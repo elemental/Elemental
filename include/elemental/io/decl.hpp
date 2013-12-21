@@ -45,6 +45,7 @@ namespace color_map_wrapper {
 enum ColorMap
 {
     GRAYSCALE,
+    GRAYSCALE_DISCRETE,
     RED_BLACK_GREEN,
     BLUE_RED
 };

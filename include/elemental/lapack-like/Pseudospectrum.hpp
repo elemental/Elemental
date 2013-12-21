@@ -11,6 +11,7 @@
 #define ELEM_LAPACK_PSEUDOSPECTRUM_HPP
 
 #include "elemental/lapack-like/Schur.hpp"
+#include "elemental/lapack-like/Norm/Zero.hpp"
 
 namespace elem {
 
@@ -32,14 +33,17 @@ template<typename F>
 inline void
 FrobNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FrobNorms"))
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::FrobNorms");
+        if( X.RowAlign() != norms.ColAlign() )
+            LogicError("Invalid norms alignment");
+    )
     const Int n = X.Width();
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
     const Grid& g = X.Grid();
 
     // TODO: Switch to more stable parallel norm computation using scaling
-    norms.AlignWith( X );
     norms.ResizeTo( n, 1 ); 
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
@@ -79,7 +83,7 @@ template<typename F>
 inline void
 FixColumns( DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::FixZeroColumns"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::FixColumns"))
     typedef Base<F> Real;
     DistMatrix<Real,MR,STAR> norms( X.Grid() );
     FrobNorms( X, norms );
@@ -96,6 +100,172 @@ FixColumns( DistMatrix<F>& X )
             norm = FrobeniusNorm( x );
         }
         Scale( Real(1)/norm, x );
+    }
+}
+
+template<typename Real>
+inline Matrix<Int>
+FindConverged
+( const Matrix<Real>& lastActiveEsts, 
+  const Matrix<Real>& activeEsts,
+        Matrix<Int >& activeItCounts,
+        Real maxDiff )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::FindConverged"))
+
+    const Int numActiveShifts=activeEsts.Height();
+    Matrix<Int> activeConverged;
+    Zeros( activeConverged, numActiveShifts, 1 );
+
+    for( Int j=0; j<numActiveShifts; ++j )
+    {
+        activeItCounts.Update( j, 0, 1 );
+        const Real lastEst = lastActiveEsts.Get(j,0);
+        const Real currEst = activeEsts.Get(j,0);
+        if( Abs(lastEst-currEst) <= maxDiff )
+            activeConverged.Set( j, 0, 1 );
+    }
+    return activeConverged;
+}
+
+template<typename Real>
+inline DistMatrix<Int,MR,STAR>
+FindConverged
+( const DistMatrix<Real,MR,STAR>& lastActiveEsts,
+  const DistMatrix<Real,MR,STAR>& activeEsts,
+        DistMatrix<Int, VR,STAR>& activeItCounts,
+        Real maxDiff )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::NumConverged"))
+
+    const Int numLocCounts = activeItCounts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocCounts; ++jLoc )
+        activeItCounts.UpdateLocal( jLoc, 0, 1 );
+
+    DistMatrix<Int,MR,STAR> activeConverged( activeEsts.Grid() );
+    activeConverged.AlignWith( activeEsts );
+    Zeros( activeConverged, activeEsts.Height(), 1 );
+
+    const Int numLocShifts=activeEsts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Real lastEst = lastActiveEsts.GetLocal(jLoc,0);
+        const Real currEst = activeEsts.GetLocal(jLoc,0);
+        if( Abs(lastEst-currEst) <= maxDiff )
+            activeConverged.SetLocal( jLoc, 0, 1 );
+    }
+
+    return activeConverged;
+}
+
+template<typename Real>
+inline void
+Deflate
+( Matrix<Complex<Real> >& activeShifts, 
+  Matrix<Int           >& activePreimage,
+  Matrix<Complex<Real> >& activeX,
+  Matrix<Real          >& activeEsts, 
+  Matrix<Int           >& activeConverged,
+  Matrix<Int           >& activeItCounts )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    const Int numActive = activeX.Width(); 
+    Int swapTo = numActive-1;
+    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
+    {
+        if( activeConverged.Get(swapFrom,0) )
+        {
+            if( swapTo != swapFrom )
+            {
+                RowSwap( activeShifts, swapFrom, swapTo );
+                RowSwap( activePreimage, swapFrom, swapTo );
+                RowSwap( activeEsts, swapFrom, swapTo );
+                RowSwap( activeItCounts, swapFrom, swapTo );
+                ColumnSwap( activeX, swapFrom, swapTo );
+            }
+            --swapTo;
+        }
+    }
+}
+
+template<typename Real>
+inline void
+Deflate
+( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
+  DistMatrix<Int,          VR,STAR>& activePreimage,
+  DistMatrix<Complex<Real>        >& activeX,
+  DistMatrix<Real,         MR,STAR>& activeEsts,
+  DistMatrix<Int,          MR,STAR>& activeConverged,
+  DistMatrix<Int,          VR,STAR>& activeItCounts )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    const Int numActive = activeX.Width(); 
+    Int swapTo = numActive-1;
+
+    DistMatrix<Complex<Real>,STAR,STAR> shiftsCopy( activeShifts );
+    DistMatrix<Int,STAR,STAR> preimageCopy( activePreimage );
+    DistMatrix<Real,STAR,STAR> estimatesCopy( activeEsts );
+    DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
+    DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
+    DistMatrix<Complex<Real>,VC,STAR> XCopy( activeX );
+
+    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
+    {
+        if( convergedCopy.Get(swapFrom,0) )
+        {
+            if( swapTo != swapFrom )
+            {
+                RowSwap( shiftsCopy, swapFrom, swapTo );
+                RowSwap( preimageCopy, swapFrom, swapTo );
+                RowSwap( estimatesCopy, swapFrom, swapTo );
+                RowSwap( itCountsCopy, swapFrom, swapTo );
+                ColumnSwap( XCopy, swapFrom, swapTo );
+            }
+            --swapTo;
+        }
+    }
+
+    activeShifts   = shiftsCopy;
+    activePreimage = preimageCopy;
+    activeEsts     = estimatesCopy;
+    activeItCounts = itCountsCopy;
+    activeX        = XCopy;
+}
+
+template<typename Real>
+inline void
+RestoreOrdering
+( const Matrix<Int>& preimage, Matrix<Real>& invNorms, Matrix<Int>& itCounts )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
+    auto invNormsCopy = invNorms;
+    auto itCountsCopy = itCounts;
+    const Int numShifts = preimage.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Int dest = preimage.Get(j,0);
+        invNorms.Set( dest, 0, invNormsCopy.Get(j,0) );
+        itCounts.Set( dest, 0, itCountsCopy.Get(j,0) );
+    }
+}
+
+template<typename Real>
+inline void
+RestoreOrdering
+( const DistMatrix<Int, VR,STAR>& preimage, 
+        DistMatrix<Real,VR,STAR>& invNorms,
+        DistMatrix<Int, VR,STAR>& itCounts )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
+    DistMatrix<Int, STAR,STAR> preimageCopy( preimage );
+    DistMatrix<Real,STAR,STAR> invNormsCopy( invNorms );
+    DistMatrix<Int, STAR,STAR> itCountsCopy( itCounts );
+    const Int numShifts = preimage.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Int dest = preimageCopy.Get(j,0);
+        invNorms.Set( dest, 0, invNormsCopy.Get(j,0) );
+        itCounts.Set( dest, 0, itCountsCopy.Get(j,0) );
     }
 }
 
@@ -417,113 +587,187 @@ ShiftedTrsmLUT
 } // namespace pspec
 
 template<typename Real>
-inline Int
+inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
-  Matrix<Real>& invNorms, Int maxIts=1000, Real tol=1e-6 )
+  Matrix<Real>& invNorms, 
+  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
+    const int numShifts = shifts.Height();
+
+    // Keep track of the number of iterations per shift
+    Matrix<Int> itCounts;
+    Zeros( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    Matrix<Int> preimage;
+    Matrix<C> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.ResizeTo( numShifts, 1 );
+        for( Int j=0; j<numShifts; ++j )
+            preimage.Set( j, 0, j );
+    }
 
     // Simultaneously run inverse iteration for various shifts
-    const int numShifts = shifts.Height();
     Matrix<C> X;
     Gaussian( X, n, numShifts );
-    Int numIts=0;
-    Matrix<Real> estimates(numShifts,1),
-                 lastEsts(numShifts,1), 
-                 diffs(numShifts,1);
+    Int numIts=0, numDone=0;
+    Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
+    auto lastActiveEsts = estimates;
+    Matrix<Int> activePreimage;
     while( true )
     {
-        lastEsts = estimates;
-        pspec::ShiftedTrsmLUN( U, shifts, X );
-        pspec::FixColumns( X );
-        pspec::ShiftedTrsmLUT( U, shifts, X );
-        pspec::FrobNorms( X, estimates );
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        auto activeX = View( X, 0, 0, n, numActive );
+        if( deflate )
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+
+        ShiftedTrsmLUN( U, activeShifts, activeX );
+        FixColumns( activeX );
+        ShiftedTrsmLUT( U, activeShifts, activeX );
+        FrobNorms( activeX, activeEsts );
+
+        auto activeConverged = 
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol*n );
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        if( progress )
+            std::cout << numDone << " of " << numShifts << " converged"
+                      << std::endl;
 
         ++numIts;
         if( numIts >= maxIts )
             break;
 
-        diffs = estimates;
-        Axpy( Real(-1), lastEsts, diffs );
-        const Real maxDiff = MaxNorm( diffs );
-        if( maxDiff <= tol*n )
+        if( numDone == numShifts )
             break;
+        else if( deflate )
+            Deflate
+            ( activeShifts, activePreimage, activeX, activeEsts,
+              activeConverged, activeItCounts );
+
+        lastActiveEsts = activeEsts;
     } 
-    
-    diffs = estimates;
-    Axpy( Real(-1), lastEsts, diffs );
-    const Real maxDiff = MaxNorm( diffs );
-    if( maxDiff > tol*n )
-        RuntimeError("Two-norm estimate did not converge in time");
+    if( numDone != numShifts )
+        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
-    return numIts;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
 }
 
 template<typename Real>
-inline Int
+inline DistMatrix<Int,VR,STAR>
 TriangularPseudospectrum
-( const DistMatrix<Complex<Real> >& U, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, Int maxIts=1000, Real tol=1e-6 )
+( const DistMatrix<Complex<Real>        >& U, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
+        DistMatrix<Real,         VR,STAR>& invNorms, 
+  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
-    const Int mLocal = U.LocalHeight();
-    const Int nLocal = U.LocalWidth();
+    const int numShifts = shifts.Height();
     const Grid& g = U.Grid();
 
+    // Keep track of the number of iterations per shift
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    Zeros( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    DistMatrix<Int,VR,STAR> preimage(g);
+    DistMatrix<C,  VR,STAR> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.AlignWith( shifts );
+        preimage.ResizeTo( numShifts, 1 );
+        const Int numLocShifts = preimage.LocalHeight();
+        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        {
+            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
+            preimage.SetLocal( jLoc, 0, j );
+        }
+    }
+
     // Simultaneously run inverse iteration for various shifts
-    const int numShifts = shifts.Height();
-    DistMatrix<C> X( g );
+    DistMatrix<C> X(g);
     Gaussian( X, n, numShifts );
-    Int numIts=0;
-    DistMatrix<Real,MR,STAR> estimates(g), lastEsts(g), diffs(g);
-    estimates.AlignWith( X );
-    lastEsts.AlignWith( X );
-    diffs.AlignWith( X );
+    Int numIts=0, numDone=0;
+    DistMatrix<Real,MR,STAR> estimates(g);
+    estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
-    lastEsts.ResizeTo( numShifts, 1 );
-    diffs.ResizeTo( numShifts, 1 );
+    auto lastActiveEsts = estimates;
+    DistMatrix<Int,VR,STAR> activePreimage(g);
     while( true )
     {
-        lastEsts = estimates;
-        pspec::ShiftedTrsmLUN( U, shifts, X );
-        pspec::FixColumns( X );
-        pspec::ShiftedTrsmLUT( U, shifts, X );
-        pspec::FrobNorms( X, estimates );
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        auto activeX = View( X, 0, 0, n, numActive );
+        if( deflate )
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+
+        ShiftedTrsmLUN( U, activeShifts, activeX );
+        FixColumns( activeX );
+        ShiftedTrsmLUT( U, activeShifts, activeX );
+        FrobNorms( activeX, activeEsts );
+
+        auto activeConverged =
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol*n );
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        if( progress && mpi::WorldRank() == 0 )
+            std::cout << numDone << " of " << numShifts << " converged"
+                      << std::endl;
 
         ++numIts;
         if( numIts >= maxIts )
             break;
 
-        diffs = estimates;
-        Axpy( Real(-1), lastEsts, diffs );
-        const Real maxDiff = MaxNorm( diffs );
-        if( maxDiff <= tol*n )
+        if( numDone == numShifts )
             break;
+        else if( deflate )
+            Deflate
+            ( activeShifts, activePreimage, activeX, activeEsts,
+              activeConverged, activeItCounts );
+
+        lastActiveEsts = activeEsts;
     } 
-    
-    diffs = estimates;
-    Axpy( Real(-1), lastEsts, diffs );
-    const Real maxDiff = MaxNorm( diffs );
-    if( maxDiff > tol*n )
-        RuntimeError("Two-norm estimate did not converge in time");
+    if( numDone != numShifts )
+        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
-    return numIts;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
 }
 
 template<typename F>
-inline Int
+inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
+  Matrix<BASE(F)>& invNorms, 
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -538,14 +782,16 @@ Pseudospectrum
     Matrix<C> w;
     schur::QR( U, w );
 
-    return TriangularPseudospectrum( U, shifts, invNorms, maxIts, tol );
+    return TriangularPseudospectrum
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
 }
 
 template<typename F>
-inline Int
+inline DistMatrix<Int,VR,STAR>
 Pseudospectrum
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  DistMatrix<BASE(F),VR,STAR>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
+  DistMatrix<BASE(F),VR,STAR>& invNorms, 
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -569,15 +815,17 @@ Pseudospectrum
     schur::SDC( U, w, X );
     X.Empty();
 
-    return TriangularPseudospectrum( U, shifts, invNorms, maxIts, tol );
+    return TriangularPseudospectrum
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
 }
 
 template<typename F>
-inline Int
+inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) halfWidth,
-  Int xSize, Int ySize, Int maxIts=1000, BASE(F) tol=1e-6 )
+  Int xSize, Int ySize, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -598,37 +846,43 @@ Pseudospectrum
 
     // Form the vector of invNorms
     Matrix<Real> invNorms;
-    const Int numIts = Pseudospectrum( A, shifts, invNorms, maxIts, tol );
+    auto itCounts = 
+        Pseudospectrum( A, shifts, invNorms, deflate, maxIts, tol, progress );
 
     // Rearrange the vector into a grid 
     invNormMap.ResizeTo( xSize, ySize );
+    Matrix<Int> itCountMap( xSize, ySize );
     for( Int j=0; j<xSize; ++j )
     {
-        auto gridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
         auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        gridSub = shiftSub;
+        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        normGridSub = shiftSub;
+        countGridSub = countSub;
     }
 
-    return numIts;
+    return itCountMap;
 }
 
 template<typename F>
-inline Int
+inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
-  Int maxIts=1000, BASE(F) tol=1e-6 )
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
+    const Grid& g = A.Grid();
 
     if( halfWidth == Real(0) )
         halfWidth = FrobeniusNorm( A );
     const Real xStep = 2*halfWidth/(xSize-1);
     const Real yStep = 2*halfWidth/(ySize-1);
     const C corner = center - C(halfWidth,halfWidth);
-    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, A.Grid() );
+    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
@@ -639,19 +893,120 @@ Pseudospectrum
     }
 
     // Form the vector of invNorms
-    DistMatrix<Real,VR,STAR> invNorms( A.Grid() );
-    const Int numIts = Pseudospectrum( A, shifts, invNorms, maxIts, tol );
+    DistMatrix<Real,VR,STAR> invNorms( g );
+    auto itCounts =
+        Pseudospectrum( A, shifts, invNorms, deflate, maxIts, tol, progress );
 
     // Rearrange the vector into a grid 
     invNormMap.ResizeTo( xSize, ySize );
+    DistMatrix<Int> itCountMap( xSize, ySize, g );
     for( Int j=0; j<xSize; ++j )
     {
-        auto gridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
         auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        gridSub = shiftSub;
+        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        normGridSub = shiftSub;
+        countGridSub = countSub;
     }
 
-    return numIts;
+    return itCountMap;
+}
+
+template<typename F>
+inline Matrix<Int>
+TriangularPseudospectrum
+( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) halfWidth,
+  Int xSize, Int ySize, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6,
+  bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    if( halfWidth == Real(0) )
+        halfWidth = FrobeniusNorm( U );
+    const Real xStep = 2*halfWidth/(xSize-1);
+    const Real yStep = 2*halfWidth/(ySize-1);
+    const C corner = center - C(halfWidth,halfWidth);
+    Matrix<C> shifts( xSize*ySize, 1, U.Grid() );
+    for( Int j=0; j<xSize*ySize; ++j )
+    {
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    Matrix<Real> invNorms;
+    auto itCounts =
+        TriangularPseudospectrum
+        ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+
+    // Rearrange the vector into a grid 
+    invNormMap.ResizeTo( xSize, ySize );
+    Matrix<Int> itCountMap( xSize, ySize );
+    for( Int j=0; j<xSize; ++j )
+    {
+        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
+        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
+        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        normGridSub = shiftSub;
+        countGridSub = countSub;
+    }
+
+    return itCountMap;
+}
+
+template<typename F>
+inline DistMatrix<Int>
+TriangularPseudospectrum
+( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+    const Grid& g = U.Grid();
+
+    if( halfWidth == Real(0) )
+        halfWidth = FrobeniusNorm( U );
+    const Real xStep = 2*halfWidth/(xSize-1);
+    const Real yStep = 2*halfWidth/(ySize-1);
+    const C corner = center - C(halfWidth,halfWidth);
+    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
+    const Int numLocShifts = shifts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    DistMatrix<Real,VR,STAR> invNorms( g );
+    auto itCounts =
+        TriangularPseudospectrum
+        ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+
+    // Rearrange the vector into a grid 
+    invNormMap.ResizeTo( xSize, ySize );
+    DistMatrix<Int> itCountMap( xSize, ySize, g );
+    for( Int j=0; j<xSize; ++j )
+    {
+        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
+        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
+        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        normGridSub = shiftSub;
+        countGridSub = countSub;
+    }
+
+    return itCountMap;
 }
 
 } // namespace elem
