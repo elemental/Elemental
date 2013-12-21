@@ -416,24 +416,15 @@ ShiftedTrsmLUT
 
 } // namespace pspec
 
-template<typename F>
+template<typename Real>
 inline Int
-Pseudospectrum
-( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
+TriangularPseudospectrum
+( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, Int maxIts=1000, Real tol=1e-6 )
 {
-    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
-    typedef Base<F> Real;
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Complex<Real> C;
-    const Int n = A.Height();
-
-    Matrix<C> T( n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            T.Set( i, j, A.Get(i,j) );
-
-    Matrix<C> w;
-    schur::QR( T, w );
+    const Int n = U.Height();
 
     // Simultaneously run inverse iteration for various shifts
     const int numShifts = shifts.Height();
@@ -447,9 +438,64 @@ Pseudospectrum
     while( true )
     {
         lastEsts = estimates;
-        pspec::ShiftedTrsmLUN( T, shifts, X );
+        pspec::ShiftedTrsmLUN( U, shifts, X );
         pspec::FixColumns( X );
-        pspec::ShiftedTrsmLUT( T, shifts, X );
+        pspec::ShiftedTrsmLUT( U, shifts, X );
+        pspec::FrobNorms( X, estimates );
+
+        ++numIts;
+        if( numIts >= maxIts )
+            break;
+
+        diffs = estimates;
+        Axpy( Real(-1), lastEsts, diffs );
+        const Real maxDiff = MaxNorm( diffs );
+        if( maxDiff <= tol*n )
+            break;
+    } 
+    
+    diffs = estimates;
+    Axpy( Real(-1), lastEsts, diffs );
+    const Real maxDiff = MaxNorm( diffs );
+    if( maxDiff > tol*n )
+        RuntimeError("Two-norm estimate did not converge in time");
+
+    invNorms = estimates;
+    return numIts;
+}
+
+template<typename Real>
+inline Int
+TriangularPseudospectrum
+( const DistMatrix<Complex<Real> >& U, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+  DistMatrix<Real,VR,STAR>& invNorms, Int maxIts=1000, Real tol=1e-6 )
+{
+    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+    const Int mLocal = U.LocalHeight();
+    const Int nLocal = U.LocalWidth();
+    const Grid& g = U.Grid();
+
+    // Simultaneously run inverse iteration for various shifts
+    const int numShifts = shifts.Height();
+    DistMatrix<C> X( g );
+    Gaussian( X, n, numShifts );
+    Int numIts=0;
+    DistMatrix<Real,MR,STAR> estimates(g), lastEsts(g), diffs(g);
+    estimates.AlignWith( X );
+    lastEsts.AlignWith( X );
+    diffs.AlignWith( X );
+    Zeros( estimates, numShifts, 1 );
+    lastEsts.ResizeTo( numShifts, 1 );
+    diffs.ResizeTo( numShifts, 1 );
+    while( true )
+    {
+        lastEsts = estimates;
+        pspec::ShiftedTrsmLUN( U, shifts, X );
+        pspec::FixColumns( X );
+        pspec::ShiftedTrsmLUT( U, shifts, X );
         pspec::FrobNorms( X, estimates );
 
         ++numIts;
@@ -476,6 +522,28 @@ Pseudospectrum
 template<typename F>
 inline Int
 Pseudospectrum
+( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
+  Matrix<BASE(F)>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
+{
+    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+    const Int n = A.Height();
+
+    Matrix<C> U( n, n );
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<n; ++i )
+            U.Set( i, j, A.Get(i,j) );
+
+    Matrix<C> w;
+    schur::QR( U, w );
+
+    return TriangularPseudospectrum( U, shifts, invNorms, maxIts, tol );
+}
+
+template<typename F>
+inline Int
+Pseudospectrum
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, Int maxIts=1000, BASE(F) tol=1e-6 )
 {
@@ -487,57 +555,21 @@ Pseudospectrum
     const Int nLocal = A.LocalWidth();
     const Grid& g = A.Grid();
 
-    DistMatrix<C> T( g );
-    T.AlignWith( A );
-    T.ResizeTo( n, n );
+    DistMatrix<C> U( g );
+    U.AlignWith( A );
+    U.ResizeTo( n, n );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            T.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
+            U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
 
     // We don't actually need the Schur vectors, but SDC requires their 
     // computation in order to form the full triangular factor
     DistMatrix<C> X( g );
     DistMatrix<C,VR,STAR> w( g );
-    schur::SDC( T, w, X );
+    schur::SDC( U, w, X );
+    X.Empty();
 
-    // Simultaneously run inverse iteration for various shifts
-    const int numShifts = shifts.Height();
-    Gaussian( X, n, numShifts );
-    Int numIts=0;
-    DistMatrix<Real,MR,STAR> estimates(g), lastEsts(g), diffs(g);
-    estimates.AlignWith( X );
-    lastEsts.AlignWith( X );
-    diffs.AlignWith( X );
-    Zeros( estimates, numShifts, 1 );
-    lastEsts.ResizeTo( numShifts, 1 );
-    diffs.ResizeTo( numShifts, 1 );
-    while( true )
-    {
-        lastEsts = estimates;
-        pspec::ShiftedTrsmLUN( T, shifts, X );
-        pspec::FixColumns( X );
-        pspec::ShiftedTrsmLUT( T, shifts, X );
-        pspec::FrobNorms( X, estimates );
-
-        ++numIts;
-        if( numIts >= maxIts )
-            break;
-
-        diffs = estimates;
-        Axpy( Real(-1), lastEsts, diffs );
-        const Real maxDiff = MaxNorm( diffs );
-        if( maxDiff <= tol*n )
-            break;
-    } 
-    
-    diffs = estimates;
-    Axpy( Real(-1), lastEsts, diffs );
-    const Real maxDiff = MaxNorm( diffs );
-    if( maxDiff > tol*n )
-        RuntimeError("Two-norm estimate did not converge in time");
-
-    invNorms = estimates;
-    return numIts;
+    return TriangularPseudospectrum( U, shifts, invNorms, maxIts, tol );
 }
 
 template<typename F>

@@ -10,6 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Pseudospectrum.hpp"
+#include "elemental/matrices/Grcar.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -24,7 +25,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const Int matType = Input("--matType","0: uniform, 1: Haar",0);
+        const Int matType = Input("--matType","0:uniform,1:Haar,2:Grcar",0);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -53,8 +54,10 @@ main( int argc, char* argv[] )
         DistMatrix<C> A(g);
         if( matType == 0 )
             A = Uniform<C>( g, n, n );
-        else
+        else if( matType == 1 )
             A = Haar<C>( g, n );
+        else
+            A = Grcar<C>( g, n, 3 );
         if( display )
             Display( A, "A" );
         if( write )
