@@ -50,6 +50,7 @@ GridOrder gridOrder = ROW_MAJOR;
 
 // Qt5
 ColorMap colorMap=RED_BLACK_GREEN;
+Int numDiscreteColors = 8;
 #ifdef HAVE_QT5
 bool guiDisabled;
 bool elemInitializedQt = false;
@@ -141,6 +142,12 @@ void SetColorMap( ColorMap map )
 
 ColorMap GetColorMap()
 { return ::colorMap; }
+
+void SetNumDiscreteColors( Int numChunks )
+{ ::numDiscreteColors = numChunks; }
+
+Int NumDiscreteColors()
+{ return ::numDiscreteColors; }
 
 #ifdef HAVE_QT5
 bool GuiDisabled()

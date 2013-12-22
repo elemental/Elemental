@@ -10,7 +10,6 @@
 #ifndef ELEM_IO_IMPL_HPP
 #define ELEM_IO_IMPL_HPP
 
-#include "elemental/io/ColorMap.hpp"
 #include "elemental/io/Display.hpp"
 // TODO: Distribution plot
 #include "elemental/io/Print.hpp"

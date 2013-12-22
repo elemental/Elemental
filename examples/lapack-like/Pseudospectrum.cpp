@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
-        const bool progress = Input("--progress","print progress?",false);
+        const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
         const Int formatInt = Input("--format","write format",2);
@@ -97,7 +97,14 @@ main( int argc, char* argv[] )
                 invNormMap.SetLocal
                 ( iLoc, jLoc, Log(invNormMap.GetLocal(iLoc,jLoc)) );
         if( display )
+        {
             Display( invNormMap, "log(invNormMap)" );
+            if( GetColorMap() != GRAYSCALE_DISCRETE )
+            {
+                SetColorMap( GRAYSCALE_DISCRETE );
+                Display( invNormMap, "discrete log(invNormMap)" );
+            }
+        }
         if( write )
             Write( invNormMap, "log(invNormMap)", format );
     }

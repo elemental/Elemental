@@ -6,20 +6,20 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef ELEM_IO_COLORMAP_HPP
-#define ELEM_IO_COLORMAP_HPP
+#include "elemental-lite.hpp"
+#include "elemental/io.hpp"
 
 namespace elem {
 
 #ifdef HAVE_QT5
-inline QRgb
-SampleColorMap( double value, double minVal, double maxVal )
+QRgb SampleColorMap( double value, double minVal, double maxVal )
 {
     DEBUG_ONLY(CallStackEntry cse("SampleColorMap"))
-    const double portion = (value-minVal) / (maxVal-minVal);
-    const double discretePortion = int(portion*1000)/1000.;
     const ColorMap colorMap = GetColorMap();
+    const int numChunks = NumDiscreteColors();
+
+    const double portion = (value-minVal) / (maxVal-minVal);
+    const double discretePortion = int(portion*numChunks)/(1.*numChunks);
 
     int red, green, blue, alpha;
     switch( colorMap )
@@ -56,5 +56,3 @@ SampleColorMap( double value, double minVal, double maxVal )
 #endif // ifdef HAVE_QT5
 
 } // namespace elem
-
-#endif // ifndef ELEM_IO_COLORMAP_HPP

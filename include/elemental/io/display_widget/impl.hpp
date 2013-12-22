@@ -17,8 +17,6 @@
 #include <QPixmap>
 #include <QStylePainter>
 
-#include "elemental/io/ColorMap.hpp"
-
 #include "./decl.hpp"
 
 namespace elem {
