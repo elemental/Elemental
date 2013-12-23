@@ -1,7 +1,27 @@
-NOTE: This list is new will hopefully grow rapidly. I would like to move towards
-      making Elemental (and my other open source efforts) closer to 
-      publications.
+NOTE: This list is relatively new will hopefully grow rapidly. 
 
+Pseudospectra
+=============
+
+A comprehensive review paper on computing pseudospectra.
+@article{
+  author={Lloyd N. Trefethen},
+  title={Computation of pseudospectra},
+  journal={Acta Numerica}, 
+  volume=8,
+  pages={247--295},
+  year=1999
+}
+
+Introduced the triangularization + inverse iteration approach
+@article{
+  author={Shiu-Hong Lui},
+  title={Computation of pseudospectra by continuation},
+  journal={SIAM Journal on Scientific Computing},
+  volume=18,
+  pages={567--573},
+  year=1997
+}
 
 Spectral Divide and Conquer
 ===========================
@@ -9,21 +29,21 @@ Spectral Divide and Conquer
 Elemental contains preliminary implementations of spectral divide and conquer
 algorithms derived from the following paper:
 @article{
-  author={Z. Bai and J. Demmel and J. Dongarra and A. Petitet and H. Robinson
-          and K. Stanley},
+  author={Zhaojun Bai and James Demmel and Jack Dongarra and Antoine Petitet 
+          and Howard Robinson and Ken Stanley},
   title={The spectral decomposition of nonsymmetric matrices on distributed
          memory parallel computers},
-  journal={SIAM J. Sci. Comput},
+  journal={SIAM Journal on Scientific Computing},
   volume=18,
   number=5,
   pages={1446--1461}, 
-  year=1997,
+  year=1997
 }
 
 The randomized approach from the following paper is used in order to avoid a
 pivoted QR decomposition:
 @article{
-  author={J. Demmel and I. Dumitriu and O. Holtz},
+  author={James Demmel and Ioana Dumitriu and Olga Holtz},
   title={Fast linear algebra is stable},
   journal={Numerische Mathematik},
   volume=108,
@@ -32,7 +52,28 @@ pivoted QR decomposition:
   year=2007
 }
 
-TODO: Add later Ballard et al. paper
+Subsequent developments and refinement of the randomized approach from 
+"Fast linear algebra is stable"
+@techreport{
+  author={Grey Ballard and James Demmel and Ioana Dumitiu},
+  title={Minimizing communication for eigenproblems and the {S}ingular {V}alue
+         {D}ecomposition},
+  institution={University of California at Berkeley}, 
+  number={UCB/EECS-2011-14},
+  year=2011
+}
+
+SDC algorithms based upon QWDH
+@article{
+  author={Yuji Nakatsukasa and Nicholas J. Higham},
+  title={Stable and efficient {S}pectral {D}ivide and {C}onquer algorithms for
+         the symmetric eigenvalue decomposition and the {SVD}},
+  journal={SIAM Journal on Scientific Computing},
+  volume=35,
+  number=3,
+  pages={A1325--A1349},
+  year=2013
+}
 
 Pivoted QR
 ==========
@@ -40,7 +81,7 @@ Pivoted QR
 This paper introduced the Businger-Golub algorithm for column-pivoted QR
 decompositions.
 @article{
-  author={P.A. Businger and G.H. Golub},
+  author={Peter A. Businger and Gene H. Golub},
   title={Linear least squares solutions by {H}ouseholder transformations},
   journal={Numerische Mathematik},
   volume=7,
@@ -52,10 +93,10 @@ decompositions.
 Elemental uses the same norm updating strategy as this paper and the 
 corresponding LAPACK implementation of dgeqpf.f
 @article{
-  author={Z. Drmac and Z. Bujanovic},
+  author={Zlatko Drmac and Zvonimir Bujanovic},
   title={On the failure of {R}ank-{R}evealing {QR} factorization software --
          a case study},
-  journal={ACM Trans. Math. Soft},
+  journal={ACM Transactions on Mathematical Software},
   volume=35,
   number=2,
   pages={12:1--12:28},
@@ -64,7 +105,7 @@ corresponding LAPACK implementation of dgeqpf.f
 
 Introduced GKS matrix, which the greedy RRQR fails on.
 @techreport{
-  author={G.H. Golub and V. Klema and G.W. Stewart},
+  author={Gene H. Golub and Virginia Klema and G.W. Stewart},
   title={Rank degeneracy and least squares problems},
   institution={Stanford University}, 
   number={STAN-CS-76-559},
@@ -74,10 +115,10 @@ Introduced GKS matrix, which the greedy RRQR fails on.
 Standard reference for (strong) RRQR factorizations, which will hopefully be 
 added to Elemental in the near future.
 @article{
-  author={M. Gu and S. Eisenstat},
+  author={Ming Gu and Stanley Eisenstat},
   title={Efficient algorithms for computing a strong rank-revealing {QR}
          factorization},
-  journal={SIAM J. Sci. Comput},
+  journal={SIAM Journal on Scientific Computing},
   volume=17,
   number=4,
   pages={848--869},
@@ -90,12 +131,11 @@ Singular Value Decomposition
 This paper introduced the idea of using a QR decomposition as a first
 step in the SVD of a non-square matrix in order to accelerate the 
 computation (well, an earlier Golub paper mentioned it as well).
-
 @article{
-  author={T.F. Chan},
+  author={Tony F. Chan},
   title={An improved algorithm for computing the {S}ingular {V}alue
          {D}ecomposition},
-  journal={ACM Trans. Math. Soft},
+  journal={ACM Transactions on Mathematical Software},
   volume=8,
   number=1,
   pages={72--83},
@@ -104,7 +144,7 @@ computation (well, an earlier Golub paper mentioned it as well).
 
 This paper introduced the standard algorithm for computing the SVD.
 @article{
-  author={G.H. Golub and C. Reinsch},
+  author={Gene H. Golub and Christian Reinsch},
   title={Singular value decomposition and least squares solutions},
   journal={Numerische Mathematik},
   volume=14,
@@ -118,7 +158,7 @@ in a cross-product based algorithm for computing the SVD. Such an
 approach should be more scalable than the current 
 bidiagonalization-based approach.
 @article{
-  author={Z. Jia},
+  author={Zhongxiao Jia},
   title={Using cross-product matrices to compute the {SVD}},
   journal={Numerical Algorithms},
   volume=42,
@@ -133,10 +173,10 @@ Symmetric positive-definite inversion
 The variant 2 single-sweep algorithm from Fig. 9 was parallelized for
 Elemental's HPD inversion.
 @article{
-  author={P. Bientinesi and B. Gunter and R.A. van de Geijn},
+  author={Paolo Bientinesi and Brian Gunter and Robert A. van de Geijn},
   title={Families of algorithms related to the inversion of a {S}ymmetric
          {P}ositive {D}efinite matrix},
-  journal={ACM Trans. Math. Soft},
+  journal={ACM Transactions on Mathematical Software},
   volume=35,
   number=1,
   pages={3:1--3:22},
@@ -160,10 +200,10 @@ to as CUR decompositions, especially when the center matrix is non-square.
 
 Introduced effective randomized approximations of interpolative decompositions
 @article{
-  author={E. Liberty and F. Woolfe and P.-G. Martinsson and V. Rokhlin and 
-          M. Tygert},
+  author={Edo Liberty and Franco Woolfe and Per-Gunnar Martinsson and 
+          Vladimir Rokhlin and Mark Tygert},
   title={Randomized algorithms for the low-rank approximation of matrices},
-  journal={Proc. Natl. Acad. Sci, USA},
+  journal={Proceedings of the National Academy of Sciences, USA},
   volume=104,
   pages={20167--20172},
   year=2007
@@ -172,9 +212,9 @@ Introduced effective randomized approximations of interpolative decompositions
 Contains a thorough analysis of many randomized algorithms for (pseudoskeleton)
 decompositions using RRQR factorizations.
 @article{
-  author={J. Chiu and L. Demanet},
+  author={Jiawei Chiu and Laurent Demanet},
   title={Sublinear randomized algorithms for skeleton decompositions},
-  journal={SIAM J. Matrix Anal. \& Appl},
+  journal={SIAM Journal on Matrix Analysis and Applications},
   volume=34, 
   number=3,
   pages={1361--1383},
@@ -187,10 +227,10 @@ Householder tridiagonalization
 One of the origins for the square-grid tridiagonalization algorithm used in
 Elemental (which was later refined by Stanley et al.).
 @article{
-  author={B. Hendrickson and E. Jessup and C. Smith},
+  author={Bruce Hendrickson and Elizabeth Jessup and Christopher Smith},
   title={Towards an efficient parallel eigensolver for dense symmetric 
          matrices},
-  journal={SIAM J. Sci. Comput},
+  journal={SIAM Journal on Scientific Computing},
   volume=20,
   number=3,
   pages={1132--1154},
@@ -199,7 +239,7 @@ Elemental (which was later refined by Stanley et al.).
 
 Contains the algorithm used for Elemental's square-grid tridiagonalization.
 @techreport{
-  author={K. Stanley},
+  author={Ken Stanley},
   title={Execution time of symmetric eigensolvers},
   type={{Ph.D.} {D}issertation},
   number={CSD-99-1039},
@@ -213,10 +253,10 @@ Two-sided triangular transformations
 
 Contains the main algorithm used for Elemental's two-sided triangular solves.
 @inproceedings{
-  author={M.P. Sears and K. Stanley and G. Henry},
+  author={Mark P. Sears and Ken Stanley and Greg Henry},
   title={Application of a high performance parallel eigensolver to electronic
          structure calculation},
-  booktitle={Proceedings of the ACM/IEEE Conf. on Supercomputing},
+  booktitle={Proceedings of the ACM/IEEE Conference on Supercomputing},
   publisher={IEEE Computer Society},
   year=1998
 }
@@ -225,11 +265,25 @@ Matrix functions
 ================
 
 Heavily used for Elemental's Sign implementation
+TODO: Cite paper(s) instead
 @book{
   author={Nicholas J. Higham},
   title={Functions of {M}atrices: {T}heory and {C}omputation}, 
   publisher={SIAM},
   year=2008
+}
+
+Algorithm for the polar decomposition which typically converges in less than
+seven iterations
+@article{
+  author={Yuji Nakatsukasa and Zhaojun Bai and Francois Gygi},
+  title={Optimizing {H}alley's iteration for computing the matrix polar 
+         decomposition},
+  journal={SIAM Journal on Matrix Analysis and Applications},
+  volume=31,
+  number=5,
+  pages={2700--2720},
+  year=2010
 }
 
 Fast Haar generation
@@ -240,7 +294,7 @@ Useful for randomized rank-revealing factorizations of rank-deficient matrices
   author={G.W. Stewart},
   title={The efficient generation of random orthogonal matrices with an 
          application to condition estimators},
-  journal={SIAM J. Numer. Anal},
+  journal={SIAM Journal on Numerical Analysis},
   volume=17,
   number=3,
   pages={403--409},
@@ -253,9 +307,9 @@ Miscellaneous
 This paper is used for the definition of the coherence of a subspace with
 respect to the standard unit basis vectors.
 @article{
-  author={E.J. Candes and B. Recht},
+  author={Emmanuel J. Candes and Benjamin Recht},
   title={Exact matrix completion via convex optimization},
-  journal={Foundations of Comput. Math},
+  journal={Foundations of Computational Mathematics},
   volume=9,
   number=6,
   pages={717--772},
@@ -264,7 +318,7 @@ respect to the standard unit basis vectors.
 
 Added for definition of Kahan matrix (pg. 260)
 @book{
-  author={G.H. Golub and C.F. van Loan},
+  author={Gene H. Golub and Charles F. van Loan},
   title={Matrix {C}omputations},
   edition={3rd}, 
   publisher={Johns Hopkins University Press},
