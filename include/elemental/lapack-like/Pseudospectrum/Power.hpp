@@ -11,6 +11,7 @@
 #define ELEM_LAPACK_PSEUDOSPECTRUM_POWER_HPP
 
 #include "elemental/lapack-like/Norm/Zero.hpp"
+#include "elemental/matrices/Ones.hpp"
 
 #include "./ShiftedTrsm.hpp"
 
@@ -119,11 +120,12 @@ FindConverged
 
     for( Int j=0; j<numActiveShifts; ++j )
     {
-        activeItCounts.Update( j, 0, 1 );
         const Real lastEst = lastActiveEsts.Get(j,0);
         const Real currEst = activeEsts.Get(j,0);
         if( Abs(lastEst-currEst) <= maxDiff )
             activeConverged.Set( j, 0, 1 );
+        else 
+            activeItCounts.Update( j, 0, 1 );
     }
     return activeConverged;
 }
@@ -136,11 +138,12 @@ FindConverged
         DistMatrix<Int, VR,STAR>& activeItCounts,
         Real maxDiff )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::NumConverged"))
-
-    const Int numLocCounts = activeItCounts.LocalHeight();
-    for( Int jLoc=0; jLoc<numLocCounts; ++jLoc )
-        activeItCounts.UpdateLocal( jLoc, 0, 1 );
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::NumConverged");
+        if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
+            activeEsts.ColAlign() )
+            LogicError("Invalid column alignment");
+    )
 
     DistMatrix<Int,MR,STAR> activeConverged( activeEsts.Grid() );
     activeConverged.AlignWith( activeEsts );
@@ -153,6 +156,11 @@ FindConverged
         const Real currEst = activeEsts.GetLocal(jLoc,0);
         if( Abs(lastEst-currEst) <= maxDiff )
             activeConverged.SetLocal( jLoc, 0, 1 );
+        else 
+        {
+            const Int j = activeEsts.ColShift()+jLoc*activeEsts.ColStride();
+            activeItCounts.Update( j, 0, 1 );
+        }
     }
 
     return activeConverged;
@@ -284,7 +292,7 @@ TriangularPower
 
     // Keep track of the number of iterations per shift
     Matrix<Int> itCounts;
-    Zeros( itCounts, numShifts, 1 );
+    Ones( itCounts, numShifts, 1 );
 
     // Keep track of the pivoting history if deflation is requested
     Matrix<Int> preimage;
@@ -299,6 +307,7 @@ TriangularPower
     // Simultaneously run inverse iteration for various shifts
     Matrix<C> X;
     Gaussian( X, n, numShifts );
+    FixColumns( X );
     Int numIts=0, numDone=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
@@ -370,7 +379,7 @@ TriangularPower
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
-    Zeros( itCounts, numShifts, 1 );
+    Ones( itCounts, numShifts, 1 );
 
     // Keep track of the pivoting history if deflation is requested
     DistMatrix<Int,VR,STAR> preimage(g);
@@ -390,6 +399,7 @@ TriangularPower
     // Simultaneously run inverse iteration for various shifts
     DistMatrix<C> X(g);
     Gaussian( X, n, numShifts );
+    FixColumns( X );
     Int numIts=0, numDone=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );

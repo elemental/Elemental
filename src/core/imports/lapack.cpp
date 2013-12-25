@@ -38,6 +38,20 @@ void LAPACK(zlartg)
 ( const elem::dcomplex* phi, const elem::dcomplex* gamma,
   double* c, elem::dcomplex* s, elem::dcomplex* rho );
 
+// Symmetric tridiagonal eigensolvers (via MRRR)
+void LAPACK(sstevr)
+( const char* job, const char* range, const int* n,
+  float* d, float* e, const float* vl, const float* vu, 
+  const int* il, const int* iu, const float* abstol, int * m, 
+  float* w, float* Z, const int* ldz, int* isuppz, 
+  float* work, const int* lwork, int* iwork, const int* liwork, int* info );
+void LAPACK(dstevr)
+( const char* job, const char* range, const int* n,
+  double* d, double* e, const double* vl, const double* vu, 
+  const int* il, const int* iu, const double* abstol, int * m, 
+  double* w, double* Z, const int* ldz, int* isuppz, 
+  double* work, const int* lwork, int* iwork, const int* liwork, int* info );
+
 // Hermitian eigensolvers (via MRRR)
 void LAPACK(ssyevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
@@ -355,6 +369,76 @@ void ComputeGivens
 { LAPACK(zlartg)( &phi, &gamma, c, s, rho ); }
 
 //
+// Compute the EVD of a symmetric tridiagonal matrix
+//
+
+int SymmetricTridiagonalEig
+( char job, char range, int n, float* d, float* e, float vl, float vu,
+  int il, int iu, float abstol, float* w, float* Z, int ldz )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagonalEig"));
+    if( n == 0 )
+        return 0;
+
+    std::vector<int> isuppz( 2*n );
+
+    int lwork=-1, liwork=-1, m, info;
+    int dummyIwork;
+    float dummyWork;
+    LAPACK(sstevr)
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyIwork, &liwork,
+      &info );
+
+    lwork = dummyWork;
+    liwork = dummyIwork;
+    std::vector<float> work(lwork);
+    std::vector<int> iwork(liwork);
+    LAPACK(sstevr)
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("sstevr's failed");
+    return m;
+}
+
+int SymmetricTridiagonalEig
+( char job, char range, int n, double* d, double* e, double vl, double vu,
+  int il, int iu, double abstol, double* w, double* Z, int ldz )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagonalEig"));
+    if( n == 0 )
+        return 0;
+
+    std::vector<int> isuppz( 2*n );
+
+    int lwork=-1, liwork=-1, m, info;
+    int dummyIwork;
+    double dummyWork;
+    LAPACK(dstevr)
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyIwork, &liwork,
+      &info );
+
+    lwork = dummyWork;
+    liwork = dummyIwork;
+    std::vector<double> work(lwork);
+    std::vector<int> iwork(liwork);
+    LAPACK(dstevr)
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork,
+      &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("dstevr's failed");
+    return m;
+}
+
+//
 // Compute the EVD of a Hermitian matrix
 //
 
@@ -499,7 +583,6 @@ int HermitianEig
         RuntimeError("zheevr's failed");
     return m;
 }
-
 
 //
 // Bidiagonal DQDS for singular values

@@ -34,6 +34,7 @@ main( int argc, char* argv[] )
         const Real halfWidth = Input("--halfWidth","half width of image",0.);
         const Int xSize = Input("--xSize","number of x samples",100);
         const Int ySize = Input("--ySize","number of y samples",100);
+        const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
@@ -74,7 +75,7 @@ main( int argc, char* argv[] )
         DistMatrix<Real> invNormMap(g);
         auto itCountMap = Pseudospectrum
         ( A, invNormMap, center, halfWidth, xSize, ySize, 
-          deflate, maxIts, tol, progress );
+          lanczos, deflate, maxIts, tol, progress );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;

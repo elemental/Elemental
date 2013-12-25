@@ -93,7 +93,20 @@ void ComputeGivens
   double* cs, dcomplex* sn, dcomplex* rho );
 
 //
-// Compute the eigenpairs of a Hermitian matrix
+// Compute the eigen-values/pairs of a symmetric tridiagonal matrix
+//
+
+int SymmetricTridiagonalEig
+( char job, char range, int n, float* d, float* e,
+  float vl, float vu, int il, int iu, float abstol,
+  float* w, float* Z, int ldz );
+int SymmetricTridiagonalEig
+( char job, char range, int n, double* d, double* e,
+  double vl, double vu, int il, int iu, double abstol,
+  double* w, double* Z, int ldz );
+
+//
+// Compute the eigen-values/pairs of a Hermitian matrix
 //
 
 int HermitianEig

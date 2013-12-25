@@ -14,6 +14,7 @@
 
 #include "elemental/lapack-like/Pseudospectrum/ShiftedTrsm.hpp"
 #include "elemental/lapack-like/Pseudospectrum/Power.hpp"
+#include "elemental/lapack-like/Pseudospectrum/Lanczos.hpp"
 
 namespace elem {
 
@@ -21,8 +22,8 @@ template<typename F>
 inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Matrix<BASE(F)>& invNorms, bool lanczos=true, bool deflate=true,
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -37,16 +38,25 @@ Pseudospectrum
     Matrix<C> w;
     schur::QR( U, w );
 
-    return pspec::TriangularPower
+    Matrix<Int> itCounts;
+    if( lanczos )
+        itCounts = 
+           pspec::TriangularLanczos
            ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    else
+        itCounts =
+           pspec::TriangularPower
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+
+    return itCounts;
 }
 
 template<typename F>
 inline DistMatrix<Int,VR,STAR>
 Pseudospectrum
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  DistMatrix<BASE(F),VR,STAR>& invNorms, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  DistMatrix<BASE(F),VR,STAR>& invNorms, bool lanczos=true, bool deflate=true,
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -56,7 +66,7 @@ Pseudospectrum
     const Int nLocal = A.LocalWidth();
     const Grid& g = A.Grid();
 
-    DistMatrix<C> U( g );
+    DistMatrix<C> U(g);
     U.AlignWith( A );
     U.ResizeTo( n, n );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -65,13 +75,22 @@ Pseudospectrum
 
     // We don't actually need the Schur vectors, but SDC requires their 
     // computation in order to form the full triangular factor
-    DistMatrix<C> X( g );
-    DistMatrix<C,VR,STAR> w( g );
+    DistMatrix<C> X(g);
+    DistMatrix<C,VR,STAR> w(g);
     schur::SDC( U, w, X );
     X.Empty();
 
-    return pspec::TriangularPower
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    if( lanczos )
+        itCounts = 
+           pspec::TriangularLanczos
            ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    else
+        itCounts =
+           pspec::TriangularPower
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+
+    return itCounts;
 }
 
 template<typename F>
@@ -79,8 +98,8 @@ inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) halfWidth,
-  Int xSize, Int ySize, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6,
-  bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -102,7 +121,8 @@ Pseudospectrum
     // Form the vector of invNorms
     Matrix<Real> invNorms;
     auto itCounts = 
-        Pseudospectrum( A, shifts, invNorms, deflate, maxIts, tol, progress );
+        Pseudospectrum
+        ( A, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
 
     // Rearrange the vector into a grid 
     invNormMap.ResizeTo( xSize, ySize );
@@ -125,7 +145,8 @@ inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -148,9 +169,10 @@ Pseudospectrum
     }
 
     // Form the vector of invNorms
-    DistMatrix<Real,VR,STAR> invNorms( g );
+    DistMatrix<Real,VR,STAR> invNorms(g);
     auto itCounts =
-        Pseudospectrum( A, shifts, invNorms, deflate, maxIts, tol, progress );
+        Pseudospectrum
+        ( A, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
 
     // Rearrange the vector into a grid 
     invNormMap.ResizeTo( xSize, ySize );
@@ -173,8 +195,8 @@ inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) halfWidth,
-  Int xSize, Int ySize, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6,
-  bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -195,9 +217,15 @@ TriangularPseudospectrum
 
     // Form the vector of invNorms
     Matrix<Real> invNorms;
-    auto itCounts = 
-        pspec::TriangularPower
-        ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    Matrix<Int> itCounts;
+    if( lanczos )
+        itCounts = 
+           pspec::TriangularLanczos
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    else
+        itCounts =
+           pspec::TriangularPower
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
 
     // Rearrange the vector into a grid 
     invNormMap.ResizeTo( xSize, ySize );
@@ -220,7 +248,8 @@ inline DistMatrix<Int>
 TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -243,10 +272,16 @@ TriangularPseudospectrum
     }
 
     // Form the vector of invNorms
-    DistMatrix<Real,VR,STAR> invNorms( g );
-    auto itCounts =
-        pspec::TriangularPower
-        ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    DistMatrix<Real,VR,STAR> invNorms(g);
+    DistMatrix<Int,VR,STAR> itCounts(g); 
+    if( lanczos )
+        itCounts = 
+           pspec::TriangularLanczos
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    else
+        itCounts =
+           pspec::TriangularPower
+           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
 
     // Rearrange the vector into a grid 
     invNormMap.ResizeTo( xSize, ySize );
