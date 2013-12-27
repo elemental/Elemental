@@ -31,7 +31,8 @@ main( int argc, char* argv[] )
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
-        const Real halfWidth = Input("--halfWidth","half width of image",0.);
+        const Real xWidth = Input("--xWidth","x width of image",5.);
+        const Real yWidth = Input("--yWidth","y width of image",5.);
         const Int xSize = Input("--xSize","number of x samples",100);
         const Int ySize = Input("--ySize","number of y samples",100);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
@@ -75,7 +76,7 @@ main( int argc, char* argv[] )
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
         auto itCountMap = TriangularPseudospectrum
-        ( A, invNormMap, center, halfWidth, xSize, ySize, 
+        ( A, invNormMap, center, xWidth, yWidth, xSize, ySize, 
           lanczos, deflate, maxIts, tol, progress );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

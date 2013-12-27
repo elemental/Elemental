@@ -18,6 +18,138 @@
 
 namespace elem {
 
+namespace pspec {
+
+template<typename T>
+inline void
+ReshapeIntoGrids
+( Int xSize, Int ySize,
+  const Matrix<T>& invNorms,   const Matrix<Int>& itCounts,
+        Matrix<T>& invNormMap,       Matrix<Int>& itCountMap )
+{
+#if 0    
+    invNormMap.ResizeTo( xSize, ySize );
+    itCountMap.ResizeTo( xSize, ySize );
+    for( Int j=0; j<xSize; ++j )
+    {
+        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
+        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
+        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        normGridSub = shiftSub;
+        countGridSub = countSub;
+    }
+#else
+    // The sequential case can be optimized much more heavily than in parallel
+    invNormMap.ResizeTo( xSize, ySize, xSize );
+    itCountMap.ResizeTo( xSize, ySize, xSize );
+    MemCopy( invNormMap.Buffer(), invNorms.LockedBuffer(), xSize*ySize );
+    MemCopy( itCountMap.Buffer(), itCounts.LockedBuffer(), xSize*ySize );
+#endif
+}
+
+template<typename T>
+inline void
+ReshapeIntoGrids
+( Int xSize, Int ySize,
+  const DistMatrix<T,VR,STAR>& invNorms, 
+  const DistMatrix<Int,VR,STAR>& itCounts,
+        DistMatrix<T>& invNormMap, 
+        DistMatrix<Int>& itCountMap )
+{
+    invNormMap.SetGrid( invNorms.Grid() );
+    itCountMap.SetGrid( invNorms.Grid() );
+    invNormMap.ResizeTo( xSize, ySize );
+    itCountMap.ResizeTo( xSize, ySize );
+    for( Int j=0; j<xSize; ++j )
+    {
+        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
+        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
+        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        normGridSub = shiftSub;
+        countGridSub = countSub;
+    }
+}
+
+} // namespace pspec
+
+template<typename F>
+inline Matrix<Int>
+TriangularPseudospectrum
+( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, 
+  Matrix<BASE(F)>& invNorms, bool lanczos=true, bool deflate=true,
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+
+    Matrix<C> UCpx;
+    if( IsComplex<F>::val )
+        UCpx = LockedView( U );
+    else
+    {
+        UCpx.ResizeTo( n, n );
+        for( Int j=0; j<n; ++j )
+            for( Int i=0; i<n; ++i )
+                UCpx.Set( i, j, U.Get(i,j) );
+    }
+
+    Matrix<Int> itCounts;
+    if( lanczos )
+        itCounts = 
+           pspec::TriangularLanczos
+           ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+    else
+        itCounts =
+           pspec::TriangularPower
+           ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+
+    return itCounts;
+}
+
+template<typename F>
+inline DistMatrix<Int,VR,STAR>
+TriangularPseudospectrum
+( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
+  DistMatrix<BASE(F),VR,STAR>& invNorms, bool lanczos=true, bool deflate=true,
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+    const Int mLocal = U.LocalHeight();
+    const Int nLocal = U.LocalWidth();
+    const Grid& g = U.Grid();
+
+    DistMatrix<C> UCpx(g);
+    if( IsComplex<F>::val )
+        UCpx = LockedView( U );
+    else
+    {
+        UCpx.AlignWith( U );
+        UCpx.ResizeTo( n, n );
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                UCpx.SetLocal( iLoc, jLoc, U.GetLocal(iLoc,jLoc) );
+    }
+
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    if( lanczos )
+        itCounts = 
+           pspec::TriangularLanczos
+           ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+    else
+        itCounts =
+           pspec::TriangularPower
+           ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+
+    return itCounts;
+}
+
 template<typename F>
 inline Matrix<Int>
 Pseudospectrum
@@ -38,17 +170,8 @@ Pseudospectrum
     Matrix<C> w;
     schur::QR( U, w );
 
-    Matrix<Int> itCounts;
-    if( lanczos )
-        itCounts = 
-           pspec::TriangularLanczos
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-    else
-        itCounts =
-           pspec::TriangularPower
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-
-    return itCounts;
+    return TriangularPseudospectrum
+           ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
 }
 
 template<typename F>
@@ -80,24 +203,90 @@ Pseudospectrum
     schur::SDC( U, w, X );
     X.Empty();
 
-    DistMatrix<Int,VR,STAR> itCounts(g);
-    if( lanczos )
-        itCounts = 
-           pspec::TriangularLanczos
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-    else
-        itCounts =
-           pspec::TriangularPower
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
+    return TriangularPseudospectrum
+           ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+}
 
-    return itCounts;
+template<typename F>
+inline Matrix<Int>
+TriangularPseudospectrum
+( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
+  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    const Real xStep = xWidth/(xSize-1);
+    const Real yStep = yWidth/(ySize-1);
+    const C corner = center - C(xWidth/2,yWidth/2);
+    Matrix<C> shifts( xSize*ySize, 1, U.Grid() );
+    for( Int j=0; j<xSize*ySize; ++j )
+    {
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    Matrix<Real> invNorms;
+    auto itCounts = 
+        TriangularPseudospectrum
+        ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+
+    // Rearrange the vectors into grids
+    Matrix<Int> itCountMap; 
+    pspec::ReshapeIntoGrids
+    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    return itCountMap;
+}
+
+template<typename F>
+inline DistMatrix<Int>
+TriangularPseudospectrum
+( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
+  bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+    const Grid& g = U.Grid();
+
+    const Real xStep = xWidth/(xSize-1);
+    const Real yStep = yWidth/(ySize-1);
+    const C corner = center - C(xWidth/2,yWidth/2);
+    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
+    const Int numLocShifts = shifts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    DistMatrix<Real,VR,STAR> invNorms(g);
+    auto itCounts = 
+        TriangularPseudospectrum
+        ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+
+    // Rearrange the vectors into grids
+    DistMatrix<Int> itCountMap(g); 
+    pspec::ReshapeIntoGrids
+    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    return itCountMap;
 }
 
 template<typename F>
 inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) halfWidth,
+  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
   Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
@@ -105,11 +294,9 @@ Pseudospectrum
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    if( halfWidth == Real(0) )
-        halfWidth = FrobeniusNorm( A );
-    const Real xStep = 2*halfWidth/(xSize-1);
-    const Real yStep = 2*halfWidth/(ySize-1);
-    const C corner = center - C(halfWidth,halfWidth);
+    const Real xStep = xWidth/(xSize-1);
+    const Real yStep = yWidth/(ySize-1);
+    const C corner = center - C(xWidth/2,yWidth/2);
     Matrix<C> shifts( xSize*ySize, 1, A.Grid() );
     for( Int j=0; j<xSize*ySize; ++j )
     {
@@ -124,19 +311,10 @@ Pseudospectrum
         Pseudospectrum
         ( A, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
 
-    // Rearrange the vector into a grid 
-    invNormMap.ResizeTo( xSize, ySize );
-    Matrix<Int> itCountMap( xSize, ySize );
-    for( Int j=0; j<xSize; ++j )
-    {
-        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
-        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
-        normGridSub = shiftSub;
-        countGridSub = countSub;
-    }
-
+    // Rearrange the vectors into grids
+    Matrix<Int> itCountMap; 
+    pspec::ReshapeIntoGrids
+    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -144,7 +322,7 @@ template<typename F>
 inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
+  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
   bool lanczos=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
@@ -153,11 +331,9 @@ Pseudospectrum
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
-    if( halfWidth == Real(0) )
-        halfWidth = FrobeniusNorm( A );
-    const Real xStep = 2*halfWidth/(xSize-1);
-    const Real yStep = 2*halfWidth/(ySize-1);
-    const C corner = center - C(halfWidth,halfWidth);
+    const Real xStep = xWidth/(xSize-1);
+    const Real yStep = yWidth/(ySize-1);
+    const C corner = center - C(xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
@@ -174,130 +350,16 @@ Pseudospectrum
         Pseudospectrum
         ( A, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
 
-    // Rearrange the vector into a grid 
-    invNormMap.ResizeTo( xSize, ySize );
-    DistMatrix<Int> itCountMap( xSize, ySize, g );
-    for( Int j=0; j<xSize; ++j )
-    {
-        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
-        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
-        normGridSub = shiftSub;
-        countGridSub = countSub;
-    }
-
+    // Rearrange the vectors into grids
+    DistMatrix<Int> itCountMap(g); 
+    pspec::ReshapeIntoGrids
+    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
-template<typename F>
-inline Matrix<Int>
-TriangularPseudospectrum
-( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) halfWidth,
-  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
-    typedef Base<F> Real;
-    typedef Complex<Real> C;
-
-    if( halfWidth == Real(0) )
-        halfWidth = FrobeniusNorm( U );
-    const Real xStep = 2*halfWidth/(xSize-1);
-    const Real yStep = 2*halfWidth/(ySize-1);
-    const C corner = center - C(halfWidth,halfWidth);
-    Matrix<C> shifts( xSize*ySize, 1, U.Grid() );
-    for( Int j=0; j<xSize*ySize; ++j )
-    {
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
-    }
-
-    // Form the vector of invNorms
-    Matrix<Real> invNorms;
-    Matrix<Int> itCounts;
-    if( lanczos )
-        itCounts = 
-           pspec::TriangularLanczos
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-    else
-        itCounts =
-           pspec::TriangularPower
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-
-    // Rearrange the vector into a grid 
-    invNormMap.ResizeTo( xSize, ySize );
-    Matrix<Int> itCountMap( xSize, ySize );
-    for( Int j=0; j<xSize; ++j )
-    {
-        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
-        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
-        normGridSub = shiftSub;
-        countGridSub = countSub;
-    }
-
-    return itCountMap;
-}
-
-template<typename F>
-inline DistMatrix<Int>
-TriangularPseudospectrum
-( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) halfWidth, Int xSize, Int ySize, 
-  bool lanczos=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
-    typedef Base<F> Real;
-    typedef Complex<Real> C;
-    const Grid& g = U.Grid();
-
-    if( halfWidth == Real(0) )
-        halfWidth = FrobeniusNorm( U );
-    const Real xStep = 2*halfWidth/(xSize-1);
-    const Real yStep = 2*halfWidth/(ySize-1);
-    const C corner = center - C(halfWidth,halfWidth);
-    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
-    const Int numLocShifts = shifts.LocalHeight();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-    {
-        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
-    }
-
-    // Form the vector of invNorms
-    DistMatrix<Real,VR,STAR> invNorms(g);
-    DistMatrix<Int,VR,STAR> itCounts(g); 
-    if( lanczos )
-        itCounts = 
-           pspec::TriangularLanczos
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-    else
-        itCounts =
-           pspec::TriangularPower
-           ( U, shifts, invNorms, deflate, maxIts, tol, progress );
-
-    // Rearrange the vector into a grid 
-    invNormMap.ResizeTo( xSize, ySize );
-    DistMatrix<Int> itCountMap( xSize, ySize, g );
-    for( Int j=0; j<xSize; ++j )
-    {
-        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
-        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
-        normGridSub = shiftSub;
-        countGridSub = countSub;
-    }
-
-    return itCountMap;
-}
+// TODO: Chunked pseudospectrum driver
+// TODO: Spectrally-centered pseudospectrum driver
+// TODO: operator= which can convert between datatypes
 
 } // namespace elem
 
