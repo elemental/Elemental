@@ -140,20 +140,17 @@ void
 DM<T>::AlignWith( const elem::DistData& data )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,MC]::AlignWith"))
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
+    this->SetGrid( *data.grid );
 
     if( data.colDist == MC )
-        this->rowAlign_ = data.colAlign;
+        this->AlignRows( data.colAlign );
     else if( data.rowDist == MC )
-        this->rowAlign_ = data.rowAlign;
+        this->AlignRows( data.rowAlign );
     else if( data.colDist == VC )
-        this->rowAlign_ = data.colAlign % this->RowStride();
+        this->AlignRows( data.colAlign % this->RowStride() );
     else if( data.rowDist == VC )
-        this->rowAlign_ = data.rowAlign % this->RowStride();
+        this->AlignRows( data.rowAlign % this->RowStride() );
     DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-    this->rowConstrained_ = true;
-    this->SetShifts();
 }
 
 template<typename T>
@@ -196,8 +193,7 @@ void
 DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,MC]::AlignWithDiagonal"))
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
+    this->SetGrid( *data.grid );
 
     if( (data.colDist == MC   && data.rowDist == STAR) ||
         (data.colDist == STAR && data.rowDist == MC  ) )
@@ -205,17 +201,9 @@ DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
         const Int alignment = ( data.colDist==MC ? data.colAlign
                                                  : data.rowAlign );
         if( offset >= 0 )
-        {
-            const Int row = alignment;
-            this->rowAlign_ = row;
-        }
+            this->AlignRows( alignment );
         else
-        {
-            const Int row = (alignment-offset) % this->RowStride();
-            this->rowAlign_ = row;
-        }
-        this->rowConstrained_ = true;
-        this->SetShifts();
+            this->AlignRows( (alignment-offset) % this->RowStride() );
     }
     DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
 }

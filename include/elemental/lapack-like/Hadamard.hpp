@@ -43,7 +43,6 @@ inline void Hadamard
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("A and B must be aligned");
     const Grid& g = A.Grid();
-    C.SetGrid( g );
     C.AlignWith( A );
     C.ResizeTo( A.Height(), A.Width() );
 

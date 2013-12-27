@@ -152,22 +152,18 @@ void
 DM<T>::AlignWith( const elem::DistData& data )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,* ]::AlignWith"))
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
-
+    this->SetGrid( *data.grid );
     if( data.colDist == MD && data.rowDist == STAR )
     {
-        this->colAlign_ = data.colAlign;
-        this->root_ = data.root;
+        this->SetRoot( data.root );
+        this->AlignCols( data.colAlign );
     }
     else if( data.colDist == STAR && data.rowDist == MD )
     {
-        this->colAlign_ = data.rowAlign;
-        this->root_ = data.root;
+        this->SetRoot( data.root );
+        this->AlignCols( data.rowAlign );
     }
     DEBUG_ONLY(else LogicError("Invalid alignment"))
-    this->colConstrained_ = true;
-    this->SetShifts();
 }
 
 template<typename T>
@@ -260,8 +256,8 @@ DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
             const Int ownerCol = data.rowAlign;
             owner = ownerRow + r*ownerCol;
         }
-        this->root_ = grid.DiagPath(owner);
-        this->colAlign_ = grid.DiagPathRank(owner);
+        this->SetRoot( grid.DiagPath(owner) );
+        this->AlignCols( grid.DiagPathRank(owner) );
     }
     else if( data.colDist == MR && data.rowDist == MC )
     {
@@ -278,22 +274,20 @@ DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
             const Int ownerRow = data.rowAlign;
             owner = ownerRow + r*ownerCol;
         }
-        this->root_ = grid.DiagPath(owner);
-        this->colAlign_ = grid.DiagPathRank(owner);
+        this->SetRoot( grid.DiagPath(owner) );
+        this->AlignCols( grid.DiagPathRank(owner) );
     }
     else if( data.colDist == MD && data.rowDist == STAR )
     {
-        this->root_ = data.root;
-        this->colAlign_ = data.colAlign;
+        this->SetRoot( data.root );
+        this->AlignCols( data.colAlign );
     }
     else if( data.colDist == STAR && data.rowDist == MD )
     {
-        this->root_ = data.root;
-        this->colAlign_ = data.rowAlign;
+        this->SetRoot( data.root );
+        this->AlignCols( data.rowAlign );
     }
     DEBUG_ONLY(else LogicError("Nonsensical AlignWithDiagonal"))
-    this->colConstrained_ = true;
-    this->SetShifts();
 }
 
 template<typename T>
@@ -408,10 +402,8 @@ DM<T>::operator=( const DM<T>& A )
     )
     if( !this->Viewing() && !this->ColConstrained() )
     {
-        this->root_ = A.root_;
-        this->colAlign_ = A.colAlign_;
-        if( this->Participating() )
-            this->colShift_ = A.ColShift();
+        this->SetRoot( A.root_ );
+        this->AlignCols( A.colAlign_ );
     }
     this->ResizeTo( A.Height(), A.Width() );
 

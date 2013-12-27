@@ -68,15 +68,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         if( A.Grid() != t.Grid() )
             LogicError("{A,s} must be distributed over the same grid");
     )
-    if( t.Viewing() )
-    {
-        if( !t.AlignedWithDiagonal( A ) ) 
-            LogicError("t was not aligned with A");
-    }
-    else
-    {
-        t.AlignWithDiagonal( A );
-    }
+    t.AlignWithDiagonal( A );
 
     const Int m = A.Height();
     const Int n = A.Width();

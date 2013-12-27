@@ -32,7 +32,6 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
-[x] Lanczos-based pseudospectrum computation
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
 [o] Sequential blocked reduction to tridiagonal form
 [o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
@@ -84,9 +83,6 @@ Consistency
 -----------
 [-] Consistently implement 'GetDiagonal' functionality for DistMatrix
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
-[-] Convert 'AlignWith' routines to be requirements rather than actions, similar
-    to 'ResizeTo', which simplifies error-handling by allowing it to be 
-    centralized within the method rather than in every usage.
 [-] Consistent implementation of unblocked routines
 [-] Separate out local blas-like and lapack-like operations
 [-] Safe down-casting of integers in BLAS/LAPACK calls

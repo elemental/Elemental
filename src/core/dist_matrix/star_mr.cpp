@@ -139,20 +139,17 @@ void
 DM<T>::AlignWith( const elem::DistData& data )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,MR]::AlignWith"))
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
+    this->SetGrid( *data.grid );
 
     if( data.colDist == MR )
-        this->rowAlign_ = data.colAlign;
+        this->AlignRows( data.colAlign );
     else if( data.rowDist == MR )
-        this->rowAlign_ = data.rowAlign;
+        this->AlignRows( data.rowAlign );
     else if( data.colDist == VR )
-        this->rowAlign_ = data.colAlign % this->RowStride();
+        this->AlignRows( data.colAlign % this->RowStride() );
     else if( data.rowDist == VR )
-        this->rowAlign_ = data.rowAlign % this->RowStride();
+        this->AlignRows( data.rowAlign % this->RowStride() );
     DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-    this->rowConstrained_ = true;
-    this->SetShifts();
 }
 
 template<typename T>

@@ -67,15 +67,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int offset = n-m;
-    if( t.Viewing() )
-    {
-        if( !t.AlignedWithDiagonal( A, offset ) ) 
-            LogicError("t was not aligned with A");
-    }
-    else
-    {
-        t.AlignWithDiagonal( A, offset );
-    }
+    t.AlignWithDiagonal( A, offset );
     t.ResizeTo( minDim, 1 );
 
     const Int iOff = ( n>=m ? 0   : m-n );

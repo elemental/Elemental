@@ -140,65 +140,28 @@ void
 DM<T>::AlignWith( const elem::DistData& data )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,MC]::AlignWith"))
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
-
+    this->SetGrid( *data.grid );
     if( data.colDist == MC && data.rowDist == MR )
-    {
-        this->colAlign_ = data.rowAlign;
-        this->rowAlign_ = data.colAlign;
-        this->colConstrained_ = true;
-        this->rowConstrained_ = true;
-    }
+        this->Align( data.rowAlign, data.colAlign );
     else if( data.colDist == MC && data.rowDist == STAR )
-    {
-        this->rowAlign_ = data.colAlign;
-        this->rowConstrained_ = true;
-    }
+        this->AlignRows( data.colAlign );
     else if( data.colDist == MR && data.rowDist == MC )
-    {
-        this->colAlign_ = data.colAlign;
-        this->rowAlign_ = data.rowAlign;
-        this->colConstrained_ = true;
-        this->rowConstrained_ = true;
-    }
+        this->Align( data.colAlign, data.rowAlign );
     else if( data.colDist == MR && data.rowDist == STAR )
-    {
-        this->colAlign_ = data.colAlign;
-        this->colConstrained_ = true;
-    }
+        this->AlignCols( data.colAlign );
     else if( data.colDist == STAR && data.rowDist == MC )
-    {
-        this->rowAlign_ = data.rowAlign;
-        this->rowConstrained_ = true;
-    }
+        this->AlignRows( data.rowAlign );
     else if( data.colDist == STAR && data.rowDist == MR )
-    {
-        this->colAlign_ = data.rowAlign;
-        this->colConstrained_ = true;
-    }
+        this->AlignCols( data.rowAlign );
     else if( data.colDist == STAR && data.rowDist == VC )
-    {
-        this->rowAlign_ = data.rowAlign % this->RowStride();
-        this->rowConstrained_ = true;
-    }
+        this->AlignRows( data.rowAlign % this->RowStride() );
     else if( data.colDist == STAR && data.rowDist == VR )
-    {
-        this->colAlign_ = data.rowAlign % this->ColStride();
-        this->colConstrained_ = true;
-    }
+        this->AlignCols( data.rowAlign % this->ColStride() );
     else if( data.colDist == VC && data.rowDist == STAR )
-    {
-        this->rowAlign_ = data.colAlign % this->RowStride();
-        this->rowConstrained_ = true;
-    }
+        this->AlignRows( data.colAlign % this->RowStride() );
     else if( data.colDist == VR && data.rowDist == STAR )
-    {
-        this->colAlign_ = data.colAlign % this->ColStride();
-        this->colConstrained_ = true;
-    }
+        this->AlignCols( data.colAlign % this->ColStride() );
     DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-    this->SetShifts();
 }
 
 template<typename T>
@@ -211,16 +174,14 @@ DM<T>::AlignColsWith( const elem::DistData& data )
             LogicError("Grids do not match");
     )
     if( data.colDist == MR )
-        this->colAlign_ = data.colAlign;
+        this->AlignCols( data.colAlign );
     else if( data.rowDist == MR )
-        this->colAlign_ = data.rowAlign;
+        this->AlignCols( data.rowAlign );
     else if( data.colDist == VR )
-        this->colAlign_ = data.colAlign % this->ColStride();
+        this->AlignCols( data.colAlign % this->ColStride() );
     else if( data.rowDist == VR )
-        this->colAlign_ = data.rowAlign % this->ColStride();
+        this->AlignCols( data.rowAlign % this->ColStride() );
     DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-    this->colConstrained_ = true;
-    this->SetShifts();
 }
 
 template<typename T>
@@ -233,16 +194,14 @@ DM<T>::AlignRowsWith( const elem::DistData& data )
             LogicError("Grids do not match");
     )
     if( data.colDist == MC )
-        this->rowAlign_ = data.colAlign;
+        this->AlignRows( data.colAlign );
     else if( data.rowDist == MC )
-        this->rowAlign_ = data.rowAlign;
+        this->AlignRows( data.rowAlign );
     else if( data.colDist == VC )
-        this->rowAlign_ = data.colAlign % this->RowStride();
+        this->AlignRows( data.colAlign % this->RowStride() );
     else if( data.rowDist == VC )
-        this->rowAlign_ = data.rowAlign % this->RowStride();
+        this->AlignRows( data.rowAlign % this->RowStride() );
     DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-    this->rowConstrained_ = true;
-    this->SetShifts();
 }
 
 template<typename T>

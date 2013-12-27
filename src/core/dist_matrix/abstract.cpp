@@ -194,12 +194,13 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
 { 
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::Align"))
-    Empty();
-    colAlign_ = colAlign;
-    rowAlign_ = rowAlign;
+    DEBUG_ONLY(CallStackEntry cse("ADM::Align"))
+    if( colAlign_ != colAlign || rowAlign_ != rowAlign )
+        Empty();
     colConstrained_ = true;
     rowConstrained_ = true;
+    colAlign_ = colAlign;
+    rowAlign_ = rowAlign;
     SetShifts();
 }
 
@@ -207,10 +208,11 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignCols( Int colAlign )
 { 
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignCols"))
-    EmptyData();
-    colAlign_ = colAlign;
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignCols"))
+    if( colAlign_ != colAlign )
+        EmptyData();
     colConstrained_ = true;
+    colAlign_ = colAlign;
     SetShifts();
 }
 
@@ -218,36 +220,54 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignRows( Int rowAlign )
 { 
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignRows"))
-    EmptyData();
-    rowAlign_ = rowAlign;
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRows"))
+    if( rowAlign_ != rowAlign )
+        EmptyData();
     rowConstrained_ = true;
+    rowAlign_ = rowAlign;
     SetShifts();
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
-{ SetGrid( *data.grid ); }
+{ 
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::AlignWith");
+        if( colAlign_ != 0 || rowAlign_ != 0 )
+            LogicError("Alignments should have been zero");
+        if( colConstrained_ || rowConstrained_ )
+            LogicError("There should not have been constraints");
+    )
+    SetGrid( *data.grid ); 
+}
 
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
 { 
-    EmptyData(); 
-    colAlign_ = 0; 
-    colConstrained_ = false; 
-    SetShifts(); 
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::AlignColsWith");
+        if( colAlign_ != 0 )
+            LogicError("Alignment should have been zero");
+        if( colConstrained_ )
+            LogicError("There should not have been a constraint");
+    )
+    SetGrid( *data.grid );
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
 { 
-    EmptyData(); 
-    rowAlign_ = 0; 
-    rowConstrained_ = false;
-    SetShifts(); 
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::AlignRowsWith");
+        if( rowAlign_ != 0 )
+            LogicError("Alignment should have been zero");
+        if( rowConstrained_ )
+            LogicError("There should not have been a constraint");
+    )
+    SetGrid( *data.grid );
 }
 
 template<typename T>
@@ -255,24 +275,23 @@ void
 AbstractDistMatrix<T>::AlignAndResize
 ( Int colAlign, Int rowAlign, Int height, Int width, bool force )
 {
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignAndResize"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignAndResize"))
     if( !Viewing() )
     {
-        if( !ColConstrained() )
+        if( force || !ColConstrained() )
         {
             colAlign_ = colAlign;
             SetColShift(); 
         }
-        if( !RowConstrained() )
+        if( force || !RowConstrained() )
         {
             rowAlign_ = rowAlign;
             SetRowShift();
         }
     }
+    if( force && (colAlign_ != colAlign || rowAlign_ != rowAlign) )
+        LogicError("Could not set alignments"); 
     ResizeTo( height, width );
-    if( force )
-        if( colAlign_ != colAlign || rowAlign_ != rowAlign )
-            LogicError("Could not set alignments"); 
 }
 
 template<typename T>
@@ -280,15 +299,15 @@ void
 AbstractDistMatrix<T>::AlignColsAndResize
 ( Int colAlign, Int height, Int width, bool force )
 {
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignColsAndResize"))
-    if( !Viewing() && !ColConstrained() )
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsAndResize"))
+    if( !Viewing() && (force || !ColConstrained()) )
     {
         colAlign_ = colAlign;
         SetColShift(); 
     }
-    ResizeTo( height, width );
     if( force && colAlign_ != colAlign )
         LogicError("Could not set col alignment");
+    ResizeTo( height, width );
 }
 
 template<typename T>
@@ -296,15 +315,15 @@ void
 AbstractDistMatrix<T>::AlignRowsAndResize
 ( Int rowAlign, Int height, Int width, bool force )
 {
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::AlignRowsAndResize"))
-    if( !Viewing() && !RowConstrained() )
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsAndResize"))
+    if( !Viewing() && (force || !RowConstrained()) )
     {
         rowAlign_ = rowAlign;
         SetRowShift(); 
     }
-    ResizeTo( height, width );
     if( force && rowAlign_ != rowAlign )
         LogicError("Could not set row alignment");
+    ResizeTo( height, width );
 }
 
 template<typename T>
@@ -440,7 +459,7 @@ Int
 AbstractDistMatrix<T>::LocalRow( Int i ) const
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("AbstractDistMatrix::LocalRow");
+        CallStackEntry cse("ADM::LocalRow");
         if( !IsLocalRow(i) )
             LogicError("Requested local index of non-local row");
     )
@@ -452,7 +471,7 @@ Int
 AbstractDistMatrix<T>::LocalCol( Int j ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("AbstractDistMatrix::LocalCol");
+        CallStackEntry cse("ADM::LocalCol");
         if( !IsLocalCol(j) )
             LogicError("Requested local index of non-local column");
     )
@@ -895,9 +914,12 @@ template<typename T>
 void
 AbstractDistMatrix<T>::SetGrid( const elem::Grid& grid )
 {
-    Empty();
-    grid_ = &grid; 
-    SetShifts();
+    if( grid_ != &grid )
+    {
+        Empty();
+        grid_ = &grid; 
+        SetShifts();
+    }
 }
 
 template<typename T>
@@ -931,7 +953,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::MakeConsistent()
 {
-    DEBUG_ONLY(CallStackEntry cse("AbstractDistMatrix::MakeConsistent"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeConsistent"))
     const elem::Grid& g = *grid_;
     const Int vcRoot = g.VCToViewingMap(0);
     Int message[8];
