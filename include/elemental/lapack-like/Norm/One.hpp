@@ -107,7 +107,7 @@ OneNorm( const DistMatrix<F,U,V>& A )
             myMaxColSum = std::max( myMaxColSum, myColSums[jLoc] );
 
         // Find the global maximum column sum by searching the row team
-        norm = mpi::AllReduce( myMaxColSum, A.RowComm() );
+        norm = mpi::AllReduce( myMaxColSum, mpi::MAX, A.RowComm() );
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;

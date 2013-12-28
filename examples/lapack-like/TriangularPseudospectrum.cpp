@@ -31,8 +31,8 @@ main( int argc, char* argv[] )
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
-        const Real xWidth = Input("--xWidth","x width of image",5.);
-        const Real yWidth = Input("--yWidth","y width of image",5.);
+        const Real xWidth = Input("--xWidth","x width of image",0.);
+        const Real yWidth = Input("--yWidth","y width of image",0.);
         const Int xSize = Input("--xSize","number of x samples",100);
         const Int ySize = Input("--ySize","number of y samples",100);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
@@ -64,8 +64,13 @@ main( int argc, char* argv[] )
             A = Haar<C>( g, n );
         else if( matType == 2 )
             A = Lotkin<C>( g, n );
-        else
+        else if( matType == 3 )
             A = Grcar<C>( g, n, 3 );
+        else
+        {
+            A = Uniform<C>( g, n, n );
+            SetDiagonal( A, 0 );
+        }
         MakeTriangular( UPPER, A );
         if( display )
             Display( A, "A" );
@@ -75,9 +80,15 @@ main( int argc, char* argv[] )
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
-        auto itCountMap = TriangularPseudospectrum
-        ( A, invNormMap, center, xWidth, yWidth, xSize, ySize, 
-          lanczos, deflate, maxIts, tol, progress );
+        DistMatrix<Int> itCountMap(g);
+        if( xWidth != 0. && yWidth != 0. )
+            itCountMap = TriangularPseudospectrum
+            ( A, invNormMap, center, xWidth, yWidth, xSize, ySize,
+              lanczos, deflate, maxIts, tol, progress );
+        else
+            itCountMap = TriangularPseudospectrum
+            ( A, invNormMap, center, xSize, ySize,                
+              lanczos, deflate, maxIts, tol, progress );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;

@@ -12,9 +12,9 @@
 
 namespace elem {
 
-template<typename T>
+template<typename T,typename S>
 inline void
-SetDiagonal( Matrix<T>& A, T alpha )
+SetDiagonal( Matrix<T>& A, S alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
@@ -24,9 +24,9 @@ SetDiagonal( Matrix<T>& A, T alpha )
         A.Set(j,j,alpha);
 }
 
-template<typename T>
+template<typename T,typename S>
 inline void
-SetDiagonal( Matrix<T>& A, T alpha, Int offset, LeftOrRight side=LEFT )
+SetDiagonal( Matrix<T>& A, S alpha, Int offset, LeftOrRight side=LEFT )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
@@ -51,9 +51,9 @@ SetDiagonal( Matrix<T>& A, T alpha, Int offset, LeftOrRight side=LEFT )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,typename S,Distribution U,Distribution V>
 inline void
-SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
+SetDiagonal( DistMatrix<T,U,V>& A, S alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
@@ -73,10 +73,10 @@ SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,typename S,Distribution U,Distribution V>
 inline void
 SetDiagonal
-( DistMatrix<T,U,V>& A, T alpha, Int offset, LeftOrRight side=LEFT )
+( DistMatrix<T,U,V>& A, S alpha, Int offset, LeftOrRight side=LEFT )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();

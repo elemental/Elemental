@@ -10,6 +10,9 @@
 #ifndef ELEM_LAPACK_PSEUDOSPECTRUM_HPP
 #define ELEM_LAPACK_PSEUDOSPECTRUM_HPP
 
+#include "elemental/lapack-like/Norm/Max.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/Norm/TwoEstimate.hpp"
 #include "elemental/lapack-like/Schur.hpp"
 
 #include "elemental/lapack-like/Pseudospectrum/ShiftedTrsm.hpp"
@@ -84,13 +87,13 @@ TriangularPseudospectrum
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
-    const Int n = U.Height();
 
     Matrix<C> UCpx;
     if( IsComplex<F>::val )
         UCpx = LockedView( U );
     else
     {
+        const Int n = U.Height();
         UCpx.ResizeTo( n, n );
         for( Int j=0; j<n; ++j )
             for( Int i=0; i<n; ++i )
@@ -120,18 +123,18 @@ TriangularPseudospectrum
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
-    const Int n = U.Height();
-    const Int mLocal = U.LocalHeight();
-    const Int nLocal = U.LocalWidth();
-    const Grid& g = U.Grid();
 
+    const Grid& g = U.Grid();
     DistMatrix<C> UCpx(g);
     if( IsComplex<F>::val )
         UCpx = LockedView( U );
     else
     {
         UCpx.AlignWith( U );
+        const Int n = U.Height();
         UCpx.ResizeTo( n, n );
+        const Int mLocal = U.LocalHeight();
+        const Int nLocal = U.LocalWidth();
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 UCpx.SetLocal( iLoc, jLoc, U.GetLocal(iLoc,jLoc) );
@@ -160,8 +163,8 @@ Pseudospectrum
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
-    const Int n = A.Height();
 
+    const Int n = A.Height();
     Matrix<C> U( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
@@ -184,14 +187,14 @@ Pseudospectrum
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
-    const Int n = A.Height();
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    const Grid& g = A.Grid();
 
+    const Grid& g = A.Grid();
     DistMatrix<C> U(g);
     U.AlignWith( A );
+    const Int n = A.Height();
     U.ResizeTo( n, n );
+    const Int mLocal = A.LocalHeight();
+    const Int nLocal = A.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
@@ -357,9 +360,107 @@ Pseudospectrum
     return itCountMap;
 }
 
-// TODO: Chunked pseudospectrum driver
-// TODO: Spectrally-centered pseudospectrum driver
-// TODO: operator= which can convert between datatypes
+template<typename F>
+inline Matrix<Int>
+TriangularPseudospectrum
+( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center,
+  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    // Use the spectral radius unless it is deemed too small
+    // (consider an upper triangular matrix with a zero main diagonal)
+    auto diag = U.GetDiagonal();
+    const Base<F> twoNorm = MaxNorm( diag );
+    const Base<F> oneNorm = OneNorm( U );
+    const Base<F> width = ( twoNorm>=0.2*oneNorm ? 2.5*twoNorm : 0.8*oneNorm );
+
+    return TriangularPseudospectrum
+           ( U, invNormMap, center, width, width, xSize, ySize, 
+             lanczos, deflate, maxIts, tol, progress );
+}
+
+template<typename F>
+inline DistMatrix<Int>
+TriangularPseudospectrum
+( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, Int xSize, Int ySize,
+  bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    // Use the spectral radius unless it is deemed too small
+    // (consider an upper triangular matrix with a zero main diagonal)
+    auto diag = U.GetDiagonal();
+    const Base<F> twoNorm = MaxNorm( diag );
+    const Base<F> oneNorm = OneNorm( U );
+    const Base<F> width = ( twoNorm>=0.2*oneNorm ? 2.5*twoNorm : 0.8*oneNorm );
+
+    return TriangularPseudospectrum
+           ( U, invNormMap, center, width, width, xSize, ySize, 
+             lanczos, deflate, maxIts, tol, progress );
+}
+
+template<typename F>
+inline Matrix<Int>
+Pseudospectrum
+( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center,
+  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    const Int n = A.Height();
+    Matrix<C> U( n, n );
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<n; ++i )
+            U.Set( i, j, A.Get(i,j) );
+    Matrix<C> w;
+    schur::QR( U, w );
+
+    return TriangularPseudospectrum
+           ( U, invNormMap, center, xSize, ySize, 
+             lanczos, deflate, maxIts, tol, progress );
+}
+
+template<typename F>
+inline DistMatrix<Int>
+Pseudospectrum
+( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, Int xSize, Int ySize,
+  bool lanczos=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    const Grid& g = A.Grid();
+    DistMatrix<C> U(g);
+    U.AlignWith( A );
+    const Int n = A.Height();
+    U.ResizeTo( n, n );
+    const Int mLocal = A.LocalHeight();
+    const Int nLocal = A.LocalWidth();
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
+
+    // We don't actually need the Schur vectors, but SDC requires their 
+    // computation in order to form the full triangular factor
+    DistMatrix<C> X(g);
+    DistMatrix<C,VR,STAR> w(g);
+    schur::SDC( U, w, X );
+    X.Empty();
+ 
+    return TriangularPseudospectrum
+           ( U, invNormMap, center, xSize, ySize, 
+             lanczos, deflate, maxIts, tol, progress );
+}
 
 } // namespace elem
 

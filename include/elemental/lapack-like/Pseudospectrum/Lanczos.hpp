@@ -12,12 +12,30 @@
 
 #include "elemental/lapack-like/Norm/Zero.hpp"
 
+#include "./Power.hpp"
 #include "./ShiftedTrsm.hpp"
 
 namespace elem {
 namespace pspec {
 
 const Int HCapacityInit = 10;
+
+template<typename Real>
+inline bool HasNan
+( const std::vector<Real>& HDiag, 
+  const std::vector<Real>& HSubdiag )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::HasNan"))
+    bool hasNan = false;
+    const Int n = HDiag.size();
+    for( Int j=0; j<n; ++j )
+        if( std::isnan( HDiag[j] ) )
+            hasNan = true;
+    for( Int j=0; j<n-1; ++j )
+        if( std::isnan( HSubdiag[j] ) )
+            hasNan = true;
+    return hasNan;
+}
 
 template<typename F>
 inline void
@@ -79,6 +97,7 @@ InnerProducts
         std::vector<std::vector<BASE(F)> >& diags )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    typedef Base<F> Real;
     const Int mLocal = X.LocalHeight();
     const Int numLocShifts = X.LocalWidth();
     std::vector<F> innerProds( numLocShifts );
@@ -88,7 +107,10 @@ InnerProducts
                                Y.LockedBuffer(0,jLoc), 1 );
     mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc].push_back( RealPart(innerProds[jLoc]) );
+    {
+        const Real alpha = RealPart(innerProds[jLoc]);
+        diags[jLoc].push_back( alpha );
+    }
 }
 
 template<typename F>
@@ -99,13 +121,12 @@ ColumnNorms
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
     typedef Base<F> Real;
+    Matrix<Real> norms;
+    ColumnNorms( X, norms );
+
     const Int numShifts = X.Width();
-    const Int m = X.Height();
     for( Int j=0; j<numShifts; ++j )
-    {
-        const Real beta = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
-        diags[j].push_back( beta );
-    }
+        diags[j].push_back( norms.Get(j,0) );
 }
 
 template<typename F>
@@ -116,17 +137,12 @@ ColumnNorms
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
     typedef Base<F> Real;
-    const Int mLocal = X.LocalHeight();
+    DistMatrix<Real,MR,STAR> norms( X.Grid() );
+    ColumnNorms( X, norms );
+
     const Int numLocShifts = X.LocalWidth();
-    std::vector<Real> normsSquared( numLocShifts );
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-    {
-        const Real beta = blas::Nrm2( mLocal, X.LockedBuffer(0,jLoc), 1 );
-        normsSquared[jLoc] = beta*beta;
-    }
-    mpi::AllReduce( normsSquared.data(), numLocShifts, mpi::SUM, X.ColComm() );
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc].push_back( Sqrt(normsSquared[jLoc]) );
+        diags[jLoc].push_back( norms.GetLocal(jLoc,0) );
 }
 
 template<typename F>
@@ -167,6 +183,7 @@ ComputeNewEstimates
   Matrix<Real>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    const Real normCap = NormCap<Real>();
     const Int numProbs = activeEsts.Height();
     if( numProbs == 0 )
         return;
@@ -176,10 +193,16 @@ ComputeNewEstimates
     {
         HDiag = HDiags[j]; 
         HSubdiag = HSubdiags[j];
-        lapack::SymmetricTridiagonalEig     
-        ( 'N', 'I', n, HDiag.data(), HSubdiag.data(), 0, 0, n, n, 0, w.data(),
-          0, 1 );
-        activeEsts.Set( j, 0, Sqrt(w[0]) );
+        if( !HasNan( HDiag, HSubdiag ) )
+        {
+            lapack::SymmetricTridiagonalEig     
+            ( 'N', 'I', n, HDiag.data(), HSubdiag.data(), 0, 0, n, n, 0, 
+              w.data(), 0, 1 );
+            const Real est = Sqrt(w[0]);
+            activeEsts.Set( j, 0, Min(est,normCap) );
+        }
+        else
+            activeEsts.Set( j, 0, normCap );
     }
 }
 
@@ -405,7 +428,7 @@ TriangularLanczos
         ComputeNewEstimates( HDiags, HSubdiags, activeEsts );
 
         auto activeConverged = 
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol*n );
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
             numDone += numActiveDone;
@@ -519,7 +542,7 @@ TriangularLanczos
         ComputeNewEstimates( HDiags, HSubdiags, activeEsts );
 
         auto activeConverged =
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol*n );
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
             numDone += numActiveDone;

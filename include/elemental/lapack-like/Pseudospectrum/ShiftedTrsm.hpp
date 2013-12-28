@@ -13,26 +13,6 @@
 namespace elem {
 namespace pspec {
 
-// In order to avoid division by (near-)zero, we replace all sufficiently small
-// shifted diagonal values by the smallest number that is safe to invert.
-// This should be preferred in pseudospectra calculations since the replacement
-// will still result in a very large norm.
-template<typename F>
-inline void
-UpdateAndAdjustDiagonal( Matrix<F>& U, F gamma )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::UpdateAndAdjustDiagonal"))
-    typedef Base<F> Real;
-    const Real safeMin = lapack::MachineSafeMin<Real>();
-    const Int n = U.Height();
-    for( Int j=0; j<n; ++j )
-    {
-        U.Update( j, j, gamma );
-        if( Abs(U.Get(j,j)) < safeMin )
-            U.Set( j, j, safeMin );
-    }
-}
-
 template<typename F>
 inline void
 ShiftedTrsmLUNUnb
@@ -49,7 +29,7 @@ ShiftedTrsmLUNUnb
     const Int numShifts = shifts.Height();
     for( Int j=0; j<numShifts; ++j )
     {
-        UpdateAndAdjustDiagonal( U, -shifts.Get(j,0) );
+        UpdateDiagonal( U, -shifts.Get(j,0) );
         blas::Trsv
         ( 'U', 'N', 'N', n, U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
         U.SetDiagonal( diag );
@@ -205,7 +185,7 @@ ShiftedTrsmLUTUnb
     const Int numShifts = shifts.Height();
     for( Int j=0; j<numShifts; ++j )
     {
-        UpdateAndAdjustDiagonal( U, -shifts.Get(j,0) );
+        UpdateDiagonal( U, -shifts.Get(j,0) );
         blas::Trsv
         ( 'U', 'C', 'N', n, U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
         U.SetDiagonal( diag );

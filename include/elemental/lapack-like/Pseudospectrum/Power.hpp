@@ -19,15 +19,23 @@ namespace elem {
 namespace pspec {
 
 template<typename F>
+inline Base<F> NormCap()
+{ return Base<F>(1)/lapack::MachineEpsilon<Base<F>>(); }
+
+template<typename F>
 inline void
 ColumnNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
     norms.ResizeTo( n, 1 );
     for( Int j=0; j<n; ++j )
-        norms.Set( j, 0, blas::Nrm2(m,X.LockedBuffer(0,j),1) );
+    {
+        const Real alpha = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
+        norms.Set( j, 0, alpha );
+    }
 }
 
 template<typename F>
@@ -39,6 +47,7 @@ ColumnNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
         if( X.RowAlign() != norms.ColAlign() )
             LogicError("Invalid norms alignment");
     )
+    typedef Base<F> Real;
     const Int n = X.Width();
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
@@ -54,7 +63,10 @@ ColumnNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
 
     mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, X.ColComm() );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        norms.SetLocal( jLoc, 0, Sqrt(norms.GetLocal(jLoc,0)) );
+    {
+        const Real alpha = norms.GetLocal(jLoc,0);
+        norms.SetLocal( jLoc, 0, Sqrt(alpha) );
+    }
 }
 
 template<typename F>
@@ -105,6 +117,28 @@ FixColumns( DistMatrix<F>& X )
 }
 
 template<typename Real>
+inline void CapEstimates( Matrix<Real>& activeEsts )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::CapEstimates"))
+    const Real normCap = NormCap<Real>();
+    const Int n = activeEsts.Height();
+    for( Int j=0; j<n; ++j )
+    {
+        Real alpha = activeEsts.Get(j,0);
+        if( std::isnan(alpha) || alpha >= normCap )
+            alpha = normCap;
+        activeEsts.Set( j, 0, alpha );
+    }
+}
+
+template<typename Real>
+inline void CapEstimates( DistMatrix<Real,MR,STAR>& activeEsts )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::CapEstimates"))
+    CapEstimates( activeEsts.Matrix() );
+}
+
+template<typename Real>
 inline Matrix<Int>
 FindConverged
 ( const Matrix<Real>& lastActiveEsts, 
@@ -113,6 +147,7 @@ FindConverged
         Real maxDiff )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::FindConverged"))
+    const Real normCap = NormCap<Real>();
 
     const Int numActiveShifts=activeEsts.Height();
     Matrix<Int> activeConverged;
@@ -122,7 +157,13 @@ FindConverged
     {
         const Real lastEst = lastActiveEsts.Get(j,0);
         const Real currEst = activeEsts.Get(j,0);
-        if( Abs(lastEst-currEst) <= maxDiff )
+        bool converged = false;
+        if( currEst >= normCap )
+            converged = true;
+        else if( Abs(currEst) > 0 )
+            converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
+
+        if( converged )
             activeConverged.Set( j, 0, 1 );
         else 
             activeItCounts.Update( j, 0, 1 );
@@ -144,6 +185,7 @@ FindConverged
             activeEsts.ColAlign() )
             LogicError("Invalid column alignment");
     )
+    const Real normCap = NormCap<Real>();
 
     DistMatrix<Int,MR,STAR> activeConverged( activeEsts.Grid() );
     activeConverged.AlignWith( activeEsts );
@@ -154,7 +196,13 @@ FindConverged
     {
         const Real lastEst = lastActiveEsts.GetLocal(jLoc,0);
         const Real currEst = activeEsts.GetLocal(jLoc,0);
-        if( Abs(lastEst-currEst) <= maxDiff )
+        bool converged = false;
+        if( currEst >= normCap )
+            converged = true;
+        else if( Abs(currEst) > 0 )
+            converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
+
+        if( converged )
             activeConverged.SetLocal( jLoc, 0, 1 );
         else 
         {
@@ -327,9 +375,10 @@ TriangularPower
         FixColumns( activeX );
         ShiftedTrsmLUT( U, activeShifts, activeX );
         ColumnNorms( activeX, activeEsts );
+        CapEstimates( activeEsts );
 
         auto activeConverged = 
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol*n );
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
             numDone += numActiveDone;
@@ -420,9 +469,10 @@ TriangularPower
         FixColumns( activeX );
         ShiftedTrsmLUT( U, activeShifts, activeX );
         ColumnNorms( activeX, activeEsts );
+        CapEstimates( activeEsts );
 
         auto activeConverged =
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol*n );
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
             numDone += numActiveDone;
