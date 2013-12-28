@@ -368,7 +368,7 @@ TriangularLanczos
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
-    const int numShifts = shifts.Height();
+    const Int numShifts = shifts.Height();
 
     // Keep track of the number of iterations per shift
     Matrix<Int> itCounts;
@@ -473,7 +473,7 @@ TriangularLanczos
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
-    const int numShifts = shifts.Height();
+    const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
     if( deflate && mpi::WorldRank() == 0 ) 
         std::cerr << "WARNING: Deflation swaps not yet optimized!" << std::endl;

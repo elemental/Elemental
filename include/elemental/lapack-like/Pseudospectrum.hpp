@@ -10,6 +10,7 @@
 #ifndef ELEM_LAPACK_PSEUDOSPECTRUM_HPP
 #define ELEM_LAPACK_PSEUDOSPECTRUM_HPP
 
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/Norm/TwoEstimate.hpp"
@@ -18,10 +19,35 @@
 #include "elemental/lapack-like/Pseudospectrum/ShiftedTrsm.hpp"
 #include "elemental/lapack-like/Pseudospectrum/Power.hpp"
 #include "elemental/lapack-like/Pseudospectrum/Lanczos.hpp"
+#include "elemental/lapack-like/Pseudospectrum/Analytic.hpp"
 
 namespace elem {
 
 namespace pspec {
+
+template<typename F>
+inline bool
+NumericallyNormal( Matrix<F>& U, Base<F> tol )
+{
+    auto w = U.GetDiagonal();
+    const Base<F> diagFrob = FrobeniusNorm( w );
+    SetDiagonal( U, 0 );
+    const Base<F> offDiagFrob = FrobeniusNorm( U );
+    U.SetDiagonal( w );
+    return offDiagFrob <= tol*diagFrob;
+}
+
+template<typename F>
+inline bool
+NumericallyNormal( DistMatrix<F>& U, Base<F> tol )
+{
+    auto w = U.GetDiagonal();
+    const Base<F> diagFrob = FrobeniusNorm( w );
+    SetDiagonal( U, 0 );
+    const Base<F> offDiagFrob = FrobeniusNorm( U );
+    U.SetDiagonal( w );
+    return offDiagFrob <= tol*diagFrob;
+}
 
 template<typename T>
 inline void
@@ -100,7 +126,18 @@ TriangularPseudospectrum
                 UCpx.Set( i, j, U.Get(i,j) );
     }
 
+    // Check if the off-diagonal is sufficiently small
     Matrix<Int> itCounts;
+    if( pspec::NumericallyNormal( UCpx, tol ) )
+    {
+        if( progress )
+            std::cout << "Matrix was numerically normal" << std::endl;
+        auto w = UCpx.GetDiagonal();
+        pspec::Analytic( w, shifts, invNorms );
+        Zeros( itCounts, shifts.Height(), 1 );        
+        return itCounts;
+    }
+
     if( lanczos )
         itCounts = 
            pspec::TriangularLanczos
@@ -140,7 +177,20 @@ TriangularPseudospectrum
                 UCpx.SetLocal( iLoc, jLoc, U.GetLocal(iLoc,jLoc) );
     }
 
+    // Check if the off-diagonal is sufficiently small
     DistMatrix<Int,VR,STAR> itCounts(g);
+    if( pspec::NumericallyNormal( UCpx, tol ) )
+    {
+        if( progress && mpi::WorldRank() == 0 )
+            std::cout << "Matrix was numerically normal" << std::endl;
+        auto w = UCpx.GetDiagonal();
+        DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
+        pspec::Analytic( w_STAR_STAR, shifts, invNorms );
+        itCounts.AlignWith( shifts );
+        Zeros( itCounts, shifts.Height(), 1 );
+        return itCounts;
+    }
+
     if( lanczos )
         itCounts = 
            pspec::TriangularLanczos

@@ -336,7 +336,7 @@ TriangularPower
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
-    const int numShifts = shifts.Height();
+    const Int numShifts = shifts.Height();
 
     // Keep track of the number of iterations per shift
     Matrix<Int> itCounts;
@@ -423,7 +423,7 @@ TriangularPower
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
-    const int numShifts = shifts.Height();
+    const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
 
     // Keep track of the number of iterations per shift
