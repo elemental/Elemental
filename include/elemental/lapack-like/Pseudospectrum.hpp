@@ -429,7 +429,7 @@ TriangularPseudospectrum
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
     auto diag = U.GetDiagonal();
-    const Base<F> twoNorm = MaxNorm( diag );
+    const Base<F> radius = MaxNorm( diag );
     const Base<F> oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -437,19 +437,20 @@ TriangularPseudospectrum
     // 2) Typical matrices (use a small multiple of the spectral radius)
     // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
     Base<F> width;
-    if( oneNorm == Base<F>(0) && twoNorm == Base<F>(0) )
+    if( oneNorm == Base<F>(0) && radius == Base<F>(0) )
     {
         width = 1;
         if( progress )
             std::cout << "Setting width to 1 to handle zero matrix" 
                       << std::endl;
     }
-    else if( twoNorm >= 0.2*oneNorm )
+    else if( radius >= 0.2*oneNorm )
     {
-        width = 2.5*twoNorm;
+        width = 2.5*radius;
         if( progress )
             std::cout << "Setting width to " << width 
-                      << " based on the two norm, " << twoNorm << std::endl;
+                      << " based on the spectral radius, " << radius 
+                      << std::endl;
     }
     else
     {
@@ -474,7 +475,7 @@ TriangularPseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     auto diag = U.GetDiagonal();
-    const Base<F> twoNorm = MaxNorm( diag );
+    const Base<F> radius = MaxNorm( diag );
     const Base<F> oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -482,19 +483,20 @@ TriangularPseudospectrum
     // 2) Typical matrices (use a small multiple of the spectral radius)
     // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
     Base<F> width;
-    if( oneNorm == Base<F>(0) && twoNorm == Base<F>(0) )
+    if( oneNorm == Base<F>(0) && radius == Base<F>(0) )
     {
         width = 1;
         if( progress && U.Grid().Rank() == 0 )
             std::cout << "Setting width to 1 to handle zero matrix"
                       << std::endl;
     }
-    else if( twoNorm >= 0.2*oneNorm )
+    else if( radius >= 0.2*oneNorm )
     {
-        width = 2.5*twoNorm;
+        width = 2.5*radius;
         if( progress && U.Grid().Rank() == 0 )
             std::cout << "Setting width to " << width 
-                      << " based on the two norm, " << twoNorm << std::endl;
+                      << " based on the spectral radius, " << radius 
+                      << std::endl;
     }
     else
     {

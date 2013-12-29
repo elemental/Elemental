@@ -110,15 +110,26 @@ main( int argc, char* argv[] )
                 ( iLoc, jLoc, Log(invNormMap.GetLocal(iLoc,jLoc)) );
         if( display )
         {
-            Display( invNormMap, "log(invNormMap)" );
+            Display( invNormMap, "logInvNormMap" );
             if( GetColorMap() != GRAYSCALE_DISCRETE )
-            {
+            {       
+                auto colorMap = GetColorMap();
                 SetColorMap( GRAYSCALE_DISCRETE );
-                Display( invNormMap, "discrete log(invNormMap)" );
+                Display( invNormMap, "discreteLogInvNormMap" );
+                SetColorMap( colorMap );
             }
         }
-        if( write )
-            Write( invNormMap, "log(invNormMap)", format );
+        if( write ) 
+        {
+            Write( invNormMap, "logInvNormMap", format );
+            if( GetColorMap() != GRAYSCALE_DISCRETE )
+            {
+                auto colorMap = GetColorMap();
+                SetColorMap( GRAYSCALE_DISCRETE );
+                Write( invNormMap, "discreteLogInvNormMap", format );
+                SetColorMap( colorMap );
+            }
+        }
     }
     catch( exception& e ) { ReportException(e); }
 

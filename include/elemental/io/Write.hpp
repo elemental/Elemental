@@ -152,8 +152,7 @@ RealPartImage
         }
     }
 
-    std::string filename = basename + "." + FileExtension(format);
-    SaveQImage( image, filename, format );
+    SaveQImage( image, basename, format );
 #else
     LogicError("Qt5 not available");
 #endif // ifdef HAVE_QT5
@@ -202,8 +201,7 @@ ImagPartImage
         }
     }
 
-    std::string filename = basename + "." + FileExtension(format);
-    SaveQImage( image, filename, format );
+    SaveQImage( image, basename, format );
 #else
     LogicError("Qt5 not available");
 #endif // ifdef HAVE_QT5
