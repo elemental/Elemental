@@ -478,7 +478,7 @@ TriangularPower
             numDone += numActiveDone;
         else
             numDone = numActiveDone;
-        if( progress && mpi::WorldRank() == 0 )
+        if( progress && U.Grid().Rank() == 0 )
             std::cout << numDone << " of " << numShifts << " converged"
                       << std::endl;
 

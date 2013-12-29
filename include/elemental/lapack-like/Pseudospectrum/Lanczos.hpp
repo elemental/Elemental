@@ -475,7 +475,7 @@ TriangularLanczos
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
-    if( deflate && mpi::WorldRank() == 0 ) 
+    if( deflate && U.Grid().Rank() == 0 ) 
         std::cerr << "WARNING: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
@@ -548,7 +548,7 @@ TriangularLanczos
             numDone += numActiveDone;
         else
             numDone = numActiveDone;
-        if( progress && mpi::WorldRank() == 0 )
+        if( progress && U.Grid().Rank() == 0 )
             std::cout << numDone << " of " << numShifts << " converged"
                       << std::endl;
 

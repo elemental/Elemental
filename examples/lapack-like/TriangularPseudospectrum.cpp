@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
     try 
     {
         const Int matType =
-            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar",0);
+            Input("--matType","0:uniform,1:Lotkin,2:Grcar,3:zero uniform",2);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -61,10 +61,8 @@ main( int argc, char* argv[] )
         if( matType == 0 )
             A = Uniform<C>( g, n, n );
         else if( matType == 1 )
-            A = Haar<C>( g, n );
-        else if( matType == 2 )
             A = Lotkin<C>( g, n );
-        else if( matType == 3 )
+        else if( matType == 2 )
             A = Grcar<C>( g, n, 3 );
         else
         {

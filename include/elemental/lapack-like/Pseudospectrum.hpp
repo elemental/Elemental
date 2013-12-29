@@ -126,7 +126,11 @@ TriangularPseudospectrum
                 UCpx.Set( i, j, U.Get(i,j) );
     }
 
-    // Check if the off-diagonal is sufficiently small
+    // Check if the off-diagonal is sufficiently small; if so, compute the 
+    // pseudospectrum analytically from the eigenvalues. This also takes care
+    // of the case where the matrix is a constant multiple of the identity 
+    // matrix, which, after shifting, can lead to the zero matrix, which would 
+    // cause problems for the Lanczos convergence criteria.
     Matrix<Int> itCounts;
     if( pspec::NumericallyNormal( UCpx, tol ) )
     {
@@ -177,11 +181,15 @@ TriangularPseudospectrum
                 UCpx.SetLocal( iLoc, jLoc, U.GetLocal(iLoc,jLoc) );
     }
 
-    // Check if the off-diagonal is sufficiently small
+    // Check if the off-diagonal is sufficiently small; if so, compute the 
+    // pseudospectrum analytically from the eigenvalues. This also takes care
+    // of the case where the matrix is a constant multiple of the identity 
+    // matrix, which, after shifting, can lead to the zero matrix, which would 
+    // cause problems for the Lanczos convergence criteria.
     DistMatrix<Int,VR,STAR> itCounts(g);
     if( pspec::NumericallyNormal( UCpx, tol ) )
     {
-        if( progress && mpi::WorldRank() == 0 )
+        if( progress && U.Grid().Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
         auto w = UCpx.GetDiagonal();
         DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
@@ -419,12 +427,37 @@ TriangularPseudospectrum
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
-    // Use the spectral radius unless it is deemed too small
-    // (consider an upper triangular matrix with a zero main diagonal)
+
     auto diag = U.GetDiagonal();
     const Base<F> twoNorm = MaxNorm( diag );
     const Base<F> oneNorm = OneNorm( U );
-    const Base<F> width = ( twoNorm>=0.2*oneNorm ? 2.5*twoNorm : 0.8*oneNorm );
+
+    // Essentially three cases are handled here:
+    // 1) The zero matrix (force the pseudospectrum width to 1)
+    // 2) Typical matrices (use a small multiple of the spectral radius)
+    // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
+    Base<F> width;
+    if( oneNorm == Base<F>(0) && twoNorm == Base<F>(0) )
+    {
+        width = 1;
+        if( progress )
+            std::cout << "Setting width to 1 to handle zero matrix" 
+                      << std::endl;
+    }
+    else if( twoNorm >= 0.2*oneNorm )
+    {
+        width = 2.5*twoNorm;
+        if( progress )
+            std::cout << "Setting width to " << width 
+                      << " based on the two norm, " << twoNorm << std::endl;
+    }
+    else
+    {
+        width = 0.8*oneNorm;
+        if( progress )
+            std::cout << "Setting width to " << width 
+                      << " based on the one norm, " << oneNorm << std::endl;
+    }
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, xSize, ySize, 
@@ -440,12 +473,36 @@ TriangularPseudospectrum
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
-    // Use the spectral radius unless it is deemed too small
-    // (consider an upper triangular matrix with a zero main diagonal)
     auto diag = U.GetDiagonal();
     const Base<F> twoNorm = MaxNorm( diag );
     const Base<F> oneNorm = OneNorm( U );
-    const Base<F> width = ( twoNorm>=0.2*oneNorm ? 2.5*twoNorm : 0.8*oneNorm );
+
+    // Essentially three cases are handled here:
+    // 1) The zero matrix (force the pseudospectrum width to 1)
+    // 2) Typical matrices (use a small multiple of the spectral radius)
+    // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
+    Base<F> width;
+    if( oneNorm == Base<F>(0) && twoNorm == Base<F>(0) )
+    {
+        width = 1;
+        if( progress && U.Grid().Rank() == 0 )
+            std::cout << "Setting width to 1 to handle zero matrix"
+                      << std::endl;
+    }
+    else if( twoNorm >= 0.2*oneNorm )
+    {
+        width = 2.5*twoNorm;
+        if( progress && U.Grid().Rank() == 0 )
+            std::cout << "Setting width to " << width 
+                      << " based on the two norm, " << twoNorm << std::endl;
+    }
+    else
+    {
+        width = 0.8*oneNorm;
+        if( progress && U.Grid().Rank() == 0 )
+            std::cout << "Setting width to " << width
+                      << " based on the one norm, " << oneNorm << std::endl;
+    }
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, xSize, ySize, 
