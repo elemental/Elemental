@@ -77,9 +77,16 @@ main( int argc, char* argv[] )
             Write( A, "A", format );
 
         // Begin by computing the Schur decomposition
+        Timer timer;
         DistMatrix<C> X;
         DistMatrix<C,VR,STAR> w;
+        mpi::Barrier( mpi::COMM_WORLD );
+        timer.Start();
         schur::SDC( A, w, X );
+        mpi::Barrier( mpi::COMM_WORLD );
+        const double sdcTime = timer.Stop();
+        if( mpi::WorldRank() == 0 )
+            std::cout << "SDC took " << sdcTime << " seconds" << std::endl; 
 
         // Find a window if none is specified
         if( xWidth == 0. || yWidth == 0. )
@@ -138,13 +145,20 @@ main( int argc, char* argv[] )
                 const C chunkCenter = chunkCorner + 
                     0.5*C(xStep*xChunkSize,yStep*yChunkSize);
 
+                mpi::Barrier( mpi::COMM_WORLD );
+                timer.Start();
                 itCountMap = TriangularPseudospectrum
                 ( A, invNormMap, chunkCenter, xChunkWidth, yChunkWidth, 
                   xChunkSize, yChunkSize, lanczos, deflate, maxIts, tol, 
                   progress );
+                mpi::Barrier( mpi::COMM_WORLD );
+                const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );
                 if( mpi::WorldRank() == 0 )
-                    std::cout << "num iterations=" << numIts << std::endl;
+                {
+                    std::cout << "num seconds=" << pseudoTime << "\n"
+                              << "num iterations=" << numIts << std::endl;
+                }
 
                 std::ostringstream chunkStream;
                 chunkStream << "-" << xChunk << "-" << yChunk;
