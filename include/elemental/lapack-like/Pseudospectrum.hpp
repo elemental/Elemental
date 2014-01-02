@@ -266,9 +266,10 @@ Pseudospectrum
     const Int maxOuterIts = 10;
     const Base<F> signTol=tol/10;
     const Base<F> relTol=tol/10;
+    const Base<F> spreadFactor=1e-6;
     schur::SDC
     ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      progress );
+      spreadFactor, progress );
     X.Empty();
 
     return TriangularPseudospectrum
@@ -577,9 +578,10 @@ Pseudospectrum
     const Int maxOuterIts = 10;
     const Base<F> signTol=tol/10;
     const Base<F> relTol=tol/10;
+    const Base<F> spreadFactor=1e-6;
     schur::SDC
     ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      progress );
+      spreadFactor, progress );
     X.Empty();
  
     return TriangularPseudospectrum

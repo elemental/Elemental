@@ -32,6 +32,7 @@ main( int argc, char* argv[] )
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
         const Real signTol = Input("--signTol","sign tolerance",Real(0));
         const Real relTol = Input("--relTol","rel. tol.",Real(0));
+        const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const bool display = Input("--display","display matrices?",false);
         const bool progress = Input("--progress","output progress?",false);
         ProcessInput();
@@ -50,7 +51,7 @@ main( int argc, char* argv[] )
         DistMatrix<C,VR,STAR> w(g);
         schur::SDC
         ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          progress );
+          spreadFactor, progress );
         MakeTriangular( UPPER, T );
 
         if( display )

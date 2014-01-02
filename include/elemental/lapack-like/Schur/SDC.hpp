@@ -375,7 +375,7 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, 
-  Real relTol=0, bool progress=false )
+  Real relTol=0, Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -384,10 +384,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     Matrix<Real> G, ACopy;
     if( maxOuterIts > 1 )
         ACopy = A;
@@ -398,6 +399,10 @@ SpectralDivide
 
         G = A;
         UpdateDiagonal( G, shift );
+
+        if( progress )
+            std::cout << "chose shift=" << shift << " using -median.value="
+                      << -median.value << " and spread=" << spread << std::endl;
 
         try
         {
@@ -438,7 +443,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  bool progress=false )
+  Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -447,10 +452,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     Matrix<F> G, ACopy;
     if( maxOuterIts > 1 )
         ACopy = A;
@@ -465,6 +471,11 @@ SpectralDivide
         const auto median = Median(G.GetRealPartOfDiagonal());
         const F shift = SampleBall<F>(-median.value,spread);
         UpdateDiagonal( G, shift );
+
+        if( progress )
+            std::cout << "chose gamma=" << gamma << " and shift=" << shift 
+                      << " using -median.value=" << -median.value 
+                      << " and spread=" << spread << std::endl;
 
         try
         {
@@ -505,7 +516,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A, Matrix<Real>& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  bool progress=false )
+  Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -514,10 +525,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     Matrix<Real> ACopy;
     if( maxOuterIts > 1 )
         ACopy = A;
@@ -528,6 +540,10 @@ SpectralDivide
 
         Q = A;
         UpdateDiagonal( Q, shift );
+
+        if( progress )
+            std::cout << "chose shift=" << shift << " using -median.value="
+                      << -median.value << " and spread=" << spread << std::endl;
 
         try
         {
@@ -568,7 +584,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  bool progress=false )
+  Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -577,10 +593,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     Matrix<F> ACopy;
     if( maxOuterIts > 1 )
         ACopy = A;
@@ -595,6 +612,11 @@ SpectralDivide
         const auto median = Median(Q.GetRealPartOfDiagonal());
         const F shift = SampleBall<F>(-median.value,spread);
         UpdateDiagonal( Q, shift );
+
+        if( progress )
+            std::cout << "chose gamma=" << gamma << " and shift=" << shift 
+                      << " using -median.value=" << -median.value 
+                      << " and spread=" << spread << std::endl;
 
         try
         {
@@ -634,7 +656,7 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, 
-  Real relTol=0, bool progress=false )
+  Real relTol=0, Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -643,10 +665,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<Real> ACopy(g), G(g);
     if( maxOuterIts > 1 )
@@ -659,6 +682,10 @@ SpectralDivide
 
         G = A;
         UpdateDiagonal( G, shift );
+
+        if( progress && g.Rank() == 0 )
+            std::cout << "chose shift=" << shift << " using -median.value="
+                      << -median.value << " and spread=" << spread << std::endl;
 
         try
         {
@@ -699,7 +726,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  bool progress=false )
+  Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -708,10 +735,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<F> ACopy(g), G(g);
     if( maxOuterIts > 1 )
@@ -729,6 +757,11 @@ SpectralDivide
         F shift = SampleBall<F>(-median.value,spread);
         mpi::Broadcast( shift, 0, g.VCComm() );
         UpdateDiagonal( G, shift );
+
+        if( progress && g.Rank() == 0 )
+            std::cout << "chose gamma=" << gamma << " and shift=" << shift 
+                      << " using -median.value=" << -median.value 
+                      << " and spread=" << spread << std::endl;
 
         try
         {
@@ -769,7 +802,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A, DistMatrix<Real>& Q, 
   Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  bool progress=false )
+  Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -778,10 +811,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<Real> ACopy(g);
     if( maxOuterIts > 1 )
@@ -794,6 +828,11 @@ SpectralDivide
 
         Q = A;
         UpdateDiagonal( Q, shift );
+
+        if( progress && g.Rank() == 0 )
+            std::cout << "chose shift=" << shift << " using -median.value=" 
+                      << -median.value << " and spread=" << spread 
+                      << std::endl;
 
         try
         {
@@ -834,7 +873,7 @@ inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
   Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  bool progress=false )
+  Real spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -843,10 +882,11 @@ SpectralDivide
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*infNorm;
+    const Real spread = spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
+    part.value = 2*relTol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<F> ACopy(g);
     if( maxOuterIts > 1 )
@@ -864,6 +904,11 @@ SpectralDivide
         F shift = SampleBall<F>(-median.value,spread);
         mpi::Broadcast( shift, 0, g.VCComm() );
         UpdateDiagonal( Q, shift );
+
+        if( progress && g.Rank() == 0 )
+            std::cout << "chose gamma=" << gamma << " and shift=" << shift 
+                      << " using -median.value=" << -median.value 
+                      << " and spread=" << spread << std::endl;
 
         try
         {
@@ -904,7 +949,7 @@ inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Int cutoff=256, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
-  bool progress=false )
+  BASE(F) spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -923,7 +968,8 @@ SDC
         std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
     const auto part = 
         SpectralDivide
-        ( A, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+        ( A, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+          progress );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -936,11 +982,15 @@ SDC
     if( progress )
         std::cout << "Recursing on " << ATL.Height() << " x " << ATL.Width() 
                   << " left subproblem" << std::endl;
-    SDC( ATL, wT, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+    SDC
+    ( ATL, wT, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor,
+      progress );
     if( progress )
         std::cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
                   << " right subproblem" << std::endl;
-    SDC( ABR, wB, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+    SDC
+    ( ABR, wB, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+      progress );
 }
 
 template<typename F>
@@ -948,7 +998,8 @@ inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
-  BASE(F) signTol=0, BASE(F) relTol=0, bool progress=false )
+  BASE(F) signTol=0, BASE(F) relTol=0, BASE(F) spreadFactor=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -968,7 +1019,8 @@ SDC
         std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
     const auto part = 
         SpectralDivide
-        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+          progress );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -986,7 +1038,7 @@ SDC
     Matrix<F> Z;
     SDC
     ( ATL, wT, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      progress );
+      spreadFactor, progress );
     if( progress )
         std::cout << "Left subproblem update" << std::endl;
     auto G( QL );
@@ -1000,7 +1052,7 @@ SDC
                   << " right subproblem" << std::endl;
     SDC
     ( ABR, wB, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      progress );
+      spreadFactor, progress );
     if( progress )
         std::cout << "Right subproblem update" << std::endl;
     if( formATR )
@@ -1039,8 +1091,10 @@ template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     // The trivial push
@@ -1116,7 +1170,7 @@ inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>>& w, Int cutoff=256, 
   Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
-  bool progress=false )
+  BASE(F) spreadFactor=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
@@ -1148,7 +1202,8 @@ SDC
         std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
     const auto part = 
         SpectralDivide
-        ( A, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+        ( A, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+          progress );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -1165,11 +1220,11 @@ SDC
     if( ATLSub.Participating() )
         SDC
         ( ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          progress );
+          spreadFactor, progress );
     if( ABRSub.Participating() )
         SDC
         ( ABRSub, wBSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          progress );
+          spreadFactor, progress );
     if( progress && g.Rank() == 0 )
         std::cout << "Pulling subproblems" << std::endl;
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
@@ -1275,7 +1330,8 @@ inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q, 
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
-  BASE(F) signTol=0, BASE(F) relTol=0, bool progress=false )
+  BASE(F) signTol=0, BASE(F) relTol=0, BASE(F) spreadFactor=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     typedef Base<F> Real;
@@ -1313,7 +1369,8 @@ SDC
     const Real infNorm = InfinityNorm( A );
     const auto part = 
         SpectralDivide
-        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+          progress );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -1334,11 +1391,11 @@ SDC
     if( ATLSub.Participating() )
         SDC
         ( ATLSub, wTSub, ZTSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
-          signTol, relTol, progress );
+          signTol, relTol, spreadFactor, progress );
     if( ABRSub.Participating() )
         SDC
         ( ABRSub, wBSub, ZBSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
-          signTol, relTol, progress );
+          signTol, relTol, spreadFactor, progress );
     
     // Ensure that the results are back on this level's grid
     if( progress && g.Rank() == 0 )

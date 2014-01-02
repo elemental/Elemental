@@ -42,6 +42,12 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Int cutoff = Input("--cutoff","problem size for QR",256);
+        const Int maxInnerIts = Input("--maxInnerIts","SDC limit",1);
+        const Int maxOuterIts = Input("--maxOuterIts","SDC limit",10);
+        const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-7);
+        const Real relTol = Input("--relTol","Rel. tol. for SDC",1e-7);
+        const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const Int numBands = Input("--numBands","num bands for Grcar",3);
         const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
         const bool progress = Input("--progress","print progress?",true);
@@ -84,15 +90,9 @@ main( int argc, char* argv[] )
         mpi::Barrier( mpi::COMM_WORLD );
         timer.Start();
         const bool formATR = true;
-        // TODO: Expose these as options
-        const Int cutoff = 256;
-        const Int maxInnerIts = 1;
-        const Int maxOuterIts = 10;
-        const Real signTol=tol/10;
-        const Real relTol=tol/10;
         schur::SDC
         ( A, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          progress );
+          spreadFactor, progress );
         mpi::Barrier( mpi::COMM_WORLD );
         const double sdcTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
