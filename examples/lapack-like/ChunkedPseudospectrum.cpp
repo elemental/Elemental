@@ -47,6 +47,7 @@ main( int argc, char* argv[] )
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
+        const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int formatInt = Input("--format","write format",2);
         const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
@@ -168,7 +169,7 @@ main( int argc, char* argv[] )
                     Display( invNormMap, "invNormMap"+chunkTag );
                     Display( itCountMap, "itCountMap"+chunkTag );
                 }
-                if( write )
+                if( write || writePseudo )
                 {
                     Write( invNormMap, "invNormMap"+chunkTag, format );
                     Write( itCountMap, "itCountMap"+chunkTag, format );
@@ -192,7 +193,7 @@ main( int argc, char* argv[] )
                         SetColorMap( colorMap );
                     }
                 }
-                if( write )
+                if( write || writePseudo )
                 {
                     Write( invNormMap, "logInvNormMap"+chunkTag, format );
                     if( GetColorMap() != GRAYSCALE_DISCRETE )

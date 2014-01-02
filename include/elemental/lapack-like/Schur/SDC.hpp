@@ -362,18 +362,20 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         G = A;
         UpdateDiagonal( G, shift );
 
-        //part = SignDivide( A, G );
-        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, G );
+            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -406,6 +408,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         const Real angle = SampleUniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
         G = A;
@@ -415,13 +418,14 @@ SpectralDivide
         const F shift = SampleBall<F>(-median.value,spread);
         UpdateDiagonal( G, shift );
 
-        //part = SignDivide( A, G );
-        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, G );
+            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -454,18 +458,20 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         Q = A;
         UpdateDiagonal( Q, shift );
 
-        //part = SignDivide( A, Q, true );
-        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, Q, true );
+            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -498,6 +504,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         const Real angle = SampleUniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
         Q = A;
@@ -507,13 +514,14 @@ SpectralDivide
         const F shift = SampleBall<F>(-median.value,spread);
         UpdateDiagonal( Q, shift );
 
-        //part = SignDivide( A, Q, true );
-        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, Q, true );
+            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -545,19 +553,21 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         Real shift = SampleBall<Real>(-median.value,spread);
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         G = A;
         UpdateDiagonal( G, shift );
 
-        //part = SignDivide( A, G );
-        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, G );
+            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -590,6 +600,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         const Real angle = SampleUniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
@@ -601,13 +612,14 @@ SpectralDivide
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
         UpdateDiagonal( G, shift );
 
-        //part = SignDivide( A, G );
-        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, G );
+            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -640,19 +652,21 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         Real shift = SampleBall<Real>(-median.value,spread);
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         Q = A;
         UpdateDiagonal( Q, shift );
 
-        //part = SignDivide( A, Q, true );
-        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, Q, true );
+            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
@@ -685,6 +699,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
+        ++it;
         const Real angle = SampleUniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
@@ -696,13 +711,14 @@ SpectralDivide
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
         UpdateDiagonal( Q, shift );
 
-        //part = SignDivide( A, Q, true );
-        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
-
-        ++it;
-        if( part.value <= relTol )
-            break;
-        else if( it != maxOuterIts )
+        try
+        {
+            //part = SignDivide( A, Q, true );
+            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            if( part.value <= relTol )
+                break;
+        } catch( SingularMatrixException& e ) { }
+        if( it != maxOuterIts )
             A = ACopy;
     }
     if( part.value > relTol )
