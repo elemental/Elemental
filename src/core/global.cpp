@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
                       2013, Jeff Hammond
    All rights reserved.
 

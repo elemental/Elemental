@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -372,11 +372,11 @@ void ComputeGivens
 // Compute the EVD of a symmetric tridiagonal matrix
 //
 
-int SymmetricTridiagonalEig
+int SymmetricTridiagEig
 ( char job, char range, int n, float* d, float* e, float vl, float vu,
   int il, int iu, float abstol, float* w, float* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagonalEig"));
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     if( n == 0 )
         return 0;
 
@@ -405,11 +405,11 @@ int SymmetricTridiagonalEig
     return m;
 }
 
-int SymmetricTridiagonalEig
+int SymmetricTridiagEig
 ( char job, char range, int n, double* d, double* e, double vl, double vu,
   int il, int iu, double abstol, double* w, double* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagonalEig"));
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     if( n == 0 )
         return 0;
 

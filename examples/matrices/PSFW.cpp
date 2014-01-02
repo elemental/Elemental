@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/HermitianTridiagEig.hpp"
 #include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
@@ -79,10 +80,12 @@ main( int argc, char* argv[] )
         }
 
 #ifdef HAVE_PMRRR
-        DistMatrix<double,VR,STAR> wEven, wOdd;
+        DistMatrix<double,VR,  STAR> wEven, wOdd;
         DistMatrix<double> XEven, XOdd;
-        HermitianEig( LOWER, AEven, wEven, XEven, ASCENDING );
-        HermitianEig( LOWER, AOdd,  wOdd,  XOdd,  ASCENDING );
+        HermitianTridiagEig
+        ( AEven.GetDiagonal(), AEven.GetDiagonal(-1), wEven, XEven, ASCENDING );
+        HermitianTridiagEig
+        ( AOdd.GetDiagonal(), AOdd.GetDiagonal(-1), wOdd, XOdd, ASCENDING );
         if( display )
         {
             Display( XEven, "Even eigenvectors" );

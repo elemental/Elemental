@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -13,7 +13,7 @@
 // NOTE: HermitianEig declarations are in lapack-like/decl.hpp
 
 #include "elemental/lapack-like/HermitianTridiag.hpp"
+#include "elemental/lapack-like/HermitianTridiagEig.hpp"
 #include "elemental/lapack-like/HermitianEig/SDC.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 
 #endif // ifndef ELEM_LAPACK_HERMITIANEIG_HPP

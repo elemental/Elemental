@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -27,25 +27,23 @@ namespace pspec {
 
 template<typename F>
 inline bool
-NumericallyNormal( Matrix<F>& U, Base<F> tol )
+NumericallyNormal( const Matrix<F>& U, Base<F> tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
-    SetDiagonal( U, 0 );
-    const Base<F> offDiagFrob = FrobeniusNorm( U );
-    U.SetDiagonal( w );
+    const Base<F> upperFrob = FrobeniusNorm( U );
+    const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;
 }
 
 template<typename F>
 inline bool
-NumericallyNormal( DistMatrix<F>& U, Base<F> tol )
+NumericallyNormal( const DistMatrix<F>& U, Base<F> tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
-    SetDiagonal( U, 0 );
-    const Base<F> offDiagFrob = FrobeniusNorm( U );
-    U.SetDiagonal( w );
+    const Base<F> upperFrob = FrobeniusNorm( U );
+    const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;
 }
 

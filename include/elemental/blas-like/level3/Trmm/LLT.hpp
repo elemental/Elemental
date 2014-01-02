@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    Copyright (c) 2013, The University of Texas at Austin

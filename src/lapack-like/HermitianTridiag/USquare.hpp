@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -23,8 +23,6 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
             LogicError("{A,t} must be distributed over the same grid");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( t.Viewing() )
-            LogicError("t must not be a view");
     )
     const Grid& g = A.Grid();
     DEBUG_ONLY(

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -7,20 +7,20 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_LAPACK_HERMITIANEIG_SORT_HPP
-#define ELEM_LAPACK_HERMITIANEIG_SORT_HPP
+#ifndef ELEM_LAPACK_HERMITIANTRIDIAGEIG_SORT_HPP
+#define ELEM_LAPACK_HERMITIANTRIDIAGEIG_SORT_HPP
 
 #include "elemental/lapack-like/Sort.hpp"
 
 namespace elem {
 
-namespace hermitian_eig {
+namespace herm_eig {
 
 template<typename F>
 inline void
 Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, SortType sort=ASCENDING )
 {
-    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::Sort"))
+    DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
     if( sort == UNSORTED )
         return;
 
@@ -41,11 +41,14 @@ Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, SortType sort=ASCENDING )
     Z = ZPerm;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Distribution U1,Distribution V1,
+                    Distribution U2,Distribution V2>
 inline void
-Sort( DistMatrix<BASE(F),U,V>& w, DistMatrix<F>& Z, SortType sort=ASCENDING )
+Sort
+( DistMatrix<BASE(F),U1,V1>& w, DistMatrix<F,U2,V2>& Z, 
+  SortType sort=ASCENDING )
 {
-    DEBUG_ONLY(CallStackEntry cse("hermitian_eig::Sort"))
+    DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
     if( sort == UNSORTED )
         return;
 
@@ -71,8 +74,8 @@ Sort( DistMatrix<BASE(F),U,V>& w, DistMatrix<F>& Z, SortType sort=ASCENDING )
     Z = ZPerm_VC_STAR;
 }
 
-} // namespace hermitian_eig
+} // namespace herm_eig
 
 } // namespace elem
 
-#endif // ifndef ELEM_LAPACK_HERMITIANEIG_SORT_HPP
+#endif // ifndef ELEM_LAPACK_HERMITIANTRIDIAGEIG_SORT_HPP

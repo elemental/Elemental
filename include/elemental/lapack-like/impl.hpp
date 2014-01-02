@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -22,6 +22,7 @@
 #include "./HermitianFunction.hpp"
 #include "./HermitianGenDefiniteEig.hpp"
 #include "./HermitianTridiag.hpp"
+#include "./HermitianTridiagEig.hpp"
 #include "./HilbertSchmidt.hpp"
 #include "./HPDSolve.hpp"
 #include "./ID.hpp"

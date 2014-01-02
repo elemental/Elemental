@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -11,8 +11,8 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
+#include "elemental/lapack-like/HermitianTridiagEig.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 
 // The targeted number of pieces to break the eigenvectors into during the
@@ -28,11 +28,12 @@ namespace hermitian_eig {
 // eigensolver in order to minimize the temporary memory usage.
 template<typename F>
 void InPlaceRedist
-( DistMatrix<F>& paddedZ, 
-  Int height, Int width, Int rowAlign, const Base<F>* readBuffer )
+( DistMatrix<F>& paddedZ, Int rowAlign, const Base<F>* readBuffer )
 {
     typedef Base<F> Real;
     const Grid& g = paddedZ.Grid();
+    const Int height = paddedZ.Height();
+    const Int width = paddedZ.Width();
 
     const Int r = g.Height();
     const Int c = g.Width();
@@ -179,23 +180,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int n = A.Height();
-    const Int k = n;
-    const Grid& g = A.Grid();
-
-    if( w.Viewing() )
-    {
-        if( w.ColAlign() != 0 )
-            LogicError("w was a view but was not properly aligned");
-        if( w.Height() != k || w.Width() != 1 )
-            LogicError("w was a view but was not the proper size");
-    }
-    else
-    {
-        w.Empty();
-        w.ResizeTo( k, 1 );
-    }
-
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
     const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
@@ -205,35 +189,15 @@ void HermitianEig
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
-    // Grab copies of the diagonal and subdiagonal of A
+    // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
-
-    // In order to call pmrrr, we need full copies of the diagonal and 
-    // subdiagonal in vectors of length n. We accomplish this for e by 
-    // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Solve the tridiagonal eigenvalue problem with PMRRR.
-    {
-        std::vector<Real> wVector(n);
-        pmrrr::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          wVector.data(), g.VRComm() );
-
-        // Copy wVector into the distributed matrix w[VR,* ]
-        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocal(iLocal,0,wVector[iLocal]);
-    }
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    HermitianTridiagEig( d, e, w, sort );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-
-    Sort( w, sort );
 }
 
 template<>
@@ -267,7 +231,7 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-    hermitian_eig::Sort( w, Z, sort );
+    herm_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
@@ -285,7 +249,7 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-    hermitian_eig::Sort( w.Matrix(), Z.Matrix(), sort );
+    herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
 template<typename F>
@@ -299,43 +263,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int n = A.Height();
-    const Int k = n; // full set of eigenpairs
-    const Grid& g = A.Grid();
-
-    // We will use the same buffer for Z in the vector distribution used by 
-    // PMRRR as for the matrix distribution used by Elemental. In order to 
-    // do so, we must pad Z's dimensions slightly.
-    const Int N = MaxLength(n,g.Height())*g.Height();
-    const Int K = MaxLength(k,g.Size())*g.Size(); 
-    if( paddedZ.Viewing() )
-    {
-        if( paddedZ.Height() != N || paddedZ.Width() != K )
-            LogicError
-            ("paddedZ was a view but was not properly padded");
-        if( paddedZ.ColAlign() != 0 || paddedZ.RowAlign() != 0 )
-            LogicError
-            ("paddedZ was a view but was not properly aligned");
-    }
-    else
-    {
-        paddedZ.Empty();
-        paddedZ.ResizeTo( N, K );
-    }
-
-    if( w.Viewing() )
-    {
-        if( w.ColAlign() != 0 )
-            LogicError("w was a view but was not properly aligned");
-        if( w.Height() != k || w.Width() != 1 )
-            LogicError("w was a view but was not the proper size");
-    }
-    else
-    {
-        w.Empty();
-        w.ResizeTo( k, 1 );
-    }
-
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
     const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
@@ -343,96 +270,72 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
-    // Grab copies of the diagonal and subdiagonal of A
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
-
-    // In order to call pmrrr, we need full copies of the diagonal and 
-    // subdiagonal in vectors of length n. We accomplish this for e by 
-    // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
-    // then redistribute into Z[MC,MR] in place, panel by panel
+    // Solve the symmetric tridiagonal EVP. The main subtlety is that we are
+    // using a padded [MC,MR] distributed matrix's local buffer to hold the
+    // local buffer for a [* ,VR].
+    const Int n = A.Height();
+    const Int k = n; // full set of eigenpairs
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(k,g.Size())*g.Size(); 
+    paddedZ.Align( 0, 0 );
+    paddedZ.ResizeTo( N, K );
+    DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
     {
-        // Grab a pointer into the paddedZ local matrix
-        Real* paddedZBuffer = (Real*)paddedZ.Buffer();
-
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const Int paddedZBufferSize = 
+        Real* paddedZBuf = (Real*)paddedZ.Buffer();
+        const Int paddedZBufSize =
             ( IsComplex<F>::val ? 2*paddedZ.LDim()*paddedZ.LocalWidth()
                                 :   paddedZ.LDim()*paddedZ.LocalWidth() );
         const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        Real* Z_STAR_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
-
-        std::vector<Real> wVector(n);
-        pmrrr::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          wVector.data(), Z_STAR_VR_Buffer, int(n), g.VRComm() );
-
-        // Copy wVector into the distributed matrix w[VR,* ]
-        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocal(iLocal,0,wVector[iLocal]);
-
+        const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
+        Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
+        Z_STAR_VR.Attach( n, k, 0, Z_STAR_VR_Buf, n, g );
+    }
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    HermitianTridiagEig( d, e, w, Z_STAR_VR, UNSORTED );
+    {
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
         const Int p = g.Size();
         const Int numEqualPanels = K/p;
         const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const Int redistBlocksize = numPanelsPerComm*p;
+        const Int nbProp = numPanelsPerComm*p;
 
-        PushBlocksizeStack( redistBlocksize );
-        DistMatrix<F> 
-            paddedZL(g), paddedZR(g),  
-            paddedZ0(g), paddedZ1(g), paddedZ2(g);
-        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored 
         // at the end of the paddedZ[MC,MR] buffers.
         Int alignment = 0;
-        const Real* readBuffer = Z_STAR_VR_Buffer;
-        while( paddedZL.Width() < k )
+        const Real* readBuffer = Z_STAR_VR.LockedBuffer();
+        for( Int j=0; j<k; j+=nbProp )
         {
-            RepartitionRight
-            ( paddedZL, /**/ paddedZR,  
-              paddedZ0, /**/ paddedZ1, paddedZ2 );
-
-            const Int b = paddedZ1.Width();
-            const Int width = Min(b,k-paddedZL.Width());
+            const Int nb = Min(nbProp,k-j);
+            auto paddedZ1 = View( paddedZ, 0, j, n, nb );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::InPlaceRedist
-            ( paddedZ1, n, width, alignment, readBuffer );
-
-            SlidePartitionRight
-            ( paddedZL,           /**/ paddedZR,  
-              paddedZ0, paddedZ1, /**/ paddedZ2 );
+            hermitian_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
             
             // Update the Z1[* ,VR] information
-            const Int localWidth = b/p;
+            const Int localWidth = nb/p;
             readBuffer = &readBuffer[localWidth*n];
-            alignment = (alignment+b) % p;
+            alignment = (alignment+nb) % p;
         }
-        PopBlocksizeStack();
     }
+    paddedZ.ResizeTo( n, k ); // We can simply shrink matrices
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Height() ); // We can simply shrink matrices
     hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
 
-    hermitian_eig::Sort( w, paddedZ, sort );
+    herm_eig::Sort( w, paddedZ, sort );
 }
 
 template<>
@@ -452,7 +355,7 @@ void HermitianEig<Complex<float>>
 // Grab a partial set of eigenvalues.                                         //
 // The partial set is determined by the inclusive zero-indexed range          //
 //   a,a+1,...,b    ; a >= 0, b < n                                           //
-// (where a=lowerBound, b=upperBound)                                         //
+// (where a=il, b=iu)                                                         //
 //----------------------------------------------------------------------------//
 
 template<typename F>
@@ -498,31 +401,13 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& w, Int lowerBound, Int upperBound, 
-  SortType sort ) 
+  DistMatrix<Base<F>,VR,STAR>& w, Int il, Int iu, SortType sort ) 
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-
-    const Int n = A.Height();
-    const Int k = (upperBound - lowerBound) + 1;
-    const Grid& g = A.Grid();
-
-    if( w.Viewing() )
-    {
-        if( w.ColAlign() != 0 )
-            LogicError("w was a view but was not properly aligned");
-        if( w.Height() != k || w.Width() != 1 )
-            LogicError("w was a view but was not the proper size");
-    }
-    else
-    {
-        w.Empty();
-        w.ResizeTo( k, 1 );
-    }
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
@@ -533,54 +418,34 @@ void HermitianEig
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
-    // Grab copies of the diagonal and subdiagonal of A
+    // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
-
-    // In order to call pmrrr, we need full copies of the diagonal and 
-    // subdiagonal in vectors of length n. We accomplish this for e by 
-    // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Solve the tridiagonal eigenvalue problem with PMRRR.
-    {
-        std::vector<Real> wVector(n);
-        pmrrr::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          wVector.data(), g.VRComm(), int(lowerBound), int(upperBound) );
-
-        // Copy wVector into the distributed matrix w[VR,* ]
-        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocal(iLocal,0,wVector[iLocal]);
-    }
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    HermitianTridiagEig( d, e, w, il, iu, sort );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-
-    Sort( w, sort );
 }
 
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float >& A,
-  DistMatrix<float,VR,STAR>& w, Int lowerBound, Int upperBound, SortType sort )
+  DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w, Int lowerBound, Int upperBound, SortType sort )
+  DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
 // Grab a partial set of eigenpairs.                                          //
 // The partial set is determined by the inclusive zero-indexed range          //
 //   a,a+1,...,b    ; a >= 0, b < n                                           //
-// (where a=lowerBound, b=upperBound)                                         //
+// (where a=il, b=iu)                                                         //
 // of the n eigenpairs sorted from smallest to largest eigenvalues.           //
 //----------------------------------------------------------------------------//
 
@@ -602,7 +467,7 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-    hermitian_eig::Sort( w, Z, sort );
+    herm_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
@@ -624,57 +489,20 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-    hermitian_eig::Sort( w.Matrix(), Z.Matrix(), sort );
+    herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ, 
-  Int lowerBound, Int upperBound, SortType sort )
+  Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-
-    const Int n = A.Height();
-    const Int k = (upperBound - lowerBound) + 1;
-    const Grid& g = A.Grid();
-
-    // We will use the same buffer for Z in the vector distribution used by 
-    // PMRRR as for the matrix distribution used by Elemental. In order to 
-    // do so, we must pad Z's dimensions slightly.
-    const Int N = MaxLength(n,g.Height())*g.Height();
-    const Int K = MaxLength(k,g.Size())*g.Size(); 
-    if( paddedZ.Viewing() )
-    {
-        if( paddedZ.Height() != N || paddedZ.Width() != K )
-            LogicError
-            ("paddedZ was a view but was not properly padded");
-        if( paddedZ.ColAlign() != 0 || paddedZ.RowAlign() != 0 )
-            LogicError
-            ("paddedZ was a view but was not properly aligned");
-    }
-    else
-    {
-        paddedZ.Empty();
-        paddedZ.ResizeTo( N, K );
-    }
-
-    if( w.Viewing() )
-    {
-        if( w.ColAlign() != 0 )
-            LogicError("w was a view but was not properly aligned");
-        if( w.Height() != k || w.Width() != 1 )
-            LogicError("w was a view but was not the proper size");
-    }
-    else
-    {
-        w.Empty();
-        w.ResizeTo( k, 1 );
-    }
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
@@ -683,111 +511,88 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
-
-    // Grab copies of the diagonal and subdiagonal of A
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
-
-    // In order to call pmrrr, we need full copies of the diagonal and 
-    // subdiagonal in vectors of length n. We accomplish this for e by 
-    // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    e_STAR_STAR = e_MD_STAR;
-
+  
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
-    // then redistribute into Z[MC,MR] in place, panel by panel
+    // then redistribute into Z[MC,MR] in place, panel by panel.
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const Int n = A.Height();
+    const Int k = (iu-il) + 1;
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(k,g.Size())*g.Size(); 
+    paddedZ.Align( 0, 0 );
+    paddedZ.ResizeTo( N, K );
+    DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
     {
-        // Grab a pointer into the paddedZ local matrix 
-        Real* paddedZBuffer = (Real*)paddedZ.Buffer();
-
-        // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
+        // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const Int paddedZBufferSize = 
+        Real* paddedZBuf = (Real*)paddedZ.Buffer();
+        const Int paddedZBufSize =
             ( IsComplex<F>::val ? 2*paddedZ.LDim()*paddedZ.LocalWidth()
                                 :   paddedZ.LDim()*paddedZ.LocalWidth() );
         const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        Real* Z_STAR_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
-
-        std::vector<Real> wVector(n);
-        pmrrr::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-          wVector.data(), Z_STAR_VR_Buffer, int(n), g.VRComm(), 
-          int(lowerBound), int(upperBound) );
-
-        // Copy wVector into the distributed matrix w[VR,* ]
-        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocal(iLocal,0,wVector[iLocal]);
-
+        const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
+        Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
+        Z_STAR_VR.Attach( n, k, 0, Z_STAR_VR_Buf, n, g );
+    }
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    HermitianTridiagEig( d, e, w, Z_STAR_VR, il, iu, UNSORTED );
+    {
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
         const Int p = g.Size();
         const Int numEqualPanels = K/p;
         const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const Int redistBlocksize = numPanelsPerComm*p;
+        const Int nbProp = numPanelsPerComm*p;
 
-        PushBlocksizeStack( redistBlocksize );
-        DistMatrix<F> 
-            paddedZL(g), paddedZR(g),
-            paddedZ0(g), paddedZ1(g), paddedZ2(g);
-        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
-        // Manually maintain information about the implicit Z[* ,VR] stored
-        // at the end of the paddedZ[MC,MR] buffer
+        // Manually maintain information about the implicit Z[* ,VR] stored 
+        // at the end of the paddedZ[MC,MR] buffers.
         Int alignment = 0;
-        const Real* readBuffer = Z_STAR_VR_Buffer;
-        while( paddedZL.Width() < k )
+        const Real* readBuffer = Z_STAR_VR.LockedBuffer();
+        for( Int j=0; j<k; j+=nbProp )
         {
-            RepartitionRight
-            ( paddedZL, /**/ paddedZR,
-              paddedZ0, /**/ paddedZ1, paddedZ2 );
-
-            const Int b = paddedZ1.Width();
-            const Int width = Min(b,k-paddedZL.Width());
+            const Int nb = Min(nbProp,k-j);
+            auto paddedZ1 = View( paddedZ, 0, j, n, nb );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::InPlaceRedist
-            ( paddedZ1, n, width, alignment, readBuffer );
-
-            SlidePartitionRight
-            ( paddedZL,           /**/ paddedZR,
-              paddedZ0, paddedZ1, /**/ paddedZ2 );
+            hermitian_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
 
             // Update the Z1[* ,VR] information
-            const Int localWidth = b/p;
+            const Int localWidth = nb/p;
             readBuffer = &readBuffer[localWidth*n];
-            alignment = (alignment+b) % p; 
+            alignment = (alignment+nb) % p;
         }
-        PopBlocksizeStack();
     }
+    paddedZ.ResizeTo( n, k ); // We can simply shrink matrices
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Height() );
     hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
 
-    hermitian_eig::Sort( w, paddedZ, sort );
+    herm_eig::Sort( w, paddedZ, sort );
 }
 
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ,
-  Int lowerBound, Int upperBound, SortType sort )
+  Int il, Int iu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
-  Int lowerBound, Int upperBound, SortType sort )
+  Int il, Int iu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
@@ -845,32 +650,19 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& w, Base<F> lowerBound, Base<F> upperBound,
+  DistMatrix<Base<F>,VR,STAR>& w, Base<F> vl, Base<F> vu,
   SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    if( lowerBound >= upperBound )
+    typedef Base<F> Real;
+    if( vl >= vu )
     {
         w.ResizeTo(0,1);
         return; 
     }
-
-    typedef Base<F> Real;
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-
-    const Int n = A.Height();
-    const Grid& g = A.Grid();
-
-    if( w.Viewing() )
-    {
-        if( w.ColAlign() != 0 )
-            LogicError("w was a view but was not properly aligned");
-        if( w.Height() != n || w.Width() != 1 )
-            LogicError("w was a view but was not the proper size");
-    }
-    else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
@@ -881,50 +673,28 @@ void HermitianEig
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
-    // Grab copies of the diagonal and subdiagonal of A
+    // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
-
-    // In order to call pmrrr, we need full copies of the diagonal and 
-    // subdiagonal in vectors of length n. We accomplish this for e by 
-    // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Solve the tridiagonal eigenvalue problem with PMRRR.
-    {
-        std::vector<Real> wVector(n);
-        pmrrr::Info info = pmrrr::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          wVector.data(), g.VRComm(), lowerBound, upperBound );
-
-        // Copy wVector into the distributed matrix w[VR,* ]
-        const Int k = info.numGlobalEigenvalues;
-        w.ResizeTo( k, 1 );
-        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocal(iLocal,0,wVector[iLocal]);
-    }
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    HermitianTridiagEig( d, e, w, vl, vu, sort );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
         Scale( 1/scale, w );
-
-    Sort( w, sort );
 }
 
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w, float lowerBound, float upperBound,
+  DistMatrix<float,VR,STAR>& w, float vl, float vu,
   SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w, float lowerBound, float upperBound,
+  DistMatrix<float,VR,STAR>& w, float vl, float vu,
   SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
@@ -956,7 +726,7 @@ void HermitianEig
       w.Buffer(), Z.Buffer(), Z.LDim() );
     w.ResizeTo( numEigs, 1 );
     Z.ResizeTo( n, numEigs );
-    hermitian_eig::Sort( w, Z, sort );
+    herm_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
@@ -986,55 +756,27 @@ void HermitianEig
       w.Buffer(), Z.Buffer(), Z.LDim() );
     w.ResizeTo( numEigs, 1 );
     Z.ResizeTo( n, numEigs );
-    hermitian_eig::Sort( w.Matrix(), Z.Matrix(), sort );
+    herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort )
+  Base<F> vl, Base<F> vu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
     const Int n = A.Height();
-    if( lowerBound >= upperBound )
+    if( vl >= vu )
     {
         w.ResizeTo(0,1);
         paddedZ.ResizeTo(n,0);
         return; 
     }
-
     EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    const Grid& g = A.Grid();
-
-    // We will use the same buffer for Z in the vector distribution used by 
-    // PMRRR as for the matrix distribution used by Elemental. In order to 
-    // do so, we must pad Z's dimensions slightly.
-    const Int N = MaxLength(n,g.Height())*g.Height();
-    // we don't know k yet, but if a buffer is passed in then it must be able
-    // to account for the case where k=n.
-    if( paddedZ.Viewing() )
-    {
-        const Int K = MaxLength(n,g.Size())*g.Size();
-        if( paddedZ.Height() != N || paddedZ.Width() != K )
-            LogicError
-            ("paddedZ was a view but was not properly padded");
-        if( paddedZ.ColAlign() != 0 || paddedZ.RowAlign() != 0 )
-            LogicError
-            ("paddedZ was a view but was not properly aligned");
-    }
-
-    if( w.Viewing() )
-    {
-        if( w.ColAlign() != 0 )
-            LogicError("w was a view but was not properly aligned");
-        if( w.Height() != n || w.Width() != 1 )
-            LogicError("w was a view but was not the proper size");
-    }
-    else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
@@ -1043,132 +785,92 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
-    // Grab copies of the diagonal and subdiagonal of A
+    // Get an upper-bound on the number of local eigenvalues in the range
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d_MD_STAR = A.GetRealPartOfDiagonal();
-    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    e_STAR_STAR = e;
+    const Int kEst = HermitianTridiagEigEstimate( d, e, g.VRComm(), vl, vu );
 
-    // In order to call pmrrr, we need full copies of the diagonal and 
-    // subdiagonal in vectors of length n. We accomplish this for e by 
-    // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    e_STAR_STAR = e_MD_STAR;
-
-    // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
-    // then redistribute into Z[MC,MR]
+    // We will use the same buffer for Z in the vector distribution used by 
+    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // do so, we must pad Z's dimensions slightly.
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(kEst,g.Size())*g.Size(); 
+    paddedZ.Align( 0, 0 );
+    paddedZ.ResizeTo( N, K );
+    DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
     {
-        // Get an estimate of the amount of memory to allocate
-        std::vector<Real> dVector(n), eVector(n), wVector(n);
-        elem::MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-        elem::MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n );
-        pmrrr::Estimate estimate = pmrrr::EigEstimate
-        ( int(n), dVector.data(), eVector.data(), wVector.data(), g.VRComm(), 
-          lowerBound, upperBound );
-        SwapClear( dVector );
-        SwapClear( eVector );
-
-        // Ensure that the paddedZ is sufficiently large
-        Int k = estimate.numGlobalEigenvalues;
-        if( !paddedZ.Viewing() )
-        {
-            const Int K = MaxLength(k,g.Size())*g.Size(); 
-            paddedZ.Empty();
-            paddedZ.ResizeTo( N, K );
-        }
-
-        // Grab a pointer into the paddedZ local matrix
-        Real* paddedZBuffer = (Real*)paddedZ.Buffer();
-
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const Int paddedZBufferSize = 
+        Real* paddedZBuf = (Real*)paddedZ.Buffer();
+        const Int paddedZBufSize =
             ( IsComplex<F>::val ? 2*paddedZ.LDim()*paddedZ.LocalWidth()
                                 :   paddedZ.LDim()*paddedZ.LocalWidth() );
-        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        Real* Z_STAR_VR_Buffer = 
-            &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
-
-        // Now perform the actual computation
-        pmrrr::Info info = pmrrr::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          wVector.data(), Z_STAR_VR_Buffer, int(n), g.VRComm(), 
-          lowerBound, upperBound );
-        k = info.numGlobalEigenvalues;
-
-        // Copy wVector into the distributed matrix w[VR,* ]
-        w.ResizeTo( k, 1 );
-        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocal(iLocal,0,wVector[iLocal]);
-
+        const Int Z_STAR_VR_LocalWidth = Length(kEst,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
+        Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
+        Z_STAR_VR.Attach( n, kEst, 0, Z_STAR_VR_Buf, n, g );
+    }
+    HermitianTridiagEigPostEstimate
+    ( d_STAR_STAR, e_STAR_STAR, w, Z_STAR_VR, vl, vu, UNSORTED );
+    const Int k = w.Height();
+    {
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
         const Int p = g.Size();
-        const Int numEqualPanels = paddedZ.Width()/p;
+        const Int numEqualPanels = K/p;
         const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const Int redistBlocksize = numPanelsPerComm*p;
+        const Int nbProp = numPanelsPerComm*p;
 
-        PushBlocksizeStack( redistBlocksize );
-        DistMatrix<F> 
-            paddedZL(g), paddedZR(g),
-            paddedZ0(g), paddedZ1(g), paddedZ2(g);
-        PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
-        // Manually maintain information about the implicit Z[* ,VR] stored
-        // at the end of paddedZ[MC,MR] buffers.
+        // Manually maintain information about the implicit Z[* ,VR] stored 
+        // at the end of the paddedZ[MC,MR] buffers.
         Int alignment = 0;
-        const Real* readBuffer = Z_STAR_VR_Buffer;
-        while( paddedZL.Width() < k )
+        const Real* readBuffer = Z_STAR_VR.LockedBuffer();
+        for( Int j=0; j<k; j+=nbProp )
         {
-            RepartitionRight
-            ( paddedZL, /**/ paddedZR,
-              paddedZ0, /**/ paddedZ1, paddedZ2 );
-
-            const Int b = paddedZ1.Width();
-            const Int width = Min(b,k-paddedZL.Width());
+            const Int nb = Min(nbProp,k-j);
+            auto paddedZ1 = View( paddedZ, 0, j, n, nb );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::InPlaceRedist
-            ( paddedZ1, n, width, alignment, readBuffer );
-
-            SlidePartitionRight
-            ( paddedZL,           /**/ paddedZR,
-              paddedZ0, paddedZ1, /**/ paddedZ2 );
+            hermitian_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
 
             // Update the Z1[* ,VR] information
-            const Int localWidth = b/p;
+            const Int localWidth = nb/p;
             readBuffer = &readBuffer[localWidth*n];
-            alignment = (alignment+b) % p;
+            alignment = (alignment+nb) % p;
         }
-        PopBlocksizeStack();
     }
+    paddedZ.ResizeTo( n, k ); // We can simply shrink matrices
 
     // Backtransform the tridiagonal eigenvectors, Z
-    paddedZ.ResizeTo( A.Height(), w.Height() );
     hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
 
-    hermitian_eig::Sort( w, paddedZ, sort );
+    herm_eig::Sort( w, paddedZ, sort );
 }
 
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ,
-  float lowerBound, float upperBound, SortType sort )
+  float vl, float vu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
-  float lowerBound, float upperBound, SortType sort )
+  float vl, float vu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Full set of eigenvalues

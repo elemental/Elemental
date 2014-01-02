@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/HermitianTridiagEig.hpp"
 #include "elemental/matrices/Legendre.hpp"
 using namespace elem;
 
@@ -36,16 +37,13 @@ main( int argc, char* argv[] )
             Print( J, "Jacobi matrix for Legendre polynomials" );
 
 #ifdef HAVE_PMRRR
-        // This will perform a lot of unnecessary work, but the code is simpler
-        // than directly calling PMRRR
-        //
         // We will compute Gaussian quadrature points and weights over [-1,+1]
         // using the eigenvalue decomposition of the Jacobi matrix for the 
         // Legendre polynomials.
-        //
-        DistMatrix<double,VR,STAR> points;
-        DistMatrix<double> X;
-        HermitianEig( LOWER, J, points, X, ASCENDING );
+        DistMatrix<double,VR,  STAR> points;
+        DistMatrix<double,STAR,VR  > X;
+        HermitianTridiagEig
+        ( J.GetDiagonal(), J.GetDiagonal(-1), points, X, ASCENDING );
         if( display )
             Display( points, "Quadrature points" );
         if( print )

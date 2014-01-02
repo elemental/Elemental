@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -195,7 +195,7 @@ ComputeNewEstimates
         HSubdiag = HSubdiags[j];
         if( !HasNan( HDiag, HSubdiag ) )
         {
-            lapack::SymmetricTridiagonalEig     
+            lapack::SymmetricTridiagEig     
             ( 'N', 'I', n, HDiag.data(), HSubdiag.data(), 0, 0, n, n, 0, 
               w.data(), 0, 1 );
             const Real est = Sqrt(w[0]);

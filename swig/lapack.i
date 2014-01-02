@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2013, Jack Poulson
+   Copyright (c) 2009-2014, Jack Poulson
                       2013, Michael C. Grant
    All rights reserved.
 
@@ -172,7 +172,7 @@ OVERLOAD0(Bidiag)
  */
 // TODO: HermitianSign and QDWH
  
-%include "elemental/lapack-like/HermitianEig/Sort.hpp"
+%include "elemental/lapack-like/SymmetricTridiagEig/Sort.hpp"
 %include "elemental/lapack-like/SkewHermitianEig.hpp"
 %include "elemental/lapack-like/HermitianGenDefiniteEig.hpp"
 %include "elemental/lapack-like/Sign.hpp"
@@ -183,7 +183,7 @@ OVERLOAD0(Bidiag)
 
 namespace elem {
 OVERLOAD0(HermitianEig)
-namespace hermitian_eig { OVERLOAD0_cpx_R(Sort,Sort_HermitianEig) };
+namespace symm_tridiag_eig { OVERLOAD0_cpx_R(Sort,Sort_SymmTridiagEig) };
 OVERLOAD0_cpx(SkewHermitianEig)
 OVERLOAD0(HermitianGenDefiniteEig)
 OVERLOAD0(HermitianSVD)
