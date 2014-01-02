@@ -12,9 +12,9 @@
 
 namespace elem {
 
-template<typename R,class RealFunctor> 
+template<typename Real,class RealFunctor> 
 inline void
-MakeEgorov( Matrix<Complex<R> >& A, const RealFunctor& phase )
+MakeEgorov( Matrix<Complex<Real> >& A, const RealFunctor& phase )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int m = A.Height();
@@ -23,17 +23,17 @@ MakeEgorov( Matrix<Complex<R> >& A, const RealFunctor& phase )
     {
         for( Int i=0; i<m; ++i )
         {
-            const R theta = phase(i,j);
-            const R realPart = cos(theta);
-            const R imagPart = sin(theta);
-            A.Set( i, j, Complex<R>(realPart,imagPart) );
+            const Real theta = phase(i,j);
+            const Real realPart = Cos(theta);
+            const Real imagPart = Sin(theta);
+            A.Set( i, j, Complex<Real>(realPart,imagPart) );
         }
     }
 }
 
-template<typename R,Distribution U,Distribution V,class RealFunctor>
+template<typename Real,Distribution U,Distribution V,class RealFunctor>
 inline void
-MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
+MakeEgorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int localHeight = A.LocalHeight();
@@ -48,46 +48,46 @@ MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-            const R theta = phase(i,j);
-            const R realPart = cos(theta);
-            const R imagPart = sin(theta);
-            A.SetLocal( iLoc, jLoc, Complex<R>(realPart,imagPart) );
+            const Real theta = phase(i,j);
+            const Real realPart = Cos(theta);
+            const Real imagPart = Sin(theta);
+            A.SetLocal( iLoc, jLoc, Complex<Real>(realPart,imagPart) );
         }
     }
 }
 
-template<typename R,class RealFunctor>
+template<typename Real,class RealFunctor>
 inline void
-Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, Int n )
+Egorov( Matrix<Complex<Real> >& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.ResizeTo( n, n );
     MakeEgorov( A, phase );
 }
 
-template<typename R,class RealFunctor>
-inline Matrix<Complex<R> >
+template<typename Real,class RealFunctor>
+inline Matrix<Complex<Real> >
 Egorov( const RealFunctor& phase, Int n )
 {
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real>> A( n, n );
     MakeEgorov( A, phase );
     return A;
 }
 
-template<typename R,Distribution U,Distribution V,class RealFunctor>
+template<typename Real,Distribution U,Distribution V,class RealFunctor>
 inline void
-Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, Int n )
+Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.ResizeTo( n, n );
     MakeEgorov( A, phase );
 }
 
-template<typename R,Distribution U=MC,Distribution V=MR,class RealFunctor>
-inline DistMatrix<Complex<R>,U,V>
+template<typename Real,Distribution U=MC,Distribution V=MR,class RealFunctor>
+inline DistMatrix<Complex<Real>,U,V>
 Egorov( const Grid& g, const RealFunctor& phase, Int n )
 {
-    DistMatrix<Complex<R>,U,V> A( n, n, g );
+    DistMatrix<Complex<Real>,U,V> A( n, n, g );
     MakeEgorov( A, phase );
     return A;
 }

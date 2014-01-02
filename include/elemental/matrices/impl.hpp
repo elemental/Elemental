@@ -22,6 +22,7 @@
 #include "./ExtendedKahan.hpp"
 #include "./Fiedler.hpp"
 #include "./Forsythe.hpp"
+#include "./FoxLi.hpp"
 #include "./Fourier.hpp"
 #include "./GCDMatrix.hpp"
 #include "./Gear.hpp"

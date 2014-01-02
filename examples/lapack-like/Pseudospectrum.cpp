@@ -11,6 +11,7 @@
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Pseudospectrum.hpp"
 #include "elemental/matrices/Grcar.hpp"
+#include "elemental/matrices/FoxLi.hpp"
 #include "elemental/matrices/Lotkin.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
@@ -27,7 +28,7 @@ main( int argc, char* argv[] )
     try 
     {
         const Int matType = 
-            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar",0);
+            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi",4);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -39,6 +40,8 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Int numBands = Input("--numBands","num bands for Grcar",3);
+        const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
@@ -56,16 +59,16 @@ main( int argc, char* argv[] )
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
 
-        const Grid& g = DefaultGrid();
-        DistMatrix<C> A(g);
-        if( matType == 0 )
-            A = Uniform<C>( g, n, n );
-        else if( matType == 1 )
-            A = Haar<C>( g, n );
-        else if( matType == 2 )
-            A = Lotkin<C>( g, n );
-        else
-            A = Grcar<C>( g, n, 3 );
+        DistMatrix<C> A;
+        switch( matType )
+        {
+        case 0: Uniform( A, n, n ); break;
+        case 1: Haar( A, n ); break;
+        case 2: Lotkin( A, n ); break;
+        case 3: Grcar( A, n, numBands ); break;
+        case 4: FoxLi( A, n, omega ); break;
+        default: LogicError("Invalid matrix type");
+        }
         if( display )
             Display( A, "A" );
         if( write )
@@ -73,8 +76,8 @@ main( int argc, char* argv[] )
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
-        DistMatrix<Real> invNormMap(g);
-        DistMatrix<Int> itCountMap(g);
+        DistMatrix<Real> invNormMap;
+        DistMatrix<Int> itCountMap;
         if( xWidth != 0. && yWidth != 0. )
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, xWidth, yWidth, xSize, ySize, 

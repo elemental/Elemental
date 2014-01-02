@@ -39,6 +39,7 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Int numBands = Input("--numBands","num bands for Grcar",3);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
@@ -56,18 +57,14 @@ main( int argc, char* argv[] )
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
 
-        const Grid& g = DefaultGrid();
-        DistMatrix<C> A(g);
-        if( matType == 0 )
-            A = Uniform<C>( g, n, n );
-        else if( matType == 1 )
-            A = Lotkin<C>( g, n );
-        else if( matType == 2 )
-            A = Grcar<C>( g, n, 3 );
-        else
+        DistMatrix<C> A;
+        switch( matType )
         {
-            A = Uniform<C>( g, n, n );
-            SetDiagonal( A, 0 );
+        case 0: Uniform( A, n, n ); break;
+        case 1: Lotkin( A, n ); break;
+        case 2: Grcar( A, n, numBands ); break;
+        case 3: Uniform( A, n, n ); SetDiagonal( A, 0 ); break;
+        default: LogicError("Invalid matrix type"); 
         }
         MakeTriangular( UPPER, A );
         if( display )
@@ -77,8 +74,8 @@ main( int argc, char* argv[] )
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
-        DistMatrix<Real> invNormMap(g);
-        DistMatrix<Int> itCountMap(g);
+        DistMatrix<Real> invNormMap;
+        DistMatrix<Int> itCountMap;
         if( xWidth != 0. && yWidth != 0. )
             itCountMap = TriangularPseudospectrum
             ( A, invNormMap, center, xWidth, yWidth, xSize, ySize,

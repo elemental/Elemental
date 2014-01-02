@@ -12,44 +12,42 @@
 
 namespace elem {
 
-template<typename R> 
+template<typename Real> 
 inline void
-MakeFourier( Matrix<Complex<R> >& A )
+MakeFourier( Matrix<Complex<Real> >& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
-    typedef Complex<R> F;
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
         LogicError("Cannot make a non-square DFT matrix");
 
-    const R pi = 4*Atan( R(1) );
-    const R nSqrt = Sqrt( R(n) );
+    const Real pi = 4*Atan( Real(1) );
+    const Real nSqrt = Sqrt( Real(n) );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
         {
-            const R theta = -2*pi*i*j/n;
-            const R realPart = cos(theta)/nSqrt;
-            const R imagPart = sin(theta)/nSqrt;
-            A.Set( i, j, F(realPart,imagPart) );
+            const Real theta = -2*pi*i*j/n;
+            const Real realPart = Cos(theta)/nSqrt;
+            const Real imagPart = Sin(theta)/nSqrt;
+            A.Set( i, j, Complex<Real>(realPart,imagPart) );
         }
     }
 }
 
-template<typename R,Distribution U,Distribution V>
+template<typename Real,Distribution U,Distribution V>
 inline void
-MakeFourier( DistMatrix<Complex<R>,U,V>& A )
+MakeFourier( DistMatrix<Complex<Real>,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
-    typedef Complex<R> F;
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
         LogicError("Cannot make a non-square DFT matrix");
 
-    const R pi = 4*Atan( R(1) );
-    const R nSqrt = Sqrt( R(n) );
+    const Real pi = 4*Atan( Real(1) );
+    const Real nSqrt = Sqrt( Real(n) );
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const Int colShift = A.ColShift();
@@ -62,46 +60,46 @@ MakeFourier( DistMatrix<Complex<R>,U,V>& A )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-            const R theta = -2*pi*i*j/n;
-            const R realPart = cos(theta)/nSqrt;
-            const R imagPart = sin(theta)/nSqrt;
-            A.SetLocal( iLoc, jLoc, F(realPart,imagPart) );
+            const Real theta = -2*pi*i*j/n;
+            const Real realPart = Cos(theta)/nSqrt;
+            const Real imagPart = Sin(theta)/nSqrt;
+            A.SetLocal( iLoc, jLoc, Complex<Real>(realPart,imagPart) );
         }
     }
 }
 
-template<typename R>
+template<typename Real>
 inline void
-Fourier( Matrix<Complex<R> >& A, Int n )
+Fourier( Matrix<Complex<Real> >& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.ResizeTo( n, n );
     MakeFourier( A );
 }
 
-template<typename R>
-inline Matrix<Complex<R> >
+template<typename Real>
+inline Matrix<Complex<Real> >
 Fourier( Int n )
 {
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real>> A( n, n );
     MakeFourier( A );
     return A;
 }
 
-template<typename R,Distribution U,Distribution V>
+template<typename Real,Distribution U,Distribution V>
 inline void
-Fourier( DistMatrix<Complex<R>,U,V>& A, Int n )
+Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.ResizeTo( n, n );
     MakeFourier( A );
 }
 
-template<typename R,Distribution U=MC,Distribution V=MR>
-inline DistMatrix<Complex<R>,U,V>
+template<typename Real,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<Complex<Real>,U,V>
 Fourier( const Grid& g, Int n )
 {
-    DistMatrix<Complex<R>,U,V> A( n, n, g );
+    DistMatrix<Complex<Real>,U,V> A( n, n, g );
     MakeFourier( A );
     return A;
 }
