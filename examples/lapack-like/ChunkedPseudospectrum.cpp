@@ -83,7 +83,16 @@ main( int argc, char* argv[] )
         DistMatrix<C,VR,STAR> w;
         mpi::Barrier( mpi::COMM_WORLD );
         timer.Start();
-        schur::SDC( A, w, X );
+        const bool formATR = true;
+        // TODO: Expose these as options
+        const Int cutoff = 256;
+        const Int maxInnerIts = 1;
+        const Int maxOuterIts = 10;
+        const Real signTol=tol/10;
+        const Real relTol=tol/10;
+        schur::SDC
+        ( A, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+          progress );
         mpi::Barrier( mpi::COMM_WORLD );
         const double sdcTime = timer.Stop();
         if( mpi::WorldRank() == 0 )

@@ -29,8 +29,10 @@ main( int argc, char* argv[] )
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",1);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
+        const Real signTol = Input("--signTol","sign tolerance",Real(0));
         const Real relTol = Input("--relTol","rel. tol.",Real(0));
         const bool display = Input("--display","display matrices?",false);
+        const bool progress = Input("--progress","output progress?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -45,7 +47,9 @@ main( int argc, char* argv[] )
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<Real> T( A ), Q(g);
         DistMatrix<Complex<Real>,VR,STAR> w(g);
-        schur::SDC( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
+        schur::SDC
+        ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+          progress );
         MakeTrapezoidal( UPPER, T, -1 );
         if( display )
         {

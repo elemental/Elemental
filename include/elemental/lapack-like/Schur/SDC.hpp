@@ -146,13 +146,21 @@ ComputePartition( DistMatrix<F>& A )
 // the computed unitary matrix upon exit.
 template<typename F>
 inline ValueInt<BASE(F)>
-SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
+SignDivide
+( Matrix<F>& A, Matrix<F>& G, bool returnQ=false, BASE(F) signTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
-    Sign( G );
+    const sign::Scaling scaling = sign::FROB_NORM;
+    const Int maxSignIts = 100; 
+    const Int numSteps = 
+        sign::Newton( G, scaling, maxSignIts, signTol, progress );
+    if( progress )
+        std::cout << "Newton converged in " << numSteps << " iterations"
+                  << std::endl;
     UpdateDiagonal( G, F(1) );
     Scale( F(1)/F(2), G );
 
@@ -184,14 +192,22 @@ SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 
 template<typename F>
 inline ValueInt<BASE(F)>
-SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
+SignDivide
+( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false, BASE(F) signTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
     const Grid& g = A.Grid();
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
-    Sign( G );
+    const sign::Scaling scaling = sign::FROB_NORM;
+    const Int maxSignIts = 100; 
+    const Int numSteps = 
+        sign::Newton( G, scaling, maxSignIts, signTol, progress );
+    if( progress && g.Rank() == 0 )
+        std::cout << "Newton converged in " << numSteps << " iterations"
+                  << std::endl;
     UpdateDiagonal( G, F(1) );
     Scale( F(1)/F(2), G );
 
@@ -225,7 +241,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( Matrix<F>& A, Matrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
+  bool returnQ=false, Int maxIts=1, BASE(F) signTol=0, BASE(F) relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -237,7 +254,13 @@ RandomizedSignDivide
     // S := sgn(G)
     // S := 1/2 ( S + I )
     auto S( G );
-    Sign( S );
+    const sign::Scaling scaling = sign::FROB_NORM;
+    const Int maxSignIts = 100; 
+    const Int numSteps = 
+        sign::Newton( S, scaling, maxSignIts, signTol, progress );
+    if( progress )
+        std::cout << "Newton converged in " << numSteps << " iterations"
+                  << std::endl;
     UpdateDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
 
@@ -284,7 +307,8 @@ template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
+  bool returnQ=false, Int maxIts=1, BASE(F) signTol=0, BASE(F) relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -297,7 +321,13 @@ RandomizedSignDivide
     // S := sgn(G)
     // S := 1/2 ( S + I )
     auto S( G );
-    Sign( S );
+    const sign::Scaling scaling = sign::FROB_NORM;
+    const Int maxSignIts = 100; 
+    const Int numSteps = 
+        sign::Newton( S, scaling, maxSignIts, signTol, progress );
+    if( progress && g.Rank() == 0 )
+        std::cout << "Newton converged in " << numSteps << " iterations"
+                  << std::endl;
     UpdateDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
 
@@ -344,7 +374,8 @@ RandomizedSignDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+( Matrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, 
+  Real relTol=0, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -370,11 +401,27 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, G );
-            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            //part = SignDivide( A, G, false, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        { 
+            if( progress )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -390,7 +437,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -420,11 +468,27 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, G );
-            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            //part = SignDivide( A, G, false, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        {
+            if( progress )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -440,7 +504,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A, Matrix<Real>& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -466,11 +531,27 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, Q, true );
-            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            //part = SignDivide( A, Q, true, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        { 
+            if( progress )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -486,7 +567,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -516,11 +598,27 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, Q, true );
-            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            //part = SignDivide( A, Q, true, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        { 
+            if( progress )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -535,7 +633,8 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+( DistMatrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, 
+  Real relTol=0, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -548,25 +647,42 @@ SpectralDivide
 
     Int it=0;
     ValueInt<Real> part;
-    DistMatrix<Real> ACopy(A.Grid()), G(A.Grid());
+    const Grid& g = A.Grid();
+    DistMatrix<Real> ACopy(g), G(g);
     if( maxOuterIts > 1 )
         ACopy = A;
     while( it < maxOuterIts )
     {
         ++it;
         Real shift = SampleBall<Real>(-median.value,spread);
-        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        mpi::Broadcast( shift, 0, g.VCComm() );
 
         G = A;
         UpdateDiagonal( G, shift );
 
         try
         {
-            //part = SignDivide( A, G );
-            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            //part = SignDivide( A, G, false, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress && g.Rank() == 0 )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress && g.Rank() == 0 )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        { 
+            if( progress && g.Rank() == 0 )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -582,7 +698,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -595,7 +712,8 @@ SpectralDivide
 
     Int it=0;
     ValueInt<Real> part;
-    DistMatrix<F> ACopy(A.Grid()), G(A.Grid());
+    const Grid& g = A.Grid();
+    DistMatrix<F> ACopy(g), G(g);
     if( maxOuterIts > 1 )
         ACopy = A;
     while( it < maxOuterIts )
@@ -609,16 +727,32 @@ SpectralDivide
 
         const auto median = Median(G.GetRealPartOfDiagonal());
         F shift = SampleBall<F>(-median.value,spread);
-        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        mpi::Broadcast( shift, 0, g.VCComm() );
         UpdateDiagonal( G, shift );
 
         try
         {
-            //part = SignDivide( A, G );
-            part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
+            //part = SignDivide( A, G, false, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress && g.Rank() == 0 )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress && g.Rank() == 0 )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        { 
+            if( progress && g.Rank() == 0 )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -634,7 +768,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A, DistMatrix<Real>& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -647,25 +782,42 @@ SpectralDivide
 
     Int it=0;
     ValueInt<Real> part;
-    DistMatrix<Real> ACopy(A.Grid());
+    const Grid& g = A.Grid();
+    DistMatrix<Real> ACopy(g);
     if( maxOuterIts > 1 )
         ACopy = A;
     while( it < maxOuterIts )
     {
         ++it;
         Real shift = SampleBall<Real>(-median.value,spread);
-        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        mpi::Broadcast( shift, 0, g.VCComm() );
 
         Q = A;
         UpdateDiagonal( Q, shift );
 
         try
         {
-            //part = SignDivide( A, Q, true );
-            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            //part = SignDivide( A, Q, true, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress && g.Rank() == 0 )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress && g.Rank() == 0 )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        {
+            if( progress && g.Rank() == 0 )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -681,7 +833,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
-  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -694,7 +847,8 @@ SpectralDivide
 
     Int it=0;
     ValueInt<Real> part;
-    DistMatrix<F> ACopy(A.Grid());
+    const Grid& g = A.Grid();
+    DistMatrix<F> ACopy(g);
     if( maxOuterIts > 1 )
         ACopy = A;
     while( it < maxOuterIts )
@@ -702,22 +856,38 @@ SpectralDivide
         ++it;
         const Real angle = SampleUniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
-        mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
+        mpi::Broadcast( gamma, 0, g.VCComm() );
         Q = A;
         Scale( gamma, Q );
 
         const auto median = Median(Q.GetRealPartOfDiagonal());
         F shift = SampleBall<F>(-median.value,spread);
-        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        mpi::Broadcast( shift, 0, g.VCComm() );
         UpdateDiagonal( Q, shift );
 
         try
         {
-            //part = SignDivide( A, Q, true );
-            part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
+            //part = SignDivide( A, Q, true, signTol, progress );
+            part = RandomizedSignDivide
+                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
             if( part.value <= relTol )
+            {
+                if( progress && g.Rank() == 0 )
+                    std::cout << "Converged during outer iter " << it-1
+                              << std::endl;
                 break;
-        } catch( SingularMatrixException& e ) { }
+            }
+            else if( progress && g.Rank() == 0 )
+                std::cout << "part.value=" << part.value << " was greater than "
+                          << relTol << " during outer iter " << it-1 
+                          << std::endl;
+        } 
+        catch( SingularMatrixException& e ) 
+        { 
+            if( progress && g.Rank() == 0 )
+                std::cout << "Caught singular matrix in outer iter " << it-1 
+                          << std::endl;
+        }
         if( it != maxOuterIts )
             A = ACopy;
     }
@@ -733,19 +903,27 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     if( n <= cutoff )
     {
+        if( progress )
+            std::cout << n << " <= " << cutoff <<": switching to QR algorithm"
+                      << std::endl;
         schur::QR( A, w );
         return;
     }
 
     // Perform this level's split
-    const auto part = SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
+    if( progress )
+        std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
+    const auto part = 
+        SpectralDivide
+        ( A, maxInnerIts, maxOuterIts, signTol, relTol, progress );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -755,8 +933,14 @@ SDC
     PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
-    SDC( ATL, wT, cutoff, maxInnerIts, maxOuterIts, relTol );
-    SDC( ABR, wB, cutoff, maxInnerIts, maxOuterIts, relTol );
+    if( progress )
+        std::cout << "Recursing on " << ATL.Height() << " x " << ATL.Width() 
+                  << " left subproblem" << std::endl;
+    SDC( ATL, wT, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, progress );
+    if( progress )
+        std::cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
+                  << " right subproblem" << std::endl;
+    SDC( ABR, wB, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, progress );
 }
 
 template<typename F>
@@ -764,7 +948,7 @@ inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
-  BASE(F) relTol=0 )
+  BASE(F) signTol=0, BASE(F) relTol=0, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -772,12 +956,19 @@ SDC
     Q.ResizeTo( n, n );
     if( n <= cutoff )
     {
+        if( progress )
+            std::cout << n << " <= " << cutoff <<": switching to QR algorithm"
+                      << std::endl;
         schur::QR( A, w, Q, formATR );
         return;
     }
 
     // Perform this level's split
-    const auto part = SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
+    if( progress )
+        std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
+    const auto part = 
+        SpectralDivide
+        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, progress );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -789,15 +980,29 @@ SDC
     PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the top-left quadrant and update Schur vectors and ATR
+    if( progress )
+        std::cout << "Recursing on " << ATL.Height() << " x " << ATL.Width() 
+                  << " left subproblem" << std::endl;
     Matrix<F> Z;
-    SDC( ATL, wT, Z, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC
+    ( ATL, wT, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+      progress );
+    if( progress )
+        std::cout << "Left subproblem update" << std::endl;
     auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
     if( formATR )
         Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
-    SDC( ABR, wB, Z, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    if( progress )
+        std::cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
+                  << " right subproblem" << std::endl;
+    SDC
+    ( ABR, wB, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+      progress );
+    if( progress )
+        std::cout << "Right subproblem update" << std::endl;
     if( formATR )
         Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
     G = QR;
@@ -861,8 +1066,10 @@ template<typename F>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
     // The trivial pull is empty
@@ -908,7 +1115,8 @@ template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
@@ -916,11 +1124,16 @@ SDC
     w.ResizeTo( n, 1 );
     if( A.Grid().Size() == 1 )
     {
+        if( progress && g.Rank() == 0 )
+            std::cout << "One process: using QR algorithm" << std::endl;
         schur::QR( A.Matrix(), w.Matrix() );
         return;
     }
     if( n <= cutoff )
     {
+        if( progress && g.Rank() == 0 )
+            std::cout << n << " <= " << cutoff 
+                      << ": using QR algorithm" << std::endl;
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
         DistMatrix<Complex<BASE(F)>,CIRC,CIRC> w_CIRC_CIRC( w );
         if( g.VCRank() == A_CIRC_CIRC.Root() )
@@ -931,7 +1144,11 @@ SDC
     }
 
     // Perform this level's split
-    const auto part = SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
+    if( progress && g.Rank() == 0 )
+        std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
+    const auto part = 
+        SpectralDivide
+        ( A, maxInnerIts, maxOuterIts, signTol, relTol, progress );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -940,13 +1157,21 @@ SDC
     DistMatrix<Complex<BASE(F)>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
 
+    if( progress && g.Rank() == 0 )
+        std::cout << "Pushing subproblems" << std::endl;
     DistMatrix<F> ATLSub, ABRSub;
     DistMatrix<Complex<BASE(F)>,VR,STAR> wTSub, wBSub;
     PushSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
     if( ATLSub.Participating() )
-        SDC( ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, relTol );
+        SDC
+        ( ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+          progress );
     if( ABRSub.Participating() )
-        SDC( ABRSub, wBSub, cutoff, maxInnerIts, maxOuterIts, relTol );
+        SDC
+        ( ABRSub, wBSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+          progress );
+    if( progress && g.Rank() == 0 )
+        std::cout << "Pulling subproblems" << std::endl;
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
 }
 
@@ -1050,7 +1275,7 @@ inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q, 
   bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
-  BASE(F) relTol=0 )
+  BASE(F) signTol=0, BASE(F) relTol=0, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     typedef Base<F> Real;
@@ -1060,11 +1285,16 @@ SDC
     Q.ResizeTo( n, n );
     if( A.Grid().Size() == 1 )
     {
+        if( progress && g.Rank() == 0 )
+            std::cout << "One process: using QR algorithm" << std::endl;
         schur::QR( A.Matrix(), w.Matrix(), Q.Matrix(), formATR );
         return;
     }
     if( n <= cutoff )
     {
+        if( progress && g.Rank() == 0 )
+            std::cout << n << " <= " << cutoff 
+                      << ": using QR algorithm" << std::endl;
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
         DistMatrix<Complex<BASE(F)>,CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
         if( g.VCRank() == A_CIRC_CIRC.Root() )
@@ -1078,8 +1308,12 @@ SDC
     }
 
     // Perform this level's split
+    if( progress && g.Rank() == 0 )
+        std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
     const Real infNorm = InfinityNorm( A );
-    const auto part = SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
+    const auto part = 
+        SpectralDivide
+        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, progress );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -1093,21 +1327,29 @@ SDC
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;
     DistMatrix<Complex<BASE(F)>,VR,STAR> wTSub, wBSub;
+    if( progress && g.Rank() == 0 )
+        std::cout << "Pushing subproblems" << std::endl;
     PushSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub );
     if( ATLSub.Participating() )
-        SDC( ATLSub, wTSub, ZTSub, 
-             formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+        SDC
+        ( ATLSub, wTSub, ZTSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
+          signTol, relTol, progress );
     if( ABRSub.Participating() )
-        SDC( ABRSub, wBSub, ZBSub, 
-             formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+        SDC
+        ( ABRSub, wBSub, ZBSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
+          signTol, relTol, progress );
     
     // Ensure that the results are back on this level's grid
+    if( progress && g.Rank() == 0 )
+        std::cout << "Pulling subproblems" << std::endl;
     DistMatrix<F> ZT(g), ZB(g);
     PullSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZT, ZB, ZTSub, ZBSub );
 
     // Update the Schur vectors
+    if( progress && g.Rank() == 0 )
+        std::cout << "Updating Schur vectors" << std::endl;
     auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
     G = QR;
@@ -1115,6 +1357,8 @@ SDC
 
     if( formATR )
     {
+        if( progress && g.Rank() == 0 )
+            std::cout << "Updating top-right quadrant" << std::endl;
         // Update the top-right quadrant
         Gemm( ADJOINT, NORMAL, F(1), ZT, ATR, G );
         Gemm( NORMAL, NORMAL, F(1), G, ZB, ATR ); 

@@ -259,7 +259,16 @@ Pseudospectrum
     // computation in order to form the full triangular factor
     DistMatrix<C> X(g);
     DistMatrix<C,VR,STAR> w(g);
-    schur::SDC( U, w, X );
+    const bool formATR = true;
+    // TODO: Expose these as options
+    const Int cutoff = 256;
+    const Int maxInnerIts = 1;
+    const Int maxOuterIts = 10;
+    const Base<F> signTol=tol/10;
+    const Base<F> relTol=tol/10;
+    schur::SDC
+    ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+      progress );
     X.Empty();
 
     return TriangularPseudospectrum
@@ -561,7 +570,16 @@ Pseudospectrum
     // computation in order to form the full triangular factor
     DistMatrix<C> X(g);
     DistMatrix<C,VR,STAR> w(g);
-    schur::SDC( U, w, X );
+    const bool formATR = true;
+    // TODO: Expose these as options
+    const Int cutoff = 256;
+    const Int maxInnerIts = 1;
+    const Int maxOuterIts = 10;
+    const Base<F> signTol=tol/10;
+    const Base<F> relTol=tol/10;
+    schur::SDC
+    ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+      progress );
     X.Empty();
  
     return TriangularPseudospectrum

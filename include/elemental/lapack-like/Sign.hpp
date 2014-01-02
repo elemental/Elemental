@@ -133,7 +133,8 @@ NewtonSchulzStep
 template<typename F>
 inline Int
 Newton
-( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, BASE(F) tol=0 )
+( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, BASE(F) tol=0, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
@@ -156,6 +157,11 @@ Newton
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
+        if( progress )
+            std::cout << "after " << numIts << " Newton iter's: " 
+                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
+                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
+                      << tol << std::endl;
         if( oneDiff/oneNew <= tol )
             break;
     }
@@ -168,7 +174,7 @@ template<typename F>
 inline Int
 Newton
 ( DistMatrix<F>& A, Scaling scaling=FROB_NORM, 
-  Int maxIts=100, BASE(F) tol=0 )
+  Int maxIts=100, BASE(F) tol=0, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
@@ -191,6 +197,11 @@ Newton
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
+        if( progress && A.Grid().Rank() == 0 )
+            std::cout << "after " << numIts << " Newton iter's: "
+                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
+                      << tol << std::endl;
         if( oneDiff/oneNew <= tol )
             break;
     }
