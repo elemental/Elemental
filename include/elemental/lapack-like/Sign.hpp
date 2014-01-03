@@ -130,11 +130,14 @@ NewtonSchulzStep
     Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
 }
 
+// Please see Chapter 5 of Higham's 
+// "Functions of Matrices: Theory and Computation" for motivation behind
+// the different choices of p, which are usually in {0,1,2}
 template<typename F>
 inline Int
 Newton
 ( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, BASE(F) tol=0, 
-  bool progress=false )
+  BASE(F) p=1, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
@@ -162,7 +165,7 @@ Newton
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
                       << tol << std::endl;
-        if( oneDiff/oneNew <= tol )
+        if( oneDiff/oneNew <= Pow(oneNew,p)*tol )
             break;
     }
     if( X != &A )
@@ -174,7 +177,7 @@ template<typename F>
 inline Int
 Newton
 ( DistMatrix<F>& A, Scaling scaling=FROB_NORM, 
-  Int maxIts=100, BASE(F) tol=0, bool progress=false )
+  Int maxIts=100, BASE(F) tol=0, BASE(F) p=1, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
@@ -202,7 +205,7 @@ Newton
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
                       << tol << std::endl;
-        if( oneDiff/oneNew <= tol )
+        if( oneDiff/oneNew <= Pow(oneNew,p)*tol )
             break;
     }
     if( X != &A )

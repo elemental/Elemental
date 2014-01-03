@@ -262,14 +262,15 @@ Pseudospectrum
     const bool formATR = true;
     // TODO: Expose these as options
     const Int cutoff = 256;
-    const Int maxInnerIts = 1;
+    const Int maxInnerIts = 2;
     const Int maxOuterIts = 10;
     const Base<F> signTol=tol/10;
     const Base<F> relTol=tol/10;
     const Base<F> spreadFactor=1e-6;
+    const bool random=true;
     schur::SDC
     ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, progress );
+      spreadFactor, random, progress );
     X.Empty();
 
     return TriangularPseudospectrum
@@ -574,14 +575,15 @@ Pseudospectrum
     const bool formATR = true;
     // TODO: Expose these as options
     const Int cutoff = 256;
-    const Int maxInnerIts = 1;
+    const Int maxInnerIts = 2;
     const Int maxOuterIts = 10;
     const Base<F> signTol=tol/10;
     const Base<F> relTol=tol/10;
     const Base<F> spreadFactor=1e-6;
+    const bool random=true;
     schur::SDC
     ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, progress );
+      spreadFactor, random, progress );
     X.Empty();
  
     return TriangularPseudospectrum

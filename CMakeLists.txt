@@ -715,7 +715,8 @@ if(ELEM_EXAMPLES)
   set(core_EXAMPLES Constructors LogicError)
   set(blas-like_EXAMPLES Cannon Gemm Gemv)
   set(lapack-like_EXAMPLES 
-    BunchKaufman BusingerGolub ChunkedPseudospectrum GaussianElimination 
+    BunchKaufman BusingerGolub ChunkedPseudospectrum 
+    ChunkedTriangularPseudospectrum GaussianElimination 
     HermitianQDWH HermitianSDC HPDInverse ID KyFanAndSchatten LDL LDLInverse 
     LeastSquares Polar Pseudoinverse Pseudospectrum QDWH RealSchur Schur 
     SequentialBunchKaufman SequentialQR SequentialSVD Skeleton QR Sign SimpleSVD

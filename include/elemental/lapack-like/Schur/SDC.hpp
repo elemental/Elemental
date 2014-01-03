@@ -156,8 +156,9 @@ SignDivide
     // G := 1/2 ( G + I )
     const sign::Scaling scaling = sign::FROB_NORM;
     const Int maxSignIts = 100; 
+    const Base<F> power=1;
     const Int numSteps = 
-        sign::Newton( G, scaling, maxSignIts, signTol, progress );
+        sign::Newton( G, scaling, maxSignIts, signTol, power, progress );
     if( progress )
         std::cout << "Newton converged in " << numSteps << " iterations"
                   << std::endl;
@@ -203,8 +204,9 @@ SignDivide
     // G := 1/2 ( G + I )
     const sign::Scaling scaling = sign::FROB_NORM;
     const Int maxSignIts = 100; 
+    const Base<F> power=1;
     const Int numSteps = 
-        sign::Newton( G, scaling, maxSignIts, signTol, progress );
+        sign::Newton( G, scaling, maxSignIts, signTol, power, progress );
     if( progress && g.Rank() == 0 )
         std::cout << "Newton converged in " << numSteps << " iterations"
                   << std::endl;
@@ -241,7 +243,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( Matrix<F>& A, Matrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, BASE(F) signTol=0, BASE(F) relTol=0, 
+  bool returnQ=false, Int maxIts=2, BASE(F) signTol=0, BASE(F) relTol=0, 
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
@@ -256,8 +258,9 @@ RandomizedSignDivide
     auto S( G );
     const sign::Scaling scaling = sign::FROB_NORM;
     const Int maxSignIts = 100; 
+    const Base<F> power=1;
     const Int numSteps = 
-        sign::Newton( S, scaling, maxSignIts, signTol, progress );
+        sign::Newton( S, scaling, maxSignIts, signTol, power, progress );
     if( progress )
         std::cout << "Newton converged in " << numSteps << " iterations"
                   << std::endl;
@@ -307,7 +310,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, 
-  bool returnQ=false, Int maxIts=1, BASE(F) signTol=0, BASE(F) relTol=0, 
+  bool returnQ=false, Int maxIts=2, BASE(F) signTol=0, BASE(F) relTol=0, 
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
@@ -323,8 +326,9 @@ RandomizedSignDivide
     auto S( G );
     const sign::Scaling scaling = sign::FROB_NORM;
     const Int maxSignIts = 100; 
+    const Base<F> power=1;
     const Int numSteps = 
-        sign::Newton( S, scaling, maxSignIts, signTol, progress );
+        sign::Newton( S, scaling, maxSignIts, signTol, power, progress );
     if( progress && g.Rank() == 0 )
         std::cout << "Newton converged in " << numSteps << " iterations"
                   << std::endl;
@@ -374,8 +378,8 @@ RandomizedSignDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, 
-  Real relTol=0, Real spreadFactor=1e-6, bool progress=false )
+( Matrix<Real>& A, Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, 
+  Real relTol=0, Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -406,9 +410,12 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, G, false, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, G, false, signTol, progress );
+
             if( part.value <= relTol )
             {
                 if( progress )
@@ -442,8 +449,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  Real spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -479,9 +486,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, G, false, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, G, false, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress )
@@ -515,8 +524,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Real>& A, Matrix<Real>& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  Real spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -547,9 +556,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, Q, true, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, Q, true, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress )
@@ -583,8 +594,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  Real spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -620,9 +631,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, Q, true, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, Q, true, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress )
@@ -655,8 +668,8 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, 
-  Real relTol=0, Real spreadFactor=1e-6, bool progress=false )
+( DistMatrix<Real>& A, Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, 
+  Real relTol=0, Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -689,9 +702,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, G, false, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, G, false, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress && g.Rank() == 0 )
@@ -725,8 +740,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  Real spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -765,9 +780,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, G, false, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, G, false, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, G, false, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress && g.Rank() == 0 )
@@ -801,8 +818,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Real>& A, DistMatrix<Real>& Q, 
-  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  Real spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -836,9 +853,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, Q, true, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, Q, true, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress && g.Rank() == 0 )
@@ -872,8 +891,8 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
-  Int maxInnerIts=1, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
-  Real spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, Real signTol=0, Real relTol=0, 
+  Real spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -912,9 +931,11 @@ SpectralDivide
 
         try
         {
-            //part = SignDivide( A, Q, true, signTol, progress );
-            part = RandomizedSignDivide
-                   ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            if( random )
+                part = RandomizedSignDivide
+                       ( A, Q, true, maxInnerIts, signTol, relTol, progress );
+            else
+                part = SignDivide( A, Q, true, signTol, progress );
             if( part.value <= relTol )
             {
                 if( progress && g.Rank() == 0 )
@@ -948,8 +969,8 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
-  BASE(F) spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
+  BASE(F) spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -968,7 +989,7 @@ SDC
         std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
     const auto part = 
         SpectralDivide
-        ( A, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+        ( A, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, random,
           progress );
     Matrix<F> ATL, ATR,
               ABL, ABR;
@@ -984,22 +1005,22 @@ SDC
                   << " left subproblem" << std::endl;
     SDC
     ( ATL, wT, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor,
-      progress );
+      random, progress );
     if( progress )
         std::cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
                   << " right subproblem" << std::endl;
     SDC
     ( ABR, wB, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
-      progress );
+      random, progress );
 }
 
 template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
-  bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
+  bool formATR=true, Int cutoff=256, Int maxInnerIts=2, Int maxOuterIts=10, 
   BASE(F) signTol=0, BASE(F) relTol=0, BASE(F) spreadFactor=1e-6, 
-  bool progress=false )
+  bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -1019,7 +1040,7 @@ SDC
         std::cout << "Splitting " << n << " x " << n << " matrix" << std::endl;
     const auto part = 
         SpectralDivide
-        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
+        ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, random,
           progress );
     Matrix<F> ATL, ATR,
               ABL, ABR;
@@ -1038,7 +1059,7 @@ SDC
     Matrix<F> Z;
     SDC
     ( ATL, wT, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, progress );
+      spreadFactor, random, progress );
     if( progress )
         std::cout << "Left subproblem update" << std::endl;
     auto G( QL );
@@ -1052,7 +1073,7 @@ SDC
                   << " right subproblem" << std::endl;
     SDC
     ( ABR, wB, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, progress );
+      spreadFactor, random, progress );
     if( progress )
         std::cout << "Right subproblem update" << std::endl;
     if( formATR )
@@ -1169,8 +1190,8 @@ template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
-  BASE(F) spreadFactor=1e-6, bool progress=false )
+  Int maxInnerIts=2, Int maxOuterIts=10, BASE(F) signTol=0, BASE(F) relTol=0, 
+  BASE(F) spreadFactor=1e-6, bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
@@ -1203,7 +1224,7 @@ SDC
     const auto part = 
         SpectralDivide
         ( A, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
-          progress );
+          random, progress );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -1220,11 +1241,11 @@ SDC
     if( ATLSub.Participating() )
         SDC
         ( ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          spreadFactor, progress );
+          spreadFactor, random, progress );
     if( ABRSub.Participating() )
         SDC
         ( ABRSub, wBSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          spreadFactor, progress );
+          spreadFactor, random, progress );
     if( progress && g.Rank() == 0 )
         std::cout << "Pulling subproblems" << std::endl;
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
@@ -1329,9 +1350,9 @@ template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q, 
-  bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, 
+  bool formATR=true, Int cutoff=256, Int maxInnerIts=2, Int maxOuterIts=10, 
   BASE(F) signTol=0, BASE(F) relTol=0, BASE(F) spreadFactor=1e-6, 
-  bool progress=false )
+  bool random=true, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     typedef Base<F> Real;
@@ -1370,7 +1391,7 @@ SDC
     const auto part = 
         SpectralDivide
         ( A, Q, maxInnerIts, maxOuterIts, signTol, relTol, spreadFactor, 
-          progress );
+          random, progress );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -1391,11 +1412,11 @@ SDC
     if( ATLSub.Participating() )
         SDC
         ( ATLSub, wTSub, ZTSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
-          signTol, relTol, spreadFactor, progress );
+          signTol, relTol, spreadFactor, random, progress );
     if( ABRSub.Participating() )
         SDC
         ( ABRSub, wBSub, ZBSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
-          signTol, relTol, spreadFactor, progress );
+          signTol, relTol, spreadFactor, random, progress );
     
     // Ensure that the results are back on this level's grid
     if( progress && g.Rank() == 0 )

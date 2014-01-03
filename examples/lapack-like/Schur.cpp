@@ -28,13 +28,14 @@ main( int argc, char* argv[] )
         const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
-        const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",1);
+        const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",2);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
         const Real signTol = Input("--signTol","sign tolerance",Real(0));
         const Real relTol = Input("--relTol","rel. tol.",Real(0));
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
-        const bool display = Input("--display","display matrices?",false);
+        const bool random = Input("--random","random RRQR?",true);
         const bool progress = Input("--progress","output progress?",false);
+        const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -51,7 +52,7 @@ main( int argc, char* argv[] )
         DistMatrix<C,VR,STAR> w(g);
         schur::SDC
         ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          spreadFactor, progress );
+          spreadFactor, random, progress );
         MakeTriangular( UPPER, T );
 
         if( display )

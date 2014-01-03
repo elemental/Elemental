@@ -42,13 +42,6 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
-        const Int cutoff = Input("--cutoff","problem size for QR",256);
-        const Int maxInnerIts = Input("--maxInnerIts","SDC limit",2);
-        const Int maxOuterIts = Input("--maxOuterIts","SDC limit",10);
-        const bool random = Input("--random","Random RRQR in SDC",true);
-        const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-9);
-        const Real relTol = Input("--relTol","Rel. tol. for SDC",1e-6);
-        const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const Int numBands = Input("--numBands","num bands for Grcar",3);
         const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
         const bool progress = Input("--progress","print progress?",true);
@@ -79,27 +72,14 @@ main( int argc, char* argv[] )
         case 4: FoxLi( A, n, omega ); break;
         default: LogicError("Invalid matrix type");
         }
+        MakeTriangular( UPPER, A );
         if( display )
             Display( A, "A" );
         if( write )
             Write( A, "A", format );
 
-        // Begin by computing the Schur decomposition
-        Timer timer;
-        DistMatrix<C> X;
-        DistMatrix<C,VR,STAR> w;
-        mpi::Barrier( mpi::COMM_WORLD );
-        timer.Start();
-        const bool formATR = true;
-        schur::SDC
-        ( A, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          spreadFactor, random, progress );
-        mpi::Barrier( mpi::COMM_WORLD );
-        const double sdcTime = timer.Stop();
-        if( mpi::WorldRank() == 0 )
-            std::cout << "SDC took " << sdcTime << " seconds" << std::endl; 
-
         // Find a window if none is specified
+        auto w = A.GetDiagonal();
         if( xWidth == 0. || yWidth == 0. )
         {
             const Real radius = MaxNorm( w );
@@ -133,6 +113,7 @@ main( int argc, char* argv[] )
         }
 
         // Visualize/write the pseudospectrum within each window
+        Timer timer;
         DistMatrix<Real> invNormMap;
         DistMatrix<Int> itCountMap;
         const Int xBlock = xSize / nx;
