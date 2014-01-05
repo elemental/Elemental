@@ -127,6 +127,25 @@ inline void
 SwapClear( T& x )
 { T().swap( x ); }
 
+template<typename T>
+inline void
+EnsureConsistent( T alpha, mpi::Comm comm, std::string name )
+{
+    std::string tag = ( name=="" ? "" : name+" " );
+    const Int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    std::vector<T> a(commSize);
+    mpi::Gather( &alpha, 1, a.data(), 1, 0, comm );
+    if( commRank == 0 ) 
+    {
+        for( Int j=0; j<commSize; ++j )
+            if( a[j] != alpha )
+                std::cout << "Process " << j << "'s " << tag << "value, " 
+                          << a[j] << ", mismatched the root's, " << alpha 
+                          << std::endl;
+    }
+}
+
 } // namespace elem
 
 #endif // ifndef ELEM_CORE_ENVIRONMENT_IMPL_HPP

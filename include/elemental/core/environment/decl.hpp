@@ -199,6 +199,9 @@ class ArgException;
 
 void ComplainIfDebug();
 
+template<typename T>
+void EnsureConsistent( T alpha, mpi::Comm comm, std::string name="" );
+
 } // namespace elem
 
 #endif // ifndef ELEM_CORE_ENVIRONMENT_DECL_HPP

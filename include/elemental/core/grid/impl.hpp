@@ -86,17 +86,7 @@ Grid::SetUpGrid()
     // Split the viewing comm into the owning and not owning subsets
     mpi::CommSplit( viewingComm_, inGrid_, owningRank_, owningComm_ );
 
-    // Set up the map from the VC group to the viewingGroup_ ranks.
-    // Since the VC communicator preserves the ordering of the owningGroup_
-    // ranks, we can simply translate from owningGroup_.
-    std::vector<int> ranks(size_);
-    for( int i=0; i<size_; ++i )
-        ranks[i] = i;
     vectorColToViewingMap_.resize(size_);
-    mpi::GroupTranslateRanks
-    ( owningGroup_, size_, ranks.data(), viewingGroup_, 
-      vectorColToViewingMap_.data() );
-
     diagPathsAndRanks_.resize(2*size_);
     MemZero( diagPathsAndRanks_.data(), 2*size_ );
     if( inGrid_ )
@@ -124,6 +114,16 @@ Grid::SetUpGrid()
         vectorRowRank_ = matrixRowRank_ + width_*matrixColRank_;
         mpi::CommSplit( cartComm_, 0, vectorColRank_, vectorColComm_ );
         mpi::CommSplit( cartComm_, 0, vectorRowRank_, vectorRowComm_ );
+
+        // Set up the map from the VC group to the viewingGroup_ ranks.
+        mpi::Group vectorColGroup;
+        mpi::CommGroup( vectorColComm_, vectorColGroup ); 
+        std::vector<int> ranks(size_);
+        for( int i=0; i<size_; ++i )
+            ranks[i] = i;
+        mpi::GroupTranslateRanks
+        ( vectorColGroup, size_, ranks.data(), viewingGroup_, 
+          vectorColToViewingMap_.data() );
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
@@ -172,9 +172,15 @@ Grid::SetUpGrid()
         vectorColRank_ = mpi::UNDEFINED;
         vectorRowRank_ = mpi::UNDEFINED;
     }
+    // Translate the rank of the root process of the owningGroup so that we can
+    // broadcast data
+    int zero=0, owningRoot;
+    mpi::GroupTranslateRanks
+    ( owningGroup_, 1, &zero, viewingGroup_, &owningRoot );
     mpi::Broadcast
-    ( diagPathsAndRanks_.data(), 2*size_, 
-      vectorColToViewingMap_[0], viewingComm_ );
+    ( vectorColToViewingMap_.data(), size_, owningRoot, viewingComm_ );
+    mpi::Broadcast
+    ( diagPathsAndRanks_.data(), 2*size_, owningRoot, viewingComm_ );
 }
 
 inline 
