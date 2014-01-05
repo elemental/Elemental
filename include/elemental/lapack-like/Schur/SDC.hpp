@@ -1125,7 +1125,7 @@ inline void SplitGrid
         const Int rRight = Grid::FindFactor(pRight);
         if( progress && grid.Rank() == 0 )
             std::cout << "leftWork/rightWork=" << leftWork/rightWork 
-                      << ", so split " << p << "processes into " 
+                      << ", so split " << p << " processes into " 
                       << rLeft << " x " << pLeft/rLeft << " and "
                       << rRight << " x " << pRight/rRight << " grids" 
                       << std::endl;
@@ -1145,6 +1145,7 @@ inline void PushSubproblems
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
+    const Grid& grid = ATL.Grid();
     // The trivial push
     /*
     ATLSub = View( ATL );
@@ -1156,12 +1157,16 @@ inline void PushSubproblems
     // Split based on the work estimates
     const Grid *leftGrid, *rightGrid;
     SplitGrid
-    ( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid, progress );
+    ( ATL.Height(), ABR.Height(), grid, leftGrid, rightGrid, progress );
     ATLSub.SetGrid( *leftGrid ); 
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
     wBSub.SetGrid( *rightGrid );
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pushing ATLSub" << std::endl;
     ATLSub = ATL;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pushing ABRSub" << std::endl;
     ABRSub = ABR;
 }
 
@@ -1172,15 +1177,23 @@ inline void PullSubproblems
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
+    const Grid& grid = ATL.Grid();
     // The trivial pull is empty
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling ATL" << std::endl;
     ATL = ATLSub;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling ABR" << std::endl;
     ABR = ABRSub;
     // This is a hack
     //wT = wTSub;
     //wB = wBSub;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling wT" << std::endl;
     {
         DistMatrix<Complex<BASE(F)>> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
@@ -1190,6 +1203,8 @@ inline void PullSubproblems
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
     }
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling wB" << std::endl;
     {
         DistMatrix<Complex<BASE(F)>> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
@@ -1279,7 +1294,7 @@ SDC
           spreadFactor, random, progress );
     if( progress && g.Rank() == 0 )
         std::cout << "Pulling subproblems" << std::endl;
-    PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
+    PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, progress );
 }
 
 template<typename F>
@@ -1294,27 +1309,32 @@ inline void PushSubproblems
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
+    const Grid& grid = ATL.Grid();
     // The trivial push
     /*
     ATLSub = View( ATL );
     ABRSub = View( ABR );
     wTSub = View( wT );
     wBSub = View( wB );
-    ZTSub.SetGrid( ATL.Grid() );
-    ZBSub.SetGrid( ABR.Grid() );
+    ZTSub.SetGrid( grid );
+    ZBSub.SetGrid( grid );
     */
 
     // Split based on the work estimates
     const Grid *leftGrid, *rightGrid;
     SplitGrid
-    ( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid, progress );
+    ( ATL.Height(), ABR.Height(), grid, leftGrid, rightGrid, progress );
     ATLSub.SetGrid( *leftGrid );
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
     wBSub.SetGrid( *rightGrid );
     ZTSub.SetGrid( *leftGrid );
     ZBSub.SetGrid( *rightGrid );
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pushing ATLSub" << std::endl;
     ATLSub = ATL;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pushing ABRSub" << std::endl;
     ABRSub = ABR;
 }
 
@@ -1327,20 +1347,28 @@ inline void PullSubproblems
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
   DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
-  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
+  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
+    const Grid& grid = ATL.Grid();
     // The trivial pull
     /*
     ZT = View( ZTSub );
     ZB = View( ZBSub );
     */
 
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling ATL" << std::endl;
     ATL = ATLSub;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling ABR" << std::endl;
     ABR = ABRSub;
     // This is a hack
     //wT = wTSub;
     //wB = wBSub;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling wT" << std::endl;
     {
         DistMatrix<Complex<BASE(F)>> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
@@ -1350,6 +1378,8 @@ inline void PullSubproblems
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
     }
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling wB" << std::endl;
     {
         DistMatrix<Complex<BASE(F)>> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
@@ -1361,7 +1391,11 @@ inline void PullSubproblems
     }
     ZTSub.MakeConsistent();
     ZBSub.MakeConsistent();
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling ZT" << std::endl;
     ZT = ZTSub;
+    if( progress && grid.Rank() == 0 )
+        std::cout << "Pulling ZB" << std::endl;
     ZB = ZBSub;
     const Grid *leftGrid = &ATLSub.Grid();
     const Grid *rightGrid = &ABRSub.Grid();
@@ -1459,7 +1493,8 @@ SDC
         std::cout << "Pulling subproblems" << std::endl;
     DistMatrix<F> ZT(g), ZB(g);
     PullSubproblems
-    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZT, ZB, ZTSub, ZBSub );
+    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZT, ZB, ZTSub, ZBSub,
+      progress );
 
     // Update the Schur vectors
     if( progress && g.Rank() == 0 )
