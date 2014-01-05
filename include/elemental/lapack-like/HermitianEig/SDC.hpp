@@ -35,7 +35,8 @@ inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
   DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
-  DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub )
+  DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("hermitian_eig::PushSubproblems"))
     // The trivial push
@@ -47,8 +48,9 @@ inline void PushSubproblems
     */
 
     // Split based on the work estimates
-    Grid *leftGrid, *rightGrid;
-    SplitGrid( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid );
+    const Grid *leftGrid, *rightGrid;
+    SplitGrid
+    ( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid, progress );
     ATLSub.SetGrid( *leftGrid );
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
@@ -94,12 +96,15 @@ inline void PullSubproblems
     ABRSub.Empty();
     wTSub.Empty();
     wBSub.Empty();
-    mpi::Group leftOwning = leftGrid->OwningGroup();
-    mpi::Group rightOwning = rightGrid->OwningGroup();
-    delete leftGrid;
-    delete rightGrid;
-    mpi::GroupFree( leftOwning );
-    mpi::GroupFree( rightOwning );
+    if( leftGrid != rightGrid )
+    {
+        mpi::Group leftOwning = leftGrid->OwningGroup();
+        mpi::Group rightOwning = rightGrid->OwningGroup();
+        delete leftGrid;
+        delete rightGrid;
+        mpi::GroupFree( leftOwning );
+        mpi::GroupFree( rightOwning );
+    }
 }
 
 template<typename F>
@@ -108,7 +113,8 @@ inline void PushSubproblems
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
   DistMatrix<BASE(F),VR,STAR>& wT,    DistMatrix<BASE(F),VR,STAR>& wB,
   DistMatrix<BASE(F),VR,STAR>& wTSub, DistMatrix<BASE(F),VR,STAR>& wBSub,
-  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
+  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("hermitian_eig::PushSubproblems"))
     // The trivial push
@@ -122,8 +128,9 @@ inline void PushSubproblems
     */
 
     // Split based on the work estimates
-    Grid *leftGrid, *rightGrid;
-    SplitGrid( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid );
+    const Grid *leftGrid, *rightGrid;
+    SplitGrid
+    ( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid, progress );
     ATLSub.SetGrid( *leftGrid );
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
@@ -183,12 +190,15 @@ inline void PullSubproblems
     wBSub.Empty();
     ZTSub.Empty();
     ZBSub.Empty();
-    mpi::Group leftOwning = leftGrid->OwningGroup();
-    mpi::Group rightOwning = rightGrid->OwningGroup();
-    delete leftGrid;
-    delete rightGrid;
-    mpi::GroupFree( leftOwning );
-    mpi::GroupFree( rightOwning );
+    if( leftGrid != rightGrid )
+    {
+        mpi::Group leftOwning = leftGrid->OwningGroup();
+        mpi::Group rightOwning = rightGrid->OwningGroup();
+        delete leftGrid;
+        delete rightGrid;
+        mpi::GroupFree( leftOwning );
+        mpi::GroupFree( rightOwning );
+    }
 }
 
 // TODO: Exploit symmetry in A := Q^H A Q. Routine for A := X^H A X?
@@ -593,7 +603,8 @@ template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Int cutoff=256, 
-  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
 
@@ -618,15 +629,16 @@ SDC
     PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
-    SDC( uplo, ATL, wT, cutoff, maxInnerIts, maxOuterIts, relTol );
-    SDC( uplo, ABR, wB, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC( uplo, ATL, wT, cutoff, maxInnerIts, maxOuterIts, relTol, progress );
+    SDC( uplo, ABR, wB, cutoff, maxInnerIts, maxOuterIts, relTol, progress );
 }
 
 template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Q, 
-  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
 
@@ -655,12 +667,12 @@ SDC
 
     // Recurse on the top-left quadrant and update eigenvectors
     Matrix<F> Z;
-    SDC( uplo, ATL, wT, Z, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC( uplo, ATL, wT, Z, cutoff, maxInnerIts, maxOuterIts, relTol, progress );
     auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
 
     // Recurse on the bottom-right quadrant and update eigenvectors
-    SDC( uplo, ABR, wB, Z, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC( uplo, ABR, wB, Z, cutoff, maxInnerIts, maxOuterIts, relTol, progress );
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
 }
@@ -669,7 +681,8 @@ template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
-  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
 
@@ -702,11 +715,15 @@ SDC
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub;
     DistMatrix<Real,VR,STAR> wTSub, wBSub;
-    PushSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
+    PushSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, progress );
     if( ATL.Participating() )
-        SDC( uplo, ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, relTol );
+        SDC
+        ( uplo, ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, relTol, 
+          progress );
     if( ABR.Participating() )
-        SDC( uplo, ABRSub, wBSub, cutoff, maxInnerIts, maxOuterIts, relTol );
+        SDC
+        ( uplo, ABRSub, wBSub, cutoff, maxInnerIts, maxOuterIts, relTol, 
+          progress );
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
 }
 
@@ -715,7 +732,8 @@ inline void
 SDC
 ( UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Q, 
-  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
+  Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("hermitian_eig::SDC"))
 
@@ -752,13 +770,13 @@ SDC
     DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;
     DistMatrix<Real,VR,STAR> wTSub, wBSub;
     PushSubproblems
-    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub );
+    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub, progress );
     if( ATLSub.Participating() )
         SDC( uplo, ATLSub, wTSub, ZTSub, 
-             cutoff, maxInnerIts, maxOuterIts, relTol );
+             cutoff, maxInnerIts, maxOuterIts, relTol, progress );
     if( ABRSub.Participating() )
         SDC( uplo, ABRSub, wBSub, ZBSub, 
-             cutoff, maxInnerIts, maxOuterIts, relTol );
+             cutoff, maxInnerIts, maxOuterIts, relTol, progress );
 
     // Pull the results back to this grid
     DistMatrix<F> ZT(g), ZB(g);

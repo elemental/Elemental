@@ -1082,30 +1082,56 @@ SDC
     Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
 }
 
+// This routine no longer attempts to evenly assign work/process between two
+// teams since it was found to lead to horrendously non-square process grids
+// in practice, even when the original number of processes was a large power
+// of two. Instead, the grid is either split in half, or not split at all.
+// The choice is made based upon whether or not one subproblem requires twice
+// as much work as the other. There is a complicated calculus here that would
+// require a much more sophisticated (machine- and problem-specific) model to
+// make the 'best' splitting, but this approach should be a good compromise.
 inline void SplitGrid
-( int nLeft, int nRight, const Grid& grid, Grid*& leftGrid, Grid*& rightGrid )
+( int nLeft, int nRight, const Grid& grid, 
+  const Grid*& leftGrid, const Grid*& rightGrid, bool progress=false )
 {
     typedef double Real;
     const Real leftWork = Pow(Real(nLeft),Real(3));
     const Real rightWork = Pow(Real(nRight),Real(3));
-    const Real ratio = leftWork / (leftWork+rightWork);
-    // It should be guaranteed that p >= 2
-    const Int p = grid.Size();
-    const Int pLeftProp = round(ratio*p);
-    const Int pLeft = Max(1,Min(p-1,pLeftProp));
-    const Int pRight = p - pLeft;
-
-    std::vector<int> leftRanks(pLeft), rightRanks(pRight);
-    for( int j=0; j<pLeft; ++j )
-        leftRanks[j] = j;
-    for( int j=0; j<pRight; ++j )
-        rightRanks[j] = j+pLeft;
-    mpi::Group group = grid.OwningGroup();
-    mpi::Group leftGroup, rightGroup;
-    mpi::GroupIncl( group, pLeft, leftRanks.data(), leftGroup );
-    mpi::GroupIncl( group, pRight, rightRanks.data(), rightGroup );
-    leftGrid = new Grid( grid.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
-    rightGrid = new Grid( grid.VCComm(), rightGroup, Grid::FindFactor(pRight) );
+    if( Max(leftWork,rightWork) > 2*Min(leftWork,rightWork) )
+    {
+        // Don't split the grid
+        leftGrid = &grid;
+        rightGrid = &grid;
+        if( progress && grid.Rank() == 0 )
+            std::cout << "leftWork/rightWork=" << leftWork/rightWork 
+                      << ", so the grid was not split" << std::endl;
+    }
+    else
+    {
+        // Split the grid in half (powers-of-two remain so)
+        const Int p = grid.Size();
+        const Int pLeft = p/2;
+        const Int pRight = p-pLeft;
+        std::vector<int> leftRanks(pLeft), rightRanks(pRight);
+        for( int j=0; j<pLeft; ++j )
+            leftRanks[j] = j;
+        for( int j=0; j<pRight; ++j )
+            rightRanks[j] = j+pLeft;
+        mpi::Group group = grid.OwningGroup();
+        mpi::Group leftGroup, rightGroup;
+        mpi::GroupIncl( group, pLeft, leftRanks.data(), leftGroup );
+        mpi::GroupIncl( group, pRight, rightRanks.data(), rightGroup );
+        const Int rLeft = Grid::FindFactor(pLeft);
+        const Int rRight = Grid::FindFactor(pRight);
+        if( progress && grid.Rank() == 0 )
+            std::cout << "leftWork/rightWork=" << leftWork/rightWork 
+                      << ", so split " << p << "processes into " 
+                      << rLeft << " x " << pLeft/rLeft << " and "
+                      << rRight << " x " << pRight/rRight << " grids" 
+                      << std::endl;
+        leftGrid = new Grid( grid.VCComm(), leftGroup, rLeft );
+        rightGrid = new Grid( grid.VCComm(), rightGroup, rRight );
+    }
 }
 
 template<typename F>
@@ -1115,7 +1141,8 @@ inline void PushSubproblems
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub )
+  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     // The trivial push
@@ -1127,8 +1154,9 @@ inline void PushSubproblems
     */
 
     // Split based on the work estimates
-    Grid *leftGrid, *rightGrid;
-    SplitGrid( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid );
+    const Grid *leftGrid, *rightGrid;
+    SplitGrid
+    ( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid, progress );
     ATLSub.SetGrid( *leftGrid ); 
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
@@ -1178,12 +1206,15 @@ inline void PullSubproblems
     ABRSub.Empty();
     wTSub.Empty();
     wBSub.Empty();
-    mpi::Group leftOwning = leftGrid->OwningGroup();
-    mpi::Group rightOwning = rightGrid->OwningGroup();
-    delete leftGrid;
-    delete rightGrid;
-    mpi::GroupFree( leftOwning );
-    mpi::GroupFree( rightOwning );
+    if( leftGrid != rightGrid )
+    {
+        mpi::Group leftOwning = leftGrid->OwningGroup();
+        mpi::Group rightOwning = rightGrid->OwningGroup();
+        delete leftGrid;
+        delete rightGrid;
+        mpi::GroupFree( leftOwning );
+        mpi::GroupFree( rightOwning );
+    }
 }
 
 template<typename F>
@@ -1237,7 +1268,7 @@ SDC
         std::cout << "Pushing subproblems" << std::endl;
     DistMatrix<F> ATLSub, ABRSub;
     DistMatrix<Complex<BASE(F)>,VR,STAR> wTSub, wBSub;
-    PushSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
+    PushSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, progress );
     if( ATLSub.Participating() )
         SDC
         ( ATLSub, wTSub, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
@@ -1259,7 +1290,8 @@ inline void PushSubproblems
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
   DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
-  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
+  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     // The trivial push
@@ -1273,8 +1305,9 @@ inline void PushSubproblems
     */
 
     // Split based on the work estimates
-    Grid *leftGrid, *rightGrid;
-    SplitGrid( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid );
+    const Grid *leftGrid, *rightGrid;
+    SplitGrid
+    ( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid, progress );
     ATLSub.SetGrid( *leftGrid );
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
@@ -1338,12 +1371,15 @@ inline void PullSubproblems
     wBSub.Empty();
     ZTSub.Empty();
     ZBSub.Empty();
-    mpi::Group leftOwning = leftGrid->OwningGroup();
-    mpi::Group rightOwning = rightGrid->OwningGroup();
-    delete leftGrid;
-    delete rightGrid;
-    mpi::GroupFree( leftOwning );
-    mpi::GroupFree( rightOwning );
+    if( leftGrid != rightGrid )
+    {
+        mpi::Group leftOwning = leftGrid->OwningGroup();
+        mpi::Group rightOwning = rightGrid->OwningGroup();
+        delete leftGrid;
+        delete rightGrid;
+        mpi::GroupFree( leftOwning );
+        mpi::GroupFree( rightOwning );
+    }
 }
 
 template<typename F>
@@ -1408,7 +1444,7 @@ SDC
     if( progress && g.Rank() == 0 )
         std::cout << "Pushing subproblems" << std::endl;
     PushSubproblems
-    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub );
+    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub, progress );
     if( ATLSub.Participating() )
         SDC
         ( ATLSub, wTSub, ZTSub, formATR, cutoff, maxInnerIts, maxOuterIts, 

@@ -153,7 +153,7 @@ main( int argc, char* argv[] )
                 }
 
                 std::ostringstream chunkStream;
-                chunkStream << "-" << xChunk << "-" << yChunk;
+                chunkStream << "_" << xChunk << "_" << yChunk;
                 const std::string chunkTag = chunkStream.str();
                 if( display )
                 {
