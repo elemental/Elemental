@@ -956,13 +956,6 @@ AbstractDistMatrix<T>::MakeConsistent()
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeConsistent"))
     const elem::Grid& g = *grid_;
     const Int vcRoot = g.VCToViewingMap(0);
-    mpi::Barrier( g.ViewingComm() );
-    std::ostringstream os;
-    os << g.ViewingRank() << " entered MakeConsistent with viewingSize="
-       << mpi::CommSize(g.ViewingComm()) << " and vcRoot=" << vcRoot 
-       << std::endl;
-    std::cout << os.str();
-    mpi::Barrier( g.ViewingComm() );
     Int message[8];
     if( g.ViewingRank() == vcRoot )
     {
@@ -975,11 +968,7 @@ AbstractDistMatrix<T>::MakeConsistent()
         message[6] = rowAlign_;
         message[7] = root_;
     }
-    if( g.Rank() == 0 )
-        std::cout << "About to Broadcast" << std::endl;
     mpi::Broadcast( message, 8, vcRoot, g.ViewingComm() );
-    if( g.Rank() == 0 )
-        std::cout << "Finished Broadcast" << std::endl;
     const ViewType newViewType = static_cast<ViewType>(message[0]);
     const Int newHeight = message[1]; 
     const Int newWidth = message[2];
@@ -1016,8 +1005,6 @@ AbstractDistMatrix<T>::MakeConsistent()
                 LogicError("Inconsistent root");
         }
     )
-    if( g.Rank() == 0 )
-        std::cout << "Leaving MakeConsistent" << std::endl;
 }
 
 #define PROTO(T) template class AbstractDistMatrix<T>
