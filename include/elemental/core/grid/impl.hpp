@@ -83,8 +83,8 @@ Grid::SetUpGrid()
     gcd_ = elem::GCD( height_, width_ );
     int lcm = size_ / gcd_;
 
-    // Split the viewing comm into the owning and not owning subsets
-    mpi::CommSplit( viewingComm_, inGrid_, owningRank_, owningComm_ );
+    // Create the communicator for the owning group (MPI_COMM_NULL otherwise)
+    mpi::CommCreate( viewingComm_, owningGroup_, owningComm_ );
 
     vectorColToViewingMap_.resize(size_);
     diagPathsAndRanks_.resize(2*size_);
@@ -195,9 +195,8 @@ Grid::~Grid()
             mpi::CommFree( vectorColComm_ );
             mpi::CommFree( vectorRowComm_ );
             mpi::CommFree( cartComm_ );
+            mpi::CommFree( owningComm_ );
         }
-
-        mpi::CommFree( owningComm_ );
         if( notOwningGroup_ != mpi::GROUP_EMPTY )
             mpi::GroupFree( notOwningGroup_ );
 

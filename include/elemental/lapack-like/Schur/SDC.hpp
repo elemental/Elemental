@@ -1134,25 +1134,18 @@ inline void SplitGrid
     }
 }
 
-template<typename F>
+template<typename F,typename EigType>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wB,
+  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     const Grid& grid = ATL.Grid();
-    // The trivial push
-    /*
-    ATLSub = View( ATL );
-    ABRSub = View( ABR );
-    wTSub = View( wT );
-    wBSub = View( wB );
-    */
 
     // Split based on the work estimates
     const Grid *leftGrid, *rightGrid;
@@ -1163,54 +1156,57 @@ inline void PushSubproblems
     wTSub.SetGrid( *leftGrid );
     wBSub.SetGrid( *rightGrid );
     if( progress && grid.Rank() == 0 )
-        std::cout << "Pushing ATLSub" << std::endl;
+        std::cout << "Pushing ATL and ABR" << std::endl;
     ATLSub = ATL;
-    if( progress && grid.Rank() == 0 )
-        std::cout << "Pushing ABRSub" << std::endl;
     ABRSub = ABR;
 }
 
-template<typename F>
+template<typename F,typename EigType>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wB,
+  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
     const Grid& grid = ATL.Grid();
-    // The trivial pull is empty
+    const bool sameGrid = ( wT.Grid() == wTSub.Grid() );
+
     if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling ATL" << std::endl;
+        std::cout << "Pulling ATL and ABR" << std::endl;
     ATL = ATLSub;
-    if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling ABR" << std::endl;
     ABR = ABRSub;
-    // This is a hack
-    //wT = wTSub;
-    //wB = wBSub;
+
+    // This section is a hack for two reasons:
+    // 1) only wT's owning team will call this routine, so, if wTSub shares
+    //    the same grid, then wTSub.MakeConsistent() will hang since the 
+    //    processes which only view will not enter the collective
+    // 2) no intergrid redistributions exist for [VR,* ] distributions yet
     if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling wT" << std::endl;
+        std::cout << "Pulling wT and wB" << std::endl;
+    if( sameGrid )
     {
-        DistMatrix<Complex<BASE(F)>> wTSub_MC_MR( wTSub.Grid() );
+        wT = wTSub;
+        wB = wBSub;
+    }
+    else
+    {
+        DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent();
-        DistMatrix<Complex<BASE(F)>> wT_MC_MR(wT.Grid()); 
+        DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
-    }
-    if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling wB" << std::endl;
-    {
-        DistMatrix<Complex<BASE(F)>> wBSub_MC_MR( wBSub.Grid() );
+
+        DistMatrix<EigType> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent();
-        DistMatrix<Complex<BASE(F)>> wB_MC_MR(wB.Grid());
+        DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
@@ -1221,7 +1217,7 @@ inline void PullSubproblems
     ABRSub.Empty();
     wTSub.Empty();
     wBSub.Empty();
-    if( leftGrid != rightGrid )
+    if( !sameGrid )
     {
         mpi::Group leftOwning = leftGrid->OwningGroup();
         mpi::Group rightOwning = rightGrid->OwningGroup();
@@ -1297,28 +1293,19 @@ SDC
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, progress );
 }
 
-template<typename F>
+template<typename F,typename EigType>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wB,
+  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wBSub,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PushSubproblems"))
     const Grid& grid = ATL.Grid();
-    // The trivial push
-    /*
-    ATLSub = View( ATL );
-    ABRSub = View( ABR );
-    wTSub = View( wT );
-    wBSub = View( wB );
-    ZTSub.SetGrid( grid );
-    ZBSub.SetGrid( grid );
-    */
 
     // Split based on the work estimates
     const Grid *leftGrid, *rightGrid;
@@ -1338,65 +1325,69 @@ inline void PushSubproblems
     ABRSub = ABR;
 }
 
-template<typename F>
+template<typename F,typename EigType>
 inline void PullSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wT,    
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wB,
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wTSub, 
-  DistMatrix<Complex<BASE(F)>,VR,STAR>& wBSub,
+  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wB,
+  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wBSub,
   DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
   DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::PullSubproblems"))
     const Grid& grid = ATL.Grid();
-    // The trivial pull
-    /*
-    ZT = View( ZTSub );
-    ZB = View( ZBSub );
-    */
+    const bool sameGrid = ( wT.Grid() == wTSub.Grid() );
 
     if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling ATL" << std::endl;
+        std::cout << "Pulling ATL and ABR" << std::endl;
     ATL = ATLSub;
-    if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling ABR" << std::endl;
     ABR = ABRSub;
-    // This is a hack
-    //wT = wTSub;
-    //wB = wBSub;
+
+    // This section is a hack for two reasons:
+    // 1) only wT's owning team will call this routine, so, if wTSub shares
+    //    the same grid, then wTSub.MakeConsistent() will hang since the 
+    //    processes which only view will not enter the collective
+    // 2) no intergrid redistributions exist for [VR,* ] distributions yet
     if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling wT" << std::endl;
+        std::cout << "Pulling wT and wB" << std::endl;
+    if( sameGrid )
     {
-        DistMatrix<Complex<BASE(F)>> wTSub_MC_MR( wTSub.Grid() );
+        wT = wTSub;
+        wB = wBSub;
+    }
+    else
+    {
+        DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent();
-        DistMatrix<Complex<BASE(F)>> wT_MC_MR(wT.Grid()); 
+        DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
-    }
-    if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling wB" << std::endl;
-    {
-        DistMatrix<Complex<BASE(F)>> wBSub_MC_MR( wBSub.Grid() );
+
+        DistMatrix<EigType> wBSub_MC_MR( wBSub.Grid() );
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent();
-        DistMatrix<Complex<BASE(F)>> wB_MC_MR(wB.Grid()); 
+        DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
-    ZTSub.MakeConsistent();
-    ZBSub.MakeConsistent();
+
+
     if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling ZT" << std::endl;
+        std::cout << "Pulling ZT and ZB" << std::endl;
+    if( !sameGrid )
+    {
+        ZTSub.MakeConsistent();
+        ZBSub.MakeConsistent();
+    }
     ZT = ZTSub;
-    if( progress && grid.Rank() == 0 )
-        std::cout << "Pulling ZB" << std::endl;
     ZB = ZBSub;
+
     const Grid *leftGrid = &ATLSub.Grid();
     const Grid *rightGrid = &ABRSub.Grid();
     ATLSub.Empty();
@@ -1405,7 +1396,7 @@ inline void PullSubproblems
     wBSub.Empty();
     ZTSub.Empty();
     ZBSub.Empty();
-    if( leftGrid != rightGrid )
+    if( !sameGrid )
     {
         mpi::Group leftOwning = leftGrid->OwningGroup();
         mpi::Group rightOwning = rightGrid->OwningGroup();

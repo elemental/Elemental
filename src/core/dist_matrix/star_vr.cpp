@@ -905,6 +905,11 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
     const Int p = g.Size();
     this->ResizeTo( m, n );
 
+    // Convert A's root from its VC communicator to VR
+    const Int rootRow = A.Root() % g.Height();
+    const Int rootCol = A.Root() / g.Height();
+    const Int rootVR = rootCol + rootRow*g.Width();
+
     const Int rowAlign = this->RowAlign();
     const Int nLocal = this->LocalWidth();
     const Int pkgSize = mpi::Pad(m*MaxLength(n,p));
@@ -934,7 +939,7 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 
         // Scatter from the root
         mpi::Scatter
-        ( sendBuf, pkgSize, recvBuf, pkgSize, A.Root(), g.VRComm() );
+        ( sendBuf, pkgSize, recvBuf, pkgSize, rootVR, g.VRComm() );
     }
     else if( this->Participating() )
     {
@@ -943,7 +948,7 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
         // Perform the receiving portion of the scatter from the non-root
         mpi::Scatter
         ( static_cast<T*>(0), pkgSize, 
-          recvBuf,            pkgSize, A.Root(), g.VRComm() );
+          recvBuf,            pkgSize, rootVR, g.VRComm() );
     }
 
     if( this->Participating() )
