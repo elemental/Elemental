@@ -53,3 +53,4 @@ This is the root directory of the entire project, and it contains:
 -  `swig/`: Elemental's Python interface (via SWIG)
 -  `tests/`: programs meant to test the accuracy of Elemental
 -  `TODO`: a list of near/long-term goals of the project
+-  `vagrant/`: lightweight preconfigured virtual-machines for Elemental
