@@ -31,6 +31,7 @@
 #include "./Hankel.hpp"
 #include "./Hanowa.hpp"
 #include "./Helmholtz.hpp"
+#include "./HelmholtzPML.hpp"
 #include "./HermitianFromEVD.hpp"
 #include "./Hilbert.hpp"
 #include "./Identity.hpp"

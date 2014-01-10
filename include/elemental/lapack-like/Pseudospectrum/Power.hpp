@@ -222,9 +222,13 @@ Deflate
   Matrix<Complex<Real> >& activeX,
   Matrix<Real          >& activeEsts, 
   Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts )
+  Matrix<Int           >& activeItCounts,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    Timer timer;
+    if( progress )
+        timer.Start();
     const Int numActive = activeX.Width(); 
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
@@ -242,6 +246,9 @@ Deflate
             --swapTo;
         }
     }
+    if( progress )
+        std::cout << "Deflation took " << timer.Stop() << " seconds" 
+                  << std::endl;
 }
 
 template<typename Real>
@@ -252,9 +259,13 @@ Deflate
   DistMatrix<Complex<Real>        >& activeX,
   DistMatrix<Real,         MR,STAR>& activeEsts,
   DistMatrix<Int,          MR,STAR>& activeConverged,
-  DistMatrix<Int,          VR,STAR>& activeItCounts )
+  DistMatrix<Int,          VR,STAR>& activeItCounts,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    Timer timer;
+    if( progress && activeShifts.Grid().Rank() == 0 )
+        timer.Start();
     const Int numActive = activeX.Width(); 
     Int swapTo = numActive-1;
 
@@ -286,6 +297,10 @@ Deflate
     activeEsts     = estimatesCopy;
     activeItCounts = itCountsCopy;
     activeX        = XCopy;
+
+    if( progress && activeShifts.Grid().Rank() == 0 )
+        std::cout << "Deflation took " << timer.Stop() << " seconds"
+                  << std::endl;
 }
 
 template<typename Real>
@@ -353,6 +368,7 @@ TriangularPower
     }
 
     // Simultaneously run inverse iteration for various shifts
+    Timer timer;
     Matrix<C> X;
     Gaussian( X, n, numShifts );
     FixColumns( X );
@@ -371,6 +387,8 @@ TriangularPower
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
 
+        if( progress )
+            timer.Start(); 
         ShiftedTrsmLUN( U, activeShifts, activeX );
         FixColumns( activeX );
         ShiftedTrsmLUT( U, activeShifts, activeX );
@@ -385,8 +403,12 @@ TriangularPower
         else
             numDone = numActiveDone;
         if( progress )
-            std::cout << numDone << " of " << numShifts << " converged"
-                      << std::endl;
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime 
+                      << " seconds, " << numDone << " of " << numShifts 
+                      << " converged" << std::endl;
+        }
 
         ++numIts;
         if( numIts >= maxIts )
@@ -394,10 +416,10 @@ TriangularPower
 
         if( numDone == numShifts )
             break;
-        else if( deflate )
+        else if( deflate && numActiveDone != 0 )
             Deflate
             ( activeShifts, activePreimage, activeX, activeEsts,
-              activeConverged, activeItCounts );
+              activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
     } 
@@ -446,6 +468,7 @@ TriangularPower
     }
 
     // Simultaneously run inverse iteration for various shifts
+    Timer timer;
     DistMatrix<C> X(g);
     Gaussian( X, n, numShifts );
     FixColumns( X );
@@ -465,6 +488,8 @@ TriangularPower
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
 
+        if( progress && U.Grid().Rank() == 0 )
+            timer.Start();
         ShiftedTrsmLUN( U, activeShifts, activeX );
         FixColumns( activeX );
         ShiftedTrsmLUT( U, activeShifts, activeX );
@@ -479,8 +504,12 @@ TriangularPower
         else
             numDone = numActiveDone;
         if( progress && U.Grid().Rank() == 0 )
-            std::cout << numDone << " of " << numShifts << " converged"
-                      << std::endl;
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime 
+                      << " seconds, " << numDone << " of " << numShifts 
+                      << " converged" << std::endl;
+        }
 
         ++numIts;
         if( numIts >= maxIts )
@@ -488,10 +517,10 @@ TriangularPower
 
         if( numDone == numShifts )
             break;
-        else if( deflate )
+        else if( deflate && numActiveDone != 0 )
             Deflate
             ( activeShifts, activePreimage, activeX, activeEsts,
-              activeConverged, activeItCounts );
+              activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
     } 

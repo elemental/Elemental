@@ -12,6 +12,7 @@
 #include "elemental/lapack-like/Pseudospectrum.hpp"
 #include "elemental/matrices/Grcar.hpp"
 #include "elemental/matrices/FoxLi.hpp"
+#include "elemental/matrices/HelmholtzPML.hpp"
 #include "elemental/matrices/Lotkin.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
@@ -28,7 +29,8 @@ main( int argc, char* argv[] )
     try 
     {
         const Int matType = 
-            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi",4);
+            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
+                              "5:HelmholtzPML1D,6:HelmholtzPML2D",5);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -41,7 +43,12 @@ main( int argc, char* argv[] )
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
         const Int numBands = Input("--numBands","num bands for Grcar",3);
-        const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
+        const Real omega = Input("--omega","frequency for Fox-Li/Helm",16*M_PI);
+        const Int mx = Input("--mx","number of x points for HelmholtzPML",30);
+        const Int my = Input("--my","number of y points for HelmholtzPML",30);
+        const Int numPmlPoints = Input("--numPml","num PML points for Helm",5);
+        const double sigma = Input("--sigma","PML amplitude",1.5);
+        const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
@@ -68,6 +75,10 @@ main( int argc, char* argv[] )
         case 2: Lotkin( A, n ); break;
         case 3: Grcar( A, n, numBands ); break;
         case 4: FoxLi( A, n, omega ); break;
+        case 5: HelmholtzPML
+                ( A, n, C(omega), numPmlPoints, sigma, pmlExp ); break;
+        case 6: HelmholtzPML
+                ( A, mx, my, C(omega), numPmlPoints, sigma, pmlExp ); break;
         default: LogicError("Invalid matrix type");
         }
         if( display )

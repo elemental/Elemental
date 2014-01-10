@@ -228,9 +228,13 @@ Deflate
   Matrix<Complex<Real> >& activeX,
   Matrix<Real          >& activeEsts, 
   Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts )
+  Matrix<Int           >& activeItCounts,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    Timer timer;
+    if( progress )
+        timer.Start();
     const Int numActive = activeX.Width(); 
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
@@ -251,6 +255,9 @@ Deflate
             --swapTo;
         }
     }
+    if( progress )
+        std::cout << "Deflation took " << timer.Stop() << " seconds"
+                  << std::endl;
 }
 
 template<typename Real>
@@ -264,9 +271,13 @@ Deflate
   DistMatrix<Complex<Real>        >& activeX,
   DistMatrix<Real,         MR,STAR>& activeEsts,
   DistMatrix<Int,          MR,STAR>& activeConverged,
-  DistMatrix<Int,          VR,STAR>& activeItCounts )
+  DistMatrix<Int,          VR,STAR>& activeItCounts,
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    Timer timer;
+    if( progress && activeShifts.Grid().Rank() == 0 )
+        timer.Start();
     const Int numActive = activeX.Width(); 
     Int swapTo = numActive-1;
 
@@ -355,6 +366,10 @@ Deflate
     activeItCounts = itCountsCopy;
     activeXOld     = XOldCopy;
     activeX        = XCopy;
+
+    if( progress && activeShifts.Grid().Rank() == 0 )
+        std::cout << "Deflation took " << timer.Stop() << " seconds"
+                  << std::endl;
 }
 
 template<typename Real>
@@ -398,6 +413,7 @@ TriangularLanczos
         HSubdiags[j].reserve( HCapacityInit-1 );
     }
 
+    Timer timer;
     Int numIts=0, numDone=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
@@ -415,6 +431,8 @@ TriangularLanczos
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
 
+        if( progress )
+            timer.Start();
         activeXNew = activeX;
         ShiftedTrsmLUN( U, activeShifts, activeXNew );
         ShiftedTrsmLUT( U, activeShifts, activeXNew );
@@ -435,8 +453,12 @@ TriangularLanczos
         else
             numDone = numActiveDone;
         if( progress )
-            std::cout << numDone << " of " << numShifts << " converged"
-                      << std::endl;
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime
+                      << " seconds, " << numDone << " of " << numShifts
+                      << " converged" << std::endl;
+        }
 
         ++numIts;
         if( numIts >= maxIts )
@@ -444,10 +466,10 @@ TriangularLanczos
 
         if( numDone == numShifts )
             break;
-        else if( deflate )
+        else if( deflate && numActiveDone != 0 )
             Deflate
             ( HDiags, HSubdiags, activeShifts, activePreimage, activeXOld, 
-              activeX, activeEsts, activeConverged, activeItCounts );
+              activeX, activeEsts, activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
     } 
@@ -511,6 +533,7 @@ TriangularLanczos
         HSubdiags[j].reserve( HCapacityInit-1 );
     }
 
+    Timer timer;
     Int numIts=0, numDone=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
@@ -529,6 +552,8 @@ TriangularLanczos
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
 
+        if( progress && U.Grid().Rank() == 0 )
+            timer.Start();
         activeXNew = activeX;
         ShiftedTrsmLUN( U, activeShifts, activeXNew );
         ShiftedTrsmLUT( U, activeShifts, activeXNew );
@@ -549,8 +574,12 @@ TriangularLanczos
         else
             numDone = numActiveDone;
         if( progress && U.Grid().Rank() == 0 )
-            std::cout << numDone << " of " << numShifts << " converged"
-                      << std::endl;
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime
+                      << " seconds, " << numDone << " of " << numShifts
+                      << " converged" << std::endl;
+        }
 
         ++numIts;
         if( numIts >= maxIts )
@@ -558,10 +587,10 @@ TriangularLanczos
 
         if( numDone == numShifts )
             break;
-        else if( deflate )
+        else if( deflate && numActiveDone != 0 )
             Deflate
             ( HDiags, HSubdiags, activeShifts, activePreimage, activeXOld, 
-              activeX, activeEsts, activeConverged, activeItCounts );
+              activeX, activeEsts, activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
     } 
