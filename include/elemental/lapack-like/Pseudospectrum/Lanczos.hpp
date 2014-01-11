@@ -367,9 +367,13 @@ Deflate
     activeXOld     = XOldCopy;
     activeX        = XCopy;
 
-    if( progress && activeShifts.Grid().Rank() == 0 )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
+    if( progress ) 
+    {
+        mpi::Barrier( activeShifts.Grid().Comm() );
+        if( activeShifts.Grid().Rank() == 0 ) 
+            std::cout << "Deflation took " << timer.Stop() << " seconds"
+                      << std::endl;
+    }
 }
 
 template<typename Real>
@@ -413,7 +417,7 @@ TriangularLanczos
         HSubdiags[j].reserve( HCapacityInit-1 );
     }
 
-    Timer timer;
+    Timer timer, subtimer;
     Int numIts=0, numDone=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
@@ -434,8 +438,13 @@ TriangularLanczos
         if( progress )
             timer.Start();
         activeXNew = activeX;
+        if( progress )
+            subtimer.Start();
         ShiftedTrsmLUN( U, activeShifts, activeXNew );
         ShiftedTrsmLUT( U, activeShifts, activeXNew );
+        if( progress )
+            std::cout << "  Shifted TRSM's: " << subtimer.Stop() << " seconds"
+                      << std::endl;
         ColumnSubtractions( HSubdiags, activeXOld, activeXNew );
         InnerProducts( activeXNew, activeX, HDiags );
         ColumnSubtractions( HDiags, activeX, activeXNew );
@@ -443,7 +452,12 @@ TriangularLanczos
         activeXOld = activeX;
         activeX    = activeXNew; 
         InvBetaScale( HSubdiags, activeX );
+        if( progress )
+            subtimer.Start();
         ComputeNewEstimates( HDiags, HSubdiags, activeEsts );
+        if( progress )
+            std::cout << "  Ritz computations: " << subtimer.Stop() 
+                      << " seconds" << std::endl;
 
         auto activeConverged = 
             FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
@@ -533,7 +547,7 @@ TriangularLanczos
         HSubdiags[j].reserve( HCapacityInit-1 );
     }
 
-    Timer timer;
+    Timer timer, subtimer;
     Int numIts=0, numDone=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
@@ -552,11 +566,28 @@ TriangularLanczos
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
 
-        if( progress && U.Grid().Rank() == 0 )
-            timer.Start();
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                timer.Start();
+        }
         activeXNew = activeX;
+        if( progress )
+        { 
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                subtimer.Start();
+        }
         ShiftedTrsmLUN( U, activeShifts, activeXNew );
         ShiftedTrsmLUT( U, activeShifts, activeXNew );
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                std::cout << "  Shifted TRSM's: " << subtimer.Stop() 
+                          << " seconds" << std::endl;
+        }
         ColumnSubtractions( HSubdiags, activeXOld, activeXNew );
         InnerProducts( activeXNew, activeX, HDiags );
         ColumnSubtractions( HDiags, activeX, activeXNew );
@@ -564,7 +595,20 @@ TriangularLanczos
         activeXOld = activeX;
         activeX    = activeXNew;
         InvBetaScale( HSubdiags, activeX );
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                subtimer.Start();
+        }
         ComputeNewEstimates( HDiags, HSubdiags, activeEsts );
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                std::cout << "  Ritz computations: " << subtimer.Stop() 
+                          << " seconds" << std::endl;
+        }
 
         auto activeConverged =
             FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
@@ -573,12 +617,16 @@ TriangularLanczos
             numDone += numActiveDone;
         else
             numDone = numActiveDone;
-        if( progress && U.Grid().Rank() == 0 )
+        if( progress )
         {
-            const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+            {
+                const double iterTime = timer.Stop();
+                std::cout << "iteration " << numIts << ": " << iterTime
+                          << " seconds, " << numDone << " of " << numShifts
+                          << " converged" << std::endl;
+            }
         }
 
         ++numIts;
