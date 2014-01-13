@@ -19,6 +19,7 @@
 #include "elemental/lapack-like/Pseudospectrum/ShiftedTrsm.hpp"
 #include "elemental/lapack-like/Pseudospectrum/Power.hpp"
 #include "elemental/lapack-like/Pseudospectrum/Lanczos.hpp"
+#include "elemental/lapack-like/Pseudospectrum/KrylovSpectral.hpp"
 #include "elemental/lapack-like/Pseudospectrum/Analytic.hpp"
 
 namespace elem {
@@ -105,8 +106,9 @@ template<typename F>
 inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, bool lanczos=true, bool deflate=true,
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Matrix<BASE(F)>& invNorms, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -141,9 +143,17 @@ TriangularPseudospectrum
     }
 
     if( lanczos )
-        itCounts = 
-           pspec::TriangularLanczos
-           ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+    {
+        if( krylovSize > 1 )
+            itCounts =
+               pspec::TriangularKrylovSpectral
+               ( UCpx, shifts, invNorms, krylovSize, reorthog, deflate, maxIts, 
+                 tol, progress );
+        else
+            itCounts = 
+               pspec::TriangularLanczos
+               ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+    }
     else
         itCounts =
            pspec::TriangularPower
@@ -156,8 +166,9 @@ template<typename F>
 inline DistMatrix<Int,VR,STAR>
 TriangularPseudospectrum
 ( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  DistMatrix<BASE(F),VR,STAR>& invNorms, bool lanczos=true, bool deflate=true,
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  DistMatrix<BASE(F),VR,STAR>& invNorms, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -198,9 +209,17 @@ TriangularPseudospectrum
     }
 
     if( lanczos )
-        itCounts = 
-           pspec::TriangularLanczos
-           ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+    {
+        if( krylovSize > 1 )
+            itCounts =
+               pspec::TriangularKrylovSpectral
+               ( UCpx, shifts, invNorms, krylovSize, reorthog, deflate, maxIts, 
+                 tol, progress );
+        else
+            itCounts = 
+               pspec::TriangularLanczos
+               ( UCpx, shifts, invNorms, deflate, maxIts, tol, progress );
+    }
     else
         itCounts =
            pspec::TriangularPower
@@ -213,8 +232,9 @@ template<typename F>
 inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, bool lanczos=true, bool deflate=true,
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Matrix<BASE(F)>& invNorms, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -230,15 +250,17 @@ Pseudospectrum
     schur::QR( U, w );
 
     return TriangularPseudospectrum
-           ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+           ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts,
+             tol, progress );
 }
 
 template<typename F>
 inline DistMatrix<Int,VR,STAR>
 Pseudospectrum
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  DistMatrix<BASE(F),VR,STAR>& invNorms, bool lanczos=true, bool deflate=true,
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  DistMatrix<BASE(F),VR,STAR>& invNorms, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -274,7 +296,8 @@ Pseudospectrum
     X.Empty();
 
     return TriangularPseudospectrum
-           ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+           ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+             tol, progress );
 }
 
 template<typename F>
@@ -282,8 +305,8 @@ inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, bool reorthog=true,
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -304,7 +327,8 @@ TriangularPseudospectrum
     Matrix<Real> invNorms;
     auto itCounts = 
         TriangularPseudospectrum
-        ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+        ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+          tol, progress );
 
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
@@ -318,7 +342,7 @@ inline DistMatrix<Int>
 TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
-  bool lanczos=true, bool deflate=true, 
+  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
@@ -343,7 +367,8 @@ TriangularPseudospectrum
     DistMatrix<Real,VR,STAR> invNorms(g);
     auto itCounts = 
         TriangularPseudospectrum
-        ( U, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+        ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+          tol, progress );
 
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
@@ -357,8 +382,8 @@ inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, bool reorthog=true, 
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -379,7 +404,8 @@ Pseudospectrum
     Matrix<Real> invNorms;
     auto itCounts = 
         Pseudospectrum
-        ( A, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+        ( A, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+          tol, progress );
 
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
@@ -393,7 +419,7 @@ inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
-  bool lanczos=true, bool deflate=true, 
+  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
@@ -418,7 +444,8 @@ Pseudospectrum
     DistMatrix<Real,VR,STAR> invNorms(g);
     auto itCounts =
         Pseudospectrum
-        ( A, shifts, invNorms, lanczos, deflate, maxIts, tol, progress );
+        ( A, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+          tol, progress );
 
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
@@ -432,8 +459,9 @@ inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center,
-  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -471,7 +499,7 @@ TriangularPseudospectrum
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, xSize, ySize, 
-             lanczos, deflate, maxIts, tol, progress );
+             lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
 template<typename F>
@@ -479,7 +507,7 @@ inline DistMatrix<Int>
 TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, Int xSize, Int ySize,
-  bool lanczos=true, bool deflate=true, 
+  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
@@ -517,7 +545,7 @@ TriangularPseudospectrum
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, xSize, ySize, 
-             lanczos, deflate, maxIts, tol, progress );
+             lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
 template<typename F>
@@ -525,8 +553,8 @@ inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center,
-  Int xSize, Int ySize, bool lanczos=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, bool reorthog=true, 
+  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -542,7 +570,7 @@ Pseudospectrum
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, xSize, ySize, 
-             lanczos, deflate, maxIts, tol, progress );
+             lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
 template<typename F>
@@ -550,7 +578,7 @@ inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, Int xSize, Int ySize,
-  bool lanczos=true, bool deflate=true, 
+  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
@@ -588,7 +616,7 @@ Pseudospectrum
  
     return TriangularPseudospectrum
            ( U, invNormMap, center, xSize, ySize, 
-             lanczos, deflate, maxIts, tol, progress );
+             lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
 } // namespace elem

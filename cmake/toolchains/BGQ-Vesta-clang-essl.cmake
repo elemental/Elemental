@@ -26,9 +26,6 @@ set(SPI_ROOT  "/bgsys/drivers/ppcfloor/spi")
 # The serial compilers
 set(CMAKE_C_COMPILER       "${CLANG_ROOT}/wbin/bgclang")
 set(CMAKE_CXX_COMPILER     "${CLANG_ROOT}/wbin/bgclang++11")
-#set(CMAKE_C_COMPILER   "${CLANG_MPI_ROOT}/bin/mpiclang")
-#set(CMAKE_CXX_COMPILER "${CLANG_MPI_ROOT}/bin/mpiclang++11")
-#set(CMAKE_Fortran_COMPILER "${MPI_ROOT}/bin/xl/mpixlf2003_r")
 set(CMAKE_Fortran_COMPILER "${GCC_ROOT}/bin/${GCC_NAME}-gfortran")
 
 # The MPI wrappers for the C and C++ compilers
