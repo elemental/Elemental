@@ -37,10 +37,10 @@ Demmel( Matrix<F>& A, Int n )
     const Int numDiags = 2*n-1;
     std::vector<F> a( numDiags, 0 );
     for( Int j=0; j<n-1; ++j )
-        a[numDiags-1-j] = 0;
+        a[j] = -Pow(B,Real(n-1-j));
     a[n-1] = -1;
     for( Int j=n; j<numDiags; ++j )
-        a[numDiags-1-j] = -Pow(B,Real(j-n));
+        a[j] = 0;
     Toeplitz( A, n, n, a );
 }
 
@@ -76,10 +76,10 @@ Demmel( DistMatrix<F,U,V>& A, Int n )
     const Int numDiags = 2*n-1;
     std::vector<F> a( numDiags, 0 );
     for( Int j=0; j<n-1; ++j )
-        a[numDiags-1-j] = 0;
+        a[j] = -Pow(B,Real(n-1-j));
     a[n-1] = -1;
     for( Int j=n; j<numDiags; ++j )
-        a[numDiags-1-j] = -Pow(B,Real(j-n));
+        a[j] = 0;
     Toeplitz( A, n, n, a );
 }
 
