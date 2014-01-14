@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
     try 
     {
         const Int matType =
-            Input("--matType","0:uniform,1:Lotkin,2:Grcar,3:zero uniform",2);
+            Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi",1);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -64,10 +64,11 @@ main( int argc, char* argv[] )
         switch( matType )
         {
         case 0: Uniform( A, n, n ); break;
-        case 1: Lotkin( A, n ); break;
-        case 2: Grcar( A, n, numBands ); break;
-        case 3: Uniform( A, n, n ); SetDiagonal( A, 0 ); break;
-        default: LogicError("Invalid matrix type"); 
+        case 1: Demmel( A, n ); break;
+        case 2: Lotkin( A, n ); break;
+        case 3: Grcar( A, n, numBands ); break;
+        case 4: FoxLi( A, n, omega ); break;
+        default: LogicError("Invalid matrix type");
         }
         MakeTriangular( UPPER, A );
         if( display )

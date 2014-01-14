@@ -11,6 +11,7 @@
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Pseudospectrum.hpp"
 #include "elemental/matrices/FoxLi.hpp"
+#include "elemental/matrices/Demmel.hpp"
 #include "elemental/matrices/Grcar.hpp"
 #include "elemental/matrices/Lotkin.hpp"
 #include "elemental/matrices/Uniform.hpp"
@@ -28,7 +29,7 @@ main( int argc, char* argv[] )
     try 
     {
         const Int matType = 
-            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi",4);
+            Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi",1);
         const Int n = Input("--size","height of matrix",100);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -68,7 +69,7 @@ main( int argc, char* argv[] )
         switch( matType )
         {
         case 0: Uniform( A, n, n ); break;
-        case 1: Haar( A, n ); break;
+        case 1: Demmel( A, n ); break;
         case 2: Lotkin( A, n ); break;
         case 3: Grcar( A, n, numBands ); break;
         case 4: FoxLi( A, n, omega ); break;

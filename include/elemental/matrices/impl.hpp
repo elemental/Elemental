@@ -17,6 +17,7 @@
 #include "./Cauchy.hpp"
 #include "./CauchyLike.hpp"
 #include "./Circulant.hpp"
+#include "./Demmel.hpp"
 #include "./Diagonal.hpp"
 #include "./Egorov.hpp"
 #include "./ExtendedKahan.hpp"
