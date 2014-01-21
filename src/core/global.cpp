@@ -50,7 +50,7 @@ GridOrder gridOrder = ROW_MAJOR;
 
 // Qt5
 ColorMap colorMap=RED_BLACK_GREEN;
-Int numDiscreteColors = 8;
+Int numDiscreteColors = 15;
 #ifdef HAVE_QT5
 bool guiDisabled;
 bool elemInitializedQt = false;

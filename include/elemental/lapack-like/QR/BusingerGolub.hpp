@@ -121,6 +121,7 @@ BusingerGolub
             {
                 Real gamma = Abs(A.Get(k,j)) / norms[j];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
+
                 const Real ratio = norms[j] / origNorms[j];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol || alwaysRecompute )
@@ -490,6 +491,7 @@ BusingerGolub
                 const Real beta = Abs(a12_STAR_MR.GetLocal(0,jLoc12));
                 Real gamma = beta / norms[jLoc];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
+
                 const Real ratio = norms[jLoc] / origNorms[jLoc];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol || alwaysRecompute )
