@@ -22,7 +22,7 @@ inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
     DEBUG_ONLY(CallStackEntry cse("Hadamard"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
-    C.ResizeTo( A.Height(), A.Width() );
+    C.Resize( A.Height(), A.Width() );
 
     const Int height = A.Height();
     const Int width = A.Width();
@@ -44,7 +44,7 @@ inline void Hadamard
         LogicError("A and B must be aligned");
     const Grid& g = A.Grid();
     C.AlignWith( A );
-    C.ResizeTo( A.Height(), A.Width() );
+    C.Resize( A.Height(), A.Width() );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

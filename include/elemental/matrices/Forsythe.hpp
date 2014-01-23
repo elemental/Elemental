@@ -52,7 +52,7 @@ inline void
 Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Forsythe"))
-    J.ResizeTo( n, n );
+    J.Resize( n, n );
     MakeForsythe( J, alpha, lambda );
 }
 

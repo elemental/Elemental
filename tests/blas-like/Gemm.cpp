@@ -22,14 +22,14 @@ void TestGemm
     DistMatrix<T> A(g), B(g), C(g);
 
     if( orientA == NORMAL )
-        A.ResizeTo( m, k );
+        A.Resize( m, k );
     else
-        A.ResizeTo( k, m );
+        A.Resize( k, m );
     if( orientB == NORMAL )
-        B.ResizeTo( k, n );
+        B.Resize( k, n );
     else
-        B.ResizeTo( n, k );
-    C.ResizeTo( m, n );
+        B.Resize( n, k );
+    C.Resize( m, n );
 
     // Test the variant of Gemm that keeps A stationary
     if( g.Rank() == 0 )

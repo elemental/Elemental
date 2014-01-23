@@ -32,12 +32,12 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     const Int n = A.Height();
     if( n == 0 )
     {
-        t.ResizeTo( 0, 1 );
+        t.Resize( 0, 1 );
         return;
     }
     DistMatrix<F,MD,STAR> tDiag(g);
     tDiag.AlignWithDiagonal( A, 1 );
-    tDiag.ResizeTo( A.Height()-1, 1 );
+    tDiag.Resize( A.Height()-1, 1 );
 
     DistMatrix<F> WPan(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), t1_STAR_STAR(g);
@@ -58,15 +58,15 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         {
             auto t1 = View( tDiag, k-1, 0, nb, 1 );
             WPan.AlignWith( A01 );
-            WPan.ResizeTo( k+nb, nb );
+            WPan.Resize( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
-            APan_MC_STAR.ResizeTo( k+nb, nb );
+            APan_MC_STAR.Resize( k+nb, nb );
             WPan_MC_STAR.AlignWith( A00 );
-            WPan_MC_STAR.ResizeTo( k+nb, nb );
+            WPan_MC_STAR.Resize( k+nb, nb );
             APan_MR_STAR.AlignWith( A00 );
-            APan_MR_STAR.ResizeTo( k+nb, nb );
+            APan_MR_STAR.Resize( k+nb, nb );
             WPan_MR_STAR.AlignWith( A00 );
-            WPan_MR_STAR.ResizeTo( k+nb, nb );
+            WPan_MR_STAR.Resize( k+nb, nb );
 
             hermitian_tridiag::PanelUSquare
             ( ATL, WPan, t1,
@@ -88,7 +88,7 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         {
             auto t1 = View( tDiag, 0, 0, nb-1, 1 );
             A11_STAR_STAR = A11;
-            t1_STAR_STAR.ResizeTo( nb-1, 1 );
+            t1_STAR_STAR.Resize( nb-1, 1 );
             HermitianTridiag
             ( UPPER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;

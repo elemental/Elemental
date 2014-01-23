@@ -974,7 +974,7 @@ SDC
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     if( n <= cutoff )
     {
         if( progress )
@@ -1024,8 +1024,8 @@ SDC
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
-    Q.ResizeTo( n, n );
+    w.Resize( n, 1 );
+    Q.Resize( n, n );
     if( n <= cutoff )
     {
         if( progress )
@@ -1238,7 +1238,7 @@ SDC
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     if( A.Grid().Size() == 1 )
     {
         if( progress && g.Rank() == 0 )
@@ -1419,8 +1419,8 @@ SDC
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
-    Q.ResizeTo( n, n );
+    w.Resize( n, 1 );
+    Q.Resize( n, n );
     if( A.Grid().Size() == 1 )
     {
         if( progress && g.Rank() == 0 )

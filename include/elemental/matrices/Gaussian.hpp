@@ -30,7 +30,7 @@ inline void
 Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
 
@@ -354,7 +354,7 @@ inline void
 Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
 

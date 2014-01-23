@@ -125,7 +125,7 @@ HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
 
@@ -144,7 +144,7 @@ HermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
 

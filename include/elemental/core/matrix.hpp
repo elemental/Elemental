@@ -17,149 +17,128 @@ template<typename T>
 class Matrix
 {
 public:    
-    //
-    // Assertions
-    //
-    
-    void AssertValidDimensions( Int height, Int width ) const;
-    void AssertValidDimensions( Int height, Int width, Int ldim ) const;
-    void AssertValidEntry( Int i, Int j ) const;
-    
-    //
-    // Constructors
-    // 
-
+    // Constructors and destructors
+    // ============================
+    // Create a 0x0 matrix
     Matrix( bool fixed=false );
+    // Create a matrix with the specified dimensions
     Matrix( Int height, Int width, bool fixed=false );
+    // Create a matrix with the specified dimensions and leading dimension
     Matrix( Int height, Int width, Int ldim, bool fixed=false );
+    // Construct a matrix around an existing (possibly immutable) buffer
     Matrix
     ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
     Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
+    // Create a copy of a matrix
     Matrix( const Matrix<T>& A );
-
 #ifndef SWIG
-    // Move constructor
+    // Move the metadata from a given matrix
     Matrix( Matrix<T>&& A );
-
-    // Move assignment
-    Matrix<T>& operator=( Matrix<T>&& A );
-#endif
-
-    //
+#endif 
     // Destructor
-    //
-
     virtual ~Matrix();
 
-    //
-    // Basic information
-    //
+    // Assignment and reconfiguration
+    // ==============================
+    const Matrix<T>& operator=( const Matrix<T>& A );
+#ifndef SWIG
+    // Move the metadata from the given matrix
+    Matrix<T>& operator=( Matrix<T>&& A );
+#endif
+    void Empty();
+    void Resize( Int height, Int width );
+    void Resize( Int height, Int width, Int ldim );
+    // Reconfigure around the given buffer, but do not assume ownership
+    void Attach( Int height, Int width, T* buffer, Int ldim );
+    void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
+    // Reconfigure around the given buffer and assume ownership
+    void Control( Int height, Int width, T* buffer, Int ldim );
 
+    // Basic queries
+    // =============
     Int Height() const;
     Int Width() const;
-    Int DiagonalLength( Int offset=0 ) const;
     Int LDim() const;
     Int MemorySize() const;
-
+    Int DiagonalLength( Int offset=0 ) const;
     T* Buffer();
     T* Buffer( Int i, Int j );
-
     const T* LockedBuffer() const;
     const T* LockedBuffer( Int i, Int j ) const;
-
-    //
-    // Entry manipulation
-    //
-
-    T Get( Int i, Int j ) const;
-    void Set( Int i, Int j, T alpha );
-    void Update( Int i, Int j, T alpha );
-
-    void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
-    Matrix<T> GetDiagonal( Int offset=0 ) const;
-
-    void SetDiagonal( const Matrix<T>& d, Int offset=0 );
-    void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
-
-    //
-    // Though the following routines are meant for complex data, all but four
-    // logically apply to real data.
-    //
-
-    BASE(T) GetRealPart( Int i, Int j ) const;
-    BASE(T) GetImagPart( Int i, Int j ) const;
-    void SetRealPart( Int i, Int j, BASE(T) alpha );
-    // Only valid for complex data
-    void SetImagPart( Int i, Int j, BASE(T) alpha );
-    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
-    // Only valid for complex data
-    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
-    void MakeReal( Int i, Int j );
-    void Conjugate( Int i, Int j );
-
-    void GetRealPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
-    Matrix<BASE(T) > GetRealPartOfDiagonal( Int offset=0 ) const;
-    Matrix<BASE(T) > GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
-    // Only valid for complex data
-    void SetImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
-    // Only valid for complex data
-    void UpdateImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
-
-    //
-    // Viewing other matrix instances (or buffers)
-    //
-
     bool Owner()      const;
     bool Shrinkable() const;
     bool FixedSize()  const;
     bool Viewing()    const;
     bool Locked()     const;
 
-    void Attach( Int height, Int width, T* buffer, Int ldim );
-    void LockedAttach
-    ( Int height, Int width, const T* buffer, Int ldim );
+    // Single-entry manipulation
+    // =========================
+    T Get( Int i, Int j ) const;
+    BASE(T) GetRealPart( Int i, Int j ) const;
+    BASE(T) GetImagPart( Int i, Int j ) const;
+    void Set( Int i, Int j, T alpha );
+    void SetRealPart( Int i, Int j, BASE(T) alpha );
+    void SetImagPart( Int i, Int j, BASE(T) alpha );
+    void Update( Int i, Int j, T alpha );
+    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
+    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
+    void MakeReal( Int i, Int j );
+    void Conjugate( Int i, Int j );
 
-    // Use this memory *as if it were not a view*, but do not take control of 
-    // its deallocation. If Resize() forces reallocation, this buffer is 
-    // released from control but not deleted.
-    void Control( Int height, Int width, T* buffer, Int ldim );
+    // Diagonal manipulation
+    // =====================
+    void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
+    void GetRealPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
+    Matrix<T> GetDiagonal( Int offset=0 ) const;
+    Matrix<BASE(T) > GetRealPartOfDiagonal( Int offset=0 ) const;
+    Matrix<BASE(T) > GetImagPartOfDiagonal( Int offset=0 ) const;
+    void SetDiagonal( const Matrix<T>& d, Int offset=0 );
+    void SetRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+    void SetImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+    void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
 
-    //
-    // Utilities
-    //
-
-    const Matrix<T>& operator=( const Matrix<T>& A );
-
-    void Empty();
-    void ResizeTo( Int height, Int width );
-    void ResizeTo( Int height, Int width, Int ldim );
+    // Arbitrary submatrix manipulation
+    // ================================
+    // TODO
 
 private:
+    // Member variables
+    // ================
     ViewType viewType_;
     Int height_, width_, ldim_;
     const T* data_;
     Memory<T> memory_;
 
-    void ComplainIfReal() const;
-
-    // Exchange metadata with A
+    // Exchange metadata with another matrix
+    // =====================================
     void ShallowSwap( Matrix<T>& A );
 
-    const T& Get_( Int i, Int j ) const;
-    T& Set_( Int i, Int j );
-
-    // These bypass fixed-size checking and are used by DistMatrix
+    // Reconfigure without error-checking
+    // ==================================
     void Empty_();
-    void ResizeTo_( Int height, Int width );
-    void ResizeTo_( Int height, Int width, Int ldim );
+    void Resize_( Int height, Int width );
+    void Resize_( Int height, Int width, Int ldim );
     void Control_( Int height, Int width, T* buffer, Int ldim );
     void Attach_( Int height, Int width, T* buffer, Int ldim );
     void LockedAttach_( Int height, Int width, const T* buffer, Int ldim );
-    
+
+    // Return a reference to a single entry without error-checking
+    // ===========================================================
+    const T& Get_( Int i, Int j ) const;
+    T& Set_( Int i, Int j );
+
+    // Assertions
+    // ==========
+    void ComplainIfReal() const;
+    void AssertValidDimensions( Int height, Int width ) const;
+    void AssertValidDimensions( Int height, Int width, Int ldim ) const;
+    void AssertValidEntry( Int i, Int j ) const;
+   
+    // Friend declarations
+    // ===================
 #ifndef SWIG
     template <typename F> 
     friend class Matrix;

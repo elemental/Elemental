@@ -15,6 +15,12 @@ using ADM = AbstractDistMatrix<T>;
 template<typename T>
 using DM = DistMatrix<T,VR,STAR>;
 
+// Public section
+// ##############
+
+// Constructors and destructors
+// ============================
+
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g )
 : ADM<T>(g)
@@ -23,18 +29,18 @@ DM<T>::DistMatrix( const elem::Grid& g )
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
 : ADM<T>(g)
-{ this->SetShifts(); this->ResizeTo(height,width); }
+{ this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, Int colAlign, const elem::Grid& g )
 : ADM<T>(g)
-{ this->Align(colAlign,0); this->ResizeTo(height,width); }
+{ this->Align(colAlign,0); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int ldim, const elem::Grid& g )
 : ADM<T>(g)
-{ this->Align(colAlign,0); this->ResizeTo(height,width,ldim); }
+{ this->Align(colAlign,0); this->Resize(height,width,ldim); }
 
 template<typename T>
 DM<T>::DistMatrix
@@ -63,7 +69,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 }
 
 template<typename T>
-template<Distribution U,Distribution V>
+template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
@@ -77,141 +83,12 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM<T>::DistMatrix( DM<T>&& A )
-: ADM<T>(std::move(A))
-{ }
+DM<T>::DistMatrix( DM<T>&& A ) : ADM<T>(std::move(A)) { }
 
-template<typename T>
-DM<T>&
-DM<T>::operator=( DM<T>&& A )
-{
-    ADM<T>::operator=( std::move(A) );
-    return *this;
-}
+template<typename T> DM<T>::~DistMatrix() { }
 
-template<typename T>
-DM<T>::~DistMatrix()
-{ }
-
-template<typename T>
-elem::DistData
-DM<T>::DistData() const
-{ return elem::DistData(*this); }
-
-template<typename T>
-mpi::Comm
-DM<T>::DistComm() const
-{ return this->grid_->VRComm(); }
-
-template<typename T>
-mpi::Comm
-DM<T>::CrossComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::RedundantComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::ColComm() const
-{ return this->grid_->VRComm(); }
-
-template<typename T>
-mpi::Comm
-DM<T>::RowComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-Int
-DM<T>::ColStride() const
-{ return this->grid_->Size(); }
-
-template<typename T>
-Int
-DM<T>::RowStride() const
-{ return 1; }
-
-template<typename T>
-void
-DM<T>::AlignWith( const elem::DistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VR,* ]::AlignWith"))
-    this->SetGrid( *data.grid );
-
-    if( data.colDist == MR || data.colDist == VR )
-        this->AlignCols( data.colAlign );
-    else if( data.rowDist == MR || data.rowDist == VR )
-        this->AlignCols( data.rowAlign );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
-template<typename T>
-void
-DM<T>::AlignColsWith( const elem::DistData& data )
-{ this->AlignWith( data ); }
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, Int colAlign,
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VR,* ]::Attach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->viewType_ = VIEW;
-    this->SetColShift();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Size());
-        this->matrix_.Attach_( localHeight, width, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, Int colAlign,
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VR,* ]::LockedAttach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->viewType_ = LOCKED_VIEW;
-    this->SetColShift();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Size());
-        this->matrix_.LockedAttach_( localHeight, width, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::Attach( Matrix<T>& A, Int colAlign, const elem::Grid& g )
-{ this->Attach( A.Height(), A.Width(), colAlign, A.Buffer(), A.LDim(), g ); }
-
-template<typename T>
-void
-DM<T>::LockedAttach( const Matrix<T>& A, Int colAlign, const elem::Grid& g )
-{
-    this->LockedAttach
-    ( A.Height(), A.Width(), colAlign, A.LockedBuffer(), A.LDim(), g );
-}
-
-//
-// Utility functions, e.g., operator=
-//
+// Assignment and reconfiguration
+// ==============================
 
 template<typename T>
 const DM<T>&
@@ -557,7 +434,7 @@ DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const elem::Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
 
@@ -727,7 +604,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
 
@@ -766,7 +643,7 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = g.Size();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     // Convert A's root from its VC communicator to VR
     const Int rootRow = A.Root() % g.Height();
@@ -830,6 +707,97 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 
     return *this;
 }
+
+template<typename T>
+DM<T>&
+DM<T>::operator=( DM<T>&& A )
+{
+    ADM<T>::operator=( std::move(A) );
+    return *this;
+}
+
+// Buffer attachment
+// -----------------
+template<typename T>
+void
+DM<T>::Attach
+( Int height, Int width, Int colAlign,
+  T* buffer, Int ldim, const elem::Grid& g )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VR,* ]::Attach"))
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlign_ = colAlign;
+    this->viewType_ = VIEW;
+    this->SetColShift();
+    if( this->Participating() )
+    {
+        const Int localHeight = Length(height,this->colShift_,g.Size());
+        this->matrix_.Attach_( localHeight, width, buffer, ldim );
+    }
+}
+
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int colAlign, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), colAlign, A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach
+( Int height, Int width, Int colAlign,
+  const T* buffer, Int ldim, const elem::Grid& g )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VR,* ]::LockedAttach"))
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlign_ = colAlign;
+    this->viewType_ = LOCKED_VIEW;
+    this->SetColShift();
+    if( this->Participating() )
+    {
+        const Int localHeight = Length(height,this->colShift_,g.Size());
+        this->matrix_.LockedAttach_( localHeight, width, buffer, ldim );
+    }
+}
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, Int colAlign, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), colAlign, A.LockedBuffer(), A.LDim(), g );
+}
+
+// Realignment
+// -----------
+template<typename T>
+void
+DM<T>::AlignWith( const elem::DistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VR,* ]::AlignWith"))
+    this->SetGrid( *data.grid );
+
+    if( data.colDist == MR || data.colDist == VR )
+        this->AlignCols( data.colAlign );
+    else if( data.rowDist == MR || data.rowDist == VR )
+        this->AlignCols( data.rowAlign );
+    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
+}
+
+template<typename T>
+void
+DM<T>::AlignColsWith( const elem::DistData& data )
+{ this->AlignWith( data ); }
+
+// Specialized redistributions
+// ---------------------------
 
 template<typename T>
 void
@@ -924,7 +892,7 @@ DM<T>::SumScatterFrom( const DistMatrix<T,STAR,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const elem::Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return;
 
@@ -1121,6 +1089,38 @@ DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A )
     }
     this->auxMemory_.Release();
 }
+
+// Basic queries
+// =============
+template<typename T>
+elem::DistData DM<T>::DistData() const { return elem::DistData(*this); }
+
+template<typename T>
+mpi::Comm DM<T>::DistComm() const { return this->grid_->VRComm(); }
+template<typename T>
+mpi::Comm DM<T>::CrossComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::RedundantComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::ColComm() const { return this->grid_->VRComm(); }
+template<typename T>
+mpi::Comm DM<T>::RowComm() const { return mpi::COMM_SELF; }
+
+template<typename T>
+Int DM<T>::ColStride() const { return this->grid_->Size(); }
+template<typename T>
+Int DM<T>::RowStride() const { return 1; }
+
+// Diagonal manipulation
+// =====================
+// TODO
+
+// Arbitrary submatrix manipulation
+// ================================
+// TODO
+
+// Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
+// ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,VR,STAR>
 #define COPY(T,U,V) \

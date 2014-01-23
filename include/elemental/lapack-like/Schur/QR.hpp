@@ -19,7 +19,7 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool formATR=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     lapack::Eig( n, A.Buffer(), A.LDim(), w.Buffer(), formATR );
 }
 
@@ -30,8 +30,8 @@ QR
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
-    Q.ResizeTo( n, n );
-    w.ResizeTo( n, 1 );
+    Q.Resize( n, n );
+    w.Resize( n, 1 );
     lapack::Schur
     ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), formATR );
 }

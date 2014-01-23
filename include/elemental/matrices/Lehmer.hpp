@@ -17,7 +17,7 @@ inline void
 Lehmer( Matrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
-    L.ResizeTo( n, n );
+    L.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<j; ++i )
@@ -41,7 +41,7 @@ inline void
 Lehmer( DistMatrix<F,U,V>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
-    L.ResizeTo( n, n );
+    L.Resize( n, n );
     const Int localHeight = L.LocalHeight();
     const Int localWidth = L.LocalWidth();
     const Int colShift = L.ColShift();

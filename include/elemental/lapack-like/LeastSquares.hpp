@@ -49,7 +49,7 @@ LeastSquares
             qr::ApplyQ( LEFT, ADJOINT, A, t, X );
 
             // Shrink X to its new height
-            X.ResizeTo( n, X.Width() );
+            X.Resize( n, X.Width() );
 
             // Solve against R (checking for singularities)
             auto AT = LockedView( A, 0, 0, n, n );
@@ -62,7 +62,7 @@ LeastSquares
             LQ( A, t );
 
             // Copy B into X
-            X.ResizeTo( n, B.Width() );
+            X.Resize( n, B.Width() );
             Matrix<F> XT, XB;
             PartitionDown( X, XT, XB, m );
             XT = B;
@@ -88,7 +88,7 @@ LeastSquares
             QR( A, t );
 
             // Copy B into X
-            X.ResizeTo( m, B.Width() );
+            X.Resize( m, B.Width() );
             Matrix<F> XT, XB;
             PartitionDown( X, XT, XB, n );
             XT = B;
@@ -114,7 +114,7 @@ LeastSquares
             lq::ApplyQ( LEFT, NORMAL, A, t, X );
 
             // Shrink X to its new height
-            X.ResizeTo( m, X.Width() );
+            X.Resize( m, X.Width() );
 
             // Solve against L' (check for singularities)
             auto AL = LockedView( A, 0, 0, m, m );
@@ -160,7 +160,7 @@ LeastSquares
             qr::ApplyQ( LEFT, ADJOINT, A, t, X );
 
             // Shrink X to its new height
-            X.ResizeTo( n, X.Width() );
+            X.Resize( n, X.Width() );
 
             // Solve against R (checking for singularities)
             auto AT = LockedView( A, 0, 0, n, n );
@@ -173,7 +173,7 @@ LeastSquares
             LQ( A, t );
 
             // Copy B into X
-            X.ResizeTo( n, B.Width() );
+            X.Resize( n, B.Width() );
             DistMatrix<F> XT(g), XB(g);
             PartitionDown( X, XT, XB, m );
             XT = B;
@@ -199,7 +199,7 @@ LeastSquares
             QR( A, t );
 
             // Copy B into X
-            X.ResizeTo( m, B.Width() );
+            X.Resize( m, B.Width() );
             DistMatrix<F> XT(g), XB(g);
             PartitionDown( X, XT, XB, n );
             XT = B;
@@ -225,7 +225,7 @@ LeastSquares
             lq::ApplyQ( LEFT, NORMAL, A, t, X );
 
             // Shrink X to its new height
-            X.ResizeTo( m, X.Width() );
+            X.Resize( m, X.Width() );
 
             // Solve against L' (check for singularities)
             auto AL = LockedView( A, 0, 0, m, m );

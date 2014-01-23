@@ -52,7 +52,7 @@ DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);
-    s.ResizeTo( k, 1 );
+    s.Resize( k, 1 );
     Matrix<F> U( m, k );
     Matrix<F> VAdj( k, n );
     lapack::DivideAndConquerSVD
@@ -71,7 +71,7 @@ QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min(m,n);
-    s.ResizeTo( k, 1 );
+    s.Resize( k, 1 );
     Matrix<F> U( m, k );
     Matrix<F> VAdj( k, n );
     lapack::QRSVD

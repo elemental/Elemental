@@ -19,7 +19,7 @@ Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
     const Int m = A.Height();
     const Int n = A.Width();
-    B.ResizeTo( n, m );
+    B.Resize( n, m );
     if( conjugate )
     {
         for( Int j=0; j<n; ++j )
@@ -45,7 +45,7 @@ Transpose
         A.ColAlign() == B.RowAlign() &&
         A.RowAlign() == B.ColAlign() )
     {
-        B.ResizeTo( A.Width(), A.Height() );
+        B.Resize( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
     }
     else
@@ -54,7 +54,7 @@ Transpose
         C.AlignRowsWith( B );
         C.AlignColsWith( B );
         C = A;
-        B.ResizeTo( A.Width(), A.Height() );
+        B.Resize( A.Width(), A.Height() );
         Transpose( C.LockedMatrix(), B.Matrix(), conjugate );
     }
 }

@@ -54,7 +54,7 @@ void PanelU
     auto expandedABR = ViewRange( A, off-1, off-1, n, n );
     DistMatrix<Real,MD,STAR> e(g);
     e.AlignWithDiagonal( expandedABR.DistData(), 1 );
-    e.ResizeTo( nW, 1 );
+    e.Resize( nW, 1 );
 
     std::vector<F> w01LastBuffer(n/r+1);
     DistMatrix<F> w01Last(g);
@@ -95,9 +95,9 @@ void PanelU
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
-        a01_MC_STAR.ResizeTo( kA, 1 );
-        a01_MR_STAR.ResizeTo( kA, 1 );
-        p01_MC_STAR.ResizeTo( kA, 1 );
+        a01_MC_STAR.Resize( kA, 1 );
+        a01_MR_STAR.Resize( kA, 1 );
+        p01_MC_STAR.Resize( kA, 1 );
 
         // View the portions of a01[MC,* ] and p01[MC,* ] above the current
         // panel's square
@@ -195,7 +195,7 @@ void PanelU
               rowBroadcastBuffer.data(), a01LocalHeight );
             // Store w01Last[MC,* ] into its DistMatrix class
             w01Last_MC_STAR.AlignWith( A00 );
-            w01Last_MC_STAR.ResizeTo( a01.Height()+1, 1 );
+            w01Last_MC_STAR.Resize( a01.Height()+1, 1 );
             MemCopy
             ( w01Last_MC_STAR.Buffer(), 
               &rowBroadcastBuffer[a01LocalHeight], w01LastLocalHeight );
@@ -272,7 +272,7 @@ void PanelU
 
             // Unpack
             w01Last_MR_STAR.AlignWith( A00 );
-            w01Last_MR_STAR.ResizeTo( a01.Height()+1, 1 );
+            w01Last_MR_STAR.Resize( a01.Height()+1, 1 );
             for( Int k=0; k<r; ++k )
             {
                 // Unpack into w01Last[MR,* ]

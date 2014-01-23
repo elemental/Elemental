@@ -34,10 +34,10 @@ void L( Matrix<F>& A, Matrix<F>& t )
     const Int n = A.Height();
     if( n == 0 )
     {
-        t.ResizeTo( 0, 1 );
+        t.Resize( 0, 1 );
         return;
     }
-    t.ResizeTo( n-1, 1 );
+    t.Resize( n-1, 1 );
 
     Matrix<F> w21;
     for( Int k=0; k<n-1; ++k )
@@ -74,13 +74,13 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     const Int n = A.Height();
     if( n == 0 )
     {
-        t.ResizeTo( 0, 1 );
+        t.Resize( 0, 1 );
         return;
     }
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tDiag(g);
     tDiag.AlignWithDiagonal( A, -1 );
-    tDiag.ResizeTo( n-1, 1 );
+    tDiag.Resize( n-1, 1 );
 
     DistMatrix<F> WPan(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), t1_STAR_STAR(g);
@@ -101,15 +101,15 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         if( A22.Height() > 0 )
         {
             WPan.AlignWith( A11 );
-            WPan.ResizeTo( n-k, nb );
+            WPan.Resize( n-k, nb );
             APan_MC_STAR.AlignWith( A11 );
-            APan_MC_STAR.ResizeTo( n-k, nb );
+            APan_MC_STAR.Resize( n-k, nb );
             WPan_MC_STAR.AlignWith( A11 );
-            WPan_MC_STAR.ResizeTo( n-k, nb );
+            WPan_MC_STAR.Resize( n-k, nb );
             APan_MR_STAR.AlignWith( A11 );
-            APan_MR_STAR.ResizeTo( n-k, nb );
+            APan_MR_STAR.Resize( n-k, nb );
             WPan_MR_STAR.AlignWith( A11 );
-            WPan_MR_STAR.ResizeTo( n-k, nb );
+            WPan_MR_STAR.Resize( n-k, nb );
 
             hermitian_tridiag::PanelL
             ( ABR, WPan, t1,
@@ -130,7 +130,7 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         else
         {
             A11_STAR_STAR = A11;
-            t1_STAR_STAR.ResizeTo( nbt, 1 );
+            t1_STAR_STAR.Resize( nbt, 1 );
             HermitianTridiag
             ( LOWER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;

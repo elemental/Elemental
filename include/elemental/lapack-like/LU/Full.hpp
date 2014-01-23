@@ -26,8 +26,8 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q, Int pivotOffset=0 )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.ResizeTo( minDim, 1 );
-    q.ResizeTo( minDim, 1 );
+    p.Resize( minDim, 1 );
+    q.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -71,8 +71,8 @@ Full
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.ResizeTo( minDim, 1 );
-    q.ResizeTo( minDim, 1 );
+    p.Resize( minDim, 1 );
+    q.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {

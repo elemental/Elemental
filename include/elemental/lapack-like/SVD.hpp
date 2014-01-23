@@ -45,7 +45,7 @@ inline void HermitianSVD
 
     // Copy V into U (flipping the sign as necessary)
     const Int n = A.Height();
-    U.ResizeTo( n, n );
+    U.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
         const BASE(F) sigma = s.Get( j, 0 );
@@ -102,7 +102,7 @@ inline void HermitianSVD
 
     // Copy V into U (flipping the sign as necessary)
     U.AlignWith( V );
-    U.ResizeTo( V.Height(), V.Width() );
+    U.Resize( V.Height(), V.Width() );
     const Int localHeight = V.LocalHeight();
     const Int localWidth = V.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -145,7 +145,7 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     const Int m = A.Height();
     const Int n = A.Width();
-    s.ResizeTo( Min(m,n), 1 );
+    s.Resize( Min(m,n), 1 );
     lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
 }
 

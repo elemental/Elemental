@@ -132,7 +132,7 @@ ComplexHermitianFunction
     // Form f(w)
     DistMatrix<C,VR,STAR> fw(g);
     fw.AlignWith( w.DistData() );
-    fw.ResizeTo( w.Height(), 1 );
+    fw.Resize( w.Height(), 1 );
     const Int numLocalEigs = w.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {

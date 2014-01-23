@@ -73,7 +73,7 @@ inline void
 Fourier( Matrix<Complex<Real> >& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeFourier( A );
 }
 
@@ -91,7 +91,7 @@ inline void
 Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeFourier( A );
 }
 

@@ -26,7 +26,7 @@ CauchyLike
         LogicError("x vector was the wrong length");
     if( y.size() != (Unsigned)n )
         LogicError("y vector was the wrong length");
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
 
     for( Int j=0; j<n; ++j )
     {
@@ -69,7 +69,7 @@ CauchyLike
         LogicError("x vector was the wrong length");
     if( y.size() != (Unsigned)n )
         LogicError("y vector was the wrong length");
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

@@ -368,8 +368,8 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
     DistMatrix<Real,VR,STAR> wSgn(g), wAbs(g);
     wSgn.AlignWith( w );
     wAbs.AlignWith( w );
-    wSgn.ResizeTo( n, 1 );
-    wAbs.ResizeTo( n, 1 );
+    wSgn.Resize( n, 1 );
+    wAbs.Resize( n, 1 );
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const Real omega = w.GetLocal(iLoc,0);

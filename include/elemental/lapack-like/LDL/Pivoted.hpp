@@ -716,12 +716,12 @@ UnblockedPivoted
     const Int n = A.Height();
     if( n == 0 )
     {
-        dSub.ResizeTo( 0, 1 );
-        p.ResizeTo( 0, 1 );
+        dSub.Resize( 0, 1 );
+        p.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
      
     Matrix<F> Y21;
 
@@ -797,7 +797,7 @@ UnblockedPivoted
     const Int n = A.Height();
     dSub.AlignWithDiagonal( A, -1 );
     Zeros( dSub, n-1, 1 );
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     DistMatrix<F> Y21( A.Grid() );
     DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
@@ -905,8 +905,8 @@ PanelPivoted
         const Int to = (off+k) + (pivot.nb-1);
         if( k+pivot.nb > bsize )
         {
-            X.ResizeTo( n-off, bsize-1 );
-            Y.ResizeTo( n-off, bsize-1 );
+            X.Resize( n-off, bsize-1 );
+            Y.Resize( n-off, bsize-1 );
             break;
         }
 
@@ -1029,8 +1029,8 @@ PanelPivoted
         const Int to = (off+k) + (pivot.nb-1);
         if( k+pivot.nb > bsize )
         {
-            X.ResizeTo( n-off, bsize-1 );
-            Y.ResizeTo( n-off, bsize-1 );
+            X.Resize( n-off, bsize-1 );
+            Y.Resize( n-off, bsize-1 );
             break;
         }
 
@@ -1123,12 +1123,12 @@ BlockedPivoted
     const Int n = A.Height();
     if( n == 0 )
     {
-        dSub.ResizeTo( 0, 1 );
-        p.ResizeTo( 0, 1 );
+        dSub.Resize( 0, 1 );
+        p.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     Matrix<F> X, Y;
     const Int bsize = Blocksize();
@@ -1166,13 +1166,13 @@ BlockedPivoted
     const Int n = A.Height();
     if( n == 0 )
     {
-        dSub.ResizeTo( 0, 1 );
-        p.ResizeTo( 0, 1 );
+        dSub.Resize( 0, 1 );
+        p.Resize( 0, 1 );
         return;
     }
     dSub.AlignWithDiagonal( A, -1 );
     Zeros( dSub, n-1, 1 );
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     DistMatrix<F,MC,STAR> X(g);
     DistMatrix<F,MR,STAR> Y(g);

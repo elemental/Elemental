@@ -115,7 +115,7 @@ LU( Matrix<F>& A, Matrix<Int>& p )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.ResizeTo( minDim, 1 );
+    p.Resize( minDim, 1 );
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
@@ -145,8 +145,8 @@ inline void
 LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
-    q.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    p.Resize( Min(A.Height(),A.Width()), 1 );
+    q.Resize( Min(A.Height(),A.Width()), 1 );
     lu::Full( A, p, q );
 }
 
@@ -171,7 +171,7 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.ResizeTo( minDim, 1 );
+    p.Resize( minDim, 1 );
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
@@ -189,7 +189,7 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
         A11_STAR_STAR = A11;
-        p1_STAR_STAR.ResizeTo( p1.Height(), 1 );
+        p1_STAR_STAR.Resize( p1.Height(), 1 );
         lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, k );
         ComposePivots( p1_STAR_STAR, k, image, preimage );
         ApplyRowPivots( AB, image, preimage );
@@ -217,8 +217,8 @@ inline void
 LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, DistMatrix<Int,VC,STAR>& q )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
-    q.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    p.Resize( Min(A.Height(),A.Width()), 1 );
+    q.Resize( Min(A.Height(),A.Width()), 1 );
     lu::Full( A, p, q );
 }
 

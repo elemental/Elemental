@@ -17,7 +17,7 @@ inline void
 MinIJ( Matrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
-    M.ResizeTo( n, n );
+    M.Resize( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
             M.Set( i, j, std::min(i+1,j+1) );
@@ -37,7 +37,7 @@ inline void
 MinIJ( DistMatrix<T,U,V>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
-    M.ResizeTo( n, n );
+    M.Resize( n, n );
     const Int localHeight = M.LocalHeight();
     const Int localWidth = M.LocalWidth();
     const Int colShift = M.ColShift();

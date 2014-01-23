@@ -25,7 +25,7 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
             LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
      
     for( Int k=0; k<n; ++k )
     {
@@ -66,7 +66,7 @@ UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
             LogicError("A and p must share the same grid");
     )
     const Int n = A.Height();
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     for( Int k=0; k<n; ++k )
     {
@@ -224,7 +224,7 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
             LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     Matrix<F> X, Y;
     const Int bsize = Blocksize();
@@ -251,7 +251,7 @@ UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
             LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     DistMatrix<F,MC,STAR> X( A.Grid() );
     DistMatrix<F,MR,STAR> Y( A.Grid() );

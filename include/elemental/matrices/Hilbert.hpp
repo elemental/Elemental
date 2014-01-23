@@ -61,7 +61,7 @@ inline void
 Hilbert( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeHilbert( A );
 }
 
@@ -79,7 +79,7 @@ inline void
 Hilbert( DistMatrix<F,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeHilbert( A );
 }
 

@@ -123,7 +123,7 @@ ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
 }
 
@@ -143,7 +143,7 @@ ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
 }
 

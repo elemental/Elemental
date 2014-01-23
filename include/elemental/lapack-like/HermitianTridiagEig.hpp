@@ -28,7 +28,7 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     const Real absTol = 0; // use the default value for now
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     lapack::SymmetricTridiagEig
     ( 'N', 'A', n, d.Buffer(), e.Buffer(), 0, 0, 0, 0, absTol, 
       w.Buffer(), 0, 1 );
@@ -70,7 +70,7 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     w.AlignCols( 0 );
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
@@ -100,7 +100,7 @@ HermitianTridiagEig
     typedef Complex<Real> C;
     const Int n = d.Height();
     w.AlignCols( 0 );
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, d.Grid() );
@@ -147,11 +147,11 @@ HermitianTridiagEig
     const Int ilConv = ( n==0 ? 1 : il+1 );
     const Int iuConv = ( n==0 ? 0 : iu+1 );
     const Real absTol = 0; // use the default value for now
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     lapack::SymmetricTridiagEig
     ( 'N', 'I', n, d.Buffer(), e.Buffer(), 0, 0, il, iu, absTol,
       w.Buffer(), 0, 1 );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
     Sort( w, sort );
 }
 
@@ -192,7 +192,7 @@ HermitianTridiagEig
     const Int n = d.Height();
     const Int k = ( n==0 ? 0 : iu-il+1 );
     w.AlignCols( 0 );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
@@ -223,7 +223,7 @@ HermitianTridiagEig
     const Int n = d.Height();
     const Int k = ( n==0 ? 0 : iu-il+1 );
     w.AlignCols( 0 );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, d.Grid() );
@@ -267,11 +267,11 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     const Real absTol = 0; // use the default value for now
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     const Int k = lapack::SymmetricTridiagEig
     ( 'N', 'V', n, d.Buffer(), e.Buffer(), vl, vu, 0, 0, absTol, w.Buffer(), 
       0, 1 );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
     Sort( w, sort );
 }
 
@@ -322,7 +322,7 @@ HermitianTridiagEig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
-        w.ResizeTo( k, 1 );
+        w.Resize( k, 1 );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
     }
@@ -368,7 +368,7 @@ HermitianTridiagEig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
-        w.ResizeTo( k, 1 );
+        w.Resize( k, 1 );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
     }
@@ -389,8 +389,8 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     const Real absTol = 0; // use the default value for now
-    w.ResizeTo( n, 1 );
-    Z.ResizeTo( n, n );
+    w.Resize( n, 1 );
+    Z.Resize( n, n );
     lapack::SymmetricTridiagEig
     ( 'V', 'A', n, d.Buffer(), e.Buffer(), 0, 0, 0, 0, absTol, 
       w.Buffer(), Z.Buffer(), Z.LDim() );
@@ -421,7 +421,7 @@ HermitianTridiagEig
     }
     Matrix<Real> ZReal;
     HermitianTridiagEig( d, eReal, w, ZReal, sort );
-    Z.ResizeTo( n, n );
+    Z.Resize( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
             Z.Set( i, j, y.Get(i,0)*ZReal.Get(i,j) );
@@ -440,9 +440,9 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     w.AlignCols( 0 );
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     Z.AlignRows( 0 );
-    Z.ResizeTo( n, n );
+    Z.Resize( n, n );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
@@ -473,9 +473,9 @@ HermitianTridiagEig
     typedef Complex<Real> C;
     const Int n = d.Height();
     w.AlignCols( 0 );
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     Z.AlignRows( 0 );
-    Z.ResizeTo( n, n );
+    Z.Resize( n, n );
 
     const Grid& g = d.Grid();
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
@@ -507,7 +507,7 @@ HermitianTridiagEig
             w.SetLocal( iLoc, 0, wVector[iLoc] );
     }
     herm_eig::Sort( w, ZReal, sort );
-    Z.ResizeTo( n, n );
+    Z.Resize( n, n );
     for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
         for( Int i=0; i<n; ++i )
             Z.SetLocal( i, jLoc, y.GetLocal(i,0)*ZReal.GetLocal(i,jLoc) );
@@ -546,12 +546,12 @@ HermitianTridiagEig
     const Int ilConv = ( n==0 ? 1 : il+1 );
     const Int iuConv = ( n==0 ? 0 : iu+1 );
     const Real absTol = 0; // use the default value for now
-    w.ResizeTo( n, 1 );
-    Z.ResizeTo( n, n );
+    w.Resize( n, 1 );
+    Z.Resize( n, n );
     lapack::SymmetricTridiagEig
     ( 'V', 'I', n, d.Buffer(), e.Buffer(), 0, 0, il, iu, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
     herm_eig::Sort( w, Z, sort );
 }
 
@@ -583,7 +583,7 @@ HermitianTridiagEig
     Matrix<Real> ZReal;
     HermitianTridiagEig( d, eReal, w, ZReal, il, iu, sort );
 
-    Z.ResizeTo( n, k );
+    Z.Resize( n, k );
     for( Int j=0; j<k; ++j )
         for( Int i=0; i<n; ++i )
             Z.Set( i, j, y.Get(i,0)*ZReal.Get(i,j) );
@@ -603,9 +603,9 @@ HermitianTridiagEig
     const Int n = d.Height();
     const Int k = ( n==0 ? 0 : iu-il+1 );
     w.AlignCols( 0 );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
     Z.AlignRows( 0 );
-    Z.ResizeTo( n, k );
+    Z.Resize( n, k );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
@@ -637,9 +637,9 @@ HermitianTridiagEig
     const Int n = d.Height();
     const Int k = ( n==0 ? 0 : iu-il+1 );
     w.AlignCols( 0 );
-    w.ResizeTo( k, 1 );
+    w.Resize( k, 1 );
     Z.AlignRows( 0 );
-    Z.ResizeTo( n, k );
+    Z.Resize( n, k );
 
     const Grid& g = d.Grid();
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
@@ -706,13 +706,13 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     const Real absTol = 0; // use the default value for now
-    w.ResizeTo( n, 1 );
-    Z.ResizeTo( n, n ); // This can be an unnecessary O(n^2) memory usage
+    w.Resize( n, 1 );
+    Z.Resize( n, n ); // This can be an unnecessary O(n^2) memory usage
     const Int k = lapack::SymmetricTridiagEig
     ( 'V', 'V', n, d.Buffer(), e.Buffer(), vl, vu, 0, 0, absTol, w.Buffer(), 
       Z.Buffer(), Z.LDim() );
-    w.ResizeTo( k, 1 );
-    Z.ResizeTo( n, k );
+    w.Resize( k, 1 );
+    Z.Resize( n, k );
     herm_eig::Sort( w, Z, sort );
 }
 
@@ -741,7 +741,7 @@ HermitianTridiagEig
     Matrix<Real> ZReal;
     HermitianTridiagEig( d, eReal, w, ZReal, vl, vu, sort );
     const Int k = w.Height();
-    Z.ResizeTo( n, k );
+    Z.Resize( n, k );
     for( Int j=0; j<k; ++j )
         for( Int i=0; i<n; ++i )
             Z.Set( i, j, y.Get(i,0)*ZReal.Get(i,j) );
@@ -776,17 +776,17 @@ HermitianTridiagEig
         SwapClear( dVector );
         SwapClear( eVector );
         const Int kEst = estimate.numGlobalEigenvalues;
-        Z.ResizeTo( n, kEst );
+        Z.Resize( n, kEst );
 
         pmrrr::Info info = pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
 
-        w.ResizeTo( k, 1 );
+        w.Resize( k, 1 );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
-        Z.ResizeTo( n, k );
+        Z.Resize( n, k );
     }
     w.MakeConsistent();
     Z.MakeConsistent();
@@ -841,18 +841,18 @@ HermitianTridiagEig
         SwapClear( dVector );
         SwapClear( eVector );
         const Int kEst = estimate.numGlobalEigenvalues;
-        ZReal.ResizeTo( n, kEst );
+        ZReal.Resize( n, kEst );
 
         pmrrr::Info info = pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           ZReal.Buffer(), ZReal.LDim(), w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
 
-        w.ResizeTo( k, 1 );
+        w.Resize( k, 1 );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
-        ZReal.ResizeTo( n, k );
-        Z.ResizeTo( n, k );
+        ZReal.Resize( n, k );
+        Z.Resize( n, k );
     }
     w.MakeConsistent();
     Z.MakeConsistent();
@@ -947,10 +947,10 @@ HermitianTridiagEigPostEstimate
           Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
 
-        w.ResizeTo( k, 1 );
+        w.Resize( k, 1 );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
-        Z.ResizeTo( n, k );
+        Z.Resize( n, k );
     }
     w.MakeConsistent();
     Z.MakeConsistent();

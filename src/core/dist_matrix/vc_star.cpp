@@ -15,28 +15,32 @@ using ADM = AbstractDistMatrix<T>;
 template<typename T>
 using DM = DistMatrix<T,VC,STAR>;
 
+// Public section
+// ##############
+
+// Constructors and destructors
+// ============================
+
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g )
 : ADM<T>(g)
 { this->SetShifts(); }
 
 template<typename T>
-DM<T>::DistMatrix
-( Int height, Int width, const elem::Grid& g )
+DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
 : ADM<T>(g)
-{ this->SetShifts(); this->ResizeTo(height,width); }
+{ this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
-DM<T>::DistMatrix
-( Int height, Int width, Int colAlign, const elem::Grid& g )
+DM<T>::DistMatrix( Int height, Int width, Int colAlign, const elem::Grid& g )
 : ADM<T>(g)
-{ this->Align(colAlign,0); this->ResizeTo(height,width); }
+{ this->Align(colAlign,0); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int ldim, const elem::Grid& g )
 : ADM<T>(g)
-{ this->Align(colAlign,0); this->ResizeTo(height,width,ldim); }
+{ this->Align(colAlign,0); this->Resize(height,width,ldim); }
 
 template<typename T>
 DM<T>::DistMatrix
@@ -65,7 +69,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 }
 
 template<typename T>
-template<Distribution U,Distribution V>
+template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
@@ -79,510 +83,12 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM<T>::DistMatrix( DM<T>&& A )
-: ADM<T>(std::move(A))
-{ }
+DM<T>::DistMatrix( DM<T>&& A ) : ADM<T>(std::move(A)) { }
 
-template<typename T>
-DM<T>&
-DM<T>::operator=( DM<T>&& A )
-{
-    ADM<T>::operator=( std::move(A) );
-    return *this;
-}
+template<typename T> DM<T>::~DistMatrix() { }
 
-template<typename T>
-DM<T>::~DistMatrix()
-{ }
-
-template<typename T>
-elem::DistData
-DM<T>::DistData() const
-{ return elem::DistData(*this); }
-
-template<typename T>
-mpi::Comm
-DM<T>::DistComm() const
-{ return this->grid_->VCComm(); }
-
-template<typename T>
-mpi::Comm
-DM<T>::CrossComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::RedundantComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::ColComm() const
-{ return this->grid_->VCComm(); }
-
-template<typename T>
-mpi::Comm
-DM<T>::RowComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-Int
-DM<T>::ColStride() const
-{ return this->grid_->Size(); }
-
-template<typename T>
-Int
-DM<T>::RowStride() const
-{ return 1; }
-
-template<typename T>
-void
-DM<T>::AlignWith( const elem::DistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignWith"))
-    this->SetGrid( *data.grid );
-    
-    if( data.colDist == MC || data.colDist == VC )
-        this->AlignCols( data.colAlign );
-    else if( data.rowDist == MC || data.rowDist == VC )
-        this->AlignCols( data.rowAlign );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
-template<typename T>
-void
-DM<T>::AlignColsWith( const elem::DistData& data )
-{ this->AlignWith( data ); }
-
-template<typename T>
-bool
-DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignedWithDiagonal"))
-    if( this->Grid() != *data.grid )
-        return false;
-
-    bool aligned;
-    if( (data.colDist == VC   && data.rowDist == STAR) ||
-        (data.colDist == STAR && data.rowDist == VC  ) )
-    {
-        const Int alignment = ( data.colDist==VC ? data.colAlign
-                                                 : data.rowAlign );
-        if( offset >= 0 )
-        {
-            const Int proc = alignment;
-            aligned = ( this->ColAlign() == proc );
-        }
-        else
-        {
-            const Int proc = (alignment-offset) % this->ColStride();
-            aligned = ( this->ColAlign() == proc );
-        }
-    }
-    else aligned = false;
-    return aligned;
-}
-
-template<typename T>
-void
-DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignWithDiagonal"))
-    this->SetGrid( *data.grid );
-
-    if( (data.colDist == VC   && data.rowDist == STAR) ||
-        (data.colDist == STAR && data.rowDist == VC  ) )
-    {
-        const Int alignment = ( data.colDist==VC ? data.colAlign
-                                                 : data.rowAlign );
-        if( offset >= 0 )
-            this->AlignCols( alignment );
-        else
-            this->AlignCols( (alignment-offset) % this->ColStride() );
-    }
-    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
-}
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, Int colAlign,
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::Attach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->viewType_ = VIEW;
-    this->SetColShift();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Size());
-        this->matrix_.Attach_( localHeight, width, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, Int colAlign,
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::LockedAttach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->viewType_ = LOCKED_VIEW;
-    this->SetColShift();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Size());
-        this->matrix_.LockedAttach_( localHeight, width, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::Attach( Matrix<T>& A, Int colAlign, const elem::Grid& g )
-{ this->Attach( A.Height(), A.Width(), colAlign, A.Buffer(), A.LDim(), g ); }
-
-template<typename T>
-void
-DM<T>::LockedAttach( const Matrix<T>& A, Int colAlign, const elem::Grid& g )
-{
-    this->LockedAttach
-    ( A.Height(), A.Width(), colAlign, A.LockedBuffer(), A.LDim(), g );
-}
-
-template<typename T>
-template<typename S,class Function>
-void
-DM<T>::GetDiagonalHelper
-( DistMatrix<S,VC,STAR>& d, Int offset, Function func ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
-        if( d.Viewing() )
-            this->AssertSameGrid( d.Grid() );
-        if( (d.Viewing() || d.ColConstrained() ) &&
-            !d.AlignedWithDiagonal( *this, offset ) )
-            LogicError("d must be aligned with the 'offset' diagonal");
-    )
-    const elem::Grid& g = this->Grid();
-    if( !d.Viewing() )
-    {
-        d.SetGrid( g );
-        if( !d.ColConstrained() )
-            d.AlignWithDiagonal( *this, offset );
-    }
-    d.ResizeTo( this->DiagonalLength(offset), 1 );
-    if( !this->Participating() )
-        return;
-
-    const Int diagShift = d.ColShift();
-    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
-
-    const Int p = g.Size();
-    const Int iLocStart = (iStart-this->ColShift()) / p;
-
-    S* dBuf = d.Buffer();
-    const Int localDiagLength = d.LocalHeight();
-    const T* thisBuf = this->LockedBuffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int k=0; k<localDiagLength; ++k )
-    {
-        const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*p;
-        func( dBuf[k], thisBuf[iLoc+jLoc*thisLDim] );
-    }
-}
-
-template<typename T>
-template<typename S,class Function>
-void
-DM<T>::GetDiagonalHelper
-( DistMatrix<S,STAR,VC>& d, Int offset, Function func ) const
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
-        if( d.Viewing() )
-            this->AssertSameGrid( d.Grid() );
-        if( ( d.Viewing() || d.RowConstrained() ) &&
-            !d.AlignedWithDiagonal( *this, offset ) )
-            LogicError("d must be aligned with the 'offset' diagonal");
-    )
-    const elem::Grid& g = this->Grid();
-    if( !d.Viewing() )
-    {
-        d.SetGrid( g );
-        if( !d.RowConstrained() )
-            d.AlignWithDiagonal( *this, offset );
-    }
-    d.ResizeTo( 1, this->DiagonalLength(offset) );
-    if( !this->Participating() )
-        return;
-
-    const Int diagShift = d.RowShift();
-    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
-
-    const Int p = g.Size();
-    const Int iLocStart = (iStart-this->ColShift()) / p;
-    const Int localDiagLength = d.LocalWidth();
-    S* dBuf = d.Buffer();
-    const Int dLDim = d.LDim();
-    const T* thisBuf = this->LockedBuffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int k=0; k<localDiagLength; ++k )
-    {
-        const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*p;
-        func( dBuf[k*dLDim], thisBuf[iLoc+jLoc*thisLDim] );
-    }
-}
-
-template<typename T>
-void
-DM<T>::GetDiagonal( DM<T>& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetDiagonal"))
-    this->GetDiagonalHelper
-    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
-}
-
-template<typename T>
-void
-DM<T>::GetDiagonal( DistMatrix<T,STAR,VC>& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetDiagonal"))
-    this->GetDiagonalHelper
-    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
-}
-
-template<typename T>
-void
-DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal"))
-    this->GetDiagonalHelper
-    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
-}
-
-template<typename T>
-void
-DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal"))
-    this->GetDiagonalHelper
-    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
-}
-
-template<typename T>
-void
-DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal"))
-    this->GetDiagonalHelper
-    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
-}
-
-template<typename T>
-void
-DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal"))
-    this->GetDiagonalHelper
-    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
-}
-
-template<typename T>
-DM<T>
-DM<T>::GetDiagonal( Int offset ) const
-{
-    DM<T> d( this->Grid() );
-    GetDiagonal( d, offset );
-    return d;
-}
-
-template<typename T>
-DistMatrix<Base<T>,VC,STAR>
-DM<T>::GetRealPartOfDiagonal( Int offset ) const
-{
-    DistMatrix<Base<T>,VC,STAR> d( this->Grid() );
-    GetRealPartOfDiagonal( d, offset );
-    return d;
-}
-
-template<typename T>
-DistMatrix<Base<T>,VC,STAR>
-DM<T>::GetImagPartOfDiagonal( Int offset ) const
-{
-    DistMatrix<Base<T>,VC,STAR> d( this->Grid() );
-    GetImagPartOfDiagonal( d, offset );
-    return d;
-}
-
-template<typename T>
-template<typename S,class Function>
-void
-DM<T>::SetDiagonalHelper
-( const DistMatrix<S,VC,STAR>& d, Int offset, Function func )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VC,* ]::SetDiagonalHelper");
-        this->AssertSameGrid( d.Grid() );
-        if( d.Width() != 1 )
-            LogicError("d must be a column vector");
-        const Int diagLength = this->DiagonalLength(offset);
-        if( diagLength != d.Height() )
-            LogicError
-            ("d is not of the same length as the diagonal:\n",
-             DimsString(*this,"A"),"\n",
-             DimsString(d,"d"),"\n",
-             "  A diag length: ",diagLength);
-        if( !d.AlignedWithDiagonal( *this, offset ) )
-            LogicError("d must be aligned with the 'offset' diagonal");
-    )
-    const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
-        return;
-
-    const Int diagShift = d.ColShift();
-    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
-
-    const Int p = g.Size();
-    const Int iLocStart = (iStart-this->ColShift())/p;
-
-    const S* dBuf = d.LockedBuffer();
-    const Int localDiagLength = d.LocalHeight();
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int k=0; k<localDiagLength; ++k )
-    {
-        const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*p;
-        func( thisBuf[iLoc+jLoc*thisLDim], dBuf[k] );
-    }
-}
-
-template<typename T>
-template<typename S,class Function>
-void
-DM<T>::SetDiagonalHelper
-( const DistMatrix<S,STAR,VC>& d, Int offset, Function func )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VC,* ]::SetDiagonalHelper");
-        this->AssertSameGrid( d.Grid() );
-        if( d.Height() != 1 )
-            LogicError("d must be a row vector");
-        const Int diagLength = this->DiagonalLength(offset);
-        if( diagLength != d.Width() )
-            LogicError
-            ("d is not of the same length as the diagonal:\n",
-             DimsString(*this,"A"),"\n",
-             DimsString(d,"d"),"\n",
-             "  A diag length: ",diagLength);
-        if( !d.AlignedWithDiagonal( *this, offset ) )
-            LogicError("d must be aligned with the 'offset' diagonal");
-    )
-    const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
-        return;
-
-    const Int diagShift = d.RowShift();
-    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
-    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
-
-    const Int p = g.Size();
-    const Int iLocStart = (iStart-this->ColShift())/p;
-
-    const S* dBuf = d.LockedBuffer();
-    const Int localDiagLength = d.LocalWidth();
-    T* thisBuf = this->Buffer();
-    const Int dLDim = d.LDim();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int k=0; k<localDiagLength; ++k )
-    {
-        const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*p;
-        func( thisBuf[iLoc+jLoc*thisLDim], dBuf[k*dLDim] );
-    }
-}
-
-template<typename T>
-void
-DM<T>::SetDiagonal( const DM<T>& d, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetDiagonal"))
-    this->SetDiagonalHelper
-    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
-}
-
-template<typename T>
-void
-DM<T>::SetDiagonal( const DistMatrix<T,STAR,VC>& d, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetDiagonal"))
-    this->SetDiagonalHelper
-    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
-}
-
-template<typename T>
-void
-DM<T>::SetRealPartOfDiagonal( const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetRealPartOfDiagonal"))
-    this->SetDiagonalHelper
-    ( d, offset, 
-      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
-}
-
-template<typename T>
-void
-DM<T>::SetRealPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetRealPartOfDiagonal"))
-    this->SetDiagonalHelper
-    ( d, offset, 
-      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
-}
-
-template<typename T>
-void
-DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetImagPartOfDiagonal"))
-    this->SetDiagonalHelper
-    ( d, offset, 
-      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
-}
-
-template<typename T>
-void
-DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetImagPartOfDiagonal"))
-    this->SetDiagonalHelper
-    ( d, offset, 
-      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
-}
-
-//
-// Utility functions, e.g., operator=
-//
+// Assignment and reconfiguration
+// ==============================
 
 template<typename T>
 const DM<T>&
@@ -1016,7 +522,7 @@ DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
     
@@ -1098,7 +604,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
 
@@ -1137,7 +643,7 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = g.Size();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Int colAlign = this->ColAlign();
     const Int mLocal = this->LocalHeight();
@@ -1196,6 +702,118 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 
     return *this;
 }
+
+template<typename T>
+DM<T>&
+DM<T>::operator=( DM<T>&& A )
+{
+    ADM<T>::operator=( std::move(A) );
+    return *this;
+}
+
+// Buffer attachment
+// -----------------
+
+template<typename T>
+void
+DM<T>::Attach
+( Int height, Int width, Int colAlign,
+  T* buffer, Int ldim, const elem::Grid& g )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::Attach"))
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlign_ = colAlign;
+    this->viewType_ = VIEW;
+    this->SetColShift();
+    if( this->Participating() )
+    {
+        const Int localHeight = Length(height,this->colShift_,g.Size());
+        this->matrix_.Attach_( localHeight, width, buffer, ldim );
+    }
+}
+
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int colAlign, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), colAlign, A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach
+( Int height, Int width, Int colAlign,
+  const T* buffer, Int ldim, const elem::Grid& g )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::LockedAttach"))
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlign_ = colAlign;
+    this->viewType_ = LOCKED_VIEW;
+    this->SetColShift();
+    if( this->Participating() )
+    {
+        const Int localHeight = Length(height,this->colShift_,g.Size());
+        this->matrix_.LockedAttach_( localHeight, width, buffer, ldim );
+    }
+}
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, Int colAlign, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), colAlign, A.LockedBuffer(), A.LDim(), g );
+}
+
+// Realignment
+// -----------
+template<typename T>
+void
+DM<T>::AlignWith( const elem::DistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignWith"))
+    this->SetGrid( *data.grid );
+    
+    if( data.colDist == MC || data.colDist == VC )
+        this->AlignCols( data.colAlign );
+    else if( data.rowDist == MC || data.rowDist == VC )
+        this->AlignCols( data.rowAlign );
+    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
+}
+
+template<typename T>
+void
+DM<T>::AlignColsWith( const elem::DistData& data )
+{ this->AlignWith( data ); }
+
+template<typename T>
+void
+DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignWithDiagonal"))
+    this->SetGrid( *data.grid );
+
+    if( (data.colDist == VC   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == VC  ) )
+    {
+        const Int alignment = ( data.colDist==VC ? data.colAlign
+                                                 : data.rowAlign );
+        if( offset >= 0 )
+            this->AlignCols( alignment );
+        else
+            this->AlignCols( (alignment-offset) % this->ColStride() );
+    }
+    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
+}
+
+// Specialized redistributions
+// ---------------------------
 
 template<typename T>
 void
@@ -1290,7 +908,7 @@ DM<T>::SumScatterFrom( const DistMatrix<T,STAR,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const elem::Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return;
 
@@ -1342,8 +960,7 @@ DM<T>::SumScatterFrom( const DistMatrix<T,STAR,STAR>& A )
 
 template<typename T>
 void
-DM<T>::SumScatterUpdate
-( T alpha, const DistMatrix<T,MC,STAR>& A )
+DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("[VC,* ]::SumScatterUpdate( [MC,* ] )");
@@ -1428,8 +1045,7 @@ DM<T>::SumScatterUpdate
 
 template<typename T>
 void
-DM<T>::SumScatterUpdate
-( T alpha, const DistMatrix<T,STAR,STAR>& A )
+DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("[VC,* ]::SumScatterUpdate( [* ,* ] )");
@@ -1487,6 +1103,393 @@ DM<T>::SumScatterUpdate
     }
     this->auxMemory_.Release();
 }
+
+// Basic queries
+// =============
+
+template<typename T>
+elem::DistData DM<T>::DistData() const { return elem::DistData(*this); }
+
+template<typename T>
+mpi::Comm DM<T>::DistComm() const { return this->grid_->VCComm(); }
+template<typename T>
+mpi::Comm DM<T>::CrossComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::RedundantComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::ColComm() const { return this->grid_->VCComm(); }
+template<typename T>
+mpi::Comm DM<T>::RowComm() const { return mpi::COMM_SELF; }
+
+template<typename T>
+Int DM<T>::ColStride() const { return this->grid_->Size(); }
+template<typename T>
+Int DM<T>::RowStride() const { return 1; }
+
+template<typename T>
+bool
+DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::AlignedWithDiagonal"))
+    if( this->Grid() != *data.grid )
+        return false;
+
+    bool aligned;
+    if( (data.colDist == VC   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == VC  ) )
+    {
+        const Int alignment = ( data.colDist==VC ? data.colAlign
+                                                 : data.rowAlign );
+        if( offset >= 0 )
+        {
+            const Int proc = alignment;
+            aligned = ( this->ColAlign() == proc );
+        }
+        else
+        {
+            const Int proc = (alignment-offset) % this->ColStride();
+            aligned = ( this->ColAlign() == proc );
+        }
+    }
+    else aligned = false;
+    return aligned;
+}
+
+// Diagonal manipulation
+// =====================
+
+template<typename T>
+void
+DM<T>::GetDiagonal( DM<T>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
+}
+
+template<typename T>
+void
+DM<T>::GetDiagonal( DistMatrix<T,STAR,VC>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
+}
+
+template<typename T>
+void
+DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
+}
+
+template<typename T>
+void
+DM<T>::GetRealPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetRealPartOfDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
+}
+
+template<typename T>
+void
+DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,VC,STAR>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
+}
+
+template<typename T>
+void
+DM<T>::GetImagPartOfDiagonal( DistMatrix<Base<T>,STAR,VC>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::GetImagPartOfDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
+}
+
+template<typename T>
+DM<T>
+DM<T>::GetDiagonal( Int offset ) const
+{
+    DM<T> d( this->Grid() );
+    GetDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
+DistMatrix<Base<T>,VC,STAR>
+DM<T>::GetRealPartOfDiagonal( Int offset ) const
+{
+    DistMatrix<Base<T>,VC,STAR> d( this->Grid() );
+    GetRealPartOfDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
+DistMatrix<Base<T>,VC,STAR>
+DM<T>::GetImagPartOfDiagonal( Int offset ) const
+{
+    DistMatrix<Base<T>,VC,STAR> d( this->Grid() );
+    GetImagPartOfDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
+void
+DM<T>::SetDiagonal( const DM<T>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
+}
+
+template<typename T>
+void
+DM<T>::SetDiagonal( const DistMatrix<T,STAR,VC>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
+}
+
+template<typename T>
+void
+DM<T>::SetRealPartOfDiagonal( const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
+}
+
+template<typename T>
+void
+DM<T>::SetRealPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
+}
+
+template<typename T>
+void
+DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
+}
+
+template<typename T>
+void
+DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::SetImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
+}
+
+// Arbitrary submatrix manipulation
+// ================================
+// TODO
+
+// Private section
+// ###############
+
+// Helper functions
+// ================
+
+template<typename T>
+template<typename S,class Function>
+void
+DM<T>::GetDiagonalHelper
+( DistMatrix<S,VC,STAR>& d, Int offset, Function func ) const
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
+        if( d.Viewing() )
+            this->AssertSameGrid( d.Grid() );
+        if( (d.Viewing() || d.ColConstrained() ) &&
+            !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
+    const elem::Grid& g = this->Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ColConstrained() )
+            d.AlignWithDiagonal( *this, offset );
+    }
+    d.Resize( this->DiagonalLength(offset), 1 );
+    if( !this->Participating() )
+        return;
+
+    const Int diagShift = d.ColShift();
+    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+    const Int p = g.Size();
+    const Int iLocStart = (iStart-this->ColShift()) / p;
+
+    S* dBuf = d.Buffer();
+    const Int localDiagLength = d.LocalHeight();
+    const T* thisBuf = this->LockedBuffer();
+    const Int thisLDim = this->LDim();
+    PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
+    {
+        const Int iLoc = iLocStart+k;
+        const Int jLoc = jStart+k*p;
+        func( dBuf[k], thisBuf[iLoc+jLoc*thisLDim] );
+    }
+}
+
+template<typename T>
+template<typename S,class Function>
+void
+DM<T>::GetDiagonalHelper
+( DistMatrix<S,STAR,VC>& d, Int offset, Function func ) const
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::GetDiagonalHelper");
+        if( d.Viewing() )
+            this->AssertSameGrid( d.Grid() );
+        if( ( d.Viewing() || d.RowConstrained() ) &&
+            !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
+    const elem::Grid& g = this->Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.RowConstrained() )
+            d.AlignWithDiagonal( *this, offset );
+    }
+    d.Resize( 1, this->DiagonalLength(offset) );
+    if( !this->Participating() )
+        return;
+
+    const Int diagShift = d.RowShift();
+    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+    const Int p = g.Size();
+    const Int iLocStart = (iStart-this->ColShift()) / p;
+    const Int localDiagLength = d.LocalWidth();
+    S* dBuf = d.Buffer();
+    const Int dLDim = d.LDim();
+    const T* thisBuf = this->LockedBuffer();
+    const Int thisLDim = this->LDim();
+    PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
+    {
+        const Int iLoc = iLocStart+k;
+        const Int jLoc = jStart+k*p;
+        func( dBuf[k*dLDim], thisBuf[iLoc+jLoc*thisLDim] );
+    }
+}
+
+template<typename T>
+template<typename S,class Function>
+void
+DM<T>::SetDiagonalHelper
+( const DistMatrix<S,VC,STAR>& d, Int offset, Function func )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::SetDiagonalHelper");
+        this->AssertSameGrid( d.Grid() );
+        if( d.Width() != 1 )
+            LogicError("d must be a column vector");
+        const Int diagLength = this->DiagonalLength(offset);
+        if( diagLength != d.Height() )
+            LogicError
+            ("d is not of the same length as the diagonal:\n",
+             DimsString(*this,"A"),"\n",
+             DimsString(d,"d"),"\n",
+             "  A diag length: ",diagLength);
+        if( !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
+    const elem::Grid& g = this->Grid();
+    if( !this->Participating() )
+        return;
+
+    const Int diagShift = d.ColShift();
+    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+    const Int p = g.Size();
+    const Int iLocStart = (iStart-this->ColShift())/p;
+
+    const S* dBuf = d.LockedBuffer();
+    const Int localDiagLength = d.LocalHeight();
+    T* thisBuf = this->Buffer();
+    const Int thisLDim = this->LDim();
+    PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
+    {
+        const Int iLoc = iLocStart+k;
+        const Int jLoc = jStart+k*p;
+        func( thisBuf[iLoc+jLoc*thisLDim], dBuf[k] );
+    }
+}
+
+template<typename T>
+template<typename S,class Function>
+void
+DM<T>::SetDiagonalHelper
+( const DistMatrix<S,STAR,VC>& d, Int offset, Function func )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("[VC,* ]::SetDiagonalHelper");
+        this->AssertSameGrid( d.Grid() );
+        if( d.Height() != 1 )
+            LogicError("d must be a row vector");
+        const Int diagLength = this->DiagonalLength(offset);
+        if( diagLength != d.Width() )
+            LogicError
+            ("d is not of the same length as the diagonal:\n",
+             DimsString(*this,"A"),"\n",
+             DimsString(d,"d"),"\n",
+             "  A diag length: ",diagLength);
+        if( !d.AlignedWithDiagonal( *this, offset ) )
+            LogicError("d must be aligned with the 'offset' diagonal");
+    )
+    const elem::Grid& g = this->Grid();
+    if( !this->Participating() )
+        return;
+
+    const Int diagShift = d.RowShift();
+    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+    const Int p = g.Size();
+    const Int iLocStart = (iStart-this->ColShift())/p;
+
+    const S* dBuf = d.LockedBuffer();
+    const Int localDiagLength = d.LocalWidth();
+    T* thisBuf = this->Buffer();
+    const Int dLDim = d.LDim();
+    const Int thisLDim = this->LDim();
+    PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
+    {
+        const Int iLoc = iLocStart+k;
+        const Int jLoc = jStart+k*p;
+        func( thisBuf[iLoc+jLoc*thisLDim], dBuf[k*dLDim] );
+    }
+}
+
+// Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
+// ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,VC,STAR>
 #define COPY(T,U,V) \

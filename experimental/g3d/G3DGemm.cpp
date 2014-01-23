@@ -119,7 +119,7 @@ void DepthBroadcast
 
     B.Empty();
     B.AlignWith( A );
-    B.ResizeTo( A.Height(), A.Width() );
+    B.Resize( A.Height(), A.Width() );
 
     // Have the root pack the broadcast data
     if( depthRank == 0 )
@@ -314,7 +314,7 @@ void SumContributions
 
     A.Empty();
     A.AlignWith( APartial );
-    A.ResizeTo( APartial.Height(), APartial.Width() );
+    A.Resize( APartial.Height(), APartial.Width() );
 
     if( APartial.LocalHeight() != APartial.LDim() )
         throw std::logic_error

@@ -35,7 +35,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.ResizeTo( minDim, 1 );
+    t.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -73,7 +73,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.ResizeTo( minDim, 1 );
+    t.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )

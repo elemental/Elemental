@@ -28,7 +28,7 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         if( m < n )
             LogicError("Must be a column panel");
     )
-    p.ResizeTo( n, 1 );
+    p.Resize( n, 1 );
 
     for( Int k=0; k<n; ++k )
     {

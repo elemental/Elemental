@@ -62,7 +62,7 @@ inline void
 Jordan( Matrix<T>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
-    J.ResizeTo( n, n );
+    J.Resize( n, n );
     MakeJordan( J, lambda );
 }
 
@@ -80,7 +80,7 @@ inline void
 Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
-    J.ResizeTo( n, n );
+    J.Resize( n, n );
     MakeJordan( J, lambda );
 }
 

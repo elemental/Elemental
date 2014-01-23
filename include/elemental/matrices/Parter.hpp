@@ -18,7 +18,7 @@ Parter( Matrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     const F oneHalf = F(1)/F(2);
-    P.ResizeTo( n, n );
+    P.Resize( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
             P.Set( i, j, F(1)/(F(i)-F(j)+oneHalf) );
@@ -39,7 +39,7 @@ Parter( DistMatrix<F,U,V>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     const F oneHalf = F(1)/F(2);
-    P.ResizeTo( n, n );
+    P.Resize( n, n );
     const Int localHeight = P.LocalHeight();
     const Int localWidth = P.LocalWidth();
     const Int colShift = P.ColShift();

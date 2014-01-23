@@ -20,7 +20,7 @@ inline void
 Lauchli( Matrix<T>& A, Int n, T mu )
 {
     DEBUG_ONLY(CallStackEntry cse("Lauchli"))
-    A.ResizeTo( n+1, n );
+    A.Resize( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );
     MakeOnes( ABlock );
@@ -44,7 +44,7 @@ inline void
 Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
 {
     DEBUG_ONLY(CallStackEntry cse("Lauchli"))
-    A.ResizeTo( n+1, n );
+    A.Resize( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );
     MakeOnes( ABlock );

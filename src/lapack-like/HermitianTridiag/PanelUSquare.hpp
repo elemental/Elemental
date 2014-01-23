@@ -65,7 +65,7 @@ void PanelUSquare
     auto expandedABR = ViewRange( A, off-1, off-1, n, n );
     DistMatrix<Real,MD,STAR> e(g);
     e.AlignWithDiagonal( expandedABR.DistData(), 1 );
-    e.ResizeTo( nW, 1 );
+    e.Resize( nW, 1 );
 
     std::vector<F> w01LastBuffer(n/r+1);
     DistMatrix<F> w01Last(g);
@@ -108,10 +108,10 @@ void PanelUSquare
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
         q01_MR_STAR.AlignWith( A00 );
-        a01_MC_STAR.ResizeTo( kA, 1 );
-        a01_MR_STAR.ResizeTo( kA, 1 );
-        p01_MC_STAR.ResizeTo( kA, 1 );
-        q01_MR_STAR.ResizeTo( kA, 1 );
+        a01_MC_STAR.Resize( kA, 1 );
+        a01_MR_STAR.Resize( kA, 1 );
+        p01_MC_STAR.Resize( kA, 1 );
+        q01_MR_STAR.Resize( kA, 1 );
 
         // View the portions of A02 and W0T outside of this panel's square
         auto a01T_MC_STAR = View( a01_MC_STAR, 0, 0, off, 1 );
@@ -223,7 +223,7 @@ void PanelUSquare
               rowBroadcastBuffer.data(), a01LocalHeight );
             // Store w01Last[MC,* ] into its DistMatrix class
             w01Last_MC_STAR.AlignWith( A00 );
-            w01Last_MC_STAR.ResizeTo( a01.Height()+1, 1 );
+            w01Last_MC_STAR.Resize( a01.Height()+1, 1 );
             MemCopy
             ( w01Last_MC_STAR.Buffer(), 
               &rowBroadcastBuffer[a01LocalHeight], w01LastLocalHeight );
@@ -245,7 +245,7 @@ void PanelUSquare
             // form a01[MR,* ] and w01Last[MR,* ] from their [MC,* ]
             // counterparts
             w01Last_MR_STAR.AlignWith( A00 );
-            w01Last_MR_STAR.ResizeTo( w01Last.Height(), 1 );
+            w01Last_MR_STAR.Resize( w01Last.Height(), 1 );
             if( onDiagonal )
             {
                 MemCopy

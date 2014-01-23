@@ -21,7 +21,7 @@ Hanowa( Matrix<T>& A, Int n, T mu )
     DEBUG_ONLY(CallStackEntry cse("Hanowa"))
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     const Int m = n/2;
     std::vector<T> d(m);
 
@@ -59,7 +59,7 @@ Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
     DEBUG_ONLY(CallStackEntry cse("Hanowa"))
     if( n % 2 != 0 )
         LogicError("n must be an even integer");
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     const Int m = n/2;
     std::vector<T> d(m);
 

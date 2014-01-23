@@ -104,7 +104,7 @@ void TestUT
     const Int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
     DistMatrix<F,MD,STAR> t(g);
     t.AlignWithDiagonal( H, offset );
-    t.ResizeTo( diagLength, 1 );
+    t.Resize( diagLength, 1 );
 
     DistMatrix<F> HCol(g);
     if( uplo == LOWER )

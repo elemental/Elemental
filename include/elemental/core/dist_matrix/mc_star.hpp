@@ -22,50 +22,43 @@ template<typename T>
 class DistMatrix<T,MC,STAR> : public AbstractDistMatrix<T>
 {
 public:
+    // Typedefs
+    // ========
     typedef AbstractDistMatrix<T> admType;
     typedef DistMatrix<T,MC,STAR> type;
 
+    // Constructors and destructors
+    // ============================
     // Create a 0 x 0 distributed matrix
     DistMatrix( const elem::Grid& g=DefaultGrid() );
-
     // Create a height x width distributed matrix
-    DistMatrix
-    ( Int height, Int width, const elem::Grid& g=DefaultGrid() );
-
+    DistMatrix( Int height, Int width, const elem::Grid& g=DefaultGrid() );
     // Create a height x width distributed matrix with specified alignments
-    DistMatrix
-    ( Int height, Int width, Int colAlignment, const elem::Grid& g );
-
+    DistMatrix( Int height, Int width, Int colAlignment, const elem::Grid& g );
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
-    ( Int height, Int width, 
-      Int colAlignment, Int ldim, const elem::Grid& g );
-
+    ( Int height, Int width, Int colAlignment, Int ldim, const elem::Grid& g );
     // View a constant distributed matrix's buffer
     DistMatrix
     ( Int height, Int width, Int colAlignment, 
       const T* buffer, Int ldim, const elem::Grid& g );
-
     // View a mutable distributed matrix's buffer
     DistMatrix
     ( Int height, Int width, Int colAlignment,
       T* buffer, Int ldim, const elem::Grid& g );
-
-    // Create a copy of distributed matrix A
+    // Create a copy of distributed matrix (redistribute if necessary)
     DistMatrix( const type& A );
-    template<Distribution U,Distribution V>
-    DistMatrix( const DistMatrix<T,U,V>& A );
-
-    ~DistMatrix();
-
+    template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
 #ifndef SWIG
     // Move constructor
     DistMatrix( type&& A );
-    // Move assignment
-    type& operator=( type&& A );
 #endif
+    // Destructor
+    ~DistMatrix();
 
+    // Assignment and reconfiguration
+    // ==============================
     const type& operator=( const DistMatrix<T,MC,  MR  >& A );
     const type& operator=( const DistMatrix<T,MC,  STAR>& A );
     const type& operator=( const DistMatrix<T,STAR,MR  >& A );
@@ -80,15 +73,38 @@ public:
     const type& operator=( const DistMatrix<T,STAR,VR  >& A );
     const type& operator=( const DistMatrix<T,STAR,STAR>& A );
     const type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
+#ifndef SWIG
+    // Move assignment
+    type& operator=( type&& A );
+#endif
 
-    //------------------------------------------------------------------------//
-    // Overrides of AbstractDistMatrix                                        //
-    //------------------------------------------------------------------------//
+    // Buffer attachment
+    // -----------------
+    // (Immutable) view of a distributed matrix's buffer
+    void Attach
+    ( Int height, Int width, Int colAlign,
+      T* buffer, Int ldim, const elem::Grid& grid );
+    void LockedAttach
+    ( Int height, Int width, Int colAlign,
+      const T* buffer, Int ldim, const elem::Grid& grid );
+    void Attach
+    ( Matrix<T>& A, Int colAlign, const elem::Grid& grid );
+    void LockedAttach
+    ( const Matrix<T>& A, Int colAlign, const elem::Grid& grid );    
 
-    //
-    // Non-collective routines
-    //
+    // Realignment
+    // -----------
+    virtual void AlignWith( const elem::DistData& data );
+    virtual void AlignColsWith( const elem::DistData& data );
+    void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
 
+    // Specialized redistributions
+    // ---------------------------
+    // AllReduce sum over process row
+    void SumOverRow();
+
+    // Basic queries
+    // =============
     virtual elem::DistData DistData() const;
     virtual mpi::Comm DistComm() const;
     virtual mpi::Comm CrossComm() const;
@@ -97,23 +113,10 @@ public:
     virtual mpi::Comm RowComm() const;
     virtual Int RowStride() const;
     virtual Int ColStride() const;
+    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
 
-    //
-    // Collective routines
-    //
-
-    // Distribution alignment
-    virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignColsWith( const elem::DistData& data );
-
-    //------------------------------------------------------------------------//
-    // Routines specific to [MC,* ] distribution                              //
-    //------------------------------------------------------------------------//
-
-    //
-    // Collective routines
-    //
-
+    // Diagonal manipulation
+    // =====================
     void GetDiagonal( type& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MC>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
@@ -141,25 +144,13 @@ public:
     void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
 
-    void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
-    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, Int colAlign,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int colAlign,
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach
-    ( Matrix<T>& A, Int colAlign, const elem::Grid& grid );
-    void LockedAttach
-    ( const Matrix<T>& A, Int colAlign, const elem::Grid& grid );
-
-    // AllReduce sum over process row
-    void SumOverRow();
+    // Arbitrary submatrix manipulation
+    // ================================
+    // TODO
 
 private:
+    // Helper functions
+    // ================
     template<typename S,class Function>
     void GetDiagonalHelper
     ( DistMatrix<S,MC,STAR>& d, Int offset, Function func ) const;
@@ -173,9 +164,10 @@ private:
     void SetDiagonalHelper
     ( const DistMatrix<S,STAR,MC>& d, Int offset, Function func );
 
+    // Friend declarations
+    // ===================
 #ifndef SWIG
-    template<typename S,Distribution U,Distribution V>
-    friend class DistMatrix;
+    template<typename S,Dist U,Dist V> friend class DistMatrix;
 #endif // ifndef SWIG
 };
 

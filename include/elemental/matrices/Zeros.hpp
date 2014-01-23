@@ -35,7 +35,7 @@ inline void
 Zeros( Matrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Zeros"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeZeros( A );
 }
 
@@ -53,7 +53,7 @@ inline void
 Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Zeros"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeZeros( A );
 }
 

@@ -53,7 +53,7 @@ Conjugate( const Matrix<T>& A, Matrix<T>& B )
     DEBUG_ONLY(CallStackEntry cse("Conjugate"))
     const Int m = A.Height();
     const Int n = A.Width();
-    B.ResizeTo( m, n );
+    B.Resize( m, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             B.Set(i,j,Conj(A.Get(i,j)));

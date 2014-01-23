@@ -69,7 +69,7 @@ inline void
 OneTwoOne( Matrix<T>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeOneTwoOne( A );
 }
 
@@ -87,7 +87,7 @@ inline void
 OneTwoOne( DistMatrix<T,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeOneTwoOne( A );
 }
 

@@ -208,7 +208,7 @@ TwoSidedTrmmUVar2
         Z12Adj.SumScatterFrom( Z12Adj_MC_STAR );
         Z12Adj_MR_MC = Z12Adj;
         Z12Adj_MR_MC.SumScatterUpdate( F(1), Z12Adj_MR_STAR );
-        Y12.ResizeTo( A12.Height(), A12.Width() );
+        Y12.Resize( A12.Height(), A12.Width() );
         Adjoint( Z12Adj_MR_MC.LockedMatrix(), Y12.Matrix() );
 
         // A12 := U11 A12

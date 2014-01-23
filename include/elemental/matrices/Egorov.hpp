@@ -61,7 +61,7 @@ inline void
 Egorov( Matrix<Complex<Real> >& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeEgorov( A, phase );
 }
 
@@ -79,7 +79,7 @@ inline void
 Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeEgorov( A, phase );
 }
 

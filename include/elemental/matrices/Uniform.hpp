@@ -30,7 +30,7 @@ inline void
 Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
 
@@ -355,7 +355,7 @@ inline void
 Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
 

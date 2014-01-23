@@ -96,7 +96,7 @@ NormalUniformSpectrum
 ( Matrix<Complex<R> >& A, Int n, Complex<R> center=0, R radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
 }
 
@@ -115,7 +115,7 @@ NormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Int n, Complex<R> center=0, R radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
 }
 

@@ -120,6 +120,7 @@ std::string DistToString( Distribution distribution );
 Distribution StringToDist( std::string s );
 }
 using namespace distribution_wrapper;
+typedef Distribution Dist;
 
 namespace viewtype_wrapper {
 enum ViewType

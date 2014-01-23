@@ -61,10 +61,10 @@ main( int argc, char* argv[] )
         // Form the matrices of A's (hopefully) dominant rows and columns
         DistMatrix<C> AR( A );
         ApplyRowPivots( AR, pR );
-        AR.ResizeTo( numSteps, A.Width() );
+        AR.Resize( numSteps, A.Width() );
         DistMatrix<C> AC( A );
         ApplyColumnPivots( AC, pC );
-        AC.ResizeTo( A.Height(), numSteps );
+        AC.Resize( A.Height(), numSteps );
         if( print )
         {
             Print( AC, "AC" );

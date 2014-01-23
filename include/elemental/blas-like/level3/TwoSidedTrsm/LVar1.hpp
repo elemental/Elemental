@@ -188,7 +188,7 @@ TwoSidedTrsmLVar1
         Z10Adj.SumScatterFrom( Z10Adj_MC_STAR );
         Z10Adj_MR_MC = Z10Adj;
         Z10Adj_MR_MC.SumScatterUpdate( F(1), Z10Adj_MR_STAR );
-        Y10.ResizeTo( A10.Height(), A10.Width() );
+        Y10.Resize( A10.Height(), A10.Width() );
         Adjoint( Z10Adj_MR_MC.Matrix(), Y10.Matrix() );
 
         // A10 := A10 inv(L00)'

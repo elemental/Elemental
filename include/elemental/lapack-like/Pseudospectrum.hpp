@@ -56,8 +56,8 @@ ReshapeIntoGrids
         Matrix<T>& invNormMap,       Matrix<Int>& itCountMap )
 {
 #if 0    
-    invNormMap.ResizeTo( xSize, ySize );
-    itCountMap.ResizeTo( xSize, ySize );
+    invNormMap.Resize( xSize, ySize );
+    itCountMap.Resize( xSize, ySize );
     for( Int j=0; j<xSize; ++j )
     {
         auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
@@ -69,8 +69,8 @@ ReshapeIntoGrids
     }
 #else
     // The sequential case can be optimized much more heavily than in parallel
-    invNormMap.ResizeTo( xSize, ySize, xSize );
-    itCountMap.ResizeTo( xSize, ySize, xSize );
+    invNormMap.Resize( xSize, ySize, xSize );
+    itCountMap.Resize( xSize, ySize, xSize );
     MemCopy( invNormMap.Buffer(), invNorms.LockedBuffer(), xSize*ySize );
     MemCopy( itCountMap.Buffer(), itCounts.LockedBuffer(), xSize*ySize );
 #endif
@@ -87,8 +87,8 @@ ReshapeIntoGrids
 {
     invNormMap.SetGrid( invNorms.Grid() );
     itCountMap.SetGrid( invNorms.Grid() );
-    invNormMap.ResizeTo( xSize, ySize );
-    itCountMap.ResizeTo( xSize, ySize );
+    invNormMap.Resize( xSize, ySize );
+    itCountMap.Resize( xSize, ySize );
     for( Int j=0; j<xSize; ++j )
     {
         auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
@@ -120,7 +120,7 @@ TriangularPseudospectrum
     else
     {
         const Int n = U.Height();
-        UCpx.ResizeTo( n, n );
+        UCpx.Resize( n, n );
         for( Int j=0; j<n; ++j )
             for( Int i=0; i<n; ++i )
                 UCpx.Set( i, j, U.Get(i,j) );
@@ -182,7 +182,7 @@ TriangularPseudospectrum
     {
         UCpx.AlignWith( U );
         const Int n = U.Height();
-        UCpx.ResizeTo( n, n );
+        UCpx.Resize( n, n );
         const Int mLocal = U.LocalHeight();
         const Int nLocal = U.LocalWidth();
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -270,7 +270,7 @@ Pseudospectrum
     DistMatrix<C> U(g);
     U.AlignWith( A );
     const Int n = A.Height();
-    U.ResizeTo( n, n );
+    U.Resize( n, n );
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -589,7 +589,7 @@ Pseudospectrum
     DistMatrix<C> U(g);
     U.AlignWith( A );
     const Int n = A.Height();
-    U.ResizeTo( n, n );
+    U.Resize( n, n );
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )

@@ -70,7 +70,7 @@ inline void
 Legendre( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeLegendre( A );
 }
 
@@ -88,7 +88,7 @@ inline void
 Legendre( DistMatrix<F,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeLegendre( A );
 }
 

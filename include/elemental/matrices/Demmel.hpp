@@ -22,12 +22,12 @@ Demmel( Matrix<F>& A, Int n )
     typedef Base<F> Real;
     if( n == 0 )
     {
-        A.ResizeTo( 0, 0 );
+        A.Resize( 0, 0 );
         return;
     }
     else if( n == 1 )
     {
-        A.ResizeTo( 1, 1 );
+        A.Resize( 1, 1 );
         A.Set( 0, 0, -Real(1) );
         return;
     }
@@ -61,12 +61,12 @@ Demmel( DistMatrix<F,U,V>& A, Int n )
     typedef Base<F> Real;
     if( n == 0 )
     {
-        A.ResizeTo( 0, 0 );
+        A.Resize( 0, 0 );
         return;
     }
     else if( n == 1 )
     {
-        A.ResizeTo( 1, 1 );
+        A.Resize( 1, 1 );
         A.Set( 0, 0, -Real(1) );
         return;
     }

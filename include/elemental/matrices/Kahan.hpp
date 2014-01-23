@@ -86,7 +86,7 @@ inline void
 Kahan( Matrix<F>& A, Int n, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("Kahan"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeKahan( A, phi );
 }
 
@@ -104,7 +104,7 @@ inline void
 Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("Kahan"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeKahan( A, phi );
 }
 

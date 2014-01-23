@@ -54,8 +54,8 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, 1 );
     tQDiag.AlignWithDiagonal( A, 0 );
-    tPDiag.ResizeTo( tPHeight, 1 );
-    tQDiag.ResizeTo( tQHeight, 1 );
+    tPDiag.Resize( tPHeight, 1 );
+    tQDiag.Resize( tQHeight, 1 );
 
     DistMatrix<F> X(g), Y(g);
     DistMatrix<F,MC,  STAR> X21_MC_STAR(g), AColPan_MC_STAR(g);
@@ -77,13 +77,13 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         {
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
-            X.ResizeTo( m-k, nb );
-            Y.ResizeTo( n-k, nb );
+            X.Resize( m-k, nb );
+            Y.Resize( n-k, nb );
 
             AColPan_MC_STAR.AlignWith( A11 );
             ARowPan_STAR_MR.AlignWith( A11 );
-            AColPan_MC_STAR.ResizeTo( m-k, nb  );
-            ARowPan_STAR_MR.ResizeTo( nb,  n-k );
+            AColPan_MC_STAR.Resize( m-k, nb  );
+            ARowPan_STAR_MR.Resize( nb,  n-k );
 
             auto tP1 = View( tPDiag, k, 0, nb, 1 );
             auto tQ1 = View( tQDiag, k, 0, nb, 1 );

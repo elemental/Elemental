@@ -64,8 +64,8 @@ BusingerGolub
         if( maxSteps > Min(m,n) )
             LogicError("Too many steps requested");
     )
-    p.ResizeTo( maxSteps, 1 );
-    t.ResizeTo( maxSteps, 1 );
+    p.Resize( maxSteps, 1 );
+    t.Resize( maxSteps, 1 );
 
     Matrix<F> z;
 
@@ -89,8 +89,8 @@ BusingerGolub
         const ValueInt<Real> pivot = FindPivot( norms, k );
         if( pivot.value <= tol*maxOrigNorm )
         {
-            p.ResizeTo( k, 1 );
-            t.ResizeTo( k, 1 );
+            p.Resize( k, 1 );
+            t.Resize( k, 1 );
             break;
         }
         p.Set( k, 0, pivot.index );
@@ -366,8 +366,8 @@ BusingerGolub
         if( maxSteps > Min(m,n) )
             LogicError("Too many steps requested");
     )
-    t.ResizeTo( maxSteps, 1 );
-    p.ResizeTo( maxSteps, 1 );
+    t.Resize( maxSteps, 1 );
+    p.Resize( maxSteps, 1 );
 
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -402,8 +402,8 @@ BusingerGolub
         const ValueInt<Real> pivot = FindColumnPivot( A, norms, k );
         if( pivot.value <= tol*maxOrigNorm )
         {
-            p.ResizeTo( k, 1 );
-            t.ResizeTo( k, 1 );
+            p.Resize( k, 1 );
+            t.Resize( k, 1 );
             break;
         }
         p.Set( k, 0, pivot.index );

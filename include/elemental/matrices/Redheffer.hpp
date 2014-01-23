@@ -17,7 +17,7 @@ inline void
 Redheffer( Matrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Redheffer"))
-    R.ResizeTo( n, n );
+    R.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<n; ++i )
@@ -44,7 +44,7 @@ inline void
 Redheffer( DistMatrix<T,U,V>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Redheffer"))
-    R.ResizeTo( n, n );
+    R.Resize( n, n );
     const Int localHeight = R.LocalHeight();
     const Int localWidth = R.LocalWidth();
     const Int colShift = R.ColShift();

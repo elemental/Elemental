@@ -55,7 +55,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
-        H.ResizeTo( H.Height(), H.Height() );
+        H.Resize( H.Height(), H.Height() );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
     const Int dimDiff = H.Height() - H.Width();
@@ -118,7 +118,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
          /**/ /**/
           tB,  t2, HPanWidth );
 
-        Z.ResizeTo( HPanWidth, effectedWidth );
+        Z.Resize( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         //--------------------------------------------------------------------//
         Herk( UPPER, ADJOINT, F(1), HPan, SInv );
@@ -180,7 +180,7 @@ LV
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
-        H.ResizeTo( H.Height(), H.Height() );
+        H.Resize( H.Height(), H.Height() );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
     const Int dimDiff = H.Height() - H.Width();
@@ -253,8 +253,8 @@ LV
         HPan_MC_STAR.AlignWith( HEffected );
         Z_STAR_VR.AlignWith( HEffected );
         Z_STAR_MR.AlignWith( HEffected );
-        Z_STAR_MR.ResizeTo( HPanWidth, effectedWidth );
-        Z_STAR_VR.ResizeTo( HPanWidth, effectedWidth );
+        Z_STAR_MR.Resize( HPanWidth, effectedWidth );
+        Z_STAR_VR.Resize( HPanWidth, effectedWidth );
         PartitionLeft
         ( Z_STAR_MR, ZNew_STAR_MR, ZOld_STAR_MR, oldEffectedWidth );
         PartitionLeft

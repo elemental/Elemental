@@ -441,7 +441,7 @@ SDC
 
     typedef Base<F> Real;
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     if( n <= cutoff )
     {
         HermitianEig( uplo, A, w );
@@ -475,8 +475,8 @@ SDC
 
     typedef Base<F> Real;
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
-    Q.ResizeTo( n, n );
+    w.Resize( n, 1 );
+    Q.Resize( n, n );
     if( n <= cutoff )
     {
         HermitianEig( uplo, A, w, Q );
@@ -520,7 +520,7 @@ SDC
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
+    w.Resize( n, 1 );
     if( A.Grid().Size() == 1 )
     {
         HermitianEig( uplo, A.Matrix(), w.Matrix() );
@@ -571,8 +571,8 @@ SDC
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    w.ResizeTo( n, 1 );
-    Q.ResizeTo( n, n );
+    w.Resize( n, 1 );
+    Q.Resize( n, n );
     if( A.Grid().Size() == 1 )
     {
         HermitianEig( uplo, A.Matrix(), w.Matrix(), Q.Matrix() );

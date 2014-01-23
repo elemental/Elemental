@@ -17,7 +17,7 @@ inline void
 Pei( Matrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
-    P.ResizeTo( n, n );
+    P.Resize( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
             P.Set( i, j, T(1) );
@@ -39,7 +39,7 @@ inline void
 Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
-    P.ResizeTo( n, n );
+    P.Resize( n, n );
     const Int localHeight = P.LocalHeight();
     const Int localWidth = P.LocalWidth();
     const Int colShift = P.ColShift();

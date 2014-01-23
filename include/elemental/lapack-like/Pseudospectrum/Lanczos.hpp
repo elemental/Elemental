@@ -572,7 +572,7 @@ TriangularLanczos
     Matrix<C> pivShifts( shifts );
     if( deflate )
     {
-        preimage.ResizeTo( numShifts, 1 );
+        preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
             preimage.Set( j, 0, j );
     }
@@ -698,7 +698,7 @@ TriangularLanczos
     if( deflate )
     {
         preimage.AlignWith( shifts );
-        preimage.ResizeTo( numShifts, 1 );
+        preimage.Resize( numShifts, 1 );
         const Int numLocShifts = preimage.LocalHeight();
         for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         {

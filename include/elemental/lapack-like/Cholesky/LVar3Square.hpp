@@ -74,7 +74,7 @@ LVar3Square( DistMatrix<F>& A )
         // SendRecv to form A21^T[* ,MR] from A21^T[* ,MC], then conjugate
         // the buffer to form A21^H[* ,MR]
         A21Adj_STAR_MR.AlignWith( A22 );
-        A21Adj_STAR_MR.ResizeTo( A21.Width(), A21.Height() ); 
+        A21Adj_STAR_MR.Resize( A21.Width(), A21.Height() ); 
         {
             if( onDiagonal )
             { 

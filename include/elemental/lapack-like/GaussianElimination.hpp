@@ -104,7 +104,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A11_STAR_STAR = A11;
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
-        p1_STAR_STAR.ResizeTo( nb, 1 );
+        p1_STAR_STAR.Resize( nb, 1 );
         lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, k );
         ComposePivots( p1_STAR_STAR, k, image, preimage );
         ApplyRowPivots( APan, image, preimage );

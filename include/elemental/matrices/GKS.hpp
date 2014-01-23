@@ -84,7 +84,7 @@ inline void
 GKS( DistMatrix<F,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GKS"))
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeGKS( A );
 }
 

@@ -31,8 +31,8 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     const Int n = A.Width();
     const Int tPHeight = m;
     const Int tQHeight = Max(m-1,0);
-    tP.ResizeTo( tPHeight, 1 );
-    tQ.ResizeTo( tQHeight, 1 );
+    tP.Resize( tPHeight, 1 );
+    tQ.Resize( tQHeight, 1 );
 
     // Views
     Matrix<F> alpha21T, a21B;
@@ -127,8 +127,8 @@ inline void LUnb
     const Int n = A.Width();
     const Int tPHeight = m;
     const Int tQHeight = Max(m-1,0);
-    tP.ResizeTo( tPHeight, 1 );
-    tQ.ResizeTo( tQHeight, 1 );
+    tP.Resize( tPHeight, 1 );
+    tQ.Resize( tQHeight, 1 );
 
     DistMatrix<F,MC,  STAR> a21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);

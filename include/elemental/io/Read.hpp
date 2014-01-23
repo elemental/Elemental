@@ -55,7 +55,7 @@ Binary( Matrix<T>& A, const std::string filename )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     if( A.Height() == A.LDim() )
         file.read( (char*)A.Buffer(), height*width*sizeof(T) );
     else
@@ -78,7 +78,7 @@ BinaryFlat( Matrix<T>& A, Int height, Int width, const std::string filename )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     if( A.Height() == A.LDim() )
         file.read( (char*)A.Buffer(), height*width*sizeof(T) );
     else
@@ -107,7 +107,7 @@ Binary( DistMatrix<T,U,V>& A, const std::string filename )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const Int colShift = A.ColShift(); 
@@ -144,7 +144,7 @@ BinaryFlat
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const Int colShift = A.ColShift(); 
@@ -185,7 +185,7 @@ Binary( DistMatrix<T,STAR,V>& A, const std::string filename )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     const Int localWidth = A.LocalWidth();
     const Int rowShift = A.RowShift();
     const Int rowStride = A.RowStride();
@@ -215,7 +215,7 @@ BinaryFlat
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     const Int localWidth = A.LocalWidth();
     const Int rowShift = A.RowShift();
     const Int rowStride = A.RowStride();
@@ -249,7 +249,7 @@ Binary( DistMatrix<T,STAR,STAR>& A, const std::string filename )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     if( A.Height() == A.LDim() )
         file.read( (char*)A.Buffer(), height*width*sizeof(T) );
     else
@@ -274,7 +274,7 @@ BinaryFlat
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     if( A.Height() == A.LDim() )
         file.read( (char*)A.Buffer(), height*width*sizeof(T) );
     else
@@ -302,7 +302,7 @@ Binary( DistMatrix<T,CIRC,CIRC>& A, const std::string filename )
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     if( A.CrossRank() == A.Root() )
     {
         if( A.Height() == A.LDim() )
@@ -330,7 +330,7 @@ BinaryFlat
         RuntimeError
         ("Expected file to be ",numBytesExp," bytes but found ",numBytes);
 
-    A.ResizeTo( height, width );
+    A.Resize( height, width );
     if( A.CrossRank() == A.Root() )
     {
         if( A.Height() == A.LDim() )

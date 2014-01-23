@@ -41,7 +41,7 @@ Skeleton
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
     ApplyColumnPivots( B, pR );
-    B.ResizeTo( B.Height(), numSteps );
+    B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
     // Form K := A pinv(AR)
@@ -55,7 +55,7 @@ Skeleton
     // Form pinv(AC)
     B = A;
     ApplyColumnPivots( B, pC );
-    B.ResizeTo( B.Height(), numSteps );
+    B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
     // Form Z := pinv(AC) K = pinv(AC) (A pinv(AR))
@@ -81,7 +81,7 @@ Skeleton
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
     ApplyColumnPivots( B, pR );
-    B.ResizeTo( B.Height(), numSteps );
+    B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
     // Form K := A pinv(AR)
@@ -95,7 +95,7 @@ Skeleton
     // Form pinv(AC)
     B = A;
     ApplyColumnPivots( B, pC );
-    B.ResizeTo( B.Height(), numSteps );
+    B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
     // Form Z := pinv(AC) K = pinv(AC) (A pinv(AR))

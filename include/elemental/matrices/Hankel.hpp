@@ -20,7 +20,7 @@ Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
 
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
@@ -44,7 +44,7 @@ Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

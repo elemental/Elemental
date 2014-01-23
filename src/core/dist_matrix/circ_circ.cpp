@@ -15,6 +15,12 @@ using ADM = AbstractDistMatrix<T>;
 template<typename T>
 using DM = DistMatrix<T,CIRC,CIRC>;
 
+// Public section
+// ##############
+
+// Constructors and destructors
+// ============================
+
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g, Int root )
 : ADM<T>(g)
@@ -37,7 +43,7 @@ DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g, Int root )
             LogicError("Invalid root");
     )
     this->root_ = root;
-    this->ResizeTo( height, width );
+    this->Resize( height, width );
 }
 
 template<typename T>
@@ -51,7 +57,7 @@ DM<T>::DistMatrix
             LogicError("Invalid root");
     )
     this->root_ = root;
-    this->ResizeTo( height, width, ldim );
+    this->Resize( height, width, ldim );
 }
 
 template<typename T>
@@ -96,7 +102,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 }
 
 template<typename T>
-template<Distribution U,Distribution V>
+template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
@@ -109,149 +115,12 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
         LogicError("Tried to construct [o ,o ] with itself");
 }
 
-template<typename T>
-DM<T>::DistMatrix( DM<T>&& A )
-: ADM<T>(std::move(A))
-{ }
+template<typename T> DM<T>::DistMatrix( DM<T>&& A ) : ADM<T>(std::move(A)) { }
 
-template<typename T>
-DM<T>& 
-DM<T>::operator=( DM<T>&& A )
-{
-    ADM<T>::operator=( std::move(A) );
-    return *this;
-}
+template<typename T> DM<T>::~DistMatrix() { }
 
-template<typename T>
-DM<T>::~DistMatrix()
-{ }
-
-template<typename T>
-void
-DM<T>::ShallowSwap( DM<T>& A )
-{ ADM<T>::ShallowSwap( A ); }
-
-template<typename T>
-elem::DistData
-DM<T>::DistData() const
-{ return elem::DistData(*this); }
-
-template<typename T>
-mpi::Comm
-DM<T>::DistComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::RedundantComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::CrossComm() const
-{ return this->grid_->VCComm(); }
-
-template<typename T>
-mpi::Comm
-DM<T>::ColComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::RowComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-Int
-DM<T>::ColStride() const
-{ return 1; }
-
-template<typename T>
-Int
-DM<T>::RowStride() const
-{ return 1; }
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, Int root,
-  T* buffer, Int ldim, const elem::Grid& grid )
-{
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::Attach"))
-    this->grid_ = &grid;
-    this->SetRoot( root );
-    this->height_ = height;
-    this->width_ = width;
-    this->viewType_ = VIEW;
-    if( this->Participating() )
-        this->matrix_.Attach_( height, width, buffer, ldim );
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, Int root,
-  const T* buffer, Int ldim, const elem::Grid& grid )
-{
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::LockedAttach"))
-    this->grid_ = &grid;
-    this->SetRoot( root );
-    this->height_ = height;
-    this->width_ = width;
-    this->viewType_ = LOCKED_VIEW;
-    if( this->Participating() )
-        this->matrix_.LockedAttach_( height, width, buffer, ldim );
-}
-
-template<typename T>
-void
-DM<T>::Attach( Matrix<T>& A, Int root, const elem::Grid& g )
-{ this->Attach( A.Height(), A.Width(), root, A.Buffer(), A.LDim(), g ); }
-
-template<typename T>
-void
-DM<T>::LockedAttach( const Matrix<T>& A, Int root, const elem::Grid& g )
-{
-    this->LockedAttach
-    ( A.Height(), A.Width(), root, A.LockedBuffer(), A.LDim(), g );
-}
-
-//
-// Utility functions, e.g., operator=
-//
-
-template<typename T>
-void
-DM<T>::CopyFromRoot( const Matrix<T>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromRoot"))
-    const Grid& grid = this->Grid();
-    if( grid.VCRank() != this->Root() )
-        LogicError("Called CopyFromRoot from non-root");
-
-    Int dims[2];
-    dims[0] = A.Height();
-    dims[1] = A.Width();
-    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
-
-    this->ResizeTo( dims[0], dims[1] );
-    this->matrix_ = A;
-}
-
-template<typename T>
-void
-DM<T>::CopyFromNonRoot()
-{
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromNonRoot"))
-    const Grid& grid = this->Grid();
-    if( grid.VCRank() == this->Root() )
-        LogicError("Called CopyFromNonRoot from root");
-
-    Int dims[2];
-    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
-
-    this->ResizeTo( dims[0], dims[1] );
-}
+// Assignment and reconfiguration
+// ==============================
 
 template<typename T>
 const DM<T>&
@@ -264,7 +133,7 @@ DM<T>::operator=( const DistMatrix<T,MC,MR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -347,7 +216,7 @@ DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Int root = this->Root();
     const elem::Grid& g = this->Grid();
@@ -421,7 +290,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Int root = this->Root();
     const elem::Grid& g = this->Grid();
@@ -492,7 +361,7 @@ DM<T>::operator=( const DistMatrix<T,MD,STAR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -577,7 +446,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -658,7 +527,7 @@ DM<T>::operator=( const DistMatrix<T,MR,MC>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -741,7 +610,7 @@ DM<T>::operator=( const DistMatrix<T,MR,STAR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Int root = this->Root();
     const elem::Grid& g = this->Grid();
@@ -816,7 +685,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Int root = this->Root();
     const elem::Grid& g = this->Grid();
@@ -887,7 +756,7 @@ DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -959,7 +828,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -1026,7 +895,7 @@ DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -1101,7 +970,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
     const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
@@ -1165,7 +1034,7 @@ const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[o ,o ] = [* ,* ]"))
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( A.Grid().VCRank() == this->Root() )
         this->matrix_ = A.LockedMatrix();
     return *this;
@@ -1182,7 +1051,7 @@ DM<T>::operator=( const DM<T>& A )
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Grid& g = A.Grid();
     if( this->Root() == A.Root() )
@@ -1221,6 +1090,137 @@ DM<T>::operator=( const DM<T>& A )
 
     return *this;
 }
+
+template<typename T>
+void
+DM<T>::CopyFromRoot( const Matrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromRoot"))
+    const Grid& grid = this->Grid();
+    if( grid.VCRank() != this->Root() )
+        LogicError("Called CopyFromRoot from non-root");
+
+    Int dims[2];
+    dims[0] = A.Height();
+    dims[1] = A.Width();
+    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
+
+    this->Resize( dims[0], dims[1] );
+    this->matrix_ = A;
+}
+
+template<typename T>
+void
+DM<T>::CopyFromNonRoot()
+{
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromNonRoot"))
+    const Grid& grid = this->Grid();
+    if( grid.VCRank() == this->Root() )
+        LogicError("Called CopyFromNonRoot from root");
+
+    Int dims[2];
+    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
+
+    this->Resize( dims[0], dims[1] );
+}
+
+template<typename T>
+DM<T>& 
+DM<T>::operator=( DM<T>&& A )
+{
+    ADM<T>::operator=( std::move(A) );
+    return *this;
+}
+
+// Buffer attachment
+// -----------------
+
+template<typename T>
+void
+DM<T>::Attach
+( Int height, Int width, Int root,
+  T* buffer, Int ldim, const elem::Grid& grid )
+{
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::Attach"))
+    this->grid_ = &grid;
+    this->SetRoot( root );
+    this->height_ = height;
+    this->width_ = width;
+    this->viewType_ = VIEW;
+    if( this->Participating() )
+        this->matrix_.Attach_( height, width, buffer, ldim );
+}
+
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int root, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), root, A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach
+( Int height, Int width, Int root,
+  const T* buffer, Int ldim, const elem::Grid& grid )
+{
+    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::LockedAttach"))
+    this->grid_ = &grid;
+    this->SetRoot( root );
+    this->height_ = height;
+    this->width_ = width;
+    this->viewType_ = LOCKED_VIEW;
+    if( this->Participating() )
+        this->matrix_.LockedAttach_( height, width, buffer, ldim );
+}
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, Int root, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), root, A.LockedBuffer(), A.LDim(), g );
+}
+
+// TODO: Control
+
+// Basic queries
+// =============
+
+template<typename T>
+elem::DistData DM<T>::DistData() const { return elem::DistData(*this); }
+template<typename T>
+mpi::Comm DM<T>::DistComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::RedundantComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::CrossComm() const { return this->grid_->VCComm(); }
+template<typename T>
+mpi::Comm DM<T>::ColComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::RowComm() const { return mpi::COMM_SELF; }
+template<typename T>
+Int DM<T>::ColStride() const { return 1; }
+template<typename T>
+Int DM<T>::RowStride() const { return 1; }
+
+// Diagonal manipulation
+// =====================
+// TODO
+
+// Arbitrary submatrix manipulation
+// ================================
+// TODO
+
+// Private section
+// ###############
+
+// Exchange metadata with another matrix
+// =====================================
+
+template<typename T>
+void DM<T>::ShallowSwap( DM<T>& A ) { ADM<T>::ShallowSwap( A ); }
+
+// Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
+// ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,CIRC,CIRC>
 #define COPY(T,U,V) \

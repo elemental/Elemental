@@ -78,8 +78,8 @@ PanelU
     DistMatrix<Real,MD,STAR> d(g), e(g);
     d.AlignWithDiagonal( A.DistData(), 0 );
     e.AlignWithDiagonal( A.DistData(), 1 );
-    d.ResizeTo( nX, 1 );
-    e.ResizeTo( nX, 1 );
+    d.Resize( nX, 1 );
+    e.Resize( nX, 1 );
 
     for( Int k=0; k<nX; ++k )
     {

@@ -30,7 +30,7 @@ ColumnNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
-    norms.ResizeTo( n, 1 );
+    norms.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
     {
         const Real alpha = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
@@ -54,7 +54,7 @@ ColumnNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
     const Grid& g = X.Grid();
 
     // TODO: Switch to more stable parallel norm computation using scaling
-    norms.ResizeTo( n, 1 ); 
+    norms.Resize( n, 1 ); 
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Base<F> localNorm = blas::Nrm2(mLocal,X.LockedBuffer(0,jLoc),1);
@@ -362,7 +362,7 @@ TriangularPower
     Matrix<C> pivShifts( shifts );
     if( deflate )
     {
-        preimage.ResizeTo( numShifts, 1 );
+        preimage.Resize( numShifts, 1 );
         for( Int j=0; j<numShifts; ++j )
             preimage.Set( j, 0, j );
     }
@@ -458,7 +458,7 @@ TriangularPower
     if( deflate )
     {
         preimage.AlignWith( shifts );
-        preimage.ResizeTo( numShifts, 1 );
+        preimage.Resize( numShifts, 1 );
         const Int numLocShifts = preimage.LocalHeight();
         for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         {

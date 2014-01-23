@@ -28,7 +28,7 @@ FoxLi( Matrix<Complex<Real> >& A, Int n, Real omega )
     // Compute Gauss quadrature points and weights
     Matrix<Real> d, e; 
     Zeros( d, n, 1 );
-    e.ResizeTo( n-1, 1 );
+    e.Resize( n-1, 1 );
     for( Int j=0; j<n-1; ++j )
     {
         const Real betaInv = 2*Sqrt(1-Pow(j+Real(1),-2)/4);
@@ -44,7 +44,7 @@ FoxLi( Matrix<Complex<Real> >& A, Int n, Real omega )
     Transpose( sqrtWeights );
 
     // Form the integral operator
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<n; ++i )
@@ -74,7 +74,7 @@ FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> d(g), e(g); 
     Zeros( d, n, 1 );
-    e.ResizeTo( n-1, 1 );
+    e.Resize( n-1, 1 );
     for( Int jLoc=0; jLoc<e.LocalHeight(); ++jLoc )
     {
         const Int j = e.ColShift() + jLoc*e.ColStride();
@@ -92,7 +92,7 @@ FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
     herm_eig::Sort( x, sqrtWeights, ASCENDING );
 
     // Form the integral operator
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     DistMatrix<Real,U,STAR> x_U_STAR( x );
     DistMatrix<Real,V,STAR> x_V_STAR( x );
     for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )

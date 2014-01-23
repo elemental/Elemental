@@ -20,7 +20,7 @@ Wilkinson( Matrix<T>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeZeros( A );
 
     for( Int j=0; j<n; ++j )
@@ -52,7 +52,7 @@ Wilkinson( DistMatrix<T,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeZeros( A );
 
     const Int localHeight = A.LocalHeight();

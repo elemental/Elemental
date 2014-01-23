@@ -72,7 +72,7 @@ UVar3Square( DistMatrix<F>& A )
         A12_STAR_MR = A12_STAR_VR;
         // SendRecv to form A12[* ,MC] from A12[* ,MR]
         A12_STAR_MC.AlignWith( A22 );
-        A12_STAR_MC.ResizeTo( A12.Height(), A12.Width() );
+        A12_STAR_MC.Resize( A12.Height(), A12.Width() );
         {
             if( onDiagonal )
             {

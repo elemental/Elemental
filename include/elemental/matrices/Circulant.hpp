@@ -18,7 +18,7 @@ Circulant( Matrix<T>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
             A.Set( i, j, a[(i-j+n)%n] );
@@ -39,7 +39,7 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

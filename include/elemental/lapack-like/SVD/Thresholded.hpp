@@ -44,9 +44,9 @@ TallAbsoluteThresholded
     }
     if( tol >= frobNorm )
     {
-        A.ResizeTo( m, 0 );        
-        s.ResizeTo( 0, 1 );
-        V.ResizeTo( n, 0 );
+        A.Resize( m, 0 );        
+        s.Resize( 0, 1 );
+        V.Resize( n, 0 );
         return;
     }
 
@@ -109,8 +109,8 @@ TallRelativeThresholded
         const Real sigma = Sqrt(s.Get(i,0));
         if( sigma <= relTol*twoNorm )
         {
-            s.ResizeTo( i, 1 );
-            V.ResizeTo( n, i );
+            s.Resize( i, 1 );
+            V.Resize( n, i );
             break;
         }
         else
@@ -174,9 +174,9 @@ TallAbsoluteThresholded
     }
     if( tol >= frobNorm )
     {
-        A.ResizeTo( m, 0 );        
-        s.ResizeTo( 0, 1 );
-        V.ResizeTo( n, 0 );
+        A.Resize( m, 0 );        
+        s.Resize( 0, 1 );
+        V.Resize( n, 0 );
         return;
     }
 
@@ -251,8 +251,8 @@ TallRelativeThresholded
         const Real sigma = Sqrt(s_STAR_STAR.GetLocal(i,0));
         if( sigma <= relTol*twoNorm )
         {
-            s_STAR_STAR.ResizeTo( i, 1 );
-            V.ResizeTo( n, i );
+            s_STAR_STAR.Resize( i, 1 );
+            V.Resize( n, i );
             break;
         }
         else
@@ -325,9 +325,9 @@ TallAbsoluteThresholded
     }
     if( tol >= frobNorm )
     {
-        A.ResizeTo( m, 0 );        
-        s.ResizeTo( 0, 1 );
-        V.ResizeTo( n, 0 );
+        A.Resize( m, 0 );        
+        s.Resize( 0, 1 );
+        V.Resize( n, 0 );
         return;
     }
 
@@ -404,8 +404,8 @@ TallRelativeThresholded
         const Real sigma = Sqrt(s.GetLocal(i,0));
         if( sigma < relTol*twoNorm )
         {
-            s.ResizeTo( i, 1 );
-            V.ResizeTo( n, i );
+            s.Resize( i, 1 );
+            V.Resize( n, i );
             break;
         }
         else
@@ -473,9 +473,9 @@ WideAbsoluteThresholded
     }
     if( tol >= frobNorm )
     {
-        A.ResizeTo( m, 0 );        
-        s.ResizeTo( 0, 1 );
-        V.ResizeTo( n, 0 );
+        A.Resize( m, 0 );        
+        s.Resize( 0, 1 );
+        V.Resize( n, 0 );
         return;
     }
 
@@ -539,8 +539,8 @@ WideRelativeThresholded
         const Real sigma = Sqrt(s.Get(i,0));
         if( sigma <= relTol*twoNorm )
         {
-            s.ResizeTo( i, 1 );
-            U.ResizeTo( m, i );
+            s.Resize( i, 1 );
+            U.Resize( m, i );
             break;
         }
         else
@@ -603,9 +603,9 @@ WideAbsoluteThresholded
     }
     if( tol >= frobNorm )
     {
-        A.ResizeTo( m, 0 );        
-        s.ResizeTo( 0, 1 );
-        V.ResizeTo( n, 0 );
+        A.Resize( m, 0 );        
+        s.Resize( 0, 1 );
+        V.Resize( n, 0 );
         return;
     }
 
@@ -681,8 +681,8 @@ WideRelativeThresholded
         const Real sigma = Sqrt(s_STAR_STAR.GetLocal(i,0));
         if( sigma <= relTol*twoNorm )
         {
-            s_STAR_STAR.ResizeTo( i, 1 );
-            U.ResizeTo( m, i );
+            s_STAR_STAR.Resize( i, 1 );
+            U.Resize( m, i );
             break;
         }
         else

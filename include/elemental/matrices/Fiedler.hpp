@@ -18,7 +18,7 @@ Fiedler( Matrix<F>& A, const std::vector<F>& c )
 {
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<n; ++i )
             A.Set( i, j, Abs(c[i]-c[j]) );
@@ -39,7 +39,7 @@ Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
 {
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const Int colShift = A.ColShift();

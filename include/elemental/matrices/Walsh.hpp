@@ -113,7 +113,7 @@ Walsh( Matrix<T>& A, Int k, bool binary=false )
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeWalsh( A, k, binary );
 }
 
@@ -134,7 +134,7 @@ Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
-    A.ResizeTo( n, n );
+    A.Resize( n, n );
     MakeWalsh( A, k, binary );
 }
 

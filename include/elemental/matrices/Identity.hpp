@@ -56,7 +56,7 @@ inline void
 Identity( Matrix<T>& I, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Identity"))
-    I.ResizeTo( m, n );
+    I.Resize( m, n );
     MakeIdentity( I );
 }
 
@@ -74,7 +74,7 @@ inline void
 Identity( DistMatrix<T,U,V>& I, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Identity"))
-    I.ResizeTo( m, n );
+    I.Resize( m, n );
     MakeIdentity( I );
 }
 

@@ -41,7 +41,7 @@ inline void
 Ones( Matrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ones"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeOnes( A );
 }
 
@@ -59,7 +59,7 @@ inline void
 Ones( DistMatrix<T,U,V>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ones"))
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
     MakeOnes( A );
 }
 

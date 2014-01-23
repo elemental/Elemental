@@ -26,7 +26,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.ResizeTo( minDim, 1 );
+    t.Resize( minDim, 1 );
 
     Matrix<F> z;
 
@@ -78,7 +78,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.ResizeTo( minDim, 1 );
+    t.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {

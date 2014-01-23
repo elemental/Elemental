@@ -51,8 +51,8 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, -1 );
     tQDiag.AlignWithDiagonal( A, 0 );
-    tPDiag.ResizeTo( tPHeight, 1 );
-    tQDiag.ResizeTo( tQHeight, 1 );
+    tPDiag.Resize( tPHeight, 1 );
+    tQDiag.Resize( tQHeight, 1 );
 
     DistMatrix<F> X(g), Y(g);
     DistMatrix<F,MC,  STAR> X21_MC_STAR(g);
@@ -78,13 +78,13 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         {
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
-            X.ResizeTo( ABR.Height(), nb );
-            Y.ResizeTo( ABR.Width(), nb );
+            X.Resize( ABR.Height(), nb );
+            Y.Resize( ABR.Width(), nb );
 
             AColPan_MC_STAR.AlignWith( A11 );
             ARowPan_STAR_MR.AlignWith( A11 );
-            AColPan_MC_STAR.ResizeTo( ABR.Height(), nb );
-            ARowPan_STAR_MR.ResizeTo( nb, ABR.Width() );
+            AColPan_MC_STAR.Resize( ABR.Height(), nb );
+            ARowPan_STAR_MR.Resize( nb, ABR.Width() );
 
             bidiag::PanelL
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );

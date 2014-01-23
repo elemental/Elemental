@@ -58,7 +58,7 @@ main( int argc, char* argv[] )
         // Pivot A and form the matrix of its (hopefully) dominant columns
         ApplyColumnPivots( A, p );
         auto hatA( A );
-        hatA.ResizeTo( m, numSteps );
+        hatA.Resize( m, numSteps );
         if( print )
         {
             Print( A, "A P" );

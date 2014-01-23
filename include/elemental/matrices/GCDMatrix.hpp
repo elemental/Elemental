@@ -51,7 +51,7 @@ inline void
 GCDMatrix( Matrix<T>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
-    G.ResizeTo( m, n );
+    G.Resize( m, n );
     MakeGCDMatrix( G );
 }
 
@@ -69,7 +69,7 @@ inline void
 GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
-    G.ResizeTo( m, n );
+    G.Resize( m, n );
     MakeGCDMatrix( G );
 }
 

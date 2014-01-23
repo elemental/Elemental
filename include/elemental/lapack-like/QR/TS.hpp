@@ -91,8 +91,8 @@ Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 
         auto& Q = treeData.QRList[stage];
         auto& t = treeData.tList[stage];
-        Q.ResizeTo( 2*n, n, 2*n );
-        t.ResizeTo( n, 1 );
+        Q.Resize( 2*n, n, 2*n );
+        t.Resize( n, 1 );
         auto QTop = View( Q, 0, 0, n, n );
         auto QBot = View( Q, n, 0, n, n );
         QTop = ZTop;

@@ -67,7 +67,7 @@ void PanelLSquare
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<Real,MD,STAR> e(g);
     e.AlignWithDiagonal( A.DistData(), -1 );
-    e.ResizeTo( nW, 1 );
+    e.Resize( nW, 1 );
 
     std::vector<F> w21LastBuffer(A.Height()/r+1);
     DistMatrix<F> w21Last(g);
@@ -109,10 +109,10 @@ void PanelLSquare
         a21_MR_STAR.AlignWith( A22 );
         p21_MC_STAR.AlignWith( A22 );
         q21_MR_STAR.AlignWith( A22 );
-        a21_MC_STAR.ResizeTo( n-(k+1), 1 );
-        a21_MR_STAR.ResizeTo( n-(k+1), 1 );
-        p21_MC_STAR.ResizeTo( n-(k+1), 1 );
-        q21_MR_STAR.ResizeTo( n-(k+1), 1 );
+        a21_MC_STAR.Resize( n-(k+1), 1 );
+        a21_MR_STAR.Resize( n-(k+1), 1 );
+        p21_MC_STAR.Resize( n-(k+1), 1 );
+        q21_MR_STAR.Resize( n-(k+1), 1 );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
@@ -233,7 +233,7 @@ void PanelLSquare
               APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
             // Store w21Last[MC,* ] into its DistMatrix class
             w21Last_MC_STAR.AlignWith( alpha11 );
-            w21Last_MC_STAR.ResizeTo( a21.Height()+1, 1 );
+            w21Last_MC_STAR.Resize( a21.Height()+1, 1 );
             MemCopy
             ( w21Last_MC_STAR.Buffer(), 
               &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
@@ -258,7 +258,7 @@ void PanelLSquare
             // form a21[MR,* ] and w21Last[MR,* ] from their [MC,* ] 
             // counterparts
             w21Last_MR_STAR.AlignWith( ABR );
-            w21Last_MR_STAR.ResizeTo( w21Last.Height(), 1 );
+            w21Last_MR_STAR.Resize( w21Last.Height(), 1 );
             if( onDiagonal )
             {
                 MemCopy

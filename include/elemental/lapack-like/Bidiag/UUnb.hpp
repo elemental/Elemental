@@ -31,8 +31,8 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         if( m < n )
             LogicError("A must be at least as tall as it is wide");
     )
-    tP.ResizeTo( tPHeight, 1 );
-    tQ.ResizeTo( tQHeight, 1 );
+    tP.Resize( tPHeight, 1 );
+    tQ.Resize( tQHeight, 1 );
 
     Matrix<F> x12Adj, w21;
 
@@ -123,8 +123,8 @@ inline void UUnb
     const Grid& g = A.Grid();
     const Int tPHeight = Max(n-1,0);
     const Int tQHeight = n;
-    tP.ResizeTo( tPHeight, 1 );
-    tQ.ResizeTo( tQHeight, 1 );
+    tP.Resize( tPHeight, 1 );
+    tQ.Resize( tQHeight, 1 );
 
     DistMatrix<F,STAR,MR  > a12_STAR_MR(g);
     DistMatrix<F,MC,  STAR> aB1_MC_STAR(g);

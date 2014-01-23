@@ -15,6 +15,12 @@ using ADM = AbstractDistMatrix<T>;
 template<typename T>
 using DM = DistMatrix<T,STAR,VC>;
 
+// Public section
+// ##############
+
+// Constructors and destructors
+// ============================
+
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g )
 : ADM<T>(g)
@@ -23,19 +29,19 @@ DM<T>::DistMatrix( const elem::Grid& g )
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
 : ADM<T>(g)
-{ this->SetShifts(); this->ResizeTo(height,width); }
+{ this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int rowAlign, const elem::Grid& g )
 : ADM<T>(g)
-{ this->Align(0,rowAlign); this->ResizeTo(height,width); }
+{ this->Align(0,rowAlign); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int rowAlign, Int ldim, const elem::Grid& g )
 : ADM<T>(g)
-{ this->Align(0,rowAlign); this->ResizeTo(height,width,ldim); }
+{ this->Align(0,rowAlign); this->Resize(height,width,ldim); }
 
 template<typename T>
 DM<T>::DistMatrix
@@ -64,7 +70,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 }
 
 template<typename T>
-template<Distribution U,Distribution V>
+template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 : ADM<T>(A.Grid())
 {
@@ -78,192 +84,12 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM<T>::DistMatrix( DM<T>&& A )
-: ADM<T>(std::move(A))
-{ }
+DM<T>::DistMatrix( DM<T>&& A ) : ADM<T>(std::move(A)) { }
 
-template<typename T>
-DM<T>&
-DM<T>::operator=( DM<T>&& A )
-{
-    ADM<T>::operator=( std::move(A) );
-    return *this;
-}
+template<typename T> DM<T>::~DistMatrix() { }
 
-template<typename T>
-DM<T>::~DistMatrix()
-{ }
-
-template<typename T>
-elem::DistData
-DM<T>::DistData() const
-{ return elem::DistData(*this); }
-
-template<typename T>
-mpi::Comm
-DM<T>::DistComm() const
-{ return this->grid_->VCComm(); }
-
-template<typename T>
-mpi::Comm
-DM<T>::CrossComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::RedundantComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::ColComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-mpi::Comm
-DM<T>::RowComm() const
-{ return this->grid_->VCComm(); }
-
-template<typename T>
-Int
-DM<T>::ColStride() const
-{ return 1; }
-    
-template<typename T>
-Int 
-DM<T>::RowStride() const
-{ return this->grid_->Size(); }
-
-template<typename T>
-void
-DM<T>::AlignWith( const elem::DistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignWith"))
-    this->SetGrid( *data.grid );
-
-    if( data.colDist == MC || data.colDist == VC )
-        this->AlignRows( data.colAlign );
-    else if( data.rowDist == MC || data.rowDist == VC )
-        this->AlignRows( data.rowAlign );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
-template<typename T>
-void
-DM<T>::AlignRowsWith( const elem::DistData& data )
-{ this->AlignWith( data ); }
-
-template<typename T>
-bool
-DM<T>::AlignedWithDiagonal
-( const elem::DistData& data, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignedWithDiagonal"))
-    if( this->Grid() != *data.grid )
-        return false;
-
-    bool aligned;
-    if( (data.colDist == VC   && data.rowDist == STAR) ||
-        (data.colDist == STAR && data.rowDist == VC  ) )
-    {
-        const Int alignment = ( data.colDist==VC ? data.colAlign
-                                                 : data.rowAlign );
-        if( offset >= 0 )
-        {
-            const Int proc = alignment;
-            aligned = ( this->RowAlign() == proc );
-        }
-        else
-        {
-            const Int proc = (alignment-offset) % this->RowStride();
-            aligned = ( this->RowAlign() == proc );
-        }
-    }
-    else aligned = false;
-    return aligned;
-}
-
-template<typename T>
-void
-DM<T>::AlignWithDiagonal
-( const elem::DistData& data, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignWithDiagonal"))
-    this->SetGrid( *data.grid );
-
-    if( (data.colDist == VC   && data.rowDist == STAR) ||
-        (data.colDist == STAR && data.rowDist == VC  ) )
-    {
-        const Int alignment = ( data.colDist==VC ? data.colAlign
-                                                 : data.rowAlign );
-        if( offset >= 0 )
-            this->AlignRows( alignment );
-        else
-            this->AlignRows( (alignment-offset) % this->RowStride() );
-    }
-    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
-}
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, Int rowAlign,
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::Attach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->rowAlign_ = rowAlign;
-    this->viewType_ = VIEW;
-    this->SetRowShift();
-    if( this->Participating() )
-    {
-        const Int localWidth = Length(width,this->rowShift_,g.Size());
-        this->matrix_.Attach_( height, localWidth, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, Int rowAlign,
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::LockedAttach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->rowAlign_ = rowAlign;
-    this->viewType_ = LOCKED_VIEW;
-    this->SetRowShift();
-    if( this->Participating() )
-    {
-        const Int localWidth = Length(width,this->rowShift_,g.Size());
-        this->matrix_.LockedAttach_( height, localWidth, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::Attach( Matrix<T>& A, Int rowAlign, const elem::Grid& g )
-{ this->Attach( A.Height(), A.Width(), rowAlign, A.Buffer(), A.LDim(), g ); }
-
-template<typename T>
-void
-DM<T>::LockedAttach( const Matrix<T>& A, Int rowAlign, const elem::Grid& g )
-{
-    this->LockedAttach
-    ( A.Height(), A.Width(), rowAlign, A.LockedBuffer(), A.LDim(), g );
-}
-
-//
-// Utility functions, e.g., operator=
-//
+// Assignment and reconfiguration
+// ==============================
 
 template<typename T>
 const DM<T>&
@@ -704,7 +530,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
     
@@ -775,7 +601,7 @@ DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
         this->AssertSameGrid( A.Grid() );
     )
     const Grid& g = this->Grid();
-    this->ResizeTo( A.Height(), A.Width() );
+    this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
 
@@ -813,7 +639,7 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = g.Size();
-    this->ResizeTo( m, n );
+    this->Resize( m, n );
 
     const Int rowAlign = this->RowAlign();
     const Int nLocal = this->LocalWidth();
@@ -869,6 +695,119 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 
     return *this;
 }
+
+template<typename T>
+DM<T>&
+DM<T>::operator=( DM<T>&& A )
+{
+    ADM<T>::operator=( std::move(A) );
+    return *this;
+}
+
+// Buffer attachment
+// -----------------
+
+template<typename T>
+void
+DM<T>::Attach
+( Int height, Int width, Int rowAlign,
+  T* buffer, Int ldim, const elem::Grid& g )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::Attach"))
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->rowAlign_ = rowAlign;
+    this->viewType_ = VIEW;
+    this->SetRowShift();
+    if( this->Participating() )
+    {
+        const Int localWidth = Length(width,this->rowShift_,g.Size());
+        this->matrix_.Attach_( height, localWidth, buffer, ldim );
+    }
+}
+
+template<typename T>
+void
+DM<T>::Attach( Matrix<T>& A, Int rowAlign, const elem::Grid& g )
+{ this->Attach( A.Height(), A.Width(), rowAlign, A.Buffer(), A.LDim(), g ); }
+
+template<typename T>
+void
+DM<T>::LockedAttach
+( Int height, Int width, Int rowAlign,
+  const T* buffer, Int ldim, const elem::Grid& g )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::LockedAttach"))
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->rowAlign_ = rowAlign;
+    this->viewType_ = LOCKED_VIEW;
+    this->SetRowShift();
+    if( this->Participating() )
+    {
+        const Int localWidth = Length(width,this->rowShift_,g.Size());
+        this->matrix_.LockedAttach_( height, localWidth, buffer, ldim );
+    }
+}
+
+template<typename T>
+void
+DM<T>::LockedAttach( const Matrix<T>& A, Int rowAlign, const elem::Grid& g )
+{
+    this->LockedAttach
+    ( A.Height(), A.Width(), rowAlign, A.LockedBuffer(), A.LDim(), g );
+}
+
+// Realignment
+// -----------
+template<typename T>
+void
+DM<T>::AlignWith( const elem::DistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignWith"))
+    this->SetGrid( *data.grid );
+
+    if( data.colDist == MC || data.colDist == VC )
+        this->AlignRows( data.colAlign );
+    else if( data.rowDist == MC || data.rowDist == VC )
+        this->AlignRows( data.rowAlign );
+    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
+}
+
+template<typename T>
+void
+DM<T>::AlignRowsWith( const elem::DistData& data )
+{ this->AlignWith( data ); }
+
+template<typename T>
+void
+DM<T>::AlignWithDiagonal
+( const elem::DistData& data, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignWithDiagonal"))
+    this->SetGrid( *data.grid );
+
+    if( (data.colDist == VC   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == VC  ) )
+    {
+        const Int alignment = ( data.colDist==VC ? data.colAlign
+                                                 : data.rowAlign );
+        if( offset >= 0 )
+            this->AlignRows( alignment );
+        else
+            this->AlignRows( (alignment-offset) % this->RowStride() );
+    }
+    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
+}
+
+// Specialized redistributions
+// ---------------------------
 
 template<typename T>
 void
@@ -946,8 +885,7 @@ DM<T>::SumScatterFrom( const DistMatrix<T,STAR,MC>& A )
 
 template<typename T>
 void
-DM<T>::SumScatterUpdate
-( T alpha, const DistMatrix<T,STAR,MC>& A )
+DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("[* ,VC]::SumScatterUpdate( [* ,MC] )");
@@ -1018,6 +956,68 @@ DM<T>::SumScatterUpdate
         ("Unaligned [* ,VC]::ReduceScatterUpdate( [* ,MC] ) not implemented");
     }
 }
+
+// Basic queries
+// =============
+
+template<typename T>
+elem::DistData DM<T>::DistData() const { return elem::DistData(*this); }
+
+template<typename T>
+mpi::Comm DM<T>::DistComm() const { return this->grid_->VCComm(); }
+template<typename T>
+mpi::Comm DM<T>::CrossComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::RedundantComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::ColComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::RowComm() const { return this->grid_->VCComm(); }
+
+template<typename T>
+Int DM<T>::ColStride() const { return 1; }
+template<typename T>
+Int DM<T>::RowStride() const { return this->grid_->Size(); }
+
+template<typename T>
+bool
+DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignedWithDiagonal"))
+    if( this->Grid() != *data.grid )
+        return false;
+
+    bool aligned;
+    if( (data.colDist == VC   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == VC  ) )
+    {
+        const Int alignment = ( data.colDist==VC ? data.colAlign
+                                                 : data.rowAlign );
+        if( offset >= 0 )
+        {
+            const Int proc = alignment;
+            aligned = ( this->RowAlign() == proc );
+        }
+        else
+        {
+            const Int proc = (alignment-offset) % this->RowStride();
+            aligned = ( this->RowAlign() == proc );
+        }
+    }
+    else aligned = false;
+    return aligned;
+}
+
+// Diagonal manipulation
+// =====================
+// TODO
+
+// Arbitrary submatrix manipulation
+// ================================
+// TODO
+
+// Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
+// ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,STAR,VC>
 #define COPY(T,U,V) \

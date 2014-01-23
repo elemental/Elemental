@@ -19,7 +19,7 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
     DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
 
     const F1 one = F1(1);
     for( Int j=0; j<n; ++j )
@@ -55,7 +55,7 @@ Cauchy
     DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();
     const Int n = y.size();
-    A.ResizeTo( m, n );
+    A.Resize( m, n );
 
     const F1 one = F1(1);
     const Int localHeight = A.LocalHeight();

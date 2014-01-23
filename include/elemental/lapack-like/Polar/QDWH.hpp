@@ -146,7 +146,7 @@ QDWH( Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
     if( A.Height() > A.Width() )
     {
         QR( Y );
-        Y.ResizeTo( A.Width(), A.Width() );
+        Y.Resize( A.Width(), A.Width() );
         MakeTriangular( UPPER, Y );
         try 
         {
@@ -285,7 +285,7 @@ QDWH( DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
     if( A.Height() > A.Width() )
     {
         QR( Y );
-        Y.ResizeTo( A.Width(), A.Width() );
+        Y.Resize( A.Width(), A.Width() );
         MakeTriangular( UPPER, Y );
         try
         {

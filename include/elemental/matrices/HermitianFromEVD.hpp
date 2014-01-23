@@ -30,7 +30,7 @@ HermitianFromEVD
 
     const Int m = Z.Height();
     const Int n = Z.Width();
-    A.ResizeTo( m, m );
+    A.Resize( m, m );
     if( uplo == LOWER )
         MakeTrapezoidal( UPPER, A, 1 );
     else
@@ -79,7 +79,7 @@ HermitianFromEVD
 
     const Int m = Z.Height();
     const Int n = Z.Width();
-    A.ResizeTo( m, m );
+    A.Resize( m, m );
     if( uplo == LOWER )
         MakeTrapezoidal( UPPER, A, 1 );
     else
