@@ -1076,10 +1076,6 @@ Int DM<T>::RowStride() const { return this->grid_->Width(); }
 // =====================
 // TODO
 
-// Arbitrary submatrix manipulation
-// ================================
-// TODO
-
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 

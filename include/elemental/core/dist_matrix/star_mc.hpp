@@ -123,10 +123,6 @@ public:
     // =====================
     // TODO
 
-    // Arbitrary submatrix manipulation
-    // ================================
-    // TODO
-
 private:
     // Friend declarations
     // ===================

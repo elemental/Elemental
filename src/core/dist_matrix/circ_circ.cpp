@@ -1206,10 +1206,6 @@ Int DM<T>::RowStride() const { return 1; }
 // =====================
 // TODO
 
-// Arbitrary submatrix manipulation
-// ================================
-// TODO
-
 // Private section
 // ###############
 

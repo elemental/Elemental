@@ -546,10 +546,6 @@ DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
 // =====================
 // TODO
 
-// Arbitrary submatrix manipulation
-// ================================
-// TODO
-
 // Private section
 // ###############
 

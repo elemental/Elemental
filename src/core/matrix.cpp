@@ -622,7 +622,299 @@ Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 
 // Arbitrary submatrix manipulation
 // ================================
-// TODO
+
+template<typename T>
+void
+Matrix<T>::Get
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  Matrix<T>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::Get"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    ASub.Resize( m, n );
+    T* bufSub = ASub.Buffer();
+    const Int ldSub = ASub.LDim();
+    const T* buf = LockedBuffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            bufSub[i+j*ldSub] = buf[rowInd[i]+jSub*ld];
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::GetRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  Matrix<Base<T>>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::GetRealPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    ASub.Resize( m, n );
+    Base<T>* bufSub = ASub.Buffer();
+    const Int ldSub = ASub.LDim();
+    const T* buf = LockedBuffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            bufSub[i+j*ldSub] = RealPart(buf[rowInd[i]+jSub*ld]);
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::GetImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  Matrix<Base<T>>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::GetImagPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    ASub.Resize( m, n );
+    Base<T>* bufSub = ASub.Buffer();
+    const Int ldSub = ASub.LDim();
+    const T* buf = LockedBuffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            bufSub[i+j*ldSub] = ImagPart(buf[rowInd[i]+jSub*ld]);
+        }
+    }
+}
+
+template<typename T>
+Matrix<T>
+Matrix<T>::Get
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+{
+    Matrix<T> ASub;
+    Get( rowInd, colInd, ASub );
+    return ASub;
+}
+
+template<typename T>
+Matrix<Base<T>>
+Matrix<T>::GetRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+{
+    Matrix<Base<T>> ASub;
+    GetRealPart( rowInd, colInd, ASub );
+    return ASub;
+}
+
+template<typename T>
+Matrix<Base<T>>
+Matrix<T>::GetImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+{
+    Matrix<Base<T>> ASub;
+    GetImagPart( rowInd, colInd, ASub );
+    return ASub;
+}
+
+template<typename T>
+void
+Matrix<T>::Set
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::Set"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    const T* bufSub = ASub.LockedBuffer();
+    const Int ldSub = ASub.LDim();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            buf[rowInd[i]+jSub*ld] = bufSub[i+j*ldSub];
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::SetRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const Matrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::SetRealPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    const Base<T>* bufSub = ASub.LockedBuffer();
+    const Int ldSub = ASub.LDim();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            elem::SetRealPart( buf[rowInd[i]+jSub*ld], bufSub[i+j*ldSub] );
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::SetImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const Matrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::SetImagPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    const Base<T>* bufSub = ASub.LockedBuffer();
+    const Int ldSub = ASub.LDim();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            elem::SetImagPart( buf[rowInd[i]+jSub*ld], bufSub[i+j*ldSub] );
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::Update
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  T alpha, const Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::Update"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    const T* bufSub = ASub.LockedBuffer();
+    const Int ldSub = ASub.LDim();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            buf[rowInd[i]+jSub*ld] += alpha*bufSub[i+j*ldSub];
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::UpdateRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  Base<T> alpha, const Matrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateRealPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    const Base<T>* bufSub = ASub.LockedBuffer();
+    const Int ldSub = ASub.LDim();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            elem::UpdateRealPart
+            ( buf[rowInd[i]+jSub*ld], alpha*bufSub[i+j*ldSub] );
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::UpdateImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  Base<T> alpha, const Matrix<Base<T>>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateImagPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    const Base<T>* bufSub = ASub.LockedBuffer();
+    const Int ldSub = ASub.LDim();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            elem:: UpdateImagPart
+            ( buf[rowInd[i]+jSub*ld], alpha*bufSub[i+j*ldSub] );
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::MakeReal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::MakeReal"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            buf[rowInd[i]+jSub*ld] = RealPart(buf[rowInd[i]+jSub*ld]);
+        }
+    }
+}
+
+template<typename T>
+void
+Matrix<T>::Conjugate
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix::Conjugate"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    T* buf = Buffer();
+    const Int ld = LDim();
+    for( Int j=0; j<n; ++j )
+    {
+        const Int jSub = colInd[j];
+        for( Int i=0; i<m; ++i )
+        {
+            DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
+            Conj( buf[rowInd[i]+jSub*ld] );
+        }
+    }
+}
 
 // Private routines
 // ################

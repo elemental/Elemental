@@ -1297,10 +1297,6 @@ DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
       []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
 }
 
-// Arbitrary submatrix manipulation
-// ================================
-// TODO
-
 // Private section
 // ###############
 

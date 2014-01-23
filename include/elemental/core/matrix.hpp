@@ -102,7 +102,46 @@ public:
 
     // Arbitrary submatrix manipulation
     // ================================
-    // TODO
+    void Get
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      Matrix<T>& ASub ) const;
+    void GetRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      Matrix<BASE(T)>& ASub ) const;
+    void GetImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      Matrix<BASE(T)>& ASub ) const;
+    Matrix<T> Get
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    Matrix<BASE(T)> GetRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    Matrix<BASE(T)> GetImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+
+    void Set
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const Matrix<T>& ASub );
+    void SetRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const Matrix<BASE(T)>& ASub );
+    void SetImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const Matrix<BASE(T)>& ASub );
+
+    void Update
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      T alpha, const Matrix<T>& ASub );
+    void UpdateRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      BASE(T) alpha, const Matrix<BASE(T)>& ASub );
+    void UpdateImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      BASE(T) alpha, const Matrix<BASE(T)>& ASub );
+
+    void MakeReal
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+    void Conjugate
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
 
 private:
     // Member variables

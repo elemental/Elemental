@@ -117,10 +117,6 @@ public:
     // =====================
     // TODO
 
-    // Arbitrary submatrix manipulation
-    // ================================
-    // TODO
-
 private:
     // Exchange metadata with another matrix
     // =====================================

@@ -1249,10 +1249,6 @@ DM<T>::SetImagPartOfDiagonal
       []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
 }
 
-// Arbitrary submatrix manipulation
-// ================================
-// TODO
-
 // Private section
 // ###############
 

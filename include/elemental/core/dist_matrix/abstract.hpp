@@ -152,7 +152,95 @@ public:
 
     // Arbitrary submatrix manipulation
     // ================================
-    // TODO
+
+    // Global submatrix manipulation
+    // -----------------------------
+    void Get
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      DistMatrix<T,STAR,STAR>& ASub ) const;
+    void GetRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      DistMatrix<BASE(T),STAR,STAR>& ASub ) const;
+    void GetImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      DistMatrix<BASE(T),STAR,STAR>& ASub ) const;
+    DistMatrix<T,STAR,STAR> Get
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    DistMatrix<BASE(T),STAR,STAR> GetRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+    DistMatrix<BASE(T),STAR,STAR> GetImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+
+    void Set
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const DistMatrix<T,STAR,STAR>& ASub );
+    void SetRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const DistMatrix<BASE(T),STAR,STAR>& ASub );
+    void SetImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const DistMatrix<BASE(T),STAR,STAR>& ASub );
+
+    void Update
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      T alpha, const DistMatrix<T,STAR,STAR>& ASub );
+    void UpdateRealPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub );
+    void UpdateImagPart
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub );
+
+    void MakeReal
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+    void Conjugate
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
+
+    // Local submatrix manipulation
+    // ----------------------------
+    void GetLocal
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      elem::Matrix<T>& ASub ) const;
+    void GetLocalRealPart
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      elem::Matrix<BASE(T)>& ASub ) const;
+    void GetLocalImagPart
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      elem::Matrix<BASE(T)>& ASub ) const;
+    elem::Matrix<T> GetLocal
+    ( const std::vector<Int>& rowIndLoc, 
+      const std::vector<Int>& colIndLoc ) const;
+    elem::Matrix<BASE(T)> GetLocalRealPart
+    ( const std::vector<Int>& rowIndLoc, 
+      const std::vector<Int>& colIndLoc ) const;
+    elem::Matrix<BASE(T)> GetLocalImagPart
+    ( const std::vector<Int>& rowIndLoc, 
+      const std::vector<Int>& colIndLoc ) const;
+
+    void SetLocal
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      const elem::Matrix<T>& ASub );
+    void SetLocalRealPart
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      const elem::Matrix<BASE(T)>& ASub );
+    void SetLocalImagPart
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      const elem::Matrix<BASE(T)>& ASub );
+
+    void UpdateLocal
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      T alpha, const elem::Matrix<T>& ASub );
+    void UpdateLocalRealPart
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub );
+    void UpdateLocalImagPart
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+      BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub );
+
+    void MakeRealLocal
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
+    void ConjugateLocal
+    ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
 
 protected:
     // Member variables

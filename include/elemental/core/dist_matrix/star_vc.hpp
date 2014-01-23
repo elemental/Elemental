@@ -118,10 +118,6 @@ public:
     // =====================
     // TODO
 
-    // Arbitrary submatrix manipulation
-    // ================================
-    // TODO
-
 private:
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;

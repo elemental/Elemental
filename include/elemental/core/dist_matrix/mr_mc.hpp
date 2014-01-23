@@ -153,10 +153,6 @@ public:
     void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
 
-    // Arbitrary submatrix manipulation
-    // ================================
-    // TODO
-
 private:
     // Helper functions
     // ================

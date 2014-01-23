@@ -161,10 +161,6 @@ public:
     void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
 
-    // Arbitrary submatrix manipulation
-    // ================================
-    // TODO
-
 private:
 
     // Redistribute from a different process grid

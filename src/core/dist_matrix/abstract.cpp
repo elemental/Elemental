@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -452,7 +453,7 @@ AbstractDistMatrix<T>::ColOwner( Int j ) const
 template<typename T>
 Int
 AbstractDistMatrix<T>::Owner( Int i, Int j ) const
-{ return this->RowOwner(i)+this->ColOwner(j)*this->ColStride(); }
+{ return RowOwner(i)+ColOwner(j)*ColStride(); }
 
 template<typename T>
 Int 
@@ -779,7 +780,418 @@ AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
 
 // Arbitrary submatrix manipulation
 // ================================
-// TODO
+
+// Global submatrix manipulation
+// -----------------------------
+
+template<typename T>
+void
+AbstractDistMatrix<T>::Get
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+  DistMatrix<T,STAR,STAR>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::Get"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    ASub.SetGrid( Grid() );
+    ASub.Resize( m, n, m );
+    Zeros( ASub, m, n );
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        ASub.SetLocal( iSub, jSub, GetLocal(iLoc,jLoc) );
+                    }
+                }
+            }
+        }
+        // Sum over the distribution communicator
+        mpi::AllReduce( ASub.Buffer(), m*n, DistComm() ); 
+    }
+    // Broadcast over the cross communicator
+    mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::GetRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+  DistMatrix<BASE(T),STAR,STAR>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    ASub.SetGrid( Grid() );
+    ASub.Resize( m, n, m );
+    Zeros( ASub, m, n );
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        ASub.SetLocal
+                        ( iSub, jSub, GetLocalRealPart(iLoc,jLoc) );
+                    }
+                }
+            }
+        }
+        // Sum over the distribution communicator
+        mpi::AllReduce( ASub.Buffer(), m*n, DistComm() ); 
+    }
+    // Broadcast over the cross communicator
+    mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::GetImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+  DistMatrix<BASE(T),STAR,STAR>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    ASub.SetGrid( Grid() );
+    ASub.Resize( m, n, m );
+    Zeros( ASub, m, n );
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        ASub.SetLocal
+                        ( iSub, jSub, GetLocalImagPart(iLoc,jLoc) );
+                    }
+                }
+            }
+        }
+        // Sum over the distribution communicator
+        mpi::AllReduce( ASub.Buffer(), m*n, DistComm() ); 
+    }
+    // Broadcast over the cross communicator
+    mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::Set
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const DistMatrix<T,STAR,STAR>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::Set"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        SetLocal( iLoc, jLoc, ASub.GetLocal(iSub,jSub) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::SetRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const DistMatrix<BASE(T),STAR,STAR>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        SetLocalRealPart
+                        ( iLoc, jLoc, ASub.GetLocal(iSub,jSub) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::SetImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const DistMatrix<BASE(T),STAR,STAR>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        SetLocalImagPart
+                        ( iLoc, jLoc, ASub.GetLocal(iSub,jSub) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::Update
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  T alpha, const DistMatrix<T,STAR,STAR>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::Update"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        UpdateLocal
+                        ( iLoc, jLoc, alpha*ASub.GetLocal(iSub,jSub) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::UpdateRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        UpdateLocalRealPart
+                        ( iLoc, jLoc, alpha*ASub.GetLocal(iSub,jSub) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::UpdateImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPart"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Fill in our locally-owned entries
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        UpdateLocalImagPart
+                        ( iLoc, jLoc, alpha*ASub.GetLocal(iSub,jSub) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Local submatrix manipulation
+// ----------------------------
+
+template<typename T>
+void
+AbstractDistMatrix<T>::GetLocal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+  elem::Matrix<T>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocal"))
+    LockedMatrix().Get( rowInd, colInd, ASub );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::GetLocalRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+  elem::Matrix<BASE(T)>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocalRealPart"))
+    LockedMatrix().GetRealPart( rowInd, colInd, ASub );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::GetLocalImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+  elem::Matrix<BASE(T)>& ASub ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocalImagPart"))
+    LockedMatrix().GetImagPart( rowInd, colInd, ASub );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::SetLocal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const elem::Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocal"))
+    Matrix().Set( rowInd, colInd, ASub );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::SetLocalRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const elem::Matrix<BASE(T)>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocalRealPart"))
+    Matrix().SetRealPart( rowInd, colInd, ASub );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::SetLocalImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  const elem::Matrix<BASE(T)>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocalImagPart"))
+    Matrix().SetImagPart( rowInd, colInd, ASub );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::UpdateLocal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  T alpha, const elem::Matrix<T>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocal"))
+    Matrix().Update( rowInd, colInd, alpha, ASub );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::UpdateLocalRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalRealPart"))
+    Matrix().UpdateRealPart( rowInd, colInd, alpha, ASub );
+}
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::UpdateLocalImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+  BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalImagPart"))
+    Matrix().UpdateImagPart( rowInd, colInd, alpha, ASub );
+}
 
 // Private section
 // ###############
