@@ -904,6 +904,39 @@ AbstractDistMatrix<T>::GetImagPart
 }
 
 template<typename T>
+DistMatrix<T,STAR,STAR>
+AbstractDistMatrix<T>::Get
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::Get"))
+    DistMatrix<T,STAR,STAR> ASub( Grid() );
+    Get( rowInd, colInd, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMatrix<BASE(T),STAR,STAR>
+AbstractDistMatrix<T>::GetRealPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPart"))
+    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
+    GetRealPart( rowInd, colInd, ASub );
+    return ASub;
+}
+
+template<typename T>
+DistMatrix<BASE(T),STAR,STAR>
+AbstractDistMatrix<T>::GetImagPart
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPart"))
+    DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
+    GetImagPart( rowInd, colInd, ASub );
+    return ASub;
+}
+
+template<typename T>
 void 
 AbstractDistMatrix<T>::Set
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
