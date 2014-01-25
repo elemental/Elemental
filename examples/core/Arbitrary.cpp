@@ -54,7 +54,7 @@ main( int argc, char* argv[] )
                 std::cout << rowInds[j] << "\n";
             std::cout << "\n";
             std::cout << "colInds: \n";
-            for( Int j=0; j<numRows; ++j )
+            for( Int j=0; j<numCols; ++j )
                 std::cout << colInds[j] << "\n";
             std::cout << std::endl;
         }
