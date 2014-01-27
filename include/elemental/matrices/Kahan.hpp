@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_KAHAN_HPP
-#define ELEM_MATRICES_KAHAN_HPP
+#ifndef ELEM_KAHAN_HPP
+#define ELEM_KAHAN_HPP
 
 // I haven't decided on the appropriate generalization to complex cosine/sine
 // pairs. For now, given phi, we will compute the corresponding partner as the
@@ -42,7 +42,7 @@ MakeKahan( Matrix<F>& A, F phi )
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 MakeKahan( DistMatrix<F,U,V>& A, F phi )
 {
@@ -99,7 +99,7 @@ Kahan( Int n, F phi )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
 {
@@ -108,7 +108,7 @@ Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
     MakeKahan( A, phi );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Kahan( const Grid& g, Int n, F phi )
 {
@@ -119,4 +119,4 @@ Kahan( const Grid& g, Int n, F phi )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_KAHAN_HPP
+#endif // ifndef ELEM_KAHAN_HPP

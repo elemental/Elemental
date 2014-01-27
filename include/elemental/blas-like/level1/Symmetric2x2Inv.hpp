@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SYMMETRIC2X2INV_HPP
-#define ELEM_BLAS_SYMMETRIC2X2INV_HPP
+#ifndef ELEM_SYMMETRIC2X2INV_HPP
+#define ELEM_SYMMETRIC2X2INV_HPP
 
 namespace elem {
 
@@ -55,4 +55,4 @@ Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate=false )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SYMMETRIC2X2INV_HPP
+#endif // ifndef ELEM_SYMMETRIC2X2INV_HPP

@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_GEMM_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

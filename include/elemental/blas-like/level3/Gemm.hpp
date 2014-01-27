@@ -7,17 +7,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_GEMM_HPP
-#define ELEM_BLAS_GEMM_HPP
+#ifndef ELEM_GEMM_HPP
+#define ELEM_GEMM_HPP
 
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_SCALE_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
-template<typename T,Distribution AColDist,Distribution ARowDist,
-                    Distribution BColDist,Distribution BRowDist,
-                    Distribution CColDist,Distribution CRowDist>
+template<typename T,Dist AColDist,Dist ARowDist,
+                    Dist BColDist,Dist BRowDist,
+                    Dist CColDist,Dist CRowDist>
 inline void LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
@@ -116,9 +116,9 @@ inline void LocalGemm
       alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
 }
 
-template<typename T,Distribution AColDist,Distribution ARowDist,
-                    Distribution BColDist,Distribution BRowDist,
-                    Distribution CColDist,Distribution CRowDist>
+template<typename T,Dist AColDist,Dist ARowDist,
+                    Dist BColDist,Dist BRowDist,
+                    Dist CColDist,Dist CRowDist>
 inline void LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
@@ -251,4 +251,4 @@ Gemm
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_GEMM_HPP
+#endif // ifndef ELEM_GEMM_HPP

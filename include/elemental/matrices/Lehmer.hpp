@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_LEHMER_HPP
-#define ELEM_MATRICES_LEHMER_HPP
+#ifndef ELEM_LEHMER_HPP
+#define ELEM_LEHMER_HPP
 
 namespace elem {
 
@@ -36,7 +36,7 @@ Lehmer( Int n )
     return L;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Lehmer( DistMatrix<F,U,V>& L, Int n )
 {
@@ -62,7 +62,7 @@ Lehmer( DistMatrix<F,U,V>& L, Int n )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Lehmer( const Grid& g, Int n )
 {
@@ -73,4 +73,4 @@ Lehmer( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_LEHMER_HPP
+#endif // ifndef ELEM_LEHMER_HPP

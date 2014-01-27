@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_HILBERT_HPP
-#define ELEM_MATRICES_HILBERT_HPP
+#ifndef ELEM_HILBERT_HPP
+#define ELEM_HILBERT_HPP
 
 namespace elem {
 
@@ -28,7 +28,7 @@ MakeHilbert( Matrix<F>& A )
             A.Set( i, j, one/F(i+j+1) );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 MakeHilbert( DistMatrix<F,U,V>& A )
 {
@@ -74,7 +74,7 @@ Hilbert( Int n )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Hilbert( DistMatrix<F,U,V>& A, Int n )
 {
@@ -83,7 +83,7 @@ Hilbert( DistMatrix<F,U,V>& A, Int n )
     MakeHilbert( A );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Hilbert( const Grid& g, Int n )
 {
@@ -94,4 +94,4 @@ Hilbert( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_HILBERT_HPP
+#endif // ifndef ELEM_HILBERT_HPP

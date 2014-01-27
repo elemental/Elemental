@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SYMV_HPP
-#define ELEM_BLAS_SYMV_HPP
+#ifndef ELEM_SYMV_HPP
+#define ELEM_SYMV_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level1/Transpose.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_SCALE_INC
+#include ELEM_TRANSPOSE_INC
 
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_ZEROS_INC
 
 #include "./Symv/L.hpp"
 #include "./Symv/U.hpp"
@@ -246,4 +246,4 @@ Symv
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SYMV_HPP
+#endif // ifndef ELEM_SYMV_HPP

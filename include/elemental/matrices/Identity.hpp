@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_IDENTITY_HPP
-#define ELEM_MATRICES_IDENTITY_HPP
+#ifndef ELEM_IDENTITY_HPP
+#define ELEM_IDENTITY_HPP
 
-#include "elemental/blas-like/level1/Zero.hpp"
+#include ELEM_ZERO_INC
 
 namespace elem {
 
@@ -26,7 +26,7 @@ MakeIdentity( Matrix<T>& I )
         I.Set( j, j, T(1) );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeIdentity( DistMatrix<T,U,V>& I )
 {
@@ -69,7 +69,7 @@ Identity( Int m, Int n )
     return I;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Identity( DistMatrix<T,U,V>& I, Int m, Int n )
 {
@@ -78,7 +78,7 @@ Identity( DistMatrix<T,U,V>& I, Int m, Int n )
     MakeIdentity( I );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Identity( const Grid& g, Int m, Int n )
 {
@@ -89,4 +89,4 @@ Identity( const Grid& g, Int m, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_IDENTITY_HPP
+#endif // ifndef ELEM_IDENTITY_HPP

@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HERMITIANFROMEVD_HPP
-#define LAPACK_HERMITIANFROMEVD_HPP
+#ifndef ELEM_HERMITIANFROMEVD_HPP
+#define ELEM_HERMITIANFROMEVD_HPP
 
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_MAKETRAPEZOIDAL_INC
 
 namespace elem {
 
@@ -119,4 +119,4 @@ HermitianFromEVD
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANFROMEVD_HPP
+#endif // ifndef ELEM_HERMITIANFROMEVD_HPP

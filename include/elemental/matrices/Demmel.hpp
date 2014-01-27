@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_DEMMEL_HPP
-#define ELEM_MATRICES_DEMMEL_HPP
+#ifndef ELEM_DEMMEL_HPP
+#define ELEM_DEMMEL_HPP
 
-#include "elemental/matrices/Toeplitz.hpp"
+#include "./Toeplitz.hpp"
 
 namespace elem {
 
@@ -53,7 +53,7 @@ Demmel( Int n )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Demmel( DistMatrix<F,U,V>& A, Int n )
 {
@@ -83,7 +83,7 @@ Demmel( DistMatrix<F,U,V>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Demmel( const Grid& g, Int n )
 {
@@ -94,4 +94,4 @@ Demmel( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_DEMMEL_HPP
+#endif // ifndef ELEM_DEMMEL_HPP

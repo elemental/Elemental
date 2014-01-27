@@ -8,8 +8,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_MPI_HPP
-#define ELEM_CORE_MPI_HPP
+#ifndef ELEM_IMPORTS_MPI_HPP
+#define ELEM_IMPORTS_MPI_HPP
 
 namespace elem {
 namespace mpi {
@@ -570,4 +570,4 @@ template<> inline Datatype TypeMap<ValueIntPair<double> >()
 } // mpi
 } // elem
 
-#endif // ifndef ELEM_CORE_MPI_HPP
+#endif // ifndef ELEM_IMPORTS_MPI_HPP

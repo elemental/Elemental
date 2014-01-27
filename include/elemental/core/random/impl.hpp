@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_RANDOM_IMPL_HPP
-#define ELEM_CORE_RANDOM_IMPL_HPP
+#ifndef ELEM_RANDOM_IMPL_HPP
+#define ELEM_RANDOM_IMPL_HPP
 
 namespace elem {
 
@@ -113,4 +113,4 @@ SampleBall<Int>( Int center, Int radius )
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_RANDOM_IMPL_HPP
+#endif // ifndef ELEM_RANDOM_IMPL_HPP

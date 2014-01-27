@@ -7,20 +7,20 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_GEMV_HPP
-#define ELEM_BLAS_GEMV_HPP
+#ifndef ELEM_GEMV_HPP
+#define ELEM_GEMV_HPP
 
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_SCALE_INC
+#include ELEM_ZEROS_INC
 
 #include "./Gemv/N.hpp"
 #include "./Gemv/T.hpp"
 
 namespace elem {
 
-template<typename T,Distribution AColDist,Distribution ARowDist,
-                    Distribution xColDist,Distribution xRowDist,
-                    Distribution yColDist,Distribution yRowDist>
+template<typename T,Dist AColDist,Dist ARowDist,
+                    Dist xColDist,Dist xRowDist,
+                    Dist yColDist,Dist yRowDist>
 inline void LocalGemv
 ( Orientation orientation,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
@@ -169,4 +169,4 @@ Gemv
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_GEMV_HPP
+#endif // ifndef ELEM_GEMV_HPP

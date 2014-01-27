@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_CIRCULANT_HPP
-#define ELEM_MATRICES_CIRCULANT_HPP
+#ifndef ELEM_CIRCULANT_HPP
+#define ELEM_CIRCULANT_HPP
 
 namespace elem {
 
@@ -33,7 +33,7 @@ Circulant( const std::vector<T>& a )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 {
@@ -58,7 +58,7 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Circulant( const Grid& g, const std::vector<T>& a )
 {
@@ -69,4 +69,4 @@ Circulant( const Grid& g, const std::vector<T>& a )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_CIRCULANT_HPP
+#endif // ifndef ELEM_CIRCULANT_HPP

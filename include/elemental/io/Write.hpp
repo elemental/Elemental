@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_IO_WRITE_HPP
-#define ELEM_IO_WRITE_HPP
+#ifndef ELEM_WRITE_HPP
+#define ELEM_WRITE_HPP
 
-#include "elemental/io/Print.hpp"
+#include "./Print.hpp"
 
 #ifdef HAVE_QT5
 # include <QFile>
@@ -255,7 +255,7 @@ Write
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Write
 ( const DistMatrix<T,U,V>& A, std::string basename="matrix", 
@@ -292,4 +292,4 @@ Write
 
 } // namespace elem
 
-#endif // ifndef ELEM_IO_WRITE_HPP
+#endif // ifndef ELEM_WRITE_HPP

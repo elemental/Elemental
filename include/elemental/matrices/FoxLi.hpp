@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_FOXLI_HPP
-#define ELEM_MATRICES_FOXLI_HPP
+#ifndef ELEM_FOXLI_HPP
+#define ELEM_FOXLI_HPP
 
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/lapack-like/HermitianTridiagEig.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_HERMITIANTRIDIAGEIG_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -61,7 +61,7 @@ FoxLi( Matrix<Complex<Real> >& A, Int n, Real omega )
     DiagonalScale( RIGHT, NORMAL, sqrtWeights, A );
 }
 
-template<typename Real,Distribution U,Distribution V>
+template<typename Real,Dist U,Dist V>
 inline void
 FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
 {
@@ -124,7 +124,7 @@ FoxLi( Int n, Real omega )
     return A;
 }
 
-template<typename Real,Distribution U,Distribution V>
+template<typename Real,Dist U,Dist V>
 inline DistMatrix<Complex<Real>,U,V>
 FoxLi( const Grid& g, Int n, Real omega )
 {
@@ -135,4 +135,4 @@ FoxLi( const Grid& g, Int n, Real omega )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_FOXLI_HPP
+#endif // ifndef ELEM_FOXLI_HPP

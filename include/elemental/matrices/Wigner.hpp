@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_WIGNER_HPP
-#define ELEM_MATRICES_WIGNER_HPP
+#ifndef ELEM_WIGNER_HPP
+#define ELEM_WIGNER_HPP
 
-#include "elemental/blas-like/level1/MakeHermitian.hpp"
-#include "elemental/matrices/Gaussian.hpp"
+#include ELEM_MAKEHERMITIAN_INC
+#include ELEM_GAUSSIAN_INC
 
 namespace elem {
 
@@ -33,7 +33,7 @@ Wigner( Int n, T mean=0, BASE(T) stddev=1 )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, BASE(T) stddev=1 )
 {
@@ -42,7 +42,7 @@ Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, BASE(T) stddev=1 )
     MakeHermitian( LOWER, A );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Wigner( const Grid& g, Int n, T mean=0, BASE(T) stddev=1 )
 {
@@ -53,4 +53,4 @@ Wigner( const Grid& g, Int n, T mean=0, BASE(T) stddev=1 )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_WIGNER_HPP
+#endif // ifndef ELEM_WIGNER_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_LEVEL3_HPP
-#define ELEM_BLAS_LEVEL3_HPP
+#ifndef ELEM_BLAS3_HPP
+#define ELEM_BLAS3_HPP
 
 #include "./level3/Gemm.hpp"
 #include "./level3/Hemm.hpp"
@@ -25,4 +25,4 @@
 #include "./level3/TwoSidedTrmm.hpp"
 #include "./level3/TwoSidedTrsm.hpp"
 
-#endif // ifndef ELEM_BLAS_LEVEL3_HPP
+#endif // ifndef ELEM_BLAS3_HPP

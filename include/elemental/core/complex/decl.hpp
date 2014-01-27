@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_COMPLEX_DECL_HPP
-#define ELEM_CORE_COMPLEX_DECL_HPP
+#ifndef ELEM_COMPLEX_DECL_HPP
+#define ELEM_COMPLEX_DECL_HPP
 
 namespace elem {
 
@@ -186,4 +186,4 @@ F Log( const F& alpha );
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_COMPLEX_DECL_HPP
+#endif // ifndef ELEM_COMPLEX_DECL_HPP

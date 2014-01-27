@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_TOEPLITZ_HPP
-#define ELEM_MATRICES_TOEPLITZ_HPP
+#ifndef ELEM_TOEPLITZ_HPP
+#define ELEM_TOEPLITZ_HPP
 
 namespace elem {
 
@@ -36,7 +36,7 @@ Toeplitz( Int m, Int n, const std::vector<T>& a )
     return A;
 }
 
-template<typename S,typename T,Distribution U,Distribution V>
+template<typename S,typename T,Dist U,Dist V>
 inline void
 Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
@@ -63,7 +63,7 @@ Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Toeplitz( const Grid& g, Int m, Int n, const std::vector<T>& a )
 {
@@ -74,4 +74,4 @@ Toeplitz( const Grid& g, Int m, Int n, const std::vector<T>& a )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_TOEPLITZ_HPP
+#endif // ifndef ELEM_TOEPLITZ_HPP

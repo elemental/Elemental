@@ -7,15 +7,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONTROL_SYLVESTER_HPP
-#define ELEM_CONTROL_SYLVESTER_HPP
+#ifndef ELEM_SYLVESTER_HPP
+#define ELEM_SYLVESTER_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Sign.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_SCALE_INC
+#include ELEM_UPDATEDIAGONAL_INC
+
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_SIGN_INC
+
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -153,4 +155,4 @@ Sylvester
 
 } // namespace elem
 
-#endif // ifndef ELEM_CONTROL_SYLVESTER_HPP
+#endif // ifndef ELEM_SYLVESTER_HPP

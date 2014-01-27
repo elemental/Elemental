@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_LEVEL2_HPP
-#define ELEM_BLAS_LEVEL2_HPP
+#ifndef ELEM_BLAS2_HPP
+#define ELEM_BLAS2_HPP
 
 #include "./level2/ApplyColumnPivots.hpp"
 #include "./level2/ApplyRowPivots.hpp"
@@ -28,4 +28,4 @@
 #include "./level2/Trr2.hpp"
 #include "./level2/Trsv.hpp"
 
-#endif // ifndef ELEM_BLAS_LEVEL2_HPP
+#endif // ifndef ELEM_BLAS2_HPP

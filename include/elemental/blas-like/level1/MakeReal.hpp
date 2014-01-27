@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_MAKEREAL_HPP
-#define ELEM_BLAS_MAKEREAL_HPP
+#ifndef ELEM_MAKEREAL_HPP
+#define ELEM_MAKEREAL_HPP
 
 namespace elem {
 
@@ -26,7 +26,7 @@ MakeReal( Matrix<T>& A )
             ABuffer[i+j*ldim] = RealPart(ABuffer[i+j*ldim]);
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeReal( DistMatrix<T,U,V>& A )
 {
@@ -36,4 +36,4 @@ MakeReal( DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_MAKEREAL_HPP
+#endif // ifndef ELEM_MAKEREAL_HPP

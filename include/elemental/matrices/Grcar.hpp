@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_GRCAR_HPP
-#define ELEM_MATRICES_GRCAR_HPP
+#ifndef ELEM_GRCAR_HPP
+#define ELEM_GRCAR_HPP
 
-#include "elemental/matrices/Toeplitz.hpp"
+#include "./Toeplitz.hpp"
 
 namespace elem {
 
@@ -41,7 +41,7 @@ Grcar( Int n, Int k=3 )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
 {
@@ -59,7 +59,7 @@ Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
     Toeplitz( A, n, n, a );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Grcar( const Grid& g, Int n, Int k=3 )
 {
@@ -72,4 +72,4 @@ Grcar( const Grid& g, Int n, Int k=3 )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_GRCAR_HPP
+#endif // ifndef ELEM_GRCAR_HPP

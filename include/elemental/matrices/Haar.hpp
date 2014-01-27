@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_HAAR_HPP
-#define ELEM_MATRICES_HAAR_HPP
+#ifndef ELEM_HAAR_HPP
+#define ELEM_HAAR_HPP
 
-#include "elemental/lapack-like/QR.hpp"
-#include "elemental/matrices/Gaussian.hpp"
+#include ELEM_QR_INC
+#include ELEM_GAUSSIAN_INC
 
 namespace elem {
 
@@ -79,4 +79,4 @@ ImplicitHaar( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_HAAR_HPP
+#endif // ifndef ELEM_HAAR_HPP

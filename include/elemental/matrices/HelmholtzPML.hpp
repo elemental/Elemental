@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_HELMHOLTZPML_HPP
-#define ELEM_MATRICES_HELMHOLTZPML_HPP
+#ifndef ELEM_HELMHOLTZPML_HPP
+#define ELEM_HELMHOLTZPML_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include "./Zeros.hpp"
 
 namespace elem {
 
@@ -488,4 +488,4 @@ HelmholtzPML
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_HELMHOLTZPML_HPP
+#endif // ifndef ELEM_HELMHOLTZPML_HPP

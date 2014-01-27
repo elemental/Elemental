@@ -38,6 +38,8 @@ NO_OVERLOAD(LocalTrr2kBlocksize);
 %include "elemental/blas-like/level1/DiagonalSolve.hpp"
 %include "elemental/blas-like/level1/Dot.hpp"
 %include "elemental/blas-like/level1/Dotu.hpp"
+%include "elemental/blas-like/level1/Hadamard.hpp"
+%include "elemental/blas-like/level1/HilbertSchmidt.hpp"
 %include "elemental/blas-like/level1/MakeHermitian.hpp"
 %include "elemental/blas-like/level1/MakeReal.hpp"
 %include "elemental/blas-like/level1/MakeSymmetric.hpp"
@@ -452,6 +454,8 @@ OVERLOAD02_Compat(DiagonalScale)
 OVERLOAD02_Compat(DiagonalSolve)
 OVERLOAD01_int(Dot)
 OVERLOAD01_int(Dotu)
+OVERLOAD01(Hadamard)
+OVERLOAD01(HilbertSchmidt)
 OVERLOAD0_int(MakeHermitian)
 OVERLOAD01_int(MakeReal)
 OVERLOAD0_int(MakeSymmetric)

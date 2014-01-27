@@ -6,19 +6,19 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef LAPACK_HERMITIANTRIDIAG_LSQUARE_HPP
-#define LAPACK_HERMITIANTRIDIAG_LSQUARE_HPP
+#ifndef ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
+#define ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
 
 #include "./PanelLSquare.hpp"
 
 namespace elem {
-namespace hermitian_tridiag {
+namespace herm_tridiag {
 
 template<typename F> 
 void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hermitian_tridiag::LSquare");
+        CallStackEntry cse("herm_tridiag::LSquare");
         if( A.Grid() != t.Grid() )
             LogicError("{A,t} must be distributed over the same grid");
         if( A.Height() != A.Width() )
@@ -68,7 +68,7 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
             WPan_MR_STAR.AlignWith( A11 );
             WPan_MR_STAR.Resize( n-k, nb );
 
-            hermitian_tridiag::PanelLSquare
+            herm_tridiag::PanelLSquare
             ( ABR, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR );
@@ -98,7 +98,7 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     t = tDiag;
 }
 
-} // namespace hermitian_tridiag
+} // namespace herm_tridiag
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANTRIDIAG_LSQUARE_HPP
+#endif // ifndef ELEM_HERMITIANTRIDIAG_LSQUARE_HPP

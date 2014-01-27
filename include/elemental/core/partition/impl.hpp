@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_PARTITION_IMPL_HPP
-#define ELEM_CORE_PARTITION_IMPL_HPP
+#ifndef ELEM_PARTITION_IMPL_HPP
+#define ELEM_PARTITION_IMPL_HPP
 
 namespace elem {
 
@@ -30,7 +30,7 @@ PartitionUp
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionUp
 ( DM& A, DM& AT,
@@ -50,7 +50,7 @@ LockedPartitionUp
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionUp
 ( const DM& A, DM& AT,
@@ -77,7 +77,7 @@ PartitionDown
     View( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionDown
 ( DM& A, DM& AT,
@@ -103,7 +103,7 @@ LockedPartitionDown
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionDown
 ( const DM& A, DM& AT,
@@ -128,7 +128,7 @@ PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
 {
@@ -144,7 +144,7 @@ LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
 {
@@ -167,7 +167,7 @@ PartitionRight( M& A, M& AL, M& AR, Int widthAL )
     View( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
 {
@@ -189,7 +189,7 @@ LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 {
@@ -214,7 +214,7 @@ PartitionUpDiagonal
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionUpDiagonal
 ( DM& A, DM& ATL, DM& ATR,
@@ -234,7 +234,7 @@ LockedPartitionUpDiagonal
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionUpDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
@@ -260,7 +260,7 @@ PartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionUpOffsetDiagonal
 ( Int offset,
@@ -284,7 +284,7 @@ LockedPartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionUpOffsetDiagonal
 ( Int offset,
@@ -310,7 +310,7 @@ PartitionDownDiagonal
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionDownDiagonal
 ( DM& A, DM& ATL, DM& ATR,
@@ -330,7 +330,7 @@ LockedPartitionDownDiagonal
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionDownDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
@@ -365,7 +365,7 @@ PartitionDownOffsetDiagonal
     View( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 PartitionDownOffsetDiagonal
 ( Int offset,
@@ -407,7 +407,7 @@ LockedPartitionDownOffsetDiagonal
     LockedView( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 inline void
 LockedPartitionDownOffsetDiagonal
 ( Int offset,
@@ -433,4 +433,4 @@ LockedPartitionDownOffsetDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_PARTITION_IMPL_HPP
+#endif // ifndef ELEM_PARTITION_IMPL_HPP

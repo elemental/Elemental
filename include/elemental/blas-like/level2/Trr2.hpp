@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRR2_HPP
-#define ELEM_BLAS_TRR2_HPP
+#ifndef ELEM_TRR2_HPP
+#define ELEM_TRR2_HPP
 
 namespace elem {
 
@@ -137,4 +137,4 @@ Trr2
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRR2_HPP
+#endif // ifndef ELEM_TRR2_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_PMRRR_HPP
-#define ELEM_CORE_PMRRR_HPP
+#ifndef ELEM_IMPORTS_PMRRR_HPP
+#define ELEM_IMPORTS_PMRRR_HPP
 
 namespace elem {
 namespace pmrrr {
@@ -61,4 +61,4 @@ Info Eig
 } // namespace pmrrr
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_PMRRR_HPP
+#endif // ifndef ELEM_IMPORTS_PMRRR_HPP

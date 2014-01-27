@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/Identity.hpp"
+#include ELEM_IDENTITY_INC
 using namespace elem;
 
 int 

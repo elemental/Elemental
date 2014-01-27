@@ -8,19 +8,21 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/blas-like/level1/MakeSymmetric.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level1/SetDiagonal.hpp"
-#include "elemental/blas-like/level1/Transpose.hpp"
-#include "elemental/blas-like/level3/Symm.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
-#include "elemental/lapack-like/LDL.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/Uniform.hpp"
-#include "elemental/matrices/Wigner.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_MAKESYMMETRIC_INC
+#include ELEM_MAKETRIANGULAR_INC
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_TRANSPOSE_INC
+#include ELEM_SYMM_INC
+
+#include ELEM_APPLYPACKEDREFLECTORS_INC
+#include ELEM_LDL_INC
+#include ELEM_FROBENIUSNORM_INC
+
+#include ELEM_UNIFORM_INC
+#include ELEM_WIGNER_INC
+#include ELEM_ZEROS_INC
 using namespace std;
 using namespace elem;
 

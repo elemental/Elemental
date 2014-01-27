@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_NORMALUNIFORMSPECTRUM_HPP
-#define ELEM_MATRICES_NORMALUNIFORMSPECTRUM_HPP
+#ifndef ELEM_NORMALUNIFORMSPECTRUM_HPP
+#define ELEM_NORMALUNIFORMSPECTRUM_HPP
 
-#include "elemental/matrices/Diagonal.hpp"
-#include "elemental/matrices/Haar.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_DIAGONAL_INC
+#include ELEM_HAAR_INC
+#include ELEM_UNIFORM_INC
 
 namespace elem {
 
@@ -43,7 +43,7 @@ MakeNormalUniformSpectrum
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
 }
 
-template<typename R,Distribution U,Distribution V>
+template<typename R,Dist U,Dist V>
 inline void
 MakeNormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
@@ -109,7 +109,7 @@ NormalUniformSpectrum( Int n, Complex<R> center=0, R radius=1 )
     return A;
 }
 
-template<typename R,Distribution U,Distribution V>
+template<typename R,Dist U,Dist V>
 inline void
 NormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Int n, Complex<R> center=0, R radius=1 )
@@ -119,7 +119,7 @@ NormalUniformSpectrum
     MakeNormalUniformSpectrum( A, center, radius );
 }
 
-template<typename R,Distribution U=MC,Distribution V=MR>
+template<typename R,Dist U=MC,Dist V=MR>
 inline DistMatrix<Complex<R>,U,V>
 NormalUniformSpectrum
 ( const Grid& g, Int n, Complex<R> center=0, R radius=1 )
@@ -131,4 +131,4 @@ NormalUniformSpectrum
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_NORMALUNIFORMSPECTRUM_HPP
+#endif // ifndef ELEM_NORMALUNIFORMSPECTRUM_HPP

@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONVEX_SVT_NORMAL_HPP
-#define ELEM_CONVEX_SVT_NORMAL_HPP
+#ifndef ELEM_SVT_NORMAL_HPP
+#define ELEM_SVT_NORMAL_HPP
 
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/lapack-like/Norm/Max.hpp"
-#include "elemental/lapack-like/Norm/Zero.hpp"
-#include "elemental/lapack-like/SVD.hpp"
-#include "elemental/convex/SoftThreshold.hpp"
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_MAXNORM_INC
+#include ELEM_ZERONORM_INC
+#include ELEM_SVD_INC
+#include ELEM_SOFTTHRESHOLD_INC
 
 namespace elem {
 
@@ -59,4 +59,4 @@ Normal( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 } // namespace svt
 } // namespace elem
 
-#endif // ifndef ELEM_CONVEX_SVT_NORMAL_HPP
+#endif // ifndef ELEM_SVT_NORMAL_HPP

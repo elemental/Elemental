@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_FIEDLER_HPP
-#define ELEM_MATRICES_FIEDLER_HPP
+#ifndef ELEM_FIEDLER_HPP
+#define ELEM_FIEDLER_HPP
 
 namespace elem {
 
@@ -33,7 +33,7 @@ Fiedler( const std::vector<F>& c )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
 {
@@ -57,7 +57,7 @@ Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Fiedler( const Grid& g, const std::vector<F>& c )
 {
@@ -68,4 +68,4 @@ Fiedler( const Grid& g, const std::vector<F>& c )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_FIEDLER_HPP
+#endif // ifndef ELEM_FIEDLER_HPP

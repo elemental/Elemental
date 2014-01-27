@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SETDIAGONAL_HPP
-#define ELEM_BLAS_SETDIAGONAL_HPP
+#ifndef ELEM_SETDIAGONAL_HPP
+#define ELEM_SETDIAGONAL_HPP
 
 namespace elem {
 
@@ -51,7 +51,7 @@ SetDiagonal( Matrix<T>& A, S alpha, Int offset, LeftOrRight side=LEFT )
     }
 }
 
-template<typename T,typename S,Distribution U,Distribution V>
+template<typename T,typename S,Dist U,Dist V>
 inline void
 SetDiagonal( DistMatrix<T,U,V>& A, S alpha )
 {
@@ -73,7 +73,7 @@ SetDiagonal( DistMatrix<T,U,V>& A, S alpha )
     }
 }
 
-template<typename T,typename S,Distribution U,Distribution V>
+template<typename T,typename S,Dist U,Dist V>
 inline void
 SetDiagonal
 ( DistMatrix<T,U,V>& A, S alpha, Int offset, LeftOrRight side=LEFT )
@@ -116,4 +116,4 @@ SetDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SETDIAGONAL_HPP
+#endif // ifndef ELEM_SETDIAGONAL_HPP

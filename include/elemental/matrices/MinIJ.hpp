@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_MINIJ_HPP
-#define ELEM_MATRICES_MINIJ_HPP
+#ifndef ELEM_MINIJ_HPP
+#define ELEM_MINIJ_HPP
 
 namespace elem {
 
@@ -32,7 +32,7 @@ MinIJ( Int n )
     return M;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MinIJ( DistMatrix<T,U,V>& M, Int n )
 {
@@ -55,7 +55,7 @@ MinIJ( DistMatrix<T,U,V>& M, Int n )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 MinIJ( const Grid& g, Int n )
 {
@@ -66,4 +66,4 @@ MinIJ( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_MINIJ_HPP
+#endif // ifndef ELEM_MINIJ_HPP

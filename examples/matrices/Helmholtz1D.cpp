@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Inverse.hpp"
-#include "elemental/matrices/Helmholtz.hpp"
+#include ELEM_INVERSE_INC
+#include ELEM_HELMHOLTZ_INC
 using namespace elem;
 
 int 

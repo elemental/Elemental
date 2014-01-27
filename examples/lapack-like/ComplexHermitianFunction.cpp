@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianFunction.hpp"
+#include ELEM_HERMITIANFUNCTION_INC
 using namespace std;
 using namespace elem;
 

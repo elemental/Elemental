@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/NormalUniformSpectrum.hpp"
+#include ELEM_NORMALUNIFORMSPECTRUM_INC
 using namespace elem;
 
 int 

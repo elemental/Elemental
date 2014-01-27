@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_CONJUGATE_HPP
-#define ELEM_BLAS_CONJUGATE_HPP
+#ifndef ELEM_CONJUGATE_HPP
+#define ELEM_CONJUGATE_HPP
 
 namespace elem {
 
@@ -59,7 +59,7 @@ Conjugate( const Matrix<T>& A, Matrix<T>& B )
             B.Set(i,j,Conj(A.Get(i,j)));
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Conjugate( DistMatrix<T,U,V>& A )
 {
@@ -67,8 +67,8 @@ Conjugate( DistMatrix<T,U,V>& A )
     Conjugate( A.Matrix() );
 }
 
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
+template<typename T,Dist U,Dist V,
+                    Dist W,Dist Z>
 inline void
 Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
@@ -79,4 +79,4 @@ Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_CONJUGATE_HPP
+#endif // ifndef ELEM_CONJUGATE_HPP

@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianTridiagEig.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_HERMITIANTRIDIAGEIG_INC
+#include ELEM_ZEROS_INC
 using namespace elem;
 
 /*

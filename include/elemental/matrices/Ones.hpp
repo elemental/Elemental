@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_ONES_HPP
-#define ELEM_MATRICES_ONES_HPP
+#ifndef ELEM_ONES_HPP
+#define ELEM_ONES_HPP
 
 namespace elem {
 
@@ -24,7 +24,7 @@ MakeOnes( Matrix<T>& A )
             A.Set( i, j, T(1) );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeOnes( DistMatrix<T,U,V>& A )
 {
@@ -54,7 +54,7 @@ Ones( Int m, Int n )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Ones( DistMatrix<T,U,V>& A, Int m, Int n )
 {
@@ -63,7 +63,7 @@ Ones( DistMatrix<T,U,V>& A, Int m, Int n )
     MakeOnes( A );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Ones( const Grid& g, Int m, Int n )
 {
@@ -74,4 +74,4 @@ Ones( const Grid& g, Int m, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_ONES_HPP
+#endif // ifndef ELEM_ONES_HPP

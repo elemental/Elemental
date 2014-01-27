@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level2/Trsv.hpp"
-#include "elemental/blas-like/level3/Trmm.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include ELEM_TRSV_INC
+#include ELEM_TRMM_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
 using namespace elem;
 

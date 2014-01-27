@@ -8,13 +8,13 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Condition.hpp"
-#include "elemental/lapack-like/Determinant.hpp"
-#include "elemental/lapack-like/HilbertSchmidt.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Norm/Nuclear.hpp"
-#include "elemental/lapack-like/Norm/Two.hpp"
-#include "elemental/matrices/Hilbert.hpp"
+#include ELEM_CONDITION_INC
+#include ELEM_DETERMINANT_INC
+#include ELEM_HILBERTSCHMIDT_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_NUCLEARNORM_INC
+#include ELEM_TWONORM_INC
+#include ELEM_HILBERT_INC
 using namespace elem;
 
 int 

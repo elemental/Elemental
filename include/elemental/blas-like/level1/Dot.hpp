@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_DOT_HPP
-#define LAPACK_DOT_HPP
+#ifndef ELEM_DOT_HPP
+#define ELEM_DOT_HPP
 
-#include "elemental/lapack-like/HilbertSchmidt.hpp"
+#include "./HilbertSchmidt.hpp"
 
 namespace elem {
 
@@ -22,7 +22,7 @@ Dot( const Matrix<F>& A, const Matrix<F>& B )
     return HilbertSchmidt( A, B );
 }
 
-template<typename F,Distribution U,Distribution V> 
+template<typename F,Dist U,Dist V> 
 inline F
 Dot( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
@@ -32,4 +32,4 @@ Dot( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_DOT_HPP
+#endif // ifndef ELEM_DOT_HPP

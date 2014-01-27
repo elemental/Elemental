@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SCALETRAPEZOID_HPP
-#define ELEM_BLAS_SCALETRAPEZOID_HPP
+#ifndef ELEM_SCALETRAPEZOID_HPP
+#define ELEM_SCALETRAPEZOID_HPP
 
 namespace elem {
 
@@ -72,7 +72,7 @@ ScaleTrapezoid
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 ScaleTrapezoid
 ( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, 
@@ -125,4 +125,4 @@ ScaleTrapezoid
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SCALETRAPEZOID_HPP
+#endif // ifndef ELEM_SCALETRAPEZOID_HPP

@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Polar.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_POLAR_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

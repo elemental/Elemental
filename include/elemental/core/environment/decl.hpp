@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_ENVIRONMENT_DECL_HPP
-#define ELEM_CORE_ENVIRONMENT_DECL_HPP
+#ifndef ELEM_ENVIRONMENT_DECL_HPP
+#define ELEM_ENVIRONMENT_DECL_HPP
 
 namespace elem {
 
@@ -204,4 +204,4 @@ void EnsureConsistent( T alpha, mpi::Comm comm, std::string name="" );
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_ENVIRONMENT_DECL_HPP
+#endif // ifndef ELEM_ENVIRONMENT_DECL_HPP

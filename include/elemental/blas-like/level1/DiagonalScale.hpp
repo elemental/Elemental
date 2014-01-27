@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_DIAGONALSCALE_HPP
-#define ELEM_BLAS_DIAGONALSCALE_HPP
+#ifndef ELEM_DIAGONALSCALE_HPP
+#define ELEM_DIAGONALSCALE_HPP
 
 namespace elem {
 
@@ -53,8 +53,8 @@ DiagonalScale
 }
 
 template<typename T,typename TDiag,
-         Distribution U,Distribution V,
-         Distribution W,Distribution Z>
+         Dist U,Dist V,
+         Dist W,Dist Z>
 inline void
 DiagonalScale
 ( LeftOrRight side, Orientation orientation,
@@ -95,4 +95,4 @@ DiagonalScale
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_DIAGONALSCALE_HPP
+#endif // ifndef ELEM_DIAGONALSCALE_HPP

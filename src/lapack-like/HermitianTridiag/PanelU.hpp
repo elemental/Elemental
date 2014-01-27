@@ -6,16 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef LAPACK_HERMITIANTRIDIAG_PANELU_HPP
-#define LAPACK_HERMITIANTRIDIAG_PANELU_HPP
+#ifndef ELEM_HERMITIANTRIDIAG_PANELU_HPP
+#define ELEM_HERMITIANTRIDIAG_PANELU_HPP
 
-#include "elemental/blas-like/level1/Zero.hpp"
-#include "elemental/blas-like/level2/Gemv.hpp"
-#include "elemental/blas-like/level2/Symv.hpp"
-#include "elemental/lapack-like/Reflector/Col.hpp"
+#include ELEM_ZERO_INC
+#include ELEM_GEMV_INC
+#include ELEM_SYMV_INC
+#include ELEM_REFLECTOR_INC
 
 namespace elem {
-namespace hermitian_tridiag {
+namespace herm_tridiag {
 
 template<typename F>
 void PanelU
@@ -30,7 +30,7 @@ void PanelU
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-        CallStackEntry cse("hermitian_tridiag::PanelU");
+        CallStackEntry cse("herm_tridiag::PanelU");
         if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
             LogicError("A, W, and t must be distributed over the same grid.");
         if( n != A.Width() )
@@ -583,7 +583,7 @@ void PanelU
     expandedABR.SetRealPartOfDiagonal( e, 1 );
 }
 
-} // namespace hermitian_tridiag
+} // namespace herm_tridiag
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANTRIDIAG_PANELU_HPP
+#endif // ifndef ELEM_HERMITIANTRIDIAG_PANELU_HPP

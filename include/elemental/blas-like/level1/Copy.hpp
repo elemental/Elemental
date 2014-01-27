@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_COPY_HPP
-#define ELEM_BLAS_COPY_HPP
+#ifndef ELEM_COPY_HPP
+#define ELEM_COPY_HPP
 
 namespace elem {
 
@@ -20,8 +20,8 @@ Copy( const Matrix<T>& A, Matrix<T>& B )
     B = A;
 }
 
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
+template<typename T,Dist U,Dist V,
+                    Dist W,Dist Z>
 inline void
 Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
@@ -31,4 +31,4 @@ Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_COPY_HPP
+#endif // ifndef ELEM_COPY_HPP

@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_JORDAN_HPP
-#define ELEM_MATRICES_JORDAN_HPP
+#ifndef ELEM_JORDAN_HPP
+#define ELEM_JORDAN_HPP
 
-#include "elemental/blas-like/level1/Zero.hpp"
+#include ELEM_ZERO_INC
 
 namespace elem {
 
@@ -30,7 +30,7 @@ MakeJordan( Matrix<T>& J, T lambda )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeJordan( DistMatrix<T,U,V>& J, T lambda )
 {
@@ -75,7 +75,7 @@ Jordan( Int n, T lambda )
     return J;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
 {
@@ -84,7 +84,7 @@ Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
     MakeJordan( J, lambda );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Jordan( const Grid& g, Int n, T lambda )
 {
@@ -95,4 +95,4 @@ Jordan( const Grid& g, Int n, T lambda )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_JORDAN_HPP
+#endif // ifndef ELEM_JORDAN_HPP

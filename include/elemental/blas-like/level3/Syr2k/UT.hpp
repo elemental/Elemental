@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SYR2K_UT_HPP
-#define ELEM_BLAS_SYR2K_UT_HPP
+#ifndef ELEM_SYR2K_UT_HPP
+#define ELEM_SYR2K_UT_HPP
 
-#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
+#include ELEM_SCALETRAPEZOID_INC
 
 namespace elem {
 namespace internal {
@@ -112,4 +112,4 @@ Syr2kUT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SYR2K_UT_HPP
+#endif // ifndef ELEM_SYR2K_UT_HPP

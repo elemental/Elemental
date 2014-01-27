@@ -711,7 +711,7 @@ if(ELEM_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES convex core blas-like lapack-like matrices)
 
-  set(convex_EXAMPLES LogDetDivergence RPCA)
+  set(convex_EXAMPLES LogDetDiv RPCA)
   set(core_EXAMPLES Arbitrary Constructors LogicError)
   set(blas-like_EXAMPLES Cannon Gemm Gemv)
   set(lapack-like_EXAMPLES 

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_UNIFORM_HPP
-#define ELEM_MATRICES_UNIFORM_HPP
+#ifndef ELEM_UNIFORM_HPP
+#define ELEM_UNIFORM_HPP
 
 namespace elem {
 
@@ -45,7 +45,7 @@ Uniform( Int m, Int n, T center=0, BASE(T) radius=1 )
 
 namespace internal {
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 struct MakeUniformHelper
 {
     static void Func( DistMatrix<T,U,V>& A, T center, BASE(T) radius );  
@@ -342,7 +342,7 @@ struct MakeUniformHelper<T,VR,STAR>
 
 } // namespace internal
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
@@ -350,7 +350,7 @@ MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
     internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
@@ -359,7 +359,7 @@ Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
     MakeUniform( A, center, radius );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
@@ -370,4 +370,4 @@ Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_UNIFORM_HPP
+#endif // ifndef ELEM_UNIFORM_HPP

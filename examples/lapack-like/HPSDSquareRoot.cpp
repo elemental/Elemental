@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeHermitian.hpp"
-#include "elemental/blas-like/level3/Herk.hpp"
-#include "elemental/lapack-like/SquareRoot.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_MAKEHERMITIAN_INC
+#include ELEM_HERK_INC
+#include ELEM_SQUAREROOT_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

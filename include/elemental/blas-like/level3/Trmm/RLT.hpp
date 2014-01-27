@@ -10,16 +10,18 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRMM_RLT_HPP
-#define ELEM_BLAS_TRMM_RLT_HPP
+#ifndef ELEM_TRMM_RLT_HPP
+#define ELEM_TRMM_RLT_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level1/SetDiagonal.hpp"
-#include "elemental/blas-like/level1/Transpose.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_MAKETRIANGULAR_INC
+#include ELEM_SCALE_INC
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_TRANSPOSE_INC
+
+#include ELEM_GEMM_INC
+
+#include ELEM_ZEROS_INC
 
 namespace elem {
 namespace internal {
@@ -302,4 +304,4 @@ TrmmRLT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRMM_RLT_HPP
+#endif // ifndef ELEM_TRMM_RLT_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_DIAGONALSOLVE_HPP
-#define ELEM_BLAS_DIAGONALSOLVE_HPP
+#ifndef ELEM_DIAGONALSOLVE_HPP
+#define ELEM_DIAGONALSOLVE_HPP
 
 namespace elem {
 
@@ -59,8 +59,8 @@ DiagonalSolve
 }
 
 template<typename F,typename FDiag,
-         Distribution U,Distribution V,
-         Distribution W,Distribution Z>
+         Dist U,Dist V,
+         Dist W,Dist Z>
 inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
@@ -106,4 +106,4 @@ DiagonalSolve
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_DIAGONALSOLVE_HPP
+#endif // ifndef ELEM_DIAGONALSOLVE_HPP

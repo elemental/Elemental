@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_LAPACK_APPLYCOLUMNPIVOTS_HPP
-#define ELEM_LAPACK_APPLYCOLUMNPIVOTS_HPP
+#ifndef ELEM_APPLYCOLUMNPIVOTS_HPP
+#define ELEM_APPLYCOLUMNPIVOTS_HPP
 
-#include "elemental/blas-like/level2/ComposePivots.hpp"
+#include "./ComposePivots.hpp"
 
 namespace elem {
 
@@ -76,8 +76,8 @@ ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<Int>& p )
     }
 }
 
-template<typename F,Distribution U1,Distribution V1,
-                    Distribution U2,Distribution V2>
+template<typename F,Dist U1,Dist V1,
+                    Dist U2,Dist V2>
 inline void
 ApplyColumnPivots( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
 {
@@ -86,8 +86,8 @@ ApplyColumnPivots( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
     ApplyColumnPivots( A, p_STAR_STAR );
 }
 
-template<typename F,Distribution U1,Distribution V1,
-                    Distribution U2,Distribution V2>
+template<typename F,Dist U1,Dist V1,
+                    Dist U2,Dist V2>
 inline void
 ApplyInverseColumnPivots
 ( DistMatrix<F,U1,V1>& A, const DistMatrix<Int,U2,V2>& p )
@@ -97,7 +97,7 @@ ApplyInverseColumnPivots
     ApplyInverseColumnPivots( A, p_STAR_STAR );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 ApplyColumnPivots( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
 {
@@ -107,7 +107,7 @@ ApplyColumnPivots( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
     ApplyColumnPivots( A, image, preimage );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 ApplyInverseColumnPivots
 ( DistMatrix<F,U,V>& A, const DistMatrix<Int,STAR,STAR>& p )
@@ -166,7 +166,7 @@ ApplyColumnPivots
     }
 }
 
-template<typename F,Distribution U,Distribution V> 
+template<typename F,Dist U,Dist V> 
 inline void
 ApplyColumnPivots( DistMatrix<F,U,V>& A, const PivotMeta& oldMeta )
 {
@@ -219,7 +219,7 @@ ApplyColumnPivots( DistMatrix<F,U,V>& A, const PivotMeta& oldMeta )
     }
 }
 
-template<typename F,Distribution U,Distribution V> 
+template<typename F,Dist U,Dist V> 
 inline void
 ApplyColumnPivots
 ( DistMatrix<F,U,V>& A, 
@@ -234,4 +234,4 @@ ApplyColumnPivots
 
 } // namespace elem
 
-#endif // ifndef ELEM_LAPACK_APPLYCOLUMNPIVOTS_HPP
+#endif // ifndef ELEM_APPLYCOLUMNPIVOTS_HPP

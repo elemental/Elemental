@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_PEI_HPP
-#define ELEM_MATRICES_PEI_HPP
+#ifndef ELEM_PEI_HPP
+#define ELEM_PEI_HPP
 
 namespace elem {
 
@@ -34,7 +34,7 @@ Pei( Int n, T alpha )
     return P;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
 {
@@ -59,7 +59,7 @@ Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Pei( const Grid& g, Int n, T alpha )
 {
@@ -70,4 +70,4 @@ Pei( const Grid& g, Int n, T alpha )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_PEI_HPP
+#endif // ifndef ELEM_PEI_HPP

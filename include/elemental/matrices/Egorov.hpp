@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_EGOROV_HPP
-#define ELEM_MATRICES_EGOROV_HPP
+#ifndef ELEM_EGOROV_HPP
+#define ELEM_EGOROV_HPP
 
 namespace elem {
 
@@ -31,7 +31,7 @@ MakeEgorov( Matrix<Complex<Real> >& A, const RealFunctor& phase )
     }
 }
 
-template<typename Real,Distribution U,Distribution V,class RealFunctor>
+template<typename Real,Dist U,Dist V,class RealFunctor>
 inline void
 MakeEgorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
 {
@@ -74,7 +74,7 @@ Egorov( const RealFunctor& phase, Int n )
     return A;
 }
 
-template<typename Real,Distribution U,Distribution V,class RealFunctor>
+template<typename Real,Dist U,Dist V,class RealFunctor>
 inline void
 Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
 {
@@ -83,7 +83,7 @@ Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
 }
 
-template<typename Real,Distribution U=MC,Distribution V=MR,class RealFunctor>
+template<typename Real,Dist U=MC,Dist V=MR,class RealFunctor>
 inline DistMatrix<Complex<Real>,U,V>
 Egorov( const Grid& g, const RealFunctor& phase, Int n )
 {
@@ -94,4 +94,4 @@ Egorov( const Grid& g, const RealFunctor& phase, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_EGOROV_HPP
+#endif // ifndef ELEM_EGOROV_HPP

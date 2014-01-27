@@ -7,16 +7,18 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONTROL_RICATTI_HPP
-#define ELEM_CONTROL_RICATTI_HPP
+#ifndef ELEM_RICATTI_HPP
+#define ELEM_RICATTI_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/MakeHermitian.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
-#include "elemental/lapack-like/LeastSquares.hpp"
-#include "elemental/lapack-like/Sign.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_MAKEHERMITIAN_INC
+#include ELEM_SCALE_INC
+#include ELEM_UPDATEDIAGONAL_INC
+
+#include ELEM_LEASTSQUARES_INC
+#include ELEM_SIGN_INC
+
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -152,4 +154,4 @@ Ricatti
 
 } // namespace elem
 
-#endif // ifndef ELEM_CONTROL_RICATTI_HPP
+#endif // ifndef ELEM_RICATTI_HPP

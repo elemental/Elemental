@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_EXTENDEDKAHAN_HPP
-#define ELEM_MATRICES_EXTENDEDKAHAN_HPP
+#ifndef ELEM_EXTENDEDKAHAN_HPP
+#define ELEM_EXTENDEDKAHAN_HPP
 
-#include "elemental/matrices/Walsh.hpp"
+#include "./Walsh.hpp"
 
 // Generate a 3(2^k) x 3(2^k) Extended Kahan matrix, which has the form
 // A = S R, where S = diag(1,zeta,...,zeta^(3 2^k - 1)), 
@@ -68,7 +68,7 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     DiagonalScale( LEFT, NORMAL, d, A );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 {
@@ -137,7 +137,7 @@ ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
@@ -147,7 +147,7 @@ ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
 {
@@ -159,4 +159,4 @@ ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_EXTENDEDKAHAN_HPP
+#endif // ifndef ELEM_EXTENDEDKAHAN_HPP

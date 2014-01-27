@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_PARTER_HPP
-#define ELEM_MATRICES_PARTER_HPP
+#ifndef ELEM_PARTER_HPP
+#define ELEM_PARTER_HPP
 
 namespace elem {
 
@@ -33,7 +33,7 @@ Parter( Int n )
     return P;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Parter( DistMatrix<F,U,V>& P, Int n )
 {
@@ -57,7 +57,7 @@ Parter( DistMatrix<F,U,V>& P, Int n )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Parter( const Grid& g, Int n )
 {
@@ -68,4 +68,4 @@ Parter( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_PARTER_HPP
+#endif // ifndef ELEM_PARTER_HPP

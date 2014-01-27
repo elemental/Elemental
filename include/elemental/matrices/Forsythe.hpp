@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_FORSYTHE_HPP
-#define ELEM_MATRICES_FORSYTHE_HPP
+#ifndef ELEM_FORSYTHE_HPP
+#define ELEM_FORSYTHE_HPP
 
-#include "elemental/matrices/Jordan.hpp"
+#include "./Jordan.hpp"
 
 namespace elem {
 
@@ -26,7 +26,7 @@ MakeForsythe( Matrix<T>& J, T alpha, T lambda )
         J.Set( m-1, 0, alpha );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
 {
@@ -47,7 +47,7 @@ Forsythe( Int n, T alpha, T lambda )
     return J;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
 {
@@ -56,7 +56,7 @@ Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
     MakeForsythe( J, alpha, lambda );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Forsythe( const Grid& g, Int n, T alpha, T lambda )
 {
@@ -67,4 +67,4 @@ Forsythe( const Grid& g, Int n, T alpha, T lambda )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_FORSYTHE_HPP
+#endif // ifndef ELEM_FORSYTHE_HPP

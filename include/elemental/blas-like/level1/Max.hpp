@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_MAX_HPP
-#define ELEM_BLAS_MAX_HPP
+#ifndef ELEM_MAX_HPP
+#define ELEM_MAX_HPP
 
 namespace elem {
 
@@ -57,7 +57,7 @@ VectorMax( const Matrix<F>& x )
     return pivot;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline ValueInt<BASE(F)>
 VectorMax( const DistMatrix<F,U,V>& x )
 {
@@ -148,7 +148,7 @@ Max( const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline ValueIntPair<BASE(F)>
 Max( const DistMatrix<F,U,V>& A )
 {
@@ -335,4 +335,4 @@ DiagonalMax( const DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_MAX_HPP
+#endif // ifndef ELEM_MAX_HPP

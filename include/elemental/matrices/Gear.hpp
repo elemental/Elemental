@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_GEAR_HPP
-#define ELEM_MATRICES_GEAR_HPP
+#ifndef ELEM_GEAR_HPP
+#define ELEM_GEAR_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include "./Zeros.hpp"
 
 namespace elem {
 
@@ -51,7 +51,7 @@ Gear( Int n, Int s, Int t )
     return G;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
 {
@@ -79,7 +79,7 @@ Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
         G.Set( n-1, n+t, T(-1) );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Gear( const Grid& g, Int n, Int s, Int t )
 {
@@ -90,4 +90,4 @@ Gear( const Grid& g, Int n, Int s, Int t )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_GEAR_HPP
+#endif // ifndef ELEM_GEAR_HPP

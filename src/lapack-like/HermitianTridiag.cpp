@@ -7,7 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianTridiag.hpp"
+
+#include ELEM_HERMITIANTRIDIAG_INC
 
 #include "./HermitianTridiag/PanelL.hpp"
 #include "./HermitianTridiag/PanelLSquare.hpp"
@@ -26,9 +27,9 @@ void HermitianTridiag
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     if( uplo == LOWER )
-        hermitian_tridiag::L( A, t );
+        herm_tridiag::L( A, t );
     else
-        hermitian_tridiag::U( A, t );
+        herm_tridiag::U( A, t );
 }
 
 template<typename F>
@@ -52,9 +53,9 @@ HermitianTridiag
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            hermitian_tridiag::L( A, t );
+            herm_tridiag::L( A, t );
         else
-            hermitian_tridiag::U( A, t );
+            herm_tridiag::U( A, t );
     }
     else if( approach == HERMITIAN_TRIDIAG_SQUARE )
     {
@@ -91,9 +92,9 @@ HermitianTridiag
         if( ASquare.Participating() )
         {
             if( uplo == LOWER )
-                hermitian_tridiag::LSquare( ASquare, tSquare );
+                herm_tridiag::LSquare( ASquare, tSquare );
             else
-                hermitian_tridiag::USquare( ASquare, tSquare ); 
+                herm_tridiag::USquare( ASquare, tSquare ); 
         }
         tSquare.MakeConsistent();
         A = ASquare;
@@ -108,16 +109,16 @@ HermitianTridiag
         if( g.Height() == g.Width() )
         {
             if( uplo == LOWER )
-                hermitian_tridiag::LSquare( A, t );
+                herm_tridiag::LSquare( A, t );
             else
-                hermitian_tridiag::USquare( A, t ); 
+                herm_tridiag::USquare( A, t ); 
         }
         else
         {
             if( uplo == LOWER )
-                hermitian_tridiag::L( A, t );
+                herm_tridiag::L( A, t );
             else
-                hermitian_tridiag::U( A, t );
+                herm_tridiag::U( A, t );
         }
     }
 }

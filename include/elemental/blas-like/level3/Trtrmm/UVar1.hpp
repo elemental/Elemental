@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRTRMM_UVAR1_HPP
-#define ELEM_BLAS_TRTRMM_UVAR1_HPP
+#ifndef ELEM_TRTRMM_UVAR1_HPP
+#define ELEM_TRTRMM_UVAR1_HPP
 
-#include "elemental/blas-like/level3/Trmm.hpp"
+#include ELEM_TRMM_INC
 
 namespace elem {
 namespace internal {
@@ -120,4 +120,4 @@ TrtrmmUVar1( DistMatrix<T>& U, bool conjugate=false )
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRTRMM_UVAR1_HPP
+#endif // ifndef ELEM_TRTRMM_UVAR1_HPP

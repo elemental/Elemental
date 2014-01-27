@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_MEMORY_IMPL_HPP
-#define ELEM_CORE_MEMORY_IMPL_HPP
+#ifndef ELEM_MEMORY_IMPL_HPP
+#define ELEM_MEMORY_IMPL_HPP
 
 namespace elem {
 
@@ -105,4 +105,4 @@ Memory<G>::Empty()
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_MEMORY_IMPL_HPP
+#endif // ifndef ELEM_MEMORY_IMPL_HPP

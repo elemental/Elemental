@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_IO_READ_HPP
-#define ELEM_IO_READ_HPP
+#ifndef ELEM_READ_HPP
+#define ELEM_READ_HPP
 
 namespace elem {
 namespace read {
@@ -87,7 +87,7 @@ BinaryFlat( Matrix<T>& A, Int height, Int width, const std::string filename )
 }
 
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Binary( DistMatrix<T,U,V>& A, const std::string filename )
 {
@@ -128,7 +128,7 @@ Binary( DistMatrix<T,U,V>& A, const std::string filename )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 BinaryFlat
 ( DistMatrix<T,U,V>& A, Int height, Int width, const std::string filename )
@@ -165,7 +165,7 @@ BinaryFlat
     }
 }
 
-template<typename T,Distribution V>
+template<typename T,Dist V>
 inline void
 Binary( DistMatrix<T,STAR,V>& A, const std::string filename )
 {
@@ -199,7 +199,7 @@ Binary( DistMatrix<T,STAR,V>& A, const std::string filename )
     }
 }
 
-template<typename T,Distribution V>
+template<typename T,Dist V>
 inline void
 BinaryFlat
 ( DistMatrix<T,STAR,V>& A, Int height, Int width, const std::string filename )
@@ -367,7 +367,7 @@ Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Read
 ( DistMatrix<T,U,V>& A, const std::string filename, FileFormat format=AUTO,
@@ -426,4 +426,4 @@ Read
 
 } // namespace elem
 
-#endif // ifndef ELEM_IO_READ_HPP
+#endif // ifndef ELEM_READ_HPP

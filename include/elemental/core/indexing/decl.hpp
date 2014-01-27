@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_INDEXING_DECL_HPP
-#define ELEM_CORE_INDEXING_DECL_HPP
+#ifndef ELEM_INDEXING_DECL_HPP
+#define ELEM_INDEXING_DECL_HPP
 
 namespace elem {
 
@@ -36,4 +36,4 @@ bool PowerOfTwo( Unsigned n );
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_INDEXING_DECL_HPP
+#endif // ifndef ELEM_INDEXING_DECL_HPP

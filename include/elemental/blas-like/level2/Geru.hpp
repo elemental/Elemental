@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_GERU_HPP
-#define ELEM_BLAS_GERU_HPP
+#ifndef ELEM_GERU_HPP
+#define ELEM_GERU_HPP
 
 namespace elem {
 
@@ -135,4 +135,4 @@ Geru
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_GERU_HPP
+#endif // ifndef ELEM_GERU_HPP

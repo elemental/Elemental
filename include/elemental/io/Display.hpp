@@ -7,13 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_IO_DISPLAY_HPP
-#define ELEM_IO_DISPLAY_HPP
+#ifndef ELEM_DISPLAY_HPP
+#define ELEM_DISPLAY_HPP
 
 #ifdef HAVE_QT5
-# include "elemental/io/display_window-premoc.hpp"
-# include "elemental/io/complex_display_window-premoc.hpp"
-# include "elemental/io/display_widget/impl.hpp"
+# include "./display_window-premoc.hpp"
+# include "./complex_display_window-premoc.hpp"
+# include "./display_widget/impl.hpp"
 # include <QApplication>
 #endif
 
@@ -99,7 +99,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="Default" )
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
 {
@@ -159,4 +159,4 @@ Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
 
 } // namespace elem
 
-#endif // ifndef ELEM_IO_DISPLAY_HPP
+#endif // ifndef ELEM_DISPLAY_HPP

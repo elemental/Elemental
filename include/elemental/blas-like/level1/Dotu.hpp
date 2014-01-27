@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_DOTU_HPP
-#define LAPACK_DOTU_HPP
+#ifndef ELEM_DOTU_HPP
+#define ELEM_DOTU_HPP
 
 namespace elem {
 
@@ -30,7 +30,7 @@ Dotu( const Matrix<F>& A, const Matrix<F>& B )
     return sum;
 }
 
-template<typename F,Distribution U,Distribution V> 
+template<typename F,Dist U,Dist V> 
 inline F
 Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
@@ -60,4 +60,4 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_DOTU_HPP
+#endif // ifndef ELEM_DOTU_HPP

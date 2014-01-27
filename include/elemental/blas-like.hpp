@@ -10,7 +10,7 @@
 #ifndef ELEM_BLASLIKE_HPP
 #define ELEM_BLASLIKE_HPP
 
-#include "elemental/blas-like/decl.hpp"
-#include "elemental/blas-like/impl.hpp"
+#include "./blas-like/decl.hpp"
+#include "./blas-like/impl.hpp"
 
 #endif // ifndef ELEM_BLASLIKE_HPP

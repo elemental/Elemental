@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_AXPYTRIANGLE_HPP
-#define ELEM_BLAS_AXPYTRIANGLE_HPP
+#ifndef ELEM_AXPYTRIANGLE_HPP
+#define ELEM_AXPYTRIANGLE_HPP
 
 namespace elem {
 
@@ -44,7 +44,7 @@ AxpyTriangle
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
 #endif
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 AxpyTriangle
 ( UpperOrLower uplo, T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
@@ -105,7 +105,7 @@ AxpyTriangle
 }
 
 #ifndef SWIG
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 AxpyTriangle
 ( UpperOrLower uplo, Base<T> alpha,
@@ -115,4 +115,4 @@ AxpyTriangle
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_AXPYTRIANGLE_HPP
+#endif // ifndef ELEM_AXPYTRIANGLE_HPP

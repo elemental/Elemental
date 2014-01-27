@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_PARTITION_DECL_HPP
-#define ELEM_CORE_PARTITION_DECL_HPP
+#ifndef ELEM_PARTITION_DECL_HPP
+#define ELEM_PARTITION_DECL_HPP
 
 namespace elem {
 
@@ -25,7 +25,7 @@ void PartitionUp
 ( M& A, M& AT,
         M& AB, Int heightAB=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionUp
 ( DM& A, DM& AT,
          DM& AB, Int heightAB=Blocksize() );
@@ -35,7 +35,7 @@ void LockedPartitionUp
 ( const M& A, M& AT,
               M& AB, Int heightAB=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionUp
 ( const DM& A, DM& AT,
                DM& AB, Int heightAB=Blocksize() );
@@ -49,7 +49,7 @@ void PartitionDown
 ( M& A, M& AT,
         M& AB, Int heightAT=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionDown
 ( DM& A, DM& AT,
          DM& AB, Int heightAT=Blocksize() );
@@ -59,7 +59,7 @@ void LockedPartitionDown
 ( const M& A, M& AT,
               M& AB, Int heightAT=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionDown
 ( const DM& A, DM& AT,
                DM& AB, Int heightAT=Blocksize() );
@@ -72,7 +72,7 @@ template<typename T>
 void PartitionLeft
 ( M& A, M& AL, M& AR, Int widthAR=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionLeft
 ( DM& A, DM& AL, DM& AR, Int widthAR=Blocksize() );
 
@@ -80,7 +80,7 @@ template<typename T>
 void LockedPartitionLeft
 ( const M& A, M& AL, M& AR, Int widthAR=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionLeft
 ( const DM& A, DM& AL, DM& AR, Int widthAR=Blocksize() );
 
@@ -92,7 +92,7 @@ template<typename T>
 void PartitionRight
 ( M& A, M& AL, M& AR, Int widthAL=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionRight
 ( DM& A, DM& AL, DM& AR, Int widthAL=Blocksize() );
 
@@ -100,7 +100,7 @@ template<typename T>
 void LockedPartitionRight
 ( const M& A, M& AL, M& AR, Int widthAL=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionRight
 ( const DM& A, DM& AL, DM& AR, Int widthAL=Blocksize() );
 
@@ -113,7 +113,7 @@ void PartitionUpDiagonal
 ( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionUpDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, Int diagDist=Blocksize() );
@@ -123,7 +123,7 @@ void LockedPartitionUpDiagonal
 ( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionUpDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, Int diagDist=Blocksize() );
@@ -138,7 +138,7 @@ void PartitionUpOffsetDiagonal
   M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionUpOffsetDiagonal
 ( Int offset,
   DM& A, DM& ATL, DM& ATR,
@@ -150,7 +150,7 @@ void LockedPartitionUpOffsetDiagonal
   const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionUpOffsetDiagonal
 ( Int offset,
   const DM& A, DM& ATL, DM& ATR,
@@ -165,7 +165,7 @@ void PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionDownDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, Int diagDist=Blocksize() );
@@ -175,7 +175,7 @@ void LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionDownDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, Int diagDist=Blocksize() );
@@ -190,7 +190,7 @@ void PartitionDownOffsetDiagonal
   M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void PartitionDownOffsetDiagonal
 ( Int offset,
   DM& A, DM& ATL, DM& ATR,
@@ -202,7 +202,7 @@ void LockedPartitionDownOffsetDiagonal
   const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V>
+template<typename T, Dist U, Dist V>
 void LockedPartitionDownOffsetDiagonal
 ( Int offset,
   const DM& A, DM& ATL, DM& ATR,
@@ -213,4 +213,4 @@ void LockedPartitionDownOffsetDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_PARTITION_DECL_HPP
+#endif // ifndef ELEM_PARTITION_DECL_HPP

@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_MAKESYMMETRIC_HPP
-#define ELEM_BLAS_MAKESYMMETRIC_HPP
+#ifndef ELEM_MAKESYMMETRIC_HPP
+#define ELEM_MAKESYMMETRIC_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/MakeReal.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level1/SetDiagonal.hpp"
-#include "elemental/blas-like/level1/Transpose.hpp"
+#include "./Axpy.hpp"
+#include "./MakeReal.hpp"
+#include "./MakeTriangular.hpp"
+#include "./SetDiagonal.hpp"
+#include "./Transpose.hpp"
 
 namespace elem {
 
@@ -71,4 +71,4 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_MAKESYMMETRIC_HPP
+#endif // ifndef ELEM_MAKESYMMETRIC_HPP

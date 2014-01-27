@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_RIEMANN_HPP
-#define ELEM_MATRICES_RIEMANN_HPP
+#ifndef ELEM_RIEMANN_HPP
+#define ELEM_RIEMANN_HPP
 
 namespace elem {
 
@@ -39,7 +39,7 @@ Riemann( Int n )
     return R;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Riemann( DistMatrix<T,U,V>& R, Int n )
 {
@@ -65,7 +65,7 @@ Riemann( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Riemann( const Grid& g, Int n )
 {
@@ -76,4 +76,4 @@ Riemann( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_RIEMANN_HPP
+#endif // ifndef ELEM_RIEMANN_HPP

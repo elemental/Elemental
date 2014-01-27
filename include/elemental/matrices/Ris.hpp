@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_RIS_HPP
-#define ELEM_MATRICES_RIS_HPP
+#ifndef ELEM_RIS_HPP
+#define ELEM_RIS_HPP
 
 namespace elem {
 
@@ -33,7 +33,7 @@ Ris( Int n )
     return R;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Ris( DistMatrix<F,U,V>& R, Int n )
 {
@@ -57,7 +57,7 @@ Ris( DistMatrix<F,U,V>& R, Int n )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Ris( const Grid& g, Int n )
 {
@@ -68,4 +68,4 @@ Ris( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_RIS_HPP
+#endif // ifndef ELEM_RIS_HPP

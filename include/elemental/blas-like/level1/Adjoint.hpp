@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_ADJOINT_HPP
-#define ELEM_BLAS_ADJOINT_HPP
+#ifndef ELEM_ADJOINT_HPP
+#define ELEM_ADJOINT_HPP
 
-#include "elemental/blas-like/level1/Transpose.hpp"
+#include "./Transpose.hpp"
 
 namespace elem {
 
@@ -22,8 +22,8 @@ Adjoint( const Matrix<T>& A, Matrix<T>& B )
     Transpose( A, B, true );
 }
 
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
+template<typename T,Dist U,Dist V,
+                    Dist W,Dist Z>
 inline void
 Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
@@ -33,4 +33,4 @@ Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_ADJOINT_HPP
+#endif // ifndef ELEM_ADJOINT_HPP

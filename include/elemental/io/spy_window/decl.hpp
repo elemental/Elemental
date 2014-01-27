@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_IO_SPYWINDOW_DECL_HPP
-#define ELEM_IO_SPYWINDOW_DECL_HPP
+#ifndef ELEM_SPYWINDOW_DECL_HPP
+#define ELEM_SPYWINDOW_DECL_HPP
 #ifdef HAVE_QT5
 
 #include <QScrollArea>
@@ -38,4 +38,4 @@ private:
 } // namespace elem
 
 #endif // ifdef HAVE_QT5
-#endif // ifndef ELEM_IO_SPYWINDOW_DECL_HPP
+#endif // ifndef ELEM_SPYWINDOW_DECL_HPP

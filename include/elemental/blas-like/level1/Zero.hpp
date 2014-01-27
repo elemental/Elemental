@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_ZERO_HPP
-#define ELEM_BLAS_ZERO_HPP
+#ifndef ELEM_ZERO_HPP
+#define ELEM_ZERO_HPP
 
 namespace elem {
 
@@ -24,7 +24,7 @@ Zero( Matrix<T>& A )
         MemZero( A.Buffer(0,j), height );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Zero( DistMatrix<T,U,V>& A )
 {
@@ -34,4 +34,4 @@ Zero( DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_ZERO_HPP
+#endif // ifndef ELEM_ZERO_HPP

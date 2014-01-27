@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm/Entrywise.hpp"
-#include "elemental/lapack-like/Norm/KyFan.hpp"
-#include "elemental/lapack-like/Norm/Schatten.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_ENTRYWISENORM_INC
+#include ELEM_KYFANNORM_INC
+#include ELEM_SCHATTENNORM_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

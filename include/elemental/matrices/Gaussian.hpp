@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_GAUSSIAN_HPP
-#define ELEM_MATRICES_GAUSSIAN_HPP
+#ifndef ELEM_GAUSSIAN_HPP
+#define ELEM_GAUSSIAN_HPP
 
 namespace elem {
 
@@ -45,7 +45,7 @@ Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
 
 namespace internal {
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 struct MakeGaussianHelper
 {
     static void Func( DistMatrix<T,U,V>& A, T mean, BASE(T) stddev );  
@@ -341,7 +341,7 @@ struct MakeGaussianHelper<T,VR,STAR>
 
 } // namespace internal
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 {
@@ -349,7 +349,7 @@ MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
     internal::MakeGaussianHelper<T,U,V>::Func( A, mean, stddev );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
@@ -358,7 +358,7 @@ Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
@@ -369,4 +369,4 @@ Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_GAUSSIAN_HPP
+#endif // ifndef ELEM_GAUSSIAN_HPP

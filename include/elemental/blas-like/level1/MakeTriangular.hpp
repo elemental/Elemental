@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_MAKETRIANGULAR_HPP
-#define ELEM_BLAS_MAKETRIANGULAR_HPP
+#ifndef ELEM_MAKETRIANGULAR_HPP
+#define ELEM_MAKETRIANGULAR_HPP
 
 namespace elem {
 
@@ -42,7 +42,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 {
@@ -93,4 +93,4 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_MAKETRIANGULAR_HPP
+#endif // ifndef ELEM_MAKETRIANGULAR_HPP

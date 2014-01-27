@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_CAUCHY_HPP
-#define ELEM_MATRICES_CAUCHY_HPP
+#ifndef ELEM_CAUCHY_HPP
+#define ELEM_CAUCHY_HPP
 
 namespace elem {
 
@@ -47,7 +47,7 @@ Cauchy( const std::vector<F>& x, const std::vector<F>& y )
     return A;
 }
 
-template<typename F1,typename F2,Distribution U,Distribution V>
+template<typename F1,typename F2,Dist U,Dist V>
 inline void
 Cauchy
 ( DistMatrix<F1,U,V>& A, const std::vector<F2>& x, const std::vector<F2>& y )
@@ -82,7 +82,7 @@ Cauchy
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
 {
@@ -93,4 +93,4 @@ Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_CAUCHY_HPP
+#endif // ifndef ELEM_CAUCHY_HPP

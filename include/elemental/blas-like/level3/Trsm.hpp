@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRSM_HPP
-#define ELEM_BLAS_TRSM_HPP
+#ifndef ELEM_TRSM_HPP
+#define ELEM_TRSM_HPP
 
-#include "elemental/blas-like/level2/Trsv.hpp"
+#include ELEM_TRSV_INC
 
 namespace elem {
 
-template<typename F,Distribution XColDist,Distribution XRowDist>
+template<typename F,Dist XColDist,Dist XRowDist>
 inline void
 LocalTrsm
 ( LeftOrRight side, UpperOrLower uplo,
@@ -28,7 +28,7 @@ LocalTrsm
         if( (side == LEFT && XColDist != STAR) ||
             (side == RIGHT && XRowDist != STAR) )
             LogicError
-            ("Distribution of RHS must conform with that of triangle");
+            ("Dist of RHS must conform with that of triangle");
     )
     Trsm
     ( side, uplo, orientation, diag,
@@ -188,4 +188,4 @@ Trsm
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRSM_HPP
+#endif // ifndef ELEM_TRSM_HPP

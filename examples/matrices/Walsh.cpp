@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level1/SetDiagonal.hpp"
-#include "elemental/lapack-like/LDL.hpp"
-#include "elemental/matrices/Walsh.hpp"
+#include ELEM_MAKETRIANGULAR_INC
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_LDL_INC
+#include ELEM_WALSH_INC
 using namespace elem;
 
 int 

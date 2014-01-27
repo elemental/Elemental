@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_HELMHOLTZ_HPP
-#define ELEM_MATRICES_HELMHOLTZ_HPP
+#ifndef ELEM_HELMHOLTZ_HPP
+#define ELEM_HELMHOLTZ_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include "./Zeros.hpp"
 
 namespace elem {
 
@@ -135,7 +135,7 @@ Helmholtz( Int nx, Int ny, Int nz, F shift )
 }
 
 // 1D Helmholtz
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
 {
@@ -162,7 +162,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Helmholtz( const Grid& g, Int n, F shift )
 {
@@ -172,7 +172,7 @@ Helmholtz( const Grid& g, Int n, F shift )
 }
 
 // 2D Helmholtz
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
 {
@@ -208,7 +208,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Helmholtz( const Grid& g, Int nx, Int ny, F shift )
 {
@@ -218,7 +218,7 @@ Helmholtz( const Grid& g, Int nx, Int ny, F shift )
 }
 
 // 3D Helmholtz
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
 {
@@ -261,7 +261,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Helmholtz( const Grid& g, Int nx, Int ny, Int nz, F shift )
 {
@@ -272,4 +272,4 @@ Helmholtz( const Grid& g, Int nx, Int ny, Int nz, F shift )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_HELMHOLTZ_HPP
+#endif // ifndef ELEM_HELMHOLTZ_HPP

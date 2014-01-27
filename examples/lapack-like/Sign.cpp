@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Sign.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_SIGN_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 
@@ -25,8 +25,8 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
-        const sign::Scaling scaling = 
-            static_cast<sign::Scaling>(Input("--scaling","scaling strategy",0));
+        const SignScaling scaling = 
+            static_cast<SignScaling>(Input("--scaling","scaling strategy",0));
         const Int maxIts = Input("--maxIts","max number of iter's",100);
         const double tol = Input("--tol","convergence tolerance",1e-6);
         const bool print = Input("--print","print matrix?",false);

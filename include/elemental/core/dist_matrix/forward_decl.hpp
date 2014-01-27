@@ -7,17 +7,17 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_DISTMATRIX_FORWARD_DECL_HPP
-#define ELEM_CORE_DISTMATRIX_FORWARD_DECL_HPP
+#ifndef ELEM_DISTMATRIX_FORWARD_DECL_HPP
+#define ELEM_DISTMATRIX_FORWARD_DECL_HPP
 
 namespace elem {
 
 template<typename T>
 class AbstractDistMatrix;
 
-template<typename T,Distribution ColDist=MC,Distribution RowDist=MR>
+template<typename T,Dist ColDist=MC,Dist RowDist=MR>
 class DistMatrix;
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_DISTMATRIX_FORWARD_DECL_HPP
+#endif // ifndef ELEM_DISTMATRIX_FORWARD_DECL_HPP

@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef BLAS_TRRK_LOCAL_HPP
-#define BLAS_TRRK_LOCAL_HPP
+#ifndef ELEM_TRRK_LOCAL_HPP
+#define ELEM_TRRK_LOCAL_HPP
 
-#include "elemental/blas-like/level1/AxpyTriangle.hpp"
-#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
+#include ELEM_AXPYTRIANGLE_INC
+#include ELEM_SCALETRAPEZOID_INC
+#include ELEM_GEMM_INC
 
 namespace elem {
 
@@ -842,4 +842,4 @@ void LocalTrrk
 
 } // namespace elem
 
-#endif // ifndef BLAS_TRRK_LOCAL_HPP
+#endif // ifndef ELEM_TRRK_LOCAL_HPP

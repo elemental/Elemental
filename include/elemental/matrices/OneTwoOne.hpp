@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_ONETWOONE_HPP
-#define ELEM_MATRICES_ONETWOONE_HPP
+#ifndef ELEM_ONETWOONE_HPP
+#define ELEM_ONETWOONE_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -35,7 +35,7 @@ MakeOneTwoOne( Matrix<T>& A )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeOneTwoOne( DistMatrix<T,U,V>& A )
 {
@@ -82,7 +82,7 @@ OneTwoOne( Int n )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V> 
+template<typename T,Dist U,Dist V> 
 inline void
 OneTwoOne( DistMatrix<T,U,V>& A, Int n )
 {
@@ -91,7 +91,7 @@ OneTwoOne( DistMatrix<T,U,V>& A, Int n )
     MakeOneTwoOne( A );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR> 
+template<typename T,Dist U=MC,Dist V=MR> 
 inline DistMatrix<T,U,V>
 OneTwoOne( const Grid& g, Int n )
 {
@@ -102,4 +102,4 @@ OneTwoOne( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_ONETWOONE_HPP
+#endif // ifndef ELEM_ONETWOONE_HPP

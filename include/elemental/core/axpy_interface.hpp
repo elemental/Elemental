@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_AXPYINTERFACE_HPP
-#define ELEM_CORE_AXPYINTERFACE_HPP
+#ifndef ELEM_AXPYINTERFACE_HPP
+#define ELEM_AXPYINTERFACE_HPP
 
 #include "./axpy_interface/decl.hpp"
 #include "./axpy_interface/impl.hpp"
 
-#endif // ifndef ELEM_CORE_AXPYINTERFACE_HPP
+#endif // ifndef ELEM_AXPYINTERFACE_HPP

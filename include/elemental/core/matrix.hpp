@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_MATRIX_HPP
-#define ELEM_CORE_MATRIX_HPP
+#ifndef ELEM_MATRIX_HPP
+#define ELEM_MATRIX_HPP
 
 namespace elem {
 
@@ -181,7 +181,7 @@ private:
 #ifndef SWIG
     template <typename F> 
     friend class Matrix;
-    template <typename F,Distribution U,Distribution V> 
+    template <typename F,Dist U,Dist V> 
     friend class DistMatrix;
     friend class AbstractDistMatrix<T>;
 
@@ -209,4 +209,4 @@ private:
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_MATRIX_HPP
+#endif // ifndef ELEM_MATRIX_HPP

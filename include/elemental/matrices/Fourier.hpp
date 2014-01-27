@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_FOURIER_HPP
-#define ELEM_MATRICES_FOURIER_HPP
+#ifndef ELEM_FOURIER_HPP
+#define ELEM_FOURIER_HPP
 
 namespace elem {
 
@@ -36,7 +36,7 @@ MakeFourier( Matrix<Complex<Real> >& A )
     }
 }
 
-template<typename Real,Distribution U,Distribution V>
+template<typename Real,Dist U,Dist V>
 inline void
 MakeFourier( DistMatrix<Complex<Real>,U,V>& A )
 {
@@ -86,7 +86,7 @@ Fourier( Int n )
     return A;
 }
 
-template<typename Real,Distribution U,Distribution V>
+template<typename Real,Dist U,Dist V>
 inline void
 Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
 {
@@ -95,7 +95,7 @@ Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
     MakeFourier( A );
 }
 
-template<typename Real,Distribution U=MC,Distribution V=MR>
+template<typename Real,Dist U=MC,Dist V=MR>
 inline DistMatrix<Complex<Real>,U,V>
 Fourier( const Grid& g, Int n )
 {
@@ -106,4 +106,4 @@ Fourier( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_FOURIER_HPP
+#endif // ifndef ELEM_FOURIER_HPP

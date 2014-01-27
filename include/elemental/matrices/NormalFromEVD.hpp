@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORMALFROMEVD_HPP
-#define LAPACK_NORMALFROMEVD_HPP
+#ifndef ELEM_NORMALFROMEVD_HPP
+#define ELEM_NORMALFROMEVD_HPP
 
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_GEMM_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -109,4 +109,4 @@ NormalFromEVD
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORMALFROMEVD_HPP
+#endif // ifndef ELEM_NORMALFROMEVD_HPP

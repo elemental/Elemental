@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_SLIDEPARTITION_DECL_HPP
-#define ELEM_CORE_SLIDEPARTITION_DECL_HPP
+#ifndef ELEM_SLIDEPARTITION_DECL_HPP
+#define ELEM_SLIDEPARTITION_DECL_HPP
 
 namespace elem {
 
@@ -26,7 +26,7 @@ void SlidePartitionUp
          M& A1,
   M& AB, M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlidePartitionUp
 ( DM& AT, DM& A0,
           DM& A1,
@@ -38,7 +38,7 @@ void SlideLockedPartitionUp
          const M& A1,
   M& AB, const M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlideLockedPartitionUp
 ( DM& AT, const DM& A0,
           const DM& A1,
@@ -54,7 +54,7 @@ void SlidePartitionDown
          M& A1,
   M& AB, M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlidePartitionDown
 ( DM& AT, DM& A0,
           DM& A1,
@@ -66,7 +66,7 @@ void SlideLockedPartitionDown
          const M& A1,
   M& AB, const M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlideLockedPartitionDown
 ( DM& AT, const DM& A0,
           const DM& A1,
@@ -81,7 +81,7 @@ void SlidePartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlidePartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 );
@@ -91,7 +91,7 @@ void SlideLockedPartitionLeft
 ( M& AL, M& AR,
   const M& A0, const M& A1, const M& A2 ); 
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlideLockedPartitionLeft
 ( DM& AL, DM& AR,
   const DM& A0, const DM& A1, const DM& A2 );
@@ -105,7 +105,7 @@ void SlidePartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlidePartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2 );
@@ -115,7 +115,7 @@ void SlideLockedPartitionRight
 ( M& AL, M& AR,
   const M& A0, const M& A1, const M& A2 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlideLockedPartitionRight
 ( DM& AL, DM& AR,
   const DM& A0, const DM& A1, const DM& A2 );
@@ -130,7 +130,7 @@ void SlidePartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlidePartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
@@ -142,7 +142,7 @@ void SlideLockedPartitionUpDiagonal
                   const M& A10, const M& A11, const M& A12,
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlideLockedPartitionUpDiagonal
 ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
                     const DM& A10, const DM& A11, const DM& A12,
@@ -158,7 +158,7 @@ void SlidePartitionDownDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlidePartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
@@ -170,7 +170,7 @@ void SlideLockedPartitionDownDiagonal
                   const M& A10, const M& A11, const M& A12,
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void SlideLockedPartitionDownDiagonal
 ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
                     const DM& A10, const DM& A11, const DM& A12,
@@ -181,4 +181,4 @@ void SlideLockedPartitionDownDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_SLIDEPARTITION_DECL_HPP
+#endif // ifndef ELEM_SLIDEPARTITION_DECL_HPP

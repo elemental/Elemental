@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_CAUCHYLIKE_HPP
-#define ELEM_MATRICES_CAUCHYLIKE_HPP
+#ifndef ELEM_CAUCHYLIKE_HPP
+#define ELEM_CAUCHYLIKE_HPP
 
 namespace elem {
 
@@ -55,7 +55,7 @@ CauchyLike
     return A;
 }
 
-template<typename F1,typename F2,Distribution U,Distribution V>
+template<typename F1,typename F2,Dist U,Dist V>
 inline void
 CauchyLike
 ( DistMatrix<F1,U,V>& A,
@@ -95,7 +95,7 @@ CauchyLike
     }
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 CauchyLike
 ( const Grid& g,
@@ -109,4 +109,4 @@ CauchyLike
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_CAUCHYLIKE_HPP
+#endif // ifndef ELEM_CAUCHYLIKE_HPP

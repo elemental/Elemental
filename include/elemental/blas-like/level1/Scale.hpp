@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SCALE_HPP
-#define ELEM_BLAS_SCALE_HPP
+#ifndef ELEM_SCALE_HPP
+#define ELEM_SCALE_HPP
 
 namespace elem {
 
@@ -48,25 +48,25 @@ Scal( Base<T> alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
 #endif
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Scale( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A.Matrix() ); }
 
 #ifndef SWIG
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Scale( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
 #endif
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Scal( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A ); }
 
 #ifndef SWIG
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Scal( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A ); }
@@ -74,4 +74,4 @@ Scal( Base<T> alpha, DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SCALE_HPP
+#endif // ifndef ELEM_SCALE_HPP

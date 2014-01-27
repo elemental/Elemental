@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_BLAS_HPP
-#define ELEM_CORE_BLAS_HPP
+#ifndef ELEM_IMPORTS_BLAS_HPP
+#define ELEM_IMPORTS_BLAS_HPP
 
 namespace elem {
 namespace blas {
@@ -772,4 +772,4 @@ inline void Gemm
 } // namespace blas
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_BLAS_DECL_HPP
+#endif // ifndef ELEM_IMPORTS_BLAS_DECL_HPP

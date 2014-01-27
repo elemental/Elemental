@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_REPARTITION_DECL_HPP
-#define ELEM_CORE_REPARTITION_DECL_HPP
+#ifndef ELEM_REPARTITION_DECL_HPP
+#define ELEM_REPARTITION_DECL_HPP
 
 namespace elem {
 
@@ -26,7 +26,7 @@ void RepartitionUp
          M& A1,
   M& AB, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void RepartitionUp
 ( DM& AT, DM& A0,
           DM& A1,
@@ -38,7 +38,7 @@ void LockedRepartitionUp
                M& A1,
   const M& AB, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedRepartitionUp
 ( const DM& AT, DM& A0,
                 DM& A1,
@@ -54,7 +54,7 @@ void RepartitionDown
          M& A1,
   M& AB, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void RepartitionDown
 ( DM& AT, DM& A0,
           DM& A1,
@@ -66,7 +66,7 @@ void LockedRepartitionDown
                M& A1,
   const M& AB, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedRepartitionDown
 ( const DM& AT, DM& A0,
                 DM& A1,
@@ -81,7 +81,7 @@ void RepartitionLeft
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void RepartitionLeft
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2, Int bsize=Blocksize() );
@@ -91,7 +91,7 @@ void LockedRepartitionLeft
 ( const M& AL, const M& AR,
   M& A0, M& A1, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedRepartitionLeft
 ( const DM& AL, const DM& AR,
   DM& A0, DM& A1, DM& A2, Int bsize=Blocksize() );
@@ -105,7 +105,7 @@ void RepartitionRight
 ( M& AL, M& AR,
   M& A0, M& A1, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void RepartitionRight
 ( DM& AL, DM& AR,
   DM& A0, DM& A1, DM& A2, Int bsize=Blocksize() );
@@ -115,7 +115,7 @@ void LockedRepartitionRight
 ( const M& AL, const M& AR,
   M& A0, M& A1, M& A2, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedRepartitionRight
 ( const DM& AL, const DM& AR,
   DM& A0, DM& A1, DM& A2, Int bsize=Blocksize() );
@@ -130,7 +130,7 @@ void RepartitionUpDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void RepartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
@@ -142,7 +142,7 @@ void LockedRepartitionUpDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedRepartitionUpDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
                                 DM& A10, DM& A11, DM& A12,
@@ -159,7 +159,7 @@ void RepartitionDownDiagonal
                   M& A10, M& A11, M& A12,
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void RepartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
                     DM& A10, DM& A11, DM& A12,
@@ -171,7 +171,7 @@ void LockedRepartitionDownDiagonal
                               M& A10, M& A11, M& A12,
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize=Blocksize() );
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedRepartitionDownDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
                                 DM& A10, DM& A11, DM& A12,
@@ -183,4 +183,4 @@ void LockedRepartitionDownDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_REPARTITION_DECL_HPP
+#endif // ifndef ELEM_REPARTITION_DECL_HPP

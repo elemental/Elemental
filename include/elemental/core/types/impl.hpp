@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_TYPES_IMPL_HPP
-#define ELEM_CORE_TYPES_IMPL_HPP
+#ifndef ELEM_TYPES_IMPL_HPP
+#define ELEM_TYPES_IMPL_HPP
 
 namespace elem {
 
@@ -196,4 +196,4 @@ CharToUpperOrLower( char c )
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_TYPES_IMPL_HPP
+#endif // ifndef ELEM_TYPES_IMPL_HPP

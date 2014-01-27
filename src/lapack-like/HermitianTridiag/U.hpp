@@ -6,27 +6,27 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef LAPACK_HERMITIANTRIDIAG_U_HPP
-#define LAPACK_HERMITIANTRIDIAG_U_HPP
+#ifndef ELEM_HERMITIANTRIDIAG_U_HPP
+#define ELEM_HERMITIANTRIDIAG_U_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/Dot.hpp"
-#include "elemental/blas-like/level2/Hemv.hpp"
-#include "elemental/blas-like/level2/Her2.hpp"
-#include "elemental/blas-like/level2/Symv.hpp"
-#include "elemental/blas-like/level2/Syr2.hpp"
-#include "elemental/lapack-like/Reflector.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_DOT_INC
+#include ELEM_HEMV_INC
+#include ELEM_HER2_INC
+#include ELEM_SYMV_INC
+#include ELEM_SYR2_INC
+#include ELEM_REFLECTOR_INC
 
 #include "./PanelU.hpp"
 
 namespace elem {
-namespace hermitian_tridiag {
+namespace herm_tridiag {
 
 template<typename F>
 void U( Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hermitian_tridiag::U");
+        CallStackEntry cse("herm_tridiag::U");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -64,7 +64,7 @@ template<typename F>
 void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("hermitian_tridiag::U");
+        CallStackEntry cse("herm_tridiag::U");
         if( A.Grid() != t.Grid() )
             LogicError("{A,t} must be distributed over the same grid");
         if( A.Height() != A.Width() )
@@ -110,7 +110,7 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
             WPan_MR_STAR.AlignWith( A00 );
             WPan_MR_STAR.Resize( k+nb, nb );
 
-            hermitian_tridiag::PanelU
+            PanelU
             ( ATL, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR );
@@ -141,7 +141,7 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     t = tDiag;
 }
 
-} // namespace hermitian_tridiag
+} // namespace herm_tridiag
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANTRIDIAG_U_HPP
+#endif // ifndef ELEM_HERMITIANTRIDIAG_U_HPP

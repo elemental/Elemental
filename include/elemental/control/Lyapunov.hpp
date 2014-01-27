@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONTROL_LYAPUNOV_HPP
-#define ELEM_CONTROL_LYAPUNOV_HPP
+#ifndef ELEM_LYAPUNOV_HPP
+#define ELEM_LYAPUNOV_HPP
 
-#include "elemental/blas-like/level1/Adjoint.hpp"
-#include "elemental/control/Sylvester.hpp"
+#include ELEM_ADJOINT_INC
+#include "./Sylvester.hpp"
 
 namespace elem {
 
@@ -74,4 +74,4 @@ Lyapunov( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X )
 
 } // namespace elem
 
-#endif // ifndef ELEM_CONTROL_LYAPUNOV_HPP
+#endif // ifndef ELEM_LYAPUNOV_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_LAPACK_HPP
-#define ELEM_CORE_LAPACK_HPP
+#ifndef ELEM_IMPORTS_LAPACK_HPP
+#define ELEM_IMPORTS_LAPACK_HPP
 
 namespace elem {
 namespace lapack {
@@ -236,4 +236,4 @@ void Schur
 } // namespace lapack
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_LAPACK_HPP
+#endif // ifndef ELEM_IMPORTS_LAPACK_HPP

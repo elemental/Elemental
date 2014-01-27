@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SWAP_HPP
-#define ELEM_BLAS_SWAP_HPP
+#ifndef ELEM_SWAP_HPP
+#define ELEM_SWAP_HPP
 
 namespace elem {
 
@@ -65,8 +65,8 @@ inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
     }
 }
 
-template<typename F,Distribution U1,Distribution V1,
-                    Distribution U2,Distribution V2>
+template<typename F,Dist U1,Dist V1,
+                    Dist U2,Dist V2>
 inline void Swap
 ( Orientation orientation, DistMatrix<F,U1,V1>& X, DistMatrix<F,U2,V2>& Y )
 {
@@ -126,7 +126,7 @@ inline void RowSwap( Matrix<F>& A, Int to, Int from )
     Swap( NORMAL, aToRow, aFromRow );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("RowSwap"))
@@ -179,7 +179,7 @@ inline void ColumnSwap( Matrix<F>& A, Int to, Int from )
     Swap( NORMAL, aToCol, aFromCol );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void ColumnSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("ColumnSwap"))
@@ -303,7 +303,7 @@ inline void SymmetricSwap
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void SymmetricSwap
 ( UpperOrLower uplo, DistMatrix<F,U,V>& A, 
   int to, int from, bool conjugate=false )
@@ -404,7 +404,7 @@ inline void HermitianSwap( UpperOrLower uplo, Matrix<F>& A, int to, int from )
     SymmetricSwap( uplo, A, to, from, true );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void HermitianSwap
 ( UpperOrLower uplo, DistMatrix<F,U,V>& A, int to, int from )
 {
@@ -414,4 +414,4 @@ inline void HermitianSwap
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SWAP_HPP
+#endif // ifndef ELEM_SWAP_HPP

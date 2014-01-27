@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_TIMER_DECL_HPP
-#define ELEM_CORE_TIMER_DECL_HPP
+#ifndef ELEM_TIMER_DECL_HPP
+#define ELEM_TIMER_DECL_HPP
 
 #include <chrono>
 
@@ -40,4 +40,4 @@ private:
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_TIMER_DECL_HPP
+#endif // ifndef ELEM_TIMER_DECL_HPP

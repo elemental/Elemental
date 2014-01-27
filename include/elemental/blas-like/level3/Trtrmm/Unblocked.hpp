@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRTRMM_UNBLOCKED_HPP
-#define ELEM_BLAS_TRTRMM_UNBLOCKED_HPP
+#ifndef ELEM_TRTRMM_UNBLOCKED_HPP
+#define ELEM_TRTRMM_UNBLOCKED_HPP
 
 namespace elem {
 namespace internal {
@@ -120,4 +120,4 @@ TrtrmmUUnblocked( Matrix<T>& U, bool conjugate=false )
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRTRMM_UNBLOCKED_HPP
+#endif // ifndef ELEM_TRTRMM_UNBLOCKED_HPP

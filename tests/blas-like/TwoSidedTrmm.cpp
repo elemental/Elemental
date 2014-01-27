@@ -8,13 +8,13 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level3/Hemm.hpp"
-#include "elemental/blas-like/level3/Trmm.hpp"
-#include "elemental/blas-like/level3/TwoSidedTrmm.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Norm/Infinity.hpp"
-#include "elemental/lapack-like/Norm/One.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include ELEM_HEMM_INC
+#include ELEM_TRMM_INC
+#include ELEM_TWOSIDEDTRMM_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_INFINITYNORM_INC
+#include ELEM_ONENORM_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
 using namespace elem;
 

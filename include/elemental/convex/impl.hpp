@@ -11,9 +11,8 @@
 #define ELEM_CONVEX_IMPL_HPP
 
 #include "./LogBarrier.hpp"
-#include "./LogDetDivergence.hpp"
+#include "./LogDetDiv.hpp"
 #include "./SoftThreshold.hpp"
 #include "./SVT.hpp"
-#include "./UnitaryCoherence.hpp"
 
 #endif // ifndef ELEM_CONVEX_IMPL_HPP

@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRMM_HPP
-#define ELEM_BLAS_TRMM_HPP
+#ifndef ELEM_TRMM_HPP
+#define ELEM_TRMM_HPP
 
 namespace elem {
 
-template<typename T,Distribution BColDist,Distribution BRowDist>
+template<typename T,Dist BColDist,Dist BRowDist>
 inline void
 LocalTrmm
 ( LeftOrRight side, UpperOrLower uplo,
@@ -25,7 +25,7 @@ LocalTrmm
         if( (side == LEFT && BColDist != STAR) ||
             (side == RIGHT && BRowDist != STAR) )
             LogicError
-            ("Distribution of RHS must conform with that of triangle");
+            ("Dist of RHS must conform with that of triangle");
     )
     Trmm
     ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
@@ -115,4 +115,4 @@ Trmm
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRMM_HPP
+#endif // ifndef ELEM_TRMM_HPP

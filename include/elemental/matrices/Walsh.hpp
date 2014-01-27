@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_WALSH_HPP
-#define ELEM_MATRICES_WALSH_HPP
+#ifndef ELEM_WALSH_HPP
+#define ELEM_WALSH_HPP
 
 namespace elem {
 
@@ -55,7 +55,7 @@ MakeWalsh( Matrix<T>& A, Int k, bool binary=false )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeWalsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
@@ -126,7 +126,7 @@ Walsh( Int k, bool binary=false )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
@@ -138,7 +138,7 @@ Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
     MakeWalsh( A, k, binary );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Walsh( const Grid& g, Int k, bool binary=false )
 {
@@ -149,4 +149,4 @@ Walsh( const Grid& g, Int k, bool binary=false )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_WALSH_HPP
+#endif // ifndef ELEM_WALSH_HPP

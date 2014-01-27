@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeHermitian.hpp"
-#include "elemental/lapack-like/Pseudoinverse.hpp"
+#include ELEM_MAKEHERMITIAN_INC
+#include ELEM_PSEUDOINVERSE_INC
 using namespace std;
 using namespace elem;
 

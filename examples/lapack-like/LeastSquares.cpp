@@ -8,11 +8,11 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/LeastSquares.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Norm/Infinity.hpp"
-#include "elemental/lapack-like/Norm/One.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_LEASTSQUARES_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_INFINITYNORM_INC
+#include ELEM_ONENORM_INC
+#include ELEM_UNIFORM_INC
 using namespace elem;
 
 int

@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_TRIW_HPP
-#define ELEM_MATRICES_TRIW_HPP
+#ifndef ELEM_TRIW_HPP
+#define ELEM_TRIW_HPP
 
-#include "elemental/matrices/Toeplitz.hpp"
+#include ELEM_TOEPLITZ_INC
 
 namespace elem {
 
@@ -39,7 +39,7 @@ TriW( Int m, Int n, T alpha, Int k )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
 {
@@ -55,7 +55,7 @@ TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
     Toeplitz( A, m, n, a );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 TriW( const Grid& g, Int m, Int n, T alpha, Int k )
 {
@@ -68,4 +68,4 @@ TriW( const Grid& g, Int m, Int n, T alpha, Int k )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_TRIW_HPP
+#endif // ifndef ELEM_TRIW_HPP

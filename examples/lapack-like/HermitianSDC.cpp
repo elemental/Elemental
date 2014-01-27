@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/Identity.hpp"
-#include "elemental/matrices/Wigner.hpp"
+#include ELEM_HERMITIANEIG_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_IDENTITY_INC
+#include ELEM_WIGNER_INC
 using namespace std;
 using namespace elem;
 
@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
         // but do not overwrite A
         DistMatrix<C> ACopy( A ), Q(g);
         DistMatrix<Real,VR,STAR>  w(g);
-        hermitian_eig::SDC
+        herm_eig::SDC
         ( LOWER, ACopy, w, Q, cutoff, maxInnerIts, maxOuterIts, relTol );
 
         if( display )

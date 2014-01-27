@@ -8,16 +8,16 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeSymmetric.hpp"
-#include "elemental/blas-like/level3/Hemm.hpp"
-#include "elemental/blas-like/level3/Symm.hpp"
-#include "elemental/blas-like/level3/Trdtrmm.hpp"
-#include "elemental/lapack-like/Inverse.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/TriangularInverse.hpp"
-#include "elemental/matrices/Identity.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
-#include "elemental/matrices/Wigner.hpp"
+#include ELEM_MAKESYMMETRIC_INC
+#include ELEM_HEMM_INC
+#include ELEM_SYMM_INC
+#include ELEM_TRDTRMM_INC
+#include ELEM_INVERSE_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_TRIANGULARINVERSE_INC
+#include ELEM_IDENTITY_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
+#include ELEM_WIGNER_INC
 using namespace std;
 using namespace elem;
 

@@ -8,9 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level3/Syr2k.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_MAKETRIANGULAR_INC
+#include ELEM_SYR2K_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRAPEZOID_HPP
-#define ELEM_BLAS_TRAPEZOID_HPP
+#ifndef ELEM_TRANSPOSE_HPP
+#define ELEM_TRANSPOSE_HPP
 
 namespace elem {
 
@@ -34,8 +34,8 @@ Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
     }
 }
 
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
+template<typename T,Dist U,Dist V,
+                    Dist W,Dist Z>
 inline void
 Transpose
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate=false )
@@ -61,4 +61,4 @@ Transpose
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRAPEZOID_HPP
+#endif // ifndef ELEM_TRANSPOSE_HPP

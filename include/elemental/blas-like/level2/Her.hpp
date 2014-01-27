@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_HER_HPP
-#define ELEM_BLAS_HER_HPP
+#ifndef ELEM_HER_HPP
+#define ELEM_HER_HPP
 
-#include "elemental/blas-like/level2/Syr.hpp"
+#include "./Syr.hpp"
 
 namespace elem {
 
@@ -35,4 +35,4 @@ Her
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_HER_HPP
+#endif // ifndef ELEM_HER_HPP

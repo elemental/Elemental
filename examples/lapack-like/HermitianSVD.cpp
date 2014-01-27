@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/SVD.hpp"
-#include "elemental/lapack-like/Trace.hpp"
+#include ELEM_SVD_INC
+#include ELEM_TRACE_INC
 using namespace std;
 using namespace elem;
 

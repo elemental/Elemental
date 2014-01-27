@@ -8,13 +8,15 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
-#include "elemental/blas-like/level2/ApplyColumnPivots.hpp"
-#include "elemental/lapack-like/QR.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/Identity.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_MAKETRIANGULAR_INC
+#include ELEM_UPDATEDIAGONAL_INC
+#include ELEM_APPLYCOLUMNPIVOTS_INC
+
+#include ELEM_QR_INC
+#include ELEM_FROBENIUSNORM_INC
+
+#include ELEM_IDENTITY_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

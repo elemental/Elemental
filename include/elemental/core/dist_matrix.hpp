@@ -7,19 +7,19 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_DISTMATRIX_HPP
-#define ELEM_CORE_DISTMATRIX_HPP
+#ifndef ELEM_DISTMATRIX_HPP
+#define ELEM_DISTMATRIX_HPP
 
 namespace elem {
 
 struct DistData
 {
-    Distribution colDist, rowDist;
+    Dist colDist, rowDist;
     Int colAlign, rowAlign; 
     Int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
-    template<typename T,Distribution U,Distribution V>
+    template<typename T,Dist U,Dist V>
     DistData( const DistMatrix<T,U,V>& A )
     {
         colDist = U;
@@ -49,4 +49,4 @@ struct DistData
 #include "./dist_matrix/vc_star.hpp"
 #include "./dist_matrix/vr_star.hpp"
 
-#endif // ifndef ELEM_CORE_DISTMATRIX_HPP
+#endif // ifndef ELEM_DISTMATRIX_HPP

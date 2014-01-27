@@ -9,8 +9,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_CHOICE_HPP
-#define ELEM_CORE_CHOICE_HPP
+#ifndef ELEM_IMPORTS_CHOICE_HPP
+#define ELEM_IMPORTS_CHOICE_HPP
 
 #include <typeinfo>
 
@@ -277,4 +277,4 @@ Args::PrintReport( std::ostream& os ) const
 } // namespace choice
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_CHOICE_HPP
+#endif // ifndef ELEM_IMPORTS_CHOICE_HPP

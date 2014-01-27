@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_HANOWA_HPP
-#define ELEM_MATRICES_HANOWA_HPP
+#ifndef ELEM_HANOWA_HPP
+#define ELEM_HANOWA_HPP
 
-#include "elemental/matrices/Diagonal.hpp"
+#include "./Diagonal.hpp"
 
 namespace elem {
 
@@ -52,7 +52,7 @@ Hanowa( Int n, T mu )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
 {
@@ -81,7 +81,7 @@ Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Hanowa( const Grid& g, Int n, T mu )
 {
@@ -94,4 +94,4 @@ Hanowa( const Grid& g, Int n, T mu )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_HANOWA_HPP
+#endif // ifndef ELEM_HANOWA_HPP

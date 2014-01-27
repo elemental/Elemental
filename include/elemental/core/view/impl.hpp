@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_VIEW_IMPL_HPP
-#define ELEM_CORE_VIEW_IMPL_HPP
+#ifndef ELEM_VIEW_IMPL_HPP
+#define ELEM_VIEW_IMPL_HPP
 
 namespace elem {
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void HandleDiagPath
 ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 { }
@@ -51,7 +51,7 @@ inline Matrix<T> View( Matrix<T>& B )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("View"))
@@ -76,7 +76,7 @@ inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
 {
     DistMatrix<T,U,V> A(B.Grid());
@@ -104,7 +104,7 @@ inline Matrix<T> LockedView( const Matrix<T>& B )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedView"))
@@ -129,7 +129,7 @@ inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
 {
     DistMatrix<T,U,V> A(B.Grid());
@@ -172,7 +172,7 @@ inline Matrix<T> View( Matrix<T>& B, Int i, Int j, Int height, Int width )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void View
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width )
@@ -220,7 +220,7 @@ inline void View
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View
 ( DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
 {
@@ -263,7 +263,7 @@ inline Matrix<T> LockedView
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void LockedView
 ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width )
@@ -311,7 +311,7 @@ inline void LockedView
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView
 ( const DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
 {
@@ -336,7 +336,7 @@ Matrix<T> ViewRange
     return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void ViewRange
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
@@ -345,7 +345,7 @@ void ViewRange
     View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 DistMatrix<T,U,V> ViewRange
 ( DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
@@ -369,7 +369,7 @@ Matrix<T> LockedViewRange
     return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 void LockedViewRange
 ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
@@ -378,7 +378,7 @@ void LockedViewRange
     LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 DistMatrix<T,U,V> LockedViewRange
 ( const DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
@@ -418,7 +418,7 @@ inline Matrix<T> View1x2( Matrix<T>& BL, Matrix<T>& BR )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void View1x2
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
 {
@@ -448,7 +448,7 @@ inline void View1x2
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View1x2( DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
 {
     DistMatrix<T,U,V> A(BL.Grid());
@@ -485,7 +485,7 @@ inline Matrix<T> LockedView1x2( const Matrix<T>& BL, const Matrix<T>& BR )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void LockedView1x2
 (       DistMatrix<T,U,V>& A,
   const DistMatrix<T,U,V>& BL,
@@ -517,7 +517,7 @@ inline void LockedView1x2
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView1x2
 ( const DistMatrix<T,U,V>& BL, const DistMatrix<T,U,V>& BR )
 {
@@ -556,7 +556,7 @@ inline Matrix<T> View2x1( Matrix<T>& BT, Matrix<T>& BB )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void View2x1
 ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB )
 {
@@ -586,7 +586,7 @@ inline void View2x1
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View2x1( DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB )
 {
     DistMatrix<T,U,V> A(BT.Grid());
@@ -624,7 +624,7 @@ inline Matrix<T> LockedView2x1
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void LockedView2x1
 (       DistMatrix<T,U,V>& A,
   const DistMatrix<T,U,V>& BT,
@@ -656,7 +656,7 @@ inline void LockedView2x1
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView2x1
 ( const DistMatrix<T,U,V>& BT, const DistMatrix<T,U,V>& BB )
 {
@@ -708,7 +708,7 @@ inline Matrix<T> View2x2
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void View2x2
 ( DistMatrix<T,U,V>& A,
   DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
@@ -744,7 +744,7 @@ inline void View2x2
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View2x2
 ( DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
   DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR )
@@ -796,7 +796,7 @@ inline Matrix<T> LockedView2x2
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void LockedView2x2
 (       DistMatrix<T,U,V>& A,
   const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
@@ -832,7 +832,7 @@ inline void LockedView2x2
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView2x2
 ( const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
   const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR )
@@ -844,4 +844,4 @@ inline DistMatrix<T,U,V> LockedView2x2
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_VIEW_IMPL_HPP
+#endif // ifndef ELEM_VIEW_IMPL_HPP

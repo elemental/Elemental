@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TWOSIDEDTRMM_HPP
-#define ELEM_BLAS_TWOSIDEDTRMM_HPP
+#ifndef ELEM_TWOSIDEDTRMM_HPP
+#define ELEM_TWOSIDEDTRMM_HPP
 
 namespace elem {
 namespace internal {
@@ -172,4 +172,4 @@ TwoSidedTrmm
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TWOSIDEDTRMM_HPP
+#endif // ifndef ELEM_TWOSIDEDTRMM_HPP

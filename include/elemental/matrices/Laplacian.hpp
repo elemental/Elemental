@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_LAPLACIAN_HPP
-#define ELEM_MATRICES_LAPLACIAN_HPP
+#ifndef ELEM_LAPLACIAN_HPP
+#define ELEM_LAPLACIAN_HPP
 
-#include "elemental/matrices/Helmholtz.hpp"
+#include ELEM_HELMHOLTZ_INC
 
 namespace elem {
 
@@ -57,7 +57,7 @@ Laplacian( Int nx, Int ny, Int nz )
 { return Helmholtz( nx, ny, nz, F(0) ); }
 
 // 1D Laplacian
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int n )
 {
@@ -65,13 +65,13 @@ Laplacian( DistMatrix<F,U,V>& L, Int n )
     Helmholtz( L, n, F(0) );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Laplacian( const Grid& g, Int n )
 { return Helmholtz( g, n, F(0) ); }
 
 // 2D Laplacian
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
 {
@@ -79,13 +79,13 @@ Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
     Helmholtz( L, nx, ny, F(0) );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Laplacian( const Grid& g, Int nx, Int ny )
 { return Helmholtz( g, nx, ny, F(0) ); }
 
 // 3D Laplacian
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
 {
@@ -93,11 +93,11 @@ Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Laplacian( const Grid& g, Int nx, Int ny, Int nz )
 { return Helmholtz( g, nx, ny, nz, F(0) ); }
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_LAPLACIAN_HPP
+#endif // ifndef ELEM_LAPLACIAN_HPP

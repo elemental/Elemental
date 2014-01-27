@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/matrices/Circulant.hpp"
-#include "elemental/matrices/Fourier.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_GEMM_INC
+#include ELEM_CIRCULANT_INC
+#include ELEM_FOURIER_INC
+#include ELEM_ZEROS_INC
 using namespace elem;
 
 typedef double Real;

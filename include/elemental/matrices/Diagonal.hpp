@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_DIAGONAL_HPP
-#define ELEM_MATRICES_DIAGONAL_HPP
+#ifndef ELEM_DIAGONAL_HPP
+#define ELEM_DIAGONAL_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include "./Zeros.hpp"
 
 namespace elem {
 
@@ -35,7 +35,7 @@ Diagonal( const std::vector<T>& d )
     return D;
 }
 
-template<typename S,typename T,Distribution U,Distribution V>
+template<typename S,typename T,Dist U,Dist V>
 inline void
 Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
 {
@@ -59,7 +59,7 @@ Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Diagonal( const Grid& g, const std::vector<T>& d )
 {
@@ -70,4 +70,4 @@ Diagonal( const Grid& g, const std::vector<T>& d )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_DIAGONAL_HPP
+#endif // ifndef ELEM_DIAGONAL_HPP

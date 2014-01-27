@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SYMMETRIC2X2SOLVE_HPP
-#define ELEM_BLAS_SYMMETRIC2X2SOLVE_HPP
+#ifndef ELEM_SYMMETRIC2X2SOLVE_HPP
+#define ELEM_SYMMETRIC2X2SOLVE_HPP
 
 namespace elem {
 
@@ -324,7 +324,7 @@ SecondHalfOfSymmetric2x2Solve
         LogicError("This option not yet supported");
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
@@ -429,4 +429,4 @@ Symmetric2x2Solve
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SYMMETRIC2X2SOLVE_HPP
+#endif // ifndef ELEM_SYMMETRIC2X2SOLVE_HPP

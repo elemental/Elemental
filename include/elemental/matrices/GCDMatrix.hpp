@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_GCDMATRIX_HPP
-#define ELEM_MATRICES_GCDMATRIX_HPP
+#ifndef ELEM_GCDMATRIX_HPP
+#define ELEM_GCDMATRIX_HPP
 
 namespace elem {
 
@@ -24,7 +24,7 @@ MakeGCDMatrix( Matrix<T>& G )
             G.Set( i, j, T(GCD(i+1,j+1)) );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeGCDMatrix( DistMatrix<T,U,V>& G )
 {
@@ -64,7 +64,7 @@ GCDMatrix( Int m, Int n )
     return G;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
 {
@@ -73,7 +73,7 @@ GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
     MakeGCDMatrix( G );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 GCDMatrix( const Grid& g, Int m, Int n )
 {
@@ -84,4 +84,4 @@ GCDMatrix( const Grid& g, Int m, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_GCDMATRIX_HPP
+#endif // ifndef ELEM_GCDMATRIX_HPP

@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_WILKINSON_HPP
-#define ELEM_MATRICES_WILKINSON_HPP
+#ifndef ELEM_WILKINSON_HPP
+#define ELEM_WILKINSON_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -46,7 +46,7 @@ Wilkinson( Int k )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Wilkinson( DistMatrix<T,U,V>& A, Int k )
 {
@@ -80,7 +80,7 @@ Wilkinson( DistMatrix<T,U,V>& A, Int k )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Wilkinson( const Grid& g, Int k )
 {
@@ -91,4 +91,4 @@ Wilkinson( const Grid& g, Int k )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_WILKINSON_HPP
+#endif // ifndef ELEM_WILKINSON_HPP

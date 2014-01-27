@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_LAUCHLI_HPP
-#define ELEM_MATRICES_LAUCHLI_HPP
+#ifndef ELEM_LAUCHLI_HPP
+#define ELEM_LAUCHLI_HPP
 
-#include "elemental/matrices/Diagonal.hpp"
-#include "elemental/matrices/Ones.hpp"
+#include ELEM_DIAGONAL_INC
+#include ELEM_ONES_INC
 
 namespace elem {
 
@@ -39,7 +39,7 @@ Lauchli( Int n, T mu )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
 {
@@ -54,7 +54,7 @@ Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Lauchli( const Grid& g, Int n, T mu )
 {
@@ -67,4 +67,4 @@ Lauchli( const Grid& g, Int n, T mu )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_LAUCHLI_HPP
+#endif // ifndef ELEM_LAUCHLI_HPP

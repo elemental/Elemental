@@ -10,6 +10,8 @@
 #ifndef ELEMENTAL_HPP
 #define ELEMENTAL_HPP
 
+#include "elemental/include-paths.hpp"
+
 #include "elemental/config.h"
 #ifdef HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"

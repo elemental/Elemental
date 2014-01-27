@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRTRMM_HPP
-#define ELEM_BLAS_TRTRMM_HPP
+#ifndef ELEM_TRTRMM_HPP
+#define ELEM_TRTRMM_HPP
 
 #include "./Trtrmm/Unblocked.hpp"
 #include "./Trtrmm/LVar1.hpp"
@@ -57,4 +57,4 @@ Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRTRMM_HPP
+#endif // ifndef ELEM_TRTRMM_HPP

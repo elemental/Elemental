@@ -8,9 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/GCDMatrix.hpp"
-#include "elemental/matrices/Redheffer.hpp"
-#include "elemental/matrices/Riemann.hpp"
+#include ELEM_GCDMATRIX_INC
+#include ELEM_REDHEFFER_INC
+#include ELEM_RIEMANN_INC
 using namespace elem;
 
 int 

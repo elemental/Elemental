@@ -7,14 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONVEX_SVT_HPP
-#define ELEM_CONVEX_SVT_HPP
+#ifndef ELEM_SVT_HPP
+#define ELEM_SVT_HPP
 
-#include "elemental/convex/SVT/Normal.hpp"
-
-#include "elemental/convex/SVT/Cross.hpp"
-#include "elemental/convex/SVT/PivotedQR.hpp"
-#include "elemental/convex/SVT/TSQR.hpp"
+#include "./SVT/Normal.hpp"
+#include "./SVT/Cross.hpp"
+#include "./SVT/PivotedQR.hpp"
+#include "./SVT/TSQR.hpp"
 
 namespace elem {
 
@@ -54,7 +53,7 @@ SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 }
 
 // Singular-value soft-thresholding based on TSQR
-template<typename F,Distribution U>
+template<typename F,Dist U>
 inline Int
 SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
@@ -64,4 +63,4 @@ SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 
 } // namespace elem
 
-#endif // ifndef ELEM_CONVEX_SVT_HPP
+#endif // ifndef ELEM_SVT_HPP

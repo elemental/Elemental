@@ -10,10 +10,13 @@
 #ifndef ELEMENTAL_LITE_HPP
 #define ELEMENTAL_LITE_HPP
 
+#include "elemental/include-paths.hpp"
+
 #include "elemental/config.h"
 #ifdef HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"
 #endif
+
 #include "elemental/core.hpp"
 
 #include "elemental/blas-like/decl.hpp"
@@ -21,5 +24,7 @@
 #include "elemental/convex/decl.hpp"
 
 #include "elemental/io.hpp"
+
+
 
 #endif // ifndef ELEMENTAL_LITE_HPP

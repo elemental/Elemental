@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONVEX_SOFTTHRESHOLD_HPP
-#define ELEM_CONVEX_SOFTTHRESHOLD_HPP
+#ifndef ELEM_SOFTTHRESHOLD_HPP
+#define ELEM_SOFTTHRESHOLD_HPP
 
-#include "elemental/lapack-like/Norm/Max.hpp"
+#include ELEM_MAXNORM_INC
 
 namespace elem {
 
@@ -41,7 +41,7 @@ SoftThreshold( Matrix<F>& A, BASE(F) tau, bool relative=false )
             A.Set( i, j, SoftThreshold(A.Get(i,j),tau) );
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau, bool relative=false )
 {
@@ -53,4 +53,4 @@ SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau, bool relative=false )
 
 } // namespace elem
 
-#endif // ifndef ELEM_CONVEX_SOFTTHRESHOLD_HPP
+#endif // ifndef ELEM_SOFTTHRESHOLD_HPP

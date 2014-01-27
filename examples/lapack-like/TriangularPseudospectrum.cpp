@@ -8,11 +8,13 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Pseudospectrum.hpp"
-#include "elemental/matrices/Grcar.hpp"
-#include "elemental/matrices/Lotkin.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_PSEUDOSPECTRUM_INC
+#include ELEM_DEMMEL_INC
+#include ELEM_FOXLI_INC
+#include ELEM_GRCAR_INC
+#include ELEM_LOTKIN_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 
@@ -42,6 +44,7 @@ main( int argc, char* argv[] )
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
         const Int numBands = Input("--numBands","num bands for Grcar",3);
+        const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);

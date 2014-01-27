@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SYRK_HPP
-#define ELEM_BLAS_SYRK_HPP
+#ifndef ELEM_SYRK_HPP
+#define ELEM_SYRK_HPP
 
 #include "./Syrk/LN.hpp"
 #include "./Syrk/LT.hpp"
@@ -102,4 +102,4 @@ Syrk
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SYRK_HPP
+#endif // ifndef ELEM_SYRK_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_REDHEFFER_HPP
-#define ELEM_MATRICES_REDHEFFER_HPP
+#ifndef ELEM_REDHEFFER_HPP
+#define ELEM_REDHEFFER_HPP
 
 namespace elem {
 
@@ -39,7 +39,7 @@ Redheffer( Int n )
     return R;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Redheffer( DistMatrix<T,U,V>& R, Int n )
 {
@@ -65,7 +65,7 @@ Redheffer( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Redheffer( const Grid& g, Int n )
 {
@@ -76,4 +76,4 @@ Redheffer( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_REDHEFFER_HPP
+#endif // ifndef ELEM_REDHEFFER_HPP

@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_GEMV_T_HPP
-#define ELEM_BLAS_GEMV_T_HPP
+#ifndef ELEM_GEMV_T_HPP
+#define ELEM_GEMV_T_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level1/Transpose.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_SCALE_INC
+#include ELEM_TRANSPOSE_INC
 
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_ZEROS_INC
 
 namespace elem {
 namespace internal {
@@ -176,4 +176,4 @@ GemvT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_GEMV_T_HPP
+#endif // ifndef ELEM_GEMV_T_HPP

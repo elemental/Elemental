@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
-#define ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
+#ifndef ELEM_HERMITIANUNIFORMSPECTRUM_HPP
+#define ELEM_HERMITIANUNIFORMSPECTRUM_HPP
 
-#include "elemental/matrices/Diagonal.hpp"
-#include "elemental/matrices/Haar.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include "./Diagonal.hpp"
+#include "./Haar.hpp"
+#include "./Uniform.hpp"
 
 namespace elem {
 
@@ -50,7 +50,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 MakeHermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
@@ -138,7 +138,7 @@ HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 HermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
@@ -148,7 +148,7 @@ HermitianUniformSpectrum
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 HermitianUniformSpectrum
 ( const Grid& g, Int n, BASE(F) lower=0, BASE(F) upper=1 )
@@ -160,4 +160,4 @@ HermitianUniformSpectrum
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
+#endif // ifndef ELEM_HERMITIANUNIFORMSPECTRUM_HPP

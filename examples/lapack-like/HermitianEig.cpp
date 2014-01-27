@@ -8,11 +8,11 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/blas-like/level3/Hemm.hpp"
-#include "elemental/blas-like/level3/Herk.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/Identity.hpp"
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_HEMM_INC
+#include ELEM_HERK_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_IDENTITY_INC
 using namespace std;
 using namespace elem;
 

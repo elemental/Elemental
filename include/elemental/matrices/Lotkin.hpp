@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_LOTKIN_HPP
-#define ELEM_MATRICES_LOTKIN_HPP
+#ifndef ELEM_LOTKIN_HPP
+#define ELEM_LOTKIN_HPP
 
-#include "elemental/matrices/Hilbert.hpp"
+#include ELEM_HILBERT_INC
 
 namespace elem {
 
@@ -34,7 +34,7 @@ Lotkin( Int n )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 Lotkin( DistMatrix<F,U,V>& A, Int n )
 {
@@ -49,7 +49,7 @@ Lotkin( DistMatrix<F,U,V>& A, Int n )
     } 
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Lotkin( const Grid& g, Int n )
 {
@@ -62,4 +62,4 @@ Lotkin( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_LOTKIN_HPP
+#endif // ifndef ELEM_LOTKIN_HPP

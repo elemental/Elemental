@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_ZEROS_HPP
-#define ELEM_MATRICES_ZEROS_HPP
+#ifndef ELEM_ZEROS_HPP
+#define ELEM_ZEROS_HPP
 
-#include "elemental/blas-like/level1/Zero.hpp"
+#include ELEM_ZERO_INC
 
 namespace elem {
 
@@ -22,7 +22,7 @@ MakeZeros( Matrix<T>& A )
     Zero( A );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeZeros( DistMatrix<T,U,V>& A )
 {
@@ -48,7 +48,7 @@ Zeros( Int m, Int n )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
 {
@@ -57,7 +57,7 @@ Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
     MakeZeros( A );
 }
 
-template<typename T,Distribution U=MC,Distribution V=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Zeros( const Grid& g, Int m, Int n )
 {
@@ -68,4 +68,4 @@ Zeros( const Grid& g, Int m, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_ZEROS_HPP
+#endif // ifndef ELEM_ZEROS_HPP

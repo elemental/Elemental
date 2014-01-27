@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level3/Hemm.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include ELEM_HEMM_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
 using namespace elem;
 

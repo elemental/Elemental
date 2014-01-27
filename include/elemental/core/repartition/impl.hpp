@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_REPARTITION_IMPL_HPP
-#define ELEM_CORE_REPARTITION_IMPL_HPP
+#ifndef ELEM_REPARTITION_IMPL_HPP
+#define ELEM_REPARTITION_IMPL_HPP
 
 namespace elem {
 
@@ -32,7 +32,7 @@ RepartitionUp
     View( A2, AB );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 RepartitionUp
 ( DM& AT, DM& A0,
@@ -56,7 +56,7 @@ LockedRepartitionUp
     LockedView( A2, AB );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 LockedRepartitionUp
 ( const DM& AT, DM& A0,
@@ -84,7 +84,7 @@ RepartitionDown
     PartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 RepartitionDown
 ( DM& AT, DM& A0,
@@ -108,7 +108,7 @@ LockedRepartitionDown
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 LockedRepartitionDown
 ( const DM& AT, DM& A0,
@@ -135,7 +135,7 @@ RepartitionLeft
     View( A2, AR );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 RepartitionLeft
 ( DM& AL, DM& AR,
@@ -157,7 +157,7 @@ LockedRepartitionLeft
     LockedView( A2, AR );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 LockedRepartitionLeft
 ( const DM& AL, const DM& AR,
@@ -183,7 +183,7 @@ RepartitionRight
     PartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 RepartitionRight
 ( DM& AL, DM& AR,
@@ -205,7 +205,7 @@ LockedRepartitionRight
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 LockedRepartitionRight
 ( const DM& AL, const DM& AR,
@@ -237,7 +237,7 @@ RepartitionUpDiagonal
     View( A22, ABR );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 RepartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -271,7 +271,7 @@ LockedRepartitionUpDiagonal
     LockedView( A22, ABR );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 LockedRepartitionUpDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -307,7 +307,7 @@ RepartitionDownDiagonal
     PartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 RepartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -337,7 +337,7 @@ LockedRepartitionDownDiagonal
     LockedPartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 LockedRepartitionDownDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -357,4 +357,4 @@ LockedRepartitionDownDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_REPARTITION_IMPL_HPP
+#endif // ifndef ELEM_REPARTITION_IMPL_HPP

@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_GER_HPP
-#define ELEM_BLAS_GER_HPP
+#ifndef ELEM_GER_HPP
+#define ELEM_GER_HPP
 
 namespace elem {
 
-template<typename T,Distribution xColDist,Distribution xRowDist,
-                    Distribution yColDist,Distribution yRowDist,
-                    Distribution AColDist,Distribution ARowDist>
+template<typename T,Dist xColDist,Dist xRowDist,
+                    Dist yColDist,Dist yRowDist,
+                    Dist AColDist,Dist ARowDist>
 inline void LocalGer
 ( T alpha, const DistMatrix<T,xColDist,xRowDist>& x,
            const DistMatrix<T,yColDist,yRowDist>& y,
@@ -161,4 +161,4 @@ Gerc
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_GER_HPP
+#endif // ifndef ELEM_GER_HPP

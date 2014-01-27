@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_MAKETRAPEZOIDAL_HPP
-#define ELEM_BLAS_MAKETRAPEZOIDAL_HPP
+#ifndef ELEM_MAKETRAPEZOIDAL_HPP
+#define ELEM_MAKETRAPEZOIDAL_HPP
 
 namespace elem {
 
@@ -73,7 +73,7 @@ MakeTrapezoidal
     }
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 MakeTrapezoidal
 ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0, LeftOrRight side=LEFT )
@@ -131,4 +131,4 @@ MakeTrapezoidal
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_MAKETRAPEZOIDAL_HPP
+#endif // ifndef ELEM_MAKETRAPEZOIDAL_HPP

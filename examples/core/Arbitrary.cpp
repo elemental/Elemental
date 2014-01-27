@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/Fourier.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_FOURIER_INC
+#include ELEM_UNIFORM_INC
 using namespace elem;
 
 int 

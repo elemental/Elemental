@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRSV_LT_HPP
-#define ELEM_BLAS_TRSV_LT_HPP
+#ifndef ELEM_TRSV_LT_HPP
+#define ELEM_TRSV_LT_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level2/Gemv.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_ZEROS_INC
+#include ELEM_GEMV_INC
 
 namespace elem {
 namespace internal {
@@ -174,4 +174,4 @@ TrsvLT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRSV_LT_HPP
+#endif // ifndef ELEM_TRSV_LT_HPP

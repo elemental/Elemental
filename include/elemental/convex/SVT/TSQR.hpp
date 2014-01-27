@@ -7,18 +7,18 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONVEX_SVT_TSQR_HPP
-#define ELEM_CONVEX_SVT_TSQR_HPP
+#ifndef ELEM_SVT_TSQR_HPP
+#define ELEM_SVT_TSQR_HPP
 
-#include "elemental/lapack-like/Norm/Zero.hpp"
-#include "elemental/lapack-like/QR.hpp"
+#include ELEM_ZERONORM_INC
+#include ELEM_QR_INC
 
 namespace elem {
 namespace svt {
 
 // Singular-value soft-thresholding based on TSQR
 
-template<typename F,Distribution U>
+template<typename F,Dist U>
 inline Int
 TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 {
@@ -43,4 +43,4 @@ TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
 } // namespace svt
 } // namespace elem
 
-#endif // ifndef ELEM_CONVEX_SVT_TSQR_HPP
+#endif // ifndef ELEM_SVT_TSQR_HPP

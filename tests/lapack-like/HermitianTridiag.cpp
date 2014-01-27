@@ -8,13 +8,13 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
-#include "elemental/lapack-like/HermitianTridiag.hpp"
-#include "elemental/lapack-like/Norm/Infinity.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
-#include "elemental/matrices/Wigner.hpp"
+#include ELEM_MAKETRIANGULAR_INC
+#include ELEM_UPDATEDIAGONAL_INC
+#include ELEM_HERMITIANTRIDIAG_INC
+#include ELEM_INFINITYNORM_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
+#include ELEM_WIGNER_INC
 using namespace std;
 using namespace elem;
 
@@ -58,8 +58,8 @@ void TestCorrectness
         Display( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
-    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
     if( print )
         Print( B, "Rotated tridiagonal" );
     if( display )
@@ -78,13 +78,13 @@ void TestCorrectness
 
     // Compute || I - Q Q^H ||
     MakeIdentity( B );
-    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
     DistMatrix<F> QHAdj( g );
     Adjoint( B, QHAdj );
     MakeIdentity( B );
-    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
     Axpy( F(-1), B, QHAdj );
-    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    herm_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
     UpdateDiagonal( B, F(-1) );
     const Real infNormQError = InfinityNorm( B );
     const Real frobNormQError = FrobeniusNorm( B ); 

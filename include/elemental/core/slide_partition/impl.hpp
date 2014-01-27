@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_SLIDEPARTITION_IMPL_HPP
-#define ELEM_CORE_SLIDEPARTITION_IMPL_HPP
+#ifndef ELEM_SLIDEPARTITION_IMPL_HPP
+#define ELEM_SLIDEPARTITION_IMPL_HPP
 
 namespace elem {
 
@@ -32,7 +32,7 @@ SlidePartitionUp
     View2x1( AB, A1, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlidePartitionUp
 ( DM& AT, DM& A0,
@@ -56,7 +56,7 @@ SlideLockedPartitionUp
     LockedView2x1( AB, A1, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlideLockedPartitionUp
 ( DM& AT, const DM& A0,
@@ -84,7 +84,7 @@ SlidePartitionDown
     View( AB, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlidePartitionDown
 ( DM& AT, DM& A0,
@@ -108,7 +108,7 @@ SlideLockedPartitionDown
     LockedView( AB, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlideLockedPartitionDown
 ( DM& AT, const DM& A0,
@@ -135,7 +135,7 @@ SlidePartitionLeft
     View1x2( AR, A1, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlidePartitionLeft
 ( DM& AL, DM& AR,
@@ -157,7 +157,7 @@ SlideLockedPartitionLeft
     LockedView1x2( AR, A1, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlideLockedPartitionLeft
 ( DM& AL, DM& AR,
@@ -183,7 +183,7 @@ SlidePartitionRight
     View( AR, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlidePartitionRight
 ( DM& AL, DM& AR,
@@ -205,7 +205,7 @@ SlideLockedPartitionRight
     LockedView( AR, A2 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlideLockedPartitionRight
 ( DM& AL, DM& AR,
@@ -235,7 +235,7 @@ SlidePartitionUpDiagonal
                   A21, A22 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlidePartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -265,7 +265,7 @@ SlideLockedPartitionUpDiagonal
                         A21, A22 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlideLockedPartitionUpDiagonal
 ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
@@ -299,7 +299,7 @@ SlidePartitionDownDiagonal
     View( ABR, A22 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlidePartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -329,7 +329,7 @@ SlideLockedPartitionDownDiagonal
     LockedView( ABR, A22 );
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 SlideLockedPartitionDownDiagonal
 ( DM& ATL, DM& ATR, const DM& A00, const DM& A01, const DM& A02,
@@ -349,4 +349,4 @@ SlideLockedPartitionDownDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_SLIDEPARTITION_IMPL_HPP
+#endif // ifndef ELEM_SLIDEPARTITION_IMPL_HPP

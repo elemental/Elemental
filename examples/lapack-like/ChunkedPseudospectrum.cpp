@@ -8,13 +8,14 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Pseudospectrum.hpp"
-#include "elemental/matrices/FoxLi.hpp"
-#include "elemental/matrices/Grcar.hpp"
-#include "elemental/matrices/HelmholtzPML.hpp"
-#include "elemental/matrices/Lotkin.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_PSEUDOSPECTRUM_INC
+
+#include ELEM_FOXLI_INC
+#include ELEM_GRCAR_INC
+#include ELEM_HELMHOLTZPML_INC
+#include ELEM_LOTKIN_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

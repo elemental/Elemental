@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_MATRIX_FORWARD_DECL_HPP
-#define ELEM_CORE_MATRIX_FORWARD_DECL_HPP
+#ifndef ELEM_MATRIX_FORWARD_DECL_HPP
+#define ELEM_MATRIX_FORWARD_DECL_HPP
 
 namespace elem {
 
@@ -17,4 +17,4 @@ class Matrix;
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_MATRIX_FORWARD_DECL_HPP
+#endif // ifndef ELEM_MATRIX_FORWARD_DECL_HPP

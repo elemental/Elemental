@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_QUASIDIAGONALSCALE_HPP
-#define ELEM_BLAS_QUASIDIAGONALSCALE_HPP
+#ifndef ELEM_QUASIDIAGONALSCALE_HPP
+#define ELEM_QUASIDIAGONALSCALE_HPP
 
-#include "elemental/blas-like/level1/Symmetric2x2Scale.hpp"
+#include "./Symmetric2x2Scale.hpp"
 
 namespace elem {
 
@@ -85,7 +85,7 @@ QuasiDiagonalScale
         LogicError("This option not yet supported");
 }
 
-template<typename F,typename FMain,Distribution U,Distribution V>
+template<typename F,typename FMain,Dist U,Dist V>
 inline void
 LeftQuasiDiagonalScale
 ( UpperOrLower uplo, Orientation orientation, 
@@ -179,7 +179,7 @@ LeftQuasiDiagonalScale
     }
 }
 
-template<typename F,typename FMain,Distribution U,Distribution V>
+template<typename F,typename FMain,Dist U,Dist V>
 inline void
 RightQuasiDiagonalScale
 ( UpperOrLower uplo, Orientation orientation, 
@@ -273,8 +273,8 @@ RightQuasiDiagonalScale
     }
 }
 
-template<typename F,typename FMain,Distribution U1,Distribution V1,
-                                   Distribution U2,Distribution V2>
+template<typename F,typename FMain,Dist U1,Dist V1,
+                                   Dist U2,Dist V2>
 inline void
 QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
@@ -371,4 +371,4 @@ QuasiDiagonalScale
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_QUASIDIAGONALSCALE_HPP
+#endif // ifndef ELEM_QUASIDIAGONALSCALE_HPP

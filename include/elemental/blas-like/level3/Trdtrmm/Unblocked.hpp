@@ -7,11 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TRDTRMM_UNBLOCKED_HPP
-#define ELEM_BLAS_TRDTRMM_UNBLOCKED_HPP
+#ifndef ELEM_TRDTRMM_UNBLOCKED_HPP
+#define ELEM_TRDTRMM_UNBLOCKED_HPP
 
-#include "elemental/blas-like/level1/Symmetric2x2Inv.hpp"
-#include "elemental/blas-like/level2/Trr.hpp"
+#include ELEM_SYMMETRIC2X2INV_INC
+#include ELEM_TRR_INC
 
 namespace elem {
 namespace internal {
@@ -193,4 +193,4 @@ TrdtrmmUUnblocked( Matrix<F>& U, bool conjugate=false )
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TRDTRMM_UNBLOCKED_HPP
+#endif // ifndef ELEM_TRDTRMM_UNBLOCKED_HPP

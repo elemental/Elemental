@@ -8,9 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/Lehmer.hpp"
-#include "elemental/matrices/Parter.hpp"
-#include "elemental/matrices/Ris.hpp"
+#include ELEM_LEHMER_INC
+#include ELEM_PARTER_INC
+#include ELEM_RIS_INC
 using namespace elem;
 
 int 

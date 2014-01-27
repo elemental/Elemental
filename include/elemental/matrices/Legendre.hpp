@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_LEGENDRE_HPP
-#define ELEM_MATRICES_LEGENDRE_HPP
+#ifndef ELEM_LEGENDRE_HPP
+#define ELEM_LEGENDRE_HPP
 
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -33,7 +33,7 @@ MakeLegendre( Matrix<F>& A )
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 MakeLegendre( DistMatrix<F,U,V>& A )
 {
@@ -83,7 +83,7 @@ Legendre( Int n )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V> 
+template<typename F,Dist U,Dist V> 
 inline void
 Legendre( DistMatrix<F,U,V>& A, Int n )
 {
@@ -92,7 +92,7 @@ Legendre( DistMatrix<F,U,V>& A, Int n )
     MakeLegendre( A );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR> 
+template<typename F,Dist U=MC,Dist V=MR> 
 inline DistMatrix<F,U,V>
 Legendre( const Grid& g, Int n )
 {
@@ -103,4 +103,4 @@ Legendre( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_LEGENDRE_HPP
+#endif // ifndef ELEM_LEGENDRE_HPP

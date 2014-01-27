@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_TWOSIDEDTRSM_LVAR1_HPP
-#define ELEM_BLAS_TWOSIDEDTRSM_LVAR1_HPP
+#ifndef ELEM_TWOSIDEDTRSM_LVAR1_HPP
+#define ELEM_TWOSIDEDTRSM_LVAR1_HPP
 
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level3/Hemm.hpp"
-#include "elemental/blas-like/level3/Her2k.hpp"
-#include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_HEMM_INC
+#include ELEM_HER2K_INC
+#include ELEM_TRSM_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 namespace internal {
@@ -241,4 +241,4 @@ TwoSidedTrsmLVar1
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_TWOSIDEDTRSM_LVAR1_HPP
+#endif // ifndef ELEM_TWOSIDEDTRSM_LVAR1_HPP

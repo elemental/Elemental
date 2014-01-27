@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_GKS_HPP
-#define ELEM_MATRICES_GKS_HPP
+#ifndef ELEM_GKS_HPP
+#define ELEM_GKS_HPP
 
 // The Golub Klema Stewart matrix is upper-triangular with 1/sqrt(j) on its 
 // j'th diagonal entry and -1/sqrt(j) elsewhere in the upper triangle.
@@ -37,7 +37,7 @@ MakeGKS( Matrix<F>& A )
     }
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 MakeGKS( DistMatrix<F,U,V>& A )
 {
@@ -79,7 +79,7 @@ GKS( Int n )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Dist U,Dist V>
 inline void
 GKS( DistMatrix<F,U,V>& A, Int n )
 {
@@ -88,7 +88,7 @@ GKS( DistMatrix<F,U,V>& A, Int n )
     MakeGKS( A );
 }
 
-template<typename F,Distribution U=MC,Distribution V=MR>
+template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 GKS( const Grid& g, Int n )
 {
@@ -99,4 +99,4 @@ GKS( const Grid& g, Int n )
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_GKS_HPP
+#endif // ifndef ELEM_GKS_HPP

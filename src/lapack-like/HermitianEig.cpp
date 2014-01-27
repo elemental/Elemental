@@ -8,12 +8,13 @@
 */
 #include "elemental-lite.hpp"
 
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-#include "elemental/lapack-like/HermitianTridiag.hpp"
-#include "elemental/lapack-like/HermitianTridiagEig.hpp"
-#include "elemental/lapack-like/Norm/Max.hpp"
+#include ELEM_SCALE_INC
+#include ELEM_SCALETRAPEZOID_INC
+
+#include ELEM_APPLYPACKEDREFLECTORS_INC
+#include ELEM_HERMITIANTRIDIAG_INC
+#include ELEM_HERMITIANTRIDIAGEIG_INC
+#include ELEM_MAXNORM_INC
 
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
@@ -21,7 +22,7 @@
 #define TARGET_CHUNKS 20
 
 namespace elem {
-namespace hermitian_eig {
+namespace herm_eig {
 
 // We create specialized redistribution routines for redistributing the 
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
@@ -130,7 +131,7 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
         return false;
 }
 
-} // namespace hermitian_eig
+} // namespace herm_eig
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenvalues                                           //
@@ -182,7 +183,7 @@ void HermitianEig
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
-    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
+    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -265,7 +266,7 @@ void HermitianEig
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
-    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
+    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -318,7 +319,7 @@ void HermitianEig
             auto paddedZ1 = View( paddedZ, 0, j, n, nb );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
+            herm_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
             
             // Update the Z1[* ,VR] information
             const Int localWidth = nb/p;
@@ -329,7 +330,7 @@ void HermitianEig
     paddedZ.Resize( n, k ); // We can simply shrink matrices
 
     // Backtransform the tridiagonal eigenvectors, Z
-    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -411,7 +412,7 @@ void HermitianEig
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
-    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
+    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -506,7 +507,7 @@ void HermitianEig
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
-    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
+    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -561,7 +562,7 @@ void HermitianEig
             auto paddedZ1 = View( paddedZ, 0, j, n, nb );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
+            herm_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
 
             // Update the Z1[* ,VR] information
             const Int localWidth = nb/p;
@@ -572,7 +573,7 @@ void HermitianEig
     paddedZ.Resize( n, k ); // We can simply shrink matrices
 
     // Backtransform the tridiagonal eigenvectors, Z
-    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -666,7 +667,7 @@ void HermitianEig
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
-    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
+    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -780,7 +781,7 @@ void HermitianEig
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
-    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
+    const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -839,7 +840,7 @@ void HermitianEig
             auto paddedZ1 = View( paddedZ, 0, j, n, nb );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
+            herm_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
 
             // Update the Z1[* ,VR] information
             const Int localWidth = nb/p;
@@ -850,7 +851,7 @@ void HermitianEig
     paddedZ.Resize( n, k ); // We can simply shrink matrices
 
     // Backtransform the tridiagonal eigenvectors, Z
-    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )

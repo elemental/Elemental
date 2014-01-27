@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_GEMM_NN_HPP
-#define ELEM_BLAS_GEMM_NN_HPP
+#ifndef ELEM_GEMM_NN_HPP
+#define ELEM_GEMM_NN_HPP
 
-#include "elemental/blas-like/level1/Scale.hpp"
+#include ELEM_SCALE_INC
 
 namespace elem {
 namespace gemm {
@@ -533,4 +533,4 @@ SUMMA_NN
 } // namespace gemm
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_GEMM_NN_HPP
+#endif // ifndef ELEM_GEMM_NN_HPP

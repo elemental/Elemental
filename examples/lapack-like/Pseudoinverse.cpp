@@ -8,9 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Pseudoinverse.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_PSEUDOINVERSE_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

@@ -8,12 +8,12 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level2/ApplyColumnPivots.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/ID.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/Uniform.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_APPLYCOLUMNPIVOTS_INC
+#include ELEM_GEMM_INC
+#include ELEM_ID_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_UNIFORM_INC
+#include ELEM_ZEROS_INC
 using namespace std;
 using namespace elem;
 

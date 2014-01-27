@@ -8,9 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Polar.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include ELEM_POLAR_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
 using namespace elem;
 
@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const Int numItsQDWH = hermitian_polar::QDWH( LOWER, Q, colPiv );
+        const Int numItsQDWH = herm_polar::QDWH( LOWER, Q, colPiv );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 

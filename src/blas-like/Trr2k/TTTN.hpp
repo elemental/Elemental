@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef BLAS_TRR2K_TTTN_HPP
-#define BLAS_TRR2K_TTTN_HPP
+#ifndef ELEM_TRR2K_TTTN_HPP
+#define ELEM_TRR2K_TTTN_HPP
 
 #include "./TNTT.hpp"
 
@@ -33,4 +33,4 @@ void Trr2kTTTN
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRR2K_TTTN_HPP
+#endif // ifndef ELEM_TRR2K_TTTN_HPP

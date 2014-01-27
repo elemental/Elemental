@@ -7,12 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_IO_SPY_HPP
-#define ELEM_IO_SPY_HPP
+#ifndef ELEM_SPY_HPP
+#define ELEM_SPY_HPP
 
-#include "elemental/io/spy_window/decl.hpp"
-#include "elemental/io/spy_widget/impl.hpp"
-#include "elemental/io/Display.hpp" // for ProcessEvents
+#include "./spy_window/decl.hpp"
+#include "./spy_widget/impl.hpp"
+#include "./Display.hpp" // for ProcessEvents
 
 #ifdef HAVE_QT5
 # include <QApplication>
@@ -99,4 +99,4 @@ Spy
 
 } // namespace elem
 
-#endif // ifndef ELEM_IO_SPY_HPP
+#endif // ifndef ELEM_SPY_HPP

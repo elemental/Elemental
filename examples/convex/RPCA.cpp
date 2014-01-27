@@ -8,15 +8,15 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Norm/EntrywiseOne.hpp"
-#include "elemental/lapack-like/Norm/Max.hpp"
-#include "elemental/lapack-like/Norm/Two.hpp"
-#include "elemental/lapack-like/Norm/Zero.hpp"
-#include "elemental/convex/SVT.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_AXPY_INC
+#include ELEM_SCALE_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_ENTRYWISEONENORM_INC
+#include ELEM_MAXNORM_INC
+#include ELEM_TWONORM_INC
+#include ELEM_ZERONORM_INC
+#include ELEM_SVT_INC
+#include ELEM_UNIFORM_INC
 using namespace elem;
 
 //

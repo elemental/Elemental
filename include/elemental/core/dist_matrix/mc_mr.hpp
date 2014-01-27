@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_DISTMATRIX_MC_MR_DECL_HPP
-#define ELEM_CORE_DISTMATRIX_MC_MR_DECL_HPP
+#ifndef ELEM_DISTMATRIX_MC_MR_DECL_HPP
+#define ELEM_DISTMATRIX_MC_MR_DECL_HPP
 
 namespace elem {
 
@@ -192,4 +192,4 @@ private:
 
 } // namespace elem
 
-#endif // ifndef ELEM_CORE_DISTMATRIX_MC_MR_DECL_HPP
+#endif // ifndef ELEM_DISTMATRIX_MC_MR_DECL_HPP

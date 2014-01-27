@@ -8,13 +8,13 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/level1/DiagonalScale.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Norm/Infinity.hpp"
-#include "elemental/lapack-like/Norm/Max.hpp"
-#include "elemental/lapack-like/Norm/One.hpp"
-#include "elemental/lapack-like/SVD.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include ELEM_DIAGONALSCALE_INC
+#include ELEM_FROBENIUSNORM_INC
+#include ELEM_INFINITYNORM_INC
+#include ELEM_MAXNORM_INC
+#include ELEM_ONENORM_INC
+#include ELEM_SVD_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 

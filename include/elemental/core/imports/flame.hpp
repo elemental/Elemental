@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CORE_FLAME_HPP
-#define ELEM_CORE_FLAME_HPP
+#ifndef ELEM_IMPORTS_FLAME_HPP
+#define ELEM_IMPORTS_FLAME_HPP
 
 #ifdef HAVE_FLA_BSVD
 namespace elem {
@@ -26,4 +26,4 @@ void FlaBidiagSVD
 } // namespace elem
 #endif // ifdef HAVE_FLA_BSVD
 
-#endif // ifndef ELEM_CORE_FLAME_HPP
+#endif // ifndef ELEM_IMPORTS_FLAME_HPP

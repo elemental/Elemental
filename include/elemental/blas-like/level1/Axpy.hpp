@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_AXPY_HPP
-#define ELEM_BLAS_AXPY_HPP
+#ifndef ELEM_AXPY_HPP
+#define ELEM_AXPY_HPP
 
 namespace elem {
 
@@ -65,8 +65,8 @@ Axpy( BASE(T) alpha, const Matrix<T>& X, Matrix<T>& Y )
 { Axpy( T(alpha), X, Y ); }
 #endif
 
-template<typename T,Distribution U1,Distribution V1,
-                    Distribution U2,Distribution V2>
+template<typename T,Dist U1,Dist V1,
+                    Dist U2,Dist V2>
 inline void
 Axpy( T alpha, const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 {
@@ -90,8 +90,8 @@ Axpy( T alpha, const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 }
 
 #ifndef SWIG
-template<typename T,Distribution U1,Distribution V1,
-                    Distribution U2,Distribution V2>
+template<typename T,Dist U1,Dist V1,
+                    Dist U2,Dist V2>
 inline void
 Axpy
 ( BASE(T) alpha,
@@ -101,4 +101,4 @@ Axpy
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_AXPY_HPP
+#endif // ifndef ELEM_AXPY_HPP
