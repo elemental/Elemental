@@ -678,7 +678,8 @@ if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas-like lapack-like convex)
 
-  set(core_TESTS AxpyInterface DifferentGrids DistMatrix Matrix Version)
+  set(core_TESTS AxpyInterface Constants DifferentGrids DistMatrix Matrix 
+                 Version)
   set(blas-like_TESTS 
     Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv TwoSidedTrmm
     TwoSidedTrsm)

@@ -344,6 +344,18 @@ float SafeNorm( float alpha, float beta, float gamma )
 double SafeNorm( double alpha, double beta, double gamma )
 { return LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
 
+float SafeNorm( Complex<float> alpha, float beta )
+{ return SafeNorm( alpha.real(), alpha.imag(), beta ); }
+
+double SafeNorm( Complex<double> alpha, double beta )
+{ return SafeNorm( alpha.real(), alpha.imag(), beta ); }
+
+float SafeNorm( float alpha, Complex<float> beta )
+{ return SafeNorm( beta, alpha ); }
+
+double SafeNorm( double alpha, Complex<double> beta )
+{ return SafeNorm( beta, alpha ); }
+
 //
 // Safely compute Givens rotations (using Demmel and Kahan's algorithm)
 //

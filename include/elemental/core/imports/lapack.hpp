@@ -67,6 +67,11 @@ double SafeNorm( double alpha, double beta );
 float SafeNorm( float alpha, float beta, float gamma );
 double SafeNorm( double alpha, double beta, double gamma );
 
+float SafeNorm( Complex<float> alpha, float beta );
+double SafeNorm( Complex<double> alpha, double beta );
+float SafeNorm( float alpha, Complex<float> beta );
+double SafeNorm( double alpha, Complex<double> beta );
+
 //
 // Given phi and gamma, compute a Givens rotation such that
 //

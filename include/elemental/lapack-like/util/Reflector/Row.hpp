@@ -5,7 +5,7 @@
    Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
-   This file is partially based upon the LAPACK routines dlarfg.f and zlarfg.f.
+   This file is loosely based upon the LAPACK routines dlarfg.f and zlarfg.f.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
@@ -49,91 +49,9 @@ namespace reflector {
 // which is accomplished by setting tau=2, and v^T=0.
 //
 
-template<typename R> 
-inline R
-Row( DistMatrix<R>& chi, DistMatrix<R>& x )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("reflector::Row");
-        if( chi.Grid() != x.Grid() )
-            LogicError("chi and x must be distributed over the same grid");
-        if( chi.Height() != 1 || chi.Width() != 1 )
-            LogicError("chi must be a scalar");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
-        if( chi.Grid().Row() != chi.ColAlign() )
-            LogicError("Reflecting with incorrect row of processes");
-        if( x.Grid().Row() != x.ColAlign() )
-            LogicError("Reflecting with incorrect row of processes");
-    )
-    const Grid& grid = x.Grid();
-    mpi::Comm rowComm = grid.RowComm();
-    const Int gridCol = grid.Col();
-    const Int gridWidth = grid.Width();
-    const Int rowAlign = chi.RowAlign();
-
-    std::vector<R> localNorms(gridWidth);
-    R localNorm = Nrm2( x.LockedMatrix() ); 
-    mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
-    R norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
-
-    if( norm == 0 )
-    {
-        if( gridCol == rowAlign )
-            chi.SetLocal(0,0,-chi.GetLocal(0,0));
-        return R(2);
-    }
-
-    R alpha;
-    if( gridCol == rowAlign )
-        alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( alpha, rowAlign, rowComm );
-
-    R beta;
-    if( alpha <= 0 )
-        beta = lapack::SafeNorm( alpha, norm );
-    else
-        beta = -lapack::SafeNorm( alpha, norm );
-
-    const R one = 1;
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R safeInv = safeMin/epsilon;
-    Int count = 0;
-    if( Abs(beta) < safeInv )
-    {
-        R invOfSafeInv = one/safeInv;
-        do
-        {
-            ++count;
-            Scale( invOfSafeInv, x );
-            alpha *= invOfSafeInv;
-            beta *= invOfSafeInv;
-        } while( Abs(beta) < safeInv );
-
-        localNorm = Nrm2( x.LockedMatrix() );
-        mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
-        norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
-        if( alpha <= 0 )
-            beta = lapack::SafeNorm( alpha, norm );
-        else
-            beta = -lapack::SafeNorm( alpha, norm );
-    }
-
-    R tau = (beta-alpha)/beta;
-    Scale( one/(alpha-beta), x );
-
-    for( Int j=0; j<count; ++j )
-        beta *= safeInv;
-    if( gridCol == rowAlign )
-        chi.SetLocal(0,0,beta);
-        
-    return tau;
-}
-
-template<typename R>
-inline Complex<R>
-Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
+template<typename F,Dist U,Dist V>
+inline F
+Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reflector::Row");    
@@ -143,49 +61,46 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
             LogicError("chi must be a scalar");
         if( x.Height() != 1 )
             LogicError("x must be a row vector");
-        if( chi.Grid().Row() != chi.ColAlign() )
-            LogicError("Reflecting with incorrect row of processes");
-        if( x.Grid().Row() != x.ColAlign() )
-            LogicError("Reflecting with incorrect row of processes");
+        if( chi.ColRank() != chi.ColAlign() || x.ColRank() != x.ColAlign() )
+            LogicError("Reflecting from incorrect process");
     )
-    typedef Complex<R> C;
-    const Grid& grid = x.Grid();
-    mpi::Comm rowComm = grid.RowComm();
-    const Int gridCol = grid.Col();
-    const Int gridWidth = grid.Width();
+    typedef Base<F> Real;
+    mpi::Comm rowComm = x.RowComm();
+    const Int rowRank = x.RowRank();
+    const Int rowStride = x.RowStride();
     const Int rowAlign = chi.RowAlign();
 
-    std::vector<R> localNorms(gridWidth);
-    R localNorm = Nrm2( x.LockedMatrix() ); 
+    std::vector<Real> localNorms(rowStride);
+    Real localNorm = Nrm2( x.LockedMatrix() ); 
     mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
-    R norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
+    Real norm = blas::Nrm2( rowStride, localNorms.data(), 1 );
 
-    C alpha;
-    if( gridCol == rowAlign )
+    F alpha;
+    if( rowRank == rowAlign )
         alpha = chi.GetLocal(0,0);
     mpi::Broadcast( alpha, rowAlign, rowComm );
 
-    if( norm == R(0) && alpha.imag() == R(0) )
+    if( norm == Real(0) && ImagPart(alpha) == Real(0) )
     {
-        if( gridCol == rowAlign )
+        if( rowRank == rowAlign )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
-        return C(2);
+        return F(2);
     }
 
-    R beta;
-    if( alpha.real() <= 0 )
-        beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
+    Real beta;
+    if( RealPart(alpha) <= 0 )
+        beta = lapack::SafeNorm( alpha, norm );
     else
-        beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
+        beta = -lapack::SafeNorm( alpha, norm );
 
-    const R one = 1;
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R safeInv = safeMin/epsilon;
+    // Rescale if the vector is too small
+    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real safeInv = safeMin/epsilon;
     Int count = 0;
     if( Abs(beta) < safeInv )
     {
-        R invOfSafeInv = one/safeInv;
+        Real invOfSafeInv = Real(1)/safeInv;
         do
         {
             ++count;
@@ -196,19 +111,21 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 
         localNorm = Nrm2( x.LockedMatrix() );
         mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
-        norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
-        if( alpha.real() <= 0 )
-            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
+        norm = blas::Nrm2( rowStride, localNorms.data(), 1 );
+        if( RealPart(alpha) <= 0 )
+            beta = lapack::SafeNorm( alpha, norm );
         else
-            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
+            beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    C tau = C( (beta-alpha.real())/beta, -alpha.imag()/beta );
-    Scale( one/(alpha-beta), x );
+    F tau = (beta-alpha) / beta;
+    Scale( Real(1)/(alpha-beta), x );
 
+    // Undo the scaling
     for( Int j=0; j<count; ++j )
         beta *= safeInv;
-    if( gridCol == rowAlign )
+
+    if( rowRank == rowAlign )
         chi.SetLocal(0,0,beta);
         
     return tau;
