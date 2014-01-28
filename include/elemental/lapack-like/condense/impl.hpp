@@ -12,5 +12,6 @@
 
 #include "./Bidiag.hpp"
 #include "./HermitianTridiag.hpp"
+#include "./Hessenberg.hpp"
 
 #endif // ifndef ELEM_CONDENSE_IMPL_HPP
