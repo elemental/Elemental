@@ -505,12 +505,12 @@ void PanelUSquare
                 // Set up for the next iteration by filling in the values for:
                 // - w01LastBuffer
                 // - w01LastBottomEntry
-                F scale = dotProduct*Conj(tau) / F(2);
+                F scale = dotProduct*tau / F(2);
                 for( Int i=0; i<a01LocalHeight; ++i )
-                    w01LastBuffer[i] = tau*
+                    w01LastBuffer[i] = Conj(tau)*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a01_MC_STAR_Buffer[i] );
-                w01LastBottomEntry = tau*( recvBuffer[1]-scale );
+                w01LastBottomEntry = Conj(tau)*( recvBuffer[1]-scale );
             }
         }
         else
@@ -539,11 +539,11 @@ void PanelUSquare
             auto w01_MR_STAR = View( W_MR_STAR, 0, k, kA, 1 );
 
             // Store w01[MC,* ]
-            F scale = dotProduct*Conj(tau) / F(2);
+            F scale = dotProduct*tau / F(2);
             F* w01_MC_STAR_Buffer = w01_MC_STAR.Buffer();
             for( Int i=0; i<a01LocalHeight; ++i )
-                w01_MC_STAR_Buffer[i] = 
-                    tau*( allReduceRecvBuffer[i]-scale*a01_MC_STAR_Buffer[i] );
+                w01_MC_STAR_Buffer[i] = Conj(tau)*
+                    ( allReduceRecvBuffer[i]-scale*a01_MC_STAR_Buffer[i] );
 
             // Fast transpose w01[MC,* ] -> w01[MR,* ]
             if( onDiagonal )

@@ -50,7 +50,7 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
 
     ACopy.Resize( m, numSteps );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, ACopy, t );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, ACopy, t );
     Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
 
     return ZeroNorm( s );
@@ -88,7 +88,7 @@ PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
 
     ACopy.Resize( m, numSteps );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, ACopy, t );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, ACopy, t );
     Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
 
     return ZeroNorm( s );

@@ -32,7 +32,7 @@ Explicit( Matrix<F>& A, bool colPiv=false )
     {
         QR( A, t );
     }
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
 }
 
 template<typename F>
@@ -51,7 +51,7 @@ Explicit( DistMatrix<F>& A, bool colPiv=false )
     {
         QR( A, t );
     }
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
 }
 
 template<typename F>
@@ -76,7 +76,7 @@ Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
          AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
 }
 
 template<typename F>
@@ -102,7 +102,7 @@ Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
          AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
 }
 
 } // namespace qr

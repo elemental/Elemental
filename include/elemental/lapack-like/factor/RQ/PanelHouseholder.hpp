@@ -51,7 +51,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         Conjugate( aBottomRow, aBottomRowConj );
         Zeros( z, ATopPan.Height(), 1 );
         Gemv( NORMAL, F(1), ATopPan, aBottomRowConj, F(0), z );
-        Ger( -Conj(tau), z, aBottomRowConj, ATopPan );
+        Ger( -tau, z, aBottomRowConj, ATopPan );
         alpha11.Set(0,0,alpha);
     }
 }
@@ -118,7 +118,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         ( NORMAL, F(1), ATopPan, aBottomRowConj_STAR_MR, F(0), z_MC_STAR );
         z_MC_STAR.SumOverRow(); 
         Ger
-        ( -Conj(tau), 
+        ( -tau, 
           z_MC_STAR.LockedMatrix(),
           aBottomRowConj_STAR_MR.LockedMatrix(),
           ATopPan.Matrix() ); 

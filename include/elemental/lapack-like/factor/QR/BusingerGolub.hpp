@@ -113,7 +113,7 @@ BusingerGolub
         alpha11.Set(0,0,1);
         Zeros( z, ARightPan.Width(), 1 );
         Gemv( ADJOINT, F(1), ARightPan, aLeftCol, F(0), z );
-        Ger( -Conj(tau), aLeftCol, z, ARightPan );
+        Ger( -tau, aLeftCol, z, ARightPan );
         alpha11.Set(0,0,alpha);
 
         // Update the column norm estimates in the same manner as LAWN 176
@@ -465,7 +465,7 @@ BusingerGolub
         ( ADJOINT, F(1), ARightPan, aLeftCol_MC_STAR, F(0), z_MR_STAR );
         z_MR_STAR.SumOverCol();
         Ger
-        ( -Conj(tau),
+        ( -tau,
           aLeftCol_MC_STAR.LockedMatrix(),
           z_MR_STAR.LockedMatrix(),
           ARightPan.Matrix() );

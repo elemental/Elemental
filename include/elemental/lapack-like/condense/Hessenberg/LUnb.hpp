@@ -28,8 +28,17 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& t )
     const Int tHeight = Max(n-1,0);
     t.Resize( tHeight, 1 );
 
-    // TODO
-    LogicError("This routine is not yet written");
+    for( Int k=0; k<n-1; ++k )
+    {
+        auto a12      = ViewRange( A, k,   k+1, k+1, n   );
+        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+1 );
+        auto a12R     = ViewRange( A, k,   k+2, k+1, n   );
+        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
+        auto A2       = ViewRange( A, k+1, 0,   n,   n   );
+
+        // TODO
+        LogicError("This routine not yet written");
+    }
 }
 
 template<typename F> 
@@ -42,8 +51,17 @@ inline void LUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     t.SetGrid( g );
     t.Resize( tHeight, 1 );
 
-    // TODO
-    LogicError("This routine is not yet written");
+    for( Int k=0; k<n-1; ++k )
+    {
+        auto a12      = ViewRange( A, k,   k+1, k+1, n   );
+        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+1 );
+        auto a12R     = ViewRange( A, k,   k+2, k+1, n   );
+        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
+        auto A2       = ViewRange( A, k+1, 0,   n,   n   );
+
+        // TODO
+        LogicError("This routine not yet written");
+    }
 }
 
 } // namespace hessenberg

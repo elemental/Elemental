@@ -21,34 +21,6 @@
 namespace elem {
 namespace reflector {
 
-//
-// Follows the LAPACK convention of defining tau such that
-//
-//   H = I - tau [1; w] [1, w'],
-//
-// but adjoint(H) [chi; y] = [beta; 0]. 
-//
-// In our case, y=x^T, and w=v^T, so that 
-//
-//   (I - conj(tau) [1; v^T] [1, conj(v)]) [chi; x^T] = [beta; 0],
-//
-// and thus
-//
-//   [chi, x] (I - conj(tau) [1; v^H] [1, v]) = [beta, 0].
-//
-// In the case of real data, everything simplifies to
-//
-//   [chi, x] (I - tau [1; v^T] [1, v]) = [beta, 0].
-//
-// On exit, chi is overwritten with beta, and x is overwritten with v.
-//
-// The major difference from LAPACK is in the treatment of the special case 
-// of x=0, where LAPACK would put H := I, which is not a valid Householder 
-// reflector. We instead follow the FLAME convention of defining H such that 
-//    adjoint(H) [chi; 0] = [-chi; 0],
-// which is accomplished by setting tau=2, and v^T=0.
-//
-
 template<typename F,Dist U,Dist V>
 inline F
 Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
@@ -118,7 +90,7 @@ Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
             beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    F tau = (beta-alpha) / beta;
+    F tau = (beta-Conj(alpha)) / beta;
     Scale( Real(1)/(alpha-beta), x );
 
     // Undo the scaling

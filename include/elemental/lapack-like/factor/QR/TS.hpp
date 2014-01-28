@@ -261,14 +261,14 @@ FormQ( DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
     {
         A.Matrix() = treeData.QR0;
         ExpandPackedReflectors
-        ( LOWER, VERTICAL, UNCONJUGATED, 0,
+        ( LOWER, VERTICAL, CONJUGATED, 0,
           A.Matrix(), RootPhases(A,treeData) );
     }
     else
     {
         if( A.ColRank() == 0 )
             ExpandPackedReflectors
-            ( LOWER, VERTICAL, UNCONJUGATED, 0, 
+            ( LOWER, VERTICAL, CONJUGATED, 0, 
               RootQR(A,treeData), RootPhases(A,treeData) );
         Scatter( A, treeData );
     }

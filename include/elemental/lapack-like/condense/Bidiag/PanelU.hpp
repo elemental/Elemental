@@ -141,9 +141,9 @@ PanelU
             aB1.SumScatterUpdate( F(-1), uB1_MC_STAR );
         }
 
-        // Find tauQ, u, and delta such that
-        //     I - conj(tauQ) | 1 | | 1, u^H | | alpha11 | = | delta |
-        //                    | u |            |   a21   | = |   0   |
+        // Find tauQ and u such that
+        //     I - tauQ | 1 | | 1, u^H | | alpha11 | = | delta |
+        //              | u |            |   a21   | = |   0   |
         F tauQ = 0;
         if( thisIsMyCol )
         {
@@ -158,9 +158,8 @@ PanelU
             }
         }
 
-        //
-        // y21 := tauQ ( AB2^H aB1 - A02^H XBL^H aB1 - Y20 ABL^H aB1 )
-        //
+        // y21 := conj(tauQ) ( AB2^H aB1 - A02^H XBL^H aB1 - Y20 ABL^H aB1 )
+        // -----------------------------------------------------------------
         aB1_MC_STAR = aB1;
         // z01[MR,* ] := ABL^H[MR,MC] aB1[MC,* ]
         z01_MR_STAR.AlignWith( ABL );
@@ -194,7 +193,7 @@ PanelU
         // Subtract z21 = Y20 ABL^H aB1 from y21
         y21.SumScatterUpdate( F(-1), z21_MC_STAR );
         if( thisIsMyCol )
-            Scale( tauQ, y21 );
+            Scale( Conj(tauQ), y21 );
 
         //
         // y21 := y21 + Y20 a10^H
@@ -240,9 +239,9 @@ PanelU
                 a12Buffer[jLoc*a12LDim] -= q21Buffer[jLoc];
         }
 
-        // Find tauP, v, and epsilon such that
-        //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilon |
-        //                    | v |            |  a12R^T  |   |    0    |
+        // Find tauP and v such that
+        //     I - tauP | 1 | | 1, v^H | | alpha12L | = | epsilon |
+        //              | v |            |  a12R^T  |   |    0    |
         F tauP = 0;
         if( thisIsMyRow )
         {
@@ -295,7 +294,7 @@ PanelU
         LocalGemv( NORMAL, F(-1), X20, s01_MR_STAR, F(1), s21_MC_STAR );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
-        Scale( tauP, x21.Matrix() );
+        Scale( Conj(tauP), x21.Matrix() );
 
         // Undo the in-place conjugation of a12
         Conjugate( a12 );

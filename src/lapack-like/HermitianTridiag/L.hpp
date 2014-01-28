@@ -53,8 +53,8 @@ void L( Matrix<F>& A, Matrix<F>& t )
         alpha21T.Set(0,0,F(1));
 
         Zeros( w21, a21.Height(), 1 );
-        Hemv( LOWER, tau, A22, a21, F(0), w21 );
-        const F alpha = -tau*Dot( w21, a21 )/F(2);
+        Hemv( LOWER, Conj(tau), A22, a21, F(0), w21 );
+        const F alpha = -Conj(tau)*Dot( w21, a21 )/F(2);
         Axpy( alpha, a21, w21 );
         Her2( LOWER, F(-1), a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);

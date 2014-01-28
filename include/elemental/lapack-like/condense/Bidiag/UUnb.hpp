@@ -48,8 +48,8 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         auto AB2     = ViewRange( A, k,   k+1, m,   n   );
 
         // Find tauQ and u such that
-        //     I - conj(tauQ) | 1 | | 1, u^H | | alpha11 | = | epsilonQ |
-        //                    | u |            |    a21  |   |    0     |
+        //     I - tauQ | 1 | | 1, u^H | | alpha11 | = | epsilonQ |
+        //              | u |            |    a21  |   |    0     |
         const F tauQ = Reflector( alpha11, a21 );
         tQ.Set(k,0,tauQ );
 
@@ -63,9 +63,9 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         // x12^H := (aB1^H AB2)^H = AB2^H aB1
         Zeros( x12Adj, a12.Width(), 1 );
         Gemv( ADJOINT, F(1), AB2, aB1, F(0), x12Adj );
-        // AB2 := AB2 - conj(tauQ) aB1 x12
-        //      = (I - conj(tauQ) aB1 aB1^H) AB2
-        Ger( -Conj(tauQ), aB1, x12Adj, AB2 );
+        // AB2 := AB2 - tauQ aB1 x12
+        //      = (I - tauQ aB1 aB1^H) AB2
+        Ger( -tauQ, aB1, x12Adj, AB2 );
 
         // Put epsilonQ back 
         alpha11.Set(0,0,epsilonQ);
@@ -81,8 +81,8 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             PartitionRight( a12, alpha12L, a12R, 1 );
 
             // Find tauP and v such that
-            //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilonP |
-            //                    | v |            |  a12R^T  |   |    0     |
+            //     I - tauP | 1 | | 1, v^H | | alpha12L | = | epsilonP |
+            //              | v |            |  a12R^T  |   |    0     |
             const F tauP = Reflector( alpha12L, a12R );
             tP.Set(k,0,tauP);
 
@@ -97,12 +97,11 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             //                        | v |
             Zeros( w21, a21.Height(), 1 );
             Gemv( NORMAL, F(1), A22, a12, F(0), w21 );
-            // A22 := A22 - tauP w21 conj(a12)
-            //      = A22 (I - tauP a12^T conj(a12))
-            //      = A22 conj(I - conj(tauP) a12^H a12)
+            // A22 := A22 - conj(tauP) w21 conj(a12)
+            //      = A22 conj(I - tauP a12^H a12)
             // which compensates for the fact that the reflector was generated
             // on the conjugated a12.
-            Ger( -tauP, w21, a12, A22 );
+            Ger( -Conj(tauP), w21, a12, A22 );
 
             // Put epsilonP back 
             alpha12L.Set(0,0,epsilonP);
@@ -149,8 +148,8 @@ inline void UUnb
         auto AB2     = ViewRange( A, k,   k+1, m,   n   );
 
         // Find tauQ and u such that
-        //     I - conj(tauQ) | 1 | | 1, u^H | | alpha11 | = | epsilonQ |
-        //                    | u |            |    a21  |   |    0     |
+        //     I - tauQ | 1 | | 1, u^H | | alpha11 | = | epsilonQ |
+        //              | u |            |    a21  |   |    0     |
         const F tauQ = Reflector( alpha11, a21 );
         tQ.Set(k,0,tauQ );
 
@@ -170,8 +169,8 @@ inline void UUnb
         Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB2, aB1_MC_STAR, F(0), x12Adj_MR_STAR );
         x12Adj_MR_STAR.SumOverCol();
-        // AB2 := AB2 - conj(tauQ) aB1 x12
-        LocalGer( -Conj(tauQ), aB1_MC_STAR, x12Adj_MR_STAR, AB2 );
+        // AB2 := AB2 - tauQ aB1 x12
+        LocalGer( -tauQ, aB1_MC_STAR, x12Adj_MR_STAR, AB2 );
 
         // Put epsilonQ back 
         if( alpha11.IsLocal(0,0) )
@@ -188,8 +187,8 @@ inline void UUnb
             PartitionRight( a12, alpha12L, a12R, 1 );
 
             // Find tauP and v such that
-            //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilonP |
-            //                    | v |            |  a12R^T  |   |    0     |
+            //     I - tauP | 1 | | 1, v^H | | alpha12L | = | epsilonP |
+            //              | v |            |  a12R^T  |   |    0     |
             const F tauP = Reflector( alpha12L, a12R );
             tP.Set(k,0,tauP);
 
@@ -210,12 +209,11 @@ inline void UUnb
             Zeros( w21_MC_STAR, a21.Height(), 1 );
             LocalGemv( NORMAL, F(1), A22, a12_STAR_MR, F(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
-            // A22 := A22 - tauP w21 conj(a12)
-            //      = A22 (I - tauP a12^T conj(a12))
-            //      = A22 conj(I - conj(tauP) a12^H a12)
+            // A22 := A22 - conj(tauP) w21 conj(a12)
+            //      = A22 conj(I - tauP a12^H a12)
             // which compensates for the fact that the reflector was generated
             // on the conjugated a12.
-            LocalGer( -tauP, w21_MC_STAR, a12_STAR_MR, A22 );
+            LocalGer( -Conj(tauP), w21_MC_STAR, a12_STAR_MR, A22 );
 
             // Put epsilonP back
             if( alpha12L.IsLocal(0,0) )

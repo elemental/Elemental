@@ -25,7 +25,7 @@ ApplyU
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     ApplyPackedReflectors
     ( side, LOWER, VERTICAL, direction, conjugation, offset, A, t, B );
@@ -41,7 +41,7 @@ ApplyV
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
     ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );
@@ -57,7 +57,7 @@ ApplyU
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     ApplyPackedReflectors
     ( side, LOWER, VERTICAL, direction, conjugation, offset, A, t, B );
@@ -87,7 +87,7 @@ ApplyV
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
     ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );

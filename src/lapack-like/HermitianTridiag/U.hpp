@@ -52,8 +52,8 @@ void U( Matrix<F>& A, Matrix<F>& t )
         alpha01B.Set(0,0,F(1));
 
         Zeros( w01, k, 1 );
-        Hemv( UPPER, tau, A00, a01, F(0), w01 );
-        const F alpha = -tau*Dot( w01, a01 )/F(2);
+        Hemv( UPPER, Conj(tau), A00, a01, F(0), w01 );
+        const F alpha = -Conj(tau)*Dot( w01, a01 )/F(2);
         Axpy( alpha, a01, w01 );
         Her2( UPPER, F(-1), a01, w01, A00 );
         alpha01B.Set(0,0,epsilon1);

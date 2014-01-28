@@ -694,7 +694,10 @@ if(ELEM_TESTS)
   foreach(TYPE ${TEST_TYPES})
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
     foreach(TEST ${${TYPE}_TESTS})
-      add_executable(tests-${TYPE}-${TEST} ${TEST_DIR}/${TYPE}/${TEST}.cpp)
+      set(DRIVER ${TEST_DIR}/${TYPE}/${TEST}.cpp)
+      add_executable(tests-${TYPE}-${TEST} ${DRIVER})
+      set_source_files_properties(${DRIVER} PROPERTIES 
+        OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(tests-${TYPE}-${TEST} elemental)
       set_target_properties(tests-${TYPE}-${TEST} PROPERTIES
         OUTPUT_NAME ${TEST} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -737,8 +740,10 @@ if(ELEM_EXAMPLES)
   foreach(TYPE ${EXAMPLE_TYPES})
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/${TYPE}")
     foreach(EXAMPLE ${${TYPE}_EXAMPLES})
-      add_executable(examples-${TYPE}-${EXAMPLE} 
-        ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE}.cpp)
+      set(DRIVER ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE}.cpp)
+      add_executable(examples-${TYPE}-${EXAMPLE} ${DRIVER})
+      set_source_files_properties(${DRIVER} PROPERTIES 
+        OBJECT_DEPENDS "${PREPARED_HEADERS}")
       target_link_libraries(examples-${TYPE}-${EXAMPLE} elemental)
       set_target_properties(examples-${TYPE}-${EXAMPLE} PROPERTIES 
         OUTPUT_NAME ${EXAMPLE} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -760,8 +765,10 @@ if(ELEM_EXPERIMENTAL)
   # Build the G3D example(s)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
   foreach(EXPER ${G3D_EXPERS})
-    add_executable(experimental-g3d-${EXPER} 
-      ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
+    set(DRIVER ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
+    add_executable(experimental-g3d-${EXPER} ${DRIVER})
+    set_source_files_properties(${DRIVER} PROPERTIES 
+      OBJECT_DEPENDS "${PREPARED_HEADERS}")
     target_link_libraries(experimental-g3d-${EXPER} elemental)
     set_target_properties(experimental-g3d-${EXPER} PROPERTIES 
       OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -777,7 +784,10 @@ endif()
 if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c")
-  add_executable(experimental-c-test ${EXPERIMENTAL_DIR}/c/test.c)
+  set(DRIVER ${EXPERIMENTAL_DIR}/c/test.c)
+  add_executable(experimental-c-test ${DRIVER})
+  set_source_files_properties(${DRIVER} PROPERTIES 
+    OBJECT_DEPENDS "${PREPARED_HEADERS}")
   target_link_libraries(experimental-c-test elemental)
   set_target_properties(experimental-c-test 
     PROPERTIES OUTPUT_NAME c_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -789,7 +799,10 @@ if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
 
   if(HAVE_F90_INTERFACE)
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
-    add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90) 
+    set(DRIVER ${EXPERIMENTAL_DIR}/f90/test.f90)
+    add_executable(experimental-f90-test ${DRIVER}) 
+    set_source_files_properties(${DRIVER} PROPERTIES 
+      OBJECT_DEPENDS "${PREPARED_HEADERS}")
     target_link_libraries(experimental-f90-test elemental)
     set_target_properties(experimental-f90-test PROPERTIES
       LINKER_LANGUAGE Fortran

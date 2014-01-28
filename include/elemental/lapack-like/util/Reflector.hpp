@@ -24,20 +24,20 @@
 namespace elem {
 
 //
-// Follows the LAPACK convention of defining tau such that
+// The LAPACK convention defines tau such that
 //
 //   H = I - tau [1; v] [1, v'],
 //
 // but adjoint(H) [chi; x] = [beta; 0]. 
 //
-// Note that the adjoint of H is applied. 
+// Elemental simply uses H [chi; x] = [beta; 0].
 //
 // On exit, chi is overwritten with beta, and x is overwritten with v.
 //
-// The major difference from LAPACK is in the treatment of the special case 
+// Another major difference from LAPACK is in the treatment of the special case 
 // of x=0, where LAPACK would put H := I, which is not a valid Householder 
-// reflector. We instead follow the FLAME convention of defining H such that 
-//    adjoint(H) [chi; 0] = [-chi; 0],
+// reflector. We instead use the valid Householder reflector:
+//    H [chi; 0] = [-chi; 0],
 // which is accomplished by setting tau=2, and v=0.
 //
 
@@ -86,7 +86,7 @@ Reflector( Matrix<F>& chi, Matrix<F>& x )
             beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    F tau = (beta-alpha) / beta;
+    F tau = (beta-Conj(alpha)) / beta;
     Scale( Real(1)/(alpha-beta), x );
 
     // Undo the scaling
@@ -142,7 +142,7 @@ Reflector( F& chi, Int m, F* x, Int incx )
             beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     }
 
-    F tau = (beta-alpha) / beta;
+    F tau = (beta-Conj(alpha)) / beta;
     blas::Scal( m, Real(1)/(alpha-beta), x, incx );
 
     // Undo the scaling

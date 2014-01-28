@@ -39,9 +39,9 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
         auto A22      = ViewRange( A, k+1, k+1, n,   n   );
         auto A2       = ViewRange( A, 0,   k+1, n,   n   );
 
-        // Find tau, v, and beta such that
-        //   I - conj(tau) | 1 | | 1, v^H | | alpha21T | = | beta |
-        //                 | v |            |     a21B |   |    0 |
+        // Find tau and v such that
+        //   I - tau | 1 | | 1, v^H | | alpha21T | = | beta |
+        //           | v |            |     a21B |   |    0 |
         const F tau = Reflector( alpha21T, a21B );
         t.Set(k,0,tau);
 
@@ -55,16 +55,16 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
         // x1 := A2 a21
         Zeros( x1, n, 1 );
         Gemv( NORMAL, F(1), A2, a21, F(0), x1 );
-        // A2 := A2 - tau x1 a21^H
-        Ger( -tau, x1, a21, A2 ); 
+        // A2 := A2 - conj(tau) x1 a21^H
+        Ger( -Conj(tau), x1, a21, A2 ); 
 
         // Apply H(a21,tau) from the left
         // ------------------------------
         // x12^H := (a21^H A22)^H = A22^H a21
         Zeros( x12Adj, A22.Width(), 1 );
         Gemv( ADJOINT, F(1), A22, a21, F(0), x12Adj );
-        // A22 := A22 - conj(tau) a21 x12
-        Ger( -Conj(tau), a21, x12Adj, A22 );
+        // A22 := A22 - tau a21 x12
+        Ger( -tau, a21, x12Adj, A22 );
 
         // Put beta back instead of temporary value of 1
         alpha21T.Set(0,0,beta);
@@ -94,9 +94,9 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         auto A22      = ViewRange( A, k+1, k+1, n,   n   );
         auto A2       = ViewRange( A, 0,   k+1, n,   n   );
 
-        // Find tau, v, and beta such that
-        //   I - conj(tau) | 1 | | 1, v^H | | alpha21T | = | beta |
-        //                 | v |            |     a21B |   |    0 |
+        // Find tau and v such that
+        //   I - tau | 1 | | 1, v^H | | alpha21T | = | beta |
+        //           | v |            |     a21B |   |    0 |
         const F tau = Reflector( alpha21T, a21B );
         t.Set(k,0,tau);
 
@@ -116,8 +116,8 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         Zeros( x1_MC_STAR, n, 1 );
         LocalGemv( NORMAL, F(1), A2, a21_MR_STAR, F(0), x1_MC_STAR );
         x1_MC_STAR.SumOverRow();
-        // A2 := A2 - tau x1 a21^H
-        LocalGer( -tau, x1_MC_STAR, a21_MR_STAR, A2 ); 
+        // A2 := A2 - conj(tau) x1 a21^H
+        LocalGer( -Conj(tau), x1_MC_STAR, a21_MR_STAR, A2 ); 
 
         // Apply H(a21,tau) from the left
         // ------------------------------
@@ -128,8 +128,8 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         Zeros( x12Adj_MR_STAR, A22.Width(), 1 );
         LocalGemv( ADJOINT, F(1), A22, a21_MC_STAR, F(0), x12Adj_MR_STAR );
         x12Adj_MR_STAR.SumOverCol();
-        // A22 := A22 - conj(tau) a21 x12
-        LocalGer( -Conj(tau), a21_MC_STAR, x12Adj_MR_STAR, A22 );
+        // A22 := A22 - tau a21 x12
+        LocalGer( -tau, a21_MC_STAR, x12Adj_MR_STAR, A22 );
 
         // Put beta back 
         alpha21T.Set(0,0,beta);

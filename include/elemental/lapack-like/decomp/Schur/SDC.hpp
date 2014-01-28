@@ -176,7 +176,7 @@ SignDivide
     const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
-        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
         Matrix<F> B;
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
@@ -224,7 +224,7 @@ SignDivide
     const Base<F> oneA = OneNorm( A );
     if( returnQ )
     {
-        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+        ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
         DistMatrix<F> B(g);
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
@@ -285,7 +285,7 @@ RandomizedSignDivide
         V = A;
         if( returnQ )
         {
-            ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+            ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
@@ -354,7 +354,7 @@ RandomizedSignDivide
         V = A;
         if( returnQ )
         {
-            ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+            ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }

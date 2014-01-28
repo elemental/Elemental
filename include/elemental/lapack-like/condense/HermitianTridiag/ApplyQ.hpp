@@ -26,7 +26,7 @@ ApplyQ
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = 
         ( (normal==onLeft) ^ (uplo==UPPER) ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
@@ -43,7 +43,7 @@ ApplyQ
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = 
         ( (normal==onLeft) ^ (uplo==UPPER) ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
