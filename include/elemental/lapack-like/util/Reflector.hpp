@@ -43,9 +43,9 @@ namespace elem {
 
 template<typename F>
 inline F
-Reflector( Matrix<F>& chi, Matrix<F>& x )
+LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("Reflector"))
+    DEBUG_ONLY(CallStackEntry cse("LeftReflector"))
     typedef Base<F> Real;
 
     Real norm = Nrm2( x );
@@ -97,88 +97,62 @@ Reflector( Matrix<F>& chi, Matrix<F>& x )
     return tau;
 }
 
+template<typename F,Dist U,Dist V>
+inline F
+LeftReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("LeftReflector");
+        if( chi.Grid() != x.Grid() )
+            LogicError("chi and x must be distributed over the same grid");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Width() != 1 )
+            LogicError("x must be a column vector");
+    )
+    F tau;
+    if( x.RowRank() == x.RowAlign() )
+        tau = reflector::Col( chi, x );
+    mpi::Broadcast( tau, x.RowAlign(), x.RowComm() );
+    return tau;
+}
+
+//
+// Defines tau and v such that
+//
+//   H = I - tau [1; v] [1, v'],
+//
+// and [chi x] H = [beta 0]
+//
+
 template<typename F>
 inline F
-Reflector( F& chi, Int m, F* x, Int incx )
+RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("Reflector"))
-    typedef Base<F> Real;
-
-    Real norm = blas::Nrm2( m, x, incx );
-    F alpha = chi;
-
-    if( norm == Real(0) && ImagPart(alpha) == Real(0) )
-    {
-        chi = -chi;
-        return F(2);
-    }
-
-    Real beta;
-    if( RealPart(alpha) <= 0 )
-        beta = lapack::SafeNorm( alpha, norm );
-    else
-        beta = -lapack::SafeNorm( alpha, norm );
-
-    // Rescale if the vector is too small
-    const Real safeMin = lapack::MachineSafeMin<Real>();
-    const Real epsilon = lapack::MachineEpsilon<Real>();
-    const Real safeInv = safeMin/epsilon;
-    Int count = 0;
-    if( Abs(beta) < safeInv )
-    {
-        Real invOfSafeInv = Real(1)/safeInv;
-        do
-        {
-            ++count;
-            blas::Scal( m, invOfSafeInv, x, incx );
-            alpha *= invOfSafeInv;
-            beta *= invOfSafeInv;
-        } while( Abs(beta) < safeInv );
-
-        norm = blas::Nrm2( m, x, incx );
-        if( alpha.real() <= 0 )
-            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
-        else
-            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
-    }
-
-    F tau = (beta-Conj(alpha)) / beta;
-    blas::Scal( m, Real(1)/(alpha-beta), x, incx );
-
-    // Undo the scaling
-    for( Int j=0; j<count; ++j )
-        beta *= safeInv;
-
-    chi = beta;
+    DEBUG_ONLY(CallStackEntry cse("RightReflector"))
+    const F tau = LeftReflector( chi, x );
+    // There is no need to conjugate chi, it should be real now
+    Conjugate( x );
     return tau;
 }
 
 template<typename F,Dist U,Dist V>
 inline F
-Reflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+RightReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Reflector");
+        CallStackEntry cse("RightReflector");
         if( chi.Grid() != x.Grid() )
             LogicError("chi and x must be distributed over the same grid");
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
-        if( x.Height() != 1 && x.Width() != 1 )
-            LogicError("x must be a vector");
+        if( x.Height() != 1 )
+            LogicError("x must be a row vector");
     )
     F tau;
-    if( x.Width() == 1 && x.RowAlign() == chi.RowAlign() )
-    {
-        if( x.RowRank() == x.RowAlign() )
-            tau = reflector::Col( chi, x );
-        mpi::Broadcast( tau, x.RowAlign(), x.RowComm() );
-    }
-    else
-    {
-        if( x.ColRank() == x.ColAlign() )
-            tau = reflector::Row( chi, x );
-        mpi::Broadcast( tau, x.ColAlign(), x.ColComm() );
-    }
+    if( x.ColRank() == x.ColAlign() )
+        tau = reflector::Row( chi, x );
+    mpi::Broadcast( tau, x.ColAlign(), x.ColComm() );
     return tau;
 }
 

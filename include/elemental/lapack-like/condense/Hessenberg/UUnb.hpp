@@ -40,9 +40,9 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
         auto A2       = ViewRange( A, 0,   k+1, n,   n   );
 
         // Find tau and v such that
-        //   I - tau | 1 | | 1, v^H | | alpha21T | = | beta |
-        //           | v |            |     a21B |   |    0 |
-        const F tau = Reflector( alpha21T, a21B );
+        //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
+        //  \         | v |            / |     a21B |   |    0 |
+        const F tau = LeftReflector( alpha21T, a21B );
         t.Set(k,0,tau);
 
         // Temporarily set a21 := | 1 |
@@ -95,9 +95,9 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         auto A2       = ViewRange( A, 0,   k+1, n,   n   );
 
         // Find tau and v such that
-        //   I - tau | 1 | | 1, v^H | | alpha21T | = | beta |
-        //           | v |            |     a21B |   |    0 |
-        const F tau = Reflector( alpha21T, a21B );
+        //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
+        //  \         | v |            / |     a21B |   |    0 |
+        const F tau = LeftReflector( alpha21T, a21B );
         t.Set(k,0,tau);
 
         // Temporarily set a21 := | 1 |

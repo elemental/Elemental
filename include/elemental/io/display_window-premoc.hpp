@@ -17,6 +17,7 @@
 #include <QScrollArea>
 #include <QWidget>
 
+#include "elemental/include-paths.hpp"
 #include "elemental/config.h"
 #ifdef HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"

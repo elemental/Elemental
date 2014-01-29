@@ -47,7 +47,7 @@ void L( Matrix<F>& A, Matrix<F>& t )
         auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
         auto A22      = ViewRange( A, k+1, k+1, n,   n   );
 
-        const F tau = Reflector( alpha21T, a21B );
+        const F tau = LeftReflector( alpha21T, a21B );
         const Base<F> epsilon1 = alpha21T.GetRealPart(0,0);
         t.Set(k,0,tau);
         alpha21T.Set(0,0,F(1));

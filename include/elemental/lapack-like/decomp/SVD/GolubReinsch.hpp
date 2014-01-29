@@ -94,8 +94,8 @@ GolubReinschUpper
     }
 
     // Backtransform U and V
-    bidiag::ApplyU( LEFT, NORMAL, B, tQ, A );
-    bidiag::ApplyV( LEFT, NORMAL, B, tP, V );
+    bidiag::ApplyQ( LEFT, NORMAL, B, tQ, A );
+    bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
@@ -163,8 +163,8 @@ GolubReinschUpper_FLA
     }
 
     // Backtransform U and V
-    bidiag::ApplyU( LEFT, NORMAL, B, tQ, A );
-    bidiag::ApplyV( LEFT, NORMAL, B, tP, V );
+    bidiag::ApplyQ( LEFT, NORMAL, B, tQ, A );
+    bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;

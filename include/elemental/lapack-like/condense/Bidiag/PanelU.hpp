@@ -10,6 +10,7 @@
 #ifndef ELEM_BIDIAG_PANELU_HPP
 #define ELEM_BIDIAG_PANELU_HPP
 
+#include ELEM_ADJOINT_INC
 #include ELEM_AXPY_INC
 #include ELEM_CONJUGATE_INC
 #include ELEM_SCALE_INC
@@ -19,6 +20,141 @@
 
 namespace elem {
 namespace bidiag {
+
+template<typename F> 
+inline void
+PanelU( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
+{
+    const Int mA = A.Height();
+    const Int nA = A.Width();
+    const Int nX = X.Width();
+    DEBUG_ONLY(
+        CallStackEntry cse("bidiag::PanelU");
+        if( tP.Height() != nX || tP.Width() != 1 )
+            LogicError("tP was not the right size");
+        if( tQ.Height() != nX || tQ.Width() != 1 )
+            LogicError("tQ was not the right size");
+        if( mA < nA )
+            LogicError("A must be at least as tall as it is wide");
+        if( mA != X.Height() )
+            LogicError("A and X must be the same height");
+        if( nA != Y.Width() )
+            LogicError("Y must be the same width as A");
+        if( X.Height() < nX )
+            LogicError("X must be a column panel");
+        if( Y.Height() != nX )
+            LogicError("Y is the wrong height");
+    )
+    typedef Base<F> Real;
+
+    Matrix<F> zT1, z01, z21;
+
+    Matrix<Real> d, e;
+    d.Resize( nX, 1 );
+    e.Resize( nX, 1 );
+
+    for( Int k=0; k<nX; ++k )
+    {
+        auto a01      = ViewRange( A, 0,   k,   k,   k+1 );
+        auto A02      = ViewRange( A, 0,   k+1, k,   nA  );
+        auto a10      = ViewRange( A, k,   0,   k+1, k   );
+        auto alpha11  = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12      = ViewRange( A, k,   k+1, k+1, nA  );
+        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+2 );
+        auto a12R     = ViewRange( A, k,   k+2, k+1, nA  );
+        auto a21      = ViewRange( A, k+1, k,   mA,  k+1 );
+        auto A22      = ViewRange( A, k+1, k+1, mA,  nA  );
+        auto AB0      = ViewRange( A, k,   0,   mA,  k   );
+        auto aB1      = ViewRange( A, k,   k,   mA,  k+1 );
+        auto AB2      = ViewRange( A, k,   k+1, mA,  nA  );
+        auto A2L      = ViewRange( A, k+1, 0,   mA,  k+1 );
+
+        auto x10 = ViewRange( X, k,   0,   k+1, k   );
+        auto X20 = ViewRange( X, k+1, 0,   mA,  k   );
+        auto x21 = ViewRange( X, k+1, k,   mA,  k+1 );
+        auto XB0 = ViewRange( X, k,   0,   mA,  k   );
+
+        auto y01 = ViewRange( Y, 0, k,   k,   k+1 );
+        auto Y02 = ViewRange( Y, 0, k+1, k,   nA  );
+        auto y12 = ViewRange( Y, k, k+1, k+1, nA  );
+        auto YT2 = ViewRange( Y, 0, k+1, k+1, nA  );
+
+        // Apply all previous reflectors to aB1:
+        //   aB1 := aB1 - AB0 y01 - XB0 conj(a01)
+        Gemv( NORMAL, F(-1), AB0, y01, F(1), aB1 );
+        Conjugate( a01 );
+        Gemv( NORMAL, F(-1), XB0, a01, F(1), aB1 );
+        Conjugate( a01 );
+
+        // Find tauQ and u such that
+        //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | delta |
+        //  \          | u |            / |     a21 |   |    0  |
+        const F tauQ = LeftReflector( alpha11, a21 );
+        tQ.Set(k,0,tauQ);
+        d.Set(k,0,alpha11.GetRealPart(0,0));
+        alpha11.Set(0,0,F(1));
+
+        // Form half of the left-reflector using an implicitly-updated AB2:
+        // y12 := tauQ aB1^H ( AB2 - AB0 Y02 - XB0 conj(A02) )
+        //      = tauQ ( aB1^H AB2 - (aB1^H AB0) Y02 - (aB1^H XB0) conj(A02) )
+        //      = tauQ ( AB2^H aB1 - Y02^H (AB0^H aB1) - A02^T (XB0^H aB1) )^H
+        // -------------------------------------------------------------------
+        // z21 := AB2^H aB1
+        Gemv( ADJOINT, F(1), AB2, aB1, z21 );
+        // z21 := z21 - A02^T (XB0^H aB1)
+        Gemv( ADJOINT, F(1),  XB0, aB1, z01 );
+        Gemv( TRANSPOSE, F(-1), A02, z01, F(1), z21 );
+        // z21 := z21 - Y02^H (AB0^H aB1)
+        Gemv( ADJOINT, F(1),  AB0, aB1, z01 );
+        Gemv( ADJOINT, F(-1), Y02, z01, F(1), z21 );
+        // y12 := tauQ z21^H
+        Adjoint( z21, y12 );
+        Scale( tauQ, y12 ); 
+
+        // Apply all previous reflectors to a12:
+        // a12 := a12 - a1L yT2           - x10 conj(A02)
+        //      = a12 - (a10 Y02 + 1*y12) - x10 conj(A02)
+        Gemv( TRANSPOSE, F(-1), Y02, a10, F(1), a12 );
+        Axpy( F(-1), y12, a12 );
+        Gemv( ADJOINT, F(-1), A02, x10, F(1), a12 ); 
+
+        // Find tauP and v such that
+        //  |alpha12L a12R| /I - tauP |1  | |1 conj(v)|\ = |epsilon 0|
+        //                  \         |v^T|            /
+        const F tauP = RightReflector( alpha12L, a12R );
+        tP.Set(k,0,tauP);
+
+        // Temporarily set a12 = | 1 v |
+        e.Set(k,0,alpha12L.GetRealPart(0,0));
+        alpha12L.Set(0,0,F(1));
+
+        // Form half of the right-reflector using an implicitly-updated A22:
+        // x21 := tauP (A22 - A2L YT2 - X20 conj(A02)) a12^T
+        //      = tauP (A22 a12^T - A2L (YT2 a12^T) - X20 (conj(A02) a12^T))
+        // -----------------------------------------------------------------
+        // x21 := A22 a12^T
+        Zeros( x21, A22.Height(), 1 );
+        Gemv( NORMAL, F(1), A22, a12, F(0), x21 );
+        // x21 := x21 - A2L (YT2 a12^T) 
+        Gemv( NORMAL, F(1),  YT2, a12, zT1 );
+        Gemv( NORMAL, F(-1), A2L, zT1, F(1), x21 );
+        // x21 := x21 - X20 (conj(A02) a12^T)
+        //      = x21 - X20 conj(A02 a12^H)
+        Conjugate( a12 );
+        Gemv( NORMAL, F(1),  A02, a12, z01 );
+        Conjugate( a12 );
+        Conjugate( z01 );
+        Gemv( NORMAL, F(-1), X20, z01, F(1), x21 );
+        // x21 := tauP x21
+        Scale( tauP, x21 );
+    }
+
+    // Put back d and e
+    auto ATL = View( A, 0, 0, nX, nX );
+    auto ATLExpanded = View( A, 0, 0, nX, nX+1 );
+    ATL.SetRealPartOfDiagonal( d, 0 );
+    ATLExpanded.SetRealPartOfDiagonal( e, 1 );
+}
 
 template<typename F> 
 inline void
@@ -49,12 +185,12 @@ PanelU
             LogicError("A must be at least as tall as it is wide");
         if( mA != X.Height() )
             LogicError("A and X must be the same height");
-        if( nA != Y.Height() )
-            LogicError("Y must be the same height as A's width");
+        if( nA != Y.Width() )
+            LogicError("Y must be the same width as A");
         if( X.Height() < nX )
             LogicError("X must be a column panel");
-        if( Y.Width() != nX )
-            LogicError("Y is the wrong width");
+        if( Y.Height() != nX )
+            LogicError("Y is the wrong height");
         if( A.ColAlign() != X.ColAlign() || 
             A.RowAlign() != X.RowAlign() )
             LogicError("A and X must be aligned");
@@ -65,16 +201,18 @@ PanelU
     typedef Base<F> Real;
     const Grid& g = A.Grid();
 
-    DistMatrix<F> q21(g), s01(g);
-    DistMatrix<F,MC,  STAR> s01_MC_STAR(g), z01_MC_STAR(g),
-                            q21_MC_STAR(g), s21_MC_STAR(g), z21_MC_STAR(g),
-                            uB1_MC_STAR(g);
-    DistMatrix<F,MR,  STAR> a01_MR_STAR(g), s01_MR_STAR(g), z01_MR_STAR(g),
-                            q21_MR_STAR(g), z21_MR_STAR(g),
-                            sB1_MR_STAR(g);
-    DistMatrix<F,STAR,MR  > a10_STAR_MR(g), y10_STAR_MR(g);
-    DistMatrix<F,STAR,MC  > x10_STAR_MC(g), a12_STAR_MC(g);
-    DistMatrix<F,MR,  MC  > z01_MR_MC(g), q21_MR_MC(g), z21_MR_MC(g);
+    DistMatrix<F,MC,  STAR> z01_MC_STAR(g),
+                            zT1_MC_STAR(g),
+                            z21_MC_STAR(g),
+                            zB1_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> z01_MR_STAR(g),
+                            zT1_MR_STAR(g),
+                            z21_MR_STAR(g),
+                            y01_MR_STAR(g),
+                            a01_MR_STAR(g);
+    DistMatrix<F,MR,  MC  > z21_MR_MC(g);
+    DistMatrix<F,STAR,MC  > x10_STAR_MC(g),
+                            a10_STAR_MC(g);
 
     DistMatrix<Real,MD,STAR> d(g), e(g);
     d.AlignWithDiagonal( A.DistData(), 0 );
@@ -93,8 +231,7 @@ PanelU
         auto a12R     = ViewRange( A, k,   k+2, k+1, nA  );
         auto a21      = ViewRange( A, k+1, k,   mA,  k+1 );
         auto A22      = ViewRange( A, k+1, k+1, mA,  nA  );
-        auto ABL      = ViewRange( A, k,   0,   mA,  k   );
-        auto ABR      = ViewRange( A, k,   k,   mA,  nA  );
+        auto AB0      = ViewRange( A, k,   0,   mA,  k   );
         auto aB1      = ViewRange( A, k,   k,   mA,  k+1 );
         auto AB2      = ViewRange( A, k,   k+1, mA,  nA  );
         auto A2L      = ViewRange( A, k+1, 0,   mA,  k+1 );
@@ -105,200 +242,172 @@ PanelU
         auto x10 = ViewRange( X, k,   0,   k+1, k   );
         auto X20 = ViewRange( X, k+1, 0,   mA,  k   );
         auto x21 = ViewRange( X, k+1, k,   mA,  k+1 );
-        auto XBL = ViewRange( X, k,   0,   mA,  k   );
+        auto XB0 = ViewRange( X, k,   0,   mA,  k   );
 
-        auto y10 = ViewRange( Y, k,   0,   k+1, k   );
-        auto Y20 = ViewRange( Y, k+1, 0,   nA,  k   );
-        auto y21 = ViewRange( Y, k+1, k,   nA,  k+1 );
-        auto Y2L = ViewRange( Y, k+1, 0,   nA,  k+1 );
+        auto y01 = ViewRange( Y, 0, k,   k,   k+1 );
+        auto Y02 = ViewRange( Y, 0, k+1, k,   nA  );
+        auto y12 = ViewRange( Y, k, k+1, k+1, nA  );
+        auto YT2 = ViewRange( Y, 0, k+1, k+1, nA  );
 
         auto delta1   = View( d,  k, 0, 1, 1 );
         auto epsilon1 = View( e,  k, 0, 1, 1 );
         auto tauQ1    = View( tQ, k, 0, 1, 1 );
         auto tauP1    = View( tP, k, 0, 1, 1 );
 
-        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlign() );
-        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
-        const bool nextIsMyCol = ( g.Col() == a12.RowAlign() ) ;
-
-        // Update the current column of A:
-        //   aB1 := aB1 - ABL y10^H - XBL a01
+        // Apply all previous reflectors to aB1:
+        //   aB1 := aB1 - AB0 y01 - XB0 conj(a01)
         if( k > 0 )
         {
-            Conjugate( y10 );
-            y10_STAR_MR.AlignWith( ABL );
-            y10_STAR_MR = y10;
-            // uB1[MC,* ] := ABL[MC,MR] y10^H[MR,* ]
-            a01_MR_STAR.AlignWith( ABL );
+            y01_MR_STAR.AlignWith( AB0 );
+            a01_MR_STAR.AlignWith( AB0 );
+            y01_MR_STAR = y01;
             a01_MR_STAR = a01;
-            uB1_MC_STAR.AlignWith( ABL );
-            Zeros( uB1_MC_STAR, ABL.Height(), 1 );
-            LocalGemv( NORMAL, F(1), ABL, y10_STAR_MR, F(0), uB1_MC_STAR );
-            // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
-            //             = ABL[MC,MR] y10^H[MR,* ] + XBL[MC,MR] a01[MR,* ]
-            LocalGemv( NORMAL, F(1), XBL, a01_MR_STAR, F(1), uB1_MC_STAR );
+
+            zB1_MC_STAR.AlignWith( aB1 );
+            Zeros( zB1_MC_STAR, aB1.Height(), 1 );
+            // zB1[MC,* ] := AB0[MC,MR] y01[MR,* ] + XB0[MC,MR] conj(a01[MR,* ])
+            LocalGemv( NORMAL, F(1), AB0, y01_MR_STAR, F(0), zB1_MC_STAR );
+            Conjugate( a01_MR_STAR );
+            LocalGemv( NORMAL, F(1), XB0, a01_MR_STAR, F(1), zB1_MC_STAR );
             // Sum the partial contributions and subtract from aB1
-            aB1.SumScatterUpdate( F(-1), uB1_MC_STAR );
+            aB1.SumScatterUpdate( F(-1), zB1_MC_STAR );
         }
 
         // Find tauQ and u such that
-        //     I - tauQ | 1 | | 1, u^H | | alpha11 | = | delta |
-        //              | u |            |   a21   | = |   0   |
-        F tauQ = 0;
-        if( thisIsMyCol )
+        //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | delta |
+        //  \          | u |            / |     a21 |   |    0  |
+        const F tauQ = LeftReflector( alpha11, a21 );
+        tauQ1.Set(0,0,tauQ);
+        if( delta1.IsLocal(0,0) )
         {
-            tauQ = reflector::Col( alpha11, a21 );
-            if( thisIsMyRow )
-            {
-                tauQ1.SetLocal(0,0,tauQ);
-                // Store delta and force | alpha11 | = | 1 |
-                //                       |   a21   |   | u |
-                delta1.SetLocal(0,0,alpha11.GetLocalRealPart(0,0));
-                alpha11.SetLocal(0,0,F(1));
-            }
+            // Store delta and force | alpha11 | = | 1 |
+            //                       |   a21   |   | u |
+            delta1.SetLocal(0,0,alpha11.GetLocalRealPart(0,0));
+            alpha11.SetLocal(0,0,F(1));
         }
 
-        // y21 := conj(tauQ) ( AB2^H aB1 - A02^H XBL^H aB1 - Y20 ABL^H aB1 )
-        // -----------------------------------------------------------------
+        // Form half of the left-reflector using an implicitly-updated AB2:
+        // y12 := tauQ aB1^H ( AB2 - AB0 Y02 - XB0 conj(A02) )
+        //      = tauQ ( aB1^H AB2 - (aB1^H AB0) Y02 - (aB1^H XB0) conj(A02) )
+        //      = tauQ ( AB2^H aB1 - Y02^H (AB0^H aB1) - A02^T (XB0^H aB1) )^H
+        // -------------------------------------------------------------------
         aB1_MC_STAR = aB1;
-        // z01[MR,* ] := ABL^H[MR,MC] aB1[MC,* ]
-        z01_MR_STAR.AlignWith( ABL );
-        Zeros( z01_MR_STAR, k, 1 );
-        LocalGemv( ADJOINT, F(1), ABL, aB1_MC_STAR, F(0), z01_MR_STAR );
+
         // z21[MR,* ] := AB2^H[MR,MC] aB1[MC,* ]
         z21_MR_STAR.AlignWith( AB2 );
         Zeros( z21_MR_STAR, A22.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB2, aB1_MC_STAR, F(0), z21_MR_STAR );
-        // Sum the partial contributions
+
+        // z01[MR,* ] := AB0^H[MR,MC] aB1[MC,* ]
+        z01_MR_STAR.AlignWith( AB0 );
+        Zeros( z01_MR_STAR, AB0.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), AB0, aB1_MC_STAR, F(0), z01_MR_STAR );
         z01_MR_STAR.SumOverCol();
-        // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^H aB1)[MR,* ]
-        z21_MC_STAR.AlignWith( Y20 );
-        Zeros( z21_MC_STAR, A22.Width(), 1 );
-        LocalGemv( NORMAL, F(1), Y20, z01_MR_STAR, F(0), z21_MC_STAR );
-        // z01[MR,* ] := XBL^H[MR,MC] aB1[MC,* ]
-        LocalGemv( ADJOINT, F(1), XBL, aB1_MC_STAR, F(0), z01_MR_STAR );
-        // Sum the partial contributions to z01[MR,* ] and scatter the result
-        z01_MR_MC.SumScatterFrom( z01_MR_STAR );
-        // Redistribute the scattered summation
+        z01_MC_STAR.AlignWith( Y02 );
+        z01_MC_STAR = z01_MR_STAR;
+        // z21[MR,* ] -= Y02^H[MR,MC] z01[MC,* ] 
+        LocalGemv( ADJOINT, F(-1), Y02, z01_MC_STAR, F(1), z21_MR_STAR );
+
+        // z01[MR,* ] := XB0^H[MR,MC] aB1[MC,* ]
+        z01_MR_STAR.AlignWith( XB0 );
+        Zeros( z01_MR_STAR, XB0.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), XB0, aB1_MC_STAR, F(0), z01_MR_STAR );
+        z01_MR_STAR.SumOverCol();
         z01_MC_STAR.AlignWith( A02 );
-        z01_MC_STAR = z01_MR_MC;
-        // z21[MR,* ] := z21[MR,* ] - A02^H[MR,MC] z01[MC,* ]
-        //             = AB2^H[MR,MC] aB1[MC,* ] - 
-        //               A02^H[MR,MC] (XBL^H aB1)[MC,* ]
-        LocalGemv( ADJOINT, F(-1), A02, z01_MC_STAR, F(1), z21_MR_STAR );
-        // Sum the partial contributions to z21[MR,* ] and scatter the result
+        z01_MC_STAR = z01_MR_STAR;
+        // z21[MR,* ] -= A02^T[MR,MC] (XB0^H aB1)[MC,* ]
+        LocalGemv( TRANSPOSE, F(-1), A02, z01_MC_STAR, F(1), z21_MR_STAR );
+
+        // Finally perform the column summation and then scale by tau
+        z21_MR_MC.AlignWith( y12 );
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
-        // Redistribute (and rename) the scattered summation
-        y21 = z21_MR_MC;
-        // Subtract z21 = Y20 ABL^H aB1 from y21
-        y21.SumScatterUpdate( F(-1), z21_MC_STAR );
-        if( thisIsMyCol )
-            Scale( Conj(tauQ), y21 );
+        Adjoint( z21_MR_MC, y12 );
+        Scale( tauQ, y12 );
 
-        //
-        // y21 := y21 + Y20 a10^H
-        //
-        Conjugate( a10 );
-        a10_STAR_MR.AlignWith( Y20 );
-        a10_STAR_MR = a10;
-        Conjugate( a10 );
-        // q21[MC,* ] := Y20[MC,MR] a10^H[MR,* ]
-        q21_MC_STAR.AlignWith( Y20 );
-        Zeros( q21_MC_STAR, A22.Width(), 1 );
-        LocalGemv( NORMAL, F(1), Y20, a10_STAR_MR, F(0), q21_MC_STAR );
+        // Apply all previous reflectors to a12:
+        // a12 := a12 - a1L yT2           - x10 conj(A02)
+        //      = a12 - (a10 Y02 + 1*y12) - x10 conj(A02)
+        // ----------------------------------------------
+        // a12 := a12 - a10 Y02 
+        // ^^^^^^^^^^^^^^^^^^^^
+        a10_STAR_MC.AlignWith( Y02 );
+        a10_STAR_MC = a10;
+        // z21[MR,* ] := Y02^T[MR,MC] a10^T[MC,* ]
+        z21_MR_STAR.AlignWith( Y02 );
+        Zeros( z21_MR_STAR, Y02.Width(), 1 );
+        LocalGemv( TRANSPOSE, F(1), Y02, a10_STAR_MC, F(0), z21_MR_STAR );
         // Sum the partial contributions
-        q21.AlignWith( y21 );
-        q21.SumScatterFrom( q21_MC_STAR );
-        if( thisIsMyCol )
-            Axpy( F(1), y21, q21 );
+        a12.TransposeSumScatterUpdate( F(-1), z21_MR_STAR );
 
-        //
-        // a12 := conj(a12 - a10 Y20^H - x10 A02)
-        //
-        Conjugate( x10 );
+        // a12 := a12 - y12
+        // ^^^^^^^^^^^^^^^^
+        Axpy( F(-1), y12, a12 );
+
+        // a12 := a12 - x10 conj(A02)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^
         x10_STAR_MC.AlignWith( A02 );
         x10_STAR_MC = x10;
-        Conjugate( x10 );
-        q21_MR_MC.AlignWith( a12 );
-        q21_MR_MC = q21;
-        // q21[MR,* ] := A02^H[MR,MC] x10^H[MC,* ]
-        q21_MR_STAR.AlignWith( A02 );
-        Zeros( q21_MR_STAR, A22.Width(), 1 );
-        LocalGemv( ADJOINT, F(1), A02, x10_STAR_MC, F(0), q21_MR_STAR );
-        // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^H)[MR,MC]
-        q21_MR_MC.SumScatterUpdate( F(1), q21_MR_STAR );
-        // a12 := conj(a12) - q21^T = conj(a12 - a10 Y20^H - x10 A02)
-        Conjugate( a12 );
-        if( thisIsMyRow )
-        {
-            const Int localWidth = a12.LocalWidth();
-            F* a12Buffer = a12.Buffer();
-            const F* q21Buffer = q21_MR_MC.LockedBuffer();
-            const Int a12LDim = a12.LDim();
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                a12Buffer[jLoc*a12LDim] -= q21Buffer[jLoc];
-        }
+        // z21[MR,* ] := A02^H[MR,MC] x10^T[MC,* ]
+        z21_MR_STAR.AlignWith( A02 );
+        Zeros( z21_MR_STAR, A02.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), A02, x10_STAR_MC, F(0), z21_MR_STAR );
+        // Sum the partial contributions
+        a12.TransposeSumScatterUpdate( F(-1), z21_MR_STAR );
 
         // Find tauP and v such that
-        //     I - tauP | 1 | | 1, v^H | | alpha12L | = | epsilon |
-        //              | v |            |  a12R^T  |   |    0    |
-        F tauP = 0;
-        if( thisIsMyRow )
+        //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilon 0|
+        //                  \         |v^T|             /
+        const F tauP = RightReflector( alpha12L, a12R );
+        tauP1.Set(0,0,tauP);
+        if( epsilon1.IsLocal(0,0) )
         {
-            tauP = reflector::Row( alpha12L, a12R );
-            if( nextIsMyCol )
-            {
-                tauP1.SetLocal(0,0,tauP);
-                // Store epsilon and force | alpha12L | = | 1 |
-                //                         |  a12R^T  |   | v |
-                epsilon1.SetLocal(0,0,alpha12L.GetLocalRealPart(0,0));
-                alpha12L.SetLocal(0,0,F(1));
-            }
+            // Store epsilon and force | alpha12L | = | 1 |
+            //                         |  a12R^T  |   | v |
+            epsilon1.SetLocal(0,0,alpha12L.GetLocalRealPart(0,0));
+            alpha12L.SetLocal(0,0,F(1));
         }
-        mpi::Broadcast( &tauP, 1, alpha11.ColAlign(), g.ColComm() );
 
-        //
-        // (Keep in mind that a12 is currently overwritten with its conjugate.
-        //  We will use the 'true' value in the following comments.)
-        //
-        // x21 := conj(tauP) ( A22 a12^H - A2L Y2L^H a12^H - X20 A02 a12^H )
-        //
-        a12_STAR_MC.AlignWith( Y2L );
+        // Form half of the right-reflector using an implicitly-updated A22:
+        // x21 := tauP (A22 - A2L YT2 - X20 conj(A02)) a12^T
+        //      = tauP (A22 a12^T - A2L (YT2 a12^T) - X20 (conj(A02) a12^T))
+        // -----------------------------------------------------------------
         a12_STAR_MR = a12;
-        a12_STAR_MC = a12;
-        // s21[MC,* ] := A22[MC,MR] a12^H[MR,* ]
-        s21_MC_STAR.AlignWith( A22 );
-        Zeros( s21_MC_STAR, A22.Height(), 1 );
-        LocalGemv( NORMAL, F(1), A22, a12_STAR_MR, F(0), s21_MC_STAR );
-        // sB1[MR,* ] := Y2L^H[MR,MC] a12^H[MC,* ]
-        sB1_MR_STAR.AlignWith( Y2L );
-        Zeros( sB1_MR_STAR, Y2L.Width(), 1 );
-        LocalGemv( ADJOINT, F(1), Y2L, a12_STAR_MC, F(0), sB1_MR_STAR );
-        // Sum the partial contributions
-        sB1_MR_STAR.SumOverCol(); 
-        // s21[MC,* ] := s21[MC,* ] - A2L[MC,MR] sB1[MR,* ]
-        //             = A22[MC,MR] a12^H[MR,* ] - A2L[MC,MR] sB1[MR,* ]
-        // (still needs to be summed within each process row)
-        LocalGemv( NORMAL, F(-1), A2L, sB1_MR_STAR, F(1), s21_MC_STAR );
-        // s01[MC,* ] := A02[MC,MR] a12^H[MR,* ]
-        s01_MC_STAR.AlignWith( A02 );
-        Zeros( s01_MC_STAR, k, 1 );
-        LocalGemv( NORMAL, F(1), A02, a12_STAR_MR, F(0), s01_MC_STAR );
-        // Sum the partial contributions and then redistribute
-        s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
-        s01_MR_STAR.AlignWith( X20 );
-        s01_MR_STAR = s01;
-        // s21[MC,* ] := s21[MC,* ] - X20[MC,MR] s01[MR,* ]
-        //             = A22[MC,MR] a12^H[MR,* ] - A2L[MC,MR] sB1[MR,* ]
-        //                                       - X20[MC,MR] s01[MR,* ]
-        LocalGemv( NORMAL, F(-1), X20, s01_MR_STAR, F(1), s21_MC_STAR );
-        // Sum the partial contributions into x21
-        x21.SumScatterFrom( s21_MC_STAR );
-        Scale( Conj(tauP), x21.Matrix() );
 
-        // Undo the in-place conjugation of a12
-        Conjugate( a12 );
+        // z21[MC,* ] := A22[MC,MR] a12^T[MR,* ]
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        z21_MC_STAR.AlignWith( A22 );
+        Zeros( z21_MC_STAR, A22.Height(), 1 );
+        LocalGemv( NORMAL, F(1), A22, a12_STAR_MR, F(0), z21_MC_STAR );
+       
+        // z21[MC,* ] -= A2L[MC,MR] (YT2 a12^T)[MR,* ]
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // zT1[MC,* ] := YT2[MC,MR] a12^T[MR,* ]
+        zT1_MC_STAR.AlignWith( YT2 );
+        Zeros( zT1_MC_STAR, YT2.Height(), 1 );
+        LocalGemv( NORMAL, F(1), YT2, a12_STAR_MR, F(0), zT1_MC_STAR );
+        zT1_MC_STAR.SumOverRow(); 
+        // Redistribute and perform local Gemv 
+        zT1_MR_STAR.AlignWith( A2L );
+        zT1_MR_STAR = zT1_MC_STAR;
+        LocalGemv( NORMAL, F(-1), A2L, zT1_MR_STAR, F(1), z21_MC_STAR );
+
+        // z21[MC,* ] -= X20[MC,MR] (conj(A02) a12^T)[MR,* ]
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // z01[MC,* ] := conj(A02[MC,MR] a12^H[MR,* ])
+        z01_MC_STAR.AlignWith( A02 ); 
+        Zeros( z01_MC_STAR, A02.Height(), 1 );
         Conjugate( a12_STAR_MR );
+        LocalGemv( NORMAL, F(1), A02, a12_STAR_MR, F(0), z01_MC_STAR );
+        Conjugate( a12_STAR_MR );
+        Conjugate( z01_MC_STAR );
+        z01_MC_STAR.SumOverRow();
+        // Redistribute and perform local Gemv
+        z01_MR_STAR.AlignWith( X20 );
+        z01_MR_STAR = z01_MC_STAR;
+        LocalGemv( NORMAL, F(-1), X20, z01_MR_STAR, F(1), z21_MC_STAR );
+        // Sum the various contributions within process rows
+        x21.SumScatterFrom( z21_MC_STAR );
+        Scale( tauP, x21 );
     }
 
     // Put back d and e

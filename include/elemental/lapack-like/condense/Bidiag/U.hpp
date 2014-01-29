@@ -27,8 +27,60 @@ template<typename F>
 inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
     DEBUG_ONLY(CallStackEntry cse("bidiag::U"))
-    // TODO: Sequential blocked implementation
-    UUnb( A, tP, tQ );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    DEBUG_ONLY(
+        if( m < n ) 
+            LogicError("A must be at least as tall as it is wide");
+        // Are these requirements necessary?!?
+        if( tP.Viewing() || tQ.Viewing() )
+            LogicError("tP and tQ must not be views");
+    )
+    const Int tPHeight = Max(n-1,0);
+    const Int tQHeight = n;
+    tP.Resize( tPHeight, 1 );
+    tQ.Resize( tQHeight, 1 );
+
+    Matrix<F> X, Y;
+
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
+    {
+        const Int nb = Min(bsize,n-k);
+        auto A22 = ViewRange( A, k+nb, k+nb, m, n );
+        auto ABR = ViewRange( A, k,    k,    m, n );
+        if( A22.Width() > 0 )
+        {
+            auto tP1 = View( tP, k, 0, nb, 1 );
+            auto tQ1 = View( tQ, k, 0, nb, 1 );
+            X.Resize( m-k, nb  );
+            Y.Resize( nb,  n-k );
+            bidiag::PanelU( ABR, tP1, tQ1, X, Y );
+
+            auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
+            auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
+            auto X21 = ViewRange( X, nb, 0,  m-k, nb  );
+            auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
+
+            // Set bottom-left entry of A12 to 1
+            const F delta = A12.Get(nb-1,0);
+            A12.Set(nb-1,0,F(1));
+
+            Gemm( NORMAL, NORMAL, F(-1), A21, Y12, F(1), A22 );
+            Conjugate( A12 );
+            Gemm( NORMAL, NORMAL, F(-1), X21, A12, F(1), A22 );
+            Conjugate( A12 );
+
+            // Put back bottom-left entry of A12
+            A12.Set(nb-1,0,delta);
+        }
+        else
+        {
+            auto tP1 = View( tP, k, 0, nb-1, 1 );
+            auto tQ1 = View( tQ, k, 0, nb,   1 );
+            bidiag::UUnb( ABR, tP1, tQ1 );
+        }
+    }
 }
 
 template<typename F> 
@@ -60,8 +112,10 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
     tQDiag.Resize( tQHeight, 1 );
 
     DistMatrix<F> X(g), Y(g);
-    DistMatrix<F,MC,  STAR> X21_MC_STAR(g), AColPan_MC_STAR(g);
-    DistMatrix<F,MR,  STAR> Y21_MR_STAR(g);
+    DistMatrix<F,MC,STAR> X21_MC_STAR(g);
+    DistMatrix<F,MR,STAR> Y12Adj_MR_STAR(g);
+
+    DistMatrix<F,MC,  STAR> AColPan_MC_STAR(g);
     DistMatrix<F,STAR,MR  > ARowPan_STAR_MR(g);
 
     const Int bsize = Blocksize();
@@ -79,8 +133,8 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         {
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
-            X.Resize( m-k, nb );
-            Y.Resize( n-k, nb );
+            X.Resize( m-k, nb  );
+            Y.Resize( nb,  n-k );
 
             AColPan_MC_STAR.AlignWith( A11 );
             ARowPan_STAR_MR.AlignWith( A11 );
@@ -92,17 +146,19 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
             bidiag::PanelU
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
-            auto X21 = ViewRange( X, nb, 0, m-k, nb );
-            auto Y21 = ViewRange( Y, nb, 0, n-k, nb );
+            auto X21 = ViewRange( X, nb, 0,  m-k, nb  );
+            auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
             X21_MC_STAR.AlignWith( A21 );
-            Y21_MR_STAR.AlignWith( A12 );
+            Y12Adj_MR_STAR.AlignWith( A12 );
             X21_MC_STAR = X21;
-            Y21_MR_STAR = Y21;
+            Y12Adj_MR_STAR.AdjointFrom( Y12 );
 
             auto A21_MC_STAR = ViewRange( AColPan_MC_STAR, nb, 0, m-k, nb );
             auto A12_STAR_MR = ViewRange( ARowPan_STAR_MR, 0, nb, nb, n-k );
+
             LocalGemm
-            ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y21_MR_STAR, F(1), A22 );
+            ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y12Adj_MR_STAR, F(1), A22 );
+            Conjugate( A12_STAR_MR );
             LocalGemm
             ( NORMAL, NORMAL, F(-1), X21_MC_STAR, A12_STAR_MR, F(1), A22 );
         }

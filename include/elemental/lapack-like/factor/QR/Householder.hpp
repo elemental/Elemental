@@ -41,12 +41,12 @@ Householder( Matrix<F>& A, Matrix<F>& t )
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
-        auto ALeftPan  = ViewRange( A, k, k,    m, k+nb );
-        auto ARightPan = ViewRange( A, k, k+nb, m, n    ); 
+        auto AB1 = ViewRange( A, k, k,    m, k+nb );
+        auto AB2 = ViewRange( A, k, k+nb, m, n    ); 
         auto t1 = View( t, k, 0, nb, 1 );
 
-        PanelHouseholder( ALeftPan, t1 );
-        ApplyQ( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
+        PanelHouseholder( AB1, t1 );
+        ApplyQ( LEFT, ADJOINT, AB1, t1, AB2 );
     }
 }
 
@@ -79,12 +79,12 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
-        auto ALeftPan  = ViewRange( A, k, k,    m, k+nb );
-        auto ARightPan = ViewRange( A, k, k+nb, m, n    ); 
+        auto AB1 = ViewRange( A, k, k,    m, k+nb );
+        auto AB2 = ViewRange( A, k, k+nb, m, n    ); 
         auto t1 = View( t, k, 0, nb, 1 );
 
-        PanelHouseholder( ALeftPan, t1 );
-        ApplyQ( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
+        PanelHouseholder( AB1, t1 );
+        ApplyQ( LEFT, ADJOINT, AB1, t1, AB2 );
     }
 }
 

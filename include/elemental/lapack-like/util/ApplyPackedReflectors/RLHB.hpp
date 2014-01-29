@@ -10,6 +10,7 @@
 #ifndef ELEM_APPLYPACKEDREFLECTORS_RLHB_HPP
 #define ELEM_APPLYPACKEDREFLECTORS_RLHB_HPP
 
+#include ELEM_CONJUGATE_INC
 #include ELEM_MAKETRIANGULAR_INC
 #include ELEM_SETDIAGONAL_INC
 #include ELEM_GEMM_INC
@@ -26,15 +27,14 @@ namespace apply_packed_reflectors {
 // Since applying Householder transforms from vectors stored bottom-to-top
 // implies that we will be forming a generalization of
 //
-//   (I - tau_1 v_1^H v_1) (I - tau_0 v_0^H v_0) = 
-//   I - tau_0 v_0^H v_0 - tau_1 v_1^H v_1 + (tau_0 tau_1 v_1 v_0^H) v_1^H v_0 =
-//   I - [ v_0^H, v_1^H ] [  tau_0,                 0     ] [ v_0 ]
-//                        [ -tau_0 tau_1 v_1 v_0^H, tau_1 ] [ v_1 ],
+//  (I - tau_1 v_1^T conj(v_1)) (I - tau_0 v_0^T conj(v_0)) = 
+//  I - [ v_0^T, v_1^T ] [  tau_0,                       0     ] [ conj(v_0) ]
+//                       [ -tau_0 tau_1 conj(v_1) v_0^T, tau_1 ] [ conj(v_1) ],
 //
 // which has a lower-triangular center matrix, say S, we will form S as 
 // the inverse of a matrix T, which can easily be formed as
 // 
-//   tril(T) = tril( V V^H ),  diag(T) = 1/t or 1/conj(t),
+//   tril(T) = tril( conj(V V^H) ),  diag(T) = 1/t or 1/conj(t),
 //
 // where V is the matrix of Householder vectors and t is the vector of scalars.
 //
@@ -56,7 +56,7 @@ RLHB
         if( t.Height() != diagLength )
             LogicError("t must be the same length as H's offset diag");
     )
-    Matrix<F> HPanCopy, SInv, Z;
+    Matrix<F> HPanConj, SInv, Z;
 
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
@@ -73,16 +73,16 @@ RLHB
         auto ALeft = ViewRange( A, 0, 0, m, kj+nb );
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
-        HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, 0, RIGHT );
-        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
+        Conjugate( HPan, HPanConj );
+        MakeTrapezoidal( LOWER, HPanConj, 0, RIGHT );
+        SetDiagonal( HPanConj, F(1), 0, RIGHT );
 
-        Herk( LOWER, NORMAL, F(1), HPanCopy, SInv );
+        Herk( LOWER, NORMAL, F(1), HPanConj, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( NORMAL, ADJOINT, F(1), ALeft, HPanCopy, Z );
+        Gemm( NORMAL, ADJOINT, F(1), ALeft, HPanConj, Z );
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
-        Gemm( NORMAL, NORMAL, F(-1), Z, HPanCopy, F(1), ALeft );
+        Gemm( NORMAL, NORMAL, F(-1), Z, HPanConj, F(1), ALeft );
     }
 }
 
@@ -106,7 +106,7 @@ RLHB
             LogicError("t must be aligned with H's 'offset' diagonal");
     )
     const Grid& g = H.Grid();
-    DistMatrix<F> HPanCopy(g);
+    DistMatrix<F> HPanConj(g);
     DistMatrix<F,STAR,VR  > HPan_STAR_VR(g);
     DistMatrix<F,STAR,MR  > HPan_STAR_MR(g);
     DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
@@ -129,11 +129,11 @@ RLHB
         auto ALeft = ViewRange( A, 0, 0, m, kj+nb );
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
-        HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, 0, RIGHT );
-        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
+        Conjugate( HPan, HPanConj );
+        MakeTrapezoidal( LOWER, HPanConj, 0, RIGHT );
+        SetDiagonal( HPanConj, F(1), 0, RIGHT );
 
-        HPan_STAR_VR = HPanCopy;
+        HPan_STAR_VR = HPanConj;
         Zeros( SInv_STAR_STAR, nb, nb );
         Herk
         ( LOWER, NORMAL,

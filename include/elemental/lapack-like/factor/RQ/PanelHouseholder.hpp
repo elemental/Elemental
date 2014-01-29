@@ -31,27 +31,32 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
     const Int iOff = ( n>=m ? 0   : m-n );
     const Int jOff = ( n>=m ? n-m : 0   );
 
-    Matrix<F> z, aBottomRowConj;
+    Matrix<F> z01;
     for( Int k=minDim-1; k>=0; --k )
     {
         const Int ki = k + iOff;
         const Int kj = k + jOff;
-        auto a10        = ViewRange( A, ki, 0,  ki+1, kj   );
-        auto alpha11    = ViewRange( A, ki, kj, ki+1, kj+1 );
-        auto ATopPan    = ViewRange( A, 0,  0,  ki,   kj+1 );
-        auto aBottomRow = ViewRange( A, ki, 0,  ki+1, kj+1 );
+        auto a10     = ViewRange( A, ki, 0,  ki+1, kj   );
+        auto alpha11 = ViewRange( A, ki, kj, ki+1, kj+1 );
+        auto A0L     = ViewRange( A, 0,  0,  ki,   kj+1 );
+        auto a1L     = ViewRange( A, ki, 0,  ki+1, kj+1 );
 
-        // Compute the Householder reflector
-        const F tau = Reflector( alpha11, a10 );
+        // Find tau and v such that
+        //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
+        //                \        |1  |            /
+        const F tau = RightReflector( alpha11, a10 );
         t.Set( k, 0, tau );
 
-        // Apply the Householder reflector
+        // Temporarily set a1L = | v 1 |
         const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
-        Conjugate( aBottomRow, aBottomRowConj );
-        Zeros( z, ATopPan.Height(), 1 );
-        Gemv( NORMAL, F(1), ATopPan, aBottomRowConj, F(0), z );
-        Ger( -tau, z, aBottomRowConj, ATopPan );
+
+        // A2R := A2R (I - tau a1L^T conj(a1L))
+        Zeros( z01, A0L.Height(), 1 );
+        Gemv( NORMAL, F(1), A0L, a1L, F(0), z01 );
+        Ger( -tau, z01, a1L, A0L );
+
+        // Reset alpha11's value
         alpha11.Set(0,0,alpha);
     }
 }
@@ -85,44 +90,43 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int jOff = ( n>=m ? n-m : 0   );
 
     const Grid& g = A.Grid();
-    DistMatrix<F> aBottomRowConj(g);
-    DistMatrix<F,STAR,MR  > aBottomRowConj_STAR_MR(g);
-    DistMatrix<F,MC,  STAR> z_MC_STAR(g);
+    DistMatrix<F,STAR,MR  > a1L_STAR_MR(g);
+    DistMatrix<F,MC,  STAR> z01_MC_STAR(g);
 
     for( Int k=minDim-1; k>=0; --k )
     {
         const Int ki = k + iOff;
         const Int kj = k + jOff;
-        auto a10        = ViewRange( A, ki, 0,  ki+1, kj   );
-        auto alpha11    = ViewRange( A, ki, kj, ki+1, kj+1 );
-        auto ATopPan    = ViewRange( A, 0,  0,  ki,   kj+1 );
-        auto aBottomRow = ViewRange( A, ki, 0,  ki+1, kj+1 );
+        auto a10     = ViewRange( A, ki, 0,  ki+1, kj   );
+        auto alpha11 = ViewRange( A, ki, kj, ki+1, kj+1 );
+        auto A0L     = ViewRange( A, 0,  0,  ki,   kj+1 );
+        auto a1L     = ViewRange( A, ki, 0,  ki+1, kj+1 );
 
-        // Compute the Householder reflector
-        const F tau = Reflector( alpha11, a10 );
+        // Find tau and v such that
+        //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
+        //                \        |1  |            /
+        const F tau = RightReflector( alpha11, a10 );
         t.Set( k, 0, tau );
 
-        // Apply the Householder reflector
-        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlign() && 
-                                       g.Col() == alpha11.RowAlign() );
+        // Temporarily set a1L = | v 1 |
         F alpha = 0;
-        if( myDiagonalEntry )
+        if( alpha11.IsLocal(0,0) )
         {
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
-        Conjugate( aBottomRow, aBottomRowConj );
-        aBottomRowConj_STAR_MR = aBottomRowConj;
-        Zeros( z_MC_STAR, ATopPan.Height(), 1 );
-        LocalGemv
-        ( NORMAL, F(1), ATopPan, aBottomRowConj_STAR_MR, F(0), z_MC_STAR );
-        z_MC_STAR.SumOverRow(); 
+
+        // A2R := A2R (I - tau a1L^T conj(a1L))
+        a1L_STAR_MR = a1L;
+        Zeros( z01_MC_STAR, A0L.Height(), 1 );
+        LocalGemv( NORMAL, F(1), A0L, a1L_STAR_MR, F(0), z01_MC_STAR );
+        z01_MC_STAR.SumOverRow(); 
         Ger
-        ( -tau, 
-          z_MC_STAR.LockedMatrix(),
-          aBottomRowConj_STAR_MR.LockedMatrix(),
-          ATopPan.Matrix() ); 
-        if( myDiagonalEntry )
+        ( -tau, z01_MC_STAR.LockedMatrix(), a1L_STAR_MR.LockedMatrix(),
+          A0L.Matrix() ); 
+
+        // Reset alpha11's value
+        if( alpha11.IsLocal(0,0) )
             alpha11.SetLocal(0,0,alpha);
     }
 }

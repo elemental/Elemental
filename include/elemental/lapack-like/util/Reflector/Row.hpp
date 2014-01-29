@@ -99,6 +99,10 @@ Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 
     if( rowRank == rowAlign )
         chi.SetLocal(0,0,beta);
+
+    // This is to make this a reflector meant to be applied from the right;
+    // there is no need to conjugate chi, as it is real
+    Conjugate( x );
         
     return tau;
 }

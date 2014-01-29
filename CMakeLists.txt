@@ -684,8 +684,8 @@ if(ELEM_TESTS)
     Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv TwoSidedTrmm
     TwoSidedTrsm)
   set(lapack-like_TESTS 
-    ApplyPackedReflectors Cholesky CholeskyQR HermitianTridiag LDL LU LQ QR RQ
-    SequentialLU TriangularInverse TSQR)
+    ApplyPackedReflectors Bidiag Cholesky CholeskyQR HermitianTridiag LDL LU LQ
+    QR RQ SequentialBidiag SequentialLU TriangularInverse TSQR)
   if(HAVE_PMRRR)
     list(APPEND lapack-like_TESTS HermitianEig HermitianGenDefiniteEig)
   endif()

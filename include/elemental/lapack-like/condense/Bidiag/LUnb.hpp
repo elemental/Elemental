@@ -51,50 +51,37 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         auto a1R     = ViewRange( A, k,   k,   k+1, n   );
         auto A2R     = ViewRange( A, k+1, k,   m,   n   );
 
-        // Due to deficiencies in the BLAS ?gemv routines, this section is 
-        // easier if we temporarily conjugate a1R = | alpha11, a12 |
-        Conjugate( a1R );
-
         // Find tauP and v such that
-        //     I - tauP | 1 | | 1, v^H | | alpha11 | = | epsilonP | 
-        //              | v |            |   a12^T |   |    0     |
-        const F tauP = Reflector( alpha11, a12 );
+        //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
+        //                  \          | v^T |                /
+        const F tauP = RightReflector( alpha11, a12 );
         tP.Set(k,0,tauP);
 
-        // Temporarily set a1R^T = | 1 |
-        //                         | v |
+        // Temporarily set a1R = | 1 v |
         const F epsilonP = alpha11.Get(0,0);
         alpha11.Set(0,0,F(1));
 
-        // Apply conj(Hous(a1R^T,tauP)) from the right
-        // -------------------------------------------
-        // w21 := A2R a1R^T = A2R | 1 |
-        //                        | v |
+        // Apply Hous(a1R^T,tauP) from the right
+        // -------------------------------------
+        // w21 := A2R a1R^T = A2R |   1 |
+        //                        | v^T |
         Zeros( w21, a21.Height(), 1 );
         Gemv( NORMAL, F(1), A2R, a1R, F(0), w21 );
-        // A2R := A2R - conj(tauP) w21 conj(a1R)
-        //      = A2R conj(I - tauP a1R^H a1R)
-        // which compensates for the fact that the reflector was generated
-        // on the conjugated a1R.
-        Ger( -Conj(tauP), w21, a1R, A2R );
+        // A2R := A2R - tauP w21 conj(a1R)
+        Ger( -tauP, w21, a1R, A2R );
 
         // Put epsilonP back 
         alpha11.Set(0,0,epsilonP);
 
-        // Undo the temporary conjugation
-        Conjugate( a1R );
-
         if( A22.Height() != 0 )
         {
             // Expose the subvector we seek to zero, a21B
-            PartitionDown
-            ( a21, alpha21T,
-                   a21B, 1 );
+            PartitionDown( a21, alpha21T, a21B, 1 );
 
             // Find tauQ and u such that
-            //     I - tauQ | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
-            //              | u |            |   a21B   | = |    0     |
-            const F tauQ = Reflector( alpha21T, a21B );
+            //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
+            //  \          | u |            / | a21B     | = |    0     |
+            const F tauQ = LeftReflector( alpha21T, a21B );
             tQ.Set(k,0,tauQ);
 
             // Temporarily set a21 = | 1 |
@@ -150,27 +137,22 @@ inline void LUnb
         auto a1R     = ViewRange( A, k,   k,   k+1, n   );
         auto A2R     = ViewRange( A, k+1, k,   m,   n   );
 
-        // Due to deficiencies in the BLAS ?gemv routines, this section is
-        // easier if we temporary conjugate a1R = | alpha11, a12 |
-        Conjugate( a1R );
-
-        // Find tauP and u such that
-        //     I - tauP | 1 | | 1, v^H | | alpha11 | = | epsilonP |
-        //              | v |            |   a12^T | = |    0     |
-        const F tauP = Reflector( alpha11, a12 );
+        // Find tauP and v such that
+        //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
+        //                  \          | v^T |                /
+        const F tauP = RightReflector( alpha11, a12 );
         tP.Set(k,0,tauP);
 
-        // Temporarily set a1R^T = | 1 |
-        //                         | v |
+        // Temporarily set a1R = | 1 v |
         F epsilonP=0;
         if( alpha11.IsLocal(0,0) )
             epsilonP = alpha11.GetLocal(0,0);
         alpha11.Set(0,0,F(1));
 
-        // Apply conj(Hous(a1R^T,tauP)) from the right
-        // -------------------------------------------
-        // w21 := A2R a1R^T = A2R | 1 |
-        //                        | v |
+        // Apply Hous(a1R^T,tauP) from the right
+        // -------------------------------------
+        // w21 := A2R a1R^T = A2R | 1   |
+        //                        | v^T |
         alpha11.Set(0,0,F(1));
         a1R_STAR_MR.AlignWith( A2R );
         a1R_STAR_MR = a1R;
@@ -178,31 +160,23 @@ inline void LUnb
         Zeros( w21_MC_STAR, a21.Height(), 1 );
         LocalGemv( NORMAL, F(1), A2R, a1R_STAR_MR, F(0), w21_MC_STAR );
         w21_MC_STAR.SumOverRow();
-        // A2R := A2R - conj(tauP) w21 conj(a1R)
-        //      = A2R conj(I - tauP a1R^H a1R)
-        // which compensates for the fact that the reflector was generated
-        // on the conjugated a1R
-        LocalGer( -Conj(tauP), w21_MC_STAR, a1R_STAR_MR, A2R );
+        // A2R := A2R - tauP w21 conj(a1R)
+        LocalGer( -tauP, w21_MC_STAR, a1R_STAR_MR, A2R );
 
         // Put epsilonP back 
         if( alpha11.IsLocal(0,0) )
             alpha11.SetLocal(0,0,epsilonP);
 
-        // Undo the temporary conjugation
-        Conjugate( a1R );
-
         if( A22.Height() != 0 )
         {
             // Expose the subvector we seek to zero, a21B
             DistMatrix<F> alpha21T(g), a21B(g);
-            PartitionDown
-            ( a21, alpha21T,
-                   a21B, 1 );
+            PartitionDown( a21, alpha21T, a21B, 1 );
 
             // Find tauQ and u such that
-            //     I - tauQ | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
-            //              | u |            | a21B     | = |    0     |
-            const F tauQ = Reflector( alpha21T, a21B );
+            //  / I - tauQ | 1 | | 1, u^H | \ | alpha21T | = | epsilonQ |
+            //  \          | u |            / | a21B     | = |    0     |
+            const F tauQ = LeftReflector( alpha21T, a21B );
             tQ.Set(k,0,tauQ);
 
             // Temporarily set a21 = | 1 |

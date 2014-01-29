@@ -91,12 +91,12 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
     {
-        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormAOrig << "\n"
-             << "    ||AOrig||_F                = " << frobNormAOrig << "\n"
-             << "    || I - Q^H Q ||_oo         = " << infNormQError << "\n"
-             << "    || I - Q^H Q ||_F          = " << frobNormQError << "\n"
-             << "    ||AOrig - Q^H A Q||_oo     = " << infNormError << "\n"
-             << "    ||AOrig - Q^H A Q||_F      = " << frobNormError << endl;
+        cout << "    ||A||_oo = " << infNormAOrig << "\n"
+             << "    ||A||_F  = " << frobNormAOrig << "\n"
+             << "    || I - Q^H Q ||_oo = " << infNormQError << "\n"
+             << "    || I - Q^H Q ||_F  = " << frobNormQError << "\n"
+             << "    ||A - Q T Q^H||_oo = " << infNormError << "\n"
+             << "    ||A - Q T Q^H||_F  = " << frobNormError << endl;
     }
 }
 

@@ -28,25 +28,32 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
 
-    Matrix<F> z;
+    Matrix<F> z21;
 
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11   = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a21       = ViewRange( A, k+1, k,   m,   k+1 );
-        auto aLeftCol  = ViewRange( A, k,   k,   m,   k+1 );
-        auto ARightPan = ViewRange( A, k,   k+1, m,   n   );
+        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
+        auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
+        auto AB2     = ViewRange( A, k,   k+1, m,   n   );
 
-        // Compute the Householder reflector
-        const F tau = Reflector( alpha11, a21 );
+        // Find tau and u such that
+        //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
+        //  \         | u |            / |     a21 | = |    0 |
+        const F tau = LeftReflector( alpha11, a21 );
         t.Set( k, 0, tau );
 
-        // Apply the Householder reflector
+        // Temporarily set aB1 = | 1 |
+        //                       | u |
         const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
-        Zeros( z, ARightPan.Width(), 1 );
-        Gemv( ADJOINT, F(1), ARightPan, aLeftCol, F(0), z );
-        Ger( -tau, aLeftCol, z, ARightPan );
+
+        // AB2 := (I - tau aB1 aB1^H) AB2
+        Zeros( z21, AB2.Width(), 1 );
+        Gemv( ADJOINT, F(1), AB2, aB1, F(0), z21 );
+        Ger( -tau, aB1, z21, AB2 );
+
+        // Replace alpha11's value
         alpha11.Set(0,0,alpha);
     }
 }
@@ -72,8 +79,8 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
             LogicError("t must be aligned with A's main diagonal");
     )
     const Grid& g = A.Grid();
-    DistMatrix<F,MC,STAR> aLeftCol_MC_STAR(g);
-    DistMatrix<F,MR,STAR> z_MR_STAR(g);
+    DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
+    DistMatrix<F,MR,STAR> z21_MR_STAR(g);
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -82,37 +89,39 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11   = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a21       = ViewRange( A, k+1, k,   m,   k+1 );
-        auto aLeftCol  = ViewRange( A, k,   k,   m,   k+1 );
-        auto ARightPan = ViewRange( A, k,   k+1, m,   n   );
+        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
+        auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
+        auto AB2     = ViewRange( A, k,   k+1, m,   n   );
 
-        // Compute the Householder reflector
-        const F tau = Reflector( alpha11, a21 );
+        // Find tau and u such that
+        //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
+        //  \         | u |            / |     a21 | = |    0 |
+        const F tau = LeftReflector( alpha11, a21 );
         t.Set( k, 0, tau );
 
-        // Apply the Householder reflector
-        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlign() && 
-                                       g.Col() == alpha11.RowAlign() );
+        // Temporarily set aB1 = | 1 |
+        //                       | u |
         F alpha = 0;
-        if( myDiagonalEntry )
+        if( alpha11.IsLocal(0,0) )
         {
             alpha = alpha11.GetLocal(0,0);
-            alpha11.SetLocal(0,0,1);
+            alpha11.SetLocal(0,0,F(1));
         }
-        aLeftCol_MC_STAR.AlignWith( ARightPan );
-        aLeftCol_MC_STAR = aLeftCol;
-        z_MR_STAR.AlignWith( ARightPan );
-        Zeros( z_MR_STAR, ARightPan.Width(), 1 );
-        LocalGemv
-        ( ADJOINT, F(1), ARightPan, aLeftCol_MC_STAR, F(0), z_MR_STAR );
-        z_MR_STAR.SumOverCol(); 
+
+        // AB2 := (I - tau aB1 aB1^H) AB2
+        aB1_MC_STAR.AlignWith( AB2 );
+        aB1_MC_STAR = aB1;
+        z21_MR_STAR.AlignWith( AB2 );
+        Zeros( z21_MR_STAR, AB2.Width(), 1 );
+        LocalGemv( ADJOINT, F(1), AB2, aB1_MC_STAR, F(0), z21_MR_STAR );
+        z21_MR_STAR.SumOverCol(); 
         Ger
-        ( -tau, 
-          aLeftCol_MC_STAR.LockedMatrix(), 
-          z_MR_STAR.LockedMatrix(),
-          ARightPan.Matrix() );
-        if( myDiagonalEntry )
+        ( -tau, aB1_MC_STAR.LockedMatrix(), z21_MR_STAR.LockedMatrix(),
+          AB2.Matrix() );
+
+        // Replace alpha11's value
+        if( alpha11.IsLocal(0,0) )
             alpha11.SetLocal(0,0,alpha);
     }
 }
