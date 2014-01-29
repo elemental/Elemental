@@ -37,14 +37,14 @@ void TestCorrectness
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
     auto d = A.GetDiagonal( 0 );
-    auto e = A.GetDiagonal( 1 );
+    auto e = A.GetDiagonal( (m>=n ? 1 : -1) );
 
     // Zero B and then fill its bidiagonal
     DistMatrix<F> B(g);
     B.AlignWith( A );
     Zeros( B, m, n );
     B.SetDiagonal( d, 0  );
-    B.SetDiagonal( e, 1 );
+    B.SetDiagonal( e, (m>=n ? 1 : -1) );
     if( print )
         Print( B, "Bidiagonal" );
     if( display )
@@ -78,8 +78,16 @@ void TestCorrectness
         Display( AOrig, "Manual bidiagonal" );
 
     // Compare the appropriate portion of AOrig and B
-    MakeTriangular( UPPER, AOrig );
-    MakeTrapezoidal( LOWER, AOrig, 1 );
+    if( m >= n )
+    {
+        MakeTriangular( UPPER, AOrig );
+        MakeTrapezoidal( LOWER, AOrig, 1 );
+    }
+    else
+    {
+        MakeTriangular( LOWER, AOrig ); 
+        MakeTriangular( UPPER, AOrig, -1 );
+    }
     Axpy( F(-1), AOrig, B );
     if( print )
         Print( B, "Error in rotated bidiagonal" );

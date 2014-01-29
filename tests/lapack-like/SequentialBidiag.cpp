@@ -34,13 +34,13 @@ void TestCorrectness
 
     // Grab the diagonal and superdiagonal of the bidiagonal matrix
     auto d = A.GetDiagonal( 0 );
-    auto e = A.GetDiagonal( 1 );
+    auto e = A.GetDiagonal( (m>=n ? 1 : -1) );
 
     // Zero B and then fill its bidiagonal
     Matrix<F> B;
     Zeros( B, m, n );
     B.SetDiagonal( d, 0  );
-    B.SetDiagonal( e, 1 );
+    B.SetDiagonal( e, (m>=n ? 1 : -1) );
     if( print && mpi::WorldRank() == 0 )
         Print( B, "Bidiagonal" );
     if( display && mpi::WorldRank() == 0 )
@@ -74,8 +74,16 @@ void TestCorrectness
         Display( AOrig, "Manual bidiagonal" );
 
     // Compare the appropriate portion of AOrig and B
-    MakeTriangular( UPPER, AOrig );
-    MakeTrapezoidal( LOWER, AOrig, 1 );
+    if( m >= n )
+    {
+        MakeTriangular( UPPER, AOrig );
+        MakeTrapezoidal( LOWER, AOrig, 1 );
+    }
+    else
+    {
+        MakeTriangular( LOWER, AOrig );
+        MakeTrapezoidal( UPPER, AOrig, -1 );
+    }
     Axpy( F(-1), AOrig, B );
     if( print && mpi::WorldRank() == 0 )
         Print( B, "Error in rotated bidiagonal" );
@@ -118,7 +126,7 @@ void TestBidiag( Int m, Int n, bool testCorrectness, bool print, bool display )
 
     if( mpi::WorldRank() == 0 )
     {
-        cout << "  Starting tridiagonalization...";
+        cout << "  Starting bidiagonalization...";
         cout.flush();
     }
     mpi::Barrier( mpi::COMM_WORLD );

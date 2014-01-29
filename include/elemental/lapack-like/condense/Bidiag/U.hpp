@@ -63,7 +63,7 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
 
             // Set bottom-left entry of A12 to 1
-            const F delta = A12.Get(nb-1,0);
+            const F epsilon = A12.Get(nb-1,0);
             A12.Set(nb-1,0,F(1));
 
             Gemm( NORMAL, NORMAL, F(-1), A21, Y12, F(1), A22 );
@@ -72,7 +72,7 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             Conjugate( A12 );
 
             // Put back bottom-left entry of A12
-            A12.Set(nb-1,0,delta);
+            A12.Set(nb-1,0,epsilon);
         }
         else
         {

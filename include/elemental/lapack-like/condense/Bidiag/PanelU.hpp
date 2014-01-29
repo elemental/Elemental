@@ -37,9 +37,9 @@ PanelU( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         if( mA < nA )
             LogicError("A must be at least as tall as it is wide");
         if( mA != X.Height() )
-            LogicError("A and X must be the same height");
+            LogicError("A and X must have the same height");
         if( nA != Y.Width() )
-            LogicError("Y must be the same width as A");
+            LogicError("A and Y must have the same width");
         if( X.Height() < nX )
             LogicError("X must be a column panel");
         if( Y.Height() != nX )
@@ -91,6 +91,9 @@ PanelU( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         //  \          | u |            / |     a21 |   |    0  |
         const F tauQ = LeftReflector( alpha11, a21 );
         tQ.Set(k,0,tauQ);
+
+        // Temporarily set aB1 = | 1 |
+        //                       | u |
         d.Set(k,0,alpha11.GetRealPart(0,0));
         alpha11.Set(0,0,F(1));
 
@@ -101,12 +104,12 @@ PanelU( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
         // -------------------------------------------------------------------
         // z21 := AB2^H aB1
         Gemv( ADJOINT, F(1), AB2, aB1, z21 );
-        // z21 := z21 - A02^T (XB0^H aB1)
-        Gemv( ADJOINT, F(1),  XB0, aB1, z01 );
-        Gemv( TRANSPOSE, F(-1), A02, z01, F(1), z21 );
         // z21 := z21 - Y02^H (AB0^H aB1)
         Gemv( ADJOINT, F(1),  AB0, aB1, z01 );
         Gemv( ADJOINT, F(-1), Y02, z01, F(1), z21 );
+        // z21 := z21 - A02^T (XB0^H aB1)
+        Gemv( ADJOINT, F(1),  XB0, aB1, z01 );
+        Gemv( TRANSPOSE, F(-1), A02, z01, F(1), z21 );
         // y12 := tauQ z21^H
         Adjoint( z21, y12 );
         Scale( tauQ, y12 ); 
@@ -184,9 +187,9 @@ PanelU
         if( mA < nA )
             LogicError("A must be at least as tall as it is wide");
         if( mA != X.Height() )
-            LogicError("A and X must be the same height");
+            LogicError("A and X must have the same height");
         if( nA != Y.Width() )
-            LogicError("Y must be the same width as A");
+            LogicError("A and Y must have the same width");
         if( X.Height() < nX )
             LogicError("X must be a column panel");
         if( Y.Height() != nX )
