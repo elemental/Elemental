@@ -23,14 +23,12 @@
 namespace elem {
 namespace svd {
 
-// TODO: Wrap below routines to produce svd::GolubReinsch?
-
 template<typename F>
 inline void
-GolubReinschUpper
+GolubReinsch
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -104,10 +102,10 @@ GolubReinschUpper
 #ifdef HAVE_FLA_BSVD
 template<typename F>
 inline void
-GolubReinschUpper_FLA
+GolubReinschFlame
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper_FLA"))
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschFlame"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -135,11 +133,25 @@ GolubReinschUpper_FLA
     Identity( U_VC_STAR, m, k );
     Identity( V_VC_STAR, n, k );
 
-    FlaBidiagSVD
-    ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(),
-      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-      U_VC_STAR.Buffer(), U_VC_STAR.LDim(),
-      V_VC_STAR.Buffer(), V_VC_STAR.LDim() );
+    // Since libFLAME, to the best of my current knowledge, only supports the
+    // upper-bidiagonal case, we may instead work with the adjoint in the 
+    // lower-bidiagonal case.
+    if( m >= n )
+    {
+        FlaBidiagSVD
+        ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(),
+          d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          U_VC_STAR.Buffer(), U_VC_STAR.LDim(),
+          V_VC_STAR.Buffer(), V_VC_STAR.LDim() );
+    }
+    else
+    {
+        FlaBidiagSVD
+        ( k, V_VC_STAR.LocalHeight(), U_VC_STAR.LocalHeight(),
+          d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          V_VC_STAR.Buffer(), V_VC_STAR.LDim(),
+          U_VC_STAR.Buffer(), U_VC_STAR.LDim() );
+    }
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and V into a standard matrix dist.
@@ -172,31 +184,29 @@ GolubReinschUpper_FLA
 
 template<>
 inline void
-GolubReinschUpper
+GolubReinsch
 ( DistMatrix<double>& A, DistMatrix<double,VR,STAR>& s, DistMatrix<double>& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
-    GolubReinschUpper_FLA( A, s, V );
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
+    GolubReinschFlame( A, s, V );
 }
 
 template<>
 inline void
-GolubReinschUpper
+GolubReinsch
 ( DistMatrix<Complex<double> >& A, 
   DistMatrix<double,VR,STAR>& s, DistMatrix<Complex<double> >& V )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
-    GolubReinschUpper_FLA( A, s, V );
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
+    GolubReinschFlame( A, s, V );
 }
 #endif // HAVE_FLA_BSVD
 
 template<typename F>
 inline void
-GolubReinschUpper
-( DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& s )
+GolubReinsch( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
 {
-    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschUpper"))
+    DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

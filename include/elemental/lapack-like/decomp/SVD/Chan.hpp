@@ -42,7 +42,7 @@ ChanUpper
     {
         DistMatrix<F> R(g);
         qr::Explicit( A, R );
-        svd::GolubReinschUpper( R, s, V );
+        svd::GolubReinsch( R, s, V );
         // Unfortunately, extra memory is used in forming A := A R,
         // where A has been overwritten with the Q from the QR factorization
         // of the original state of A, and R has been overwritten with the U 
@@ -54,7 +54,7 @@ ChanUpper
     }
     else
     {
-        svd::GolubReinschUpper( A, s, V );
+        svd::GolubReinsch( A, s, V );
     }
 }
 
@@ -77,11 +77,11 @@ ChanUpper
         DistMatrix<F> AT(g), AB(g);
         PartitionDown( A, AT, AB, n );
         MakeTriangular( UPPER, AT );
-        GolubReinschUpper( AT, s );
+        GolubReinsch( AT, s );
     }
     else
     {
-        GolubReinschUpper( A, s );
+        GolubReinsch( A, s );
     }
 }
 
@@ -115,8 +115,8 @@ Chan
     }
     else
     {
-        // Lower bidiagonalization is not yet supported, so we instead play a 
-        // trick to get the SVD of A.
+        // Explicit formation of the Q from an LQ factorization is not yet
+        // optimized
         Adjoint( A, V );
         svd::ChanUpper( V, s, A, heightRatio );
     }
@@ -149,8 +149,8 @@ Chan( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
     }
     else
     {
-        // Lower bidiagonalization is not yet supported, so we instead play a 
-        // trick to get the SVD of A.
+        // Explicit formation of the Q from an LQ factorization is not yet
+        // optimized
         DistMatrix<F> AAdj( A.Grid() );
         Adjoint( A, AAdj );
         svd::ChanUpper( AAdj, s, heightRatio );
