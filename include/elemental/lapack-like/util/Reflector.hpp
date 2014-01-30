@@ -45,7 +45,13 @@ template<typename F>
 inline F
 LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("LeftReflector"))
+    DEBUG_ONLY(
+        CallStackEntry cse("LeftReflector");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Width() != 1 )
+            LogicError("x must be a column vector");
+    )
     typedef Base<F> Real;
 
     Real norm = Nrm2( x );
@@ -129,7 +135,13 @@ template<typename F>
 inline F
 RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("RightReflector"))
+    DEBUG_ONLY(
+        CallStackEntry cse("RightReflector");
+        if( chi.Height() != 1 || chi.Width() != 1 )
+            LogicError("chi must be a scalar");
+        if( x.Height() != 1 )
+            LogicError("x must be a row vector");
+    )
     const F tau = LeftReflector( chi, x );
     // There is no need to conjugate chi, it should be real now
     Conjugate( x );

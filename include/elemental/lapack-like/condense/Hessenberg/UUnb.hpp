@@ -50,23 +50,27 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
         const F beta = alpha21T.Get(0,0);
         alpha21T.Set(0,0,F(1));
 
-        // Apply conj(H(a21,tau)) from the right
-        // -------------------------------------
+        // A2 := A2 Hous(a21,tau)^H
+        //     = A2 (I - conj(tau) a21 a21^H)
+        //     = A2 - conj(tau) (A2 a21) a21^H
+        // -----------------------------------
         // x1 := A2 a21
         Zeros( x1, n, 1 );
         Gemv( NORMAL, F(1), A2, a21, F(0), x1 );
         // A2 := A2 - conj(tau) x1 a21^H
         Ger( -Conj(tau), x1, a21, A2 ); 
 
-        // Apply H(a21,tau) from the left
-        // ------------------------------
+        // A22 := Hous(a21,tau) A22
+        //      = (I - tau a21 a21^H) A22
+        //      = A22 - tau a21 (A22^H a21)^H
+        // ----------------------------------
         // x12^H := (a21^H A22)^H = A22^H a21
         Zeros( x12Adj, A22.Width(), 1 );
         Gemv( ADJOINT, F(1), A22, a21, F(0), x12Adj );
         // A22 := A22 - tau a21 x12
         Ger( -tau, a21, x12Adj, A22 );
 
-        // Put beta back instead of temporary value of 1
+        // Put beta back
         alpha21T.Set(0,0,beta);
     }
 }
@@ -107,22 +111,26 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
             beta = alpha21T.GetLocal(0,0);
         alpha21T.Set(0,0,F(1));
 
-        // Apply conj(H(a21,tau)) from the right
-        // -------------------------------------
+        // A2 := A2 Hous(a21,tau)^H
+        //     = A2 (I - conj(tau) a21 a21^H)
+        //     = A2 - conj(tau) (A2 a21) a21^H
+        // -----------------------------------
         // x1 := A2 a21
-        a21_MR_STAR.AlignWith(A2);
+        a21_MR_STAR.AlignWith( A2 );
         a21_MR_STAR = a21;
-        x1_MC_STAR.AlignWith(A2);
+        x1_MC_STAR.AlignWith( A2 );
         Zeros( x1_MC_STAR, n, 1 );
         LocalGemv( NORMAL, F(1), A2, a21_MR_STAR, F(0), x1_MC_STAR );
         x1_MC_STAR.SumOverRow();
         // A2 := A2 - conj(tau) x1 a21^H
         LocalGer( -Conj(tau), x1_MC_STAR, a21_MR_STAR, A2 ); 
 
-        // Apply H(a21,tau) from the left
-        // ------------------------------
+        // A22 := Hous(a21,tau) A22
+        //      = (I - tau a21 a21^H) A22
+        //      = A22 - tau a21 (A22^H a21)^H
+        // ----------------------------------
         // x12^H := (a21^H A22)^H = A22^H a21
-        a21_MC_STAR.AlignWith(A22);
+        a21_MC_STAR.AlignWith( A22 );
         a21_MC_STAR = a21;
         x12Adj_MR_STAR.AlignWith( A22 );
         Zeros( x12Adj_MR_STAR, A22.Width(), 1 );
@@ -132,7 +140,8 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         LocalGer( -tau, a21_MC_STAR, x12Adj_MR_STAR, A22 );
 
         // Put beta back 
-        alpha21T.Set(0,0,beta);
+        if( alpha21T.IsLocal(0,0) )
+            alpha21T.SetLocal(0,0,beta);
     }
 }
 

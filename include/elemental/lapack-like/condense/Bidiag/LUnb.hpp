@@ -61,8 +61,10 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         const F epsilonP = alpha11.Get(0,0);
         alpha11.Set(0,0,F(1));
 
-        // Apply Hous(a1R^T,tauP) from the right
-        // -------------------------------------
+        // A2R := A2R Hous(a1R^T,tauP)
+        //      = A2R (I - tauP a1R^T conj(a1R))
+        //      = A2R - tauP (A2R a1R^T) conj(a1R)
+        // ---------------------------------------
         // w21 := A2R a1R^T = A2R |   1 |
         //                        | v^T |
         Zeros( w21, a21.Height(), 1 );
@@ -89,8 +91,10 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             const F epsilonQ = alpha21T.Get(0,0);
             alpha21T.Set(0,0,F(1));
 
-            // Apply Hous(a21,tauQ) from the left
-            // ----------------------------------
+            // A22 := Hous(a21,tauQ) A22
+            //      = (I - tauQ a21 a21^H) A22
+            //      = A22 - tauQ a21 (A22^H a21)^H
+            // -----------------------------------
             // x12^H := (a21^H A22)^H = A22^H a21
             Zeros( x12Adj, a12.Width(), 1 );
             Gemv( ADJOINT, F(1), A22, a21, F(0), x12Adj );
@@ -149,7 +153,9 @@ inline void LUnb
             epsilonP = alpha11.GetLocal(0,0);
         alpha11.Set(0,0,F(1));
 
-        // Apply Hous(a1R^T,tauP) from the right
+        // A2R := A2R Hous(a1R^T,tauP)
+        //      = A2R (I - tauP a1R^T conj(a1R))
+        //      = A2R - tauP (A2R a1R^T) conj(a1R)
         // -------------------------------------
         // w21 := A2R a1R^T = A2R | 1   |
         //                        | v^T |
@@ -186,7 +192,9 @@ inline void LUnb
                 epsilonQ = alpha21T.GetLocal(0,0);
             alpha21T.Set(0,0,F(1));
 
-            // Apply Hous(a21,tauQ) from the left
+            // A22 := Hous(a21,tauQ) A22
+            //      = (I - tauQ a21 a21^H) A22
+            //      = A22 - tauQ a21 (A22^H a21)^H
             // ----------------------------------
             // x12^H := (a21^H A22)^H = A22^H a21
             a21_MC_STAR.AlignWith( A22 );

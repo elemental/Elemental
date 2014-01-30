@@ -12,6 +12,7 @@
 
 #include "./Hessenberg/L.hpp"
 #include "./Hessenberg/U.hpp"
+#include "./Hessenberg/ApplyQ.hpp"
 
 namespace elem {
 

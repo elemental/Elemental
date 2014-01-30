@@ -155,6 +155,8 @@
   "elemental/lapack-like/condense/Bidiag.hpp"
 #define ELEM_HERMITIANTRIDIAG_INC \
   "elemental/lapack-like/condense/HermitianTridiag.hpp"
+#define ELEM_HESSENBERG_INC \
+  "elemental/lapack-like/condense/Hessenberg.hpp"
 
 // Decompositions
 // --------------

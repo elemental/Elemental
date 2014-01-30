@@ -48,7 +48,9 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
-        // AB2 := (I - tau aB1 aB1^H) AB2
+        // AB2 := Hous(aB1,tau) AB2
+        //      = (I - tau aB1 aB1^H) AB2
+        //      = AB2 - tau aB1 (AB2^H aB1)^H
         Zeros( z21, AB2.Width(), 1 );
         Gemv( ADJOINT, F(1), AB2, aB1, F(0), z21 );
         Ger( -tau, aB1, z21, AB2 );
@@ -109,7 +111,9 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
             alpha11.SetLocal(0,0,F(1));
         }
 
-        // AB2 := (I - tau aB1 aB1^H) AB2
+        // AB2 := Hous(aB1,tau) AB2
+        //      = (I - tau aB1 aB1^H) AB2
+        //      = AB2 - tau aB1 (AB2^H aB1)^H
         aB1_MC_STAR.AlignWith( AB2 );
         aB1_MC_STAR = aB1;
         z21_MR_STAR.AlignWith( AB2 );

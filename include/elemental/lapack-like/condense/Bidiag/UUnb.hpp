@@ -58,8 +58,10 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         const F epsilonQ = alpha11.Get(0,0);
         alpha11.Set(0,0,F(1));
 
-        // Apply Hous(aB1,tauQ) from the left
-        // ----------------------------------
+        // AB2 := Hous(aB1,tauQ) AB2
+        //      = (I - tauQ aB1 aB1^H) AB2
+        //      = AB2 - tauQ aB1 (AB2^H aB1)^H
+        // -----------------------------------
         // x12^H := (aB1^H AB2)^H = AB2^H aB1
         Zeros( x12Adj, a12.Width(), 1 );
         Gemv( ADJOINT, F(1), AB2, aB1, F(0), x12Adj );
@@ -87,8 +89,10 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             const F epsilonP = alpha12L.Get(0,0);
             alpha12L.Set(0,0,F(1));
 
-            // Apply Hous(a12^T,tauP) from the right
-            // -------------------------------------
+            // A22 := A22 Hous(a12^T,tauP)
+            //      = A22 (I - tauP a12^T conj(a12))
+            //      = A22 - tauP (A22 a12^T) conj(a12)
+            // ---------------------------------------
             // w21 := A22 a12^T = A22 | 1   |
             //                        | v^T |
             Zeros( w21, a21.Height(), 1 );
@@ -150,7 +154,9 @@ inline void UUnb
             epsilonQ = alpha11.GetLocal(0,0);
         alpha11.Set(0,0,F(1));
 
-        // Apply Hous(aB1,tauQ) from the left
+        // AB2 := Hous(aB1,tauQ) AB2
+        //      = (I - tauQ aB1 aB1^H) AB2
+        //      = AB2 - tauQ aB1 (AB2^H aB1)^H
         // ----------------------------------
         // x12^H := (aB1^H AB2)^H = AB2^H aB1
         aB1_MC_STAR.AlignWith( aB1 );
@@ -185,7 +191,9 @@ inline void UUnb
                 epsilonP = alpha12L.GetLocal(0,0);
             alpha12L.Set(0,0,F(1));
 
-            // Apply Hous(a12^T,tauP) from the right
+            // A22 := A22 Hous(a12^T,tauP)
+            //      = A22 (I - tauP a12^T conj(a12))
+            //      = A22 - tauP (A22 a12^T) conj(a12)
             // -------------------------------------
             // w21 := A22 a12^T = A22 | 1   |
             //                        | v^T |
