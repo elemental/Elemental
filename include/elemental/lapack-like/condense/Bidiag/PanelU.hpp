@@ -213,7 +213,6 @@ PanelU
                             z21_MR_STAR(g),
                             y01_MR_STAR(g),
                             a01_MR_STAR(g);
-    DistMatrix<F,MR,  MC  > z21_MR_MC(g);
     DistMatrix<F,STAR,MC  > x10_STAR_MC(g),
                             a10_STAR_MC(g);
 
@@ -254,8 +253,6 @@ PanelU
 
         auto delta1   = View( d,  k, 0, 1, 1 );
         auto epsilon1 = View( e,  k, 0, 1, 1 );
-        auto tauQ1    = View( tQ, k, 0, 1, 1 );
-        auto tauP1    = View( tP, k, 0, 1, 1 );
 
         // Apply all previous reflectors to aB1:
         //   aB1 := aB1 - AB0 y01 - XB0 conj(a01)
@@ -280,11 +277,12 @@ PanelU
         //  / I - tauQ | 1 | | 1, u^H | \ | alpha11 | = | delta |
         //  \          | u |            / |     a21 |   |    0  |
         const F tauQ = LeftReflector( alpha11, a21 );
-        tauQ1.Set(0,0,tauQ);
+        tQ.Set(k,0,tauQ);
+
+        // Temporarily set aB1 = | 1 |
+        //                       | u |
         if( delta1.IsLocal(0,0) )
         {
-            // Store delta and force | alpha11 | = | 1 |
-            //                       |   a21   |   | u |
             delta1.SetLocal(0,0,alpha11.GetLocalRealPart(0,0));
             alpha11.SetLocal(0,0,F(1));
         }
@@ -301,7 +299,7 @@ PanelU
         Zeros( z21_MR_STAR, A22.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB2, aB1_MC_STAR, F(0), z21_MR_STAR );
 
-        // z01[MR,* ] := AB0^H[MR,MC] aB1[MC,* ]
+        // z01[MC,* ] := (AB0^H aB1)[MC,* ]
         z01_MR_STAR.AlignWith( AB0 );
         Zeros( z01_MR_STAR, AB0.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB0, aB1_MC_STAR, F(0), z01_MR_STAR );
@@ -321,51 +319,45 @@ PanelU
         // z21[MR,* ] -= A02^T[MR,MC] (XB0^H aB1)[MC,* ]
         LocalGemv( TRANSPOSE, F(-1), A02, z01_MC_STAR, F(1), z21_MR_STAR );
 
-        // Finally perform the column summation and then scale by tau
-        z21_MR_MC.AlignWith( y12 );
-        z21_MR_MC.SumScatterFrom( z21_MR_STAR );
-        Adjoint( z21_MR_MC, y12 );
+        // Finally perform the column summation and then scale by tauQ
+        y12.AdjointSumScatterFrom( z21_MR_STAR );
         Scale( tauQ, y12 );
 
         // Apply all previous reflectors to a12:
         // a12 := a12 - a1L yT2           - x10 conj(A02)
         //      = a12 - (a10 Y02 + 1*y12) - x10 conj(A02)
         // ----------------------------------------------
-        // a12 := a12 - a10 Y02 
-        // ^^^^^^^^^^^^^^^^^^^^
+        // a12 := a12 - a10 Y02 (do not sum over columns yet)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         a10_STAR_MC.AlignWith( Y02 );
         a10_STAR_MC = a10;
         // z21[MR,* ] := Y02^T[MR,MC] a10^T[MC,* ]
         z21_MR_STAR.AlignWith( Y02 );
         Zeros( z21_MR_STAR, Y02.Width(), 1 );
         LocalGemv( TRANSPOSE, F(1), Y02, a10_STAR_MC, F(0), z21_MR_STAR );
-        // Sum the partial contributions
+
+        // a12 := a12 - x10 conj(A02) (and incorporate last update into sum)
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        x10_STAR_MC.AlignWith( A02 );
+        x10_STAR_MC = x10;
+        // z21[MR,* ] := A02^H[MR,MC] x10^T[MC,* ]
+        LocalGemv( ADJOINT, F(1), A02, x10_STAR_MC, F(1), z21_MR_STAR );
+        // Sum the partial contributions from the past two updates
         a12.TransposeSumScatterUpdate( F(-1), z21_MR_STAR );
 
         // a12 := a12 - y12
         // ^^^^^^^^^^^^^^^^
         Axpy( F(-1), y12, a12 );
 
-        // a12 := a12 - x10 conj(A02)
-        // ^^^^^^^^^^^^^^^^^^^^^^^^^^
-        x10_STAR_MC.AlignWith( A02 );
-        x10_STAR_MC = x10;
-        // z21[MR,* ] := A02^H[MR,MC] x10^T[MC,* ]
-        z21_MR_STAR.AlignWith( A02 );
-        Zeros( z21_MR_STAR, A02.Width(), 1 );
-        LocalGemv( ADJOINT, F(1), A02, x10_STAR_MC, F(0), z21_MR_STAR );
-        // Sum the partial contributions
-        a12.TransposeSumScatterUpdate( F(-1), z21_MR_STAR );
-
         // Find tauP and v such that
         //  |alpha12L a12R| /I - tauP |1  | |1, conj(v)|\ = |epsilon 0|
         //                  \         |v^T|             /
         const F tauP = RightReflector( alpha12L, a12R );
-        tauP1.Set(0,0,tauP);
+        tP.Set(k,0,tauP);
+
+        // Temporarily set a12 = | 1 v |
         if( epsilon1.IsLocal(0,0) )
         {
-            // Store epsilon and force | alpha12L | = | 1 |
-            //                         |  a12R^T  |   | v |
             epsilon1.SetLocal(0,0,alpha12L.GetLocalRealPart(0,0));
             alpha12L.SetLocal(0,0,F(1));
         }

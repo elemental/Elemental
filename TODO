@@ -25,19 +25,19 @@ Fundamental functionality additions
 [-] TSQR for non-powers-of-two
 [-] TSLU (via tournament pivoting)
 [-] Successive Band Reduction
-[-] Reduction to Hessenberg form
 [-] Nonsymmetric (generalized) eigensolver via QR/QZ algorithm
-[-] Axpy interface implementation using one-sided communication
 [-] Generalized Sylvester equations
 
 Incremental functionality improvements
 --------------------------------------
+[o] Blocked reduction to Hessenberg form
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
 [o] Sequential blocked reduction to tridiagonal form
 [o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
 [o] Quadratic-time Haar generation via random Householder reflectors
 [-] 'Control' equivalents to 'Attach' for DistMatrix, and ability to forfeit
     buffers in (Dist)Matrix
+[-] Axpy interface implementation using one-sided communication
 [-] Square process grid specializations of LDL and Bunch-Kaufman
 [-] Businger-esque element-growth monitoring in GEPP and Bunch-Kaufman
 [-] More Sign algorithms (switch to Newton-Schulz near convergence)
@@ -45,7 +45,6 @@ Incremental functionality improvements
 [-] Way for DistMatrix with single process to view Matrix, and operator=
 [-] Ostrowski matrices
 [-] Transpose option for LeastSquares
-[-] Lower version of reduction to bidiagonal form
 [-] Various approaches (e.g., HJS) for parallel tridiagonalization
 [-] Wrappers for more LAPACK eigensolvers
 [-] Sequential versions of Trr2k 

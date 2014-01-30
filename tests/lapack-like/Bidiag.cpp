@@ -86,7 +86,7 @@ void TestCorrectness
     else
     {
         MakeTriangular( LOWER, AOrig ); 
-        MakeTriangular( UPPER, AOrig, -1 );
+        MakeTrapezoidal( UPPER, AOrig, -1 );
     }
     Axpy( F(-1), AOrig, B );
     if( print )
@@ -131,7 +131,7 @@ void TestBidiag
 
     if( g.Rank() == 0 )
     {
-        cout << "  Starting tridiagonalization...";
+        cout << "  Starting bidiagonalization...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
