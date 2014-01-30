@@ -10,6 +10,9 @@
 #ifndef ELEM_BIDIAG_HPP
 #define ELEM_BIDIAG_HPP
 
+#include ELEM_MAKETRAPEZOIDAL_INC
+#include ELEM_MAKETRIANGULAR_INC
+
 #include "./Bidiag/Apply.hpp"
 #include "./Bidiag/PanelL.hpp"
 #include "./Bidiag/PanelU.hpp"
@@ -47,6 +50,16 @@ inline void Bidiag( Matrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     Matrix<F> tP, tQ;
     Bidiag( A, tP, tQ );
+    if( A.Height() >= A.Width() )
+    {
+        MakeTriangular( UPPER, A );    
+        MakeTrapezoidal( LOWER, A, 1 );
+    }
+    else
+    {
+        MakeTriangular( LOWER, A );    
+        MakeTrapezoidal( UPPER, A, -1 );
+    }
 }
 
 template<typename F> 
@@ -55,6 +68,16 @@ inline void Bidiag( DistMatrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("Bidiag"))
     DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
     Bidiag( A, tP, tQ );
+    if( A.Height() >= A.Width() )
+    {
+        MakeTriangular( UPPER, A );    
+        MakeTrapezoidal( LOWER, A, 1 );
+    }
+    else
+    {
+        MakeTriangular( LOWER, A );    
+        MakeTrapezoidal( UPPER, A, -1 );
+    }
 }
 
 } // namespace elem

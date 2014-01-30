@@ -23,15 +23,15 @@ enum HermitianTridiagApproach
 using namespace hermitian_tridiag_approach_wrapper;
 
 template<typename F>
-void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
-void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A );
-
-template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void HermitianTridiag
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t );
+
+template<typename F>
+void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A );
+template<typename F>
+void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A );
 
 void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
 HermitianTridiagApproach GetHermitianTridiagApproach();

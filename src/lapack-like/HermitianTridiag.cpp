@@ -8,6 +8,7 @@
 */
 #include "elemental-lite.hpp"
 
+#include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_HERMITIANTRIDIAG_INC
 
 #include "./HermitianTridiag/PanelL.hpp"
@@ -38,6 +39,10 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     Matrix<F> t;
     HermitianTridiag( uplo, A, t );
+    if( uplo == UPPER )
+        MakeTrapezoidal( LOWER, A, 1 );
+    else
+        MakeTrapezoidal( UPPER, A, -1 );
 }
 
 template<typename F> 
@@ -130,6 +135,10 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
     HermitianTridiag( uplo, A, t );
+    if( uplo == UPPER )
+        MakeTrapezoidal( LOWER, A, 1 );
+    else
+        MakeTrapezoidal( UPPER, A, -1 );
 }
 
 #define PROTO(T) \
