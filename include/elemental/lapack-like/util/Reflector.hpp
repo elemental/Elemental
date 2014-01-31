@@ -49,8 +49,8 @@ LeftReflector( Matrix<F>& chi, Matrix<F>& x )
         CallStackEntry cse("LeftReflector");
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
-        if( x.Width() != 1 )
-            LogicError("x must be a column vector");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("x must be a vector");
     )
     typedef Base<F> Real;
 
@@ -139,8 +139,8 @@ RightReflector( Matrix<F>& chi, Matrix<F>& x )
         CallStackEntry cse("RightReflector");
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
-        if( x.Height() != 1 )
-            LogicError("x must be a row vector");
+        if( x.Height() != 1 && x.Width() != 1 )
+            LogicError("x must be a vector");
     )
     const F tau = LeftReflector( chi, x );
     // There is no need to conjugate chi, it should be real now

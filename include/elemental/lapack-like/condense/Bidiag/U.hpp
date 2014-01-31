@@ -47,8 +47,8 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A22 = ViewRange( A, k+nb, k+nb, m, n );
         auto ABR = ViewRange( A, k,    k,    m, n );
+        auto A22 = ViewRange( A, k+nb, k+nb, m, n );
         if( A22.Width() > 0 )
         {
             auto tP1 = View( tP, k, 0, nb, 1 );
