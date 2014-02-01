@@ -71,7 +71,7 @@ main( int argc, char* argv[] )
         const char uploChar = Input("--uplo","lower or upper storage: L/U",'L');
         const char transChar = Input
             ("--trans","orientation of matrix: N/T/C",'N');
-        const char diagChar = Input("--diag","(non-)unit diagonal: N/U",false);
+        const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
         const Int m = Input("--m","height of result",100);
         const Int n = Input("--n","width of result",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
