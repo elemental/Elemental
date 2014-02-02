@@ -18,7 +18,7 @@
 #include ELEM_REFLECTOR_INC
 
 #include "./LUnb.hpp"
-#include "./PanelL.hpp"
+#include "./LPan.hpp"
 
 namespace elem {
 namespace bidiag {
@@ -57,7 +57,7 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             auto tQ1 = View( tQ, k, 0, nb, 1 );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::PanelL( ABR, tP1, tQ1, X, Y );
+            bidiag::LPan( ABR, tP1, tQ1, X, Y );
 
             auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
             auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
@@ -147,7 +147,7 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 
             auto tP1 = View( tPDiag, k, 0, nb, 1 );
             auto tQ1 = View( tQDiag, k, 0, nb, 1 );
-            bidiag::PanelL
+            bidiag::LPan
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             auto X21 = ViewRange( X, nb, 0,  m-k, nb  );

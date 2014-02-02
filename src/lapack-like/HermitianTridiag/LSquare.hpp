@@ -9,7 +9,7 @@
 #ifndef ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
 #define ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
 
-#include "./PanelLSquare.hpp"
+#include "./LPanSquare.hpp"
 
 namespace elem {
 namespace herm_tridiag {
@@ -68,7 +68,7 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
             WPan_MR_STAR.AlignWith( A11 );
             WPan_MR_STAR.Resize( n-k, nb );
 
-            herm_tridiag::PanelLSquare
+            herm_tridiag::LPanSquare
             ( ABR, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR );

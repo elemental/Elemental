@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BIDIAG_PANELU_HPP
-#define ELEM_BIDIAG_PANELU_HPP
+#ifndef ELEM_BIDIAG_UPAN_HPP
+#define ELEM_BIDIAG_UPAN_HPP
 
 #include ELEM_ADJOINT_INC
 #include ELEM_AXPY_INC
@@ -23,13 +23,13 @@ namespace bidiag {
 
 template<typename F> 
 inline void
-PanelU( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
+UPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 {
     const Int mA = A.Height();
     const Int nA = A.Width();
     const Int nX = X.Width();
     DEBUG_ONLY(
-        CallStackEntry cse("bidiag::PanelU");
+        CallStackEntry cse("bidiag::UPan");
         if( tP.Height() != nX || tP.Width() != 1 )
             LogicError("tP was not the right size");
         if( tQ.Height() != nX || tQ.Width() != 1 )
@@ -161,7 +161,7 @@ PanelU( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 
 template<typename F> 
 inline void
-PanelU
+UPan
 ( DistMatrix<F>& A, 
   DistMatrix<F,MD,STAR>& tP,
   DistMatrix<F,MD,STAR>& tQ,
@@ -174,12 +174,22 @@ PanelU
     const Int nA = A.Width();
     const Int nX = X.Width();
     DEBUG_ONLY(
-        CallStackEntry cse("bidiag::PanelU");
+        CallStackEntry cse("bidiag::UPan");
         if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
             tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
             Y.Grid() != AColPan_MC_STAR.Grid() || 
             Y.Grid() != ARowPan_STAR_MR.Grid() )
             LogicError("Grids must match");
+        if( A.ColAlign() != X.ColAlign() || 
+            A.RowAlign() != X.RowAlign() )
+            LogicError("A and X must be aligned");
+        if( A.ColAlign() != Y.ColAlign() ||
+            A.RowAlign() != Y.RowAlign() )
+            LogicError("A and Y must be aligned");
+        if( !tP.AlignedWithDiagonal(A,1) )
+            LogicError("tP is not aligned with A's superdiagonal");
+        if( !tQ.AlignedWithDiagonal(A) )
+            LogicError("tQ is not aligned with A's diagonal");
         if( tP.Height() != nX || tP.Width() != 1 )
             LogicError("tP was not the right size");
         if( tQ.Height() != nX || tQ.Width() != 1 )
@@ -194,12 +204,6 @@ PanelU
             LogicError("X must be a column panel");
         if( Y.Height() != nX )
             LogicError("Y is the wrong height");
-        if( A.ColAlign() != X.ColAlign() || 
-            A.RowAlign() != X.RowAlign() )
-            LogicError("A and X must be aligned");
-        if( A.ColAlign() != Y.ColAlign() ||
-            A.RowAlign() != Y.RowAlign() )
-            LogicError("A and Y must be aligned");
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -415,4 +419,4 @@ PanelU
 } // namespace bidiag
 } // namespace elem
 
-#endif // ifndef ELEM_BIDIAG_PANELU_HPP
+#endif // ifndef ELEM_BIDIAG_UPAN_HPP

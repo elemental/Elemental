@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_HERMITIANTRIDIAG_PANELUSQUARE_HPP
-#define ELEM_HERMITIANTRIDIAG_PANELUSQUARE_HPP
+#ifndef ELEM_HERMITIANTRIDIAG_UPANSQUARE_HPP
+#define ELEM_HERMITIANTRIDIAG_UPANSQUARE_HPP
 
 #include ELEM_ZERO_INC
 #include ELEM_GEMV_INC
@@ -17,7 +17,7 @@ namespace elem {
 namespace herm_tridiag {
 
 template<typename F>
-void PanelUSquare
+void UPanSquare
 ( DistMatrix<F>& A,
   DistMatrix<F>& W,
   DistMatrix<F,MD,STAR>& t,
@@ -29,7 +29,7 @@ void PanelUSquare
     const Int n = A.Height();
     const Int nW = W.Width();
     DEBUG_ONLY(
-        CallStackEntry cse("herm_tridiag::PanelUSquare");
+        CallStackEntry cse("herm_tridiag::UPanSquare");
         if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
             LogicError("A, W, and t must be distributed over the same grid.");
         if( n != A.Width() )
@@ -570,4 +570,4 @@ void PanelUSquare
 } // namespace herm_tridiag
 } // namespace elem
 
-#endif // ifndef ELEM_HERMITIANTRIDIAG_PANELUSQUARE_HPP
+#endif // ifndef ELEM_HERMITIANTRIDIAG_UPANSQUARE_HPP

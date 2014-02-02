@@ -11,7 +11,7 @@
 #define ELEM_HESSENBERG_L_HPP
 
 #include "./LUnb.hpp"
-#include "./PanelL.hpp"
+#include "./LPan.hpp"
 
 namespace elem {
 namespace hessenberg {
@@ -41,7 +41,7 @@ inline void L( Matrix<F>& A, Matrix<F>& t )
         UB1.Resize( n-k, nb );
         VB1.Resize( n-k, nb );
         G11.Resize( nb,  nb );
-        hessenberg::PanelL( ABR, t1, UB1, VB1, G11 );
+        hessenberg::LPan( ABR, t1, UB1, VB1, G11 );
 
         auto AB0 = ViewRange( A,   k,    0, n,   k  );
         auto A2R = ViewRange( A,   k+nb, k, n,   n  );

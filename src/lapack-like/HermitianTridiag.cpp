@@ -11,10 +11,6 @@
 #include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_HERMITIANTRIDIAG_INC
 
-#include "./HermitianTridiag/PanelL.hpp"
-#include "./HermitianTridiag/PanelLSquare.hpp"
-#include "./HermitianTridiag/PanelU.hpp"
-#include "./HermitianTridiag/PanelUSquare.hpp"
 #include "./HermitianTridiag/L.hpp"
 #include "./HermitianTridiag/LSquare.hpp"
 #include "./HermitianTridiag/U.hpp"

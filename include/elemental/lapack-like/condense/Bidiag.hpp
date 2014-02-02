@@ -14,12 +14,8 @@
 #include ELEM_MAKETRIANGULAR_INC
 
 #include "./Bidiag/Apply.hpp"
-#include "./Bidiag/PanelL.hpp"
-#include "./Bidiag/PanelU.hpp"
 #include "./Bidiag/L.hpp"
-#include "./Bidiag/LUnb.hpp"
 #include "./Bidiag/U.hpp"
-#include "./Bidiag/UUnb.hpp"
 
 namespace elem {
 

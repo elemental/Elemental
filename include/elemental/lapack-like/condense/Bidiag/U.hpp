@@ -17,7 +17,7 @@
 
 #include ELEM_REFLECTOR_INC
 
-#include "./PanelU.hpp"
+#include "./UPan.hpp"
 #include "./UUnb.hpp"
 
 namespace elem {
@@ -55,7 +55,7 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
             auto tQ1 = View( tQ, k, 0, nb, 1 );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
-            bidiag::PanelU( ABR, tP1, tQ1, X, Y );
+            bidiag::UPan( ABR, tP1, tQ1, X, Y );
 
             auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
             auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
@@ -123,33 +123,30 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
     {
         const Int nb = Min(bsize,n-k);
         
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
-        auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
         auto A22 = ViewRange( A, k+nb, k+nb, m,    n    );
         auto ABR = ViewRange( A, k,    k,    m,    n    );
 
         if( A22.Width() > 0 )
         {
-            X.AlignWith( A11 );
-            Y.AlignWith( A11 );
+            X.AlignWith( ABR );
+            Y.AlignWith( ABR );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
 
-            AColPan_MC_STAR.AlignWith( A11 );
-            ARowPan_STAR_MR.AlignWith( A11 );
+            AColPan_MC_STAR.AlignWith( ABR );
+            ARowPan_STAR_MR.AlignWith( ABR );
             AColPan_MC_STAR.Resize( m-k, nb  );
             ARowPan_STAR_MR.Resize( nb,  n-k );
 
             auto tP1 = View( tPDiag, k, 0, nb, 1 );
             auto tQ1 = View( tQDiag, k, 0, nb, 1 );
-            bidiag::PanelU
+            bidiag::UPan
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             auto X21 = ViewRange( X, nb, 0,  m-k, nb  );
             auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
-            X21_MC_STAR.AlignWith( A21 );
-            Y12Adj_MR_STAR.AlignWith( A12 );
+            X21_MC_STAR.AlignWith( A22 );
+            Y12Adj_MR_STAR.AlignWith( A22 );
             X21_MC_STAR = X21;
             Y12Adj_MR_STAR.AdjointFrom( Y12 );
 

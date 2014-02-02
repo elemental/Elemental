@@ -17,7 +17,7 @@
 #include ELEM_SYR2_INC
 #include ELEM_REFLECTOR_INC
 
-#include "./PanelU.hpp"
+#include "./UPan.hpp"
 
 namespace elem {
 namespace herm_tridiag {
@@ -110,7 +110,7 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
             WPan_MR_STAR.AlignWith( A00 );
             WPan_MR_STAR.Resize( k+nb, nb );
 
-            PanelU
+            UPan
             ( ATL, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR );
