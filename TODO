@@ -30,7 +30,6 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
-[o] Blocked reduction to Hessenberg form
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
 [o] Sequential blocked reduction to tridiagonal form
 [o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
