@@ -108,7 +108,7 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
 template<typename F> 
 inline void UUnb
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tP, DistMatrix<F,MD,STAR>& tQ )
+( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 {
     DEBUG_ONLY(
         CallStackEntry cse("bidiag::UUnb");

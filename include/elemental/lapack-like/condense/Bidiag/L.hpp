@@ -109,18 +109,15 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
     const Grid& g = A.Grid();
     const Int tPHeight = m;
     const Int tQHeight = Max(m-1,0);
-    DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
-    tPDiag.AlignWithDiagonal( A,  0 );
-    tQDiag.AlignWithDiagonal( A, -1 );
-    tPDiag.Resize( tPHeight, 1 );
-    tQDiag.Resize( tQHeight, 1 );
+    tP.Resize( tPHeight, 1 );
+    tQ.Resize( tQHeight, 1 );
 
     DistMatrix<F> X(g), Y(g);
     DistMatrix<F,MC,STAR> X21_MC_STAR(g);
     DistMatrix<F,MR,STAR> Y12Adj_MR_STAR(g);
 
-    DistMatrix<F,MC,  STAR> AColPan_MC_STAR(g);
-    DistMatrix<F,STAR,MR  > ARowPan_STAR_MR(g);
+    DistMatrix<F,MC,  STAR> AB1_MC_STAR(g);
+    DistMatrix<F,STAR,MR  > A1R_STAR_MR(g);
 
     const Int bsize = Blocksize();
     for( Int k=0; k<m; k+=bsize )
@@ -140,15 +137,14 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
 
-            AColPan_MC_STAR.AlignWith( A11 );
-            ARowPan_STAR_MR.AlignWith( A11 );
-            AColPan_MC_STAR.Resize( m-k, nb  );
-            ARowPan_STAR_MR.Resize( nb,  n-k );
+            AB1_MC_STAR.AlignWith( A11 );
+            A1R_STAR_MR.AlignWith( A11 );
+            AB1_MC_STAR.Resize( m-k, nb  );
+            A1R_STAR_MR.Resize( nb,  n-k );
 
-            auto tP1 = View( tPDiag, k, 0, nb, 1 );
-            auto tQ1 = View( tQDiag, k, 0, nb, 1 );
-            bidiag::LPan
-            ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
+            auto tP1 = View( tP, k, 0, nb, 1 );
+            auto tQ1 = View( tQ, k, 0, nb, 1 );
+            bidiag::LPan( ABR, tP1, tQ1, X, Y, AB1_MC_STAR, A1R_STAR_MR );
 
             auto X21 = ViewRange( X, nb, 0,  m-k, nb  );
             auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
@@ -157,8 +153,8 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
             X21_MC_STAR = X21;
             Y12Adj_MR_STAR.AdjointFrom( Y12 );
 
-            auto A21_MC_STAR = ViewRange( AColPan_MC_STAR, nb, 0, m-k, nb );
-            auto A12_STAR_MR = ViewRange( ARowPan_STAR_MR, 0, nb, nb, n-k );
+            auto A21_MC_STAR = ViewRange( AB1_MC_STAR, nb, 0,  m-k, nb  );
+            auto A12_STAR_MR = ViewRange( A1R_STAR_MR, 0,  nb, nb,  n-k );
 
             LocalGemm
             ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y12Adj_MR_STAR, F(1), A22 );
@@ -168,15 +164,11 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         }
         else
         {
-            auto tP1 = View( tPDiag, k, 0, nb,   1 );
-            auto tQ1 = View( tQDiag, k, 0, nb-1, 1 );
+            auto tP1 = View( tP, k, 0, nb,   1 );
+            auto tQ1 = View( tQ, k, 0, nb-1, 1 );
             bidiag::LUnb( ABR, tP1, tQ1 );
         }
     }
-
-    // Redistribute from matrix-diagonal form to fully replicated
-    tP = tPDiag;
-    tQ = tQDiag;
 }
 
 } // namespace bidiag

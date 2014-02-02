@@ -82,12 +82,10 @@ inline void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     )
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    DistMatrix<F,MD,STAR> tDiag(g);
-    tDiag.AlignWithDiagonal( A, 1 );
-    tDiag.Resize( Max(n-1,0), 1 );
+    t.Resize( Max(n-1,0), 1 );
 
     DistMatrix<F,MC,STAR> V01_MC_STAR(g), UB1_MC_STAR(g), VB1_MC_STAR(g);
-    DistMatrix<F,MR,STAR> UB1_MR_STAR(g), U21_MR_STAR(g), V21_MR_STAR(g);
+    DistMatrix<F,MR,STAR> UB1_MR_STAR(g), V21_MR_STAR(g);
     DistMatrix<F,STAR,STAR> G11_STAR_STAR(g);
 
     const Int bsize = Blocksize();
@@ -97,7 +95,7 @@ inline void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         auto ABR = ViewRange( A, k,    k,    n, n );
         auto A22 = ViewRange( A, k+nb, k+nb, n, n );
 
-        auto t1 = View( tDiag, k, 0, nb, 1 );
+        auto t1 = View( t, k, 0, nb, 1 );
         UB1_MC_STAR.AlignWith( ABR );
         UB1_MR_STAR.AlignWith( ABR );
         VB1_MC_STAR.AlignWith( ABR );
@@ -111,7 +109,7 @@ inline void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         auto A0R = ViewRange( A,   0,  k,    k,   n  );
         auto AB2 = ViewRange( A,   k,  k+nb, n,   n  );
 
-        U21_MR_STAR = LockedViewRange( UB1_MR_STAR, nb, 0, n-k, nb );
+        auto U21_MR_STAR = LockedViewRange( UB1_MR_STAR, nb, 0, n-k, nb );
 
         // A0R := A0R - ((A0R UB1) inv(G11)^H) UB1^H
         // -----------------------------------------
@@ -137,14 +135,12 @@ inline void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         V21_MR_STAR.AlignWith( AB2 );
         Zeros( V21_MR_STAR, AB2.Width(), nb );
         LocalGemm( ADJOINT, NORMAL, F(1), AB2, UB1_MC_STAR, F(0), V21_MR_STAR );
+        V21_MR_STAR.SumOverCol();
         LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), G11_STAR_STAR, V21_MR_STAR );
         LocalGemm
         ( NORMAL, ADJOINT, F(-1), UB1_MC_STAR, V21_MR_STAR, F(1), AB2 );
     }
-
-    // Redistribute from matrix-diagonal form back to fully-replicated
-    t = tDiag;
 }
 
 } // namespace hessenberg

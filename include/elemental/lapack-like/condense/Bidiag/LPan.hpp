@@ -165,12 +165,12 @@ template<typename F>
 inline void
 LPan
 ( DistMatrix<F>& A,
-  DistMatrix<F,MD,STAR>& tP,
-  DistMatrix<F,MD,STAR>& tQ,
+  DistMatrix<F,STAR,STAR>& tP,
+  DistMatrix<F,STAR,STAR>& tQ,
   DistMatrix<F>& X,
   DistMatrix<F>& Y,
-  DistMatrix<F,MC,STAR>& AColPan_MC_STAR,
-  DistMatrix<F,STAR,MR>& ARowPan_STAR_MR )
+  DistMatrix<F,MC,  STAR>& AL_MC_STAR,
+  DistMatrix<F,STAR,MR  >& AT_STAR_MR )
 {
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -179,8 +179,8 @@ LPan
         CallStackEntry cse("bidiag::LPan");
         if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
             tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
-            Y.Grid() != AColPan_MC_STAR.Grid() || 
-            Y.Grid() != ARowPan_STAR_MR.Grid() )
+            Y.Grid() != AL_MC_STAR.Grid() || 
+            Y.Grid() != AT_STAR_MR.Grid() )
             LogicError("Grids must match");
         if( A.ColAlign() != X.ColAlign() ||
             A.RowAlign() != X.RowAlign() )
@@ -188,10 +188,6 @@ LPan
         if( A.ColAlign() != Y.ColAlign() ||
             A.RowAlign() != Y.RowAlign() )
             LogicError("A and Y must be aligned");
-        if( !tP.AlignedWithDiagonal(A) )
-            LogicError("tP is not aligned with A's diagonal");
-        if( !tQ.AlignedWithDiagonal(A,-1) )
-            LogicError("tQ is not aligned with A's subdiagonal");
         if( tP.Height() != nX || tP.Width() != 1 )
             LogicError("tP was not the right size");
         if( tQ.Height() != nX || tQ.Width() != 1 )
@@ -244,8 +240,8 @@ LPan
         auto A2R      = ViewRange( A, k+1, k,   mA,  nA  );
         auto A22      = ViewRange( A, k+1, k+1, mA,  nA  );
 
-        auto a1R_STAR_MR = ViewRange( ARowPan_STAR_MR, k,   k, k+1, nA  );
-        auto a21_MC_STAR = ViewRange( AColPan_MC_STAR, k+1, k, mA,  k+1 ); 
+        auto a1R_STAR_MR = ViewRange( AT_STAR_MR, k,   k, k+1, nA  );
+        auto a21_MC_STAR = ViewRange( AL_MC_STAR, k+1, k, mA,  k+1 ); 
 
         auto x10 = ViewRange( X, k,   0,   k+1, k   );
         auto XB0 = ViewRange( X, k,   0,   mA,  k   );

@@ -111,10 +111,10 @@ inline void UPan
 template<typename F>
 inline void UPan
 ( DistMatrix<F>& A, 
-  DistMatrix<F,MD,STAR>& t, 
-  DistMatrix<F,MC,STAR>& U_MC_STAR, 
-  DistMatrix<F,MR,STAR>& U_MR_STAR,
-  DistMatrix<F,MC,STAR>& V_MC_STAR, 
+  DistMatrix<F,STAR,STAR>& t, 
+  DistMatrix<F,MC,  STAR>& U_MC_STAR, 
+  DistMatrix<F,MR,  STAR>& U_MR_STAR,
+  DistMatrix<F,MC,  STAR>& V_MC_STAR, 
   DistMatrix<F,STAR,STAR>& G_STAR_STAR )
 {
     const Int nU = U_MC_STAR.Width();
@@ -132,8 +132,6 @@ inline void UPan
             LogicError("A and U[MR,* ] must be aligned");
         if( A.ColAlign() != V_MC_STAR.ColAlign() )
             LogicError("A and V[MC,* ] must be aligned");
-        if( !t.AlignedWithDiagonal(A,1) ) 
-            LogicError("t is not aligned with A's superdiagonal");
         if( nU >= n )            
             LogicError("V is too wide for the panel factorization");
         if( U_MC_STAR.Height() != A.Height() )
