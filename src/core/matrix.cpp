@@ -152,7 +152,7 @@ Matrix<T>::Empty()
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Empty()");
-        if ( FixedSize() )
+        if( FixedSize() )
             LogicError("Cannot empty a fixed-size matrix" );
     )
     Empty_();
@@ -165,9 +165,9 @@ Matrix<T>::Resize( Int height, Int width )
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Resize(height,width)");
         AssertValidDimensions( height, width );
-        if ( FixedSize() && ( height != height_ || width != width_ ) )
+        if( FixedSize() && ( height != height_ || width != width_ ) )
             LogicError("Cannot change the size of this matrix");
-        if ( Viewing() && ( height > height_ || width > width_ ) )
+        if( Viewing() && ( height > height_ || width > width_ ) )
             LogicError("Cannot increase the size of this matrix");
     )
     Resize_( height, width );
@@ -246,21 +246,6 @@ Int Matrix<T>::DiagonalLength( Int offset ) const
 { return elem::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
-bool Matrix<T>::Owner() const { return IsOwner( viewType_ ); }
-
-template<typename T>
-bool Matrix<T>::Viewing() const { return !IsOwner( viewType_ ); }
-
-template<typename T>
-bool Matrix<T>::Shrinkable() const { return IsShrinkable( viewType_ ); }
-
-template<typename T>
-bool Matrix<T>::FixedSize() const { return !IsShrinkable( viewType_ ); }
-
-template<typename T>
-bool Matrix<T>::Locked() const { return IsLocked( viewType_ ); }
-
-template<typename T>
 T*
 Matrix<T>::Buffer()
 {
@@ -298,6 +283,15 @@ Matrix<T>::LockedBuffer( Int i, Int j ) const
     DEBUG_ONLY(CallStackEntry cse("Matrix::LockedBuffer"))
     return &data_[i+j*ldim_];
 }
+
+template<typename T>
+bool Matrix<T>::Viewing() const { return IsViewing( viewType_ ); }
+
+template<typename T>
+bool Matrix<T>::FixedSize() const { return IsFixedSize( viewType_ ); }
+
+template<typename T>
+bool Matrix<T>::Locked() const { return IsLocked( viewType_ ); }
 
 // Single-entry manipulation
 // =========================

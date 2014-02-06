@@ -317,7 +317,7 @@ Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const
 { return elem::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
-bool AbstractDistMatrix<T>::Viewing() const { return !IsOwner( viewType_ ); }
+bool AbstractDistMatrix<T>::Viewing() const { return IsViewing( viewType_ ); }
 template<typename T>
 bool AbstractDistMatrix<T>::Locked() const { return IsLocked( viewType_ ); }
 

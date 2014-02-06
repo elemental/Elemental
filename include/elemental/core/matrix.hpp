@@ -36,7 +36,7 @@ public:
     Matrix( Matrix<T>&& A );
 #endif 
     // Destructor
-    virtual ~Matrix();
+    ~Matrix();
 
     // Assignment and reconfiguration
     // ==============================
@@ -65,11 +65,9 @@ public:
     T* Buffer( Int i, Int j );
     const T* LockedBuffer() const;
     const T* LockedBuffer( Int i, Int j ) const;
-    bool Owner()      const;
-    bool Shrinkable() const;
-    bool FixedSize()  const;
-    bool Viewing()    const;
-    bool Locked()     const;
+    bool Viewing()   const;
+    bool FixedSize() const;
+    bool Locked()    const;
 
     // Single-entry manipulation
     // =========================
