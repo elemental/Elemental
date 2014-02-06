@@ -1297,6 +1297,72 @@ DM<T>::SetImagPartOfDiagonal( const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
       []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
 }
 
+template<typename T>
+void
+DM<T>::UpdateDiagonal( T gamma, const DM<T>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::UpdateDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, [gamma]( T& alpha, T beta ) { alpha += gamma*beta; } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateDiagonal( T gamma, const DistMatrix<T,STAR,VC>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::UpdateDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, [gamma]( T& alpha, T beta ) { alpha += gamma*beta; } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateRealPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::UpdateRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateRealPart(alpha,gamma*beta); } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateRealPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::UpdateRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateRealPart(alpha,gamma*beta); } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateImagPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,VC,STAR>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::UpdateImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateImagPart(alpha,gamma*beta); } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateImagPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,STAR,VC>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[VC,* ]::UpdateImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateImagPart(alpha,gamma*beta); } );
+}
+
 // Private section
 // ###############
 

@@ -106,6 +106,7 @@ public:
     ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
+
     type GetDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),STAR,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),STAR,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
@@ -115,6 +116,12 @@ public:
     ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
     void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
+
+    void UpdateDiagonal( T alpha, const type& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
 
 private:
     // Helper functions

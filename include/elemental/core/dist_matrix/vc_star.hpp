@@ -123,12 +123,13 @@ public:
     void GetDiagonal( DistMatrix<T,STAR,VC>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
+    ( DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 ) const;
+
     type GetDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),VC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),VC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
@@ -137,12 +138,25 @@ public:
     void SetDiagonal( const DistMatrix<T,STAR,VC>& d, Int offset=0 );
     void SetRealPartOfDiagonal
     ( const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
     void SetRealPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 );
     void SetImagPartOfDiagonal
+    ( const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
+    void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 );
+
+    void UpdateDiagonal
+    ( T alpha, const type& d, Int offset=0 );
+    void UpdateDiagonal
+    ( T alpha, const DistMatrix<T,STAR,VC>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),VC,STAR>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,VC>& d, Int offset=0 );
 
 private:
     // Helper functions

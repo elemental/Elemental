@@ -1249,6 +1249,39 @@ DM<T>::SetImagPartOfDiagonal
       []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
 }
 
+template<typename T>
+void
+DM<T>::UpdateDiagonal( T gamma, const DM<T>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::UpdateDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, [gamma]( T& alpha, T beta ) { alpha += gamma*beta; } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateRealPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,STAR,STAR>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::UpdateRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateRealPart(alpha,gamma*beta); } );
+}
+
+template<typename T>
+void
+DM<T>::UpdateImagPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,STAR,STAR>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::UpdateImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateImagPart(alpha,gamma*beta); } );
+}
+
 // Private section
 // ###############
 
