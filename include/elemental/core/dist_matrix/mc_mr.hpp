@@ -132,8 +132,8 @@ public:
     virtual mpi::Comm RedundantComm() const;
     virtual mpi::Comm ColComm() const;
     virtual mpi::Comm RowComm() const;
-    virtual Int RowStride() const;
     virtual Int ColStride() const;
+    virtual Int RowStride() const;
 
     // Diagonal manipulation
     // =====================
@@ -147,9 +147,11 @@ public:
     ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
+
     DistMatrix<T,MD,STAR> GetDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),MD,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),MD,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+
     void SetDiagonal( const DistMatrix<T,MD,STAR>& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,MD>& d, Int offset=0 );
     void SetRealPartOfDiagonal
@@ -160,6 +162,19 @@ public:
     ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
     void SetImagPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
+
+    void UpdateDiagonal
+    ( T alpha, const DistMatrix<T,MD,STAR>& d, Int offset=0 );
+    void UpdateDiagonal
+    ( T alpha, const DistMatrix<T,STAR,MD>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
 
 private:
 

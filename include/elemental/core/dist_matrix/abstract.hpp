@@ -146,11 +146,7 @@ public:
     void MakeRealLocal( Int i, Int j );
     void ConjugateLocal( Int i, Int j );
 
-    // Diagonal manipulation
-    // =====================
-    // TODO
-
-    // Arbitrary submatrix manipulation
+    // Arbitrary-submatrix manipulation
     // ================================
 
     // Global submatrix manipulation
