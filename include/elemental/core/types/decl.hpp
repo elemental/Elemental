@@ -122,6 +122,29 @@ Distribution StringToDist( std::string s );
 using namespace distribution_wrapper;
 typedef Distribution Dist;
 
+#ifndef SWIG
+template<Dist U,Dist V>
+constexpr Dist DiagColDist()
+{ return ( U==STAR ? V : U ); }
+template<Dist U,Dist V>
+constexpr Dist DiagRowDist()
+{ return ( U==STAR ? U : V ); }
+
+template<>
+constexpr Dist DiagColDist<MC,MR>()
+{ return MD; }
+template<>
+constexpr Dist DiagRowDist<MC,MR>()
+{ return STAR; }
+
+template<>
+constexpr Dist DiagColDist<MR,MC>()
+{ return MD; }
+template<>
+constexpr Dist DiagRowDist<MR,MC>()
+{ return STAR; }
+#endif // ifndef SWIG
+
 namespace viewtype_wrapper {
 enum ViewType
 {

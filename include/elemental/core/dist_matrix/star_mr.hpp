@@ -95,6 +95,7 @@ public:
     // -----------
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
+    void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
 
     // Specialized redistributions
     // ---------------------------
@@ -116,6 +117,7 @@ public:
     virtual mpi::Comm RowComm() const;
     virtual Int RowStride() const;
     virtual Int ColStride() const;
+    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
 
     // Diagonal manipulation
     // =====================

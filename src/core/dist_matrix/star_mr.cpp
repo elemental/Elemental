@@ -822,6 +822,26 @@ void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
 
+template<typename T>
+void
+DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::AlignWithDiagonal"))
+    this->SetGrid( *data.grid );
+
+    if( (data.colDist == MR   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == MR  ) )
+    {
+        const Int alignment = ( data.colDist==MR ? data.colAlign
+                                                 : data.rowAlign );
+        if( offset >= 0 )
+            this->AlignRows( alignment );
+        else
+            this->AlignRows( (alignment-offset) % this->RowStride() );
+    }
+    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
+}
+
 // Specialized redistributions
 // ---------------------------
 
@@ -1071,6 +1091,36 @@ template<typename T>
 Int DM<T>::ColStride() const { return 1; }
 template<typename T>
 Int DM<T>::RowStride() const { return this->grid_->Width(); }
+
+template<typename T>
+bool
+DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::AlignedWithDiagonal"))
+    const Grid& grid = this->Grid();
+    if( grid != *data.grid )
+        return false;
+
+    bool aligned;
+    if( (data.colDist == MR   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == MR  ) )
+    {
+        const Int alignment = ( data.colDist==MR ? data.colAlign
+                                                 : data.rowAlign );
+        if( offset >= 0 )
+        {
+            const Int col = alignment;
+            aligned = ( this->RowAlign() == col );
+        }
+        else
+        {
+            const Int col = (alignment-offset) % this->RowStride();
+            aligned = ( this->RowAlign() == col );
+        }
+    }
+    else aligned = false;
+    return aligned;
+}
 
 // Diagonal manipulation
 // =====================

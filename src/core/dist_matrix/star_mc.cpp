@@ -1093,13 +1093,13 @@ DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
                                                  : data.rowAlign );
         if( offset >= 0 )
         {
-            const Int row = alignment;
-            aligned = ( this->RowAlign() == row );
+            const Int col = alignment;
+            aligned = ( this->RowAlign() == col );
         }
         else
         {
-            const Int row = (alignment-offset) % this->RowStride();
-            aligned = ( this->RowAlign() == row );
+            const Int col = (alignment-offset) % this->RowStride();
+            aligned = ( this->RowAlign() == col );
         }
     }
     else aligned = false;

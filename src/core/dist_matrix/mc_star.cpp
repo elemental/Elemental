@@ -1139,13 +1139,13 @@ DM<T>::GetDiagonalHelper
     if( !this->Participating() )
         return;
 
-    const Int r = g.Height();
+    const Int colStride = this->ColStride();
     const Int colShift = this->ColShift();
     const Int diagShift = d.ColShift();
     const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
     const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
 
-    const Int iLocStart = (iStart-colShift) / r;
+    const Int iLocStart = (iStart-colShift) / colStride;
     const Int localDiagLength = d.LocalHeight();
     S* dBuf = d.Buffer();
     const T* thisBuf = this->LockedBuffer();
@@ -1154,7 +1154,7 @@ DM<T>::GetDiagonalHelper
     for( Int k=0; k<localDiagLength; ++k )
     {
         const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*r;
+        const Int jLoc = jStart+k*colStride;
         func( dBuf[k], thisBuf[iLoc+jLoc*thisLDim] );
     }
 }
@@ -1185,13 +1185,13 @@ DM<T>::GetDiagonalHelper
     if( !this->Participating() )
         return;
 
-    const Int r = g.Height();
+    const Int colStride = this->ColStride();
     const Int colShift = this->ColShift();
     const Int diagShift = d.RowShift();
     const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
     const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
 
-    const Int iLocStart = (iStart-colShift) / r;
+    const Int iLocStart = (iStart-colShift) / colStride;
     const Int localDiagLength = d.LocalWidth();
     S* dBuf = d.Buffer();
     const Int dLDim = d.LDim();
@@ -1201,7 +1201,7 @@ DM<T>::GetDiagonalHelper
     for( Int k=0; k<localDiagLength; ++k )
     {
         const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*r;
+        const Int jLoc = jStart+k*colStride;
         func( dBuf[k*dLDim], thisBuf[iLoc+jLoc*thisLDim] );
     }
 }
@@ -1231,13 +1231,13 @@ DM<T>::SetDiagonalHelper
     if( !this->Participating() )
         return;
 
-    const Int r = g.Height();
+    const Int colStride = this->ColStride();
     const Int colShift = this->ColShift();
     const Int diagShift = d.ColShift();
     const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
     const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
 
-    const Int iLocStart = (iStart-colShift)/r;
+    const Int iLocStart = (iStart-colShift)/colStride;
     const Int localDiagLength = d.LocalHeight();
     const S* dBuf = d.LockedBuffer();
     T* thisBuf = this->Buffer();
@@ -1246,7 +1246,7 @@ DM<T>::SetDiagonalHelper
     for( Int k=0; k<localDiagLength; ++k )
     {
         const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*r;
+        const Int jLoc = jStart+k*colStride;
         func( thisBuf[iLoc+jLoc*thisLDim], dBuf[k] );
     }
 }
@@ -1276,13 +1276,13 @@ DM<T>::SetDiagonalHelper
     if( !this->Participating() )
         return;
 
-    const Int r = g.Height();
+    const Int colStride = this->ColStride();
     const Int colShift = this->ColShift();
     const Int diagShift = d.RowShift();
     const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
     const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
 
-    const Int iLocStart = (iStart-colShift)/r;
+    const Int iLocStart = (iStart-colShift)/colStride;
     const Int localDiagLength = d.LocalWidth();
     const S* dBuf = d.LockedBuffer();
     T* thisBuf = this->Buffer();
@@ -1292,7 +1292,7 @@ DM<T>::SetDiagonalHelper
     for( Int k=0; k<localDiagLength; ++k )
     {
         const Int iLoc = iLocStart+k;
-        const Int jLoc = jStart+k*r;
+        const Int jLoc = jStart+k*colStride;
         func( thisBuf[iLoc+jLoc*thisLDim], dBuf[k*dLDim] );
     }
 }

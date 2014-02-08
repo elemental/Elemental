@@ -175,7 +175,7 @@ private:
     // ===================
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
-#endif // ifndef SWIG
+#endif
 };
 
 } // namespace elem
