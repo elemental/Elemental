@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T>;
+using ADM = AbstractDistMatrix<T,VR,STAR>;
 template<typename T>
 using DM = DistMatrix<T,VR,STAR>;
 
@@ -1110,10 +1110,6 @@ template<typename T>
 Int DM<T>::ColStride() const { return this->grid_->Size(); }
 template<typename T>
 Int DM<T>::RowStride() const { return 1; }
-
-// Diagonal manipulation
-// =====================
-// TODO
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

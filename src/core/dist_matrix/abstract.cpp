@@ -11,11 +11,11 @@
 
 namespace elem {
 
-template<typename T>
-using ADM = AbstractDistMatrix<T>;
+template<typename T,Dist U,Dist V>
+using ADM = AbstractDistMatrix<T,U,V>;
 
 // NOTE: It seems that member functions cannot be defined using a 
-//       fully-specified template alias, e.g., ADM<T>::AbstractDistMatrix(),
+//       fully-specified template alias, e.g., ADM<T,U,V>::AbstractDistMatrix(),
 //       but DM<T> is okay if it is only partially specified, e.g., 
 //       DM<T> = DistMatrix<T,MC,MR> and DM<T>::DistMatrix()
 
@@ -25,8 +25,8 @@ using ADM = AbstractDistMatrix<T>;
 // Constructors and destructors
 // ============================
 
-template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( ADM<T>&& A )
+template<typename T,Dist U,Dist V>
+AbstractDistMatrix<T,U,V>::AbstractDistMatrix( ADM<T,U,V>&& A )
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
@@ -42,15 +42,15 @@ AbstractDistMatrix<T>::AbstractDistMatrix( ADM<T>&& A )
 // Optional to override
 // --------------------
 
-template<typename T>
-AbstractDistMatrix<T>::~AbstractDistMatrix() { }
+template<typename T,Dist U,Dist V>
+AbstractDistMatrix<T,U,V>::~AbstractDistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
 
-template<typename T>
-ADM<T>& 
-AbstractDistMatrix<T>::operator=( ADM<T>&& A )
+template<typename T,Dist U,Dist V>
+ADM<T,U,V>& 
+AbstractDistMatrix<T,U,V>::operator=( ADM<T,U,V>&& A )
 {
     auxMemory_.ShallowSwap( A.auxMemory_ );
     matrix_.ShallowSwap( A.matrix_ );
@@ -68,9 +68,9 @@ AbstractDistMatrix<T>::operator=( ADM<T>&& A )
     return *this;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Empty()
+AbstractDistMatrix<T,U,V>::Empty()
 {
     matrix_.Empty_();
     viewType_ = OWNER;
@@ -82,9 +82,9 @@ AbstractDistMatrix<T>::Empty()
     rowConstrained_ = false;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::EmptyData()
+AbstractDistMatrix<T,U,V>::EmptyData()
 {
     matrix_.Empty_();
     viewType_ = OWNER;
@@ -92,9 +92,9 @@ AbstractDistMatrix<T>::EmptyData()
     width_ = 0;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetGrid( const elem::Grid& grid )
+AbstractDistMatrix<T,U,V>::SetGrid( const elem::Grid& grid )
 {
     if( grid_ != &grid )
     {
@@ -104,9 +104,9 @@ AbstractDistMatrix<T>::SetGrid( const elem::Grid& grid )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Resize( Int height, Int width )
+AbstractDistMatrix<T,U,V>::Resize( Int height, Int width )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::Resize");
@@ -120,9 +120,9 @@ AbstractDistMatrix<T>::Resize( Int height, Int width )
           Length(width,RowShift(),RowStride()) );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
+AbstractDistMatrix<T,U,V>::Resize( Int height, Int width, Int ldim )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::Resize");
@@ -136,9 +136,9 @@ AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
           Length(width,RowShift(),RowStride()), ldim );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::MakeConsistent()
+AbstractDistMatrix<T,U,V>::MakeConsistent()
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeConsistent"))
     const elem::Grid& g = *grid_;
@@ -199,9 +199,9 @@ AbstractDistMatrix<T>::MakeConsistent()
 // Realignment
 // -----------
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
+AbstractDistMatrix<T,U,V>::Align( Int colAlign, Int rowAlign )
 { 
     DEBUG_ONLY(CallStackEntry cse("ADM::Align"))
     if( colAlign_ != colAlign || rowAlign_ != rowAlign )
@@ -213,9 +213,9 @@ AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
     SetShifts();
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignCols( Int colAlign )
+AbstractDistMatrix<T,U,V>::AlignCols( Int colAlign )
 { 
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignCols"))
     if( colAlign_ != colAlign )
@@ -225,9 +225,9 @@ AbstractDistMatrix<T>::AlignCols( Int colAlign )
     SetShifts();
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignRows( Int rowAlign )
+AbstractDistMatrix<T,U,V>::AlignRows( Int rowAlign )
 { 
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignRows"))
     if( rowAlign_ != rowAlign )
@@ -237,17 +237,17 @@ AbstractDistMatrix<T>::AlignRows( Int rowAlign )
     SetShifts();
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::FreeAlignments() 
+AbstractDistMatrix<T,U,V>::FreeAlignments() 
 { 
     colConstrained_ = false;
     rowConstrained_ = false;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetRoot( Int root )
+AbstractDistMatrix<T,U,V>::SetRoot( Int root )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::SetRoot");
@@ -259,9 +259,9 @@ AbstractDistMatrix<T>::SetRoot( Int root )
     root_ = root;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
+AbstractDistMatrix<T,U,V>::AlignWith( const elem::DistData& data )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignWith");
@@ -273,9 +273,9 @@ AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
     SetGrid( *data.grid ); 
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
+AbstractDistMatrix<T,U,V>::AlignColsWith( const elem::DistData& data )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignColsWith");
@@ -287,9 +287,9 @@ AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
     SetGrid( *data.grid );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
+AbstractDistMatrix<T,U,V>::AlignRowsWith( const elem::DistData& data )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignRowsWith");
@@ -307,84 +307,84 @@ AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
 // Global matrix information
 // -------------------------
 
-template<typename T>
-Int AbstractDistMatrix<T>::Height() const { return height_; }
-template<typename T>
-Int AbstractDistMatrix<T>::Width() const { return width_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::Height() const { return height_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::Width() const { return width_; }
 
-template<typename T>
-Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::DiagonalLength( Int offset ) const
 { return elem::DiagonalLength(height_,width_,offset); }
 
-template<typename T>
-bool AbstractDistMatrix<T>::Viewing() const { return IsViewing( viewType_ ); }
-template<typename T>
-bool AbstractDistMatrix<T>::Locked() const { return IsLocked( viewType_ ); }
+template<typename T,Dist U,Dist V>
+bool AbstractDistMatrix<T,U,V>::Viewing() const { return IsViewing( viewType_ ); }
+template<typename T,Dist U,Dist V>
+bool AbstractDistMatrix<T,U,V>::Locked() const { return IsLocked( viewType_ ); }
 
 // Local matrix information
 // ------------------------
 
-template<typename T>
-Int AbstractDistMatrix<T>::LocalHeight() const { return matrix_.Height(); }
-template<typename T>
-Int AbstractDistMatrix<T>::LocalWidth() const { return matrix_.Width(); }
-template<typename T>
-Int AbstractDistMatrix<T>::LDim() const { return matrix_.LDim(); }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::LocalHeight() const { return matrix_.Height(); }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::LocalWidth() const { return matrix_.Width(); }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::LDim() const { return matrix_.LDim(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 elem::Matrix<T>& 
-AbstractDistMatrix<T>::Matrix() { return matrix_; }
-template<typename T>
+AbstractDistMatrix<T,U,V>::Matrix() { return matrix_; }
+template<typename T,Dist U,Dist V>
 const elem::Matrix<T>& 
-AbstractDistMatrix<T>::LockedMatrix() const { return matrix_; }
+AbstractDistMatrix<T,U,V>::LockedMatrix() const { return matrix_; }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 size_t
-AbstractDistMatrix<T>::AllocatedMemory() const { return matrix_.MemorySize(); }
+AbstractDistMatrix<T,U,V>::AllocatedMemory() const { return matrix_.MemorySize(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 T*
-AbstractDistMatrix<T>::Buffer() { return matrix_.Buffer(); }
+AbstractDistMatrix<T,U,V>::Buffer() { return matrix_.Buffer(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 T*
-AbstractDistMatrix<T>::Buffer( Int iLoc, Int jLoc )
+AbstractDistMatrix<T,U,V>::Buffer( Int iLoc, Int jLoc )
 { return matrix_.Buffer(iLoc,jLoc); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 const T*
-AbstractDistMatrix<T>::LockedBuffer() const
+AbstractDistMatrix<T,U,V>::LockedBuffer() const
 { return matrix_.LockedBuffer(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 const T*
-AbstractDistMatrix<T>::LockedBuffer( Int iLoc, Int jLoc ) const
+AbstractDistMatrix<T,U,V>::LockedBuffer( Int iLoc, Int jLoc ) const
 { return matrix_.LockedBuffer(iLoc,jLoc); }
 
 // Distribution information
 // ------------------------
 
-template<typename T>
-const elem::Grid& AbstractDistMatrix<T>::Grid() const { return *grid_; }
+template<typename T,Dist U,Dist V>
+const elem::Grid& AbstractDistMatrix<T,U,V>::Grid() const { return *grid_; }
 
-template<typename T>
-bool AbstractDistMatrix<T>::ColConstrained() const { return colConstrained_; }
-template<typename T>
-bool AbstractDistMatrix<T>::RowConstrained() const { return rowConstrained_; }
+template<typename T,Dist U,Dist V>
+bool AbstractDistMatrix<T,U,V>::ColConstrained() const { return colConstrained_; }
+template<typename T,Dist U,Dist V>
+bool AbstractDistMatrix<T,U,V>::RowConstrained() const { return rowConstrained_; }
 
-template<typename T>
-Int AbstractDistMatrix<T>::ColAlign() const { return colAlign_; }
-template<typename T>
-Int AbstractDistMatrix<T>::RowAlign() const { return rowAlign_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::ColAlign() const { return colAlign_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::RowAlign() const { return rowAlign_; }
 
-template<typename T>
-Int AbstractDistMatrix<T>::ColShift() const { return colShift_; }
-template<typename T>
-Int AbstractDistMatrix<T>::RowShift() const { return rowShift_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::ColShift() const { return colShift_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::RowShift() const { return rowShift_; }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::ColRank() const
+AbstractDistMatrix<T,U,V>::ColRank() const
 { 
     if( grid_->InGrid() )
         return mpi::CommRank(ColComm());
@@ -392,9 +392,9 @@ AbstractDistMatrix<T>::ColRank() const
         return mpi::UNDEFINED;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::RowRank() const
+AbstractDistMatrix<T,U,V>::RowRank() const
 {
     if( grid_->InGrid() )
         return mpi::CommRank(RowComm());
@@ -402,62 +402,62 @@ AbstractDistMatrix<T>::RowRank() const
         return mpi::UNDEFINED;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::DistRank() const
+AbstractDistMatrix<T,U,V>::DistRank() const
 { return mpi::CommRank(DistComm()); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::CrossRank() const
+AbstractDistMatrix<T,U,V>::CrossRank() const
 { return mpi::CommRank(CrossComm()); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::RedundantRank() const
+AbstractDistMatrix<T,U,V>::RedundantRank() const
 { return mpi::CommRank(RedundantComm()); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::DistSize() const
+AbstractDistMatrix<T,U,V>::DistSize() const
 { return mpi::CommSize(DistComm()); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::CrossSize() const
+AbstractDistMatrix<T,U,V>::CrossSize() const
 { return mpi::CommSize(CrossComm()); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::RedundantSize() const
+AbstractDistMatrix<T,U,V>::RedundantSize() const
 { return mpi::CommSize(RedundantComm()); }
 
-template<typename T>
-Int AbstractDistMatrix<T>::Root() const { return root_; }
+template<typename T,Dist U,Dist V>
+Int AbstractDistMatrix<T,U,V>::Root() const { return root_; }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 bool
-AbstractDistMatrix<T>::Participating() const
+AbstractDistMatrix<T,U,V>::Participating() const
 { return grid_->InGrid() && (CrossRank()==root_); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::RowOwner( Int i ) const
+AbstractDistMatrix<T,U,V>::RowOwner( Int i ) const
 { return (i+ColAlign()) % ColStride(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::ColOwner( Int j ) const
+AbstractDistMatrix<T,U,V>::ColOwner( Int j ) const
 { return (j+RowAlign()) % RowStride(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::Owner( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::Owner( Int i, Int j ) const
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int 
-AbstractDistMatrix<T>::LocalRow( Int i ) const
+AbstractDistMatrix<T,U,V>::LocalRow( Int i ) const
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::LocalRow");
@@ -467,9 +467,9 @@ AbstractDistMatrix<T>::LocalRow( Int i ) const
     return (i-ColShift()) / ColStride();
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Int
-AbstractDistMatrix<T>::LocalCol( Int j ) const
+AbstractDistMatrix<T,U,V>::LocalCol( Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::LocalCol");
@@ -479,19 +479,19 @@ AbstractDistMatrix<T>::LocalCol( Int j ) const
     return (j-RowShift()) / RowStride();
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 bool
-AbstractDistMatrix<T>::IsLocalRow( Int i ) const
+AbstractDistMatrix<T,U,V>::IsLocalRow( Int i ) const
 { return Participating() && ((i-ColShift()) % ColStride()) == 0; }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 bool
-AbstractDistMatrix<T>::IsLocalCol( Int j ) const
+AbstractDistMatrix<T,U,V>::IsLocalCol( Int j ) const
 { return Participating() && ((j-RowShift()) % RowStride()) == 0; }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 bool
-AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::IsLocal( Int i, Int j ) const
 { return IsLocalRow(i) && IsLocalCol(j); }
 
 // Single-entry manipulation
@@ -500,9 +500,9 @@ AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
 // Global entry manipulation
 // -------------------------
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 T
-AbstractDistMatrix<T>::Get( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::Get( Int i, Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::Get");
@@ -525,9 +525,9 @@ AbstractDistMatrix<T>::Get( Int i, Int j ) const
     return value;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Base<T>
-AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::GetRealPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::GetRealPart");
@@ -550,9 +550,9 @@ AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
     return value;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Base<T>
-AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::GetImagPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::GetImagPart");
@@ -580,9 +580,9 @@ AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
     return value;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Set( Int i, Int j, T value )
+AbstractDistMatrix<T,U,V>::Set( Int i, Int j, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::Set"))
     if( CrossRank() == Root() )
@@ -597,9 +597,9 @@ AbstractDistMatrix<T>::Set( Int i, Int j, T value )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<T,U,V>::SetRealPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPart"))
     if( CrossRank() == Root() )
@@ -614,9 +614,9 @@ AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<T,U,V>::SetImagPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPart"))
     if( CrossRank() == Root() )
@@ -631,9 +631,9 @@ AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Update( Int i, Int j, T value )
+AbstractDistMatrix<T,U,V>::Update( Int i, Int j, T value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::Update"))
     if( CrossRank() == Root() )
@@ -648,9 +648,9 @@ AbstractDistMatrix<T>::Update( Int i, Int j, T value )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<T,U,V>::UpdateRealPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPart"))
     if( CrossRank() == Root() )
@@ -665,9 +665,9 @@ AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
+AbstractDistMatrix<T,U,V>::UpdateImagPart( Int i, Int j, Base<T> value )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPart"))
     if( CrossRank() == Root() )
@@ -682,9 +682,9 @@ AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::MakeReal( Int i, Int j )
+AbstractDistMatrix<T,U,V>::MakeReal( Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeReal"))
     if( CrossRank() == Root() )
@@ -699,9 +699,9 @@ AbstractDistMatrix<T>::MakeReal( Int i, Int j )
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Conjugate( Int i, Int j )
+AbstractDistMatrix<T,U,V>::Conjugate( Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::Conjugate"))
     if( CrossRank() == Root() )
@@ -719,64 +719,346 @@ AbstractDistMatrix<T>::Conjugate( Int i, Int j )
 // Local entry manipulation
 // ------------------------
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 T
-AbstractDistMatrix<T>::GetLocal( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::GetLocal( Int i, Int j ) const
 { return matrix_.Get(i,j); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Base<T>
-AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+AbstractDistMatrix<T,U,V>::GetLocalRealPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetRealPart(iLoc,jLoc); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 Base<T>
-AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+AbstractDistMatrix<T,U,V>::GetLocalImagPart( Int iLoc, Int jLoc ) const
 { return matrix_.GetImagPart(iLoc,jLoc); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
+AbstractDistMatrix<T,U,V>::SetLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Set(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<T,U,V>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<T,U,V>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
+AbstractDistMatrix<T,U,V>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Update(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<T,U,V>::UpdateLocalRealPart
+( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+AbstractDistMatrix<T,U,V>::UpdateLocalImagPart
+( Int iLoc, Int jLoc, Base<T> alpha )
 { matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::MakeRealLocal( Int iLoc, Int jLoc )
+AbstractDistMatrix<T,U,V>::MakeRealLocal( Int iLoc, Int jLoc )
 { matrix_.MakeReal( iLoc, jLoc ); }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
+AbstractDistMatrix<T,U,V>::ConjugateLocal( Int iLoc, Int jLoc )
 { matrix_.Conjugate( iLoc, jLoc ); }
 
 // Diagonal manipulation
 // =====================
-// TODO
+template<typename T,Dist U,Dist V>
+template<typename S>
+bool
+AbstractDistMatrix<T,U,V>::DiagonalAligned
+( const DistMatrix<S,UDiag,VDiag>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAligned"))
+    if( this->Grid() != d.Grid() )
+        return false;
+
+    if( U == MC && V == MR )
+    {
+        // The result is an [MD,* ]
+        const Int diagRow = d.ColAlign()            % this->ColStride();
+        const Int diagCol = (d.ColAlign()+d.Root()) % this->RowStride();
+        if( offset >= 0 )
+        {
+            const Int procRow = this->ColAlign();
+            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
+            return procRow==diagRow && procCol==diagCol;
+        }
+        else
+        {
+            const Int procRow = (this->ColAlign()-offset) % this->ColStride(); 
+            const Int procCol = this->RowAlign();
+            return procRow==diagRow && procCol==diagCol;
+        }
+    }
+    else if( U == MR && V == MC )
+    {
+        // The result is an [MD,* ]
+        const Int diagRow = d.ColAlign()            % this->ColStride();
+        const Int diagCol = (d.ColAlign()+d.Root()) % this->RowStride();
+        if( offset >= 0 )
+        {
+            const Int procCol = this->ColAlign();
+            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
+            return procRow==diagRow && procCol==diagCol;
+        }
+        else
+        {
+            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
+            const Int procRow = this->RowAlign();
+            return procRow==diagRow && procCol==diagCol;
+        }
+    }
+    else if( U == STAR )
+    {
+        // The result is a [V,* ]
+        if( offset >= 0 )
+            return this->Root()==d.Root() && 
+                   ((this->RowAlign()+offset)%this->RowStride())==d.ColAlign();
+        else
+            return this->Root()==d.Root() && this->RowAlign()==d.ColAlign();
+    }
+    else
+    {
+        // The result is a [U,V], where V is either STAR or CIRC
+        if( offset >= 0 )
+            return this->Root()==d.Root() && this->ColAlign() == d.ColAlign();
+        else
+            return this->Root()==d.Root() && 
+                   ((this->ColAlign()-offset)%this->ColStride())==d.ColAlign();
+    }
+}
+
+template<typename T,Dist U,Dist V>
+template<typename S>
+void
+AbstractDistMatrix<T,U,V>::ForceDiagonalAlign
+( DistMatrix<S,UDiag,VDiag>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::ForceDiagonalAlign"))
+    const elem::Grid& grid = this->Grid();
+    d.SetGrid( grid );
+
+    if( U == MC && V == MR )
+    {
+        // Result is an [MD,* ]
+        Int owner;
+        if( offset >= 0 )
+        {
+            const Int procRow = this->ColAlign();
+            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        else
+        {
+            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
+            const Int procCol = this->RowAlign();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        d.SetRoot( grid.DiagPath(owner) );
+        d.AlignCols( grid.DiagPathRank(owner) );
+    }
+    else if( U == MR && V == MC )
+    {
+        // Result is an [MD,* ]
+        Int owner;
+        if( offset >= 0 )
+        {
+            const Int procCol = this->ColAlign();
+            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        else
+        {
+            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
+            const Int procRow = this->RowAlign();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        d.SetRoot( grid.DiagPath(owner) );
+        d.AlignCols( grid.DiagPathRank(owner) );
+    }
+    else if( U == STAR )
+    {
+        // Result is a [V,* ] 
+        Int colAlign;
+        if( offset >= 0 )
+            colAlign = (this->RowAlign()+offset) % this->RowStride();
+        else
+            colAlign = this->RowAlign();
+        d.SetRoot( this->Root() );
+        d.AlignCols( colAlign );
+    }
+    else
+    {
+        // Result is a [U,V], where V is either STAR or CIRC
+        Int colAlign;
+        if( offset >= 0 )
+            colAlign = this->ColAlign();
+        else
+            colAlign = (this->ColAlign()-offset) % this->ColStride();
+        d.SetRoot( this->Root() );
+        d.AlignCols( colAlign );
+    }
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::GetDiagonal
+( DistMatrix<T,UDiag,VDiag>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::GetRealPartOfDiagonal
+( DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = RealPart(beta); } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::GetImagPartOfDiagonal
+( DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfDiagonal"))
+    this->GetDiagonalHelper
+    ( d, offset, []( Base<T>& alpha, T beta ) { alpha = ImagPart(beta); } );
+}
+
+template<typename T,Dist U,Dist V>
+auto
+AbstractDistMatrix<T,U,V>::GetDiagonal( Int offset ) const
+-> DistMatrix<T,UDiag,VDiag>
+{
+    DistMatrix<T,UDiag,VDiag> d( this->Grid() );
+    GetDiagonal( d, offset );
+    return d;
+}
+
+template<typename T,Dist U,Dist V>
+auto
+AbstractDistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
+-> DistMatrix<Base<T>,UDiag,VDiag>
+{
+    DistMatrix<Base<T>,UDiag,VDiag> d( this->Grid() );
+    GetRealPartOfDiagonal( d, offset );
+    return d;
+}
+
+template<typename T,Dist U,Dist V>
+auto
+AbstractDistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
+-> DistMatrix<Base<T>,UDiag,VDiag>
+{
+    DistMatrix<Base<T>,UDiag,VDiag> d( this->Grid() );
+    GetImagPartOfDiagonal( d, offset );
+    return d;
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::SetDiagonal
+( const DistMatrix<T,UDiag,VDiag>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, []( T& alpha, T beta ) { alpha = beta; } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::SetRealPartOfDiagonal
+( const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::SetImagPartOfDiagonal
+( const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::UpdateDiagonal
+( T gamma, const DistMatrix<T,UDiag,VDiag>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, [gamma]( T& alpha, T beta ) { alpha += gamma*beta; } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::UpdateRealPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateRealPart(alpha,gamma*beta); } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::UpdateImagPartOfDiagonal
+( Base<T> gamma, const DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfDiagonal"))
+    this->SetDiagonalHelper
+    ( d, offset, 
+      [gamma]( T& alpha, Base<T> beta ) 
+      { elem::UpdateImagPart(alpha,gamma*beta); } );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::MakeDiagonalReal( Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeDiagonalReal"))
+    // TODO
+    LogicError("This routine not yet written");
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::ConjugateDiagonal( Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateDiagonal"))
+    // TODO
+    LogicError("This routine not yet written");
+}
 
 // Arbitrary submatrix manipulation
 // ================================
@@ -784,9 +1066,9 @@ AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
 // Global submatrix manipulation
 // -----------------------------
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::Get
+AbstractDistMatrix<T,U,V>::Get
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   DistMatrix<T,STAR,STAR>& ASub ) const
 {
@@ -823,9 +1105,9 @@ AbstractDistMatrix<T>::Get
     mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::GetRealPart
+AbstractDistMatrix<T,U,V>::GetRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   DistMatrix<BASE(T),STAR,STAR>& ASub ) const
 {
@@ -863,9 +1145,9 @@ AbstractDistMatrix<T>::GetRealPart
     mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::GetImagPart
+AbstractDistMatrix<T,U,V>::GetImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   DistMatrix<BASE(T),STAR,STAR>& ASub ) const
 {
@@ -903,9 +1185,9 @@ AbstractDistMatrix<T>::GetImagPart
     mpi::Broadcast( ASub.Buffer(), m*n, Root(), CrossComm() );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 DistMatrix<T,STAR,STAR>
-AbstractDistMatrix<T>::Get
+AbstractDistMatrix<T,U,V>::Get
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::Get"))
@@ -914,9 +1196,9 @@ AbstractDistMatrix<T>::Get
     return ASub;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 DistMatrix<BASE(T),STAR,STAR>
-AbstractDistMatrix<T>::GetRealPart
+AbstractDistMatrix<T,U,V>::GetRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPart"))
@@ -925,9 +1207,9 @@ AbstractDistMatrix<T>::GetRealPart
     return ASub;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 DistMatrix<BASE(T),STAR,STAR>
-AbstractDistMatrix<T>::GetImagPart
+AbstractDistMatrix<T,U,V>::GetImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPart"))
@@ -936,9 +1218,9 @@ AbstractDistMatrix<T>::GetImagPart
     return ASub;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::Set
+AbstractDistMatrix<T,U,V>::Set
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const DistMatrix<T,STAR,STAR>& ASub )
 {
@@ -968,9 +1250,9 @@ AbstractDistMatrix<T>::Set
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::SetRealPart
+AbstractDistMatrix<T,U,V>::SetRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
@@ -1001,9 +1283,9 @@ AbstractDistMatrix<T>::SetRealPart
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::SetImagPart
+AbstractDistMatrix<T,U,V>::SetImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
@@ -1034,9 +1316,9 @@ AbstractDistMatrix<T>::SetImagPart
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::Update
+AbstractDistMatrix<T,U,V>::Update
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   T alpha, const DistMatrix<T,STAR,STAR>& ASub )
 {
@@ -1045,7 +1327,7 @@ AbstractDistMatrix<T>::Update
     const Int n = colInd.size();
     if( Participating() )
     {
-        // Fill in our locally-owned entries
+        // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
             const Int j = colInd[jSub];
@@ -1067,9 +1349,9 @@ AbstractDistMatrix<T>::Update
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::UpdateRealPart
+AbstractDistMatrix<T,U,V>::UpdateRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
@@ -1078,7 +1360,7 @@ AbstractDistMatrix<T>::UpdateRealPart
     const Int n = colInd.size();
     if( Participating() )
     {
-        // Fill in our locally-owned entries
+        // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
             const Int j = colInd[jSub];
@@ -1100,9 +1382,9 @@ AbstractDistMatrix<T>::UpdateRealPart
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::UpdateImagPart
+AbstractDistMatrix<T,U,V>::UpdateImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
@@ -1111,7 +1393,7 @@ AbstractDistMatrix<T>::UpdateImagPart
     const Int n = colInd.size();
     if( Participating() )
     {
-        // Fill in our locally-owned entries
+        // Modify our locally-owned entries
         for( Int jSub=0; jSub<n; ++jSub )
         {
             const Int j = colInd[jSub];
@@ -1133,12 +1415,74 @@ AbstractDistMatrix<T>::UpdateImagPart
     }
 }
 
+template<typename T,Dist U,Dist V>
+void 
+AbstractDistMatrix<T,U,V>::MakeReal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeReal"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Modify the locally-owned entries 
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        MakeRealLocal( iLoc, jLoc );
+                    }
+                }
+            }
+        }
+    }
+}
+
+template<typename T,Dist U,Dist V>
+void 
+AbstractDistMatrix<T,U,V>::Conjugate
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::Conjugate"))
+    const Int m = rowInd.size();
+    const Int n = colInd.size();
+    if( Participating() )
+    {
+        // Modify the locally-owned entries 
+        for( Int jSub=0; jSub<n; ++jSub )
+        {
+            const Int j = colInd[jSub];
+            if( IsLocalCol(j) )
+            {
+                const Int jLoc = LocalCol(j);
+                for( Int iSub=0; iSub<m; ++iSub )
+                {
+                    const Int i = rowInd[iSub];
+                    if( IsLocalRow(i) )
+                    {
+                        const Int iLoc = LocalRow(i);
+                        ConjugateLocal( iLoc, jLoc );
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Local submatrix manipulation
 // ----------------------------
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::GetLocal
+AbstractDistMatrix<T,U,V>::GetLocal
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   elem::Matrix<T>& ASub ) const
 {
@@ -1146,9 +1490,9 @@ AbstractDistMatrix<T>::GetLocal
     LockedMatrix().Get( rowInd, colInd, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::GetLocalRealPart
+AbstractDistMatrix<T,U,V>::GetLocalRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   elem::Matrix<BASE(T)>& ASub ) const
 {
@@ -1156,9 +1500,9 @@ AbstractDistMatrix<T>::GetLocalRealPart
     LockedMatrix().GetRealPart( rowInd, colInd, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::GetLocalImagPart
+AbstractDistMatrix<T,U,V>::GetLocalImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   elem::Matrix<BASE(T)>& ASub ) const
 {
@@ -1166,9 +1510,9 @@ AbstractDistMatrix<T>::GetLocalImagPart
     LockedMatrix().GetImagPart( rowInd, colInd, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::SetLocal
+AbstractDistMatrix<T,U,V>::SetLocal
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const elem::Matrix<T>& ASub )
 {
@@ -1176,9 +1520,9 @@ AbstractDistMatrix<T>::SetLocal
     Matrix().Set( rowInd, colInd, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::SetLocalRealPart
+AbstractDistMatrix<T,U,V>::SetLocalRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const elem::Matrix<BASE(T)>& ASub )
 {
@@ -1186,9 +1530,9 @@ AbstractDistMatrix<T>::SetLocalRealPart
     Matrix().SetRealPart( rowInd, colInd, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::SetLocalImagPart
+AbstractDistMatrix<T,U,V>::SetLocalImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const elem::Matrix<BASE(T)>& ASub )
 {
@@ -1196,9 +1540,9 @@ AbstractDistMatrix<T>::SetLocalImagPart
     Matrix().SetImagPart( rowInd, colInd, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::UpdateLocal
+AbstractDistMatrix<T,U,V>::UpdateLocal
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   T alpha, const elem::Matrix<T>& ASub )
 {
@@ -1206,9 +1550,9 @@ AbstractDistMatrix<T>::UpdateLocal
     Matrix().Update( rowInd, colInd, alpha, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::UpdateLocalRealPart
+AbstractDistMatrix<T,U,V>::UpdateLocalRealPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
 {
@@ -1216,14 +1560,32 @@ AbstractDistMatrix<T>::UpdateLocalRealPart
     Matrix().UpdateRealPart( rowInd, colInd, alpha, ASub );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::UpdateLocalImagPart
+AbstractDistMatrix<T,U,V>::UpdateLocalImagPart
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalImagPart"))
     Matrix().UpdateImagPart( rowInd, colInd, alpha, ASub );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::MakeRealLocal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeRealLocal"))
+    Matrix().MakeReal( rowInd, colInd );
+}
+
+template<typename T,Dist U,Dist V>
+void
+AbstractDistMatrix<T,U,V>::ConjugateLocal
+( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateLocal"))
+    Matrix().Conjugate( rowInd, colInd );
 }
 
 // Private section
@@ -1232,8 +1594,8 @@ AbstractDistMatrix<T>::UpdateLocalImagPart
 // Construct using a particular process grid
 // =========================================
 
-template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
+template<typename T,Dist U,Dist V>
+AbstractDistMatrix<T,U,V>::AbstractDistMatrix( const elem::Grid& grid )
 : viewType_(OWNER),
   height_(0), width_(0), 
   auxMemory_(), 
@@ -1248,9 +1610,9 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
 // Exchange metadata with another matrix
 // =====================================
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void 
-AbstractDistMatrix<T>::ShallowSwap( ADM<T>& A )
+AbstractDistMatrix<T,U,V>::ShallowSwap( ADM<T,U,V>& A )
 {
     matrix_.ShallowSwap( A.matrix_ );
     auxMemory_.ShallowSwap( A.auxMemory_ );
@@ -1270,9 +1632,9 @@ AbstractDistMatrix<T>::ShallowSwap( ADM<T>& A )
 // Modify the distribution metadata
 // ================================
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetShifts()
+AbstractDistMatrix<T,U,V>::SetShifts()
 {
     if( Participating() )
     {
@@ -1286,9 +1648,9 @@ AbstractDistMatrix<T>::SetShifts()
     }
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetColShift()
+AbstractDistMatrix<T,U,V>::SetColShift()
 {
     if( Participating() )
         colShift_ = Shift(ColRank(),colAlign_,ColStride());
@@ -1296,9 +1658,9 @@ AbstractDistMatrix<T>::SetColShift()
         colShift_ = 0;
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::SetRowShift()
+AbstractDistMatrix<T,U,V>::SetRowShift()
 {
     if( Participating() )
         rowShift_ = Shift(RowRank(),rowAlign_,RowStride());
@@ -1309,9 +1671,9 @@ AbstractDistMatrix<T>::SetRowShift()
 // Combined realignment and resize
 // ===============================
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignAndResize
+AbstractDistMatrix<T,U,V>::AlignAndResize
 ( Int colAlign, Int rowAlign, Int height, Int width, bool force )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignAndResize"))
@@ -1333,9 +1695,9 @@ AbstractDistMatrix<T>::AlignAndResize
     Resize( height, width );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignColsAndResize
+AbstractDistMatrix<T,U,V>::AlignColsAndResize
 ( Int colAlign, Int height, Int width, bool force )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsAndResize"))
@@ -1349,9 +1711,9 @@ AbstractDistMatrix<T>::AlignColsAndResize
     Resize( height, width );
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AlignRowsAndResize
+AbstractDistMatrix<T,U,V>::AlignRowsAndResize
 ( Int rowAlign, Int height, Int width, bool force )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsAndResize"))
@@ -1368,33 +1730,33 @@ AbstractDistMatrix<T>::AlignRowsAndResize
 // Assertions
 // ==========
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::ComplainIfReal() const
+AbstractDistMatrix<T,U,V>::ComplainIfReal() const
 { 
     if( !IsComplex<T>::val )
         LogicError("Called complex-only routine with real data");
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AssertNotLocked() const
+AbstractDistMatrix<T,U,V>::AssertNotLocked() const
 {
     if( Locked() )
         LogicError("Assertion that matrix not be a locked view failed");
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AssertNotStoringData() const
+AbstractDistMatrix<T,U,V>::AssertNotStoringData() const
 {
     if( matrix_.MemorySize() > 0 )
         LogicError("Assertion that matrix not be storing data failed");
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
+AbstractDistMatrix<T,U,V>::AssertValidEntry( Int i, Int j ) const
 {
     if( i < 0 || i >= Height() || j < 0 || j >= Width() )
         LogicError
@@ -1402,9 +1764,9 @@ AbstractDistMatrix<T>::AssertValidEntry( Int i, Int j ) const
          " x ",Width()," matrix");
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void
-AbstractDistMatrix<T>::AssertValidSubmatrix
+AbstractDistMatrix<T,U,V>::AssertValidSubmatrix
 ( Int i, Int j, Int height, Int width ) const
 {
     if( i < 0 || j < 0 )
@@ -1417,28 +1779,105 @@ AbstractDistMatrix<T>::AssertValidSubmatrix
          ",",j+width-1,") of ",Height()," x ",Width()," matrix");
 }
 
-template<typename T> 
+template<typename T,Dist U,Dist V> 
 void
-AbstractDistMatrix<T>::AssertSameGrid( const elem::Grid& grid ) const
+AbstractDistMatrix<T,U,V>::AssertSameGrid( const elem::Grid& grid ) const
 {
     if( Grid() != grid )
         LogicError("Assertion that grids match failed");
 }
 
-template<typename T> 
+template<typename T,Dist U,Dist V> 
 void
-AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
+AbstractDistMatrix<T,U,V>::AssertSameSize( Int height, Int width ) const
 {
     if( Height() != height || Width() != width )
         LogicError("Assertion that matrices be the same size failed");
 }
 
+// Helper functions
+// ================
+template<typename T,Dist U,Dist V>
+template<typename S,class Function>
+void
+AbstractDistMatrix<T,U,V>::GetDiagonalHelper
+( DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetDiagonalHelper"))
+    d.SetGrid( this->Grid() );
+    this->ForceDiagonalAlign( d, offset );
+    d.Resize( this->DiagonalLength(offset), 1 );
+    if( !d.Participating() )
+        return;
+
+    const Int diagShift = d.ColShift();
+    const Int diagStride = d.ColStride();
+    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+    const Int colStride = this->ColStride();
+    const Int rowStride = this->RowStride();
+    const Int iLocStart = (iStart-this->ColShift()) / colStride;
+    const Int jLocStart = (jStart-this->RowShift()) / rowStride;
+
+    const Int localDiagLength = d.LocalHeight();
+    S* dBuf = d.Buffer();
+    const T* buffer = this->LockedBuffer();
+    const Int ldim = this->LDim();
+
+    PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
+    {
+        const Int iLoc = iLocStart + k*(diagStride/colStride);
+        const Int jLoc = jLocStart + k*(diagStride/rowStride);
+        func( dBuf[k], buffer[iLoc+jLoc*ldim] );
+    }
+}
+
+template<typename T,Dist U,Dist V>
+template<typename S,class Function>
+void
+AbstractDistMatrix<T,U,V>::SetDiagonalHelper
+( const DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) 
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::SetDiagonalHelper");
+        if( !this->DiagonalAligned( d, offset ) )
+            LogicError("Invalid diagonal alignment");
+    )
+    if( !d.Participating() )
+        return;
+
+    const Int diagShift = d.ColShift();
+    const Int diagStride = d.ColStride();
+    const Int iStart = ( offset>=0 ? diagShift        : diagShift-offset );
+    const Int jStart = ( offset>=0 ? diagShift+offset : diagShift        );
+
+    const Int colStride = this->ColStride();
+    const Int rowStride = this->RowStride();
+    const Int iLocStart = (iStart-this->ColShift()) / colStride;
+    const Int jLocStart = (jStart-this->RowShift()) / rowStride;
+
+    const Int localDiagLength = d.LocalHeight();
+    const S* dBuf = d.LockedBuffer();
+    T* buffer = this->Buffer();
+    const Int ldim = this->LDim();
+
+    PARALLEL_FOR
+    for( Int k=0; k<localDiagLength; ++k )
+    {
+        const Int iLoc = iLocStart + k*(diagStride/colStride);
+        const Int jLoc = jLocStart + k*(diagStride/rowStride);
+        func( buffer[iLoc+jLoc*ldim], dBuf[k] );
+    }
+}
+
 // Outside of class
 // ----------------
 
-template<typename T> 
+template<typename T,Dist U,Dist V> 
 void
-AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
+AssertConforming1x2( const ADM<T,U,V>& AL, const ADM<T,U,V>& AR )
 {
     if( AL.Height() != AR.Height() )    
         LogicError
@@ -1448,9 +1887,9 @@ AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
         LogicError("1x2 is misaligned");
 }
 
-template<typename T> 
+template<typename T,Dist U,Dist V> 
 void
-AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
+AssertConforming2x1( const ADM<T,U,V>& AT, const ADM<T,U,V>& AB )
 {
     if( AT.Width() != AB.Width() )
         LogicError
@@ -1460,10 +1899,11 @@ AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
         LogicError("2x1 is not aligned");
 }
 
-template<typename T> 
+template<typename T,Dist U,Dist V> 
 void
 AssertConforming2x2
-( const ADM<T>& ATL, const ADM<T>& ATR, const ADM<T>& ABL, const ADM<T>& ABR ) 
+( const ADM<T,U,V>& ATL, const ADM<T,U,V>& ATR, 
+  const ADM<T,U,V>& ABL, const ADM<T,U,V>& ABR ) 
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
         ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
@@ -1481,28 +1921,125 @@ AssertConforming2x2
 // Instantiations for {Int,Real,Complex<Real>} for each Real in {float,double}
 // ###########################################################################
 
-#define PROTO(T) template class AbstractDistMatrix<T>
+// TODO: Modify to instantiate for all matrix distributions
 
-PROTO(Int);
-#ifndef DISABLE_FLOAT
-PROTO(float);
-#endif // ifndef DISABLE_FLOAT
-PROTO(double);
+#define DIAGALIGNED(S,T,U,V)\
+  template bool AbstractDistMatrix<T,U,V>::DiagonalAligned\
+  ( const DistMatrix<S,UDiag,VDiag>&, Int ) const;\
+  template void AbstractDistMatrix<T,U,V>::ForceDiagonalAlign\
+  ( DistMatrix<S,UDiag,VDiag>&, Int ) const;
+
+#define DISTPROTO(T,U,V)\
+  template class AbstractDistMatrix<T,U,V>;\
+  DIAGALIGNED(Int,T,U,V);\
+  DIAGALIGNED(float,T,U,V);\
+  DIAGALIGNED(double,T,U,V);\
+  DIAGALIGNED(Complex<float>,T,U,V);\
+  DIAGALIGNED(Complex<double>,T,U,V);
+  
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
-PROTO(Complex<float>);
+
+#define DISTPROTO(T,U,V)\
+  template class AbstractDistMatrix<T,U,V>;\
+  DIAGALIGNED(Int,T,U,V);\
+  DIAGALIGNED(float,T,U,V);\
+  DIAGALIGNED(double,T,U,V);\
+  DIAGALIGNED(Complex<float>,T,U,V);\
+  DIAGALIGNED(Complex<double>,T,U,V);
+ 
+#else // ifndef DISABLE_FLOAT
+
+#define DISTPROTO(T,U,V)\
+  template class AbstractDistMatrix<T,U,V>;\
+  DIAGALIGNED(Int,T,U,V);\
+  DIAGALIGNED(double,T,U,V);\
+  DIAGALIGNED(Complex<double>,T,U,V);
+
 #endif // ifndef DISABLE_FLOAT
-PROTO(Complex<double>);
+#else // ifndef DISABLE_COMPLEX
+#ifndef DISABLE_FLOAT
+
+#define DISTPROTO(T,U,V)\
+  template class AbstractDistMatrix<T,U,V>;\
+  DIAGALIGNED(Int,T,U,V);\
+  DIAGALIGNED(float,T,U,V);\
+  DIAGALIGNED(double,T,U,V);
+
+#else // ifndef DISABLE_FLOAT
+
+#define DISTPROTO(T,U,V)\
+  template class AbstractDistMatrix<T,U,V>;\
+  DIAGALIGNED(Int,T,U,V);\
+  DIAGALIGNED(double,T,U,V);
+
+#endif // ifndef DISABLE_FLOAT
+#endif // ifndef DISABLE_COMPLEX
+
+#define PROTO(T)\
+  DISTPROTO(T,CIRC,CIRC);\
+  DISTPROTO(T,MC,  MR  );\
+  DISTPROTO(T,MC,  STAR);\
+  DISTPROTO(T,MD,  STAR);\
+  DISTPROTO(T,MR,  MC  );\
+  DISTPROTO(T,MR,  STAR);\
+  DISTPROTO(T,STAR,MC  );\
+  DISTPROTO(T,STAR,MD  );\
+  DISTPROTO(T,STAR,MR  );\
+  DISTPROTO(T,STAR,STAR);\
+  DISTPROTO(T,STAR,VC  );\
+  DISTPROTO(T,STAR,VR  );\
+  DISTPROTO(T,VC,  STAR);\
+  DISTPROTO(T,VR,  STAR);
+
+#ifndef DISABLE_COMPLEX
+ #ifndef DISABLE_FLOAT
+  PROTO(Int);
+  PROTO(float);
+  PROTO(double);
+  PROTO(Complex<float>);
+  PROTO(Complex<double>);
+ #else // ifndef DISABLE_FLOAT
+  PROTO(Int);
+  PROTO(double);
+  PROTO(Complex<double>);
+ #endif // ifndef DISABLE_FLOAT
+#else // ifndef DISABLE_COMPLEX
+ #ifndef DISABLE_FLOAT
+  PROTO(Int);
+  PROTO(float);
+  PROTO(double);
+ #else // ifndef DISABLE_FLOAT
+  PROTO(Int);
+  PROTO(double);
+ #endif // ifndef DISABLE_FLOAT
 #endif // ifndef DISABLE_COMPLEX
 
 #ifndef RELEASE
 
-#define CONFORMING(T) \
-  template void AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR ); \
-  template void AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB ); \
+#define DISTCONFORMING(T,U,V) \
+  template void AssertConforming1x2\
+  ( const ADM<T,U,V>& AL, const ADM<T,U,V>& AR ); \
+  template void AssertConforming2x1\
+  ( const ADM<T,U,V>& AT, const ADM<T,U,V>& AB ); \
   template void AssertConforming2x2\
-  ( const ADM<T>& ATL, const ADM<T>& ATR,\
-    const ADM<T>& ABL, const ADM<T>& ABR )
+  ( const ADM<T,U,V>& ATL, const ADM<T,U,V>& ATR,\
+    const ADM<T,U,V>& ABL, const ADM<T,U,V>& ABR )
+#define CONFORMING(T)\
+  DISTCONFORMING(T,CIRC,CIRC);\
+  DISTCONFORMING(T,MC,  MR  );\
+  DISTCONFORMING(T,MC,  STAR);\
+  DISTCONFORMING(T,MD,  STAR);\
+  DISTCONFORMING(T,MR,  MC  );\
+  DISTCONFORMING(T,MR,  STAR);\
+  DISTCONFORMING(T,STAR,MC  );\
+  DISTCONFORMING(T,STAR,MD  );\
+  DISTCONFORMING(T,STAR,MR  );\
+  DISTCONFORMING(T,STAR,STAR);\
+  DISTCONFORMING(T,STAR,VC  );\
+  DISTCONFORMING(T,STAR,VR  );\
+  DISTCONFORMING(T,VC,  STAR);\
+  DISTCONFORMING(T,VR,  STAR);
 
 CONFORMING(Int);
 #ifndef DISABLE_FLOAT

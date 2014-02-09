@@ -56,7 +56,7 @@ ApplyQ
     DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const Int offset = A.Width()-A.Height();
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.AlignWithDiagonal( A, offset );
+    A.ForceDiagonalAlign( tDiag, offset ); 
     tDiag = t;
     ApplyQ( side, orientation, A, tDiag, B );
 }

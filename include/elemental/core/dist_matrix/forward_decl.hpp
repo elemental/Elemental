@@ -12,10 +12,10 @@
 
 namespace elem {
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 class AbstractDistMatrix;
 
-template<typename T,Dist ColDist=MC,Dist RowDist=MR>
+template<typename T,Dist U=MC,Dist V=MR>
 class DistMatrix;
 
 } // namespace elem

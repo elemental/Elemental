@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T>;
+using ADM = AbstractDistMatrix<T,CIRC,CIRC>;
 template<typename T>
 using DM = DistMatrix<T,CIRC,CIRC>;
 
@@ -1201,10 +1201,6 @@ template<typename T>
 Int DM<T>::ColStride() const { return 1; }
 template<typename T>
 Int DM<T>::RowStride() const { return 1; }
-
-// Diagonal manipulation
-// =====================
-// TODO
 
 // Private section
 // ###############

@@ -796,7 +796,7 @@ UnblockedPivoted
             LogicError("A, dSub, and p must share the same grid");
     )
     const Int n = A.Height();
-    dSub.AlignWithDiagonal( A, -1 );
+    A.ForceDiagonalAlign( dSub, -1 );
     Zeros( dSub, n-1, 1 );
     p.Resize( n, 1 );
 
@@ -1171,7 +1171,7 @@ BlockedPivoted
         p.Resize( 0, 1 );
         return;
     }
-    dSub.AlignWithDiagonal( A, -1 );
+    A.ForceDiagonalAlign( dSub, -1 );
     Zeros( dSub, n-1, 1 );
     p.Resize( n, 1 );
 

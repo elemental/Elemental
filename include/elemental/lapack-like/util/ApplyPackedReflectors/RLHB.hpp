@@ -102,7 +102,7 @@ RLHB
     DEBUG_ONLY(
         if( t.Height() != diagLength )
             LogicError("t must be the same length as H's offset diag");
-        if( !t.AlignedWithDiagonal( H, offset ) )
+        if( !H.DiagonalAligned( t, offset ) )
             LogicError("t must be aligned with H's 'offset' diagonal");
     )
     const Grid& g = H.Grid();

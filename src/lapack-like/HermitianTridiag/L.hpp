@@ -79,7 +79,7 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     }
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tDiag(g);
-    tDiag.AlignWithDiagonal( A, -1 );
+    A.ForceDiagonalAlign( tDiag, -1 );
     tDiag.Resize( n-1, 1 );
 
     DistMatrix<F> WPan(g);

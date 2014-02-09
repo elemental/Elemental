@@ -77,7 +77,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         CallStackEntry cse("qr::PanelHouseholder");
         if( A.Grid() != t.Grid() )
             LogicError("{A,t} must be distributed over the same grid");
-        if( !t.AlignedWithDiagonal( A, 0 ) )
+        if( !A.DiagonalAligned( t, 0 ) )
             LogicError("t must be aligned with A's main diagonal");
     )
     const Grid& g = A.Grid();

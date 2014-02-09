@@ -124,25 +124,24 @@ typedef Distribution Dist;
 
 #ifndef SWIG
 template<Dist U,Dist V>
-constexpr Dist DiagColDist()
-{ return ( U==STAR ? V : U ); }
+constexpr Dist DiagColDist() { return ( U==STAR ? V : U ); }
 template<Dist U,Dist V>
-constexpr Dist DiagRowDist()
-{ return ( U==STAR ? U : V ); }
+constexpr Dist DiagRowDist() { return ( U==STAR ? U : V ); }
 
-template<>
-constexpr Dist DiagColDist<MC,MR>()
-{ return MD; }
-template<>
-constexpr Dist DiagRowDist<MC,MR>()
-{ return STAR; }
+template<> constexpr Dist DiagColDist<MC,MR>() { return MD; }
+template<> constexpr Dist DiagRowDist<MC,MR>() { return STAR; }
+template<> constexpr Dist DiagColDist<MR,MC>() { return MD; }
+template<> constexpr Dist DiagRowDist<MR,MC>() { return STAR; }
 
-template<>
-constexpr Dist DiagColDist<MR,MC>()
-{ return MD; }
-template<>
-constexpr Dist DiagRowDist<MR,MC>()
-{ return STAR; }
+template<Dist U,Dist V>
+constexpr Dist DiagInvColDist() { return ( U==STAR ? V : U ); }
+template<Dist U,Dist V>
+constexpr Dist DiagInvRowDist() { return ( U==STAR ? U : V ); }
+
+template<> constexpr Dist DiagInvColDist<MD,STAR>() { return MC; }
+template<> constexpr Dist DiagInvRowDist<MD,STAR>() { return MR; }
+template<> constexpr Dist DiagInvColDist<STAR,MD>() { return MC; }
+template<> constexpr Dist DiagInvRowDist<STAR,MD>() { return MR; }
 #endif // ifndef SWIG
 
 namespace viewtype_wrapper {

@@ -53,7 +53,7 @@ ApplyQ
 {
     DEBUG_ONLY(CallStackEntry cse("lq::ApplyQ"))
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.AlignWithDiagonal( A );
+    A.ForceDiagonalAlign( tDiag );
     tDiag = t;
     ApplyQ( side, orientation, A, tDiag, B );
 }

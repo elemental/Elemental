@@ -16,12 +16,12 @@ namespace elem {
 //
 // The entire matrix is replicated across all processes.
 template<typename T>
-class DistMatrix<T,STAR,STAR> : public AbstractDistMatrix<T>
+class DistMatrix<T,STAR,STAR> : public AbstractDistMatrix<T,STAR,STAR>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,STAR,STAR> admType;
     typedef DistMatrix<T,STAR,STAR> type;
 
     // Constructors and destructors
@@ -99,40 +99,7 @@ public:
     virtual Int RowStride() const;
     virtual Int ColStride() const;
 
-    // Diagonal manipulation
-    // =====================
-    void GetDiagonal( type& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
-
-    type GetDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),STAR,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),STAR,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetDiagonal( const type& d, Int offset=0 );
-    void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
-
-    void UpdateDiagonal( T alpha, const type& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
-
 private:
-    // Helper functions
-    // ================
-    template<typename S,class Function>
-    void GetDiagonalHelper
-    ( DistMatrix<S,STAR,STAR>& d, Int offset, Function func ) const;
-    template<typename S,class Function>
-    void SetDiagonalHelper
-    ( const DistMatrix<S,STAR,STAR>& d, Int offset, Function func );
-
     // Friend declarations
     // ===================
 #ifndef SWIG

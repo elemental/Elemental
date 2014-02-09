@@ -36,7 +36,7 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         return;
     }
     DistMatrix<F,MD,STAR> tDiag(g);
-    tDiag.AlignWithDiagonal( A, -1 );
+    A.ForceDiagonalAlign( tDiag, -1 );
     tDiag.Resize( A.Height()-1, 1 );
 
     DistMatrix<F> WPan(g);

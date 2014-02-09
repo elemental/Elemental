@@ -164,7 +164,7 @@ ApplyPackedReflectors
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyPackedReflectors"))
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.AlignWithDiagonal( A, offset );
+    A.ForceDiagonalAlign( tDiag, offset );
     tDiag = t;
     ApplyPackedReflectors
     ( side, uplo, dir, order, conjugation, offset, H, tDiag, A );

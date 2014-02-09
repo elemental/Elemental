@@ -18,12 +18,12 @@ namespace elem {
 // processes (*), and the rows will be distributed like "Matrix Rows" (MR).
 // Thus the rows will be distributed among rows of the process grid.
 template<typename T>
-class DistMatrix<T,STAR,MR> : public AbstractDistMatrix<T>
+class DistMatrix<T,STAR,MR> : public AbstractDistMatrix<T,STAR,MR>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,STAR,MR> admType;
     typedef DistMatrix<T,STAR,MR> type;
 
     // Constructors and destructors
@@ -95,7 +95,6 @@ public:
     // -----------
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
-    void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
 
     // Specialized redistributions
     // ---------------------------
@@ -117,11 +116,6 @@ public:
     virtual mpi::Comm RowComm() const;
     virtual Int RowStride() const;
     virtual Int ColStride() const;
-    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-
-    // Diagonal manipulation
-    // =====================
-    // TODO
 
 private:
     // Friend declarations

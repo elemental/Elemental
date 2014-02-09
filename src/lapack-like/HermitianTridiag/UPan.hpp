@@ -53,7 +53,7 @@ void UPan
     // Create a distributed matrix for storing the superdiagonal
     auto expandedABR = ViewRange( A, off-1, off-1, n, n );
     DistMatrix<Real,MD,STAR> e(g);
-    e.AlignWithDiagonal( expandedABR.DistData(), 1 );
+    expandedABR.ForceDiagonalAlign( e, 1 );
     e.Resize( nW, 1 );
 
     std::vector<F> w01LastBuffer(n/r+1);

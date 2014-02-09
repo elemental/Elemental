@@ -91,12 +91,17 @@ public:
     Matrix<T> GetDiagonal( Int offset=0 ) const;
     Matrix<BASE(T) > GetRealPartOfDiagonal( Int offset=0 ) const;
     Matrix<BASE(T) > GetImagPartOfDiagonal( Int offset=0 ) const;
+
     void SetDiagonal( const Matrix<T>& d, Int offset=0 );
     void SetRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
     void SetImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+
     void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
     void UpdateRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
     void UpdateImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+
+    void MakeDiagonalReal( Int offset=0 );
+    void ConjugateDiagonal( Int offset=0 );
 
     // Arbitrary submatrix manipulation
     // ================================
@@ -179,9 +184,10 @@ private:
 #ifndef SWIG
     template <typename F> 
     friend class Matrix;
+    template <typename F,Dist U,Dist V>
+    friend class AbstractDistMatrix;
     template <typename F,Dist U,Dist V> 
     friend class DistMatrix;
-    friend class AbstractDistMatrix<T>;
 
     friend void View<T>( Matrix<T>& A, Matrix<T>& B );
     friend void View<T>

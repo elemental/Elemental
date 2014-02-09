@@ -18,17 +18,12 @@ namespace elem {
 namespace trr2k {
 
 #ifndef RELEASE
-template<typename T>
-void EnsureSameGrids
-( const AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& B,
-  const AbstractDistMatrix<T>& C,
-  const AbstractDistMatrix<T>& D,
-  const AbstractDistMatrix<T>& E )
+void EnsureSame
+( const Grid& gA, const Grid& gB, const Grid& gC, 
+  const Grid& gD, const Grid& gE )
 {
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() ||
-        C.Grid() != D.Grid() || D.Grid() != E.Grid() )
-        LogicError("{A,B,C,D,E} must have the same grids");
+    if( gA != gB || gB != gC || gC != gD || gD != gE )
+        LogicError("Grids must be the same");
 }
 
 template<typename T>
@@ -72,7 +67,7 @@ void CheckInput
   const DistMatrix<T,UC,VC>& C, const DistMatrix<T,UD,VD>& D,
   const DistMatrix<T>& E )
 {
-    EnsureSameGrids( A, B, C, D, E );
+    EnsureSame( A.Grid(), B.Grid(), C.Grid(), D.Grid(), E.Grid() );
     EnsureConformal( A, E, "A" );
     EnsureConformal( B, E, "B" );
     EnsureConformal( C, E, "C" );

@@ -19,12 +19,12 @@ namespace elem {
 // (MC). Thus the rows will be distributed among columns of the process
 // grid.
 template<typename T>
-class DistMatrix<T,STAR,MC> : public AbstractDistMatrix<T>
+class DistMatrix<T,STAR,MC> : public AbstractDistMatrix<T,STAR,MC>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,STAR,MC> admType;
     typedef DistMatrix<T,STAR,MC> type;
 
     // Constructors and destructors
@@ -94,7 +94,6 @@ public:
     // -----------
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
-    void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
 
     // Specialized redistributions
     // ---------------------------
@@ -116,12 +115,6 @@ public:
     virtual mpi::Comm RowComm() const;
     virtual Int RowStride() const;
     virtual Int ColStride() const;
-
-    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-
-    // Diagonal manipulation
-    // =====================
-    // TODO
 
 private:
     // Friend declarations

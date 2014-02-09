@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T>;
+using ADM = AbstractDistMatrix<T,STAR,VC>;
 template<typename T>
 using DM = DistMatrix<T,STAR,VC>;
 
@@ -785,27 +785,6 @@ void
 DM<T>::AlignRowsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
 
-template<typename T>
-void
-DM<T>::AlignWithDiagonal
-( const elem::DistData& data, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignWithDiagonal"))
-    this->SetGrid( *data.grid );
-
-    if( (data.colDist == VC   && data.rowDist == STAR) ||
-        (data.colDist == STAR && data.rowDist == VC  ) )
-    {
-        const Int alignment = ( data.colDist==VC ? data.colAlign
-                                                 : data.rowAlign );
-        if( offset >= 0 )
-            this->AlignRows( alignment );
-        else
-            this->AlignRows( (alignment-offset) % this->RowStride() );
-    }
-    DEBUG_ONLY(else LogicError("Invalid diagonal alignment"))
-}
-
 // Specialized redistributions
 // ---------------------------
 
@@ -978,39 +957,6 @@ template<typename T>
 Int DM<T>::ColStride() const { return 1; }
 template<typename T>
 Int DM<T>::RowStride() const { return this->grid_->Size(); }
-
-template<typename T>
-bool
-DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,VC]::AlignedWithDiagonal"))
-    if( this->Grid() != *data.grid )
-        return false;
-
-    bool aligned;
-    if( (data.colDist == VC   && data.rowDist == STAR) ||
-        (data.colDist == STAR && data.rowDist == VC  ) )
-    {
-        const Int alignment = ( data.colDist==VC ? data.colAlign
-                                                 : data.rowAlign );
-        if( offset >= 0 )
-        {
-            const Int proc = alignment;
-            aligned = ( this->RowAlign() == proc );
-        }
-        else
-        {
-            const Int proc = (alignment-offset) % this->RowStride();
-            aligned = ( this->RowAlign() == proc );
-        }
-    }
-    else aligned = false;
-    return aligned;
-}
-
-// Diagonal manipulation
-// =====================
-// TODO
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

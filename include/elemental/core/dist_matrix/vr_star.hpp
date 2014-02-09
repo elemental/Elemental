@@ -18,12 +18,12 @@ namespace elem {
 // process grid in a row-major fashion, while the rows are not 
 // distributed.
 template<typename T>
-class DistMatrix<T,VR,STAR> : public AbstractDistMatrix<T>
+class DistMatrix<T,VR,STAR> : public AbstractDistMatrix<T,VR,STAR>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,VR,STAR> admType;
     typedef DistMatrix<T,VR,STAR> type;
 
     // Constructors and destructors
@@ -113,10 +113,6 @@ public:
     virtual mpi::Comm RowComm() const;
     virtual Int RowStride() const;
     virtual Int ColStride() const;
-
-    // Diagonal manipulation
-    // =====================
-    // TODO
 
 private:
     // Friend declarations

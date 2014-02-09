@@ -219,8 +219,8 @@ LPan
     DistMatrix<F,STAR,MR  > z1R_STAR_MR(g);
     
     DistMatrix<Real,MD,STAR> d(g), e(g);
-    d.AlignWithDiagonal( A.DistData(), 0 );
-    e.AlignWithDiagonal( A.DistData(), -1 );
+    A.ForceDiagonalAlign( d,  0 );
+    A.ForceDiagonalAlign( e, -1 );
     d.Resize( nX, 1 );
     e.Resize( nX, 1 );
 

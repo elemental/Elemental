@@ -20,12 +20,12 @@ namespace elem {
 // entire process grid if and only if the dimensions of the process grid
 // are coprime.
 template<typename T>
-class DistMatrix<T,STAR,MD> : public AbstractDistMatrix<T>
+class DistMatrix<T,STAR,MD> : public AbstractDistMatrix<T,STAR,MD>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,STAR,MD> admType;
     typedef DistMatrix<T,STAR,MD> type;
 
     // Constructors and destructors
@@ -98,7 +98,6 @@ public:
     // -----------
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
-    void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
 
     // Basic queries
     // =============
@@ -110,12 +109,6 @@ public:
     virtual mpi::Comm RowComm() const;
     virtual Int RowStride() const;
     virtual Int ColStride() const;
-
-    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
-
-    // Diagonal manipulation
-    // =====================
-    // TODO
 
 private:
     // Exchange metadata with another matrix

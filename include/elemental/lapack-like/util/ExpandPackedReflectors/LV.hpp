@@ -176,7 +176,7 @@ LV
             LogicError("Transforms out of bounds");
         if( t.Height() != H.DiagonalLength( offset ) )
             LogicError("t must be the same length as H's offset diag");
-        if( !t.AlignedWithDiagonal( H, offset ) )
+        if( !H.DiagonalAligned( t, offset ) )
             LogicError("t must be aligned with H's 'offset' diagonal");
     )
     // Start by zeroing everything above the offset and setting that diagonal

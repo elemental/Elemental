@@ -131,9 +131,9 @@ DimsString( const Matrix<T>& A, std::string label="Matrix" )
     return os.str();
 }
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 inline std::string
-DimsString( const AbstractDistMatrix<T>& A, std::string label="DistMatrix" )
+DimsString( const AbstractDistMatrix<T,U,V>& A, std::string label="DistMatrix" )
 {
     std::ostringstream os;
     os << label << " ~ " << A.Height() << " x " << A.Width();

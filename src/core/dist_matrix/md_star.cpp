@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T>;
+using ADM = AbstractDistMatrix<T,MD,STAR>;
 template<typename T>
 using DM = DistMatrix<T,MD,STAR>;
 
@@ -400,65 +400,6 @@ void
 DM<T>::AlignColsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
 
-template<typename T>
-void
-DM<T>::AlignWithDiagonal( const elem::DistData& data, Int offset )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MD,* ]::AlignWithDiagonal"))
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
-
-    const Int r = grid.Height();
-    const Int c = grid.Width();
-    if( data.colDist == MC && data.rowDist == MR )
-    {
-        Int owner;
-        if( offset >= 0 )
-        {
-            const Int ownerRow = data.colAlign;
-            const Int ownerCol = (data.rowAlign + offset) % c;
-            owner = ownerRow + r*ownerCol;
-        }
-        else
-        {
-            const Int ownerRow = (data.colAlign-offset) % r;
-            const Int ownerCol = data.rowAlign;
-            owner = ownerRow + r*ownerCol;
-        }
-        this->SetRoot( grid.DiagPath(owner) );
-        this->AlignCols( grid.DiagPathRank(owner) );
-    }
-    else if( data.colDist == MR && data.rowDist == MC )
-    {
-        Int owner;
-        if( offset >= 0 )
-        {
-            const Int ownerCol = data.colAlign;
-            const Int ownerRow = (data.rowAlign + offset) % r;
-            owner = ownerRow + r*ownerCol;
-        }
-        else
-        {
-            const Int ownerCol = (data.colAlign-offset) % c;
-            const Int ownerRow = data.rowAlign;
-            owner = ownerRow + r*ownerCol;
-        }
-        this->SetRoot( grid.DiagPath(owner) );
-        this->AlignCols( grid.DiagPathRank(owner) );
-    }
-    else if( data.colDist == MD && data.rowDist == STAR )
-    {
-        this->SetRoot( data.root );
-        this->AlignCols( data.colAlign );
-    }
-    else if( data.colDist == STAR && data.rowDist == MD )
-    {
-        this->SetRoot( data.root );
-        this->AlignCols( data.rowAlign );
-    }
-    DEBUG_ONLY(else LogicError("Nonsensical AlignWithDiagonal"))
-}
-
 // Basic queries
 // =============
 
@@ -480,70 +421,6 @@ template<typename T>
 Int DM<T>::ColStride() const { return this->grid_->LCM(); }
 template<typename T>
 Int DM<T>::RowStride() const { return 1; }
-
-template<typename T>
-bool
-DM<T>::AlignedWithDiagonal( const elem::DistData& data, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("[MD,* ]::AlignedWithDiagonal"))
-    const Grid& grid = this->Grid();
-    if( grid != *data.grid )
-        return false;
-
-    bool aligned;
-    const Int r = grid.Height();
-    const Int c = grid.Width();
-    const Int firstDiagRow = 0;
-    const Int firstDiagCol = this->root_;
-    const Int diagRow = (firstDiagRow+this->ColAlign()) % r;
-    const Int diagCol = (firstDiagCol+this->ColAlign()) % c;
-    if( data.colDist == MC && data.rowDist == MR )
-    {
-        if( offset >= 0 )
-        {
-            const Int ownerRow = data.colAlign;
-            const Int ownerCol = (data.rowAlign + offset) % c;
-            aligned = ( ownerRow==diagRow && ownerCol==diagCol );
-        }
-        else
-        {
-            const Int ownerRow = (data.colAlign-offset) % r;
-            const Int ownerCol = data.rowAlign;
-            aligned = ( ownerRow==diagRow && ownerCol==diagCol );
-        }
-    }
-    else if( data.colDist == MR && data.rowDist == MC )
-    {
-        if( offset >= 0 )
-        {
-            const Int ownerCol = data.colAlign;
-            const Int ownerRow = (data.rowAlign + offset) % r;
-            aligned = ( ownerRow==diagRow && ownerCol==diagCol );
-        }
-        else
-        {
-            const Int ownerCol = (data.colAlign-offset) % c;
-            const Int ownerRow = data.rowAlign;
-            aligned = ( ownerRow==diagRow && ownerCol==diagCol );
-        }
-    }
-    else if( data.colDist == MD && data.rowDist == STAR )
-    {
-        aligned = ( this->root_==data.root && 
-                    this->colAlign_==data.colAlign );
-    }
-    else if( data.colDist == STAR && data.rowDist == MD )
-    {
-        aligned = ( this->root_==data.root && 
-                    this->colAlign_==data.rowAlign );
-    }
-    else aligned = false;
-    return aligned;
-}
-
-// Diagonal manipulation
-// =====================
-// TODO
 
 // Private section
 // ###############

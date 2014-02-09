@@ -16,12 +16,12 @@ namespace elem {
 //
 // The entire matrix is only stored on a single process.
 template<typename T>
-class DistMatrix<T,CIRC,CIRC> : public AbstractDistMatrix<T>
+class DistMatrix<T,CIRC,CIRC> : public AbstractDistMatrix<T,CIRC,CIRC>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,CIRC,CIRC> admType;
     typedef DistMatrix<T,CIRC,CIRC> type;
 
     // Constructors and destructors
@@ -102,10 +102,6 @@ public:
     virtual Int RowStride() const;
     virtual Int ColStride() const;
 
-    // Diagonal manipulation
-    // =====================
-    // TODO
-
 private:
     // Exchange metadata with another matrix
     // =====================================
@@ -115,7 +111,7 @@ private:
     // ===================
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
-#endif // ifndef SWIG
+#endif 
 };
 
 } // namespace elem

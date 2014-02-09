@@ -19,12 +19,12 @@ namespace elem {
 // grid.
 
 template<typename T>
-class DistMatrix<T,MC,MR> : public AbstractDistMatrix<T>
+class DistMatrix<T,MC,MR> : public AbstractDistMatrix<T,MC,MR>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T,MC,MR> admType;
     typedef DistMatrix<T,MC,MR> type;
 
     // Constructors and destructors
@@ -135,74 +135,17 @@ public:
     virtual Int ColStride() const;
     virtual Int RowStride() const;
 
-    // Diagonal manipulation
-    // =====================
-    void GetDiagonal( DistMatrix<T,MD,STAR>& d, Int offset=0 ) const;
-    void GetDiagonal( DistMatrix<T,STAR,MD>& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
-
-    DistMatrix<T,MD,STAR> GetDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),MD,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),MD,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetDiagonal( const DistMatrix<T,MD,STAR>& d, Int offset=0 );
-    void SetDiagonal( const DistMatrix<T,STAR,MD>& d, Int offset=0 );
-    void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
-    void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
-
-    void UpdateDiagonal
-    ( T alpha, const DistMatrix<T,MD,STAR>& d, Int offset=0 );
-    void UpdateDiagonal
-    ( T alpha, const DistMatrix<T,STAR,MD>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
-
 private:
 
     // Redistribute from a different process grid
     // ==========================================
     void CopyFromDifferentGrid( const type& A );
 
-    // Helper routines
-    // ===============
-
-    template<typename S,class Function>
-    void GetDiagonalHelper
-    ( DistMatrix<S,MD,STAR>& d, Int offset, Function func ) const;
-    template<typename S,class Function>
-    void GetDiagonalHelper
-    ( DistMatrix<S,STAR,MD>& d, Int offset, Function func ) const;
-    template<typename S,class Function>
-    void SetDiagonalHelper
-    ( const DistMatrix<S,MD,STAR>& d, Int offset, Function func );
-    template<typename S,class Function>
-    void SetDiagonalHelper
-    ( const DistMatrix<S,STAR,MD>& d, Int offset, Function func );
-
     // Friend declarations
     // ===================
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
-#endif // ifndef SWIG
+#endif 
 };
 
 } // namespace elem

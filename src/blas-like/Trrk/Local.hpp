@@ -19,14 +19,10 @@ namespace trrk {
 
 #ifndef RELEASE
 
-template<typename T>
-void EnsureSameGrids
-( const AbstractDistMatrix<T>& A,
-  const AbstractDistMatrix<T>& B,
-  const AbstractDistMatrix<T>& C )
+void EnsureSame( const Grid& gA, const Grid& gB, const Grid& gC )
 {
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        LogicError("{A,B,C} must have the same grids");
+    if( gA != gB || gB != gC )
+        LogicError("Grids must be the same");
 }
 
 template<typename T>
@@ -67,7 +63,7 @@ void CheckInput
 ( const DistMatrix<T,UA,VA>& A, const DistMatrix<T,UB,VB>& B,
   const DistMatrix<T>& C )
 {
-    EnsureSameGrids( A, B, C );
+    EnsureSame( A.Grid(), B.Grid(), C.Grid() );
     EnsureConformal( A, C, "A" );
     EnsureConformal( B, C, "B" );
 }

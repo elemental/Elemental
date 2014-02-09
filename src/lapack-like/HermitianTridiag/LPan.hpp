@@ -45,7 +45,7 @@ void LPan
         if( t.Height() != nW || t.Width() != 1 )
             LogicError
             ("t must be a column vector of the same length as W's width");
-        if( !t.AlignedWithDiagonal(A,-1) )
+        if( !A.DiagonalAligned( t, -1 ) )
             LogicError("t is not aligned with A's subdiagonal.");
     )
     typedef Base<F> Real;
@@ -56,7 +56,7 @@ void LPan
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<Real,MD,STAR> e(g);
-    e.AlignWithDiagonal( A.DistData(), -1 );
+    A.ForceDiagonalAlign( e, -1 );
     e.Resize( nW, 1 );
 
     std::vector<F> w21LastBuffer(n/r+1);

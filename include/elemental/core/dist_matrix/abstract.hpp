@@ -12,17 +12,21 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename T,Dist U,Dist V> 
 class AbstractDistMatrix
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> type;
+    typedef AbstractDistMatrix<T,U,V> type;
+#ifndef SWIG
+    static constexpr Dist UDiag = DiagColDist<U,V>();
+    static constexpr Dist VDiag = DiagRowDist<U,V>();
+#endif
 
     // Constructors and destructors
     // ============================
- #ifndef SWIG
+#ifndef SWIG
     // Move constructor
     AbstractDistMatrix( type&& A );
 #endif
@@ -145,6 +149,42 @@ public:
     void UpdateLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
     void MakeRealLocal( Int i, Int j );
     void ConjugateLocal( Int i, Int j );
+
+    // Diagonal manipulation
+    // =====================
+#ifndef SWIG
+    template<typename S>
+    bool DiagonalAligned
+    ( const DistMatrix<S,UDiag,VDiag>& d, Int offset=0 ) const;
+    template<typename S>
+    void ForceDiagonalAlign( DistMatrix<S,UDiag,VDiag>& d, Int offset=0 ) const;
+
+    void GetDiagonal( DistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
+    void GetRealPartOfDiagonal
+    ( DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal
+    ( DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
+
+    DistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),UDiag,VDiag> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),UDiag,VDiag> GetImagPartOfDiagonal( Int offset=0 ) const;
+
+    void SetDiagonal( const DistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
+    void SetRealPartOfDiagonal
+    ( const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+    void SetImagPartOfDiagonal
+    ( const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+
+    void UpdateDiagonal
+    ( T alpha, const DistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+
+    void MakeDiagonalReal( Int offset=0 );
+    void ConjugateDiagonal( Int offset=0 );
+#endif // ifndef SWIG
 
     // Arbitrary-submatrix manipulation
     // ================================
@@ -292,66 +332,66 @@ protected:
     void AssertSameGrid( const elem::Grid& grid ) const;
     void AssertSameSize( Int height, Int width ) const;
 
+    // Helper routines
+    // ===============
+    template<typename S,class Function>
+    void GetDiagonalHelper
+    ( DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const;
+    template<typename S,class Function>
+    void SetDiagonalHelper
+    ( const DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func );
+
     // Friend declarations
     // ===================
 #ifndef SWIG
-    template<typename S,Dist U,Dist V> friend class DistMatrix;
+    template<typename S,Dist J,Dist K> friend class DistMatrix;
 
-    template<typename S,Dist U,Dist V> 
-    friend void View( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& B );
-    template<typename S,Dist U,Dist V> 
-    friend void LockedView( DistMatrix<S,U,V>& A, const DistMatrix<S,U,V>& B );
+    friend void View<>( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
+    friend void LockedView<>
+    ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B );
 
-    template<typename S,Dist U,Dist V> 
-    friend void View
-    ( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& B,
+    friend void View<>
+    ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
       Int i, Int j, Int height, Int width );
-    template<typename S,Dist U,Dist V> 
-    friend void LockedView
-    ( DistMatrix<S,U,V>& A, const DistMatrix<S,U,V>& B,
+    friend void LockedView<>
+    ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
       Int i, Int j, Int height, Int width );
 
-    template<typename S,Dist U,Dist V> 
-    friend void View1x2
-    ( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& BL, DistMatrix<S,U,V>& BR );
-    template<typename S,Dist U,Dist V> 
-    friend void LockedView1x2
-    (       DistMatrix<S,U,V>& A,
-      const DistMatrix<S,U,V>& BL, const DistMatrix<S,U,V>& BR );
+    friend void View1x2<>
+    ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR );
+    friend void LockedView1x2<>
+    (       DistMatrix<T,U,V>& A,
+      const DistMatrix<T,U,V>& BL, const DistMatrix<T,U,V>& BR );
 
-    template<typename S,Dist U,Dist V> 
-    friend void View2x1
-    ( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& BT, DistMatrix<S,U,V>& BB );
-    template<typename S,Dist U,Dist V> 
-    friend void LockedView2x1
-    (       DistMatrix<S,U,V>& A,
-      const DistMatrix<S,U,V>& BT, const DistMatrix<S,U,V>& BB );
+    friend void View2x1<>
+    ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB );
+    friend void LockedView2x1<>
+    (       DistMatrix<T,U,V>& A,
+      const DistMatrix<T,U,V>& BT, const DistMatrix<T,U,V>& BB );
 
-    template<typename S,Dist U,Dist V> 
-    friend void View2x2
-    ( DistMatrix<S,U,V>& A,
-      DistMatrix<S,U,V>& BTL, DistMatrix<S,U,V>& BTR,
-      DistMatrix<S,U,V>& BBL, DistMatrix<S,U,V>& BBR );
-    template<typename S,Dist U,Dist V> 
-    friend void LockedView2x2
-    (       DistMatrix<S,U,V>& A,
-      const DistMatrix<S,U,V>& BTL, const DistMatrix<S,U,V>& BTR,
-      const DistMatrix<S,U,V>& BBL, const DistMatrix<S,U,V>& BBR );
+    friend void View2x2<>
+    ( DistMatrix<T,U,V>& A,
+      DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
+      DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR );
+    friend void LockedView2x2<>
+    (       DistMatrix<T,U,V>& A,
+      const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
+      const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR );
 #endif // ifndef SWIG
 };
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void AssertConforming1x2
-( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
+( const AbstractDistMatrix<T,U,V>& AL, const AbstractDistMatrix<T,U,V>& AR );
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void AssertConforming2x1
-( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
+( const AbstractDistMatrix<T,U,V>& AT, const AbstractDistMatrix<T,U,V>& AB );
 
-template<typename T>
+template<typename T,Dist U,Dist V>
 void AssertConforming2x2
-( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
-  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
+( const AbstractDistMatrix<T,U,V>& ATL, const AbstractDistMatrix<T,U,V>& ATR,
+  const AbstractDistMatrix<T,U,V>& ABL, const AbstractDistMatrix<T,U,V>& ABR );
 
 } // namespace elem
 

@@ -42,7 +42,7 @@ void TestCorrectness
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( e );
     DistMatrix<Real,MD,STAR> eOpposite(g);
-    eOpposite.AlignWithDiagonal( A.DistData(), -subdiagonal );
+    A.ForceDiagonalAlign( eOpposite, -subdiagonal );
     eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal
