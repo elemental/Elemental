@@ -16,12 +16,13 @@ namespace elem {
 //
 // The entire matrix is only stored on a single process.
 template<typename T>
-class DistMatrix<T,CIRC,CIRC> : public AbstractDistMatrix<T,CIRC,CIRC>
+class DistMatrix<T,CIRC,CIRC> : public GeneralDistMatrix<T,CIRC,CIRC>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,CIRC,CIRC> admType;
+    typedef AbstractDistMatrix<T> admType;
+    typedef GeneralDistMatrix<T,CIRC,CIRC> genType;
     typedef DistMatrix<T,CIRC,CIRC> type;
 
     // Constructors and destructors
@@ -77,19 +78,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 #endif
-
-    // Buffer attachment
-    // -----------------
-    // (Immutable) view of the matrix's buffer (only valid pointer on root)
-    void Attach
-    ( Int height, Int width, Int root,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int root,
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach( Matrix<T>& A, Int root, const elem::Grid& grid );
-    void LockedAttach( const Matrix<T>& A, Int root, const elem::Grid& grid );
-    // TODO: Control
 
     // Basic queries
     // =============

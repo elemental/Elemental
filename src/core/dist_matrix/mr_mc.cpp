@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T,MR,MC>;
+using GDM = GeneralDistMatrix<T,MR,MC>;
 template<typename T>
 using DM = DistMatrix<T,MR,MC>;
 
@@ -23,44 +23,44 @@ using DM = DistMatrix<T,MR,MC>;
 
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->SetShifts(); }
 
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->Align(colAlign,rowAlign); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width,
   Int colAlign, Int rowAlign, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->Align(colAlign,rowAlign); this->Resize(height,width,ldim); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign, 
   const T* buffer, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->LockedAttach(height,width,colAlign,rowAlign,buffer,ldim,g); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign, 
   T* buffer, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->Attach(height,width,colAlign,rowAlign,buffer,ldim,g); }
 
 template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
-: ADM<T>(A.Grid())
+: GDM<T>(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,MC]::DistMatrix"))
     this->SetShifts();
@@ -73,7 +73,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 template<typename T>
 template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
-: ADM<T>(A.Grid())
+: GDM<T>(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,MC]::DistMatrix"))
     this->SetShifts();
@@ -85,7 +85,7 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM<T>::DistMatrix( DM<T>&& A ) : ADM<T>(std::move(A)) { }
+DM<T>::DistMatrix( DM<T>&& A ) : GDM<T>(std::move(A)) { }
 
 template<typename T> DM<T>::~DistMatrix() { }
 
@@ -1116,78 +1116,8 @@ template<typename T>
 DM<T>&
 DM<T>::operator=( DM<T>&& A )
 {
-    ADM<T>::operator=( std::move(A) );
+    GDM<T>::operator=( std::move(A) );
     return *this;
-}
-
-// Buffer attachment
-// -----------------
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, Int colAlign, Int rowAlign,
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MR,MC]::Attach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->rowAlign_ = rowAlign;
-    this->viewType_ = VIEW;
-    this->SetShifts();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Width());
-        const Int localWidth = Length(width,this->rowShift_,g.Height());
-        this->matrix_.Attach_( localHeight, localWidth, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::Attach
-( Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& g )
-{
-    this->Attach
-    ( A.Height(), A.Width(), colAlign, rowAlign, A.Buffer(), A.LDim(), g );
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, Int colAlign, Int rowAlign,
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MR,MC]::LockedAttach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->rowAlign_ = rowAlign;
-    this->viewType_ = LOCKED_VIEW;
-    this->SetShifts();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Width());
-        const Int localWidth = Length(width,this->rowShift_,g.Height());
-        this->matrix_.LockedAttach_( localHeight, localWidth, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( const Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& g )
-{
-    this->LockedAttach
-    ( A.Height(), A.Width(), colAlign, rowAlign,
-      A.LockedBuffer(), A.LDim(), g );
 }
 
 // Realignment

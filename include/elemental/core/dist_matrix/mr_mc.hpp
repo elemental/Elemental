@@ -20,12 +20,13 @@ namespace elem {
 // rows of the process grid and the rows will be distributed within columns
 // of the process grid.
 template<typename T>
-class DistMatrix<T,MR,MC> : public AbstractDistMatrix<T,MR,MC>
+class DistMatrix<T,MR,MC> : public GeneralDistMatrix<T,MR,MC>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,MR,MC> admType;
+    typedef AbstractDistMatrix<T> admType;
+    typedef GeneralDistMatrix<T,MR,MC> genType;
     typedef DistMatrix<T,MR,MC> type;
 
     // Constructors and destructors
@@ -80,20 +81,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 #endif
-
-    // Buffer attachment
-    // -----------------
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, Int colAlign, Int rowAlign,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int colAlign, Int rowAlign,
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach
-    ( Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& grid );
-    void LockedAttach
-    ( const Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& grid );
 
     // Realignment
     // -----------

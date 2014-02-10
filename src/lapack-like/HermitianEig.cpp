@@ -295,7 +295,7 @@ void HermitianEig
         const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, k, 0, Z_STAR_VR_Buf, n, g );
+        Z_STAR_VR.Attach( n, k, 0, 0, Z_STAR_VR_Buf, n, g );
     }
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
     auto d = A.GetRealPartOfDiagonal();
@@ -538,7 +538,7 @@ void HermitianEig
         const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, k, 0, Z_STAR_VR_Buf, n, g );
+        Z_STAR_VR.Attach( n, k, 0, 0, Z_STAR_VR_Buf, n, g );
     }
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
     auto d = A.GetRealPartOfDiagonal();
@@ -817,7 +817,7 @@ void HermitianEig
         const Int Z_STAR_VR_LocalWidth = Length(kEst,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, kEst, 0, Z_STAR_VR_Buf, n, g );
+        Z_STAR_VR.Attach( n, kEst, 0, 0, Z_STAR_VR_Buf, n, g );
     }
     HermitianTridiagEigPostEstimate
     ( d_STAR_STAR, e_STAR_STAR, w, Z_STAR_VR, vl, vu, UNSORTED );

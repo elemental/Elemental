@@ -12,35 +12,11 @@
 
 namespace elem {
 
-template<typename T,Dist U,Dist V>
-inline void HandleDiagPath
-( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
-{ }
-
-template<typename T>
-inline void HandleDiagPath
-( DistMatrix<T,MD,STAR>& A, const DistMatrix<T,MD,STAR>& B )
-{ A.root_ = B.root_; } 
-
-template<typename T>
-inline void HandleDiagPath
-( DistMatrix<T,STAR,MD>& A, const DistMatrix<T,STAR,MD>& B )
-{ A.root_ = B.root_; } 
-
 template<typename T>
 inline void View( Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("View");
-        if( IsLocked(B.viewType_) )
-            LogicError("Cannot grab an unlocked view of a locked matrix");
-    )
-    A.memory_.Empty();
-    A.height_   = B.height_;
-    A.width_    = B.width_;
-    A.ldim_     = B.ldim_;
-    A.data_     = B.data_;
-    A.viewType_ = VIEW;
+    DEBUG_ONLY(CallStackEntry cse("View"))
+    A.Attach( B.Height(), B.Width(), B.Buffer(), B.LDim() );
 }
 
 template<typename T>
@@ -55,25 +31,9 @@ template<typename T,Dist U,Dist V>
 inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("View"))
-    A.Empty();
-    A.grid_ = B.grid_;
-    A.height_ = B.Height();
-    A.width_ = B.Width();
-    A.colAlign_ = B.ColAlign();
-    A.rowAlign_ = B.RowAlign();
-    HandleDiagPath( A, B );
-    A.viewType_ = VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = B.ColShift();
-        A.rowShift_ = B.RowShift();
-        View( A.Matrix(), B.Matrix() );
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.Attach
+    ( B.Height(), B.Width(), B.ColAlign(), B.RowAlign(), 
+      B.Buffer(), B.LDim(), B.Grid(), B.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -88,12 +48,7 @@ template<typename T>
 inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedView"))
-    A.memory_.Empty();
-    A.height_   = B.height_;
-    A.width_    = B.width_;
-    A.ldim_     = B.ldim_;
-    A.data_     = B.data_;
-    A.viewType_ = LOCKED_VIEW;
+    A.LockedAttach( B.Height(), B.Width(), B.LockedBuffer(), B.LDim() );
 }
 
 template<typename T>
@@ -108,25 +63,9 @@ template<typename T,Dist U,Dist V>
 inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedView"))
-    A.Empty();
-    A.grid_ = B.grid_;
-    A.height_ = B.Height();
-    A.width_ = B.Width();
-    A.colAlign_ = B.ColAlign();
-    A.rowAlign_ = B.RowAlign();
-    HandleDiagPath( A, B );
-    A.viewType_ = LOCKED_VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = B.ColShift();
-        A.rowShift_ = B.RowShift();
-        LockedView( A.Matrix(), B.LockedMatrix() );
-    }
-    else 
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.LockedAttach
+    ( B.Height(), B.Width(), B.ColAlign(), B.RowAlign(), 
+      B.LockedBuffer(), B.LDim(), B.Grid(), B.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -153,15 +92,8 @@ inline void View
             ("Trying to view outside of a Matrix: (",i,",",j,") up to (", 
              i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
              " Matrix");
-        if( IsLocked(B.viewType_) )
-            LogicError("Cannot grab an unlocked view of a locked matrix");
     )
-    A.memory_.Empty();
-    A.height_   = height;
-    A.width_    = width;
-    A.ldim_     = B.ldim_;
-    A.data_     = &B.data_[i+j*B.ldim_];
-    A.viewType_ = VIEW;
+    A.Attach( height, width, B.Buffer(i,j), B.LDim() );
 }
 
 template<typename T>
@@ -181,42 +113,20 @@ inline void View
         CallStackEntry cse("View");
         B.AssertValidSubmatrix( i, j, height, width );
     )
-    A.Empty();
-
-    const elem::Grid& g = B.Grid();
-    const Int colStride = B.ColStride();
-    const Int rowStride = B.RowStride();
-
-    A.grid_ = &g;
-    A.height_ = height;
-    A.width_  = width;
-
-    A.colAlign_ = (B.ColAlign()+i) % colStride;
-    A.rowAlign_ = (B.RowAlign()+j) % rowStride;
-    HandleDiagPath( A, B );
-    A.viewType_ = VIEW;
-
-    if( A.Participating() )
+    const Int colAlign = (B.ColAlign()+i) % B.ColStride();
+    const Int rowAlign = (B.RowAlign()+j) % B.RowStride();
+    if( B.Participating() )
     {
-        const Int colRank = B.ColRank();
-        const Int rowRank = B.RowRank();
-        A.colShift_ = Shift( colRank, A.ColAlign(), colStride );
-        A.rowShift_ = Shift( rowRank, A.RowAlign(), rowStride );
-
-        const Int localHeightBehind = Length(i,B.ColShift(),colStride);
-        const Int localWidthBehind  = Length(j,B.RowShift(),rowStride);
-
-        const Int localHeight = Length( height, A.ColShift(), colStride );
-        const Int localWidth  = Length( width,  A.RowShift(), rowStride );
-
-        View
-        ( A.Matrix(), B.Matrix(), 
-          localHeightBehind, localWidthBehind, localHeight, localWidth );
+        const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
+        const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
+        A.Attach
+        ( height, width, colAlign, rowAlign, B.Buffer(iLoc,jLoc), B.LDim(), 
+          B.Grid(), B.Root() );
     }
     else
     {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
+        A.Attach
+        ( height, width, colAlign, rowAlign, 0, B.LDim(), B.Grid(), B.Root() );
     }
 }
 
@@ -246,12 +156,7 @@ inline void LockedView
              i+height-1,",",j+width-1,") of ",B.Height()," x ",B.Width(),
              " Matrix");
     )
-    A.memory_.Empty();
-    A.height_   = height;
-    A.width_    = width;
-    A.ldim_     = B.ldim_;
-    A.data_     = &B.data_[i+j*B.ldim_];
-    A.viewType_ = LOCKED_VIEW;
+    A.LockedAttach( height, width, B.LockedBuffer(i,j), B.LDim() );
 }
 
 template<typename T>
@@ -272,42 +177,20 @@ inline void LockedView
         CallStackEntry cse("LockedView");
         B.AssertValidSubmatrix( i, j, height, width );
     )
-    A.Empty();
-
-    const elem::Grid& g = B.Grid();
-    const Int colStride = B.ColStride();
-    const Int rowStride = B.RowStride();
-    const Int colRank = B.ColRank();
-    const Int rowRank = B.RowRank();
-
-    A.grid_ = &g;
-    A.height_ = height;
-    A.width_  = width;
-
-    A.colAlign_ = (B.ColAlign()+i) % colStride;
-    A.rowAlign_ = (B.RowAlign()+j) % rowStride;
-    HandleDiagPath( A, B );
-    A.viewType_ = LOCKED_VIEW;
-
-    if( A.Participating() )
+    const Int colAlign = (B.ColAlign()+i) % B.ColStride();
+    const Int rowAlign = (B.RowAlign()+j) % B.RowStride();
+    if( B.Participating() )
     {
-        A.colShift_ = Shift( colRank, A.ColAlign(), colStride );
-        A.rowShift_ = Shift( rowRank, A.RowAlign(), rowStride );
-
-        const Int localHeightBehind = Length(i,B.ColShift(),colStride);
-        const Int localWidthBehind  = Length(j,B.RowShift(),rowStride);
-
-        const Int localHeight = Length( height, A.ColShift(), colStride );
-        const Int localWidth  = Length( width,  A.RowShift(), rowStride );
-
-        LockedView
-        ( A.Matrix(), B.LockedMatrix(), 
-          localHeightBehind, localWidthBehind, localHeight, localWidth );
+        const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
+        const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
+        A.LockedAttach
+        ( height, width, colAlign, rowAlign, 
+          B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Grid(), B.Root() );
     }
     else
     {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
+        A.LockedAttach
+        ( height, width, colAlign, rowAlign, 0, B.LDim(), B.Grid(), B.Root() );
     }
 }
 
@@ -387,13 +270,11 @@ DistMatrix<T,U,V> LockedViewRange
 }
 
 template<typename T>
-inline void View1x2
-( Matrix<T>& A,
-  Matrix<T>& BL, Matrix<T>& BR )
+inline void View1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR )
 {
     DEBUG_ONLY(
         CallStackEntry cse("View1x2");
-        if( IsLocked(BL.viewType_) || IsLocked(BR.viewType_) )
+        if( BL.Locked() || BR.Locked() )
             LogicError("Cannot grab an unlocked view of a locked matrix");
         if( BL.Height() != BR.Height() )
             LogicError("1x2 must have consistent height to combine");
@@ -402,12 +283,7 @@ inline void View1x2
         if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
             LogicError("1x2 must have contiguous memory");
     )
-    A.memory_.Empty();
-    A.height_   = BL.height_;
-    A.width_    = BL.width_ + BR.width_;
-    A.ldim_     = BL.ldim_;
-    A.data_     = BL.data_;
-    A.viewType_ = VIEW;
+    A.Attach( BL.Height(), BL.Width()+BR.Width(), BL.Buffer(), BL.LDim() );
 }
 
 template<typename T>
@@ -427,25 +303,9 @@ inline void View1x2
         AssertConforming1x2( BL, BR );
         BL.AssertSameGrid( BR.Grid() );
     )
-    A.Empty();
-    A.grid_ = BL.grid_;
-    A.height_ = BL.Height();
-    A.width_ = BL.Width() + BR.Width();
-    A.colAlign_ = BL.ColAlign();
-    A.rowAlign_ = BL.RowAlign();
-    HandleDiagPath( A, BL );
-    A.viewType_ = VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = BL.ColShift();
-        A.rowShift_ = BL.RowShift();
-        View1x2( A.Matrix(), BL.Matrix(), BR.Matrix() );
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.Attach
+    ( BL.Height(), BL.Width()+BR.Width(), BL.ColAlign(), BL.RowAlign(),
+      BL.Buffer(), BL.LDim(), BL.Grid(), BL.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -469,12 +329,8 @@ inline void LockedView1x2
         if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
             LogicError("1x2 must have contiguous memory");
     )
-    A.memory_.Empty();
-    A.height_   = BL.height_;
-    A.width_    = BL.width_ + BR.width_;
-    A.ldim_     = BL.ldim_;
-    A.data_     = BL.data_;
-    A.viewType_ = LOCKED_VIEW;
+    A.LockedAttach
+    ( BL.Height(), BL.Width()+BR.Width(), BL.LockedBuffer(), BL.LDim() );
 }
 
 template<typename T>
@@ -496,25 +352,9 @@ inline void LockedView1x2
         AssertConforming1x2( BL, BR );
         BL.AssertSameGrid( BR.Grid() );
     )
-    A.Empty();
-    A.grid_ = BL.grid_;
-    A.height_ = BL.Height();
-    A.width_ = BL.Width() + BR.Width();
-    A.colAlign_ = BL.ColAlign();
-    A.rowAlign_ = BL.RowAlign();
-    HandleDiagPath( A, BL );
-    A.viewType_ = LOCKED_VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = BL.ColShift();
-        A.rowShift_ = BL.RowShift();
-        LockedView1x2( A.Matrix(), BL.LockedMatrix(), BR.LockedMatrix() );
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.LockedAttach
+    ( BL.Height(), BL.Width()+BR.Width(), BL.ColAlign(), BL.RowAlign(),
+      BL.LockedBuffer(), BL.LDim(), BL.Grid(), BL.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -531,7 +371,7 @@ inline void View2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
     DEBUG_ONLY(
         CallStackEntry cse("View2x1");
-        if( IsLocked(BT.viewType_) || IsLocked(BB.viewType_) )
+        if( BT.Locked() || BB.Locked() )
             LogicError("Cannot grab an unlocked view of a locked matrix");
         if( BT.Width() != BB.Width() )
             LogicError("2x1 must have consistent width to combine");
@@ -540,12 +380,7 @@ inline void View2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
         if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
             LogicError("2x1 must have contiguous memory");
     )
-    A.memory_.Empty();
-    A.height_   = BT.height_ + BB.height_;
-    A.width_    = BT.width_;
-    A.ldim_     = BT.ldim_;
-    A.data_     = BT.data_;
-    A.viewType_ = VIEW;
+    A.Attach( BT.Height()+BB.Height(), BT.Width(), BT.Buffer(), BT.LDim() );
 }
 
 template<typename T>
@@ -565,25 +400,9 @@ inline void View2x1
         AssertConforming2x1( BT, BB );
         BT.AssertSameGrid( BB.Grid() );
     )
-    A.Empty();
-    A.grid_ = BT.grid_;
-    A.height_ = BT.Height() + BB.Height();
-    A.width_ = BT.Width();
-    A.colAlign_ = BT.ColAlign();
-    A.rowAlign_ = BT.RowAlign();
-    HandleDiagPath( A, BT );
-    A.viewType_ = LOCKED_VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = BT.ColShift();
-        A.rowShift_ = BT.RowShift();
-        View2x1( A.Matrix(), BT.Matrix(), BB.Matrix() );
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.Attach
+    ( BT.Height()+BB.Height(), BT.Width(), BT.ColAlign(), BT.RowAlign(),
+      BT.Buffer(), BT.LDim(), BT.Grid(), BT.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -607,12 +426,8 @@ inline void LockedView2x1
         if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
             LogicError("2x1 must have contiguous memory");
     )
-    A.memory_.Empty();
-    A.height_   = BT.height_ + BB.height_;
-    A.width_    = BT.width_;
-    A.ldim_     = BT.ldim_;
-    A.data_     = BT.data_;
-    A.viewType_ = LOCKED_VIEW;
+    A.LockedAttach
+    ( BT.Height()+BB.Height(), BT.Width(), BT.LockedBuffer(), BT.LDim() );
 }
 
 template<typename T>
@@ -635,25 +450,9 @@ inline void LockedView2x1
         AssertConforming2x1( BT, BB );
         BT.AssertSameGrid( BB.Grid() );
     )
-    A.Empty();
-    A.grid_ = BT.grid_;
-    A.height_ = BT.Height() + BB.Height();
-    A.width_ = BT.Width();
-    A.colAlign_ = BT.ColAlign();
-    A.rowAlign_ = BT.RowAlign();
-    HandleDiagPath( A, BT );
-    A.viewType_ = LOCKED_VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = BT.ColShift();
-        A.rowShift_ = BT.RowShift();
-        LockedView2x1( A.Matrix(), BT.LockedMatrix(), BB.LockedMatrix() );
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.LockedAttach
+    ( BT.Height()+BB.Height(), BT.Width(), BT.ColAlign(), BT.RowAlign(),
+      BT.LockedBuffer(), BT.LDim(), BT.Grid(), BT.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -673,8 +472,7 @@ inline void View2x2
 {
     DEBUG_ONLY(
         CallStackEntry cse("View2x2");
-        if( IsLocked(BTL.viewType_) || IsLocked(BTR.viewType_) ||
-            IsLocked(BBL.viewType_) || IsLocked(BBR.viewType_) )
+        if( BTL.Locked() || BTR.Locked() || BBL.Locked() || BBR.Locked() )
             LogicError("Cannot grab an unlocked view of a locked matrix");
         if( BTL.Width() != BBL.Width()   ||
             BTR.Width() != BBR.Width()   ||
@@ -690,12 +488,9 @@ inline void View2x2
             BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
             LogicError("2x2 must have contiguous memory");
     )
-    A.memory_.Empty();
-    A.height_   = BTL.height_ + BBL.height_;
-    A.width_    = BTL.width_ + BTR.width_;
-    A.ldim_     = BTL.ldim_;
-    A.data_     = BTL.data_;
-    A.viewType_ = VIEW;
+    A.Attach
+    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
+      BTL.Buffer(), BTL.LDim() );
 }
 
 template<typename T>
@@ -721,27 +516,10 @@ inline void View2x2
         BTL.AssertSameGrid( BBL.Grid() );
         BTL.AssertSameGrid( BBR.Grid() );
     )
-    A.Empty();
-    A.grid_ = BTL.grid_;
-    A.height_ = BTL.Height() + BBL.Height();
-    A.width_ = BTL.Width() + BTR.Width();
-    A.colAlign_ = BTL.ColAlign();
-    A.rowAlign_ = BTL.RowAlign();
-    HandleDiagPath( A, BTL );
-    A.viewType_ = VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = BTL.ColShift();
-        A.rowShift_ = BTL.RowShift();
-        View2x2
-        ( A.Matrix(), BTL.Matrix(), BTR.Matrix(),
-                      BBL.Matrix(), BBR.Matrix() ); 
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.Attach
+    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
+      BTL.ColAlign(), BTL.RowAlign(), 
+      BTL.Buffer(), BTL.LDim(), BTL.Grid(), BTL.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -778,12 +556,9 @@ inline void LockedView2x2
             BTR.LockedBuffer() != (BTL.LockedBuffer()+BTL.LDim()*BTL.Width()) )
             LogicError("2x2 must have contiguous memory");
     )
-    A.memory_.Empty();
-    A.height_   = BTL.height_ + BBL.height_;
-    A.width_    = BTL.width_ + BTR.width_;
-    A.ldim_     = BTL.ldim_;
-    A.data_     = BTL.data_;
-    A.viewType_ = LOCKED_VIEW;
+    A.LockedAttach
+    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
+      BTL.LockedBuffer(), BTL.LDim() );
 }
 
 template<typename T>
@@ -809,27 +584,10 @@ inline void LockedView2x2
         BTL.AssertSameGrid( BBL.Grid() );
         BTL.AssertSameGrid( BBR.Grid() );
     )
-    A.Empty();
-    A.grid_ = BTL.grid_;
-    A.height_ = BTL.Height() + BBL.Height();
-    A.width_ = BTL.Width() + BTR.Width();
-    A.colAlign_ = BTL.ColAlign();
-    A.rowAlign_ = BTL.RowAlign();
-    HandleDiagPath( A, BTL );
-    A.viewType_ = LOCKED_VIEW;
-    if( A.Participating() )
-    {
-        A.colShift_ = BTL.ColShift();
-        A.rowShift_ = BTL.RowShift();
-        LockedView2x2
-        ( A.Matrix(), BTL.LockedMatrix(), BTR.LockedMatrix(),
-                      BBL.LockedMatrix(), BBR.LockedMatrix() );
-    }
-    else
-    {
-        A.colShift_ = 0;
-        A.rowShift_ = 0;
-    }
+    A.LockedAttach
+    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
+      BTL.ColAlign(), BTL.RowAlign(), BTL.LockedBuffer(), BTL.LDim(),
+      BTL.Grid(), BTL.Root() );
 }
 
 template<typename T,Dist U,Dist V>

@@ -12,8 +12,11 @@
 
 namespace elem {
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 class AbstractDistMatrix;
+
+template<typename T,Dist U=MC,Dist V=MR>
+class GeneralDistMatrix;
 
 template<typename T,Dist U=MC,Dist V=MR>
 class DistMatrix;

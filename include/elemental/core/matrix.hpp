@@ -182,33 +182,11 @@ private:
     // Friend declarations
     // ===================
 #ifndef SWIG
-    template <typename F> 
-    friend class Matrix;
-    template <typename F,Dist U,Dist V>
-    friend class AbstractDistMatrix;
-    template <typename F,Dist U,Dist V> 
-    friend class DistMatrix;
-
-    friend void View<T>( Matrix<T>& A, Matrix<T>& B );
-    friend void View<T>
-    ( Matrix<T>& A, Matrix<T>& B, Int i, Int j, Int height, Int width );
-    friend void View1x2<T>( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR );
-    friend void View2x1<T>( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB );
-    friend void View2x2<T>
-    ( Matrix<T>& A, Matrix<T>& BTL, Matrix<T>& BTR,
-                    Matrix<T>& BBL, Matrix<T>& BBR );
-
-    friend void LockedView<T>( Matrix<T>& A, const Matrix<T>& B );
-    friend void LockedView<T>
-    ( Matrix<T>& A, const Matrix<T>& B, Int i, Int j, Int height, Int width );
-    friend void LockedView1x2<T>
-    ( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR );
-    friend void LockedView2x1<T>
-    ( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB );
-    friend void LockedView2x2<T>
-    ( Matrix<T>& A, const Matrix<T>& BTL, const Matrix<T>& BTR,
-                    const Matrix<T>& BBL, const Matrix<T>& BBR );
-#endif // ifndef SWIG
+    template <typename F>               friend class Matrix;
+    template <typename F>               friend class AbstractDistMatrix;
+    template <typename F,Dist U,Dist V> friend class GeneralDistMatrix;
+    template <typename F,Dist U,Dist V> friend class DistMatrix;
+#endif 
 };
 
 } // namespace elem

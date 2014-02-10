@@ -19,12 +19,13 @@ namespace elem {
 // (MC). Thus the rows will be distributed among columns of the process
 // grid.
 template<typename T>
-class DistMatrix<T,STAR,MC> : public AbstractDistMatrix<T,STAR,MC>
+class DistMatrix<T,STAR,MC> : public GeneralDistMatrix<T,STAR,MC>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,STAR,MC> admType;
+    typedef AbstractDistMatrix<T> admType;
+    typedef GeneralDistMatrix<T,STAR,MC> genType;
     typedef DistMatrix<T,STAR,MC> type;
 
     // Constructors and destructors
@@ -76,19 +77,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 #endif
-
-    // Buffer attachment
-    // -----------------
-    void Attach
-    ( Int height, Int width, Int rowAlign,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int rowAlign,
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach
-    ( Matrix<T>& A, Int rowAlign, const elem::Grid& grid );
-    void LockedAttach
-    ( const Matrix<T>& A, Int rowAlign, const elem::Grid& grid );
 
     // Realignment
     // -----------

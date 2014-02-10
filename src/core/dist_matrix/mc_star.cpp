@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T,MC,STAR>;
+using GDM = GeneralDistMatrix<T,MC,STAR>;
 template<typename T>
 using DM = DistMatrix<T,MC,STAR>;
 
@@ -23,17 +23,17 @@ using DM = DistMatrix<T,MC,STAR>;
 
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->SetShifts(); }
 
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, Int colAlign, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { 
     this->Align( colAlign, 0 );
     this->Resize( height, width );
@@ -42,7 +42,7 @@ DM<T>::DistMatrix( Int height, Int width, Int colAlign, const elem::Grid& g )
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { 
     this->Align( colAlign, 0 );
     this->Resize( height, width, ldim );
@@ -52,19 +52,19 @@ template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, const T* buffer, Int ldim,
   const elem::Grid& g )
-: ADM<T>(g)
-{ this->LockedAttach( height, width, colAlign, buffer, ldim, g ); }
+: GDM<T>(g)
+{ this->LockedAttach( height, width, colAlign, 0, buffer, ldim, g ); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, T* buffer, Int ldim,
   const elem::Grid& g )
-: ADM<T>(g)
-{ this->Attach( height, width, colAlign, buffer, ldim, g ); }
+: GDM<T>(g)
+{ this->Attach( height, width, colAlign, 0, buffer, ldim, g ); }
 
 template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
-: ADM<T>(A.Grid())
+: GDM<T>(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,* ]::DistMatrix"))
     this->SetShifts();
@@ -77,7 +77,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 template<typename T>
 template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
-: ADM<T>(A.Grid())
+: GDM<T>(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,* ]::DistMatrix"))
     this->SetShifts();
@@ -90,7 +90,7 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 
 template<typename T>
 DM<T>::DistMatrix( DM<T>&& A )
-: ADM<T>(std::move(A))
+: GDM<T>(std::move(A))
 { }
 
 template<typename T> DM<T>::~DistMatrix() { }
@@ -689,68 +689,8 @@ template<typename T>
 DM<T>&
 DM<T>::operator=( DM<T>&& A )
 {
-    ADM<T>::operator=( std::move(A) );
+    GDM<T>::operator=( std::move(A) );
     return *this;
-}
-
-// Buffer attachment
-// -----------------
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, Int colAlign,
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,* ]::Attach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->viewType_ = VIEW;
-    this->SetColShift();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Height());
-        this->matrix_.Attach_( localHeight, width, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::Attach( Matrix<T>& A, Int colAlign, const elem::Grid& g )
-{ this->Attach( A.Height(), A.Width(), colAlign, A.Buffer(), A.LDim(), g ); }
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, Int colAlign,
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,* ]::LockedAttach"))
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlign_ = colAlign;
-    this->viewType_ = LOCKED_VIEW;
-    this->SetColShift();
-    if( this->Participating() )
-    {
-        const Int localHeight = Length(height,this->colShift_,g.Height());
-        this->matrix_.LockedAttach_( localHeight, width, buffer, ldim );
-    }
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach( const Matrix<T>& A, Int colAlign, const elem::Grid& g )
-{
-    this->LockedAttach
-    ( A.Height(), A.Width(), colAlign, A.LockedBuffer(), A.LDim(), g );
 }
 
 // Realignment

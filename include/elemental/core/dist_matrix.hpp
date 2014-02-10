@@ -34,6 +34,7 @@ struct DistData
 } // namespace elem
 
 #include "./dist_matrix/abstract.hpp"
+#include "./dist_matrix/general.hpp"
 #include "./dist_matrix/circ_circ.hpp"
 #include "./dist_matrix/mc_mr.hpp"
 #include "./dist_matrix/mc_star.hpp"

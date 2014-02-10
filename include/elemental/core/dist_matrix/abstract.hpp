@@ -12,17 +12,13 @@
 
 namespace elem {
 
-template<typename T,Dist U,Dist V> 
+template<typename T> 
 class AbstractDistMatrix
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,U,V> type;
-#ifndef SWIG
-    static constexpr Dist UDiag = DiagColDist<U,V>();
-    static constexpr Dist VDiag = DiagRowDist<U,V>();
-#endif
+    typedef AbstractDistMatrix<T> type;
 
     // Constructors and destructors
     // ============================
@@ -54,6 +50,21 @@ public:
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignColsWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
+    // Buffer attachment
+    // -----------------
+    // (Immutable) view of a distributed matrix's buffer
+    void Attach
+    ( Int height, Int width, Int colAlign, Int rowAlign,
+      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+    void LockedAttach
+    ( Int height, Int width, Int colAlign, Int rowAlign,
+      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+    void Attach
+    ( Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& grid, 
+      Int root=0 );
+    void LockedAttach
+    ( const Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& grid, 
+      Int root=0 );
 
     // Basic queries
     // =============
@@ -147,44 +158,13 @@ public:
     void UpdateLocal( Int iLoc, Int jLoc, T alpha );
     void UpdateLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
     void UpdateLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
-    void MakeRealLocal( Int i, Int j );
-    void ConjugateLocal( Int i, Int j );
+    void MakeRealLocal( Int iLoc, Int jLoc );
+    void ConjugateLocal( Int iLoc, Int jLoc );
 
     // Diagonal manipulation
     // =====================
-#ifndef SWIG
-    template<typename S>
-    bool DiagonalAligned
-    ( const DistMatrix<S,UDiag,VDiag>& d, Int offset=0 ) const;
-    template<typename S>
-    void ForceDiagonalAlign( DistMatrix<S,UDiag,VDiag>& d, Int offset=0 ) const;
-
-    void GetDiagonal( DistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
-
-    DistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),UDiag,VDiag> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),UDiag,VDiag> GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetDiagonal( const DistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
-    void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
-
-    void UpdateDiagonal
-    ( T alpha, const DistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal
-    ( BASE(T) alpha, const DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
-
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
-#endif // ifndef SWIG
 
     // Arbitrary-submatrix manipulation
     // ================================
@@ -278,6 +258,25 @@ public:
     void ConjugateLocal
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
 
+    // Combined realignment and resize
+    // ===============================
+    void AlignAndResize
+    ( Int colAlign, Int rowAlign, Int height, Int width, bool force=false );
+    void AlignColsAndResize
+    ( Int colAlign, Int height, Int width, bool force=false );
+    void AlignRowsAndResize
+    ( Int rowAlign, Int height, Int width, bool force=false );
+
+    // Assertions
+    // ==========
+    void ComplainIfReal() const;
+    void AssertNotLocked() const;
+    void AssertNotStoringData() const;
+    void AssertValidEntry( Int i, Int j ) const;
+    void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
+    void AssertSameGrid( const elem::Grid& grid ) const;
+    void AssertSameSize( Int height, Int width ) const;
+
 protected:
     // Member variables
     // ================
@@ -312,86 +311,25 @@ protected:
     void SetRowShift();
     void SetGrid();
 
-    // Combined realignment and resize
-    // ===============================
-    // NOTE: Should these be public?
-    void AlignAndResize
-    ( Int colAlign, Int rowAlign, Int height, Int width, bool force=false );
-    void AlignColsAndResize
-    ( Int colAlign, Int height, Int width, bool force=false );
-    void AlignRowsAndResize
-    ( Int rowAlign, Int height, Int width, bool force=false );
-
-    // Assertions
-    // ==========
-    void ComplainIfReal() const;
-    void AssertNotLocked() const;
-    void AssertNotStoringData() const;
-    void AssertValidEntry( Int i, Int j ) const;
-    void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
-    void AssertSameGrid( const elem::Grid& grid ) const;
-    void AssertSameSize( Int height, Int width ) const;
-
-    // Helper routines
-    // ===============
-    template<typename S,class Function>
-    void GetDiagonalHelper
-    ( DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const;
-    template<typename S,class Function>
-    void SetDiagonalHelper
-    ( const DistMatrix<S,UDiag,VDiag>& d, Int offset, Function func );
-
     // Friend declarations
     // ===================
 #ifndef SWIG
     template<typename S,Dist J,Dist K> friend class DistMatrix;
-
-    friend void View<>( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
-    friend void LockedView<>
-    ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B );
-
-    friend void View<>
-    ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
-      Int i, Int j, Int height, Int width );
-    friend void LockedView<>
-    ( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
-      Int i, Int j, Int height, Int width );
-
-    friend void View1x2<>
-    ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR );
-    friend void LockedView1x2<>
-    (       DistMatrix<T,U,V>& A,
-      const DistMatrix<T,U,V>& BL, const DistMatrix<T,U,V>& BR );
-
-    friend void View2x1<>
-    ( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB );
-    friend void LockedView2x1<>
-    (       DistMatrix<T,U,V>& A,
-      const DistMatrix<T,U,V>& BT, const DistMatrix<T,U,V>& BB );
-
-    friend void View2x2<>
-    ( DistMatrix<T,U,V>& A,
-      DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
-      DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR );
-    friend void LockedView2x2<>
-    (       DistMatrix<T,U,V>& A,
-      const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
-      const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR );
-#endif // ifndef SWIG
+#endif
 };
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void AssertConforming1x2
-( const AbstractDistMatrix<T,U,V>& AL, const AbstractDistMatrix<T,U,V>& AR );
+( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void AssertConforming2x1
-( const AbstractDistMatrix<T,U,V>& AT, const AbstractDistMatrix<T,U,V>& AB );
+( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void AssertConforming2x2
-( const AbstractDistMatrix<T,U,V>& ATL, const AbstractDistMatrix<T,U,V>& ATR,
-  const AbstractDistMatrix<T,U,V>& ABL, const AbstractDistMatrix<T,U,V>& ABR );
+( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
+  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
 
 } // namespace elem
 

@@ -18,12 +18,13 @@ namespace elem {
 // process grid in a column-major fashion, while the columns are not 
 // distributed.
 template<typename T>
-class DistMatrix<T,STAR,VC> : public AbstractDistMatrix<T,STAR,VC>
+class DistMatrix<T,STAR,VC> : public GeneralDistMatrix<T,STAR,VC>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,STAR,VC> admType;
+    typedef AbstractDistMatrix<T> admType;
+    typedef GeneralDistMatrix<T,STAR,VC> genType;
     typedef DistMatrix<T,STAR,VC> type;
 
     // Constructors and destructors
@@ -75,20 +76,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 #endif
-
-    // Buffer attachment
-    // -----------------
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, Int rowAlign,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int rowAlign,
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach
-    ( Matrix<T>& A, Int rowAlign, const elem::Grid& grid );
-    void LockedAttach
-    ( const Matrix<T>& A, Int rowAlign, const elem::Grid& grid );
 
     // Realignment
     // -----------

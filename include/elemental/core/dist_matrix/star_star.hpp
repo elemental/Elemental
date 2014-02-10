@@ -16,12 +16,13 @@ namespace elem {
 //
 // The entire matrix is replicated across all processes.
 template<typename T>
-class DistMatrix<T,STAR,STAR> : public AbstractDistMatrix<T,STAR,STAR>
+class DistMatrix<T,STAR,STAR> : public GeneralDistMatrix<T,STAR,STAR>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,STAR,STAR> admType;
+    typedef AbstractDistMatrix<T> admType;
+    typedef GeneralDistMatrix<T,STAR,STAR> genType;
     typedef DistMatrix<T,STAR,STAR> type;
 
     // Constructors and destructors
@@ -69,18 +70,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 #endif
-
-    // Buffer attachment
-    // -----------------
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, 
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach( Matrix<T>& A, const elem::Grid& grid );
-    void LockedAttach( const Matrix<T>& A, const elem::Grid& grid );
 
     // Specialized redistributions
     // ---------------------------

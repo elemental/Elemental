@@ -11,7 +11,7 @@
 namespace elem {
 
 template<typename T>
-using ADM = AbstractDistMatrix<T,STAR,STAR>;
+using GDM = GeneralDistMatrix<T,STAR,STAR>;
 template<typename T>
 using DM = DistMatrix<T,STAR,STAR>;
 
@@ -23,34 +23,34 @@ using DM = DistMatrix<T,STAR,STAR>;
 
 template<typename T>
 DM<T>::DistMatrix( const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { }
 
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->Resize(height,width); }
 
 template<typename T>
 DM<T>::DistMatrix( Int height, Int width, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
+: GDM<T>(g)
 { this->Resize(height,width,ldim); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
-{ this->LockedAttach(height,width,buffer,ldim,g); }
+: GDM<T>(g)
+{ this->LockedAttach(height,width,0,0,buffer,ldim,g); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g )
-: ADM<T>(g)
-{ this->Attach(height,width,buffer,ldim,g); }
+: GDM<T>(g)
+{ this->Attach(height,width,0,0,buffer,ldim,g); }
 
 template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
-: ADM<T>(A.Grid())
+: GDM<T>(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ]::DistMatrix"))
     if( &A != this )
@@ -62,7 +62,7 @@ DM<T>::DistMatrix( const DM<T>& A )
 template<typename T>
 template<Dist U,Dist V>
 DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
-: ADM<T>(A.Grid())
+: GDM<T>(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ]::DistMatrix"))
     if( STAR != U || STAR != V || 
@@ -73,7 +73,7 @@ DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM<T>::DistMatrix( DM<T>&& A ) : ADM<T>(std::move(A)) { }
+DM<T>::DistMatrix( DM<T>&& A ) : GDM<T>(std::move(A)) { }
 
 template<typename T> DM<T>::~DistMatrix() { }
 
@@ -963,54 +963,9 @@ template<typename T>
 DM<T>&
 DM<T>::operator=( DM<T>&& A )
 {
-    ADM<T>::operator=( std::move(A) );
+    GDM<T>::operator=( std::move(A) );
     return *this;
 }
-
-// Buffer attachment
-// -----------------
-
-template<typename T>
-void
-DM<T>::Attach
-( Int height, Int width, 
-  T* buffer, Int ldim, const elem::Grid& grid )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::Attach"))
-    this->Empty();
-    this->grid_ = &grid;
-    this->height_ = height;
-    this->width_ = width;
-    this->viewType_ = VIEW;
-    if( this->Participating() )
-        this->matrix_.Attach_( height, width, buffer, ldim );
-}
-
-template<typename T>
-void
-DM<T>::Attach( Matrix<T>& A, const elem::Grid& g )
-{ this->Attach( A.Height(), A.Width(), A.Buffer(), A.LDim(), g ); }
-
-template<typename T>
-void
-DM<T>::LockedAttach
-( Int height, Int width, 
-  const T* buffer, Int ldim, const elem::Grid& grid )
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,* ]::LockedAttach"))
-    this->Empty();
-    this->grid_ = &grid;
-    this->height_ = height;
-    this->width_ = width;
-    this->viewType_ = LOCKED_VIEW;
-    if( this->Participating() )
-        this->matrix_.LockedAttach_( height, width, buffer, ldim );
-}
-
-template<typename T>
-void
-DM<T>::LockedAttach( const Matrix<T>& A, const elem::Grid& g )
-{ this->LockedAttach( A.Height(), A.Width(), A.LockedBuffer(), A.LDim(), g ); }
 
 // Specialized redistributions
 // ---------------------------

@@ -20,12 +20,13 @@ namespace elem {
 // entire process grid if and only if the dimensions of the process grid
 // are coprime.
 template<typename T>
-class DistMatrix<T,STAR,MD> : public AbstractDistMatrix<T,STAR,MD>
+class DistMatrix<T,STAR,MD> : public GeneralDistMatrix<T,STAR,MD>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T,STAR,MD> admType;
+    typedef AbstractDistMatrix<T> admType;
+    typedef GeneralDistMatrix<T,STAR,MD> genType;
     typedef DistMatrix<T,STAR,MD> type;
 
     // Constructors and destructors
@@ -79,20 +80,6 @@ public:
     // Move assignment
     type& operator=( type&& A );
 #endif
-
-    // Buffer attachment
-    // -----------------
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, Int rowAlign, Int root,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int rowAlign, Int root,
-      const T* buffer, Int ldim, const elem::Grid& grid );
-    void Attach
-    ( Matrix<T>& A, Int rowAlign, Int root, const elem::Grid& grid );
-    void LockedAttach
-    ( const Matrix<T>& A, Int rowAlign, Int root, const elem::Grid& grid );
 
     // Realignment
     // -----------
