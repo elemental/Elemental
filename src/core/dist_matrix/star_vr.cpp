@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -735,153 +736,6 @@ DM<T>::AlignRowsWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::SumScatterFrom( const DistMatrix<T,STAR,MR>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,VR]::SumScatterFrom( [* ,MR] )");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->AlignRowsAndResize( A.RowAlign(), A.Height(), A.Width() );
-    if( !this->Participating() )
-        return;
-
-    if( this->RowAlign() % g.Width() == A.RowAlign() )
-    {
-        const Int r = g.Height();
-        const Int c = g.Width();
-        const Int p = r * c;
-        const Int myCol = g.Col();
-        const Int rowAlign = this->RowAlign();
-        const Int rowShiftOfA = A.RowShift();
-
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int localWidth = this->LocalWidth();
-        const Int maxLocalWidth = MaxLength( width, p );
-        const Int recvSize = mpi::Pad( height*maxLocalWidth );
-        const Int sendSize = r*recvSize;
-
-        // Pack
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        T* buffer = this->auxMemory_.Require( sendSize );
-        OUTER_PARALLEL_FOR
-        for( Int k=0; k<r; ++k )
-        {
-            T* data = &buffer[k*recvSize];
-            const Int thisRank = myCol+k*c;
-            const Int thisRowShift = Shift_( thisRank, rowAlign, p );
-            const Int thisRowOffset = (thisRowShift-rowShiftOfA) / c;
-            const Int thisLocalWidth = Length_( width, thisRowShift, p );
-            INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-            {
-                const T* ACol = &ABuf[(thisRowOffset+jLoc*r)*ALDim];
-                T* dataCol = &data[jLoc*height];
-                MemCopy( dataCol, ACol, height );
-            }
-        }
-
-        // Communicate
-        mpi::ReduceScatter( buffer, recvSize, g.ColComm() );
-
-        // Unpack our received data
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* bufferCol = &buffer[jLoc*height];
-            T* thisCol = &thisBuf[jLoc*thisLDim];
-            MemCopy( thisCol, bufferCol, height );
-        }
-        this->auxMemory_.Release();
-    }
-    else
-    {
-        LogicError
-        ("Unaligned [* ,VR]::ReduceScatterFrom( [* ,MR] ) not implemented");
-    }
-}
-
-template<typename T>
-void
-DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,VR]::SumScatterUpdate( [* ,MR] )");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-        this->AssertSameSize( A.Height(), A.Width() );
-    )
-    const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
-        return;
-
-    if( this->RowAlign() % g.Width() == A.RowAlign() )
-    {
-        const Int r = g.Height();
-        const Int c = g.Width();
-        const Int p = r * c;
-        const Int myCol = g.Col();
-        const Int rowAlign = this->RowAlign();
-        const Int rowShiftOfA = A.RowShift();
-
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int localWidth = this->LocalWidth();
-        const Int maxLocalWidth = MaxLength( width, p );
-        const Int recvSize = mpi::Pad( height*maxLocalWidth );
-        const Int sendSize = r*recvSize;
-
-        // Pack
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        T* buffer = this->auxMemory_.Require( sendSize );
-        OUTER_PARALLEL_FOR
-        for( Int k=0; k<r; ++k )
-        {
-            T* data = &buffer[k*recvSize];
-            const Int thisRank = myCol+k*c;
-            const Int thisRowShift = Shift_( thisRank, rowAlign, p );
-            const Int thisRowOffset = (thisRowShift-rowShiftOfA) / c;
-            const Int thisLocalWidth = Length_( width, thisRowShift, p );
-            INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-            {
-                const T* ACol = &ABuf[(thisRowOffset+jLoc*r)*ALDim];
-                T* dataCol = &data[jLoc*height];
-                MemCopy( dataCol, ACol, height );
-            }
-        }
-
-        // Communicate
-        mpi::ReduceScatter( buffer, recvSize, g.ColComm() );
-
-        // Unpack our received data
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* bufferCol = &buffer[jLoc*height];
-            T* thisCol = &thisBuf[jLoc*thisLDim];
-            for( Int i=0; i<height; ++i )
-                thisCol[i] += alpha*bufferCol[i];
-        }
-        this->auxMemory_.Release();
-    }
-    else
-    {
-        LogicError
-        ("Unaligned [* ,VR]::ReduceScatterUpdate( [* ,MR] ) not implemented");
-    }
-}
-
-template<typename T>
-void
 DM<T>::TransposeFrom( const DistMatrix<T,MR,STAR>& A, bool conjugate )
 { 
     DEBUG_ONLY(
@@ -1036,11 +890,19 @@ template<typename T>
 mpi::Comm DM<T>::ColComm() const { return mpi::COMM_SELF; }
 template<typename T>
 mpi::Comm DM<T>::RowComm() const { return this->grid_->VRComm(); }
+template<typename T>
+mpi::Comm DM<T>::PartialRowComm() const { return this->grid_->MRComm(); }
+template<typename T>
+mpi::Comm DM<T>::PartialUnionRowComm() const { return this->grid_->MCComm(); }
 
 template<typename T>
 Int DM<T>::ColStride() const { return 1; }
 template<typename T>
 Int DM<T>::RowStride() const { return this->grid_->Size(); }
+template<typename T>
+Int DM<T>::PartialRowStride() const { return this->grid_->Width(); }
+template<typename T>
+Int DM<T>::PartialUnionRowStride() const { return this->grid_->Height(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

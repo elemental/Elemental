@@ -142,6 +142,17 @@ template<> constexpr Dist DiagInvColDist<MD,STAR>() { return MC; }
 template<> constexpr Dist DiagInvRowDist<MD,STAR>() { return MR; }
 template<> constexpr Dist DiagInvColDist<STAR,MD>() { return MC; }
 template<> constexpr Dist DiagInvRowDist<STAR,MD>() { return MR; }
+
+template<Dist U> 
+constexpr Dist GatheredDist() { return ( U==CIRC ? CIRC : STAR ); }
+
+template<Dist U> constexpr Dist PartialDist() { return U; }
+template<> constexpr Dist PartialDist<VC>() { return MC; }
+template<> constexpr Dist PartialDist<VR>() { return MR; }
+
+template<Dist U> constexpr Dist PartialUnionDist() { return CIRC; }
+template<> constexpr Dist PartialUnionDist<VC>() { return MR; }
+template<> constexpr Dist PartialUnionDist<VR>() { return MC; }
 #endif // ifndef SWIG
 
 namespace viewtype_wrapper {

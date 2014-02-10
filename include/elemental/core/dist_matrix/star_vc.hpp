@@ -82,11 +82,6 @@ public:
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
 
-    // Specialized redistributions
-    // ---------------------------
-    void SumScatterFrom( const DistMatrix<T,STAR,MC>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MC>& A );
-
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;
@@ -95,8 +90,12 @@ public:
     virtual mpi::Comm RedundantComm() const;
     virtual mpi::Comm ColComm() const;
     virtual mpi::Comm RowComm() const;
-    virtual Int RowStride() const;
+    virtual mpi::Comm PartialRowComm() const;
+    virtual mpi::Comm PartialUnionRowComm() const;
     virtual Int ColStride() const;
+    virtual Int RowStride() const;
+    virtual Int PartialRowStride() const;
+    virtual Int PartialUnionRowStride() const;
 
 private:
 #ifndef SWIG

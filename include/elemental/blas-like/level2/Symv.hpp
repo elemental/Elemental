@@ -120,9 +120,9 @@ Symv
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
         }
 
-        z_MR_MC.SumScatterFrom( z_MR_STAR );
+        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
-        z.SumScatterUpdate( T(1), z_MC_STAR );
+        z.RowSumScatterUpdate( T(1), z_MC_STAR );
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
     }
@@ -158,9 +158,9 @@ Symv
             ( alpha, A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR, conjugate );
         }
 
-        z.SumScatterFrom( z_MC_STAR );
+        z.RowSumScatterFrom( z_MC_STAR );
         z_MR_MC = z;
-        z_MR_MC.SumScatterUpdate( T(1), z_MR_STAR );
+        z_MR_MC.RowSumScatterUpdate( T(1), z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
@@ -197,9 +197,9 @@ Symv
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
         }
 
-        z.SumScatterFrom( z_STAR_MR );
+        z.ColSumScatterFrom( z_STAR_MR );
         z_MR_MC = z;
-        z_MR_MC.SumScatterUpdate( T(1), z_STAR_MC );
+        z_MR_MC.ColSumScatterUpdate( T(1), z_STAR_MC );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
@@ -236,9 +236,9 @@ Symv
             ( alpha, A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR, conjugate );
         }
 
-        z_MR_MC.SumScatterFrom( z_STAR_MC );
+        z_MR_MC.ColSumScatterFrom( z_STAR_MC );
         z = z_MR_MC;
-        z.SumScatterUpdate( T(1), z_STAR_MR );
+        z.ColSumScatterUpdate( T(1), z_STAR_MR );
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
     }

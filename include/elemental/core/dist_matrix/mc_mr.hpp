@@ -89,15 +89,6 @@ public:
 
     // Specialized redistribution/update routines
     // ------------------------------------------
-    // Use the scattered summation of A[MC,* ] across process rows
-    void SumScatterFrom( const DistMatrix<T,MC,STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,MC,STAR>& A );
-    // Use the scattered summation of A[* ,MR] across process columns
-    void SumScatterFrom( const DistMatrix<T,STAR,MR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR>& A );
-    // Use the scattered summation of A[* ,* ] across the entire grid
-    void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A );
     // Auxiliary routines needed to implement algorithms that avoid 
     // inefficient unpackings of partial matrix distributions
     void TransposeFrom( const DistMatrix<T,STAR,MC>& A, bool conjugate=false );

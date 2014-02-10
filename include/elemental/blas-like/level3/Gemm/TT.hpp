@@ -84,7 +84,7 @@ SUMMA_TTA
         ( orientationOfA, orientationOfB, alpha, A, B1_STAR_MC, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        D1_MR_MC.SumScatterFrom( D1_MR_STAR );
+        D1_MR_MC.RowSumScatterFrom( D1_MR_STAR );
         D1 = D1_MR_MC; 
         Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//
@@ -175,7 +175,7 @@ SUMMA_TTB
         ( NORMAL, orientationOfB, alpha, A1AdjOrTrans_STAR_MR, B, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
-        D1_MR_MC.SumScatterFrom( D1_STAR_MC );
+        D1_MR_MC.ColSumScatterFrom( D1_STAR_MC );
         D1 = D1_MR_MC; 
         Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//

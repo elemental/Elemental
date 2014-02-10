@@ -81,7 +81,7 @@ UVar2( DistMatrix<F>& A )
         X11Adj_MR_STAR.AlignWith( A01 );
         LocalGemm( ADJOINT, NORMAL, F(1), A01, A01_MC_STAR, X11Adj_MR_STAR );
         X11Adj_MR_MC.AlignWith( A11 );
-        X11Adj_MR_MC.SumScatterFrom( X11Adj_MR_STAR );
+        X11Adj_MR_MC.RowSumScatterFrom( X11Adj_MR_STAR );
         X11.AlignWith( A11 );
         Adjoint( X11Adj_MR_MC, X11 );
         Axpy( F(-1), X11, A11 );
@@ -93,7 +93,7 @@ UVar2( DistMatrix<F>& A )
         X12Adj_MR_STAR.AlignWith( A02 );
         LocalGemm( ADJOINT, NORMAL, F(1), A02, A01_MC_STAR, X12Adj_MR_STAR );
         X12Adj_MR_MC.AlignWith( A12 );
-        X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
+        X12Adj_MR_MC.RowSumScatterFrom( X12Adj_MR_STAR );
         X12.AlignWith( A12 );
         Adjoint( X12Adj_MR_MC, X12 );
         Axpy( F(-1), X12, A12 );

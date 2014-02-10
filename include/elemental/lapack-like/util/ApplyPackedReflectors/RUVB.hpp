@@ -150,7 +150,7 @@ RUVB
         ZAdj_STAR_MC.AlignWith( ALeft );
         LocalGemm( ADJOINT, ADJOINT, F(1), HPan_MR_STAR, ALeft, ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ALeft );
-        ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
+        ZAdj_STAR_VC.PartialRowSumScatterFrom( ZAdj_STAR_MC );
         
         LocalTrsm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );

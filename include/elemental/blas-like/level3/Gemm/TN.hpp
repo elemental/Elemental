@@ -77,7 +77,7 @@ SUMMA_TNA
         LocalGemm( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
-        D1_MR_MC.SumScatterFrom( D1_MR_STAR );
+        D1_MR_MC.RowSumScatterFrom( D1_MR_STAR );
         D1 = D1_MR_MC; 
         Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//

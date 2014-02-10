@@ -161,7 +161,7 @@ AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
         // Perform the lazy update of A1
         Zeros( Z1, A.Height(), A01.Width() );
         LocalGemm( NORMAL, TRANSPOSE, F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
-        A1.SumScatterUpdate( F(1), Z1 );
+        A1.RowSumScatterUpdate( F(1), Z1 );
 
         // Solve against this diagonal block of L11
         A1_VC_STAR = A1;

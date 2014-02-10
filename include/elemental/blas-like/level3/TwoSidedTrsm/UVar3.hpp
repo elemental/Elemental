@@ -247,7 +247,7 @@ TwoSidedTrsmUVar3
         // A12 := A12 - U01' A02
         U01_MC_STAR = U01;
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A02, X12_STAR_MR );
-        A12.SumScatterUpdate( F(-1), X12_STAR_MR );
+        A12.ColSumScatterUpdate( F(-1), X12_STAR_MR );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
@@ -278,7 +278,7 @@ TwoSidedTrsmUVar3
 
         // Y12 := Y12 + A01' U02
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U02, Z12_STAR_MR );
-        Y12.SumScatterUpdate( F(1), Z12_STAR_MR );
+        Y12.ColSumScatterUpdate( F(1), Z12_STAR_MR );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal

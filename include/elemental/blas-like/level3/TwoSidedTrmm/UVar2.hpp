@@ -194,7 +194,7 @@ TwoSidedTrmmUVar2
         // A01 := A01 + A02 U12'
         U12Adj_MR_STAR.AdjointFrom( U12 );
         LocalGemm( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, X01_MC_STAR );
-        A01.SumScatterUpdate( F(1), X01_MC_STAR );
+        A01.RowSumScatterUpdate( F(1), X01_MC_STAR );
 
         // Y12 := U12 A22
         U12Adj_VC_STAR = U12Adj_MR_STAR;
@@ -205,9 +205,9 @@ TwoSidedTrmmUVar2
         ( ADJOINT, 
           F(1), A22, U12_STAR_MC, U12Adj_MR_STAR, 
           Z12Adj_MC_STAR, Z12Adj_MR_STAR );
-        Z12Adj.SumScatterFrom( Z12Adj_MC_STAR );
+        Z12Adj.RowSumScatterFrom( Z12Adj_MC_STAR );
         Z12Adj_MR_MC = Z12Adj;
-        Z12Adj_MR_MC.SumScatterUpdate( F(1), Z12Adj_MR_STAR );
+        Z12Adj_MR_MC.RowSumScatterUpdate( F(1), Z12Adj_MR_STAR );
         Y12.Resize( A12.Height(), A12.Width() );
         Adjoint( Z12Adj_MR_MC.LockedMatrix(), Y12.Matrix() );
 

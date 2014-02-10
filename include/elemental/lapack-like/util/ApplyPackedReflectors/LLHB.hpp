@@ -152,7 +152,7 @@ LLHB
         Z_STAR_MR.AlignWith( ATop );
         LocalGemm( NORMAL, NORMAL, F(1), HPan_STAR_MC, ATop, Z_STAR_MR );
         Z_STAR_VR.AlignWith( ATop );
-        Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
+        Z_STAR_VR.PartialRowSumScatterFrom( Z_STAR_MR );
 
         LocalTrsm
         ( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );

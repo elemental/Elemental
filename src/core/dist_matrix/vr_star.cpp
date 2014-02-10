@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -737,300 +738,6 @@ void
 DM<T>::AlignColsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
 
-// Specialized redistributions
-// ---------------------------
-
-template<typename T>
-void
-DM<T>::SumScatterFrom( const DistMatrix<T,MR,STAR>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VR,* ]::SumScatterFrom( [MR,* ] )");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-#ifdef CACHE_WARNINGS
-    if( A.Width() != 1 && g.Rank() == 0 )
-    {
-        std::cerr <<
-          "[VR,* ]::SumScatterFrom([MR,* ]) potentially causes a large amount "
-          "of cache-thrashing. If possible, avoid it by forming the "
-          "(conjugate-)transpose of the [MR,* ] matrix instead." << std::endl;
-    }
-#endif
-    this->AlignColsAndResize( A.ColAlign(), A.Height(), A.Width() );
-    if( !this->Participating() )
-        return;
-
-    if( this->ColAlign() % g.Width() == A.ColAlign() )
-    {
-        const Int r = g.Height();
-        const Int c = g.Width();
-        const Int p = r * c;
-        const Int myCol = g.Col();
-        const Int colAlign = this->ColAlign();
-        const Int colShiftOfA = A.ColShift();
-
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        const Int maxLocalHeight = MaxLength( height, p );
-        const Int recvSize = mpi::Pad( maxLocalHeight*width );
-        const Int sendSize = r*recvSize;
-
-        // Pack
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        T* buffer = this->auxMemory_.Require( sendSize );
-        OUTER_PARALLEL_FOR
-        for( Int k=0; k<r; ++k )
-        {
-            T* data = &buffer[k*recvSize];
-            const Int thisRank = myCol+k*c;
-            const Int thisColShift = Shift_( thisRank, colAlign, p );
-            const Int thisColOffset = (thisColShift-colShiftOfA) / c;
-            const Int thisLocalHeight = Length_( height, thisColShift, p );
-            INNER_PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                T* destCol = &data[j*thisLocalHeight];
-                const T* sourceCol = &ABuf[thisColOffset+j*ALDim];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc] = sourceCol[iLoc*r];
-            }
-        }
-
-        // Communicate
-        mpi::ReduceScatter( buffer, recvSize, g.ColComm() );
-
-        // Unpack our received data
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            const T* bufferCol = &buffer[j*localHeight];
-            T* thisCol = &thisBuf[j*thisLDim];
-            MemCopy( thisCol, bufferCol, localHeight );
-        }
-        this->auxMemory_.Release();
-    }
-    else
-    {
-        LogicError
-        ("Unaligned [VR,* ]::ReduceScatterFrom( [MR,* ] ) not implemented");
-    }
-}
-
-template<typename T>
-void
-DM<T>::SumScatterFrom( const DistMatrix<T,STAR,STAR>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VR,* ]::SumScatterFrom( [* ,* ] )");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return;
-
-    const Int p = g.Size();
-    const Int colAlign = this->ColAlign();
-
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int maxLocalHeight = MaxLength( height, p );
-
-    const Int recvSize = mpi::Pad( maxLocalHeight*width );
-    const Int sendSize = p*recvSize;
-
-    // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    T* buffer = this->auxMemory_.Require( sendSize );
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<p; ++k )
-    {
-        T* data = &buffer[k*recvSize];
-        const Int thisColShift = Shift_( k, colAlign, p );
-        const Int thisLocalHeight = Length_( height, thisColShift, p );
-        INNER_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            T* destCol = &data[j*thisLocalHeight];
-            const T* sourceCol = &ABuf[thisColShift+j*ALDim];
-            for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                destCol[iLoc] = sourceCol[iLoc*p];
-        }
-    }
-
-    // Communicate
-    mpi::ReduceScatter( buffer, recvSize, g.VRComm() );
-
-    // Unpack our received data
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-    {
-        const T* bufferCol = &buffer[j*localHeight];
-        T* thisCol = &thisBuf[j*thisLDim];
-        MemCopy( thisCol, bufferCol, localHeight );
-    }
-    this->auxMemory_.Release();
-}
-
-template<typename T>
-void
-DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VR,* ]::SumScatterUpdate( [MR,* ] )");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-        this->AssertSameSize( A.Height(), A.Width() );
-    )
-    const elem::Grid& g = this->Grid();
-#ifdef CACHE_WARNINGS
-    if( A.Width() != 1 && g.Rank() == 0 )
-    {
-        std::cerr <<
-          "[VR,* ]::SumScatterUpdate([MR,* ]) potentially causes a large amount"
-          " of cache-thrashing. If possible, avoid it by forming the "
-          "(conjugate-)transpose of the [MR,* ] matrix instead." << std::endl;
-    }
-#endif
-    if( !this->Participating() )
-        return;
-
-    if( this->ColAlign() % g.Width() == A.ColAlign() )
-    {
-        const Int r = g.Height();
-        const Int c = g.Width();
-        const Int p = r * c;
-        const Int myCol = g.Col();
-        const Int colAlign = this->ColAlign();
-        const Int colShiftOfA = A.ColShift();
-
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        const Int maxLocalHeight = MaxLength( height, p );
-
-        const Int recvSize = mpi::Pad( maxLocalHeight*width );
-        const Int sendSize = r*recvSize;
-
-        // Pack
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        T* buffer = this->auxMemory_.Require( sendSize );
-        OUTER_PARALLEL_FOR
-        for( Int k=0; k<r; ++k )
-        {
-            T* data = &buffer[k*recvSize];
-            const Int thisRank = myCol+k*c;
-            const Int thisColShift = Shift_( thisRank, colAlign, p );
-            const Int thisColOffset = (thisColShift-colShiftOfA) / c;
-            const Int thisLocalHeight = Length_( height, thisColShift, p );
-            INNER_PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                T* destCol = &data[j*thisLocalHeight];
-                const T* sourceCol = &ABuf[thisColOffset+j*ALDim];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc] = sourceCol[iLoc*r];
-            }
-        }
-
-        // Communicate
-        mpi::ReduceScatter( buffer, recvSize, g.ColComm() );
-
-        // Unpack our received data
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            const T* bufferCol = &buffer[j*localHeight];
-            T* thisCol = &thisBuf[j*thisLDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] += alpha*bufferCol[iLoc];
-        }
-        this->auxMemory_.Release();
-    }
-    else
-    {
-        LogicError
-        ("Unaligned [VR,* ]::ReduceScatterUpdate( [MR,* ] ) not implemented");
-    }
-}
-
-template<typename T>
-void
-DM<T>::SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[VR,* ]::SumScatterUpdate( [* ,* ] )");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-        this->AssertSameSize( A.Height(), A.Width() );
-    )
-    const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
-        return;
-
-    const Int p = g.Size();
-    const Int colAlign = this->ColAlign();
-
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int maxLocalHeight = MaxLength( height, p );
-
-    const Int recvSize = mpi::Pad( maxLocalHeight*width );
-    const Int sendSize = p*recvSize;
-
-    // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    T* buffer = this->auxMemory_.Require( sendSize );
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<p; ++k )
-    {
-        T* data = &buffer[k*recvSize];
-        const Int thisColShift = Shift_( k, colAlign, p );
-        const Int thisLocalHeight = Length_( height, thisColShift, p );
-        INNER_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
-        {
-            T* destCol = &data[j*thisLocalHeight];
-            const T* sourceCol = &ABuf[thisColShift+j*ALDim];
-            for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                destCol[iLoc] = sourceCol[iLoc*p];
-        }
-    }
-
-    // Communicate
-    mpi::ReduceScatter( buffer, recvSize, g.VRComm() );
-
-    // Unpack our received data
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-    {
-        const T* bufferCol = &buffer[j*localHeight];
-        T* thisCol = &thisBuf[j*thisLDim];
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            thisCol[iLoc] += alpha*bufferCol[iLoc];
-    }
-    this->auxMemory_.Release();
-}
-
 // Basic queries
 // =============
 template<typename T>
@@ -1046,11 +753,19 @@ template<typename T>
 mpi::Comm DM<T>::ColComm() const { return this->grid_->VRComm(); }
 template<typename T>
 mpi::Comm DM<T>::RowComm() const { return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm DM<T>::PartialColComm() const { return this->grid_->MRComm(); }
+template<typename T>
+mpi::Comm DM<T>::PartialUnionColComm() const { return this->grid_->MCComm(); }
 
 template<typename T>
 Int DM<T>::ColStride() const { return this->grid_->Size(); }
 template<typename T>
 Int DM<T>::RowStride() const { return 1; }
+template<typename T>
+Int DM<T>::PartialColStride() const { return this->grid_->Width(); }
+template<typename T>
+Int DM<T>::PartialUnionColStride() const { return this->grid_->Height(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

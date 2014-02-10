@@ -250,9 +250,9 @@ SymmLUA
         ( orientation,
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
 
-        Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
+        Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
         Z1 = Z1_MR_MC;
-        Z1.SumScatterUpdate( T(1), Z1_MC_STAR );
+        Z1.RowSumScatterUpdate( T(1), Z1_MC_STAR );
         Axpy( T(1), Z1, C1 );
         //--------------------------------------------------------------------//
 

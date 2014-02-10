@@ -259,9 +259,9 @@ SymmRLA
         ( orientation, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
           Z1Trans_MC_STAR, Z1Trans_MR_STAR );
 
-        Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
+        Z1Trans.RowSumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
-        Z1Trans_MR_MC.SumScatterUpdate( T(1), Z1Trans_MR_STAR );
+        Z1Trans_MR_MC.RowSumScatterUpdate( T(1), Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.LockedMatrix(), Z1Local, conjugate );
         Axpy( T(1), Z1Local, C1.Matrix() );
         //--------------------------------------------------------------------//

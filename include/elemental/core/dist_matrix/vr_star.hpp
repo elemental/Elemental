@@ -83,13 +83,6 @@ public:
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignColsWith( const elem::DistData& data );
 
-    // Specialized redistributions
-    // ---------------------------
-    void SumScatterFrom( const DistMatrix<T,MR,  STAR>& A );
-    void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,MR,  STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A );
-
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;
@@ -98,8 +91,12 @@ public:
     virtual mpi::Comm RedundantComm() const;
     virtual mpi::Comm ColComm() const;
     virtual mpi::Comm RowComm() const;
-    virtual Int RowStride() const;
+    virtual mpi::Comm PartialColComm() const;
+    virtual mpi::Comm PartialUnionColComm() const;
     virtual Int ColStride() const;
+    virtual Int RowStride() const;
+    virtual Int PartialColStride() const;
+    virtual Int PartialUnionColStride() const;
 
 private:
     // Friend declarations

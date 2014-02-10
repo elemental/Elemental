@@ -85,9 +85,7 @@ public:
 
     // Specialized redistributions
     // ---------------------------
-    void SumScatterFrom( const DistMatrix<T,STAR,MR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR>& A );
-
+    // TODO: Find a way to generalize these
     // Auxiliary routines needed to implement algorithms that avoid using
     // inefficient unpackings of partial matrix distributions
     void TransposeFrom( const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
@@ -101,8 +99,12 @@ public:
     virtual mpi::Comm RedundantComm() const;
     virtual mpi::Comm ColComm() const;
     virtual mpi::Comm RowComm() const;
-    virtual Int RowStride() const;
+    virtual mpi::Comm PartialRowComm() const;
+    virtual mpi::Comm PartialUnionRowComm() const;
     virtual Int ColStride() const;
+    virtual Int RowStride() const;
+    virtual Int PartialRowStride() const;
+    virtual Int PartialUnionRowStride() const;
 
 private:
     // Friend declarations

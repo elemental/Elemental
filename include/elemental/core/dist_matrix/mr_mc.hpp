@@ -88,20 +88,6 @@ public:
     virtual void AlignColsWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
 
-    // Specialized redistributions
-    // ---------------------------
-    // Use the scattered summation of A[MR,* ] across process columns
-    void SumScatterFrom( const DistMatrix<T,MR,STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR>& A );
-
-    // Use the scattered summation of A[* ,MC] across process rows
-    void SumScatterFrom( const DistMatrix<T,STAR,MC>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MC>& A );
-
-    // Use the scattered summation of A[* ,* ] across the entire process grid
-    void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A );
-
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;

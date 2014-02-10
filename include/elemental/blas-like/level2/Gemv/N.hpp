@@ -55,7 +55,7 @@ GemvN
         x_MR_STAR = x;
         Zeros( z_MC_STAR, A.Height(), 1 );
         LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
-        y.SumScatterUpdate( T(1), z_MC_STAR );
+        y.RowSumScatterUpdate( T(1), z_MC_STAR );
         //--------------------------------------------------------------------//
     }
     else if( x.Width() == 1 )
@@ -73,7 +73,7 @@ GemvN
         x_MR_STAR = x;
         Zeros( z_MC_STAR, A.Height(), 1 );
         LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
-        z.SumScatterFrom( z_MC_STAR );
+        z.RowSumScatterFrom( z_MC_STAR );
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
@@ -90,7 +90,7 @@ GemvN
         x_STAR_MR = x;
         Zeros( z_MC_STAR, A.Height(), 1 );
         LocalGemv( NORMAL, alpha, A, x_STAR_MR, T(0), z_MC_STAR );
-        y.SumScatterUpdate( T(1), z_MC_STAR );
+        y.RowSumScatterUpdate( T(1), z_MC_STAR );
         //--------------------------------------------------------------------//
     }
     else
@@ -108,7 +108,7 @@ GemvN
         x_STAR_MR = x;
         Zeros( z_MC_STAR, A.Height(), 1 );
         LocalGemv( NORMAL, alpha, A, x_STAR_MR, T(0), z_MC_STAR );
-        z.SumScatterFrom( z_MC_STAR );
+        z.RowSumScatterFrom( z_MC_STAR );
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
@@ -147,7 +147,7 @@ GemvN
     x_MR_STAR = x;
     Zeros( z_MC_STAR, A.Height(), 1 );
     LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
-    y.SumScatterUpdate( T(1), z_MC_STAR );
+    y.RowSumScatterUpdate( T(1), z_MC_STAR );
     //--------------------------------------------------------------------//
 }
 

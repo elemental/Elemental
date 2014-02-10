@@ -197,9 +197,9 @@ TwoSidedTrsmLVar2
         ( ADJOINT,
           F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Y10Adj_MC_STAR, F10Adj_MR_STAR );
-        Y10Adj.SumScatterFrom( Y10Adj_MC_STAR );
+        Y10Adj.RowSumScatterFrom( Y10Adj_MC_STAR );
         Y10Adj_MR_MC = Y10Adj;
-        Y10Adj_MR_MC.SumScatterUpdate( F(1), F10Adj_MR_STAR );
+        Y10Adj_MR_MC.RowSumScatterUpdate( F(1), F10Adj_MR_STAR );
         Adjoint( Y10Adj_MR_MC.LockedMatrix(), Y10Local );
 
         // X11 := A10 L10'
@@ -212,7 +212,7 @@ TwoSidedTrsmLVar2
         // A11 := A11 - (X11 + L10 A10') = A11 - (A10 L10' + L10 A10')
         LocalGemm
         ( NORMAL, NORMAL, F(1), L10, A10Adj_MR_STAR, F(1), X11_MC_STAR );
-        X11.SumScatterFrom( X11_MC_STAR );
+        X11.RowSumScatterFrom( X11_MC_STAR );
         MakeTriangular( LOWER, X11 );
         Axpy( F(-1), X11, A11 );
 
@@ -230,7 +230,7 @@ TwoSidedTrsmLVar2
 
         // A21 := A21 - A20 L10'
         LocalGemm( NORMAL, NORMAL, F(1), A20, L10Adj_MR_STAR, X21_MC_STAR );
-        A21.SumScatterUpdate( F(-1), X21_MC_STAR );
+        A21.RowSumScatterUpdate( F(-1), X21_MC_STAR );
 
         // A21 := A21 inv(L11)'
         A21_VC_STAR =  A21;

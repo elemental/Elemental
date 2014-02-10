@@ -23,6 +23,10 @@ public:
 #ifndef SWIG
     static constexpr Dist UDiag = DiagColDist<U,V>();
     static constexpr Dist VDiag = DiagRowDist<U,V>();
+    static constexpr Dist UGath = GatheredDist<U>();
+    static constexpr Dist VGath = GatheredDist<V>();
+    static constexpr Dist UPart = PartialDist<U>();
+    static constexpr Dist VPart = PartialDist<V>();
 #endif
 
     // Constructors and destructors
@@ -37,6 +41,17 @@ public:
 #ifndef SWIG
     // Move assignment
     type& operator=( type&& A );
+    void RowSumScatterFrom( const DistMatrix<T,U,VGath>& A );
+    void ColSumScatterFrom( const DistMatrix<T,UGath,V>& A );
+    void SumScatterFrom( const DistMatrix<T,UGath,VGath>& A );
+    void PartialRowSumScatterFrom( const DistMatrix<T,U,VPart>& A );
+    void PartialColSumScatterFrom( const DistMatrix<T,UPart,V>& A );
+
+    void RowSumScatterUpdate( T alpha, const DistMatrix<T,U,VGath>& A );
+    void ColSumScatterUpdate( T alpha, const DistMatrix<T,UGath,V>& A );
+    void SumScatterUpdate( T alpha, const DistMatrix<T,UGath,VGath>& A );
+    void PartialRowSumScatterUpdate( T alpha, const DistMatrix<T,U,VPart>& A );
+    void PartialColSumScatterUpdate( T alpha, const DistMatrix<T,UPart,V>& A );
 #endif
 
     // Diagonal manipulation

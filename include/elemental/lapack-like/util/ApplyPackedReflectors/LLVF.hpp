@@ -150,7 +150,7 @@ LLVF
         Z_STAR_MR.AlignWith( ABot );
         LocalGemm( ADJOINT, NORMAL, F(1), HPan_MC_STAR, ABot, Z_STAR_MR );
         Z_STAR_VR.AlignWith( ABot );
-        Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
+        Z_STAR_VR.PartialRowSumScatterFrom( Z_STAR_MR );
         
         LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );

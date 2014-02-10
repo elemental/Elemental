@@ -87,8 +87,8 @@ public:
     virtual mpi::Comm RedundantComm() const;
     virtual mpi::Comm ColComm() const;
     virtual mpi::Comm RowComm() const;
-    virtual Int RowStride() const;
     virtual Int ColStride() const;
+    virtual Int RowStride() const;
 
 private:
     // Exchange metadata with another matrix

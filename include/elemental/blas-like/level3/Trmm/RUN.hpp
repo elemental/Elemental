@@ -179,7 +179,7 @@ TrmmRUNA
         LocalTrmmAccumulateRUN
         ( TRANSPOSE, diag, alpha, U, X1_STAR_MC, Z1Trans_MR_STAR );
 
-        Z1Trans_MR_MC.SumScatterFrom( Z1Trans_MR_STAR );
+        Z1Trans_MR_MC.RowSumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
         //--------------------------------------------------------------------//
 
@@ -254,7 +254,7 @@ TrmmRUNCOld
  
         U01_MR_STAR = U01;
         LocalGemm( NORMAL, NORMAL, T(1), X0, U01_MR_STAR, D1_MC_STAR );
-        X1.SumScatterUpdate( T(1), D1_MC_STAR );
+        X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal

@@ -176,7 +176,7 @@ TrmmLUNA
         LocalTrmmAccumulateLUN
         ( TRANSPOSE, diag, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
 
-        X1.SumScatterFrom( Z1_MC_STAR );
+        X1.RowSumScatterFrom( Z1_MC_STAR );
         //--------------------------------------------------------------------//
 
         SlidePartitionRight
@@ -256,7 +256,7 @@ TrmmLUNCOld
         U12_STAR_MC = U12;
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, T(1), X2, U12_STAR_MC, D1Trans_MR_STAR );
-        D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
+        D1Trans_MR_MC.RowSumScatterFrom( D1Trans_MR_STAR );
         Zeros( D1, X1.Height(), X1.Width() );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );

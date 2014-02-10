@@ -101,6 +101,10 @@ public:
     Int RowShift() const;
     Int ColRank() const;
     Int RowRank() const;
+    Int PartialColRank() const;
+    Int PartialRowRank() const;
+    Int PartialUnionColRank() const;
+    Int PartialUnionRowRank() const; 
     Int DistRank() const;
     Int CrossRank() const;
     Int RedundantRank() const;
@@ -125,8 +129,16 @@ public:
     virtual mpi::Comm RedundantComm() const = 0;
     virtual mpi::Comm ColComm() const = 0;
     virtual mpi::Comm RowComm() const = 0;
+    virtual mpi::Comm PartialColComm() const;
+    virtual mpi::Comm PartialRowComm() const;
+    virtual mpi::Comm PartialUnionColComm() const;
+    virtual mpi::Comm PartialUnionRowComm() const;
     virtual Int ColStride() const = 0;
     virtual Int RowStride() const = 0;
+    virtual Int PartialColStride() const;
+    virtual Int PartialRowStride() const;
+    virtual Int PartialUnionColStride() const;
+    virtual Int PartialUnionRowStride() const;
 
     // Single-entry manipulation
     // =========================

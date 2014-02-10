@@ -148,7 +148,7 @@ RLHB
         ZAdj_STAR_MC.AlignWith( ALeft );
         LocalGemm( NORMAL, ADJOINT, F(1), HPan_STAR_MR, ALeft, ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ALeft );
-        ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
+        ZAdj_STAR_VC.PartialRowSumScatterFrom( ZAdj_STAR_MC );
 
         LocalTrsm
         ( LEFT, LOWER, ADJOINT, NON_UNIT,

@@ -185,7 +185,7 @@ TrmmRLTA
         LocalTrmmAccumulateRLT
         ( diag, alpha, L, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
-        Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
+        Z1Trans.RowSumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix(), conjugate );
         //--------------------------------------------------------------------//
@@ -265,7 +265,7 @@ TrmmRLTC
  
         L10Trans_MR_STAR.TransposeFrom( L10, conjugate );
         LocalGemm( NORMAL, NORMAL, T(1), X0, L10Trans_MR_STAR, D1_MC_STAR );
-        X1.SumScatterUpdate( T(1), D1_MC_STAR );
+        X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal

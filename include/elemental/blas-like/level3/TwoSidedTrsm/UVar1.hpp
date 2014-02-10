@@ -182,9 +182,9 @@ TwoSidedTrsmUVar1
         LocalSymmetricAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, Z01_MC_STAR, Z01_MR_STAR );
-        Z01_MR_MC.SumScatterFrom( Z01_MR_STAR );
+        Z01_MR_MC.RowSumScatterFrom( Z01_MR_STAR );
         Y01 = Z01_MR_MC;
-        Y01.SumScatterUpdate( F(1), Z01_MC_STAR );
+        Y01.RowSumScatterUpdate( F(1), Z01_MC_STAR );
 
         // A01 := inv(U00)' A01
         //

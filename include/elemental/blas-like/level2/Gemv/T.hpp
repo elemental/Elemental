@@ -60,7 +60,7 @@ GemvT
         x_MC_STAR = x;
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
-        z_MR_MC.SumScatterFrom( z_MR_STAR );
+        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
@@ -81,7 +81,7 @@ GemvT
         x_MC_STAR = x;
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
-        z_MR_MC.SumScatterFrom( z_MR_STAR );
+        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
@@ -102,7 +102,7 @@ GemvT
         x_STAR_MC = x;
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
-        z_MR_MC.SumScatterFrom( z_MR_STAR );
+        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
@@ -123,7 +123,7 @@ GemvT
         x_STAR_MC = x;
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
-        z_MR_MC.SumScatterFrom( z_MR_STAR );
+        z_MR_MC.RowSumScatterFrom( z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
@@ -167,7 +167,7 @@ GemvT
     x_MC_STAR = x;
     Zeros( z_MR_STAR, A.Width(), 1 );
     LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
-    z_VR_STAR.SumScatterFrom( z_MR_STAR );
+    z_VR_STAR.RowSumScatterFrom( z_MR_STAR );
     z = z_VR_STAR;
     Axpy( T(1), z, y );
     //--------------------------------------------------------------------//

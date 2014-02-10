@@ -479,6 +479,26 @@ AbstractDistMatrix<T>::RowRank() const
 
 template<typename T>
 Int
+AbstractDistMatrix<T>::PartialColRank() const
+{ return mpi::CommRank(PartialColComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialUnionColRank() const
+{ return mpi::CommRank(PartialUnionColComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialRowRank() const
+{ return mpi::CommRank(PartialRowComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialUnionRowRank() const
+{ return mpi::CommRank(PartialUnionRowComm()); }
+
+template<typename T>
+Int
 AbstractDistMatrix<T>::DistRank() const
 { return mpi::CommRank(DistComm()); }
 
@@ -568,6 +588,46 @@ template<typename T>
 bool
 AbstractDistMatrix<T>::IsLocal( Int i, Int j ) const
 { return IsLocalRow(i) && IsLocalCol(j); }
+
+template<typename T>
+mpi::Comm
+AbstractDistMatrix<T>::PartialColComm() const
+{ return ColComm(); }
+
+template<typename T>
+mpi::Comm
+AbstractDistMatrix<T>::PartialRowComm() const
+{ return RowComm(); }
+
+template<typename T>
+mpi::Comm
+AbstractDistMatrix<T>::PartialUnionColComm() const
+{ return mpi::COMM_SELF; }
+
+template<typename T>
+mpi::Comm
+AbstractDistMatrix<T>::PartialUnionRowComm() const
+{ return mpi::COMM_SELF; }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialColStride() const
+{ return ColStride(); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialRowStride() const
+{ return RowStride(); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialUnionColStride() const
+{ return 1; }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::PartialUnionRowStride() const
+{ return 1; }
 
 // Single-entry manipulation
 // =========================

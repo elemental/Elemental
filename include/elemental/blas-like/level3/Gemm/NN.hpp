@@ -151,7 +151,7 @@ SUMMA_NNA
         LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        C1.SumScatterUpdate( T(1), D1_MC_STAR );
+        C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

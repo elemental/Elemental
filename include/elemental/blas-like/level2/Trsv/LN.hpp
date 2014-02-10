@@ -81,7 +81,7 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
             x1_MR_STAR.AlignWith( L21 );
             //----------------------------------------------------------------//
             if( x0.Height() != 0 )
-                x1.SumScatterUpdate( F(1), z1_MC_STAR );
+                x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
@@ -147,7 +147,7 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
             //----------------------------------------------------------------//
             if( x0.Width() != 0 )
             {
-                z1_MR_MC.SumScatterFrom( z1_STAR_MC );
+                z1_MR_MC.ColSumScatterFrom( z1_STAR_MC );
                 z1 = z1_MR_MC;
                 Axpy( F(1), z1, x1 );
             }

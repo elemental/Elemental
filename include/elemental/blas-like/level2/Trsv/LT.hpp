@@ -87,7 +87,7 @@ TrsvLT
             //----------------------------------------------------------------//
             if( x2.Height() != 0 )
             {
-                z1_MR_MC.SumScatterFrom( z1_MR_STAR );
+                z1_MR_MC.RowSumScatterFrom( z1_MR_STAR );
                 z1 = z1_MR_MC;
                 Axpy( F(1), z1, x1 );
             }
@@ -150,7 +150,7 @@ TrsvLT
             x1_STAR_MC.AlignWith( L10 );
             //----------------------------------------------------------------//
             if( x2.Width() != 0 )
-                x1.SumScatterUpdate( F(1), z1_STAR_MR );
+                x1.ColSumScatterUpdate( F(1), z1_STAR_MR );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;

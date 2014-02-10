@@ -150,7 +150,7 @@ RLVF
         ZAdj_STAR_MC.AlignWith( ARight );
         LocalGemm( ADJOINT, ADJOINT, F(1), HPan_MR_STAR, ARight, ZAdj_STAR_MC );
         ZAdj_STAR_VC.AlignWith( ARight );
-        ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
+        ZAdj_STAR_VC.PartialRowSumScatterFrom( ZAdj_STAR_MC );
         
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), SInv_STAR_STAR, ZAdj_STAR_VC );

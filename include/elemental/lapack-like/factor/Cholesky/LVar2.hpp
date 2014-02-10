@@ -77,7 +77,7 @@ LVar2( DistMatrix<F>& A )
         A10Adj_MR_STAR.AdjointFrom( A10 );
         X11_MC_STAR.AlignWith( A10 );
         LocalGemm( NORMAL, NORMAL, F(1), A10, A10Adj_MR_STAR, X11_MC_STAR );
-        A11.SumScatterUpdate( F(-1), X11_MC_STAR );
+        A11.RowSumScatterUpdate( F(-1), X11_MC_STAR );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
@@ -85,7 +85,7 @@ LVar2( DistMatrix<F>& A )
 
         X21_MC_STAR.AlignWith( A20 );
         LocalGemm( NORMAL, NORMAL, F(1), A20, A10Adj_MR_STAR, X21_MC_STAR );
-        A21.SumScatterUpdate( F(-1), X21_MC_STAR );
+        A21.RowSumScatterUpdate( F(-1), X21_MC_STAR );
 
         A21_VC_STAR = A21;
         LocalTrsm

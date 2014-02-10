@@ -191,7 +191,7 @@ TwoSidedTrmmLVar2
         // A10 := A10 + L21' A20
         L21_MC_STAR = L21;
         LocalGemm( ADJOINT, NORMAL, F(1), L21_MC_STAR, A20, X10_STAR_MR );
-        A10.SumScatterUpdate( F(1), X10_STAR_MR );
+        A10.ColSumScatterUpdate( F(1), X10_STAR_MR );
 
         // Y21 := A22 L21
         L21_VC_STAR = L21_MC_STAR;
@@ -202,9 +202,9 @@ TwoSidedTrmmLVar2
         LocalSymmetricAccumulateLL
         ( ADJOINT, 
           F(1), A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
-        Z21_MR_MC.SumScatterFrom( Z21_MR_STAR );
+        Z21_MR_MC.RowSumScatterFrom( Z21_MR_STAR );
         Y21 = Z21_MR_MC;
-        Y21.SumScatterUpdate( F(1), Z21_MC_STAR ); 
+        Y21.RowSumScatterUpdate( F(1), Z21_MC_STAR ); 
 
         // A21 := A21 L11
         A21_VC_STAR = A21;

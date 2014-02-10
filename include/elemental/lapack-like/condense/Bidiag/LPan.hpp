@@ -274,7 +274,7 @@ LPan
             LocalGemv( TRANSPOSE, F(1), Y0R, a10_STAR_MC, F(0), z1R_STAR_MR );
             LocalGemv( ADJOINT,   F(1), A0R, x10_STAR_MC, F(1), z1R_STAR_MR ); 
             // Sum the partial contributions and subtract from a1R
-            a1R.SumScatterUpdate( F(-1), z1R_STAR_MR );
+            a1R.ColSumScatterUpdate( F(-1), z1R_STAR_MR );
         }
 
         // Find tauP and v such that
@@ -326,7 +326,7 @@ LPan
         LocalGemv( NORMAL, F(-1), X20, z01_MR_STAR, F(1), z21_MC_STAR );
 
         // Finally perform the row summation and then scale by tauP
-        x21.SumScatterFrom( z21_MC_STAR );
+        x21.RowSumScatterFrom( z21_MC_STAR );
         Scale( tauP, x21 );
 
         // Apply all previous reflectors to a21:
@@ -351,7 +351,7 @@ LPan
         LocalGemv( NORMAL, F(1), X20, a01_MR_STAR, F(1), z21_MC_STAR );
         Conjugate( a01_MR_STAR );
         // Sum the partial contributions from the past two updates
-        a21.SumScatterUpdate( F(-1), z21_MC_STAR );
+        a21.RowSumScatterUpdate( F(-1), z21_MC_STAR );
 
         // a21 := a21 - x21
         // ^^^^^^^^^^^^^^^^
