@@ -104,7 +104,7 @@ LUHF
     DEBUG_ONLY(
         if( t.Height() != diagLength )
             LogicError("t must be the same length as H's offset diag");
-        if( !H.DiagonalAligned( t, offset ) )
+        if( !H.DiagonalAlignedWith( t, offset ) )
             LogicError("t must be aligned with H's offset diagonal");
     )
     const Grid& g = H.Grid(); 

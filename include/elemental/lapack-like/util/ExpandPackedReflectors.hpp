@@ -49,7 +49,8 @@ ExpandPackedReflectors
 {
     DEBUG_ONLY(CallStackEntry cse("ExpandPackedReflectors"))
     DistMatrix<F,MD,STAR> tDiag(H.Grid());
-    H.ForceDiagonalAlign( tDiag, offset );
+    tDiag.SetRoot( H.DiagonalRoot(offset) );
+    tDiag.AlignCols( H.DiagonalAlign(offset) );
     tDiag = t;
     ExpandPackedReflectors( uplo, dir, conjugation, offset, H, tDiag );
 }

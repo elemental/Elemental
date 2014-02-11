@@ -72,7 +72,8 @@ ApplyQ
     DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyQ"))
     const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    A.ForceDiagonalAlign( tDiag, offset );
+    tDiag.SetRoot( A.DiagonalRoot(offset) );
+    tDiag.AlignCols( A.DiagonalAlign(offset) );
     tDiag = t;
     ApplyQ( side, orientation, A, tDiag, B );
 }
@@ -102,7 +103,8 @@ ApplyP
     DEBUG_ONLY(CallStackEntry cse("bidiag::ApplyP"))
     const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    A.ForceDiagonalAlign( tDiag, offset );
+    tDiag.SetRoot( A.DiagonalRoot(offset) );
+    tDiag.AlignCols( A.DiagonalAlign(offset) );
     tDiag = t;
     ApplyP( side, orientation, A, tDiag, B );
 }

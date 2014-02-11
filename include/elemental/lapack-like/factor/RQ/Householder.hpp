@@ -67,7 +67,8 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int offset = n-m;
-    A.ForceDiagonalAlign( t, offset );
+    t.SetRoot( A.DiagonalRoot(offset) );
+    t.AlignCols( A.DiagonalAlign(offset) );
     t.Resize( minDim, 1 );
 
     const Int iOff = ( n>=m ? 0   : m-n );

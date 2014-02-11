@@ -72,7 +72,8 @@ ApplyQ
     DEBUG_ONLY(CallStackEntry cse("hessenberg::ApplyQ"))
     const Int offset = ( uplo==LOWER ? 1 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    A.ForceDiagonalAlign( tDiag, offset );
+    tDiag.SetRoot( A.DiagonalRoot(offset) );
+    tDiag.AlignCols( A.DiagonalAlign(offset) );
     tDiag = t;
     ApplyQ( uplo, side, orientation, A, tDiag, H );
 }

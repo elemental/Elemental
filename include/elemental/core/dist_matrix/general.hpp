@@ -56,13 +56,10 @@ public:
 
     // Diagonal manipulation
     // =====================
+    bool DiagonalAlignedWith( const elem::DistData& d, Int offset=0 ) const;
+    Int DiagonalRoot( Int offset=0 ) const;
+    Int DiagonalAlign( Int offset=0 ) const;
 #ifndef SWIG
-    template<typename S>
-    bool DiagonalAligned
-    ( const DistMatrix<S,UDiag,VDiag>& d, Int offset=0 ) const;
-    template<typename S>
-    void ForceDiagonalAlign( DistMatrix<S,UDiag,VDiag>& d, Int offset=0 ) const;
-
     void GetDiagonal( DistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( DistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;

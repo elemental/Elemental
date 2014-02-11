@@ -68,7 +68,8 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         if( A.Grid() != t.Grid() )
             LogicError("{A,s} must be distributed over the same grid");
     )
-    A.ForceDiagonalAlign( t );
+    t.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
 
     const Int m = A.Height();
     const Int n = A.Width();

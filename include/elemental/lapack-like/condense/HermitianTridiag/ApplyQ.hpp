@@ -58,7 +58,8 @@ ApplyQ
     DEBUG_ONLY(CallStackEntry cse("herm_tridiag::ApplyQ"))
     const Int offset = ( uplo==UPPER ? 1 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    A.ForceDiagonalAlign( tDiag, offset );
+    tDiag.SetRoot( A.DiagonalRoot(offset) );
+    tDiag.AlignCols( A.DiagonalAlign(offset) );
     tDiag = t;
     ApplyQ( side, uplo, orientation, A, tDiag, B );
 }
