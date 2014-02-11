@@ -326,6 +326,7 @@ protected:
     // Friend declarations
     // ===================
 #ifndef SWIG
+    template<typename S,Dist J,Dist K> friend class GeneralDistMatrix;
     template<typename S,Dist J,Dist K> friend class DistMatrix;
 #endif
 };

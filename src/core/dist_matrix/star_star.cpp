@@ -218,56 +218,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,* ] = [* ,MR]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int c = g.Width();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,c);
-
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    T* buffer = this->auxMemory_.Require( (c+1)*portionSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
-
-    // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
-
-    // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.RowComm() );
-
-    // Unpack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignOfA = A.RowAlign();
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<c; ++k )
-    {
-        const T* data = &recvBuf[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignOfA, c );
-        const Int localWidth = Length_( width, rowShift, c );
-        INNER_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuf[(rowShift+jLoc*c)*thisLDim],
-              &data[jLoc*height], height );
-    }
-    this->auxMemory_.Release();
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,MR]"))
+    A.RowAllGather( *this );
     return *this;
 }
 
@@ -348,69 +300,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,* ] = [* ,MD]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int p = g.Size();
-    const Int lcm = g.LCM();
-    const Int ownerPath = A.root_;
-    const Int ownerPathRank = A.rowAlign_;
-
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidth = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength( width, lcm );
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-
-    // Since a MD communicator has not been implemented, we will take
-    // the suboptimal route of 'rounding up' everyone's contribution over 
-    // the VC communicator.
-    T* buffer = this->auxMemory_.Require( (p+1)*portionSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
-
-    // Pack
-    if( A.Participating() )
-    {
-        const Int ALDim = A.LDim();
-        const T* ABuf = A.LockedBuffer();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
-    }
-
-    // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.VCComm() );
-
-    // Unpack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<p; ++k )
-    {
-        if( g.DiagPath( k ) == ownerPath )
-        {
-            const T* data = &recvBuf[k*portionSize];
-            const Int thisPathRank = g.DiagPathRank( k );
-            const Int thisRowShift = Shift_( thisPathRank, ownerPathRank, lcm );
-            const Int thisLocalWidth = Length_( width, thisRowShift, lcm );
-            INNER_PARALLEL_FOR
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                MemCopy
-                ( &thisBuf[(thisRowShift+jLoc*lcm)*thisLDim], 
-                  &data[jLoc*height], height );
-        }
-    }
-    this->auxMemory_.Release();
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,MD]"))
+    A.RowAllGather( *this );
     return *this;
 }
 
@@ -552,56 +443,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,* ] = [* ,MC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int r = g.Height();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,r);
-
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    T* buffer = this->auxMemory_.Require( (r+1)*portionSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
-
-    // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
-
-    // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.ColComm() );
-
-    // Unpack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignOfA = A.RowAlign();
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<r; ++k )
-    {
-        const T* data = &recvBuf[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignOfA, r );
-        const Int localWidth = Length_( width, rowShift, r );
-        INNER_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuf[(rowShift+jLoc*r)*thisLDim], 
-              &data[jLoc*height], height );
-    }
-    this->auxMemory_.Release();
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,MC]"))
+    A.RowAllGather( *this );
     return *this;
 }
 
@@ -670,56 +513,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,* ] = [* ,* ]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int p = g.Size();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,p);
-
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    T* buffer = this->auxMemory_.Require( (p+1)*portionSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
-
-    // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
-
-    // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.VCComm() );
-
-    // Unpack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignOfA = A.RowAlign();
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<p; ++k )
-    {
-        const T* data = &recvBuf[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignOfA, p );
-        const Int localWidth = Length_( width, rowShift, p );
-        INNER_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuf[(rowShift+jLoc*p)*thisLDim], 
-              &data[jLoc*height], height );
-    }
-    this->auxMemory_.Release();
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,VC]"))
+    A.RowAllGather( *this );
     return *this;
 }
 
@@ -788,56 +583,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,* ] = [* ,VR]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int p = g.Size();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,p);
-
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    T* buffer = this->auxMemory_.Require( (p+1)*portionSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
-
-    // Pack
-    const Int ALDim = A.LDim();
-    const T* ABuf = A.LockedBuffer();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
-
-    // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.VRComm() );
-
-    // Unpack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignOfA = A.RowAlign();
-    OUTER_PARALLEL_FOR
-    for( Int k=0; k<p; ++k )
-    {
-        const T* data = &recvBuf[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignOfA, p );
-        const Int localWidth = Length_( width, rowShift, p );
-        INNER_PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuf[(rowShift+jLoc*p)*thisLDim], 
-              &data[jLoc*height], height );
-    }
-    this->auxMemory_.Release();
+    DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,VR]"))
+    A.RowAllGather( *this );
     return *this;
 }
 

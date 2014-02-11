@@ -89,8 +89,14 @@ protected:
     // =========================================
     GeneralDistMatrix( const elem::Grid& g );
 
-    // Helper routines
-    // ===============
+    // Redistribution helper routines
+    // ==============================
+    void ColAllGather( DistMatrix<T,UGath,V>& A ) const;
+    void RowAllGather( DistMatrix<T,U,VGath>& A ) const;
+    void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
+
+    // Diagonal helper routines
+    // ========================
 #ifndef SWIG
     template<typename S,class Function>
     void GetDiagonalHelper
