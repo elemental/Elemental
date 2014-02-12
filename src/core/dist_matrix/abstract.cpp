@@ -301,6 +301,62 @@ AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
     SetGrid( *data.grid );
 }
 
+template<typename T>
+void
+AbstractDistMatrix<T>::AlignAndResize
+( Int colAlign, Int rowAlign, Int height, Int width, bool force )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignAndResize"))
+    if( !Viewing() )
+    {
+        if( force || !ColConstrained() )
+        {
+            colAlign_ = colAlign;
+            SetColShift(); 
+        }
+        if( force || !RowConstrained() )
+        {
+            rowAlign_ = rowAlign;
+            SetRowShift();
+        }
+    }
+    if( force && (colAlign_ != colAlign || rowAlign_ != rowAlign) )
+        LogicError("Could not set alignments"); 
+    Resize( height, width );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::AlignColsAndResize
+( Int colAlign, Int height, Int width, bool force )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsAndResize"))
+    if( !Viewing() && (force || !ColConstrained()) )
+    {
+        colAlign_ = colAlign;
+        SetColShift(); 
+    }
+    if( force && colAlign_ != colAlign )
+        LogicError("Could not set col alignment");
+    Resize( height, width );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::AlignRowsAndResize
+( Int rowAlign, Int height, Int width, bool force )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsAndResize"))
+    if( !Viewing() && (force || !RowConstrained()) )
+    {
+        rowAlign_ = rowAlign;
+        SetRowShift(); 
+    }
+    if( force && rowAlign_ != rowAlign )
+        LogicError("Could not set row alignment");
+    Resize( height, width );
+}
+
 // Buffer attachment
 // -----------------
 
@@ -1486,63 +1542,46 @@ AbstractDistMatrix<T>::ConjugateLocal
     Matrix().Conjugate( rowInd, colInd );
 }
 
-// Combined realignment and resize
-// ===============================
+// Sum the local matrix over a particular communicator
+// ===================================================
+// NOTE: The matrix dimensions *must* be uniform over the communicator.
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignAndResize
-( Int colAlign, Int rowAlign, Int height, Int width, bool force )
+AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignAndResize"))
-    if( !Viewing() )
-    {
-        if( force || !ColConstrained() )
-        {
-            colAlign_ = colAlign;
-            SetColShift(); 
-        }
-        if( force || !RowConstrained() )
-        {
-            rowAlign_ = rowAlign;
-            SetRowShift();
-        }
-    }
-    if( force && (colAlign_ != colAlign || rowAlign_ != rowAlign) )
-        LogicError("Could not set alignments"); 
-    Resize( height, width );
-}
+    DEBUG_ONLY(CallStackEntry cse("ADM::SumOver"))
+    if( !this->Participating() )
+        return;
 
-template<typename T>
-void
-AbstractDistMatrix<T>::AlignColsAndResize
-( Int colAlign, Int height, Int width, bool force )
-{
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsAndResize"))
-    if( !Viewing() && (force || !ColConstrained()) )
-    {
-        colAlign_ = colAlign;
-        SetColShift(); 
-    }
-    if( force && colAlign_ != colAlign )
-        LogicError("Could not set col alignment");
-    Resize( height, width );
-}
+    const Int localHeight = this->LocalHeight();
+    const Int localWidth = this->LocalWidth();
+    const Int localSize = mpi::Pad( localHeight*localWidth );
+    T* sumBuf = this->auxMemory_.Require( localSize );   
 
-template<typename T>
-void
-AbstractDistMatrix<T>::AlignRowsAndResize
-( Int rowAlign, Int height, Int width, bool force )
-{
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsAndResize"))
-    if( !Viewing() && (force || !RowConstrained()) )
+    // Pack
+    T* buf = this->Buffer();
+    const Int ldim = this->LDim(); 
+    PARALLEL_FOR
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        rowAlign_ = rowAlign;
-        SetRowShift(); 
+        const T* thisCol = &buf[jLoc*ldim];
+        T* sumCol = &sumBuf[jLoc*localHeight];
+        MemCopy( sumCol, thisCol, localHeight );
     }
-    if( force && rowAlign_ != rowAlign )
-        LogicError("Could not set row alignment");
-    Resize( height, width );
+
+    // AllReduce sum
+    mpi::AllReduce( sumBuf, localSize, comm );
+
+    // Unpack
+    PARALLEL_FOR
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const T* sumCol = &sumBuf[jLoc*localHeight];
+        T* thisCol = &buf[jLoc*ldim];
+        MemCopy( thisCol, sumCol, localHeight );
+    } 
+    this->auxMemory_.Release();
 }
 
 // Assertions

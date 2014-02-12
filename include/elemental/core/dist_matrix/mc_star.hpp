@@ -84,11 +84,6 @@ public:
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignColsWith( const elem::DistData& data );
 
-    // Specialized redistributions
-    // ---------------------------
-    // AllReduce sum over process row
-    void SumOverRow();
-
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;

@@ -417,51 +417,6 @@ DM<T>::AlignRowsWith( const elem::DistData& data )
 // Specialized redistributions
 // ---------------------------
 
-template<typename T> 
-void
-DM<T>::SumOverCol()
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,MR]::SumOverCol");
-        this->AssertNotLocked();
-    )
-    const Grid& g = this->Grid();
-    if( !this->Participating() )
-        return;
-
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
-    const Int localSize = mpi::Pad( localHeight*localWidth );
-
-    T* buffer = this->auxMemory_.Require( 2*localSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[localSize];
-
-    // Pack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const T* thisCol = &thisBuf[jLoc*thisLDim];
-        T* sendBufCol = &sendBuf[jLoc*localHeight];
-        MemCopy( sendBufCol, thisCol, localHeight );
-    }
-
-    // AllReduce col
-    mpi::AllReduce( sendBuf, recvBuf, localSize, g.ColComm() );
-
-    // Unpack
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const T* recvBufCol = &recvBuf[jLoc*localHeight];
-        T* thisCol = &thisBuf[jLoc*thisLDim];
-        MemCopy( thisCol, recvBufCol, localHeight );
-    }
-    this->auxMemory_.Release();
-}
-
 template<typename T>
 void
 DM<T>::TransposeFrom( const DistMatrix<T,VR,STAR>& A, bool conjugate )

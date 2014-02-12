@@ -116,7 +116,7 @@ inline void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         V01_MR_STAR.AlignWith( AB0 );
         Zeros( V01_MR_STAR, k, nb );
         LocalGemm( ADJOINT, NORMAL, F(1), AB0, UB1_MC_STAR, F(0), V01_MR_STAR );
-        V01_MR_STAR.SumOverCol();
+        V01_MR_STAR.SumOver( AB0.ColComm() );
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, V01_MR_STAR );
         LocalGemm
@@ -134,7 +134,7 @@ inline void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         V21_MC_STAR.AlignWith( A2R );
         Zeros( V21_MC_STAR, A2R.Height(), nb );
         LocalGemm( NORMAL, NORMAL, F(1), A2R, UB1_MR_STAR, F(0), V21_MC_STAR );
-        V21_MC_STAR.SumOverRow();
+        V21_MC_STAR.SumOver( A2R.RowComm() );
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), G11_STAR_STAR, V21_MC_STAR );
         LocalGemm

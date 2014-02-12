@@ -139,7 +139,7 @@ RUVF
         ( UPPER, ADJOINT, 
           F(1), HPan_VC_STAR.LockedMatrix(),
           F(0), SInv_STAR_STAR.Matrix() ); 
-        SInv_STAR_STAR.SumOverGrid();
+        SInv_STAR_STAR.SumOver( HPan_VC_STAR.ColComm() );
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 

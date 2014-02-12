@@ -71,12 +71,6 @@ public:
     type& operator=( type&& A );
 #endif
 
-    // Specialized redistributions
-    // ---------------------------
-    void SumOverCol();
-    void SumOverRow();
-    void SumOverGrid(); 
-
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;

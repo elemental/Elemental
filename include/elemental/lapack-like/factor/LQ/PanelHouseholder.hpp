@@ -123,7 +123,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         z21_MC_STAR.AlignWith( A2R );
         Zeros( z21_MC_STAR, A2R.Height(), 1 );
         LocalGemv( NORMAL, F(1), A2R, a1R_STAR_MR, F(0), z21_MC_STAR );
-        z21_MC_STAR.SumOverRow();
+        z21_MC_STAR.SumOver( A2R.RowComm() );
         Ger
         ( -tau, z21_MC_STAR.LockedMatrix(), a1R_STAR_MR.LockedMatrix(),
           A2R.Matrix() );

@@ -121,7 +121,7 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         x1_MC_STAR.AlignWith( A2 );
         Zeros( x1_MC_STAR, n, 1 );
         LocalGemv( NORMAL, F(1), A2, a21_MR_STAR, F(0), x1_MC_STAR );
-        x1_MC_STAR.SumOverRow();
+        x1_MC_STAR.SumOver( A2.RowComm() );
         // A2 := A2 - conj(tau) x1 a21^H
         LocalGer( -Conj(tau), x1_MC_STAR, a21_MR_STAR, A2 ); 
 
@@ -135,7 +135,7 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         x12Adj_MR_STAR.AlignWith( A22 );
         Zeros( x12Adj_MR_STAR, A22.Width(), 1 );
         LocalGemv( ADJOINT, F(1), A22, a21_MC_STAR, F(0), x12Adj_MR_STAR );
-        x12Adj_MR_STAR.SumOverCol();
+        x12Adj_MR_STAR.SumOver( A22.ColComm() );
         // A22 := A22 - tau a21 x12
         LocalGer( -tau, a21_MC_STAR, x12Adj_MR_STAR, A22 );
 

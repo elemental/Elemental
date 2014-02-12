@@ -189,7 +189,7 @@ inline void UPan
         // a1 := a1 - U0 (inv(G00) (U0^H a1))
         LocalGemv
         ( ADJOINT, F(1), U0_MC_STAR, a1_MC_STAR, F(0), y10_STAR_STAR ); 
-        y10_STAR_STAR.SumOverCol();
+        y10_STAR_STAR.SumOver( U0_MC_STAR.ColComm() );
         Trsv
         ( LOWER, NORMAL, NON_UNIT, 
           G00_STAR_STAR.LockedMatrix(), y10_STAR_STAR.Matrix() );
@@ -211,12 +211,12 @@ inline void UPan
 
         // v1 := A2 u21
         LocalGemv( NORMAL, F(1), A2, u21_MR_STAR, F(0), v1_MC_STAR );
-        v1_MC_STAR.SumOverRow();
+        v1_MC_STAR.SumOver( A2.RowComm() );
 
         // g10 := u21^H U20 = (U20^H u21)^H
         LocalGemv
         ( ADJOINT, F(1), U20_MR_STAR, u21_MR_STAR, F(0), g10_STAR_STAR );
-        g10_STAR_STAR.SumOverRow();
+        g10_STAR_STAR.SumOver( U20_MR_STAR.ColComm() );
         Conjugate( g10_STAR_STAR );
         
         // gamma11 := 1/tau

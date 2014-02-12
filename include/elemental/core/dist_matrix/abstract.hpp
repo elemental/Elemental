@@ -50,6 +50,13 @@ public:
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignColsWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
+    void AlignAndResize
+    ( Int colAlign, Int rowAlign, Int height, Int width, bool force=false );
+    void AlignColsAndResize
+    ( Int colAlign, Int height, Int width, bool force=false );
+    void AlignRowsAndResize
+    ( Int rowAlign, Int height, Int width, bool force=false );
+
     // Buffer attachment
     // -----------------
     // (Immutable) view of a distributed matrix's buffer
@@ -270,14 +277,9 @@ public:
     void ConjugateLocal
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
 
-    // Combined realignment and resize
-    // ===============================
-    void AlignAndResize
-    ( Int colAlign, Int rowAlign, Int height, Int width, bool force=false );
-    void AlignColsAndResize
-    ( Int colAlign, Int height, Int width, bool force=false );
-    void AlignRowsAndResize
-    ( Int rowAlign, Int height, Int width, bool force=false );
+    // Sum over a specified communicator
+    // =================================
+    void SumOver( mpi::Comm comm );
 
     // Assertions
     // ==========

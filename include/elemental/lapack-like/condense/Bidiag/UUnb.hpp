@@ -164,7 +164,7 @@ inline void UUnb
         x12Adj_MR_STAR.AlignWith( AB2 );
         Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB2, aB1_MC_STAR, F(0), x12Adj_MR_STAR );
-        x12Adj_MR_STAR.SumOverCol();
+        x12Adj_MR_STAR.SumOver( AB2.ColComm() );
         // AB2 := AB2 - tauQ aB1 x12
         LocalGer( -tauQ, aB1_MC_STAR, x12Adj_MR_STAR, AB2 );
 
@@ -202,7 +202,7 @@ inline void UUnb
             w21_MC_STAR.AlignWith( A22 );
             Zeros( w21_MC_STAR, a21.Height(), 1 );
             LocalGemv( NORMAL, F(1), A22, a12_STAR_MR, F(0), w21_MC_STAR );
-            w21_MC_STAR.SumOverRow();
+            w21_MC_STAR.SumOver( A22.RowComm() );
             // A22 := A22 - tauP w21 conj(a12)
             LocalGer( -tauP, w21_MC_STAR, a12_STAR_MR, A22 );
 

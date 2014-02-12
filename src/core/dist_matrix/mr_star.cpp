@@ -476,51 +476,6 @@ DM<T>::AlignColsWith( const elem::DistData& data )
 
 template<typename T>
 void
-DM<T>::SumOverCol()
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[MR,* ]::SumOverCol");
-        this->AssertNotLocked();
-    )
-    const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
-        return;
-    
-    const Int width = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int localSize = mpi::Pad( localHeight*width );
-
-    T* buffer = this->auxMemory_.Require( 2*localSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[localSize];
-
-    // Pack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-    {
-        const T* thisCol = &thisBuffer[j*thisLDim];
-        T* sendBufCol = &sendBuf[j*localHeight];
-        MemCopy( sendBufCol, thisCol, localHeight );
-    }
-
-    // AllReduce sum
-    mpi::AllReduce( sendBuf, recvBuf, localSize, g.ColComm() );
-
-    // Unpack
-    PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-    {
-        const T* recvBufCol = &recvBuf[j*localHeight];
-        T* thisCol = &thisBuffer[j*thisLDim];
-        MemCopy( thisCol, recvBufCol, localHeight );
-    }
-    this->auxMemory_.Release();
-}
-
-template<typename T>
-void
 DM<T>::TransposeFrom( const DistMatrix<T,MC,MR>& A, bool conjugate )
 { 
     DEBUG_ONLY(

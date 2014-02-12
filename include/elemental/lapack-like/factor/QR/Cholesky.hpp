@@ -52,7 +52,7 @@ Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
         LogicError("A^H A will be singular");
     Zeros( R, width, width );
     Herk( UPPER, ADJOINT, F(1), A.Matrix(), F(0), R.Matrix() );
-    R.SumOverGrid();
+    R.SumOver( A.ColComm() );
     elem::Cholesky( UPPER, R.Matrix() );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
 }

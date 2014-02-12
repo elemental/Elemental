@@ -397,52 +397,6 @@ void
 DM<T>::AlignColsWith( const elem::DistData& data )
 { this->AlignWith( data ); }
 
-// Specialized redistributions
-// ---------------------------
-
-template<typename T>
-void DM<T>::SumOverRow()
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,* ]::SumOverRow");
-        this->AssertNotLocked();
-    )
-    if( !this->Participating() )
-        return;
-
-    const Int localHeight = this->LocalHeight(); 
-    const Int localWidth = this->LocalWidth();
-    const Int localSize = mpi::Pad( localHeight*localWidth );
-
-    T* buffer = this->auxMemory_.Require( 2*localSize );
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[localSize];
-
-    // Pack
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const T* thisCol = &thisBuf[jLoc*thisLDim];
-        T* sendBufCol = &sendBuf[jLoc*localHeight];
-        MemCopy( sendBufCol, thisCol, localHeight );
-    }
-
-    // AllReduce sum
-    mpi::AllReduce( sendBuf, recvBuf, localSize, this->Grid().RowComm() );
-
-    // Unpack
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const T* recvBufCol = &recvBuf[jLoc*localHeight];
-        T* thisCol = &thisBuf[jLoc*thisLDim];
-        MemCopy( thisCol, recvBufCol, localHeight );
-    }
-    this->auxMemory_.Release();
-}
-
 // Basic queries
 // =============
 

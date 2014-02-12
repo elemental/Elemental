@@ -305,7 +305,7 @@ UPan
         z01_MR_STAR.AlignWith( AB0 );
         Zeros( z01_MR_STAR, AB0.Width(), 1 );
         LocalGemv( ADJOINT, F(1), AB0, aB1_MC_STAR, F(0), z01_MR_STAR );
-        z01_MR_STAR.SumOverCol();
+        z01_MR_STAR.SumOver( AB0.ColComm() );
         z01_MC_STAR.AlignWith( Y02 );
         z01_MC_STAR = z01_MR_STAR;
         // z21[MR,* ] -= Y02^H[MR,MC] z01[MC,* ] 
@@ -315,7 +315,7 @@ UPan
         z01_MR_STAR.AlignWith( XB0 );
         Zeros( z01_MR_STAR, XB0.Width(), 1 );
         LocalGemv( ADJOINT, F(1), XB0, aB1_MC_STAR, F(0), z01_MR_STAR );
-        z01_MR_STAR.SumOverCol();
+        z01_MR_STAR.SumOver( XB0.ColComm() );
         z01_MC_STAR.AlignWith( A02 );
         z01_MC_STAR = z01_MR_STAR;
         // z21[MR,* ] -= A02^T[MR,MC] (XB0^H aB1)[MC,* ]
@@ -382,7 +382,7 @@ UPan
         zT1_MC_STAR.AlignWith( YT2 );
         Zeros( zT1_MC_STAR, YT2.Height(), 1 );
         LocalGemv( NORMAL, F(1), YT2, a12_STAR_MR, F(0), zT1_MC_STAR );
-        zT1_MC_STAR.SumOverRow(); 
+        zT1_MC_STAR.SumOver( YT2.RowComm() );
         // Redistribute and perform local Gemv 
         zT1_MR_STAR.AlignWith( A2L );
         zT1_MR_STAR = zT1_MC_STAR;
@@ -395,9 +395,9 @@ UPan
         Zeros( z01_MC_STAR, A02.Height(), 1 );
         Conjugate( a12_STAR_MR );
         LocalGemv( NORMAL, F(1), A02, a12_STAR_MR, F(0), z01_MC_STAR );
+        z01_MC_STAR.SumOver( A02.RowComm() );
         Conjugate( a12_STAR_MR );
         Conjugate( z01_MC_STAR );
-        z01_MC_STAR.SumOverRow();
         // Redistribute and perform local Gemv
         z01_MR_STAR.AlignWith( X20 );
         z01_MR_STAR = z01_MC_STAR;

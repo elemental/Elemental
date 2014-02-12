@@ -86,9 +86,6 @@ public:
 
     // Specialized redistributions
     // ---------------------------
-    // AllReduce sum over process column
-    void SumOverCol();
-
     // Auxiliary routines needed to implement algorithms that avoid using
     // inefficient unpackings of partial matrix distributions
     void TransposeFrom( const DistMatrix<T,MC,MR>& A, bool conjugate=false );
