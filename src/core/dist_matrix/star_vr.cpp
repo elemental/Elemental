@@ -596,33 +596,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[* ,VR] = [* ,* ]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const Grid& g = this->Grid();
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int p = g.Size();
-    const Int rowShift = this->RowShift();
-
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
-
-    T* thisBuf = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const T* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const T* ACol = &ABuf[(rowShift+jLoc*p)*ALDim];
-        T* thisCol = &thisBuf[jLoc*thisLDim];
-        MemCopy( thisCol, ACol, localHeight );
-    }
+    DEBUG_ONLY(CallStackEntry cse("[* ,VR] = [* ,* ]"))
+    this->RowFilterFrom( A );
     return *this;
 }
 

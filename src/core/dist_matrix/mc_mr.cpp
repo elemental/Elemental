@@ -192,85 +192,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [MC,* ]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->AlignColsAndResize( A.ColAlign(), A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    if( this->ColAlign() == A.ColAlign() )
-    {
-        const Int c = g.Width();
-        const Int rowShift = this->RowShift();
-
-        const Int localHeight = this->LocalHeight();
-        const Int localWidth = this->LocalWidth();
-
-        const Int ALDim = A.LDim();
-        const Int thisLDim = this->LDim();
-        T* thisBuffer = this->Buffer();
-        const T* ABuffer = A.LockedBuffer();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuffer[jLoc*thisLDim], 
-              &ABuffer[(rowShift+jLoc*c)*ALDim], localHeight );
-    }
-    else
-    {
-#ifdef UNALIGNED_WARNINGS
-        if( g.Rank() == 0 )
-            std::cerr << "Unaligned [MC,MR] <- [MC,* ]." << std::endl;
-#endif
-        const Int r = g.Height();
-        const Int c = g.Width();
-        const Int rank = g.Row();
-        const Int rowShift = this->RowShift();
-        const Int colAlign = this->ColAlign();
-        const Int colAlignA = A.ColAlign();
-
-        const Int sendRank = (rank+r+colAlign-colAlignA) % r;
-        const Int recvRank = (rank+r+colAlignA-colAlign) % r;
-
-        const Int localHeight = this->LocalHeight();
-        const Int localWidth = this->LocalWidth();
-        const Int localHeightA = A.LocalHeight();
-
-        const Int sendSize = localHeightA*localWidth;
-        const Int recvSize = localHeight*localWidth;
-
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-
-        // Pack
-        const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &sendBuf[jLoc*localHeightA], 
-              &ABuffer[(rowShift+jLoc*c)*ALDim], localHeightA );
-
-        // Communicate
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendRank, 
-          recvBuf, recvSize, recvRank, g.ColComm() );
-
-        // Unpack
-        T* thisBuffer = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuffer[jLoc*thisLDim], 
-              &recvBuf[jLoc*localHeight], localHeight );
-        this->auxMemory_.Release();
-    }
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,* ]"))
+    this->RowFilterFrom( A );
     return *this;
 }
 
@@ -278,91 +201,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [* ,MR]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->AlignRowsAndResize( A.RowAlign(), A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    if( this->RowAlign() == A.RowAlign() )
-    {
-        const Int r = g.Height();
-        const Int colShift = this->ColShift();
-
-        const Int localHeight = this->LocalHeight();
-        const Int localWidth = this->LocalWidth();
-
-        const T* ABuffer = A.LockedBuffer();
-        const Int ALDim = A.LDim();
-        T* thisBuffer = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            T* destCol = &thisBuffer[jLoc*thisLDim];
-            const T* sourceCol = &ABuffer[colShift+jLoc*ALDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                destCol[iLoc] = sourceCol[iLoc*r];
-        }
-    }
-    else
-    {
-#ifdef UNALIGNED_WARNINGS
-        if( g.Rank() == 0 )
-            std::cerr << "Unaligned [MC,MR] <- [* ,MR]." << std::endl;
-#endif
-        const Int r = g.Height(); 
-        const Int c = g.Width();
-        const Int col = g.Col();
-        const Int colShift = this->ColShift();
-        const Int rowAlign = this->RowAlign();
-        const Int rowAlignA = A.RowAlign();
-
-        const Int sendCol = (col+c+rowAlign-rowAlignA) % c;
-        const Int recvCol = (col+c+rowAlignA-rowAlign) % c;
-
-        const Int localHeight = this->LocalHeight();
-        const Int localWidth = this->LocalWidth();
-        const Int localWidthA = A.LocalWidth();
-
-        const Int sendSize = localHeight*localWidthA;
-        const Int recvSize = localHeight*localWidth;
-
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-
-        // Pack
-        const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
-        {
-            T* destCol = &sendBuf[jLoc*localHeight];
-            const T* sourceCol = &ABuffer[colShift+jLoc*ALDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                destCol[iLoc] = sourceCol[iLoc*r];
-        }
-
-        // Communicate
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendCol, 
-          recvBuf, recvSize, recvCol, g.RowComm() );
-
-        // Unpack
-        T* thisBuffer = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuffer[jLoc*thisLDim], 
-              &recvBuf[jLoc*localHeight], localHeight );
-        this->auxMemory_.Release();
-    }
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,MR]"))
+    this->ColFilterFrom( A );
     return *this;
 }
 
@@ -983,35 +823,8 @@ template<typename T>
 const DM<T>&
 DM<T>::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [* ,* ]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    this->Resize( A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    const Int r = this->Grid().Height();
-    const Int c = this->Grid().Width();
-    const Int colShift = this->ColShift();
-    const Int rowShift = this->RowShift();
-
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
-
-    const Int ALDim = A.LDim();
-    const Int thisLDim = this->LDim();
-    T* thisBuffer = this->Buffer();
-    const T* ABuffer = A.LockedBuffer();
-    PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        T* destCol = &thisBuffer[jLoc*thisLDim];
-        const T* sourceCol = &ABuffer[colShift+(rowShift+jLoc*c)*ALDim];
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            destCol[iLoc] = sourceCol[iLoc*r];
-    }
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,* ]"))
+    this->FilterFrom( A );
     return *this;
 }
 

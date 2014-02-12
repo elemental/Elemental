@@ -1816,6 +1816,201 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
     A.auxMemory_.Release();
 }
 
+template<typename T,Dist U,Dist V>
+void
+GeneralDistMatrix<T,U,V>::FilterFrom( const DistMatrix<T,UGath,VGath>& A )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("GDM::FilterFrom");
+        this->AssertSameGrid( A.Grid() );
+    )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    this->Resize( height, width );
+    if( !this->Participating() )
+        return;
+
+    const Int colStride = this->ColStride();
+    const Int rowStride = this->RowStride();
+    const Int colShift = this->ColShift();
+    const Int rowShift = this->RowShift();
+
+    const Int localHeight = this->LocalHeight();
+    const Int localWidth = this->LocalWidth();
+    
+    T* buf = this->Buffer();
+    const Int ldim = this->LDim();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+    PARALLEL_FOR
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        T* thisCol = &buf[jLoc*ldim];
+        const T* ACol = &ABuf[colShift+(rowShift+jLoc*rowStride)*ALDim];
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            thisCol[iLoc] = ACol[iLoc*colStride];
+    }
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("GDM::ColFilterFrom");
+        this->AssertSameGrid( A.Grid() );
+    )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    this->AlignRowsAndResize( A.RowAlign(), height, width );
+    if( !this->Participating() )
+        return;
+
+    const Int colStride = this->ColStride();
+    const Int colShift = this->ColShift();
+    const Int rowAlign = this->RowAlign();
+    const Int rowAlignA = A.RowAlign();
+
+    const Int localHeight = this->LocalHeight();
+    const Int localWidth = this->LocalWidth();
+    
+    T* buf = this->Buffer();
+    const Int ldim = this->LDim();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+
+    if( rowAlign == rowAlignA )
+    {
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            T* thisCol = &buf[jLoc*ldim];
+            const T* ACol = &ABuf[colShift+jLoc*ALDim];
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                thisCol[iLoc] = ACol[iLoc*colStride];
+        }
+    }
+    else
+    {
+#ifndef UNALIGNED_WARNINGS
+        if( this->Grid().Rank() == 0 )
+            std::cerr << "Unaligned ColFilterFrom" << std::endl;
+#endif
+        const Int rowStride = this->RowStride();
+        const Int rowRank = this->RowRank();
+        const Int sendRowRank = 
+            (rowRank+rowStride+rowAlign-rowAlignA) % rowStride;
+        const Int recvRowRank = 
+            (rowRank+rowStride+rowAlignA-rowAlign) % rowStride;
+        const Int localWidthA = A.LocalWidth();
+        const Int sendSize = localHeight*localWidthA;
+        const Int recvSize = localHeight*localWidth;
+        T* buffer = this->auxMemory_.Require( sendSize+recvSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[sendSize];
+        
+        // Pack
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
+        {
+            T* sendCol = &sendBuf[jLoc*localHeight];
+            const T* ACol = &ABuf[colShift+jLoc*ALDim];
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                sendCol[iLoc] = ACol[iLoc*colStride];
+        }
+
+        // Realign
+        mpi::SendRecv
+        ( sendBuf, sendSize, sendRowRank,
+          recvBuf, recvSize, recvRowRank, this->RowComm() );
+
+        // Unpack
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( &buf[jLoc*ldim], &recvBuf[jLoc*localHeight], localHeight );
+        this->auxMemory_.Release();
+    }
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("GDM::RowFilterFrom");
+        this->AssertSameGrid( A.Grid() );
+    )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    this->AlignColsAndResize( A.ColAlign(), height, width );
+    if( !this->Participating() )
+        return;
+
+    const Int colAlign = this->ColAlign();
+    const Int colAlignA = A.ColAlign();
+    const Int rowStride = this->RowStride();
+    const Int rowShift = this->RowShift();
+
+    const Int localHeight = this->LocalHeight();
+    const Int localWidth = this->LocalWidth();
+    
+    T* buf = this->Buffer();
+    const Int ldim = this->LDim();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
+    
+    if( colAlign == colAlignA )
+    {
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            T* thisCol = &buf[jLoc*ldim];
+            const T* ACol = &ABuf[(rowShift+jLoc*rowStride)*ALDim];
+            MemCopy( thisCol, ACol, localHeight );
+        }
+    }
+    else
+    {
+#ifndef UNALIGNED_WARNINGS
+        if( this->Grid().Rank() == 0 )
+            std::cerr << "Unaligned RowFilterFrom" << std::endl;
+#endif
+        const Int colRank = this->ColRank();
+        const Int colStride = this->ColStride();
+        const Int sendColRank = 
+            (colRank+colStride+colAlign-colAlignA) % colStride;
+        const Int recvColRank = 
+            (colRank+colStride+colAlignA-colAlign) % colStride;
+        const Int localHeightA = A.LocalHeight();
+        const Int sendSize = localHeightA*localWidth;
+        const Int recvSize = localHeight *localWidth;
+
+        T* buffer = this->auxMemory_.Require( sendSize+recvSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[sendSize];
+
+        // Pack
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( &sendBuf[jLoc*localHeightA],
+              &ABuf[(rowShift+jLoc*rowStride)*ALDim], localHeightA );
+
+        // Realign
+        mpi::SendRecv
+        ( sendBuf, sendSize, sendColRank, 
+          recvBuf, recvSize, recvColRank, this->ColComm() );
+
+        // Unpack
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( &buf[jLoc*ldim], &recvBuf[jLoc*localHeight], localHeight );
+        this->auxMemory_.Release();
+    }
+}
+
 // Diagonal helper functions
 // =========================
 template<typename T,Dist U,Dist V>

@@ -97,6 +97,10 @@ protected:
     void RowAllGather( DistMatrix<T,U,VGath>& A ) const;
     void PartialColAllGather( DistMatrix<T,UPart,V>& A ) const;
     void PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const;
+
+    void FilterFrom( const DistMatrix<T,UGath,VGath>& A );
+    void ColFilterFrom( const DistMatrix<T,UGath,V>& A );
+    void RowFilterFrom( const DistMatrix<T,U,VGath>& A );
 #endif
 
     // Diagonal helper routines
