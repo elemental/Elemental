@@ -27,6 +27,8 @@ public:
     static constexpr Dist VGath = GatheredDist<V>();
     static constexpr Dist UPart = PartialDist<U>();
     static constexpr Dist VPart = PartialDist<V>();
+    static constexpr Dist UScat = ScatteredColDist<U,V>();
+    static constexpr Dist VScat = ScatteredRowDist<U,V>();
 #endif
 
     // Constructors and destructors
@@ -103,6 +105,11 @@ protected:
     void RowFilterFrom( const DistMatrix<T,U,VGath>& A );
     void PartialColFilterFrom( const DistMatrix<T,UPart,V>& A );
     void PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A );
+
+    void PartialColAllToAllFrom( const DistMatrix<T,UPart,VScat>& A );
+    void PartialRowAllToAllFrom( const DistMatrix<T,UScat,VPart>& A );
+    void PartialColAllToAll( DistMatrix<T,UPart,VScat>& A ) const;
+    void PartialRowAllToAll( DistMatrix<T,UScat,VPart>& A ) const;
 #endif
 
     // Diagonal helper routines

@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_IO_INC
 #include ELEM_UNIFORM_INC
 using namespace elem;
 
@@ -15,7 +16,7 @@ template<typename T, Distribution AColDist, Distribution ARowDist,
                      Distribution BColDist, Distribution BRowDist>
 void
 Check( DistMatrix<T,AColDist,ARowDist>& A, 
-       DistMatrix<T,BColDist,BRowDist>& B )
+       DistMatrix<T,BColDist,BRowDist>& B, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("Check"))
     const Grid& g = A.Grid();
@@ -34,6 +35,11 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
                                  << DistToString(BRowDist) << "]...";
         std::cout.flush();
     }
+    Int colAlign = SampleUniform<Int>(0,A.ColStride());
+    Int rowAlign = SampleUniform<Int>(0,A.RowStride());
+    mpi::Broadcast( colAlign, 0, mpi::COMM_WORLD );
+    mpi::Broadcast( rowAlign, 0, mpi::COMM_WORLD );
+    A.Align( colAlign, rowAlign );
     A = B;
 
     A_STAR_STAR = A;
@@ -63,12 +69,19 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
             std::cout << "PASSED" << std::endl;
     }
     else
-        LogicError("Redistribution failed");
+    {
+        if( commRank == 0 )
+            std::cout << "FAILED" << std::endl;
+        if( print )
+            Print( A, "A" );
+        if( print ) 
+            Print( B, "B" );
+    }
 }
 
 template<typename T>
 void
-DistMatrixTest( Int m, Int n, const Grid& g )
+DistMatrixTest( Int m, Int n, const Grid& g, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("DistMatrixTest"))
     DistMatrix<T,MC,  MR  > A_MC_MR(g);
@@ -85,146 +98,146 @@ DistMatrixTest( Int m, Int n, const Grid& g )
 
     // Communicate from A[MC,MR] 
     Uniform( A_MC_MR, m, n );
-    Check( A_MC_STAR,   A_MC_MR );
-    Check( A_STAR_MR,   A_MC_MR );
-    Check( A_MR_MC,     A_MC_MR );
-    Check( A_MR_STAR,   A_MC_MR );
-    Check( A_STAR_MC,   A_MC_MR );
-    Check( A_VC_STAR,   A_MC_MR );
-    Check( A_STAR_VC,   A_MC_MR );
-    Check( A_VR_STAR,   A_MC_MR );
-    Check( A_STAR_VR,   A_MC_MR );
-    Check( A_STAR_STAR, A_MC_MR );
+    Check( A_MC_STAR,   A_MC_MR, print );
+    Check( A_STAR_MR,   A_MC_MR, print );
+    Check( A_MR_MC,     A_MC_MR, print );
+    Check( A_MR_STAR,   A_MC_MR, print );
+    Check( A_STAR_MC,   A_MC_MR, print );
+    Check( A_VC_STAR,   A_MC_MR, print );
+    Check( A_STAR_VC,   A_MC_MR, print );
+    Check( A_VR_STAR,   A_MC_MR, print );
+    Check( A_STAR_VR,   A_MC_MR, print );
+    Check( A_STAR_STAR, A_MC_MR, print );
 
     // Communicate from A[MC,*]
     Uniform( A_MC_STAR, m, n );
-    Check( A_MC_MR,     A_MC_STAR );
-    Check( A_STAR_MR,   A_MC_STAR );
-    Check( A_MR_MC,     A_MC_STAR );
-    Check( A_MR_STAR,   A_MC_STAR );
-    Check( A_STAR_MC,   A_MC_STAR );
-    Check( A_VC_STAR,   A_MC_STAR );
-    Check( A_STAR_VC,   A_MC_STAR );
-    Check( A_VR_STAR,   A_MC_STAR );
-    Check( A_STAR_VR,   A_MC_STAR );
-    Check( A_STAR_STAR, A_MC_STAR );
+    Check( A_MC_MR,     A_MC_STAR, print );
+    Check( A_STAR_MR,   A_MC_STAR, print );
+    Check( A_MR_MC,     A_MC_STAR, print );
+    Check( A_MR_STAR,   A_MC_STAR, print );
+    Check( A_STAR_MC,   A_MC_STAR, print );
+    Check( A_VC_STAR,   A_MC_STAR, print );
+    Check( A_STAR_VC,   A_MC_STAR, print );
+    Check( A_VR_STAR,   A_MC_STAR, print );
+    Check( A_STAR_VR,   A_MC_STAR, print );
+    Check( A_STAR_STAR, A_MC_STAR, print );
 
     // Communicate from A[*,MR]
     Uniform( A_STAR_MR, m, n );
-    Check( A_MC_MR,     A_STAR_MR );
-    Check( A_MC_STAR,   A_STAR_MR );
-    Check( A_MR_MC,     A_STAR_MR );
-    Check( A_MR_STAR,   A_STAR_MR );
-    Check( A_STAR_MC,   A_STAR_MR );
-    Check( A_VC_STAR,   A_STAR_MR );
-    Check( A_STAR_VC,   A_STAR_MR );
-    Check( A_VR_STAR,   A_STAR_MR );
-    Check( A_STAR_VR,   A_STAR_MR );
-    Check( A_STAR_STAR, A_STAR_MR );
+    Check( A_MC_MR,     A_STAR_MR, print );
+    Check( A_MC_STAR,   A_STAR_MR, print );
+    Check( A_MR_MC,     A_STAR_MR, print );
+    Check( A_MR_STAR,   A_STAR_MR, print );
+    Check( A_STAR_MC,   A_STAR_MR, print );
+    Check( A_VC_STAR,   A_STAR_MR, print );
+    Check( A_STAR_VC,   A_STAR_MR, print );
+    Check( A_VR_STAR,   A_STAR_MR, print );
+    Check( A_STAR_VR,   A_STAR_MR, print );
+    Check( A_STAR_STAR, A_STAR_MR, print );
     
     // Communicate from A[MR,MC]
     Uniform( A_MR_MC, m, n );
-    Check( A_MC_MR,     A_MR_MC );
-    Check( A_MC_STAR,   A_MR_MC );
-    Check( A_STAR_MR,   A_MR_MC );
-    Check( A_MR_STAR,   A_MR_MC );
-    Check( A_STAR_MC,   A_MR_MC );
-    Check( A_VC_STAR,   A_MR_MC );
-    Check( A_STAR_VC,   A_MR_MC );
-    Check( A_VR_STAR,   A_MR_MC );
-    Check( A_STAR_VR,   A_MR_MC );
-    Check( A_STAR_STAR, A_MR_MC );
+    Check( A_MC_MR,     A_MR_MC, print );
+    Check( A_MC_STAR,   A_MR_MC, print );
+    Check( A_STAR_MR,   A_MR_MC, print );
+    Check( A_MR_STAR,   A_MR_MC, print );
+    Check( A_STAR_MC,   A_MR_MC, print );
+    Check( A_VC_STAR,   A_MR_MC, print );
+    Check( A_STAR_VC,   A_MR_MC, print );
+    Check( A_VR_STAR,   A_MR_MC, print );
+    Check( A_STAR_VR,   A_MR_MC, print );
+    Check( A_STAR_STAR, A_MR_MC, print );
 
     // Communicate from A[MR,*]
     Uniform( A_MR_STAR, m, n );
-    Check( A_MC_MR,     A_MR_STAR );
-    Check( A_MC_STAR,   A_MR_STAR );
-    Check( A_STAR_MR,   A_MR_STAR );
-    Check( A_MR_MC,     A_MR_STAR );
-    Check( A_STAR_MC,   A_MR_STAR );
-    Check( A_VC_STAR,   A_MR_STAR );
-    Check( A_STAR_VC,   A_MR_STAR );
-    Check( A_VR_STAR,   A_MR_STAR );
-    Check( A_STAR_VR,   A_MR_STAR );
-    Check( A_STAR_STAR, A_MR_STAR );
+    Check( A_MC_MR,     A_MR_STAR, print );
+    Check( A_MC_STAR,   A_MR_STAR, print );
+    Check( A_STAR_MR,   A_MR_STAR, print );
+    Check( A_MR_MC,     A_MR_STAR, print );
+    Check( A_STAR_MC,   A_MR_STAR, print );
+    Check( A_VC_STAR,   A_MR_STAR, print );
+    Check( A_STAR_VC,   A_MR_STAR, print );
+    Check( A_VR_STAR,   A_MR_STAR, print );
+    Check( A_STAR_VR,   A_MR_STAR, print );
+    Check( A_STAR_STAR, A_MR_STAR, print );
 
     // Communicate from A[*,MC]
     Uniform( A_STAR_MC, m, n );
-    Check( A_MC_MR,     A_STAR_MC );
-    Check( A_MC_STAR,   A_STAR_MC );
-    Check( A_STAR_MR,   A_STAR_MC );
-    Check( A_MR_MC,     A_STAR_MC );
-    Check( A_MR_STAR,   A_STAR_MC );
-    Check( A_VC_STAR,   A_STAR_MC );
-    Check( A_STAR_VC,   A_STAR_MC );
-    Check( A_VR_STAR,   A_STAR_MC );
-    Check( A_STAR_VR,   A_STAR_MC );
-    Check( A_STAR_STAR, A_STAR_MC );
+    Check( A_MC_MR,     A_STAR_MC, print );
+    Check( A_MC_STAR,   A_STAR_MC, print );
+    Check( A_STAR_MR,   A_STAR_MC, print );
+    Check( A_MR_MC,     A_STAR_MC, print );
+    Check( A_MR_STAR,   A_STAR_MC, print );
+    Check( A_VC_STAR,   A_STAR_MC, print );
+    Check( A_STAR_VC,   A_STAR_MC, print );
+    Check( A_VR_STAR,   A_STAR_MC, print );
+    Check( A_STAR_VR,   A_STAR_MC, print );
+    Check( A_STAR_STAR, A_STAR_MC, print );
  
     // Communicate from A[VC,*]
     Uniform( A_VC_STAR, m, n );
-    Check( A_MC_MR,     A_VC_STAR );
-    Check( A_MC_STAR,   A_VC_STAR );
-    Check( A_STAR_MR,   A_VC_STAR );
-    Check( A_MR_MC,     A_VC_STAR );
-    Check( A_MR_STAR,   A_VC_STAR );
-    Check( A_STAR_MC,   A_VC_STAR );
-    Check( A_STAR_VC,   A_VC_STAR );
-    Check( A_VR_STAR,   A_VC_STAR );
-    Check( A_STAR_VR,   A_VC_STAR );
-    Check( A_STAR_STAR, A_VC_STAR );
+    Check( A_MC_MR,     A_VC_STAR, print );
+    Check( A_MC_STAR,   A_VC_STAR, print );
+    Check( A_STAR_MR,   A_VC_STAR, print );
+    Check( A_MR_MC,     A_VC_STAR, print );
+    Check( A_MR_STAR,   A_VC_STAR, print );
+    Check( A_STAR_MC,   A_VC_STAR, print );
+    Check( A_STAR_VC,   A_VC_STAR, print );
+    Check( A_VR_STAR,   A_VC_STAR, print );
+    Check( A_STAR_VR,   A_VC_STAR, print );
+    Check( A_STAR_STAR, A_VC_STAR, print );
 
     // Communicate from A[*,VC]
     Uniform( A_STAR_VC, m, n );
-    Check( A_MC_MR,     A_STAR_VC );
-    Check( A_MC_STAR,   A_STAR_VC );
-    Check( A_STAR_MR,   A_STAR_VC );
-    Check( A_MR_MC,     A_STAR_VC );
-    Check( A_MR_STAR,   A_STAR_VC );
-    Check( A_STAR_MC,   A_STAR_VC );
-    Check( A_VC_STAR,   A_STAR_VC );
-    Check( A_VR_STAR,   A_STAR_VC );
-    Check( A_STAR_VR,   A_STAR_VC );
-    Check( A_STAR_STAR, A_STAR_VC );
+    Check( A_MC_MR,     A_STAR_VC, print );
+    Check( A_MC_STAR,   A_STAR_VC, print );
+    Check( A_STAR_MR,   A_STAR_VC, print );
+    Check( A_MR_MC,     A_STAR_VC, print );
+    Check( A_MR_STAR,   A_STAR_VC, print );
+    Check( A_STAR_MC,   A_STAR_VC, print );
+    Check( A_VC_STAR,   A_STAR_VC, print );
+    Check( A_VR_STAR,   A_STAR_VC, print );
+    Check( A_STAR_VR,   A_STAR_VC, print );
+    Check( A_STAR_STAR, A_STAR_VC, print );
 
     // Communicate from A[VR,*]
     Uniform( A_VR_STAR, m, n );
-    Check( A_MC_MR,     A_VR_STAR );
-    Check( A_MC_STAR,   A_VR_STAR );
-    Check( A_STAR_MR,   A_VR_STAR );
-    Check( A_MR_MC,     A_VR_STAR );
-    Check( A_MR_STAR,   A_VR_STAR );
-    Check( A_STAR_MC,   A_VR_STAR );
-    Check( A_VC_STAR,   A_VR_STAR );
-    Check( A_STAR_VC,   A_VR_STAR );
-    Check( A_STAR_VR,   A_VR_STAR );
-    Check( A_STAR_STAR, A_VR_STAR );
+    Check( A_MC_MR,     A_VR_STAR, print );
+    Check( A_MC_STAR,   A_VR_STAR, print );
+    Check( A_STAR_MR,   A_VR_STAR, print );
+    Check( A_MR_MC,     A_VR_STAR, print );
+    Check( A_MR_STAR,   A_VR_STAR, print );
+    Check( A_STAR_MC,   A_VR_STAR, print );
+    Check( A_VC_STAR,   A_VR_STAR, print );
+    Check( A_STAR_VC,   A_VR_STAR, print );
+    Check( A_STAR_VR,   A_VR_STAR, print );
+    Check( A_STAR_STAR, A_VR_STAR, print );
 
     // Communicate from A[*,VR]
     Uniform( A_STAR_VR, m, n );
-    Check( A_MC_MR,     A_STAR_VR );
-    Check( A_MC_STAR,   A_STAR_VR );
-    Check( A_STAR_MR,   A_STAR_VR );
-    Check( A_MR_MC,     A_STAR_VR );
-    Check( A_MR_STAR,   A_STAR_VR );
-    Check( A_STAR_MC,   A_STAR_VR );
-    Check( A_VC_STAR,   A_STAR_VR );
-    Check( A_STAR_VC,   A_STAR_VR );
-    Check( A_VR_STAR,   A_STAR_VR );
-    Check( A_STAR_STAR, A_STAR_VR );
+    Check( A_MC_MR,     A_STAR_VR, print );
+    Check( A_MC_STAR,   A_STAR_VR, print );
+    Check( A_STAR_MR,   A_STAR_VR, print );
+    Check( A_MR_MC,     A_STAR_VR, print );
+    Check( A_MR_STAR,   A_STAR_VR, print );
+    Check( A_STAR_MC,   A_STAR_VR, print );
+    Check( A_VC_STAR,   A_STAR_VR, print );
+    Check( A_STAR_VC,   A_STAR_VR, print );
+    Check( A_VR_STAR,   A_STAR_VR, print );
+    Check( A_STAR_STAR, A_STAR_VR, print );
 
     // Communicate from A[*,*]
     Uniform( A_STAR_STAR, m, n );
-    Check( A_MC_MR,   A_STAR_STAR );
-    Check( A_MC_STAR, A_STAR_STAR );
-    Check( A_STAR_MR, A_STAR_STAR );
-    Check( A_MR_MC,   A_STAR_STAR );
-    Check( A_MR_STAR, A_STAR_STAR );
-    Check( A_STAR_MC, A_STAR_STAR );
-    Check( A_VC_STAR, A_STAR_STAR );
-    Check( A_STAR_VC, A_STAR_STAR );
-    Check( A_VR_STAR, A_STAR_STAR );
-    Check( A_STAR_VR, A_STAR_STAR );
+    Check( A_MC_MR,   A_STAR_STAR, print );
+    Check( A_MC_STAR, A_STAR_STAR, print );
+    Check( A_STAR_MR, A_STAR_STAR, print );
+    Check( A_MR_MC,   A_STAR_STAR, print );
+    Check( A_MR_STAR, A_STAR_STAR, print );
+    Check( A_STAR_MC, A_STAR_STAR, print );
+    Check( A_VC_STAR, A_STAR_STAR, print );
+    Check( A_STAR_VC, A_STAR_STAR, print );
+    Check( A_VR_STAR, A_STAR_STAR, print );
+    Check( A_STAR_VR, A_STAR_STAR, print );
 }
 
 int 
@@ -240,6 +253,7 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","height of process grid",0);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
+        const bool print = Input("--print","print wrong matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -253,7 +267,7 @@ main( int argc, char* argv[] )
                       << "Testing with floats:\n"
                       << "--------------------" << std::endl;
         }
-        DistMatrixTest<float>( m, n, g );
+        DistMatrixTest<float>( m, n, g, print );
 
         if( commRank == 0 )
         {
@@ -261,7 +275,7 @@ main( int argc, char* argv[] )
                       << "Testing with doubles:\n"
                       << "---------------------" << std::endl;
         }
-        DistMatrixTest<double>( m, n, g );
+        DistMatrixTest<double>( m, n, g, print );
 
         if( commRank == 0 )
         {
@@ -269,7 +283,7 @@ main( int argc, char* argv[] )
                       << "Testing with single-precision complex:\n"
                       << "--------------------------------------" << std::endl;
         }
-        DistMatrixTest<Complex<float>>( m, n, g );
+        DistMatrixTest<Complex<float>>( m, n, g, print );
         
         if( commRank == 0 )
         {
@@ -277,7 +291,7 @@ main( int argc, char* argv[] )
                       << "Testing with double-precision complex:\n"
                       << "--------------------------------------" << std::endl;
         }
-        DistMatrixTest<Complex<double>>( m, n, g );
+        DistMatrixTest<Complex<double>>( m, n, g, print );
     }
     catch( std::exception& e ) { ReportException(e); }
 
