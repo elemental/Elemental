@@ -101,6 +101,8 @@ protected:
     void FilterFrom( const DistMatrix<T,UGath,VGath>& A );
     void ColFilterFrom( const DistMatrix<T,UGath,V>& A );
     void RowFilterFrom( const DistMatrix<T,U,VGath>& A );
+    void PartialColFilterFrom( const DistMatrix<T,UPart,V>& A );
+    void PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A );
 #endif
 
     // Diagonal helper routines
