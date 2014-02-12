@@ -1010,14 +1010,113 @@ GeneralDistMatrix<T,U,V>::GeneralDistMatrix( const elem::Grid& grid )
 
 template<typename T,Dist U,Dist V>
 void
+GeneralDistMatrix<T,U,V>::AllGather( DistMatrix<T,UGath,VGath>& A ) const
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("GDM::AllGather");
+        this->AssertSameGrid( A.Grid() );
+    )
+    const Int height = this->Height();
+    const Int width = this->Width();
+    A.Resize( height, width );
+
+    if( this->Participating() )
+    {
+        const Int colStride = this->ColStride(); 
+        const Int rowStride = this->RowStride();
+        const Int distStride = colStride*rowStride;
+
+        const Int thisLocalHeight = this->LocalHeight();
+        const Int thisLocalWidth = this->LocalWidth();
+        const Int maxLocalHeight = MaxLength(height,colStride);
+        const Int maxLocalWidth = MaxLength(width,rowStride);
+
+        const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
+        T* buffer = A.auxMemory_.Require( (distStride+1)*portionSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[portionSize];
+
+        // Pack
+        const Int ldim = this->LDim();
+        const T* thisBuf = this->LockedBuffer();
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
+            MemCopy
+            ( &sendBuf[jLoc*thisLocalHeight], &thisBuf[jLoc*ldim], 
+              thisLocalHeight );
+
+        // Communicate
+        mpi::AllGather
+        ( sendBuf, portionSize, recvBuf, portionSize, this->DistComm() );
+
+        // Unpack
+        T* ABuf = A.Buffer();
+        const Int ALDim = A.LDim();
+        const Int colAlign = this->ColAlign();
+        const Int rowAlign = this->RowAlign();
+        OUTER_PARALLEL_FOR
+        for( Int l=0; l<rowStride; ++l )
+        {
+            const Int rowShift = Shift_( l, rowAlign, rowStride );
+            const Int localWidth = Length_( width, rowShift, rowStride );
+            for( Int k=0; k<colStride; ++k )
+            {
+                const T* data = &recvBuf[(k+l*colStride)*portionSize];
+                const Int colShift = Shift_( k, colAlign, colStride );
+                const Int localHeight = Length_( height, colShift, colStride );
+                INNER_PARALLEL_FOR
+                for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                {
+                    T* destCol = 
+                        &ABuf[colShift+(rowShift+jLoc*rowStride)*ALDim];
+                    const T* sourceCol = &data[jLoc*localHeight];
+                    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                        destCol[iLoc*colStride] = sourceCol[iLoc];
+                }
+            }
+        }
+        A.auxMemory_.Release();
+    }
+    if( this->Grid().InGrid() && this->CrossComm() != mpi::COMM_SELF )
+    {
+        // Pack from the root
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        T* buf = A.auxMemory_.Require( localHeight*localWidth );
+        if( this->CrossRank() == this->Root() )
+        {
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                MemCopy
+                ( &buf[jLoc*localHeight], A.LockedBuffer(0,jLoc), localHeight );
+        }
+
+        // Broadcast from the root
+        mpi::Broadcast
+        ( buf, localHeight*localWidth, this->Root(), this->CrossComm() );
+
+        // Unpack if not the root
+        if( this->CrossRank() != this->Root() )
+        {
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                MemCopy
+                ( A.Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
+        }
+        A.auxMemory_.Release();
+    }
+}
+
+template<typename T,Dist U,Dist V>
+void
 GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("GDM::ColAllGather");
         this->AssertSameGrid( A.Grid() );
     )
+    const Int height = this->Height();
+    const Int width = this->Width();
 #ifdef CACHE_WARNINGS
-    if( this->Height() != 1 && this->Grid().Rank() == 0 )
+    if( height != 1 && this->Grid().Rank() == 0 )
     {
         std::cerr <<
           "The matrix redistribution [* ,V] <- [U,V] potentially causes a "
@@ -1026,13 +1125,13 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
           << "  [V,* ].(Conjugate)TransposeFrom([U,V])" << std::endl;
     }
 #endif
-    A.AlignRowsAndResize( this->RowAlign(), this->Height(), this->Width() );
+    A.AlignRowsAndResize( this->RowAlign(), height, width );
 
     if( this->Participating() )
     {
         if( this->RowAlign() == A.RowAlign() )
         {
-            if( this->Height() == 1 )
+            if( height == 1 )
             {
                 const Int localWidthA = A.LocalWidth();
                 T* bcastBuf = A.auxMemory_.Require( localWidthA );
@@ -1058,13 +1157,11 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
                 PARALLEL_FOR
                 for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
                     ABuf[jLoc*ALDim] = bcastBuf[jLoc];
-
                 A.auxMemory_.Release();
             }
             else
             {
                 const Int colStride = this->ColStride();
-                const Int height = this->Height();
                 const Int localWidth = this->LocalWidth();
                 const Int thisLocalHeight = this->LocalHeight();
                 const Int maxLocalHeight = MaxLength(height,colStride);
@@ -1129,7 +1226,7 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
             const Int recvRowRank = 
                 (rowRank+rowStride+rowAlign-rowAlignA) % rowStride;
 
-            if( this->Height() == 1 )
+            if( height == 1 )
             {
                 const Int localWidthA = A.LocalWidth();
                 T* bcastBuf;
@@ -1169,12 +1266,10 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
                 PARALLEL_FOR
                 for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
                     ABuf[jLoc*ALDim] = bcastBuf[jLoc];
-
                 A.auxMemory_.Release();
             }
             else
             {
-                const Int height = this->Height();
                 const Int localWidth = this->LocalWidth();
                 const Int localWidthA = A.LocalWidth();
                 const Int thisLocalHeight = this->LocalHeight();
@@ -1226,7 +1321,6 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
                             destCol[iLoc*colStride] = sourceCol[iLoc]; 
                     }
                 }
-
                 A.auxMemory_.Release();
             }
         }
@@ -1267,13 +1361,15 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
         CallStackEntry cse("GDM::RowAllGather");
         this->AssertSameGrid( A.Grid() );
     )
-    A.AlignColsAndResize( this->ColAlign(), this->Height(), this->Width() );
+    const Int height = this->Height();
+    const Int width = this->Width();
+    A.AlignColsAndResize( this->ColAlign(), height, width );
 
     if( this->Participating() )
     {
         if( this->ColAlign() == A.ColAlign() )
         {
-            if( this->Width() == 1 )
+            if( width == 1 )
             {
                 if( this->RowRank() == this->RowAlign() )
                     A.matrix_ = this->LockedMatrix();
@@ -1284,7 +1380,6 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
             else
             {
                 const Int rowStride = this->RowStride();
-                const Int width = this->Width();
                 const Int thisLocalWidth = this->LocalWidth();
                 const Int localHeight = this->LocalHeight();
                 const Int maxLocalWidth = MaxLength(width,rowStride);
@@ -1348,7 +1443,7 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
             const Int recvColRank = 
                 (colRank+colStride+colAlign-colAlignA) % colStride;
 
-            if( this->Width() == 1 )
+            if( width == 1 )
             {
                 const Int localHeightA = A.LocalHeight();
                 if( this->RowRank() == this->RowAlign() )
@@ -1365,7 +1460,6 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
                     ( buffer, localHeight, sendColRank,
                       A.matrix_.Buffer(), localHeightA, recvColRank, 
                       this->ColComm() );
-
                     A.auxMemory_.Release();
                 }
 
@@ -1376,8 +1470,6 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
             }
             else
             {
-                const Int height = this->Height();
-                const Int width = this->Width();
                 const Int localHeight = this->LocalHeight();
                 const Int thisLocalWidth = this->LocalWidth();
                 const Int localHeightA = A.LocalHeight();
@@ -1464,99 +1556,264 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::AllGather( DistMatrix<T,UGath,VGath>& A ) const
+GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
 {
     DEBUG_ONLY(
-        CallStackEntry cse("GDM::AllGather");
+        CallStackEntry cse("GDM::PartialColAllGather");
         this->AssertSameGrid( A.Grid() );
     )
-    A.Resize( this->Height(), this->Width() );
-
-    if( this->Participating() )
+    const Int height = this->Height();
+    const Int width = this->Width();
+#ifdef VECTOR_WARNINGS
+    if( width == 1 && this->Grid().Rank() == 0 )
     {
-        const Int colStride = this->ColStride(); 
-        const Int rowStride = this->RowStride();
-        const Int distStride = colStride*rowStride;
+        std::cerr <<
+          "The vector version of PartialColAllGather is not yet written but "
+          "would only require modifying the vector version of "
+          "PartialRowAllGather" << std::endl;
+    }
+#endif
+#ifdef CACHE_WARNINGS
+    if( width && this->Grid().Rank() == 0 )
+    {
+        std::cerr <<
+          "PartialColAllGather potentially causes a large amount of cache-"
+          "thrashing. If possible, avoid it by performing the redistribution"
+          "on the (conjugate-)transpose" << std::endl;
+    }
+#endif
+    A.AlignColsAndResize( this->ColAlign()%A.ColStride(), height, width );
+    if( !this->Participating() )
+        return;
 
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int thisLocalHeight = this->LocalHeight();
-        const Int thisLocalWidth = this->LocalWidth();
-        const Int maxLocalHeight = MaxLength(height,colStride);
-        const Int maxLocalWidth = MaxLength(width,rowStride);
+    DEBUG_ONLY(
+        if( this->LocalWidth() != this->Width() )
+            LogicError("This routine assumes rows are not distributed");
+    )
+    const T* thisBuf = this->LockedBuffer();
+    const Int ldim = this->LDim();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
 
-        const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
-        T* buffer = A.auxMemory_.Require( (distStride+1)*portionSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[portionSize];
+    const Int colAlign = this->ColAlign();
+    const Int colAlignA = A.ColAlign();
+    const Int colStride = this->ColStride();
+    const Int colStrideUnion = this->PartialUnionColStride();
+    const Int colStridePart = this->PartialColStride();
+    const Int colRankPart = this->PartialColRank();
+    const Int colShiftA = A.ColShift();
 
+    const Int thisLocalHeight = this->LocalHeight();
+    const Int maxLocalHeight = MaxLength(height,colStride);
+    const Int portionSize = mpi::Pad( maxLocalHeight*width );
+    T* buffer = A.auxMemory_.Require( (colStrideUnion+1)*portionSize );
+    T* firstBuf = &buffer[0];
+    T* secondBuf = &buffer[portionSize];
+
+    if( colAlignA == colAlign % colStridePart ) 
+    {
         // Pack
-        const Int ldim = this->LDim();
-        const T* thisBuf = this->LockedBuffer();
         PARALLEL_FOR
-        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-            MemCopy
-            ( &sendBuf[jLoc*thisLocalHeight], &thisBuf[jLoc*ldim], 
-              thisLocalHeight );
+        for( Int j=0; j<width; ++j )
+        {
+            const T* thisCol = &thisBuf[j*ldim];
+            T* firstBufCol = &firstBuf[j*thisLocalHeight];
+            MemCopy( firstBufCol, thisCol, thisLocalHeight );
+        }
 
         // Communicate
         mpi::AllGather
-        ( sendBuf, portionSize, recvBuf, portionSize, this->DistComm() );
+        ( firstBuf, portionSize, secondBuf, portionSize, 
+          this->PartialUnionColComm() );
 
         // Unpack
-        T* ABuf = A.Buffer();
-        const Int ALDim = A.LDim();
-        const Int colAlign = this->ColAlign();
-        const Int rowAlign = this->RowAlign();
         OUTER_PARALLEL_FOR
-        for( Int l=0; l<rowStride; ++l )
+        for( Int k=0; k<colStrideUnion; ++k )
         {
-            const Int rowShift = Shift_( l, rowAlign, rowStride );
-            const Int localWidth = Length_( width, rowShift, rowStride );
-            for( Int k=0; k<colStride; ++k )
+            const T* data = &secondBuf[k*portionSize];
+            const Int colShift = 
+                Shift_( colRankPart+k*colStridePart, colAlign, colStride );
+            const Int colOffset = (colShift-colShiftA) / colStridePart;
+            const Int localHeight = Length_( height, colShift, colStride );
+            INNER_PARALLEL_FOR
+            for( Int j=0; j<width; ++j )
             {
-                const T* data = &recvBuf[(k+l*colStride)*portionSize];
-                const Int colShift = Shift_( k, colAlign, colStride );
-                const Int localHeight = Length_( height, colShift, colStride );
-                INNER_PARALLEL_FOR
-                for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                {
-                    T* destCol = 
-                        &ABuf[colShift+(rowShift+jLoc*rowStride)*ALDim];
-                    const T* sourceCol = &data[jLoc*localHeight];
-                    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                        destCol[iLoc*colStride] = sourceCol[iLoc];
-                }
+                const T* dataCol = &data[j*localHeight];
+                T* ACol = &ABuf[colOffset+j*ALDim];
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    ACol[iLoc*colStrideUnion] = dataCol[iLoc];
             }
         }
-        A.auxMemory_.Release();
     }
-    if( this->Grid().InGrid() && this->CrossComm() != mpi::COMM_SELF )
+    else
     {
-        // Pack from the root
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        T* buf = A.auxMemory_.Require( localHeight*localWidth );
-        if( this->CrossRank() == this->Root() )
+#ifdef UNALIGNED_WARNINGS
+        if( this->Grid().Rank() == 0 )
+            std::cerr << "Unaligned PartialColAllGather" << std::endl;
+#endif
+        // Perform a SendRecv to match the row alignments
+        const Int colRank = this->ColRank();
+        const Int sendColRank = 
+            (colRank+colStride+colAlignA-colAlign) % colStride;
+        const Int recvColRank = 
+            (colRank+colStride+colAlign-colAlignA) % colStride;
+        PARALLEL_FOR
+        for( Int j=0; j<width; ++j ) 
         {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( &buf[jLoc*localHeight], A.LockedBuffer(0,jLoc), localHeight );
+            const T* thisCol = &thisBuf[j*ldim];
+            T* secondBufCol = &secondBuf[j*thisLocalHeight];
+            MemCopy( secondBufCol, thisCol, thisLocalHeight );
         }
+        mpi::SendRecv
+        ( secondBuf, portionSize, sendColRank,
+          firstBuf,  portionSize, recvColRank, this->ColComm() );
 
-        // Broadcast from the root
-        mpi::Broadcast
-        ( buf, localHeight*localWidth, this->Root(), this->CrossComm() );
+        // Use the SendRecv as an input to the partial union AllGather
+        mpi::AllGather
+        ( firstBuf,  portionSize, 
+          secondBuf, portionSize, this->PartialUnionColComm() );
 
-        // Unpack if not the root
-        if( this->CrossRank() != this->Root() )
+        // Unpack
+        OUTER_PARALLEL_FOR
+        for( Int k=0; k<colStrideUnion; ++k )
         {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( A.Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
+            const T* data = &secondBuf[k*portionSize];
+            const Int colShift = 
+                Shift_( colRankPart+colStridePart*k, colAlignA, colStride );
+            const Int colOffset = (colShift-colShiftA) / colStridePart;
+            const Int localHeight = Length_( height, colShift, colStride );
+            INNER_PARALLEL_FOR
+            for( Int j=0; j<width; ++j )
+            {
+                const T* dataCol = &data[j*localHeight];
+                T* ACol = &ABuf[colOffset+j*ALDim];
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    ACol[iLoc*colStrideUnion] = dataCol[iLoc];
+            }
         }
-        A.auxMemory_.Release();
     }
+    A.auxMemory_.Release();
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("GDM::PartialRowAllGather");
+        this->AssertSameGrid( A.Grid() );
+    )
+    const Int height = this->Height();
+    const Int width = this->Width();
+    A.AlignRowsAndResize( this->RowAlign()%A.RowStride(), height, width );
+    if( !this->Participating() )
+        return;
+
+    DEBUG_ONLY(
+        if( this->LocalHeight() != this->Height() )
+            LogicError("This routine assumes columns are not distributed");
+    )
+    const T* thisBuf = this->LockedBuffer();
+    const Int ldim = this->LDim();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+
+    const Int rowAlign = this->RowAlign();
+    const Int rowAlignA = A.RowAlign();
+    const Int rowStride = this->RowStride();
+    const Int rowStrideUnion = this->PartialUnionRowStride();
+    const Int rowStridePart = this->PartialRowStride();
+    const Int rowRankPart = this->PartialRowRank();
+    const Int rowShiftA = A.RowShift();
+
+    const Int thisLocalWidth = this->LocalWidth();
+    const Int maxLocalWidth = MaxLength(width,rowStride);
+    const Int portionSize = mpi::Pad( height*maxLocalWidth );
+    T* buffer = A.auxMemory_.Require( (rowStrideUnion+1)*portionSize );
+    T* firstBuf = &buffer[0];
+    T* secondBuf = &buffer[portionSize];
+
+    if( rowAlignA == rowAlign % rowStridePart ) 
+    {
+        // Pack
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
+        {
+            const T* thisCol = &thisBuf[jLoc*ldim];
+            T* firstBufCol = &firstBuf[jLoc*height];
+            MemCopy( firstBufCol, thisCol, height );
+        }
+
+        // Communicate
+        mpi::AllGather
+        ( firstBuf, portionSize, secondBuf, portionSize, 
+          this->PartialUnionRowComm() );
+
+        // Unpack
+        OUTER_PARALLEL_FOR
+        for( Int k=0; k<rowStrideUnion; ++k )
+        {
+            const T* data = &secondBuf[k*portionSize];
+            const Int rowShift = 
+                Shift_( rowRankPart+k*rowStridePart, rowAlign, rowStride );
+            const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
+            const Int localWidth = Length_( width, rowShift, rowStride );
+            INNER_PARALLEL_FOR
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            {
+                const T* dataCol = &data[jLoc*height];
+                T* ACol = &ABuf[(rowOffset+jLoc*rowStrideUnion)*ALDim];
+                MemCopy( ACol, dataCol, height );
+            }
+        }
+    }
+    else
+    {
+#ifdef UNALIGNED_WARNINGS
+        if( this->Grid().Rank() == 0 )
+            std::cerr << "Unaligned PartialRowAllGather" << std::endl;
+#endif
+        // Perform a SendRecv to match the row alignments
+        const Int rowRank = this->RowRank();
+        const Int sendRowRank = 
+            (rowRank+rowStride+rowAlignA-rowAlign) % rowStride;
+        const Int recvRowRank = 
+            (rowRank+rowStride+rowAlign-rowAlignA) % rowStride;
+        PARALLEL_FOR
+        for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc ) 
+        {
+            const T* thisCol = &thisBuf[jLoc*ldim];
+            T* secondBufCol = &secondBuf[jLoc*height];
+            MemCopy( secondBufCol, thisCol, height );
+        }
+        mpi::SendRecv
+        ( secondBuf, portionSize, sendRowRank,
+          firstBuf,  portionSize, recvRowRank, this->RowComm() );
+
+        // Use the SendRecv as an input to the partial union AllGather
+        mpi::AllGather
+        ( firstBuf,  portionSize, 
+          secondBuf, portionSize, this->PartialUnionRowComm() );
+
+        // Unpack
+        OUTER_PARALLEL_FOR
+        for( Int k=0; k<rowStrideUnion; ++k )
+        {
+            const T* data = &secondBuf[k*portionSize];
+            const Int rowShift = 
+                Shift_( rowRankPart+rowStridePart*k, rowAlignA, rowStride );
+            const Int rowOffset = (rowShift-rowShiftA) / rowStridePart;
+            const Int localWidth = Length_( width, rowShift, rowStride );
+            INNER_PARALLEL_FOR
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            {
+                const T* dataCol = &data[jLoc*height];
+                T* ACol = &ABuf[(rowOffset+jLoc*rowStrideUnion)*ALDim];
+                MemCopy( ACol, dataCol, height );
+            }
+        }
+    }
+    A.auxMemory_.Release();
 }
 
 // Diagonal helper functions

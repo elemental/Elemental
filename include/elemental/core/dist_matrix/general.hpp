@@ -91,9 +91,13 @@ protected:
 
     // Redistribution helper routines
     // ==============================
+#ifndef SWIG
+    void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
     void ColAllGather( DistMatrix<T,UGath,V>& A ) const;
     void RowAllGather( DistMatrix<T,U,VGath>& A ) const;
-    void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
+    void PartialColAllGather( DistMatrix<T,UPart,V>& A ) const;
+    void PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const;
+#endif
 
     // Diagonal helper routines
     // ========================
