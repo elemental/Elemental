@@ -83,14 +83,6 @@ public:
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
 
-    // Specialized redistributions
-    // ---------------------------
-    // TODO: Find a way to generalize these
-    // Auxiliary routines needed to implement algorithms that avoid using
-    // inefficient unpackings of partial matrix distributions
-    void TransposeFrom( const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
-    void AdjointFrom( const DistMatrix<T,MR,STAR>& A );
-
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;

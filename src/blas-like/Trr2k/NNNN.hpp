@@ -82,13 +82,12 @@ void Trr2kNNNN
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1;
         C1_MC_STAR = C1;
-        B1Trans_MR_STAR.TransposeFrom( B1 );
-        D1Trans_MR_STAR.TransposeFrom( D1 );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        D1.TransposeColAllGather( D1Trans_MR_STAR );
         LocalTrr2k
         ( uplo, TRANSPOSE, TRANSPOSE, 
           alpha, A1_MC_STAR, B1Trans_MR_STAR, 
-                 C1_MC_STAR, D1Trans_MR_STAR,
-          beta,  E );
+                 C1_MC_STAR, D1Trans_MR_STAR, beta, E );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown

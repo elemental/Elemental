@@ -360,13 +360,13 @@ TrmmLLTC
         X1_STAR_VR.AlignWith( X1 );
         //--------------------------------------------------------------------//
         L10_STAR_MC = L10;
-        X1Trans_MR_STAR.TransposeFrom( X1 );
+        X1.TransposeColAllGather( X1Trans_MR_STAR );
         LocalGemm
         ( orientation, TRANSPOSE, 
           T(1), L10_STAR_MC, X1Trans_MR_STAR, T(1), X0 );
 
         L11_STAR_STAR = L11;
-        X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
+        X1_STAR_VR.TransposePartialRowFilterFrom( X1Trans_MR_STAR );
         LocalTrmm
         ( LEFT, LOWER, orientation, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;

@@ -171,7 +171,7 @@ TrmmLUNA
 
         //--------------------------------------------------------------------//
         X1_VR_STAR = X1;
-        X1Trans_STAR_MR.TransposeFrom( X1_VR_STAR );
+        X1_VR_STAR.TransposePartialColAllGather( X1Trans_STAR_MR );
         Zeros( Z1_MC_STAR, X1.Height(), X1.Width() );
         LocalTrmmAccumulateLUN
         ( TRANSPOSE, diag, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
@@ -336,12 +336,12 @@ TrmmLUNC
         X1_STAR_VR.AlignWith( X1 );
         //--------------------------------------------------------------------//
         U01_MC_STAR = U01;
-        X1Trans_MR_STAR.TransposeFrom( X1 );
+        X1.TransposeColAllGather( X1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, T(1), U01_MC_STAR, X1Trans_MR_STAR, T(1), X0 );
 
         U11_STAR_STAR = U11;
-        X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
+        X1_STAR_VR.TransposePartialRowFilterFrom( X1Trans_MR_STAR );
         LocalTrmm( LEFT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//

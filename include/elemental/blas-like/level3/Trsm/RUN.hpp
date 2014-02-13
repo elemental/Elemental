@@ -71,8 +71,8 @@ TrsmRUN
         ( RIGHT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, X1_VC_STAR,
           checkIfSingular );
 
-        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
-        X1.TransposeFrom( X1Trans_STAR_MC );
+        X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
+        X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
         U12_STAR_MR = U12; 
 
         // X2[MC,MR] -= X1[MC,* ] U12[* ,MR]

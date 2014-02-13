@@ -176,7 +176,7 @@ TwoSidedTrsmUVar1
         // Y01 := A00 U01
         U01_MC_STAR = U01;
         U01_VR_STAR = U01_MC_STAR;
-        U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
+        U01_VR_STAR.AdjointPartialColAllGather( U01Adj_STAR_MR );
         Zeros( Z01_MC_STAR, A01.Height(), A01.Width() );
         Zeros( Z01_MR_STAR, A01.Height(), A01.Width() );
         LocalSymmetricAccumulateLU

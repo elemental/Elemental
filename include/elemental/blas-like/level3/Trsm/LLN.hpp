@@ -151,16 +151,16 @@ TrsmLLNMedium
         L21_MC_STAR.AlignWith( X2 );
         X1Trans_MR_STAR.AlignWith( X2 );
         //--------------------------------------------------------------------//
-        L11_STAR_STAR = L11;                 // L11[* ,* ] <- L11[MC,MR]
-        X1Trans_MR_STAR.TransposeFrom( X1 ); // X1[* ,MR] <- X1[MC,MR]
+        L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
+        X1.TransposeColAllGather( X1Trans_MR_STAR ); // X1[* ,MR] <- X1[MC,MR]
 
-        // X1[* ,MR] := L11^-1[* ,* ] X1[* ,MR]
         // X1^T[MR,* ] := X1^T[MR,* ] L11^-T[* ,* ]
+        //              = (L11^-1[* ,* ] X1[* ,MR])^T
         LocalTrsm
         ( RIGHT, LOWER, TRANSPOSE, diag, 
           F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        X1.TransposeFrom( X1Trans_MR_STAR ); // X1[MC,MR]  <- X1[* ,MR]
+        X1.TransposeColFilterFrom( X1Trans_MR_STAR ); // X1[MC,MR] <- X1[* ,MR]
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]

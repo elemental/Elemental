@@ -72,16 +72,15 @@ Syr2kLN
 
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
-        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR, conjugate );
+        A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );
 
         B1_VR_STAR = B1_MC_STAR = B1;
-        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR, conjugate );
+        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
 
         LocalTrr2k
         ( LOWER, 
           alpha, A1_MC_STAR, B1Trans_STAR_MR,
-                 B1_MC_STAR, A1Trans_STAR_MR,
-          T(1),  C );
+                 B1_MC_STAR, A1Trans_STAR_MR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

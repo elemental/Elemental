@@ -96,7 +96,7 @@ TrtrmmUVar1( DistMatrix<T>& U, bool conjugate=false )
         U01_MC_STAR = U01;
         U01_VC_STAR = U01_MC_STAR;
         U01_VR_STAR = U01_VC_STAR;
-        U01Trans_STAR_MR.TransposeFrom( U01_VR_STAR, conjugate );
+        U01_VR_STAR.TransposePartialColAllGather( U01Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, T(1), U01_MC_STAR, U01Trans_STAR_MR, T(1), U00 );
 
         U11_STAR_STAR = U11;

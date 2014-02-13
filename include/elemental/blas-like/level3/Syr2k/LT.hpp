@@ -80,19 +80,18 @@ Syr2kLT
           BB,  B2 );
 
         //--------------------------------------------------------------------//
-        A1Trans_MR_STAR.TransposeFrom( A1 );
-        A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
+        A1.TransposeColAllGather( A1Trans_MR_STAR );
+        A1_STAR_VR.TransposePartialRowFilterFrom( A1Trans_MR_STAR );
         A1_STAR_MC = A1_STAR_VR;
 
-        B1Trans_MR_STAR.TransposeFrom( B1 );
-        B1_STAR_VR.TransposeFrom( B1Trans_MR_STAR );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        B1_STAR_VR.TransposePartialRowFilterFrom( B1Trans_MR_STAR );
         B1_STAR_MC = B1_STAR_VR;
 
         LocalTrr2k
         ( LOWER, orientation, TRANSPOSE, orientation, TRANSPOSE, 
           alpha, A1_STAR_MC, B1Trans_MR_STAR,
-                 B1_STAR_MC, A1Trans_MR_STAR,
-          T(1),  C );
+                 B1_STAR_MC, A1Trans_MR_STAR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown

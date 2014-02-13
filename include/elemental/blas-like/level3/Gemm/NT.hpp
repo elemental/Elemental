@@ -73,7 +73,7 @@ SUMMA_NTA
           C0, /**/ C1, C2 );
 
         //--------------------------------------------------------------------//
-        B1Trans_MR_STAR.TransposeFrom( B1, conjugate );
+        B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
         LocalGemm( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, D1_MC_STAR );
@@ -159,7 +159,7 @@ SUMMA_NTB
 
         D1.AlignWith( C1 );
         //--------------------------------------------------------------------//
-        A1Trans_MR_STAR.TransposeFrom( A1 );
+        A1.TransposeColAllGather( A1Trans_MR_STAR );
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha (A1^T)[MR,*] (B^T)[MR,MC]
@@ -243,7 +243,7 @@ SUMMA_NTC
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1; // A1[MC,*] <- A1[MC,MR]
         B1_VR_STAR = B1;
-        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR, conjugate );
+        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
         LocalGemm

@@ -178,9 +178,9 @@ TwoSidedTrmmUVar1
         Z12Adj_MR_STAR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         // Y12 := U12 A22
-        U12Adj_MR_STAR.AdjointFrom( U12 );
+        U12.AdjointColAllGather( U12Adj_MR_STAR );
         U12Adj_VC_STAR = U12Adj_MR_STAR;
-        U12_STAR_MC.AdjointFrom( U12Adj_VC_STAR );
+        U12Adj_VC_STAR.AdjointPartialColAllGather( U12_STAR_MC );
         Zeros( Z12Adj_MC_STAR, A12.Width(), A12.Height() );
         Zeros( Z12Adj_MR_STAR, A12.Width(), A12.Height() );
         LocalSymmetricAccumulateRU

@@ -162,7 +162,7 @@ void TimedGemm
                       << std::endl;
         }
         timerMR.Start();
-        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
         mpi::Barrier( g.Comm() );
         const double timeMR = timerMR.Stop();
         if( g.Rank() == 0 )

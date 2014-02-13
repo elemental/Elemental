@@ -152,7 +152,7 @@ AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
         // Copy out L1
         L11_STAR_STAR = A11;
         L21_VR_STAR = A21;
-        L21Trans_STAR_MR.TransposeFrom( L21_VR_STAR );
+        L21_VR_STAR.TransposePartialColAllGather( L21Trans_STAR_MR );
 
         // Zero the strictly lower triangular portion of A1
         MakeTriangular( UPPER, A11 );

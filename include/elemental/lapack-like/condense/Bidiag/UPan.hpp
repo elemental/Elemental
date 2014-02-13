@@ -322,7 +322,7 @@ UPan
         LocalGemv( TRANSPOSE, F(-1), A02, z01_MC_STAR, F(1), z21_MR_STAR );
 
         // Finally perform the column summation and then scale by tauQ
-        y12.AdjointSumScatterFrom( z21_MR_STAR );
+        y12.AdjointColSumScatterFrom( z21_MR_STAR );
         Scale( tauQ, y12 );
 
         // Apply all previous reflectors to a12:
@@ -345,7 +345,7 @@ UPan
         // z21[MR,* ] := A02^H[MR,MC] x10^T[MC,* ]
         LocalGemv( ADJOINT, F(1), A02, x10_STAR_MC, F(1), z21_MR_STAR );
         // Sum the partial contributions from the past two updates
-        a12.TransposeSumScatterUpdate( F(-1), z21_MR_STAR );
+        a12.TransposeColSumScatterUpdate( F(-1), z21_MR_STAR );
 
         // a12 := a12 - y12
         // ^^^^^^^^^^^^^^^^

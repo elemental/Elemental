@@ -79,7 +79,6 @@ Instrumentation/visualization/testing
 
 Consistency
 -----------
-[o] Consistently implement diagonal manipulations for DistMatrix
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 [-] Consistent implementation of unblocked routines
 [-] Separate out local blas-like and lapack-like operations

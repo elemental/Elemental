@@ -124,10 +124,10 @@ SUMMA_TNB
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
-    DistMatrix<T,MR,STAR> D1AdjOrTrans_MR_STAR(g);
+    DistMatrix<T,MR,STAR> D1Trans_MR_STAR(g);
 
     A1_MC_STAR.AlignWith( B );
-    D1AdjOrTrans_MR_STAR.AlignWith( B );
+    D1Trans_MR_STAR.AlignWith( B );
 
     // Start the algorithm
     Scale( beta, C );
@@ -156,14 +156,14 @@ SUMMA_TNB
         {
             LocalGemm
             ( ADJOINT, NORMAL, 
-              Conj(alpha), B, A1_MC_STAR, D1AdjOrTrans_MR_STAR );
-            C1.AdjointSumScatterUpdate( T(1), D1AdjOrTrans_MR_STAR );
+              Conj(alpha), B, A1_MC_STAR, D1Trans_MR_STAR );
+            C1.AdjointColSumScatterUpdate( T(1), D1Trans_MR_STAR );
         }
         else
         {
             LocalGemm
-            ( TRANSPOSE, NORMAL, alpha, B, A1_MC_STAR, D1AdjOrTrans_MR_STAR );
-            C1.TransposeSumScatterUpdate( T(1), D1AdjOrTrans_MR_STAR );
+            ( TRANSPOSE, NORMAL, alpha, B, A1_MC_STAR, D1Trans_MR_STAR );
+            C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
         }
         //--------------------------------------------------------------------//
 
@@ -241,7 +241,7 @@ SUMMA_TNC
 
         //--------------------------------------------------------------------//
         A1_STAR_MC = A1; 
-        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
 
         // C[MC,MR] += alpha (A1[*,MC])^T B1[*,MR]
         //           = alpha (A1^T)[MC,*] B1[*,MR]

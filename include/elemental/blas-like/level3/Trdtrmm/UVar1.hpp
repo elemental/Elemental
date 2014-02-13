@@ -88,7 +88,7 @@ TrdtrmmUVar1( DistMatrix<F>& U, bool conjugate=false )
         S01_VC_STAR = S01_MC_STAR;
         U01_VR_STAR = S01_VC_STAR;
         DiagonalSolve( RIGHT, NORMAL, d1, U01_VR_STAR );
-        U01Trans_STAR_MR.TransposeFrom( U01_VR_STAR, conjugate );
+        U01_VR_STAR.TransposePartialColAllGather( U01Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, F(1), S01_MC_STAR, U01Trans_STAR_MR, F(1), U00 );
 
         U11_STAR_STAR = U11;

@@ -145,7 +145,7 @@ SUMMA_NNA
 
         //--------------------------------------------------------------------//
         B1_VR_STAR = B1;
-        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
+        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
@@ -228,7 +228,7 @@ SUMMA_NNB
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, D1Trans_MR_STAR );
 
-        C1.TransposeSumScatterUpdate( T(1), D1Trans_MR_STAR );
+        C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown
@@ -297,7 +297,7 @@ SUMMA_NNC
 
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1; 
-        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]

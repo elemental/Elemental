@@ -57,7 +57,7 @@ SyrkUN
 
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
-        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR, conjugate );
+        A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C ); 
         //--------------------------------------------------------------------//
 

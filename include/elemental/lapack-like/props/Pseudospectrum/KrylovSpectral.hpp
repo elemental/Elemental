@@ -73,7 +73,6 @@ Restart
   std::vector<Matrix<Complex<Real> > >& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
-    const Real normCap = NormCap<Real>();
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )

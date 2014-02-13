@@ -20,7 +20,7 @@ struct DistData
     const Grid* grid;
 
     template<typename T,Dist U,Dist V>
-    DistData( const DistMatrix<T,U,V>& A )
+    DistData( const GeneralDistMatrix<T,U,V>& A )
     {
         colDist = U;
         rowDist = V;

@@ -134,13 +134,13 @@ SUMMA_TTB
 
     // Temporary distributions
     DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > A1AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
     DistMatrix<T,STAR,MC  > D1_STAR_MC(g);
     DistMatrix<T,MR,  MC  > D1_MR_MC(g);
     DistMatrix<T> D1(g);
 
     A1_VR_STAR.AlignWith( B );
-    A1AdjOrTrans_STAR_MR.AlignWith( B );
+    A1Trans_STAR_MR.AlignWith( B );
     D1_STAR_MC.AlignWith( B );
 
     // Start the algorithm 
@@ -164,15 +164,13 @@ SUMMA_TTB
         D1.AlignWith( C1 );
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1;
-        if( orientationOfA == ADJOINT )
-            A1AdjOrTrans_STAR_MR.AdjointFrom( A1_VR_STAR );
-        else
-            A1AdjOrTrans_STAR_MR.TransposeFrom( A1_VR_STAR );
+        A1_VR_STAR.TransposePartialColAllGather
+        ( A1Trans_STAR_MR, (orientationOfA==ADJOINT) );
  
         // D1[*,MC] := alpha (A1[MR,*])^[T/H] (B[MC,MR])^[T/H]
         //           = alpha (A1^[T/H])[*,MR] (B^[T/H])[MR,MC]
         LocalGemm
-        ( NORMAL, orientationOfB, alpha, A1AdjOrTrans_STAR_MR, B, D1_STAR_MC );
+        ( NORMAL, orientationOfB, alpha, A1Trans_STAR_MR, B, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         D1_MR_MC.ColSumScatterFrom( D1_STAR_MC );
@@ -226,17 +224,15 @@ SUMMA_TTC
     // Temporary distributions
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > B1AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
 
     A1_STAR_MC.AlignWith( C );
     B1_VR_STAR.AlignWith( C );
-    B1AdjOrTrans_STAR_MR.AlignWith( C );
+    B1Trans_STAR_MR.AlignWith( C );
     
     // Start the algorithm    
     Scale( beta, C );
-    LockedPartitionDown
-    ( A, AT,
-         AB, 0 ); 
+    LockedPartitionDown( A, AT, AB, 0 ); 
     LockedPartitionRight( B, BL, BR, 0 );
     while( AB.Height() > 0 )
     {
@@ -253,16 +249,14 @@ SUMMA_TTC
         //--------------------------------------------------------------------//
         A1_STAR_MC = A1; 
         B1_VR_STAR = B1;
-        if( orientationOfB == ADJOINT )
-            B1AdjOrTrans_STAR_MR.AdjointFrom( B1_VR_STAR );
-        else
-            B1AdjOrTrans_STAR_MR.TransposeFrom( B1_VR_STAR );
+        B1_VR_STAR.TransposePartialColAllGather
+        ( B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
 
         // C[MC,MR] += alpha (A1[*,MC])^[T/H] (B1[MR,*])^[T/H]
         //           = alpha (A1^[T/H])[MC,*] (B1^[T/H])[*,MR]
         LocalGemm
         ( orientationOfA, NORMAL, 
-          alpha, A1_STAR_MC, B1AdjOrTrans_STAR_MR, T(1), C );
+          alpha, A1_STAR_MC, B1Trans_STAR_MR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown

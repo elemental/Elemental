@@ -43,6 +43,24 @@ public:
 #ifndef SWIG
     // Move assignment
     type& operator=( type&& A );
+
+    void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
+    void ColAllGather( DistMatrix<T,UGath,V>& A ) const;
+    void RowAllGather( DistMatrix<T,U,VGath>& A ) const;
+    void PartialColAllGather( DistMatrix<T,UPart,V>& A ) const;
+    void PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const;
+
+    void FilterFrom( const DistMatrix<T,UGath,VGath>& A );
+    void ColFilterFrom( const DistMatrix<T,UGath,V>& A );
+    void RowFilterFrom( const DistMatrix<T,U,VGath>& A );
+    void PartialColFilterFrom( const DistMatrix<T,UPart,V>& A );
+    void PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A );
+
+    void PartialColAllToAllFrom( const DistMatrix<T,UPart,VScat>& A );
+    void PartialRowAllToAllFrom( const DistMatrix<T,UScat,VPart>& A );
+    void PartialColAllToAll( DistMatrix<T,UPart,VScat>& A ) const;
+    void PartialRowAllToAll( DistMatrix<T,UScat,VPart>& A ) const;
+
     void RowSumScatterFrom( const DistMatrix<T,U,VGath>& A );
     void ColSumScatterFrom( const DistMatrix<T,UGath,V>& A );
     void SumScatterFrom( const DistMatrix<T,UGath,VGath>& A );
@@ -54,6 +72,45 @@ public:
     void SumScatterUpdate( T alpha, const DistMatrix<T,UGath,VGath>& A );
     void PartialRowSumScatterUpdate( T alpha, const DistMatrix<T,U,VPart>& A );
     void PartialColSumScatterUpdate( T alpha, const DistMatrix<T,UPart,V>& A );
+
+    // Transposed variants of some of the above routines which avoid 
+    // large amounts of non-uniform data access
+    // -------------------------------------------------------------
+    void TransposeColAllGather
+    ( DistMatrix<T,V,UGath>& A, bool conjugate=false ) const;
+    void TransposePartialColAllGather
+    ( DistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
+    void AdjointColAllGather( DistMatrix<T,V,UGath>& A ) const;
+    void AdjointPartialColAllGather( DistMatrix<T,V,UPart>& A ) const;
+
+    void TransposeColFilterFrom
+    ( const DistMatrix<T,V,UGath>& A, bool conjugate=false );
+    void TransposeRowFilterFrom
+    ( const DistMatrix<T,VGath,U>& A, bool conjugate=false );
+    void TransposePartialColFilterFrom
+    ( const DistMatrix<T,V,UPart>& A, bool conjugate=false );
+    void TransposePartialRowFilterFrom
+    ( const DistMatrix<T,VPart,U>& A, bool conjugate=false );
+    void AdjointColFilterFrom( const DistMatrix<T,V,UGath>& A );
+    void AdjointRowFilterFrom( const DistMatrix<T,VGath,U>& A );
+    void AdjointPartialColFilterFrom( const DistMatrix<T,V,UPart>& A );
+    void AdjointPartialRowFilterFrom( const DistMatrix<T,VPart,U>& A );
+
+    void TransposeColSumScatterFrom
+    ( const DistMatrix<T,V,UGath>& A, bool conjugate=false );
+    void TransposePartialColSumScatterFrom
+    ( const DistMatrix<T,V,UPart>& A, bool conjugate=false );
+    void AdjointColSumScatterFrom( const DistMatrix<T,V,UGath>& A );
+    void AdjointPartialColSumScatterFrom( const DistMatrix<T,V,UPart>& A );
+
+    void TransposeColSumScatterUpdate
+    ( T alpha, const DistMatrix<T,V,UGath>& A, bool conjugate=false );
+    void TransposePartialColSumScatterUpdate
+    ( T alpha, const DistMatrix<T,V,UPart>& A, bool conjugate=false );
+    void AdjointColSumScatterUpdate
+    ( T alpha, const DistMatrix<T,V,UGath>& A );
+    void AdjointPartialColSumScatterUpdate
+    ( T alpha, const DistMatrix<T,V,UPart>& A );
 #endif
 
     // Diagonal manipulation
@@ -90,27 +147,6 @@ protected:
     // Construct using a particular process grid
     // =========================================
     GeneralDistMatrix( const elem::Grid& g );
-
-    // Redistribution helper routines
-    // ==============================
-#ifndef SWIG
-    void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
-    void ColAllGather( DistMatrix<T,UGath,V>& A ) const;
-    void RowAllGather( DistMatrix<T,U,VGath>& A ) const;
-    void PartialColAllGather( DistMatrix<T,UPart,V>& A ) const;
-    void PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const;
-
-    void FilterFrom( const DistMatrix<T,UGath,VGath>& A );
-    void ColFilterFrom( const DistMatrix<T,UGath,V>& A );
-    void RowFilterFrom( const DistMatrix<T,U,VGath>& A );
-    void PartialColFilterFrom( const DistMatrix<T,UPart,V>& A );
-    void PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A );
-
-    void PartialColAllToAllFrom( const DistMatrix<T,UPart,VScat>& A );
-    void PartialRowAllToAllFrom( const DistMatrix<T,UScat,VPart>& A );
-    void PartialColAllToAll( DistMatrix<T,UPart,VScat>& A ) const;
-    void PartialRowAllToAll( DistMatrix<T,UScat,VPart>& A ) const;
-#endif
 
     // Diagonal helper routines
     // ========================

@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -267,8 +267,6 @@ AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
         CallStackEntry cse("ADM::AlignWith");
         if( colAlign_ != 0 || rowAlign_ != 0 )
             LogicError("Alignments should have been zero");
-        if( colConstrained_ || rowConstrained_ )
-            LogicError("There should not have been constraints");
     )
     SetGrid( *data.grid ); 
 }
@@ -281,8 +279,6 @@ AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
         CallStackEntry cse("ADM::AlignColsWith");
         if( colAlign_ != 0 )
             LogicError("Alignment should have been zero");
-        if( colConstrained_ )
-            LogicError("There should not have been a constraint");
     )
     SetGrid( *data.grid );
 }
@@ -295,8 +291,6 @@ AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
         CallStackEntry cse("ADM::AlignRowsWith");
         if( rowAlign_ != 0 )
             LogicError("Alignment should have been zero");
-        if( rowConstrained_ )
-            LogicError("There should not have been a constraint");
     )
     SetGrid( *data.grid );
 }
@@ -375,6 +369,8 @@ AbstractDistMatrix<T>::Attach
     width_ = width;
     colAlign_ = colAlign;
     rowAlign_ = rowAlign;
+    colConstrained_ = true;
+    rowConstrained_ = true;
     viewType_ = VIEW;
     SetShifts();
     if( Participating() )
@@ -411,6 +407,8 @@ AbstractDistMatrix<T>::LockedAttach
     width_ = width;
     colAlign_ = colAlign;
     rowAlign_ = rowAlign;
+    colConstrained_ = true;
+    rowConstrained_ = true;
     viewType_ = LOCKED_VIEW;
     SetShifts();
     if( Participating() )

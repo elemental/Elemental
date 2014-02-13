@@ -189,7 +189,7 @@ TwoSidedTrmmLVar5
         Axpy( F(1)/F(2), Y10, A10 );
 
         // A00 := A00 + (L10' A10 + A10' L10)
-        A10Trans_MR_STAR.TransposeFrom( A10 );
+        A10.TransposeColAllGather( A10Trans_MR_STAR );
         L10_STAR_MR = L10_STAR_VR;
         A10_STAR_VR = A10;
         A10_STAR_MC = A10_STAR_VR;

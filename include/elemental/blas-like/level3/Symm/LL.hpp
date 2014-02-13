@@ -225,10 +225,8 @@ SymmLLA
     Z1_MR_STAR.AlignWith( A );
 
     Scale( beta, C );
-    LockedPartitionRight
-    ( B, BL, BR, 0 );
-    PartitionRight
-    ( C, CL, CR, 0 );
+    LockedPartitionRight( B, BL, BR, 0 );
+    PartitionRight( C, CL, CR, 0 );
     while( CL.Width() < C.Width() )
     {
         LockedRepartitionRight 
@@ -243,7 +241,7 @@ SymmLLA
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
-        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR, conjugate );
+        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR, conjugate );
         Zeros( Z1_MC_STAR, C1.Height(), C1.Width() );
         Zeros( Z1_MR_STAR, C1.Height(), C1.Width() );
         LocalSymmetricAccumulateLL
@@ -283,8 +281,8 @@ SymmLLC
 
     // Matrix views
     DistMatrix<T> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AColPan(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AB1(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  A1L(g),
                          A20(g), A21(g), A22(g);
     DistMatrix<T> 
         BT(g),  B0(g),
@@ -296,8 +294,8 @@ SymmLLC
                 C2(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  STAR> AColPan_MC_STAR(g);
-    DistMatrix<T,STAR,MC  > ARowPan_STAR_MC(g);
+    DistMatrix<T,MC,  STAR> AB1_MC_STAR(g);
+    DistMatrix<T,STAR,MC  > A1L_STAR_MC(g);
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
 
     B1Trans_MR_STAR.AlignWith( C );
@@ -333,35 +331,29 @@ SymmLLC
                C1,
           CB,  C2 );
 
-        LockedView1x2( ARowPan, A10, A11 );
-        LockedView2x1
-        ( AColPan, A11,
-                   A21 );
+        LockedView1x2( A1L, A10, A11 );
+        LockedView2x1( AB1, A11, A21 );
 
-        View2x1
-        ( CAbove, C0,
-                  C1 );
-        View2x1
-        ( CBelow, C1,
-                  C2 );
+        View2x1( CAbove, C0, C1 );
+        View2x1( CBelow, C1, C2 );
 
-        AColPan_MC_STAR.AlignWith( CBelow );
-        ARowPan_STAR_MC.AlignWith( CAbove );
+        AB1_MC_STAR.AlignWith( CBelow );
+        A1L_STAR_MC.AlignWith( CAbove );
         //--------------------------------------------------------------------//
-        AColPan_MC_STAR = AColPan;
-        ARowPan_STAR_MC = ARowPan;
-        MakeTriangular( LOWER, AColPan_MC_STAR );
-        MakeTrapezoidal( LOWER, ARowPan_STAR_MC, -1, RIGHT );
+        AB1_MC_STAR = AB1;
+        A1L_STAR_MC = A1L;
+        MakeTriangular( LOWER, AB1_MC_STAR );
+        MakeTrapezoidal( LOWER, A1L_STAR_MC, -1, RIGHT );
 
-        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 
-          alpha, AColPan_MC_STAR, B1Trans_MR_STAR, T(1), CBelow );
+          alpha, AB1_MC_STAR, B1Trans_MR_STAR, T(1), CBelow );
 
         LocalGemm
         ( orientation, TRANSPOSE, 
-          alpha, ARowPan_STAR_MC, B1Trans_MR_STAR, T(1), CAbove );
+          alpha, A1L_STAR_MC, B1Trans_MR_STAR, T(1), CAbove );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal

@@ -188,9 +188,9 @@ TwoSidedTrsmLVar2
         Y10Adj_MR_MC.AlignWith( A10 );
         //--------------------------------------------------------------------//
         // Y10 := L10 A00
-        L10Adj_MR_STAR.AdjointFrom( L10 );
+        L10.AdjointColAllGather( L10Adj_MR_STAR );
         L10Adj_VC_STAR = L10Adj_MR_STAR;
-        L10_STAR_MC.AdjointFrom( L10Adj_VC_STAR );
+        L10Adj_VC_STAR.AdjointPartialColAllGather( L10_STAR_MC );
         Zeros( Y10Adj_MC_STAR, A10.Width(), A10.Height() );
         Zeros( F10Adj_MR_STAR, A10.Width(), A10.Height() );
         LocalSymmetricAccumulateRL
@@ -207,7 +207,7 @@ TwoSidedTrsmLVar2
 
         // A10 := A10 - Y10
         Axpy( F(-1), Y10Local, A10.Matrix() );
-        A10Adj_MR_STAR.AdjointFrom( A10 );
+        A10.AdjointColAllGather( A10Adj_MR_STAR );
         
         // A11 := A11 - (X11 + L10 A10') = A11 - (A10 L10' + L10 A10')
         LocalGemm
@@ -218,7 +218,7 @@ TwoSidedTrsmLVar2
 
         // A10 := inv(L11) A10
         L11_STAR_STAR = L11;
-        A10_STAR_VR.AdjointFrom( A10Adj_MR_STAR );
+        A10_STAR_VR.AdjointPartialRowFilterFrom( A10Adj_MR_STAR );
         LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;

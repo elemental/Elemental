@@ -74,7 +74,7 @@ LVar2( DistMatrix<F>& A )
         auto A21 = ViewRange( A, k+nb, k, n,    k+nb );
  
         A10Adj_MR_STAR.AlignWith( A10 );
-        A10Adj_MR_STAR.AdjointFrom( A10 );
+        A10.AdjointColAllGather( A10Adj_MR_STAR );
         X11_MC_STAR.AlignWith( A10 );
         LocalGemm( NORMAL, NORMAL, F(1), A10, A10Adj_MR_STAR, X11_MC_STAR );
         A11.RowSumScatterUpdate( F(-1), X11_MC_STAR );

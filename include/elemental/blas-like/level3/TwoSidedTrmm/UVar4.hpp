@@ -195,17 +195,16 @@ TwoSidedTrmmUVar4
         Axpy( F(1)/F(2), Y01_VC_STAR, A01_VC_STAR );
 
         // A00 := A00 + (U01 A01' + A01 U01')
-        A01Adj_STAR_MC.AdjointFrom( A01_VC_STAR );
-        U01Adj_STAR_MC.AdjointFrom( U01_VC_STAR );
+        A01_VC_STAR.AdjointPartialColAllGather( A01Adj_STAR_MC );
+        U01_VC_STAR.AdjointPartialColAllGather( U01Adj_STAR_MC );
         A01_VR_STAR = A01_VC_STAR;
         U01_VR_STAR = U01_VC_STAR;
-        A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
-        U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
+        A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
+        U01_VR_STAR.AdjointPartialColAllGather( U01Adj_STAR_MR );
         LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
           F(1), U01Adj_STAR_MC, A01Adj_STAR_MR, 
-                A01Adj_STAR_MC, U01Adj_STAR_MR,
-          F(1), A00 );
+                A01Adj_STAR_MC, U01Adj_STAR_MR, F(1), A00 );
 
         // A01 := A01 + 1/2 Y01
         Axpy( F(1)/F(2), Y01_VC_STAR, A01_VC_STAR );
@@ -217,7 +216,7 @@ TwoSidedTrmmUVar4
         A01 = A01_VC_STAR;
 
         // A02 := A02 + U01 A12
-        A12Adj_MR_STAR.AdjointFrom( A12 );
+        A12.AdjointColAllGather( A12Adj_MR_STAR );
         LocalGemm
         ( ADJOINT, ADJOINT, F(1), U01Adj_STAR_MC, A12Adj_MR_STAR, F(1), A02 );
 
@@ -226,7 +225,7 @@ TwoSidedTrmmUVar4
         A11 = A11_STAR_STAR;
 
         // A12 := U11 A12
-        A12_STAR_VR.AdjointFrom( A12Adj_MR_STAR );
+        A12_STAR_VR.AdjointPartialRowFilterFrom( A12Adj_MR_STAR );
         LocalTrmm
         ( LEFT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;

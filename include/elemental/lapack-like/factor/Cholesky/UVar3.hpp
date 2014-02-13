@@ -207,13 +207,13 @@ ReverseUVar3( DistMatrix<F>& A )
         A01_VR_STAR.AlignWith( A00 );
         A01_VR_STAR = A01_VC_STAR; 
         A01Trans_STAR_MC.AlignWith( A00 );
-        A01Trans_STAR_MC.TransposeFrom( A01_VC_STAR );
         A01Adj_STAR_MR.AlignWith( A00 );
-        A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
+        A01_VC_STAR.TransposePartialColAllGather( A01Trans_STAR_MC );
+        A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
         LocalTrrk
         ( UPPER, TRANSPOSE, 
           F(-1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );
-        A01.TransposeFrom( A01Trans_STAR_MC );
+        A01.TransposeRowFilterFrom( A01Trans_STAR_MC );
     }
 }
 

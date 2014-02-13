@@ -46,17 +46,17 @@ void Trr2kTTTT
 
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > B1AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
     DistMatrix<T,STAR,MC  > C1_STAR_MC(g);
     DistMatrix<T,VR,  STAR> D1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > D1AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,MR  > D1Trans_STAR_MR(g);
 
     A1_STAR_MC.AlignWith( E );
     B1_VR_STAR.AlignWith( E );
-    B1AdjOrTrans_STAR_MR.AlignWith( E );
+    B1Trans_STAR_MR.AlignWith( E );
     C1_STAR_MC.AlignWith( E );
     D1_VR_STAR.AlignWith( E );
-    D1AdjOrTrans_STAR_MR.AlignWith( E );
+    D1Trans_STAR_MR.AlignWith( E );
 
     LockedPartitionDown
     ( A, AT,
@@ -90,19 +90,14 @@ void Trr2kTTTT
         C1_STAR_MC = C1;
         B1_VR_STAR = B1;
         D1_VR_STAR = D1;
-        if( orientationOfB == ADJOINT )
-            B1AdjOrTrans_STAR_MR.AdjointFrom( B1_VR_STAR );
-        else
-            B1AdjOrTrans_STAR_MR.TransposeFrom( B1_VR_STAR );
-        if( orientationOfD == ADJOINT )
-            D1AdjOrTrans_STAR_MR.AdjointFrom( D1_VR_STAR );
-        else
-            D1AdjOrTrans_STAR_MR.TransposeFrom( D1_VR_STAR );
+        B1_VR_STAR.TransposePartialColAllGather
+        ( B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
+        D1_VR_STAR.TransposePartialColAllGather
+        ( D1Trans_STAR_MR, (orientationOfD==ADJOINT) );
         LocalTrr2k
         ( uplo, orientationOfA, orientationOfC,
-          alpha, A1_STAR_MC, B1AdjOrTrans_STAR_MR,
-                 C1_STAR_MC, D1AdjOrTrans_STAR_MR,
-          beta,  E );
+          alpha, A1_STAR_MC, B1Trans_STAR_MR,
+                 C1_STAR_MC, D1Trans_STAR_MR, beta, E );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

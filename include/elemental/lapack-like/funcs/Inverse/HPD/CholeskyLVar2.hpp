@@ -137,12 +137,12 @@ CholeskyLVar2( DistMatrix<F>& A )
         ( LOWER, ADJOINT,
           F(1), A10_STAR_MC, A10_STAR_MR, F(1), A00 );
 
-        A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
+        A21_VC_STAR.TransposePartialColAllGather( A21Trans_STAR_MC );
         LocalGemm
         ( TRANSPOSE, NORMAL, F(-1), A21Trans_STAR_MC, A10_STAR_MR, F(1), A20 );
 
         A21_VR_STAR = A21_VC_STAR;
-        A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
+        A21_VR_STAR.AdjointPartialColAllGather( A21Adj_STAR_MR );
         LocalTrrk
         ( LOWER, TRANSPOSE,
           F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );

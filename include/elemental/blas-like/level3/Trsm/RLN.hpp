@@ -74,9 +74,9 @@ TrsmRLN
 
         // X0[MC,MR] -= X1[MC,* ]   L10[*,MR]
         //            = X1^T[* ,MC] L10^T[MR,* ]
-        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
-        X1.TransposeFrom( X1Trans_STAR_MC );
-        L10Trans_MR_STAR.TransposeFrom( L10 );
+        X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
+        X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
+        L10.TransposeColAllGather( L10Trans_MR_STAR );
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );

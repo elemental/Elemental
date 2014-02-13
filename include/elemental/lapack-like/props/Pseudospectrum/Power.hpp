@@ -51,7 +51,6 @@ ColumnNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
     const Int n = X.Width();
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
-    const Grid& g = X.Grid();
 
     // TODO: Switch to more stable parallel norm computation using scaling
     norms.Resize( n, 1 ); 

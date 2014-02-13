@@ -180,7 +180,7 @@ TrmmRUTA
 
         Z1Trans_MR_MC.AlignWith( X1 );
         //--------------------------------------------------------------------//
-        X1Trans_MR_STAR.TransposeFrom( X1, conjugate );
+        X1.TransposeColAllGather( X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
         LocalTrmmAccumulateRUT
         ( diag, alpha,U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
@@ -263,7 +263,7 @@ TrmmRUTC
         ( RIGHT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
-        U12Trans_MR_STAR.TransposeFrom( U12, conjugate );
+        U12.TransposeColAllGather( U12Trans_MR_STAR, conjugate );
         LocalGemm( NORMAL, NORMAL, T(1), X2, U12Trans_MR_STAR, D1_MC_STAR );
         X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//

@@ -42,9 +42,10 @@ Transpose
 {
     DEBUG_ONLY(CallStackEntry cse("Transpose"))
     if( U == Z && V == W && 
-        A.ColAlign() == B.RowAlign() &&
-        A.RowAlign() == B.ColAlign() )
+        (A.ColAlign()==B.RowAlign() || !B.RowConstrained()) &&
+        (A.RowAlign()==B.ColAlign() || !B.ColConstrained()) )
     {
+        B.Align( A.RowAlign(), A.ColAlign() );
         B.Resize( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
     }

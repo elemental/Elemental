@@ -61,8 +61,8 @@ SyrkUT
           AB,  A2 );
 
         //--------------------------------------------------------------------//
-        A1Trans_MR_STAR.TransposeFrom( A1 );
-        A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
+        A1.TransposeColAllGather( A1Trans_MR_STAR );
+        A1_STAR_VR.TransposePartialRowFilterFrom( A1Trans_MR_STAR );
         A1_STAR_MC = A1_STAR_VR;
 
         LocalTrrk

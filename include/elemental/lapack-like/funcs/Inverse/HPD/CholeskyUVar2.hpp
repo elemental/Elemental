@@ -132,9 +132,9 @@ CholeskyUVar2( DistMatrix<F>& A )
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
-        A01Trans_STAR_MC.TransposeFrom( A01_VC_STAR );
+        A01_VC_STAR.TransposePartialColAllGather( A01Trans_STAR_MC );
         A01_VR_STAR = A01_VC_STAR;
-        A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
+        A01_VR_STAR.AdjointPartialColAllGather( A01Adj_STAR_MR );
         LocalTrrk
         ( UPPER, TRANSPOSE,
           F(1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );

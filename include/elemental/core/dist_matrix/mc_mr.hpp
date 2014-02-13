@@ -87,21 +87,6 @@ public:
     virtual void AlignColsWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
 
-    // Specialized redistribution/update routines
-    // ------------------------------------------
-    // Auxiliary routines needed to implement algorithms that avoid 
-    // inefficient unpackings of partial matrix distributions
-    void TransposeFrom( const DistMatrix<T,STAR,MC>& A, bool conjugate=false );
-    void TransposeFrom( const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
-    void TransposeSumScatterFrom
-    ( const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
-    void TransposeSumScatterUpdate
-    ( T alpha, const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
-    void AdjointFrom( const DistMatrix<T,STAR,MC>& A );
-    void AdjointFrom( const DistMatrix<T,MR,STAR>& A );
-    void AdjointSumScatterFrom( const DistMatrix<T,MR,STAR>& A );
-    void AdjointSumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR>& A );
- 
     // Basic queries
     // =============
     virtual elem::DistData DistData() const;

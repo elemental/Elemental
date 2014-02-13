@@ -151,7 +151,7 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
             X21_MC_STAR.AlignWith( A21 );
             Y12Adj_MR_STAR.AlignWith( A12 );
             X21_MC_STAR = X21;
-            Y12Adj_MR_STAR.AdjointFrom( Y12 );
+            Y12.AdjointColAllGather( Y12Adj_MR_STAR );
 
             auto A21_MC_STAR = ViewRange( AB1_MC_STAR, nb, 0,  m-k, nb  );
             auto A12_STAR_MR = ViewRange( A1R_STAR_MR, 0,  nb, nb,  n-k );

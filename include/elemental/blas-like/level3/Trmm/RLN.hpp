@@ -324,7 +324,7 @@ TrmmRLNC
         X1_VC_STAR.AlignWith( X1 );
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
-        L10Trans_MR_STAR.TransposeFrom( L10 );
+        L10.TransposeColAllGather( L10Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, T(1), X1_MC_STAR, L10Trans_MR_STAR, T(1), X0 );
 

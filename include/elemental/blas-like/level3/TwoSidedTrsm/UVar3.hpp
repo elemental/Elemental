@@ -266,7 +266,7 @@ TwoSidedTrsmUVar3
 
         // Y02 := Y02 + A01 U12
         A01_MC_STAR = A01;
-        U12Adj_MR_STAR.AdjointFrom( U12 );
+        U12.AdjointColAllGather( U12Adj_MR_STAR );
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A01_MC_STAR, U12Adj_MR_STAR, F(1), Y02 );
 

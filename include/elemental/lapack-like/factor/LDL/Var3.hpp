@@ -138,12 +138,12 @@ Var3( DistMatrix<F>& A, bool conjugate=false )
           F(1), A11_STAR_STAR, A21_VC_STAR );
 
         S21Trans_STAR_MC.AlignWith( A22 );
-        S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
+        A21_VC_STAR.TransposePartialColAllGather( S21Trans_STAR_MC );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
         A21_VR_STAR.AlignWith( A22 );
         A21_VR_STAR = A21_VC_STAR;
         A21Trans_STAR_MR.AlignWith( A22 );
-        A21Trans_STAR_MR.TransposeFrom( A21_VR_STAR, conjugate );
+        A21_VR_STAR.TransposePartialColAllGather( A21Trans_STAR_MR, conjugate );
         LocalTrrk
         ( LOWER, TRANSPOSE,
           F(-1), S21Trans_STAR_MC, A21Trans_STAR_MR, F(1), A22 );

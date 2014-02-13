@@ -45,7 +45,7 @@ TrsmRUT
 
     // Temporary distributions
     DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
-    DistMatrix<F,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
+    DistMatrix<F,STAR,MR  > U01Trans_STAR_MR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
@@ -71,7 +71,7 @@ TrsmRUT
         X1_VC_STAR.AlignWith( X0 );
         X1Trans_STAR_MC.AlignWith( X0 );
         U01_VR_STAR.AlignWith( X0 );
-        U01AdjOrTrans_STAR_MR.AlignWith( X0 );
+        U01Trans_STAR_MR.AlignWith( X0 );
         //--------------------------------------------------------------------//
         U11_STAR_STAR = U11;
         X1_VC_STAR = X1; 
@@ -80,19 +80,17 @@ TrsmRUT
         ( RIGHT, UPPER, orientation, diag, 
           F(1), U11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
-        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
-        X1.TransposeFrom( X1Trans_STAR_MC );
+        X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
+        X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
         U01_VR_STAR = U01;
-        if( orientation == ADJOINT )
-            U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
-        else
-            U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
+        U01_VR_STAR.TransposePartialColAllGather
+        ( U01Trans_STAR_MR, (orientation==ADJOINT) );
 
         // X0[MC,MR] -= X1[MC,* ] (U01[MR,* ])^(T/H)
         //            = X1^T[* ,MC] (U01^(T/H))[* ,MR]
         LocalGemm
         ( TRANSPOSE, NORMAL, 
-          F(-1), X1Trans_STAR_MC, U01AdjOrTrans_STAR_MR, F(1), X0 );
+          F(-1), X1Trans_STAR_MC, U01Trans_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal

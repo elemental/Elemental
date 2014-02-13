@@ -57,7 +57,7 @@ void TrrkNN
 
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1;
-        B1Trans_MR_STAR.TransposeFrom( B1 );
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
         LocalTrrk
         ( uplo, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, beta, C );
         //--------------------------------------------------------------------//

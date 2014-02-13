@@ -174,11 +174,10 @@ TrmmLLNA
 
         //--------------------------------------------------------------------//
         X1_VR_STAR = X1;
-        X1Trans_STAR_MR.TransposeFrom( X1_VR_STAR );
+        X1_VR_STAR.TransposePartialColAllGather( X1Trans_STAR_MR );
         Zeros( Z1_MC_STAR, X1.Height(), X1.Width() );
         LocalTrmmAccumulateLLN
         ( TRANSPOSE, diag, alpha, L, X1Trans_STAR_MR, Z1_MC_STAR );
-
         X1.RowSumScatterFrom( Z1_MC_STAR );
         //--------------------------------------------------------------------//
 
@@ -340,12 +339,12 @@ TrmmLLNC
         X1_STAR_VR.AlignWith( X1 );
         //--------------------------------------------------------------------//
         L21_MC_STAR = L21;
-        X1Trans_MR_STAR.TransposeFrom( X1 );
+        X1.TransposeColAllGather( X1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, T(1), L21_MC_STAR, X1Trans_MR_STAR, T(1), X2 );
 
         L11_STAR_STAR = L11;
-        X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
+        X1_STAR_VR.TransposePartialRowFilterFrom( X1Trans_MR_STAR );
         LocalTrmm( LEFT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//

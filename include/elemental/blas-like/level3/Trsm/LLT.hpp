@@ -136,7 +136,7 @@ TrsmLLTMedium
     // Temporary distributions
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,MR,  STAR> X1AdjOrTrans_MR_STAR(g);
+    DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
     // Start the algorithm
     Scale( alpha, X );
@@ -161,32 +161,26 @@ TrsmLLTMedium
           XB,  X2 ); 
 
         L10_STAR_MC.AlignWith( X0 );
-        X1AdjOrTrans_MR_STAR.AlignWith( X0 );
+        X1Trans_MR_STAR.AlignWith( X0 );
         //--------------------------------------------------------------------//
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
-        if( orientation == TRANSPOSE )
-            X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
-        else
-            X1AdjOrTrans_MR_STAR.AdjointFrom( X1 );
+        X1.TransposeColAllGather( X1Trans_MR_STAR, (orientation==ADJOINT) );
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
         LocalTrsm
         ( RIGHT, LOWER, NORMAL, diag, 
-          F(1), L11_STAR_STAR, X1AdjOrTrans_MR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
-        if( orientation == TRANSPOSE )
-            X1.TransposeFrom( X1AdjOrTrans_MR_STAR );
-        else
-            X1.AdjointFrom( X1AdjOrTrans_MR_STAR );
+        X1.TransposeColFilterFrom( X1Trans_MR_STAR, (orientation==ADJOINT) );
         L10_STAR_MC = L10; // L10[* ,MC] <- L10[MC,MR]
 
         // X0[MC,MR] -= (L10[* ,MC])^[T/H] X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
         ( orientation, orientation, 
-          F(-1), L10_STAR_MC, X1AdjOrTrans_MR_STAR, F(1), X0 );
+          F(-1), L10_STAR_MC, X1Trans_MR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal

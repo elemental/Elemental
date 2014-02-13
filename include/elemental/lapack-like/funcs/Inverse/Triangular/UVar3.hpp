@@ -110,16 +110,16 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
         // We transpose before the communication to avoid cache-thrashing
         // in the unpacking stage.
         U12Trans_MR_STAR.AlignWith( U02 );
-        U12Trans_MR_STAR.TransposeFrom( U12 );
         U01Trans_STAR_MC.AlignWith( U02 );
-        U01Trans_STAR_MC.TransposeFrom( U01_VC_STAR );
+        U12.TransposeColAllGather( U12Trans_MR_STAR );
+        U01_VC_STAR.TransposePartialColAllGather( U01Trans_STAR_MC );
 
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           F(1), U01Trans_STAR_MC, U12Trans_MR_STAR, F(1), U02 );
-        U01.TransposeFrom( U01Trans_STAR_MC );
+        U01.TransposeRowFilterFrom( U01Trans_STAR_MC );
 
-        U12_STAR_VR.TransposeFrom( U12Trans_MR_STAR );
+        U12_STAR_VR.TransposePartialColFilterFrom( U12Trans_MR_STAR );
         LocalTrsm
         ( LEFT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, U12_STAR_VR );
         LocalTriangularInverse( UPPER, diag, U11_STAR_STAR );

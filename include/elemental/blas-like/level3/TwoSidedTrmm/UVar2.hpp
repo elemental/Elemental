@@ -192,13 +192,13 @@ TwoSidedTrmmUVar2
         A01 = A01_VC_STAR;
 
         // A01 := A01 + A02 U12'
-        U12Adj_MR_STAR.AdjointFrom( U12 );
+        U12.AdjointColAllGather( U12Adj_MR_STAR );
         LocalGemm( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, X01_MC_STAR );
         A01.RowSumScatterUpdate( F(1), X01_MC_STAR );
 
         // Y12 := U12 A22
         U12Adj_VC_STAR = U12Adj_MR_STAR;
-        U12_STAR_MC.AdjointFrom( U12Adj_VC_STAR );
+        U12Adj_VC_STAR.AdjointPartialColAllGather( U12_STAR_MC );
         Zeros( Z12Adj_MC_STAR, A12.Width(), A12.Height() );
         Zeros( Z12Adj_MR_STAR, A12.Width(), A12.Height() );
         LocalSymmetricAccumulateRU

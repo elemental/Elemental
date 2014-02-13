@@ -182,8 +182,8 @@ TwoSidedTrmmLVar4
         //--------------------------------------------------------------------//
         // Y10 := A11 L10
         A11_STAR_STAR = A11;
-        L10Adj_MR_STAR.AdjointFrom( L10 );
-        L10_STAR_VR.AdjointFrom( L10Adj_MR_STAR );
+        L10.AdjointColAllGather( L10Adj_MR_STAR );
+        L10_STAR_VR.AdjointPartialRowFilterFrom( L10Adj_MR_STAR );
         Zeros( Y10_STAR_VR, A10.Height(), A10.Width() );
         Hemm
         ( LEFT, LOWER,

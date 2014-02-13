@@ -204,13 +204,12 @@ TwoSidedTrsmLVar5
         A21_VC_STAR = A21_MC_STAR;
         A21_VR_STAR = A21_VC_STAR;
         L21_VR_STAR = L21_VC_STAR;
-        A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
-        L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
+        A21_VR_STAR.AdjointPartialColAllGather( A21Adj_STAR_MR );
+        L21_VR_STAR.AdjointPartialColAllGather( L21Adj_STAR_MR );
         LocalTrr2k
         ( LOWER,
           F(-1), L21_MC_STAR, A21Adj_STAR_MR,
-                 A21_MC_STAR, L21Adj_STAR_MR,
-          F(1), A22 );
+                 A21_MC_STAR, L21Adj_STAR_MR, F(1), A22 );
 
         // A21 := A21 - 1/2 Y21
         Axpy( F(-1)/F(2), Y21, A21 );

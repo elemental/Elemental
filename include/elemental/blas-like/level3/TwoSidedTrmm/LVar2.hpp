@@ -196,7 +196,7 @@ TwoSidedTrmmLVar2
         // Y21 := A22 L21
         L21_VC_STAR = L21_MC_STAR;
         L21_VR_STAR = L21_VC_STAR;
-        L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
+        L21_VR_STAR.AdjointPartialColAllGather( L21Adj_STAR_MR );
         Zeros( Z21_MC_STAR, A21.Height(), A21.Width() );
         Zeros( Z21_MR_STAR, A21.Height(), A21.Width() );
         LocalSymmetricAccumulateLL

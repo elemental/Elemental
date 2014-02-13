@@ -406,7 +406,7 @@ LPan
         LocalGemv( TRANSPOSE, F(-1), AT2, zT1_MC_STAR, F(1), z21_MR_STAR );
 
         // Finally perform the column summation and then scale by tauQ
-        y12.AdjointSumScatterFrom( z21_MR_STAR );
+        y12.AdjointColSumScatterFrom( z21_MR_STAR );
         Scale( tauQ, y12 );
     }
 
