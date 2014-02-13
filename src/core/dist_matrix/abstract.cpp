@@ -241,8 +241,13 @@ template<typename T>
 void
 AbstractDistMatrix<T>::FreeAlignments() 
 { 
-    colConstrained_ = false;
-    rowConstrained_ = false;
+    if( !Viewing() )
+    {
+        colConstrained_ = false;
+        rowConstrained_ = false;
+    }
+    else
+        LogicError("Cannot free alignments of views");
 }
 
 template<typename T>

@@ -67,7 +67,7 @@ option(USE_SWIG "Attempt to build Python wrappers?" OFF)
 # Since it is surprisingly common for MPI libraries to have bugs in their 
 # support for complex data, the following option forces Elemental to cast 
 # all possible MPI communications in terms of twice as many real units of data.
-option(AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" OFF)
+option(AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
 mark_as_advanced(AVOID_COMPLEX_MPI)
 
 # At one point, a bug was found in IBM's C++ compiler for Blue Gene/P, 
