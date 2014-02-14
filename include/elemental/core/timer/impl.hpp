@@ -26,7 +26,7 @@ Timer::Start()
 #ifdef HAVE_STEADYCLOCK
     lastTime_ = steady_clock::now();
 #else
-    lastTime_ = high_precision_clock::now();
+    lastTime_ = high_resolution_clock::now();
 #endif
     running_ = true;
 }
@@ -65,7 +65,7 @@ Timer::Partial() const
 #ifdef HAVE_STEADYCLOCK
         auto now = steady_clock::now();
 #else
-        auto now = high_precision_clock::now();
+        auto now = high_resolution_clock::now();
 #endif
         auto timeSpan = duration_cast<duration<double>>(now-lastTime_);
         return timeSpan.count();

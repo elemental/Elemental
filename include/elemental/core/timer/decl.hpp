@@ -19,7 +19,7 @@ using std::chrono::duration_cast;
 #ifdef HAVE_STEADYCLOCK
 using std::chrono::steady_clock;
 #else
-using std::chrono::high_precision_clock;
+using std::chrono::high_resolution_clock;
 #endif
 
 class Timer
@@ -42,7 +42,7 @@ private:
 #ifdef HAVE_STEADYCLOCK
     steady_clock::time_point lastTime_;
 #else
-    high_precision_clock::time_point lastTime_;
+    high_resolution_clock::time_point lastTime_;
 #endif
 };
 
