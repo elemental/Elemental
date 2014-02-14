@@ -107,6 +107,7 @@ GATTP(ViewingComm)
 #undef GATTP
 #undef GATTB
 
+%include "elemental/core.hpp"
 %import  "elemental/core/complex/decl.hpp"
 %import  "elemental/core/imports/mpi.hpp"
 %import  "elemental/core/imports/choice.hpp"
@@ -164,6 +165,7 @@ AbDM(elem::Complex<double>)
 %include "elemental/core/dist_matrix/forward_decl.hpp"
 %include "elemental/core/dist_matrix.hpp"
 %include "elemental/core/dist_matrix/abstract.hpp"
+%include "elemental/core/dist_matrix/general.hpp"
 
 namespace elem {
 %template(AbstractDistMatrix_i) AbstractDistMatrix<Int>;
@@ -171,6 +173,42 @@ namespace elem {
 %template(AbstractDistMatrix_d) AbstractDistMatrix<double>;
 %template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float> >;
 %template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double> >;
+};
+
+/*
+ * GeneralDistMatrix
+ */
+
+%define GENERALDISTMATRIX(F,U,V,sfx)
+%template(GeneralDistMatrix_ ## sfx) GeneralDistMatrix<F,U,V>;
+%enddef
+%define GENERALDISTMATRIX_all(U,V)
+GENERALDISTMATRIX(Int,U,V,i_ ## U ## _ ## V)
+GENERALDISTMATRIX(float,U,V,s_ ## U ## _ ## V)
+GENERALDISTMATRIX(double,U,V,d_ ## U ## _ ## V)
+GENERALDISTMATRIX(Complex<float>,U,V,c_ ## U ## _ ## V)
+GENERALDISTMATRIX(Complex<double>,U,V,z_ ## U ## _ ## V)
+%enddef
+
+namespace elem {
+GENERALDISTMATRIX(Int,MC,MR,i)
+GENERALDISTMATRIX(float,MC,MR,s)
+GENERALDISTMATRIX(double,MC,MR,d)
+GENERALDISTMATRIX(Complex<float>,MC,MR,c)
+GENERALDISTMATRIX(Complex<double>,MC,MR,z)
+GENERALDISTMATRIX_all(CIRC,CIRC)
+GENERALDISTMATRIX_all(MC,STAR)
+GENERALDISTMATRIX_all(MD,STAR)
+GENERALDISTMATRIX_all(MR,MC)
+GENERALDISTMATRIX_all(MR,STAR)
+GENERALDISTMATRIX_all(STAR,MC)
+GENERALDISTMATRIX_all(STAR,MD)
+GENERALDISTMATRIX_all(STAR,MR)
+GENERALDISTMATRIX_all(STAR,STAR)
+GENERALDISTMATRIX_all(STAR,VC)
+GENERALDISTMATRIX_all(STAR,VR)
+GENERALDISTMATRIX_all(VC,STAR)
+GENERALDISTMATRIX_all(VR,STAR)
 };
 
 /*

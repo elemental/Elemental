@@ -13,6 +13,41 @@
 %include "common.swg"
 %import "elem.i"
 
+%define OVERLOAD_SETDIAGONAL_SEQ
+%template(SetDiagonal) SetDiagonal<Int,Int>;
+%template(SetDiagonal) SetDiagonal<float,float>;
+%template(SetDiagonal) SetDiagonal<double,double>;
+%template(SetDiagonal) SetDiagonal<Complex<float>,float>;
+%template(SetDiagonal) SetDiagonal<Complex<float>,Complex<float> >;
+%template(SetDiagonal) SetDiagonal<Complex<double>,double>;
+%template(SetDiagonal) SetDiagonal<Complex<double>,Complex<double> >;
+%enddef
+%define OVERLOAD_SETDIAGONAL_DIST(U,V)
+%template(SetDiagonal) SetDiagonal<Int,Int,U,V>;
+%template(SetDiagonal) SetDiagonal<float,float,U,V>;
+%template(SetDiagonal) SetDiagonal<double,double,U,V>;
+%template(SetDiagonal) SetDiagonal<Complex<float>,float,U,V>;
+%template(SetDiagonal) SetDiagonal<Complex<float>,Complex<float>,U,V>;
+%template(SetDiagonal) SetDiagonal<Complex<double>,double,U,V>;
+%template(SetDiagonal) SetDiagonal<Complex<double>,Complex<double>,U,V>;
+%enddef
+%define OVERLOAD_SETDIAGONAL_DISTALL
+OVERLOAD_SETDIAGONAL_DIST(CIRC,CIRC);
+OVERLOAD_SETDIAGONAL_DIST(MC,  MR  );
+OVERLOAD_SETDIAGONAL_DIST(MC,  STAR);
+OVERLOAD_SETDIAGONAL_DIST(MD,  STAR);
+OVERLOAD_SETDIAGONAL_DIST(MR,  MC  );
+OVERLOAD_SETDIAGONAL_DIST(MR,  STAR);
+OVERLOAD_SETDIAGONAL_DIST(STAR,MC  );
+OVERLOAD_SETDIAGONAL_DIST(STAR,MD  );
+OVERLOAD_SETDIAGONAL_DIST(STAR,MR  );
+OVERLOAD_SETDIAGONAL_DIST(STAR,STAR);
+OVERLOAD_SETDIAGONAL_DIST(STAR,VC  );
+OVERLOAD_SETDIAGONAL_DIST(STAR,VR  );
+OVERLOAD_SETDIAGONAL_DIST(VC,  STAR);
+OVERLOAD_SETDIAGONAL_DIST(VR,  STAR);
+%enddef
+
 /*
  * BLAS MISCELLANEOUS
  */
@@ -464,7 +499,8 @@ OVERLOAD01_int(MakeTriangular)
 OVERLOAD0(Nrm2)
 OVERLOAD01_int(Scale)
 OVERLOAD01_int(ScaleTrapezoid)
-OVERLOAD01_int(SetDiagonal)
+OVERLOAD_SETDIAGONAL_SEQ
+OVERLOAD_SETDIAGONAL_DISTALL
 OVERLOAD02_int(Transpose)
 OVERLOAD01_int(Zero)
 };
