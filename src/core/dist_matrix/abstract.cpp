@@ -11,14 +11,6 @@
 
 namespace elem {
 
-template<typename T>
-using ADM = AbstractDistMatrix<T>;
-
-// NOTE: It seems that member functions cannot be defined using a 
-//       fully-specified template alias, e.g., ADM<T>::AbstractDistMatrix(),
-//       but DM<T> is okay if it is only partially specified, e.g., 
-//       DM<T> = DistMatrix<T,MC,MR> and DM<T>::DistMatrix()
-
 // Public section
 // ##############
 
@@ -26,7 +18,7 @@ using ADM = AbstractDistMatrix<T>;
 // ============================
 
 template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( ADM<T>&& A )
+AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
@@ -49,8 +41,8 @@ AbstractDistMatrix<T>::~AbstractDistMatrix() { }
 // ==============================
 
 template<typename T>
-ADM<T>& 
-AbstractDistMatrix<T>::operator=( ADM<T>&& A )
+AbstractDistMatrix<T>& 
+AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 {
     auxMemory_.ShallowSwap( A.auxMemory_ );
     matrix_.ShallowSwap( A.matrix_ );
@@ -1679,7 +1671,7 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::ShallowSwap( ADM<T>& A )
+AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
 {
     matrix_.ShallowSwap( A.matrix_ );
     auxMemory_.ShallowSwap( A.auxMemory_ );
@@ -1740,7 +1732,8 @@ AbstractDistMatrix<T>::SetRowShift()
 
 template<typename T> 
 void
-AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
+AssertConforming1x2
+( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR )
 {
     if( AL.Height() != AR.Height() )    
         LogicError
@@ -1752,7 +1745,8 @@ AssertConforming1x2( const ADM<T>& AL, const ADM<T>& AR )
 
 template<typename T> 
 void
-AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
+AssertConforming2x1
+( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB )
 {
     if( AT.Width() != AB.Width() )
         LogicError
@@ -1765,8 +1759,8 @@ AssertConforming2x1( const ADM<T>& AT, const ADM<T>& AB )
 template<typename T> 
 void
 AssertConforming2x2
-( const ADM<T>& ATL, const ADM<T>& ATR, 
-  const ADM<T>& ABL, const ADM<T>& ABR ) 
+( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, 
+  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR ) 
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
         ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
@@ -1788,12 +1782,12 @@ AssertConforming2x2
  #define PROTO(T) \
   template class AbstractDistMatrix<T>;\
   template void AssertConforming1x2\
-  ( const ADM<T>& AL, const ADM<T>& AR );\
+  ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );\
   template void AssertConforming2x1\
-  ( const ADM<T>& AT, const ADM<T>& AB );\
+  ( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );\
   template void AssertConforming2x2\
-  ( const ADM<T>& ATL, const ADM<T>& ATR,\
-    const ADM<T>& ABL, const ADM<T>& ABR )
+  ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,\
+    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR )
 #else
  #define PROTO(T) template class AbstractDistMatrix<T>
 #endif

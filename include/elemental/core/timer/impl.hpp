@@ -23,7 +23,11 @@ Timer::Start()
         if( running_ )
             LogicError("Forgot to stop timer before restarting.");
     )
+#ifdef HAVE_STEADYCLOCK
     lastTime_ = steady_clock::now();
+#else
+    lastTime_ = high_precision_clock::now();
+#endif
     running_ = true;
 }
 
@@ -58,7 +62,11 @@ Timer::Partial() const
 { 
     if( running_ )
     {
+#ifdef HAVE_STEADYCLOCK
         auto now = steady_clock::now();
+#else
+        auto now = high_precision_clock::now();
+#endif
         auto timeSpan = duration_cast<duration<double>>(now-lastTime_);
         return timeSpan.count();
     }

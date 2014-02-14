@@ -320,6 +320,7 @@ void Initialize( int& argc, char**& argv )
     const long secs = 21;
     const long seed = (secs<<16) | (rank & 0xFFFF);
     ::generator.seed( seed );
+    srand( seed );
 }
 
 void Finalize()

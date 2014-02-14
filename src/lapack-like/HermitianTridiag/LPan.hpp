@@ -293,11 +293,11 @@ void LPan
             // Unpack
             w21Last_MR_STAR.AlignWith( alpha11 );
             w21Last_MR_STAR.Resize( n-k, 1 );
-            for( Int k=0; k<r; ++k )
+            for( Int row=0; row<r; ++row )
             {
                 // Unpack into w21Last[MR,* ]
-                const F* w21Data = &sendBuf[k*portionSize];
-                const Int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
+                const F* w21Data = &sendBuf[row*portionSize];
+                const Int w21Shift = Shift(g.Col()+c*row,colAlignDest,p);
                 const Int w21Offset = (w21Shift-colShiftDest) / c;
                 const Int w21VCLocalHeight = Length(height,w21Shift,p);
                 F* w21Buffer = w21Last_MR_STAR.Buffer(w21Offset,0);
@@ -305,7 +305,7 @@ void LPan
                     w21Buffer[i*r] = w21Data[i];
 
                 // Unpack into a21[MR,* ]
-                const F* a21Data = &sendBuf[k*portionSize+w21VCLocalHeight];
+                const F* a21Data = &sendBuf[row*portionSize+w21VCLocalHeight];
                 const Int a21Shift = (w21Shift+p-1) % p;
                 const Int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
                 const Int a21VCLocalHeight = Length(height-1,a21Shift,p);

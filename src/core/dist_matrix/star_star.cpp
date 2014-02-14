@@ -10,10 +10,8 @@
 
 namespace elem {
 
-template<typename T>
-using GDM = GeneralDistMatrix<T,STAR,STAR>;
-template<typename T>
-using DM = DistMatrix<T,STAR,STAR>;
+#define DM DistMatrix<T,STAR,STAR>
+#define GDM GeneralDistMatrix<T,STAR,STAR>
 
 // Public section
 // ##############
@@ -22,35 +20,35 @@ using DM = DistMatrix<T,STAR,STAR>;
 // ============================
 
 template<typename T>
-DM<T>::DistMatrix( const elem::Grid& g )
-: GDM<T>(g)
+DM::DistMatrix( const elem::Grid& g )
+: GDM(g)
 { }
 
 template<typename T>
-DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
-: GDM<T>(g)
+DM::DistMatrix( Int height, Int width, const elem::Grid& g )
+: GDM(g)
 { this->Resize(height,width); }
 
 template<typename T>
-DM<T>::DistMatrix( Int height, Int width, Int ldim, const elem::Grid& g )
-: GDM<T>(g)
+DM::DistMatrix( Int height, Int width, Int ldim, const elem::Grid& g )
+: GDM(g)
 { this->Resize(height,width,ldim); }
 
 template<typename T>
-DM<T>::DistMatrix
+DM::DistMatrix
 ( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g )
-: GDM<T>(g)
+: GDM(g)
 { this->LockedAttach(height,width,0,0,buffer,ldim,g); }
 
 template<typename T>
-DM<T>::DistMatrix
+DM::DistMatrix
 ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g )
-: GDM<T>(g)
+: GDM(g)
 { this->Attach(height,width,0,0,buffer,ldim,g); }
 
 template<typename T>
-DM<T>::DistMatrix( const DM<T>& A )
-: GDM<T>(A.Grid())
+DM::DistMatrix( const DM& A )
+: GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ]::DistMatrix"))
     if( &A != this )
@@ -61,28 +59,28 @@ DM<T>::DistMatrix( const DM<T>& A )
 
 template<typename T>
 template<Dist U,Dist V>
-DM<T>::DistMatrix( const DistMatrix<T,U,V>& A )
-: GDM<T>(A.Grid())
+DM::DistMatrix( const DistMatrix<T,U,V>& A )
+: GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ]::DistMatrix"))
     if( STAR != U || STAR != V || 
-        reinterpret_cast<const DM<T>*>(&A) != this )
+        reinterpret_cast<const DM*>(&A) != this )
         *this = A;
     else
         LogicError("Tried to construct [* ,* ] with itself");
 }
 
 template<typename T>
-DM<T>::DistMatrix( DM<T>&& A ) : GDM<T>(std::move(A)) { }
+DM::DistMatrix( DM&& A ) : GDM(std::move(A)) { }
 
-template<typename T> DM<T>::~DistMatrix() { }
+template<typename T> DM::~DistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,MC,MR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [MC,MR]"))
     A.AllGather( *this );
@@ -90,8 +88,8 @@ DM<T>::operator=( const DistMatrix<T,MC,MR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [MC,* ]"))
     A.ColAllGather( *this );
@@ -99,8 +97,8 @@ DM<T>::operator=( const DistMatrix<T,MC,STAR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,MR]"))
     A.RowAllGather( *this );
@@ -108,8 +106,8 @@ DM<T>::operator=( const DistMatrix<T,STAR,MR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,MD,STAR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [MD,* ]"))
     A.ColAllGather( *this );
@@ -117,8 +115,8 @@ DM<T>::operator=( const DistMatrix<T,MD,STAR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
+const DM&
+DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,MD]"))
     A.RowAllGather( *this );
@@ -126,8 +124,8 @@ DM<T>::operator=( const DistMatrix<T,STAR,MD>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,MR,MC>& A )
+const DM&
+DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [MR,MC]"))
     A.AllGather( *this );
@@ -135,8 +133,8 @@ DM<T>::operator=( const DistMatrix<T,MR,MC>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,MR,STAR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [MR,* ]"))
     A.ColAllGather( *this );
@@ -144,8 +142,8 @@ DM<T>::operator=( const DistMatrix<T,MR,STAR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
+const DM&
+DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,MC]"))
     A.RowAllGather( *this );
@@ -153,8 +151,8 @@ DM<T>::operator=( const DistMatrix<T,STAR,MC>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [VC,* ]"))
     A.ColAllGather( *this );
@@ -162,8 +160,8 @@ DM<T>::operator=( const DistMatrix<T,VC,STAR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
+const DM&
+DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,VC]"))
     A.RowAllGather( *this );
@@ -171,8 +169,8 @@ DM<T>::operator=( const DistMatrix<T,STAR,VC>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [VR,* ]"))
     A.ColAllGather( *this );
@@ -180,8 +178,8 @@ DM<T>::operator=( const DistMatrix<T,VR,STAR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
+const DM&
+DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [* ,VR]"))
     A.RowAllGather( *this );
@@ -189,8 +187,8 @@ DM<T>::operator=( const DistMatrix<T,STAR,VR>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DM<T>& A )
+const DM&
+DM::operator=( const DM& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("[* ,* ] = [* ,* ]");
@@ -265,8 +263,8 @@ DM<T>::operator=( const DM<T>& A )
 }
 
 template<typename T>
-const DM<T>&
-DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
+const DM&
+DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,* ] = [o ,o ]"))
     const Grid& g = A.Grid();
@@ -304,10 +302,10 @@ DM<T>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 }
 
 template<typename T>
-DM<T>&
-DM<T>::operator=( DM<T>&& A )
+DM&
+DM::operator=( DM&& A )
 {
-    GDM<T>::operator=( std::move(A) );
+    GDM::operator=( std::move(A) );
     return *this;
 }
 
@@ -315,23 +313,23 @@ DM<T>::operator=( DM<T>&& A )
 // =============
 
 template<typename T>
-elem::DistData DM<T>::DistData() const { return elem::DistData(*this); }
+elem::DistData DM::DistData() const { return elem::DistData(*this); }
 
 template<typename T>
-mpi::Comm DM<T>::DistComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::DistComm() const { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM<T>::CrossComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::CrossComm() const { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM<T>::RedundantComm() const { return this->grid_->VCComm(); }
+mpi::Comm DM::RedundantComm() const { return this->grid_->VCComm(); }
 template<typename T>
-mpi::Comm DM<T>::ColComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::ColComm() const { return mpi::COMM_SELF; }
 template<typename T>
-mpi::Comm DM<T>::RowComm() const { return mpi::COMM_SELF; }
+mpi::Comm DM::RowComm() const { return mpi::COMM_SELF; }
 
 template<typename T>
-Int DM<T>::ColStride() const { return 1; }
+Int DM::ColStride() const { return 1; }
 template<typename T>
-Int DM<T>::RowStride() const { return 1; }
+Int DM::RowStride() const { return 1; }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

@@ -47,6 +47,9 @@
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine HAVE_PMRRR
 #cmakedefine AVOID_COMPLEX_MPI
+#cmakedefine HAVE_UNIFORM_INT
+#cmakedefine HAVE_UNIFORM_REAL
+#cmakedefine HAVE_STEADYCLOCK
 #cmakedefine HAVE_MPI_REDUCE_SCATTER_BLOCK
 #cmakedefine HAVE_MPI_IN_PLACE
 #cmakedefine HAVE_MPI_LONG_LONG

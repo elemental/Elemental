@@ -12,17 +12,6 @@
 
 namespace elem {
 
-template<typename T>
-using ADM = AbstractDistMatrix<T>;
-
-template<typename T,Dist U,Dist V>
-using GDM = GeneralDistMatrix<T,U,V>;
-
-// NOTE: It seems that member functions cannot be defined using a 
-//       fully-specified template alias, e.g., ADM<T,U,V>::AbstractDistMatrix(),
-//       but DM<T> is okay if it is only partially specified, e.g., 
-//       DM<T> = DistMatrix<T,MC,MR> and DM<T>::DistMatrix()
-
 // Public section
 // ##############
 
@@ -30,16 +19,16 @@ using GDM = GeneralDistMatrix<T,U,V>;
 // ============================
 
 template<typename T,Dist U,Dist V>
-GeneralDistMatrix<T,U,V>::GeneralDistMatrix( GDM<T,U,V>&& A )
-: ADM<T>(std::move(A))
+GeneralDistMatrix<T,U,V>::GeneralDistMatrix( GeneralDistMatrix<T,U,V>&& A )
+: AbstractDistMatrix<T>(std::move(A))
 { }
 
 // Assignment and reconfiguration
 // ==============================
 
 template<typename T,Dist U,Dist V>
-GDM<T,U,V>& 
-GeneralDistMatrix<T,U,V>::operator=( GDM<T,U,V>&& A )
+GeneralDistMatrix<T,U,V>& 
+GeneralDistMatrix<T,U,V>::operator=( GeneralDistMatrix<T,U,V>&& A )
 {
     AbstractDistMatrix<T>::operator=( std::move(A) );
     return *this;
@@ -3065,7 +3054,7 @@ GeneralDistMatrix<T,U,V>::UpdateImagPartOfDiagonal
 
 template<typename T,Dist U,Dist V>
 GeneralDistMatrix<T,U,V>::GeneralDistMatrix( const elem::Grid& grid )
-: ADM<T>(grid)
+: AbstractDistMatrix<T>(grid)
 { }
 
 // Diagonal helper functions

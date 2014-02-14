@@ -33,17 +33,26 @@ template<typename T>
 inline T SampleUniform( T a, T b )
 {
     typedef BASE(T) Real;
-    std::mt19937& gen = Generator();
     T sample;
 
+#ifdef HAVE_UNIFORM_REAL
+    std::mt19937& gen = Generator();
     std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
     SetRealPart( sample, realUni(gen) ); 
-
     if( IsComplex<T>::val )
     {
         std::uniform_real_distribution<Real> imagUni(ImagPart(a),ImagPart(b));
         SetImagPart( sample, imagUni(gen) );
     }
+#else
+    const Real realPart = a + (rand()+(b-a))/RAND_MAX;
+    SetRealPart( sample, realPart );
+    if( IsComplex<T>::val )
+    {
+        const Real imagPart = a + (rand()+(b-a))/RAND_MAX;
+        SetImagPart( sample, imagPart );
+    }
+#endif
 
     return sample;
 }
@@ -51,18 +60,22 @@ inline T SampleUniform( T a, T b )
 template<>
 inline Int SampleUniform<Int>( Int a, Int b )
 {
+#ifdef HAVE_UNIFORM_INT
     std::mt19937& gen = Generator();
     std::uniform_int_distribution<Int> intDist(a,b-1); 
     return intDist(gen);
+#else
+    return a + (rand() % (b-a));
+#endif
 }
 
 template<typename T>
 inline T SampleNormal( T mean, BASE(T) stddev )
 {
     typedef BASE(T) Real;
-    std::mt19937& gen = Generator();
     T sample;
 
+    std::mt19937& gen = Generator();
     std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
     SetRealPart( sample, realNormal(gen) );
     if( IsComplex<T>::val )

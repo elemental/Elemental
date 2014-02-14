@@ -16,7 +16,11 @@ namespace elem {
 
 using std::chrono::duration;
 using std::chrono::duration_cast;
+#ifdef HAVE_STEADYCLOCK
 using std::chrono::steady_clock;
+#else
+using std::chrono::high_precision_clock;
+#endif
 
 class Timer
 {
@@ -35,7 +39,11 @@ private:
     bool running_ = false;
     std::string name_ = "[blank]";
     double totalTime_=0, lastPartialTime_=0;
+#ifdef HAVE_STEADYCLOCK
     steady_clock::time_point lastTime_;
+#else
+    high_precision_clock::time_point lastTime_;
+#endif
 };
 
 } // namespace elem

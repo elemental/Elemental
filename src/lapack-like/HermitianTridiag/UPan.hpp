@@ -274,11 +274,11 @@ void UPan
             // Unpack
             w01Last_MR_STAR.AlignWith( A00 );
             w01Last_MR_STAR.Resize( a01.Height()+1, 1 );
-            for( Int k=0; k<r; ++k )
+            for( Int row=0; row<r; ++row )
             {
                 // Unpack into w01Last[MR,* ]
-                const F* w01Data = &sendBuf[k*portionSize];
-                const Int shift = Shift(g.Col()+c*k,colAlignDest,p);
+                const F* w01Data = &sendBuf[row*portionSize];
+                const Int shift = Shift(g.Col()+c*row,colAlignDest,p);
                 const Int offset = (shift-colShiftDest) / c;
                 const Int w01VCLocalHeight = Length(height,shift,p);
                 F* w01Buffer = w01Last_MR_STAR.Buffer(offset,0);
@@ -286,7 +286,7 @@ void UPan
                     w01Buffer[i*r] = w01Data[i];
 
                 // Unpack into a01[MR,* ]
-                const F* a01Data = &sendBuf[k*portionSize+w01VCLocalHeight];
+                const F* a01Data = &sendBuf[row*portionSize+w01VCLocalHeight];
                 const Int a01VCLocalHeight = Length(height-1,shift,p);
                 F* a01Buffer = a01_MR_STAR.Buffer(offset,0);
                 for( Int i=0; i<a01VCLocalHeight; ++i )
