@@ -120,6 +120,7 @@ Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
 }
 
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
+#ifndef SWIG
 template<typename T>
 inline void
 Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
@@ -156,6 +157,7 @@ Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
     Print( A, title );
 #endif
 }
+#endif // ifndef SWIG
 
 } // namespace elem
 

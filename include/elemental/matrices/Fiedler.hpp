@@ -24,6 +24,7 @@ Fiedler( Matrix<F>& A, const std::vector<F>& c )
             A.Set( i, j, Abs(c[i]-c[j]) );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Fiedler( const std::vector<F>& c )
@@ -32,6 +33,7 @@ Fiedler( const std::vector<F>& c )
     Fiedler( A, c ); 
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -57,6 +59,7 @@ Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Fiedler( const Grid& g, const std::vector<F>& c )
@@ -65,6 +68,7 @@ Fiedler( const Grid& g, const std::vector<F>& c )
     Fiedler( A, c );
     return A;
 }
+#endif
 
 } // namespace elem
 

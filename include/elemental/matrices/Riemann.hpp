@@ -30,6 +30,7 @@ Riemann( Matrix<T>& R, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Riemann( Int n )
@@ -38,6 +39,7 @@ Riemann( Int n )
     Riemann( R, n );
     return R;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -65,6 +67,7 @@ Riemann( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Riemann( const Grid& g, Int n )
@@ -73,6 +76,7 @@ Riemann( const Grid& g, Int n )
     Riemann( R, n );
     return R;
 }
+#endif
 
 } // namespace elem
 

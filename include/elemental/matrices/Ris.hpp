@@ -24,6 +24,7 @@ Ris( Matrix<F>& R, Int n )
             R.Set( i, j, oneHalf/(F(n-i-j)-oneHalf) );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Ris( Int n )
@@ -32,6 +33,7 @@ Ris( Int n )
     Ris( R, n );
     return R;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -57,6 +59,7 @@ Ris( DistMatrix<F,U,V>& R, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Ris( const Grid& g, Int n )
@@ -65,6 +68,7 @@ Ris( const Grid& g, Int n )
     Ris( R, n );
     return R;
 }
+#endif
 
 } // namespace elem
 

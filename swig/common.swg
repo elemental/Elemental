@@ -93,7 +93,8 @@ static bool check_elematrix( PyObject* obj, int DType, bool writable )
     return true;
 }
 
-static bool get_HWL( PyArrayObject* obj, size_t DSize, Int& HA, Int& WA, Int& LDimA )
+static bool get_HWL
+( PyArrayObject* obj, size_t DSize, Int& HA, Int& WA, Int& LDimA )
 {
     npy_intp ndim  = PyArray_NDIM( obj ), *dims, *strs;
     if ( ndim != 0 ) {
@@ -139,27 +140,33 @@ input(0), darray(0)
         throw SwigException( SWIG_TypeError, "NumPy array or matrix expected" );
     PyArrayObject* obj = reinterpret_cast<PyArrayObject*>(o);
     if ( PyArray_TYPE( obj ) != NPY<T>::DType )
-        throw SwigException( SWIG_TypeError, "Incompatible NumPy data type encountered" );
+        throw SwigException
+        ( SWIG_TypeError, "Incompatible NumPy data type encountered" );
     if ( !PyArray_ISWRITEABLE( obj ) ) {
         if ( writable )
-            throw SwigException( SWIG_TypeError, "Incompatible NumPy data type encountered" );
+            throw SwigException
+            ( SWIG_TypeError, "Incompatible NumPy data type encountered" );
         writable = false;
     }
     input = obj;
     bool recast = get_HWL( obj, sizeof(T), HA, WA, LDimA );
-    // Why 3? Because the owner is 1, and the two layers of Python function calls that
-    // sit between the owner and this line of code each add one more.
+    // Why 3? Because the owner is 1, and the two layers of Python function 
+    // calls that sit between the owner and this line of code each add one more.
     bool owner = writable && PyArray_BASE( obj ) == NULL &&
         PyArray_CHKFLAGS( obj, NPY_ARRAY_OWNDATA ) != 0 &&
         PyArray_REFCOUNT( obj ) <= 3;
     if ( recast ) {
-        darray = reinterpret_cast<PyArrayObject*>( PyArray_NewLikeArray( obj, NPY_FORTRANORDER, NULL, 0 ) );
+        darray = reinterpret_cast<PyArrayObject*>
+                 ( PyArray_NewLikeArray( obj, NPY_FORTRANORDER, NULL, 0 ) );
         if ( darray == 0 )
-            throw SwigException( SWIG_RuntimeError, "Unable to create the transposed matrix" );
+            throw SwigException
+            ( SWIG_RuntimeError, "Unable to create the transposed matrix" );
         int result = PyArray_CopyInto( darray, input );
         if ( result < 0 ) {
             Py_DECREF( darray );
-            throw SwigException( SWIG_RuntimeError, "Cannot copy data into the transposed matrix" );
+            throw SwigException
+            ( SWIG_RuntimeError, 
+              "Cannot copy data into the transposed matrix" );
         }
         obj = darray;
         LDimA = HA;
@@ -190,13 +197,17 @@ void ElemPyMatrix<T>::UpdateArray()
             sdims[0] = LDimM;
             sdims[1] = WM;
             if ( PyArray_Resize( input, &ndims, 0, NPY_FORTRANORDER ) == NULL )
-                throw SwigException( SWIG_RuntimeError, "Unable to modify the original NumPy matrix" );
+                throw SwigException
+                ( SWIG_RuntimeError, 
+                  "Unable to modify the original NumPy matrix" );
             npy_intp* dims = PyArray_DIMS( input );
             npy_intp* strs = PyArray_STRIDES( input );
             dims[0] = HM;
             strs[0] = sizeof(T);
             strs[1] = sizeof(T) * LDimM;
-            PyArray_UpdateFlags( input, NPY_ARRAY_C_CONTIGUOUS|NPY_ARRAY_F_CONTIGUOUS|NPY_ARRAY_ALIGNED );
+            PyArray_UpdateFlags
+            ( input, 
+              NPY_ARRAY_C_CONTIGUOUS|NPY_ARRAY_F_CONTIGUOUS|NPY_ARRAY_ALIGNED );
             if ( need_copy ) {
                 ndata = reinterpret_cast<T*>( PyArray_DATA( input ) );
                 memcpy( ndata, odata, LDimM * WM * sizeof(T) );
@@ -208,20 +219,20 @@ void ElemPyMatrix<T>::UpdateArray()
         int result = PyArray_CopyInto( input, darray );
         Py_DECREF( darray );
         if ( result < 0 )
-            throw SwigException( SWIG_RuntimeError, "Unable to write results to the original NumPy matrix" );
+            throw SwigException
+            ( SWIG_RuntimeError, 
+              "Unable to write results to the original NumPy matrix" );
         return;
     }
 }
 
 %}
 
-/*
- * TYPEMAPS 
- */
+// TYPEMAPS 
+// ========
  
-/*
- * elem::Complex<T>
- */
+// elem::Complex<T>
+// ----------------
   
 %typemap(in) elem::Complex<float> {
   Py_complex ans1 = PyComplex_AsCComplex($input);
@@ -247,9 +258,8 @@ void ElemPyMatrix<T>::UpdateArray()
   $result = PyComplex_FromDoubles( $1.real, $1.imag );
 }
 
-/*
- * elem::SafeProduct<T>
- */
+// elem::SafeProduct<T>
+// --------------------
 
 %typemap(in) elem::SafeProduct<elem::Int> {
 	$result = PyTuple_Pack( 3,
@@ -282,9 +292,8 @@ void ElemPyMatrix<T>::UpdateArray()
 		PyInteger_FromLong( $1.n ) );
 }
 
-/*
- * Elemental's Matrix class
- */
+// Elemental's Matrix class
+// ------------------------
  
 %define TYPEMAPIN(T,ISCONST)
     try { 
@@ -318,9 +327,8 @@ TYPEMAP_MATRIX(double,SWIG_TYPECHECK_DOUBLE_ARRAY)
 TYPEMAP_MATRIX(elem::Complex<float>,SWIG_TYPECHECK_CHAR_ARRAY)
 TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 
-/*
- * Blanket exception handling.
- */
+// Blanket exception handling
+// --------------------------
  
 %exception {
     try {
@@ -331,23 +339,13 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
     }
 }
 
-/*
-   Copyright (c) 2009-2014, Jack Poulson
-                      2013, Michael C. Grant
-   All rights reserved.
+// OVERLOADED FUNCTION MACROS 
+// ==========================
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
-   http://opensource.org/licenses/BSD-2-Clause
-*/
-
-/*
- * OVERLOADED FUNCTION MACROS 
- * These macros simplify the process of instantiating functions that are overloaded for
- * each Matrix and DistMatrix class. Since some functions are templated on all data
- * types, others only on the reals, others omitting integers, etc. we need a variety
- * of macros to handle all cases.
- */
+// These macros simplify the process of instantiating functions that are 
+// overloaded for each Matrix and DistMatrix class. Since some functions are 
+// templated on all data types, others only on the reals, others omitting 
+// integers, etc. we need a variety of macros to handle all cases.
  
 %define OVERLOAD0_R(X,Y)
 %template(Y) X<float>;
@@ -379,6 +377,14 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 %template(Y) X<double,MC,MR>;
 %template(Y) X<Complex<float>,MC,MR>;
 %template(Y) X<Complex<double>,MC,MR>;
+%enddef
+%define OVERLOAD1_RCompat(X,Y)
+%template(Y) X<float,float,MC,MR>;
+%template(Y) X<double,double,MC,MR>;
+%template(Y) X<Complex<float>,float,MC,MR>;
+%template(Y) X<Complex<float>,float,MC,MR>;
+%template(Y) X<Complex<double>,Complex<double>,MC,MR>;
+%template(Y) X<Complex<double>,Complex<double>,MC,MR>;
 %enddef
 %define OVERLOAD1_cpx_R(X,Y)
 %template(Y) X<float,MC,MR>;
@@ -451,6 +457,7 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 #define OVERLOAD01_R(X,Y)      OVERLOAD0_R(X,Y)     OVERLOAD1_R(X,Y)
 #define OVERLOAD01_cpx_R(X,Y)  OVERLOAD0_cpx_R(X,Y) OVERLOAD1_cpx_R(X,Y)
 #define OVERLOAD01_int_R(X,Y)  OVERLOAD0_int_R(X,Y) OVERLOAD1_int_R(X,Y)
+#define OVERLOAD01_RCompat(X,Y) OVERLOAD0_RCompat(X,Y) OVERLOAD1_RCompat(X,Y)
 #define OVERLOAD02_R(X,Y)      OVERLOAD0_R(X,Y)     OVERLOAD2_R(X,Y)
 #define OVERLOAD02_RCompat(X,Y) OVERLOAD0_RCompat(X,Y) OVERLOAD2_RCompat(X,Y)
 #define OVERLOAD02_cpx_R(X,Y)  OVERLOAD0_cpx_R(X,Y) OVERLOAD2_cpx_R(X,Y)
@@ -471,6 +478,7 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 #define OVERLOAD01(X)      OVERLOAD01_R(X,X)
 #define OVERLOAD01_cpx(X)  OVERLOAD01_cpx_R(X,X)
 #define OVERLOAD01_int(X)  OVERLOAD01_int_R(X,X)
+#define OVERLOAD01_Compat(X) OVERLOAD01_RCompat(X,X)
 #define OVERLOAD02(X)      OVERLOAD02_R(X,X)
 #define OVERLOAD02_cpx(X)  OVERLOAD02_cpx_R(X,X)
 #define OVERLOAD02_int(X)  OVERLOAD02_int_R(X,X)

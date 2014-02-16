@@ -65,6 +65,7 @@ Hilbert( Matrix<F>& A, Int n )
     MakeHilbert( A );
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 Hilbert( Int n )
@@ -73,6 +74,7 @@ Hilbert( Int n )
     MakeHilbert( A );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -83,6 +85,7 @@ Hilbert( DistMatrix<F,U,V>& A, Int n )
     MakeHilbert( A );
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Hilbert( const Grid& g, Int n )
@@ -91,6 +94,7 @@ Hilbert( const Grid& g, Int n )
     MakeHilbert( A );
     return A;
 }
+#endif
 
 } // namespace elem
 

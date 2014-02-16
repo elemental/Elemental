@@ -13,9 +13,8 @@
 %include "common.swg"
 %import "elem.i"
 
-/*
- * CONVEX OPTIMIZATION
- */
+// Convex optimization
+// ===================
  
 %include "elemental/convex/LogBarrier.hpp"
 %include "elemental/convex/LogDetDivergence.hpp"

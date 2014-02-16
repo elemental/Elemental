@@ -26,6 +26,7 @@ KMS( Matrix<T>& K, Int n, T rho )
     }
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 KMS( Int n, T rho )
@@ -34,6 +35,7 @@ KMS( Int n, T rho )
     KMS( K, n, rho );
     return K;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -60,6 +62,7 @@ KMS( DistMatrix<T,U,V>& K, Int n, T rho )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 KMS( const Grid& g, Int n, T rho )
@@ -68,6 +71,7 @@ KMS( const Grid& g, Int n, T rho )
     KMS( K, n, rho );
     return K;
 }
+#endif
 
 } // namespace elem
 

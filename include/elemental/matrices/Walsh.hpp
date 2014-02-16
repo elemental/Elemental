@@ -117,6 +117,7 @@ Walsh( Matrix<T>& A, Int k, bool binary=false )
     MakeWalsh( A, k, binary );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Walsh( Int k, bool binary=false )
@@ -125,6 +126,7 @@ Walsh( Int k, bool binary=false )
     Walsh( A, k, binary );
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -138,6 +140,7 @@ Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
     MakeWalsh( A, k, binary );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Walsh( const Grid& g, Int k, bool binary=false )
@@ -146,6 +149,7 @@ Walsh( const Grid& g, Int k, bool binary=false )
     Walsh( A, k, binary ); 
     return A;
 }
+#endif
 
 } // namespace elem
 

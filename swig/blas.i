@@ -13,6 +13,7 @@
 %include "common.swg"
 %import "elem.i"
 
+/*
 %define OVERLOAD_SETDIAGONAL_SEQ
 %template(SetDiagonal) SetDiagonal<Int,Int>;
 %template(SetDiagonal) SetDiagonal<float,float>;
@@ -47,10 +48,10 @@ OVERLOAD_SETDIAGONAL_DIST(STAR,VR  );
 OVERLOAD_SETDIAGONAL_DIST(VC,  STAR);
 OVERLOAD_SETDIAGONAL_DIST(VR,  STAR);
 %enddef
+*/
 
-/*
- * BLAS MISCELLANEOUS
- */
+// BLAS Miscellaneous
+// ==================
  
 NO_OVERLOAD(SetLocalSymvBlocksize,int);
 NO_OVERLOAD(LocalSymvBlocksize);
@@ -60,10 +61,10 @@ NO_OVERLOAD(SetLocalTrr2kBlocksize,int);
 NO_OVERLOAD(LocalTrr2kBlocksize);
 %include "elemental/blas-like/decl.hpp"
 
-/*
- * BLAS LEVEL 1
- */
+// Level 1
+// -------
 
+/*
 %include "elemental/blas-like/level1/Adjoint.hpp"
 %include "elemental/blas-like/level1/Axpy.hpp"
 %include "elemental/blas-like/level1/AxpyTriangle.hpp"
@@ -73,7 +74,9 @@ NO_OVERLOAD(LocalTrr2kBlocksize);
 %include "elemental/blas-like/level1/DiagonalSolve.hpp"
 %include "elemental/blas-like/level1/Dot.hpp"
 %include "elemental/blas-like/level1/Dotu.hpp"
+*/
 %include "elemental/blas-like/level1/Hadamard.hpp"
+/*
 %include "elemental/blas-like/level1/HilbertSchmidt.hpp"
 %include "elemental/blas-like/level1/MakeHermitian.hpp"
 %include "elemental/blas-like/level1/MakeReal.hpp"
@@ -86,8 +89,10 @@ NO_OVERLOAD(LocalTrr2kBlocksize);
 %include "elemental/blas-like/level1/SetDiagonal.hpp"
 %include "elemental/blas-like/level1/Transpose.hpp"
 %include "elemental/blas-like/level1/Zero.hpp"
+*/
  
 namespace elem {
+/*
 OVERLOAD02_int(Adjoint)
 OVERLOAD0_int(Axpy)
 OVERLOAD_COPY(Axpy,CIRC,CIRC,CIRC,CIRC)
@@ -489,7 +494,9 @@ OVERLOAD02_Compat(DiagonalScale)
 OVERLOAD02_Compat(DiagonalSolve)
 OVERLOAD01_int(Dot)
 OVERLOAD01_int(Dotu)
+*/
 OVERLOAD01(Hadamard)
+/*
 OVERLOAD01(HilbertSchmidt)
 OVERLOAD0_int(MakeHermitian)
 OVERLOAD01_int(MakeReal)
@@ -503,11 +510,12 @@ OVERLOAD_SETDIAGONAL_SEQ
 OVERLOAD_SETDIAGONAL_DISTALL
 OVERLOAD02_int(Transpose)
 OVERLOAD01_int(Zero)
+*/
 };
 
 /*
- * BLAS LEVEL 2
- */
+// Level 2
+// -------
 
 // The equivalent of elemental/blas-like/level2.hpp
 %include "elemental/blas-like/level2/Gemv.hpp"
@@ -536,9 +544,8 @@ OVERLOAD0(Syr2)
 OVERLOAD0(Trsv)
 };
 
-/* 
- * BLAS LEVEL 3
- */ 
+// Level 3
+// -------
  
 // The equivalent of elemental/blas-like/level3.hpp
 %include "elemental/blas-like/level3/Gemm.hpp"
@@ -573,3 +580,4 @@ OVERLOAD0(Trstrm)
 OVERLOAD0(TwoSidedTrmm)
 OVERLOAD0(TwoSidedTrsm)
 };
+*/

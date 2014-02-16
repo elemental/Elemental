@@ -32,6 +32,7 @@ Grcar( Matrix<T>& A, Int n, Int k=3 )
     Toeplitz( A, n, n, a );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Grcar( Int n, Int k=3 )
@@ -40,6 +41,7 @@ Grcar( Int n, Int k=3 )
     Grcar( A, n, k );
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -59,6 +61,7 @@ Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
     Toeplitz( A, n, n, a );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Grcar( const Grid& g, Int n, Int k=3 )
@@ -67,6 +70,7 @@ Grcar( const Grid& g, Int n, Int k=3 )
     Grcar( A, n, k );
     return A;
 }
+#endif
 
 // TODO: MakeGrcar?
 

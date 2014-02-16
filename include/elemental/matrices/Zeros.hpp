@@ -39,6 +39,7 @@ Zeros( Matrix<T>& A, Int m, Int n )
     MakeZeros( A );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Zeros( Int m, Int n )
@@ -47,6 +48,7 @@ Zeros( Int m, Int n )
     MakeZeros( A ); 
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -57,6 +59,7 @@ Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
     MakeZeros( A );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Zeros( const Grid& g, Int m, Int n )
@@ -65,6 +68,7 @@ Zeros( const Grid& g, Int m, Int n )
     MakeZeros( A );
     return A;
 }
+#endif
 
 } // namespace elem
 

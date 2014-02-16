@@ -65,6 +65,7 @@ Egorov( Matrix<Complex<Real> >& A, const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
 }
 
+#ifndef SWIG
 template<typename Real,class RealFunctor>
 inline Matrix<Complex<Real> >
 Egorov( const RealFunctor& phase, Int n )
@@ -73,6 +74,7 @@ Egorov( const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
     return A;
 }
+#endif
 
 template<typename Real,Dist U,Dist V,class RealFunctor>
 inline void
@@ -83,6 +85,7 @@ Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
 }
 
+#ifndef SWIG
 template<typename Real,Dist U=MC,Dist V=MR,class RealFunctor>
 inline DistMatrix<Complex<Real>,U,V>
 Egorov( const Grid& g, const RealFunctor& phase, Int n )
@@ -91,6 +94,7 @@ Egorov( const Grid& g, const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
     return A;
 }
+#endif
 
 } // namespace elem
 

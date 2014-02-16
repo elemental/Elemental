@@ -43,6 +43,7 @@ Hanowa( Matrix<T>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Hanowa( Int n, T mu )
@@ -51,6 +52,7 @@ Hanowa( Int n, T mu )
     Hanowa( A, n, mu );
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -81,6 +83,7 @@ Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Hanowa( const Grid& g, Int n, T mu )
@@ -89,6 +92,7 @@ Hanowa( const Grid& g, Int n, T mu )
     Hanowa( A, n, mu );
     return A;
 }
+#endif
 
 // TODO: MakeHanowa?
 

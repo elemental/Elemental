@@ -24,6 +24,7 @@ Circulant( Matrix<T>& A, const std::vector<T>& a )
             A.Set( i, j, a[(i-j+n)%n] );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Circulant( const std::vector<T>& a )
@@ -32,6 +33,7 @@ Circulant( const std::vector<T>& a )
     Circulant( A, a );
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -58,6 +60,7 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Circulant( const Grid& g, const std::vector<T>& a )
@@ -66,6 +69,7 @@ Circulant( const Grid& g, const std::vector<T>& a )
     Circulant( A, a );
     return A;
 }
+#endif
 
 } // namespace elem
 

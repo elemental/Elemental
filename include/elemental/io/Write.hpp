@@ -219,7 +219,7 @@ Image
 template<typename Real>
 inline void
 Image
-( const Matrix<Complex<Real>>& A, std::string basename="matrix", 
+( const Matrix<Complex<Real> >& A, std::string basename="matrix", 
   FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Image"))
@@ -267,6 +267,7 @@ Write
         Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
 }
 
+#ifndef SWIG
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
 
 template<typename T>
@@ -289,6 +290,7 @@ Write
     if( A.CrossRank() == A.Root() )
         Write( A.LockedMatrix(), basename, format, title );
 }
+#endif // ifndef SWIG
 
 } // namespace elem
 

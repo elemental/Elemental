@@ -34,6 +34,7 @@ Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
     MakeUniform( A, center, radius );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Uniform( Int m, Int n, T center=0, BASE(T) radius=1 )
@@ -42,6 +43,7 @@ Uniform( Int m, Int n, T center=0, BASE(T) radius=1 )
     MakeUniform( A, center, radius );
     return A;
 }
+#endif
 
 namespace internal {
 
@@ -359,6 +361,7 @@ Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
     MakeUniform( A, center, radius );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
@@ -367,6 +370,7 @@ Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
     MakeUniform( A, center, radius );
     return A;
 }
+#endif
 
 } // namespace elem
 

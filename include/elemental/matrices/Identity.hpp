@@ -60,6 +60,7 @@ Identity( Matrix<T>& I, Int m, Int n )
     MakeIdentity( I );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Identity( Int m, Int n )
@@ -68,6 +69,7 @@ Identity( Int m, Int n )
     MakeIdentity( I );
     return I;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -78,6 +80,7 @@ Identity( DistMatrix<T,U,V>& I, Int m, Int n )
     MakeIdentity( I );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Identity( const Grid& g, Int m, Int n )
@@ -86,6 +89,7 @@ Identity( const Grid& g, Int m, Int n )
     MakeIdentity( I );
     return I;
 }
+#endif
 
 } // namespace elem
 

@@ -25,6 +25,7 @@ Pei( Matrix<T>& P, Int n, T alpha )
         P.Update( j, j, alpha );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Pei( Int n, T alpha )
@@ -33,6 +34,7 @@ Pei( Int n, T alpha )
     Pei( P, n, alpha );
     return P;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -59,6 +61,7 @@ Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Pei( const Grid& g, Int n, T alpha )
@@ -67,6 +70,7 @@ Pei( const Grid& g, Int n, T alpha )
     Pei( P, n, alpha );
     return P;
 }
+#endif
 
 } // namespace elem
 

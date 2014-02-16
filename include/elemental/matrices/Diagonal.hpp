@@ -26,6 +26,7 @@ Diagonal( Matrix<S>& D, const std::vector<T>& d )
         D.Set( j, j, d[j] );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Diagonal( const std::vector<T>& d )
@@ -34,6 +35,7 @@ Diagonal( const std::vector<T>& d )
     Diagonal( D, d );
     return D;
 }
+#endif
 
 template<typename S,typename T,Dist U,Dist V>
 inline void
@@ -59,6 +61,7 @@ Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Diagonal( const Grid& g, const std::vector<T>& d )
@@ -67,6 +70,7 @@ Diagonal( const Grid& g, const std::vector<T>& d )
     Diagonal( D, d );
     return D;
 }
+#endif
 
 } // namespace elem
 

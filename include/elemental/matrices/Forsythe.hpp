@@ -39,6 +39,16 @@ MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
 }
 
 template<typename T>
+inline void
+Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
+{
+    DEBUG_ONLY(CallStackEntry cse("Forsythe"))
+    J.Resize( n, n );
+    MakeForsythe( J, alpha, lambda );
+}
+
+#ifndef SWIG
+template<typename T>
 inline Matrix<T>
 Forsythe( Int n, T alpha, T lambda )
 {
@@ -46,6 +56,7 @@ Forsythe( Int n, T alpha, T lambda )
     MakeForsythe( J, alpha, lambda );
     return J;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -56,6 +67,7 @@ Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
     MakeForsythe( J, alpha, lambda );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Forsythe( const Grid& g, Int n, T alpha, T lambda )
@@ -64,6 +76,7 @@ Forsythe( const Grid& g, Int n, T alpha, T lambda )
     MakeForsythe( J, alpha, lambda );
     return J;
 }
+#endif
 
 } // namespace elem
 

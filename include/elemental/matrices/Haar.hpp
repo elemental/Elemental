@@ -26,6 +26,7 @@ Haar( Matrix<F>& A, Int n )
     qr::Explicit( A );
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 Haar( Int n )
@@ -34,6 +35,7 @@ Haar( Int n )
     qr::Explicit( A );
     return A;
 }
+#endif
 
 template<typename F>
 inline void
@@ -57,6 +59,7 @@ Haar( DistMatrix<F>& A, Int n )
     qr::Explicit( A );
 }
 
+#ifndef SWIG
 template<typename F>
 inline DistMatrix<F>
 Haar( const Grid& g, Int n )
@@ -65,6 +68,7 @@ Haar( const Grid& g, Int n )
     qr::Explicit( A );
     return A;
 }
+#endif
 
 template<typename F>
 inline void

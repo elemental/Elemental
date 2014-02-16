@@ -44,6 +44,7 @@ Demmel( Matrix<F>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Demmel( Int n )
@@ -52,6 +53,7 @@ Demmel( Int n )
     Demmel( A, n );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -83,6 +85,7 @@ Demmel( DistMatrix<F,U,V>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Demmel( const Grid& g, Int n )
@@ -91,6 +94,7 @@ Demmel( const Grid& g, Int n )
     Demmel( A, n );
     return A;
 }
+#endif
 
 } // namespace elem
 

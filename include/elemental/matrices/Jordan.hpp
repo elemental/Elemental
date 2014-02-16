@@ -66,6 +66,7 @@ Jordan( Matrix<T>& J, Int n, T lambda )
     MakeJordan( J, lambda );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Jordan( Int n, T lambda )
@@ -74,6 +75,7 @@ Jordan( Int n, T lambda )
     MakeJordan( J, lambda );
     return J;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -84,6 +86,7 @@ Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
     MakeJordan( J, lambda );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Jordan( const Grid& g, Int n, T lambda )
@@ -92,6 +95,7 @@ Jordan( const Grid& g, Int n, T lambda )
     MakeJordan( J, lambda );
     return J;
 }
+#endif
 
 } // namespace elem
 

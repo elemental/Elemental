@@ -42,6 +42,7 @@ Print
         Print( A_CIRC_CIRC.LockedMatrix(), title, os );
 }
 
+#ifndef SWIG
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
 template<typename T>
 inline void
@@ -63,6 +64,7 @@ Print
     if( A.Grid().VCRank() == A.Root() )
         Print( A.LockedMatrix(), title, os );
 }
+#endif // ifndef SWIG
 
 } // namespace elem
 

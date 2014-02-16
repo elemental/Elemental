@@ -25,6 +25,7 @@ Lotkin( Matrix<F>& A, Int n )
         A.Set( 0, j, F(1) );
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 Lotkin( Int n )
@@ -33,6 +34,7 @@ Lotkin( Int n )
     Lotkin( A, n );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -49,6 +51,7 @@ Lotkin( DistMatrix<F,U,V>& A, Int n )
     } 
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Lotkin( const Grid& g, Int n )
@@ -57,6 +60,7 @@ Lotkin( const Grid& g, Int n )
     Lotkin( A, n );
     return A;
 }
+#endif
 
 // TODO: MakeLotkin?
 

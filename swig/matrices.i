@@ -13,9 +13,8 @@
 %include "common.swg"
 %import "elem.i"
 
-/*
- * SPECIAL MATRICES
- */
+// Special matrices
+// ================
 
 // The equivalent of elemental/matrices.hpp
 %include "elemental/matrices/Cauchy.hpp"
@@ -62,10 +61,10 @@
 %include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
-OVERLOAD01(Cauchy)
-OVERLOAD01(CauchyLike)
+OVERLOAD01_Compat(Cauchy)
+OVERLOAD01_Compat(CauchyLike)
 OVERLOAD01_int(Circulant)
-OVERLOAD01_int(Diagonal)
+OVERLOAD01_Compat(Diagonal)
 // Not sure how to handle Egorov yet...
 OVERLOAD01(ExtendedKahan)
 OVERLOAD01_int(Fiedler)
@@ -98,7 +97,7 @@ OVERLOAD01_int(Pei)
 OVERLOAD01_int(Redheffer)
 OVERLOAD01_int(Riemann)
 OVERLOAD01(Ris)
-OVERLOAD01_int(Toeplitz)
+OVERLOAD01_Compat(Toeplitz)
 OVERLOAD01_int(TriW)
 OVERLOAD01_int(Uniform)
 OVERLOAD1_int_UV(Uniform,CIRC,CIRC)

@@ -42,6 +42,7 @@ Gear( Matrix<T>& G, Int n, Int s, Int t )
         G.Set( n-1, n+t, T(-1) );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Gear( Int n, Int s, Int t )
@@ -50,6 +51,7 @@ Gear( Int n, Int s, Int t )
     Gear( G, n, s, t );
     return G;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -79,6 +81,7 @@ Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
         G.Set( n-1, n+t, T(-1) );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Gear( const Grid& g, Int n, Int s, Int t )
@@ -87,6 +90,7 @@ Gear( const Grid& g, Int n, Int s, Int t )
     Gear( G, n, s, t );
     return G;
 }
+#endif
 
 } // namespace elem
 

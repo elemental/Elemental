@@ -127,6 +127,7 @@ ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
@@ -136,6 +137,7 @@ ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -147,6 +149,7 @@ ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
@@ -156,6 +159,7 @@ ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
     return A;
 }
+#endif
 
 } // namespace elem
 

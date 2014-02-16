@@ -115,6 +115,7 @@ FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
     DiagonalScale( RIGHT, NORMAL, sqrtWeightsTrans, A );
 }
 
+#ifndef SWIG
 template<typename Real>
 inline Matrix<Complex<Real> >
 FoxLi( Int n, Real omega )
@@ -132,6 +133,7 @@ FoxLi( const Grid& g, Int n, Real omega )
     FoxLi( A, n, omega );
     return A;
 }
+#endif
 
 } // namespace elem
 

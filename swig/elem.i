@@ -63,13 +63,12 @@ import elem_mpi
 %ignore elem::CallStackEntry;
 %ignore elem::ComplainIfDebug;
 
-/*
- * TYPES, GRID, MPI
- */
+// Types, Grid, MPI
+// ================
 
-// We do not need to %include complex/decl.hpp or matrix.hpp, because we are using
-// typemaps to convert the Elemental classes to equivalent Python and NumPy objects.
-// Using %import prevents SWIG from generating any wrappers.
+// We do not need to %include complex/decl.hpp or matrix.hpp, because we are 
+// using typemaps to convert the Elemental classes to equivalent Python and 
+// NumPy objects. Using %import prevents SWIG from generating any wrappers.
 
 #define GATTI(T) %attribute(elem::Grid,int,T,T)
 #define GATTP(T) %attribute(elem::Grid,void*,T,T)
@@ -117,9 +116,8 @@ GATTP(ViewingComm)
 %include "elemental/core/grid/decl.hpp"
 %import  "elemental/core/matrix.hpp"
 
-/*
- * ABSTRACTDISTMATRIX
- */
+// AbstractDistMatrix
+// ==================
 
 %ignore elem::AbstractDistMatrix::Buffer;
 %ignore elem::AbstractDistMatrix::LockedBuffer;
@@ -175,9 +173,8 @@ namespace elem {
 %template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double> >;
 };
 
-/*
- * GeneralDistMatrix
- */
+// GeneralDistMatrix
+// =================
 
 %define GENERALDISTMATRIX(F,U,V,sfx)
 %template(GeneralDistMatrix_ ## sfx) GeneralDistMatrix<F,U,V>;
@@ -211,9 +208,8 @@ GENERALDISTMATRIX_all(VC,STAR)
 GENERALDISTMATRIX_all(VR,STAR)
 };
 
-/*
- * DISTMATRIX
- */
+// DistMatrix
+// ==========
 
 %ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid&, Int );

@@ -13,10 +13,10 @@
 %include "common.swg"
 %import "elem.i"
 
-/*
- * I/O
- */
+// Input and output
+// ================
 
+%include "elemental/io/decl.hpp"
 %include "elemental/io/Print.hpp"
 %include "elemental/io/Write.hpp"
 %include "elemental/io/Display.hpp"

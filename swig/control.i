@@ -13,9 +13,8 @@
 %include "common.swg"
 %import "elem.i"
 
-/*
- * CONTROL THEORY
- */
+// Control theory
+// ==============
  
 %include "elemental/control/Lyapunov.hpp"
 %include "elemental/control/Ricatti.hpp"

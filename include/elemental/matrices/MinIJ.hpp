@@ -23,6 +23,7 @@ MinIJ( Matrix<T>& M, Int n )
             M.Set( i, j, std::min(i+1,j+1) );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 MinIJ( Int n )
@@ -31,6 +32,7 @@ MinIJ( Int n )
     MinIJ( M, n );
     return M;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -55,6 +57,7 @@ MinIJ( DistMatrix<T,U,V>& M, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 MinIJ( const Grid& g, Int n )
@@ -63,6 +66,7 @@ MinIJ( const Grid& g, Int n )
     MinIJ( M, n );
     return M;
 }
+#endif
 
 } // namespace elem
 

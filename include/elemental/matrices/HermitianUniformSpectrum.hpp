@@ -129,6 +129,7 @@ HermitianUniformSpectrum
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
@@ -137,6 +138,7 @@ HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
     MakeHermitianUniformSpectrum( A, lower, upper );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -148,6 +150,7 @@ HermitianUniformSpectrum
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 HermitianUniformSpectrum
@@ -157,6 +160,7 @@ HermitianUniformSpectrum
     MakeHermitianUniformSpectrum( A, lower, upper );
     return A;
 }
+#endif
 
 } // namespace elem
 

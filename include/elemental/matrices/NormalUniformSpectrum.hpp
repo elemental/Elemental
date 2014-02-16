@@ -100,6 +100,7 @@ NormalUniformSpectrum
     MakeNormalUniformSpectrum( A, center, radius );
 }
 
+#ifndef SWIG
 template<typename R>
 inline Matrix<Complex<R> >
 NormalUniformSpectrum( Int n, Complex<R> center=0, R radius=1 )
@@ -108,6 +109,7 @@ NormalUniformSpectrum( Int n, Complex<R> center=0, R radius=1 )
     MakeNormalUniformSpectrum( A, center, radius );
     return A;
 }
+#endif
 
 template<typename R,Dist U,Dist V>
 inline void
@@ -119,6 +121,7 @@ NormalUniformSpectrum
     MakeNormalUniformSpectrum( A, center, radius );
 }
 
+#ifndef SWIG
 template<typename R,Dist U=MC,Dist V=MR>
 inline DistMatrix<Complex<R>,U,V>
 NormalUniformSpectrum
@@ -128,6 +131,7 @@ NormalUniformSpectrum
     MakeNormalUniformSpectrum( A, center, radius );
     return A;
 }
+#endif
 
 } // namespace elem
 

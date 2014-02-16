@@ -34,6 +34,7 @@ Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
@@ -42,6 +43,7 @@ Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
     return A;
 }
+#endif
 
 namespace internal {
 
@@ -358,6 +360,7 @@ Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
@@ -366,6 +369,7 @@ Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
     return A;
 }
+#endif
 
 } // namespace elem
 

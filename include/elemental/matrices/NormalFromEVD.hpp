@@ -46,6 +46,7 @@ NormalFromEVD
     }
 }
 
+#ifndef SWIG
 template<typename R>
 inline Matrix<Complex<R> >
 NormalFromEVD
@@ -56,6 +57,7 @@ NormalFromEVD
     NormalFromEVD( A, w, Z );
     return A;
 }
+#endif
 
 template<typename R>
 inline void
@@ -96,6 +98,7 @@ NormalFromEVD
     }
 }
 
+#ifndef SWIG
 template<typename R>
 inline DistMatrix<Complex<R> >
 NormalFromEVD
@@ -106,6 +109,7 @@ NormalFromEVD
     NormalFromEVD( A, w, Z );
     return A;
 }
+#endif
 
 } // namespace elem
 

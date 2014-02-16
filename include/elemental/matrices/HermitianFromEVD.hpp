@@ -48,6 +48,7 @@ HermitianFromEVD
     }
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 HermitianFromEVD
@@ -59,6 +60,7 @@ HermitianFromEVD
     HermitianFromEVD( uplo, A, w, Z );
     return A;
 }
+#endif
 
 template<typename F>
 inline void
@@ -105,6 +107,7 @@ HermitianFromEVD
     }
 }
 
+#ifndef SWIG
 template<typename F>
 inline DistMatrix<F>
 HermitianFromEVD
@@ -116,6 +119,7 @@ HermitianFromEVD
     HermitianFromEVD( uplo, A, w, Z );
     return A;
 }
+#endif
 
 } // namespace elem
 

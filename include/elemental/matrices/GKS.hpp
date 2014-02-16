@@ -71,6 +71,16 @@ MakeGKS( DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
+inline void
+GKS( Matrix<F>& A, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("GKS"))
+    A.Resize( n, n );
+    MakeGKS( A );
+}
+
+#ifndef SWIG
+template<typename F>
 inline Matrix<F>
 GKS( Int n )
 {
@@ -78,6 +88,7 @@ GKS( Int n )
     MakeGKS( A );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -88,6 +99,7 @@ GKS( DistMatrix<F,U,V>& A, Int n )
     MakeGKS( A );
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 GKS( const Grid& g, Int n )
@@ -96,6 +108,7 @@ GKS( const Grid& g, Int n )
     MakeGKS( A );
     return A;
 }
+#endif
 
 } // namespace elem
 

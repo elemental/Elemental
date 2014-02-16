@@ -27,6 +27,7 @@ Lehmer( Matrix<F>& L, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Lehmer( Int n )
@@ -35,6 +36,7 @@ Lehmer( Int n )
     Lehmer( L, n );
     return L;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -62,6 +64,7 @@ Lehmer( DistMatrix<F,U,V>& L, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Lehmer( const Grid& g, Int n )
@@ -70,6 +73,7 @@ Lehmer( const Grid& g, Int n )
     Lehmer( L, n );
     return L;
 }
+#endif
 
 } // namespace elem
 

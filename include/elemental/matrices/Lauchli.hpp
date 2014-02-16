@@ -30,6 +30,7 @@ Lauchli( Matrix<T>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
+#ifndef SWIG
 template<typename T>
 inline Matrix<T>
 Lauchli( Int n, T mu )
@@ -38,6 +39,7 @@ Lauchli( Int n, T mu )
     Lauchli( A, n, mu );
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -54,6 +56,7 @@ Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Lauchli( const Grid& g, Int n, T mu )
@@ -62,6 +65,7 @@ Lauchli( const Grid& g, Int n, T mu )
     Lauchli( A, n, mu );
     return A;
 }
+#endif
 
 // TODO: MakeLauchli?
 

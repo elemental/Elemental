@@ -30,6 +30,7 @@ TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
     Toeplitz( A, m, n, a );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 TriW( Int m, Int n, T alpha, Int k )
@@ -38,6 +39,7 @@ TriW( Int m, Int n, T alpha, Int k )
     TriW( A, m, n, alpha, k );
     return A;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -55,6 +57,7 @@ TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
     Toeplitz( A, m, n, a );
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 TriW( const Grid& g, Int m, Int n, T alpha, Int k )
@@ -63,6 +66,7 @@ TriW( const Grid& g, Int m, Int n, T alpha, Int k )
     TriW( A, m, n, alpha, k );
     return A;
 }
+#endif
 
 // TODO: MakeTriW?
 

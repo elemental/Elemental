@@ -36,6 +36,7 @@ Helmholtz( Matrix<F>& H, Int n, F shift )
     }
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Helmholtz( Int n, F shift )
@@ -44,6 +45,7 @@ Helmholtz( Int n, F shift )
     Helmholtz( H, n, shift );
     return H;
 }
+#endif
 
 // 2D Helmholtz
 template<typename F> 
@@ -77,6 +79,7 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
     }
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Helmholtz( Int nx, Int ny, F shift )
@@ -85,6 +88,7 @@ Helmholtz( Int nx, Int ny, F shift )
     Helmholtz( H, nx, ny, shift );
     return H;
 }
+#endif
 
 // 3D Helmholtz
 template<typename F> 
@@ -125,6 +129,7 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Helmholtz( Int nx, Int ny, Int nz, F shift )
@@ -133,6 +138,7 @@ Helmholtz( Int nx, Int ny, Int nz, F shift )
     Helmholtz( H, nx, ny, nz, shift );
     return H;
 }
+#endif
 
 // 1D Helmholtz
 template<typename F,Dist U,Dist V>
@@ -162,6 +168,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Helmholtz( const Grid& g, Int n, F shift )
@@ -170,6 +177,7 @@ Helmholtz( const Grid& g, Int n, F shift )
     Helmholtz( H, n, shift );
     return H;
 }
+#endif
 
 // 2D Helmholtz
 template<typename F,Dist U,Dist V>
@@ -208,6 +216,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Helmholtz( const Grid& g, Int nx, Int ny, F shift )
@@ -216,6 +225,7 @@ Helmholtz( const Grid& g, Int nx, Int ny, F shift )
     Helmholtz( H, nx, ny, shift );
     return H;
 }
+#endif
 
 // 3D Helmholtz
 template<typename F,Dist U,Dist V>
@@ -261,6 +271,7 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Helmholtz( const Grid& g, Int nx, Int ny, Int nz, F shift )
@@ -269,6 +280,7 @@ Helmholtz( const Grid& g, Int nx, Int ny, Int nz, F shift )
     Helmholtz( H, nx, ny, nz, shift );
     return H;
 }
+#endif
 
 } // namespace elem
 

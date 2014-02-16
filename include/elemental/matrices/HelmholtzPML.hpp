@@ -420,6 +420,7 @@ HelmholtzPML
     }
 }
 
+#ifndef SWIG
 template<typename Real> 
 inline Matrix<Complex<Real> >
 HelmholtzPML
@@ -485,6 +486,7 @@ HelmholtzPML
     HelmholtzPML( H, nx, ny, nz, omega, numPmlPoints, sigma, pmlExp );
     return H;
 }
+#endif
 
 } // namespace elem
 

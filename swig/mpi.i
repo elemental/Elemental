@@ -11,13 +11,13 @@
 
 %include "common.swg"
 
-/*
- * MPI
- */
+// Message Passing Interface
+// =========================
 
 %import  "std_except.i"
 %include "elemental/core/imports/mpi.hpp"
 
-// The communication routines have not yet been exposed to SWIG. We have to decide how
-// to do that. For instance, for Python, do we typemap all of the arrays to NumPy objects?
-// And what to do about the ValueInt<T> type? NumPy record objects, perhaps?
+// The communication routines have not yet been exposed to SWIG. We have to 
+// decide how to do that. For instance, for Python, do we typemap all of the 
+// arrays to NumPy objects? And what to do about the ValueInt<T> type? NumPy 
+// record objects, perhaps?

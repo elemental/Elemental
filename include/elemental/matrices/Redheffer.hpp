@@ -30,6 +30,7 @@ Redheffer( Matrix<T>& R, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Redheffer( Int n )
@@ -38,6 +39,7 @@ Redheffer( Int n )
     Redheffer( R, n );
     return R;
 }
+#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -65,6 +67,7 @@ Redheffer( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Redheffer( const Grid& g, Int n )
@@ -73,6 +76,7 @@ Redheffer( const Grid& g, Int n )
     Redheffer( R, n );
     return R;
 }
+#endif
 
 } // namespace elem
 

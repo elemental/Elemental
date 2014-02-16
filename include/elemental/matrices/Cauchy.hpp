@@ -38,6 +38,7 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
     }
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 Cauchy( const std::vector<F>& x, const std::vector<F>& y )
@@ -46,6 +47,7 @@ Cauchy( const std::vector<F>& x, const std::vector<F>& y )
     Cauchy( A, x, y );
     return A;
 }
+#endif
 
 template<typename F1,typename F2,Dist U,Dist V>
 inline void
@@ -82,6 +84,7 @@ Cauchy
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
@@ -90,6 +93,7 @@ Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
     Cauchy( A, x, y );
     return A;
 }
+#endif
 
 } // namespace elem
 

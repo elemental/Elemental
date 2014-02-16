@@ -15,9 +15,8 @@
 
 %include "elemental/lapack-like/decl.hpp"
 
-/*
- * INVARIANTS, INNER PRODUCTS, NORMS, ETC.
- */
+// Invariants, inner products, norms, etc.
+// =======================================
  
 %ignore PivotOp;
 %ignore CreatePivotOp;
@@ -80,9 +79,8 @@ OVERLOAD01(ZeroNorm)
 OVERLOAD0(Trace)
 };
 
-/*
- * FACTORIZATIONS
- */
+// Factorizations
+// ==============
 
 %ignore elem::LocalCholesky;
 %ignore elem::LocalReverseCholesky;
@@ -115,9 +113,8 @@ OVERLOAD0(ID)
 OVERLOAD0(Skeleton)
 };
 
-/*
- * LINEAR SOLVERS
- */
+// Linear solvers
+// ==============
  
 %include "elemental/lapack-like/solve/HPDSolve.hpp"
 %include "elemental/lapack-like/solve/GaussianElimination.hpp"
@@ -134,9 +131,8 @@ namespace cholesky { OVERLOAD0_R(SolveAfter,SolveAfter_Cholesky) };
 namespace lu       { OVERLOAD0_R(SolveAfter,SolveAfter_LU) };
 };
 
-/*
- * MATRIX FUNCTIONS
- */
+// Matrix functions
+// ================
  
 %ignore elem::LocalInverse;
 %ignore elem::LocalHPDInverse;
@@ -158,9 +154,9 @@ OVERLOAD0(Sign)
 OVERLOAD0(HPSDSquareRoot)
 OVERLOAD0(SquareRoot)
 };
-/*
- * REDUCTION TO CONDENSED FORM
- */
+
+// Reduction to condensed form
+// ===========================
 
 %include "elemental/lapack-like/condense/Bidiag.hpp"
 %include "elemental/lapack-like/condense/HermitianTridiag.hpp"
@@ -170,9 +166,8 @@ OVERLOAD0(HermitianTridiag)
 OVERLOAD0(Bidiag)
 };
 
-/*
- * EIGENSOLVERS AND SVD
- */
+// Matrix decompositions
+// =====================
  
 %include "elemental/lapack-like/decomp/SymmetricTridiagEig/Sort.hpp"
 %include "elemental/lapack-like/decomp/SkewHermitianEig.hpp"
@@ -181,7 +176,6 @@ OVERLOAD0(Bidiag)
 %include "elemental/lapack-like/decomp/SVD.hpp"
 %include "elemental/lapack-like/decomp/Polar.hpp"
 // %include "elemental/lapack-like/decomp/Polar/QDWH.hpp"
-
 
 namespace elem {
 OVERLOAD0(HermitianEig)
@@ -195,4 +189,3 @@ namespace polar {
 };
 OVERLOAD0(SVD)
 };
-

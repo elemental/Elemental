@@ -90,6 +90,7 @@ Kahan( Matrix<F>& A, Int n, F phi )
     MakeKahan( A, phi );
 }
 
+#ifndef SWIG
 template<typename F>
 inline Matrix<F>
 Kahan( Int n, F phi )
@@ -98,6 +99,7 @@ Kahan( Int n, F phi )
     MakeKahan( A, phi );
     return A;
 }
+#endif
 
 template<typename F,Dist U,Dist V>
 inline void
@@ -108,6 +110,7 @@ Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
     MakeKahan( A, phi );
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Kahan( const Grid& g, Int n, F phi )
@@ -116,6 +119,7 @@ Kahan( const Grid& g, Int n, F phi )
     MakeKahan( A, phi );
     return A;
 }
+#endif
 
 } // namespace elem
 

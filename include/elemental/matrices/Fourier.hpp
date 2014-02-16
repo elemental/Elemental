@@ -77,6 +77,7 @@ Fourier( Matrix<Complex<Real> >& A, Int n )
     MakeFourier( A );
 }
 
+#ifndef SWIG
 template<typename Real>
 inline Matrix<Complex<Real> >
 Fourier( Int n )
@@ -85,6 +86,7 @@ Fourier( Int n )
     MakeFourier( A );
     return A;
 }
+#endif
 
 template<typename Real,Dist U,Dist V>
 inline void
@@ -95,6 +97,7 @@ Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
     MakeFourier( A );
 }
 
+#ifndef SWIG
 template<typename Real,Dist U=MC,Dist V=MR>
 inline DistMatrix<Complex<Real>,U,V>
 Fourier( const Grid& g, Int n )
@@ -103,6 +106,7 @@ Fourier( const Grid& g, Int n )
     MakeFourier( A );
     return A;
 }
+#endif
 
 } // namespace elem
 

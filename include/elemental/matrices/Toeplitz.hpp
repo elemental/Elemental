@@ -27,6 +27,7 @@ Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i-j+(n-1)] );
 }
 
+#ifndef SWIG
 template<typename T> 
 inline Matrix<T>
 Toeplitz( Int m, Int n, const std::vector<T>& a )
@@ -35,6 +36,7 @@ Toeplitz( Int m, Int n, const std::vector<T>& a )
     Toeplitz( A, m, n, a );
     return A;
 }
+#endif
 
 template<typename S,typename T,Dist U,Dist V>
 inline void
@@ -63,6 +65,7 @@ Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
     }
 }
 
+#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Toeplitz( const Grid& g, Int m, Int n, const std::vector<T>& a )
@@ -71,6 +74,7 @@ Toeplitz( const Grid& g, Int m, Int n, const std::vector<T>& a )
     Toeplitz( A, m, n, a );
     return A;
 }
+#endif
 
 } // namespace elem
 

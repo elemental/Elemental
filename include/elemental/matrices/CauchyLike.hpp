@@ -44,6 +44,7 @@ CauchyLike
     }
 }
 
+#ifndef SWIG
 template<typename F> 
 inline Matrix<F>
 CauchyLike
@@ -54,6 +55,7 @@ CauchyLike
     CauchyLike( A, r, s, x, y );
     return A;
 }
+#endif
 
 template<typename F1,typename F2,Dist U,Dist V>
 inline void
@@ -95,6 +97,7 @@ CauchyLike
     }
 }
 
+#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 CauchyLike
@@ -106,6 +109,7 @@ CauchyLike
     CauchyLike( A, r, s, x, y );
     return A;
 }
+#endif
 
 } // namespace elem
 
