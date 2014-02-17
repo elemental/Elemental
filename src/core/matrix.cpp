@@ -643,11 +643,11 @@ Matrix<T>::ConjugateDiagonal( Int offset )
 
 template<typename T>
 void
-Matrix<T>::Get
+Matrix<T>::GetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Matrix<T>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::Get"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::GetSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     ASub.Resize( m, n );
@@ -668,11 +668,11 @@ Matrix<T>::Get
 
 template<typename T>
 void
-Matrix<T>::GetRealPart
+Matrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Matrix<Base<T>>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::GetRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::GetRealPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     ASub.Resize( m, n );
@@ -693,11 +693,11 @@ Matrix<T>::GetRealPart
 
 template<typename T>
 void
-Matrix<T>::GetImagPart
+Matrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Matrix<Base<T>>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::GetImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::GetImagPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     ASub.Resize( m, n );
@@ -718,41 +718,41 @@ Matrix<T>::GetImagPart
 
 template<typename T>
 Matrix<T>
-Matrix<T>::Get
+Matrix<T>::GetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     Matrix<T> ASub;
-    Get( rowInd, colInd, ASub );
+    GetSubmatrix( rowInd, colInd, ASub );
     return ASub;
 }
 
 template<typename T>
 Matrix<Base<T>>
-Matrix<T>::GetRealPart
+Matrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     Matrix<Base<T>> ASub;
-    GetRealPart( rowInd, colInd, ASub );
+    GetRealPartOfSubmatrix( rowInd, colInd, ASub );
     return ASub;
 }
 
 template<typename T>
 Matrix<Base<T>>
-Matrix<T>::GetImagPart
+Matrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     Matrix<Base<T>> ASub;
-    GetImagPart( rowInd, colInd, ASub );
+    GetImagPartOfSubmatrix( rowInd, colInd, ASub );
     return ASub;
 }
 
 template<typename T>
 void
-Matrix<T>::Set
+Matrix<T>::SetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::Set"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::SetSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     const T* bufSub = ASub.LockedBuffer();
@@ -772,11 +772,11 @@ Matrix<T>::Set
 
 template<typename T>
 void
-Matrix<T>::SetRealPart
+Matrix<T>::SetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const Matrix<Base<T>>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::SetRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::SetRealPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     const Base<T>* bufSub = ASub.LockedBuffer();
@@ -796,11 +796,11 @@ Matrix<T>::SetRealPart
 
 template<typename T>
 void
-Matrix<T>::SetImagPart
+Matrix<T>::SetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const Matrix<Base<T>>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::SetImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::SetImagPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     const Base<T>* bufSub = ASub.LockedBuffer();
@@ -820,11 +820,11 @@ Matrix<T>::SetImagPart
 
 template<typename T>
 void
-Matrix<T>::Update
+Matrix<T>::UpdateSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   T alpha, const Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::Update"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     const T* bufSub = ASub.LockedBuffer();
@@ -844,11 +844,11 @@ Matrix<T>::Update
 
 template<typename T>
 void
-Matrix<T>::UpdateRealPart
+Matrix<T>::UpdateRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateRealPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     const Base<T>* bufSub = ASub.LockedBuffer();
@@ -869,11 +869,11 @@ Matrix<T>::UpdateRealPart
 
 template<typename T>
 void
-Matrix<T>::UpdateImagPart
+Matrix<T>::UpdateImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::UpdateImagPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     const Base<T>* bufSub = ASub.LockedBuffer();
@@ -894,10 +894,10 @@ Matrix<T>::UpdateImagPart
 
 template<typename T>
 void
-Matrix<T>::MakeReal
+Matrix<T>::MakeSubmatrixReal
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::MakeReal"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::MakeSubmatrixReal"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     T* buf = Buffer();
@@ -915,10 +915,10 @@ Matrix<T>::MakeReal
 
 template<typename T>
 void
-Matrix<T>::Conjugate
+Matrix<T>::ConjugateSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
 {
-    DEBUG_ONLY(CallStackEntry cse("Matrix::Conjugate"))
+    DEBUG_ONLY(CallStackEntry cse("Matrix::ConjugateSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     T* buf = Buffer();

@@ -880,7 +880,7 @@ AbstractDistMatrix<T>::MakeReal( Int i, Int j )
         {
             const Int iLoc = (i-ColShift()) / ColStride();
             const Int jLoc = (j-RowShift()) / RowStride();
-            MakeRealLocal( iLoc, jLoc );
+            MakeLocalReal( iLoc, jLoc );
         }
     }
 }
@@ -954,7 +954,7 @@ AbstractDistMatrix<T>::UpdateLocalImagPart
 
 template<typename T>
 void
-AbstractDistMatrix<T>::MakeRealLocal( Int iLoc, Int jLoc )
+AbstractDistMatrix<T>::MakeLocalReal( Int iLoc, Int jLoc )
 { matrix_.MakeReal( iLoc, jLoc ); }
 
 template<typename T>
@@ -982,7 +982,7 @@ AbstractDistMatrix<T>::MakeDiagonalReal( Int offset )
         if( j < minDim && IsLocal(j,j) )
         {
             const Int iLoc = LocalRow(j);
-            MakeRealLocal( iLoc, jLoc );
+            MakeLocalReal( iLoc, jLoc );
         }
     }
 }
@@ -1017,11 +1017,11 @@ AbstractDistMatrix<T>::ConjugateDiagonal( Int offset )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::Get
+AbstractDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   DistMatrix<T,STAR,STAR>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Get"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     ASub.SetGrid( Grid() );
@@ -1056,11 +1056,11 @@ AbstractDistMatrix<T>::Get
 
 template<typename T>
 void
-AbstractDistMatrix<T>::GetRealPart
+AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   DistMatrix<BASE(T),STAR,STAR>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     ASub.SetGrid( Grid() );
@@ -1096,11 +1096,11 @@ AbstractDistMatrix<T>::GetRealPart
 
 template<typename T>
 void
-AbstractDistMatrix<T>::GetImagPart
+AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
   DistMatrix<BASE(T),STAR,STAR>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     ASub.SetGrid( Grid() );
@@ -1136,44 +1136,44 @@ AbstractDistMatrix<T>::GetImagPart
 
 template<typename T>
 DistMatrix<T,STAR,STAR>
-AbstractDistMatrix<T>::Get
+AbstractDistMatrix<T>::GetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Get"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetSubmatrix"))
     DistMatrix<T,STAR,STAR> ASub( Grid() );
-    Get( rowInd, colInd, ASub );
+    GetSubmatrix( rowInd, colInd, ASub );
     return ASub;
 }
 
 template<typename T>
 DistMatrix<BASE(T),STAR,STAR>
-AbstractDistMatrix<T>::GetRealPart
+AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
     DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
-    GetRealPart( rowInd, colInd, ASub );
+    GetRealPartOfSubmatrix( rowInd, colInd, ASub );
     return ASub;
 }
 
 template<typename T>
 DistMatrix<BASE(T),STAR,STAR>
-AbstractDistMatrix<T>::GetImagPart
+AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
     DistMatrix<Base<T>,STAR,STAR> ASub( Grid() );
-    GetImagPart( rowInd, colInd, ASub );
+    GetImagPartOfSubmatrix( rowInd, colInd, ASub );
     return ASub;
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::Set
+AbstractDistMatrix<T>::SetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const DistMatrix<T,STAR,STAR>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Set"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1201,11 +1201,11 @@ AbstractDistMatrix<T>::Set
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::SetRealPart
+AbstractDistMatrix<T>::SetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1234,11 +1234,11 @@ AbstractDistMatrix<T>::SetRealPart
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::SetImagPart
+AbstractDistMatrix<T>::SetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1267,11 +1267,11 @@ AbstractDistMatrix<T>::SetImagPart
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::Update
+AbstractDistMatrix<T>::UpdateSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   T alpha, const DistMatrix<T,STAR,STAR>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Update"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1300,11 +1300,11 @@ AbstractDistMatrix<T>::Update
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::UpdateRealPart
+AbstractDistMatrix<T>::UpdateRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1333,11 +1333,11 @@ AbstractDistMatrix<T>::UpdateRealPart
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::UpdateImagPart
+AbstractDistMatrix<T>::UpdateImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPart"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1366,10 +1366,10 @@ AbstractDistMatrix<T>::UpdateImagPart
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::MakeReal
+AbstractDistMatrix<T>::MakeSubmatrixReal
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::MakeReal"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeSubmatrixReal"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1387,7 +1387,7 @@ AbstractDistMatrix<T>::MakeReal
                     if( IsLocalRow(i) )
                     {
                         const Int iLoc = LocalRow(i);
-                        MakeRealLocal( iLoc, jLoc );
+                        MakeLocalReal( iLoc, jLoc );
                     }
                 }
             }
@@ -1397,10 +1397,10 @@ AbstractDistMatrix<T>::MakeReal
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::Conjugate
+AbstractDistMatrix<T>::ConjugateSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::Conjugate"))
+    DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateSubmatrix"))
     const Int m = rowInd.size();
     const Int n = colInd.size();
     if( Participating() )
@@ -1431,110 +1431,110 @@ AbstractDistMatrix<T>::Conjugate
 
 template<typename T>
 void
-AbstractDistMatrix<T>::GetLocal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+AbstractDistMatrix<T>::GetLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
   elem::Matrix<T>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocal"))
-    LockedMatrix().Get( rowInd, colInd, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocalSubmatrix"))
+    LockedMatrix().GetSubmatrix( rowIndLoc, colIndLoc, ASub );
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::GetLocalRealPart
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+AbstractDistMatrix<T>::GetRealPartOfLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
   elem::Matrix<BASE(T)>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocalRealPart"))
-    LockedMatrix().GetRealPart( rowInd, colInd, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfLocalSubmatrix"))
+    LockedMatrix().GetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::GetLocalImagPart
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+AbstractDistMatrix<T>::GetImagPartOfLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
   elem::Matrix<BASE(T)>& ASub ) const
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::GetLocalImagPart"))
-    LockedMatrix().GetImagPart( rowInd, colInd, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfLocalSubmatrix"))
+    LockedMatrix().GetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::SetLocal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+AbstractDistMatrix<T>::SetLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
   const elem::Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocal"))
-    Matrix().Set( rowInd, colInd, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocalSubmatrix"))
+    Matrix().SetSubmatrix( rowIndLoc, colIndLoc, ASub );
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::SetLocalRealPart
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+AbstractDistMatrix<T>::SetRealPartOfLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
   const elem::Matrix<BASE(T)>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocalRealPart"))
-    Matrix().SetRealPart( rowInd, colInd, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfLocalSubmatrix"))
+    Matrix().SetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::SetLocalImagPart
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+AbstractDistMatrix<T>::SetImagPartOfLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
   const elem::Matrix<BASE(T)>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::SetLocalImagPart"))
-    Matrix().SetImagPart( rowInd, colInd, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfLocalSubmatrix"))
+    Matrix().SetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::UpdateLocal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+AbstractDistMatrix<T>::UpdateLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
   T alpha, const elem::Matrix<T>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocal"))
-    Matrix().Update( rowInd, colInd, alpha, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalSubmatrix"))
+    Matrix().UpdateSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::UpdateLocalRealPart
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+AbstractDistMatrix<T>::UpdateRealPartOfLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
   BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalRealPart"))
-    Matrix().UpdateRealPart( rowInd, colInd, alpha, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfLocalSubmatrix"))
+    Matrix().UpdateRealPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
 }
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::UpdateLocalImagPart
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+AbstractDistMatrix<T>::UpdateImagPartOfLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
   BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateLocalImagPart"))
-    Matrix().UpdateImagPart( rowInd, colInd, alpha, ASub );
+    DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfLocalSubmatrix"))
+    Matrix().UpdateImagPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::MakeRealLocal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+AbstractDistMatrix<T>::MakeLocalSubmatrixReal
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::MakeRealLocal"))
-    Matrix().MakeReal( rowInd, colInd );
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeLocalSubmatrixReal"))
+    Matrix().MakeSubmatrixReal( rowIndLoc, colIndLoc );
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::ConjugateLocal
-( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+AbstractDistMatrix<T>::ConjugateLocalSubmatrix
+( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
 {
-    DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateLocal"))
-    Matrix().Conjugate( rowInd, colInd );
+    DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateLocalSubmatrix"))
+    Matrix().ConjugateSubmatrix( rowIndLoc, colIndLoc );
 }
 
 // Sum the local matrix over a particular communicator

@@ -52,6 +52,7 @@ enum ColorMap
 }
 using namespace color_map_wrapper;
 
+#ifdef HAVE_QT5
 // Return true if Qt5 was detected, but no GUI is allowed.
 // This is useful if images are to be written to file using Qt5's wrappers.
 bool GuiDisabled();
@@ -69,6 +70,7 @@ void UpdateMinRealWindowVal( double minVal );
 void UpdateMaxRealWindowVal( double maxVal );
 void UpdateMinImagWindowVal( double minVal );
 void UpdateMaxImagWindowVal( double maxVal );
+#endif
 
 } // namespace elem
 

@@ -88,9 +88,11 @@ public:
     void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
+#ifndef SWIG
     Matrix<T> GetDiagonal( Int offset=0 ) const;
     Matrix<BASE(T) > GetRealPartOfDiagonal( Int offset=0 ) const;
     Matrix<BASE(T) > GetImagPartOfDiagonal( Int offset=0 ) const;
+#endif
 
     void SetDiagonal( const Matrix<T>& d, Int offset=0 );
     void SetRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
@@ -105,45 +107,47 @@ public:
 
     // Arbitrary submatrix manipulation
     // ================================
-    void Get
+    void GetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       Matrix<T>& ASub ) const;
-    void GetRealPart
+    void GetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       Matrix<BASE(T)>& ASub ) const;
-    void GetImagPart
+    void GetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       Matrix<BASE(T)>& ASub ) const;
-    Matrix<T> Get
+#ifndef SWIG
+    Matrix<T> GetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-    Matrix<BASE(T)> GetRealPart
+    Matrix<BASE(T)> GetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-    Matrix<BASE(T)> GetImagPart
+    Matrix<BASE(T)> GetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
+#endif
 
-    void Set
+    void SetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       const Matrix<T>& ASub );
-    void SetRealPart
+    void SetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       const Matrix<BASE(T)>& ASub );
-    void SetImagPart
+    void SetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       const Matrix<BASE(T)>& ASub );
 
-    void Update
+    void UpdateSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       T alpha, const Matrix<T>& ASub );
-    void UpdateRealPart
+    void UpdateRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       BASE(T) alpha, const Matrix<BASE(T)>& ASub );
-    void UpdateImagPart
+    void UpdateImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       BASE(T) alpha, const Matrix<BASE(T)>& ASub );
 
-    void MakeReal
+    void MakeSubmatrixReal
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
-    void Conjugate
+    void ConjugateSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
 
 private:

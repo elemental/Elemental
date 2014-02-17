@@ -59,7 +59,7 @@ main( int argc, char* argv[] )
             std::cout << std::endl;
         }
         
-        auto ASub = A.Get( rowInds, colInds );
+        auto ASub = A.GetSubmatrix( rowInds, colInds );
         if( display )
             Display( ASub, "ASub" );
         if( print )
@@ -70,7 +70,7 @@ main( int argc, char* argv[] )
             Display( ASub, "Scrambled ASub" );
         if( print )
             Print( ASub, "Scrambled ASub" );
-        A.Set( rowInds, colInds, ASub );
+        A.SetSubmatrix( rowInds, colInds, ASub );
        
         if( display )
             Display( A, "Modified Fourier matrix" );
