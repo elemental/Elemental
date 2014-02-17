@@ -163,7 +163,7 @@ F Atanh( const F& alpha );
 
 // Complex argument
 template<typename F>
-F Arg( const F& alpha );
+Base<F> Arg( const F& alpha );
 
 #ifndef SWIG
 // Convert polar coordinates to the complex number

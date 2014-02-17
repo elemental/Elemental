@@ -10,9 +10,11 @@
 #ifndef ELEM_NORM_HPP
 #define ELEM_NORM_HPP
 
+#include "./Norm/Entrywise.hpp"
 #include "./Norm/EntrywiseOne.hpp"
 #include "./Norm/Frobenius.hpp"
 #include "./Norm/Infinity.hpp"
+#include "./Norm/KyFan.hpp"
 #include "./Norm/Max.hpp"
 #include "./Norm/One.hpp"
 

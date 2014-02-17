@@ -53,7 +53,7 @@ NewtonStep
     DEBUG_ONLY(CallStackEntry cse("square_root::NewtonStep"))
     // XNew := inv(X) A
     XTmp = X;
-    Matrix<Int> p;
+    DistMatrix<Int,VC,STAR> p(X.Grid());
     LU( XTmp, p );
     XNew = A;
     lu::SolveAfter( NORMAL, XTmp, p, XNew );

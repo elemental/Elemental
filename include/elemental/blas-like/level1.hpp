@@ -19,6 +19,8 @@
 #include "./level1/DiagonalSolve.hpp"
 #include "./level1/Dot.hpp"
 #include "./level1/Dotu.hpp"
+#include "./level1/Hadamard.hpp"
+#include "./level1/HilbertSchmidt.hpp"
 #include "./level1/MakeHermitian.hpp"
 #include "./level1/MakeReal.hpp"
 #include "./level1/MakeSymmetric.hpp"

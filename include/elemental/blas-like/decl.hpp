@@ -293,20 +293,20 @@ template<> void SetLocalTrr2kBlocksize<Complex<double> >( Int blocksize );
 template<typename T> Int LocalSymvBlocksize();
 template<> Int LocalSymvBlocksize<float>();
 template<> Int LocalSymvBlocksize<double>();
-template<> Int LocalSymvBlocksize<scomplex>();
-template<> Int LocalSymvBlocksize<dcomplex>();
+template<> Int LocalSymvBlocksize<Complex<float> >();
+template<> Int LocalSymvBlocksize<Complex<double> >();
 
 template<typename T> Int LocalTrrkBlocksize();
 template<> Int LocalTrrkBlocksize<float>();
 template<> Int LocalTrrkBlocksize<double>();
-template<> Int LocalTrrkBlocksize<scomplex>();
-template<> Int LocalTrrkBlocksize<dcomplex>();
+template<> Int LocalTrrkBlocksize<Complex<float> >();
+template<> Int LocalTrrkBlocksize<Complex<double> >();
 
 template<typename T> Int LocalTrr2kBlocksize();
 template<> Int LocalTrr2kBlocksize<float>();
 template<> Int LocalTrr2kBlocksize<double>();
-template<> Int LocalTrr2kBlocksize<scomplex>();
-template<> Int LocalTrr2kBlocksize<dcomplex>();
+template<> Int LocalTrr2kBlocksize<Complex<float> >();
+template<> Int LocalTrr2kBlocksize<Complex<double> >();
 
 } // namespace elem
 

@@ -675,11 +675,12 @@ if(HAVE_SWIG)
   # NOTE: There seems to be a bug in the SWIG module where the necessary
   #       subdirectories (i.e., swig/) are not created automatically
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swig)
-  set(SWIGFILES elem mpi view blas lapack control convex matrices io)
+  set(SWIGFILES elem elem_mpi elem_view elem_blas elem_lapack elem_control 
+                elem_convex elem_matrices elem_io)
   foreach(SWIGFILE ${SWIGFILES})
     set_source_files_properties(swig/${SWIGFILE}.i PROPERTIES CPLUSPLUS ON)
-    swig_add_module(elem_${SWIGFILE} python swig/${SWIGFILE}.i)
-    swig_link_libraries(elem_${SWIGFILE} ${PYTHON_LIBRARIES} elemental)
+    swig_add_module(${SWIGFILE} python swig/${SWIGFILE}.i)
+    swig_link_libraries(${SWIGFILE} ${PYTHON_LIBRARIES} elemental)
   endforeach()
 endif()
 
