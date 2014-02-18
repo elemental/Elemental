@@ -381,12 +381,11 @@ AbstractDistMatrix<T>::Attach
 template<typename T>
 void
 AbstractDistMatrix<T>::Attach
-( elem::Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& g, 
-  Int root )
+( Int height, Int width, Int colAlign, Int rowAlign, elem::Matrix<T>& A, 
+  const elem::Grid& g, Int root )
 {
-    Attach
-    ( A.Height(), A.Width(), colAlign, rowAlign, A.Buffer(), A.LDim(),
-      g, root );
+    // TODO: Assert that the local dimensions are correct
+    Attach( height, width, colAlign, rowAlign, A.Buffer(), A.LDim(), g, root );
 }
 
 template<typename T>
@@ -419,12 +418,12 @@ AbstractDistMatrix<T>::LockedAttach
 template<typename T>
 void
 AbstractDistMatrix<T>::LockedAttach
-( const elem::Matrix<T>& A, Int colAlign, Int rowAlign,
+( Int height, Int width, Int colAlign, Int rowAlign, const elem::Matrix<T>& A,
   const elem::Grid& g, Int root )
 {
+    // TODO: Assert that the local dimensions are correct
     LockedAttach
-    ( A.Height(), A.Width(), colAlign, rowAlign,
-      A.LockedBuffer(), A.LDim(), g, root );
+    ( height, width, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), g, root );
 }
 
 // Basic queries

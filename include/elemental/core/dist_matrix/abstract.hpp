@@ -67,11 +67,11 @@ public:
     ( Int height, Int width, Int colAlign, Int rowAlign,
       const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
     void Attach
-    ( Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& grid, 
-      Int root=0 );
+    ( Int height, Int width, Int colAlign, Int rowAlign, 
+      elem::Matrix<T>& A, const elem::Grid& grid, Int root=0 );
     void LockedAttach
-    ( const Matrix<T>& A, Int colAlign, Int rowAlign, const elem::Grid& grid, 
-      Int root=0 );
+    ( Int height, Int width, Int colAlign, Int rowAlign, 
+      const elem::Matrix<T>& A, const elem::Grid& grid, Int root=0 );
 
     // Basic queries
     // =============

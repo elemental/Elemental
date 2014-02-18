@@ -62,8 +62,8 @@ public:
     Int MemorySize() const;
     Int DiagonalLength( Int offset=0 ) const;
     T* Buffer();
-    T* Buffer( Int i, Int j );
     const T* LockedBuffer() const;
+    T* Buffer( Int i, Int j );
     const T* LockedBuffer( Int i, Int j ) const;
     bool Viewing()   const;
     bool FixedSize() const;
