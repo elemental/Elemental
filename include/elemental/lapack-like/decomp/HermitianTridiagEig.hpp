@@ -70,7 +70,7 @@ HermitianTridiagEig
     w.Resize( n, 1 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {
@@ -101,7 +101,7 @@ HermitianTridiagEig
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, d.Grid() );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, 0, 0, n, d.Grid() );
     if( w.Participating() )
     {
         C yLast = 1;
@@ -187,7 +187,7 @@ HermitianTridiagEig
     w.Resize( k, 1 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {
@@ -219,7 +219,7 @@ HermitianTridiagEig
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, d.Grid() );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, 0, 0, n, d.Grid() );
     if( w.Participating() )
     {
         C yLast = 1;
@@ -300,7 +300,7 @@ HermitianTridiagEig
     w.AlignCols( 0 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {
@@ -333,7 +333,7 @@ HermitianTridiagEig
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, d.Grid() );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, 0, 0, n, d.Grid() );
     if( w.Participating() )
     {
         C yLast = 1;
@@ -427,7 +427,7 @@ HermitianTridiagEig
     Z.Resize( n, n );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {
@@ -462,7 +462,7 @@ HermitianTridiagEig
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, g );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, n, g );
+    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, 0, 0, n, g );
     DistMatrix<Real,STAR,U3  > ZReal(g);
     DistMatrix<C,   STAR,STAR> y(n,1,g);
     if( w.Participating() )
@@ -582,7 +582,7 @@ HermitianTridiagEig
     Z.Resize( n, k );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {
@@ -618,7 +618,7 @@ HermitianTridiagEig
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, g );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, n, g );
+    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, 0, 0, n, g );
     DistMatrix<Real,STAR,U3  > ZReal(g);
     DistMatrix<C,   STAR,STAR> y(n,1,g);
     if( w.Participating() )
@@ -729,7 +729,7 @@ HermitianTridiagEig
     Z.AlignRows( 0 );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {
@@ -779,7 +779,7 @@ HermitianTridiagEig
     DistMatrix<C,STAR,STAR> e_STAR_STAR( n-1, 1, g );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, n, g );
+    DistMatrix<Real,STAR,STAR> eReal( n-1, 1, 0, 0, n, g );
     DistMatrix<Real,STAR,U3  > ZReal(g);
     DistMatrix<C,   STAR,STAR> y(n,1,g);
     if( w.Participating() )
@@ -865,7 +865,7 @@ HermitianTridiagEigEstimate
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigEstimate"))
     const Int n = d.Height();
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     std::vector<Real> dVector(n), eVector(n), wVector(n);
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
@@ -892,7 +892,7 @@ HermitianTridiagEigPostEstimate
         LogicError("Z was not properly aligned");
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, d.Grid() );
     e_STAR_STAR = e;
     if( w.Participating() )
     {

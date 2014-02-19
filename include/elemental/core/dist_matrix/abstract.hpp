@@ -314,9 +314,10 @@ protected:
     Int root_;
     const elem::Grid* grid_;
 
-    // Construct using a particular process grid
-    // =========================================
-    AbstractDistMatrix( const elem::Grid& g );
+    // Private constructors
+    // ====================
+    // Create a 0 x 0 distributed matrix
+    AbstractDistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
 
     // Exchange metadata with another matrix
     // =====================================

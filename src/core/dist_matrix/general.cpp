@@ -19,6 +19,11 @@ namespace elem {
 // ============================
 
 template<typename T,Dist U,Dist V>
+GeneralDistMatrix<T,U,V>::GeneralDistMatrix( const elem::Grid& grid, Int root )
+: AbstractDistMatrix<T>(grid,root)
+{ }
+
+template<typename T,Dist U,Dist V>
 GeneralDistMatrix<T,U,V>::GeneralDistMatrix( GeneralDistMatrix<T,U,V>&& A )
 : AbstractDistMatrix<T>(std::move(A))
 { }
@@ -3048,14 +3053,6 @@ GeneralDistMatrix<T,U,V>::UpdateImagPartOfDiagonal
 
 // Private section
 // ###############
-
-// Construct using a particular process grid
-// =========================================
-
-template<typename T,Dist U,Dist V>
-GeneralDistMatrix<T,U,V>::GeneralDistMatrix( const elem::Grid& grid )
-: AbstractDistMatrix<T>(grid)
-{ }
 
 // Diagonal helper functions
 // =========================

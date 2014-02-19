@@ -795,7 +795,7 @@ void HermitianEig
     auto d = A.GetRealPartOfDiagonal();
     auto e = A.GetRealPartOfDiagonal( subdiagonal );
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, g );
     e_STAR_STAR = e;
     const Int kEst = HermitianTridiagEigEstimate( d, e, g.VRComm(), vl, vu );
 

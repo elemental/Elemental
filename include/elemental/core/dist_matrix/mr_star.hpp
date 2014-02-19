@@ -30,24 +30,33 @@ public:
 
     // Constructors and destructors
     // ============================
+
+    // Inherited constructors are part of C++11 but not yet widely supported.
+    //using GeneralDistMatrix<T,MR,STAR>::GeneralDistMatrix;
+
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const elem::Grid& g=DefaultGrid() );
+    DistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
     // Create a height x width distributed matrix
-    DistMatrix( Int height, Int width, const elem::Grid& g=DefaultGrid() );
+    DistMatrix
+    ( Int height, Int width, const elem::Grid& g=DefaultGrid(), Int root=0 );
     // Create a height x width distributed matrix with specified alignments
-    DistMatrix( Int height, Int width, Int colAlign, const elem::Grid& g );
+    DistMatrix
+    ( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
+      Int root=0 );
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
-    ( Int height, Int width, Int colAlign, Int ldim, const elem::Grid& g );
+    ( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
+      const elem::Grid& grid, Int root=0 );
     // View a constant distributed matrix's buffer
     DistMatrix
-    ( Int height, Int width, Int colAlign,
-      const T* buffer, Int ldim, const elem::Grid& g );
+    ( Int height, Int width, Int colAlign, Int rowAlign,
+      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
     // View a mutable distributed matrix's buffer
     DistMatrix
-    ( Int height, Int width, Int colAlign,
-      T* buffer, Int ldim, const elem::Grid& g );
+    ( Int height, Int width, Int colAlign, Int rowAlign,
+      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+
     // Create a copy of distributed matrix A
     DistMatrix( const type& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );

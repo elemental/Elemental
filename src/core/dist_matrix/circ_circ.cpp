@@ -20,77 +20,57 @@ namespace elem {
 // ============================
 
 template<typename T>
-DM::DistMatrix( const elem::Grid& g, Int root )
-: GDM(g)
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ]::DistMatrix");
-        if( root < 0 || root >= this->CrossSize() )
-            LogicError("Invalid root");
-    )
-    this->root_ = root; 
-}
+DM::DistMatrix( const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->SetShifts(); }
 
 template<typename T>
-DM::DistMatrix( Int height, Int width, const elem::Grid& g, Int root )
-: GDM(g)
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ]::DistMatrix");
-        if( root < 0 || root >= this->CrossSize() )
-            LogicError("Invalid root");
-    )
-    this->root_ = root;
-    this->Resize( height, width );
-}
+DM::DistMatrix( Int height, Int width, const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 DM::DistMatrix
-( Int height, Int width, Int ldim, const elem::Grid& g, Int root )
-: GDM(g)
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ]::DistMatrix");
-        if( root < 0 || root >= this->CrossSize() )
-            LogicError("Invalid root");
-    )
-    this->root_ = root;
-    this->Resize( height, width, ldim );
-}
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g, 
+( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
   Int root )
-: GDM(g)
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ]::DistMatrix");
-        if( root < 0 || root >= this->CrossSize() )
-            LogicError("Invalid root");
-    )
-    this->LockedAttach( height, width, 0, 0, buffer, ldim, g, root );
+: GDM(grid,root)
+{
+    this->SetShifts();
+    this->Align(colAlign,rowAlign);
+    this->Resize(height,width);
 }
 
 template<typename T>
 DM::DistMatrix
-( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, Int root )
-: GDM(g)
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ]::DistMatrix");
-        if( root < 0 || root >= this->CrossSize() )
-            LogicError("Invalid root");
-    )
-    this->Attach( height, width, 0, 0, buffer, ldim, g, root );
+( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
+  const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{
+    this->SetShifts();
+    this->Align(colAlign,rowAlign);
+    this->Resize(height,width,ldim);
 }
+
+template<typename T>
+DM::DistMatrix
+( Int height, Int width, Int colAlign, Int rowAlign,
+  const T* buffer, Int ldim, const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->LockedAttach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
+
+template<typename T>
+DM::DistMatrix
+( Int height, Int width, Int colAlign, Int rowAlign,
+  T* buffer, Int ldim, const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->Attach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
 
 template<typename T>
 DM::DistMatrix( const DM& A )
-: GDM(A.Grid())
+: GDM(A.Grid(),A.Root())
 {
     DEBUG_ONLY(CallStackEntry cse("[o ,o ]::DistMatrix"))
-    this->root_ = A.Root();
+    this->SetShifts();
     if( &A != this )
         *this = A;
     else
@@ -100,10 +80,10 @@ DM::DistMatrix( const DM& A )
 template<typename T>
 template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V>& A )
-: GDM(A.Grid())
+: GDM(A.Grid(),0)
 {
     DEBUG_ONLY(CallStackEntry cse("[o ,o ]::DistMatrix"))
-    this->root_ = 0;
+    this->SetShifts();
     if( CIRC != U || CIRC != V || 
         reinterpret_cast<const DM*>(&A) != this )
         *this = A;

@@ -20,47 +20,50 @@ namespace elem {
 // ============================
 
 template<typename T>
-DM::DistMatrix( const elem::Grid& grid )
-: GDM(grid)
+DM::DistMatrix( const elem::Grid& grid, Int root )
+: GDM(grid,root)
 { this->SetShifts(); }
 
 template<typename T>
-DM::DistMatrix( Int height, Int width, const elem::Grid& grid )
-: GDM(grid)
-{ this->SetShifts(); this->Resize( height, width ); }
+DM::DistMatrix( Int height, Int width, const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& g )
-: GDM(g)
+( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
+  Int root )
+: GDM(grid,root)
 { 
-    this->Align( colAlign, rowAlign );
-    this->Resize( height, width );
+    this->SetShifts(); 
+    this->Align(colAlign,rowAlign); 
+    this->Resize(height,width); 
 }
 
 template<typename T>
 DM::DistMatrix
-( Int height, Int width,
-  Int colAlign, Int rowAlign, Int ldim, const elem::Grid& g )
-: GDM(g)
+( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
+  const elem::Grid& grid, Int root )
+: GDM(grid,root)
 { 
-    this->Align( colAlign, rowAlign );
-    this->Resize( height, width, ldim );
+    this->SetShifts();
+    this->Align(colAlign,rowAlign); 
+    this->Resize(height,width,ldim); 
 }
 
 template<typename T>
 DM::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign,
-  const T* buffer, Int ldim, const elem::Grid& g )
-: GDM(g)
-{ this->LockedAttach( height, width, colAlign, rowAlign, buffer, ldim, g ); }
+  const T* buffer, Int ldim, const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->LockedAttach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
 
 template<typename T>
 DM::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign,
-  T* buffer, Int ldim, const elem::Grid& g )
-: GDM(g)
-{ this->Attach( height, width, colAlign, rowAlign, buffer, ldim, g ); }
+  T* buffer, Int ldim, const elem::Grid& grid, Int root )
+: GDM(grid,root)
+{ this->Attach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
 
 template<typename T>
 DM::DistMatrix( const DM& A )

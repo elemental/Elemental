@@ -18,6 +18,17 @@ namespace elem {
 // ============================
 
 template<typename T>
+AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid, Int root )
+: viewType_(OWNER),
+  height_(0), width_(0),
+  auxMemory_(),
+  matrix_(0,0,true),
+  colConstrained_(false), rowConstrained_(false),
+  colAlign_(0), rowAlign_(0),
+  root_(root), grid_(&grid)
+{ }
+
+template<typename T>
 AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
@@ -1648,22 +1659,6 @@ AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
 
 // Private section
 // ###############
-
-// Construct using a particular process grid
-// =========================================
-
-template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
-: viewType_(OWNER),
-  height_(0), width_(0), 
-  auxMemory_(), 
-  matrix_(0,0,true), 
-  colConstrained_(false), rowConstrained_(false),
-  colAlign_(0), rowAlign_(0),
-  colShift_(0), rowShift_(0), 
-  root_(0),
-  grid_(&grid)
-{ }
 
 // Exchange metadata with another matrix
 // =====================================

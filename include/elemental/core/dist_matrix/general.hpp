@@ -61,15 +61,15 @@ public:
     void PartialColAllToAll( DistMatrix<T,UPart,VScat>& A ) const;
     void PartialRowAllToAll( DistMatrix<T,UScat,VPart>& A ) const;
 
+    void SumScatterFrom( const DistMatrix<T,UGath,VGath>& A );
     void RowSumScatterFrom( const DistMatrix<T,U,VGath>& A );
     void ColSumScatterFrom( const DistMatrix<T,UGath,V>& A );
-    void SumScatterFrom( const DistMatrix<T,UGath,VGath>& A );
     void PartialRowSumScatterFrom( const DistMatrix<T,U,VPart>& A );
     void PartialColSumScatterFrom( const DistMatrix<T,UPart,V>& A );
 
+    void SumScatterUpdate( T alpha, const DistMatrix<T,UGath,VGath>& A );
     void RowSumScatterUpdate( T alpha, const DistMatrix<T,U,VGath>& A );
     void ColSumScatterUpdate( T alpha, const DistMatrix<T,UGath,V>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,UGath,VGath>& A );
     void PartialRowSumScatterUpdate( T alpha, const DistMatrix<T,U,VPart>& A );
     void PartialColSumScatterUpdate( T alpha, const DistMatrix<T,UPart,V>& A );
 
@@ -144,9 +144,15 @@ public:
 #endif // ifndef SWIG
 
 protected:
-    // Construct using a particular process grid
-    // =========================================
-    GeneralDistMatrix( const elem::Grid& g );
+
+    // Private constructors
+    // ====================
+
+    // Inherited constructors are part of C++11 but not yet widely supported.
+    //using AbstractDistMatrix<T>::AbstractDistMatrix;
+
+    // Create a 0 x 0 distributed matrix
+    GeneralDistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
 
     // Diagonal helper routines
     // ========================

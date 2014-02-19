@@ -27,24 +27,33 @@ public:
 
     // Constructors and destructors
     // ============================
-    // TODO: Construct from a Matrix. How to handle from non-root process?
-    // Create a 0 x 0 matrix stored on a single process
+
+    // Inherited constructors are part of C++11 but not yet widely supported.
+    //using GeneralDistMatrix<T,CIRC,CIRC>::GeneralDistMatrix;
+
+    // Create a 0 x 0 distributed matrix
     DistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
-    // Create a height x width matrix stored on a single process
+    // Create a height x width distributed matrix
     DistMatrix
     ( Int height, Int width, const elem::Grid& g=DefaultGrid(), Int root=0 );
-    // Create a height x width matrix stored on a single process with the 
-    // specified leading dimension
+    // Create a height x width distributed matrix with specified alignments
     DistMatrix
-    ( Int height, Int width, Int ldim, const elem::Grid& g, Int root=0 );
-    // View the buffer from the root (pass 0/NULL otherwise)
-    DistMatrix
-    ( Int height, Int width, const T* buffer, Int ldim, 
-      const elem::Grid& g, Int root=0 );
-    // View the mutable buffer from the root (pass 0/NULL otherwise)
-    DistMatrix
-    ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, 
+    ( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
       Int root=0 );
+    // Create a height x width distributed matrix with specified alignments
+    // and leading dimension
+    DistMatrix
+    ( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
+      const elem::Grid& grid, Int root=0 );
+    // View a constant distributed matrix's buffer
+    DistMatrix
+    ( Int height, Int width, Int colAlign, Int rowAlign,
+      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+    // View a mutable distributed matrix's buffer
+    DistMatrix
+    ( Int height, Int width, Int colAlign, Int rowAlign,
+      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+
     // Create a direct copy (redistributing if necessary)
     DistMatrix( const type& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
