@@ -70,6 +70,7 @@ DM::DistMatrix( const DM& A )
 : GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,* ]::DistMatrix"))
+    this->SetShifts();
     if( &A != this )
         *this = A;
     else
@@ -82,6 +83,7 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
 : GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,* ]::DistMatrix"))
+    this->SetShifts();
     if( MR != U || STAR != V || 
         reinterpret_cast<const DM*>(&A) != this )
         *this = A;
