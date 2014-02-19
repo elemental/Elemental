@@ -688,36 +688,28 @@ endif()
 if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas-like lapack-like convex)
-
-  set(core_TESTS AxpyInterface Constants DifferentGrids DistMatrix Matrix 
-                 Version)
-  set(blas-like_TESTS 
-    Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv TwoSidedTrmm
-    TwoSidedTrsm)
-  set(lapack-like_TESTS 
-    ApplyPackedReflectors Bidiag Cholesky CholeskyQR HermitianTridiag 
-    Hessenberg LDL LU LQ QR RQ SequentialBidiag SequentialHessenberg 
-    SequentialLU TriangularInverse TSQR)
-  if(HAVE_PMRRR)
-    list(APPEND lapack-like_TESTS HermitianEig HermitianGenDefiniteEig)
-  endif()
-  set(convex_TESTS TSSVT)
-
   foreach(TYPE ${TEST_TYPES})
+    file(GLOB_RECURSE ${TYPE}_TESTS RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ 
+         "tests/${TYPE}/*.cpp")
+    if(TYPE STREQUAL "lapack-like" AND NOT HAVE_PMRRR)
+      list(REMOVE_ITEM lapack-like_TESTS 
+           HermitianEig.cpp HermitianGenDefiniteEig.cpp)
+    endif()
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
     foreach(TEST ${${TYPE}_TESTS})
-      set(DRIVER ${TEST_DIR}/${TYPE}/${TEST}.cpp)
-      add_executable(tests-${TYPE}-${TEST} ${DRIVER})
+      set(DRIVER ${TEST_DIR}/${TYPE}/${TEST})
+      get_filename_component(TESTNAME ${TEST} NAME_WE)
+      add_executable(tests-${TYPE}-${TESTNAME} ${DRIVER})
       set_source_files_properties(${DRIVER} PROPERTIES 
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
-      target_link_libraries(tests-${TYPE}-${TEST} elemental)
-      set_target_properties(tests-${TYPE}-${TEST} PROPERTIES
-        OUTPUT_NAME ${TEST} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      target_link_libraries(tests-${TYPE}-${TESTNAME} elemental)
+      set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
+        OUTPUT_NAME ${TESTNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       if(MPI_LINK_FLAGS)
-        set_target_properties(tests-${TYPE}-${TEST} PROPERTIES
+        set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
           LINK_FLAGS ${MPI_LINK_FLAGS})
       endif()
-      install(TARGETS tests-${TYPE}-${TEST} DESTINATION bin/tests/${TYPE})
+      install(TARGETS tests-${TYPE}-${TESTNAME} DESTINATION bin/tests/${TYPE})
     endforeach()
   endforeach()
 endif()
@@ -726,44 +718,24 @@ endif()
 if(ELEM_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES convex core blas-like lapack-like matrices)
-
-  set(convex_EXAMPLES LogDetDiv RPCA)
-  set(core_EXAMPLES Arbitrary Constructors LogicError)
-  set(blas-like_EXAMPLES Cannon Gemm Gemv)
-  set(lapack-like_EXAMPLES 
-    BunchKaufman BusingerGolub ChunkedPseudospectrum 
-    ChunkedTriangularPseudospectrum GaussianElimination 
-    HermitianQDWH HermitianSDC HPDInverse ID KyFanAndSchatten LDL LDLInverse 
-    LeastSquares Polar Pseudoinverse Pseudospectrum QDWH RealSchur Schur 
-    SequentialBunchKaufman SequentialQR SequentialSVD Skeleton QR Sign SimpleSVD
-    SVD TriangularPseudospectrum)
-  set(matrices_EXAMPLES 
-    Cauchy CauchyLike Circulant Diagonal Egorov Fourier Hankel Helmholtz1D
-    Helmholtz2D Helmholtz3D HermitianUniformSpectrum Hilbert Identity Kahan 
-    Legendre LehmerParterRis NormalUniformSpectrum Ones OneTwoOne PSFW 
-    RiemannRedhefferGCD Toeplitz Uniform Walsh Wilkinson Zeros)
-  if(HAVE_PMRRR)
-    list(APPEND lapack-like_EXAMPLES
-      HermitianEig HermitianEigFromSequential HermitianSVD SkewHermitianEig
-      ComplexHermitianFunction RealHermitianFunction HermitianPseudoinverse
-      HPSDCholesky HPSDSquareRoot RealSymmetricFunction)
-  endif()
-
   foreach(TYPE ${EXAMPLE_TYPES})
+    file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
+         ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp")
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/${TYPE}")
     foreach(EXAMPLE ${${TYPE}_EXAMPLES})
-      set(DRIVER ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE}.cpp)
-      add_executable(examples-${TYPE}-${EXAMPLE} ${DRIVER})
+      set(DRIVER ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE})
+      get_filename_component(EXNAME ${EXAMPLE} NAME_WE)
+      add_executable(examples-${TYPE}-${EXNAME} ${DRIVER})
       set_source_files_properties(${DRIVER} PROPERTIES 
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
-      target_link_libraries(examples-${TYPE}-${EXAMPLE} elemental)
-      set_target_properties(examples-${TYPE}-${EXAMPLE} PROPERTIES 
-        OUTPUT_NAME ${EXAMPLE} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      target_link_libraries(examples-${TYPE}-${EXNAME} elemental)
+      set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES 
+        OUTPUT_NAME ${EXNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       if(MPI_LINK_FLAGS)
-        set_target_properties(examples-${TYPE}-${EXAMPLE} PROPERTIES
+        set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES
           LINK_FLAGS ${MPI_LINK_FLAGS})
       endif()
-      install(TARGETS examples-${TYPE}-${EXAMPLE} 
+      install(TARGETS examples-${TYPE}-${EXNAME} 
         DESTINATION bin/examples/${TYPE})
     endforeach()
   endforeach()
@@ -773,7 +745,6 @@ endif()
 if(ELEM_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
   set(G3D_EXPERS G3DGemm)
-
   # Build the G3D example(s)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
   foreach(EXPER ${G3D_EXPERS})

@@ -48,10 +48,12 @@ public:
     DistMatrix
     ( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
       const elem::Grid& grid, Int root=0 );
+#ifndef SWIG
     // View a constant distributed matrix's buffer
     DistMatrix
     ( Int height, Int width, Int colAlign, Int rowAlign,
       const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+#endif
     // View a mutable distributed matrix's buffer
     DistMatrix
     ( Int height, Int width, Int colAlign, Int rowAlign,
