@@ -45,7 +45,6 @@ ColumnSubtractions
         Matrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnSubtractions"))
-    typedef Base<F> Real;
     const Int numShifts = Y.Width();
     if( numShifts == 0 )
         return;
@@ -80,7 +79,6 @@ ColumnSubtractions
         Matrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnSubtractions"))
-    typedef Base<F> Real;
     const Int numShifts = Y.Width();
     if( numShifts == 0 )
         return;
