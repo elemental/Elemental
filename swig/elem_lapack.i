@@ -80,7 +80,14 @@ OVERLOAD0(SVD)
 %include "elemental/lapack-like/factor/LQ.hpp"
 %include "elemental/lapack-like/factor/LU.hpp"
 %include "elemental/lapack-like/factor/QR.hpp"
+%include "elemental/lapack-like/factor/QR/ApplyQ.hpp"
 %include "elemental/lapack-like/factor/QR/BusingerGolub.hpp"
+%include "elemental/lapack-like/factor/QR/Cholesky.hpp"
+%include "elemental/lapack-like/factor/QR/Explicit.hpp"
+// TODO: TreeData (needed for TSQR) will require some care to support
+/*
+%include "elemental/lapack-like/factor/QR/TS.hpp"
+*/
 %include "elemental/lapack-like/factor/RQ.hpp"
 %include "elemental/lapack-like/factor/Skeleton.hpp"
 
@@ -94,8 +101,11 @@ OVERLOAD0(LQ)
 OVERLOAD0(LU)
 OVERLOAD0(QR)
 namespace qr { 
-OVERLOAD0(BusingerGolub) 
-// TODO: More routines
+OVERLOAD0_R(ApplyQ,qr_ApplyQ)
+OVERLOAD0_R(BusingerGolub,qr_BusingerGolub) 
+OVERLOAD0_R(Cholesky,qr_Cholesky)
+OVERLOAD0_R(Explicit,qr_Explicit)
+//OVERLOAD0_R(TS,qr_TS)
 };
 OVERLOAD0(RQ)
 OVERLOAD0(Skeleton)
