@@ -315,7 +315,7 @@ void FC_GLOBAL_(elem_register_dist_mat_vc_star,NAME)
     {
         distMatList_VC_STAR[index] = 
             new DistMatrix<Real,VC,STAR>
-            (*height,*width,*colAlignment,buffer,*ldim,grid);
+            (*height,*width,*colAlignment,0,buffer,*ldim,grid);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
@@ -363,7 +363,7 @@ void FC_GLOBAL_(elem_register_dist_mat_vr_star,NAME)
     {
         distMatList_VR_STAR[index] = 
             new DistMatrix<Real,VR,STAR>
-            (*height,*width,*colAlignment,buffer,*ldim,grid);
+            (*height,*width,*colAlignment,0,buffer,*ldim,grid);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
@@ -411,7 +411,8 @@ void FC_GLOBAL_(elem_register_dist_mat_star_star,NAME)
     try
     {
         distMatList_STAR_STAR[index] = 
-            new DistMatrix<Real,STAR,STAR>(*height,*width,buffer,*ldim,grid);
+            new DistMatrix<Real,STAR,STAR>
+            (*height,*width,0,0,buffer,*ldim,grid);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
