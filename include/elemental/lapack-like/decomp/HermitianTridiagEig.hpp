@@ -75,7 +75,7 @@ HermitianTridiagEig
     if( w.Participating() )
     {
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           w.ColComm() );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -117,7 +117,7 @@ HermitianTridiagEig
         }
 
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           w.ColComm() );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -192,7 +192,7 @@ HermitianTridiagEig
     if( w.Participating() )
     {
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           w.ColComm(), int(il), int(iu) );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -235,7 +235,7 @@ HermitianTridiagEig
         }
 
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           w.ColComm(), int(il), int(iu) );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -305,7 +305,7 @@ HermitianTridiagEig
     if( w.Participating() )
     {
         std::vector<Real> wVector(n);
-        pmrrr::Info info = pmrrr::Eig
+        auto info = herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
@@ -349,7 +349,7 @@ HermitianTridiagEig
         }
 
         std::vector<Real> wVector(n);
-        pmrrr::Info info = pmrrr::Eig
+        auto info = herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
@@ -432,7 +432,7 @@ HermitianTridiagEig
     if( w.Participating() )
     {
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           Z.Buffer(), Z.LDim(), w.ColComm() );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -480,7 +480,7 @@ HermitianTridiagEig
         }
 
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           ZReal.Buffer(), ZReal.LDim(), w.ColComm() );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -587,7 +587,7 @@ HermitianTridiagEig
     if( w.Participating() )
     {
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           Z.Buffer(), Z.LDim(), w.ColComm(), int(il), int(iu) );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -636,7 +636,7 @@ HermitianTridiagEig
         }
 
         std::vector<Real> wVector(n);
-        pmrrr::Eig
+        herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           ZReal.Buffer(), ZReal.LDim(), w.ColComm(), int(il), int(iu) );
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -736,7 +736,7 @@ HermitianTridiagEig
         std::vector<Real> dVector(n), eVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
-        pmrrr::Estimate estimate = pmrrr::EigEstimate
+        auto estimate = herm_tridiag_eig::EigEstimate
         ( int(n), dVector.data(), eVector.data(), wVector.data(), w.ColComm(),
           vl, vu );
         SwapClear( dVector );
@@ -744,7 +744,7 @@ HermitianTridiagEig
         const Int kEst = estimate.numGlobalEigenvalues;
         Z.Resize( n, kEst );
 
-        pmrrr::Info info = pmrrr::Eig
+        auto info = herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
@@ -799,7 +799,7 @@ HermitianTridiagEig
         std::vector<Real> dVector(n), eVector(n), wVector(n);
         MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
         MemCopy( eVector.data(), eReal.Buffer(), n-1 );
-        pmrrr::Estimate estimate = pmrrr::EigEstimate
+        auto estimate = herm_tridiag_eig::EigEstimate
         ( int(n), dVector.data(), eVector.data(), wVector.data(), w.ColComm(),
           vl, vu );
         SwapClear( dVector );
@@ -807,7 +807,7 @@ HermitianTridiagEig
         const Int kEst = estimate.numGlobalEigenvalues;
         ZReal.Resize( n, kEst );
 
-        pmrrr::Info info = pmrrr::Eig
+        auto info = herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), wVector.data(), 
           ZReal.Buffer(), ZReal.LDim(), w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;
@@ -870,7 +870,7 @@ HermitianTridiagEigEstimate
     std::vector<Real> dVector(n), eVector(n), wVector(n);
     MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
     MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
-    pmrrr::Estimate estimate = pmrrr::EigEstimate
+    auto estimate = herm_tridiag_eig::EigEstimate
     ( int(n), dVector.data(), eVector.data(), wVector.data(), wColComm,
       vl, vu );
     return estimate.numGlobalEigenvalues;
@@ -897,7 +897,7 @@ HermitianTridiagEigPostEstimate
     if( w.Participating() )
     {
         std::vector<Real> wVector(n);
-        pmrrr::Info info = pmrrr::Eig
+        auto info = herm_tridiag_eig::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
           Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
         const Int k = info.numGlobalEigenvalues;

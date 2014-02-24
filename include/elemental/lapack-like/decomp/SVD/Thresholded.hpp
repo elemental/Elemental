@@ -162,7 +162,6 @@ TallAbsoluteThresholded
         if( tol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    EnsurePMRRR();
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -232,7 +231,6 @@ TallRelativeThresholded
         if( relTol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    EnsurePMRRR();
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Width();
@@ -313,7 +311,6 @@ TallAbsoluteThresholded
         if( tol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    EnsurePMRRR();
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -383,7 +380,6 @@ TallRelativeThresholded
         if( relTol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    EnsurePMRRR();
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -591,7 +587,6 @@ WideAbsoluteThresholded
         if( tol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    EnsurePMRRR();
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -661,7 +656,6 @@ WideRelativeThresholded
         if( relTol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    EnsurePMRRR();
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -750,7 +744,6 @@ Thresholded
   BASE(F) tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
-    EnsurePMRRR();
     if( A.Height() >= A.Width() )
         TallThresholded( A, s, V, tol, relative );
     else

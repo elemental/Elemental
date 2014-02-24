@@ -143,14 +143,17 @@ int PMR_process_c_task(cluster_t *cl, int tid, proc_t *procinfo,
   /* Communicate results: non-blocking */
   status = COMM_COMPLETE;
   if (left_pid != right_pid) {
+
     status = communicate_refined_eigvals(cl, procinfo, tid,
 					 Wstruct, RRR);
     /* status = COMM_INCOMPLETE if communication not finished */
   }
 
   if (status == COMM_COMPLETE) {
+    
     create_subtasks(cl, tid, procinfo, RRR, Wstruct, Zstruct,
 		    workQ, num_left);
+
     return(C_TASK_PROCESSED);
   } else {
     return(C_TASK_NOT_PROCESSED);
@@ -238,10 +241,10 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
     
     offset  = Windex[cl_begin] - 1;
 
-    LAPACK(dlarrb)
-    (&bl_size, D_parent, DLL_parent, &p, &p, &RQtol, &RQtol, &offset, 
-     &Wshifted[cl_begin], &Wgap[cl_begin], &Werr[cl_begin], work, iwork, 
-     &pivmin, &bl_spdiam, &bl_size, &info);
+    odrrb(&bl_size, D_parent, DLL_parent, &p, &p, &RQtol,
+	  &RQtol, &offset, &Wshifted[cl_begin], &Wgap[cl_begin],
+	  &Werr[cl_begin], work, iwork, &pivmin, &bl_spdiam,
+	  &bl_size, &info);
     assert( info == 0 );
 
     if (k == 0) {
@@ -256,10 +259,10 @@ rrr_t* compute_new_rrr(cluster_t *cl, int tid, proc_t *procinfo,
   right_gap = Wgap[cl_end];
 
   /* Compute new RRR and store it in D and L */
-  LAPACK(dlarrf)
-  (&bl_size, D_parent, L_parent, DL_parent, &IONE, &cl_size, 
-   &Wshifted[cl_begin], &Wgap[cl_begin], &Werr[cl_begin], &bl_spdiam, &left_gap,
-   &right_gap, &pivmin, &tau, D, L, work, &info);
+  odrrf(&bl_size, D_parent, L_parent, DL_parent,
+        &IONE, &cl_size, &Wshifted[cl_begin], &Wgap[cl_begin],
+        &Werr[cl_begin], &bl_spdiam, &left_gap, &right_gap,
+        &pivmin, &tau, D, L, work, &info);
   assert(info == 0);
 
   /* Update shift and store it */
@@ -380,10 +383,9 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
 
     /* Call bisection routine to refine the values */
     if (ts_begin <= ts_end) {
-      LAPACK(dlarrb)
-      (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, &Wshifted[ts_begin], 
-       &Wgap[ts_begin], &Werr[ts_begin], work, iwork, &pivmin, &bl_spdiam, 
-       &bl_size, &info);
+      odrrb(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
+	    &Wshifted[ts_begin], &Wgap[ts_begin], &Werr[ts_begin],
+	    work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
       assert( info == 0 );
     }
 
@@ -415,8 +417,8 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     for (i=0; i<num_tasks; i++) {
       ts_end = ts_begin + chunk - 1;
       
-      Wgap[ts_end] = Wshifted[ts_end + 1] - Werr[ts_end + 1]
-	             - Wshifted[ts_end] - Werr[ts_end];
+      Wgap[ts_end] = fmax(0.0, Wshifted[ts_end + 1] - Werr[ts_end + 1]
+			  - Wshifted[ts_end] - Werr[ts_end]);
       
       ts_begin = ts_end + 1;
     }
@@ -437,10 +439,9 @@ int refine_eigvals(cluster_t *cl, int rf_begin, int rf_end,
     }  
     
     /* Bisection routine to refine the values */
-    LAPACK(dlarrb)
-    (&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, &Wshifted[rf_begin], 
-     &Wgap[rf_begin], &Werr[rf_begin], work, iwork, &pivmin, &bl_spdiam, 
-     &bl_size, &info);
+    odrrb(&bl_size, D, DLL, &p, &q, &rtol1, &rtol2, &offset, 
+	  &Wshifted[rf_begin], &Wgap[rf_begin], &Werr[rf_begin],
+	  work, iwork, &pivmin, &bl_spdiam, &bl_size, &info);
     assert( info == 0 );
     
     if (p == q) {
@@ -479,7 +480,8 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
   int              proc_W_end   = cl->proc_W_end;
   int              left_pid     = cl->left_pid;
   int              right_pid    = cl->right_pid;
-  int              num_messages = 4*(right_pid - left_pid);
+  int              num_messages;
+  //  int              num_messages = 4*(right_pid - left_pid);
 
   int              pid          = procinfo->pid;
 
@@ -490,7 +492,7 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
   int    *restrict iproc        = Wstruct->iproc;
 
   /* Others */
-  int              p, i_msg, u, k;
+  int              p, i_msg, u, k, i;
   int              my_begin, my_end, my_size;
   int              other_begin, other_end, other_size;
   double           sigma;
@@ -505,6 +507,16 @@ int communicate_refined_eigvals(cluster_t *cl, proc_t *procinfo,
   if (pid == left_pid ) my_begin = cl_begin;
   if (pid == right_pid) my_end   = cl_end;
   my_size  = my_end - my_begin + 1;
+
+  num_messages = 0;
+  for (i=left_pid; i<=right_pid; i++) {
+    for (k=cl_begin; k<=cl_end; k++) {
+      if (iproc[k] == i) {
+	num_messages += 4;
+	break;
+      }
+    }    
+  }
 
   requests = (MPI_Request *) malloc( num_messages *
 					  sizeof(MPI_Request) );
@@ -685,6 +697,7 @@ int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
   int              pid       = procinfo->pid;
   int              nproc     = procinfo->nproc;
   int              nthreads  = procinfo->nthreads;
+  bool           proc_involved=true;
 
   double *restrict Wgap      = Wstruct->Wgap;
   double *restrict Wshifted  = Wstruct->Wshifted;
@@ -695,7 +708,7 @@ int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
   int    *restrict Zindex    = Zstruct->Zindex;
 
   /* others */
-  int    i, l;
+  int    i, l, k;
   int    max_size;
   task_t *task;
   bool   task_inserted;
@@ -742,6 +755,21 @@ int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
       if (i==cl_end || sn_size>=max_size ||
 	    Wgap[i+1] < MIN_RELGAP*fabs(Wshifted[i+1])) {
 
+	/* Check if process involved in s-task */
+	proc_involved = false;
+	for (k=sn_first; k<=sn_last; k++) {
+	  if (iproc[k] == pid) {
+	    proc_involved = true;
+	    break;
+	  }
+	}
+	if (proc_involved == false) {
+	  task_inserted = true;
+	  new_first = i + 1;
+	  continue;
+	}
+
+	/* Insert task as process is involved */
 	if (sn_first == cl_begin) {
 	  lgap = cl->lgap;
 	} else {
@@ -765,7 +793,7 @@ int create_subtasks(cluster_t *cl, int tid, proc_t *procinfo,
 
       /* check if process involved in processing the new cluster */
       new_lpid = nproc-1;
-      new_rpid = 0;
+      new_rpid = -1;
       for (l=new_first; l<=new_last; l++) {
 	if (iproc[l] != -1) {
 	  new_lpid = imin(new_lpid, iproc[l]);

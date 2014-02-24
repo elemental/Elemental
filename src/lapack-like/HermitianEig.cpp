@@ -177,7 +177,6 @@ void HermitianEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -260,7 +259,6 @@ void HermitianEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -406,7 +404,6 @@ void HermitianEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -501,7 +498,6 @@ void HermitianEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -661,7 +657,6 @@ void HermitianEig
         w.Resize(0,1);
         return; 
     }
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
@@ -775,7 +770,6 @@ void HermitianEig
         paddedZ.Resize(n,0);
         return; 
     }
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 

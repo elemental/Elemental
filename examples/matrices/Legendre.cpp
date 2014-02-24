@@ -36,7 +36,6 @@ main( int argc, char* argv[] )
         if( print )
             Print( J, "Jacobi matrix for Legendre polynomials" );
 
-#ifdef HAVE_PMRRR
         // We will compute Gaussian quadrature points and weights over [-1,+1]
         // using the eigenvalue decomposition of the Jacobi matrix for the 
         // Legendre polynomials.
@@ -59,7 +58,6 @@ main( int argc, char* argv[] )
             Display( weights, "Quadrature weights" );
         if( print )
             Print( weights, "weights" );
-#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

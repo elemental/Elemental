@@ -89,7 +89,6 @@ inline void HermitianSVD
   DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
-#ifdef HAVE_PMRRR
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
 
@@ -127,11 +126,6 @@ inline void HermitianSVD
     }
 
     // TODO: Descending sort of triplets
-#else
-    U = A;
-    MakeHermitian( uplo, U );
-    SVD( U, s, V );
-#endif // ifdef HAVE_PMRRR
 }
 
 // Return the singular values
@@ -182,7 +176,6 @@ inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
-#ifdef HAVE_PMRRR
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
 
@@ -195,10 +188,6 @@ inline void HermitianSVD
     }
 
     Sort( s, DESCENDING );
-#else
-    MakeHermitian( uplo, A );
-    SVD( A, s );
-#endif // ifdef HAVE_PMRRR
 }
 
 } // namespace elem

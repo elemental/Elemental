@@ -79,7 +79,6 @@ main( int argc, char* argv[] )
             Print( AOdd, "AOdd" );
         }
 
-#ifdef HAVE_PMRRR
         DistMatrix<double,VR,  STAR> wEven, wOdd;
         DistMatrix<double> XEven, XOdd;
         HermitianTridiagEig
@@ -100,7 +99,6 @@ main( int argc, char* argv[] )
             Print( wEven, "wEven" );
             Print( wOdd, "wOdd" );
         }
-#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

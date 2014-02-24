@@ -202,7 +202,6 @@ inline void
 HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
-    EnsurePMRRR();
     typedef Base<F> Real;
 
     // Get the EVD of A

@@ -189,7 +189,6 @@ inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
-    EnsurePMRRR();
 
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );

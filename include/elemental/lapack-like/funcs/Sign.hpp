@@ -320,7 +320,6 @@ inline void
 HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
-    EnsurePMRRR();
     typedef Base<F> Real;
 
     // Get the EVD of A
@@ -348,7 +347,6 @@ inline void
 HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
-    EnsurePMRRR();
     typedef Base<F> Real;
 
     // Get the EVD of A

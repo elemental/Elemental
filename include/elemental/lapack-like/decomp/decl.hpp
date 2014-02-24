@@ -24,14 +24,6 @@ enum HermitianGenDefiniteEigType
 }
 using namespace hermitian_gen_definite_eig_type_wrapper;
 
-// Throws an error if PMRRR was not built along with Elemental
-inline void EnsurePMRRR()
-{
-#ifndef HAVE_PMRRR
-    RuntimeError("PMRRR is required for this routine");
-#endif
-}
-
 // Compute the eigenvalues of a Hermitian matrix
 template<typename F>
 void HermitianEig

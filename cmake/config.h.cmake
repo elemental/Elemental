@@ -45,7 +45,6 @@
 #cmakedefine HAVE_OMP_COLLAPSE
 #cmakedefine HAVE_QT5
 #cmakedefine HAVE_F90_INTERFACE
-#cmakedefine HAVE_PMRRR
 #cmakedefine AVOID_COMPLEX_MPI
 #cmakedefine HAVE_UNIFORM_INT
 #cmakedefine HAVE_UNIFORM_REAL

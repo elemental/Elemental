@@ -11,7 +11,7 @@
 #define ELEM_IMPORTS_PMRRR_HPP
 
 namespace elem {
-namespace pmrrr {
+namespace herm_tridiag_eig {
 
 struct Estimate {
     int numLocalEigenvalues;
@@ -58,7 +58,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   int lowerBound, int upperBound );
 
-} // namespace pmrrr
+} // namespace herm_tridiag_eig
 } // namespace elem
 
 #endif // ifndef ELEM_IMPORTS_PMRRR_HPP

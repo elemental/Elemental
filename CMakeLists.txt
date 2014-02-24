@@ -17,7 +17,7 @@ include(language_support_v2)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 83-dev)
+set(Elemental_VERSION_MINOR 84-dev)
 
 ################################################################################
 # Common build options                                                         #
@@ -42,16 +42,6 @@ option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
 
 # Attempt to use 64-bit integers
 option(USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
-
-# Petschow and Bientinesi's Parallel Multiple Relatively Robust 
-# Representations (PMRRR) is used at the heart of all of Elemental's current 
-# eigensolvers. Since it makes use of pthreads, Windows builds cannot use 
-# PMRRR.
-if(WIN32)
-  option(USE_PMRRR "Build and link against eigensolver PMRRR" OFF)
-else()
-  option(USE_PMRRR "Build and link against eigensolver PMRRR" ON)
-endif()
 
 # Whether or not to use Qt5 for visualization if it is found (experimental)
 # NOTE: Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
@@ -549,11 +539,7 @@ check_function_exists(FLA_Bsvd_v_opd_var1 HAVE_FLA_BSVD)
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS} ${EXTRA_FLAGS}")
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
-# if necessary
-set(HAVE_PMRRR FALSE)
-if(USE_PMRRR)
-  add_subdirectory(external/pmrrr)
-endif()
+add_subdirectory(external/pmrrr)
 
 # Create the Elemental configuration header
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
@@ -600,7 +586,7 @@ install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
 file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
-if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
+if(ELEM_EXPERIMENTAL)
   if(NOT MPI_C_FOUND)
     message(FATAL_ERROR "Could not build C interface without C MPI")
   endif()
@@ -629,22 +615,14 @@ set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
 endif()
-if(HAVE_PMRRR)
-  add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-  target_link_libraries(elemental pmrrr ${LINK_LIBS})
-  if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
-    set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
-  elseif(MPI_CXX_LINK_FLAGS)
-    set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
-  elseif(MPI_C_LINK_FLAGS)
-    set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
-  endif()
-else()
-  add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-  target_link_libraries(elemental ${LINK_LIBS})
-  if(MPI_CXX_LINK_FLAGS)
-    set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
-  endif()
+add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
+target_link_libraries(elemental pmrrr ${LINK_LIBS})
+if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
+  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
+elseif(MPI_CXX_LINK_FLAGS)
+  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
+elseif(MPI_C_LINK_FLAGS)
+  set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
 endif()
 install(TARGETS elemental DESTINATION lib)
 
@@ -691,10 +669,6 @@ if(ELEM_TESTS)
   foreach(TYPE ${TEST_TYPES})
     file(GLOB_RECURSE ${TYPE}_TESTS RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ 
          "tests/${TYPE}/*.cpp")
-    if(TYPE STREQUAL "lapack-like" AND NOT HAVE_PMRRR)
-      list(REMOVE_ITEM lapack-like_TESTS 
-           HermitianEig.cpp HermitianGenDefiniteEig.cpp)
-    endif()
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
     foreach(TEST ${${TYPE}_TESTS})
       set(DRIVER ${TEST_DIR}/${TYPE}/${TEST})
@@ -741,11 +715,12 @@ if(ELEM_EXAMPLES)
   endforeach()
 endif()
 
-# Build experimental drivers that do not require an eigensolver
+# Build experimental drivers
 if(ELEM_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
-  set(G3D_EXPERS G3DGemm)
+
   # Build the G3D example(s)
+  set(G3D_EXPERS G3DGemm)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
   foreach(EXPER ${G3D_EXPERS})
     set(DRIVER ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
@@ -761,11 +736,8 @@ if(ELEM_EXPERIMENTAL)
     endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
-endif()
 
-# Build experimental drivers that DO require an eigensolver
-if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
-  set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
+  # Build the C drivers
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c")
   set(DRIVER ${EXPERIMENTAL_DIR}/c/test.c)
   add_executable(experimental-c-test ${DRIVER})
@@ -781,6 +753,7 @@ if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
   install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
 
   if(HAVE_F90_INTERFACE)
+    # Build the F90 drivers
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
     set(DRIVER ${EXPERIMENTAL_DIR}/f90/test.f90)
     add_executable(experimental-f90-test ${DRIVER}) 

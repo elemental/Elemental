@@ -55,7 +55,7 @@
  *
  * Function prototype: */
 
-int PMRRR(char *jobz, char *range, int *n, double  *D,
+int pmrrr(char *jobz, char *range, int *n, double  *D,
 	  double *E, double *vl, double *vu, int *il, int *iu,
 	  int *tryrac, MPI_Comm comm, int *nz, int *offset,
 	  double *W, double *Z, int *ldz, int *Zsupp);
@@ -106,6 +106,8 @@ int PMRRR(char *jobz, char *range, int *n, double  *D,
  *                   On output the eigenvalues with index il to iu are 
  *                   computed by ALL processes.
  * tryrac            0 - do not try to achieve high relative accuracy.
+ *                   NOTE: this should be the default in context of  
+ *                         dense eigenproblems.
  *                   1 - relative accuracy will be attempted; 
  *                       on output it is set to zero if high relative 
  *                       accuracy is not achieved.
@@ -127,26 +129,26 @@ int PMRRR(char *jobz, char *range, int *n, double  *D,
  * W (double[n])     Locally computed eigenvalues;
  *                   The first nz entries contain the eigenvalues 
  *                   computed locally; the first entry contains the 
- *                   'offset + 1'-th eigenvalue computed and the 
+ *                   'offset + 1'-th computed eigenvalue, which is the 
  *                   'offset + il'-th eigenvalue of the input matrix 
  *                   (1-based indexing in both cases).
  *                   In some situations it is desirable to have all 
  *                   computed eigenvalues in W, instead of only 
- *                   those computed locally. In this case the 
- *                   routine 'PMR_comm_eigvals' can be called right 
- *                   after 'PMRRR' returns (see below).
+ *                   those computed locally. In this case, call 
+ *                   routine 'PMR_comm_eigvals' after 
+ *                   'pmrrr' returns (see example and interface below).
  * Z                 Locally computed eigenvectors.
  * (double[n*nz])    Enough space must be provided to store the
  *                   vectors. 'nz' should be bigger or equal 
  *                   to ceil('#eigenpairs'/'#processes'), where 
  *                   '#eigenpairs' is 'n' in case of range="A" and
- *                  'iu-il+1' in case of range="I". Alternatively, 
+ *                   'iu-il+1' in case of range="I". Alternatively, 
  *                   and for range="V" 'nz' can be obtained 
  *                   by running the routine with jobz="C". 
  * Zsupp             Support of eigenvectors, which is given by
- * (double[2*n])     Z[2*i] to Z[2*i+1] for the i-th eigenvector
- *                   stored locally (1-based indexing in both 
- *                   cases).
+ * (double[2*n])     i1=Zsupp[2*i] to i2=Zsupp[2*i+1] for the i-th local eigenvector
+ *                   (returns 1-based indexing; e.g. in C Z[i1-1:i2-1] are non-zero and
+ *                   in Fotran Z(i1:i2) are non-zero).
  *
  * RETURN VALUE: 
  * -------------
@@ -161,12 +163,26 @@ int PMRRR(char *jobz, char *range, int *n, double  *D,
  * CALL PMRRR('V', 'A', N, D, E, VL, VU, IL, IU, TRYRAC, 
  *            MPI_COMM_WORLD, NZ, MYFIRST, W, Z, LDZ, ZSUPP, INFO)
  *
- * Some additinal comments:
- * ------------------------
- * + In the case '#processors'='#nodes'*'#cores' << 16 the routine
- *   might be optimal in terms of performance.
+ *
+ * EXAMPLE CALL: 
+ * -------------
+ * char    *jobz, *range;
+ * int     n, il, iu, tryRAC=0, nz, offset, ldz, *Zsupp;
+ * double  *D, *E, *W, *Z, vl, vu;
+ *
+ * // allocate space for D, E, W, Z
+ * // initialize D, E
+ * // set jobz, range, ldz, and if necessary, il, iu or vl, vu  
+ * 
+ * info = pmrrr(jobz, range, &n, D, E, &vl, &vu, &il, &iu,
+ *              &tryRAC, MPI_COMM_WORLD, &nz, &myfirst, W,
+ *	        Z, &ldz , Zsupp);
+ *
+ * // optional: 
+ * PMR_comm_eigvals(MPI_COMM_WORLD, &nz, &myfirst, W);
  *
  */
+
 
 
 /* Set the number of threads in case PMR_NUM_THREADS is not 
@@ -204,13 +220,14 @@ int PMRRR(char *jobz, char *range, int *n, double  *D,
 
 /* Set how many iterations should be executed to find the root 
  * representation; default: 6 */
-#define MAX_TRY_RRRR       10
+#define MAX_TRY_RRR       10
+
 
 
 /*
  * Routine to communicate eigenvalues such that every process has
  * all computed eigenvalues (iu-il+1) in W; this routine is designed 
- * to be called right after 'PMRRR'.
+ * to be called right after 'pmrrr'.
  */
 int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
 /* Arguments:
@@ -220,7 +237,7 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  * -------
  * comm              MPI communicator; commonly: MPI_COMM_WORLD.
  * nz                Number of eigenvalues local in W as returned 
- *                   from 'PMRRR'.
+ *                   from 'pmrrr'.
  * offset            Index, relative to the computed eigenvalues, of 
  *                   the smallest eigenvalue computed locally
  *                   (0-based indexing).
@@ -241,80 +258,47 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *ifirst, double *W);
  *
  */
 
-/* 
- * BLAS/LAPACK function prototypes
- * 
- * These macros were added by Jack Poulson for easing integration into 
- * Elemental 
- */
-#if defined(CUSTOM_BLAS_LAPACK)
-#  include "FCMangle.h"
-#  define BLAS(name) FC_GLOBAL(x##name,NAME)
-#  define LAPACK(name) FC_GLOBAL(x##name,NAME)
-#else
-# if defined(BLAS_POST)
-#  define BLAS(name) name##_
-# else
-#  define BLAS(name) name
-# endif
-# if defined(LAPACK_POST)
-#  define LAPACK(name) name##_
-# else
-#  define LAPACK(name) name
-# endif
-#endif
 
-void pmrrr_dscal(int*, double*, double*, int*);
-void BLAS(dscal)(int*, double*, double*, int*);
+/* LAPACK and BLAS function prototypes
+ * Note: type specifier 'extern' does not matter in declaration
+ * so here used to mark routines from LAPACK and BLAS libraries */
+extern void pmrrr_dscal(int*, double*, double*, int*);
 
-double LAPACK(dlamch)(char*);
-
-double LAPACK(dlanst)(char*, int*, double*, double*);
-
-void LAPACK(dlarrr)(int*, double*, double*, int*);
-
-void LAPACK(dlarra)
-(int*, double*, double*, double*, double*,double*, int*, int*, int*);
-
-void LAPACK(dlarrc)
-(char*, int*, double*, double*, double*, double*, double*, int*, int*, int*,
- int*);
-
-void LAPACK(dlarrd)
-(char*, char*, int*, double*, double*, int*, int*, double*, double*, double*,
- double*, double*, double*, int*, int*, int*, double*, double*, double*, 
- double*, int*, int*, double*, int*, int*);
-
-void LAPACK(dlarrb)
-(int*, double*, double*, int*, int*, double*, double*, int*, double*, double*,
- double*, double*, int*, double*, double*, int*, int*);
-
-void LAPACK(dlarrk)
-(int*, int*, double*, double*, double*, double*, double*, double*, double*, 
- double*, int*);
-
-void LAPACK(dlaebz)
-(int*, int*, int*, int*, int*, int*, double*, double*, double*, double*, 
- double*, double*, int*, double*, double*, int*, int*, double*, int*, int*);
-
-void LAPACK(dlarnv)(int*, int*, int*, double*);
-
-void LAPACK(dlarrf)
-(int*, double*, double*, double*, int*, int*, double*, double*, double*, 
- double*, double*, double*, double*, double*, double*, double*, double*, 
- int*);
-
-void LAPACK(dlar1v)
-(int*, int*, int*, double*, double*, double*, double*, double*, double*, 
- double*, double*, bool*, int*, double*, double*, int*, int*, double*, 
- double*, double*, double*);
-
-void LAPACK(dlarrj)
-(int*, double*, double*, int*, int*, double*, int*, double*, double*, double*,
- int*, double*, double*, int*);
-
-void LAPACK(dstemr)
-(char*, char*, int*, double*, double*, double*, double*, int*, int*, int*, 
- double*, double*, int*, int*, int*, int*, double*, int*, int*, int*, int*);
+extern double odnst(char*, int*, double*, double*);
+extern void   odrrr(int*, double*, double*, int*);
+extern void   odrra(int*, double*, double*, double*, double*, 
+		    double*, int*, int*, int*);
+extern void   odrrc(char*, int*, double*, double*, double*, double*,
+		    double*, int*, int*, int*, int*);
+extern void   odrrd(char*, char*, int*, double*, double*, int*, 
+		    int*, double*, double*, double*, double*, 
+		    double*, double*, int*, int*, int*, double*, 
+		    double*, double*, double*, int*, int*, double*, 
+		    int*, int*);
+extern void   odrrb(int*, double*, double*, int*, int*, double*,
+		    double*, int*, double*, double*, double*, double*,
+		    int*, double*, double*, int*, int*);
+extern void   odrrk(int*, int*, double*, double*, double*, double*,
+		    double*, double*, double*, double*, int*);
+extern void   odebz(int*, int*, int*, int*, int*, int*, double*, 
+		    double*, double*, double*, double*, double*,
+		    int*, double*, double*, int*, int*, double*,
+		    int*, int*);
+extern void   odrnv(int*, int*, int*, double*);
+extern void   odrrf(int*, double*, double*, double*, int*, int*, 
+		    double*, double*, double*, double*, double*, 
+		    double*, double*, double*, double*, double*, 
+		    double*, int*);
+extern void   odr1v(int*, int*, int*, double*, double*, double*, 
+		    double*, double*, double*, double*, double*, 
+		    bool*, int*, double*, double*, int*, int*, 
+		    double*, double*, double*, double*);
+extern void   odrrj(int*, double*, double*, int*, int*, double*, 
+		    int*, double*, double*, double*, int*, double*, 
+		    double*, int*);
+extern void   odstmr(char*, char*, int*, double*, double*, double*, 
+		     double*, int*, int*, int*, double*, double*, 
+		     int*, int*, int*, int*, double*, int*, int*, 
+		     int*, int*);
 
 #endif /* End of header file */

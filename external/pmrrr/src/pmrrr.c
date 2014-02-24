@@ -2,7 +2,7 @@
  * tridiagonal matrix T, given by its diagonal elements D
  * and its super-/subdiagonal elements E.
  *
- * See pmrrr.h for more information.
+ * See INCLUDE/pmrrr.h for more information.
  *
  * Copyright (c) 2010, RWTH Aachen University
  * All rights reserved.
@@ -84,7 +84,7 @@ static int refine_to_highrac(proc_t*, char*, double*, double*,
  * See README or 'pmrrr.h' for details.
  */
 
-int PMRRR(char *jobz, char *range, int *np, double  *D,
+int pmrrr(char *jobz, char *range, int *np, double  *D,
 	  double *E, double *vl, double *vu, int *il,
 	  int *iu, int *tryracp, MPI_Comm comm, int *nzp,
 	  int *offsetp, double *W, double *Z, int *ldz,
@@ -114,11 +114,12 @@ int PMRRR(char *jobz, char *range, int *np, double  *D,
   int         nproc, pid, nthreads;             
   char        *ompvar;
   MPI_Comm    comm_dup;
-  int         thread_support;
+  int         is_init, is_final, thread_support;
 
   /* Others */
   double      scale;              
   int         i, info;
+  int         ifirst, ilast, isize, ifirst_tmp, ilast_tmp, chunk, iil, iiu;
 
   /* Check input parameters */
   if(!(onlyW  || wantZ  || cntval)) return(1);
@@ -131,6 +132,12 @@ int PMRRR(char *jobz, char *range, int *np, double  *D,
   }
   
   /* MPI & multithreading info */
+  MPI_Initialized(&is_init);
+  MPI_Finalized(&is_final);
+  if (is_init!=1 || is_final==1) {
+    fprintf(stderr, "ERROR: MPI is not active! (init=%d, final=%d) \n", is_init, is_final);
+    exit(1);
+  }
   MPI_Comm_dup(comm, &comm_dup);
   MPI_Comm_size(comm_dup, &nproc);
   MPI_Comm_rank(comm_dup, &pid);
@@ -150,6 +157,23 @@ int PMRRR(char *jobz, char *range, int *np, double  *D,
       nthreads = atoi(ompvar);
     }
   }
+
+#if defined(MVAPICH2_VERSION)
+  if (nthreads>1) {
+    int           mv2_affinity=1;
+    char        *mv2_string = getenv("MV2_ENABLE_AFFINITY");
+    if (mv2_string != NULL) {
+      mv2_affinity = atoi(mv2_string);
+    }    
+    if (mv2_affinity!=0 && pid==0) {
+      fprintf(stderr, "WARNING: You are using MVAPICH2 with affinity enabled, probably by default. \n");
+      fprintf(stderr, "WARNING: This will cause performance issues if MRRR uses Pthreads. \n");
+      fprintf(stderr, "WARNING: Please rerun your job with MV2_ENABLE_AFFINITY=0 or PMR_NUM_THREADS=1. \n");
+      fflush(stderr);
+    }    
+    nthreads = 1; 
+  }
+#endif
 
   /* If only maximal number of local eigenvectors are queried
    * return if possible here */
@@ -241,7 +265,7 @@ int PMRRR(char *jobz, char *range, int *np, double  *D,
   /*  Test if matrix warrants more expensive computations which
    *  guarantees high relative accuracy */
   if (*tryracp) {
-    LAPACK(dlarrr)(&n, D, E, &info); /* 0 - rel acc */
+    odrrr(&n, D, E, &info); /* 0 - rel acc */
   }
   else info = -1;
 
@@ -268,41 +292,65 @@ int PMRRR(char *jobz, char *range, int *np, double  *D,
   } else {
     /* Do not compute to full accuracy first, but refine later */
     tolstruct->rtol1 = sqrt(DBL_EPSILON);
-    tolstruct->rtol1 = fmin(1e-1*MIN_RELGAP, tolstruct->rtol1);
+    tolstruct->rtol1 = fmin(1e-2*MIN_RELGAP, tolstruct->rtol1);
     tolstruct->rtol2 = sqrt(DBL_EPSILON)*5.0E-3;
     tolstruct->rtol2 = fmin(5e-6*MIN_RELGAP, tolstruct->rtol2);
     tolstruct->rtol2 = fmax(4.0 * DBL_EPSILON, tolstruct->rtol2);
   }
 
-  /*  Compute eigenvalues (all in case vectors are desired too) */
-  info = plarre(procinfo, jobz, range, Dstruct, Wstruct, tolstruct,
-		nzp, offsetp);
+  /*  Compute all eigenvalues: sorted by block */
+  info = plarre(procinfo, jobz, range, Dstruct, Wstruct, tolstruct, nzp, offsetp);
   assert(info == 0);
 
-  /* If just number of local eigenvectors are queried return, then 
-   * value is set in 'plarre' and we can return */
-  if (cntval & valeig) {
+  /* If just number of local eigenvectors are queried */
+  if (cntval & valeig) {    
     clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
 	     isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
 	     tolstruct);
     return(0);
   }
 
-  /* If only eigenvalues are to be computed, clean up and return */
+  /* If only eigenvalues are to be computed */
   if (!wantZ) {
 
     /* Refine to high relative with respect to input T */
     if (*tryracp) {
       info = refine_to_highrac(procinfo, jobz, Dcopy, E2copy, 
-			       Dstruct, nzp, Wstruct, tolstruct);
+			                        Dstruct, nzp, Wstruct, tolstruct);
       assert(info == 0);
+    }
+
+    /* Sort eigenvalues */
+    qsort(W, n, sizeof(double), cmp);
+
+    /* Only keep subset ifirst:ilast */
+    iil = *il;
+    iiu = *iu;    
+    ifirst_tmp = iil;
+    for (i=0; i<nproc; i++) {
+      chunk  = (iiu-iil+1)/nproc + (i < (iiu-iil+1)%nproc);
+      if (i == nproc-1) {
+	ilast_tmp = iiu;
+      } else {
+	ilast_tmp = ifirst_tmp + chunk - 1;
+	ilast_tmp = imin(ilast_tmp, iiu);
+      }
+      if (i == pid) {
+	ifirst    = ifirst_tmp;
+	ilast     = ilast_tmp;
+	isize     = ilast - ifirst + 1;
+	*offsetp = ifirst - iil;
+	*nzp      = isize;
+      }
+      ifirst_tmp = ilast_tmp + 1;
+      ifirst_tmp = imin(ifirst_tmp, iiu + 1);
+    }
+    if (isize > 0) {
+      memmove(W, &W[ifirst-1], *nzp * sizeof(double));
     }
 
     /* If matrix was scaled, rescale eigenvalues */
     invscale_eigenvalues(Wstruct, scale, *nzp);
-
-    /* Sort eigenvalues */
-    if (Dstruct->nsplit > 1) qsort(W, *nzp, sizeof(double), cmp);
 
     clean_up(comm_dup, Werr, Wgap, gersch, iblock, iproc, Windex,
 	     isplit, Zindex, procinfo, Dstruct, Wstruct, Zstruct,
@@ -425,9 +473,9 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
   if (cntval) {
     /* Note: at the moment, jobz="C" should never get here, since
      * it is blocked before. */
-    LAPACK(dstemr)
-    ("V", "V", np, D, E, vlp, vup, ilp, iup, &m, W, &cnt, &ldz_tmp, &MINUSONE, 
-     Zsupp, tryracp, work, &lwork, iwork, &liwork, &info);
+    odstmr("V", "V", np, D, E, vlp, vup, ilp, iup, &m, W, &cnt,
+	   &ldz_tmp, &MINUSONE, Zsupp, tryracp, work, &lwork, iwork,
+	   &liwork, &info);
     assert(info == 0);
     
     *nzp = (int) ceil(cnt/nproc);
@@ -435,9 +483,9 @@ int handle_small_cases(char *jobz, char *range, int *np, double  *D,
     return(0);
   }
 
-  LAPACK(dstemr)
-  (jobz, range, np, D, E, vlp, vup, ilp, iup, &m, W, Z_tmp, &ldz_tmp, np, Zsupp,
-   tryracp, work, &lwork, iwork, &liwork, &info);
+  odstmr(jobz, range, np, D, E, vlp, vup, ilp, iup, &m, W, Z_tmp,
+	 &ldz_tmp, np, Zsupp, tryracp, work, &lwork, iwork,
+	 &liwork, &info);
   assert(info == 0);
 
   chunk   = iceil(m,nproc);
@@ -497,7 +545,7 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
   rmax   = fmin(sqrt(bignum), 1.0 / sqrt(sqrt(DBL_MIN)));
 
   /*  Scale matrix to allowable range */
-  T_norm = LAPACK(dlanst)("M", &n, D, E);  /* returns max(|T(i,j)|) */
+  T_norm = odnst("M", &n, D, E);  /* returns max(|T(i,j)|) */
   if (T_norm > 0 && T_norm < rmin) {
     scale = rmin / T_norm;
   } else if (T_norm > rmax) {
@@ -507,8 +555,8 @@ double scale_matrix(in_t *Dstruct, val_t *Wstruct, bool valeig)
   if (scale != 1.0) {  /* FP cmp okay */
     /* Scale matrix and matrix norm */
     itmp = n-1;
-    BLAS(dscal)(&n,    &scale, D, &IONE);
-    BLAS(dscal)(&itmp, &scale, E, &IONE);
+    pmrrr_dscal(&n,    &scale, D, &IONE);
+    pmrrr_dscal(&itmp, &scale, E, &IONE);
     if (valeig == true) {
       /* Scale eigenvalue bounds */
       *vl *= scale;
@@ -538,7 +586,7 @@ void invscale_eigenvalues(val_t *Wstruct, double scale,
   if (scale != 1.0) {  /* FP cmp okay */
     *vl *= invscale;
     *vu *= invscale;
-    BLAS(dscal)(&size, &invscale, W, &IONE);
+    pmrrr_dscal(&size, &invscale, W, &IONE);
   }
 }
 
@@ -546,8 +594,9 @@ void invscale_eigenvalues(val_t *Wstruct, double scale,
 
 
 static 
-int sort_eigenpairs_local(int m, val_t *Wstruct, vec_t *Zstruct)
+int sort_eigenpairs_local(proc_t *procinfo, int m, val_t *Wstruct, vec_t *Zstruct)
 {
+  int              pid        = procinfo->pid;
   int              n        = Wstruct->n;
   double *restrict W        = Wstruct->W;
   double *restrict work     = Wstruct->gersch;
@@ -559,7 +608,7 @@ int sort_eigenpairs_local(int m, val_t *Wstruct, vec_t *Zstruct)
   int              j;
   double           tmp;
   int              itmp1, itmp2;
-
+  
   /* Make sure that sorted correctly; ineffective implementation,
    * but usually no or very little swapping should be done here */
   sorted = false;
@@ -594,7 +643,7 @@ int sort_eigenpairs_local(int m, val_t *Wstruct, vec_t *Zstruct)
 
 
 static 
-int sort_eigenpairs_global(int m, proc_t *procinfo, val_t *Wstruct, 
+int sort_eigenpairs_global(proc_t *procinfo, int m, val_t *Wstruct, 
 			   vec_t *Zstruct)
 {
   int              pid   = procinfo->pid;
@@ -610,6 +659,7 @@ int sort_eigenpairs_global(int m, proc_t *procinfo, val_t *Wstruct,
   int              i, p, lp, itmp[2];
   bool             sorted;
   MPI_Status       status;
+  double              nan_value = 0.0/0.0;
   
   minW   = (double *) malloc(  nproc*sizeof(double));
   assert(minW != NULL);
@@ -618,11 +668,18 @@ int sort_eigenpairs_global(int m, proc_t *procinfo, val_t *Wstruct,
   minmax = (double *) malloc(2*nproc*sizeof(double));
   assert(minmax != NULL);
 
-  MPI_Allgather(&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
-		procinfo->comm); 
-  MPI_Allgather(&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
-		procinfo->comm); 
-  
+  if (m == 0) {
+    MPI_Allgather(&nan_value, 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
+		  procinfo->comm); 
+    MPI_Allgather(&nan_value, 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
+		  procinfo->comm); 
+  } else {
+    MPI_Allgather(&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
+		  procinfo->comm); 
+    MPI_Allgather(&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
+		  procinfo->comm); 
+  }
+
   for (i=0; i<nproc; i++) {
     minmax[2*i]   = minW[i];
     minmax[2*i+1] = maxW[i];
@@ -682,13 +739,20 @@ int sort_eigenpairs_global(int m, proc_t *procinfo, val_t *Wstruct,
     }
 
     /* sort local again */
-    sort_eigenpairs_local(m, Wstruct, Zstruct);
+    sort_eigenpairs_local(procinfo, m, Wstruct, Zstruct);
     
     /* check again if globally sorted */
-    MPI_Allgather(&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
-		  procinfo->comm); 
-    MPI_Allgather(&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
-		  procinfo->comm); 
+    if (m == 0) {
+      MPI_Allgather(&nan_value, 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
+		    procinfo->comm); 
+      MPI_Allgather(&nan_value, 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
+		    procinfo->comm);       
+    } else {
+      MPI_Allgather(&W[0], 1, MPI_DOUBLE, minW, 1, MPI_DOUBLE, 
+		    procinfo->comm); 
+      MPI_Allgather(&W[m-1], 1, MPI_DOUBLE, maxW, 1, MPI_DOUBLE, 
+		    procinfo->comm); 
+    }
     
     for (i=0; i<nproc; i++) {
       minmax[2*i]   = minW[i];
@@ -699,8 +763,6 @@ int sort_eigenpairs_global(int m, proc_t *procinfo, val_t *Wstruct,
       if (minmax[i] > minmax[i+1]) sorted = false;
     }
     
-    if (pid == 0) printf("sorted = %d\n", sorted);
-
   } /* end while not sorted */
 
   free(minW);
@@ -761,13 +823,13 @@ int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
   /* Make sure eigenpairs are sorted locally; this is a very 
    * inefficient way sorting, but in general no or very little 
    * swapping of eigenpairs is expected here */
-  sort_eigenpairs_local(im, Wstruct, Zstruct);
+  sort_eigenpairs_local(procinfo, im, Wstruct, Zstruct);
 
   /* Make sure eigenpairs are sorted globally; this is a very 
    * inefficient way sorting, but in general no or very little 
    * swapping of eigenpairs is expected here */
   if (ASSERT_SORTED_EIGENPAIRS == true)
-    sort_eigenpairs_global(im, procinfo, Wstruct, Zstruct);
+    sort_eigenpairs_global(procinfo, im, Wstruct, Zstruct);
 
   free(sort_array);
 
@@ -781,11 +843,10 @@ int sort_eigenpairs(proc_t *procinfo, val_t *Wstruct, vec_t *Zstruct)
 /*
  * Refines the eigenvalue to high relative accuracy with
  * respect to the input matrix;
- * Note: In principle this part could be multithreaded too,
+ * Note: In principle this part could be fully parallel too,
  * but it will only rarely be called and not much work
  * is involved, if the eigenvalues are not small in magnitude
- * even no work at all is not uncommon. Therefore using
- * multiple threads seems not to be warranted.
+ * even no work at all is not uncommon. 
  */
 static 
 int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
@@ -811,8 +872,7 @@ int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
   int    *iwork;
   int    ifirst, ilast, offset, info;
   int    i, j, k;
-  int    ibegin, iend, isize;
-  int    iWbegin, iWend, nbl;
+  int    ibegin, iend, isize, nbl;
 
   work  = (double *) malloc( 2*n * sizeof(double) );
   assert (work != NULL);
@@ -824,54 +884,20 @@ int refine_to_highrac(proc_t *procinfo, char *jobz, double *D,
     
     iend   = isplit[j] - 1;
     isize  = iend - ibegin + 1;
-    nbl    = 0;
+    nbl    = isize;
     
-    /* Find eigenvalues in block */
-    if (!wantZ) {
-      /* Eigenvalues are in W[0...nbl] */
-      iWbegin = 0;
-      iWend   = 0;
-      for (i=0; i<nz; i++) {
-	if (nbl == 0 && iblock[i] == j+1) {
-	  iWbegin = i;
-	  iWend   = i;
-	  nbl++;
-	  k = i+1;
-	  while (k <nz && iblock[k] == j+1) {
-	    iWend++; nbl++; k++;
-	  }
-	}
-      }
-    } else {
-      /* eigenvalues are in W[0...(n-1)] */
-      iWbegin = iend   + 1;
-      iWend   = ibegin - 1;
-      for (i=ibegin; i<=iend; i++) {
-	if (nbl == 0 && iproc[i] == pid) {
-	  iWbegin = i;
-	  iWend   = i;
-	  nbl++;
-	  k = i+1;
-	  while (k <=iend && iproc[k] == pid) {
-	    iWend++; nbl++; k++;
-	  }
-	}
-      }
-    }
-
-    /* If no eigenvalues for process in block continue */
-    if (nbl == 0) {
+    if (nbl == 1) {
       ibegin = iend + 1;
       continue;
     }
     
-    ifirst  = Windex[iWbegin];
-    ilast   = Windex[iWend];
-    offset  = Windex[iWbegin] - 1;
+    ifirst  = 1;
+    ilast   = nbl;
+    offset  = 0;
 
-    LAPACK(dlarrj)
-    (&isize, &D[ibegin], &E2[ibegin], &ifirst, &ilast, &tol, &offset, 
-     &W[iWbegin], &Werr[iWbegin], work, iwork, &pivmin, &spdiam, &info);
+    odrrj(&isize, &D[ibegin], &E2[ibegin], &ifirst, &ilast, &tol,
+	  &offset, &W[ibegin], &Werr[ibegin], work, iwork, &pivmin,
+	  &spdiam, &info);
     assert(info == 0);
     
     ibegin = iend + 1;
@@ -929,7 +955,7 @@ int cmp(const void *a1, const void *a2)
 /*
  * Routine to communicate eigenvalues such that every process has
  * all computed eigenvalues (iu-il+1) in W; this routine is designed 
- * to be called right after 'PMRRR'.
+ * to be called right after 'pmrrr'.
  */
 int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *myfirstp, double *W)
 {
@@ -965,21 +991,6 @@ int PMR_comm_eigvals(MPI_Comm comm, int *nz, int *myfirstp, double *W)
   free(work);
 
   return(0);
-}
-
-
-
-
-/* Fortran function prototype */
-void pmrrr_(char *jobz, char *range, int *n, double  *D,
-	    double *E, double *vl, double *vu, int *il, int *iu,
-	    int *tryracp, MPI_Fint *comm, int *nz, int *myfirst,
-	    double *W, double *Z, int *ldz, int *Zsupp, int* info)
-{
-  MPI_Comm c_comm = MPI_Comm_f2c(*comm);
-
-  *info = PMRRR(jobz, range, n, D, E, vl, vu, il, iu, tryracp, 
-		c_comm, nz, myfirst, W, Z, ldz, Zsupp);
 }
 
 void pmr_comm_eigvals_(MPI_Fint *comm, int *nz, int *myfirstp, 

@@ -91,9 +91,6 @@ void PrintConfig( std::ostream& os )
 #ifdef HAVE_F90_INTERFACE
     os << "  HAVE_F90_INTERFACE\n";
 #endif 
-#ifdef HAVE_PMRRR
-    os << "  HAVE_PMRRR\n";
-#endif
 #ifdef AVOID_COMPLEX_MPI
     os << "  AVOID_COMPLEX_MPI\n";
 #endif

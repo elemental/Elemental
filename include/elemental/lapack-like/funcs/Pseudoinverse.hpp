@@ -145,7 +145,6 @@ HermitianPseudoinverse
 ( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) tolerance=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
-    EnsurePMRRR();
     typedef Base<F> R;
     const Int n = A.Height();
 

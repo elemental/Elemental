@@ -139,7 +139,10 @@ typedef struct {
   double       *DE2;
   int          rf_begin;
   int          rf_end;
-  val_t        *Wstruct;
+  double        *W;
+  double        *Werr;
+  double        *Wgap;
+  int            *Windex;
   double       rtol1;
   double       rtol2;
   double       pivmin;

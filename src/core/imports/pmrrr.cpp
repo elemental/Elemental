@@ -8,11 +8,9 @@
 */
 #include "elemental-lite.hpp"
 
-#ifdef HAVE_PMRRR
-
 extern "C" {
 
-int PMRRR
+int pmrrr
 ( const char* jobz,  // 'N' ~ only eigenvalues, 'V' ~ also eigenvectors
   const char* range, // 'A'~all eigenpairs, 'V'~interval (vl,vu], 'I'~il-iu
   const int* n,      // size of matrix
@@ -34,10 +32,8 @@ int PMRRR
 
 } // extern "C"
 
-#endif // ifdef HAVE_PMRRR
-
 namespace elem {
-namespace pmrrr {
+namespace herm_tridiag_eig {
 
 // Return upper bounds on the number of (local) eigenvalues in the given range,
 // (lowerBound,upperBound]
@@ -45,9 +41,8 @@ Estimate EigEstimate
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::EigEstimate"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::EigEstimate"))
     Estimate estimate;
-#ifdef HAVE_PMRRR
     char jobz='C';
     char range='V';
     int il, iu;
@@ -55,26 +50,22 @@ Estimate EigEstimate
     int nz, offset;
     int ldz=1;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
       &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     estimate.numLocalEigenvalues = nz;
     estimate.numGlobalEigenvalues = mpi::AllReduce( nz, comm );
-#else
-    EnsurePMRRR();
-#endif
     return estimate;
 }
 
 // Compute all of the eigenvalues
 Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::Eig"))
     Info info;
-#ifdef HAVE_PMRRR
     char jobz='N';
     char range='A';
     double vl, vu;
@@ -83,18 +74,15 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
     int nz, offset;
     int ldz=1;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
       &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=n;
-#else
-    EnsurePMRRR();
-#endif
     return info;
 }
 
@@ -102,9 +90,8 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::Eig"))
     Info info;
-#ifdef HAVE_PMRRR
     char jobz='V';
     char range='A';
     double vl, vu;
@@ -112,18 +99,15 @@ Info Eig
     int highAccuracy=0; 
     int nz, offset;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
       &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=n;
-#else
-    EnsurePMRRR();
-#endif
     return info;
 }
 
@@ -132,9 +116,8 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::Eig"))
     Info info;
-#ifdef HAVE_PMRRR
     char jobz='N';
     char range='V';
     int il, iu;
@@ -142,18 +125,15 @@ Info Eig
     int nz, offset;
     int ldz=1;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
       &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     mpi::AllReduce( &nz, &info.numGlobalEigenvalues, 1, mpi::SUM, comm );
-#else
-    EnsurePMRRR();
-#endif
     return info;
 }
 
@@ -162,27 +142,23 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::Eig"))
     Info info;
-#ifdef HAVE_PMRRR
     char jobz='V';
     char range='V';
     int il, iu;
     int highAccuracy=0; 
     int nz, offset;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
       &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     mpi::AllReduce( &nz, &info.numGlobalEigenvalues, 1, mpi::SUM, comm );
-#else
-    EnsurePMRRR();
-#endif
     return info;
 }
 
@@ -191,9 +167,8 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::Eig"))
     Info info;
-#ifdef HAVE_PMRRR
     ++lowerBound;
     ++upperBound;
     char jobz='N';
@@ -203,18 +178,15 @@ Info Eig
     int nz, offset;
     int ldz=1;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
       &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=(upperBound-lowerBound)+1;
-#else
-    EnsurePMRRR();
-#endif
     return info;
 }
 
@@ -224,9 +196,8 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-    DEBUG_ONLY(CallStackEntry cse("pmrrr::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("herm_tridiag_eig::Eig"))
     Info info;
-#ifdef HAVE_PMRRR
     ++lowerBound;
     ++upperBound;
     char jobz='V';
@@ -235,20 +206,17 @@ Info Eig
     int highAccuracy=0; 
     int nz, offset;
     std::vector<int> ZSupport(2*n);
-    int retval = PMRRR
+    int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
       &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
-        RuntimeError("PMRRR returned ",retval);
+        RuntimeError("pmrrr returned ",retval);
 
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=(upperBound-lowerBound)+1;
-#else
-    EnsurePMRRR();
-#endif
     return info;
 }
 
-} // namespace pmrrr
+} // namespace herm_tridiag_eig
 } // namespace elem

@@ -84,6 +84,7 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
 	   int *myfirstp)
 {
   /* Input variables */
+  int            pid     = procinfo->pid;
   int            nthreads = procinfo->nthreads;
   int            n        = Dstruct->n;
   double         *W       = Wstruct->W;
@@ -102,6 +103,7 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   int            info, i;
   workQ_t        *workQ;
 
+
   /* Allocate work space and copy eigenvalues */
   Wshifted = (double *) malloc( n * sizeof(double) );
   assert(Wshifted != NULL);
@@ -114,7 +116,7 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
 
   /* Assign eigenvectors to processes */
   assign_to_proc(procinfo, Dstruct, Wstruct, Zstruct, nzp,
-		 myfirstp);
+		            myfirstp);
 
   /* Create work queue Q, counter, threads to empty Q */
   workQ    = create_workQ( );
@@ -148,7 +150,7 @@ int plarrv(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
     info = pthread_join(threads[i], &status);
     assert(info == 0 && status == NULL);
   }
-  
+
   /* Clean up */
   free(Wshifted);
   free(threads);
@@ -190,7 +192,7 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
   sort_struct_t     *array;
 
   array = (sort_struct_t *) malloc(n*sizeof(sort_struct_t));
-
+  
   for (i=0; i<n; i++) {
     /* Find shift of block */
     iblk                    = iblock[i];
@@ -207,6 +209,7 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
 
   qsort(array, n, sizeof(sort_struct_t), cmpa);
 
+  /* Mark eigenvectors that do not need to be computed */
   for (j = 0; j < il-1; j++ ) {
     ind = array[j].ind;
     iproc[ind]  = -1;
@@ -250,7 +253,7 @@ int assign_to_proc(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
     iproc[ind]  = -1;
     Zindex[ind] = -1;
   }
-
+  
   free(array);
   return(0);
 }
@@ -478,7 +481,7 @@ int init_workQ(proc_t *procinfo, in_t *Dstruct, val_t *Wstruct,
 
 	    if (k == new_last-1)
 	      cl_last = new_last;
-             else if (k != cl_first && Wgap[k] > 0.8*avggap) 
+	    else if (k != cl_first && Wgap[k] > 0.8*avggap)
 	      cl_last = k;
 	    else
 	      continue;
@@ -606,11 +609,11 @@ void *empty_workQ(void *argin)
 
   n        = Wstruct->n;
 
-  /* max. needed double precision work space: dlar1v */
+  /* max. needed double precision work space: odr1v */
   work      = (double *) malloc(4*n * sizeof(double));
   assert(work != NULL);
 
-  /* max. needed double precision work space: dlarrb */
+  /* max. needed double precision work space: odrrb */
   iwork     = (int *)    malloc(2*n * sizeof(int)   );
   assert(iwork != NULL);
 

@@ -50,7 +50,6 @@ inline void
 RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
 {
     DEBUG_ONLY(CallStackEntry cse("RealHermitianFunction"))
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<F> Real;
@@ -112,7 +111,6 @@ ComplexHermitianFunction
 ( UpperOrLower uplo, DistMatrix<Complex<Real> >& A, Function func )
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
-    EnsurePMRRR();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;

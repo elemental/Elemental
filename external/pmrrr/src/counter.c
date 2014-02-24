@@ -151,3 +151,30 @@ int PMR_decrement_counter(counter_t *counter, int amount)
 
   return(value);
 }
+
+
+
+
+int PMR_increment_counter(counter_t *counter, int amount)
+{
+  int value, info;
+
+#ifdef NOSPINLOCKS
+  info = pthread_mutex_lock(&counter->lock);
+#else
+  info = pthread_spin_lock(&counter->lock);
+#endif
+  assert(info == 0);
+
+  counter->value += amount;
+  value = counter->value;
+
+#ifdef NOSPINLOCKS
+  info = pthread_mutex_unlock(&counter->lock);
+#else
+  info = pthread_spin_unlock(&counter->lock);
+#endif
+  assert(info == 0);
+
+  return(value);
+}
