@@ -19,8 +19,7 @@
 namespace elem {
 
 template<typename F>
-void HermitianTridiag
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
+void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     if( uplo == LOWER )

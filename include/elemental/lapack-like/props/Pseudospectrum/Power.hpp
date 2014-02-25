@@ -10,10 +10,9 @@
 #ifndef ELEM_PSEUDOSPECTRUM_POWER_HPP
 #define ELEM_PSEUDOSPECTRUM_POWER_HPP
 
+#include ELEM_MULTISHIFTTRSM_INC
 #include ELEM_ZERONORM_INC
 #include ELEM_ONES_INC
-
-#include "./ShiftedTrsm.hpp"
 
 namespace elem {
 namespace pspec {
@@ -388,9 +387,9 @@ TriangularPower
 
         if( progress )
             timer.Start(); 
-        ShiftedTrsmLUN( U, activeShifts, activeX );
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
         FixColumns( activeX );
-        ShiftedTrsmLUT( U, activeShifts, activeX );
+        MultiShiftTrsm( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 
@@ -489,9 +488,9 @@ TriangularPower
 
         if( progress && U.Grid().Rank() == 0 )
             timer.Start();
-        ShiftedTrsmLUN( U, activeShifts, activeX );
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
         FixColumns( activeX );
-        ShiftedTrsmLUT( U, activeShifts, activeX );
+        MultiShiftTrsm( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 

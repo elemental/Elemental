@@ -16,7 +16,6 @@
 #include ELEM_TWONORMESTIMATE_INC
 #include ELEM_SCHUR_INC
 
-#include "./Pseudospectrum/ShiftedTrsm.hpp"
 #include "./Pseudospectrum/Power.hpp"
 #include "./Pseudospectrum/Lanczos.hpp"
 #include "./Pseudospectrum/KrylovSpectral.hpp"

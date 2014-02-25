@@ -133,9 +133,8 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
 
 } // namespace herm_eig
 
-//----------------------------------------------------------------------------//
-// Grab the full set of eigenvalues                                           //
-//----------------------------------------------------------------------------//
+// Compute the full set of eigenvalues
+// ===================================
 
 template<typename F>
 void HermitianEig
@@ -212,9 +211,8 @@ void HermitianEig<Complex<float>>
   DistMatrix<float,VR,STAR>& w, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
-//----------------------------------------------------------------------------//
-// Grab the full set of eigenpairs                                            //
-//----------------------------------------------------------------------------//
+// Compute the full set of eigenpairs
+// ==================================
 
 template<typename F>
 void HermitianEig
@@ -350,12 +348,8 @@ void HermitianEig<Complex<float>>
   SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
-//----------------------------------------------------------------------------//
-// Grab a partial set of eigenvalues.                                         //
-// The partial set is determined by the inclusive zero-indexed range          //
-//   a,a+1,...,b    ; a >= 0, b < n                                           //
-// (where a=il, b=iu)                                                         //
-//----------------------------------------------------------------------------//
+// Compute the eigenvalues within an inclusive index range
+// =======================================================
 
 template<typename F>
 void HermitianEig
@@ -439,13 +433,8 @@ void HermitianEig<Complex<float>>
   DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
-//----------------------------------------------------------------------------//
-// Grab a partial set of eigenpairs.                                          //
-// The partial set is determined by the inclusive zero-indexed range          //
-//   a,a+1,...,b    ; a >= 0, b < n                                           //
-// (where a=il, b=iu)                                                         //
-// of the n eigenpairs sorted from smallest to largest eigenvalues.           //
-//----------------------------------------------------------------------------//
+// Compute the eigenpairs within an inclusive index range
+// ======================================================
 
 template<typename F>
 void HermitianEig
@@ -592,9 +581,8 @@ void HermitianEig<Complex<float>>
   Int il, Int iu, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
-//----------------------------------------------------------------------------//
-// Grab the eigenvalues in the range (a,b]                                    //
-//----------------------------------------------------------------------------//
+// Compute the eigenvalues within a half-open, (a,b], interval
+// ===========================================================
 
 template<typename F>
 void HermitianEig
@@ -694,9 +682,8 @@ void HermitianEig<Complex<float>>
   SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
-//----------------------------------------------------------------------------//
-// Grab the eigenpairs with eigenvalues in the range (a,b]                    //
-//----------------------------------------------------------------------------//
+// Compute the eigenpairs with eigenvalues in a half-open, (a,b], interval
+// =======================================================================
 
 template<typename F>
 void HermitianEig
@@ -958,5 +945,3 @@ ALL_OPTS(Complex<double>);
 #endif // ifndef DISABLE_COMPLEX
 
 } // namespace elem
-
-#undef TARGET_CHUNKS

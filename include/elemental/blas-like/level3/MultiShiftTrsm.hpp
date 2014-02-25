@@ -7,41 +7,51 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_PSEUDOSPECTRUM_SHIFTEDTRSM_HPP
-#define ELEM_PSEUDOSPECTRUM_SHIFTEDTRSM_HPP
+#ifndef ELEM_MULTISHIFTTRSM_HPP
+#define ELEM_MULTISHIFTTRSM_HPP
 
 namespace elem {
-namespace pspec {
+namespace mstrsm {
 
 template<typename F>
 inline void
-ShiftedTrsmLUNUnb
-( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
+LeftUnb
+( UpperOrLower uplo, Orientation orientation, F alpha, 
+  Matrix<F>& T, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
     DEBUG_ONLY(
-        CallStackEntry cse("pspec::ShiftedTrsmLUNUnb");
+        CallStackEntry cse("mstrsm::LeftUnb");
         if( shifts.Height() != X.Width() )
             LogicError("Incompatible number of shifts");
     )
-    auto diag = U.GetDiagonal();
-    const Int n = U.Height();
-    const Int ldim = U.LDim();
+    const char uploChar = ( uplo==LOWER ? 'L' : 'U' );
+    char orientChar; 
+    switch( orientation )
+    {
+    case NORMAL:    orientChar = 'N'; break;
+    case TRANSPOSE: orientChar = 'T'; break;
+    case ADJOINT:   orientChar = 'C'; break;
+    }
+    auto diag = T.GetDiagonal();
+    const Int n = T.Height();
+    const Int ldim = T.LDim();
     const Int numShifts = shifts.Height();
+    Scale( alpha, X );
     for( Int j=0; j<numShifts; ++j )
     {
-        UpdateDiagonal( U, -shifts.Get(j,0) );
+        UpdateDiagonal( T, -shifts.Get(j,0) );
         blas::Trsv
-        ( 'U', 'N', 'N', n, U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
-        U.SetDiagonal( diag );
+        ( uploChar, orientChar, 'N', n, 
+          T.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
+        T.SetDiagonal( diag );
     }
 }
 
 template<typename F>
 inline void
-ShiftedTrsmLUN
-( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
+LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUN"))
+    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
 
     Matrix<F>
         UTL, UTR,  U00, U01, U02,
@@ -51,6 +61,7 @@ ShiftedTrsmLUN
               XB,  X1,
                    X2;
 
+    Scale( alpha, X );
     PartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -72,7 +83,7 @@ ShiftedTrsmLUN
           XB,  X2 );
 
         //--------------------------------------------------------------------//
-        ShiftedTrsmLUNUnb( U11, shifts, X1 );
+        LeftUnb( UPPER, NORMAL, F(1), U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
         //--------------------------------------------------------------------//
 
@@ -92,12 +103,11 @@ ShiftedTrsmLUN
 
 template<typename F>
 inline void
-ShiftedTrsmLUN
-( const DistMatrix<F>& U, 
-  const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-        DistMatrix<F>& X ) 
+LUN
+( F alpha, const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts,
+  DistMatrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUN"))
+    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -116,6 +126,7 @@ ShiftedTrsmLUN
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -144,8 +155,9 @@ ShiftedTrsmLUN
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
-        ShiftedTrsmLUN
-        ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), X1_STAR_VR.Matrix() );
+        LUN
+        ( F(1), U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), 
+          X1_STAR_VR.Matrix() );
 
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1          = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
@@ -171,33 +183,11 @@ ShiftedTrsmLUN
 
 template<typename F>
 inline void
-ShiftedTrsmLUTUnb
-( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
+LUT
+( Orientation orientation, F alpha, 
+  Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X ) 
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ShiftedTrsmLUTUnb");
-        if( shifts.Height() != X.Width() )
-            LogicError("Incompatible number of shifts");
-    )
-    auto diag = U.GetDiagonal();
-    const Int n = U.Height();
-    const Int ldim = U.LDim();
-    const Int numShifts = shifts.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        UpdateDiagonal( U, -shifts.Get(j,0) );
-        blas::Trsv
-        ( 'U', 'C', 'N', n, U.LockedBuffer(), ldim, X.Buffer(0,j), 1 );
-        U.SetDiagonal( diag );
-    }
-}
-
-template<typename F>
-inline void
-ShiftedTrsmLUT
-( Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, Matrix<F>& X ) 
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"))
+    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
 
     Matrix<F>
         UTL, UTR,  U00, U01, U02,
@@ -208,6 +198,7 @@ ShiftedTrsmLUT
               XB,  X1,
                    X2;
 
+    Scale( alpha, X );
     PartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -229,8 +220,8 @@ ShiftedTrsmLUT
           XB,  X2 );
 
         //--------------------------------------------------------------------//
-        ShiftedTrsmLUTUnb( U11, shifts, X1 );
-        Gemm( ADJOINT, NORMAL, F(-1), U12, X1, F(1), X2 );
+        LeftUnb( UPPER, orientation, F(1), U11, shifts, X1 );
+        Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -249,11 +240,12 @@ ShiftedTrsmLUT
 
 template<typename F>
 inline void
-ShiftedTrsmLUT
-( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
+LUT
+( Orientation orientation, F alpha, 
+  const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts,
         DistMatrix<F>& X ) 
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::ShiftedTrsmLUT"))
+    DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
     const Grid& g = U.Grid();
 
     // Matrix views
@@ -273,6 +265,7 @@ ShiftedTrsmLUT
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -301,8 +294,9 @@ ShiftedTrsmLUT
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
         // X1[* ,VR] := U11^-'[*,*] X1[* ,VR]
-        ShiftedTrsmLUT
-        ( U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), X1_STAR_VR.Matrix() );
+        LUT
+        ( orientation, F(1), 
+          U11_STAR_STAR.Matrix(), shifts.LockedMatrix(), X1_STAR_VR.Matrix() );
 
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1          = X1_STAR_MR; // X1[MC,MR]  <- X1[* ,MR]
@@ -311,7 +305,7 @@ ShiftedTrsmLUT
         // X2[MC,MR] -= (U12[* ,MC])' X1[* ,MR]
         //            = U12'[MC,*] X1[* ,MR]
         LocalGemm
-        ( ADJOINT, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
+        ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal
@@ -328,7 +322,45 @@ ShiftedTrsmLUT
     }
 }
 
-} // namespace pspec
+} // namespace mstrsm
+
+template<typename F>
+inline void
+MultiShiftTrsm
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  F alpha, const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("MultiShiftTrsm"))
+    if( side == LEFT && uplo == UPPER )
+    {
+        if( orientation == NORMAL )
+            mstrsm::LUN( alpha, U, shifts, X );
+        else
+            mstrsm::LUT( orientation, alpha, U, shifts, X );
+    }
+    else
+        LogicError("This option is not yet supported");
+}
+
+template<typename F>
+inline void
+MultiShiftTrsm
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  F alpha, const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts, 
+  DistMatrix<F>& X )
+{
+    DEBUG_ONLY(CallStackEntry cse("MultiShiftTrsm"))
+    if( side == LEFT && uplo == UPPER )
+    {
+        if( orientation == NORMAL )
+            mstrsm::LUN( alpha, U, shifts, X );
+        else
+            mstrsm::LUT( orientation, alpha, U, shifts, X );
+    }
+    else
+        LogicError("This option is not yet supported");
+}
+
 } // namespace elem
 
 #endif // ifndef ELEM_PSEUDOSPECTRUM_SHIFTED_TRSM_HPP

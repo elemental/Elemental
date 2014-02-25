@@ -128,6 +128,7 @@
 #define ELEM_HEMM_INC         "elemental/blas-like/level3/Hemm.hpp"
 #define ELEM_HER2K_INC        "elemental/blas-like/level3/Her2k.hpp"
 #define ELEM_HERK_INC         "elemental/blas-like/level3/Herk.hpp"
+#define ELEM_MULTISHIFTTRSM_INC "elemental/blas-like/level3/MultiShiftTrsm.hpp"
 #define ELEM_SYMM_INC         "elemental/blas-like/level3/Symm.hpp"
 #define ELEM_SYR2K_INC        "elemental/blas-like/level3/Syr2k.hpp"
 #define ELEM_SYRK_INC         "elemental/blas-like/level3/Syrk.hpp"

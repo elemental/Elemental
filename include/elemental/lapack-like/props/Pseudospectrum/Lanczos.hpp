@@ -10,10 +10,7 @@
 #ifndef ELEM_PSEUDOSPECTRUM_LANCZOS_HPP
 #define ELEM_PSEUDOSPECTRUM_LANCZOS_HPP
 
-#include ELEM_ZERONORM_INC
-
 #include "./Power.hpp"
-#include "./ShiftedTrsm.hpp"
 
 namespace elem {
 namespace pspec {
@@ -612,11 +609,17 @@ TriangularLanczos
         activeXNew = activeX;
         if( progress )
             subtimer.Start();
-        ShiftedTrsmLUN( U, activeShifts, activeXNew );
-        ShiftedTrsmLUT( U, activeShifts, activeXNew );
+        MultiShiftTrsm
+        ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeXNew );
+        MultiShiftTrsm
+        ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeXNew );
         if( progress )
-            std::cout << "  Shifted TRSM's: " << subtimer.Stop() << " seconds"
-                      << std::endl;
+        {
+            const double msTime = subtimer.Stop();
+            const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+            std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                      << gflops << " GFlops" << std::endl;
+        }
         ColumnSubtractions( HSubdiagList, activeXOld, activeXNew );
         InnerProducts( activeX, activeXNew, HDiagList );
         ColumnSubtractions( HDiagList, activeX, activeXNew );
@@ -751,14 +754,20 @@ TriangularLanczos
             if( U.Grid().Rank() == 0 )
                 subtimer.Start();
         }
-        ShiftedTrsmLUN( U, activeShifts, activeXNew );
-        ShiftedTrsmLUT( U, activeShifts, activeXNew );
+        MultiShiftTrsm
+        ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeXNew );
+        MultiShiftTrsm
+        ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeXNew );
         if( progress )
         {
             mpi::Barrier( U.Grid().Comm() );
             if( U.Grid().Rank() == 0 )
-                std::cout << "  Shifted TRSM's: " << subtimer.Stop() 
-                          << " seconds" << std::endl;
+            {
+                const double msTime = subtimer.Stop();
+                const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                          << gflops << " GFlops" << std::endl;
+            }
         }
         ColumnSubtractions( HSubdiagList, activeXOld, activeXNew );
         InnerProducts( activeX, activeXNew, HDiagList );

@@ -206,11 +206,17 @@ TriangularKrylovSpectral
             activeVList[j+1] = activeVList[j];
             if( progress )
                 subtimer.Start();
-            ShiftedTrsmLUN( U, activeShifts, activeVList[j+1] );
-            ShiftedTrsmLUT( U, activeShifts, activeVList[j+1] );
+            MultiShiftTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeVList[j+1] );
+            MultiShiftTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeVList[j+1] );
             if( progress )
-                std::cout << "  Shifted TRSM's: " << subtimer.Stop() 
-                          << " seconds" << std::endl;
+            {
+                const double msTime = subtimer.Stop();
+                const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                          << gflops << " GFlops" << std::endl;
+            }
             if( j != 0 )
             {
                 ColumnSubtractions
@@ -388,14 +394,21 @@ TriangularKrylovSpectral
                 if( U.Grid().Rank() == 0 )
                     subtimer.Start();
             }
-            ShiftedTrsmLUN( U, activeShifts, activeVList[j+1] );
-            ShiftedTrsmLUT( U, activeShifts, activeVList[j+1] );
+            MultiShiftTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeVList[j+1] );
+            MultiShiftTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeVList[j+1] );
             if( progress )
             {
                 mpi::Barrier( U.Grid().Comm() );
                 if( U.Grid().Rank() == 0 )
-                    std::cout << "  Shifted TRSM's: " << subtimer.Stop() 
-                              << " seconds" << std::endl;
+                {
+                    const double msTime = subtimer.Stop();
+                    const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                    std::cout << "  MultiShiftTrsm's: " << msTime 
+                              << " seconds, " << gflops << " GFlops" 
+                              << std::endl;
+                }
             }
             if( j != 0 )
             {
