@@ -76,7 +76,7 @@ MultiplyAfter
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-    QuasiDiagonalScale( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
+    QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     ApplyInverseRowPivots( B, p );
 }
@@ -103,7 +103,7 @@ MultiplyAfter
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-    QuasiDiagonalScale( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
+    QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     ApplyInverseRowPivots( B, p );
 }

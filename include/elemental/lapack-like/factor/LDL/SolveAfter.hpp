@@ -78,7 +78,7 @@ SolveAfter
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    QuasiDiagonalSolve( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
+    QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     ApplyInverseRowPivots( B, p );
 }
@@ -105,7 +105,7 @@ SolveAfter
     const auto d = A.GetDiagonal();
     ApplyRowPivots( B, p );
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    QuasiDiagonalSolve( LEFT, LOWER, NORMAL, d, dSub, B, conjugated );
+    QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     ApplyInverseRowPivots( B, p );
 }

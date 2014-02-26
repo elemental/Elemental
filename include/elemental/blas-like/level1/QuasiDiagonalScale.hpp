@@ -17,7 +17,7 @@ namespace elem {
 template<typename F,typename FMain>
 inline void
 QuasiDiagonalScale
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+( LeftOrRight side, UpperOrLower uplo, 
   const Matrix<FMain>& d, const Matrix<F>& dSub, 
   Matrix<F>& X, bool conjugated=false )
 {
@@ -88,7 +88,7 @@ QuasiDiagonalScale
 template<typename F,typename FMain,Dist U,Dist V>
 inline void
 LeftQuasiDiagonalScale
-( UpperOrLower uplo, Orientation orientation, 
+( UpperOrLower uplo,
   const DistMatrix<FMain,U,STAR> d,
   const DistMatrix<FMain,U,STAR> dPrev,
   const DistMatrix<FMain,U,STAR> dNext,
@@ -101,7 +101,7 @@ LeftQuasiDiagonalScale
   bool conjugated=false )
 {
     DEBUG_ONLY(CallStackEntry cse("LeftQuasiDiagonalScale"))
-    if( uplo == UPPER || orientation != NORMAL )
+    if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int m = X.Height();
     const Int mLocal = X.LocalHeight();
@@ -133,8 +133,8 @@ LeftQuasiDiagonalScale
     if( colStride == 1 )
     {
         QuasiDiagonalScale
-        ( LEFT, uplo, orientation, d.LockedMatrix(), dSub.LockedMatrix(),
-          X.Matrix(), conjugated );
+        ( LEFT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
+          conjugated );
         return;
     }
 
@@ -182,7 +182,7 @@ LeftQuasiDiagonalScale
 template<typename F,typename FMain,Dist U,Dist V>
 inline void
 RightQuasiDiagonalScale
-( UpperOrLower uplo, Orientation orientation, 
+( UpperOrLower uplo,
   const DistMatrix<FMain,V,STAR> d,
   const DistMatrix<FMain,V,STAR> dPrev,
   const DistMatrix<FMain,V,STAR> dNext,
@@ -195,7 +195,7 @@ RightQuasiDiagonalScale
   bool conjugated=false )
 {
     DEBUG_ONLY(CallStackEntry cse("LeftQuasiDiagonalScale"))
-    if( uplo == UPPER || orientation != NORMAL )
+    if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int n = X.Width();
     const Int mLocal = X.LocalHeight();
@@ -227,8 +227,8 @@ RightQuasiDiagonalScale
     if( rowStride == 1 )
     {
         QuasiDiagonalScale
-        ( LEFT, uplo, orientation, d.LockedMatrix(), dSub.LockedMatrix(),
-          X.Matrix(), conjugated );
+        ( LEFT, uplo, d.LockedMatrix(), dSub.LockedMatrix(), X.Matrix(),
+          conjugated );
         return;
     }
 
@@ -277,7 +277,7 @@ template<typename F,typename FMain,Dist U1,Dist V1,
                                    Dist U2,Dist V2>
 inline void
 QuasiDiagonalScale
-( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+( LeftOrRight side, UpperOrLower uplo, 
   const DistMatrix<FMain,U1,V1>& d, const DistMatrix<F,U1,V1>& dSub, 
   DistMatrix<F,U2,V2>& X, bool conjugated=false )
 {
@@ -297,7 +297,7 @@ QuasiDiagonalScale
         if( colStride == 1 )
         {
             QuasiDiagonalScale
-            ( side, uplo, orientation, 
+            ( side, uplo, 
               d_U2_STAR.LockedMatrix(), dSub_U2_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
@@ -321,8 +321,7 @@ QuasiDiagonalScale
         XPrev = X;
         XNext = X;
         LeftQuasiDiagonalScale
-        ( uplo, orientation, 
-          d_U2_STAR, dPrev_U2_STAR, dNext_U2_STAR,
+        ( uplo, d_U2_STAR, dPrev_U2_STAR, dNext_U2_STAR,
           dSub_U2_STAR, dSubPrev_U2_STAR, dSubNext_U2_STAR,
           X, XPrev, XNext, conjugated );
     }
@@ -338,7 +337,7 @@ QuasiDiagonalScale
         if( rowStride == 1 )
         {
             QuasiDiagonalScale
-            ( side, uplo, orientation, 
+            ( side, uplo, 
               d_V2_STAR.LockedMatrix(), dSub_V2_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
@@ -362,8 +361,7 @@ QuasiDiagonalScale
         XPrev = X;
         XNext = X;
         RightQuasiDiagonalScale
-        ( uplo, orientation, 
-          d_V2_STAR, dPrev_V2_STAR, dNext_V2_STAR,
+        ( uplo, d_V2_STAR, dPrev_V2_STAR, dNext_V2_STAR,
           dSub_V2_STAR, dSubPrev_V2_STAR, dSubNext_V2_STAR,
           X, XPrev, XNext, conjugated );
     }

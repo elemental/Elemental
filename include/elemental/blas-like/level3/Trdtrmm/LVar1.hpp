@@ -75,7 +75,7 @@ TrdtrmmLVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
         auto d1 = L11.GetDiagonal();
 
         S10 = L10;
-        QuasiDiagonalSolve( LEFT, LOWER, NORMAL, d1, dSub1, L10, conjugate );
+        QuasiDiagonalSolve( LEFT, LOWER, d1, dSub1, L10, conjugate );
         Trrk( LOWER, orientation, NORMAL, F(1), S10, L10, F(1), L00 );
         Trmm( LEFT, LOWER, orientation, UNIT, F(1), L11, L10 );
         TrdtrmmLUnblocked( L11, dSub1, conjugate );
@@ -183,7 +183,7 @@ TrdtrmmLVar1
         dSub1_STAR_STAR = dSub1;
         // TODO: LocalQuasiDiagonalSolve?
         QuasiDiagonalSolve
-        ( LEFT, LOWER, NORMAL, 
+        ( LEFT, LOWER,
           d1_STAR_STAR.LockedMatrix(), dSub1_STAR_STAR.LockedMatrix(), 
           L10_STAR_VR.Matrix(), conjugate );
         L10_STAR_MR = L10_STAR_VR;
