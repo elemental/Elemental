@@ -27,16 +27,27 @@ main( int argc, char* argv[] )
     {
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
+        const Int nb = Input("--nb","blocksize",96);
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
+        SetBlocksize( nb );
+
         DistMatrix<C> A;
         Uniform( A, m, n );
+        if( print )
+            Print( A, "A" );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the QR decomposition of A, but do not overwrite A
         DistMatrix<C> Q( A ), R;
         qr::Explicit( Q, R );
+        if( print )
+        {
+            Print( Q, "Q" );
+            Print( R, "R" );
+        }
 
         // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F
         DistMatrix<C> E( A );

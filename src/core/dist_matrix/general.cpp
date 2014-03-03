@@ -1856,8 +1856,7 @@ GeneralDistMatrix<T,U,V>::PartialRowSumScatterFrom
         CallStackEntry cse("GDM::PartialRowSumScatterFrom");
         this->AssertSameGrid( A.Grid() );
     )
-    this->AlignWith( A );
-    this->Resize( A.Height(), A.Width() );
+    this->AlignAndResize( A.ColAlign(), A.RowAlign(), A.Height(), A.Width() );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -1873,8 +1872,7 @@ GeneralDistMatrix<T,U,V>::PartialColSumScatterFrom
         CallStackEntry cse("GDM::PartialColSumScatterFrom");
         this->AssertSameGrid( A.Grid() );
     )
-    this->AlignWith( A );
-    this->Resize( A.Height(), A.Width() );
+    this->AlignAndResize( A.ColAlign(), A.RowAlign(), A.Height(), A.Width() );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );

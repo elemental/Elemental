@@ -22,16 +22,12 @@ inline void
 Explicit( Matrix<F>& A, bool colPiv=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    Matrix<Int> p;
     Matrix<F> t;
     if( colPiv )
-    {
-        Matrix<Int> p;
         QR( A, t, p );
-    }
     else
-    {
         QR( A, t );
-    }
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
 }
 
@@ -41,16 +37,12 @@ Explicit( DistMatrix<F>& A, bool colPiv=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     const Grid& g = A.Grid();
+    DistMatrix<Int,VR,STAR> p(g);
     DistMatrix<F,MD,STAR> t(g);
     if( colPiv )
-    {
-        DistMatrix<Int,VR,STAR> p(g);
         QR( A, t, p );
-    }
     else
-    {
         QR( A, t );
-    }
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
 }
 
@@ -60,20 +52,13 @@ Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
+    Matrix<Int> p;
     if( colPiv )
-    {
-        Matrix<Int> p;
         QR( A, t, p );
-    }
     else
-    {
         QR( A, t );
-    }
-    Matrix<F> AT,
-              AB;
-    PartitionDown
-    ( A, AT,
-         AB, Min(A.Height(),A.Width()) );
+    Matrix<F> AT, AB;
+    PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
@@ -86,20 +71,13 @@ Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Int,VR,STAR> p(g);
     if( colPiv )
-    {
-        DistMatrix<Int,VR,STAR> p(g);
         QR( A, t, p );
-    }
     else
-    {
         QR( A, t );
-    }
-    DistMatrix<F> AT(g),
-                  AB(g);
-    PartitionDown
-    ( A, AT,
-         AB, Min(A.Height(),A.Width()) );
+    DistMatrix<F> AT(g), AB(g);
+    PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );

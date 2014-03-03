@@ -206,7 +206,11 @@ template<typename T>
 void
 AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
 { 
-    DEBUG_ONLY(CallStackEntry cse("ADM::Align"))
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::Align");
+        if( Viewing() && (colAlign_ != colAlign || rowAlign_ != rowAlign) )
+            LogicError("Tried to realign a view");
+    )
     if( colAlign_ != colAlign || rowAlign_ != rowAlign )
         Empty();
     colConstrained_ = true;
@@ -220,7 +224,11 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignCols( Int colAlign )
 { 
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignCols"))
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::AlignCols");
+        if( Viewing() && colAlign_ != colAlign )
+            LogicError("Tried to realign a view");
+    )
     if( colAlign_ != colAlign )
         EmptyData();
     colConstrained_ = true;
@@ -232,7 +240,11 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignRows( Int rowAlign )
 { 
-    DEBUG_ONLY(CallStackEntry cse("ADM::AlignRows"))
+    DEBUG_ONLY(
+        CallStackEntry cse("ADM::AlignRows");
+        if( Viewing() && rowAlign_ != rowAlign )
+            LogicError("Tried to realign a view");
+    )
     if( rowAlign_ != rowAlign )
         EmptyData();
     rowConstrained_ = true;

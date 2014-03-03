@@ -56,11 +56,12 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
-    if( H.Width() > H.Height() )
-        H.Resize( H.Height(), H.Height() );
+    const Int m = H.Height();
+    const Int n = Min(m,H.Width());
+    const Int diff = m-n;
+    H.Resize( m, n );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
-    const Int dimDiff = H.Height() - H.Width();
 
     Matrix<F>
         HTL, HTR,  H00, H01, H02,  HPan, HPanCopy, HPanT,
@@ -83,8 +84,9 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    Int oldEffectedHeight=dimDiff;
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    Int oldEffectedHeight=diff;
+
+    while( HBR.Height() < m && HBR.Width() < n )
     {
         LockedRepartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,
@@ -96,8 +98,8 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
         const Int effectedHeight = Max( HPanHeight+offset, 0 );
         const Int HPanWidth = Min( H11.Width(), effectedHeight );
 
-        const Int effectedWidth = effectedHeight - dimDiff;
-        const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
+        const Int effectedWidth = effectedHeight - diff;
+        const Int oldEffectedWidth = oldEffectedHeight - diff;
         const Int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
         LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
@@ -106,7 +108,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
                 HPanB, newEffectedWidth /* to match ZNew */ );
 
         View
-        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
+        ( HEffected, H, m-effectedHeight, n-effectedWidth, 
           effectedHeight, effectedWidth ); 
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
@@ -153,10 +155,10 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     }
 
     // Take care of any untouched columns on the left side of H
-    const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
-    if( oldEffectedWidth < H.Width() )
+    const Int oldEffectedWidth = oldEffectedHeight - diff;
+    if( oldEffectedWidth < n )
     {
-        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
+        View( HEffectedNew, H, 0, 0, m, n-oldEffectedWidth );
         MakeZeros( HEffectedNew );
         SetDiagonal( HEffectedNew, F(1) );
     }
@@ -181,11 +183,12 @@ LV
     )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
-    if( H.Width() > H.Height() )
-        H.Resize( H.Height(), H.Height() );
+    const Int m = H.Height();
+    const Int n = Min(m,H.Width());
+    const Int diff = m-n;
+    H.Resize( m, n );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
-    const Int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
     DistMatrix<F>
@@ -218,8 +221,8 @@ LV
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    Int oldEffectedHeight=dimDiff;
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    Int oldEffectedHeight=diff;
+    while( HBR.Height() < m && HBR.Width() < n )
     {
         LockedRepartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,
@@ -231,14 +234,14 @@ LV
         const Int effectedHeight = Max( HPanHeight+offset, 0 );
         const Int HPanWidth = Min( H11.Width(), effectedHeight );
 
-        const Int effectedWidth = effectedHeight - dimDiff;
-        const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
+        const Int effectedWidth = effectedHeight - diff;
+        const Int oldEffectedWidth = oldEffectedHeight - diff;
         const Int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
         LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         View
-        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
+        ( HEffected, H, m-effectedHeight, n-effectedWidth, 
           effectedHeight, effectedWidth ); 
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
@@ -310,10 +313,10 @@ LV
     }
 
     // Take care of any untouched columns on the left side of H
-    const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
-    if( oldEffectedWidth < H.Width() )
+    const Int oldEffectedWidth = oldEffectedHeight - diff;
+    if( oldEffectedWidth < n )
     {
-        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
+        View( HEffectedNew, H, 0, 0, m, n-oldEffectedWidth );
         MakeZeros( HEffectedNew );
         SetDiagonal( HEffectedNew, F(1) );
     }
