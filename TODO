@@ -10,6 +10,8 @@ Functionality priorities
 
 Fundamental functionality additions
 -----------------------------------
+[o] Banded Cholesky factorization
+[o] (Shifted-)Hessenberg solvers
 [o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
 [o] Rank-one modifications of QR
 [o] Rank-one modifications of Cholesky

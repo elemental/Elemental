@@ -19,8 +19,43 @@ Introduced the triangularization + inverse iteration approach
   title={Computation of pseudospectra by continuation},
   journal={SIAM Journal on Scientific Computing},
   volume=18,
+  number=2,
   pages={567--573},
   year=1997
+}
+
+Introduced single-pass shifted Hessenberg solves for A X - X H = C and a
+blocked extension. This computational kernel is the basis for Elemental's 
+proposed interleaved Lancozs pseudospectra algorithm.
+@article{
+  author={Christian H. Bischof and Biswa N. Datta and Avijit Purkayastha},
+  title={A parallel algorithm for the Sylvester-Observer Equation},
+  journal={SIAM Journal on Scientific Computing}, 
+  volume=17,
+  number=3,
+  pages={686--698},
+  year=1994
+}
+
+Numerically-robust extensions of Purkayastha et al.'s matrix-matrix 
+multiplication-based shifted Hessenberg solver (discussed in the 
+upper-Hessenberg setting)
+@techreport{
+  author={Greg Henry},
+  title={The shifted Hessenberg system solve computation},
+  institution={Cornell University}, 
+  year=1994
+}
+
+Single-input single-pass algorithm for shifted Hessenberg system solves.
+Cited as the impetus for Purkayastha et al.'s above paper
+@article{
+  author={Biswa N. Datta},
+  title={Parallel and large-scale matrix computations in control: some ideas},
+  journal={Linear Algebra and its Applications},
+  volume=121,
+  pages={243--264},
+  year=1989
 }
 
 Spectral Divide and Conquer
@@ -303,18 +338,6 @@ Useful for randomized rank-revealing factorizations of rank-deficient matrices
 
 Miscellaneous
 =============
-
-This paper is used for the definition of the coherence of a subspace with
-respect to the standard unit basis vectors.
-@article{
-  author={Emmanuel J. Candes and Benjamin Recht},
-  title={Exact matrix completion via convex optimization},
-  journal={Foundations of Computational Mathematics},
-  volume=9,
-  number=6,
-  pages={717--772},
-  year=2009
-}
 
 Added for definition of Kahan matrix (pg. 260)
 @book{
