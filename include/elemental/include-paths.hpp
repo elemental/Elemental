@@ -388,6 +388,8 @@
   "elemental/lapack-like/solve/HPDSolve.hpp"
 #define ELEM_LEASTSQUARES_INC \
   "elemental/lapack-like/solve/LeastSquares.hpp"
+#define ELEM_MULTISHIFTHESSSOLVE_INC \
+  "elemental/lapack-like/solve/MultiShiftHessSolve.hpp"
 
 // Utilities
 // ---------
