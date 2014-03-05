@@ -13,5 +13,6 @@
 #include "./GaussianElimination.hpp"
 #include "./HPDSolve.hpp"
 #include "./LeastSquares.hpp"
+#include "./MultiShiftHessSolve.hpp"
 
 #endif // ifndef ELEM_SOLVE_IMPL_HPP
