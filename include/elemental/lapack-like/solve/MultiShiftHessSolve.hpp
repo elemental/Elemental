@@ -223,12 +223,12 @@ MultiShiftHessSolve
         LogicError("This option is not yet supported");
 }
 
-template<typename F>
+template<typename F,Dist UH,Dist VH,Dist VX>
 inline void
 MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F,VC,STAR>& H, const DistMatrix<F,VR,STAR>& shifts, 
-  DistMatrix<F>& X )
+  F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts, 
+  DistMatrix<F,STAR,VX>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("MultiShiftHessSolve"))
     if( uplo == UPPER )
