@@ -616,7 +616,7 @@ TriangularLanczos
         if( progress )
         {
             const double msTime = subtimer.Stop();
-            const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+            const double gflops = (8.*n*n*numShifts)/(msTime*1.e9);
             std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
                       << gflops << " GFlops" << std::endl;
         }
@@ -746,8 +746,8 @@ HessenbergLanczos
         if( progress )
         {
             const double msTime = subtimer.Stop();
-            const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
-            std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+            const double gflops = (32.*n*n*numShifts)/(msTime*1.e9);
+            std::cout << "  MultiShiftHessSolve's: " << msTime << " seconds, "
                       << gflops << " GFlops" << std::endl;
         }
         ColumnSubtractions( HSubdiagList, activeXOld, activeXNew );
@@ -894,7 +894,7 @@ TriangularLanczos
             if( U.Grid().Rank() == 0 )
             {
                 const double msTime = subtimer.Stop();
-                const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                const double gflops = (8.*n*n*numShifts)/(msTime*1.e9);
                 std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
                           << gflops << " GFlops" << std::endl;
             }
@@ -1063,9 +1063,9 @@ HessenbergLanczos
             if( H.Grid().Rank() == 0 )
             {
                 const double msTime = subtimer.Stop();
-                const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
-                          << gflops << " GFlops" << std::endl;
+                const double gflops = (32.*n*n*numShifts)/(msTime*1.e9);
+                std::cout << "  MultiShiftHessSolve's: " << msTime 
+                          << " seconds, " << gflops << " GFlops" << std::endl;
             }
         }
         ColumnSubtractions( HSubdiagList, activeXOld, activeXNew );

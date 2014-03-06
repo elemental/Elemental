@@ -96,21 +96,20 @@ LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
         X.Set( m-1, j, X.Get(m-1,j)/W.Get(m-1,j) );
 
     // Solve against Q
-    Matrix<F> t1(n,1), t2(n,1);
-    for( Int j=0; j<n; ++j )
-        t1.Set( j, 0, X.Get(m-1,j) );
-    for( Int k=m-2; k>=0; --k )
+    for( Int j=0; j<n; ++j )        
     {
-        for( Int j=0; j<n; ++j )        
+        F* x = X.Buffer(0,j);
+        const Real* c = C.LockedBuffer(0,j);
+        const F*    s = S.LockedBuffer(0,j);
+        F tau0 = x[m-1];
+        for( Int k=m-2; k>=0; --k )
         {
-            t2.Set( j,   0, X.Get(k,j)                                    );
-            X.Set(  k+1, j, C.Get(k,j)*t1.Get(j,0)+S.Get(k,j)*t2.Get(j,0) );
-            t1.Set( j,   0,      C.Get(k,j) *t2.Get(j,0)-
-                            Conj(S.Get(k,j))*t1.Get(j,0) );
+            F tau1 = x[k];
+            x[k+1] =       c[k] *tau0 + s[k]*tau1;
+            tau0   = -Conj(s[k])*tau0 + c[k]*tau1;
         }
+        x[0] = tau0;
     }
-    for( Int j=0; j<n; ++j )
-        X.Set( 0, j, t1.Get(j,0) );
 }
 
 template<typename F>
@@ -190,21 +189,20 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
         X.Set( 0, j, X.Get(0,j)/W.Get(0,j) );
 
     // Solve against Q
-    Matrix<F> t1(n,1), t2(n,1);
-    for( Int j=0; j<n; ++j )
-        t1.Set( j, 0, X.Get(0,j) );
-    for( Int k=1; k<m; ++k )
+    for( Int j=0; j<n; ++j )        
     {
-        for( Int j=0; j<n; ++j )        
+        F* x = X.Buffer(0,j);
+        const Real* c = C.LockedBuffer(0,j);
+        const F*    s = S.LockedBuffer(0,j);
+        F tau0 = x[0];
+        for( Int k=1; k<m; ++k )
         {
-            t2.Set( j,   0, X.Get(k,j)                                    );
-            X.Set(  k-1, j, C.Get(k,j)*t1.Get(j,0)+S.Get(k,j)*t2.Get(j,0) );
-            t1.Set( j,   0,      C.Get(k,j) *t2.Get(j,0)-
-                            Conj(S.Get(k,j))*t1.Get(j,0) );
+            F tau1 = x[k];
+            x[k-1] =       c[k] *tau0 + s[k]*tau1;
+            tau0   = -Conj(s[k])*tau0 + c[k]*tau1;
         }
+        x[m-1] = tau0;
     }
-    for( Int j=0; j<n; ++j )
-        X.Set( m-1, j, t1.Get(j,0) );
 }
 
 // NOTE: A [VC,* ] distribution might be most appropriate for the 
@@ -302,22 +300,20 @@ LN
         X.SetLocal( m-1, jLoc, X.GetLocal(m-1,jLoc)/W.Get(m-1,jLoc) );
 
     // Solve against Q
-    Matrix<F> t1(nLoc,1), t2(nLoc,1);
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        t1.Set( jLoc, 0, X.GetLocal(m-1,jLoc) );
-    for( Int k=m-2; k>=0; --k )
+    for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
     {
-        for( Int jLoc=0; jLoc<nLoc; ++jLoc ) 
+        F* x = X.Buffer(0,jLoc);
+        const Real* c = C.LockedBuffer(0,jLoc);
+        const F*    s = S.LockedBuffer(0,jLoc);
+        F tau0 = x[m-1];
+        for( Int k=m-2; k>=0; --k )
         {
-            t2.Set( jLoc, 0, X.GetLocal(k,jLoc) );
-            X.SetLocal( k+1, jLoc, C.Get(k,jLoc)*t1.Get(jLoc,0)+
-                                   S.Get(k,jLoc)*t2.Get(jLoc,0) );
-            t1.Set( jLoc, 0,      C.Get(k,jLoc) *t2.Get(jLoc,0)-
-                             Conj(S.Get(k,jLoc))*t1.Get(jLoc,0) );
+            F tau1 = x[k];
+            x[k+1] =       c[k] *tau0 + s[k]*tau1;
+            tau0   = -Conj(s[k])*tau0 + c[k]*tau1;
         }
+        x[0] = tau0;
     }
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        X.SetLocal( 0, jLoc, t1.Get(jLoc,0) );
 }
 
 template<typename F,Dist UH,Dist VH,Dist VX>
@@ -409,22 +405,20 @@ UN
         X.SetLocal( 0, jLoc, X.GetLocal(0,jLoc)/W.Get(0,jLoc) );
 
     // Solve against Q
-    Matrix<F> t1(nLoc,1), t2(nLoc,1);
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        t1.Set( jLoc, 0, X.GetLocal(0,jLoc) );
-    for( Int k=1; k<m; ++k )
     {
-        for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+        F* x = X.Buffer(0,jLoc);
+        const Real* c = C.LockedBuffer(0,jLoc);
+        const F*    s = S.LockedBuffer(0,jLoc);
+        F tau0 = x[0];
+        for( Int k=1; k<m; ++k )
         {
-            t2.Set( jLoc, 0, X.GetLocal(k,jLoc) );
-            X.SetLocal( k-1, jLoc, C.Get(k,jLoc)*t1.Get(jLoc,0)+
-                                   S.Get(k,jLoc)*t2.Get(jLoc,0) );
-            t1.Set( jLoc, 0,      C.Get(k,jLoc) *t2.Get(jLoc,0)-
-                             Conj(S.Get(k,jLoc))*t1.Get(jLoc,0) );
+            F tau1 = x[k];
+            x[k-1] =       c[k] *tau0 + s[k]*tau1;
+            tau0   = -Conj(s[k])*tau0 + c[k]*tau1;
         }
+        x[m-1] = tau0;
     }
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-        X.SetLocal( m-1, jLoc, t1.Get(jLoc,0) );
 }
 
 // TODO: UT and LT
