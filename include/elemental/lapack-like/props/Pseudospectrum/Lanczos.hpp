@@ -699,6 +699,9 @@ HessenbergLanczos
             preimage.Set( j, 0, j );
     }
 
+    Matrix<C> HAdj;
+    Adjoint( H, HAdj );
+
     // Simultaneously run Lanczos for various shifts
     Matrix<C> XOld, X, XNew;
     Zeros( XOld, n, numShifts );
@@ -738,7 +741,7 @@ HessenbergLanczos
             subtimer.Start();
         MultiShiftHessSolve
         ( UPPER, NORMAL, C(1), H, activeShifts, activeXNew );
-        MultiShiftTrsm
+        MultiShiftHessSolve
         ( LOWER, NORMAL, C(1), HAdj, activeShifts, activeXNew );
         if( progress )
         {

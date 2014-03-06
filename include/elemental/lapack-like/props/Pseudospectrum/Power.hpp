@@ -460,7 +460,7 @@ HessenbergPower
     }
 
     // Since we don't have adjoint Hessenberg solves yet
-    Matrix<F> HAdj;
+    Matrix<C> HAdj;
     Adjoint( H, HAdj );
 
     // Simultaneously run inverse iteration for various shifts
