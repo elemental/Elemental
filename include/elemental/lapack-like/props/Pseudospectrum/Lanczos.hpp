@@ -838,9 +838,6 @@ TriangularLanczos
         }
     }
 
-    Matrix<C> HAdj;
-    Adjoint( H, HAdj );
-
     // Simultaneously run Lanczos for various shifts
     DistMatrix<C> XOld(g), X(g), XNew(g);
     Zeros( XOld, n, numShifts );
@@ -1005,6 +1002,7 @@ HessenbergLanczos
     DistMatrix<C,VC,STAR> H_VC_STAR( H );
     DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
     Adjoint( H, HAdj_VC_STAR );
+    DistMatrix<C,STAR,VR> activeXNew_STAR_VR( H.Grid() );
 
     // Simultaneously run Lanczos for various shifts
     DistMatrix<C> XOld(g), X(g), XNew(g);
@@ -1052,10 +1050,13 @@ HessenbergLanczos
             if( H.Grid().Rank() == 0 )
                 subtimer.Start();
         }
+        // NOTE: This redistribution sequence might not be necessary
+        activeXNew_STAR_VR = activeXNew;
         MultiShiftHessSolve
-        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeXNew );
+        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeXNew_STAR_VR );
         MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeXNew );
+        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeXNew_STAR_VR );
+        activeXNew = activeXNew_STAR_VR;
         if( progress )
         {
             mpi::Barrier( H.Grid().Comm() );

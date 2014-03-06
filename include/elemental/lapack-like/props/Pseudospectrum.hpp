@@ -188,7 +188,7 @@ HessenbergPseudospectrum
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       TriangularPseudospectrum?
-
+    Matrix<Int> itCounts;
     if( lanczos )
     {
         if( krylovSize > 1 )
@@ -305,7 +305,7 @@ HessenbergPseudospectrum
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularPseudospectrum
-
+    DistMatrix<Int,VC,STAR> itCounts(g);
     if( lanczos )
     {
         if( krylovSize > 1 )
@@ -467,7 +467,7 @@ Pseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     return pspec::Triangular
-    ( A, sfhits, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
+    ( A, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
       progress );
 }
 
@@ -482,19 +482,18 @@ Pseudospectrum
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     // Schur decompositions can be problematic in massively-parallel situations
     return pspec::Hessenberg
-    ( A, sfhits, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
+    ( A, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
       progress );
 }
-
-// LEFT OFF HERE with respect to adding Hessenberg support
 
 template<typename F>
 inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, bool reorthog=true,
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -516,6 +515,44 @@ TriangularPseudospectrum
     auto itCounts = 
         TriangularPseudospectrum
         ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+          tol, progress );
+
+    // Rearrange the vectors into grids
+    Matrix<Int> itCountMap; 
+    pspec::ReshapeIntoGrids
+    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    return itCountMap;
+}
+
+template<typename F>
+inline Matrix<Int>
+HessenbergPseudospectrum
+( const Matrix<F>& H, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    const Real xStep = xWidth/(xSize-1);
+    const Real yStep = yWidth/(ySize-1);
+    const C corner = center - C(xWidth/2,yWidth/2);
+    Matrix<C> shifts( xSize*ySize, 1, H.Grid() );
+    for( Int j=0; j<xSize*ySize; ++j )
+    {
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    Matrix<Real> invNorms;
+    auto itCounts = 
+        HessenbergPseudospectrum
+        ( H, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
           tol, progress );
 
     // Rearrange the vectors into grids
@@ -566,12 +603,53 @@ TriangularPseudospectrum
 }
 
 template<typename F>
+inline DistMatrix<Int>
+HessenbergPseudospectrum
+( const DistMatrix<F>& H, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
+  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+    const Grid& g = H.Grid();
+
+    const Real xStep = xWidth/(xSize-1);
+    const Real yStep = yWidth/(ySize-1);
+    const C corner = center - C(xWidth/2,yWidth/2);
+    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
+    const Int numLocShifts = shifts.LocalHeight();
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
+        const Int x = j / ySize;
+        const Int y = j % ySize;
+        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+    }
+
+    // Form the vector of invNorms
+    DistMatrix<Real,VR,STAR> invNorms(g);
+    auto itCounts = 
+        HessenbergPseudospectrum
+        ( H, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, maxIts, 
+          tol, progress );
+
+    // Rearrange the vectors into grids
+    DistMatrix<Int> itCountMap(g); 
+    pspec::ReshapeIntoGrids
+    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    return itCountMap;
+}
+
+template<typename F>
 inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, bool reorthog=true, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -662,7 +740,7 @@ TriangularPseudospectrum
     // 2) Typical matrices (use a small multiple of the spectral radius)
     // 3) Highly non-normal matrices (e.g., triangular with zero main diagonal)
     Base<F> width;
-    if( oneNorm == Base<F>(0) && radius == Base<F>(0) )
+    if( oneNorm == Base<F>(0) )
     {
         width = 1;
         if( progress )
@@ -687,6 +765,41 @@ TriangularPseudospectrum
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, xSize, ySize, 
+             lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
+}
+
+template<typename F>
+inline Matrix<Int>
+HessenbergPseudospectrum
+( const Matrix<F>& H, Matrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center,
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+
+    const Base<F> infNorm = InfinityNorm( H );
+    const Base<F> oneNorm = OneNorm( H );
+    Base<F> width;
+    if( oneNorm == Base<F>(0) )
+    {
+        width = 1;
+        if( progress )
+            std::cout << "Setting width to 1 to handle zero matrix" 
+                      << std::endl;
+    }
+    else
+    {
+        width = 0.8*Max(oneNorm,infNorm);
+        if( progress )
+            std::cout << "Setting width to " << width 
+                      << " based on the one norm, " << oneNorm 
+                      << ", and infinity norm, " << infNorm << std::endl;
+    }
+
+    return HessenbergPseudospectrum
+           ( H, invNormMap, center, width, width, xSize, ySize, 
              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
@@ -737,12 +850,47 @@ TriangularPseudospectrum
 }
 
 template<typename F>
+inline DistMatrix<Int>
+HessenbergPseudospectrum
+( const DistMatrix<F>& H, DistMatrix<BASE(F)>& invNormMap, 
+  Complex<BASE(F)> center, Int xSize, Int ySize,
+  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
+  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+
+    const Base<F> oneNorm = OneNorm( H );
+    const Base<F> infNorm = InfinityNorm( H );
+    Base<F> width;
+    if( oneNorm == Base<F>(0) )
+    {
+        width = 1;
+        if( progress && H.Grid().Rank() == 0 )
+            std::cout << "Setting width to 1 to handle zero matrix"
+                      << std::endl;
+    }
+    else
+    {
+        width = 0.8*Max(oneNorm,infNorm);
+        if( progress && H.Grid().Rank() == 0 )
+            std::cout << "Setting width to " << width 
+                      << " based on the one norm, " << oneNorm 
+                      << ", and infinity norm, " << infNorm << std::endl;
+    }
+
+    return HessenbergPseudospectrum
+           ( H, invNormMap, center, width, width, xSize, ySize, 
+             lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
+}
+
+template<typename F>
 inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, bool reorthog=true, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -774,36 +922,20 @@ Pseudospectrum
     typedef Complex<Real> C;
 
     const Grid& g = A.Grid();
-    DistMatrix<C> U(g);
-    U.AlignWith( A );
+    DistMatrix<C> H(g);
+    H.AlignWith( A );
     const Int n = A.Height();
-    U.Resize( n, n );
+    H.Resize( n, n );
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
+            H.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
 
-    // We don't actually need the Schur vectors, but SDC requires their 
-    // computation in order to form the full triangular factor
-    DistMatrix<C> X(g);
-    DistMatrix<C,VR,STAR> w(g);
-    const bool formATR = true;
-    // TODO: Expose these as options
-    const Int cutoff = 256;
-    const Int maxInnerIts = 2;
-    const Int maxOuterIts = 10;
-    const Base<F> signTol=tol/10;
-    const Base<F> relTol=tol/10;
-    const Base<F> spreadFactor=1e-6;
-    const bool random=true;
-    schur::SDC
-    ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, random, progress );
-    X.Empty();
+    Hessenberg( UPPER, H );
  
-    return TriangularPseudospectrum
-           ( U, invNormMap, center, xSize, ySize, 
+    return HessenbergPseudospectrum
+           ( H, invNormMap, center, xSize, ySize, 
              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 

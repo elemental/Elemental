@@ -38,9 +38,9 @@ ColumnNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
     }
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline void
-ColumnNorms( const DistMatrix<F>& X, DistMatrix<BASE(F),MR,STAR>& norms )
+ColumnNorms( const DistMatrix<F,U,V>& X, DistMatrix<BASE(F),V,STAR>& norms )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::ColumnNorms");
@@ -91,13 +91,13 @@ FixColumns( Matrix<F>& X )
     }
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline void
-FixColumns( DistMatrix<F>& X )
+FixColumns( DistMatrix<F,U,V>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::FixColumns"))
     typedef Base<F> Real;
-    DistMatrix<Real,MR,STAR> norms( X.Grid() );
+    DistMatrix<Real,V,STAR> norms( X.Grid() );
     ColumnNorms( X, norms );
     const Int m = X.Height();
     const Int nLocal = X.LocalWidth();
@@ -670,6 +670,7 @@ HessenbergPower
     DistMatrix<C,VC,STAR> H_VC_STAR( H );
     DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
     Adjoint( H, HAdj_VC_STAR );
+    DistMatrix<C,STAR,VR> activeX_STAR_VR( H.Grid() );
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -694,11 +695,14 @@ HessenbergPower
 
         if( progress && H.Grid().Rank() == 0 )
             timer.Start();
+        // Note: this redistribution sequence might be avoidable
+        activeX_STAR_VR = activeX;
         MultiShiftHessSolve
-        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeX );
-        FixColumns( activeX );
+        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeX_STAR_VR );
+        FixColumns( activeX_STAR_VR );
         MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeX );
+        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeX_STAR_VR );
+        activeX = activeX_STAR_VR;
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 

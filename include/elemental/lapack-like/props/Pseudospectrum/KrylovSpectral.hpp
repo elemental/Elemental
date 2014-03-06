@@ -704,6 +704,7 @@ HessenbergKrylovSpectral
     DistMatrix<C,VC,STAR> H_VC_STAR( H );
     DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
     Adjoint( H, HAdj_VC_STAR );
+    DistMatrix<C,STAR,VR> activeV_STAR_VR( H.Grid() );
 
     // Simultaneously run a Krylov-spectral method for various shifts
     std::vector<DistMatrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
@@ -770,12 +771,15 @@ HessenbergKrylovSpectral
                 if( H.Grid().Rank() == 0 )
                     subtimer.Start();
             }
+            // NOTE: This redistribution sequence might not be necessary
+            activeV_STAR_VR = activeVList[j+1];
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
-              activeVList[j+1] );
+              activeV_STAR_VR );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, 
-              activeVList[j+1] );
+              activeV_STAR_VR );
+            activeVList[j+1] = activeV_STAR_VR;
             if( progress )
             {
                 mpi::Barrier( H.Grid().Comm() );
