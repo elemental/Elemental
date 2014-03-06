@@ -673,6 +673,133 @@ TriangularLanczos
 }
 
 template<typename Real>
+inline Matrix<Int>
+HessenbergLanczos
+( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, 
+  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergLanczos"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = H.Height();
+    const Int numShifts = shifts.Height();
+
+    // Keep track of the number of iterations per shift
+    Matrix<Int> itCounts;
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    Matrix<Int> preimage;
+    Matrix<C> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.Resize( numShifts, 1 );
+        for( Int j=0; j<numShifts; ++j )
+            preimage.Set( j, 0, j );
+    }
+
+    // Simultaneously run Lanczos for various shifts
+    Matrix<C> XOld, X, XNew;
+    Zeros( XOld, n, numShifts );
+    Gaussian( X, n, numShifts );
+    FixColumns( X );
+    Zeros( XNew, n, numShifts );
+    std::vector<std::vector<Real>> HDiagList( numShifts ),
+                                   HSubdiagList( numShifts );
+    for( Int j=0; j<numShifts; ++j )
+    {
+        HDiagList[j].reserve( HCapacityInit );
+        HSubdiagList[j].reserve( HCapacityInit-1 );
+    }
+
+    Timer timer, subtimer;
+    Int numIts=0, numDone=0;
+    Matrix<Real> estimates(numShifts,1);
+    Zeros( estimates, numShifts, 1 );
+    auto lastActiveEsts = estimates;
+    Matrix<Int> activePreimage;
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        auto activeXOld = View( XOld, 0, 0, n, numActive );
+        auto activeX    = View( X,    0, 0, n, numActive );
+        auto activeXNew = View( XNew, 0, 0, n, numActive );
+        if( deflate )
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+
+        if( progress )
+            timer.Start();
+        activeXNew = activeX;
+        if( progress )
+            subtimer.Start();
+        MultiShiftHessSolve
+        ( UPPER, NORMAL, C(1), H, activeShifts, activeXNew );
+        MultiShiftTrsm
+        ( LOWER, NORMAL, C(1), HAdj, activeShifts, activeXNew );
+        if( progress )
+        {
+            const double msTime = subtimer.Stop();
+            const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+            std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                      << gflops << " GFlops" << std::endl;
+        }
+        ColumnSubtractions( HSubdiagList, activeXOld, activeXNew );
+        InnerProducts( activeX, activeXNew, HDiagList );
+        ColumnSubtractions( HDiagList, activeX, activeXNew );
+        ColumnNorms( activeXNew, HSubdiagList );
+        activeXOld = activeX;
+        activeX    = activeXNew; 
+        InvBetaScale( HSubdiagList, activeX );
+        if( progress )
+            subtimer.Start();
+        ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
+        if( progress )
+            std::cout << "  Ritz computations: " << subtimer.Stop() 
+                      << " seconds" << std::endl;
+
+        auto activeConverged = 
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        if( progress )
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime
+                      << " seconds, " << numDone << " of " << numShifts
+                      << " converged" << std::endl;
+        }
+
+        ++numIts;
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+            Deflate
+            ( HDiagList, HSubdiagList, activeShifts, activePreimage, activeXOld,
+              activeX, activeEsts, activeConverged, activeItCounts, progress );
+
+        lastActiveEsts = activeEsts;
+    } 
+    if( numDone != numShifts )
+        RuntimeError("Two-norm estimates did not converge in time");
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
+}
+
+template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 TriangularLanczos
 ( const DistMatrix<Complex<Real>        >& U, 
@@ -707,6 +834,9 @@ TriangularLanczos
             preimage.SetLocal( jLoc, 0, j );
         }
     }
+
+    Matrix<C> HAdj;
+    Adjoint( H, HAdj );
 
     // Simultaneously run Lanczos for various shifts
     DistMatrix<C> XOld(g), X(g), XNew(g);
@@ -802,6 +932,171 @@ TriangularLanczos
         {
             mpi::Barrier( U.Grid().Comm() );
             if( U.Grid().Rank() == 0 )
+            {
+                const double iterTime = timer.Stop();
+                std::cout << "iteration " << numIts << ": " << iterTime
+                          << " seconds, " << numDone << " of " << numShifts
+                          << " converged" << std::endl;
+            }
+        }
+
+        ++numIts;
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+            Deflate
+            ( HDiagList, HSubdiagList, activeShifts, activePreimage, activeXOld,
+              activeX, activeEsts, activeConverged, activeItCounts, progress );
+
+        lastActiveEsts = activeEsts;
+    } 
+    if( numDone != numShifts )
+        RuntimeError("Two-norm estimates did not converge in time");
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
+}
+
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
+HessenbergLanczos
+( const DistMatrix<Complex<Real>        >& H, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
+        DistMatrix<Real,         VR,STAR>& invNorms, 
+  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergLanczos"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = H.Height();
+    const Int numShifts = shifts.Height();
+    const Grid& g = H.Grid();
+    if( deflate && H.Grid().Rank() == 0 ) 
+        std::cerr << "WARNING: Deflation swaps not yet optimized!" << std::endl;
+
+    // Keep track of the number of iterations per shift
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    DistMatrix<Int,VR,STAR> preimage(g);
+    DistMatrix<C,  VR,STAR> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.AlignWith( shifts );
+        preimage.Resize( numShifts, 1 );
+        const Int numLocShifts = preimage.LocalHeight();
+        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        {
+            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
+            preimage.SetLocal( jLoc, 0, j );
+        }
+    }
+
+    DistMatrix<C,VC,STAR> H_VC_STAR( H );
+    DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
+    Adjoint( H, HAdj_VC_STAR );
+
+    // Simultaneously run Lanczos for various shifts
+    DistMatrix<C> XOld(g), X(g), XNew(g);
+    Zeros( XOld, n, numShifts );
+    Gaussian( X, n, numShifts );
+    FixColumns( X );
+    Zeros( XNew, n, numShifts );
+    std::vector<std::vector<Real>> HDiagList( X.LocalWidth() ),
+                                   HSubdiagList( X.LocalWidth() );
+    for( Int j=0; j<X.LocalWidth(); ++j )
+    {
+        HDiagList[j].reserve( HCapacityInit );
+        HSubdiagList[j].reserve( HCapacityInit-1 );
+    }
+
+    Timer timer, subtimer;
+    Int numIts=0, numDone=0;
+    DistMatrix<Real,MR,STAR> estimates(g);
+    estimates.AlignWith( shifts );
+    Zeros( estimates, numShifts, 1 );
+    auto lastActiveEsts = estimates;
+    DistMatrix<Int,VR,STAR> activePreimage(g);
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        auto activeXOld = View( XOld, 0, 0, n, numActive );
+        auto activeX    = View( X,    0, 0, n, numActive );
+        auto activeXNew = View( XNew, 0, 0, n, numActive );
+        if( deflate )
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                timer.Start();
+        }
+        activeXNew = activeX;
+        if( progress )
+        { 
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                subtimer.Start();
+        }
+        MultiShiftHessSolve
+        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeXNew );
+        MultiShiftHessSolve
+        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeXNew );
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+            {
+                const double msTime = subtimer.Stop();
+                const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                          << gflops << " GFlops" << std::endl;
+            }
+        }
+        ColumnSubtractions( HSubdiagList, activeXOld, activeXNew );
+        InnerProducts( activeX, activeXNew, HDiagList );
+        ColumnSubtractions( HDiagList, activeX, activeXNew );
+        ColumnNorms( activeXNew, HSubdiagList );
+        activeXOld = activeX;
+        activeX    = activeXNew;
+        InvBetaScale( HSubdiagList, activeX );
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                subtimer.Start();
+        }
+        ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                std::cout << "  Ritz computations: " << subtimer.Stop() 
+                          << " seconds" << std::endl;
+        }
+
+        auto activeConverged =
+            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
                 std::cout << "iteration " << numIts << ": " << iterTime

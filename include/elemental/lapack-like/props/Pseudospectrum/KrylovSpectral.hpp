@@ -293,6 +293,174 @@ TriangularKrylovSpectral
 }
 
 template<typename Real>
+inline Matrix<Int>
+HessenbergKrylovSpectral
+( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, const Int krylovSize=10, bool reorthog=true,
+  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergKrylovSpectral"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = H.Height();
+    const Int numShifts = shifts.Height();
+
+    // Keep track of the number of iterations per shift
+    Matrix<Int> itCounts;
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    Matrix<Int> preimage;
+    Matrix<C> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.Resize( numShifts, 1 );
+        for( Int j=0; j<numShifts; ++j )
+            preimage.Set( j, 0, j );
+    }
+
+    Matrix<C> HAdj;
+    Adjoint( H, HAdj );
+
+    // Simultaneously run a Krylov-spectral method for various shifts
+    std::vector<Matrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
+    for( Int j=0; j<krylovSize+1; ++j )
+        Zeros( VList[j], n, numShifts );
+    Gaussian( VList[0], n, numShifts );
+    std::vector<std::vector<Real>> 
+        HDiagList(numShifts), HSubdiagList(numShifts);
+    std::vector<Complex<Real>> components;
+
+    Matrix<Int> activeConverged;
+    Zeros( activeConverged, numShifts, 1 );
+
+    Timer timer, subtimer;
+    Int numIts=0, numDone=0;
+    Matrix<Real> estimates(numShifts,1);
+    Zeros( estimates, numShifts, 1 );
+    Matrix<Real> lastActiveEsts;
+    Matrix<Int> activePreimage;
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        for( Int j=0; j<krylovSize+1; ++j )
+            activeVList[j] = View( VList[j], 0, 0, n, numActive ); 
+        if( deflate )
+        {
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            Zeros( activeConverged, numActive, 1 );
+        }
+
+        // Reset the Rayleigh quotients
+        for( Int j=0; j<numActive; ++j )
+        {
+            HDiagList[j].resize(0);
+            HDiagList[j].reserve(krylovSize);
+            HSubdiagList[j].resize(0);
+            HSubdiagList[j].reserve(krylovSize);
+        }
+
+        if( progress )
+            timer.Start();
+        Matrix<Real> colNorms;
+        ColumnNorms( activeVList[0], colNorms );
+        InvBetaScale( colNorms, activeVList[0] );
+        for( Int j=0; j<krylovSize; ++j )
+        {
+            lastActiveEsts = activeEsts;
+            activeVList[j+1] = activeVList[j];
+            if( progress )
+                subtimer.Start();
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), H, activeShifts, activeVList[j+1] );
+            MultiShiftHessSolve
+            ( LOWER, NORMAL, C(1), HAdj, activeShifts, activeVList[j+1] );
+            if( progress )
+            {
+                const double msTime = subtimer.Stop();
+                const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
+                          << gflops << " GFlops" << std::endl;
+            }
+            if( j != 0 )
+            {
+                ColumnSubtractions
+                ( HSubdiagList, activeVList[j-1], activeVList[j+1] );
+            }
+            InnerProducts( activeVList[j], activeVList[j+1], HDiagList );
+            ColumnSubtractions( HDiagList, activeVList[j], activeVList[j+1] );
+            if( reorthog )
+            {
+                // Explicitly (re)orthogonalize against all previous vectors
+                for( Int i=0; i<j; ++i )
+                {
+                    InnerProducts
+                    ( activeVList[i], activeVList[j+1], components );
+                    ColumnSubtractions
+                    ( components, activeVList[i], activeVList[j+1] );
+                }
+            }
+            ColumnNorms( activeVList[j+1], HSubdiagList );
+            // TODO: Handle lucky breakdowns
+            InvBetaScale( HSubdiagList, activeVList[j+1] );
+
+            ComputeNewEstimates
+            ( HDiagList, HSubdiagList, activeConverged, activeEsts );
+            // We will have the same estimate two iterations in a row when
+            // restarting
+            if( j != 0 ) 
+                activeConverged =
+                    FindConverged
+                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
+        }
+        if( progress )
+            subtimer.Start();
+        Restart
+        ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
+        if( progress )
+            std::cout << "Krylov-spectral contraction: " << subtimer.Stop()
+                      << " seconds" << std::endl;
+
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        numIts += krylovSize;
+        if( progress )
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime
+                      << " seconds, " << numDone << " of " << numShifts
+                      << " converged" << std::endl;
+        }
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+        {
+            Deflate
+            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+              activeConverged, activeItCounts, progress );
+            lastActiveEsts = activeEsts;
+        }
+    } 
+    if( numDone != numShifts )
+        RuntimeError("Two-norm estimates did not converge in time");
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
+}
+
+template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 TriangularKrylovSpectral
 ( const DistMatrix<Complex<Real>        >& U, 
@@ -466,6 +634,216 @@ TriangularKrylovSpectral
         {
             mpi::Barrier( U.Grid().Comm() );
             if( U.Grid().Rank() == 0 )
+            {
+                const double iterTime = timer.Stop();
+                std::cout << "iteration " << numIts << ": " << iterTime
+                          << " seconds, " << numDone << " of " << numShifts
+                          << " converged" << std::endl;
+            }
+        }
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+        {
+            Deflate
+            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+              activeConverged, activeItCounts, progress );
+            lastActiveEsts = activeEsts;
+        }
+    } 
+    if( numDone != numShifts )
+        RuntimeError("Two-norm estimates did not converge in time");
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
+}
+
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
+HessenbergKrylovSpectral
+( const DistMatrix<Complex<Real>        >& H, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
+        DistMatrix<Real,         VR,STAR>& invNorms, 
+        Int krylovSize=10, bool reorthog=true,
+  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergKrylovSpectral"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = H.Height();
+    const Int numShifts = shifts.Height();
+    const Grid& g = H.Grid();
+    if( deflate && H.Grid().Rank() == 0 ) 
+        std::cerr << "WARNING: Deflation swaps not yet optimized!" << std::endl;
+
+    // Keep track of the number of iterations per shift
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    DistMatrix<Int,VR,STAR> preimage(g);
+    DistMatrix<C,  VR,STAR> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.AlignWith( shifts );
+        preimage.Resize( numShifts, 1 );
+        const Int numLocShifts = preimage.LocalHeight();
+        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        {
+            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
+            preimage.SetLocal( jLoc, 0, j );
+        }
+    }
+
+    DistMatrix<C,VC,STAR> H_VC_STAR( H );
+    DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
+    Adjoint( H, HAdj_VC_STAR );
+
+    // Simultaneously run a Krylov-spectral method for various shifts
+    std::vector<DistMatrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
+    for( Int j=0; j<krylovSize+1; ++j )
+    {
+        VList[j].SetGrid( H.Grid() );
+        Zeros( VList[j], n, numShifts );
+    }
+    Gaussian( VList[0], n, numShifts );
+    const Int numMRShifts = VList[0].LocalWidth();
+    std::vector<std::vector<Real>> HDiagList(numMRShifts), 
+                                   HSubdiagList(numMRShifts);
+    std::vector<Complex<Real>> components;
+
+    DistMatrix<Int,MR,STAR> activeConverged(g);
+    Zeros( activeConverged, numShifts, 1 );
+
+    Timer timer, subtimer;
+    Int numIts=0, numDone=0;
+    DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
+    estimates.AlignWith( shifts );
+    Zeros( estimates, numShifts, 1 );
+    DistMatrix<Int,VR,STAR> activePreimage(g);
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        for( Int j=0; j<krylovSize+1; ++j )
+            activeVList[j] = View( VList[j], 0, 0, n, numActive ); 
+        if( deflate )
+        {
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            Zeros( activeConverged, numActive, 1 );
+        }
+
+        // Reset the Rayleigh quotients
+        const Int numActiveMR = estimates.LocalHeight();
+        for( Int jLoc=0; jLoc<numActiveMR; ++jLoc )
+        {
+            HDiagList[jLoc].resize(0);
+            HDiagList[jLoc].reserve(krylovSize);
+            HSubdiagList[jLoc].resize(0);
+            HSubdiagList[jLoc].reserve(krylovSize);
+        }
+
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                timer.Start();
+        }
+        DistMatrix<Real,MR,STAR> colNorms(g);
+        ColumnNorms( activeVList[0], colNorms );
+        InvBetaScale( colNorms, activeVList[0] );
+        for( Int j=0; j<krylovSize; ++j )
+        {
+            lastActiveEsts = activeEsts;
+            activeVList[j+1] = activeVList[j];
+            if( progress )
+            { 
+                mpi::Barrier( H.Grid().Comm() );
+                if( H.Grid().Rank() == 0 )
+                    subtimer.Start();
+            }
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
+              activeVList[j+1] );
+            MultiShiftHessSolve
+            ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, 
+              activeVList[j+1] );
+            if( progress )
+            {
+                mpi::Barrier( H.Grid().Comm() );
+                if( H.Grid().Rank() == 0 )
+                {
+                    const double msTime = subtimer.Stop();
+                    const double gflops = (4.*n*n*numShifts)/(msTime*1.e9);
+                    std::cout << "  MultiShiftTrsm's: " << msTime 
+                              << " seconds, " << gflops << " GFlops" 
+                              << std::endl;
+                }
+            }
+            if( j != 0 )
+            {
+                ColumnSubtractions
+                ( HSubdiagList, activeVList[j-1], activeVList[j+1] );
+            }
+            InnerProducts( activeVList[j], activeVList[j+1], HDiagList );
+            ColumnSubtractions( HDiagList, activeVList[j], activeVList[j+1] );
+            if( reorthog )
+            {
+                // Explicitly (re)orthogonalize against all previous vectors
+                for( Int i=0; i<j; ++i )
+                {
+                    InnerProducts
+                    ( activeVList[i], activeVList[j+1], components );
+                    ColumnSubtractions
+                    ( components, activeVList[i], activeVList[j+1] );
+                }
+            }
+            ColumnNorms( activeVList[j+1], HSubdiagList );
+            // TODO: Handle lucky breakdowns
+            InvBetaScale( HSubdiagList, activeVList[j+1] );
+
+            ComputeNewEstimates
+            ( HDiagList, HSubdiagList, activeConverged, activeEsts );
+            // We will have the same estimate two iterations in a row when
+            // restarting
+            if( j != 0 ) 
+                activeConverged =
+                    FindConverged
+                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
+        }
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                subtimer.Start();
+        }
+        Restart( HDiagList, HSubdiagList, activeConverged, activeVList );
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
+                std::cout << "Krylov-spectral computations: " << subtimer.Stop()
+                          << " seconds" << std::endl;
+        }
+
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        numIts += krylovSize;
+        if( progress )
+        {
+            mpi::Barrier( H.Grid().Comm() );
+            if( H.Grid().Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
                 std::cout << "iteration " << numIts << ": " << iterTime

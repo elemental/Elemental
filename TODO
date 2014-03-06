@@ -10,6 +10,7 @@ Functionality priorities
 
 Fundamental functionality additions
 -----------------------------------
+[o] Estimate for spectral radius
 [o] Banded Cholesky factorization
 [o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
 [o] Rank-one modifications of QR
