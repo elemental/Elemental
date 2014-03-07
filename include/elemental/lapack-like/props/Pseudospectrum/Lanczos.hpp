@@ -701,6 +701,7 @@ HessenbergLanczos
 
     Matrix<C> HAdj;
     Adjoint( H, HAdj );
+    Matrix<C> activeShiftsConj;
 
     // Simultaneously run Lanczos for various shifts
     Matrix<C> XOld, X, XNew;
@@ -739,10 +740,11 @@ HessenbergLanczos
         activeXNew = activeX;
         if( progress )
             subtimer.Start();
+        Conjugate( activeShifts, activeShiftsConj );
         MultiShiftHessSolve
         ( UPPER, NORMAL, C(1), H, activeShifts, activeXNew );
         MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj, activeShifts, activeXNew );
+        ( LOWER, NORMAL, C(1), HAdj, activeShiftsConj, activeXNew );
         if( progress )
         {
             const double msTime = subtimer.Stop();
@@ -1003,6 +1005,7 @@ HessenbergLanczos
     DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
     Adjoint( H, HAdj_VC_STAR );
     DistMatrix<C,STAR,VR> activeXNew_STAR_VR( H.Grid() );
+    DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
 
     // Simultaneously run Lanczos for various shifts
     DistMatrix<C> XOld(g), X(g), XNew(g);
@@ -1052,10 +1055,13 @@ HessenbergLanczos
         }
         // NOTE: This redistribution sequence might not be necessary
         activeXNew_STAR_VR = activeXNew;
+        Conjugate( activeShifts, activeShiftsConj );
         MultiShiftHessSolve
-        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeXNew_STAR_VR );
+        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
+          activeXNew_STAR_VR );
         MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeXNew_STAR_VR );
+        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShiftsConj, 
+          activeXNew_STAR_VR );
         activeXNew = activeXNew_STAR_VR;
         if( progress )
         {

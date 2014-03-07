@@ -462,6 +462,7 @@ HessenbergPower
     // Since we don't have adjoint Hessenberg solves yet
     Matrix<C> HAdj;
     Adjoint( H, HAdj );
+    Matrix<C> activeShiftsConj; 
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -485,9 +486,12 @@ HessenbergPower
 
         if( progress )
             timer.Start(); 
-        MultiShiftHessSolve( UPPER, NORMAL, C(1), H, activeShifts, activeX );
+        Conjugate( activeShifts, activeShiftsConj );
+        MultiShiftHessSolve
+        ( UPPER, NORMAL, C(1), H, activeShifts, activeX );
         FixColumns( activeX );
-        MultiShiftHessSolve( LOWER, NORMAL, C(1), HAdj, activeShifts, activeX );
+        MultiShiftHessSolve
+        ( LOWER, NORMAL, C(1), HAdj, activeShiftsConj, activeX );
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 
@@ -671,6 +675,7 @@ HessenbergPower
     DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
     Adjoint( H, HAdj_VC_STAR );
     DistMatrix<C,STAR,VR> activeX_STAR_VR( H.Grid() );
+    DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -696,12 +701,15 @@ HessenbergPower
         if( progress && H.Grid().Rank() == 0 )
             timer.Start();
         // Note: this redistribution sequence might be avoidable
-        activeX_STAR_VR = activeX;
+        activeX_STAR_VR = activeX; 
+        Conjugate( activeShifts, activeShiftsConj );
         MultiShiftHessSolve
-        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, activeX_STAR_VR );
+        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
+          activeX_STAR_VR );
         FixColumns( activeX_STAR_VR );
         MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, activeX_STAR_VR );
+        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShiftsConj, 
+          activeX_STAR_VR );
         activeX = activeX_STAR_VR;
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );

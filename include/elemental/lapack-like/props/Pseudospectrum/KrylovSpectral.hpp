@@ -321,6 +321,7 @@ HessenbergKrylovSpectral
 
     Matrix<C> HAdj;
     Adjoint( H, HAdj );
+    Matrix<C> activeShiftsConj;
 
     // Simultaneously run a Krylov-spectral method for various shifts
     std::vector<Matrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
@@ -374,10 +375,11 @@ HessenbergKrylovSpectral
             activeVList[j+1] = activeVList[j];
             if( progress )
                 subtimer.Start();
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), H, activeShifts, activeVList[j+1] );
             MultiShiftHessSolve
-            ( LOWER, NORMAL, C(1), HAdj, activeShifts, activeVList[j+1] );
+            ( LOWER, NORMAL, C(1), HAdj, activeShiftsConj, activeVList[j+1] );
             if( progress )
             {
                 const double msTime = subtimer.Stop();
@@ -705,6 +707,7 @@ HessenbergKrylovSpectral
     DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
     Adjoint( H, HAdj_VC_STAR );
     DistMatrix<C,STAR,VR> activeV_STAR_VR( H.Grid() );
+    DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
 
     // Simultaneously run a Krylov-spectral method for various shifts
     std::vector<DistMatrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
@@ -773,11 +776,12 @@ HessenbergKrylovSpectral
             }
             // NOTE: This redistribution sequence might not be necessary
             activeV_STAR_VR = activeVList[j+1];
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
               activeV_STAR_VR );
             MultiShiftHessSolve
-            ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShifts, 
+            ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShiftsConj,
               activeV_STAR_VR );
             activeVList[j+1] = activeV_STAR_VR;
             if( progress )
