@@ -38,6 +38,7 @@ main( int argc, char* argv[] )
         const Real yWidth = Input("--yWidth","y width of image",0.);
         const Int xSize = Input("--xSize","number of x samples",100);
         const Int ySize = Input("--ySize","number of y samples",100);
+        const bool schur = Input("--schur","Schur decomposition?",false);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
         const bool reorthog = Input("--reorthog","reorthog basis?",true);
@@ -93,13 +94,19 @@ main( int argc, char* argv[] )
         DistMatrix<Real> invNormMap;
         DistMatrix<Int> itCountMap;
         if( xWidth != 0. && yWidth != 0. )
+        {
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, xWidth, yWidth, xSize, ySize, 
-              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
+              schur, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
+              progress );
+        }
         else
+        {
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, xSize, ySize, 
-              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
+              schur, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
+              progress );
+        }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;

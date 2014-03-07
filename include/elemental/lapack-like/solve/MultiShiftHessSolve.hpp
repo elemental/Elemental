@@ -76,10 +76,10 @@ LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
             const F xc = X.Get(k,j)*c;
             const F xs  = X.Get(k,j)*s;
             X.Update( k+1, j, -xc*W.Get(k+1,j)-xs*(etakp1kp1-mu) );
-            auto xB = ViewRange( X, k+2, j, m, j+1 );
-            auto wB = ViewRange( W, k+2, j, m, j+1 );
-            Axpy( -xc, wB, xB );
-            Axpy( -xs, hB, xB );
+            blas::Axpy
+            ( m-(k+2), -xc, W.LockedBuffer(k+2,j), 1, X.Buffer(k+2,j), 1 );
+            blas::Axpy
+            ( m-(k+2), -xs, hB.LockedBuffer(),     1, X.Buffer(k+2,j), 1 );
 
             // Change the working vector, wB, from representing a fully-updated
             // portion of the k'th column of H from the end of the last 
@@ -87,8 +87,8 @@ LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
             //
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
             W.Set( k+1, j, -Conj(s)*W.Get(k+1,j)+c*(etakp1kp1-mu) );
-            Scale( -Conj(s), wB );
-            Axpy( c, hB, wB );
+            blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,j), 1 );
+            blas::Axpy( m-(k+2), c, hB.LockedBuffer(), 1, W.Buffer(k+2,j), 1 );
         }
     }
     // Divide x(end) by L(end,end)
@@ -168,10 +168,8 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
             const F mu = shifts.Get( j, 0 );
             const F xc = X.Get(k,j)*c;
             const F xs  = X.Get(k,j)*s;
-            auto xT = View( X, 0, j, k-1, 1 );
-            auto wT = View( W, 0, j, k-1, 1 );
-            Axpy( -xc, wT, xT );
-            Axpy( -xs, hT, xT );
+            blas::Axpy( k-1, -xc, W.LockedBuffer(0,j), 1, X.Buffer(0,j), 1 );
+            blas::Axpy( k-1, -xs, hT.LockedBuffer(),   1, X.Buffer(0,j), 1 );
             X.Update( k-1, j, -xc*W.Get(k-1,j)-xs*(etakm1km1-mu) );
 
             // Change the working vector, wT, from representing a fully-updated
@@ -179,8 +177,8 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
             // to a fully-updated portion of the k-1'th column of this iteration
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
-            Scale( -Conj(s), wT );
-            Axpy( c, hT, wT );
+            blas::Scal( k-1, -Conj(s), W.Buffer(0,j), 1 );
+            blas::Axpy( k-1, c, hT.LockedBuffer(), 1, W.Buffer(0,j), 1 );
             W.Set( k-1, j, -Conj(s)*W.Get(k-1,j)+c*(etakm1km1-mu) );
         }
     }
@@ -280,10 +278,12 @@ LN
             const F xc = X.GetLocal(k,jLoc)*c;
             const F xs  = X.GetLocal(k,jLoc)*s;
             X.UpdateLocal( k+1, jLoc, -xc*W.Get(k+1,jLoc)-xs*(etakp1kp1-mu) );
-            auto xB = ViewRange( X.Matrix(), k+2, jLoc, m, jLoc+1 );
-            auto wB = ViewRange( W,          k+2, jLoc, m, jLoc+1 );
-            Axpy( -xc, wB, xB );
-            Axpy( -xs, hB_STAR_STAR.LockedMatrix(), xB );
+            blas::Axpy
+            ( m-(k+2), -xc, W.LockedBuffer(k+2,jLoc), 1, 
+                            X.Buffer(k+2,jLoc),       1 );
+            blas::Axpy
+            ( m-(k+2), -xs, hB_STAR_STAR.LockedBuffer(), 1, 
+                            X.Buffer(k+2,jLoc),          1 );
 
             // Change the working vector, wB, from representing a fully-updated
             // portion of the k'th column of H from the end of the last 
@@ -291,8 +291,10 @@ LN
             //
             // w(k+1:end) := -conj(s) H(k+1:end,k) + c H(k+1:end,k+1)
             W.Set( k+1, jLoc, -Conj(s)*W.Get(k+1,jLoc)+c*(etakp1kp1-mu) );
-            Scale( -Conj(s), wB );
-            Axpy( c, hB_STAR_STAR.LockedMatrix(), wB );
+            blas::Scal( m-(k+2), -Conj(s), W.Buffer(k+2,jLoc), 1 );
+            blas::Axpy
+            ( m-(k+2), c, hB_STAR_STAR.LockedBuffer(), 1, 
+                          W.Buffer(k+2,jLoc),          1 );
         }
     }
     // Divide x(end) by L(end,end)
@@ -385,10 +387,10 @@ UN
             const F mu = shifts.GetLocal( jLoc, 0 );
             const F xc = X.GetLocal(k,jLoc)*c;
             const F xs  = X.GetLocal(k,jLoc)*s;
-            auto xT = View( X.Matrix(), 0, jLoc, k-1, 1 );
-            auto wT = View( W,          0, jLoc, k-1, 1 );
-            Axpy( -xc, wT, xT );
-            Axpy( -xs, hT_STAR_STAR.LockedMatrix(), xT );
+            blas::Axpy
+            ( k-1, -xc, W.LockedBuffer(0,jLoc),      1, X.Buffer(0,jLoc), 1 );
+            blas::Axpy
+            ( k-1, -xs, hT_STAR_STAR.LockedBuffer(), 1, X.Buffer(0,jLoc), 1 );
             X.UpdateLocal( k-1, jLoc, -xc*W.Get(k-1,jLoc)-xs*(etakm1km1-mu) );
 
             // Change the working vector, wT, from representing a fully-updated
@@ -396,8 +398,9 @@ UN
             // to a fully-updated portion of the k-1'th column of this iteration
             //
             // w(0:k-1) := -conj(s) H(0:k-1,k) + c H(0:k-1,k-1)
-            Scale( -Conj(s), wT );
-            Axpy( c, hT_STAR_STAR.LockedMatrix(), wT );
+            blas::Scal( k-1, -Conj(s), W.Buffer(0,jLoc), 1 );
+            blas::Axpy( k-1, c, hT_STAR_STAR.LockedBuffer(), 1, 
+                                W.Buffer(0,jLoc),            1 );
             W.Set( k-1, jLoc, -Conj(s)*W.Get(k-1,jLoc)+c*(etakm1km1-mu) );
         }
     }

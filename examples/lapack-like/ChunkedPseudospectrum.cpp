@@ -41,6 +41,7 @@ main( int argc, char* argv[] )
         const Real ny = Input("--ny","num y chunks",2);
         const Int xSize = Input("--xSize","number of x samples",100);
         const Int ySize = Input("--ySize","number of y samples",100);
+        const bool schur = Input("--schur","Schur decomposition?",false);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
         const bool reorthog = Input("--reorthog","reorthog basis?",true);
@@ -97,6 +98,9 @@ main( int argc, char* argv[] )
             Display( A, "A" );
         if( write )
             Write( A, "A", format );
+
+        if( !schur )
+            LogicError("The Hessenberg chunked driver is not yet written");
 
         // Begin by computing the Schur decomposition
         Timer timer;
