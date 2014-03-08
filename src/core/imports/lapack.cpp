@@ -360,25 +360,17 @@ double SafeNorm( double alpha, Complex<double> beta )
 // Safely compute Givens rotations (using Demmel and Kahan's algorithm)
 //
 
-void ComputeGivens
-( float phi, float gamma,
-  float* c, float* s, float* rho )
-{ LAPACK(slartg)( &phi, &gamma, c, s, rho ); }
+float Givens( float phi, float gamma, float* c, float* s )
+{ float rho; LAPACK(slartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
-void ComputeGivens
-( double phi, double gamma,
-  double* c, double* s, double* rho )
-{ LAPACK(dlartg)( &phi, &gamma, c, s, rho ); }
+double Givens( double phi, double gamma, double* c, double* s )
+{ double rho; LAPACK(dlartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
-void ComputeGivens
-( scomplex phi, scomplex gamma,
-  float* c, scomplex* s, scomplex* rho )
-{ LAPACK(clartg)( &phi, &gamma, c, s, rho ); }
+scomplex Givens( scomplex phi, scomplex gamma, float* c, scomplex* s )
+{ scomplex rho; LAPACK(clartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
-void ComputeGivens
-( dcomplex phi, dcomplex gamma,
-  double* c, dcomplex* s, dcomplex* rho )
-{ LAPACK(zlartg)( &phi, &gamma, c, s, rho ); }
+dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s )
+{ dcomplex rho; LAPACK(zlartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
 //
 // Compute the EVD of a symmetric tridiagonal matrix

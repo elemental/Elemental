@@ -75,27 +75,17 @@ double SafeNorm( double alpha, Complex<double> beta );
 //
 // Given phi and gamma, compute a Givens rotation such that
 //
-//  |       cs   sn | |   phi |  = | rho |, where cs^2 + |sn|^2 = 1
-//  | -conj(sn)  cs | | gamma |    |  0  |
+//  |       c   s | |   phi |  = | rho |, where c^2 + |s|^2 = 1
+//  | -conj(s)  c | | gamma |    |  0  |
 //
-// This routine should use the stable approach suggested by Kahan and Demmel
+// This routine uses the stable approach suggested by Kahan and Demmel and
+// returns the value rho.
 //
 
-void ComputeGivens
-( float phi, float gamma,
-  float* cs, float* sn, float* rho );
-
-void ComputeGivens
-( double phi, double gamma,
-  double* cs, double* sn, double* rho );
-
-void ComputeGivens
-( scomplex phi, scomplex gamma,
-  float* cs, scomplex* sn, scomplex* rho );
-
-void ComputeGivens
-( dcomplex phi, dcomplex gamma,
-  double* cs, dcomplex* sn, dcomplex* rho );
+float    Givens( float    phi, float    gamma, float * c, float   * s );
+double   Givens( double   phi, double   gamma, double* c, double  * s );
+scomplex Givens( scomplex phi, scomplex gamma, float * c, scomplex* s );
+dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s );
 
 //
 // Compute the eigen-values/pairs of a symmetric tridiagonal matrix

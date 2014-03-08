@@ -53,6 +53,7 @@ main( int argc, char* argv[] )
         const double sigma = Input("--sigma","PML amplitude",1.5);
         const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
         const bool progress = Input("--progress","print progress?",true);
+        const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
@@ -84,6 +85,8 @@ main( int argc, char* argv[] )
                 ( A, mx, my, C(omega), numPmlPoints, sigma, pmlExp ); break;
         default: LogicError("Invalid matrix type");
         }
+        if( print )
+            Print( A, "A" );
         if( display )
             Display( A, "A" );
         if( write )

@@ -12,7 +12,7 @@
 
 // NOTE: These algorithms are adaptations and/or extensions of Alg. 2 from
 //       Greg Henry's "The shifted Hessenberg system solve computation".
-//       It is important to note that the Given's rotation definition in
+//       It is important to note that the Givens rotation definition in
 //       said paper is the adjoint of the LAPACK definition (as well as 
 //       leaving out a conjugation necessary for the complex case).
 
@@ -55,9 +55,8 @@ LN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
             // Find the Givens rotation needed to zero H(k,k+1),
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
-            Real c;
-            F s, rho;
-            lapack::ComputeGivens( W.Get(k,j), etakkp1, &c, &s, &rho );
+            Real c; F s;
+            lapack::Givens( W.Get(k,j), etakkp1, &c, &s );
             C.Set( k, j, c );
             S.Set( k, j, s );
 
@@ -148,9 +147,8 @@ UN( F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
             // Find the Givens rotation needed to zero H(k,k-1),
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
-            Real c;
-            F s, gamma;
-            lapack::ComputeGivens( W.Get(k,j), etakkm1, &c, &s, &gamma );
+            Real c; F s;
+            lapack::Givens( W.Get(k,j), etakkm1, &c, &s );
             C.Set( k, j, c );
             S.Set( k, j, s );
 
@@ -257,9 +255,8 @@ LN
             // Find the Givens rotation needed to zero H(k,k+1),
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k+1) |   | 0     |
-            Real c;
-            F s, rho;
-            lapack::ComputeGivens( W.Get(k,jLoc), etakkp1, &c, &s, &rho );
+            Real c; F s;
+            lapack::Givens( W.Get(k,jLoc), etakkp1, &c, &s );
             C.Set( k, jLoc, c );
             S.Set( k, jLoc, s );
 
@@ -367,9 +364,8 @@ UN
             // Find the Givens rotation needed to zero H(k,k-1),
             //   | c        s | | H(k,k)   | = | gamma |
             //   | -conj(s) c | | H(k,k-1) |   | 0     |
-            Real c;
-            F s, gamma;
-            lapack::ComputeGivens( W.Get(k,jLoc), etakkm1, &c, &s, &gamma );
+            Real c; F s;
+            lapack::Givens( W.Get(k,jLoc), etakkm1, &c, &s );
             C.Set( k, jLoc, c );
             S.Set( k, jLoc, s );
 
