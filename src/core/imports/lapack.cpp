@@ -8,6 +8,9 @@
 */
 #include "elemental-lite.hpp"
 
+using elem::scomplex;
+using elem::dcomplex;
+
 extern "C" {
 
 // Machine constants
@@ -15,12 +18,10 @@ float LAPACK(slamch)( const char* cmach );
 double LAPACK(dlamch)( const char* cmach );
 
 // Safe norms
-float LAPACK(slapy2)
-( const float* alpha, const float* beta );
-double LAPACK(dlapy2)
-( const double* alpha, const double* beta );
+float  LAPACK(slapy2)( const float * alpha, const float * beta );
+double LAPACK(dlapy2)( const double* alpha, const double* beta );
 float LAPACK(slapy3)
-( const float* alpha, const float* beta, const float* gamma );
+( const float * alpha, const float * beta, const float * gamma );
 double LAPACK(dlapy3)
 ( const double* alpha, const double* beta, const double* gamma );
 
@@ -32,11 +33,11 @@ void LAPACK(dlartg)
 ( const double* phi, const double* gamma,
   double* c, double* s, double* rho );
 void LAPACK(clartg)
-( const elem::scomplex* phi, const elem::scomplex* gamma,
-  float* c, elem::scomplex* s, elem::scomplex* rho );
+( const scomplex* phi, const scomplex* gamma,
+  float* c, scomplex* s, scomplex* rho );
 void LAPACK(zlartg)
-( const elem::dcomplex* phi, const elem::dcomplex* gamma,
-  double* c, elem::dcomplex* s, elem::dcomplex* rho );
+( const dcomplex* phi, const dcomplex* gamma,
+  double* c, dcomplex* s, dcomplex* rho );
 
 // Symmetric tridiagonal eigensolvers (via MRRR)
 void LAPACK(sstevr)
@@ -67,17 +68,17 @@ void LAPACK(dsyevr)
   double* work, const int* lwork, int* iwork, const int* liwork, int* info );
 void LAPACK(cheevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
-  elem::scomplex* A, const int* lda, const float* vl, const float* vu, 
+  scomplex* A, const int* lda, const float* vl, const float* vu, 
   const int* il, const int* iu, const float* abstol, int* m,
-  float* w, elem::scomplex* Z, const int* ldz, int* isuppz, 
-  elem::scomplex* work, const int* lwork, float* rwork, const int* lrwork, 
+  float* w, scomplex* Z, const int* ldz, int* isuppz, 
+  scomplex* work, const int* lwork, float* rwork, const int* lrwork, 
   int* iwork, const int* liwork, int* info );
 void LAPACK(zheevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
-  elem::dcomplex* A, const int* lda, const double* vl, const double* vu, 
+  dcomplex* A, const int* lda, const double* vl, const double* vu, 
   const int* il, const int* iu, const double* abstol, int* m,
-  double* w, elem::dcomplex* Z, const int* ldz, int* isuppz, 
-  elem::dcomplex* work, const int* lwork, double* rwork, const int* lrwork, 
+  double* w, dcomplex* Z, const int* ldz, int* isuppz, 
+  dcomplex* work, const int* lwork, double* rwork, const int* lrwork, 
   int* iwork, const int* liwork, int* info );
 
 // Bidiagonal DQDS
@@ -99,13 +100,13 @@ void LAPACK(dbdsqr)
 void LAPACK(cbdsqr)
 ( const char* uplo, const int* n, const int* numColsVAdj, const int* numRowsU,
   const int* numColsC, float* d, float* e,
-  elem::scomplex* VAdj, const int* ldVAdj, elem::scomplex* U, const int* ldU,
-  elem::scomplex* C, const int* ldC, float* work, int* info );
+  scomplex* VAdj, const int* ldVAdj, scomplex* U, const int* ldU,
+  scomplex* C, const int* ldC, float* work, int* info );
 void LAPACK(zbdsqr)
 ( const char* uplo, const int* n, const int* numColsVAdj, const int* numRowsU,
   const int* numColsC, double* d, double* e,
-  elem::dcomplex* VAdj, const int* ldVAdj, elem::dcomplex* U, const int* ldU,
-  elem::dcomplex* C, const int* ldC, double* work, int* info );
+  dcomplex* VAdj, const int* ldVAdj, dcomplex* U, const int* ldU,
+  dcomplex* C, const int* ldC, double* work, int* info );
 
 // Divide and Conquer SVD
 void LAPACK(sgesdd)
@@ -118,15 +119,15 @@ void LAPACK(dgesdd)
   double* work, const int* lwork, int* iwork, int* info );
 void LAPACK(cgesdd)
 ( const char* jobz, const int* m, const int* n,
-  elem::scomplex* A, const int* lda, float* s,
-  elem::scomplex* U, const int* ldu, elem::scomplex* VTrans, const int* ldvt,
-  elem::scomplex* work, const int* lwork, float* rwork,
+  scomplex* A, const int* lda, float* s,
+  scomplex* U, const int* ldu, scomplex* VTrans, const int* ldvt,
+  scomplex* work, const int* lwork, float* rwork,
   int* iwork, int* info );
 void LAPACK(zgesdd)
 ( const char* jobz, const int* m, const int* n,
-  elem::dcomplex* A, const int* lda, double* s,
-  elem::dcomplex* U, const int* ldu, elem::dcomplex* VAdj, const int* ldva,
-  elem::dcomplex* work, const int* lwork, double* rwork,
+  dcomplex* A, const int* lda, double* s,
+  dcomplex* U, const int* ldu, dcomplex* VAdj, const int* ldva,
+  dcomplex* work, const int* lwork, double* rwork,
   int* iwork, int* info );
 
 // QR-algorithm SVD [DQDS when no singular vectors desired]
@@ -142,14 +143,14 @@ void LAPACK(dgesvd)
   double* work, const int* lwork, int* info );
 void LAPACK(cgesvd)
 ( const char* jobu, const char* jobva, const int* m, const int* n,
-  elem::scomplex* A, const int* lda, float* s,
-  elem::scomplex* U, const int* ldu, elem::scomplex* VTrans, const int* ldvt,
-  elem::scomplex* work, const int* lwork, float* rwork, int* info );
+  scomplex* A, const int* lda, float* s,
+  scomplex* U, const int* ldu, scomplex* VTrans, const int* ldvt,
+  scomplex* work, const int* lwork, float* rwork, int* info );
 void LAPACK(zgesvd)
 ( const char* jobu, const char* jobva, const int* m, const int* n,
-  elem::dcomplex* A, const int* lda, double* s,
-  elem::dcomplex* U, const int* ldu, elem::dcomplex* VAdj, const int* ldva,
-  elem::dcomplex* work, const int* lwork, double* rwork, int* info );
+  dcomplex* A, const int* lda, double* s,
+  dcomplex* U, const int* ldu, dcomplex* VAdj, const int* ldva,
+  dcomplex* work, const int* lwork, double* rwork, int* info );
 
 // Reduction to Hessenberg form
 void LAPACK(sgehrd)
@@ -159,13 +160,11 @@ void LAPACK(dgehrd)
 ( const int* n, const int* ilo, const int* ihi, double* A, const int* lda,
   double* tau, double* work, const int* lwork, int* info );
 void LAPACK(cgehrd)
-( const int* n, const int* ilo, const int* ihi, 
-  elem::scomplex* A, const int* lda,
-  elem::scomplex* tau, elem::scomplex* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* lda,
+  scomplex* tau, scomplex* work, const int* lwork, int* info );
 void LAPACK(zgehrd)
-( const int* n, const int* ilo, const int* ihi, 
-  elem::dcomplex* A, const int* lda,
-  elem::dcomplex* tau, elem::dcomplex* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* lda,
+  dcomplex* tau, dcomplex* work, const int* lwork, int* info );
 
 // Generates a unitary matrix defined as the product of Householder reflectors
 void LAPACK(sorghr)
@@ -175,15 +174,11 @@ void LAPACK(dorghr)
 ( const int* n, const int* ilo, const int* ihi, double* A, const int* lda,
   const double* tau, double* work, const int* lwork, int* info );
 void LAPACK(cunghr)
-( const int* n, const int* ilo, const int* ihi, 
-  elem::scomplex* A, const int* lda,
-  const elem::scomplex* tau, elem::scomplex* work, 
-  const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* lda,
+  const scomplex* tau, scomplex* work, const int* lwork, int* info );
 void LAPACK(zunghr)
-( const int* n, const int* ilo, const int* ihi, 
-  elem::dcomplex* A, const int* lda,
-  const elem::dcomplex* tau, elem::dcomplex* work, 
-  const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* lda,
+  const dcomplex* tau, dcomplex* work, const int* lwork, int* info );
 
 // Hessenberg QR algorithm
 void LAPACK(shseqr)
@@ -198,14 +193,14 @@ void LAPACK(dhseqr)
   double* work, const int* lwork, int* info );
 void LAPACK(chseqr)
 ( const char* job, const char* compz, const int* n,
-  const int* ilo, const int* ihi, elem::scomplex* H, const int* ldh,
-  elem::scomplex* w, elem::scomplex* Z, const int* ldz,
-  elem::scomplex* work, const int* lwork, int* info );
+  const int* ilo, const int* ihi, scomplex* H, const int* ldh,
+  scomplex* w, scomplex* Z, const int* ldz,
+  scomplex* work, const int* lwork, int* info );
 void LAPACK(zhseqr)
 ( const char* job, const char* compz, const int* n,
-  const int* ilo, const int* ihi, elem::dcomplex* H, const int* ldh,
-  elem::dcomplex* w, elem::dcomplex* Z, const int* ldz,
-  elem::dcomplex* work, const int* lwork, int* info );
+  const int* ilo, const int* ihi, dcomplex* H, const int* ldh,
+  dcomplex* w, dcomplex* Z, const int* ldz,
+  dcomplex* work, const int* lwork, int* info );
 
 } // extern "C"
 

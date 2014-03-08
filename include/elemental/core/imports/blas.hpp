@@ -13,17 +13,14 @@
 namespace elem {
 namespace blas {
 
-//
 // NOTE: templated routines are custom and not wrappers
-//
 
-//----------------------------------------------------------------//
-// Level 1 BLAS                                                   //
-//----------------------------------------------------------------//
+// Level 1 BLAS 
+// ============
 void Axpy
-( int n, float alpha, const float* x, int incx, float* y, int incy );
+( int n, float    alpha, const float   * x, int incx, float   * y, int incy );
 void Axpy
-( int n, double alpha, const double* x, int incx, double* y, int incy );
+( int n, double   alpha, const double  * x, int incx, double  * y, int incy );
 void Axpy
 ( int n, scomplex alpha, const scomplex* x, int incx, scomplex* y, int incy );
 void Axpy
@@ -31,24 +28,24 @@ void Axpy
 template<typename T>
 void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy );
 
-void Copy( int n, const float* x, int incx, float* y, int incy );
-void Copy( int n, const double* x, int incx, double* y, int incy );
+void Copy( int n, const float   * x, int incx, float   * y, int incy );
+void Copy( int n, const double  * x, int incx, double  * y, int incy );
 void Copy( int n, const scomplex* x, int incx, scomplex* y, int incy );
 void Copy( int n, const dcomplex* x, int incx, dcomplex* y, int incy );
 template<typename T>
 void Copy( int n, const T* x, int incx, T* y, int incy );
 
-float Dot( int n, const float* x, int incx, const float* y, int incy );
-double Dot( int n, const double* x, int incx, const double* y, int incy );
+float    Dot( int n, const float   * x, int incx, const float   * y, int incy );
+double   Dot( int n, const double  * x, int incx, const double  * y, int incy );
 scomplex Dot( int n, const scomplex* x, int incx, const scomplex* y, int incy );
 dcomplex Dot( int n, const dcomplex* x, int incx, const dcomplex* y, int incy );
 template<typename T>
 T Dot( int n, const T* x, int incx, const T* y, int incy );
 
-float Dotc
-( int n, const float* x, int incx, const float* y, int incy );
-double Dotc
-( int n, const double* x, int incx, const double* y, int incy );
+float    Dotc
+( int n, const float   * x, int incx, const float   * y, int incy );
+double   Dotc
+( int n, const double  * x, int incx, const double  * y, int incy );
 scomplex Dotc
 ( int n, const scomplex* x, int incx, const scomplex* y, int incy );
 dcomplex Dotc
@@ -56,10 +53,10 @@ dcomplex Dotc
 template<typename T>
 T Dotc( int n, const T* x, int incx, const T* y, int incy );
 
-float Dotu
-( int n, const float* x, int incx, const float* y, int incy );
-double Dotu
-( int n, const double* x, int incx, const double* y, int incy );
+float    Dotu
+( int n, const float   * x, int incx, const float   * y, int incy );
+double   Dotu
+( int n, const double  * x, int incx, const double  * y, int incy );
 scomplex Dotu
 ( int n, const scomplex* x, int incx, const scomplex* y, int incy );
 dcomplex Dotu
@@ -67,27 +64,35 @@ dcomplex Dotu
 template<typename T>
 T Dotu( int n, const T* x, int incx, const T* y, int incy );
 
-float Nrm2( int n, const float* x, int incx );
-double Nrm2( int n, const double* x, int incx );
-float Nrm2( int n, const scomplex* x, int incx );
+float  Nrm2( int n, const float   * x, int incx );
+double Nrm2( int n, const double  * x, int incx );
+float  Nrm2( int n, const scomplex* x, int incx );
 double Nrm2( int n, const dcomplex* x, int incx );
 template<typename F> F Nrm2( int n, const F* x, int incx );
 
-void Scal( int n, float alpha, float* x, int incx );
-void Scal( int n, double alpha, double* x, int incx );
+void Rot
+( int n, float   * x, int incx, float   * y, int incy, float  c, float    s );
+void Rot
+( int n, double  * x, int incx, double  * y, int incy, double c, double   s );
+void Rot
+( int n, scomplex* x, int incx, scomplex* y, int incy, float  c, scomplex s );
+void Rot
+( int n, dcomplex* x, int incx, dcomplex* y, int incy, double c, dcomplex s );
+
+void Scal( int n, float    alpha, float   * x, int incx );
+void Scal( int n, double   alpha, double  * x, int incx );
 void Scal( int n, scomplex alpha, scomplex* x, int incx );
 void Scal( int n, dcomplex alpha, dcomplex* x, int incx );
 template<typename T> void Scal( int n, T alpha, T* x, int incx );
 
-void Swap( int n, float* x, int incx, float* y, int incy );
-void Swap( int n, double* x, int incx, double* y, int incy );
+void Swap( int n, float   * x, int incx, float   * y, int incy );
+void Swap( int n, double  * x, int incx, double  * y, int incy );
 void Swap( int n, scomplex* x, int incx, scomplex* y, int incy );
 void Swap( int n, dcomplex* x, int incx, dcomplex* y, int incy );
 template<typename T> void Swap( int n, T* x, int incx, T* y, int incy );
             
-//----------------------------------------------------------------//
-// Level 2 BLAS                                                   //
-//----------------------------------------------------------------//
+// Level 2 BLAS
+// ============
 void Gemv
 ( char trans, int m, int n,
   float alpha, const float* A, int lda, const float* x, int incx,
@@ -328,9 +333,8 @@ void Trsv
 ( char uplo, char trans, char diag, int m,
   const T* A, int lda, T* x, int incx );
 
-//----------------------------------------------------------------//
-// Level 3 BLAS                                                   //
-//----------------------------------------------------------------//
+// Level 3 BLAS
+// ============
 void Gemm
 ( char transA, char transB, int m, int n, int k,
   float alpha, const float* A, int lda, const float* B, int ldb,
@@ -520,16 +524,14 @@ void Trsm
 } // namespace blas
 } // namespace elem
 
-//
-// Templated wrappers
-//
-
 namespace elem {
 namespace blas {
 
-//
+// Templated wrappers
+// ==================
+
 // Level 1 BLAS
-//
+// ------------
 
 template<typename T>
 inline void Axpy
@@ -590,9 +592,8 @@ inline void Swap( int n, T* x, int incx, T* y, int incy )
 }
 
 
-// 
 // Level 2 BLAS
-//
+// ------------
 
 template<typename T>
 inline void Gemv
@@ -653,9 +654,8 @@ inline void Gemv
 // TODO: templated Trmv
 // TODO: templated Trsv
 
-//
 // Level 3 BLAS
-//
+// ------------
 
 template<typename T>
 inline void Gemm
