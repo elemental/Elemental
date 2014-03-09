@@ -11,10 +11,11 @@ Functionality priorities
 Fundamental functionality additions
 -----------------------------------
 [o] Estimate for spectral radius
+[o] (Finish) low-rank modifications of Cholesky
+[o] Low-rank modifications of QR
+[o] Low-rank modifications of LU
 [o] Banded Cholesky factorization
 [o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
-[o] Rank-one modifications of QR
-[o] Rank-one modifications of Cholesky
 [o] Finishing prototype generalized Spectral Divide and Conquer
 [-] Windowed QR with column pivoting
 [-] Power-method-like p-norm estimation

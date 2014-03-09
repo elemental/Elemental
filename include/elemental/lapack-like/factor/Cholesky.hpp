@@ -26,6 +26,9 @@ void LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 #include "./Cholesky/UVar3Pivoted.hpp"
 #include "./Cholesky/SolveAfter.hpp"
 
+#include "./Cholesky/LMod.hpp"
+#include "./Cholesky/UMod.hpp"
+
 namespace elem {
 
 template<typename F>
@@ -150,6 +153,23 @@ ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A )
             cholesky::ReverseUVar3( A );
     }
     */
+}
+
+// Either 
+//         L' L'^H := L L^H + alpha V V^H
+// or
+//         U'^H U' := U^H U + alpha V V^H
+template<typename F>
+inline void
+CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
+{
+    DEBUG_ONLY(CallStackEntry cse("CholeskyMod"))
+    if( alpha == Base<F>(0) )
+        return;
+    if( uplo == LOWER )
+        cholesky::LMod( T, alpha, V );
+    else
+        cholesky::UMod( T, alpha, V );
 }
 
 } // namespace elem

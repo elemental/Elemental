@@ -144,7 +144,7 @@ main( int argc, char* argv[] )
     {
         Int r = Input("--gridHeight","process grid height",0);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const Int m = Input("--height","height of matrix",100);
+        const Int m = Input("--m","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool pivot = Input("--pivot","use pivoting?",false);
