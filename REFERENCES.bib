@@ -113,8 +113,7 @@ SDC algorithms based upon QWDH
 Pivoted QR
 ==========
 
-This paper introduced the Businger-Golub algorithm for column-pivoted QR
-decompositions.
+Introduced the Businger-Golub algorithm for column-pivoted QR decompositions.
 @article{
   author={Peter A. Businger and Gene H. Golub},
   title={Linear least squares solutions by {H}ouseholder transformations},
@@ -158,6 +157,48 @@ added to Elemental in the near future.
   number=4,
   pages={848--869},
   year=1996
+}
+
+Up-/downdating Cholesky factorizations
+======================================
+
+A review of generalized/hyperbolic Householder transforms which also introduces
+blocked algorithms for up-/downdating via accumulated generalized Householder
+transforms.
+@article{
+  author={Robert A. van de Geijn and Field G. van Zee},
+  title={High-performance up-and-downdating via Householder-like 
+    transformations},
+  journal={ACM Transactions on Mathematical Software},
+  volume=38,
+  number=1,
+  pages={4:1--4:17},
+  year=2011
+}
+
+A general analysis of the stability of triangularizing matrices via 
+hyperbolic Householder transformations.
+@article{
+  author={Michael Stewart and G.W. Stewart},
+  title={On hyperbolic triangularization: stability and pivoting},
+  journal={SIAM Journal on Matrix Analysis and Applications},
+  volume=19,
+  number=4,
+  pages={847--860},
+  year=1998
+}
+
+It is demonstrated that downdated Cholesky factorizations can be an
+ill-conditioned function of the original Cholesky factor and the update vector.
+@article{
+  author={G.W. Stewart},
+  title={The effects of rounding error on an algorithm for downdating a 
+         Cholesky factorization},
+  journal={IMA Journal of Applied Mathematics},
+  volume=23,
+  number=2,
+  pages={203--213},
+  year=1979
 }
 
 Singular Value Decomposition
