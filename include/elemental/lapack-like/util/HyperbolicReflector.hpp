@@ -40,7 +40,7 @@ LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
             LogicError("chi must be a scalar");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
-        if( ImagPart(chi.Get(0,0)) != Real(0) )
+        if( ImagPart(chi.Get(0,0)) != Base<F>(0) )
             LogicError("chi is assumed to be real");
     )
 
@@ -86,7 +86,7 @@ LeftHyperbolicReflector( F& chi, Matrix<F>& x )
         CallStackEntry cse("LeftHyperbolicReflector");
         if( x.Height() != 1 && x.Width() != 1 )
             LogicError("x must be a vector");
-        if( ImagPart(chi) != Real(0) )
+        if( ImagPart(chi) != Base<F>(0) )
             LogicError("chi is assumed to be real");
     )
 

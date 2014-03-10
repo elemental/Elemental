@@ -172,6 +172,20 @@ CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
         cholesky::UMod( T, alpha, V );
 }
 
+template<typename F>
+inline void
+CholeskyMod
+( UpperOrLower uplo, DistMatrix<F>& T, Base<F> alpha, DistMatrix<F>& V )
+{
+    DEBUG_ONLY(CallStackEntry cse("CholeskyMod"))
+    if( alpha == Base<F>(0) )
+        return;
+    if( uplo == LOWER )
+        cholesky::LMod( T, alpha, V );
+    else
+        cholesky::UMod( T, alpha, V );
+}
+
 } // namespace elem
 
 #include ELEM_MAKEHERMITIAN_INC

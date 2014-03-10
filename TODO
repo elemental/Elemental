@@ -11,7 +11,6 @@ Functionality priorities
 Fundamental functionality additions
 -----------------------------------
 [o] Estimate for spectral radius
-[o] (Finish) low-rank modifications of Cholesky
 [o] Low-rank modifications of QR
 [o] Low-rank modifications of LU
 [o] Banded Cholesky factorization
@@ -34,6 +33,7 @@ Fundamental functionality additions
 Incremental functionality improvements
 --------------------------------------
 [o] Rescaled multi-shift Hessenberg solves
+[o] Blocked algorithms for low-rank Cholesky updates
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
 [o] Sequential blocked reduction to tridiagonal form
 [o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used

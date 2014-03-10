@@ -20,21 +20,20 @@ using namespace elem;
 
 template<typename F>
 void TestCorrectness
-( UpperOrLower uplo, const DistMatrix<F>& T, Base<F> alpha, const DistMatrix<F>& V,
-  const DistMatrix<F>& A )
+( UpperOrLower uplo, const Matrix<F>& T, Base<F> alpha, const Matrix<F>& V,
+  const Matrix<F>& A )
 {
     typedef Base<F> Real;
     const Int m = V.Height();
     const Int n = V.Width();
-    const Grid& g = T.Grid();
 
-    DistMatrix<F> B( A );
+    Matrix<F> B( A );
     Herk( uplo, NORMAL, F(alpha), V, F(1), B );
 
     // Test correctness by multiplying a random set of vectors by 
     // A + alpha V V^H, then using the Cholesky factorization to solve.
-    auto X = Uniform<F>( g, m, 100 );
-    auto Y = Zeros<F>( g, m, 100 );
+    auto X = Uniform<F>( m, 100 );
+    auto Y = Zeros<F>( m, 100 );
     Hemm( LEFT, uplo, F(1), B, X, F(0), Y );
     const Real maxNormT = MaxNorm( T );
     const Real maxNormB = HermitianMaxNorm( uplo, B );
@@ -50,7 +49,7 @@ void TestCorrectness
     const Real infNormE = InfinityNorm( X );
     const Real frobNormE = FrobeniusNorm( X );
 
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
     {
         cout << "||T||_max = " << maxNormT << "\n"
              << "||B||_max = " << maxNormB << "\n"
@@ -68,25 +67,25 @@ void TestCorrectness
 template<typename F> 
 void TestCholeskyMod
 ( bool testCorrectness, bool print, UpperOrLower uplo, Int m, Int n, 
-  Base<F> alpha, const Grid& g )
+  Base<F> alpha )
 {
-    DistMatrix<F> T(g), A(g);
+    Matrix<F> T, A;
     HermitianUniformSpectrum( T, m, 1e-9, 10 );
     if( testCorrectness )
     {
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             cout << "  Making copy of original matrix...";
             cout.flush();
         }
         A = T;
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
             cout << "DONE" << endl;
     }
-    if( print )
+    if( print && mpi::WorldRank() == 0 )
         Print( T, "A" );
 
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
     {
         cout << "  Starting Cholesky factorization...";
         cout.flush();
@@ -96,31 +95,31 @@ void TestCholeskyMod
     double runTime = mpi::Time() - startTime;
     double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
     double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
     {
         cout << "DONE\n"
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
     MakeTriangular( uplo, T );
-    if( print )
+    if( print && mpi::WorldRank() == 0 )
         Print( T, "Cholesky factor" );
 
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
     {
         cout << "  Generating random update vectors...";
         cout.flush();
     }
-    DistMatrix<F> V(g), VMod(g);
+    Matrix<F> V, VMod;
     Uniform( V, m, n );
     Scale( F(1)/Sqrt(F(m)*F(n)), V );
     VMod = V;
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
         cout << "DONE" << endl;
-    if( print )
+    if( print && mpi::WorldRank() == 0 )
         Print( V, "V" );
 
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
     {
         cout << "  Starting Cholesky modification...";
         cout.flush();
@@ -128,10 +127,10 @@ void TestCholeskyMod
     startTime = mpi::Time();
     CholeskyMod( uplo, T, alpha, VMod );
     runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
+    if( mpi::WorldRank() == 0 )
         cout << "DONE\n"
              << "  Time = " << runTime << " seconds." << endl;
-    if( print )
+    if( print && mpi::WorldRank() == 0 )
         Print( T, "Modified Cholesky factor" );
 
     if( testCorrectness )
@@ -144,11 +143,9 @@ main( int argc, char* argv[] )
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const Int commRank = mpi::CommRank( comm );
-    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        Int r = Input("--gridHeight","process grid height",0);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--m","height of matrix",100);
         const Int n = Input("--n","rank of update",5);
@@ -160,9 +157,6 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
-        const Grid g( comm, r );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();
@@ -176,7 +170,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestCholeskyMod<double>
-        ( testCorrectness, print, uplo, m, n, alpha, g );
+        ( testCorrectness, print, uplo, m, n, alpha );
 
         if( commRank == 0 )
         {
@@ -185,7 +179,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestCholeskyMod<Complex<double>>
-        ( testCorrectness, print, uplo, m, n, alpha, g );
+        ( testCorrectness, print, uplo, m, n, alpha );
     }
     catch( exception& e ) { ReportException(e); }
 

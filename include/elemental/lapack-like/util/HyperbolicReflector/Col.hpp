@@ -73,8 +73,8 @@ Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
     }
     else
     {
-        Scale( Real(1)/lambda, x );
-        return (delta+alpha*alpha)/(kappa*kappa);
+        Scale( Real(1)/kappa, x );
+        return (delta+alpha*lambda)/(kappa*kappa);
     }
 }
 
@@ -88,7 +88,7 @@ Col( F& chi, DistMatrix<F,U,V>& x )
             LogicError("x must be a column vector");
         if( x.RowRank() != x.RowAlign() )
             LogicError("Reflecting from incorrect process");
-        if( ImagPart(chi) != Real(0) )
+        if( ImagPart(chi) !=Base<F>(0) )
             LogicError("chi is assumed to be real");
     )
     typedef Base<F> Real;
@@ -115,8 +115,8 @@ Col( F& chi, DistMatrix<F,U,V>& x )
     }
     else
     {
-        Scale( Real(1)/lambda, x );
-        return (delta+alpha*alpha)/(kappa*kappa);
+        Scale( Real(1)/kappa, x );
+        return (delta+alpha*lambda)/(kappa*kappa);
     }
 }
 
