@@ -12,6 +12,7 @@
 
 #include "./ApplyPackedReflectors.hpp"
 #include "./ExpandPackedReflectors.hpp"
+#include "./HyperbolicReflector.hpp"
 #include "./Reflector.hpp"
 
 #include "./Median.hpp"

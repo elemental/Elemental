@@ -51,7 +51,7 @@ void TestCorrectness
 
     if( mpi::WorldRank() == 0 )
     {
-        cout << "||L||_max = " << maxNormT << "\n"
+        cout << "||T||_max = " << maxNormT << "\n"
              << "||B||_max = " << maxNormB << "\n"
              << "||B||_1   = " << infNormB << "\n"
              << "||B||_F   = " << frobNormB << "\n"
@@ -102,8 +102,8 @@ void TestCholeskyMod
              << gFlops << endl;
     }
     MakeTriangular( uplo, T );
-    if( print )
-        Print( A, "Cholesky factor" );
+    if( print && mpi::WorldRank() == 0 )
+        Print( T, "Cholesky factor" );
 
     if( mpi::WorldRank() == 0 )
     {
@@ -112,9 +112,12 @@ void TestCholeskyMod
     }
     Matrix<F> V, VMod;
     Uniform( V, m, n );
+    Scale( F(1)/Sqrt(F(m)*F(n)), V );
     VMod = V;
     if( mpi::WorldRank() == 0 )
         cout << "DONE" << endl;
+    if( print && mpi::WorldRank() == 0 )
+        Print( V, "V" );
 
     if( mpi::WorldRank() == 0 )
     {
@@ -127,6 +130,8 @@ void TestCholeskyMod
     if( mpi::WorldRank() == 0 )
         cout << "DONE\n"
              << "  Time = " << runTime << " seconds." << endl;
+    if( print && mpi::WorldRank() == 0 )
+        Print( T, "Modified Cholesky factor" );
 
     if( testCorrectness )
         TestCorrectness( uplo, T, alpha, V, A );

@@ -401,6 +401,8 @@
   "elemental/lapack-like/util/ApplyPackedReflectors.hpp"
 #define ELEM_EXPANDPACKEDREFLECTORS_INC \
   "elemental/lapack-like/util/ExpandPackedReflectors.hpp"
+#define ELEM_HYPERBOLICREFLECTOR_INC \
+  "elemental/lapack-like/util/HyperbolicReflector.hpp"
 #define ELEM_MEDIAN_INC \
   "elemental/lapack-like/util/Median.hpp"
 #define ELEM_PIVOTPARITY_INC \

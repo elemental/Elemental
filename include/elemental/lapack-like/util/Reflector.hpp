@@ -41,6 +41,8 @@ namespace elem {
 // which is accomplished by setting tau=2, and v=0.
 //
 
+// TODO: Switch to 1/tau to be simplify discussions of UT transforms
+
 template<typename F>
 inline F
 LeftReflector( Matrix<F>& chi, Matrix<F>& x )
