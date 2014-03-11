@@ -32,6 +32,7 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
+[o] Force QR factorizations to produce a positive (or zero) diagonal for R
 [o] Rescaled multi-shift Hessenberg solves
 [o] Blocked algorithms for low-rank Cholesky updates
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
