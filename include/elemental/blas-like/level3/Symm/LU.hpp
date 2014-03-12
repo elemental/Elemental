@@ -342,8 +342,9 @@ SymmLUC
         //--------------------------------------------------------------------//
         AB1_MC_STAR = AB1;
         A1R_STAR_MC = A1R;
-        MakeTrapezoidal( UPPER, AB1_MC_STAR, 0, RIGHT );
-        MakeTrapezoidal( UPPER, A1R_STAR_MC, 1, LEFT );
+        MakeTrapezoidal
+        ( UPPER, AB1_MC_STAR, AB1_MC_STAR.Width()-AB1_MC_STAR.Height() );
+        MakeTrapezoidal( UPPER, A1R_STAR_MC, 1 );
 
         B1.TransposeColAllGather( B1Trans_MR_STAR );
 

@@ -63,33 +63,32 @@ DiagonalScale
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     if( side == LEFT )
     {
+        DistMatrix<TDiag,W,STAR> d_W_STAR( X.Grid() );
         if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
-            DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
+            d_W_STAR = LockedView( d );
         }
         else
         {
-            DistMatrix<TDiag,W,STAR> d_W_STAR( X.Grid() );
+            d_W_STAR.AlignWith( X );
             d_W_STAR = d;
-            DiagonalScale
-            ( LEFT, orientation,
-              d_W_STAR.LockedMatrix(), X.Matrix() );
         }
+        DiagonalScale( LEFT, orientation, d_W_STAR.LockedMatrix(), X.Matrix() );
     }
     else
     {
+        DistMatrix<TDiag,Z,STAR> d_Z_STAR( X.Grid() );
         if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
-            DiagonalScale
-            ( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
+            d_Z_STAR = LockedView( d );
         }
         else
         {
-            DistMatrix<TDiag,Z,STAR> d_Z_STAR( X.Grid() );
+            d_Z_STAR.AlignWith( X );
             d_Z_STAR = d;
-            DiagonalScale
-            ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
         }
+        DiagonalScale
+        ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
     }
 }
 

@@ -351,8 +351,10 @@ SymmRLC
         A1L.TransposeColAllGather( A1LTrans_MR_STAR );
         AB1_VR_STAR = AB1;
         AB1_VR_STAR.TransposePartialColAllGather( AB1Trans_STAR_MR, conjugate );
-        MakeTrapezoidal( UPPER, A1LTrans_MR_STAR, 0, RIGHT );
-        MakeTrapezoidal( UPPER, AB1Trans_STAR_MR, 1, LEFT );
+        MakeTrapezoidal
+        ( UPPER, A1LTrans_MR_STAR, 
+          A1LTrans_MR_STAR.Width()-A1LTrans_MR_STAR.Height() );
+        MakeTrapezoidal( UPPER, AB1Trans_STAR_MR, 1 );
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 

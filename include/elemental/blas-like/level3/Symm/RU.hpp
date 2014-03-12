@@ -353,7 +353,9 @@ SymmRUC
         AB1_VR_STAR.TransposePartialColAllGather( AB1Trans_STAR_MR, conjugate );
         A1R.TransposeColAllGather( A1RTrans_MR_STAR, conjugate );
         MakeTriangular( LOWER, A1RTrans_MR_STAR );
-        MakeTrapezoidal( LOWER, AB1Trans_STAR_MR, -1, RIGHT );
+        MakeTrapezoidal
+        ( LOWER, AB1Trans_STAR_MR, 
+          AB1Trans_STAR_MR.Width()-AB1Trans_STAR_MR.Height()-1 );
 
         LocalGemm
         ( NORMAL, orientation, 

@@ -14,8 +14,7 @@ namespace elem {
 
 template<typename T>
 inline void
-MakeTrapezoidal
-( UpperOrLower uplo, Matrix<T>& A, Int offset=0, LeftOrRight side=LEFT )
+MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();
@@ -25,58 +24,29 @@ MakeTrapezoidal
 
     if( uplo == LOWER )
     {
-        if( side == LEFT )
+        PARALLEL_FOR
+        for( Int j=Max(0,offset+1); j<width; ++j )
         {
-            PARALLEL_FOR
-            for( Int j=Max(0,offset+1); j<width; ++j )
-            {
-                const Int lastZeroRow = j-offset-1;
-                const Int numZeroRows = Min( lastZeroRow+1, height );
-                MemZero( &buffer[j*ldim], numZeroRows );
-            }
-        }
-        else
-        {
-            PARALLEL_FOR
-            for( Int j=Max(0,offset-height+width+1); j<width; ++j )
-            {
-                const Int lastZeroRow = j-offset+height-width-1;
-                const Int numZeroRows = Min( lastZeroRow+1, height );
-                MemZero( &buffer[j*ldim], numZeroRows );
-            }
+            const Int lastZeroRow = j-offset-1;
+            const Int numZeroRows = Min( lastZeroRow+1, height );
+            MemZero( &buffer[j*ldim], numZeroRows );
         }
     }
     else
     {
-        if( side == LEFT )
+        PARALLEL_FOR
+        for( Int j=0; j<width; ++j )
         {
-            PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                const Int firstZeroRow = Max(j-offset+1,0);
-                if( firstZeroRow < height )
-                    MemZero
-                    ( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
-            }
-        }
-        else
-        {
-            PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                const Int firstZeroRow = Max(j-offset+height-width+1,0);
-                if( firstZeroRow < height )
-                    MemZero
-                    ( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
-            }
+            const Int firstZeroRow = Max(j-offset+1,0);
+            if( firstZeroRow < height )
+                MemZero( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
         }
     }
 }
 
 template<typename T,Dist U,Dist V>
 inline void
-MakeTrapezoidal
-( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0, LeftOrRight side=LEFT )
+MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();
@@ -97,14 +67,11 @@ MakeTrapezoidal
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = rowShift + jLoc*rowStride;
-            const Int lastZeroRow =
-                ( side==LEFT ? j-offset-1
-                             : j-offset+height-width-1 );
+            const Int lastZeroRow = j-offset-1;
             if( lastZeroRow >= 0 )
             {
                 const Int boundary = Min( lastZeroRow+1, height );
-                const Int numZeroRows =
-                    Length_( boundary, colShift, colStride );
+                const Int numZeroRows = Length_(boundary,colShift,colStride);
                 MemZero( &buffer[jLoc*ldim], numZeroRows );
             }
         }
@@ -115,11 +82,8 @@ MakeTrapezoidal
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = rowShift + jLoc*rowStride;
-            const Int firstZeroRow =
-                ( side==LEFT ? Max(j-offset+1,0)
-                             : Max(j-offset+height-width+1,0) );
-            const Int numNonzeroRows =
-                Length_(firstZeroRow,colShift,colStride);
+            const Int firstZeroRow = Max(j-offset+1,0);
+            const Int numNonzeroRows = Length_(firstZeroRow,colShift,colStride);
             if( numNonzeroRows < localHeight )
             {
                 T* col = &buffer[numNonzeroRows+jLoc*ldim];

@@ -343,7 +343,8 @@ SymmLLC
         AB1_MC_STAR = AB1;
         A1L_STAR_MC = A1L;
         MakeTriangular( LOWER, AB1_MC_STAR );
-        MakeTrapezoidal( LOWER, A1L_STAR_MC, -1, RIGHT );
+        MakeTrapezoidal
+        ( LOWER, A1L_STAR_MC, A1L_STAR_MC.Width()-A1L_STAR_MC.Height()-1 );
 
         B1.TransposeColAllGather( B1Trans_MR_STAR );
 

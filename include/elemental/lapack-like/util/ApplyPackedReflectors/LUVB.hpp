@@ -70,7 +70,7 @@ LUVB
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
         HPanCopy = HPan;
-        MakeTrapezoidal( UPPER, HPanCopy, 0, RIGHT );
+        MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         SetDiagonal( HPanCopy, F(1), 0, RIGHT );
 
         Herk( UPPER, ADJOINT, F(1), HPanCopy, SInv );
@@ -126,7 +126,7 @@ LUVB
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
         HPanCopy = HPan;
-        MakeTrapezoidal( UPPER, HPanCopy, 0, RIGHT );
+        MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
         SetDiagonal( HPanCopy, F(1), 0, RIGHT );
 
         HPan_VC_STAR = HPanCopy;

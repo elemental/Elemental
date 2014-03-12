@@ -75,7 +75,7 @@ LLHB
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
         Conjugate( HPan, HPanConj );
-        MakeTrapezoidal( LOWER, HPanConj, 0, RIGHT );
+        MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
         SetDiagonal( HPanConj, F(1), 0, RIGHT );
 
         Herk( UPPER, NORMAL, F(1), HPanConj, SInv );
@@ -134,7 +134,7 @@ LLHB
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
         Conjugate( HPan, HPanConj );
-        MakeTrapezoidal( LOWER, HPanConj, 0, RIGHT );
+        MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
         SetDiagonal( HPanConj, F(1), 0, RIGHT );
 
         HPan_STAR_VR = HPanConj;

@@ -14,9 +14,7 @@ namespace elem {
 
 template<typename T>
 inline void
-ScaleTrapezoid
-( T alpha, UpperOrLower uplo, Matrix<T>& A, 
-  Int offset=0, LeftOrRight side=LEFT )
+ScaleTrapezoid( T alpha, UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
@@ -26,57 +24,29 @@ ScaleTrapezoid
 
     if( uplo == UPPER )
     {
-        if( side == LEFT )
+        PARALLEL_FOR
+        for( Int j=Max(0,offset-1); j<width; ++j )
         {
-            PARALLEL_FOR
-            for( Int j=Max(0,offset-1); j<width; ++j )
-            {
-                const Int numRows = j-offset+1;
-                for( Int i=0; i<numRows; ++i )
-                    buffer[i+j*ldim] *= alpha;
-            }
-        }
-        else
-        {
-            PARALLEL_FOR
-            for( Int j=Max(0,offset-height+width-1); j<width; ++j )
-            {
-                const Int numRows = j-offset+height-width+1;
-                for( Int i=0; i<numRows; ++i )
-                    buffer[i+j*ldim] *= alpha;
-            }
+            const Int numRows = j-offset+1;
+            for( Int i=0; i<numRows; ++i )
+                buffer[i+j*ldim] *= alpha;
         }
     }
     else
     {
-        if( side == LEFT )
+        PARALLEL_FOR
+        for( Int j=0; j<width; ++j )
         {
-            PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                const Int numZeroRows = Max(j-offset,0);
-                for( Int i=numZeroRows; i<height; ++i )
-                    buffer[i+j*ldim] *= alpha;
-            }
-        }
-        else
-        {
-            PARALLEL_FOR
-            for( Int j=0; j<width; ++j )
-            {
-                const Int numZeroRows = Max(j-offset+height-width,0);
-                for( Int i=numZeroRows; i<height; ++i )
-                    buffer[i+j*ldim] *= alpha;
-            }
+            const Int numZeroRows = Max(j-offset,0);
+            for( Int i=numZeroRows; i<height; ++i )
+                buffer[i+j*ldim] *= alpha;
         }
     }
 }
 
 template<typename T,Dist U,Dist V>
 inline void
-ScaleTrapezoid
-( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, 
-  Int offset=0, LeftOrRight side=LEFT )
+ScaleTrapezoid( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
@@ -96,7 +66,7 @@ ScaleTrapezoid
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             Int j = rowShift + jLoc*rowStride;
-            Int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
+            Int lastRow = j-offset;
             Int boundary = Min( lastRow+1, height );
             Int numRows = Length_( boundary, colShift, colStride );
             T* col = &buffer[jLoc*ldim];
@@ -112,9 +82,7 @@ ScaleTrapezoid
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             Int j = rowShift + jLoc*rowStride;
-            Int firstRow =
-                ( side==LEFT ? Max(j-offset,0)
-                             : Max(j-offset+height-width,0) );
+            Int firstRow = Max(j-offset,0);
             Int numZeroRows = Length_( firstRow, colShift, colStride );
             T* col = &buffer[numZeroRows+jLoc*ldim];
             for( Int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )

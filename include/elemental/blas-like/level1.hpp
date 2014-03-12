@@ -16,6 +16,7 @@
 #include "./level1/Conjugate.hpp"
 #include "./level1/Copy.hpp"
 #include "./level1/DiagonalScale.hpp"
+#include "./level1/DiagonalScaleTrapezoid.hpp"
 #include "./level1/DiagonalSolve.hpp"
 #include "./level1/Dot.hpp"
 #include "./level1/Dotu.hpp"

@@ -32,6 +32,8 @@
   "elemental/blas-like/level1/Copy.hpp"
 #define ELEM_DIAGONALSCALE_INC \
   "elemental/blas-like/level1/DiagonalScale.hpp"
+#define ELEM_DIAGONALSCALETRAPEZOID_INC \
+  "elemental/blas-like/level1/DiagonalScaleTrapezoid.hpp"
 #define ELEM_DIAGONALSOLVE_INC \
   "elemental/blas-like/level1/DiagonalSolve.hpp"
 #define ELEM_DOT_INC \
