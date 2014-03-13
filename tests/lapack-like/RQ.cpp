@@ -58,7 +58,7 @@ void TestCorrectness
 
     // Form RQ
     auto U( A );
-    MakeTrapezoidal( UPPER, U, 0, RIGHT );
+    MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
     rq::ApplyQ( RIGHT, NORMAL, A, t, U );
 
     // Form R Q - A

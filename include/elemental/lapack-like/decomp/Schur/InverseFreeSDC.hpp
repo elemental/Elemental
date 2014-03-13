@@ -58,6 +58,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 
     // Set up the space for explicitly computing the left half of Q
     Matrix<F> t;
+    Matrix<Base<F>> d;
     Matrix<F> Q( 2*n, n ), Q12, Q22;
     PartitionDown( Q, Q12, Q22, n );
 
@@ -67,12 +68,12 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
     while( numIts < maxIts )
     {
         XAlt = X;
-        QR( XAlt, t );
+        QR( XAlt, t, d );
  
         // Form the left half of Q
         MakeZeros( Q12 );
         MakeIdentity( Q22 );
-        qr::ApplyQ( LEFT, NORMAL, XAlt, t, Q );
+        qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
 
         // Save a copy of R
         R = BAlt;
@@ -126,6 +127,7 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 
     // Set up the space for explicitly computing the left half of Q
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<F> Q( 2*n, n, g ), Q12(g), Q22(g);
     PartitionDown( Q, Q12, Q22, n );
 
@@ -135,12 +137,12 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
     while( numIts < maxIts )
     {
         XAlt = X;
-        QR( XAlt, t );
+        QR( XAlt, t, d );
  
         // Form the left half of Q
         MakeZeros( Q12 );
         MakeIdentity( Q22 );
-        qr::ApplyQ( LEFT, NORMAL, XAlt, t, Q );
+        qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
 
         // Save a copy of R
         R = BAlt;
@@ -194,9 +196,10 @@ InverseFreeSignDivide( Matrix<F>& X )
     // 4) [R,Q] := RQ(B)
     Axpy( F(1), A, B );
     Matrix<F> t;
+    Matrix<Base<F>> d;
     Matrix<Int> p;
-    QR( A, t, p );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, B );
+    QR( A, t, d, p );
+    qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
     RQ( B, t );
 
     // A := Q^H A Q
@@ -236,9 +239,10 @@ InverseFreeSignDivide( DistMatrix<F>& X )
     // 4) [R,Q] := RQ(B)
     Axpy( F(1), A, B );
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);
     QR( A, t, p );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, B );
+    qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
     RQ( B, t );
 
     // A := Q^H A Q

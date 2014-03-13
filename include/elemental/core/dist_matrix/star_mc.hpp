@@ -64,26 +64,26 @@ public:
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
 #ifndef SWIG
     // Move constructor
-    DistMatrix( type&& A );
+    DistMatrix( type&& A ) noexcept;
 #endif
     ~DistMatrix();
 
     // Assignment and reconfiguration
     // ==============================
-    const type& operator=( const DistMatrix<T,MC,  MR  >& A );
-    const type& operator=( const DistMatrix<T,MC,  STAR>& A );
-    const type& operator=( const DistMatrix<T,STAR,MR  >& A );
-    const type& operator=( const DistMatrix<T,MD,  STAR>& A );
-    const type& operator=( const DistMatrix<T,STAR,MD  >& A );
-    const type& operator=( const DistMatrix<T,MR,  MC  >& A );
-    const type& operator=( const DistMatrix<T,MR,  STAR>& A );
-    const type& operator=( const DistMatrix<T,STAR,MC  >& A );
-    const type& operator=( const DistMatrix<T,VC,  STAR>& A );
-    const type& operator=( const DistMatrix<T,STAR,VC  >& A );
-    const type& operator=( const DistMatrix<T,VR,  STAR>& A );
-    const type& operator=( const DistMatrix<T,STAR,VR  >& A );
-    const type& operator=( const DistMatrix<T,STAR,STAR>& A );
-    const type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
+    type& operator=( const DistMatrix<T,MC,  MR  >& A );
+    type& operator=( const DistMatrix<T,MC,  STAR>& A );
+    type& operator=( const DistMatrix<T,STAR,MR  >& A );
+    type& operator=( const DistMatrix<T,MD,  STAR>& A );
+    type& operator=( const DistMatrix<T,STAR,MD  >& A );
+    type& operator=( const DistMatrix<T,MR,  MC  >& A );
+    type& operator=( const DistMatrix<T,MR,  STAR>& A );
+    type& operator=( const DistMatrix<T,STAR,MC  >& A );
+    type& operator=( const DistMatrix<T,VC,  STAR>& A );
+    type& operator=( const DistMatrix<T,STAR,VC  >& A );
+    type& operator=( const DistMatrix<T,VR,  STAR>& A );
+    type& operator=( const DistMatrix<T,STAR,VR  >& A );
+    type& operator=( const DistMatrix<T,STAR,STAR>& A );
+    type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 #ifndef SWIG
     // Move assignment
     type& operator=( type&& A );

@@ -91,7 +91,7 @@ Matrix<T>::Matrix( const Matrix<T>& A )
 }
 
 template<typename T>
-Matrix<T>::Matrix( Matrix<T>&& A )
+Matrix<T>::Matrix( Matrix<T>&& A ) noexcept
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), ldim_(A.ldim_),
   data_(nullptr), memory_(std::move(A.memory_))
@@ -104,7 +104,7 @@ Matrix<T>::~Matrix() { }
 // ==============================
 
 template<typename T>
-const Matrix<T>&
+Matrix<T>&
 Matrix<T>::operator=( const Matrix<T>& A )
 {
     DEBUG_ONLY(
@@ -136,13 +136,20 @@ Matrix<T>::operator=( Matrix<T>&& A )
     DEBUG_ONLY(CallStackEntry cse("Matrix::operator=( Matrix&& )"))
     if( this == &A )
         LogicError("Tried to move to self");
-    memory_.ShallowSwap( A.memory_ );
-    std::swap( data_, A.data_ );
-    viewType_ = A.viewType_;
-    height_ = A.height_;
-    width_ = A.width_;
-    ldim_ = A.ldim_;
-
+    if( Viewing() && !A.Viewing() )
+    {
+        const Matrix<T>& AConst = A;
+        operator=( AConst );
+    }
+    else
+    {
+        memory_.ShallowSwap( A.memory_ );
+        std::swap( data_, A.data_ );
+        viewType_ = A.viewType_;
+        height_ = A.height_;
+        width_ = A.width_;
+        ldim_ = A.ldim_;
+    }
     return *this;
 }
 

@@ -641,6 +641,8 @@ endforeach()
 add_custom_target(prepare_elemental_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(elemental prepare_elemental_headers)
 
+# TODO: Ensure that source files depend on header files
+
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
 

@@ -100,6 +100,7 @@ DiagonalScaleTrapezoid
     const Int rowShift = A.RowShift();
     const Int colStride = A.ColStride();
     const Int rowStride = A.RowStride();
+    const bool conjugate = ( orientation==ADJOINT );
 
     const Int diagLength = A.DiagonalLength(offset);
     const Int ldim = A.LDim();
@@ -187,8 +188,8 @@ DiagonalScaleTrapezoid
                     const Int iTop = Max(i,0);
                     const Int iTopLoc = Length(iTop,colShift,colStride);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_W_STAR.GetLocal(jLoc,0))
-                                    : d_W_STAR.GetLocal(jLoc,0) );
+                        ( conjugate ? Conj(d_Z_STAR.GetLocal(jLoc,0))
+                                    : d_Z_STAR.GetLocal(jLoc,0) );
                     blas::Scal
                     ( mLoc-iTopLoc, alpha, &ABuf[iTopLoc+jLoc*ldim], 1 );
                 }
@@ -207,8 +208,8 @@ DiagonalScaleTrapezoid
                     const Int height = Max(i+1,m);
                     const Int localHeight = Length(height,colShift,colStride);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_W_STAR.GetLocal(jLoc,0))
-                                    : d_W_STAR.GetLocal(jLoc,0) );
+                        ( conjugate ? Conj(d_Z_STAR.GetLocal(jLoc,0))
+                                    : d_Z_STAR.GetLocal(jLoc,0) );
                     blas::Scal( localHeight, alpha, &ABuf[jLoc*ldim], 1 );
                 }
             }

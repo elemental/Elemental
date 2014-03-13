@@ -21,26 +21,32 @@ template<typename F>
 struct TreeData
 {
     Matrix<F> QR0, t0;
+    Matrix<Base<F>> d0;
     std::vector<Matrix<F>> QRList;
     std::vector<Matrix<F>> tList;
+    std::vector<Matrix<Base<F>>> dList;
 
     TreeData( Int numStages=0 )
-    : QRList(numStages), tList(numStages)
+    : QRList(numStages), tList(numStages), dList(numStages)
     { }
 
     TreeData( TreeData<F>&& treeData )
     : QR0(std::move(treeData.QR0)),
       t0(std::move(treeData.t0)),
+      d0(std::move(treeData.d0)),
       QRList(std::move(treeData.QRList)),
-      tList(std::move(treeData.tList))
+      tList(std::move(treeData.tList)),
+      dList(std::move(treeData.dList))
     { }
 
     TreeData<F>& operator=( TreeData<F>&& treeData ) 
     {
         QR0 = std::move(treeData.QR0);
         t0 = std::move(treeData.t0);
+        d0 = std::move(treeData.d0);
         QRList = std::move(treeData.QRList);
         tList = std::move(treeData.tList);
+        dList = std::move(treeData.dList);
         return *this;
     }
 };
@@ -67,6 +73,7 @@ Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
     auto lastZ = LockedView( treeData.QR0, 0, 0, n, n );
     treeData.QRList.resize( logp );
     treeData.tList.resize( logp );
+    treeData.dList.resize( logp );
 
     // Run the binary tree reduction
     Matrix<F> ZTop(n,n,n), ZBot(n,n,n);
@@ -91,8 +98,10 @@ Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 
         auto& Q = treeData.QRList[stage];
         auto& t = treeData.tList[stage];
+        auto& d = treeData.dList[stage];
         Q.Resize( 2*n, n, 2*n );
         t.Resize( n, 1 );
+        d.Resize( n, 1 );
         auto QTop = View( Q, 0, 0, n, n );
         auto QBot = View( Q, n, 0, n, n );
         QTop = ZTop;
@@ -104,7 +113,7 @@ Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
         if( stage < logp-1 )
         {
             // TODO: Exploit double-triangular structure
-            QR( Q, t );
+            QR( Q, t, d );
             lastZ = LockedView( Q, 0, 0, n, n );
         }
     }
@@ -167,6 +176,34 @@ RootPhases( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 }
 
 template<typename F,Dist U>
+inline Matrix<BASE(F)>&
+RootSignature( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
+{
+    const Int p = mpi::CommSize( A.ColComm() );
+    const Int rank = mpi::CommRank( A.ColComm() );
+    if( rank != 0 )
+        LogicError("This process does not have access to the root signature");
+    if( p == 1 )
+        return treeData.d0;
+    else
+        return treeData.dList.back();
+}
+
+template<typename F,Dist U>
+inline const Matrix<BASE(F)>&
+RootSignature( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
+{
+    const Int p = mpi::CommSize( A.ColComm() );
+    const Int rank = mpi::CommRank( A.ColComm() );
+    if( rank != 0 )
+        LogicError("This process does not have access to the root signature");
+    if( p == 1 )
+        return treeData.d0;
+    else
+        return treeData.dList.back();
+}
+
+template<typename F,Dist U>
 inline void
 Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 {
@@ -209,7 +246,8 @@ Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
                 // TODO: Exploit sparsity?
                 ApplyQ
                 ( LEFT, NORMAL, 
-                  treeData.QRList[stage], treeData.tList[stage], Z );
+                  treeData.QRList[stage], treeData.tList[stage], 
+                  treeData.dList[stage], Z );
             }
             // Send bottom-half to partner and keep top half
             ZHalf = ZBot;
@@ -228,7 +266,7 @@ Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
     auto ATop = View( A.Matrix(), 0, 0, n, n );
     ATop = ZHalf;
     // TODO: Exploit sparsity
-    ApplyQ( LEFT, NORMAL, treeData.QR0, treeData.t0, A.Matrix() );
+    ApplyQ( LEFT, NORMAL, treeData.QR0, treeData.t0, treeData.d0, A.Matrix() );
 }
 
 template<typename F,Dist U>
@@ -263,13 +301,18 @@ FormQ( DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
         ExpandPackedReflectors
         ( LOWER, VERTICAL, CONJUGATED, 0,
           A.Matrix(), RootPhases(A,treeData) );
+        DiagonalScale( RIGHT, NORMAL, RootSignature(A,treeData), A.Matrix() );
     }
     else
     {
         if( A.ColRank() == 0 )
+        {
             ExpandPackedReflectors
             ( LOWER, VERTICAL, CONJUGATED, 0, 
               RootQR(A,treeData), RootPhases(A,treeData) );
+            DiagonalScale
+            ( RIGHT, NORMAL, RootSignature(A,treeData), RootQR(A,treeData) );
+        }
         Scatter( A, treeData );
     }
 }
@@ -282,14 +325,16 @@ TS( const DistMatrix<F,U,STAR>& A )
 {
     TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.t0 );
+    QR( treeData.QR0, treeData.t0, treeData.d0 );
 
     const Int p = mpi::CommSize( A.ColComm() );
     if( p != 1 )
     {
         ts::Reduce( A, treeData );
         if( A.ColRank() == 0 )
-            QR( ts::RootQR(A,treeData), ts::RootPhases(A,treeData) );
+            QR
+            ( ts::RootQR(A,treeData), ts::RootPhases(A,treeData), 
+              ts::RootSignature(A,treeData) );
     }
     return treeData;
 }

@@ -10,6 +10,7 @@
 #ifndef ELEM_QR_APPLYQ_HPP
 #define ELEM_QR_APPLYQ_HPP
 
+#include ELEM_DIAGONALSCALE_INC
 #include ELEM_APPLYPACKEDREFLECTORS_INC
 
 namespace elem {
@@ -19,44 +20,97 @@ template<typename F>
 inline void
 ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+  const Matrix<F>& A, const Matrix<F>& t, const Matrix<BASE(F)>& d, 
+  Matrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
+
+    const bool applyDFirst = normal==onLeft;
+    if( applyDFirst )
+    {
+        if( onLeft )
+        {
+            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
+            DiagonalScale( side, orientation, d, BTop );
+        }
+        else
+        {
+            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
+            DiagonalScale( side, orientation, d, BLeft );
+        }
+    }
+
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation =  ( normal ? CONJUGATED : UNCONJUGATED );
     ApplyPackedReflectors
     ( side, LOWER, VERTICAL, direction, conjugation, 0, A, t, B );
+
+    if( !applyDFirst )
+    {
+        if( onLeft )
+        {
+            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
+            DiagonalScale( side, orientation, d, BTop );
+        }
+        else
+        {
+            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
+            DiagonalScale( side, orientation, d, BLeft );
+        }
+    }
 }
 
-template<typename F>
+template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
 inline void
 ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t, 
+  const DistMatrix<BASE(F),Ud,Vd>& d, DistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
+
+    const bool applyDFirst = normal==onLeft;
+    if( applyDFirst )
+    {
+        if( onLeft )
+        {
+            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
+            DiagonalScale( side, orientation, d, BTop );
+        }
+        else
+        {
+            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
+            DiagonalScale( side, orientation, d, BLeft );
+        }
+    }
+
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation =  ( normal ? CONJUGATED : UNCONJUGATED );
-    ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, t, B );
-}
 
-template<typename F>
-inline void
-ApplyQ
-( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.SetRoot( A.DiagonalRoot() );
     tDiag.AlignCols( A.DiagonalAlign() );
     tDiag = t;
-    ApplyQ( side, orientation, A, tDiag, B );
+    ApplyPackedReflectors
+    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, tDiag, B );
+
+    if( !applyDFirst )
+    {
+        if( onLeft )
+        {
+            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
+            DiagonalScale( side, orientation, d, BTop );
+        }
+        else
+        {
+            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
+            DiagonalScale( side, orientation, d, BLeft );
+        }
+    }
 }
 
 } // namespace qr

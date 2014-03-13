@@ -31,6 +31,7 @@ LeastSquares
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<F> t;
+    Matrix<Base<F>> d;
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -40,13 +41,13 @@ LeastSquares
         {
             // Overwrite A with its packed QR factorization (and store the 
             // corresponding Householder scalars in t)
-            QR( A, t );
+            QR( A, t, d );
 
             // Copy B into X
             X = B;
 
             // Apply Q' to X
-            qr::ApplyQ( LEFT, ADJOINT, A, t, X );
+            qr::ApplyQ( LEFT, ADJOINT, A, t, d, X );
 
             // Shrink X to its new height
             X.Resize( n, X.Width() );
@@ -85,7 +86,7 @@ LeastSquares
         {
             // Overwrite A with its packed QR factorization (and store the 
             // corresponding Householder scalars in t)
-            QR( A, t );
+            QR( A, t, d );
 
             // Copy B into X
             X.Resize( m, B.Width() );
@@ -99,7 +100,7 @@ LeastSquares
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
-            qr::ApplyQ( LEFT, NORMAL, A, t, X );
+            qr::ApplyQ( LEFT, NORMAL, A, t, d, X );
         }
         else
         {
@@ -141,7 +142,8 @@ LeastSquares
     // TODO: Add scaling
     const Int m = A.Height();
     const Int n = A.Width();
-    DistMatrix<F,MD,STAR> t( g );
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -151,13 +153,13 @@ LeastSquares
         {
             // Overwrite A with its packed QR factorization (and store the 
             // corresponding Householder scalars in t)
-            QR( A, t );
+            QR( A, t, d );
 
             // Copy B into X
             X = B;
 
             // Apply Q' to X
-            qr::ApplyQ( LEFT, ADJOINT, A, t, X );
+            qr::ApplyQ( LEFT, ADJOINT, A, t, d, X );
 
             // Shrink X to its new height
             X.Resize( n, X.Width() );
@@ -196,7 +198,7 @@ LeastSquares
         {
             // Overwrite A with its packed QR factorization (and store the 
             // corresponding Householder scalars in t)
-            QR( A, t );
+            QR( A, t, d );
 
             // Copy B into X
             X.Resize( m, B.Width() );
@@ -210,7 +212,7 @@ LeastSquares
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
-            qr::ApplyQ( LEFT, NORMAL, A, t, X );
+            qr::ApplyQ( LEFT, NORMAL, A, t, d, X );
         }
         else
         {

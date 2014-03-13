@@ -29,13 +29,14 @@ namespace qr {
 
 template<typename F> 
 inline void
-Householder( Matrix<F>& A, Matrix<F>& t )
+Householder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Householder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -44,9 +45,10 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         auto AB1 = ViewRange( A, k, k,    m, k+nb );
         auto AB2 = ViewRange( A, k, k+nb, m, n    ); 
         auto t1 = View( t, k, 0, nb, 1 );
+        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( AB1, t1 );
-        ApplyQ( LEFT, ADJOINT, AB1, t1, AB2 );
+        PanelHouseholder( AB1, t1, d1 );
+        ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
     }
 }
 
@@ -56,25 +58,30 @@ Householder( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Householder"))
     Matrix<F> t;
-    Householder( A, t );
+    Matrix<Base<F>> d;
+    Householder( A, t, d );
 }
 
 template<typename F> 
 inline void
-Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+Householder
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::Householder");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,s} must be distributed over the same grid");
+        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
+            LogicError("{A,t,d} must be distributed over the same grid");
     )
     t.SetRoot( A.DiagonalRoot() );
+    d.SetRoot( A.DiagonalRoot() );
     t.AlignCols( A.DiagonalAlign() );
+    d.AlignCols( A.DiagonalAlign() );
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -83,9 +90,10 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         auto AB1 = ViewRange( A, k, k,    m, k+nb );
         auto AB2 = ViewRange( A, k, k+nb, m, n    ); 
         auto t1 = View( t, k, 0, nb, 1 );
+        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( AB1, t1 );
-        ApplyQ( LEFT, ADJOINT, AB1, t1, AB2 );
+        PanelHouseholder( AB1, t1, d1 );
+        ApplyQ( LEFT, ADJOINT, AB1, t1, d1, AB2 );
     }
 }
 
@@ -95,7 +103,8 @@ Householder( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Householder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
-    Householder( A, t );
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    Householder( A, t, d );
 }
 
 } // namespace qr

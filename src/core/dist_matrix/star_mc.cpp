@@ -91,7 +91,7 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
         LogicError("Tried to construct [* ,MC] with itself");
 }
 
-template<typename T> DM::DistMatrix( DM&& A ) : GDM(std::move(A)) { }
+template<typename T> DM::DistMatrix( DM&& A ) noexcept : GDM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 
@@ -99,7 +99,7 @@ template<typename T> DM::~DistMatrix() { }
 // ==============================
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MC,MR]"))
@@ -117,7 +117,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MC,* ]"))
@@ -138,7 +138,7 @@ DM::operator=( const DistMatrix<T,MC,STAR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(
@@ -233,7 +233,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MD,* ]"))
@@ -244,7 +244,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [* ,MD]"))
@@ -255,7 +255,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MR,MC]"))
@@ -264,7 +264,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MR,* ]"))
@@ -274,7 +274,7 @@ DM::operator=( const DistMatrix<T,MR,STAR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DM& A )
 { 
     DEBUG_ONLY(
@@ -349,7 +349,7 @@ DM::operator=( const DM& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [VC,* ]"))
@@ -367,7 +367,7 @@ DM::operator=( const DistMatrix<T,VC,STAR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [* ,VC]"))
@@ -376,7 +376,7 @@ DM::operator=( const DistMatrix<T,STAR,VC>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [VR,* ]"))
@@ -386,7 +386,7 @@ DM::operator=( const DistMatrix<T,VR,STAR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [* ,VR]"))
@@ -397,7 +397,7 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [* ,* ]"))
@@ -406,7 +406,7 @@ DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 }
 
 template<typename T>
-const DM&
+DM&
 DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [o ,o ]"))
@@ -421,7 +421,15 @@ template<typename T>
 DM&
 DM::operator=( DM&& A )
 {
-    GDM::operator=( std::move(A) );
+    if( this->Viewing() && !A.Viewing() )
+    {
+        const DM& AConst = A;
+        this->operator=( AConst );
+    }
+    else
+    {
+        GDM::operator=( std::move(A) );
+    }
     return *this;
 }
 

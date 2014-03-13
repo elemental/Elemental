@@ -20,13 +20,14 @@ namespace qr {
 
 template<typename F> 
 inline void
-PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
+PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::PanelHouseholder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     Matrix<F> z21;
 
@@ -58,6 +59,19 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         // Replace alpha11's value
         alpha11.Set(0,0,alpha);
     }
+    // Form d and rescale R
+    auto R = View( A, 0, 0, minDim, n );
+    d = R.GetRealPartOfDiagonal();
+    typedef Base<F> Real;
+    for( Int j=0; j<minDim; ++j )
+    {
+        const Real delta = d.Get(j,0);
+        if( delta >= Real(0) )
+            d.Set(j,0,Real(1));
+        else
+            d.Set(j,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
 template<typename F> 
@@ -66,19 +80,23 @@ PanelHouseholder( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::PanelHouseholder"))
     Matrix<F> t;
-    PanelHouseholder( A, t );
+    Matrix<Base<F>> d;
+    PanelHouseholder( A, t, d );
 }
 
 template<typename F> 
 inline void
-PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+PanelHouseholder
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::PanelHouseholder");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,t} must be distributed over the same grid");
+        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
+            LogicError("{A,t,d} must be distributed over the same grid");
         if( !A.DiagonalAlignedWith( t, 0 ) )
             LogicError("t must be aligned with A's main diagonal");
+        if( !A.DiagonalAlignedWith( d, 0 ) )
+            LogicError("d must be aligned with A's main diagonal");
     )
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
@@ -88,6 +106,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -128,6 +147,20 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         if( alpha11.IsLocal(0,0) )
             alpha11.SetLocal(0,0,alpha);
     }
+    // Form d and rescale R
+    auto R = View( A, 0, 0, minDim, n );
+    d = R.GetRealPartOfDiagonal();
+    const Int diagLengthLoc = d.LocalHeight();
+    typedef Base<F> Real;
+    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
+    {
+        const Real delta = d.GetLocal(jLoc,0);
+        if( delta >= Real(0) )
+            d.SetLocal(jLoc,0,Real(1));
+        else
+            d.SetLocal(jLoc,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
 template<typename F> 

@@ -34,8 +34,9 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     const Int m = A.Height();
     const Int n = A.Width();
     Matrix<F> ACopy( A ), t;
+    Matrix<Real> d;
     Matrix<Int> p;
-    qr::BusingerGolub( ACopy, t, p, numSteps );
+    qr::BusingerGolub( ACopy, t, d, p, numSteps );
     Matrix<F> ACopyUpper;
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
 
@@ -51,6 +52,7 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 
     ACopy.Resize( m, numSteps );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, ACopy, t );
+    DiagonalScale( RIGHT, NORMAL, d, ACopy );
     Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
 
     return ZeroNorm( s );
@@ -72,8 +74,9 @@ PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     const Grid& g = A.Grid();
     DistMatrix<F> ACopy( A );
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Real,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);
-    qr::BusingerGolub( ACopy, t, p, numSteps );
+    qr::BusingerGolub( ACopy, t, d, p, numSteps );
     DistMatrix<F> ACopyUpper(g);
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
 
@@ -89,6 +92,7 @@ PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 
     ACopy.Resize( m, numSteps );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, ACopy, t );
+    DiagonalScale( RIGHT, NORMAL, d, ACopy );
     Gemm( NORMAL, NORMAL, F(1), ACopy, RThresh, F(0), A );
 
     return ZeroNorm( s );

@@ -29,7 +29,7 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid, Int root )
 { }
 
 template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
+AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) noexcept
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
@@ -55,20 +55,27 @@ template<typename T>
 AbstractDistMatrix<T>& 
 AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 {
-    auxMemory_.ShallowSwap( A.auxMemory_ );
-    matrix_.ShallowSwap( A.matrix_ );
-    viewType_ = A.viewType_;
-    height_ = A.height_;
-    width_ = A.width_;
-    colConstrained_ = A.colConstrained_;
-    rowConstrained_ = A.rowConstrained_;
-    colAlign_ = A.colAlign_;
-    rowAlign_ = A.rowAlign_;
-    colShift_ = A.colShift_;
-    rowShift_ = A.rowShift_;
-    root_ = A.root_;
-    grid_ = A.grid_;
-    return *this;
+    if( Viewing() && !A.Viewing() )
+    {
+        LogicError("Cannot move a non-view into a viewing AbstractDistMatrix");
+    }
+    else
+    {
+        auxMemory_.ShallowSwap( A.auxMemory_ );
+        matrix_.ShallowSwap( A.matrix_ );
+        viewType_ = A.viewType_;
+        height_ = A.height_;
+        width_ = A.width_;
+        colConstrained_ = A.colConstrained_;
+        rowConstrained_ = A.rowConstrained_;
+        colAlign_ = A.colAlign_;
+        rowAlign_ = A.rowAlign_;
+        colShift_ = A.colShift_;
+        rowShift_ = A.rowShift_;
+        root_ = A.root_;
+        grid_ = A.grid_;
+        return *this;
+    }
 }
 
 template<typename T>

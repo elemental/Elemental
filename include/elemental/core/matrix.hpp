@@ -33,14 +33,14 @@ public:
     Matrix( const Matrix<T>& A );
 #ifndef SWIG
     // Move the metadata from a given matrix
-    Matrix( Matrix<T>&& A );
+    Matrix( Matrix<T>&& A ) noexcept;
 #endif 
     // Destructor
     ~Matrix();
 
     // Assignment and reconfiguration
     // ==============================
-    const Matrix<T>& operator=( const Matrix<T>& A );
+    Matrix<T>& operator=( const Matrix<T>& A );
 #ifndef SWIG
     // Move the metadata from the given matrix
     Matrix<T>& operator=( Matrix<T>&& A );

@@ -19,13 +19,13 @@ namespace elem {
 // Draw the spectrum from the specified half-open interval on the real line,
 // then rotate with a Haar matrix
 
-template<typename R>
+template<typename Real>
 inline void
 MakeNormalUniformSpectrum
-( Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
+( Matrix<Complex<Real> >& A, Complex<Real> center=0, Real radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeNormalUniformSpectrum"))
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix normal");
 
@@ -38,18 +38,19 @@ MakeNormalUniformSpectrum
 
     // Apply a Haar matrix from both sides
     Matrix<C> Q, t;
-    ImplicitHaar( Q, t, n );
-    qr::ApplyQ( LEFT, NORMAL, Q, t, A );
-    qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
+    Matrix<Real> s;
+    ImplicitHaar( Q, t, s, n );
+    qr::ApplyQ( LEFT, NORMAL, Q, t, s, A );
+    qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 }
 
-template<typename R,Dist U,Dist V>
+template<typename Real,Dist U,Dist V>
 inline void
 MakeNormalUniformSpectrum
-( DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
+( DistMatrix<Complex<Real>,U,V>& A, Complex<Real> center=0, Real radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeNormalUniformSpectrum"))
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix normal");
     const Grid& grid = A.Grid();
@@ -74,26 +75,27 @@ MakeNormalUniformSpectrum
     // Apply a Haar matrix from both sides
     DistMatrix<C> Q(grid);
     DistMatrix<C,MD,STAR> t(grid);
-    ImplicitHaar( Q, t, n );
+    DistMatrix<Real,MD,STAR> s(grid);
+    ImplicitHaar( Q, t, s, n );
 
     // Copy the result into the correct distribution
     if( standardDist )
     {
-        qr::ApplyQ( LEFT, NORMAL, Q, t, A );
-        qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
+        qr::ApplyQ( LEFT, NORMAL, Q, t, s, A );
+        qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, NORMAL, Q, t, ABackup );
-        qr::ApplyQ( RIGHT, ADJOINT, Q, t, ABackup );
+        qr::ApplyQ( LEFT, NORMAL, Q, t, s, ABackup );
+        qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, ABackup );
         A = ABackup;
     }
 }
 
-template<typename R>
+template<typename Real>
 inline void
 NormalUniformSpectrum
-( Matrix<Complex<R> >& A, Int n, Complex<R> center=0, R radius=1 )
+( Matrix<Complex<Real> >& A, Int n, Complex<Real> center=0, Real radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
     A.Resize( n, n );
@@ -101,20 +103,21 @@ NormalUniformSpectrum
 }
 
 #ifndef SWIG
-template<typename R>
-inline Matrix<Complex<R> >
-NormalUniformSpectrum( Int n, Complex<R> center=0, R radius=1 )
+template<typename Real>
+inline Matrix<Complex<Real> >
+NormalUniformSpectrum( Int n, Complex<Real> center=0, Real radius=1 )
 {
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real> > A( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
     return A;
 }
 #endif
 
-template<typename R,Dist U,Dist V>
+template<typename Real,Dist U,Dist V>
 inline void
 NormalUniformSpectrum
-( DistMatrix<Complex<R>,U,V>& A, Int n, Complex<R> center=0, R radius=1 )
+( DistMatrix<Complex<Real>,U,V>& A, Int n, 
+  Complex<Real> center=0, Real radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
     A.Resize( n, n );
@@ -122,12 +125,12 @@ NormalUniformSpectrum
 }
 
 #ifndef SWIG
-template<typename R,Dist U=MC,Dist V=MR>
-inline DistMatrix<Complex<R>,U,V>
+template<typename Real,Dist U=MC,Dist V=MR>
+inline DistMatrix<Complex<Real>,U,V>
 NormalUniformSpectrum
-( const Grid& g, Int n, Complex<R> center=0, R radius=1 )
+( const Grid& g, Int n, Complex<Real> center=0, Real radius=1 )
 {
-    DistMatrix<Complex<R>,U,V> A( n, n, g );
+    DistMatrix<Complex<Real>,U,V> A( n, n, g );
     MakeNormalUniformSpectrum( A, center, radius );
     return A;
 }

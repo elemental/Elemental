@@ -10,6 +10,7 @@
 #ifndef ELEM_QR_BUSINGERGOLUB_HPP
 #define ELEM_QR_BUSINGERGOLUB_HPP
 
+#include ELEM_DIAGONALSCALETRAPEZOID_INC
 #include ELEM_GEMV_INC
 #include ELEM_GER_INC
 
@@ -55,7 +56,7 @@ FindPivot( const std::vector<Real>& norms, Int col )
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<Int>& p,
+( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p,
   Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
@@ -68,6 +69,7 @@ BusingerGolub
     )
     p.Resize( maxSteps, 1 );
     t.Resize( maxSteps, 1 );
+    d.Resize( maxSteps, 1 );
 
     Matrix<F> z21;
 
@@ -147,6 +149,19 @@ BusingerGolub
             }
         }
     }
+
+    // Form d and rescale R
+    auto R = View( A, 0, 0, maxSteps, n );
+    d = R.GetRealPartOfDiagonal();
+    for( Int j=0; j<maxSteps; ++j )
+    {
+        const Real delta = d.Get(j,0);
+        if( delta >= Real(0) )
+            d.Set(j,0,Real(1));
+        else
+            d.Set(j,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
 template<typename F> 
@@ -157,21 +172,22 @@ BusingerGolub
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
-    BusingerGolub( A, t, p, maxSteps, tol, alwaysRecompute );
+    Matrix<Base<F>> d;
+    BusingerGolub( A, t, d, p, maxSteps, tol, alwaysRecompute );
 }
 
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<Int>& p,
+( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p,
   Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     // Use a tolerance of -1 so that we always perform numSteps iterations
-    BusingerGolub( A, t, p, numSteps, BASE(F)(-1), alwaysRecompute );
+    BusingerGolub( A, t, d, p, numSteps, Base<F>(-1), alwaysRecompute );
 }
 
-// If we don't need 't' from the above routine
+// If we don't need 't' or 'd' from the above routine
 template<typename F> 
 inline void
 BusingerGolub
@@ -179,27 +195,30 @@ BusingerGolub
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
-    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+    Matrix<Base<F>> d;
+    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
 }
 
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<Int>& p, bool alwaysRecompute=false )
+( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p, 
+  bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     const Int numSteps = Min(A.Height(),A.Width());
-    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
 }
 
-// If we don't need 't' from the above routine
+// If we don't need 't' or 'd' from the above routine
 template<typename F> 
 inline void
 BusingerGolub( Matrix<F>& A, Matrix<Int>& p, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
-    BusingerGolub( A, t, p, alwaysRecompute );
+    Matrix<Base<F>> d;
+    BusingerGolub( A, t, d, p, alwaysRecompute );
 }
 
 template<typename F>
@@ -364,13 +383,15 @@ ReplaceColumnNorms
 template<typename F>
 inline void
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Int,VR,STAR>& p,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
+  DistMatrix<Int,VR,STAR>& p, Int maxSteps, BASE(F) tol, 
+  bool alwaysRecompute=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::BusingerGolub");
-        if( A.Grid() != p.Grid() || A.Grid() != t.Grid() )
-            LogicError("A, t, and p must have the same grid");
+        if( A.Grid() != p.Grid() || A.Grid() != t.Grid() || 
+            t.Grid() != d.Grid() )
+            LogicError("A, t, d, and p must have the same grid");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
@@ -379,8 +400,13 @@ BusingerGolub
         if( maxSteps > Min(m,n) )
             LogicError("Too many steps requested");
     )
+    t.SetRoot( A.DiagonalRoot() );
+    d.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    d.AlignCols( A.DiagonalAlign() );
     t.Resize( maxSteps, 1 );
     p.Resize( maxSteps, 1 );
+    d.Resize( maxSteps, 1 );
 
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
@@ -520,9 +546,23 @@ BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColumnNorms( A, inaccurateNorms, norms, origNorms );
     }
+
+    // Form d and rescale R
+    auto R = View( A, 0, 0, maxSteps, n );
+    d = R.GetRealPartOfDiagonal();
+    const Int diagLengthLoc = d.LocalHeight();
+    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
+    {
+        const Real delta = d.GetLocal(jLoc,0);
+        if( delta >= Real(0) )
+            d.SetLocal(jLoc,0,Real(1));
+        else
+            d.SetLocal(jLoc,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
-// If we don't need 't' from the above routine
+// If we don't need 't' or 'd' from the above routine
 template<typename F>
 inline void
 BusingerGolub
@@ -531,21 +571,22 @@ BusingerGolub
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
-    BusingerGolub( A, t, p, maxSteps, tol, alwaysRecompute );
+    DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
+    BusingerGolub( A, t, d, p, maxSteps, tol, alwaysRecompute );
 }
 
 template<typename F>
 inline void
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Int,VR,STAR>& p,
-  Int numSteps, bool alwaysRecompute=false )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
+  DistMatrix<Int,VR,STAR>& p, Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     // Use a tolerance of -1 so that we always perform numSteps iterations
-    BusingerGolub( A, t, p, numSteps, BASE(F)(-1), alwaysRecompute );
+    BusingerGolub( A, t, d, p, numSteps, BASE(F)(-1), alwaysRecompute );
 }
 
-// If we don't need 't' from the above routine
+// If we don't need 't' or 'd' from the above routine
 template<typename F>
 inline void
 BusingerGolub
@@ -554,21 +595,22 @@ BusingerGolub
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
-    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+    DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
+    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
 }
 
 template<typename F>
 inline void
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Int,VR,STAR>& p,
-  bool alwaysRecompute=false )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d,
+  DistMatrix<Int,VR,STAR>& p, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     const Int numSteps = Min(A.Height(),A.Width());
-    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
 }
 
-// If we don't need 't' from the above routine
+// If we don't need 't' or 'd' from the above routine
 template<typename F>
 inline void
 BusingerGolub
@@ -576,7 +618,8 @@ BusingerGolub
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
-    BusingerGolub( A, t, p, alwaysRecompute );
+    DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
+    BusingerGolub( A, t, d, p, alwaysRecompute );
 }
 
 } // namespace qr

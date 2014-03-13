@@ -46,8 +46,8 @@
 #cmakedefine HAVE_QT5
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine AVOID_COMPLEX_MPI
-#cmakedefine HAVE_UNIFORM_INT
-#cmakedefine HAVE_UNIFORM_REAL
+#cmakedefine HAVE_UNIFORM_INT_DIST
+#cmakedefine HAVE_UNIFORM_REAL_DIST
 #cmakedefine HAVE_STEADYCLOCK
 #cmakedefine HAVE_MPI_REDUCE_SCATTER_BLOCK
 #cmakedefine HAVE_MPI_IN_PLACE

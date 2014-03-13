@@ -52,8 +52,9 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 
     // Compute the pivoted QR decomposition of the spectral projection 
     Matrix<F> t;
+    Matrix<Base<F>> d;
     Matrix<Int> p;
-    elem::QR( G, t, p );
+    elem::QR( G, t, d, p );
 
     // A := Q^H A Q
     MakeHermitian( uplo, A );
@@ -61,14 +62,15 @@ QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
     if( returnQ )
     {
         ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
+        DiagonalScale( RIGHT, NORMAL, d, G );
         Matrix<F> B;
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, ADJOINT, G, t, A );
-        qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+        qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
@@ -93,8 +95,9 @@ QDWHDivide
     // Compute the pivoted QR decomposition of the spectral projection 
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);
-    elem::QR( G, t, p );
+    elem::QR( G, t, d, p );
 
     // A := Q^H A Q
     MakeHermitian( uplo, A );
@@ -102,14 +105,15 @@ QDWHDivide
     if( returnQ )
     {
         ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
+        DiagonalScale( RIGHT, NORMAL, d, G );
         DistMatrix<F> B(g);
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, ADJOINT, G, t, A );
-        qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+        qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
@@ -142,28 +146,30 @@ RandomizedSignDivide
 
     ValueInt<Real> part;
     Matrix<F> V, B, t;
+    Matrix<Base<F>> d;
     Int it=0;
     while( it < maxIts )
     {
         G = S;
 
         // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, G );
-        elem::QR( G, t );
+        ImplicitHaar( V, t, d, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, d, G );
+        elem::QR( G, t, d );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
         if( returnQ )
         {
             ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
+            DiagonalScale( RIGHT, NORMAL, d, G );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
         else
         {
-            qr::ApplyQ( LEFT, ADJOINT, G, t, A );
-            qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+            qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
         }
 
         // || E21 ||1 / || A ||1 and the chosen rank
@@ -205,28 +211,30 @@ RandomizedSignDivide
     ValueInt<Real> part;
     DistMatrix<F> V(g), B(g);
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     Int it=0;
     while( it < maxIts )
     {
         G = S;
 
         // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, G );
-        elem::QR( G, t );
+        ImplicitHaar( V, t, d, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, d, G );
+        elem::QR( G, t, d );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
         if( returnQ )
         {
             ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, G, t );
+            DiagonalScale( RIGHT, NORMAL, d, G );
             Gemm( ADJOINT, NORMAL, F(1), G, A, B );
             Gemm( NORMAL, NORMAL, F(1), B, G, A );
         }
         else
         {
-            qr::ApplyQ( LEFT, ADJOINT, G, t, A );
-            qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+            qr::ApplyQ( LEFT, ADJOINT, G, t, d, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, t, d, A );
         }
 
         // || E21 ||1 / || A ||1 and the chosen rank

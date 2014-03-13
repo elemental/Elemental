@@ -26,27 +26,28 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     DEBUG_ONLY(CallStackEntry cse("MakeHermitianUniformSpectrum"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const bool isComplex = IsComplex<F>::val;
 
     // Form d and D
     const Int n = A.Height();
     std::vector<F> d( n );
     for( Int j=0; j<n; ++j )
-        d[j] = SampleUniform<R>( lower, upper );
+        d[j] = SampleUniform<Real>( lower, upper );
     Diagonal( A, d );
 
     // Apply a Haar matrix from both sides
     Matrix<F> Q, t;
-    ImplicitHaar( Q, t, n );
-    qr::ApplyQ( LEFT, NORMAL, Q, t, A );
-    qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
+    Matrix<Real> s;
+    ImplicitHaar( Q, t, s, n );
+    qr::ApplyQ( LEFT, NORMAL, Q, t, s, A );
+    qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 
     if( isComplex )
     {
         const Int height = A.Height();
         for( Int j=0; j<height; ++j )
-            A.SetImagPart( j, j, R(0) );
+            A.SetImagPart( j, j, Real(0) );
     }
 }
 
@@ -59,7 +60,7 @@ MakeHermitianUniformSpectrum
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
     const Grid& grid = A.Grid();
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const bool isComplex = IsComplex<F>::val;
     const bool standardDist = ( U == MC && V == MR );
 
@@ -68,7 +69,7 @@ MakeHermitianUniformSpectrum
     std::vector<F> d( n );
     if( grid.Rank() == 0 )
         for( Int j=0; j<n; ++j )
-            d[j] = SampleUniform<R>( lower, upper );
+            d[j] = SampleUniform<Real>( lower, upper );
     mpi::Broadcast( d.data(), n, 0, grid.Comm() );
     DistMatrix<F> ABackup( grid );
     if( standardDist )
@@ -82,18 +83,19 @@ MakeHermitianUniformSpectrum
     // Apply a Haar matrix from both sides
     DistMatrix<F> Q(grid);
     DistMatrix<F,MD,STAR> t(grid);
-    ImplicitHaar( Q, t, n );
+    DistMatrix<Real,MD,STAR> s(grid);
+    ImplicitHaar( Q, t, s, n );
 
     // Copy the result into the correct distribution
     if( standardDist )
     {
-        qr::ApplyQ( LEFT, NORMAL, Q, t, A );
-        qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
+        qr::ApplyQ( LEFT, NORMAL, Q, t, s, A );
+        qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
     }
     else
     {
-        qr::ApplyQ( LEFT, NORMAL, Q, t, ABackup );
-        qr::ApplyQ( RIGHT, ADJOINT, Q, t, ABackup );
+        qr::ApplyQ( LEFT, NORMAL, Q, t, s, ABackup );
+        qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, ABackup );
         A = ABackup;
     }
 
@@ -113,7 +115,7 @@ MakeHermitianUniformSpectrum
             {
                 const Int i = colShift + iLoc*colStride;
                 if( i == j )
-                    A.SetLocalImagPart( iLoc, jLoc, R(0) );
+                    A.SetLocalImagPart( iLoc, jLoc, Real(0) );
             }
         }
     }

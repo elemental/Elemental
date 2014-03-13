@@ -30,7 +30,7 @@ TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
     Int zeroNorm;
     qr::TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
-    QR( treeData.QR0, treeData.t0 );
+    QR( treeData.QR0, treeData.t0, treeData.d0 );
     qr::ts::Reduce( A, treeData );
     if( A.ColRank() == 0 )
         zeroNorm = SVT( qr::ts::RootQR(A,treeData), tau, relative );

@@ -52,44 +52,50 @@ main( int argc, char* argv[] )
         // Compute the pivoted QR decomposition of A, but do not overwrite A
         auto QRPiv( A );
         DistMatrix<C,MD,STAR> tPiv(g);
+        DistMatrix<Real,MD,STAR> dPiv(g);
         DistMatrix<Int,VR,STAR> p(g);
-        qr::BusingerGolub( QRPiv, tPiv, p, alwaysRecompute );
+        qr::BusingerGolub( QRPiv, tPiv, dPiv, p, alwaysRecompute );
         if( display )
         {
             Display( QRPiv, "QRPiv" );
             Display( tPiv, "tPiv" );
+            Display( dPiv, "dPiv" );
             Display( p, "p" );
         }
         if( print )
         {
             Print( QRPiv, "QRPiv" );
             Print( tPiv, "tPiv" );
+            Print( dPiv, "dPiv" );
             Print( p, "p" );
         }
 
         // Compute the standard QR decomposition of A
         auto QRNoPiv( A );
         DistMatrix<C,MD,STAR> tNoPiv(g);
+        DistMatrix<Real,MD,STAR> dNoPiv(g);
         if( blockedUnpiv )
-            QR( QRNoPiv, tNoPiv );
+            QR( QRNoPiv, tNoPiv, dNoPiv );
         else
-            qr::PanelHouseholder( QRNoPiv, tNoPiv );
+            qr::PanelHouseholder( QRNoPiv, tNoPiv, dNoPiv );
         if( display )
         {
             Display( QRNoPiv, "QRNoPiv" );
             Display( tNoPiv, "tNoPiv" );
+            Display( dNoPiv, "dNoPiv" );
         }
         if( print )
         {
             Print( QRNoPiv, "QRNoPiv" );
             Print( tNoPiv, "tNoPiv" );
+            Print( dNoPiv, "dNoPiv" );
         }
 
         // Check the error in the pivoted QR factorization, 
         // || A P - Q R ||_F / || A ||_F
         auto E( QRPiv );
         MakeTriangular( UPPER, E );
-        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
         ApplyInverseColumnPivots( E, p ); 
         Axpy( C(-1), A, E );
         const Real frobQRPiv = FrobeniusNorm( E );
@@ -102,7 +108,7 @@ main( int argc, char* argv[] )
         // || A - Q R ||_F / || A ||_F
         E = QRNoPiv;
         MakeTriangular( UPPER, E );
-        qr::ApplyQ( LEFT, NORMAL, QRNoPiv, tNoPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRNoPiv, tNoPiv, dNoPiv, E );
         Axpy( C(-1), A, E );
         const Real frobQRNoPiv = FrobeniusNorm( E );
         if( display )
@@ -112,8 +118,8 @@ main( int argc, char* argv[] )
 
         // Check orthogonality of pivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
-        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
-        qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
+        qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, dPiv, E );
         const Int k = std::min(m,n);
         auto EUpper = View( E, 0, 0, k, k );
         UpdateDiagonal( EUpper, C(-1) );
@@ -125,8 +131,8 @@ main( int argc, char* argv[] )
 
         // Check orthogonality of unpivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
-        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
-        qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
+        qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, dPiv, E );
         EUpper = View( E, 0, 0, k, k );
         UpdateDiagonal( EUpper, C(-1) );
         const Real frobOrthogNoPiv = FrobeniusNorm( EUpper ); 

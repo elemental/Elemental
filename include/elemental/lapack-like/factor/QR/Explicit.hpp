@@ -10,6 +10,7 @@
 #ifndef ELEM_QR_EXPLICIT_HPP
 #define ELEM_QR_EXPLICIT_HPP
 
+#include ELEM_DIAGONALSCALE_INC
 #include ELEM_MAKETRIANGULAR_INC
 #include ELEM_EXPANDPACKEDREFLECTORS_INC
 #include ELEM_QR_INC
@@ -24,11 +25,13 @@ Explicit( Matrix<F>& A, bool colPiv=false )
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<Int> p;
     Matrix<F> t;
+    Matrix<Base<F>> d;
     if( colPiv )
-        QR( A, t, p );
+        QR( A, t, d, p );
     else
-        QR( A, t );
+        QR( A, t, d );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+    DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
@@ -39,11 +42,13 @@ Explicit( DistMatrix<F>& A, bool colPiv=false )
     const Grid& g = A.Grid();
     DistMatrix<Int,VR,STAR> p(g);
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     if( colPiv )
-        QR( A, t, p );
+        QR( A, t, d, p );
     else
-        QR( A, t );
+        QR( A, t, d );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+    DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
@@ -52,16 +57,18 @@ Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
+    Matrix<Base<F>> d;
     Matrix<Int> p;
     if( colPiv )
-        QR( A, t, p );
+        QR( A, t, d, p );
     else
-        QR( A, t );
+        QR( A, t, d );
     Matrix<F> AT, AB;
     PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+    DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 template<typename F>
@@ -71,16 +78,18 @@ Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);
     if( colPiv )
-        QR( A, t, p );
+        QR( A, t, d, p );
     else
-        QR( A, t );
+        QR( A, t, d );
     DistMatrix<F> AT(g), AB(g);
     PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+    DiagonalScale( RIGHT, NORMAL, d, A );
 }
 
 } // namespace qr

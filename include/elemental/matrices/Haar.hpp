@@ -39,13 +39,13 @@ Haar( Int n )
 
 template<typename F>
 inline void
-ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Int n )
+ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("ImplicitHaar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
-    QR( A, t );
+    QR( A, t, d );
 }
 
 template<typename F>
@@ -72,13 +72,15 @@ Haar( const Grid& g, Int n )
 
 template<typename F>
 inline void
-ImplicitHaar( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, Int n )
+ImplicitHaar
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
+  Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
-    QR( A, t );
+    QR( A, t, d );
 }
 
 } // namespace elem

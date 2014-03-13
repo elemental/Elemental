@@ -22,6 +22,7 @@ template<typename F>
 void TestCorrectness
 ( const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& t,
+  const DistMatrix<Base<F>,MD,STAR>& d,
         DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -35,8 +36,8 @@ void TestCorrectness
 
     // Form Z := Q^H Q as an approximation to identity
     auto Z = Identity<F>( g, m, n );
-    qr::ApplyQ( LEFT, NORMAL, A, t, Z );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, Z );
+    qr::ApplyQ( LEFT, NORMAL, A, t, d, Z );
+    qr::ApplyQ( LEFT, ADJOINT, A, t, d, Z );
     auto ZUpper = View( Z, 0, 0, minDim, minDim );
 
     // Form X := I - Q^H Q
@@ -59,7 +60,7 @@ void TestCorrectness
     // Form Q R
     auto U( A );
     MakeTriangular( UPPER, U );
-    qr::ApplyQ( LEFT, NORMAL, A, t, U );
+    qr::ApplyQ( LEFT, NORMAL, A, t, d, U );
 
     // Form Q R - A
     Axpy( F(-1), AOrig, U );
@@ -86,6 +87,7 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
 
     Uniform( A, m, n );
     if( testCorrectness )
@@ -109,7 +111,7 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    QR( A, t );
+    QR( A, t, d );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double mD = double(m);
@@ -125,7 +127,7 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     if( print )
         Print( A, "A after factorization" );
     if( testCorrectness )
-        TestCorrectness( A, t, AOrig );
+        TestCorrectness( A, t, d, AOrig );
 }
 
 int 

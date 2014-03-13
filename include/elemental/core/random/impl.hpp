@@ -35,7 +35,7 @@ inline T SampleUniform( T a, T b )
     typedef BASE(T) Real;
     T sample;
 
-#ifdef HAVE_UNIFORM_REAL
+#ifdef HAVE_UNIFORM_REAL_DIST
     std::mt19937& gen = Generator();
     std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
     SetRealPart( sample, realUni(gen) ); 
@@ -45,11 +45,15 @@ inline T SampleUniform( T a, T b )
         SetImagPart( sample, imagUni(gen) );
     }
 #else
-    const Real realPart = a + (rand()+(b-a))/RAND_MAX;
+    Real aReal = RealPart(a);
+    Real aImag = ImagPart(a);
+    Real bReal = RealPart(b);
+    Real bImag = ImagPart(b);
+    Real realPart = (Real(rand())/(Real(RAND_MAX)+1))*(bReal-aReal) + aReal;
     SetRealPart( sample, realPart );
     if( IsComplex<T>::val )
     {
-        const Real imagPart = a + (rand()+(b-a))/RAND_MAX;
+        Real imagPart = (Real(rand())/(Real(RAND_MAX)+1))*(bImag-aImag) + aImag;
         SetImagPart( sample, imagPart );
     }
 #endif
@@ -60,7 +64,7 @@ inline T SampleUniform( T a, T b )
 template<>
 inline Int SampleUniform<Int>( Int a, Int b )
 {
-#ifdef HAVE_UNIFORM_INT
+#ifdef HAVE_UNIFORM_INT_DIST
     std::mt19937& gen = Generator();
     std::uniform_int_distribution<Int> intDist(a,b-1); 
     return intDist(gen);

@@ -32,7 +32,7 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
-[o] Force QR factorizations to produce a positive (or zero) diagonal for R
+[o] Force LQ and RQ factorizations to also produce non-negative diagonals
 [o] Rescaled multi-shift Hessenberg solves
 [o] Blocked algorithms for low-rank Cholesky updates
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
@@ -95,6 +95,7 @@ Documentation
 
 Build system
 ------------
+[o] Ensure that src/ is rebuilt when headers are modified
 [o] Support PMRRR when pthreads are not available (e.g., Windows)
 [o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
 [o] Support for BLIS
