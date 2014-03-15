@@ -200,12 +200,12 @@ InverseFreeSignDivide( Matrix<F>& X )
     Matrix<Int> p;
     QR( A, t, d, p );
     qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
-    RQ( B, t );
+    RQ( B, t, d );
 
     // A := Q^H A Q
     A = ACopy;
-    rq::ApplyQ( LEFT, ADJOINT, B, t, A );
-    rq::ApplyQ( RIGHT, NORMAL, B, t, A );
+    rq::ApplyQ( LEFT, ADJOINT, B, t, d, A );
+    rq::ApplyQ( RIGHT, NORMAL, B, t, d, A );
 
     // Return || E21 ||1 / || A ||1
     ValueInt<Real> part = ComputePartition( A );
@@ -241,14 +241,14 @@ InverseFreeSignDivide( DistMatrix<F>& X )
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);
-    QR( A, t, p );
+    QR( A, t, d, p );
     qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
-    RQ( B, t );
+    RQ( B, t, d );
 
     // A := Q^H A Q
     A = ACopy;
-    rq::ApplyQ( LEFT, ADJOINT, B, t, A );
-    rq::ApplyQ( RIGHT, NORMAL, B, t, A );
+    rq::ApplyQ( LEFT, ADJOINT, B, t, d, A );
+    rq::ApplyQ( RIGHT, NORMAL, B, t, d, A );
 
     // Return || E21 ||1 / || A ||1
     // Return || E21 ||1 / || A ||1

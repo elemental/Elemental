@@ -23,12 +23,13 @@ Explicit( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     Matrix<F> t;
-    LQ( A, t );
+    Matrix<Base<F>> d;
+    LQ( A, t, d );
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
     A = Q;
 }
 
@@ -38,14 +39,15 @@ Explicit( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> t( g );
-    LQ( A, t );
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
+    LQ( A, t, d );
 
     // TODO: Replace this with an in-place expansion of Q
-    DistMatrix<F> Q( g );
+    DistMatrix<F> Q(g);
     Q.AlignWith( A );
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
     A = Q;
 }
 
@@ -55,14 +57,15 @@ Explicit( Matrix<F>& L, Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     Matrix<F> t;
-    LQ( A, t );
+    Matrix<Base<F>> d;
+    LQ( A, t, d );
     L = A;
     MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
     A = Q;
 }
 
@@ -72,15 +75,16 @@ Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> t( g );
-    LQ( A, t );
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
+    LQ( A, t, d );
     L = A;
     MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
-    DistMatrix<F> Q( g );
+    DistMatrix<F> Q(g);
     Identity( Q, A.Height(), A.Width() );
-    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
     A = Q;
 }
 

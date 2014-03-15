@@ -11,6 +11,7 @@
 #define ELEM_LQ_PANELHOUSEHOLDER_HPP
 
 #include ELEM_CONJUGATE_INC
+#include ELEM_DIAGONALSCALETRAPEZOID_INC
 #include ELEM_GEMV_INC
 #include ELEM_GER_INC
 #include ELEM_REFLECTOR_INC
@@ -21,16 +22,14 @@ namespace lq {
 
 template<typename F>
 inline void
-PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
+PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    DEBUG_ONLY(
-        if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t must be a vector of length minDim(A)");
-    )
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     Matrix<F> z21;
 
@@ -61,6 +60,19 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         // Reset alpha11's value
         alpha11.Set(0,0,alpha);
     }
+    // Form d and rescale L
+    auto L = View( A, 0, 0, m, minDim );
+    d = L.GetRealPartOfDiagonal();
+    typedef Base<F> Real;
+    for( Int j=0; j<minDim; ++j )
+    {
+        const Real delta = d.Get(j,0);
+        if( delta >= Real(0) )
+            d.Set(j,0,Real(1));
+        else
+            d.Set(j,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, d, L );
 }
 
 template<typename F>
@@ -69,20 +81,24 @@ PanelHouseholder( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     Matrix<F> t;
-    PanelHouseholder( A, t );
+    Matrix<Base<F>> d;
+    PanelHouseholder( A, t, d );
 }
 
 template<typename F>
 inline void
-PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+PanelHouseholder
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lq::PanelHouseholder");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,t} must be distributed over the same grid");
-        if( !A.DiagonalAlignedWith( t, 0 ) )
-            LogicError("t must be aligned with A's main diagonal");
+        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
+            LogicError("{A,t,d} must be distributed over the same grid");
     )
+    t.SetRoot( A.DiagonalRoot() );
+    d.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    d.AlignCols( A.DiagonalAlign() );
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);
     DistMatrix<F,MC,  STAR> z21_MC_STAR(g);
@@ -90,10 +106,9 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    DEBUG_ONLY(
-        if( t.Height() != minDim || t.Width() != 1 )
-            LogicError("t must be a vector of length minDim(A)");
-    )
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
+
     for( Int k=0; k<minDim; ++k )
     {
         auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
@@ -132,6 +147,20 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         if( alpha11.IsLocal(0,0) )
             alpha11.SetLocal(0,0,alpha);
     }
+    // Form d and rescale L
+    auto L = View( A, 0, 0, m, minDim );
+    d = L.GetRealPartOfDiagonal();
+    const Int diagLengthLoc = d.LocalHeight();
+    typedef Base<F> Real;
+    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
+    {
+        const Real delta = d.GetLocal(jLoc,0);
+        if( delta >= Real(0) )
+            d.SetLocal(jLoc,0,Real(1));
+        else
+            d.SetLocal(jLoc,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, d, L );
 }
 
 template<typename F>
@@ -140,7 +169,8 @@ PanelHouseholder( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
-    PanelHouseholder( A, t );
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    PanelHouseholder( A, t, d );
 }
 
 } // namespace lq

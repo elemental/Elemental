@@ -80,7 +80,7 @@ DiagonalScaleTrapezoid
             const Int k = j-jOff;
             const Int i = k+iOff;
             const TDiag alpha = ( conjugate ? Conj(d.Get(j,0)) : d.Get(j,0) );
-            blas::Scal( Max(i+1,m), alpha, &ABuf[j*ldim], 1 );
+            blas::Scal( Min(i+1,m), alpha, &ABuf[j*ldim], 1 );
         }
     }
 }
@@ -205,7 +205,7 @@ DiagonalScaleTrapezoid
                 {
                     const Int k = j-jOff;
                     const Int i = k+iOff;
-                    const Int height = Max(i+1,m);
+                    const Int height = Min(i+1,m);
                     const Int localHeight = Length(height,colShift,colStride);
                     const TDiag alpha = 
                         ( conjugate ? Conj(d_Z_STAR.GetLocal(jLoc,0))

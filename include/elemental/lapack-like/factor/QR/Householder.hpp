@@ -16,17 +16,6 @@
 namespace elem {
 namespace qr {
 
-// On exit, the upper triangle of A is overwritten by R, and the Householder
-// transforms that determine Q are stored below the diagonal of A with an 
-// implicit one on the diagonal. 
-//
-// In the complex case, the column-vector t stores the unit-magnitude complex 
-// rotations that map the norms of the implicit Householder vectors to their
-// coefficient:  
-//                psi_j = 2 tau_j / ( u_j^H u_j ),
-// where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
-// reflector.
-
 template<typename F> 
 inline void
 Householder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
@@ -72,14 +61,14 @@ Householder
         if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
             LogicError("{A,t,d} must be distributed over the same grid");
     )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+
     t.SetRoot( A.DiagonalRoot() );
     d.SetRoot( A.DiagonalRoot() );
     t.AlignCols( A.DiagonalAlign() );
     d.AlignCols( A.DiagonalAlign() );
-
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
     d.Resize( minDim, 1 );
 

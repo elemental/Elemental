@@ -18,17 +18,18 @@ namespace rq {
 
 template<typename F> 
 inline void
-Householder( Matrix<F>& A, Matrix<F>& t )
+Householder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::Householder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.Resize( minDim, 1 );
+    const Int iOff = m-minDim;
+    const Int jOff = n-minDim;
 
-    const Int iOff = ( n>=m ? 0   : m-n ); 
-    const Int jOff = ( n>=m ? n-m : 0   );
- 
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
+
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( minDim, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
@@ -39,9 +40,10 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         auto ATopPan    = View( A, 0,  0, ki, kj+nb ); 
         auto ABottomPan = View( A, ki, 0, nb, kj+nb );
         auto t1 = View( t, k, 0, nb, 1 );
+        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( ABottomPan, t1 );
-        ApplyQ( RIGHT, ADJOINT, ABottomPan, t1, ATopPan );
+        PanelHouseholder( ABottomPan, t1, d1 );
+        ApplyQ( RIGHT, ADJOINT, ABottomPan, t1, d1, ATopPan );
     }
 }
 
@@ -51,28 +53,33 @@ Householder( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::Householder"))
     Matrix<F> t;
-    Householder( A, t );
+    Matrix<Base<F>> d;
+    Householder( A, t, d );
 }
 
 template<typename F> 
 inline void
-Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+Householder
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("rq::Householder");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,s} must be distributed over the same grid");
+        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
+            LogicError("{A,t,d} must be distributed over the same grid");
     )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int offset = n-m;
-    t.SetRoot( A.DiagonalRoot(offset) );
-    t.AlignCols( A.DiagonalAlign(offset) );
-    t.Resize( minDim, 1 );
+    const Int iOff = m-minDim;
+    const Int jOff = n-minDim;
 
-    const Int iOff = ( n>=m ? 0   : m-n );
-    const Int jOff = ( n>=m ? n-m : 0   );
+    t.SetRoot( A.DiagonalRoot(offset) );
+    d.SetRoot( A.DiagonalRoot(offset) );
+    t.AlignCols( A.DiagonalAlign(offset) );
+    d.AlignCols( A.DiagonalAlign(offset) );
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( minDim, bsize );
@@ -84,9 +91,10 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         auto ATopPan    = View( A, 0,  0, ki, kj+nb ); 
         auto ABottomPan = View( A, ki, 0, nb, kj+nb );
         auto t1 = View( t, k, 0, nb, 1 );
+        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( ABottomPan, t1 );
-        ApplyQ( RIGHT, ADJOINT, ABottomPan, t1, ATopPan );
+        PanelHouseholder( ABottomPan, t1, d1 );
+        ApplyQ( RIGHT, ADJOINT, ABottomPan, t1, d1, ATopPan );
     }
 }
 
@@ -96,7 +104,8 @@ Householder( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::Householder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
-    Householder( A, t );
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    Householder( A, t, d );
 }
 
 } // namespace rq

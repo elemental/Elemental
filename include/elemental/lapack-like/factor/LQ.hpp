@@ -16,24 +16,12 @@
 
 namespace elem {
 
-// On exit, the lower triangle of A is overwritten by L, and the Householder
-// transforms that determine Q are stored above the diagonal of A with an 
-// implicit one on the diagonal. 
-//
-// In the complex case, the column-vector t stores the unit-magnitude complex 
-// rotations that map the norms of the implicit Householder vectors to their
-// coefficient:  
-//                psi_j = 2 tau_j / ( u_j^H u_j ),
-// where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
-// reflector.
-
 template<typename F> 
 inline void
 LQ( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
-    Matrix<F> t;
-    lq::Householder( A, t );
+    lq::Householder( A );
 }
 
 template<typename F> 
@@ -41,29 +29,28 @@ inline void
 LQ( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
-    DistMatrix<F,MD,STAR> t(A.Grid());
-    lq::Householder( A, t );
+    lq::Householder( A );
 }
 
 template<typename F> 
 inline void
-LQ( Matrix<F>& A, Matrix<F>& t )
+LQ( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
-    lq::Householder( A, t );
+    lq::Householder( A, t, d );
 }
 
 template<typename F> 
 inline void
-LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("LQ");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,t} must be distributed over the same grid");
-    )
-    lq::Householder( A, t );
+    DEBUG_ONLY(CallStackEntry cse("LQ"))
+    lq::Householder( A, t, d );
 }
+
+// Variants which perform (Businger-Golub) row-pivoting
+// ====================================================
+// TODO
 
 } // namespace elem
 

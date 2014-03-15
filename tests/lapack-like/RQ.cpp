@@ -22,6 +22,7 @@ template<typename F>
 void TestCorrectness
 ( const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& t,
+  const DistMatrix<Base<F>,MD,STAR>& d,
         DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -35,8 +36,8 @@ void TestCorrectness
 
     // Form Z := Q Q^H as an approximation to identity
     auto Z = Identity<F>( g, m, n );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, Z );
-    rq::ApplyQ( RIGHT, ADJOINT, A, t, Z );
+    rq::ApplyQ( RIGHT, NORMAL, A, t, d, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, t, d, Z );
     auto ZUpper = View( Z, 0, 0, minDim, minDim );
 
     // Form X := I - Q Q^H
@@ -59,7 +60,7 @@ void TestCorrectness
     // Form RQ
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
-    rq::ApplyQ( RIGHT, NORMAL, A, t, U );
+    rq::ApplyQ( RIGHT, NORMAL, A, t, d, U );
 
     // Form R Q - A
     Axpy( F(-1), AOrig, U );
@@ -86,6 +87,7 @@ void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
 
     Uniform( A, m, n );
     if( testCorrectness )
@@ -109,7 +111,7 @@ void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    RQ( A, t );
+    RQ( A, t, d );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double mD = double(m);
@@ -125,10 +127,11 @@ void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( t, "phases");
+        Print( t, "phases" );
+        Print( d, "diagonal" );
     }
     if( testCorrectness )
-        TestCorrectness( A, t, AOrig );
+        TestCorrectness( A, t, d, AOrig );
 }
 
 int 

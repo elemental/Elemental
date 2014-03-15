@@ -10,6 +10,7 @@
 #ifndef ELEM_RQ_PANEL_HPP
 #define ELEM_RQ_PANEL_HPP
 
+#include ELEM_DIAGONALSCALETRAPEZOID_INC
 #include ELEM_GEMV_INC
 #include ELEM_GER_INC
 #include ELEM_REFLECTOR_INC
@@ -20,16 +21,17 @@ namespace rq {
 
 template<typename F> 
 inline void
-PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
+PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::PanelHouseholder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.Resize( minDim, 1 );
+    const Int iOff = m-minDim;
+    const Int jOff = n-minDim;
 
-    const Int iOff = ( n>=m ? 0   : m-n );
-    const Int jOff = ( n>=m ? n-m : 0   );
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     Matrix<F> z01;
     for( Int k=minDim-1; k>=0; --k )
@@ -61,6 +63,19 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         // Reset alpha11's value
         alpha11.Set(0,0,alpha);
     }
+    // Form d and rescale R
+    auto R = View( A, 0, jOff, m, minDim );
+    d = R.GetRealPartOfDiagonal();
+    typedef Base<F> Real;
+    for( Int j=0; j<minDim; ++j )
+    {
+        const Real delta = d.Get(j,0);
+        if( delta >= Real(0) )
+            d.Set(j,0,Real(1));
+        else
+            d.Set(j,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, d, R, -iOff );
 }
 
 template<typename F> 
@@ -74,22 +89,26 @@ PanelHouseholder( Matrix<F>& A )
 
 template<typename F> 
 inline void
-PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+PanelHouseholder
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("rq::PanelHouseholder");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,t} must be distributed over the same grid");
-        if( !A.DiagonalAlignedWith( t, A.Width()-A.Height() ) ) 
-            LogicError("t must be aligned with A's main diagonal");
+        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
+            LogicError("{A,t,d} must be distributed over the same grid");
     )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    t.Resize( minDim, 1 );
+    const Int iOff = m-minDim;
+    const Int jOff = n-minDim;
 
-    const Int iOff = ( n>=m ? 0   : m-n );
-    const Int jOff = ( n>=m ? n-m : 0   );
+    t.SetRoot( A.DiagonalRoot(n-m) );
+    d.SetRoot( A.DiagonalRoot(n-m) );
+    t.AlignCols( A.DiagonalAlign(n-m) );
+    d.AlignCols( A.DiagonalAlign(n-m) );
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,MR  > a1L_STAR_MR(g);
@@ -121,7 +140,9 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         // A2R := A2R Hous(a1L^T,tau)
         //      = A2R (I - tau a1L^T conj(a1L))
         //      = A2R - tau (A2R a1L^T) conj(a1L)
+        a1L_STAR_MR.AlignWith( A0L );
         a1L_STAR_MR = a1L;
+        z01_MC_STAR.AlignWith( A0L );
         Zeros( z01_MC_STAR, A0L.Height(), 1 );
         LocalGemv( NORMAL, F(1), A0L, a1L_STAR_MR, F(0), z01_MC_STAR );
         z01_MC_STAR.SumOver( A0L.RowComm() );
@@ -133,6 +154,20 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         if( alpha11.IsLocal(0,0) )
             alpha11.SetLocal(0,0,alpha);
     }
+    // Form d and rescale R
+    auto R = View( A, 0, jOff, m, minDim );
+    d = R.GetRealPartOfDiagonal();
+    const Int diagLengthLoc = d.LocalHeight();
+    typedef Base<F> Real;
+    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
+    {
+        const Real delta = d.GetLocal(jLoc,0);
+        if( delta >= Real(0) )
+            d.SetLocal(jLoc,0,Real(1));
+        else
+            d.SetLocal(jLoc,0,Real(-1));
+    }
+    DiagonalScaleTrapezoid( RIGHT, UPPER, NORMAL, d, R, -iOff );
 }
 
 template<typename F> 
@@ -141,7 +176,8 @@ PanelHouseholder( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::PanelHouseholder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
-    PanelHouseholder( A, t );
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    PanelHouseholder( A, t, d );
 }
 
 } // namespace rq

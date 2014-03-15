@@ -34,21 +34,22 @@ RQ( DistMatrix<F>& A )
 
 template<typename F> 
 inline void
-RQ( Matrix<F>& A, Matrix<F>& t )
+RQ( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("RQ"))
-    rq::Householder( A, t );
+    rq::Householder( A, t, d );
 }
 
 template<typename F> 
 inline void
-RQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+RQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("RQ"))
-    rq::Householder( A, t );
+    rq::Householder( A, t, d );
 }
 
-// TODO: BusingerGolub pivoting?
+// Variants which perform (Businger-Golub) pivoting
+// ================================================
 
 } // namespace elem
 

@@ -16,26 +16,16 @@
 namespace elem {
 namespace lq {
 
-// On exit, the lower triangle of A is overwritten by L, and the Householder
-// transforms that determine Q are stored above the diagonal of A with an 
-// implicit one on the diagonal. 
-//
-// In the complex case, the column-vector t stores the unit-magnitude complex 
-// rotations that map the norms of the implicit Householder vectors to their
-// coefficient:  
-//                psi_j = 2 tau_j / ( u_j^H u_j ),
-// where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
-// reflector.
-
 template<typename F> 
 inline void
-Householder( Matrix<F>& A, Matrix<F>& t )
+Householder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Householder"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -44,9 +34,10 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         auto ATopPan    = ViewRange( A, k,    k, k+nb, n );
         auto ABottomPan = ViewRange( A, k+nb, k, m,    n );
         auto t1 = View( t, k, 0, nb, 1 );
+        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( ATopPan, t1 );
-        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, ABottomPan );
+        PanelHouseholder( ATopPan, t1, d1 );
+        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, d1, ABottomPan );
     }
 }
 
@@ -56,24 +47,30 @@ Householder( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Householder"))
     Matrix<F> t;
-    Householder( A, t );
+    Matrix<Base<F>> d;
+    Householder( A, t, d );
 }
 
 template<typename F> 
 inline void
-Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+Householder
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Householder");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,t} must be distributed over the same grid");
+        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
+            LogicError("{A,t,d} must be distributed over the same grid");
     )
-    t.SetRoot( A.DiagonalRoot() );
-    t.AlignCols( A.DiagonalAlign() );
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
+
+    t.SetRoot( A.DiagonalRoot() );
+    d.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    d.AlignCols( A.DiagonalAlign() );
     t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
@@ -82,9 +79,10 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         auto ATopPan    = ViewRange( A, k,    k, k+nb, n );
         auto ABottomPan = ViewRange( A, k+nb, k, m,    n );
         auto t1 = View( t, k, 0, nb, 1 );
+        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( ATopPan, t1 );
-        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, ABottomPan );
+        PanelHouseholder( ATopPan, t1, d1 );
+        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, d1, ABottomPan );
     }
 }
 
@@ -94,7 +92,8 @@ Householder( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Householder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
-    Householder( A, t );
+    DistMatrix<Base<F>,MD,STAR> d(A.Grid());
+    Householder( A, t, d );
 }
 
 } // namespace lq

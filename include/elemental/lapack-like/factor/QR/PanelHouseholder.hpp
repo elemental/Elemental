@@ -10,6 +10,7 @@
 #ifndef ELEM_QR_PANEL_HPP
 #define ELEM_QR_PANEL_HPP
 
+#include ELEM_DIAGONALSCALETRAPEZOID_INC
 #include ELEM_GEMV_INC
 #include ELEM_GER_INC
 #include ELEM_REFLECTOR_INC
@@ -93,11 +94,11 @@ PanelHouseholder
         CallStackEntry cse("qr::PanelHouseholder");
         if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
             LogicError("{A,t,d} must be distributed over the same grid");
-        if( !A.DiagonalAlignedWith( t, 0 ) )
-            LogicError("t must be aligned with A's main diagonal");
-        if( !A.DiagonalAlignedWith( d, 0 ) )
-            LogicError("d must be aligned with A's main diagonal");
     )
+    t.SetRoot( A.DiagonalRoot() );
+    d.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    d.AlignCols( A.DiagonalAlign() );
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
     DistMatrix<F,MR,STAR> z21_MR_STAR(g);

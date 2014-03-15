@@ -125,7 +125,11 @@ void TestQR( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
              << gFlops << endl;
     }
     if( print )
+    {
         Print( A, "A after factorization" );
+        Print( t, "phases" );
+        Print( d, "diagonal" );
+    }
     if( testCorrectness )
         TestCorrectness( A, t, d, AOrig );
 }

@@ -60,7 +60,7 @@ LeastSquares
         {
             // Overwrite A with its packed LQ factorization (and store the
             // corresponding Householder scalars in it)
-            LQ( A, t );
+            LQ( A, t, d );
 
             // Copy B into X
             X.Resize( n, B.Width() );
@@ -74,7 +74,7 @@ LeastSquares
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
-            lq::ApplyQ( LEFT, ADJOINT, A, t, X );
+            lq::ApplyQ( LEFT, ADJOINT, A, t, d, X );
         }
     }
     else // orientation == ADJOINT
@@ -106,13 +106,13 @@ LeastSquares
         {
             // Overwrite A with its packed LQ factorization (and store the
             // corresponding Householder scalars in t)
-            LQ( A, t );
+            LQ( A, t, d );
 
             // Copy B into X
             X = B;
 
             // Apply Q to X
-            lq::ApplyQ( LEFT, NORMAL, A, t, X );
+            lq::ApplyQ( LEFT, NORMAL, A, t, d, X );
 
             // Shrink X to its new height
             X.Resize( m, X.Width() );
@@ -172,7 +172,7 @@ LeastSquares
         {
             // Overwrite A with its packed LQ factorization (and store the
             // corresponding Householder scalars in it)
-            LQ( A, t );
+            LQ( A, t, d );
 
             // Copy B into X
             X.Resize( n, B.Width() );
@@ -186,7 +186,7 @@ LeastSquares
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
-            lq::ApplyQ( LEFT, ADJOINT, A, t, X );
+            lq::ApplyQ( LEFT, ADJOINT, A, t, d, X );
         }
     }
     else // orientation == ADJOINT
@@ -218,13 +218,13 @@ LeastSquares
         {
             // Overwrite A with its packed LQ factorization (and store the
             // corresponding Householder scalars in t)
-            LQ( A, t );
+            LQ( A, t, d );
 
             // Copy B into X
             X = B;
 
             // Apply Q to X
-            lq::ApplyQ( LEFT, NORMAL, A, t, X );
+            lq::ApplyQ( LEFT, NORMAL, A, t, d, X );
 
             // Shrink X to its new height
             X.Resize( m, X.Width() );
