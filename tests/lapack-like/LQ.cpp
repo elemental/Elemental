@@ -146,6 +146,7 @@ main( int argc, char* argv[] )
     try
     {
         Int r = Input("--gridHeight","height of process grid",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -157,7 +158,8 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const Grid g( comm, r );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )

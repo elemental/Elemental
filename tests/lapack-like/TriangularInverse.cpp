@@ -118,6 +118,7 @@ main( int argc, char* argv[] )
     try
     {
         Int r = Input("--gridHeight","height of process grid",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
         const Int m = Input("--height","height of matrix",100);
@@ -128,11 +129,13 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( r == 0 )
-            r = Grid::FindFactor( commSize );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
-        const Grid g( comm, r );
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )

@@ -177,6 +177,7 @@ main( int argc, char* argv[] )
     try
     {
         Int r = Input("--gridHeight","height of process grid",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","store in triangle: L/U",'L');
         const bool forward = Input("--forward","forward application?",true);
@@ -192,10 +193,11 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const Grid g( comm, r );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
-        const ForwardOrBackward order = ( forward ? FORWARD : BACKWARD );
+        const ForwardOrBackward dir = ( forward ? FORWARD : BACKWARD );
         const Conjugation conjugation = 
             ( conjugate ? CONJUGATED : UNCONJUGATED );
         SetBlocksize( nb );
@@ -217,7 +219,7 @@ main( int argc, char* argv[] )
                  << "---------------------" << endl;
         }
         TestUT<double>
-        ( side, uplo, order, conjugation, m, offset, 
+        ( side, uplo, dir, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
         if( commRank == 0 )
@@ -227,7 +229,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestUT<Complex<double>>
-        ( side, uplo, order, conjugation, m, offset, 
+        ( side, uplo, dir, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }
     catch( exception& e ) { ReportException(e); }

@@ -23,10 +23,10 @@ Grid::FindFactor( int p )
 }
 
 inline 
-Grid::Grid( mpi::Comm comm )
+Grid::Grid( mpi::Comm comm, GridOrder order )
+: order_(order), inGrid_(true)
 {
     DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
-    inGrid_ = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::CommDup( comm, viewingComm_ );
@@ -47,10 +47,10 @@ Grid::Grid( mpi::Comm comm )
 }
 
 inline 
-Grid::Grid( mpi::Comm comm, int height )
+Grid::Grid( mpi::Comm comm, int height, GridOrder order )
+: order_(order), inGrid_(true)
 {
     DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
-    inGrid_ = true; // this is true by assumption for this constructor
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::CommDup( comm, viewingComm_ );
@@ -89,10 +89,21 @@ Grid::SetUpGrid()
     vectorColToViewingMap_.resize(size_);
     diagPathsAndRanks_.resize(2*size_);
     MemZero( diagPathsAndRanks_.data(), 2*size_ );
+    const bool colMajor = (order_==COLUMN_MAJOR);
     if( inGrid_ )
     {
         // Create a cartesian communicator
-        int dimensions[2] = { width_, height_ };
+        int dimensions[2];
+        if( colMajor )
+        {
+            dimensions[0] = width_;
+            dimensions[1] = height_;
+        }
+        else
+        {
+            dimensions[0] = height_;
+            dimensions[1] = width_;
+        }
         int periods[2] = { true, true };
         bool reorder = false;
         mpi::CartCreate
@@ -100,11 +111,11 @@ Grid::SetUpGrid()
 
         // Set up the MatrixCol and MatrixRow communicators
         int remainingDimensions[2];
-        remainingDimensions[0] = false;
-        remainingDimensions[1] = true;
+        remainingDimensions[0] = ( colMajor ? false : true  );
+        remainingDimensions[1] = ( colMajor ? true  : false );
         mpi::CartSub( cartComm_, remainingDimensions, matrixColComm_ );
-        remainingDimensions[0] = true;
-        remainingDimensions[1] = false;
+        remainingDimensions[0] = ( colMajor ? true  : false );
+        remainingDimensions[1] = ( colMajor ? false : true  );
         mpi::CartSub( cartComm_, remainingDimensions, matrixRowComm_ );
         matrixColRank_ = mpi::CommRank( matrixColComm_ );
         matrixRowRank_ = mpi::CommRank( matrixRowComm_ );
@@ -205,109 +216,50 @@ Grid::~Grid()
     }
 }
 
-inline int 
-Grid::MCRank() const
-{ return matrixColRank_; }
+inline int Grid::MCRank() const { return matrixColRank_; }
+inline int Grid::MRRank() const { return matrixRowRank_; }
+inline int Grid::VCRank() const { return vectorColRank_; }
+inline int Grid::VRRank() const { return vectorRowRank_; }
+inline int Grid::MCSize() const { return height_; }
+inline int Grid::MRSize() const { return width_; }
+inline int Grid::VCSize() const { return size_; }
+inline int Grid::VRSize() const { return size_; }
 
-inline int 
-Grid::MRRank() const
-{ return matrixRowRank_; }
+inline mpi::Comm Grid::MCComm()     const { return matrixColComm_; }
+inline mpi::Comm Grid::MRComm()     const { return matrixRowComm_; }
+inline mpi::Comm Grid::VCComm()     const { return vectorColComm_; }
+inline mpi::Comm Grid::VRComm()     const { return vectorRowComm_; }
+inline mpi::Comm Grid::MDComm()     const { return matrixDiagComm_; }
+inline mpi::Comm Grid::MDPerpComm() const { return matrixDiagPerpComm_; }
 
-inline int 
-Grid::VCRank() const
-{ return vectorColRank_; }
-
-inline int 
-Grid::VRRank() const
-{ return vectorRowRank_; }
-
-inline int 
-Grid::MCSize() const
-{ return height_; }
-
-inline int 
-Grid::MRSize() const
-{ return width_; }
-
-inline int 
-Grid::VCSize() const
-{ return size_; }
-
-inline int 
-Grid::VRSize() const
-{ return size_; }
-
-inline mpi::Comm 
-Grid::MCComm() const
-{ return matrixColComm_; }
-
-inline mpi::Comm 
-Grid::MRComm() const
-{ return matrixRowComm_; }
-
-inline mpi::Comm 
-Grid::VCComm() const
-{ return vectorColComm_; }
-
-inline mpi::Comm 
-Grid::VRComm() const
-{ return vectorRowComm_; }
-
-inline mpi::Comm
-Grid::MDComm() const
-{ return matrixDiagComm_; }
-
-inline mpi::Comm
-Grid::MDPerpComm() const
-{ return matrixDiagPerpComm_; }
-
-//
 // Provided for simplicity, but redundant
-//
+// ======================================
 
-inline int 
-Grid::Row() const
-{ return matrixColRank_; }
-
-inline int 
-Grid::Col() const
-{ return matrixRowRank_; }
+inline int Grid::Row() const { return matrixColRank_; }
+inline int Grid::Col() const { return matrixRowRank_; }
 
 inline int 
 Grid::Rank() const
-{ return vectorColRank_; }
+{ return ( order_==COLUMN_MAJOR ? vectorColRank_ : vectorRowRank_ ); }
 
-inline int 
-Grid::Height() const
-{ return height_; }
+inline int Grid::Height() const { return height_; }
+inline int Grid::Width()  const { return width_; }
+inline int Grid::Size()   const { return size_; }
 
-inline int 
-Grid::Width() const
-{ return width_; }
+inline GridOrder Grid::Order() const { return order_; }
 
-inline int 
-Grid::Size() const
-{ return size_; }
+inline mpi::Comm Grid::ColComm() const { return matrixColComm_; }
+inline mpi::Comm Grid::RowComm() const { return matrixRowComm_; }
+inline mpi::Comm Grid::Comm()    const
+{ return ( order_==COLUMN_MAJOR ? vectorColComm_ : vectorRowComm_ ); }
 
-inline mpi::Comm 
-Grid::ColComm() const
-{ return matrixColComm_; }
-
-inline mpi::Comm 
-Grid::RowComm() const
-{ return matrixRowComm_; }
-
-inline mpi::Comm 
-Grid::Comm() const
-{ return vectorColComm_; }
-
-//
 // Advanced routines
-//
+// =================
 
 // Currently forces a columnMajor absolute rank on the grid
 inline 
-Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height )
+Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, GridOrder order )
+: order_(order)
 {
     DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
 
@@ -334,41 +286,20 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height )
     SetUpGrid();
 }
 
-inline int 
-Grid::GCD() const
-{ return gcd_; }
+inline int Grid::GCD() const { return gcd_; }
+inline int Grid::LCM() const { return size_/gcd_; }
 
-inline int 
-Grid::LCM() const
-{ return size_/gcd_; }
+inline bool Grid::InGrid() const { return inGrid_; }
 
-inline bool 
-Grid::InGrid() const
-{ return inGrid_; }
+inline int Grid::OwningRank()  const { return owningRank_; }
+inline int Grid::ViewingRank() const { return viewingRank_; }
 
-inline int 
-Grid::OwningRank() const
-{ return owningRank_; }
-
-inline int 
-Grid::ViewingRank() const
-{ return viewingRank_; }
-
-inline int 
-Grid::VCToViewingMap( int VCRank ) const
+inline int Grid::VCToViewingMap( int VCRank ) const
 { return vectorColToViewingMap_[VCRank]; }
 
-inline mpi::Group 
-Grid::OwningGroup() const
-{ return owningGroup_; }
-
-inline mpi::Comm 
-Grid::OwningComm() const
-{ return owningComm_; }
-
-inline mpi::Comm 
-Grid::ViewingComm() const
-{ return viewingComm_; }
+inline mpi::Group Grid::OwningGroup() const { return owningGroup_; }
+inline mpi::Comm Grid::OwningComm()  const { return owningComm_; }
+inline mpi::Comm Grid::ViewingComm() const { return viewingComm_; }
 
 inline int 
 Grid::DiagPath() const
@@ -406,21 +337,13 @@ Grid::DiagPathRank( int vectorColRank ) const
         return mpi::UNDEFINED;
 }
 
-inline int
-Grid::FirstVCRank( int diagPath ) const
-{ return diagPath*height_; }
+inline int Grid::FirstVCRank( int diagPath ) const{ return diagPath*height_; }
 
-//
 // Comparison functions
-//
+// ====================
 
-inline bool 
-operator==( const Grid& A, const Grid& B )
-{ return &A == &B; }
-
-inline bool 
-operator!=( const Grid& A, const Grid& B )
-{ return &A != &B; }
+inline bool operator==( const Grid& A, const Grid& B ) { return &A == &B; }
+inline bool operator!=( const Grid& A, const Grid& B ) { return &A != &B; }
 
 } // namespace elem
 

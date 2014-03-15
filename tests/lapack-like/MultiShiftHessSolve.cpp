@@ -82,11 +82,11 @@ void TestCorrectness
 template<typename F>
 void TestHessenberg
 ( UpperOrLower uplo, Orientation orientation, Int m, Int n, 
-  bool testCorrectness, bool print, bool display )
+  bool testCorrectness, bool print, bool display, const Grid& g )
 {
-    DistMatrix<F,VC,STAR> H;
-    DistMatrix<F,STAR,VR> X, Y;
-    DistMatrix<F,VR,STAR> shifts;
+    DistMatrix<F,VC,STAR> H(g);
+    DistMatrix<F,STAR,VR> X(g), Y(g);
+    DistMatrix<F,VR,STAR> shifts(g);
 
     Uniform( H, m, m );
     UpdateDiagonal( H, F(5) ); // ensure that H-mu is far from zero
@@ -130,6 +130,7 @@ main( int argc, char* argv[] )
 
     try
     {
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const char orientChar = Input("--orient","orientation: N/T/C",'N');
         const Int m = Input("--m","height of Hessenberg matrix",100);
@@ -142,6 +143,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid grid( comm, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orient = CharToOrientation( orientChar );
         SetBlocksize( nb );
@@ -154,7 +157,7 @@ main( int argc, char* argv[] )
                       << "-----------------" << std::endl;
         }
         TestHessenberg<double>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+        ( uplo, orient, m, n, testCorrectness, print, display, grid );
 
         if( commRank == 0 )
         {
@@ -163,7 +166,7 @@ main( int argc, char* argv[] )
                       << "-------------------------" << std::endl;
         }
         TestHessenberg<Complex<double>>
-        ( uplo, orient, m, n, testCorrectness, print, display );
+        ( uplo, orient, m, n, testCorrectness, print, display, grid );
     }
     catch( std::exception& e ) { ReportException(e); }
 

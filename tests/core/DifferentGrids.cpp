@@ -21,11 +21,16 @@ main( int argc, char* argv[] )
     
     try
     {
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
+        const bool colMajorSqrt = Input("--colMajorSqrt","colMajor sqrt?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const GridOrder orderSqrt = ( colMajorSqrt ? COLUMN_MAJOR : ROW_MAJOR );
 
         // Drop down to a square grid, change the matrix, and redistribute back
         const Int commSqrt = Int(sqrt(double(commSize)));
@@ -39,8 +44,8 @@ main( int argc, char* argv[] )
         mpi::CommGroup( comm, group );
         mpi::GroupIncl( group, sqrtRanks.size(), sqrtRanks.data(), sqrtGroup );
 
-        const Grid grid( comm );
-        const Grid sqrtGrid( comm, sqrtGroup, grid.Height() );
+        const Grid grid( comm, order );
+        const Grid sqrtGrid( comm, sqrtGroup, commSqrt, orderSqrt );
 
         DistMatrix<double> A(grid), ASqrt(sqrtGrid);
 

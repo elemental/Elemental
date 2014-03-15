@@ -10,6 +10,7 @@ Functionality priorities
 
 Fundamental functionality additions
 -----------------------------------
+[o] An interface to ScaLAPACK (now that row-major/col-major grids are supported)
 [o] Estimate for spectral radius
 [o] Low-rank modifications of QR
 [o] Low-rank modifications of LU
@@ -75,6 +76,9 @@ Bug avoidance
 
 Instrumentation/visualization/testing
 -------------------------------------
+[-] Global command-line options which are automatic for every driver, e.g.,
+    "--colMajor <true/false>" for column-major process grids and 
+    "--nb <blocksize>" for the algorithmic blocksize
 [-] Means of easily tracking/plotting heap memory usage over time
 [-] Provide way to zoom in/out and add colorbar to DisplayWidget
 [-] Better organization of test matrices into relevant classes, e.g., Hermitian,

@@ -143,6 +143,7 @@ main( int argc, char* argv[] )
     try
     {
         Int r = Input("--gridHeight","process grid height",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--m","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -158,7 +159,8 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const Grid g( comm, r );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );

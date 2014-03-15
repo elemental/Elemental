@@ -251,6 +251,7 @@ main( int argc, char* argv[] )
     try
     {
         Int r = Input("--gridHeight","height of process grid",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const bool print = Input("--print","print wrong matrices?",false);
@@ -259,7 +260,8 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const Grid g( comm, r );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
 
         if( commRank == 0 )
         {

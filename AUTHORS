@@ -10,7 +10,7 @@ Matthias Petschow, Paolo Bientinesi, and RWTH Aachen University:
 
 Univ. of Tennessee, Univ. of California Berkeley, and NAG Ltd.:
   The serial code for the safe inversion process during the calculation of 
-  Householder reflectors (found in LAPACK's dlarfg.f and zlarfg.f) and the 
+  Householder reflectors (found in LAPACK's dlarfg.f and zlarfg.f) and 
   several of the serial routines used within PMRRR.
 
 Martin Schatz and The University of Texas at Austin:

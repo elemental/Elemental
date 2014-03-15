@@ -764,11 +764,30 @@ void DM::CopyFromDifferentGrid( const DM& A )
         (A.Width()/(rowStrideA*localRowStrideA)+1);
 
     // Translate the ranks from A's VC communicator to this's viewing so that
-    // we can match send/recv communicators
+    // we can match send/recv communicators. Since A's VC communicator is not
+    // necessarily defined on every process, we instead work with A's owning
+    // group and account for row-major ordering if necessary.
     const int sizeA = A.Grid().Size();
     std::vector<int> rankMap(sizeA), ranks(sizeA);
-    for( int j=0; j<sizeA; ++j )
-        ranks[j] = j;
+    if( A.Grid().Order() == COLUMN_MAJOR )
+    { 
+        for( int j=0; j<sizeA; ++j )
+            ranks[j] = j;
+    }
+    else
+    {
+        // The (i,j) = i + j*colStrideA rank in the column-major ordering is
+        // equal to the j + i*rowStrideA  rank in a row-major ordering.
+        // Since we desire rankMap[i+j*colStrideA] to correspond to process
+        // (i,j) in A's grid's rank in this viewing group, ranks[i+j*colStrideA]
+        // should correspond to process (i,j) in A's owning group. Since the 
+        // owning group is ordered row-major in this case, its rank is 
+        // j+i*rowStrideA. Note that setting 
+        // ranks[j+i*rowStrideA] = i+j*colStrideA is *NOT* valid.
+        for( int i=0; i<colStrideA; ++i )
+            for( int j=0; j<rowStrideA; ++j )
+                ranks[i+j*colStrideA] = j+i*rowStrideA;
+    }
     mpi::Group viewingGroup;
     mpi::CommGroup( this->Grid().ViewingComm(), viewingGroup );
     mpi::GroupTranslateRanks

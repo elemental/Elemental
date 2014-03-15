@@ -78,6 +78,7 @@ main( int argc, char* argv[] )
     try
     {
         Int r = Input("--r","height of process grid",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--m","height of result",100);
@@ -89,7 +90,8 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const Grid g( comm, r );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, r, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );

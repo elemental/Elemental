@@ -64,7 +64,7 @@ HermitianTridiag
         const Int pSqrt = Int(sqrt(double(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( order == COLUMN_MAJOR )
+        if( order == g.Order() )
         {
             for( Int j=0; j<pSqrt; ++j )
                 for( Int i=0; i<pSqrt; ++i )

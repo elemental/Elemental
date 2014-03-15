@@ -78,6 +78,7 @@ main( int argc, char* argv[] )
 
     try
     {
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -88,7 +89,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid g( comm );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( comm, order );
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )

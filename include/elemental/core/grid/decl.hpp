@@ -16,20 +16,21 @@ namespace elem {
 class Grid
 {
 public:
-    explicit Grid( mpi::Comm comm=mpi::COMM_WORLD );
-    explicit Grid( mpi::Comm comm, int height );
+    explicit Grid( mpi::Comm comm=mpi::COMM_WORLD, GridOrder order=COLUMN_MAJOR );
+    explicit Grid( mpi::Comm comm, int height, GridOrder order=COLUMN_MAJOR );
     ~Grid();
 
     // Simple interface (simpler version of distributed-based interface)
     int Row() const;           // same as MCRank()
     int Col() const;           // same as MRRank()
-    int Rank() const;          // same as VCRank()
+    int Rank() const;          // same as VCRank (VRRank) if COLUMN_MAJOR (ROW_MAJOR)
     int Height() const;        // same as MCSize()
     int Width() const;         // same as MRSize()
     int Size() const;          // same as VCSize() and VRSize()
+    GridOrder Order() const;   // either COLUMN_MAJOR or ROW_MAJOR
     mpi::Comm ColComm() const; // same as MCComm()
     mpi::Comm RowComm() const; // same as MRComm()
-    mpi::Comm Comm() const;    // same as VCComm()
+    mpi::Comm Comm() const;    // same as VCComm (VRComm) if COLUMN_MAJOR (ROW_MAJOR)
 
     // Distribution-based interface
     int MCRank() const;
@@ -48,7 +49,8 @@ public:
     mpi::Comm MDPerpComm() const;
 
     // Advanced routines
-    explicit Grid( mpi::Comm viewers, mpi::Group owners, int height );
+    explicit Grid
+    ( mpi::Comm viewers, mpi::Group owners, int height, GridOrder order=COLUMN_MAJOR );
     int GCD() const; // greatest common denominator of grid height and width
     int LCM() const; // lowest common multiple of grid height and width
     bool InGrid() const;
@@ -68,6 +70,7 @@ public:
 
 private:
     int height_, width_, size_, gcd_;
+    GridOrder order_;
     int matrixColRank_, matrixRowRank_;
     int vectorColRank_, vectorRowRank_;
     std::vector<int> diagPathsAndRanks_;
