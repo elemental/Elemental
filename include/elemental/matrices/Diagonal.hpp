@@ -53,7 +53,7 @@ Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = rowShift + jLoc*rowStride;
-        if( (j-colShift+colStride) % colStride == 0 )
+        if( Mod( j-colShift, colStride ) == 0 )
         {
             const Int iLoc = (j-colShift) / colStride;
             D.SetLocal( iLoc, jLoc, d[j] );

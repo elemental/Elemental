@@ -67,20 +67,20 @@ Cannon_NN
     // Perform the initial circular shifts so that our A and B packages align
     const Int rowShiftA = A.RowShift();
     const Int colShiftB = B.ColShift();
-    const Int leftInitA = (col+pSqrt-colShiftB) % pSqrt;
-    const Int rightInitA = (col+colShiftB) % pSqrt;
-    const Int aboveInitB = (row+pSqrt-rowShiftA) % pSqrt;
-    const Int belowInitB = (row+rowShiftA) % pSqrt;
+    const Int leftInitA  = Mod(col-colShiftB,pSqrt);
+    const Int rightInitA = Mod(col+colShiftB,pSqrt);
+    const Int aboveInitB = Mod(row-rowShiftA,pSqrt);
+    const Int belowInitB = Mod(row+rowShiftA,pSqrt);
     const Int pkgSizeA = localHeightA*localWidthA;
     const Int pkgSizeB = localHeightB*localWidthB;
     mpi::SendRecv( pkgA.Buffer(), pkgSizeA, leftInitA, rightInitA, rowComm );
     mpi::SendRecv( pkgB.Buffer(), pkgSizeB, aboveInitB, belowInitB, colComm );
 
     // Now begin the data flow
-    const Int aboveRow = (row+pSqrt-1) % pSqrt;
-    const Int belowRow = (row+1) % pSqrt;
-    const Int leftCol = (col+pSqrt-1) % pSqrt;
-    const Int rightCol = (col+1) % pSqrt;
+    const Int aboveRow = Mod(row-1,pSqrt);
+    const Int belowRow = Mod(row+1,pSqrt);
+    const Int leftCol  = Mod(col-1,pSqrt);
+    const Int rightCol = Mod(col+1,pSqrt);
     for( Int q=0; q<pSqrt; ++q )
     {
         Gemm( NORMAL, NORMAL, alpha, pkgA, pkgB, T(1), C.Matrix() );

@@ -12,40 +12,8 @@
 
 namespace elem {
 
-inline Int LastOffset( Int n, Int bsize )
-{ return bsize*( n%bsize ? n/bsize : (n/bsize)-1 ); }
-
-inline Int
-DiagonalLength( Int height, Int width, Int offset )
-{
-    if( offset > 0 )
-    {
-        Int remainingWidth = Max(width-offset,0);
-        return Min(height,remainingWidth);
-    }
-    else
-    {
-        Int remainingHeight = Max(height+offset,0);
-        return Min(remainingHeight,width);
-    }
-}
-
-inline Int GCD( Int a, Int b )
-{
-    DEBUG_ONLY(
-        if( a < 0 || b < 0 )
-            LogicError("GCD called with negative argument");
-    )
-    return GCD_( a, b );
-}
-
-inline Int GCD_( Int a, Int b )
-{
-    if( b == 0 )
-        return a;
-    else
-        return GCD_( b, a-b*(a/b) );
-}
+// Indexing for element-wise distributions
+// =======================================
 
 inline Int Length( Int n, Int shift, Int stride )
 {
@@ -67,17 +35,17 @@ inline Int Length_( Int n, Int shift, Int stride )
 }
 
 inline Int
-Length( Int n, Int rank, Int alignment, Int stride )
+Length( Int n, Int rank, Int align, Int stride )
 {
     DEBUG_ONLY(CallStackEntry cse("Length"))
-    Int shift = Shift( rank, alignment, stride );
+    const Int shift = Shift( rank, align, stride );
     return Length( n, shift, stride );
 }
 
 inline Int Length_
-( Int n, Int rank, Int alignment, Int stride )
+( Int n, Int rank, Int align, Int stride )
 {
-    Int shift = Shift_( rank, alignment, stride );
+    const Int shift = Shift_( rank, align, stride );
     return Length_( n, shift, stride );
 }
 
@@ -94,28 +62,161 @@ inline Int MaxLength( Int n, Int stride )
 }
 
 inline Int MaxLength_( Int n, Int stride )
+{ return ( n>0 ? (n-1)/stride + 1 : 0 ); }
+
+// Indexing for block distributions
+// ================================
+
+inline Int BlockedLength( Int n, Int shift, Int bsize, Int cut, Int stride )
 {
-    return ( n > 0 ? (n - 1)/stride + 1 : 0 );
+    DEBUG_ONLY(
+        CallStackEntry cse("BlockedLength");
+        if( n < 0 )
+            LogicError("n must be non-negative");
+        if( shift < 0 || shift >= stride )
+            LogicError("Invalid shift: shift=",shift,", stride=",stride);
+        if( stride <= 0 )
+            LogicError("Modulus must be positive");
+        // TODO: bsize and cut checks
+    )
+    return BlockedLength_( n, shift, bsize, cut, stride );
+}
+
+inline Int BlockedLength_( Int n, Int shift, Int bsize, Int cut, Int stride )
+{
+    Int length=0;
+
+    // Handle the first block
+    // ======================
+    const Int firstLeftover = Min(n,bsize-cut);
+    if( shift == 0 )
+        length += firstLeftover;
+    n -= firstLeftover;
+    // Cycle each process's first block left one
+    shift = Mod(shift-1,stride);
+
+    // Handle the middle blocks
+    // ========================
+    const Int nBlock = n/bsize;
+    const Int lengthBlock = Length_( nBlock, shift, stride );
+    length += lengthBlock*bsize;
+    n -= nBlock*bsize;
+    // Cycle each process's first block left by nBlock
+    shift = Mod(shift-nBlock,stride);
+
+    // Handle the (possibly empty) last block
+    // ======================================
+    if( shift == 0 )
+        length += n;
+
+    return length;
+}
+
+inline Int
+BlockedLength( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
+{
+    DEBUG_ONLY(CallStackEntry cse("BlockedLength"))
+    const Int shift = Shift( rank, align, stride );
+    return BlockedLength( n, shift, bsize, cut, stride );
+}
+
+inline Int BlockedLength_
+( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
+{
+    const Int shift = Shift_( rank, align, stride );
+    return BlockedLength_( n, shift, bsize, cut, stride );
+}
+
+inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("MaxBlockedLength");
+        if( n < 0 )
+            LogicError("n must be non-negative");
+        if( stride <= 0 )
+            LogicError("Modulus must be positive");
+    )
+    return MaxBlockedLength_( n, bsize, cut, stride );
+}
+
+inline Int MaxBlockedLength_( Int n, Int bsize, Int cut, Int stride )
+{ return BlockedLength_( n, 0, bsize, cut, stride ); }
+
+// Miscellaneous indexing routines
+// ===============================
+
+inline Int Mod( Int a, Int b )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("Mod");
+        if( b <= 0 )
+            LogicError("b is assumed to be positive");
+    )
+    return Mod_( a, b );
+}
+
+inline Int Mod_( Int a, Int b )
+{
+    const Int rem = a % b;
+    return ( rem >= 0 ? rem : rem+b );
 }
 
 // For determining the first index assigned to a given rank
-inline Int Shift( Int rank, Int alignment, Int stride )
+inline Int Shift( Int rank, Int align, Int stride )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Shift");
         if( rank < 0 || rank >= stride )
             LogicError("Invalid rank: rank=",rank,", stride=",stride);
-        if( alignment < 0 || alignment >= stride )
-            LogicError
-            ("Invalid alignment: alignment=",alignment,", stride=",stride);
+        if( align < 0 || align >= stride )
+            LogicError("Invalid alignment: align=",align,", stride=",stride);
         if( stride <= 0 )
             LogicError("Stride must be positive");
     )
-    return Shift_( rank, alignment, stride );
+    return Shift_( rank, align, stride );
 }
 
-inline Int Shift_( Int rank, Int alignment, Int stride )
-{ return (rank + stride - alignment) % stride; }
+inline Int Shift_( Int rank, Int align, Int stride )
+{ return Mod(rank-align,stride); }
+
+
+inline Int LastOffset( Int n, Int bsize )
+{ return bsize*( Mod(n,bsize) ? n/bsize : (n/bsize)-1 ); }
+
+inline Int
+DiagonalLength( Int height, Int width, Int offset )
+{
+    if( offset > 0 )
+    {
+        const Int remWidth = Max(width-offset,0);
+        return Min(height,remWidth);
+    }
+    else
+    {
+        const Int remHeight = Max(height+offset,0);
+        return Min(remHeight,width);
+    }
+}
+
+inline Int GCD( Int a, Int b )
+{
+    DEBUG_ONLY(
+        if( a < 0 || b < 0 )
+            LogicError("GCD called with negative argument");
+    )
+    return GCD_( a, b );
+}
+
+inline Int GCD_( Int a, Int b )
+{
+    if( b == 0 )
+        return a;
+    else
+        return GCD_( b, a-b*(a/b) );
+}
+
+inline bool PowerOfTwo( Unsigned n )
+{ return n && !(n & (n-1)); }
 
 inline Unsigned Log2( Unsigned n )
 {
@@ -130,9 +231,6 @@ inline Unsigned Log2( Unsigned n )
     }
     return result;
 }
-
-inline bool PowerOfTwo( Unsigned n )
-{ return n && !(n & (n-1)); }
 
 } // namespace elem
 

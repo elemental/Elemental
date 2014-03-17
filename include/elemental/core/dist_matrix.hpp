@@ -21,14 +21,10 @@ struct DistData
 
     template<typename T,Dist U,Dist V>
     DistData( const GeneralDistMatrix<T,U,V>& A )
-    {
-        colDist = U;
-        rowDist = V;
-        colAlign = A.ColAlign();
-        rowAlign = A.RowAlign();
-        root = A.Root();
-        grid = &A.Grid();
-    }
+    : colDist(U), rowDist(V),
+      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
+      root(A.Root()), grid(&A.Grid())
+    { }
 };
 
 } // namespace elem

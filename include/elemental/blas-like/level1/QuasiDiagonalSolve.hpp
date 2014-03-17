@@ -109,8 +109,8 @@ LeftQuasiDiagonalSolve
     const Int colShift = X.ColShift();
     const Int colStride = X.ColStride();
     DEBUG_ONLY(
-        const Int colAlignPrev = (X.ColAlign()+1) % colStride;
-        const Int colAlignNext = (X.ColAlign()+colStride-1) % colStride;
+        const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
+        const Int colAlignNext = Mod(X.ColAlign()-1,colStride);
         if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
             LogicError("data is not properly aligned");
         if( XPrev.ColAlign() != colAlignPrev ||
@@ -203,8 +203,8 @@ RightQuasiDiagonalSolve
     const Int rowShift = X.RowShift();
     const Int rowStride = X.RowStride();
     DEBUG_ONLY(
-        const Int rowAlignPrev = (X.RowAlign()+1) % rowStride;
-        const Int rowAlignNext = (X.RowAlign()+rowStride-1) % rowStride;
+        const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
+        const Int rowAlignNext = Mod(X.RowAlign()-1,rowStride);
         if( d.ColAlign() != X.RowAlign() || dSub.RowAlign() != X.RowAlign() )
             LogicError("data is not properly aligned");
         if( XPrev.RowAlign() != rowAlignPrev ||
@@ -305,8 +305,8 @@ QuasiDiagonalSolve
         DistMatrix<FMain,U2,STAR> dPrev_U2_STAR(g), dNext_U2_STAR(g);
         DistMatrix<F,U2,STAR> dSubPrev_U2_STAR(g), dSubNext_U2_STAR(g);
         DistMatrix<F,U2,V2> XPrev(g), XNext(g);
-        const Int colAlignPrev = (colAlign+1) % colStride;
-        const Int colAlignNext = (colAlign+colStride-1) % colStride;
+        const Int colAlignPrev = Mod(colAlign+1,colStride);
+        const Int colAlignNext = Mod(colAlign-1,colStride);
         dPrev_U2_STAR.AlignCols( colAlignPrev );
         dNext_U2_STAR.AlignCols( colAlignNext );
         dSubPrev_U2_STAR.AlignCols( colAlignPrev );
@@ -345,8 +345,8 @@ QuasiDiagonalSolve
         DistMatrix<FMain,V2,STAR> dPrev_V2_STAR(g), dNext_V2_STAR(g);
         DistMatrix<F,V2,STAR> dSubPrev_V2_STAR(g), dSubNext_V2_STAR(g);
         DistMatrix<F,U2,V2> XPrev(g), XNext(g);
-        const Int rowAlignPrev = (rowAlign+1) % rowStride;
-        const Int rowAlignNext = (rowAlign+rowStride-1) % rowStride;
+        const Int rowAlignPrev = Mod(rowAlign+1,rowStride);
+        const Int rowAlignNext = Mod(rowAlign-1,rowStride);
         dPrev_V2_STAR.AlignCols( rowAlignPrev );
         dNext_V2_STAR.AlignCols( rowAlignNext );
         dSubPrev_V2_STAR.AlignCols( rowAlignPrev );

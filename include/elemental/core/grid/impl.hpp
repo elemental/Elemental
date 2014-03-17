@@ -139,7 +139,7 @@ Grid::SetUpGrid()
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
         std::vector<int> myDiagPathAndRank(2);
-        myDiagPathAndRank[0] = (matrixRowRank_+height_-matrixColRank_) % gcd_;
+        myDiagPathAndRank[0] = Mod(matrixRowRank_-matrixColRank_,gcd_);
         int diagPathRank = 0;
         int row = 0;
         int col = myDiagPathAndRank[0];
