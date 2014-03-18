@@ -86,18 +86,18 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
 HermitianInfinityNorm
-( UpperOrLower uplo, const DistMatrix<F>& A )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInfinityNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
-SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInfinityNorm"))
     return HermitianInfinityNorm( uplo, A );

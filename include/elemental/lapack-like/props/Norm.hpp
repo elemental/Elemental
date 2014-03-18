@@ -167,10 +167,10 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
     return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
 SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricNorm"))
     Base<F> norm = 0;
@@ -203,10 +203,10 @@ SymmetricNorm
     return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
 HermitianNorm
-( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianNorm"))
     Base<F> norm = 0;
