@@ -79,10 +79,6 @@ Syr2
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    const Int r = g.Height();
-    const Int c = g.Width();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -104,8 +100,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightAboveDiag = Length(j,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightAboveDiag = A.LocalRowOffset(j);
 
                 const T beta = y_MR_STAR.GetLocal(jLoc,0);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
@@ -120,8 +116,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightToDiag = Length(j+1,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightToDiag = A.LocalRowOffset(j+1);
 
                 const T beta = y_MR_STAR.GetLocal(jLoc,0);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
@@ -156,8 +152,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightAboveDiag = Length(j,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightAboveDiag = A.LocalRowOffset(j);
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
@@ -173,8 +169,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightToDiag = Length(j+1,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightToDiag = A.LocalRowOffset(j+1);
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_MR_STAR.GetLocal(jLoc,0);
@@ -210,8 +206,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightAboveDiag = Length(j,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightAboveDiag = A.LocalRowOffset(j);
 
                 const T beta = x_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = y_MR_STAR.GetLocal(jLoc,0);
@@ -227,8 +223,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightToDiag = Length(j+1,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightToDiag = A.LocalRowOffset(j+1);
 
                 const T beta = x_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = y_MR_STAR.GetLocal(jLoc,0);
@@ -263,8 +259,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightAboveDiag = Length(j,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightAboveDiag = A.LocalRowOffset(j);
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_STAR_MR.GetLocal(0,jLoc);
@@ -280,8 +276,8 @@ Syr2
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightToDiag = Length(j+1,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightToDiag = A.LocalRowOffset(j+1);
 
                 const T beta = y_STAR_MR.GetLocal(0,jLoc);
                 const T kappa = x_STAR_MR.GetLocal(0,jLoc);

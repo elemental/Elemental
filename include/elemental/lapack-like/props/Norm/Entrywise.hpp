@@ -30,8 +30,7 @@ EntrywiseNorm( const Matrix<F>& A, BASE(F) p )
 
 template<typename F>
 inline BASE(F)
-HermitianEntrywiseNorm
-( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
+HermitianEntrywiseNorm( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
@@ -104,59 +103,59 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
     return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
-HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) p )
+HermitianEntrywiseNorm
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    const Int r = A.Grid().Height();
-    const Int c = A.Grid().Width();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-
-    typedef Base<F> R;
-    R localSum = 0;
-    const Int localWidth = A.LocalWidth();
-    if( uplo == UPPER )
+    typedef Base<F> Real;
+    Real sum;
+    if( A.Participating() )
     {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        Real localSum = 0;
+        const Int localWidth = A.LocalWidth();
+        if( uplo == UPPER )
         {
-            Int j = rowShift + jLoc*c;
-            Int numUpperRows = Length(j+1,colShift,r);
-            for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                Int i = colShift + iLoc*r;
-                const R term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
-                if( i ==j )
-                    localSum += term;
-                else
-                    localSum += 2*term;
+                const Int j = A.GlobalCol(jLoc);
+                const Int numUpperRows = A.LocalRowOffset(j+1);
+                for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
+                {
+                    const Int i = A.GlobalRow(iLoc);
+                    const Real term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
+                    if( i ==j )
+                        localSum += term;
+                    else
+                        localSum += 2*term;
+                }
             }
         }
-    }
-    else
-    {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        else
         {
-            Int j = rowShift + jLoc*c;
-            Int numStrictlyUpperRows = Length(j,colShift,r);
-            for( Int iLoc=numStrictlyUpperRows;
-                 iLoc<A.LocalHeight(); ++iLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                Int i = colShift + iLoc*r;
-                const R term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
-                if( i ==j )
-                    localSum += term;
-                else
-                    localSum += 2*term;
+                const Int j = A.GlobalCol(jLoc);
+                const Int numStrictlyUpperRows = A.LocalRowOffset(j);
+                for( Int iLoc=numStrictlyUpperRows;
+                     iLoc<A.LocalHeight(); ++iLoc )
+                {
+                    const Int i = A.GlobalRow(iLoc);
+                    const Real term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
+                    if( i ==j )
+                        localSum += term;
+                    else
+                        localSum += 2*term;
+                }
             }
         }
+        sum = mpi::AllReduce( localSum, A.DistComm() );
     }
-
-    const R sum = mpi::AllReduce( localSum, A.Grid().VCComm() );
+    mpi::Broadcast( sum, A.Root(), A.CrossComm() );
     return Pow( sum, 1/p );
 }
 

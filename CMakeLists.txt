@@ -169,6 +169,7 @@ if(NOT WIN32) # I forget why we need this guard
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
       if(DEBUG)
+        # set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
         set(${LANG}_FLAGS "-O2 -g" CACHE STRING
           "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
       else()

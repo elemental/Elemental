@@ -83,19 +83,13 @@ PanelFull
     auto d = A.GetDiagonal();
     if( d.Participating() )
     {
-        const Int dShift = d.ColShift();
-        const Int XShift = X.ColShift();
-        const Int YShift = Y.ColShift();
-        const Int dStride = d.ColStride();
-        const Int XStride = X.ColStride();
-        const Int YStride = Y.ColStride();
         const Int dLocalHeight = d.LocalHeight();
         const Int k = X.Width();
         for( Int iLoc=0; iLoc<dLocalHeight; ++iLoc )
         {
-            const Int i = dShift + iLoc*dStride;    
-            const Int iLocX = (i-XShift) / XStride;
-            const Int iLocY = (i-YShift) / YStride;
+            const Int i = d.GlobalRow(iLoc);
+            const Int iLocX = X.LocalRow(i);
+            const Int iLocY = Y.LocalRow(i);
             for( Int j=0; j<k; ++j )
                 d.UpdateLocal
                 ( iLoc, 0, -X.GetLocal(iLocX,j)*Y.GetLocal(iLocY,j) );

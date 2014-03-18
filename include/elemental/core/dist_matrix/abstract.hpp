@@ -125,6 +125,10 @@ public:
     Int Owner( Int i, Int j ) const; // rank in DistComm
     Int LocalRow( Int i ) const; // debug throws if row i is not locally owned
     Int LocalCol( Int j ) const; // debug throws if col j is not locally owned
+    Int LocalRowOffset( Int i ) const; // number of local rows before row i
+    Int LocalColOffset( Int j ) const; // number of local cols before col j
+    Int GlobalRow( Int iLoc ) const;
+    Int GlobalCol( Int jLoc ) const;
     bool IsLocalRow( Int i ) const; 
     bool IsLocalCol( Int j ) const;
     bool IsLocal( Int i, Int j ) const;

@@ -106,7 +106,6 @@ LeftQuasiDiagonalScale
     const Int m = X.Height();
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
-    const Int colShift = X.ColShift();
     const Int colStride = X.ColStride();
     DEBUG_ONLY(
         const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
@@ -122,10 +121,8 @@ LeftQuasiDiagonalScale
             dSubNext.ColAlign() != colAlignNext )
             LogicError("'next' data is not properly aligned");
     )
-    const Int colShiftPrev = XPrev.ColShift();
-    const Int colShiftNext = XNext.ColShift();
-    const Int prevOff = ( colShiftPrev==colShift-1 ? 0 : -1 );
-    const Int nextOff = ( colShiftNext==colShift+1 ? 0 : +1 );
+    const Int prevOff = ( XPrev.ColShift()==X.ColShift()-1 ? 0 : -1 );
+    const Int nextOff = ( XNext.ColShift()==X.ColShift()+1 ? 0 : +1 );
     if( !X.Participating() )
         return;
 
@@ -141,7 +138,7 @@ LeftQuasiDiagonalScale
     Matrix<F> D11( 2, 2 );
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = X.GlobalRow(iLoc);
         const Int iLocPrev = iLoc + prevOff;
         const Int iLocNext = iLoc + nextOff;
 
@@ -200,7 +197,6 @@ RightQuasiDiagonalScale
     const Int n = X.Width();
     const Int mLocal = X.LocalHeight();
     const Int nLocal = X.LocalWidth();
-    const Int rowShift = X.RowShift();
     const Int rowStride = X.RowStride();
     DEBUG_ONLY(
         const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
@@ -216,10 +212,8 @@ RightQuasiDiagonalScale
             dSubNext.ColAlign() != rowAlignNext )
             LogicError("'next' data is not properly aligned");
     )
-    const Int rowShiftPrev = XPrev.RowShift();
-    const Int rowShiftNext = XNext.RowShift();
-    const Int prevOff = ( rowShiftPrev==rowShift-1 ? 0 : -1 );
-    const Int nextOff = ( rowShiftNext==rowShift+1 ? 0 : +1 );
+    const Int prevOff = ( XPrev.RowShift()==X.RowShift()-1 ? 0 : -1 );
+    const Int nextOff = ( XNext.RowShift()==X.RowShift()+1 ? 0 : +1 );
     if( !X.Participating() )
         return;
 
@@ -235,7 +229,7 @@ RightQuasiDiagonalScale
     Matrix<F> D11( 2, 2 );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = X.GlobalCol(jLoc);
         const Int jLocPrev = jLoc + prevOff;
         const Int jLocNext = jLoc + nextOff;
 

@@ -50,13 +50,8 @@ MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();
-    const Int width = A.Width();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
 
     T* buffer = A.Buffer();
     const Int ldim = A.LDim();
@@ -66,12 +61,12 @@ MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
         PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
+            const Int j = A.GlobalCol(jLoc);
             const Int lastZeroRow = j-offset-1;
             if( lastZeroRow >= 0 )
             {
                 const Int boundary = Min( lastZeroRow+1, height );
-                const Int numZeroRows = Length_(boundary,colShift,colStride);
+                const Int numZeroRows = A.LocalRowOffset(boundary);
                 MemZero( &buffer[jLoc*ldim], numZeroRows );
             }
         }
@@ -81,9 +76,9 @@ MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
         PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
+            const Int j = A.GlobalCol(jLoc);
             const Int firstZeroRow = Max(j-offset+1,0);
-            const Int numNonzeroRows = Length_(firstZeroRow,colShift,colStride);
+            const Int numNonzeroRows = A.LocalRowOffset(firstZeroRow);
             if( numNonzeroRows < localHeight )
             {
                 T* col = &buffer[numNonzeroRows+jLoc*ldim];

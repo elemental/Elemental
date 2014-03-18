@@ -44,16 +44,12 @@ KMS( DistMatrix<T,U,V>& K, Int n, T rho )
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     const Int localHeight = K.LocalHeight();
     const Int localWidth = K.LocalWidth();
-    const Int colShift = K.ColShift();
-    const Int rowShift = K.RowShift();
-    const Int colStride = K.ColStride();
-    const Int rowStride = K.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = K.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = K.GlobalRow(iLoc);
             if( i < j )
                 K.SetLocal( iLoc, jLoc, Pow(rho,T(j-i)) );
             else

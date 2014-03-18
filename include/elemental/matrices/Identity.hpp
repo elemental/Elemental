@@ -35,16 +35,12 @@ MakeIdentity( DistMatrix<T,U,V>& I )
 
     const Int localHeight = I.LocalHeight();
     const Int localWidth = I.LocalWidth();
-    const Int colShift = I.ColShift();
-    const Int rowShift = I.RowShift();
-    const Int colStride = I.ColStride();
-    const Int rowStride = I.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = I.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = I.GlobalRow(iLoc);
             if( i == j )
                 I.SetLocal( iLoc, jLoc, T(1) );
         }

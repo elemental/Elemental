@@ -38,16 +38,12 @@ MakeEgorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
     DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = A.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = A.GlobalRow(iLoc);
             const Real theta = phase(i,j);
             const Real realPart = Cos(theta);
             const Real imagPart = Sin(theta);

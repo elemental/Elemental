@@ -68,10 +68,6 @@ Syr
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    const Int r = g.Height();
-    const Int c = g.Width();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
 
     if( x.Width() == 1 )
     {
@@ -79,9 +75,8 @@ Syr
         DistMatrix<T,MR,STAR> x_MR_STAR(g);
 
         x_MC_STAR.AlignWith( A );
-        x_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+        x_MR_STAR.AlignWith( A );
         x_MR_STAR = x_MC_STAR;
 
         const T* xBuffer = x_MC_STAR.LockedBuffer();
@@ -89,8 +84,8 @@ Syr
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightAboveDiag = Length(j,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightAboveDiag = A.LocalRowOffset(j);
 
                 const T beta = x_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
@@ -103,8 +98,8 @@ Syr
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightToDiag = Length(j+1,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightToDiag = A.LocalRowOffset(j+1);
 
                 const T beta = x_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
@@ -113,17 +108,15 @@ Syr
                     ACol[iLoc] += gamma*xBuffer[iLoc];
             }
         }
-        //--------------------------------------------------------------------//
     }
     else
     {
         DistMatrix<T,STAR,MC> x_STAR_MC(g);
         DistMatrix<T,STAR,MR> x_STAR_MR(g);
 
-        x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MR = x;
+        x_STAR_MC.AlignWith( A );
         x_STAR_MC = x_STAR_MR;
 
         const T* xBuffer = x_STAR_MC.LockedBuffer();
@@ -132,8 +125,8 @@ Syr
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightAboveDiag = Length(j,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightAboveDiag = A.LocalRowOffset(j);
 
                 const T beta = x_STAR_MR.GetLocal(0,jLoc);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
@@ -146,8 +139,8 @@ Syr
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*c;
-                const Int heightToDiag = Length(j+1,colShift,r);
+                const Int j = A.GlobalCol(jLoc);
+                const Int heightToDiag = A.LocalRowOffset(j+1);
 
                 const T beta = x_STAR_MR.GetLocal(0,jLoc);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
@@ -156,7 +149,6 @@ Syr
                     ACol[iLoc] += gamma*xBuffer[iLoc*incx];
             }
         }
-        //--------------------------------------------------------------------//
     }
 }
 

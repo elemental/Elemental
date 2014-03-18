@@ -44,20 +44,14 @@ main( int argc, char* argv[] )
         // the global matrix is skew-Hermitian. However, only one triangle of 
         // the matrix actually needs to be filled, the symmetry can be implicit.
         //
-        const Int colShift = S.ColShift(); // first row we own
-        const Int rowShift = S.RowShift(); // first col we own
-        const Int colStride = S.ColStride();
-        const Int rowStride = S.RowStride();
         const Int localHeight = S.LocalHeight();
         const Int localWidth = S.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
+            const Int j = S.GlobalCol(jLoc);
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
-                const Int i = colShift + iLoc*colStride;
-                const Int j = rowShift + jLoc*rowStride;
+                const Int i = S.GlobalRow(iLoc);
                 S.SetLocal( iLoc, jLoc, C(i-j,i+j) );
             }
         }

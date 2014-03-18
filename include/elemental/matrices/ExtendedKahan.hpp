@@ -107,11 +107,9 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     // Now scale R by S
     const R zeta = Sqrt(R(1)-phi*phi);
     DistMatrix<R,U,STAR> d( n, 1, A.Grid() );
-    const Int colShift = d.ColShift();
-    const Int colStride = d.ColStride();
     for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = d.GlobalRow(iLoc);
         d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
     }
     DiagonalScale( LEFT, NORMAL, d, A );

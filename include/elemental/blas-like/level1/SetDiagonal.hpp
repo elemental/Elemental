@@ -57,17 +57,13 @@ SetDiagonal( DistMatrix<T,U,V>& A, S alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
-    const Int rowShift = A.RowShift();
-    const Int colShift = A.ColShift();
-    const Int rowStride = A.RowStride();
-    const Int colStride = A.ColStride();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
-        if( j < height && j % colStride == colShift )
+        const Int j = A.GlobalCol(jLoc);
+        if( j < height && A.IsLocalRow(j) )
         {
-            const Int iLoc = (j-colShift) / colStride;
+            const Int iLoc = A.LocalRow(j);
             A.SetLocal( iLoc, jLoc, alpha );
         }
     }
@@ -81,20 +77,16 @@ SetDiagonal
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
-    const Int rowShift = A.RowShift();
-    const Int colShift = A.ColShift();
-    const Int rowStride = A.RowStride();
-    const Int colStride = A.ColStride();
     const Int localWidth = A.LocalWidth();
     if( side == LEFT )
     {
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
+            const Int j = A.GlobalCol(jLoc);
             const Int i = j-offset;
-            if( i >= 0 && i < height && i % colStride == colShift )
+            if( i >= 0 && i < height && A.IsLocalRow(i) )
             {
-                const Int iLoc = (i-colShift) / colStride;
+                const Int iLoc = A.LocalRow(i);
                 A.SetLocal( iLoc, jLoc, alpha );
             }
         }
@@ -103,11 +95,11 @@ SetDiagonal
     {
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
+            const Int j = A.GlobalCol(jLoc);
             const Int i = j-offset+height-width;
-            if( i >= 0 && i < height && i % colStride == colShift )
+            if( i >= 0 && i < height && A.IsLocalRow(i) )
             {
-                const Int iLoc = (i-colShift) / colStride;
+                const Int iLoc = A.LocalRow(i);
                 A.SetLocal( iLoc, jLoc, alpha );
             }
         }

@@ -95,7 +95,6 @@ Inertia
         }
     )
 
-    const Int colShift = d.ColShift();
     const Int colStride = d.ColStride();
     DEBUG_ONLY(
         const Int colAlign = d.ColAlign();
@@ -113,13 +112,12 @@ Inertia
         return Inertia( d.LockedMatrix(), dSub.LockedMatrix() );
 
     const Int mLocal = d.LocalHeight();
-    const Int colShiftPrev = dPrev.ColShift();
-    const Int prevOff = ( colShiftPrev==colShift-1 ? 0 : -1 );
+    const Int prevOff = ( dPrev.ColShift()==d.ColShift()-1 ? 0 : -1 );
     elem::Inertia locInert;
     locInert.numPositive = locInert.numNegative = locInert.numZero = 0;
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = d.GlobalRow(iLoc);
         const Int iLocPrev = iLoc + prevOff;
 
         if( i<n-1 && dSub.GetLocal(iLoc,0) != F(0) )

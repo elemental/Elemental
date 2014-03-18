@@ -103,56 +103,56 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
-HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    const Int r = A.Grid().Height();
-    const Int c = A.Grid().Width();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-
     typedef Base<F> Real;
-    Real localMaxAbs = 0;
-    const Int localWidth = A.LocalWidth();
-    if( uplo == UPPER )
+    Real norm;
+    if( A.Participating() )
     {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        Real localMaxAbs = 0;
+        const Int localWidth = A.LocalWidth();
+        if( uplo == UPPER )
         {
-            Int j = rowShift + jLoc*c;
-            Int numUpperRows = Length(j+1,colShift,r);
-            for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Real thisAbs = Abs(A.GetLocal(iLoc,jLoc));
-                localMaxAbs = std::max( localMaxAbs, thisAbs );
+                const Int j = A.GlobalCol(jLoc);
+                const Int numUpperRows = A.LocalRowOffset(j+1);
+                for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
+                {
+                    const Real thisAbs = Abs(A.GetLocal(iLoc,jLoc));
+                    localMaxAbs = std::max( localMaxAbs, thisAbs );
+                }
             }
         }
-    }
-    else
-    {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        else
         {
-            Int j = rowShift + jLoc*c;
-            Int numStrictlyUpperRows = Length(j,colShift,r);
-            for( Int iLoc=numStrictlyUpperRows;
-                 iLoc<A.LocalHeight(); ++iLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Real thisAbs = Abs(A.GetLocal(iLoc,jLoc));
-                localMaxAbs = std::max( localMaxAbs, thisAbs );
+                const Int j = A.GlobalCol(jLoc);
+                const Int numStrictlyUpperRows = A.LocalRowOffset(j);
+                for( Int iLoc=numStrictlyUpperRows;
+                     iLoc<A.LocalHeight(); ++iLoc )
+                {
+                    const Real thisAbs = Abs(A.GetLocal(iLoc,jLoc));
+                    localMaxAbs = std::max( localMaxAbs, thisAbs );
+                }
             }
         }
+        norm = mpi::AllReduce( localMaxAbs, mpi::MAX, A.DistComm() );
     }
-
-    return mpi::AllReduce( localMaxAbs, mpi::MAX, A.Grid().VCComm() );
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
-SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );

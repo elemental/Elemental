@@ -154,7 +154,7 @@ main( int argc, char* argv[] )
         if( r == 0 )
             r = Grid::FindFactor( commSize );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r );
+        const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )

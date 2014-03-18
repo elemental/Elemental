@@ -72,16 +72,12 @@ MakeWalsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
     const T offValue = ( binary ? 0 : -1 );
     const Unsigned localHeight = A.LocalHeight();
     const Unsigned localWidth = A.LocalWidth();
-    const Unsigned colShift = A.ColShift();
-    const Unsigned rowShift = A.RowShift();
-    const Unsigned colStride = A.ColStride();
-    const Unsigned rowStride = A.RowStride();
     for( Unsigned jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Unsigned j = rowShift + jLoc*rowStride;
+        const Unsigned j = A.GlobalCol(jLoc);
         for( Unsigned iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Unsigned i = colShift + iLoc*colStride;
+            const Unsigned i = A.GlobalRow(iLoc);
 
             // Recurse on the quadtree, flipping the sign of the entry each
             // time we are in the bottom-right quadrant

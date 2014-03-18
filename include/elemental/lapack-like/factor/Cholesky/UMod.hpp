@@ -34,7 +34,6 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
         if( V.Height() != U.Height() )
             LogicError("V is the wrong height");
     )
-    typedef Base<F> Real;
     const Int m = V.Height();
     const Int n = V.Width();
 
@@ -92,7 +91,6 @@ UUpdate( DistMatrix<F>& U, DistMatrix<F>& V )
         if( U.Grid() != V.Grid() )
             LogicError("U and V must have the same grid");
     )
-    typedef Base<F> Real;
     const Int m = V.Height();
     const Int n = V.Width();
 
@@ -157,7 +155,6 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
         if( V.Height() != U.Height() )
             LogicError("V is the wrong height");
     )
-    typedef Base<F> Real;
     const Int m = V.Height();
     const Int n = V.Width();
 
@@ -215,7 +212,6 @@ UDowndate( DistMatrix<F>& U, DistMatrix<F>& V )
         if( U.Grid() != V.Grid() )
             LogicError("U and V must have the same grid");
     )
-    typedef Base<F> Real;
     const Int m = V.Height();
     const Int n = V.Width();
 

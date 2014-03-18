@@ -49,16 +49,12 @@ Redheffer( DistMatrix<T,U,V>& R, Int n )
     R.Resize( n, n );
     const Int localHeight = R.LocalHeight();
     const Int localWidth = R.LocalWidth();
-    const Int colShift = R.ColShift();
-    const Int rowShift = R.RowShift();
-    const Int colStride = R.ColStride();
-    const Int rowStride = R.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = R.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = R.GlobalRow(iLoc);
             if( j==0 || ((j+1)%(i+1))==0 )
                 R.SetLocal( iLoc, jLoc, T(1) );
             else

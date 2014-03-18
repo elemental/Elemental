@@ -220,7 +220,6 @@ LN
     Scale( alpha, X );
 
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int nLoc = X.LocalWidth();
     if( m == 0 )
         return;
@@ -329,7 +328,6 @@ UN
     Scale( alpha, X );
 
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int nLoc = X.LocalWidth();
     if( m == 0 )
         return;

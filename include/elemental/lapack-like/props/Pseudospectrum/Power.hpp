@@ -103,7 +103,7 @@ FixColumns( DistMatrix<F,U,V>& X )
     const Int nLocal = X.LocalWidth();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Int j = X.RowShift() + jLoc*X.RowStride();
+        const Int j = X.GlobalCol(jLoc);
         auto x = View( X, 0, j, m, 1 );
         Real norm = norms.GetLocal(jLoc,0);
         if( norm == Real(0) )
@@ -191,10 +191,10 @@ FindConverged
     Zeros( activeConverged, activeEsts.Height(), 1 );
 
     const Int numLocShifts=activeEsts.LocalHeight();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
-        const Real lastEst = lastActiveEsts.GetLocal(jLoc,0);
-        const Real currEst = activeEsts.GetLocal(jLoc,0);
+        const Real lastEst = lastActiveEsts.GetLocal(iLoc,0);
+        const Real currEst = activeEsts.GetLocal(iLoc,0);
         bool converged = false;
         if( currEst >= normCap )
             converged = true;
@@ -202,11 +202,11 @@ FindConverged
             converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
 
         if( converged )
-            activeConverged.SetLocal( jLoc, 0, 1 );
+            activeConverged.SetLocal( iLoc, 0, 1 );
         else 
         {
-            const Int j = activeEsts.ColShift()+jLoc*activeEsts.ColStride();
-            activeItCounts.Update( j, 0, 1 );
+            const Int i = activeEsts.GlobalRow(iLoc);
+            activeItCounts.Update( i, 0, 1 );
         }
     }
 
@@ -560,10 +560,10 @@ TriangularPower
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
         const Int numLocShifts = preimage.LocalHeight();
-        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
-            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
-            preimage.SetLocal( jLoc, 0, j );
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
         }
     }
 
@@ -661,10 +661,10 @@ HessenbergPower
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
         const Int numLocShifts = preimage.LocalHeight();
-        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
-            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
-            preimage.SetLocal( jLoc, 0, j );
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
         }
     }
 

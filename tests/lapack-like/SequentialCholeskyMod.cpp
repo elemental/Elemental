@@ -25,7 +25,6 @@ void TestCorrectness
 {
     typedef Base<F> Real;
     const Int m = V.Height();
-    const Int n = V.Width();
 
     Matrix<F> B( A );
     Herk( uplo, NORMAL, F(alpha), V, F(1), B );

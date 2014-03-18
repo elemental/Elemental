@@ -1,0 +1,186 @@
+/*
+   Copyright (c) 2009-2014, Jack Poulson
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
+*/
+#pragma once
+#ifndef ELEM_BLOCKDISTMATRIX_GENERAL_DECL_HPP
+#define ELEM_BLOCKDISTMATRIX_GENERAL_DECL_HPP
+
+namespace elem {
+
+template<typename T,Dist U,Dist V> 
+class GeneralBlockDistMatrix : public AbstractBlockDistMatrix<T>
+{
+public:
+    // Typedefs
+    // ========
+    typedef AbstractBlockDistMatrix<T> admType;
+    typedef GeneralBlockDistMatrix<T,U,V> type;
+#ifndef SWIG
+    static constexpr Dist UDiag = DiagColDist<U,V>();
+    static constexpr Dist VDiag = DiagRowDist<U,V>();
+    static constexpr Dist UGath = GatheredDist<U>();
+    static constexpr Dist VGath = GatheredDist<V>();
+    static constexpr Dist UPart = PartialDist<U>();
+    static constexpr Dist VPart = PartialDist<V>();
+    static constexpr Dist UScat = ScatteredColDist<U,V>();
+    static constexpr Dist VScat = ScatteredRowDist<U,V>();
+#endif
+
+    // Constructors and destructors
+    // ============================
+#ifndef SWIG
+    // Move constructor
+    GeneralBlockDistMatrix( type&& A ) noexcept;
+#endif
+
+    // Assignment and reconfiguration
+    // ==============================
+#ifndef SWIG
+    // Move assignment
+    type& operator=( type&& A );
+
+    void AllGather( BlockDistMatrix<T,UGath,VGath>& A ) const;
+    void ColAllGather( BlockDistMatrix<T,UGath,V>& A ) const;
+    void RowAllGather( BlockDistMatrix<T,U,VGath>& A ) const;
+    void PartialColAllGather( BlockDistMatrix<T,UPart,V>& A ) const;
+    void PartialRowAllGather( BlockDistMatrix<T,U,VPart>& A ) const;
+
+    void FilterFrom( const BlockDistMatrix<T,UGath,VGath>& A );
+    void ColFilterFrom( const BlockDistMatrix<T,UGath,V>& A );
+    void RowFilterFrom( const BlockDistMatrix<T,U,VGath>& A );
+    void PartialColFilterFrom( const BlockDistMatrix<T,UPart,V>& A );
+    void PartialRowFilterFrom( const BlockDistMatrix<T,U,VPart>& A );
+
+    void PartialColAllToAllFrom( const BlockDistMatrix<T,UPart,VScat>& A );
+    void PartialRowAllToAllFrom( const BlockDistMatrix<T,UScat,VPart>& A );
+    void PartialColAllToAll( BlockDistMatrix<T,UPart,VScat>& A ) const;
+    void PartialRowAllToAll( BlockDistMatrix<T,UScat,VPart>& A ) const;
+
+    void SumScatterFrom( const BlockDistMatrix<T,UGath,VGath>& A );
+    void RowSumScatterFrom( const BlockDistMatrix<T,U,VGath>& A );
+    void ColSumScatterFrom( const BlockDistMatrix<T,UGath,V>& A );
+    void PartialRowSumScatterFrom( const BlockDistMatrix<T,U,VPart>& A );
+    void PartialColSumScatterFrom( const BlockDistMatrix<T,UPart,V>& A );
+
+    void SumScatterUpdate( T alpha, const BlockDistMatrix<T,UGath,VGath>& A );
+    void RowSumScatterUpdate( T alpha, const BlockDistMatrix<T,U,VGath>& A );
+    void ColSumScatterUpdate( T alpha, const BlockDistMatrix<T,UGath,V>& A );
+    void PartialRowSumScatterUpdate
+    ( T alpha, const BlockDistMatrix<T,U,VPart>& A );
+    void PartialColSumScatterUpdate
+    ( T alpha, const BlockDistMatrix<T,UPart,V>& A );
+
+    // Transposed variants of some of the above routines which avoid 
+    // large amounts of non-uniform data access
+    // -------------------------------------------------------------
+    void TransposeColAllGather
+    ( BlockDistMatrix<T,V,UGath>& A, bool conjugate=false ) const;
+    void TransposePartialColAllGather
+    ( BlockDistMatrix<T,V,UPart>& A, bool conjugate=false ) const;
+    void AdjointColAllGather( BlockDistMatrix<T,V,UGath>& A ) const;
+    void AdjointPartialColAllGather( BlockDistMatrix<T,V,UPart>& A ) const;
+
+    void TransposeColFilterFrom
+    ( const BlockDistMatrix<T,V,UGath>& A, bool conjugate=false );
+    void TransposeRowFilterFrom
+    ( const BlockDistMatrix<T,VGath,U>& A, bool conjugate=false );
+    void TransposePartialColFilterFrom
+    ( const BlockDistMatrix<T,V,UPart>& A, bool conjugate=false );
+    void TransposePartialRowFilterFrom
+    ( const BlockDistMatrix<T,VPart,U>& A, bool conjugate=false );
+    void AdjointColFilterFrom( const BlockDistMatrix<T,V,UGath>& A );
+    void AdjointRowFilterFrom( const BlockDistMatrix<T,VGath,U>& A );
+    void AdjointPartialColFilterFrom( const BlockDistMatrix<T,V,UPart>& A );
+    void AdjointPartialRowFilterFrom( const BlockDistMatrix<T,VPart,U>& A );
+
+    void TransposeColSumScatterFrom
+    ( const BlockDistMatrix<T,V,UGath>& A, bool conjugate=false );
+    void TransposePartialColSumScatterFrom
+    ( const BlockDistMatrix<T,V,UPart>& A, bool conjugate=false );
+    void AdjointColSumScatterFrom( const BlockDistMatrix<T,V,UGath>& A );
+    void AdjointPartialColSumScatterFrom( const BlockDistMatrix<T,V,UPart>& A );
+
+    void TransposeColSumScatterUpdate
+    ( T alpha, const BlockDistMatrix<T,V,UGath>& A, bool conjugate=false );
+    void TransposePartialColSumScatterUpdate
+    ( T alpha, const BlockDistMatrix<T,V,UPart>& A, bool conjugate=false );
+    void AdjointColSumScatterUpdate
+    ( T alpha, const BlockDistMatrix<T,V,UGath>& A );
+    void AdjointPartialColSumScatterUpdate
+    ( T alpha, const BlockDistMatrix<T,V,UPart>& A );
+#endif
+
+    // Diagonal manipulation
+    // =====================
+    bool DiagonalAlignedWith
+    ( const elem::BlockDistData& d, Int offset=0 ) const;
+    Int DiagonalRoot( Int offset=0 ) const;
+    Int DiagonalAlign( Int offset=0 ) const;
+#ifndef SWIG
+    void GetDiagonal( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
+    void GetRealPartOfDiagonal
+    ( BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal
+    ( BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
+
+    BlockDistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
+    BlockDistMatrix<BASE(T),UDiag,VDiag> 
+    GetRealPartOfDiagonal( Int offset=0 ) const;
+    BlockDistMatrix<BASE(T),UDiag,VDiag> 
+    GetImagPartOfDiagonal( Int offset=0 ) const;
+
+    void SetDiagonal( const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
+    void SetRealPartOfDiagonal
+    ( const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+    void SetImagPartOfDiagonal
+    ( const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+
+    void UpdateDiagonal
+    ( T alpha, const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal
+    ( BASE(T) alpha, const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, 
+      Int offset=0 );
+    void UpdateImagPartOfDiagonal
+    ( BASE(T) alpha, const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, 
+      Int offset=0 );
+#endif // ifndef SWIG
+
+protected:
+
+    // Private constructors
+    // ====================
+
+    // Inherited constructors are part of C++11 but not yet widely supported.
+    //using AbstractDistMatrix<T>::AbstractDistMatrix;
+
+    // Create a 0 x 0 distributed matrix
+    GeneralBlockDistMatrix
+    ( Int blockHeight=32, Int blockWidth=32, const elem::Grid& g=DefaultGrid(), 
+      Int root=0 );
+
+    // Diagonal helper routines
+    // ========================
+#ifndef SWIG
+    template<typename S,class Function>
+    void GetDiagonalHelper
+    ( BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const;
+    template<typename S,class Function>
+    void SetDiagonalHelper
+    ( const BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func );
+#endif // ifndef SWIG
+
+    // Friend declarations
+    // ===================
+#ifndef SWIG
+    template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
+#endif 
+};
+
+} // namespace elem
+
+#endif // ifndef ELEM_BLOCKDISTMATRIX_GENERAL_DECL_HPP

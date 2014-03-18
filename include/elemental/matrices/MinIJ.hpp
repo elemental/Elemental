@@ -42,16 +42,12 @@ MinIJ( DistMatrix<T,U,V>& M, Int n )
     M.Resize( n, n );
     const Int localHeight = M.LocalHeight();
     const Int localWidth = M.LocalWidth();
-    const Int colShift = M.ColShift();
-    const Int rowShift = M.RowShift();
-    const Int colStride = M.ColStride();
-    const Int rowStride = M.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = M.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = M.GlobalRow(iLoc);
             M.SetLocal( iLoc, jLoc, std::min(i+1,j+1) );
         }
     }

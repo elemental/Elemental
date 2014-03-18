@@ -44,15 +44,11 @@ PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset=0 )
         if( pivotOffset < 0 )
             LogicError("pivot offset cannot be negative");
     )
-    const Int mLocal = p.LocalHeight();
-    const Grid& g = p.Grid();
-
     bool isLocallyOdd = false;
-    const Int colShift = p.ColShift();
-    const Int gridSize = g.Size();
+    const Int mLocal = p.LocalHeight();
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        const Int i = colShift + iLoc*gridSize;
+        const Int i = p.GlobalRow(iLoc);
         if( p.GetLocal(iLoc,0) != i+pivotOffset )
             isLocallyOdd = !isLocallyOdd;
     }
@@ -60,7 +56,7 @@ PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset=0 )
     Int localContribution = isLocallyOdd;
     Int globalContribution;
     mpi::AllReduce
-    ( &localContribution, &globalContribution, 1, MPI_SUM, g.VCComm() );
+    ( &localContribution, &globalContribution, 1, MPI_SUM, p.ColComm() );
     return globalContribution % 2;
 }
 

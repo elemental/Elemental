@@ -62,10 +62,6 @@ AxpyTriangle
     {
         const Int localHeight = X.LocalHeight();
         const Int localWidth = X.LocalWidth();
-        const Int colShift = X.ColShift();
-        const Int rowShift = X.RowShift();
-        const Int colStride = X.ColStride();
-        const Int rowStride = X.RowStride();
         const T* XBuffer = X.LockedBuffer();
         T* YBuffer = Y.Buffer();
         const Int XLDim = X.LDim();
@@ -74,8 +70,8 @@ AxpyTriangle
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*rowStride;        
-                const Int localHeightAbove = Length( j+1, colShift, colStride );
+                const Int j = X.GlobalCol(jLoc);
+                const Int localHeightAbove = X.LocalRowOffset(j+1);
                 blas::Axpy
                 ( localHeightAbove, alpha, 
                   &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
@@ -85,8 +81,8 @@ AxpyTriangle
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const Int j = rowShift + jLoc*rowStride;
-                const Int localHeightAbove = Length( j, colShift, colStride );
+                const Int j = X.GlobalCol(jLoc);
+                const Int localHeightAbove = X.LocalRowOffset(j);
                 const Int localHeightBelow = localHeight - localHeightAbove;
                 blas::Axpy
                 ( localHeightBelow, alpha, 

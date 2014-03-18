@@ -75,11 +75,11 @@ FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
     DistMatrix<Real,VR,STAR> d(g), e(g); 
     Zeros( d, n, 1 );
     e.Resize( n-1, 1 );
-    for( Int jLoc=0; jLoc<e.LocalHeight(); ++jLoc )
+    for( Int iLoc=0; iLoc<e.LocalHeight(); ++iLoc )
     {
-        const Int j = e.ColShift() + jLoc*e.ColStride();
-        const Real betaInv = 2*Sqrt(1-Pow(j+Real(1),-2)/4);
-        e.SetLocal( jLoc, 0, 1/betaInv );
+        const Int i = e.GlobalRow(iLoc);
+        const Real betaInv = 2*Sqrt(1-Pow(i+Real(1),-2)/4);
+        e.SetLocal( iLoc, 0, 1/betaInv );
     }
     DistMatrix<Real,VR,STAR> x(g);
     DistMatrix<Real,STAR,VR> Z(g);

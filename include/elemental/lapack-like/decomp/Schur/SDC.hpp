@@ -101,18 +101,14 @@ ComputePartition( DistMatrix<F>& A )
     std::vector<Real> colSums(n-1,0), rowSums(n-1,0);
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
-    const Int rowShift = A.RowShift();
-    const Int colShift = A.ColShift();
-    const Int rowStride = A.RowStride();
-    const Int colStride = A.ColStride();
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = A.GlobalCol(jLoc);
         if( j < n-1 )
         {
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
-                const Int i = colShift + iLoc*colStride;
+                const Int i = A.GlobalRow(iLoc);
                 if( i > j )
                 {
                     colSums[j] += Abs( A.GetLocal(iLoc,jLoc) ); 

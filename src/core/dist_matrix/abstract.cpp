@@ -639,7 +639,7 @@ AbstractDistMatrix<T>::LocalRow( Int i ) const
         if( !IsLocalRow(i) )
             LogicError("Requested local index of non-local row");
     )
-    return (i-ColShift()) / ColStride();
+    return LocalRowOffset(i);
 }
 
 template<typename T>
@@ -651,18 +651,38 @@ AbstractDistMatrix<T>::LocalCol( Int j ) const
         if( !IsLocalCol(j) )
             LogicError("Requested local index of non-local column");
     )
-    return (j-RowShift()) / RowStride();
+    return LocalColOffset(j);
 }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::LocalRowOffset( Int i ) const
+{ return Length_(i,ColShift(),ColStride()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::LocalColOffset( Int j ) const
+{ return Length_(j,RowShift(),RowStride()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::GlobalRow( Int iLoc ) const
+{ return ColShift() + iLoc*ColStride(); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::GlobalCol( Int jLoc ) const
+{ return RowShift() + jLoc*RowStride(); }
 
 template<typename T>
 bool
 AbstractDistMatrix<T>::IsLocalRow( Int i ) const
-{ return Participating() && ((i-ColShift()) % ColStride()) == 0; }
+{ return Participating() && RowOwner(i) == ColRank(); }
 
 template<typename T>
 bool
 AbstractDistMatrix<T>::IsLocalCol( Int j ) const
-{ return Participating() && ((j-RowShift()) % RowStride()) == 0; }
+{ return Participating() && ColOwner(j) == RowRank(); }
 
 template<typename T>
 bool
@@ -730,8 +750,8 @@ AbstractDistMatrix<T>::Get( Int i, Int j ) const
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             value = GetLocal( iLoc, jLoc );
         }
         mpi::Broadcast( value, owner, DistComm() );
@@ -755,8 +775,8 @@ AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             value = GetLocalRealPart( iLoc, jLoc );
         }
         mpi::Broadcast( value, owner, DistComm() );
@@ -782,8 +802,8 @@ AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
             const Int owner = Owner( i, j );
             if( owner == DistRank() )
             {
-                const Int iLoc = (i-ColShift()) / ColStride();
-                const Int jLoc = (j-RowShift()) / RowStride();
+                const Int iLoc = LocalRow(i);
+                const Int jLoc = LocalCol(j);
                 value = GetLocalRealPart( iLoc, jLoc );
             }
             mpi::Broadcast( value, owner, DistComm() );
@@ -805,8 +825,8 @@ AbstractDistMatrix<T>::Set( Int i, Int j, T value )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             SetLocal( iLoc, jLoc, value );
         }
     }
@@ -822,8 +842,8 @@ AbstractDistMatrix<T>::SetRealPart( Int i, Int j, Base<T> value )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             SetLocalRealPart( iLoc, jLoc, value );
         }
     }
@@ -839,8 +859,8 @@ AbstractDistMatrix<T>::SetImagPart( Int i, Int j, Base<T> value )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             SetLocalImagPart( iLoc, jLoc, value );
         }
     }
@@ -856,8 +876,8 @@ AbstractDistMatrix<T>::Update( Int i, Int j, T value )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             UpdateLocal( iLoc, jLoc, value );
         }
     }
@@ -873,8 +893,8 @@ AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, Base<T> value )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             UpdateLocalRealPart( iLoc, jLoc, value );
         }
     }
@@ -890,8 +910,8 @@ AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, Base<T> value )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             UpdateLocalImagPart( iLoc, jLoc, value );
         }
     }
@@ -907,8 +927,8 @@ AbstractDistMatrix<T>::MakeReal( Int i, Int j )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             MakeLocalReal( iLoc, jLoc );
         }
     }
@@ -924,8 +944,8 @@ AbstractDistMatrix<T>::Conjugate( Int i, Int j )
         const Int owner = Owner( i, j );
         if( owner == DistRank() )
         {
-            const Int iLoc = (i-ColShift()) / ColStride();
-            const Int jLoc = (j-RowShift()) / RowStride();
+            const Int iLoc = LocalRow(i);
+            const Int jLoc = LocalCol(j);
             ConjugateLocal( iLoc, jLoc );
         }
     }
@@ -999,16 +1019,12 @@ void
 AbstractDistMatrix<T>::MakeDiagonalReal( Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeDiagonalReal"))
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int minDim = Min(height,width);
-    const Int localWidth = this->LocalWidth();
-    const Int rowShift = this->RowShift();
-    const Int rowStride = this->RowStride();
+    const Int height = Height();
+    const Int localWidth = LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
-        if( j < minDim && IsLocal(j,j) )
+        const Int j = GlobalCol(jLoc);
+        if( j < height && IsLocal(j,j) )
         {
             const Int iLoc = LocalRow(j);
             MakeLocalReal( iLoc, jLoc );
@@ -1021,16 +1037,12 @@ void
 AbstractDistMatrix<T>::ConjugateDiagonal( Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::ConjugateDiagonal"))
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int minDim = Min(height,width);
-    const Int localWidth = this->LocalWidth();
-    const Int rowShift = this->RowShift();
-    const Int rowStride = this->RowStride();
+    const Int height = Height();
+    const Int localWidth = LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
-        if( j < minDim && IsLocal(j,j) )
+        const Int j = GlobalCol(jLoc);
+        if( j < height && IsLocal(j,j) )
         {
             const Int iLoc = LocalRow(j);
             ConjugateLocal( iLoc, jLoc );
@@ -1575,17 +1587,17 @@ void
 AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SumOver"))
-    if( !this->Participating() )
+    if( !Participating() )
         return;
 
-    const Int localHeight = this->LocalHeight();
-    const Int localWidth = this->LocalWidth();
+    const Int localHeight = LocalHeight();
+    const Int localWidth = LocalWidth();
     const Int localSize = mpi::Pad( localHeight*localWidth );
-    T* sumBuf = this->auxMemory_.Require( localSize );   
+    T* sumBuf = auxMemory_.Require( localSize );   
 
     // Pack
-    T* buf = this->Buffer();
-    const Int ldim = this->LDim(); 
+    T* buf = Buffer();
+    const Int ldim = LDim(); 
     PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
@@ -1605,7 +1617,7 @@ AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
         T* thisCol = &buf[jLoc*ldim];
         MemCopy( thisCol, sumCol, localHeight );
     } 
-    this->auxMemory_.Release();
+    auxMemory_.Release();
 }
 
 // Assertions

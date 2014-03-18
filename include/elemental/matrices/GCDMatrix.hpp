@@ -31,16 +31,12 @@ MakeGCDMatrix( DistMatrix<T,U,V>& G )
     DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
     const Int localHeight = G.LocalHeight();
     const Int localWidth = G.LocalWidth();
-    const Int colShift = G.ColShift();
-    const Int rowShift = G.RowShift();
-    const Int colStride = G.ColStride();
-    const Int rowStride = G.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = G.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = G.GlobalRow(iLoc);
             G.SetLocal( iLoc, jLoc, T(GCD(i+1,j+1)) );
         }
     }

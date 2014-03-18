@@ -78,10 +78,6 @@ Panel
             LogicError("p must be a vector that conforms with A");
     )
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
-    const Int r = g.Height();
-    const Int colShift = B.ColShift();
-    const Int colAlign = B.ColAlign();
 
     // For packing rows of data for pivoting
     const Int n = A.Width();
@@ -111,19 +107,19 @@ Panel
                 localPivot.index = k + i + 1;
             }
         }
-        for( Int i=0; i<B.LocalHeight(); ++i )
+        for( Int iLoc=0; iLoc<B.LocalHeight(); ++iLoc )
         {
-            const Real value = FastAbs(b1.GetLocal(i,0));
+            const Real value = FastAbs(b1.GetLocal(iLoc,0));
             if( value > localPivot.value )
             {
                 localPivot.value = value;
-                localPivot.index = n + colShift + i*r;
+                localPivot.index = n + B.GlobalRow(iLoc);
             }
         }
 
         // Compute and store the location of the new pivot
         const ValueInt<Real> pivot = 
-            mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), g.ColComm() );
+            mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), B.ColComm() );
         const Int iPiv = pivot.index;
         p.SetLocal( k, 0, iPiv+pivotOffset );
 
@@ -142,17 +138,17 @@ Panel
             // The owning row of the pivot row packs it into the row buffer
             // and then overwrites with the current row
             const Int relIndex = iPiv - n;
-            const Int ownerRow = (colAlign+relIndex) % r;
-            if( g.Row() == ownerRow )
+            const Int ownerRow = B.RowOwner(relIndex);
+            if( B.IsLocalRow(relIndex) )
             {
-                const int iLoc = (relIndex-colShift) / r;
+                const Int iLoc = B.LocalRow(relIndex);
                 for( Int j=0; j<n; ++j )
                     pivotBuffer[j] = B.GetLocal( iLoc, j );
                 for( Int j=0; j<n; ++j )
                     B.SetLocal( iLoc, j, A.GetLocal(k,j) );
             }
             // The owning row broadcasts within process columns
-            mpi::Broadcast( pivotBuffer.data(), n, ownerRow, g.ColComm() );
+            mpi::Broadcast( pivotBuffer.data(), n, ownerRow, B.ColComm() );
         }
         // Overwrite the current row with the pivot row
         for( Int j=0; j<n; ++j )

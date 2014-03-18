@@ -50,13 +50,8 @@ ScaleTrapezoid( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
-    const Int width = A.Width();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
 
     if( uplo == UPPER )
     {
@@ -65,10 +60,10 @@ ScaleTrapezoid( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
         PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            Int j = rowShift + jLoc*rowStride;
-            Int lastRow = j-offset;
-            Int boundary = Min( lastRow+1, height );
-            Int numRows = Length_( boundary, colShift, colStride );
+            const Int j = A.GlobalCol(jLoc);
+            const Int lastRow = j-offset;
+            const Int boundary = Min( lastRow+1, height );
+            const Int numRows = A.LocalRowOffset(boundary);
             T* col = &buffer[jLoc*ldim];
             for( Int iLoc=0; iLoc<numRows; ++iLoc )
                 col[iLoc] *= alpha;
@@ -81,9 +76,9 @@ ScaleTrapezoid( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
         PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            Int j = rowShift + jLoc*rowStride;
-            Int firstRow = Max(j-offset,0);
-            Int numZeroRows = Length_( firstRow, colShift, colStride );
+            const Int j = A.GlobalCol(jLoc);
+            const Int firstRow = Max(j-offset,0);
+            const Int numZeroRows = A.LocalRowOffset(firstRow);
             T* col = &buffer[numZeroRows+jLoc*ldim];
             for( Int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
                 col[iLoc] *= alpha;

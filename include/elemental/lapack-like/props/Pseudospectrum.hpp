@@ -590,12 +590,12 @@ TriangularPseudospectrum
     const C corner = center - C(xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
-        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+        const Int i = shifts.GlobalRow(iLoc);
+        const Int x = i / ySize;
+        const Int y = i % ySize;
+        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -630,12 +630,12 @@ HessenbergPseudospectrum
     const C corner = center - C(xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
-        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+        const Int i = shifts.GlobalRow(iLoc);
+        const Int x = i / ySize;
+        const Int y = i % ySize;
+        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -708,12 +708,12 @@ Pseudospectrum
     const C corner = center - C(xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
-        const Int j = shifts.ColShift() + jLoc*shifts.ColStride();
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.SetLocal( jLoc, 0, corner+C(x*xStep,y*yStep) );
+        const Int i = shifts.GlobalRow(iLoc);
+        const Int x = i / ySize;
+        const Int y = i % ySize;
+        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,y*yStep) );
     }
 
     // Form the vector of invNorms

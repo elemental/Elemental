@@ -44,16 +44,12 @@ Parter( DistMatrix<F,U,V>& P, Int n )
     P.Resize( n, n );
     const Int localHeight = P.LocalHeight();
     const Int localWidth = P.LocalWidth();
-    const Int colShift = P.ColShift();
-    const Int rowShift = P.RowShift();
-    const Int colStride = P.ColStride();
-    const Int rowStride = P.RowStride();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const Int j = rowShift + jLoc*rowStride;
+        const Int j = P.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Int i = colShift + iLoc*colStride;
+            const Int i = P.GlobalRow(iLoc);
             P.SetLocal( iLoc, jLoc, F(1)/(F(i)-F(j)+oneHalf) );
         }
     }

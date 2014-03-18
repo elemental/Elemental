@@ -80,14 +80,12 @@ VectorMax( const DistMatrix<F,U,V>& x )
             if( x.RowRank() == x.RowAlign() )
             {
                 const Int mLocal = x.LocalHeight();
-                const Int colShift = x.ColShift();
-                const Int colStride = x.ColStride();
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
                     const Real abs = Abs(x.GetLocal(iLoc,0));
                     if( abs > localPivot.value )
                     {
-                        localPivot.index = colShift + iLoc*colStride;
+                        localPivot.index = x.GlobalRow(iLoc);
                         localPivot.value = abs;
                     }
                 }
@@ -98,14 +96,12 @@ VectorMax( const DistMatrix<F,U,V>& x )
             if( x.ColRank() == x.ColAlign() )
             {
                 const Int nLocal = x.LocalWidth();
-                const Int rowShift = x.RowShift();
-                const Int rowStride = x.RowStride();
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Real abs = Abs(x.GetLocal(0,jLoc));
                     if( abs > localPivot.value )
                     {
-                        localPivot.index = rowShift + jLoc*rowStride;
+                        localPivot.index = x.GlobalCol(jLoc);
                         localPivot.value = abs;
                     }
                 }
@@ -164,19 +160,15 @@ Max( const DistMatrix<F,U,V>& A )
         localPivot.indices[1] = 0;
         const Int mLocal = A.LocalHeight();
         const Int nLocal = A.LocalWidth();
-        const Int colShift = A.ColShift();
-        const Int rowShift = A.RowShift();
-        const Int colStride = A.ColStride();
-        const Int rowStride = A.RowStride();
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
+            const Int j = A.GlobalCol(jLoc);
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
-                const Int i = colShift + iLoc*colStride;
                 const Real value = Abs(A.GetLocal(iLoc,jLoc));
                 if( value > localPivot.value )
                 {
+                    const Int i = A.GlobalRow(iLoc);
                     localPivot.value = value;
                     localPivot.indices[0] = i;
                     localPivot.indices[1] = j;
@@ -244,9 +236,9 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline ValueIntPair<BASE(F)>
-SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
+SymmetricMax( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMax");
@@ -256,10 +248,6 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
     typedef Base<F> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
 
     ValueIntPair<Real> pivot;
     if( A.Participating() )
@@ -273,14 +261,14 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
         {
             for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             {
-                const Int j = rowShift + jLoc*rowStride;
-                const Int mLocBefore = Length(j,colShift,colStride);
+                const Int j = A.GlobalCol(jLoc);
+                const Int mLocBefore = A.LocalRowOffset(j);
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
-                    const Int i = colShift + iLoc*colStride;
                     const Real abs = Abs(A.GetLocal(iLoc,jLoc));
                     if( abs > localPivot.value )
                     {
+                        const Int i = A.GlobalRow(iLoc);
                         localPivot.value = abs;
                         localPivot.indices[0] = i;
                         localPivot.indices[1] = j;
@@ -292,14 +280,14 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<F>& A )
         {
             for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             {
-                const Int j = rowShift + jLoc*rowStride;
-                const Int mLocBefore = Length(j+1,colShift,colStride);
+                const Int j = A.GlobalCol(jLoc);
+                const Int mLocBefore = A.LocalRowOffset(j+1);
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
-                    const Int i = colShift + iLoc*colStride;
                     const Real abs = Abs(A.GetLocal(iLoc,jLoc));
                     if( abs > localPivot.value )
                     {
+                        const Int i = A.GlobalRow(iLoc);
                         localPivot.value = abs;
                         localPivot.indices[0] = i;
                         localPivot.indices[1] = j;
@@ -325,9 +313,9 @@ DiagonalMax( const Matrix<F>& A )
     return VectorMax( A.GetDiagonal() );
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline ValueInt<BASE(F)>
-DiagonalMax( const DistMatrix<F>& A )
+DiagonalMax( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
     return VectorMax( A.GetDiagonal() );

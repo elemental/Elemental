@@ -75,24 +75,31 @@ Trr
     )
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
     DEBUG_ONLY(
         if( x.Height() != A.Height() || y.Height() != A.Width() )
             LogicError("x and y must conform with A");
     )
-    const T* xLocCol = x.LockedBuffer();
-    const T* yLocCol = y.LockedBuffer();
+
+    DistMatrix<T,MC,STAR> x_MC_STAR(A.Grid());
+    DistMatrix<T,MR,STAR> y_MR_STAR(A.Grid());
+    x_MC_STAR.AlignWith( A );
+    y_MR_STAR.AlignWith( A );
+    x_MC_STAR = x;
+    y_MR_STAR = y;
+
+    const T* xLocCol = x_MC_STAR.LockedBuffer();
+    const T* yLocCol = y_MR_STAR.LockedBuffer();
+
     if( uplo == LOWER )
     {
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
-            const T eta = alpha*( conjugate ? Conj(yLocCol[j]) : yLocCol[j] );
+            const Int j = A.GlobalCol(jLoc);
+            const Int mLocBefore = A.LocalRowOffset(j);
+
+            const T eta = 
+                alpha*( conjugate ? Conj(yLocCol[jLoc]) : yLocCol[jLoc] );
             T* ALocCol = A.Buffer(0,jLoc);
-            const Int mLocBefore = Length( j, colShift, colStride );
             for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 ALocCol[iLoc] += xLocCol[iLoc]*eta;
             if( conjugate )
@@ -103,10 +110,12 @@ Trr
     {
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
-            const Int j = rowShift + jLoc*rowStride;
-            const T eta = alpha*( conjugate ? Conj(yLocCol[j]) : yLocCol[j] );
+            const Int j = A.GlobalCol(jLoc);
+            const Int mLocBefore = A.LocalRowOffset(j+1);
+
+            const T eta = 
+                alpha*( conjugate ? Conj(yLocCol[jLoc]) : yLocCol[jLoc] );
             T* ALocCol = A.Buffer(0,jLoc);
-            const Int mLocBefore = Length( j+1, colShift, colStride );
             for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 ALocCol[iLoc] += xLocCol[iLoc]*eta;
             if( conjugate )

@@ -104,12 +104,10 @@ HelmholtzPML
     const Real h = Real(1)/(n+1);
     const Real hSquared = h*h;
 
-    const Int colShift = H.ColShift();
-    const Int colStride = H.ColStride();
     const Int localHeight = H.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = H.GlobalRow(iLoc);
         const Int x = i;
 
         const C sInvL = sInv( x-1, n, numPmlPoints, h, pmlExp, sigma, k );
@@ -213,12 +211,10 @@ HelmholtzPML
     const Real hxSquared = hx*hx;
     const Real hySquared = hy*hy;
 
-    const Int colShift = H.ColShift();
-    const Int colStride = H.ColStride();
     const Int localHeight = H.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = H.GlobalRow(iLoc);
         const Int x = i % nx;
         const Int y = i / nx; 
 
@@ -358,12 +354,10 @@ HelmholtzPML
     const Real hySquared = hy*hy;
     const Real hzSquared = hz*hz;
 
-    const Int colShift = H.ColShift();
-    const Int colStride = H.ColStride();
     const Int localHeight = H.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = H.GlobalRow(iLoc);
         const Int x = i % nx;
         const Int y = (i/nx) % ny; 
         const Int z = i/(nx*ny);

@@ -202,110 +202,110 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F>
+template<typename F,Dist U,Dist V>
 inline BASE(F)
-HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    const Int r = A.Grid().Height();
-    const Int c = A.Grid().Width();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-
-    typedef Base<F> R;
-    R localScale = 0;
-    R localScaledSquare = 1;
-    const Int localWidth = A.LocalWidth();
-    if( uplo == UPPER )
+    typedef Base<F> Real;
+    Real norm;
+    if( A.Participating() )
     {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        Real localScale = 0;
+        Real localScaledSquare = 1;
+        const Int localWidth = A.LocalWidth();
+        if( uplo == UPPER )
         {
-            Int j = rowShift + jLoc*c;
-            Int numUpperRows = Length(j+1,colShift,r);
-            for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                Int i = colShift + iLoc*r;
-                const R alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
-                if( alphaAbs != 0 )
+                const Int j = A.GlobalCol(jLoc);
+                const Int numUpperRows = A.LocalRowOffset(j+1);
+                for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
                 {
-                    if( alphaAbs <= localScale )
+                    const Int i = A.GlobalRow(iLoc);
+                    const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
+                    if( alphaAbs != 0 )
                     {
-                        const R relScale = alphaAbs/localScale;
-                        if( i != j )
-                            localScaledSquare += 2*relScale*relScale;
+                        if( alphaAbs <= localScale )
+                        {
+                            const Real relScale = alphaAbs/localScale;
+                            if( i != j )
+                                localScaledSquare += 2*relScale*relScale;
+                            else
+                                localScaledSquare += relScale*relScale;
+                        }
                         else
-                            localScaledSquare += relScale*relScale;
-                    }
-                    else
-                    {
-                        const R relScale = localScale/alphaAbs;
-                        if( i != j )
-                            localScaledSquare =
-                                localScaledSquare*relScale*relScale + 2;
-                        else
-                            localScaledSquare =
-                                localScaledSquare*relScale*relScale + 1;
-                        localScale = alphaAbs;
+                        {
+                            const Real relScale = localScale/alphaAbs;
+                            if( i != j )
+                                localScaledSquare =
+                                    localScaledSquare*relScale*relScale + 2;
+                            else
+                                localScaledSquare =
+                                    localScaledSquare*relScale*relScale + 1;
+                            localScale = alphaAbs;
+                        }
                     }
                 }
             }
         }
-    }
-    else
-    {
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        else
         {
-            Int j = rowShift + jLoc*c;
-            Int numStrictlyUpperRows = Length(j,colShift,r);
-            for( Int iLoc=numStrictlyUpperRows;
-                 iLoc<A.LocalHeight(); ++iLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                Int i = colShift + iLoc*r;
-                const R alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
-                if( alphaAbs != 0 )
+                const Int j = A.GlobalCol(jLoc);
+                const Int numStrictlyUpperRows = A.LocalRowOffset(j);
+                for( Int iLoc=numStrictlyUpperRows;
+                     iLoc<A.LocalHeight(); ++iLoc )
                 {
-                    if( alphaAbs <= localScale )
+                    const Int i = A.GlobalRow(iLoc);
+                    const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
+                    if( alphaAbs != 0 )
                     {
-                        const R relScale = alphaAbs/localScale;
-                        if( i != j )
-                            localScaledSquare += 2*relScale*relScale;
+                        if( alphaAbs <= localScale )
+                        {
+                            const Real relScale = alphaAbs/localScale;
+                            if( i != j )
+                                localScaledSquare += 2*relScale*relScale;
+                            else
+                                localScaledSquare += relScale*relScale;
+                        }
                         else
-                            localScaledSquare += relScale*relScale;
-                    }
-                    else
-                    {
-                        const R relScale = localScale/alphaAbs;
-                        if( i != j )
-                            localScaledSquare =
-                                localScaledSquare*relScale*relScale + 2;
-                        else
-                            localScaledSquare =
-                                localScaledSquare*relScale*relScale + 1;
-                        localScale = alphaAbs;
+                        {
+                            const Real relScale = localScale/alphaAbs;
+                            if( i != j )
+                                localScaledSquare =
+                                    localScaledSquare*relScale*relScale + 2;
+                            else
+                                localScaledSquare =
+                                    localScaledSquare*relScale*relScale + 1;
+                            localScale = alphaAbs;
+                        }
                     }
                 }
             }
         }
+
+        // Find the maximum relative scale
+        const Real scale = mpi::AllReduce( localScale, mpi::MAX, A.DistComm() );
+
+        norm = 0;
+        if( scale != 0 )
+        {
+            // Equilibrate our local scaled sum to the maximum scale
+            Real relScale = localScale/scale;
+            localScaledSquare *= relScale*relScale;
+
+            // The scaled square is now the sum of the local contributions
+            const Real scaledSquare = 
+                mpi::AllReduce( localScaledSquare, A.Grid().VCComm() );
+            norm = scale*Sqrt(scaledSquare);
+        }
     }
-
-    // Find the maximum relative scale
-    const R scale = mpi::AllReduce( localScale, mpi::MAX, A.Grid().VCComm() );
-
-    R norm = 0;
-    if( scale != 0 )
-    {
-        // Equilibrate our local scaled sum to the maximum scale
-        R relScale = localScale/scale;
-        localScaledSquare *= relScale*relScale;
-
-        // The scaled square is now simply the sum of the local contributions
-        const R scaledSquare = 
-            mpi::AllReduce( localScaledSquare, A.Grid().VCComm() );
-        norm = scale*Sqrt(scaledSquare);
-    }
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
 }
 

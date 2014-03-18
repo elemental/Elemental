@@ -96,10 +96,6 @@ DiagonalScaleTrapezoid
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
     const bool conjugate = ( orientation==ADJOINT );
 
     const Int diagLength = A.DiagonalLength(offset);
@@ -127,13 +123,13 @@ DiagonalScaleTrapezoid
             // Scale from the left up to the diagonal
             for( Int iLoc=0; iLoc<mLoc; ++iLoc )            
             {
-                const Int i = colShift + iLoc*colStride;
+                const Int i = A.GlobalRow(iLoc);
                 if( i >= iOff )
                 {
                     const Int k = i-iOff;
                     const Int j = k+jOff;
                     const Int width = Min(j+1,n);
-                    const Int localWidth = Length(width,rowShift,rowStride);
+                    const Int localWidth = A.LocalColOffset(width);
                     const TDiag alpha = 
                         ( conjugate ? Conj(d_W_STAR.GetLocal(iLoc,0))
                                     : d_W_STAR.GetLocal(iLoc,0) );
@@ -146,13 +142,13 @@ DiagonalScaleTrapezoid
             // Scale from the diagonal to the right
             for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             {
-                const Int i = colShift + iLoc*colStride;
+                const Int i = A.GlobalRow(iLoc);
                 if( i < iOff+diagLength )
                 {
                     const Int k = i-iOff;
                     const Int j = k+jOff;
                     const Int jLeft = Max(j,0);
-                    const Int jLeftLoc = Length(jLeft,rowShift,rowStride); 
+                    const Int jLeftLoc = A.LocalColOffset(jLeft);
                     const TDiag alpha = 
                         ( conjugate ? Conj(d_W_STAR.GetLocal(iLoc,0))
                                     : d_W_STAR.GetLocal(iLoc,0) );
@@ -180,13 +176,13 @@ DiagonalScaleTrapezoid
             // Scale from the diagonal downwards
             for( Int jLoc=0; jLoc<nLoc; ++jLoc )
             {
-                const Int j = rowShift + jLoc*rowStride;
+                const Int j = A.GlobalCol(jLoc);
                 if( j < jOff+diagLength )
                 {
                     const Int k = j-jOff;
                     const Int i = k+iOff;
                     const Int iTop = Max(i,0);
-                    const Int iTopLoc = Length(iTop,colShift,colStride);
+                    const Int iTopLoc = A.LocalRowOffset(iTop);
                     const TDiag alpha = 
                         ( conjugate ? Conj(d_Z_STAR.GetLocal(jLoc,0))
                                     : d_Z_STAR.GetLocal(jLoc,0) );
@@ -200,13 +196,13 @@ DiagonalScaleTrapezoid
             // Scale downward to the diagonal
             for( Int jLoc=0; jLoc<nLoc; ++jLoc )
             {
-                const Int j = rowShift + jLoc*rowStride;
+                const Int j = A.GlobalCol(jLoc);
                 if( j >= jOff )
                 {
                     const Int k = j-jOff;
                     const Int i = k+iOff;
                     const Int height = Min(i+1,m);
-                    const Int localHeight = Length(height,colShift,colStride);
+                    const Int localHeight = A.LocalRowOffset(height);
                     const TDiag alpha = 
                         ( conjugate ? Conj(d_Z_STAR.GetLocal(jLoc,0))
                                     : d_Z_STAR.GetLocal(jLoc,0) );

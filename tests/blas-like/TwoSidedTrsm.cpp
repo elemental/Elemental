@@ -183,7 +183,7 @@ main( int argc, char* argv[] )
         if( r == 0 )
             r = Grid::FindFactor( commSize );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, r );
+        const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         SetBlocksize( nb );

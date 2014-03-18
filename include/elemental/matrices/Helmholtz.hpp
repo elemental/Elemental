@@ -153,12 +153,10 @@ Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
     const R hInvSquared = hInv*hInv;
     const F mainTerm = 2*hInvSquared - shift;
 
-    const Int colShift = H.ColShift();
-    const Int colStride = H.ColStride();
     const Int localHeight = H.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = H.GlobalRow(iLoc);
 
         H.Set( i, i, mainTerm );
         if( i != 0 )
@@ -195,12 +193,10 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
     const R hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
 
-    const Int colShift = H.ColShift();
-    const Int colStride = H.ColStride();
     const Int localHeight = H.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = H.GlobalRow(iLoc);
         const Int x = i % nx;
         const Int y = i/nx;
 
@@ -245,12 +241,10 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
     const R hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
 
-    const Int colShift = H.ColShift();
-    const Int colStride = H.ColStride();
     const Int localHeight = H.LocalHeight();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const Int i = colShift + iLoc*colStride;
+        const Int i = H.GlobalRow(iLoc);
         const Int x = i % nx;
         const Int y = (i/nx) % ny;
         const Int z = i/(nx*ny);

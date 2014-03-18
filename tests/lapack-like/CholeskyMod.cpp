@@ -25,7 +25,6 @@ void TestCorrectness
 {
     typedef Base<F> Real;
     const Int m = V.Height();
-    const Int n = V.Width();
     const Grid& g = T.Grid();
 
     DistMatrix<F> B( A );

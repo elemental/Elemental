@@ -32,18 +32,8 @@ LVar3Square( DistMatrix<F>& A )
     )
     // Find the process holding our transposed data
     const Grid& g = A.Grid();
-    const Int r = g.Height();
-    Int transposeRank;
-    {
-        const Int colAlign = A.ColAlign();
-        const Int rowAlign = A.RowAlign();
-        const Int colShift = A.ColShift();
-        const Int rowShift = A.RowShift();
-
-        const Int transposeRow = (colAlign+rowShift) % r;
-        const Int transposeCol = (rowAlign+colShift) % r;
-        transposeRank = transposeRow + r*transposeCol;
-    }
+    const Int transposeRank = 
+        A.RowOwner(A.RowShift()) + A.ColStride()*A.ColOwner(A.ColShift());
     const bool onDiagonal = ( transposeRank == g.VCRank() );
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);

@@ -492,10 +492,10 @@ TriangularKrylovSpectral
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
         const Int numLocShifts = preimage.LocalHeight();
-        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
-            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
-            preimage.SetLocal( jLoc, 0, j );
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
         }
     }
 
@@ -696,10 +696,10 @@ HessenbergKrylovSpectral
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
         const Int numLocShifts = preimage.LocalHeight();
-        for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
-            const Int j = preimage.ColShift() + jLoc*preimage.ColStride();
-            preimage.SetLocal( jLoc, 0, j );
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
         }
     }
 

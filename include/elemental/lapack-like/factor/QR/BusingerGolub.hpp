@@ -228,13 +228,11 @@ FindColumnPivot
 {
     DEBUG_ONLY(CallStackEntry cse("qr::FindColumnPivot"))
     typedef Base<F> Real;
-    const Int rowShift = A.RowShift();
-    const Int rowStride = A.RowStride();
-    const Int localColsBefore = Length( col, rowShift, rowStride );
+    const Int localColsBefore = A.LocalColOffset(col);
     const ValueInt<Real> localPivot = FindPivot( norms, localColsBefore );
     ValueInt<Real> pivot;
     pivot.value = localPivot.value;
-    pivot.index = rowShift + localPivot.index*rowStride;
+    pivot.index = A.GlobalCol(localPivot.index);
     return mpi::AllReduce( pivot, mpi::MaxLocOp<Real>(), A.Grid().RowComm() );
 }
 
@@ -396,6 +394,7 @@ BusingerGolub
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
+    const Int mLocal = A.LocalHeight();
     DEBUG_ONLY(
         if( maxSteps > Min(m,n) )
             LogicError("Too many steps requested");
@@ -408,16 +407,10 @@ BusingerGolub
     p.Resize( maxSteps, 1 );
     d.Resize( maxSteps, 1 );
 
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    const Int rowAlign = A.RowAlign();
-    const Int rowShift = A.RowShift();
-    const Int rowStride = A.RowStride();
-
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
-    std::vector<Real> origNorms( nLocal );
+    std::vector<Real> origNorms( A.LocalWidth() );
     const Real maxOrigNorm = ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
@@ -449,16 +442,16 @@ BusingerGolub
 
         // Perform the swap
         const Int jPiv = pivot.index;
-        const Int curOwner = (k+rowAlign) % rowStride;
-        const Int pivOwner = (jPiv+rowAlign) % rowStride;
-        const bool myCur = ( g.Col() == curOwner );
-        const bool myPiv = ( g.Col() == pivOwner );
+        const Int curOwner = A.ColOwner(k);
+        const Int pivOwner = A.ColOwner(jPiv);
+        const Int myCur = A.IsLocalCol(k);
+        const Int myPiv = A.IsLocalCol(jPiv);
         if( jPiv != k )
         {
             if( myCur && myPiv )
             {
-                const Int kLoc    = (k   -rowShift) / rowStride;
-                const Int jPivLoc = (jPiv-rowShift) / rowStride;
+                const Int kLoc    = A.LocalCol(k);
+                const Int jPivLoc = A.LocalCol(jPiv);
                 blas::Swap
                 ( mLocal, A.Buffer(0,kLoc), 1, A.Buffer(0,jPivLoc), 1 );
                 norms[jPivLoc] = norms[kLoc];
@@ -466,14 +459,14 @@ BusingerGolub
             }
             else if( myCur )
             {
-                const Int kLoc = (k-rowShift) / rowStride;
+                const Int kLoc = A.LocalCol(k);
                 mpi::SendRecv
                 ( A.Buffer(0,kLoc), mLocal, pivOwner, pivOwner, g.RowComm() );
                 mpi::Send( norms[kLoc], pivOwner, g.RowComm() );
             }
             else if( myPiv )
             {
-                const Int jPivLoc = (jPiv-rowShift) / rowStride;
+                const Int jPivLoc = A.LocalCol(jPiv);
                 mpi::SendRecv
                 ( A.Buffer(0,jPivLoc), mLocal, 
                   curOwner, curOwner, g.RowComm() );
@@ -522,13 +515,12 @@ BusingerGolub
         //      to replace the inaccurate column norms.
         // Step 1: Perform all of the easy updates and mark inaccurate norms
         a12_STAR_MR = a12;
-        const Int a12LocalWidth = a12_STAR_MR.LocalWidth();
-        const Int a12RowShift = a12_STAR_MR.RowShift();
         inaccurateNorms.resize(0);
+        const Int a12LocalWidth = a12_STAR_MR.LocalWidth();
         for( Int jLoc12=0; jLoc12<a12LocalWidth; ++jLoc12 )
         {
-            const Int j = (k+1) + a12RowShift + jLoc12*rowStride;
-            const Int jLoc = (j-rowShift) / rowStride;
+            const Int j = (k+1) + a12.GlobalCol(jLoc12);
+            const Int jLoc = A.LocalCol(j);
             if( norms[jLoc] != Real(0) )
             {
                 const Real beta = Abs(a12_STAR_MR.GetLocal(0,jLoc12));
