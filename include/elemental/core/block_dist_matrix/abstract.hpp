@@ -58,11 +58,10 @@ public:
       Int height, Int width, Int blockHeight, Int blockWidth, 
       bool force=false );
     void AlignColsAndResize
-    ( Int colAlign, Int colCut, Int height, Int width, 
-      Int blockHeight, Int blockWidth, bool force=false );
+    ( Int colAlign, Int colCut, Int height, Int width, Int blockHeight, 
+      bool force=false );
     void AlignRowsAndResize
-    ( Int rowAlign, Int rowCut, 
-      Int height, Int width, Int blockHeight, Int blockWidth, 
+    ( Int rowAlign, Int rowCut, Int height, Int width, Int blockWidth, 
       bool force=false );
 
     // Buffer attachment

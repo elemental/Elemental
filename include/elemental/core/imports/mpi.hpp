@@ -55,6 +55,8 @@ const int THREAD_SERIALIZED = 2;
 const int THREAD_MULTIPLE = 3;
 #endif
 const int UNDEFINED = MPI_UNDEFINED;
+const Group GROUP_NULL = MPI_GROUP_NULL;
+const Comm COMM_NULL = MPI_COMM_NULL;
 const Comm COMM_SELF = MPI_COMM_SELF;
 const Comm COMM_WORLD = MPI_COMM_WORLD;
 const ErrorHandler ERRORS_RETURN = MPI_ERRORS_RETURN;
@@ -111,6 +113,8 @@ void CartSub
 int GroupRank( Group group );
 int GroupSize( Group group );
 void CommGroup( Comm comm, Group& group );
+void GroupDup( Group group, Group& newGroup );
+void GroupUnion( Group groupA, Group groupB, Group& newGroup );
 void GroupIncl( Group group, int n, const int* ranks, Group& subGroup );
 void GroupDifference( Group parent, Group subset, Group& complement );
 void GroupFree( Group& group );

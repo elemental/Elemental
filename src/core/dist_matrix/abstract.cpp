@@ -540,22 +540,12 @@ Int AbstractDistMatrix<T>::RowShift() const { return rowShift_; }
 template<typename T>
 Int
 AbstractDistMatrix<T>::ColRank() const
-{ 
-    if( grid_->InGrid() )
-        return mpi::CommRank(ColComm());
-    else
-        return mpi::UNDEFINED;
-}
+{ return mpi::CommRank(ColComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::RowRank() const
-{
-    if( grid_->InGrid() )
-        return mpi::CommRank(RowComm());
-    else
-        return mpi::UNDEFINED;
-}
+{ return mpi::CommRank(RowComm()); }
 
 template<typename T>
 Int

@@ -102,25 +102,31 @@ void OpFree( Op& op )
 int WorldRank()
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::WorldRank"))
-    int rank;
-    SafeMpi( MPI_Comm_rank( COMM_WORLD, &rank ) );
-    return rank;
+    return CommRank( mpi::COMM_WORLD ); 
 }
 
 int CommRank( Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::CommRank"))
-    int rank;
-    SafeMpi( MPI_Comm_rank( comm, &rank ) );
-    return rank;
+    if( comm != COMM_NULL )
+    {
+        int rank;
+        SafeMpi( MPI_Comm_rank( comm, &rank ) );
+        return rank;
+    }
+    else return mpi::UNDEFINED;
 }
 
 int CommSize( Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::CommSize"))
-    int size;
-    SafeMpi( MPI_Comm_size( comm, &size ) );
-    return size;
+    if( comm != COMM_NULL )
+    {
+        int size;
+        SafeMpi( MPI_Comm_size( comm, &size ) );
+        return size;
+    } 
+    else return mpi::UNDEFINED;
 }
 
 void CommCreate( Comm parentComm, Group subsetGroup, Comm& subsetComm )
@@ -210,6 +216,19 @@ void CommGroup( Comm comm, Group& group )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::CommGroup"))
     SafeMpi( MPI_Comm_group( comm, &group ) );
+}
+
+void GroupDup( Group group, Group& newGroup )
+{
+    DEBUG_ONLY(CallStackEntry cse("mpi::GroupDup"))
+    // For some reason, MPI_Group_dup does not exist
+    GroupUnion( group, group, newGroup );
+}
+
+void GroupUnion( Group groupA, Group groupB, Group& newGroup )
+{
+    DEBUG_ONLY(CallStackEntry cse("mpi::GroupUnion"))
+    SafeMpi( MPI_Group_union( groupA, groupB, &newGroup ) );
 }
 
 void GroupIncl( Group group, int n, const int* ranks, Group& subGroup )
