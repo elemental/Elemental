@@ -68,14 +68,14 @@ public:
 
     // Basic queries
     // =============
-    virtual elem::DistData DistData() const;
-    virtual mpi::Comm DistComm() const;
-    virtual mpi::Comm CrossComm() const;
-    virtual mpi::Comm RedundantComm() const;
-    virtual mpi::Comm ColComm() const;
-    virtual mpi::Comm RowComm() const;
-    virtual Int RowStride() const;
-    virtual Int ColStride() const;
+    elem::DistData DistData() const override;
+    mpi::Comm DistComm() const override;
+    mpi::Comm CrossComm() const override;
+    mpi::Comm RedundantComm() const override;
+    mpi::Comm ColComm() const override;
+    mpi::Comm RowComm() const override;
+    Int RowStride() const override;
+    Int ColStride() const override;
 
 private:
     // Friend declarations

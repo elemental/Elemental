@@ -144,11 +144,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BDM& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]"))
     LogicError("This routine is not yet written");
     return *this;
 }

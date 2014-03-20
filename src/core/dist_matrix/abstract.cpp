@@ -291,12 +291,9 @@ template<typename T>
 void
 AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("ADM::AlignWith");
-        if( colAlign_ != 0 || rowAlign_ != 0 )
-            LogicError("Alignments should have been zero");
-    )
-    SetGrid( *data.grid ); 
+    DEBUG_ONLY(CallStackEntry cse("ADM::AlignWith"))
+    AlignColsWith( data );
+    AlignRowsWith( data );
 }
 
 template<typename T>

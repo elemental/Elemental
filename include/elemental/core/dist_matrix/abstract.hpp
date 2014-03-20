@@ -47,7 +47,7 @@ public:
     void AlignRows( Int rowAlign );
     void FreeAlignments();
     void SetRoot( Int root );
-    virtual void AlignWith( const elem::DistData& data );
+    void AlignWith( const elem::DistData& data );
     virtual void AlignColsWith( const elem::DistData& data );
     virtual void AlignRowsWith( const elem::DistData& data );
     void AlignAndResize

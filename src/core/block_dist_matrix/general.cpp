@@ -43,6 +43,52 @@ GeneralBlockDistMatrix<T,U,V>::operator=( GeneralBlockDistMatrix<T,U,V>&& A )
 
 template<typename T,Dist U,Dist V>
 void
+GeneralBlockDistMatrix<T,U,V>::AlignColsWith( const elem::BlockDistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("GBDM::AlignColsWith")) 
+    this->SetGrid( *data.grid );
+    this->SetRoot( data.root );
+    if( data.colDist == U || data.colDist == UPart )
+        this->AlignCols( data.blockHeight, data.colAlign, data.colCut );
+    else if( data.rowDist == U || data.rowDist == UPart )
+        this->AlignCols( data.blockWidth, data.rowAlign, data.rowCut );
+    else if( data.colDist == UScat )
+        this->AlignCols
+        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
+    else if( data.rowDist == UScat )
+        this->AlignCols
+        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
+    DEBUG_ONLY(
+        else if( U != UGath && data.colDist != UGath && data.rowDist != UGath ) 
+            LogicError("Nonsensical alignment");
+    )
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralBlockDistMatrix<T,U,V>::AlignRowsWith( const elem::BlockDistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("GBDM::AlignRowsWith")) 
+    this->SetGrid( *data.grid );
+    this->SetRoot( data.root );
+    if( data.colDist == V || data.colDist == VPart )
+        this->AlignRows( data.blockHeight, data.colAlign, data.colCut );
+    else if( data.rowDist == V || data.rowDist == VPart )
+        this->AlignRows( data.blockWidth, data.rowAlign, data.rowCut );
+    else if( data.colDist == VScat )
+        this->AlignRows
+        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
+    else if( data.rowDist == VScat )
+        this->AlignRows
+        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
+    DEBUG_ONLY(
+        else if( V != VGath && data.colDist != VGath && data.rowDist != VGath )
+            LogicError("Nonsensical alignment");
+    )
+}
+
+template<typename T,Dist U,Dist V>
+void
 GeneralBlockDistMatrix<T,U,V>::AllGather
 ( BlockDistMatrix<T,UGath,VGath>& A ) const
 {

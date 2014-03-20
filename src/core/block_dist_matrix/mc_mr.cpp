@@ -25,10 +25,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BDM& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [MC,MR]");
-        this->AssertNotLocked();
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,MR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -172,84 +169,6 @@ BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [CIRC,CIRC]"))
     LogicError("This routine is not yet written");
     return *this;
-}
-
-// Realignment
-// -----------
-
-template<typename T>
-void
-BDM::AlignWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::AlignWith"))
-    this->SetGrid( *data.grid );
-    if( data.colDist == MC && data.rowDist == MR )
-        this->Align
-        ( data.blockHeight, data.blockWidth, 
-          data.colAlign, data.rowAlign, data.colCut, data.rowCut );
-    else if( data.colDist == MC && data.rowDist == STAR )
-        this->AlignCols( data.blockHeight, data.colAlign, data.colCut );
-    else if( data.colDist == MR && data.rowDist == MC )
-        this->Align
-        ( data.blockWidth, data.blockHeight, 
-          data.rowAlign, data.colAlign, data.rowCut, data.colCut );
-    else if( data.colDist == MR && data.rowDist == STAR )
-        this->AlignRows( data.blockHeight, data.colAlign, data.colCut );
-    else if( data.colDist == STAR && data.rowDist == MC )
-        this->AlignCols( data.blockWidth, data.rowAlign, data.rowCut );
-    else if( data.colDist == STAR && data.rowDist == MR )
-        this->AlignRows( data.blockWidth, data.rowAlign, data.rowCut );
-    else if( data.colDist == STAR && data.rowDist == VC )
-        this->AlignCols
-        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
-    else if( data.colDist == STAR && data.rowDist == VR )
-        this->AlignRows
-        ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut );
-    else if( data.colDist == VC && data.rowDist == STAR )
-        this->AlignCols
-        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
-    else if( data.colDist == VR && data.rowDist == STAR )
-        this->AlignRows
-        ( data.blockHeight, data.colAlign % this->RowStride(), data.colCut );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
-template<typename T>
-void
-BDM::AlignColsWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::AlignColsWith"))
-    this->SetGrid( *data.grid );
-    if( data.colDist == MC )
-        this->AlignCols( data.blockHeight, data.colAlign, data.colCut );
-    else if( data.rowDist == MC )
-        this->AlignCols( data.blockWidth, data.rowAlign, data.rowCut );
-    else if( data.colDist == VC )
-        this->AlignCols
-        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
-    else if( data.rowDist == VC )
-        this->AlignCols
-        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
-template<typename T>
-void
-BDM::AlignRowsWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::AlignRowsWith"))
-    this->SetGrid( *data.grid );
-    if( data.colDist == MR )
-        this->AlignRows( data.blockHeight, data.colAlign, data.colCut );
-    else if( data.rowDist == MR )
-        this->AlignRows( data.blockWidth, data.rowAlign, data.rowCut );
-    else if( data.colDist == VR )
-        this->AlignRows
-        ( data.blockHeight, data.colAlign % this->RowStride(), data.colCut );
-    else if( data.rowDist == VR )
-        this->AlignRows
-        ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
 }
 
 // Basic queries

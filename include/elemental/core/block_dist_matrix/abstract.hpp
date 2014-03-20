@@ -49,7 +49,7 @@ public:
     void AlignRows( Int blockWidth, Int rowAlign, Int rowCut=0 );
     void FreeAlignments();
     void SetRoot( Int root );
-    virtual void AlignWith( const elem::BlockDistData& data );
+    void AlignWith( const elem::BlockDistData& data );
     virtual void AlignColsWith( const elem::BlockDistData& data );
     virtual void AlignRowsWith( const elem::BlockDistData& data );
     // TODO: The interface for these routines could be improved

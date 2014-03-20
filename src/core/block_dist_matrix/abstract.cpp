@@ -347,12 +347,9 @@ template<typename T>
 void
 AbstractBlockDistMatrix<T>::AlignWith( const elem::BlockDistData& data )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("ABDM::AlignWith");
-        if( colAlign_ != 0 || rowAlign_ != 0 )
-            LogicError("Alignments should have been zero");
-    )
-    SetGrid( *data.grid ); 
+    DEBUG_ONLY(CallStackEntry cse("ABDM::AlignWith"))
+    AlignColsWith( data );
+    AlignRowsWith( data );
 }
 
 template<typename T>

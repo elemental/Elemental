@@ -42,14 +42,54 @@ GeneralDistMatrix<T,U,V>::operator=( GeneralDistMatrix<T,U,V>&& A )
 
 template<typename T,Dist U,Dist V>
 void
+GeneralDistMatrix<T,U,V>::AlignColsWith( const elem::DistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("GDM::AlignColsWith")) 
+    this->SetGrid( *data.grid );
+    this->SetRoot( data.root );
+    if( data.colDist == U || data.colDist == UPart )
+        this->AlignCols( data.colAlign );    
+    else if( data.rowDist == U || data.rowDist == UPart )
+        this->AlignCols( data.rowAlign );
+    else if( data.colDist == UScat )
+        this->AlignCols( data.colAlign % this->ColStride() );
+    else if( data.rowDist == UScat )
+        this->AlignCols( data.rowAlign % this->ColStride() );
+    DEBUG_ONLY(
+        else if( U != UGath && data.colDist != UGath && data.rowDist != UGath ) 
+            LogicError("Nonsensical alignment");
+    )
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralDistMatrix<T,U,V>::AlignRowsWith( const elem::DistData& data )
+{
+    DEBUG_ONLY(CallStackEntry cse("GDM::AlignRowsWith")) 
+    this->SetGrid( *data.grid );
+    this->SetRoot( data.root );
+    if( data.colDist == V || data.colDist == VPart )
+        this->AlignRows( data.colAlign );    
+    else if( data.rowDist == V || data.rowDist == VPart )
+        this->AlignRows( data.rowAlign );
+    else if( data.colDist == VScat )
+        this->AlignRows( data.colAlign % this->ColStride() );
+    else if( data.rowDist == VScat )
+        this->AlignRows( data.rowAlign % this->ColStride() );
+    DEBUG_ONLY(
+        else if( V != VGath && data.colDist != VGath && data.rowDist != VGath ) 
+            LogicError("Nonsensical alignment");
+    )
+}
+
+template<typename T,Dist U,Dist V>
+void
 GeneralDistMatrix<T,U,V>::AllGather( DistMatrix<T,UGath,VGath>& A ) const
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("GDM::AllGather");
-        this->AssertSameGrid( A.Grid() );
-    )
+    DEBUG_ONLY(CallStackEntry cse("GDM::AllGather"))
     const Int height = this->Height();
     const Int width = this->Width();
+    A.SetGrid( this->Grid() );
     A.Resize( height, width );
 
     if( this->Participating() )

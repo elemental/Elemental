@@ -273,32 +273,6 @@ DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
     return *this;
 }
 
-// Realignment
-// -----------
-
-template<typename T>
-void
-DM::AlignWith( const elem::DistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MR]::AlignWith"))
-    this->SetGrid( *data.grid );
-
-    if( data.colDist == MR )
-        this->AlignRows( data.colAlign );
-    else if( data.rowDist == MR )
-        this->AlignRows( data.rowAlign );
-    else if( data.colDist == VR )
-        this->AlignRows( data.colAlign % this->RowStride() );
-    else if( data.rowDist == VR )
-        this->AlignRows( data.rowAlign % this->RowStride() );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
-template<typename T>
-void
-DM::AlignRowsWith( const elem::DistData& data )
-{ this->AlignWith( data ); }
-
 // Basic queries
 // =============
 

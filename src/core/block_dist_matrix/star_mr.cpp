@@ -207,36 +207,6 @@ BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
     return *this;
 }
 
-// Realignment
-// -----------
-
-template<typename T>
-void
-BDM::AlignWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MR]::AlignWith"))
-    this->AlignRowsWith( data );
-}
-
-template<typename T>
-void
-BDM::AlignRowsWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[STAR,MR]::AlignColsWith"))
-    this->SetGrid( *data.grid );
-    if( data.colDist == MR )
-        this->AlignRows( data.blockHeight, data.colAlign, data.colCut );
-    else if( data.rowDist == MR )
-        this->AlignRows( data.blockWidth, data.rowAlign, data.rowCut );
-    else if( data.colDist == VR )
-        this->AlignRows
-        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
-    else if( data.rowDist == VR )
-        this->AlignRows
-        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
-}
-
 // Basic queries
 // =============
 

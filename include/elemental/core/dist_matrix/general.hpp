@@ -44,6 +44,9 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
+    void AlignColsWith( const elem::DistData& data ) override;
+    void AlignRowsWith( const elem::DistData& data ) override;
+
     void AllGather( DistMatrix<T,UGath,VGath>& A ) const;
     void ColAllGather( DistMatrix<T,UGath,V>& A ) const;
     void RowAllGather( DistMatrix<T,U,VGath>& A ) const;

@@ -65,27 +65,21 @@ public:
     type& operator=( const DistMatrix<T,STAR,VR  >& A );
     type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
- #ifndef SWIG
+#ifndef SWIG
     // Move assignment
     type& operator=( type&& A );
 #endif
 
-    // Realignment
-    // -----------
-    virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignColsWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const elem::DistData& data );
-
     // Basic queries
     // =============
-    virtual elem::DistData DistData() const;
-    virtual mpi::Comm DistComm() const;
-    virtual mpi::Comm CrossComm() const;
-    virtual mpi::Comm RedundantComm() const;
-    virtual mpi::Comm ColComm() const;
-    virtual mpi::Comm RowComm() const;
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
+    elem::DistData DistData() const override;
+    mpi::Comm DistComm() const override;
+    mpi::Comm CrossComm() const override;
+    mpi::Comm RedundantComm() const override;
+    mpi::Comm ColComm() const override;
+    mpi::Comm RowComm() const override;
+    Int ColStride() const override;
+    Int RowStride() const override;
 
 private:
     // Redistribute from a different process grid

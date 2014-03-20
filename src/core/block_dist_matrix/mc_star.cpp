@@ -77,11 +77,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,STAR] = [MR,MC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [MR,MC]"))
     std::unique_ptr<BlockDistMatrix<T,VR,STAR>> A_VR_STAR
     ( new BlockDistMatrix<T,VR,STAR>(A) );
     std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
@@ -193,43 +189,9 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,STAR] = [CIRC,CIRC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [CIRC,CIRC]"))
     LogicError("This routine is not yet written");
     return *this;
-}
-
-// Realignment
-// -----------
-
-template<typename T>
-void
-BDM::AlignWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,STAR]::AlignWith"))
-    this->AlignColsWith( data );
-}
-
-template<typename T>
-void
-BDM::AlignColsWith( const elem::BlockDistData& data )
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,STAR]::AlignColsWith"))
-    this->SetGrid( *data.grid );
-    if( data.colDist == MC )
-        this->AlignCols( data.blockHeight, data.colAlign, data.colCut );
-    else if( data.rowDist == MC )
-        this->AlignCols( data.blockWidth, data.rowAlign, data.rowCut );
-    else if( data.colDist == VC )
-        this->AlignCols
-        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
-    else if( data.rowDist == VC )
-        this->AlignCols
-        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
-    DEBUG_ONLY(else LogicError("Nonsensical alignment"))
 }
 
 // Basic queries
