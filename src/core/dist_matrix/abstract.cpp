@@ -385,8 +385,8 @@ AbstractDistMatrix<T>::AlignRowsAndResize
 template<typename T>
 void
 AbstractDistMatrix<T>::Attach
-( Int height, Int width, Int colAlign, Int rowAlign,
-  T* buffer, Int ldim, const elem::Grid& g, Int root )
+( Int height, Int width, const elem::Grid& g, 
+  Int colAlign, Int rowAlign, T* buffer, Int ldim, Int root )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::Attach"))
     Empty();
@@ -412,18 +412,18 @@ AbstractDistMatrix<T>::Attach
 template<typename T>
 void
 AbstractDistMatrix<T>::Attach
-( Int height, Int width, Int colAlign, Int rowAlign, elem::Matrix<T>& A, 
-  const elem::Grid& g, Int root )
+( Int height, Int width, const elem::Grid& g,
+  Int colAlign, Int rowAlign, elem::Matrix<T>& A, Int root )
 {
     // TODO: Assert that the local dimensions are correct
-    Attach( height, width, colAlign, rowAlign, A.Buffer(), A.LDim(), g, root );
+    Attach( height, width, g, colAlign, rowAlign, A.Buffer(), A.LDim(), root );
 }
 
 template<typename T>
 void
 AbstractDistMatrix<T>::LockedAttach
-( Int height, Int width, Int colAlign, Int rowAlign,
-  const T* buffer, Int ldim, const elem::Grid& g, Int root )
+( Int height, Int width, const elem::Grid& g, 
+  Int colAlign, Int rowAlign, const T* buffer, Int ldim, Int root )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::LockedAttach"))
     Empty();
@@ -449,12 +449,12 @@ AbstractDistMatrix<T>::LockedAttach
 template<typename T>
 void
 AbstractDistMatrix<T>::LockedAttach
-( Int height, Int width, Int colAlign, Int rowAlign, const elem::Matrix<T>& A,
-  const elem::Grid& g, Int root )
+( Int height, Int width, const elem::Grid& g, 
+  Int colAlign, Int rowAlign, const elem::Matrix<T>& A, Int root )
 {
     // TODO: Assert that the local dimensions are correct
     LockedAttach
-    ( height, width, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), g, root );
+    ( height, width, g, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), root );
 }
 
 // Basic queries

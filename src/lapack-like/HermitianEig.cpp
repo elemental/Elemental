@@ -291,7 +291,7 @@ void HermitianEig
         const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, k, 0, 0, Z_STAR_VR_Buf, n, g );
+        Z_STAR_VR.Attach( n, k, g, 0, 0, Z_STAR_VR_Buf, n );
     }
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
     auto d = A.GetRealPartOfDiagonal();
@@ -523,7 +523,7 @@ void HermitianEig
         const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, k, 0, 0, Z_STAR_VR_Buf, n, g );
+        Z_STAR_VR.Attach( n, k, g, 0, 0, Z_STAR_VR_Buf, n );
     }
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
     auto d = A.GetRealPartOfDiagonal();
@@ -776,7 +776,8 @@ void HermitianEig
     auto d = A.GetRealPartOfDiagonal();
     auto e = A.GetRealPartOfDiagonal( subdiagonal );
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, 0, 0, n, g );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    e_STAR_STAR.Resize( n-1, 1, n );
     e_STAR_STAR = e;
     const Int kEst = HermitianTridiagEigEstimate( d, e, g.VRComm(), vl, vu );
 
@@ -798,7 +799,7 @@ void HermitianEig
         const Int Z_STAR_VR_LocalWidth = Length(kEst,g.VRRank(),g.Size());
         const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
         Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, kEst, 0, 0, Z_STAR_VR_Buf, n, g );
+        Z_STAR_VR.Attach( n, kEst, g, 0, 0, Z_STAR_VR_Buf, n );
     }
     HermitianTridiagEigPostEstimate
     ( d_STAR_STAR, e_STAR_STAR, w, Z_STAR_VR, vl, vu, UNSORTED );

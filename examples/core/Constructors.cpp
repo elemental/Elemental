@@ -69,15 +69,15 @@ main( int argc, char* argv[] )
                 }
             }
 
-            DistMatrix<double> 
-                X( n, n, 0, 0, localData.data(), localHeight, grid );
+            DistMatrix<double> X(grid);
+            X.Attach( n, n, grid, 0, 0, localData.data(), localHeight );
             if( print )
                 Print( X, "Identity constructed from local buffers" );
 
             // Build another set of local buffers and attach it to X.
             // This time, make it all two's.
             std::vector<double> localTwos( localHeight*localWidth, 2 ); 
-            X.Attach( n, n, 0, 0, localTwos.data(), localHeight, grid );
+            X.Attach( n, n, grid, 0, 0, localTwos.data(), localHeight );
             if( print )
                 Print( X, "After viewing local buffers of all two's" );
         }

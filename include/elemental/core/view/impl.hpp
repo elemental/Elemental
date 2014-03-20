@@ -32,8 +32,8 @@ inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("View"))
     A.Attach
-    ( B.Height(), B.Width(), B.ColAlign(), B.RowAlign(), 
-      B.Buffer(), B.LDim(), B.Grid(), B.Root() );
+    ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+      B.Buffer(), B.LDim(), B.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -64,8 +64,8 @@ inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedView"))
     A.LockedAttach
-    ( B.Height(), B.Width(), B.ColAlign(), B.RowAlign(), 
-      B.LockedBuffer(), B.LDim(), B.Grid(), B.Root() );
+    ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+      B.LockedBuffer(), B.LDim(), B.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -120,13 +120,13 @@ inline void View
         const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
         const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
         A.Attach
-        ( height, width, colAlign, rowAlign, B.Buffer(iLoc,jLoc), B.LDim(), 
-          B.Grid(), B.Root() );
+        ( height, width, B.Grid(), colAlign, rowAlign, 
+          B.Buffer(iLoc,jLoc), B.LDim(), B.Root() );
     }
     else
     {
         A.Attach
-        ( height, width, colAlign, rowAlign, 0, B.LDim(), B.Grid(), B.Root() );
+        ( height, width, B.Grid(), colAlign, rowAlign, 0, B.LDim(), B.Root() );
     }
 }
 
@@ -184,13 +184,13 @@ inline void LockedView
         const Int iLoc = Length( i, B.ColShift(), B.ColStride() );
         const Int jLoc = Length( j, B.RowShift(), B.RowStride() );
         A.LockedAttach
-        ( height, width, colAlign, rowAlign, 
-          B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Grid(), B.Root() );
+        ( height, width, B.Grid(), colAlign, rowAlign, 
+          B.LockedBuffer(iLoc,jLoc), B.LDim(), B.Root() );
     }
     else
     {
         A.LockedAttach
-        ( height, width, colAlign, rowAlign, 0, B.LDim(), B.Grid(), B.Root() );
+        ( height, width, B.Grid(), colAlign, rowAlign, 0, B.LDim(), B.Root() );
     }
 }
 
@@ -304,8 +304,8 @@ inline void View1x2
         BL.AssertSameGrid( BR.Grid() );
     )
     A.Attach
-    ( BL.Height(), BL.Width()+BR.Width(), BL.ColAlign(), BL.RowAlign(),
-      BL.Buffer(), BL.LDim(), BL.Grid(), BL.Root() );
+    ( BL.Height(), BL.Width()+BR.Width(), BL.Grid(), 
+      BL.ColAlign(), BL.RowAlign(), BL.Buffer(), BL.LDim(), BL.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -353,8 +353,8 @@ inline void LockedView1x2
         BL.AssertSameGrid( BR.Grid() );
     )
     A.LockedAttach
-    ( BL.Height(), BL.Width()+BR.Width(), BL.ColAlign(), BL.RowAlign(),
-      BL.LockedBuffer(), BL.LDim(), BL.Grid(), BL.Root() );
+    ( BL.Height(), BL.Width()+BR.Width(), BL.Grid(), 
+      BL.ColAlign(), BL.RowAlign(), BL.LockedBuffer(), BL.LDim(), BL.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -401,8 +401,8 @@ inline void View2x1
         BT.AssertSameGrid( BB.Grid() );
     )
     A.Attach
-    ( BT.Height()+BB.Height(), BT.Width(), BT.ColAlign(), BT.RowAlign(),
-      BT.Buffer(), BT.LDim(), BT.Grid(), BT.Root() );
+    ( BT.Height()+BB.Height(), BT.Width(), BT.Grid(), 
+      BT.ColAlign(), BT.RowAlign(), BT.Buffer(), BT.LDim(), BT.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -451,8 +451,8 @@ inline void LockedView2x1
         BT.AssertSameGrid( BB.Grid() );
     )
     A.LockedAttach
-    ( BT.Height()+BB.Height(), BT.Width(), BT.ColAlign(), BT.RowAlign(),
-      BT.LockedBuffer(), BT.LDim(), BT.Grid(), BT.Root() );
+    ( BT.Height()+BB.Height(), BT.Width(), BT.Grid(), 
+      BT.ColAlign(), BT.RowAlign(), BT.LockedBuffer(), BT.LDim(), BT.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -517,9 +517,8 @@ inline void View2x2
         BTL.AssertSameGrid( BBR.Grid() );
     )
     A.Attach
-    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
-      BTL.ColAlign(), BTL.RowAlign(), 
-      BTL.Buffer(), BTL.LDim(), BTL.Grid(), BTL.Root() );
+    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), BTL.Grid(),
+      BTL.ColAlign(), BTL.RowAlign(), BTL.Buffer(), BTL.LDim(), BTL.Root() );
 }
 
 template<typename T,Dist U,Dist V>
@@ -585,9 +584,9 @@ inline void LockedView2x2
         BTL.AssertSameGrid( BBR.Grid() );
     )
     A.LockedAttach
-    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), 
+    ( BTL.Height()+BBL.Height(), BTL.Width()+BTR.Width(), BTL.Grid(),
       BTL.ColAlign(), BTL.RowAlign(), BTL.LockedBuffer(), BTL.LDim(),
-      BTL.Grid(), BTL.Root() );
+      BTL.Root() );
 }
 
 template<typename T,Dist U,Dist V>

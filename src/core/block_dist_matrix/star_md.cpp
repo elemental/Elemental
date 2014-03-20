@@ -25,7 +25,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MC,MR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MC,MR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -36,7 +36,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MC,STAR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MC,STAR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -47,7 +47,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,MR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -58,7 +58,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MD,STAR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MD,STAR]"))
     LogicError("This routine is not yet implemented");
     return *this;
 }
@@ -67,7 +67,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BDM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,MD]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MD]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -78,7 +78,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MR,MC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MR,MC]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -89,7 +89,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MR,STAR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [MR,STAR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -100,7 +100,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,MC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MC]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -111,7 +111,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [VC,STAR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [VC,STAR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -122,7 +122,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,VC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,VC]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -133,7 +133,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [VR,STAR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [VR,STAR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -144,7 +144,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,VR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,VR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -155,7 +155,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,STAR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,STAR]"))
     this->ColFilterFrom( A );
     return *this;
 }
@@ -164,7 +164,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [CIRC,CIRC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [CIRC,CIRC]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
@@ -178,7 +178,7 @@ template<typename T>
 void
 BDM::AlignWith( const elem::BlockDistData& data )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR]::AlignWith"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD]::AlignWith"))
     this->AlignRowsWith( data );
 }
 
@@ -186,7 +186,7 @@ template<typename T>
 void
 BDM::AlignRowsWith( const elem::BlockDistData& data )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MD,STAR]::AlignRowsWith"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD]::AlignRowsWith"))
     this->SetGrid( *data.grid );
     if( data.colDist == MD && data.rowDist == STAR )
     {

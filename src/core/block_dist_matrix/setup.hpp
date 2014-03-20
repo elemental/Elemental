@@ -37,56 +37,6 @@ BDM::BlockDistMatrix
 { this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g, 
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->SetShifts(); 
-    this->Align(blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut); 
-    this->Resize(height,width); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->SetShifts();
-    this->Align(blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut); 
-    this->Resize(height,width,ldim); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  const T* buffer, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->LockedAttach
-    (height,width,g,blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut,
-     buffer,ldim,root); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth,
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  T* buffer, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->Attach
-    (height,width,g,blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut,
-     buffer,ldim,root); 
-}
-
-template<typename T>
 BDM::BlockDistMatrix( const BDM& A )
 : GBDM(A.Grid())
 {

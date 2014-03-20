@@ -26,12 +26,12 @@ DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MC,MR]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(A) );
 
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new DistMatrix<T,VR,STAR>(true,this->ColAlign(),g) );
+    ( new DistMatrix<T,VR,STAR>(this->Grid()) );
+    A_VR_STAR->AlignColsWith(*this);
     *A_VR_STAR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
 
@@ -125,7 +125,8 @@ DM::operator=( const DistMatrix<T,MC,STAR>& A )
         ( new DistMatrix<T,VC,STAR>(A) );
 
         std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-        ( new DistMatrix<T,VR,STAR>(true,this->ColAlign(),g) );
+        ( new DistMatrix<T,VR,STAR>(g) );
+        A_VR_STAR->AlignColsWith(*this);
         *A_VR_STAR = *A_VC_STAR;
         delete A_VC_STAR.release(); // lowers memory highwater
 
@@ -146,7 +147,8 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
     delete A_MC_MR.release(); // lowers memory highwater
 
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new DistMatrix<T,VR,STAR>(true,this->ColAlign(),this->Grid()) );
+    ( new DistMatrix<T,VR,STAR>(this->Grid()) );
+    A_VR_STAR->AlignColsWith(*this);
     *A_VR_STAR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
 
@@ -276,7 +278,8 @@ DM&
 DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [VC,STAR]"))
-    DistMatrix<T,VR,STAR> A_VR_STAR(true,this->ColAlign(),this->Grid());
+    DistMatrix<T,VR,STAR> A_VR_STAR(this->Grid());
+    A_VR_STAR.AlignColsWith(*this);
     A_VR_STAR = A;
     *this = A_VR_STAR;
     return *this;
@@ -310,7 +313,8 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
     ( new DistMatrix<T,STAR,VC>(A) );
 
     std::unique_ptr<DistMatrix<T,MR,MC>> A_MR_MC
-    ( new DistMatrix<T,MR,MC>(true,false,this->ColAlign(),0,this->Grid()) );
+    ( new DistMatrix<T,MR,MC>(this->Grid()) );
+    A_MR_MC->AlignColsWith(*this);
     *A_MR_MC = *A_STAR_VC;
     delete A_STAR_VC.release(); // lowers memory highwater
 

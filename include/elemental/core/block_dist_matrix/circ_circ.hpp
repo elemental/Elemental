@@ -39,34 +39,6 @@ public:
     BlockDistMatrix
     ( Int height, Int width, const elem::Grid& g=DefaultGrid(),
       Int blockHeight=32, Int blockWidth=32, Int root=0 );
-    // Create a height x width distributed matrix with specified alignments
-    BlockDistMatrix
-    ( Int height, Int width, const elem::Grid& g,
-      Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      Int root=0 );
-    // Create a height x width distributed matrix with specified alignments
-    // and leading dimension
-    BlockDistMatrix
-    ( Int height, Int width, const elem::Grid& g,
-      Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int ldim,
-      Int root=0 );
-#ifndef SWIG
-    // View a constant distributed matrix's buffer
-    BlockDistMatrix
-    ( Int height, Int width, const elem::Grid& g,
-      Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      const T* buffer, Int ldim, Int root=0 );
-#endif
-    // View a mutable distributed matrix's buffer
-    BlockDistMatrix
-    ( Int height, Int width, const elem::Grid& g,
-      Int blockHeight, Int blockWidth,
-      Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      T* buffer, Int ldim, Int root=0 );
-
     // Create a copy of distributed matrix A (redistributing if necessary)
     BlockDistMatrix( const type& A );
     template<Dist U,Dist V> BlockDistMatrix( const BlockDistMatrix<T,U,V>& A );

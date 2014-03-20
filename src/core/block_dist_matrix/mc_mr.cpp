@@ -77,11 +77,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [MR,MC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MR,MC]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -91,11 +87,10 @@ BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MR,STAR]"))
-    const Grid& g = A.Grid();
     std::unique_ptr<BlockDistMatrix<T,VR,STAR>> A_VR_STAR
     ( new BlockDistMatrix<T,VR,STAR>(A) );
     std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new BlockDistMatrix<T,VC,STAR>(g) );
+    ( new BlockDistMatrix<T,VC,STAR>(this->Grid()) );
     A_VC_STAR->AlignWith( *this );
     *A_VC_STAR = *A_VR_STAR;
     delete A_VR_STAR.release(); // lowers memory highwater
@@ -108,11 +103,10 @@ BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,MC]"))
-    const Grid& g = A.Grid();
     std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
     ( new BlockDistMatrix<T,STAR,VC>(A) );
     std::unique_ptr<BlockDistMatrix<T,STAR,VR>> A_STAR_VR
-    ( new BlockDistMatrix<T,STAR,VR>(g) );
+    ( new BlockDistMatrix<T,STAR,VR>(this->Grid()) );
     A_STAR_VR->AlignWith( *this );
     *A_STAR_VR = *A_STAR_VC;
     delete A_STAR_VC.release(); // lowers memory highwater
@@ -134,8 +128,7 @@ BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,VC]"))
-    const elem::Grid& g = this->Grid();
-    BlockDistMatrix<T,STAR,VR> A_STAR_VR(g);
+    BlockDistMatrix<T,STAR,VR> A_STAR_VR(this->Grid());
     A_STAR_VR.AlignWith( *this );
     A_STAR_VR = A;
     *this = A_STAR_VR;
@@ -147,8 +140,7 @@ BDM&
 BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [VR,STAR]"))
-    const elem::Grid& g = this->Grid();
-    BlockDistMatrix<T,VC,STAR> A_VC_STAR(g);
+    BlockDistMatrix<T,VC,STAR> A_VC_STAR(this->Grid());
     A_VC_STAR.AlignWith( *this );
     A_VC_STAR = A;
     *this = A_VC_STAR;
@@ -177,11 +169,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [CIRC,CIRC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [CIRC,CIRC]"))
     LogicError("This routine is not yet written");
     return *this;
 }

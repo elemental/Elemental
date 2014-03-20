@@ -39,26 +39,6 @@ public:
     // Create a height x width distributed matrix
     DistMatrix
     ( Int height, Int width, const elem::Grid& g=DefaultGrid(), Int root=0 );
-    // Create a height x width distributed matrix with specified alignments
-    DistMatrix
-    ( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
-      Int root=0 );
-    // Create a height x width distributed matrix with specified alignments
-    // and leading dimension
-    DistMatrix
-    ( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
-      const elem::Grid& grid, Int root=0 );
-#ifndef SWIG
-    // View a constant distributed matrix's buffer
-    DistMatrix
-    ( Int height, Int width, Int colAlign, Int rowAlign,
-      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
-#endif
-    // View a mutable distributed matrix's buffer
-    DistMatrix
-    ( Int height, Int width, Int colAlign, Int rowAlign,
-      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
-
     // Create a copy of distributed matrix A (redistributing if necessary)
     DistMatrix( const type& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );

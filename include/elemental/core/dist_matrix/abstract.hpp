@@ -61,17 +61,17 @@ public:
     // -----------------
     // (Immutable) view of a distributed matrix's buffer
     void Attach
-    ( Int height, Int width, Int colAlign, Int rowAlign,
-      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+    ( Int height, Int width, const elem::Grid& grid, 
+      Int colAlign, Int rowAlign, T* buffer, Int ldim, Int root=0 );
     void LockedAttach
-    ( Int height, Int width, Int colAlign, Int rowAlign,
-      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+    ( Int height, Int width, const elem::Grid& grid,
+      Int colAlign, Int rowAlign, const T* buffer, Int ldim, Int root=0 );
     void Attach
-    ( Int height, Int width, Int colAlign, Int rowAlign, 
-      elem::Matrix<T>& A, const elem::Grid& grid, Int root=0 );
+    ( Int height, Int width, const elem::Grid& grid,
+      Int colAlign, Int rowAlign, elem::Matrix<T>& A, Int root=0 );
     void LockedAttach
-    ( Int height, Int width, Int colAlign, Int rowAlign, 
-      const elem::Matrix<T>& A, const elem::Grid& grid, Int root=0 );
+    ( Int height, Int width, const elem::Grid& grid,
+      Int colAlign, Int rowAlign, const elem::Matrix<T>& A, Int root=0 );
 
     // Basic queries
     // =============
