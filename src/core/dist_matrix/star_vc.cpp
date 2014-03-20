@@ -491,11 +491,11 @@ mpi::Comm DM::PartialUnionRowComm() const { return this->grid_->MRComm(); }
 template<typename T>
 Int DM::ColStride() const { return 1; }
 template<typename T>
-Int DM::RowStride() const { return this->grid_->Size(); }
+Int DM::RowStride() const { return this->grid_->VCSize(); }
 template<typename T>
-Int DM::PartialRowStride() const { return this->grid_->Height(); }
+Int DM::PartialRowStride() const { return this->grid_->MCSize(); }
 template<typename T>
-Int DM::PartialUnionRowStride() const { return this->grid_->Width(); }
+Int DM::PartialUnionRowStride() const { return this->grid_->MRSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

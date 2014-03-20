@@ -339,6 +339,9 @@ protected:
 #ifndef SWIG
     template<typename S,Dist J,Dist K> friend class GeneralDistMatrix;
     template<typename S,Dist J,Dist K> friend class DistMatrix;
+
+    template<typename S,Dist J,Dist K> friend class GeneralBlockDistMatrix;
+    template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 #endif
 };
 

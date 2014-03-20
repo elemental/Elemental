@@ -228,13 +228,11 @@ DM&
 DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MR,MC]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new DistMatrix<T,STAR,VC>(g) );
-    *A_STAR_VC = A;
+    ( new DistMatrix<T,STAR,VC>(A) );
 
     std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
-    ( new DistMatrix<T,STAR,VR>(true,this->RowAlign(),g) );
+    ( new DistMatrix<T,STAR,VR>(true,this->RowAlign(),this->Grid()) );
     *A_STAR_VR = *A_STAR_VC;
     delete A_STAR_VC.release(); // lowers memory highwater
 
@@ -247,18 +245,15 @@ DM&
 DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MR,* ]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new DistMatrix<T,VR,STAR>(g) );
-    *A_VR_STAR = A;
+    ( new DistMatrix<T,VR,STAR>(A) );
 
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new DistMatrix<T,VC,STAR>(g) );
-    *A_VC_STAR = *A_VR_STAR;
+    ( new DistMatrix<T,VC,STAR>(*A_VR_STAR) );
     delete A_VR_STAR.release(); // lowers memory highwater
 
     std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR
-    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlign(),g) );
+    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlign(),this->Grid()) );
     *A_MC_MR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
 
@@ -271,19 +266,16 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,MC]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new DistMatrix<T,STAR,VC>(g) );
-    *A_STAR_VC = A;
+    ( new DistMatrix<T,STAR,VC>(A) );
 
     std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
-    ( new DistMatrix<T,STAR,VR>(true,this->RowAlign(),g) );
+    ( new DistMatrix<T,STAR,VR>(true,this->RowAlign(),this->Grid()) );
     *A_STAR_VR = *A_STAR_VC;
     delete A_STAR_VC.release(); // lowers memory highwater
 
     std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR
-    ( new DistMatrix<T,MC,MR>(g) );
-    *A_MC_MR = *A_STAR_VR;
+    ( new DistMatrix<T,MC,MR>(*A_STAR_VR) );
     delete A_STAR_VR.release(); // lowers memory highwater
 
     *this = *A_MC_MR;
@@ -295,8 +287,7 @@ DM&
 DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [VC,* ]"))
-    const elem::Grid& g = this->Grid();
-    DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlign(),g);
+    DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlign(),this->Grid());
     A_MC_MR = A;
     *this = A_MC_MR;
     return *this;
@@ -319,13 +310,11 @@ DM&
 DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [VR,* ]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new DistMatrix<T,VC,STAR>(g) );
-    *A_VC_STAR = A;
+    ( new DistMatrix<T,VC,STAR>(A) );
 
     std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR
-    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlign(),g) );
+    ( new DistMatrix<T,MC,MR>(false,true,0,this->RowAlign(),this->Grid()) );
     *A_MC_MR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
 
@@ -425,7 +414,7 @@ mpi::Comm DM::RowComm() const { return this->grid_->MRComm(); }
 template<typename T>
 Int DM::ColStride() const { return 1; }
 template<typename T>
-Int DM::RowStride() const { return this->grid_->Width(); }
+Int DM::RowStride() const { return this->grid_->MRSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

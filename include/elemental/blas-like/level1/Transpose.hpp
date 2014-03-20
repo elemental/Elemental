@@ -60,6 +60,47 @@ Transpose
     }
 }
 
+template<typename T,Dist U,Dist V,
+                    Dist W,Dist Z>
+inline void
+Transpose
+( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B, 
+  bool conjugate=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("Transpose"))
+    // TODO: Member function to quickly query this information?!?
+    //       Perhaps A.ColsAlignedWithRows( B )?
+    //               A.ColsAlignedWithCols( B )?
+    const bool transposeColAligned = 
+        U               == Z              &&
+        A.BlockHeight() == B.BlockWidth() &&
+        A.ColAlign()    == B.RowAlign()   &&
+        A.ColCut()      == B.RowCut();
+    const bool transposeRowAligned =
+        V              == W               &&
+        A.BlockWidth() == B.BlockHeight() &&
+        A.RowAlign()   == B.ColAlign()    &&
+        A.RowCut()     == B.ColCut();
+    if( (transposeColAligned || !B.RowConstrained()) &&
+        (transposeRowAligned || !B.ColConstrained()) )
+    {
+        B.Align
+        ( A.BlockWidth(), A.BlockHeight(), 
+          A.RowAlign(), A.ColAlign(), A.RowCut(), A.ColCut() );
+        B.Resize( A.Width(), A.Height() );
+        Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
+    }
+    else
+    {
+        BlockDistMatrix<T,Z,W> C( B.Grid() );
+        C.AlignRowsWith( B );
+        C.AlignColsWith( B );
+        C = A;
+        B.Resize( A.Width(), A.Height() );
+        Transpose( C.LockedMatrix(), B.Matrix(), conjugate );
+    }
+}
+
 } // namespace elem
 
 #endif // ifndef ELEM_TRANSPOSE_HPP

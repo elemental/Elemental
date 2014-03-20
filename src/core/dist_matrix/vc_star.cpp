@@ -262,8 +262,8 @@ DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VC,* ] = [* ,VC]"))
     std::unique_ptr<DistMatrix<T,MR,MC>> A_MR_MC( new DistMatrix<T,MR,MC>(A) );
-    std::unique_ptr<DM> A_VR_STAR
-    ( new DM(*A_MR_MC) );
+    std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
+    ( new DistMatrix<T,VR,STAR>(*A_MR_MC) );
     delete A_MR_MC.release(); // lowers memory highwater
     *this = *A_VR_STAR;
     return *this;
@@ -493,13 +493,13 @@ template<typename T>
 mpi::Comm DM::PartialUnionColComm() const { return this->grid_->MRComm(); }
 
 template<typename T>
-Int DM::ColStride() const { return this->grid_->Size(); }
+Int DM::ColStride() const { return this->grid_->VCSize(); }
 template<typename T>
 Int DM::RowStride() const { return 1; }
 template<typename T>
-Int DM::PartialColStride() const { return this->grid_->Height(); }
+Int DM::PartialColStride() const { return this->grid_->MCSize(); }
 template<typename T>
-Int DM::PartialUnionColStride() const { return this->grid_->Width(); }
+Int DM::PartialUnionColStride() const { return this->grid_->MRSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

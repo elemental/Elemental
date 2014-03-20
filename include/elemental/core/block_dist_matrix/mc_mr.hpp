@@ -24,7 +24,7 @@ class BlockDistMatrix<T,MC,MR> : public GeneralBlockDistMatrix<T,MC,MR>
 public:
     // Typedefs
     // ========
-    typedef AbstractBlockDistMatrix<T> admType;
+    typedef AbstractBlockDistMatrix<T> absType;
     typedef GeneralBlockDistMatrix<T,MC,MR> genType;
     typedef BlockDistMatrix<T,MC,MR> type;
 
@@ -36,35 +36,39 @@ public:
 
     // Create a 0 x 0 distributed matrix
     BlockDistMatrix
-    ( Int blockHeight=32, Int blockWidth=32, const elem::Grid& g=DefaultGrid(), 
+    ( const elem::Grid& g=DefaultGrid(), Int blockHeight=32, Int blockWidth=32,
       Int root=0 );
     // Create a height x width distributed matrix
     BlockDistMatrix
-    ( Int height, Int width, Int blockHeight=32, Int blockWidth=32, 
-      const elem::Grid& g=DefaultGrid(), Int root=0 );
+    ( Int height, Int width, const elem::Grid& g=DefaultGrid(),
+      Int blockHeight=32, Int blockWidth=32, Int root=0 );
     // Create a height x width distributed matrix with specified alignments
     BlockDistMatrix
-    ( Int height, Int width, Int blockHeight, Int blockWidth, 
+    ( Int height, Int width, const elem::Grid& g, 
+      Int blockHeight, Int blockWidth, 
       Int colAlign, Int rowAlign, Int colCut, Int rowCut, 
-      const elem::Grid& grid, Int root=0 );
+      Int root=0 );
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     BlockDistMatrix
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int ldim,
-      const elem::Grid& grid, Int root=0 );
+      Int root=0 );
 #ifndef SWIG
     // View a constant distributed matrix's buffer
     BlockDistMatrix
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+      const T* buffer, Int ldim, Int root=0 );
 #endif
     // View a mutable distributed matrix's buffer
     BlockDistMatrix
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+      T* buffer, Int ldim, Int root=0 );
 
     // Create a copy of distributed matrix A (redistributing if necessary)
     BlockDistMatrix( const type& A );
@@ -124,6 +128,7 @@ private:
     // Friend declarations
     // ===================
 #ifndef SWIG
+    template<typename S,Dist U,Dist V> friend class DistMatrix;
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 #endif 
 };

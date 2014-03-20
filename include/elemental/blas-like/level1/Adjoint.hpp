@@ -31,6 +31,15 @@ Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
     Transpose( A, B, true );
 }
 
+template<typename T,Dist U,Dist V,
+                    Dist W,Dist Z>
+inline void
+Adjoint( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
+    Transpose( A, B, true );
+}
+
 } // namespace elem
 
 #endif // ifndef ELEM_ADJOINT_HPP

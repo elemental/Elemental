@@ -18,7 +18,7 @@ class GeneralDistMatrix : public AbstractDistMatrix<T>
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T> absType;
     typedef GeneralDistMatrix<T,U,V> type;
 #ifndef SWIG
     static constexpr Dist UDiag = DiagColDist<U,V>();
@@ -169,6 +169,7 @@ protected:
     // ===================
 #ifndef SWIG
     template<typename S,Dist J,Dist K> friend class DistMatrix;
+    template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 #endif 
 };
 

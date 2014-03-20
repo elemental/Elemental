@@ -18,7 +18,7 @@ class GeneralBlockDistMatrix : public AbstractBlockDistMatrix<T>
 public:
     // Typedefs
     // ========
-    typedef AbstractBlockDistMatrix<T> admType;
+    typedef AbstractBlockDistMatrix<T> absType;
     typedef GeneralBlockDistMatrix<T,U,V> type;
 #ifndef SWIG
     static constexpr Dist UDiag = DiagColDist<U,V>();
@@ -160,7 +160,7 @@ protected:
 
     // Create a 0 x 0 distributed matrix
     GeneralBlockDistMatrix
-    ( Int blockHeight=32, Int blockWidth=32, const elem::Grid& g=DefaultGrid(), 
+    ( const elem::Grid& g=DefaultGrid(), Int blockHeight=32, Int blockWidth=32,
       Int root=0 );
 
     // Diagonal helper routines
@@ -177,6 +177,7 @@ protected:
     // Friend declarations
     // ===================
 #ifndef SWIG
+    template<typename S,Dist J,Dist K> friend class DistMatrix;
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 #endif 
 };

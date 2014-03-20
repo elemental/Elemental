@@ -266,7 +266,7 @@ DM&
 DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,* ] = [o ,o ]"))
-    DistMatrix<T,MC,MR> A_MC_MR( A.Grid() );
+    DistMatrix<T,MC,MR> A_MC_MR( this->Grid() );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
     *this = A_MC_MR;
@@ -337,15 +337,6 @@ template<typename T>
 Int DM::ColStride() const { return this->grid_->LCM(); }
 template<typename T>
 Int DM::RowStride() const { return 1; }
-
-// Private section
-// ###############
-
-// Exchange metadata with another matrix
-// =====================================
-
-template<typename T>
-void DM::ShallowSwap( DM& A ) { GDM::ShallowSwap( A ); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

@@ -11,6 +11,7 @@ Functionality priorities
 Fundamental functionality additions
 -----------------------------------
 [o] An interface to ScaLAPACK (now that row-major/col-major grids are supported)
+    after finishing an initial implementation of BlockDistMatrix
 [o] Estimate for spectral radius
 [o] Low-rank modifications of QR
 [o] Low-rank modifications of LU
@@ -87,6 +88,9 @@ Instrumentation/visualization/testing
 
 Consistency
 -----------
+[-] Switch DistMatrix constructors over to the better convention of 
+    BlockDistMatrix, which places the process grid argument before the 
+    dependent alignment parameters
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 [-] Consistent implementation of unblocked routines
 [-] Separate out local blas-like and lapack-like operations

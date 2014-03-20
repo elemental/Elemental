@@ -38,15 +38,15 @@ public:
     void EmptyData();
     void SetGrid( const elem::Grid& grid );
     void Resize( Int height, Int width );
-    void Resize( Int height, Int width, Int blockHeight, Int blockWidth );
-    void Resize
-    ( Int height, Int width, Int blockHeight, Int blockWidth, Int ldim );
+    void Resize( Int height, Int width, Int ldim );
     void MakeConsistent();
     // Realignment
     // -----------
-    void Align( Int colAlign, Int rowAlign, Int colCut=0, Int rowCut=0 );
-    void AlignCols( Int colAlign, Int colCut=0 );
-    void AlignRows( Int rowAlign, Int rowCut=0 );
+    void Align
+    ( Int blockHeight, Int blockWidth, 
+      Int colAlign, Int rowAlign, Int colCut=0, Int rowCut=0 );
+    void AlignCols( Int blockHeight, Int colAlign, Int colCut=0 );
+    void AlignRows( Int blockWidth, Int rowAlign, Int rowCut=0 );
     void FreeAlignments();
     void SetRoot( Int root );
     virtual void AlignWith( const elem::BlockDistData& data );
@@ -54,35 +54,39 @@ public:
     virtual void AlignRowsWith( const elem::BlockDistData& data );
     // TODO: The interface for these routines could be improved
     void AlignAndResize
-    ( Int colAlign, Int rowAlign, Int colCut, Int rowCut, 
-      Int height, Int width, Int blockHeight, Int blockWidth, 
-      bool force=false );
+    ( Int blockHeight, Int blockWidth, 
+      Int colAlign, Int rowAlign, Int colCut, Int rowCut, 
+      Int height, Int width, bool force=false );
     void AlignColsAndResize
-    ( Int colAlign, Int colCut, Int height, Int width, Int blockHeight, 
+    ( Int blockHeight, Int colAlign, Int colCut, Int height, Int width, 
       bool force=false );
     void AlignRowsAndResize
-    ( Int rowAlign, Int rowCut, Int height, Int width, Int blockWidth, 
+    ( Int blockWidth, Int rowAlign, Int rowCut, Int height, Int width, 
       bool force=false );
 
     // Buffer attachment
     // -----------------
     // (Immutable) view of a distributed matrix's buffer
     void Attach
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g, 
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+      T* buffer, Int ldim, Int root=0 );
     void LockedAttach
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      const T* buffer, Int ldim, const elem::Grid& grid, Int root=0 );
+      const T* buffer, Int ldim, Int root=0 );
     void Attach
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      elem::Matrix<T>& A, const elem::Grid& grid, Int root=0 );
+      elem::Matrix<T>& A, Int root=0 );
     void LockedAttach
-    ( Int height, Int width, Int blockHeight, Int blockWidth,
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth,
       Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-      const elem::Matrix<T>& A, const elem::Grid& grid, Int root=0 );
+      const elem::Matrix<T>& A, Int root=0 );
 
     // Basic queries
     // =============
@@ -339,8 +343,8 @@ protected:
     // ====================
     // Create a 0 x 0 distributed matrix
     AbstractBlockDistMatrix
-    ( Int blockHeight=32, Int blockWidth=32, 
-      const elem::Grid& g=DefaultGrid(), Int root=0 );
+    ( const elem::Grid& g=DefaultGrid(), 
+      Int blockHeight=32, Int blockWidth=32, Int root=0 );
 
     // Exchange metadata with another matrix
     // =====================================
@@ -356,6 +360,8 @@ protected:
     // Friend declarations
     // ===================
 #ifndef SWIG
+    template<typename S,Dist J,Dist K> friend class GeneralDistMatrix;
+    template<typename S,Dist J,Dist K> friend class DistMatrix;
     template<typename S,Dist J,Dist K> friend class GeneralBlockDistMatrix;
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
 #endif

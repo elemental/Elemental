@@ -23,7 +23,7 @@ class DistMatrix<T,VR,STAR> : public GeneralDistMatrix<T,VR,STAR>
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T> absType;
     typedef GeneralDistMatrix<T,VR,STAR> genType;
     typedef DistMatrix<T,VR,STAR> type;
 
@@ -113,6 +113,7 @@ private:
     // ===================
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
+    template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 #endif 
 };
 

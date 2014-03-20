@@ -103,12 +103,11 @@ DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MC,MR]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
     ( new DistMatrix<T,STAR,VR>(A) );
 
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),g) );
+    ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),this->Grid()) );
     *A_STAR_VC = *A_STAR_VR;
     delete A_STAR_VR.release(); // lowers memory highwater
 
@@ -121,7 +120,6 @@ DM&
 DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [MC,* ]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
 
     std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
@@ -129,7 +127,7 @@ DM::operator=( const DistMatrix<T,MC,STAR>& A )
     delete A_MC_MR.release(); // lowers memory highwater
 
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),g) );
+    ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),this->Grid()) );
     *A_STAR_VC = *A_STAR_VR;
     delete A_STAR_VR.release(); // lowers memory highwater
 
@@ -219,8 +217,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
     else
     {
         std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
-        ( new DistMatrix<T,STAR,VR>(g) );
-        *A_STAR_VR = A;
+        ( new DistMatrix<T,STAR,VR>(A) );
 
         std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
         ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),g) );
@@ -353,12 +350,11 @@ DM&
 DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[* ,MC] = [VC,* ]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
     ( new DistMatrix<T,VR,STAR>(A) );
 
     std::unique_ptr<DistMatrix<T,MR,MC>> A_MR_MC
-    ( new DistMatrix<T,MR,MC>(false,true,0,this->RowAlign(),g) );
+    ( new DistMatrix<T,MR,MC>(false,true,0,this->RowAlign(),this->Grid()) );
     *A_MR_MC = *A_VR_STAR;
     delete A_VR_STAR.release();
 
@@ -479,7 +475,7 @@ mpi::Comm DM::RowComm() const { return this->grid_->MCComm(); }
 template<typename T>
 Int DM::ColStride() const { return 1; }
 template<typename T>
-Int DM::RowStride() const { return this->grid_->Height(); }
+Int DM::RowStride() const { return this->grid_->MCSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################

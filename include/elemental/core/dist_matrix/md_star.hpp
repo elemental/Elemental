@@ -25,7 +25,7 @@ class DistMatrix<T,MD,STAR> : public GeneralDistMatrix<T,MD,STAR>
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> admType;
+    typedef AbstractDistMatrix<T> absType;
     typedef GeneralDistMatrix<T,MD,STAR> genType;
     typedef DistMatrix<T,MD,STAR> type;
 
@@ -108,14 +108,11 @@ public:
     virtual Int ColStride() const;
 
 private:
-    // Exchange metadata with another matrix
-    // =====================================
-    virtual void ShallowSwap( type& A );
-
     // Friend declarations
     // ===================
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
+    template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
     friend void HandleDiagPath<>( type& A, const type& B );
 #endif 
 };

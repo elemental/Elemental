@@ -1136,15 +1136,6 @@ Int DM::ColStride() const { return 1; }
 template<typename T>
 Int DM::RowStride() const { return 1; }
 
-// Private section
-// ###############
-
-// Exchange metadata with another matrix
-// =====================================
-
-template<typename T>
-void DM::ShallowSwap( DM& A ) { GDM::ShallowSwap( A ); }
-
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 

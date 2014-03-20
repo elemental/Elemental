@@ -122,19 +122,12 @@ inline void RuntimeError( Args... args )
 }
 #endif // ifndef SWIG
 
-template<typename T>
+// This is the only place that Elemental is currently using duck-typing.
+// I'm not sure if it's a good idea to use it more often.
+template<class MatType>
 inline std::string 
-DimsString( const Matrix<T>& A, std::string label="Matrix" )
+DimsString( const MatType& A, std::string label="Matrix" )
 { 
-    std::ostringstream os;
-    os << label << " ~ " << A.Height() << " x " << A.Width();
-    return os.str();
-}
-
-template<typename T>
-inline std::string
-DimsString( const AbstractDistMatrix<T>& A, std::string label="DistMatrix" )
-{
     std::ostringstream os;
     os << label << " ~ " << A.Height() << " x " << A.Width();
     return os.str();

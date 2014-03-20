@@ -285,8 +285,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
         if( A.Height() >= A.Width() )
         {
             std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
-            ( new DistMatrix<T,VC,STAR>(g) );
-            *A_VC_STAR = A;
+            ( new DistMatrix<T,VC,STAR>(A) );
 
             std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
             ( new DistMatrix<T,VR,STAR>(true,this->ColAlign(),g) );
@@ -298,8 +297,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
         else
         {
             std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
-            ( new DistMatrix<T,STAR,VR>(g) );
-            *A_STAR_VR = A;
+            ( new DistMatrix<T,STAR,VR>(A) );
 
             std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
             ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),g) );
@@ -317,12 +315,11 @@ DM&
 DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,MC] = [MC,* ]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(A) );
 
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new DistMatrix<T,VR,STAR>(true,this->ColAlign(),g) );
+    ( new DistMatrix<T,VR,STAR>(true,this->ColAlign(),this->Grid()) );
     *A_VR_STAR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
 
@@ -335,12 +332,11 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,MC] = [* ,MR]"))
-    const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
     ( new DistMatrix<T,STAR,VR>(A) );
 
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),g) );
+    ( new DistMatrix<T,STAR,VC>(true,this->RowAlign(),this->Grid()) );
     *A_STAR_VC = *A_STAR_VR;
     delete A_STAR_VR.release(); // lowers memory highwater
 
@@ -714,9 +710,9 @@ template<typename T>
 mpi::Comm DM::RowComm() const { return this->grid_->MCComm(); }
 
 template<typename T>
-Int DM::ColStride() const { return this->grid_->Width(); }
+Int DM::ColStride() const { return this->grid_->MRSize(); }
 template<typename T>
-Int DM::RowStride() const { return this->grid_->Height(); }
+Int DM::RowStride() const { return this->grid_->MCSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
