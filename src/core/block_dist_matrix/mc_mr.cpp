@@ -8,121 +8,15 @@
 */
 #include "elemental-lite.hpp"
 
-namespace elem {
+#define ColDist MC
+#define RowDist MR
 
-#define DM DistMatrix<T,MC,MR>
-#define BDM BlockDistMatrix<T,MC,MR>
-#define GBDM GeneralBlockDistMatrix<T,MC,MR>
+#include "./setup.hpp"
+
+namespace elem {
 
 // Public section
 // ##############
-
-// Constructors and destructors
-// ============================
-
-template<typename T>
-BDM::BlockDistMatrix
-( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ this->SetShifts(); }
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ this->SetShifts(); this->Resize(height,width); }
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g, 
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->SetShifts(); 
-    this->Align(blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut); 
-    this->Resize(height,width); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->SetShifts();
-    this->Align(blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut); 
-    this->Resize(height,width,ldim); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  const T* buffer, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->LockedAttach
-    (height,width,g,blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut,
-     buffer,ldim,root); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth,
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  T* buffer, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->Attach
-    (height,width,g,blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut,
-     buffer,ldim,root); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix( const BDM& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::BlockDistMatrix"))
-    this->SetShifts();
-    if( &A != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [MC,MR] with itself");
-}
-
-template<typename T>
-template<Dist U,Dist V>
-BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::BlockDistMatrix"))
-    this->SetShifts();
-    *this = A;
-}
-
-template<typename T>
-template<Dist U,Dist V>
-BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::BlockDistMatrix"))
-    this->SetShifts();
-    if( MC != U || MR != V ||
-        reinterpret_cast<const BDM*>(&A) != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [MC,MR] with itself");
-}
-
-template<typename T>
-BDM::BlockDistMatrix( BDM&& A ) noexcept : GBDM(std::move(A)) { }
-
-template<typename T> BDM::~BlockDistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
@@ -143,7 +37,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,STAR]"))
     this->RowFilterFrom( A );
     return *this;
 }
@@ -152,7 +46,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,MR]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,MR]"))
     this->ColFilterFrom( A );
     return *this;
 }
@@ -161,7 +55,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MD,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MD,STAR]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -172,7 +66,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,MD]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,MD]"))
     // TODO: More efficient implementation?
     BlockDistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -196,7 +90,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MR,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MR,STAR]"))
     const Grid& g = A.Grid();
     std::unique_ptr<BlockDistMatrix<T,VR,STAR>> A_VR_STAR
     ( new BlockDistMatrix<T,VR,STAR>(A) );
@@ -213,7 +107,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,MC]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,MC]"))
     const Grid& g = A.Grid();
     std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
     ( new BlockDistMatrix<T,STAR,VC>(A) );
@@ -230,7 +124,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [VC,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [VC,STAR]"))
     A.PartialColAllToAll( *this );
     return *this;
 }
@@ -239,7 +133,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,VC]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,VC]"))
     const elem::Grid& g = this->Grid();
     BlockDistMatrix<T,STAR,VR> A_STAR_VR(g);
     A_STAR_VR.AlignWith( *this );
@@ -252,7 +146,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [VR,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [VR,STAR]"))
     const elem::Grid& g = this->Grid();
     BlockDistMatrix<T,VC,STAR> A_VC_STAR(g);
     A_VC_STAR.AlignWith( *this );
@@ -265,7 +159,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,VR]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,VR]"))
     A.PartialRowAllToAll( *this );
     return *this;
 }
@@ -274,7 +168,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [* ,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [STAR,STAR]"))
     this->FilterFrom( A );
     return *this;
 }
@@ -284,27 +178,11 @@ BDM&
 BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [o ,o ]");
+        CallStackEntry cse("[MC,MR] = [CIRC,CIRC]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
     LogicError("This routine is not yet written");
-    return *this;
-}
-
-template<typename T>
-BDM&
-BDM::operator=( BDM&& A )
-{
-    if( this->Viewing() && !A.Viewing() )
-    {
-        const BDM& AConst = A;
-        this->operator=( AConst );
-    }
-    else
-    {
-        GBDM::operator=( std::move(A) );
-    }
     return *this;
 }
 
@@ -352,13 +230,8 @@ template<typename T>
 void
 BDM::AlignColsWith( const elem::BlockDistData& data )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR]::AlignColsWith");
-        // Consider the case where the row alignment is larger than that
-        // permitted by the new grid
-        if( *this->grid_ != *data.grid )
-            LogicError("Grids do not match");
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::AlignColsWith"))
+    this->SetGrid( *data.grid );
     if( data.colDist == MC )
         this->AlignCols( data.blockHeight, data.colAlign, data.colCut );
     else if( data.rowDist == MC )
@@ -376,11 +249,8 @@ template<typename T>
 void
 BDM::AlignRowsWith( const elem::BlockDistData& data )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR]::AlignRowsWith");
-        if( *this->grid_ != *data.grid )
-            LogicError("Grids do not match");
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR]::AlignRowsWith"))
+    this->SetGrid( *data.grid );
     if( data.colDist == MR )
         this->AlignRows( data.blockHeight, data.colAlign, data.colCut );
     else if( data.rowDist == MR )
@@ -396,9 +266,6 @@ BDM::AlignRowsWith( const elem::BlockDistData& data )
 
 // Basic queries
 // =============
-
-template<typename T>
-elem::BlockDistData BDM::DistData() const { return elem::BlockDistData(*this); }
 
 template<typename T>
 mpi::Comm BDM::DistComm() const { return this->grid_->VCComm(); }
@@ -432,11 +299,11 @@ void BDM::CopyFromDifferentGrid( const BDM& A )
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class BlockDistMatrix<T,MC,MR>
+#define PROTO(T) template class BlockDistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
-  template BlockDistMatrix<T,MC,MR>::BlockDistMatrix\
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
   ( const BlockDistMatrix<T,U,V>& A );\
-  template BlockDistMatrix<T,MC,MR>::BlockDistMatrix\
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
   ( const DistMatrix<T,U,V>& A );
 #define FULL(T) \
   PROTO(T); \

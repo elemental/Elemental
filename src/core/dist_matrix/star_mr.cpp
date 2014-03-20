@@ -8,92 +8,15 @@
 */
 #include "elemental-lite.hpp"
 
-namespace elem {
+#define ColDist STAR
+#define RowDist MR
 
-#define DM DistMatrix<T,STAR,MR>
-#define GDM GeneralDistMatrix<T,STAR,MR>
+#include "./setup.hpp"
+
+namespace elem {
 
 // Public section
 // ##############
-
-// Constructors and destructors
-// ============================
-
-template<typename T>
-DM::DistMatrix( const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->SetShifts(); }
-
-template<typename T>
-DM::DistMatrix( Int height, Int width, const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->SetShifts(); this->Resize(height,width); }
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
-  Int root )
-: GDM(grid,root)
-{
-    this->SetShifts();
-    this->Align(colAlign,rowAlign);
-    this->Resize(height,width);
-}
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
-  const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{
-    this->SetShifts();
-    this->Align(colAlign,rowAlign);
-    this->Resize(height,width,ldim);
-}
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign,
-  const T* buffer, Int ldim, const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->LockedAttach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign,
-  T* buffer, Int ldim, const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->Attach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
-
-template<typename T>
-DM::DistMatrix( const DM& A )
-: GDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::DistMatrix"))
-    this->SetShifts();
-    if( &A != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [* ,MR] with itself");
-}
-
-template<typename T>
-template<Dist U,Dist V>
-DM::DistMatrix( const DistMatrix<T,U,V>& A )
-: GDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::DistMatrix"))
-    this->SetShifts();
-    if( STAR != U || MR != V || 
-        reinterpret_cast<const DM*>(&A) != this )   
-        *this = A;
-    else
-        LogicError("Tried to construct [* ,MR] with itself");
-}
-
-template<typename T> DM::DistMatrix( DM&& A ) noexcept : GDM(std::move(A)) { }
-
-template<typename T> DM::~DistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
@@ -102,7 +25,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MC,MR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MC,MR]"))
     A.ColAllGather( *this );
     return *this;
 }
@@ -112,7 +35,7 @@ DM&
 DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("[* ,MR] = [MC,* ]");
+        CallStackEntry cse("[STAR,MR] = [MC,STAR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
         if( this->Viewing() )
@@ -131,7 +54,7 @@ DM&
 DM::operator=( const DM& A )
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("[* ,MR] = [* ,MR]");
+        CallStackEntry cse("[STAR,MR] = [STAR,MR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -148,7 +71,7 @@ DM::operator=( const DM& A )
     {
 #ifdef UNALIGNED_WARNINGS
         if( g.Rank() == 0 )
-            std::cerr << "Unaligned [* ,MR] <- [* ,MR]." << std::endl;
+            std::cerr << "Unaligned [STAR,MR] <- [STAR,MR]." << std::endl;
 #endif
         const Int rank = g.Col();
         const Int c = g.Width();
@@ -205,7 +128,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MD,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MD,STAR]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -216,7 +139,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,STAR,MD>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,MD]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,MD]"))
     // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     *this = A_STAR_STAR;
@@ -227,7 +150,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MR,MC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MR,MC]"))
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
     ( new DistMatrix<T,STAR,VC>(A) );
 
@@ -244,7 +167,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [MR,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MR,STAR]"))
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
     ( new DistMatrix<T,VR,STAR>(A) );
 
@@ -265,7 +188,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,MC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,MC]"))
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
     ( new DistMatrix<T,STAR,VC>(A) );
 
@@ -286,7 +209,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [VC,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [VC,STAR]"))
     DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlign(),this->Grid());
     A_MC_MR = A;
     *this = A_MC_MR;
@@ -297,7 +220,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,VC]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,VC]"))
     const elem::Grid& g = this->Grid();
     DistMatrix<T,STAR,VR> A_STAR_VR(true,this->RowAlign(),g);
     A_STAR_VR = A;
@@ -309,7 +232,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [VR,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [VR,STAR]"))
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(A) );
 
@@ -326,7 +249,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,VR]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,VR]"))
     A.PartialRowAllGather( *this );
     return *this;
 }
@@ -335,7 +258,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [* ,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,STAR]"))
     this->RowFilterFrom( A );
     return *this;
 }
@@ -344,27 +267,11 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR] = [o ,o ]"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [CIRC,CIRC]"))
     DistMatrix<T,MC,MR> A_MC_MR( A );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
     *this = A_MC_MR;
-    return *this;
-}
-
-template<typename T>
-DM&
-DM::operator=( DM&& A )
-{
-    if( this->Viewing() && !A.Viewing() )
-    {
-        const DM& AConst = A;
-        this->operator=( AConst );
-    }
-    else
-    {
-        GDM::operator=( std::move(A) );
-    }
     return *this;
 }
 
@@ -375,7 +282,7 @@ template<typename T>
 void
 DM::AlignWith( const elem::DistData& data )
 {
-    DEBUG_ONLY(CallStackEntry cse("[* ,MR]::AlignWith"))
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MR]::AlignWith"))
     this->SetGrid( *data.grid );
 
     if( data.colDist == MR )
@@ -398,9 +305,6 @@ DM::AlignRowsWith( const elem::DistData& data )
 // =============
 
 template<typename T>
-elem::DistData DM::DistData() const { return elem::DistData(*this); }
-
-template<typename T>
 mpi::Comm DM::DistComm() const { return this->grid_->MRComm(); }
 template<typename T>
 mpi::Comm DM::CrossComm() const { return mpi::COMM_SELF; }
@@ -419,9 +323,10 @@ Int DM::RowStride() const { return this->grid_->MRSize(); }
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class DistMatrix<T,STAR,MR>
+#define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
-  template DistMatrix<T,STAR,MR>::DistMatrix( const DistMatrix<T,U,V>& A )
+  template DistMatrix<T,ColDist,RowDist>::DistMatrix \
+  ( const DistMatrix<T,U,V>& A )
 #define FULL(T) \
   PROTO(T); \
   COPY(T,CIRC,CIRC); \

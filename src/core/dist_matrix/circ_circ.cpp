@@ -8,92 +8,15 @@
 */
 #include "elemental-lite.hpp"
 
-namespace elem {
+#define ColDist CIRC
+#define RowDist CIRC
 
-#define DM DistMatrix<T,CIRC,CIRC>
-#define GDM GeneralDistMatrix<T,CIRC,CIRC>
+#include "./setup.hpp"
+
+namespace elem {
 
 // Public section
 // ##############
-
-// Constructors and destructors
-// ============================
-
-template<typename T>
-DM::DistMatrix( const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->SetShifts(); }
-
-template<typename T>
-DM::DistMatrix( Int height, Int width, const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->SetShifts(); this->Resize(height,width); }
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign, const elem::Grid& grid,
-  Int root )
-: GDM(grid,root)
-{
-    this->SetShifts();
-    this->Align(colAlign,rowAlign);
-    this->Resize(height,width);
-}
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign, Int ldim,
-  const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{
-    this->SetShifts();
-    this->Align(colAlign,rowAlign);
-    this->Resize(height,width,ldim);
-}
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign,
-  const T* buffer, Int ldim, const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->LockedAttach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
-
-template<typename T>
-DM::DistMatrix
-( Int height, Int width, Int colAlign, Int rowAlign,
-  T* buffer, Int ldim, const elem::Grid& grid, Int root )
-: GDM(grid,root)
-{ this->Attach(height,width,colAlign,rowAlign,buffer,ldim,grid,root); }
-
-template<typename T>
-DM::DistMatrix( const DM& A )
-: GDM(A.Grid(),A.Root())
-{
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::DistMatrix"))
-    this->SetShifts();
-    if( &A != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [o ,o ] with itself");
-}
-
-template<typename T>
-template<Dist U,Dist V>
-DM::DistMatrix( const DistMatrix<T,U,V>& A )
-: GDM(A.Grid(),0)
-{
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::DistMatrix"))
-    this->SetShifts();
-    if( CIRC != U || CIRC != V || 
-        reinterpret_cast<const DM*>(&A) != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [o ,o ] with itself");
-}
-
-template<typename T> DM::DistMatrix( DM&& A ) noexcept : GDM(std::move(A)) { }
-
-template<typename T> DM::~DistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
@@ -103,7 +26,7 @@ DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [MC,MR]");
+        CallStackEntry cse("[CIRC,CIRC] = [MC,MR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -186,7 +109,7 @@ DM&
 DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [MC,* ]");
+        CallStackEntry cse("[CIRC,CIRC] = [MC,STAR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -260,7 +183,7 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [* ,MR]");
+        CallStackEntry cse("[CIRC,CIRC] = [STAR,MR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -331,7 +254,7 @@ DM&
 DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [MD,* ]");
+        CallStackEntry cse("[CIRC,CIRC] = [MD,STAR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -416,7 +339,7 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [* ,MD]");
+        CallStackEntry cse("[CIRC,CIRC] = [STAR,MD]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -497,7 +420,7 @@ DM&
 DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [MR,MC]");
+        CallStackEntry cse("[CIRC,CIRC] = [MR,MC]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -580,7 +503,7 @@ DM&
 DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [MR,* ]");
+        CallStackEntry cse("[CIRC,CIRC] = [MR,STAR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -655,7 +578,7 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [* ,MC]");
+        CallStackEntry cse("[CIRC,CIRC] = [STAR,MC]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -726,7 +649,7 @@ DM&
 DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [VC,* ]");
+        CallStackEntry cse("[CIRC,CIRC] = [VC,STAR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -798,7 +721,7 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [o ,o ]");
+        CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -865,7 +788,7 @@ DM&
 DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [VR,* ]");
+        CallStackEntry cse("[CIRC,CIRC] = [VR,STAR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -940,7 +863,7 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [* ,VR]");
+        CallStackEntry cse("[CIRC,CIRC] = [STAR,VR]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -1009,7 +932,7 @@ template<typename T>
 DM&
 DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ] = [* ,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,STAR]"))
     this->Resize( A.Height(), A.Width() );
     if( A.Grid().VCRank() == this->Root() )
         this->matrix_ = A.LockedMatrix();
@@ -1021,7 +944,7 @@ DM&
 DM::operator=( const DM& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[o ,o ] = [o ,o ]");
+        CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -1071,7 +994,7 @@ template<typename T>
 void
 DM::CopyFromRoot( const Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromRoot"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromRoot"))
     const Grid& grid = this->Grid();
     if( grid.VCRank() != this->Root() )
         LogicError("Called CopyFromRoot from non-root");
@@ -1089,7 +1012,7 @@ template<typename T>
 void
 DM::CopyFromNonRoot()
 {
-    DEBUG_ONLY(CallStackEntry cse("[o ,o ]::CopyFromNonRoot"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromNonRoot"))
     const Grid& grid = this->Grid();
     if( grid.VCRank() == this->Root() )
         LogicError("Called CopyFromNonRoot from root");
@@ -1100,27 +1023,9 @@ DM::CopyFromNonRoot()
     this->Resize( dims[0], dims[1] );
 }
 
-template<typename T>
-DM& 
-DM::operator=( DM&& A )
-{
-    if( this->Viewing() && !A.Viewing() )
-    {
-        const DM& AConst = A;
-        this->operator=( AConst );
-    }
-    else
-    {
-        GDM::operator=( std::move(A) );
-    }
-    return *this;
-}
-
 // Basic queries
 // =============
 
-template<typename T>
-elem::DistData DM::DistData() const { return elem::DistData(*this); }
 template<typename T>
 mpi::Comm DM::DistComm() const { return mpi::COMM_SELF; }
 template<typename T>
@@ -1139,9 +1044,10 @@ Int DM::RowStride() const { return 1; }
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class DistMatrix<T,CIRC,CIRC>
+#define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
-  template DistMatrix<T,CIRC,CIRC>::DistMatrix( const DistMatrix<T,U,V>& A )
+  template DistMatrix<T,ColDist,RowDist>::DistMatrix \
+  ( const DistMatrix<T,U,V>& A )
 #define FULL(T) \
   PROTO(T); \
   COPY(T,MC,  MR); \

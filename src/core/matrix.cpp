@@ -134,12 +134,9 @@ Matrix<T>&
 Matrix<T>::operator=( Matrix<T>&& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::operator=( Matrix&& )"))
-    if( this == &A )
-        LogicError("Tried to move to self");
     if( Viewing() && !A.Viewing() )
     {
-        const Matrix<T>& AConst = A;
-        operator=( AConst );
+        operator=( (const Matrix<T>&)A );
     }
     else
     {

@@ -8,121 +8,15 @@
 */
 #include "elemental-lite.hpp"
 
-namespace elem {
+#define ColDist CIRC
+#define RowDist CIRC
 
-#define DM DistMatrix<T,CIRC,CIRC>
-#define BDM BlockDistMatrix<T,CIRC,CIRC>
-#define GBDM GeneralBlockDistMatrix<T,CIRC,CIRC>
+#include "./setup.hpp"
+
+namespace elem {
 
 // Public section
 // ##############
-
-// Constructors and destructors
-// ============================
-
-template<typename T>
-BDM::BlockDistMatrix
-( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ this->SetShifts(); }
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ this->SetShifts(); this->Resize(height,width); }
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g, 
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->SetShifts(); 
-    this->Align(blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut); 
-    this->Resize(height,width); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->SetShifts();
-    this->Align(blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut); 
-    this->Resize(height,width,ldim); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  const T* buffer, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->LockedAttach
-    (height,width,g,blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut,
-     buffer,ldim,root); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
-  Int blockHeight, Int blockWidth,
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  T* buffer, Int ldim, Int root )
-: GBDM(g,blockHeight,blockWidth,root)
-{ 
-    this->Attach
-    (height,width,g,blockHeight,blockWidth,colAlign,rowAlign,colCut,rowCut,
-     buffer,ldim,root); 
-}
-
-template<typename T>
-BDM::BlockDistMatrix( const BDM& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::BlockDistMatrix"))
-    this->SetShifts();
-    if( &A != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [CIRC,CIRC] with itself");
-}
-
-template<typename T>
-template<Dist U,Dist V>
-BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::BlockDistMatrix"))
-    this->SetShifts();
-    *this = A;
-}
-
-template<typename T>
-template<Dist U,Dist V>
-BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::BlockDistMatrix"))
-    this->SetShifts();
-    if( CIRC != U || CIRC != V ||
-        reinterpret_cast<const BDM*>(&A) != this )
-        *this = A;
-    else
-        LogicError("Tried to construct [CIRC,CIRC] with itself");
-}
-
-template<typename T>
-BDM::BlockDistMatrix( BDM&& A ) noexcept : GBDM(std::move(A)) { }
-
-template<typename T> BDM::~BlockDistMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
@@ -149,7 +43,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [* ,MR]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,MR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -158,7 +52,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MD,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MD,STAR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -167,7 +61,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [* ,MD]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,MD]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -185,7 +79,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MR,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MR,STAR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -194,7 +88,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [* ,MC]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,MC]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -203,7 +97,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [VC,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [VC,STAR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -212,7 +106,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [* ,VC]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,VC]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -221,7 +115,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [VR,* ]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [VR,STAR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -230,7 +124,7 @@ template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [* ,VR]"))
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,VR]"))
     LogicError("This routine is not yet written");
     return *this;
 }
@@ -292,27 +186,8 @@ BDM::CopyFromNonRoot()
     this->Resize( dims[0], dims[1] );
 }
 
-template<typename T>
-BDM&
-BDM::operator=( BDM&& A )
-{
-    if( this->Viewing() && !A.Viewing() )
-    {
-        const BDM& AConst = A;
-        this->operator=( AConst );
-    }
-    else
-    {
-        GBDM::operator=( std::move(A) );
-    }
-    return *this;
-}
-
 // Basic queries
 // =============
-
-template<typename T>
-elem::BlockDistData BDM::DistData() const { return elem::BlockDistData(*this); }
 
 template<typename T>
 mpi::Comm BDM::DistComm() const { return mpi::COMM_SELF; }
@@ -333,11 +208,11 @@ Int BDM::RowStride() const { return 1; }
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class BlockDistMatrix<T,CIRC,CIRC>
+#define PROTO(T) template class BlockDistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
-  template BlockDistMatrix<T,CIRC,CIRC>::BlockDistMatrix\
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
   ( const BlockDistMatrix<T,U,V>& A );\
-  template BlockDistMatrix<T,CIRC,CIRC>::BlockDistMatrix\
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
   ( const DistMatrix<T,U,V>& A );
 #define FULL(T) \
   PROTO(T); \
