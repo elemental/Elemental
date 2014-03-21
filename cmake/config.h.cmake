@@ -37,6 +37,7 @@
 #define MATH_LIBS "@MATH_LIBS@"
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
+#cmakedefine SCALAPACK_POST
 #cmakedefine HAVE_FLA_BSVD
 
 /* Basic configuration options */
