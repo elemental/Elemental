@@ -140,7 +140,7 @@ BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 
 template<typename T>
 BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
+BDM::operator=( const BDM& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [STAR,VR]"))
     A.Translate( *this );
