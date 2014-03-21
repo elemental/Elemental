@@ -23,7 +23,7 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid, Int root )
   height_(0), width_(0),
   auxMemory_(),
   matrix_(0,0,true),
-  colConstrained_(false), rowConstrained_(false),
+  colConstrained_(false), rowConstrained_(false), rootConstrained_(false),
   colAlign_(0), rowAlign_(0),
   root_(root), grid_(&grid)
 { }
@@ -33,6 +33,7 @@ AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) noexcept
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
+  rootConstrained_(A.rootConstrained_),
   colAlign_(A.colAlign_), rowAlign_(A.rowAlign_),
   colShift_(A.colShift_), rowShift_(A.rowShift_), 
   root_(A.root_),
@@ -68,6 +69,7 @@ AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
         width_ = A.width_;
         colConstrained_ = A.colConstrained_;
         rowConstrained_ = A.rowConstrained_;
+        rootConstrained_ = A.rootConstrained_;
         colAlign_ = A.colAlign_;
         rowAlign_ = A.rowAlign_;
         colShift_ = A.colShift_;
@@ -90,6 +92,7 @@ AbstractDistMatrix<T>::Empty()
     rowAlign_ = 0;
     colConstrained_ = false;
     rowConstrained_ = false;
+    rootConstrained_ = false;
 }
 
 template<typename T>
@@ -153,7 +156,7 @@ AbstractDistMatrix<T>::MakeConsistent()
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeConsistent"))
     const elem::Grid& g = *grid_;
     const Int vcRoot = g.VCToViewingMap(0);
-    Int message[8];
+    Int message[9];
     if( g.ViewingRank() == vcRoot )
     {
         message[0] = viewType_;
@@ -161,25 +164,28 @@ AbstractDistMatrix<T>::MakeConsistent()
         message[2] = width_;
         message[3] = colConstrained_;
         message[4] = rowConstrained_;
-        message[5] = colAlign_;
-        message[6] = rowAlign_;
-        message[7] = root_;
+        message[5] = rootConstrained_;
+        message[6] = colAlign_;
+        message[7] = rowAlign_;
+        message[8] = root_;
     }
-    mpi::Broadcast( message, 8, vcRoot, g.ViewingComm() );
+    mpi::Broadcast( message, 9, vcRoot, g.ViewingComm() );
     const ViewType newViewType = static_cast<ViewType>(message[0]);
     const Int newHeight = message[1]; 
     const Int newWidth = message[2];
     const bool newConstrainedCol = message[3];
     const bool newConstrainedRow = message[4];
-    const Int newColAlign = message[5];
-    const Int newRowAlign = message[6];
-    const Int root = message[7];
+    const bool newConstrainedRoot = message[5];
+    const Int newColAlign = message[6];
+    const Int newRowAlign = message[7];
+    const Int root = message[8];
     if( !Participating() )
     {
-        SetRoot( root );
+        root_ = root;
         viewType_ = newViewType;
         colConstrained_ = newConstrainedCol;
         rowConstrained_ = newConstrainedRow;
+        rootConstrained_ = newConstrainedRoot;
         colAlign_ = newColAlign;
         rowAlign_ = newRowAlign;
         SetShifts();
@@ -200,7 +206,7 @@ AbstractDistMatrix<T>::MakeConsistent()
             if( rowConstrained_ != newConstrainedRow || 
                 rowAlign_ != newRowAlign )
                 LogicError("Inconsistent row constraint");
-            if( root != root_ )
+            if( rootConstrained_ != newConstrainedRoot || root != root_ )
                 LogicError("Inconsistent root");
         }
     )
@@ -268,6 +274,7 @@ AbstractDistMatrix<T>::FreeAlignments()
     {
         colConstrained_ = false;
         rowConstrained_ = false;
+        rootConstrained_ = false;
     }
     else
         LogicError("Cannot free alignments of views");
@@ -285,6 +292,7 @@ AbstractDistMatrix<T>::SetRoot( Int root )
     if( root != root_ )
         Empty();
     root_ = root;
+    rootConstrained_ = true;
 }
 
 template<typename T>
@@ -396,6 +404,7 @@ AbstractDistMatrix<T>::Attach
     rowAlign_ = rowAlign;
     colConstrained_ = true;
     rowConstrained_ = true;
+    rootConstrained_ = true;
     viewType_ = VIEW;
     SetShifts();
     if( Participating() )
@@ -433,6 +442,7 @@ AbstractDistMatrix<T>::LockedAttach
     rowAlign_ = rowAlign;
     colConstrained_ = true;
     rowConstrained_ = true;
+    rootConstrained_ = true;
     viewType_ = LOCKED_VIEW;
     SetShifts();
     if( Participating() )
@@ -524,6 +534,8 @@ template<typename T>
 bool AbstractDistMatrix<T>::ColConstrained() const { return colConstrained_; }
 template<typename T>
 bool AbstractDistMatrix<T>::RowConstrained() const { return rowConstrained_; }
+template<typename T>
+bool AbstractDistMatrix<T>::RootConstrained() const { return rootConstrained_; }
 
 template<typename T>
 Int AbstractDistMatrix<T>::ColAlign() const { return colAlign_; }
@@ -1693,6 +1705,7 @@ AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
     std::swap( width_, A.width_ );
     std::swap( colConstrained_, A.colConstrained_ );
     std::swap( rowConstrained_, A.rowConstrained_ );
+    std::swap( rootConstrained_, A.rootConstrained_ );
     std::swap( colAlign_, A.colAlign_ );
     std::swap( rowAlign_, A.rowAlign_ );
     std::swap( colShift_, A.colShift_ );

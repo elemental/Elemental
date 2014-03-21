@@ -133,12 +133,8 @@ template<typename T>
 DM&
 DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[STAR,STAR] = [STAR,STAR]");
-        this->AssertNotLocked();
-    )
+    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,STAR]"))
     this->Resize( A.Height(), A.Width() );
-
     if( this->Grid() == A.Grid() )
     {
         this->matrix_ = A.LockedMatrix();

@@ -25,84 +25,11 @@ template<typename T>
 DM&
 DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[MC,MR] = [MC,MR]");
-        this->AssertNotLocked();
-    )
+    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,MR]"))
     if( this->Grid() == A.Grid() )
-    {
-        this->AlignAndResize
-        ( A.ColAlign(), A.RowAlign(), A.Height(), A.Width() );
-        if( !this->Participating() && !A.Participating() )
-            return *this;
-        if( this->ColAlign() == A.ColAlign() &&
-            this->RowAlign() == A.RowAlign() )
-        {
-            this->matrix_ = A.LockedMatrix();
-        }
-        else
-        {
-            const elem::Grid& g = this->Grid();
-#ifdef UNALIGNED_WARNINGS
-            if( g.Rank() == 0 )
-                std::cerr << "Unaligned [MC,MR] <- [MC,MR]." << std::endl;
-#endif
-            const Int colRank = this->ColRank();
-            const Int rowRank = this->RowRank();
-            const Int colStride = this->ColStride();
-            const Int rowStride = this->RowStride();
-            const Int colAlign = this->ColAlign();
-            const Int rowAlign = this->RowAlign();
-            const Int colAlignA = A.ColAlign();
-            const Int rowAlignA = A.RowAlign();
-            const Int colDiff = colAlign - colAlignA;
-            const Int rowDiff = rowAlign - rowAlignA;
-            const Int sendRow = (colRank + colStride + colDiff) % colStride;
-            const Int recvRow = (colRank + colStride - colDiff) % colStride;
-            const Int sendCol = (rowRank + rowStride + rowDiff) % rowStride;
-            const Int recvCol = (rowRank + rowStride - rowDiff) % rowStride;
-            const Int sendRank = sendRow + sendCol*colStride;
-            const Int recvRank = recvRow + recvCol*colStride;
-
-            const Int localHeight = this->LocalHeight();
-            const Int localWidth = this->LocalWidth();
-            const Int localHeightA = A.LocalHeight();
-            const Int localWidthA = A.LocalWidth();
-            const Int sendSize = localHeightA*localWidthA;
-            const Int recvSize = localHeight*localWidth;
-            T* auxBuf = this->auxMemory_.Require( sendSize + recvSize );
-            T* sendBuf = &auxBuf[0];
-            T* recvBuf = &auxBuf[sendSize];
-
-            // Pack
-            const Int ALDim = A.LDim();
-            const T* ABuffer = A.LockedBuffer();
-            PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
-                MemCopy
-                ( &sendBuf[jLoc*localHeightA], 
-                  &ABuffer[jLoc*ALDim], localHeightA );
-
-            // Communicate
-            mpi::SendRecv
-            ( sendBuf, sendSize, sendRank, 
-              recvBuf, recvSize, recvRank, g.VCComm() );
-
-            // Unpack
-            T* buffer = this->Buffer();
-            const Int ldim = this->LDim();
-            PARALLEL_FOR
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                MemCopy
-                ( &buffer[jLoc*ldim], 
-                  &recvBuf[jLoc*localHeight], localHeight );
-            this->auxMemory_.Release();
-        }
-    }
-    else // the grids don't match
-    {
+        A.Translate( *this );
+    else 
         CopyFromDifferentGrid( A );
-    }
     return *this;
 }
 

@@ -117,6 +117,7 @@ public:
     const elem::Grid& Grid() const;
     bool ColConstrained() const;
     bool RowConstrained() const;
+    bool RootConstrained() const;
     Int BlockHeight() const;
     Int BlockWidth() const;
     Int ColAlign() const;
@@ -331,7 +332,7 @@ protected:
     
     // Process grid and distribution metadata
     // --------------------------------------
-    bool colConstrained_, rowConstrained_;
+    bool colConstrained_, rowConstrained_, rootConstrained_;
     Int blockHeight_, blockWidth_;
     Int colAlign_, rowAlign_,
         colCut_,   rowCut_,

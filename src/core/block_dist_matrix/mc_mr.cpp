@@ -26,7 +26,10 @@ BDM&
 BDM::operator=( const BDM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,MR]"))
-    LogicError("This routine is not yet written");
+    if( this->Grid() == A.Grid() )
+        A.Translate( *this );
+    else
+        this->CopyFromDifferentGrid( A );
     return *this;
 }
 

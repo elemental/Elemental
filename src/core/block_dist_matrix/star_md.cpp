@@ -68,9 +68,7 @@ BDM&
 BDM::operator=( const BDM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MD]"))
-    // TODO: More efficient implementation?
-    BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(A);
-    *this = A_STAR_STAR;
+    A.Translate( *this );
     return *this;
 }
 

@@ -721,7 +721,7 @@ DM&
 DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]");
+        CallStackEntry cse("[CIRC,CIRC] = [STAR,VC]");
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
@@ -943,50 +943,8 @@ template<typename T>
 DM&
 DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const Int m = A.Height();
-    const Int n = A.Width();
-    this->Resize( m, n );
-
-    const Grid& g = A.Grid();
-    if( this->Root() == A.Root() )
-    {
-        if( g.VCRank() == A.Root() )
-            this->matrix_ = A.matrix_;
-    }
-    else
-    {
-        if( g.VCRank() == A.Root() )
-        {
-            T* sendBuf = this->auxMemory_.Require( m*n );
-            // Pack
-            const Int ALDim = A.LDim();
-            const T* ABuf = A.LockedBuffer();
-            for( Int j=0; j<n; ++j )
-                for( Int i=0; i<m; ++i )
-                    sendBuf[i+j*m] = ABuf[i+j*ALDim];
-            // Send
-            mpi::Send( sendBuf, m*n, this->Root(), g.VCComm() );
-        }
-        else if( g.VCRank() == this->Root() )
-        {
-            // Recv
-            T* recvBuf = this->auxMemory_.Require( m*n );
-            mpi::Recv( recvBuf, m*n, A.Root(), g.VCComm() );
-            // Unpack
-            const Int ldim = this->LDim();
-            T* buffer = this->Buffer();
-            for( Int j=0; j<n; ++j )
-                for( Int i=0; i<m; ++i )
-                    buffer[i+j*ldim] = recvBuf[i+j*m];
-        }
-        this->auxMemory_.Release();
-    }
-
+    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]"))
+    A.Translate( *this );
     return *this;
 }
 

@@ -200,74 +200,8 @@ template<typename T>
 DM&
 DM::operator=( const DM& A )
 { 
-    DEBUG_ONLY(
-        CallStackEntry cse("[STAR,MC] = [STAR,MC]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    const elem::Grid& g = this->Grid();
-    this->AlignRowsAndResize( A.RowAlign(), A.Height(), A.Width() );
-    if( !this->Participating() )
-        return *this;
-
-    if( this->RowAlign() == A.RowAlign() )
-    {
-        this->matrix_ = A.LockedMatrix();
-    }
-    else
-    {
-#ifdef UNALIGNED_WARNINGS
-        if( g.Rank() == 0 )
-            std::cerr << "Unaligned [STAR,MC] <- [STAR,MC]." << std::endl;
-#endif
-        const Int rank = g.Row();
-        const Int r = g.Height();
-
-        const Int rowAlign = this->RowAlign();
-        const Int rowAlignOfA = A.RowAlign();
-
-        const Int sendRank = (rank+r+rowAlign-rowAlignOfA) % r;
-        const Int recvRank = (rank+r+rowAlignOfA-rowAlign) % r;
-
-        const Int height = this->Height();
-        const Int localWidth = this->LocalWidth();
-        const Int localWidthOfA = A.LocalWidth();
-
-        const Int sendSize = height * localWidthOfA;
-        const Int recvSize = height * localWidth;
-
-        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
-        T* sendBuf = &buffer[0];
-        T* recvBuf = &buffer[sendSize];
-
-        // Pack
-        const T* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        {
-            const T* ACol = &ABuf[jLoc*ALDim];
-            T* sendBufCol = &sendBuf[jLoc*height];
-            MemCopy( sendBufCol, ACol, height );
-        }
-
-        // Communicate
-        mpi::SendRecv
-        ( sendBuf, sendSize, sendRank, 
-          recvBuf, recvSize, recvRank, g.ColComm() );
-
-        // Unpack
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        PARALLEL_FOR
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* recvBufCol = &recvBuf[jLoc*height];
-            T* thisCol = &thisBuf[jLoc*thisLDim];
-            MemCopy( thisCol, recvBufCol, height );
-        }
-        this->auxMemory_.Release();
-    }
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MC] = [STAR,MC]"))
+    A.Translate( *this );
     return *this;
 }
 

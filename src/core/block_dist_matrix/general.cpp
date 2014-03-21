@@ -77,14 +77,50 @@ GeneralBlockDistMatrix<T,U,V>::AlignRowsWith( const elem::BlockDistData& data )
         this->AlignRows( data.blockWidth, data.rowAlign, data.rowCut );
     else if( data.colDist == VScat )
         this->AlignRows
-        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
+        ( data.blockHeight, data.colAlign % this->RowStride(), data.colCut );
     else if( data.rowDist == VScat )
         this->AlignRows
-        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
+        ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut );
     DEBUG_ONLY(
         else if( V != VGath && data.colDist != VGath && data.rowDist != VGath )
             LogicError("Nonsensical alignment");
     )
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralBlockDistMatrix<T,U,V>::Translate( BlockDistMatrix<T,U,V>& A ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("GBDM::Translate"))
+    const Int height = this->Height();
+    const Int width = this->Width();
+    const Int blockHeight = this->BlockHeight();
+    const Int blockWidth = this->BlockWidth();
+    const Int colAlign = this->ColAlign();
+    const Int rowAlign = this->RowAlign();
+    const Int colCut = this->ColCut();
+    const Int rowCut = this->RowCut();
+    const Int root = this->Root();
+    A.SetGrid( this->Grid() );
+    if( !A.RootConstrained() )
+        A.SetRoot( root );
+    if( !A.ColConstrained() )
+        A.AlignCols( blockHeight, colAlign, colCut );
+    if( !A.RowConstrained() )
+        A.AlignRows( blockWidth, rowAlign, rowCut );
+    A.Resize( height, width );
+    const bool aligned = 
+        blockHeight == A.BlockHeight() && blockWidth == A.BlockWidth() &&
+        colAlign    == A.ColAlign()    && rowAlign   == A.RowAlign() &&
+        colCut      == A.ColCut()      && rowCut     == A.RowCut();
+    if( aligned && root == A.Root() )
+    {
+        A.matrix_ = this->matrix_;
+    }
+    else
+    {
+        LogicError("Not yet written");
+    }
 }
 
 template<typename T,Dist U,Dist V>

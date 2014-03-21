@@ -69,33 +69,8 @@ template<typename T>
 DM&
 DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("[STAR,MD] = [STAR,MD]");
-        this->AssertNotLocked();
-        this->AssertSameGrid( A.Grid() );
-    )
-    if( !this->Viewing() && !this->RowConstrained() )
-    {
-        this->SetRoot( A.root_ );
-        this->AlignRows( A.rowAlign_ );
-    }
-    this->Resize( A.Height(), A.Width() );
-
-    if( this->root_ == A.root_ && 
-        this->rowAlign_ == A.rowAlign_ )
-    {
-        this->matrix_ = A.LockedMatrix();
-    }
-    else
-    {
-#ifdef UNALIGNED_WARNINGS
-        if( this->Grid().Rank() == 0 )
-            std::cerr << "Unaligned [STAR,MD] <- [STAR,MD]." << std::endl;
-#endif
-        // TODO: More efficient implementation?
-        DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
-        *this = A_STAR_STAR;
-    }
+    DEBUG_ONLY(CallStackEntry cse("[STAR,MD] = [STAR,MD]"))
+    A.Translate( *this );
     return *this;
 }
 

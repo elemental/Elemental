@@ -102,6 +102,7 @@ public:
     const elem::Grid& Grid() const;
     bool ColConstrained() const;
     bool RowConstrained() const;
+    bool RootConstrained() const;
     Int ColAlign() const;
     Int RowAlign() const;
     Int ColShift() const;
@@ -312,7 +313,7 @@ protected:
     
     // Process grid and distribution metadata
     // --------------------------------------
-    bool colConstrained_, rowConstrained_;
+    bool colConstrained_, rowConstrained_, rootConstrained_;
     Int colAlign_, rowAlign_,
         colShift_, rowShift_;
     Int root_;

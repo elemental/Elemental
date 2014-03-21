@@ -47,7 +47,7 @@ BDM&
 BDM::operator=( const BDM& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,MR]"))
-    LogicError("This routine is not yet written");
+    A.Translate( *this );
     return *this;
 }
 

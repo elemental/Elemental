@@ -73,13 +73,109 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith( const elem::DistData& data )
     else if( data.rowDist == V || data.rowDist == VPart )
         this->AlignRows( data.rowAlign );
     else if( data.colDist == VScat )
-        this->AlignRows( data.colAlign % this->ColStride() );
+        this->AlignRows( data.colAlign % this->RowStride() );
     else if( data.rowDist == VScat )
-        this->AlignRows( data.rowAlign % this->ColStride() );
+        this->AlignRows( data.rowAlign % this->RowStride() );
     DEBUG_ONLY(
         else if( V != VGath && data.colDist != VGath && data.rowDist != VGath ) 
             LogicError("Nonsensical alignment");
     )
+}
+
+template<typename T,Dist U,Dist V>
+void
+GeneralDistMatrix<T,U,V>::Translate( DistMatrix<T,U,V>& A ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("GDM::Translate"))
+    const Grid& g = this->Grid();
+    const Int height = this->Height();
+    const Int width = this->Width();
+    const Int colAlign = this->ColAlign();
+    const Int rowAlign = this->RowAlign();
+    const Int root = this->Root();
+    A.SetGrid( g );
+    if( !A.RootConstrained() )
+        A.SetRoot( root );
+    if( !A.ColConstrained() )
+        A.AlignCols( colAlign );
+    if( !A.RowConstrained() )
+        A.AlignRows( rowAlign );
+    A.Resize( height, width );
+    if( !g.InGrid() )
+        return;
+
+    const bool aligned = colAlign == A.ColAlign() && rowAlign == A.RowAlign();
+    if( aligned && root == A.Root() )
+    {
+        A.matrix_ = this->matrix_;
+    }
+    else
+    {
+#ifdef UNALIGNED_WARNINGS
+        if( g.Rank() == 0 )
+            std::cerr << "Unaligned [U,V] <- [U,V]" << std::endl;
+#endif
+        const Int colRank = this->ColRank();
+        const Int rowRank = this->RowRank();
+        const Int crossRank = this->CrossRank();
+        const Int colStride = this->ColStride();
+        const Int rowStride = this->RowStride();
+        const Int maxHeight = MaxLength( height, colStride );
+        const Int maxWidth  = MaxLength( width,  rowStride );
+        const Int pkgSize = mpi::Pad( maxHeight*maxWidth );
+        T* buffer;
+        if( crossRank == root || crossRank == A.Root() )
+            buffer = A.auxMemory_.Require( pkgSize );
+
+        const Int colAlignA = A.ColAlign();
+        const Int rowAlignA = A.RowAlign();
+        const Int localHeightA = 
+            Length( height, colRank, colAlignA, colStride );
+        const Int localWidthA = Length( width, rowRank, rowAlignA, rowStride );
+        const Int recvSize = mpi::Pad( localHeightA*localWidthA );
+
+        if( crossRank == root )
+        {
+            // Pack the local data
+            const Int localHeight = this->LocalHeight();
+            const Int localWidth = this->LocalWidth();
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                MemCopy
+                ( &buffer[jLoc*localHeight], this->LockedBuffer(0,jLoc), 
+                  localHeight );
+
+            if( !aligned )
+            {
+                // If we were not aligned, then SendRecv over the DistComm
+                const Int toRow = Mod(colRank+colAlignA-colAlign,colStride);
+                const Int toCol = Mod(rowRank+rowAlignA-rowAlign,rowStride);
+                const Int fromRow = Mod(colRank+colAlign-colAlignA,colStride);
+                const Int fromCol = Mod(rowRank+rowAlign-rowAlignA,rowStride);
+                const Int toRank = toRow + toCol*colStride;
+                const Int fromRank = fromRow + fromCol*colStride;
+                mpi::SendRecv
+                ( buffer, pkgSize, toRank, fromRank, this->DistComm() );
+            }
+        }
+        if( root != A.Root() )
+        {
+            // If the new root is different, send over the CrossComm
+            if( crossRank == root )
+            {
+                mpi::Send( buffer, recvSize, A.Root(), A.CrossComm() );
+            }
+            else if( crossRank == A.Root() )
+            {
+                mpi::Recv( buffer, recvSize, root, A.CrossComm() );
+                for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
+                    MemCopy
+                    ( A.Buffer(0,jLoc), &buffer[jLoc*localHeightA], 
+                      localHeightA );
+            }
+        }
+        if( crossRank == root || crossRank == A.Root() )
+            A.auxMemory_.Release();
+    }
 }
 
 template<typename T,Dist U,Dist V>

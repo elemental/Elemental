@@ -24,7 +24,7 @@ AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
   height_(0), width_(0),
   auxMemory_(),
   matrix_(0,0,true),
-  colConstrained_(false), rowConstrained_(false),
+  colConstrained_(false), rowConstrained_(false), rootConstrained_(false),
   blockHeight_(blockHeight), blockWidth_(blockWidth),
   colAlign_(0), rowAlign_(0),
   colCut_(0), rowCut_(0),
@@ -37,6 +37,7 @@ AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
+  rootConstrained_(A.rootConstrained_),
   blockHeight_(A.blockHeight_), blockWidth_(A.blockWidth_),
   colAlign_(A.colAlign_), rowAlign_(A.rowAlign_),
   colCut_(A.colCut_), rowCut_(A.rowCut_),
@@ -75,6 +76,7 @@ AbstractBlockDistMatrix<T>::operator=( AbstractBlockDistMatrix<T>&& A )
         width_ = A.width_;
         colConstrained_ = A.colConstrained_;
         rowConstrained_ = A.rowConstrained_;
+        rootConstrained_ = A.rootConstrained_;
         blockHeight_ = A.blockHeight_;
         blockWidth_ = A.blockWidth_;
         colAlign_ = A.colAlign_;
@@ -105,6 +107,7 @@ AbstractBlockDistMatrix<T>::Empty()
     rowCut_ = 0;
     colConstrained_ = false;
     rowConstrained_ = false;
+    rootConstrained_ = false;
 }
 
 template<typename T>
@@ -169,7 +172,7 @@ AbstractBlockDistMatrix<T>::MakeConsistent()
     DEBUG_ONLY(CallStackEntry cse("ABDM::MakeConsistent"))
     const elem::Grid& g = *grid_;
     const Int vcRoot = g.VCToViewingMap(0);
-    Int message[12];
+    Int message[13];
     if( g.ViewingRank() == vcRoot )
     {
         message[ 0] = viewType_;
@@ -177,33 +180,36 @@ AbstractBlockDistMatrix<T>::MakeConsistent()
         message[ 2] = width_;
         message[ 3] = colConstrained_;
         message[ 4] = rowConstrained_;
-        message[ 5] = blockHeight_;
-        message[ 6] = blockWidth_;
-        message[ 7] = colAlign_;
-        message[ 8] = rowAlign_;
-        message[ 9] = colCut_;
-        message[10] = rowCut_;
-        message[11] = root_;
+        message[ 5] = rootConstrained_;
+        message[ 6] = blockHeight_;
+        message[ 7] = blockWidth_;
+        message[ 8] = colAlign_;
+        message[ 9] = rowAlign_;
+        message[10] = colCut_;
+        message[11] = rowCut_;
+        message[12] = root_;
     }
-    mpi::Broadcast( message, 12, vcRoot, g.ViewingComm() );
-    const ViewType newViewType   = static_cast<ViewType>(message[0]);
-    const Int newHeight          = message[ 1]; 
-    const Int newWidth           = message[ 2];
-    const bool newConstrainedCol = message[ 3];
-    const bool newConstrainedRow = message[ 4];
-    const Int newBlockHeight     = message[ 5];
-    const Int newBlockWidth      = message[ 6];
-    const Int newColAlign        = message[ 7];
-    const Int newRowAlign        = message[ 8];
-    const Int newColCut          = message[ 9];
-    const Int newRowCut          = message[10];
-    const Int root               = message[11];
+    mpi::Broadcast( message, 13, vcRoot, g.ViewingComm() );
+    const ViewType newViewType    = static_cast<ViewType>(message[0]);
+    const Int newHeight           = message[ 1]; 
+    const Int newWidth            = message[ 2];
+    const bool newConstrainedCol  = message[ 3];
+    const bool newConstrainedRow  = message[ 4];
+    const bool newConstrainedRoot = message[ 5];
+    const Int newBlockHeight      = message[ 6];
+    const Int newBlockWidth       = message[ 7];
+    const Int newColAlign         = message[ 8];
+    const Int newRowAlign         = message[ 9];
+    const Int newColCut           = message[10];
+    const Int newRowCut           = message[11];
+    const Int root                = message[12];
     if( !Participating() )
     {
-        SetRoot( root );
+        root_ = root;
         viewType_ = newViewType;
         colConstrained_ = newConstrainedCol;
         rowConstrained_ = newConstrainedRow;
+        rootConstrained_ = newConstrainedRoot;
         blockHeight_ = newBlockHeight;
         blockWidth_ = newBlockWidth;
         colAlign_ = newColAlign;
@@ -233,7 +239,7 @@ AbstractBlockDistMatrix<T>::MakeConsistent()
                 LogicError("Inconsistent block size");
             if( colCut_ != newColCut || rowCut_ != newRowCut )
                 LogicError("Inconsistent block cuts");
-            if( root != root_ )
+            if( root != root_ || rootConstrained_ != newConstrainedRoot )
                 LogicError("Inconsistent root");
         }
     )
@@ -324,6 +330,7 @@ AbstractBlockDistMatrix<T>::FreeAlignments()
     {
         colConstrained_ = false;
         rowConstrained_ = false;
+        rootConstrained_ = false;
     }
     else
         LogicError("Cannot free alignments of views");
@@ -625,6 +632,9 @@ bool AbstractBlockDistMatrix<T>::ColConstrained() const
 template<typename T>
 bool AbstractBlockDistMatrix<T>::RowConstrained() const 
 { return rowConstrained_; }
+template<typename T>
+bool AbstractBlockDistMatrix<T>::RootConstrained() const
+{ return rootConstrained_; }
 
 template<typename T>
 Int AbstractBlockDistMatrix<T>::BlockHeight() const { return blockHeight_; }
@@ -1833,6 +1843,7 @@ AbstractBlockDistMatrix<T>::ShallowSwap( AbstractBlockDistMatrix<T>& A )
     std::swap( width_, A.width_ );
     std::swap( colConstrained_, A.colConstrained_ );
     std::swap( rowConstrained_, A.rowConstrained_ );
+    std::swap( rootConstrained_, A.rootConstrained_ );
     std::swap( blockHeight_, A.blockHeight_ );
     std::swap( blockWidth_, A.blockWidth_ );
     std::swap( colAlign_, A.colAlign_ );
