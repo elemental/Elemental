@@ -82,8 +82,12 @@ public:
     mpi::Comm RedundantComm() const override;
     mpi::Comm ColComm() const override;
     mpi::Comm RowComm() const override;
+    mpi::Comm PartialRowComm() const override;
+    mpi::Comm PartialUnionRowComm() const override;
     Int ColStride() const override;
     Int RowStride() const override;
+    Int PartialRowStride() const override;
+    Int PartialUnionRowStride() const override;
 
 private:
     // Friend declarations

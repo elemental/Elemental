@@ -464,6 +464,23 @@ AbstractDistMatrix<T>::LockedAttach
     ( height, width, g, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), root );
 }
 
+// Redistribution
+// --------------
+
+/*
+template<typename T>
+void
+AbstractDistMatrix<T>::ScatterFrom( const DistMatrix<T,CIRC,CIRC>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::ScatterFrom"))
+    // TODO:
+    //   1) Send to a member of A's DistComm (if necessary)
+    //   2) Scatter over DistComm
+    // In order to do so, a method similar to finding the rank of a member of
+    // the DistComm in the VC communicator is needed.
+}
+*/
+
 // Basic queries
 // =============
 
