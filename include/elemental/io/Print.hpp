@@ -31,40 +31,43 @@ Print( const Matrix<T>& A, std::string title="", std::ostream& os=std::cout )
     os << std::endl;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Dist U,Dist V>
 inline void
 Print
 ( const DistMatrix<T,U,V>& A, std::string title="", std::ostream& os=std::cout )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
-    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-    if( A.Grid().VCRank() == A_CIRC_CIRC.Root() )
-        Print( A_CIRC_CIRC.LockedMatrix(), title, os );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() )
+            Print( A.LockedMatrix(), title, os );
+    }
+    else
+    {
+        DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Print( A_CIRC_CIRC.LockedMatrix(), title, os );
+    }
 }
-
-#ifndef SWIG
-// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
-template<typename T>
+template<typename T,Dist U,Dist V>
 inline void
 Print
-( const DistMatrix<T,STAR,STAR>& A, std::string title="", 
-  std::ostream& os=std::cout )
+( const BlockDistMatrix<T,U,V>& A, 
+  std::string title="", std::ostream& os=std::cout )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
-    if( A.Grid().VCRank() == 0 )
-        Print( A.LockedMatrix(), title, os );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() )
+            Print( A.LockedMatrix(), title, os );
+    }
+    else
+    {
+        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Print( A_CIRC_CIRC.LockedMatrix(), title, os );
+    }
 }
-template<typename T>
-inline void
-Print
-( const DistMatrix<T,CIRC,CIRC>& A, std::string title="", 
-  std::ostream& os=std::cout )
-{
-    DEBUG_ONLY(CallStackEntry cse("Print"))
-    if( A.Grid().VCRank() == A.Root() )
-        Print( A.LockedMatrix(), title, os );
-}
-#endif // ifndef SWIG
 
 } // namespace elem
 

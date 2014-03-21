@@ -50,16 +50,6 @@ BDM::BlockDistMatrix( const BDM& A )
 
 template<typename T>
 template<Dist U,Dist V>
-BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
-: GBDM(A.Grid())
-{
-    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
-    this->SetShifts();
-    *this = A;
-}
-
-template<typename T>
-template<Dist U,Dist V>
 BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
 : GBDM(A.Grid())
 {

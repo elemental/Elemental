@@ -59,6 +59,16 @@ Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
     MakeZeros( A );
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+Zeros( BlockDistMatrix<T,U,V>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Zeros"))
+    A.Resize( m, n );
+    MakeZeros( A );
+}
+
+
 #ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
@@ -68,6 +78,7 @@ Zeros( const Grid& g, Int m, Int n )
     MakeZeros( A );
     return A;
 }
+// TODO: BlockDistMatrix variant?
 #endif
 
 } // namespace elem

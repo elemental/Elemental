@@ -194,9 +194,7 @@ Int BDM::RowStride() const { return this->grid_->LCM(); }
 #define PROTO(T) template class BlockDistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
   template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
-  ( const BlockDistMatrix<T,U,V>& A );\
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
-  ( const DistMatrix<T,U,V>& A );
+  ( const BlockDistMatrix<T,U,V>& A );
 #define FULL(T) \
   PROTO(T); \
   COPY(T,CIRC,CIRC); \

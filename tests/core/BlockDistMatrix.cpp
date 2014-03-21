@@ -14,8 +14,8 @@ using namespace elem;
 
 template<typename T,Dist AColDist,Dist ARowDist,Dist BColDist,Dist BRowDist>
 void
-Check( DistMatrix<T,AColDist,ARowDist>& A, 
-       DistMatrix<T,BColDist,BRowDist>& B, bool print )
+Check( BlockDistMatrix<T,AColDist,ARowDist>& A, 
+       BlockDistMatrix<T,BColDist,BRowDist>& B, bool print )
 {
     DEBUG_ONLY(CallStackEntry cse("Check"))
     const Grid& g = A.Grid();
@@ -23,8 +23,12 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     const Int commRank = g.Rank();
     const Int height = B.Height();
     const Int width = B.Width();
-    DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
-    DistMatrix<T,STAR,STAR> B_STAR_STAR(g);
+    const Int mb = B.BlockHeight();
+    const Int nb = B.BlockWidth();
+    const Int colCut = B.ColCut();
+    const Int rowCut = B.RowCut();
+    BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(g,mb,nb);
+    BlockDistMatrix<T,STAR,STAR> B_STAR_STAR(g,mb,nb);
 
     if( commRank == 0 )
     {
@@ -38,7 +42,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     Int rowAlign = SampleUniform<Int>(0,A.RowStride());
     mpi::Broadcast( colAlign, 0, mpi::COMM_WORLD );
     mpi::Broadcast( rowAlign, 0, mpi::COMM_WORLD );
-    A.Align( colAlign, rowAlign );
+    A.Align( mb, nb, colAlign, rowAlign, colCut, rowCut );
     A = B;
 
     A_STAR_STAR = A;
@@ -80,20 +84,20 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 
 template<typename T>
 void
-DistMatrixTest( Int m, Int n, const Grid& g, bool print )
+BlockDistMatrixTest( Int m, Int n, const Grid& g, Int mb, Int nb, bool print )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrixTest"))
-    DistMatrix<T,MC,  MR  > A_MC_MR(g);
-    DistMatrix<T,MC,  STAR> A_MC_STAR(g);
-    DistMatrix<T,STAR,MR  > A_STAR_MR(g);
-    DistMatrix<T,MR,  MC  > A_MR_MC(g);
-    DistMatrix<T,MR,  STAR> A_MR_STAR(g);
-    DistMatrix<T,STAR,MC  > A_STAR_MC(g);
-    DistMatrix<T,VC,  STAR> A_VC_STAR(g);
-    DistMatrix<T,STAR,VC  > A_STAR_VC(g);
-    DistMatrix<T,VR,  STAR> A_VR_STAR(g);
-    DistMatrix<T,STAR,VR  > A_STAR_VR(g);
-    DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
+    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrixTest"))
+    BlockDistMatrix<T,MC,  MR  > A_MC_MR(g,mb,nb);
+    BlockDistMatrix<T,MC,  STAR> A_MC_STAR(g,mb,nb);
+    BlockDistMatrix<T,STAR,MR  > A_STAR_MR(g,mb,nb);
+    BlockDistMatrix<T,MR,  MC  > A_MR_MC(g,mb,nb);
+    BlockDistMatrix<T,MR,  STAR> A_MR_STAR(g,mb,nb);
+    BlockDistMatrix<T,STAR,MC  > A_STAR_MC(g,mb,nb);
+    BlockDistMatrix<T,VC,  STAR> A_VC_STAR(g,mb,nb);
+    BlockDistMatrix<T,STAR,VC  > A_STAR_VC(g,mb,nb);
+    BlockDistMatrix<T,VR,  STAR> A_VR_STAR(g,mb,nb);
+    BlockDistMatrix<T,STAR,VR  > A_STAR_VR(g,mb,nb);
+    BlockDistMatrix<T,STAR,STAR> A_STAR_STAR(g,mb,nb);
 
     // Communicate from A[MC,MR] 
     Uniform( A_MC_MR, m, n );
@@ -253,6 +257,8 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
+        const Int mb = Input("--blockHeight","height of dist block",32);
+        const Int nb = Input("--blockWidth","width of dist block",32);
         const bool print = Input("--print","print wrong matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -268,7 +274,7 @@ main( int argc, char* argv[] )
                       << "Testing with floats:\n"
                       << "--------------------" << std::endl;
         }
-        DistMatrixTest<float>( m, n, g, print );
+        BlockDistMatrixTest<float>( m, n, g, mb, nb, print );
 
         if( commRank == 0 )
         {
@@ -276,7 +282,7 @@ main( int argc, char* argv[] )
                       << "Testing with doubles:\n"
                       << "---------------------" << std::endl;
         }
-        DistMatrixTest<double>( m, n, g, print );
+        BlockDistMatrixTest<double>( m, n, g, mb, nb, print );
 
         if( commRank == 0 )
         {
@@ -284,7 +290,7 @@ main( int argc, char* argv[] )
                       << "Testing with single-precision complex:\n"
                       << "--------------------------------------" << std::endl;
         }
-        DistMatrixTest<Complex<float>>( m, n, g, print );
+        BlockDistMatrixTest<Complex<float>>( m, n, g, mb, nb, print );
         
         if( commRank == 0 )
         {
@@ -292,7 +298,7 @@ main( int argc, char* argv[] )
                       << "Testing with double-precision complex:\n"
                       << "--------------------------------------" << std::endl;
         }
-        DistMatrixTest<Complex<double>>( m, n, g, print );
+        BlockDistMatrixTest<Complex<double>>( m, n, g, mb, nb, print );
     }
     catch( std::exception& e ) { ReportException(e); }
 
