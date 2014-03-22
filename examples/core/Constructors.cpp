@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
 
         if( mpi::WorldRank() == 0 )
         {
-            const Int commSize = mpi::CommSize( comm );
+            const Int commSize = mpi::Size( comm );
             std::cout << "Will create matrices distributed over " 
                       << commSize << " process(es) in various ways" 
                       << std::endl;

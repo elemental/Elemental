@@ -68,7 +68,6 @@ Zeros( BlockDistMatrix<T,U,V>& A, Int m, Int n )
     MakeZeros( A );
 }
 
-
 #ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>

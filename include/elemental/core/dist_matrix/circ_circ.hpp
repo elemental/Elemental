@@ -82,6 +82,11 @@ public:
     Int RowStride() const override;
 
 private:
+    template<Dist U,Dist V>
+    void CollectFrom( const DistMatrix<T,U,V>& A );
+    template<Dist U,Dist V>
+    void Scatter( DistMatrix<T,U,V>& A ) const;
+
     // Friend declarations
     // ===================
 #ifndef SWIG

@@ -52,7 +52,7 @@ Estimate EigEstimate
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
-      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
+      &highAccuracy, comm.comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
 
@@ -75,7 +75,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
     int ldz=1;
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
-    ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
+    ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm.comm,
       &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
@@ -100,7 +100,7 @@ Info Eig
     int nz, offset;
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
-    ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
+    ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm.comm,
       &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
@@ -127,7 +127,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
-      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
+      &highAccuracy, comm.comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
 
@@ -152,7 +152,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
-      &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
+      &highAccuracy, comm.comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
 
@@ -180,7 +180,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
-      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
+      &highAccuracy, comm.comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
 
@@ -208,7 +208,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = pmrrr
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
-      &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
+      &highAccuracy, comm.comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
         RuntimeError("pmrrr returned ",retval);
 

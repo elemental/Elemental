@@ -79,7 +79,7 @@ HermitianTridiag
 
         mpi::Group owningGroup = g.OwningGroup();
         mpi::Group squareGroup;
-        mpi::GroupIncl
+        mpi::Incl
         ( owningGroup, squareRanks.size(), squareRanks.data(), squareGroup );
 
         mpi::Comm viewingComm = g.ViewingComm();
@@ -100,7 +100,7 @@ HermitianTridiag
         A = ASquare;
         t = tSquare;
 
-        mpi::GroupFree( squareGroup );
+        mpi::Free( squareGroup );
     }
     else
     {

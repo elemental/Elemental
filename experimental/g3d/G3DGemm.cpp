@@ -144,8 +144,8 @@ void DistributeCols
         DistMatrix<double,MC,MR>& B )
 {
     const Grid& meshGrid = A.Grid();
-    const int depthSize = mpi::CommSize( depthComm );
-    const int depthRank = mpi::CommRank( depthComm );
+    const int depthSize = mpi::Size( depthComm );
+    const int depthRank = mpi::Rank( depthComm );
 
     const int sendCount = A.LocalHeight()*A.LocalWidth();
     const int recvCount = sendCount / depthSize;
@@ -179,8 +179,8 @@ void DistributeRows
   const DistMatrix<double,MC,MR>& A, 
         DistMatrix<double,MC,MR>& B )
 {
-    const int depthRank = mpi::CommRank( depthComm );
-    const int depthSize = mpi::CommSize( depthComm );
+    const int depthRank = mpi::Rank( depthComm );
+    const int depthSize = mpi::Size( depthComm );
     const Grid& meshGrid = A.Grid();
 
     const int sendCount = A.LocalHeight()*A.LocalWidth();

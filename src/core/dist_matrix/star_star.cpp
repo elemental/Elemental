@@ -142,8 +142,8 @@ DM::operator=( const DM& A )
     else
     {
         // TODO: Remember why I wrote this...
-        if( !mpi::CongruentComms( A.Grid().ViewingComm(),
-                                  this->Grid().ViewingComm() ) )
+        if( !mpi::Congruent
+             ( A.Grid().ViewingComm(), this->Grid().ViewingComm() ) )
             LogicError
             ("Redistributing between nonmatching grids currently requires"
              " the viewing communicators to match.");

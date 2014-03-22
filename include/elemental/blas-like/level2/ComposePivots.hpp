@@ -140,8 +140,8 @@ FormPivotMeta
     meta.align = align;
 
     const Int b = image.size();
-    const Int rank = mpi::CommRank( comm );
-    const Int stride = mpi::CommSize( comm );
+    const Int rank = mpi::Rank( comm );
+    const Int stride = mpi::Size( comm );
     const Int shift = Shift( rank, align, stride );
 
     // Form the metadata

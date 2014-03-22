@@ -61,10 +61,10 @@ Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
     const Int m =  A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
-    const Int p = mpi::CommSize( colComm );
+    const Int p = mpi::Size( colComm );
     if( p == 1 )
         return;
-    const Int rank = mpi::CommRank( colComm );
+    const Int rank = mpi::Rank( colComm );
     if( m < p*n ) 
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
@@ -123,8 +123,8 @@ template<typename F,Dist U>
 inline Matrix<F>&
 RootQR( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
-    const Int rank = mpi::CommRank( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
+    const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
         LogicError("This process does not have access to the root QR");
     if( p == 1 )
@@ -137,8 +137,8 @@ template<typename F,Dist U>
 inline const Matrix<F>&
 RootQR( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
-    const Int rank = mpi::CommRank( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
+    const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
         LogicError("This process does not have access to the root QR");
     if( p == 1 )
@@ -151,8 +151,8 @@ template<typename F,Dist U>
 inline Matrix<F>&
 RootPhases( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
-    const Int rank = mpi::CommRank( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
+    const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
         LogicError("This process does not have access to the root phases");
     if( p == 1 )
@@ -165,8 +165,8 @@ template<typename F,Dist U>
 inline const Matrix<F>&
 RootPhases( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
-    const Int rank = mpi::CommRank( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
+    const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
         LogicError("This process does not have access to the root phases");
     if( p == 1 )
@@ -179,8 +179,8 @@ template<typename F,Dist U>
 inline Matrix<BASE(F)>&
 RootSignature( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
-    const Int rank = mpi::CommRank( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
+    const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
         LogicError("This process does not have access to the root signature");
     if( p == 1 )
@@ -193,8 +193,8 @@ template<typename F,Dist U>
 inline const Matrix<BASE(F)>&
 RootSignature( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
-    const Int rank = mpi::CommRank( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
+    const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
         LogicError("This process does not have access to the root signature");
     if( p == 1 )
@@ -211,10 +211,10 @@ Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
     const Int m =  A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
-    const Int p = mpi::CommSize( colComm );
+    const Int p = mpi::Size( colComm );
     if( p == 1 )
         return;
-    const Int rank = mpi::CommRank( colComm );
+    const Int rank = mpi::Rank( colComm );
     if( m < p*n ) 
         LogicError("TSQR currently assumes height >= width*numProcesses");
     if( !PowerOfTwo(p) )
@@ -294,7 +294,7 @@ template<typename F,Dist U>
 inline void
 FormQ( DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 {
-    const Int p = mpi::CommSize( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
     {
         A.Matrix() = treeData.QR0;
@@ -327,7 +327,7 @@ TS( const DistMatrix<F,U,STAR>& A )
     treeData.QR0 = A.LockedMatrix();
     QR( treeData.QR0, treeData.t0, treeData.d0 );
 
-    const Int p = mpi::CommSize( A.ColComm() );
+    const Int p = mpi::Size( A.ColComm() );
     if( p != 1 )
     {
         ts::Reduce( A, treeData );

@@ -286,7 +286,7 @@ AbstractDistMatrix<T>::SetRoot( Int root )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::SetRoot");
-        if( root < 0 || root >= mpi::CommSize(CrossComm()) )
+        if( root < 0 || root >= mpi::Size(CrossComm()) )
             LogicError("Invalid root");
     )
     if( root != root_ )
@@ -464,23 +464,6 @@ AbstractDistMatrix<T>::LockedAttach
     ( height, width, g, colAlign, rowAlign, A.LockedBuffer(), A.LDim(), root );
 }
 
-// Redistribution
-// --------------
-
-/*
-template<typename T>
-void
-AbstractDistMatrix<T>::ScatterFrom( const DistMatrix<T,CIRC,CIRC>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("ADM::ScatterFrom"))
-    // TODO:
-    //   1) Send to a member of A's DistComm (if necessary)
-    //   2) Scatter over DistComm
-    // In order to do so, a method similar to finding the rank of a member of
-    // the DistComm in the VC communicator is needed.
-}
-*/
-
 // Basic queries
 // =============
 
@@ -567,62 +550,62 @@ Int AbstractDistMatrix<T>::RowShift() const { return rowShift_; }
 template<typename T>
 Int
 AbstractDistMatrix<T>::ColRank() const
-{ return mpi::CommRank(ColComm()); }
+{ return mpi::Rank(ColComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::RowRank() const
-{ return mpi::CommRank(RowComm()); }
+{ return mpi::Rank(RowComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::PartialColRank() const
-{ return mpi::CommRank(PartialColComm()); }
+{ return mpi::Rank(PartialColComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::PartialUnionColRank() const
-{ return mpi::CommRank(PartialUnionColComm()); }
+{ return mpi::Rank(PartialUnionColComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::PartialRowRank() const
-{ return mpi::CommRank(PartialRowComm()); }
+{ return mpi::Rank(PartialRowComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::PartialUnionRowRank() const
-{ return mpi::CommRank(PartialUnionRowComm()); }
+{ return mpi::Rank(PartialUnionRowComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::DistRank() const
-{ return mpi::CommRank(DistComm()); }
+{ return mpi::Rank(DistComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::CrossRank() const
-{ return mpi::CommRank(CrossComm()); }
+{ return mpi::Rank(CrossComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::RedundantRank() const
-{ return mpi::CommRank(RedundantComm()); }
+{ return mpi::Rank(RedundantComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::DistSize() const
-{ return mpi::CommSize(DistComm()); }
+{ return mpi::Size(DistComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::CrossSize() const
-{ return mpi::CommSize(CrossComm()); }
+{ return mpi::Size(CrossComm()); }
 
 template<typename T>
 Int
 AbstractDistMatrix<T>::RedundantSize() const
-{ return mpi::CommSize(RedundantComm()); }
+{ return mpi::Size(RedundantComm()); }
 
 template<typename T>
 Int AbstractDistMatrix<T>::Root() const { return root_; }

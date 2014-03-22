@@ -17,7 +17,7 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commSize = mpi::CommSize( comm );
+    const Int commSize = mpi::Size( comm );
     
     try
     {
@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
         mpi::Group group, sqrtGroup;
         
         mpi::CommGroup( comm, group );
-        mpi::GroupIncl( group, sqrtRanks.size(), sqrtRanks.data(), sqrtGroup );
+        mpi::Incl( group, sqrtRanks.size(), sqrtRanks.data(), sqrtGroup );
 
         const Grid grid( comm, order );
         const Grid sqrtGrid( comm, sqrtGroup, commSqrt, orderSqrt );

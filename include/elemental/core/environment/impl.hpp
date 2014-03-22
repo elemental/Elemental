@@ -132,8 +132,8 @@ inline void
 EnsureConsistent( T alpha, mpi::Comm comm, std::string name )
 {
     std::string tag = ( name=="" ? "" : name+" " );
-    const Int commSize = mpi::CommSize( comm );
-    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::Size( comm );
+    const Int commRank = mpi::Rank( comm );
     std::vector<T> a(commSize);
     mpi::Gather( &alpha, 1, a.data(), 1, 0, comm );
     if( commRank == 0 ) 

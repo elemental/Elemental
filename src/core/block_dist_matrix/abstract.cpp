@@ -342,7 +342,7 @@ AbstractBlockDistMatrix<T>::SetRoot( Int root )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ABDM::SetRoot");
-        if( root < 0 || root >= mpi::CommSize(CrossComm()) )
+        if( root < 0 || root >= mpi::Size(CrossComm()) )
             LogicError("Invalid root");
     )
     if( root != root_ )
@@ -659,62 +659,62 @@ Int AbstractBlockDistMatrix<T>::RowShift() const { return rowShift_; }
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::ColRank() const 
-{ return mpi::CommRank(ColComm()); }
+{ return mpi::Rank(ColComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::RowRank() const 
-{ return mpi::CommRank(RowComm()); }
+{ return mpi::Rank(RowComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::PartialColRank() const
-{ return mpi::CommRank(PartialColComm()); }
+{ return mpi::Rank(PartialColComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::PartialUnionColRank() const
-{ return mpi::CommRank(PartialUnionColComm()); }
+{ return mpi::Rank(PartialUnionColComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::PartialRowRank() const
-{ return mpi::CommRank(PartialRowComm()); }
+{ return mpi::Rank(PartialRowComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::PartialUnionRowRank() const
-{ return mpi::CommRank(PartialUnionRowComm()); }
+{ return mpi::Rank(PartialUnionRowComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::DistRank() const
-{ return mpi::CommRank(DistComm()); }
+{ return mpi::Rank(DistComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::CrossRank() const
-{ return mpi::CommRank(CrossComm()); }
+{ return mpi::Rank(CrossComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::RedundantRank() const
-{ return mpi::CommRank(RedundantComm()); }
+{ return mpi::Rank(RedundantComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::DistSize() const
-{ return mpi::CommSize(DistComm()); }
+{ return mpi::Size(DistComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::CrossSize() const
-{ return mpi::CommSize(CrossComm()); }
+{ return mpi::Size(CrossComm()); }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::RedundantSize() const
-{ return mpi::CommSize(RedundantComm()); }
+{ return mpi::Size(RedundantComm()); }
 
 template<typename T>
 Int AbstractBlockDistMatrix<T>::Root() const { return root_; }

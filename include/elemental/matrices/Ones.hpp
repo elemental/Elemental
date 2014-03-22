@@ -29,11 +29,15 @@ inline void
 MakeOnes( DistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeOnes"))
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            A.SetLocal( iLoc, jLoc, T(1) );
+    MakeOnes( A.Matrix() );
+}
+
+template<typename T,Dist U,Dist V>
+inline void
+MakeOnes( BlockDistMatrix<T,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeOnes"))
+    MakeOnes( A.Matrix() );
 }
 
 template<typename T>
@@ -65,6 +69,15 @@ Ones( DistMatrix<T,U,V>& A, Int m, Int n )
     MakeOnes( A );
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+Ones( BlockDistMatrix<T,U,V>& A, Int m, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Ones"))
+    A.Resize( m, n );
+    MakeOnes( A );
+}
+
 #ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
@@ -74,6 +87,7 @@ Ones( const Grid& g, Int m, Int n )
     MakeOnes( A );
     return A;
 }
+// TODO: BlockDistMatrix version?
 #endif
 
 } // namespace elem

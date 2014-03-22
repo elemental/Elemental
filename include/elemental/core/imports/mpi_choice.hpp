@@ -76,7 +76,7 @@ template<typename T>
 inline T
 MpiArgs::Input( std::string name, std::string desc )
 {
-    const int commRank = mpi::CommRank( comm_ );
+    const int commRank = mpi::Rank( comm_ );
 
     char** arg = std::find( argv_, argv_+argc_, name );
     const bool found = ( arg != argv_+argc_ );
@@ -126,7 +126,7 @@ template<typename T>
 inline T
 MpiArgs::Input( std::string name, std::string desc, T defaultVal )
 {
-    const int commRank = mpi::CommRank( comm_ );
+    const int commRank = mpi::Rank( comm_ );
 
     char** arg = std::find( argv_, argv_+argc_, name );
     const bool found = ( arg != argv_+argc_ );
@@ -204,7 +204,7 @@ MpiArgs::Process( std::ostream& os ) const
 inline void 
 MpiArgs::PrintReport( std::ostream& os ) const
 {
-    const int commRank = mpi::CommRank( comm_ );
+    const int commRank = mpi::Rank( comm_ );
     if( commRank != 0 )
         return;
 

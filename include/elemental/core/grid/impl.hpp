@@ -29,9 +29,9 @@ Grid::Grid( mpi::Comm comm, GridOrder order )
     DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
 
     // Extract our rank, the underlying group, and the number of processes
-    mpi::CommDup( comm, viewingComm_ );
+    mpi::Dup( comm, viewingComm_ );
     mpi::CommGroup( viewingComm_, viewingGroup_ );
-    size_ = mpi::CommSize( viewingComm_ );
+    size_ = mpi::Size( viewingComm_ );
 
     // All processes own the grid, so we have to trivially split viewingGroup_
     owningGroup_ = viewingGroup_;
@@ -48,9 +48,9 @@ Grid::Grid( mpi::Comm comm, int height, GridOrder order )
     DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
 
     // Extract our rank, the underlying group, and the number of processes
-    mpi::CommDup( comm, viewingComm_ );
+    mpi::Dup( comm, viewingComm_ );
     mpi::CommGroup( viewingComm_, viewingGroup_ );
-    size_ = mpi::CommSize( viewingComm_ );
+    size_ = mpi::Size( viewingComm_ );
 
     // All processes own the grid, so we have to trivially split viewingGroup_
     owningGroup_ = viewingGroup_;
@@ -75,7 +75,7 @@ Grid::SetUpGrid()
     int lcm = size_ / gcd_;
 
     // Create the communicator for the owning group (mpi::COMM_NULL otherwise)
-    mpi::CommCreate( viewingComm_, owningGroup_, owningComm_ );
+    mpi::Create( viewingComm_, owningGroup_, owningComm_ );
 
     vectorColToViewingMap_.resize(size_);
     diagPathsAndRanks_.resize(2*size_);
@@ -108,14 +108,14 @@ Grid::SetUpGrid()
         remainingDimensions[0] = ( colMajor ? true  : false );
         remainingDimensions[1] = ( colMajor ? false : true  );
         mpi::CartSub( cartComm_, remainingDimensions, matrixRowComm_ );
-        const int matrixColRank = mpi::CommRank( matrixColComm_ );
-        const int matrixRowRank = mpi::CommRank( matrixRowComm_ );
+        const int matrixColRank = mpi::Rank( matrixColComm_ );
+        const int matrixRowRank = mpi::Rank( matrixRowComm_ );
 
         // Set up the VectorCol and VectorRow communicators
         const int vectorColRank = matrixColRank + height_*matrixRowRank;
         const int vectorRowRank = matrixRowRank + width*matrixColRank;
-        mpi::CommSplit( cartComm_, 0, vectorColRank, vectorColComm_ );
-        mpi::CommSplit( cartComm_, 0, vectorRowRank, vectorRowComm_ );
+        mpi::Split( cartComm_, 0, vectorColRank, vectorColComm_ );
+        mpi::Split( cartComm_, 0, vectorRowRank, vectorRowComm_ );
 
         // Set up the map from the VC group to the viewingGroup_ ranks.
         mpi::Group vectorColGroup;
@@ -123,9 +123,9 @@ Grid::SetUpGrid()
         std::vector<int> ranks(size_);
         for( int i=0; i<size_; ++i )
             ranks[i] = i;
-        mpi::GroupTranslateRanks
-        ( vectorColGroup, size_, ranks.data(), viewingGroup_, 
-          vectorColToViewingMap_.data() );
+        mpi::Translate
+        ( vectorColGroup, size_, ranks.data(), 
+          viewingGroup_,         vectorColToViewingMap_.data() );
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
@@ -152,9 +152,8 @@ Grid::SetUpGrid()
         ( myDiagPathAndRank.data(),  2, 
           diagPathsAndRanks_.data(), 2, vectorColComm_ );
 
-        mpi::CommSplit
-        ( cartComm_, DiagPath(), DiagPathRank(), matrixDiagComm_ );
-        mpi::CommSplit
+        mpi::Split( cartComm_, DiagPath(), DiagPathRank(), matrixDiagComm_ );
+        mpi::Split
         ( cartComm_, DiagPathRank(), DiagPath(), matrixDiagPerpComm_ );
 
         DEBUG_ONLY(
@@ -178,9 +177,7 @@ Grid::SetUpGrid()
     }
     // Translate the rank of the root process of the owningGroup so that we can
     // broadcast data
-    int zero=0, owningRoot;
-    mpi::GroupTranslateRanks
-    ( owningGroup_, 1, &zero, viewingGroup_, &owningRoot );
+    int owningRoot = mpi::Translate( owningGroup_, 0, viewingGroup_ );
     mpi::Broadcast
     ( vectorColToViewingMap_.data(), size_, owningRoot, viewingComm_ );
     mpi::Broadcast
@@ -194,24 +191,24 @@ Grid::~Grid()
     {
         if( InGrid() )
         {
-            mpi::CommFree( matrixColComm_ );
-            mpi::CommFree( matrixRowComm_ );
-            mpi::CommFree( vectorColComm_ );
-            mpi::CommFree( vectorRowComm_ );
-            mpi::CommFree( cartComm_ );
-            mpi::CommFree( owningComm_ );
+            mpi::Free( matrixColComm_ );
+            mpi::Free( matrixRowComm_ );
+            mpi::Free( vectorColComm_ );
+            mpi::Free( vectorRowComm_ );
+            mpi::Free( cartComm_ );
+            mpi::Free( owningComm_ );
         }
-        mpi::CommFree( viewingComm_ );
+        mpi::Free( viewingComm_ );
         if( HaveViewers() )
-            mpi::GroupFree( owningGroup_ );
-        mpi::GroupFree( viewingGroup_ );
+            mpi::Free( owningGroup_ );
+        mpi::Free( viewingGroup_ );
     }
 }
 
-inline int Grid::MCRank() const { return mpi::CommRank(matrixColComm_); }
-inline int Grid::MRRank() const { return mpi::CommRank(matrixRowComm_); }
-inline int Grid::VCRank() const { return mpi::CommRank(vectorColComm_); }
-inline int Grid::VRRank() const { return mpi::CommRank(vectorRowComm_); }
+inline int Grid::MCRank() const { return mpi::Rank(matrixColComm_); }
+inline int Grid::MRRank() const { return mpi::Rank(matrixRowComm_); }
+inline int Grid::VCRank() const { return mpi::Rank(vectorColComm_); }
+inline int Grid::VRRank() const { return mpi::Rank(vectorRowComm_); }
 
 inline int Grid::MCSize() const { return height_;       }
 inline int Grid::MRSize() const { return size_/height_; }
@@ -255,12 +252,12 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, GridOrder order )
     DEBUG_ONLY(CallStackEntry cse("Grid::Grid"))
 
     // Extract our rank and the underlying group from the viewing comm
-    mpi::CommDup( viewers, viewingComm_ );
+    mpi::Dup( viewers, viewingComm_ );
     mpi::CommGroup( viewingComm_, viewingGroup_ );
 
     // Extract our rank and the number of processes from the owning group
-    mpi::GroupDup( owners, owningGroup_ );
-    size_ = mpi::GroupSize( owningGroup_ );
+    mpi::Dup( owners, owningGroup_ );
+    size_ = mpi::Size( owningGroup_ );
 
     height_ = height;
     if( height_ < 0 )
@@ -274,10 +271,10 @@ inline int Grid::LCM() const { return size_/gcd_; }
 
 inline bool Grid::HaveViewers() const { return haveViewers_; }
 inline bool Grid::InGrid() const 
-{ return mpi::GroupRank(owningGroup_) != mpi::UNDEFINED; }
+{ return mpi::Rank(owningGroup_) != mpi::UNDEFINED; }
 
-inline int Grid::OwningRank() const { return mpi::GroupRank(owningGroup_); }
-inline int Grid::ViewingRank() const { return mpi::CommRank(viewingComm_); }
+inline int Grid::OwningRank() const { return mpi::Rank(owningGroup_); }
+inline int Grid::ViewingRank() const { return mpi::Rank(viewingComm_); }
 
 inline int Grid::VCToViewingMap( int VCRank ) const
 { return vectorColToViewingMap_[VCRank]; }

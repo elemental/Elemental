@@ -29,13 +29,41 @@ namespace mpi {
 #endif
 #endif
 
+struct Comm
+{
+    MPI_Comm comm;
+    Comm( MPI_Comm mpiComm=MPI_COMM_NULL ) : comm(mpiComm) { }
+};
+inline bool operator==( const Comm& a, const Comm& b )
+{ return a.comm == b.comm; }
+inline bool operator!=( const Comm& a, const Comm& b )
+{ return a.comm != b.comm; }
+
+struct Group
+{
+    MPI_Group group;
+    Group( MPI_Group mpiGroup=MPI_GROUP_NULL ) : group(mpiGroup) { }
+};
+inline bool operator==( const Group& a, const Group& b )
+{ return a.group == b.group; }
+inline bool operator!=( const Group& a, const Group& b )
+{ return a.group != b.group; }
+
+struct Op
+{
+    MPI_Op op;
+    Op( MPI_Op mpiOp=MPI_OP_NULL ) : op(mpiOp) { }
+};
+inline bool operator==( const Op& a, const Op& b )
+{ return a.op == b.op; }
+inline bool operator!=( const Op& a, const Op& b )
+{ return a.op != b.op; }
+
 // Datatype definitions
+// TODO: Convert these to structs/classes
 typedef MPI_Aint Aint;
-typedef MPI_Comm Comm;
 typedef MPI_Datatype Datatype;
 typedef MPI_Errhandler ErrorHandler;
-typedef MPI_Group Group;
-typedef MPI_Op Op;
 typedef MPI_Request Request;
 typedef MPI_Status Status;
 typedef MPI_User_function UserFunction;
@@ -88,18 +116,18 @@ bool Initialized();
 bool Finalized();
 int QueryThread();
 double Time();
-void OpCreate( UserFunction* func, bool commutes, Op& op );
-void OpFree( Op& op );
+void Create( UserFunction* func, bool commutes, Op& op );
+void Free( Op& op );
 
 // Communicator manipulation
 int WorldRank();
-int CommRank( Comm comm );
-int CommSize( Comm comm );
-void CommCreate( Comm parentComm, Group subsetGroup, Comm& subsetComm );
-void CommDup( Comm original, Comm& duplicate );
-void CommSplit( Comm comm, int color, int key, Comm& newComm );
-void CommFree( Comm& comm );
-bool CongruentComms( Comm comm1, Comm comm2 );
+int Rank( Comm comm );
+int Size( Comm comm );
+void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm );
+void Dup( Comm original, Comm& duplicate );
+void Split( Comm comm, int color, int key, Comm& newComm );
+void Free( Comm& comm );
+bool Congruent( Comm comm1, Comm comm2 );
 void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler );
 
 // Cartesian communicator routines
@@ -110,17 +138,30 @@ void CartSub
 ( Comm comm, const int* remainingDims, Comm& subComm );
 
 // Group manipulation
-int GroupRank( Group group );
-int GroupSize( Group group );
+int Rank( Group group );
+int Size( Group group );
 void CommGroup( Comm comm, Group& group );
-void GroupDup( Group group, Group& newGroup );
-void GroupUnion( Group groupA, Group groupB, Group& newGroup );
-void GroupIncl( Group group, int n, const int* ranks, Group& subGroup );
-void GroupDifference( Group parent, Group subset, Group& complement );
-void GroupFree( Group& group );
-void GroupTranslateRanks
+void Dup( Group group, Group& newGroup );
+void Union( Group groupA, Group groupB, Group& newGroup );
+void Incl( Group group, int n, const int* ranks, Group& subGroup );
+void Difference( Group parent, Group subset, Group& complement );
+void Free( Group& group );
+int Translate( Group origGroup, int origRank, Group newGroup );
+int Translate( Comm  origComm,  int origRank, Group newGroup );
+int Translate( Group origGroup, int origRank, Comm  newComm  );
+int Translate( Comm  origComm,  int origRank, Comm  newComm  );
+void Translate
 ( Group origGroup, int size, const int* origRanks, 
   Group newGroup,                  int* newRanks );
+void Translate
+( Comm origComm,  int size, const int* origRanks, 
+  Group newGroup,                 int* newRanks );
+void Translate
+( Group origGroup, int size, const int* origRanks, 
+  Comm newComm,                    int* newRanks );
+void Translate
+( Comm origComm, int size, const int* origRanks, 
+  Comm newComm,                  int* newRanks );
 
 // Utilities
 void Barrier( Comm comm );

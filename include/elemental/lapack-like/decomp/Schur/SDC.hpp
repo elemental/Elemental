@@ -1125,8 +1125,8 @@ inline void SplitGrid
             rightRanks[j] = j+pLeft;
         mpi::Group group = grid.OwningGroup();
         mpi::Group leftGroup, rightGroup;
-        mpi::GroupIncl( group, pLeft, leftRanks.data(), leftGroup );
-        mpi::GroupIncl( group, pRight, rightRanks.data(), rightGroup );
+        mpi::Incl( group, pLeft, leftRanks.data(), leftGroup );
+        mpi::Incl( group, pRight, rightRanks.data(), rightGroup );
         const Int rLeft = Grid::FindFactor(pLeft);
         const Int rRight = Grid::FindFactor(pRight);
         if( progress && grid.Rank() == 0 )
@@ -1229,8 +1229,8 @@ inline void PullSubproblems
         mpi::Group rightOwning = rightGrid->OwningGroup();
         delete leftGrid;
         delete rightGrid;
-        mpi::GroupFree( leftOwning );
-        mpi::GroupFree( rightOwning );
+        mpi::Free( leftOwning );
+        mpi::Free( rightOwning );
     }
 }
 
@@ -1408,8 +1408,8 @@ inline void PullSubproblems
         mpi::Group rightOwning = rightGrid->OwningGroup();
         delete leftGrid;
         delete rightGrid;
-        mpi::GroupFree( leftOwning );
-        mpi::GroupFree( rightOwning );
+        mpi::Free( leftOwning );
+        mpi::Free( rightOwning );
     }
 }
 

@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
 
     // Extract our MPI rank
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::Rank( comm );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.

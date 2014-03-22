@@ -247,7 +247,7 @@ void Initialize( int& argc, char**& argv )
         const Int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
-        const Int commRank = mpi::CommRank( mpi::COMM_WORLD );
+        const Int commRank = mpi::Rank( mpi::COMM_WORLD );
         if( provided != mpi::THREAD_MULTIPLE && commRank == 0 )
         {
             std::cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
@@ -311,7 +311,7 @@ void Initialize( int& argc, char**& argv )
     mpi::CreateMaxLocPairOp<float>();
     mpi::CreateMaxLocPairOp<double>();
 
-    const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
+    const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
     // TODO: Allow for switching on/off reproducibility?
     //const long secs = time(NULL);
     const long secs = 21;

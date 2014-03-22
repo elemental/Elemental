@@ -34,7 +34,7 @@ void TestMatrix( Int m, Int n, Int ldim )
                 LogicError
                 ("Matrix class was not properly filled with const buffer");
 
-    const Int commRank = mpi::CommRank( mpi::COMM_WORLD );
+    const Int commRank = mpi::Rank( mpi::COMM_WORLD );
     if( commRank == 0 )
         std::cout << "passed" << std::endl;
 }

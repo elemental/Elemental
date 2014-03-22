@@ -74,8 +74,8 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::CommRank( comm );
-    const Int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::Rank( comm );
+    const Int commSize = mpi::Size( comm );
 
     try
     {

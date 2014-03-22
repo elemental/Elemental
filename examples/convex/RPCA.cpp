@@ -88,7 +88,7 @@ void RPCA_ADMM
     typedef Base<F> Real;
     const Int m = M.Height();
     const Int n = M.Width();
-    const Int commRank = mpi::CommRank( M.Grid().Comm() );
+    const Int commRank = mpi::Rank( M.Grid().Comm() );
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
     if( tau == Real(0) )
@@ -187,7 +187,7 @@ void RPCA_ALM
 
     const Int m = M.Height();
     const Int n = M.Width();
-    const Int commRank = mpi::CommRank( M.Grid().Comm() );
+    const Int commRank = mpi::Rank( M.Grid().Comm() );
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
     if( tau == Real(0) )
@@ -330,7 +330,7 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::Rank( comm );
     typedef Complex<double> C;
 
     try

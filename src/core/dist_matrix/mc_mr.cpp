@@ -543,10 +543,9 @@ void DM::CopyFromDifferentGrid( const DM& A )
             for( int j=0; j<rowStrideA; ++j )
                 ranks[i+j*colStrideA] = j+i*rowStrideA;
     }
-    mpi::Group viewingGroup;
-    mpi::CommGroup( this->Grid().ViewingComm(), viewingGroup );
-    mpi::GroupTranslateRanks
-    ( A.Grid().OwningGroup(), sizeA, &ranks[0], viewingGroup, &rankMap[0] );
+    mpi::Translate
+    ( A.Grid().OwningGroup(),     sizeA, &ranks[0], 
+      this->Grid().ViewingComm(),        &rankMap[0] );
 
     // Have each member of A's grid individually send to all numRow x numCol
     // processes in order, while the members of this grid receive from all 

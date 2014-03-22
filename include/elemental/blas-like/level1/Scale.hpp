@@ -53,11 +53,17 @@ inline void
 Scale( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A.Matrix() ); }
 
+template<typename T,Dist U,Dist V>
+inline void
+Scale( T alpha, BlockDistMatrix<T,U,V>& A )
+{ Scale( alpha, A.Matrix() ); }
+
 #ifndef SWIG
 template<typename T,Dist U,Dist V>
 inline void
 Scale( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
+// TODO: BlockDistMatrix version?
 #endif
 
 template<typename T,Dist U,Dist V>
@@ -65,11 +71,17 @@ inline void
 Scal( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A ); }
 
+template<typename T,Dist U,Dist V>
+inline void
+Scal( T alpha, BlockDistMatrix<T,U,V>& A )
+{ Scale( alpha, A ); }
+
 #ifndef SWIG
 template<typename T,Dist U,Dist V>
 inline void
 Scal( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A ); }
+// TODO: BlockDistMatrix version?
 #endif
 
 } // namespace elem

@@ -8,7 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_SCALE_INC
 #include ELEM_IO_INC
+#include ELEM_ONES_INC
 #include ELEM_UNIFORM_INC
 using namespace elem;
 
@@ -17,8 +19,8 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::CommRank( comm );
-    const Int commSize = mpi::CommSize( comm );
+    const Int commSize = mpi::Size( comm );
+    const Int commRank = mpi::Rank( comm );
 
     try
     {
@@ -38,6 +40,8 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
 
         BlockDistMatrix<double> A(m,n,g,mb,nb);
+        MakeOnes( A );
+        Scale( double(commRank), A.Matrix() );
         if( print )
             Print( A, "A" );
     }
