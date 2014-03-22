@@ -43,6 +43,7 @@ public:
     // Create a copy of distributed matrix A
     DistMatrix( const type& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
+    template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
 #ifndef SWIG
     // Move constructor
     DistMatrix( type&& A ) noexcept;
@@ -51,6 +52,7 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
+    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
     type& operator=( const DistMatrix<T,STAR,MR  >& A );

@@ -22,18 +22,6 @@ namespace elem {
 // ==============================
 
 template<typename T>
-template<Dist U,Dist V>
-BDM&
-BDM::operator=( const DistMatrix<T,U,V>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("BDM[STAR,VC] = DM[U,V]"))
-    BlockDistMatrix<T,U,V> ABlock(A.Grid());
-    LockedView( ABlock, A );
-    *this = ABlock;
-    return *this;
-}
-
-template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {

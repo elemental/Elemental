@@ -453,10 +453,15 @@ DM::Scatter( DistMatrix<T,U,V>& A ) const
 #define COPY(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const DistMatrix<T,U,V>& A ); \
+  template DistMatrix<T,ColDist,RowDist>::DistMatrix \
+  ( const BlockDistMatrix<T,U,V>& A ); \
   template void DistMatrix<T,ColDist,RowDist>::CollectFrom \
   ( const DistMatrix<T,U,V>& A ); \
   template void DistMatrix<T,ColDist,RowDist>::Scatter \
-  ( DistMatrix<T,U,V>& A ) const;
+  ( DistMatrix<T,U,V>& A ) const; \
+  template DistMatrix<T,ColDist,RowDist>& \
+           DistMatrix<T,ColDist,RowDist>::operator= \
+           ( const BlockDistMatrix<T,U,V>& A )
 #define FULL(T) \
   PROTO(T); \
   COPY(T,MC,  MR); \

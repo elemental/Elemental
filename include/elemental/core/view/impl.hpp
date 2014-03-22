@@ -53,6 +53,17 @@ inline void View( BlockDistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
       B.Buffer(), B.LDim(), B.Root() );
 }
 
+template<typename T,Dist U,Dist V>
+inline void View( DistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("View"))
+    if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
+        LogicError("Block size was not 1 x 1");
+    A.Attach
+    ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
+      B.Buffer(), B.LDim(), B.Root() );
+}
+
 template<typename T>
 inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
@@ -91,6 +102,17 @@ inline void LockedView( BlockDistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
     DEBUG_ONLY(CallStackEntry cse("LockedView"))
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
+      B.LockedBuffer(), B.LDim(), B.Root() );
+}
+
+template<typename T,Dist U,Dist V>
+inline void LockedView( DistMatrix<T,U,V>& A, const BlockDistMatrix<T,U,V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("LockedView"))
+    if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
+        LogicError("Block size was not 1 x 1");
+    A.LockedAttach
+    ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.LockedBuffer(), B.LDim(), B.Root() );
 }
 

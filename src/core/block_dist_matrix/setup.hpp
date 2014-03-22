@@ -67,7 +67,7 @@ template<Dist U,Dist V>
 BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 : GBDM(A.Grid())
 {
-    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::DistMatrix"))
+    DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
     this->SetShifts();
     *this = A;
 }
@@ -76,6 +76,18 @@ template<typename T>
 BDM::BlockDistMatrix( BDM&& A ) noexcept : GBDM(std::move(A)) { }
 
 template<typename T> BDM::~BlockDistMatrix() { }
+
+template<typename T>
+template<Dist U,Dist V>
+BDM&
+BDM::operator=( const DistMatrix<T,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("BDM = DM[U,V]"))
+    BlockDistMatrix<T,U,V> ABlock(A.Grid());
+    LockedView( ABlock, A );
+    *this = ABlock;
+    return *this;
+}
 
 template<typename T>
 BDM&

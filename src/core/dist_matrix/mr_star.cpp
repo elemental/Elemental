@@ -301,7 +301,12 @@ Int DM::RowStride() const { return 1; }
 #define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
-  ( const DistMatrix<T,U,V>& A )
+  ( const DistMatrix<T,U,V>& A ); \
+  template DistMatrix<T,ColDist,RowDist>::DistMatrix \
+  ( const BlockDistMatrix<T,U,V>& A ); \
+  template DistMatrix<T,ColDist,RowDist>& \
+           DistMatrix<T,ColDist,RowDist>::operator= \
+           ( const BlockDistMatrix<T,U,V>& A )
 #define FULL(T) \
   PROTO(T); \
   COPY(T,CIRC,CIRC); \
