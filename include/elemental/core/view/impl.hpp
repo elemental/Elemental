@@ -44,6 +44,15 @@ inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
     return A;
 }
 
+template<typename T,Dist U,Dist V>
+inline void View( BlockDistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("View"))
+    A.Attach
+    ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
+      B.Buffer(), B.LDim(), B.Root() );
+}
+
 template<typename T>
 inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
@@ -74,6 +83,15 @@ inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
     DistMatrix<T,U,V> A(B.Grid());
     LockedView( A, B );
     return A;
+}
+
+template<typename T,Dist U,Dist V>
+inline void LockedView( BlockDistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("LockedView"))
+    A.LockedAttach
+    ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
+      B.LockedBuffer(), B.LDim(), B.Root() );
 }
 
 template<typename T>

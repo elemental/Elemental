@@ -22,6 +22,18 @@ namespace elem {
 // ==============================
 
 template<typename T>
+template<Dist U,Dist V>
+BDM&
+BDM::operator=( const DistMatrix<T,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("BDM[VR,STAR] = DM[U,V]"))
+    BlockDistMatrix<T,U,V> ABlock(A.Grid());
+    LockedView( ABlock, A );
+    *this = ABlock;
+    return *this;
+}
+
+template<typename T>
 BDM&
 BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {
@@ -198,7 +210,12 @@ Int BDM::PartialUnionColStride() const { return this->grid_->MCSize(); }
 #define PROTO(T) template class BlockDistMatrix<T,ColDist,RowDist>
 #define COPY(T,U,V) \
   template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
-  ( const BlockDistMatrix<T,U,V>& A );
+  ( const BlockDistMatrix<T,U,V>& A ); \
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
+  ( const DistMatrix<T,U,V>& A ); \
+  template BlockDistMatrix<T,ColDist,RowDist>& \
+           BlockDistMatrix<T,ColDist,RowDist>::operator= \
+           ( const DistMatrix<T,U,V>& A )
 #define FULL(T) \
   PROTO(T); \
   COPY(T,CIRC,CIRC); \

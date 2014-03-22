@@ -24,6 +24,8 @@ template<typename T,Dist U,Dist V>
 void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 template<typename T,Dist U,Dist V>
 DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V>
+void View( BlockDistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 
 template<typename T>
 void LockedView( Matrix<T>& A, const Matrix<T>& B );
@@ -33,6 +35,8 @@ template<typename T,Dist U,Dist V>
 void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B );
 template<typename T,Dist U,Dist V>
 DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V>
+void LockedView( BlockDistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B );
 
 //
 // Viewing a submatrix from (i,j) to (i+height,j+width)
