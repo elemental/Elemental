@@ -17,7 +17,7 @@ namespace elem {
 
 namespace trrk {
 
-#ifndef RELEASE
+#ifndef ELEM_RELEASE
 
 void EnsureSame( const Grid& gA, const Grid& gB, const Grid& gC )
 {
@@ -126,7 +126,8 @@ void CheckInputTT
         ("Nonconformal LocalTrrk:\n",
          DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
-#endif // ifndef RELEASE
+
+#endif // ifndef ELEM_RELEASE
 
 // Local C := alpha A B + beta C
 template<typename T>

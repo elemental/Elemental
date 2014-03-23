@@ -260,7 +260,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
     // Pack
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
         MemCopy( &sendBuf[jLoc*mLocalA], &ABuf[jLoc*ALDim], mLocalA );
 
@@ -272,7 +272,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
         // Unpack
         const Int colAlignA = A.ColAlign();
         const Int rowAlignA = A.RowAlign();
-        OUTER_PARALLEL_FOR
+        ELEM_OUTER_PARALLEL_FOR
         for( Int l=0; l<rowStride; ++l )
         {
             const Int rowShift = Shift_( l, rowAlignA, rowStride );
@@ -284,7 +284,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
                 const Int colShift = Shift_( k, colAlignA, colStride );
                 const Int mLocal = 
                     BlockedLength_( m, colShift, mb, colCut, colStride );
-                INNER_PARALLEL_FOR
+                ELEM_INNER_PARALLEL_FOR
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Int jBefore = rowShift*nb - rowCut;
@@ -356,13 +356,13 @@ BDM::Scatter( BlockDistMatrix<T,U,V>& A ) const
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);

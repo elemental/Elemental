@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#ifdef HAVE_FLA_BSVD
+#ifdef ELEM_HAVE_FLA_BSVD
 
 extern "C" {
 
@@ -68,4 +68,4 @@ void FlaBidiagSVD
 
 } // namespace elem
 
-#endif // ifdef HAVE_FLA_BSVD
+#endif // ifdef ELEM_HAVE_FLA_BSVD

@@ -9,7 +9,7 @@
 #pragma once
 #ifndef ELEM_SPYWIDGET_IMPL_HPP
 #define ELEM_SPYWIDGET_IMPL_HPP
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 
 #include <QPainter>
 #include <QPixmap>
@@ -75,5 +75,5 @@ SpyWidget::Spy( const Matrix<Int>* A )
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 #endif // ifndef ELEM_SPYWIDGET_IMPL_HPP

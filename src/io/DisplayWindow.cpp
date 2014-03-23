@@ -9,7 +9,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/io.hpp"
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -103,4 +103,4 @@ DisplayWindow::SetScale( bool global )
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5

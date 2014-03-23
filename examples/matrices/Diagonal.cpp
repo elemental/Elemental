@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( D, "Diagonal matrix" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( D, "Diagonal spy plot" );
 #endif
         }

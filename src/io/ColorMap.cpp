@@ -11,7 +11,7 @@
 
 namespace elem {
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 QRgb SampleColorMap( double value, double minVal, double maxVal )
 {
     DEBUG_ONLY(CallStackEntry cse("SampleColorMap"))
@@ -53,6 +53,6 @@ QRgb SampleColorMap( double value, double minVal, double maxVal )
 
     return qRgba( red, green, blue, alpha );
 }
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 
 } // namespace elem

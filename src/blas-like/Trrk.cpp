@@ -53,7 +53,7 @@ void Trrk
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
 }
 
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
@@ -108,7 +108,7 @@ template void TrrkTT
   float alpha, const Matrix<float>& A, const Matrix<float>& B,
   float beta,        Matrix<float>& C );
 } // namespace internal
-#ifndef DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_COMPLEX
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
@@ -169,8 +169,8 @@ template void TrrkTT
                         const Matrix<Complex<float>>& B,
   Complex<float> beta,        Matrix<Complex<float>>& C );
 } // namespace internal
-#endif // ifndef DISABLE_COMPLEX
-#endif // ifndef DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_FLOAT
 
 template void Trrk
 ( UpperOrLower uplo, 
@@ -226,7 +226,7 @@ template void TrrkTT
   double alpha, const Matrix<double>& A, const Matrix<double>& B,
   double beta,        Matrix<double>& C );
 } // namespace internal
-#ifndef DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_COMPLEX
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
@@ -287,6 +287,6 @@ template void TrrkTT
                          const Matrix<Complex<double>>& B,
   Complex<double> beta,        Matrix<Complex<double>>& C );
 } // namespace internal
-#endif // ifndef DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_COMPLEX
 
 } // namespace elem

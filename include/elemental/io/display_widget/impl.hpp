@@ -10,7 +10,7 @@
 #ifndef ELEM_DISPLAYWIDGET_IMPL_HPP
 #define ELEM_DISPLAYWIDGET_IMPL_HPP
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 
 #include <QFile>
 #include <QPainter>
@@ -188,6 +188,6 @@ DisplayWidget<T>::SavePng( std::string basename ) const
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 
 #endif // ifndef ELEM_DISPLAYWIDGET_IMPL_HPP

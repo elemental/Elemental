@@ -1583,7 +1583,7 @@ AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
     // Pack
     T* buf = Buffer();
     const Int ldim = LDim(); 
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const T* thisCol = &buf[jLoc*ldim];
@@ -1595,7 +1595,7 @@ AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
     mpi::AllReduce( sumBuf, localSize, comm );
 
     // Unpack
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const T* sumCol = &sumBuf[jLoc*localHeight];
@@ -1789,7 +1789,7 @@ AssertConforming2x2
 // Instantiations for {Int,Real,Complex<Real>} for each Real in {float,double}
 // ###########################################################################
 
-#ifndef RELEASE
+#ifndef ELEM_RELEASE
  #define PROTO(T) \
   template class AbstractDistMatrix<T>;\
   template void AssertConforming1x2\
@@ -1803,27 +1803,27 @@ AssertConforming2x2
  #define PROTO(T) template class AbstractDistMatrix<T>
 #endif
  
-#ifndef DISABLE_COMPLEX
- #ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+ #ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(float);
   PROTO(double);
   PROTO(Complex<float>);
   PROTO(Complex<double>);
- #else // ifndef DISABLE_FLOAT
+ #else // ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(double);
   PROTO(Complex<double>);
- #endif // ifndef DISABLE_FLOAT
-#else // ifndef DISABLE_COMPLEX
- #ifndef DISABLE_FLOAT
+ #endif // ifndef ELEM_DISABLE_FLOAT
+#else // ifndef ELEM_DISABLE_COMPLEX
+ #ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(float);
   PROTO(double);
- #else // ifndef DISABLE_FLOAT
+ #else // ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(double);
- #endif // ifndef DISABLE_FLOAT
-#endif // ifndef DISABLE_COMPLEX
+ #endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_COMPLEX
 
 } // namespace elem

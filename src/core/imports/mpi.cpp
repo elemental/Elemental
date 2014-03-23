@@ -42,7 +42,7 @@ void Initialize( int& argc, char**& argv )
 int InitializeThread( int& argc, char**& argv, int required )
 { 
     int provided; 
-#ifdef HAVE_MPI_INIT_THREAD
+#ifdef ELEM_HAVE_MPI_INIT_THREAD
     MPI_Init_thread( &argc, &argv, required, &provided ); 
 #else
     MPI_Init( &argc, &argv );
@@ -71,7 +71,7 @@ bool Finalized()
 int QueryThread()
 {
     int provided;
-#ifdef HAVE_MPI_QUERY_THREAD
+#ifdef ELEM_HAVE_MPI_QUERY_THREAD
     MPI_Query_thread( &provided );
 #else
     provided = 0; // equivalent to MPI_THREAD_SINGLE
@@ -164,7 +164,7 @@ bool Congruent( Comm comm1, Comm comm2 )
 void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ErrorHandlerSet"))
-#ifdef HAVE_MPI_COMM_SET_ERRHANDLER
+#ifdef ELEM_HAVE_MPI_COMM_SET_ERRHANDLER
     SafeMpi( MPI_Comm_set_errhandler( comm.comm, errorHandler ) );
 #else
     SafeMpi( MPI_Errhandler_set( comm.comm, errorHandler ) );
@@ -410,7 +410,7 @@ template int GetCount<int>( Status& status );
 template int GetCount<unsigned>( Status& status );
 template int GetCount<long int>( Status& status );
 template int GetCount<unsigned long>( Status& status );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template int GetCount<long long int>( Status& status );
 template int GetCount<unsigned long long>( Status& status );
 #endif
@@ -432,7 +432,7 @@ template<typename R>
 void TaggedSend( const Complex<R>* buf, int count, int to, int tag, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Send"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Send
       ( const_cast<Complex<R>*>(buf), 2*count, TypeMap<R>(), to, 
@@ -450,7 +450,7 @@ template void TaggedSend( const int* buf, int count, int to, int tag, Comm comm 
 template void TaggedSend( const unsigned* buf, int count, int to, int tag, Comm comm  );
 template void TaggedSend( const long int* buf, int count, int to, int tag, Comm comm );
 template void TaggedSend( const unsigned long* buf, int count, int to, int tag, Comm comm  );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedSend( const long long int* buf, int count, int to, int tag, Comm comm );
 template void TaggedSend( const unsigned long long* buf, int count, int to, int tag, Comm comm  );
 #endif
@@ -468,7 +468,7 @@ template void Send( const int* buf, int count, int to, Comm comm );
 template void Send( const unsigned* buf, int count, int to, Comm comm );
 template void Send( const long int* buf, int count, int to, Comm comm );
 template void Send( const unsigned long* buf, int count, int to, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Send( const long long int* buf, int count, int to, Comm comm );
 template void Send( const unsigned long long* buf, int count, int to, Comm comm );
 #endif
@@ -486,7 +486,7 @@ template void TaggedSend( int b, int to, int tag, Comm comm );
 template void TaggedSend( unsigned b, int to, int tag, Comm comm );
 template void TaggedSend( long int b, int to, int tag, Comm comm );
 template void TaggedSend( unsigned long b, int to, int tag, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedSend( long long int b, int to, int tag, Comm comm );
 template void TaggedSend( unsigned long long b, int to, int tag, Comm comm );
 #endif
@@ -504,7 +504,7 @@ template void Send( int b, int to, Comm comm );
 template void Send( unsigned b, int to, Comm comm );
 template void Send( long int b, int to, Comm comm );
 template void Send( unsigned long b, int to, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Send( long long int b, int to, Comm comm );
 template void Send( unsigned long long b, int to, Comm comm );
 #endif
@@ -530,7 +530,7 @@ void TaggedISend
   Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ISend"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Isend
       ( const_cast<Complex<R>*>(buf), 2*count, TypeMap<R>(), to, tag, comm.comm,
@@ -548,7 +548,7 @@ template void TaggedISend( const int* buf, int count, int to, int tag, Comm comm
 template void TaggedISend( const unsigned* buf, int count, int to, int tag, Comm comm, Request& request );
 template void TaggedISend( const long int* buf, int count, int to, int tag, Comm comm, Request& request );
 template void TaggedISend( const unsigned long* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedISend( const long long int* buf, int count, int to, int tag, Comm comm, Request& request );
 template void TaggedISend( const unsigned long long* buf, int count, int to, int tag, Comm comm, Request& request );
 #endif
@@ -567,7 +567,7 @@ template void ISend( const int* buf, int count, int to, Comm comm, Request& requ
 template void ISend( const unsigned* buf, int count, int to, Comm comm, Request& request );
 template void ISend( const long int* buf, int count, int to, Comm comm, Request& request );
 template void ISend( const unsigned long* buf, int count, int to, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ISend( const long long int* buf, int count, int to, Comm comm, Request& request );
 template void ISend( const unsigned long long* buf, int count, int to, Comm comm, Request& request );
 #endif
@@ -585,7 +585,7 @@ template void TaggedISend( int buf, int to, int tag, Comm comm, Request& request
 template void TaggedISend( unsigned buf, int to, int tag, Comm comm, Request& request );
 template void TaggedISend( long int buf, int to, int tag, Comm comm, Request& request );
 template void TaggedISend( unsigned long buf, int to, int tag, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedISend( long long int buf, int to, int tag, Comm comm, Request& request );
 template void TaggedISend( unsigned long long buf, int to, int tag, Comm comm, Request& request );
 #endif
@@ -603,7 +603,7 @@ template void ISend( int buf, int to, Comm comm, Request& request );
 template void ISend( unsigned buf, int to, Comm comm, Request& request );
 template void ISend( long int buf, int to, Comm comm, Request& request );
 template void ISend( unsigned long buf, int to, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ISend( long long int buf, int to, Comm comm, Request& request );
 template void ISend( unsigned long long buf, int to, Comm comm, Request& request );
 #endif
@@ -629,7 +629,7 @@ void TaggedISSend
   Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ISSend"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Issend
       ( const_cast<Complex<R>*>(buf), 2*count, TypeMap<R>(), to, tag, comm.comm,
@@ -647,7 +647,7 @@ template void TaggedISSend( const int* buf, int count, int to, int tag, Comm com
 template void TaggedISSend( const unsigned* buf, int count, int to, int tag, Comm comm, Request& request );
 template void TaggedISSend( const long int* buf, int count, int to, int tag, Comm comm, Request& request );
 template void TaggedISSend( const unsigned long* buf, int count, int to, int tag, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedISSend( const long long int* buf, int count, int to, int tag, Comm comm, Request& request );
 template void TaggedISSend( const unsigned long long* buf, int count, int to, int tag, Comm comm, Request& request );
 #endif
@@ -665,7 +665,7 @@ template void ISSend( const int* buf, int count, int to, Comm comm, Request& req
 template void ISSend( const unsigned* buf, int count, int to, Comm comm, Request& request );
 template void ISSend( const long int* buf, int count, int to, Comm comm, Request& request );
 template void ISSend( const unsigned long* buf, int count, int to, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ISSend( const long long int* buf, int count, int to, Comm comm, Request& request );
 template void ISSend( const unsigned long long* buf, int count, int to, Comm comm, Request& request );
 #endif
@@ -683,7 +683,7 @@ template void TaggedISSend( int b, int to, int tag, Comm comm, Request& request 
 template void TaggedISSend( unsigned b, int to, int tag, Comm comm, Request& request );
 template void TaggedISSend( long int b, int to, int tag, Comm comm, Request& request );
 template void TaggedISSend( unsigned long b, int to, int tag, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedISSend( long long int b, int to, int tag, Comm comm, Request& request );
 template void TaggedISSend( unsigned long long b, int to, int tag, Comm comm, Request& request );
 #endif
@@ -706,7 +706,7 @@ void TaggedRecv( Complex<R>* buf, int count, int from, int tag, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Recv"))
     Status status;
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Recv( buf, 2*count, TypeMap<R>(), from, tag, comm.comm, &status ) );
 #else
@@ -721,7 +721,7 @@ template void TaggedRecv( int* buf, int count, int from, int tag, Comm comm );
 template void TaggedRecv( unsigned* buf, int count, int from, int tag, Comm comm );
 template void TaggedRecv( long int* buf, int count, int from, int tag, Comm comm );
 template void TaggedRecv( unsigned long* buf, int count, int from, int tag, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedRecv( long long int* buf, int count, int from, int tag, Comm comm );
 template void TaggedRecv( unsigned long long* buf, int count, int from, int tag, Comm comm );
 #endif
@@ -739,7 +739,7 @@ template void Recv( int* buf, int count, int from, Comm comm );
 template void Recv( unsigned* buf, int count, int from, Comm comm );
 template void Recv( long int* buf, int count, int from, Comm comm );
 template void Recv( unsigned long* buf, int count, int from, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Recv( long long int* buf, int count, int from, Comm comm );
 template void Recv( unsigned long long* buf, int count, int from, Comm comm );
 #endif
@@ -757,7 +757,7 @@ template int TaggedRecv( int from, int tag, Comm comm );
 template unsigned TaggedRecv( int from, int tag, Comm comm );
 template long int TaggedRecv( int from, int tag, Comm comm );
 template unsigned long TaggedRecv( int from, int tag, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int TaggedRecv( int from, int tag, Comm comm );
 template unsigned long long TaggedRecv( int from, int tag, Comm comm );
 #endif
@@ -775,7 +775,7 @@ template int Recv( int from, Comm comm );
 template unsigned Recv( int from, Comm comm );
 template long int Recv( int from, Comm comm );
 template unsigned long Recv( int from, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int Recv( int from, Comm comm );
 template unsigned long long Recv( int from, Comm comm );
 #endif
@@ -798,7 +798,7 @@ void TaggedIRecv
 ( Complex<R>* buf, int count, int from, int tag, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IRecv"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Irecv( buf, 2*count, TypeMap<R>(), from, tag, comm.comm, &request ) );
 #else
@@ -813,7 +813,7 @@ template void TaggedIRecv( int* buf, int count, int from, int tag, Comm comm, Re
 template void TaggedIRecv( unsigned* buf, int count, int from, int tag, Comm comm, Request& request );
 template void TaggedIRecv( long int* buf, int count, int from, int tag, Comm comm, Request& request );
 template void TaggedIRecv( unsigned long* buf, int count, int from, int tag, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedIRecv( long long int* buf, int count, int from, int tag, Comm comm, Request& request );
 template void TaggedIRecv( unsigned long long* buf, int count, int from, int tag, Comm comm, Request& request );
 #endif
@@ -831,7 +831,7 @@ template void IRecv( int* buf, int count, int from, Comm comm, Request& request 
 template void IRecv( unsigned* buf, int count, int from, Comm comm, Request& request );
 template void IRecv( long int* buf, int count, int from, Comm comm, Request& request );
 template void IRecv( unsigned long* buf, int count, int from, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void IRecv( long long int* buf, int count, int from, Comm comm, Request& request );
 template void IRecv( unsigned long long* buf, int count, int from, Comm comm, Request& request );
 #endif
@@ -849,7 +849,7 @@ template int TaggedIRecv( int from, int tag, Comm comm, Request& request );
 template unsigned TaggedIRecv( int from, int tag, Comm comm, Request& request );
 template long int TaggedIRecv( int from, int tag, Comm comm, Request& request );
 template unsigned long TaggedIRecv( int from, int tag, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int TaggedIRecv( int from, int tag, Comm comm, Request& request );
 template unsigned long long TaggedIRecv( int from, int tag, Comm comm, Request& request );
 #endif
@@ -867,7 +867,7 @@ template int IRecv( int from, Comm comm, Request& request );
 template unsigned IRecv( int from, Comm comm, Request& request );
 template long int IRecv( int from, Comm comm, Request& request );
 template unsigned long IRecv( int from, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int IRecv( int from, Comm comm, Request& request );
 template unsigned long long IRecv( int from, Comm comm, Request& request );
 #endif
@@ -897,7 +897,7 @@ void TaggedSendRecv
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::SendRecv"))
     Status status;
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Sendrecv
       ( const_cast<Complex<R>*>(sbuf), 2*sc, TypeMap<R>(), to,   stag,
@@ -928,7 +928,7 @@ template void TaggedSendRecv
 template void TaggedSendRecv
 ( const unsigned long* sbuf, int sc, int to, int stag, 
         unsigned long* rbuf, int rc, int from, int rtag, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedSendRecv
 ( const long long int* sbuf, int sc, int to, int stag, 
         long long int* rbuf, int rc, int from, int rtag, Comm comm );
@@ -970,7 +970,7 @@ template void SendRecv
 template void SendRecv
 ( const unsigned long* sbuf, int sc, int to, 
         unsigned long* rbuf, int rc, int from, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void SendRecv
 ( const long long int* sbuf, int sc, int to, 
         long long int* rbuf, int rc, int from, Comm comm );
@@ -1009,7 +1009,7 @@ template long int TaggedSendRecv
 ( long int sb, int to, int stag, int from, int rtag, Comm comm );
 template unsigned long TaggedSendRecv
 ( unsigned long sb, int to, int stag, int from, int rtag, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int TaggedSendRecv
 ( long long int sb, int to, int stag, int from, int rtag, Comm comm );
 template unsigned long long TaggedSendRecv
@@ -1033,7 +1033,7 @@ template int SendRecv( int sb, int to, int from, Comm comm );
 template unsigned SendRecv( unsigned sb, int to, int from, Comm comm );
 template long int SendRecv( long int sb, int to, int from, Comm comm );
 template unsigned long SendRecv( unsigned long sb, int to, int from, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int SendRecv( long long int sb, int to, int from, Comm comm );
 template unsigned long long SendRecv( unsigned long long sb, int to, int from, Comm comm );
 #endif
@@ -1061,7 +1061,7 @@ void TaggedSendRecv
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::SendRecv"))
     Status status;
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Sendrecv_replace
       ( buf, 2*count, TypeMap<R>(), to, stag, from, rtag, comm.comm, 
@@ -1084,7 +1084,7 @@ template void TaggedSendRecv
 ( long int* buf, int count, int to, int stag, int from, int rtag, Comm comm );
 template void TaggedSendRecv
 ( unsigned long* buf, int count, int to, int stag, int from, int rtag, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void TaggedSendRecv
 ( long long int* buf, int count, int to, int stag, int from, int rtag, Comm comm );
 template void TaggedSendRecv
@@ -1115,7 +1115,7 @@ template void SendRecv
 ( long int* buf, int count, int to, int from, Comm comm );
 template void SendRecv
 ( unsigned long* buf, int count, int to, int from, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void SendRecv
 ( long long int* buf, int count, int to, int from, Comm comm );
 template void SendRecv
@@ -1141,7 +1141,7 @@ template<typename R>
 void Broadcast( Complex<R>* buf, int count, int root, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Broadcast"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi( MPI_Bcast( buf, 2*count, TypeMap<R>(), root, comm.comm ) );
 #else
     SafeMpi( MPI_Bcast( buf, count, TypeMap<Complex<R>>(), root, comm.comm ) );
@@ -1153,7 +1153,7 @@ template void Broadcast( int* buf, int count, int root, Comm comm );
 template void Broadcast( unsigned* buf, int count, int root, Comm comm );
 template void Broadcast( long int* buf, int count, int root, Comm comm );
 template void Broadcast( unsigned long* buf, int count, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Broadcast( long long int* buf, int count, int root, Comm comm );
 template void Broadcast( unsigned long long* buf, int count, int root, Comm comm );
 #endif
@@ -1171,7 +1171,7 @@ template void Broadcast( int& b, int root, Comm comm );
 template void Broadcast( unsigned& b, int root, Comm comm );
 template void Broadcast( long int& b, int root, Comm comm );
 template void Broadcast( unsigned long& b, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Broadcast( long long int& b, int root, Comm comm );
 template void Broadcast( unsigned long long& b, int root, Comm comm );
 #endif
@@ -1180,7 +1180,7 @@ template void Broadcast( double& b, int root, Comm comm );
 template void Broadcast( Complex<float>& b, int root, Comm comm );
 template void Broadcast( Complex<double>& b, int root, Comm comm );
 
-#ifdef HAVE_NONBLOCKING_COLLECTIVES
+#ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
 template<typename R>
 void IBroadcast( R* buf, int count, int root, Comm comm, Request& request )
 {
@@ -1194,7 +1194,7 @@ void IBroadcast
 ( Complex<R>* buf, int count, int root, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IBroadcast"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Ibcast( buf, 2*count, TypeMap<R>(), root, comm.comm, &request ) );
 #else
@@ -1209,7 +1209,7 @@ template void IBroadcast( int* buf, int count, int root, Comm comm, Request& req
 template void IBroadcast( unsigned* buf, int count, int root, Comm comm, Request& request );
 template void IBroadcast( long int* buf, int count, int root, Comm comm, Request& request );
 template void IBroadcast( unsigned long* buf, int count, int root, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void IBroadcast( long long int* buf, int count, int root, Comm comm, Request& request );
 template void IBroadcast( unsigned long long* buf, int count, int root, Comm comm, Request& request );
 #endif
@@ -1227,7 +1227,7 @@ template void IBroadcast( int& b, int root, Comm comm, Request& request );
 template void IBroadcast( unsigned& b, int root, Comm comm, Request& request );
 template void IBroadcast( long int& b, int root, Comm comm, Request& request );
 template void IBroadcast( unsigned long& b, int root, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void IBroadcast( long long int& b, int root, Comm comm, Request& request );
 template void IBroadcast( unsigned long long& b, int root, Comm comm, Request& request );
 #endif
@@ -1235,7 +1235,7 @@ template void IBroadcast( float& b, int root, Comm comm, Request& request );
 template void IBroadcast( double& b, int root, Comm comm, Request& request );
 template void IBroadcast( Complex<float>& b, int root, Comm comm, Request& request );
 template void IBroadcast( Complex<double>& b, int root, Comm comm, Request& request );
-#endif // ifdef HAVE_NONBLOCKING_COLLECTIVES
+#endif // ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
 
 template<typename R>
 void Gather
@@ -1255,7 +1255,7 @@ void Gather
         Complex<R>* rbuf, int rc, int root, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Gather"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Gather
       ( const_cast<Complex<R>*>(sbuf), 2*sc, TypeMap<R>(),
@@ -1274,7 +1274,7 @@ template void Gather( const int* sbuf, int sc, int* rbuf, int rc, int root, Comm
 template void Gather( const unsigned* sbuf, int sc, unsigned* rbuf, int rc, int root, Comm comm );
 template void Gather( const long int* sbuf, int sc, long int* rbuf, int rc, int root, Comm comm );
 template void Gather( const unsigned long* sbuf, int sc, unsigned long* rbuf, int rc, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Gather( const long long int* sbuf, int sc, long long int* rbuf, int rc, int root, Comm comm );
 template void Gather( const unsigned long long* sbuf, int sc, unsigned long long* rbuf, int rc, int root, Comm comm );
 #endif
@@ -1283,7 +1283,7 @@ template void Gather( const double* sbuf, int sc, double* rbuf, int rc, int root
 template void Gather( const Complex<float>* sbuf, int sc, Complex<float>* rbuf, int rc, int root, Comm comm );
 template void Gather( const Complex<double>* sbuf, int sc, Complex<double>* rbuf, int rc, int root, Comm comm );
 
-#ifdef HAVE_NONBLOCKING_COLLECTIVES
+#ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
 template<typename R>
 void IGather
 ( const R* sbuf, int sc,
@@ -1302,7 +1302,7 @@ void IGather
         Complex<R>* rbuf, int rc, int root, Comm comm, Request& request )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::IGather"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Igather
       ( const_cast<Complex<R>*>(sbuf), 2*sc, TypeMap<R>(),
@@ -1332,7 +1332,7 @@ template void IGather
 template void IGather
 ( const unsigned long* sbuf, int sc, 
         unsigned long* rbuf, int rc, int root, Comm comm, Request& request );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void IGather
 ( const long long int* sbuf, int sc,
         long long int* rbuf, int rc, int root, Comm comm, Request& request );
@@ -1352,7 +1352,7 @@ template void IGather
 template void IGather
 ( const Complex<double>* sbuf, int sc, 
         Complex<double>* rbuf, int rc, int root, Comm comm, Request& request );
-#endif // ifdef HAVE_NONBLOCKING_COLLECTIVES
+#endif // ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
 
 template<typename R>
 void Gather
@@ -1379,7 +1379,7 @@ void Gather
         Complex<R>* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Gather"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     const int commRank = Rank( comm );
     const int commSize = Size( comm );
     std::vector<int> rcsDouble, rdsDouble;
@@ -1428,7 +1428,7 @@ template void Gather
 template void Gather
 ( const unsigned long* sbuf, int sc, 
         unsigned long* rbuf, const int* rcs, const int* rds, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Gather
 ( const long long int* sbuf, int sc, 
         long long int* rbuf, const int* rcs, const int* rds, int root, Comm comm );
@@ -1457,7 +1457,7 @@ void AllGather
         R* rbuf, int rc, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
-#ifdef USE_BYTE_ALLGATHERS
+#ifdef ELEM_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
       ( (UCP)const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
@@ -1477,14 +1477,14 @@ void AllGather
         Complex<R>* rbuf, int rc, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
-#ifdef USE_BYTE_ALLGATHERS
+#ifdef ELEM_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
       ( (UCP)const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
         (UCP)rbuf,                          2*sizeof(R)*rc, MPI_UNSIGNED_CHAR, 
         comm.comm ) );
 #else
- #ifdef AVOID_COMPLEX_MPI
+ #ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Allgather
       ( const_cast<Complex<R>*>(sbuf), 2*sc, TypeMap<R>(),
@@ -1503,7 +1503,7 @@ template void AllGather( const int* sbuf, int sc, int* rbuf, int rc, Comm comm )
 template void AllGather( const unsigned* sbuf, int sc, unsigned* rbuf, int rc, Comm comm );
 template void AllGather( const long int* sbuf, int sc, long int* rbuf, int rc, Comm comm );
 template void AllGather( const unsigned long* sbuf, int sc, unsigned long* rbuf, int rc, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllGather( const long long int* sbuf, int sc, long long int* rbuf, int rc, Comm comm );
 template void AllGather( const unsigned long long* sbuf, int sc, unsigned long long* rbuf, int rc, Comm comm );
 #endif
@@ -1518,7 +1518,7 @@ void AllGather
         R* rbuf, const int* rcs, const int* rds, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
-#ifdef USE_BYTE_ALLGATHERS
+#ifdef ELEM_USE_BYTE_ALLGATHERS
     const int commSize = Size( comm );
     std::vector<int> byteRcs( commSize ), byteRds( commSize );
     for( int i=0; i<commSize; ++i )
@@ -1551,7 +1551,7 @@ void AllGather
         Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::AllGather"))
-#ifdef USE_BYTE_ALLGATHERS
+#ifdef ELEM_USE_BYTE_ALLGATHERS
     const int commSize = Size( comm );
     std::vector<int> byteRcs( commSize ), byteRds( commSize );
     for( int i=0; i<commSize; ++i )
@@ -1565,7 +1565,7 @@ void AllGather
         (UCP)rbuf, byteRcs.data(), byteRds.data(),          MPI_UNSIGNED_CHAR, 
         comm.comm ) );
 #else
- #ifdef AVOID_COMPLEX_MPI
+ #ifdef ELEM_AVOID_COMPLEX_MPI
     const int commSize = Size( comm );
     std::vector<int> realRcs( commSize ), realRds( commSize );
     for( int i=0; i<commSize; ++i )
@@ -1607,7 +1607,7 @@ template void AllGather
 template void AllGather
 ( const unsigned long* sbuf, int sc, 
         unsigned long* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllGather
 ( const long long int* sbuf, int sc, 
         long long int* rbuf, const int* rcs, const int* rds, Comm comm );
@@ -1646,7 +1646,7 @@ void Scatter
         Complex<R>* rbuf, int rc, int root, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Scatter"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Scatter
       ( const_cast<Complex<R>*>(sbuf), 2*sc, TypeMap<R>(),
@@ -1675,7 +1675,7 @@ template void Scatter
 template void Scatter
 ( const unsigned long* sbuf, int sc, 
         unsigned long* rbuf, int rc, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Scatter
 ( const long long int* sbuf, int sc, 
         long long int* rbuf, int rc, int root, Comm comm );
@@ -1703,7 +1703,7 @@ void Scatter( R* buf, int sc, int rc, int root, Comm comm )
     const int commRank = Rank( comm );
     if( commRank == root )
     {
-#ifdef HAVE_MPI_IN_PLACE
+#ifdef ELEM_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scatter
           ( buf,          sc, TypeMap<R>(), 
@@ -1734,8 +1734,8 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
     const int commRank = Rank( comm );
     if( commRank == root )
     {
-#ifdef AVOID_COMPLEX_MPI
-# ifdef HAVE_MPI_IN_PLACE
+#ifdef ELEM_AVOID_COMPLEX_MPI
+# ifdef ELEM_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scatter
           ( buf,          2*sc, TypeMap<R>(), 
@@ -1750,7 +1750,7 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
             buf,            2*rc, TypeMap<R>(), root, comm.comm ) );
 # endif
 #else
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Scatter
           ( buf,          sc, TypeMap<Complex<R>>(), 
@@ -1768,7 +1768,7 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
     }
     else
     {
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
         SafeMpi
         ( MPI_Scatter
           ( 0,   2*sc, TypeMap<R>(), 
@@ -1787,7 +1787,7 @@ template void Scatter( int* buf, int sc, int rc, int root, Comm comm );
 template void Scatter( unsigned* buf, int sc, int rc, int root, Comm comm );
 template void Scatter( long int* buf, int sc, int rc, int root, Comm comm );
 template void Scatter( unsigned long* buf, int sc, int rc, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Scatter( long long int* buf, int sc, int rc, int root, Comm comm );
 template void Scatter( unsigned long long* buf, int sc, int rc, int root, Comm comm );
 #endif
@@ -1814,7 +1814,7 @@ void AllToAll
         Complex<R>* rbuf, int rc, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::AllToAll"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Alltoall
       ( const_cast<Complex<R>*>(sbuf), 2*sc, TypeMap<R>(),
@@ -1842,7 +1842,7 @@ template void AllToAll
 template void AllToAll
 ( const unsigned long* sbuf, int sc, 
         unsigned long* rbuf, int rc, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllToAll
 ( const long long int* sbuf, int sc, 
         long long int* rbuf, int rc, Comm comm );
@@ -1888,7 +1888,7 @@ void AllToAll
         Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::AllToAll"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     int p;
     MPI_Comm_size( comm.comm, &p );
     std::vector<int> scsDoubled(p);
@@ -1938,7 +1938,7 @@ template void AllToAll
 template void AllToAll
 ( const unsigned long* sbuf, const int* scs, const int* sds,
         unsigned long* rbuf, const int* rcs, const int* rds, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllToAll
 ( const long long int* sbuf, const int* scs, const int* sds,
         long long int* rbuf, const int* rcs, const int* rds, Comm comm );
@@ -1981,7 +1981,7 @@ void Reduce
     DEBUG_ONLY(CallStackEntry cse("mpi::Reduce"))
     if( count != 0 )
     {
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
             SafeMpi
@@ -2010,7 +2010,7 @@ template void Reduce( const int* sbuf, int* rbuf, int count, Op op, int root, Co
 template void Reduce( const unsigned* sbuf, unsigned* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const long int* sbuf, long int* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const unsigned long* sbuf, unsigned long* rbuf, int count, Op op, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Reduce( const long long int* sbuf, long long int* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, Op op, int root, Comm comm );
 #endif
@@ -2034,7 +2034,7 @@ template void Reduce( const int* sbuf, int* rbuf, int count, int root, Comm comm
 template void Reduce( const unsigned* sbuf, unsigned* rbuf, int count, int root, Comm comm );
 template void Reduce( const long int* sbuf, long int* rbuf, int count, int root, Comm comm );
 template void Reduce( const unsigned long* sbuf, unsigned long* rbuf, int count, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Reduce( const long long int* sbuf, long long int* rbuf, int count, int root, Comm comm );
 template void Reduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, int root, Comm comm );
 #endif
@@ -2062,7 +2062,7 @@ template int Reduce( int sb, Op op, int root, Comm comm );
 template unsigned Reduce( unsigned sb, Op op, int root, Comm comm );
 template long int Reduce( long int sb, Op op, int root, Comm comm );
 template unsigned long Reduce( unsigned long sb, Op op, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int Reduce( long long int sb, Op op, int root, Comm comm );
 template unsigned long long Reduce( unsigned long long sb, Op op, int root, Comm comm );
 #endif
@@ -2090,7 +2090,7 @@ template int Reduce( int sb, int root, Comm comm );
 template unsigned Reduce( unsigned sb, int root, Comm comm );
 template long int Reduce( long int sb, int root, Comm comm );
 template unsigned long Reduce( unsigned long sb, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int Reduce( long long int sb, int root, Comm comm );
 template unsigned long long Reduce( unsigned long long sb, int root, Comm comm );
 #endif
@@ -2114,7 +2114,7 @@ void Reduce( T* buf, int count, Op op, int root, Comm comm )
         const int commRank = Rank( comm );
         if( commRank == root )
         {
-#ifdef HAVE_MPI_IN_PLACE
+#ifdef ELEM_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Reduce
               ( MPI_IN_PLACE, buf, count, TypeMap<T>(), op.op, root, 
@@ -2142,12 +2142,12 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
     if( count != 0 )
     {
         const int commRank = Rank( comm );
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
             if( commRank == root )
             {
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
                 SafeMpi
                 ( MPI_Reduce
                   ( MPI_IN_PLACE, buf, 2*count, TypeMap<R>(), op.op, 
@@ -2170,7 +2170,7 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
         {
             if( commRank == root )
             {
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
                 SafeMpi
                 ( MPI_Reduce
                   ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), op.op, 
@@ -2193,7 +2193,7 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
 #else
         if( commRank == root )
         {
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Reduce
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), op.op, 
@@ -2221,7 +2221,7 @@ template void Reduce( int* buf, int count, Op op, int root, Comm comm );
 template void Reduce( unsigned* buf, int count, Op op, int root, Comm comm );
 template void Reduce( long int* buf, int count, Op op, int root, Comm comm );
 template void Reduce( unsigned long* buf, int count, Op op, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Reduce( long long int* buf, int count, Op op, int root, Comm comm );
 template void Reduce( unsigned long long* buf, int count, Op op, int root, Comm comm );
 #endif
@@ -2245,7 +2245,7 @@ template void Reduce( int* buf, int count, int root, Comm comm );
 template void Reduce( unsigned* buf, int count, int root, Comm comm );
 template void Reduce( long int* buf, int count, int root, Comm comm );
 template void Reduce( unsigned long* buf, int count, int root, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void Reduce( long long int* buf, int count, int root, Comm comm );
 template void Reduce( unsigned long long* buf, int count, int root, Comm comm );
 #endif
@@ -2280,7 +2280,7 @@ void AllReduce
     DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
     if( count != 0 )
     {
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
             SafeMpi
@@ -2309,7 +2309,7 @@ template void AllReduce( const int* sbuf, int* rbuf, int count, Op op, Comm comm
 template void AllReduce( const unsigned* sbuf, unsigned* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const long int* sbuf, long int* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const unsigned long* sbuf, unsigned long* rbuf, int count, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllReduce( const long long int* sbuf, long long int* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, Op op, Comm comm );
 #endif
@@ -2333,7 +2333,7 @@ template void AllReduce( const int* sbuf, int* rbuf, int count, Comm comm );
 template void AllReduce( const unsigned* sbuf, unsigned* rbuf, int count, Comm comm );
 template void AllReduce( const long int* sbuf, long int* rbuf, int count, Comm comm );
 template void AllReduce( const unsigned long* sbuf, unsigned long* rbuf, int count, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllReduce( const long long int* sbuf, long long int* rbuf, int count, Comm comm );
 template void AllReduce( const unsigned long long* sbuf, unsigned long long* rbuf, int count, Comm comm );
 #endif
@@ -2357,7 +2357,7 @@ template int AllReduce( int sb, Op op, Comm comm );
 template unsigned AllReduce( unsigned sb, Op op, Comm comm );
 template long int AllReduce( long int sb, Op op, Comm comm );
 template unsigned long AllReduce( unsigned long sb, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int AllReduce( long long int sb, Op op, Comm comm );
 template unsigned long long AllReduce( unsigned long long sb, Op op, Comm comm );
 #endif
@@ -2381,7 +2381,7 @@ template int AllReduce( int sb, Comm comm );
 template unsigned AllReduce( unsigned sb, Comm comm );
 template long int AllReduce( long int sb, Comm comm );
 template unsigned long AllReduce( unsigned long sb, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int AllReduce( long long int sb, Comm comm );
 template unsigned long long AllReduce( unsigned long long sb, Comm comm );
 #endif
@@ -2402,7 +2402,7 @@ void AllReduce( T* buf, int count, Op op, Comm comm )
     DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
     if( count != 0 )
     {
-#ifdef HAVE_MPI_IN_PLACE
+#ifdef ELEM_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, count, TypeMap<T>(), op.op, comm.comm ) );
@@ -2422,10 +2422,10 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
     DEBUG_ONLY(CallStackEntry cse("mpi::AllReduce"))
     if( count != 0 )
     {
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Allreduce
               ( MPI_IN_PLACE, buf, 2*count, TypeMap<R>(), op.op, comm.comm ) );
@@ -2440,7 +2440,7 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
         }
         else
         {
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
             SafeMpi
             ( MPI_Allreduce
               ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), 
@@ -2455,7 +2455,7 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
 # endif
         }
 #else
-# ifdef HAVE_MPI_IN_PLACE
+# ifdef ELEM_HAVE_MPI_IN_PLACE
         SafeMpi
         ( MPI_Allreduce
           ( MPI_IN_PLACE, buf, count, TypeMap<Complex<R>>(), op.op, 
@@ -2477,7 +2477,7 @@ template void AllReduce( int* buf, int count, Op op, Comm comm );
 template void AllReduce( unsigned* buf, int count, Op op, Comm comm );
 template void AllReduce( long int* buf, int count, Op op, Comm comm );
 template void AllReduce( unsigned long* buf, int count, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllReduce( long long int* buf, int count, Op op, Comm comm );
 template void AllReduce( unsigned long long* buf, int count, Op op, Comm comm );
 #endif
@@ -2501,7 +2501,7 @@ template void AllReduce( int* buf, int count, Comm comm );
 template void AllReduce( unsigned* buf, int count, Comm comm );
 template void AllReduce( long int* buf, int count, Comm comm );
 template void AllReduce( unsigned long* buf, int count, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void AllReduce( long long int* buf, int count, Comm comm );
 template void AllReduce( unsigned long long* buf, int count, Comm comm );
 #endif
@@ -2520,12 +2520,12 @@ template<typename R>
 void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
-#ifdef REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#ifdef ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
+#elif defined(ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK)
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, rc, TypeMap<R>(), op.op, comm.comm ) );
@@ -2541,13 +2541,13 @@ void ReduceScatter
 ( Complex<R>* sbuf, Complex<R>* rbuf, int rc, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
-#ifdef REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#ifdef ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
-# ifdef AVOID_COMPLEX_MPI
+#elif defined(ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+# ifdef ELEM_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( sbuf, rbuf, 2*rc, TypeMap<R>(), op.op, comm.comm ) );
@@ -2568,7 +2568,7 @@ template void ReduceScatter( int* sbuf, int* rbuf, int rc, Op op, Comm comm );
 template void ReduceScatter( unsigned* sbuf, unsigned* rbuf, int rc, Op op, Comm comm );
 template void ReduceScatter( long int* sbuf, long int* rbuf, int rc, Op op, Comm comm );
 template void ReduceScatter( unsigned long* sbuf, unsigned long* rbuf, int rc, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ReduceScatter( long long int* sbuf, long long int* rbuf, int rc, Op op, Comm comm );
 template void ReduceScatter( unsigned long long* sbuf, unsigned long long* rbuf, int rc, Op op, Comm comm );
 #endif
@@ -2586,7 +2586,7 @@ template void ReduceScatter( int* sbuf, int* rbuf, int rc, Comm comm );
 template void ReduceScatter( unsigned* sbuf, unsigned* rbuf, int rc, Comm comm );
 template void ReduceScatter( long int* sbuf, long int* rbuf, int rc, Comm comm );
 template void ReduceScatter( unsigned long* sbuf, unsigned long* rbuf, int rc, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ReduceScatter( long long int* sbuf, long long int* rbuf, int rc, Comm comm );
 template void ReduceScatter( unsigned long long* sbuf, unsigned long long* rbuf, int rc, Comm comm );
 #endif
@@ -2604,7 +2604,7 @@ template int ReduceScatter( int sb, Op op, Comm comm );
 template unsigned ReduceScatter( unsigned sb, Op op, Comm comm );
 template long int ReduceScatter( long int sb, Op op, Comm comm );
 template unsigned long ReduceScatter( unsigned long sb, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int ReduceScatter( long long int sb, Op op, Comm comm );
 template unsigned long long ReduceScatter( unsigned long long sb, Op op, Comm comm );
 #endif
@@ -2622,7 +2622,7 @@ template int ReduceScatter( int sb, Comm comm );
 template unsigned ReduceScatter( unsigned sb, Comm comm );
 template long int ReduceScatter( long int sb, Comm comm );
 template unsigned long ReduceScatter( unsigned long sb, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template long long int ReduceScatter( long long int sb, Comm comm );
 template unsigned long long ReduceScatter( unsigned long long sb, Comm comm );
 #endif
@@ -2635,14 +2635,14 @@ template<typename R>
 void ReduceScatter( R* buf, int rc, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
-#ifdef REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#ifdef ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
     AllReduce( buf, rc*commSize, op, comm );
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
-# ifdef HAVE_MPI_IN_PLACE
+#elif defined(ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+# ifdef ELEM_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<R>(), op.op, comm.comm ) );
@@ -2666,15 +2666,15 @@ template<typename R>
 void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
-#ifdef REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#ifdef ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = Size( comm );
     const int commRank = Rank( comm );
     AllReduce( buf, rc*commSize, op, comm );
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
-# ifdef AVOID_COMPLEX_MPI
-#  ifdef HAVE_MPI_IN_PLACE
+#elif defined(ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK)
+# ifdef ELEM_AVOID_COMPLEX_MPI
+#  ifdef ELEM_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, 2*rc, TypeMap<R>(), op.op, comm.comm ) );
@@ -2687,7 +2687,7 @@ void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
       ( sendBuf.data(), buf, 2*rc, TypeMap<R>(), op.op, comm.comm ) );
 #  endif
 # else
-#  ifdef HAVE_MPI_IN_PLACE
+#  ifdef ELEM_HAVE_MPI_IN_PLACE
     SafeMpi
     ( MPI_Reduce_scatter_block
       ( MPI_IN_PLACE, buf, rc, TypeMap<Complex<R>>(), op.op, comm.comm ) );
@@ -2712,7 +2712,7 @@ template void ReduceScatter( int* buf, int rc, Op op, Comm comm );
 template void ReduceScatter( unsigned* buf, int rc, Op op, Comm comm );
 template void ReduceScatter( long int* buf, int rc, Op op, Comm comm );
 template void ReduceScatter( unsigned long* buf, int rc, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ReduceScatter( long long int* buf, int rc, Op op, Comm comm );
 template void ReduceScatter( unsigned long long* buf, int rc, Op op, Comm comm );
 #endif
@@ -2730,7 +2730,7 @@ template void ReduceScatter( int* buf, int rc, Comm comm );
 template void ReduceScatter( unsigned* buf, int rc, Comm comm );
 template void ReduceScatter( long int* buf, int rc, Comm comm );
 template void ReduceScatter( unsigned long* buf, int rc, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ReduceScatter( long long int* buf, int rc, Comm comm );
 template void ReduceScatter( unsigned long long* buf, int rc, Comm comm );
 #endif
@@ -2755,7 +2755,7 @@ void ReduceScatter
 ( const Complex<R>* sbuf, Complex<R>* rbuf, const int* rcs, Op op, Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::ReduceScatter"))
-#ifdef AVOID_COMPLEX_MPI
+#ifdef ELEM_AVOID_COMPLEX_MPI
     if( op == SUM )
     {
         int p;
@@ -2790,7 +2790,7 @@ template void ReduceScatter( const int* sbuf, int* rbuf, const int* rcs, Op op, 
 template void ReduceScatter( const unsigned* sbuf, unsigned* rbuf, const int* rcs, Op op, Comm comm );
 template void ReduceScatter( const long int* sbuf, long int* rbuf, const int* rcs, Op op, Comm comm );
 template void ReduceScatter( const unsigned long* sbuf, unsigned long* rbuf, const int* rcs, Op op, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ReduceScatter( const long long int* sbuf, long long int* rbuf, const int* rcs, Op op, Comm comm );
 template void ReduceScatter( const unsigned long long* sbuf, unsigned long long* rbuf, const int* rcs, Op op, Comm comm );
 #endif
@@ -2808,7 +2808,7 @@ template void ReduceScatter( const int* sbuf, int* rbuf, const int* rcs, Comm co
 template void ReduceScatter( const unsigned* sbuf, unsigned* rbuf, const int* rcs, Comm comm );
 template void ReduceScatter( const long int* sbuf, long int* rbuf, const int* rcs, Comm comm );
 template void ReduceScatter( const unsigned long* sbuf, unsigned long* rbuf, const int* rcs, Comm comm );
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
 template void ReduceScatter( const long long int* sbuf, long long int* rbuf, const int* rcs, Comm comm );
 template void ReduceScatter( const unsigned long long* sbuf, unsigned long long* rbuf, const int* rcs, Comm comm );
 #endif

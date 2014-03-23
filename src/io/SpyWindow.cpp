@@ -9,7 +9,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/io.hpp"
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 
 #include <QBoxLayout>
 
@@ -52,4 +52,4 @@ SpyWindow::Spy( const Matrix<Int>* matrix, QString title )
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5

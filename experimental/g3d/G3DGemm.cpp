@@ -365,15 +365,16 @@ int main( int argc, char* argv[] )
             return 0;
         }
 
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            std::cout 
-                 << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << std::endl;
-        }
-#endif
+        DEBUG_ONLY(
+            if( commRank == 0 )
+            {
+                std::cout 
+                     << "==========================================\n"
+                     << " In debug mode! Performance will be poor! \n"
+                     << "==========================================" 
+                     << std::endl;
+            }
+        )
 
         mpi::Comm depthComm, meshComm;
         InitDepthComms( r*c, depthComm, meshComm );

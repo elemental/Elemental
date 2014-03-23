@@ -27,7 +27,7 @@ set(Elemental_VERSION_MINOR 84-dev)
 # also supported through this option. If the SWIG interface is to be enabled,
 # then Elemental switches to dynamic libraries in order to avoid massive 
 # duplication.
-option(SHARED_LIBRARIES "Switch to shared libraries" OFF)
+option(ELEM_SHARED_LIBRARIES "Switch to shared libraries" OFF)
 
 # Whether or not to build a collection of simple example drivers.
 option(ELEM_EXAMPLES "A collection of simple examples" OFF)
@@ -41,14 +41,14 @@ option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
 option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
 
 # Attempt to use 64-bit integers
-option(USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
+option(ELEM_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
 
 # Whether or not to use Qt5 for visualization if it is found (experimental)
 # NOTE: Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
-option(USE_QT5 "Attempt to use Qt5?" OFF)
+option(ELEM_USE_QT5 "Attempt to use Qt5?" OFF)
 
 # Whether or not to attempt to build a Python interface via SWIG (experimental)
-option(USE_SWIG "Attempt to build Python wrappers?" OFF)
+option(ELEM_USE_SWIG "Attempt to build Python wrappers?" OFF)
 
 ################################################################################
 # Advanced build options                                                       #
@@ -57,31 +57,32 @@ option(USE_SWIG "Attempt to build Python wrappers?" OFF)
 # Since it is surprisingly common for MPI libraries to have bugs in their 
 # support for complex data, the following option forces Elemental to cast 
 # all possible MPI communications in terms of twice as many real units of data.
-option(AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
-mark_as_advanced(AVOID_COMPLEX_MPI)
+option(ELEM_AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
+mark_as_advanced(ELEM_AVOID_COMPLEX_MPI)
 
 # At one point, a bug was found in IBM's C++ compiler for Blue Gene/P, 
 # where OpenMP statements of the form a[i] += alpha b[i], with complex data,
 # would segfault and/or return incorrect results
-option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." OFF)
-mark_as_advanced(AVOID_OMP_FMA)
+option(ELEM_AVOID_OMP_FMA "Avoid a bug in the IBM compilers." OFF)
+mark_as_advanced(ELEM_AVOID_OMP_FMA)
 
 # Due to a subtle flaw in the Blue Gene/P extensions for MPICH2, treating 
 # floating-point data as a collection of byte-sized objects results in a 
 # better algorithm being chosen for MPI_Allgather. This should not effect
 # performance on most machines.
-option(USE_BYTE_ALLGATHERS "Avoid BG/P allgather performance bug." ON)
-mark_as_advanced(USE_BYTE_ALLGATHERS)
+option(ELEM_USE_BYTE_ALLGATHERS "Avoid BG/P allgather performance bug." ON)
+mark_as_advanced(ELEM_USE_BYTE_ALLGATHERS)
 
 # If MPI_Reduce_scatter_block doesn't exist, perform it by composing 
 # MPI_Allreduce and std::memcpy rather than MPI_Reduce and MPI_Scatter
-option(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+option(ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
        "AllReduce based block MPI_Reduce_scatter" OFF)
-mark_as_advanced(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
+mark_as_advanced(ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
 
 # This can easily be performed, but is likely not a good idea
-option(POOL_MEMORY "Make Memory class accumulate memory until destruction" OFF)
-mark_as_advanced(POOL_MEMORY)
+option(ELEM_POOL_MEMORY 
+       "Make Memory class accumulate memory until destruction" OFF)
+mark_as_advanced(ELEM_POOL_MEMORY)
 
 ################################################################################
 # Elemental-development build options                                          #
@@ -89,18 +90,20 @@ mark_as_advanced(POOL_MEMORY)
 
 # Print a warning any time a redistribution is performed which unpacks a 
 # large amount of data with a non-unit stride
-option(CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
-mark_as_advanced(CACHE_WARNINGS)
+option(ELEM_CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
+mark_as_advanced(ELEM_CACHE_WARNINGS)
 
 # Print a warning when an improperly aligned redistribution is performed, 
 # i.e., if an unnecessary permutation communication stage must take place
-option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions" OFF)
-mark_as_advanced(UNALIGNED_WARNINGS)
+option(ELEM_UNALIGNED_WARNINGS 
+       "Warn when performing unaligned redistributions" OFF)
+mark_as_advanced(ELEM_UNALIGNED_WARNINGS)
 
 # Print a warning if an opportunity was missed to implement a redistribution
 # approach specifically for vectors (instead of matrices)
-option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
-mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
+option(ELEM_VECTOR_WARNINGS 
+       "Warn when vector redistribution chances are missed" OFF)
+mark_as_advanced(ELEM_VECTOR_WARNINGS)
 
 ################################################################################
 # Significant command-line variable definitions                                #
@@ -187,10 +190,10 @@ include(ElemOpenMPTests)
 include(ElemQt5Tests)
 include(ElemSWIGTests)
 
-# Set the library type from the 'SHARED_LIBRARIES' option
+# Set the library type from the 'ELEM_SHARED_LIBRARIES' option
 # =======================================================
-if(SHARED_LIBRARIES OR HAVE_SWIG)
-  if(NOT SHARED_LIBRARIES)
+if(ELEM_SHARED_LIBRARIES OR ELEM_HAVE_SWIG)
+  if(NOT ELEM_SHARED_LIBRARIES)
     message(WARNING "Switched to a dynamic build since SWIG is enabled")
   endif()
   set(LIBRARY_TYPE SHARED)
@@ -260,11 +263,11 @@ if(ELEM_EXPERIMENTAL)
   set(ELEM_CPP "${ELEM_CPP};experimental/c/interface.cpp")
   set(ELEM_HEADERS "${ELEM_HEADERS};experimental/c/elemental.h")
 
-  if(HAVE_F90_INTERFACE)
+  if(ELEM_HAVE_F90_INTERFACE)
     if(NOT MPI_Fortran_FOUND)
       message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
     endif()
-    if(NOT HAVE_MPI_COMM_F2C)
+    if(NOT ELEM_HAVE_MPI_COMM_F2C)
       message(FATAL_ERROR
         "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
     endif()
@@ -277,7 +280,7 @@ set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS};${ELEM_MOC_SRC}")
 
 # The main library
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
-if(HAVE_QT5)
+if(ELEM_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
 endif()
 add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
@@ -312,7 +315,7 @@ add_dependencies(elemental prepare_elemental_headers)
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Build the SWIG wrappers if necessary
-if(HAVE_SWIG)
+if(ELEM_HAVE_SWIG)
   include(${SWIG_USE_FILE})
   include_directories(${PYTHON_INCLUDE_PATH})
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -419,7 +422,7 @@ if(ELEM_EXPERIMENTAL)
   endif()
   install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
 
-  if(HAVE_F90_INTERFACE)
+  if(ELEM_HAVE_F90_INTERFACE)
     # Build the F90 drivers
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
     set(DRIVER ${EXPERIMENTAL_DIR}/f90/test.f90)

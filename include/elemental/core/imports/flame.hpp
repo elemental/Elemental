@@ -10,7 +10,7 @@
 #ifndef ELEM_IMPORTS_FLAME_HPP
 #define ELEM_IMPORTS_FLAME_HPP
 
-#ifdef HAVE_FLA_BSVD
+#ifdef ELEM_HAVE_FLA_BSVD
 namespace elem {
 
 void FlaBidiagSVD
@@ -24,6 +24,6 @@ void FlaBidiagSVD
   int numAccum=32, int maxNumIts=30, int bAlg=512 );
 
 } // namespace elem
-#endif // ifdef HAVE_FLA_BSVD
+#endif // ifdef ELEM_HAVE_FLA_BSVD
 
 #endif // ifndef ELEM_IMPORTS_FLAME_HPP

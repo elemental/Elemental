@@ -77,7 +77,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
             // Pack
             const Int AColShift = A.ColShift();
             const T* ABuf = A.LockedBuffer();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<c; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
@@ -111,7 +111,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
             // Unpack
             const Int thisColShift = this->ColShift();
             T* thisBuf = this->Buffer();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<r; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
@@ -161,7 +161,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
             const Int ARowShift = A.RowShift();
             const T* ABuf = A.LockedBuffer();
             const Int ALDim = A.LDim();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<r; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
@@ -196,7 +196,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
             const Int thisRowShift = this->RowShift();
             T* thisBuf = this->Buffer();
             const Int thisLDim = this->LDim();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<c; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
@@ -512,13 +512,13 @@ Int DM::RedundantSize() const { return 1; }
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);

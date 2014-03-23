@@ -1057,27 +1057,27 @@ GeneralBlockDistMatrix<T,U,V>::SetDiagonalHelper
   DISTPROTO(T,VC,  STAR);\
   DISTPROTO(T,VR,  STAR);
 
-#ifndef DISABLE_COMPLEX
- #ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+ #ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(float);
   PROTO(double);
   PROTO(Complex<float>);
   PROTO(Complex<double>);
- #else // ifndef DISABLE_FLOAT
+ #else // ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(double);
   PROTO(Complex<double>);
- #endif // ifndef DISABLE_FLOAT
-#else // ifndef DISABLE_COMPLEX
- #ifndef DISABLE_FLOAT
+ #endif // ifndef ELEM_DISABLE_FLOAT
+#else // ifndef ELEM_DISABLE_COMPLEX
+ #ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(float);
   PROTO(double);
- #else // ifndef DISABLE_FLOAT
+ #else // ifndef ELEM_DISABLE_FLOAT
   PROTO(Int);
   PROTO(double);
- #endif // ifndef DISABLE_FLOAT
-#endif // ifndef DISABLE_COMPLEX
+ #endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_COMPLEX
 
 } // namespace elem

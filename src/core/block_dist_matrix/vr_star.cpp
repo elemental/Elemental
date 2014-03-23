@@ -232,13 +232,13 @@ Int BDM::RedundantSize() const { return 1; }
   OTHER(T,VR,  STAR);
 
 FULL(Int);
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);

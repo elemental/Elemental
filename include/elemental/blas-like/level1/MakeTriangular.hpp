@@ -24,7 +24,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 
     if( uplo == LOWER )
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int j=1; j<width; ++j )
         {
             const Int numZeroRows = Min( j, height );
@@ -33,7 +33,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
     }
     else
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int j=0; j<Min(width,height); ++j )
         {
             const Int firstZeroRow = j+1;
@@ -56,7 +56,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 
     if( uplo == LOWER )
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -71,7 +71,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     }
     else
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);

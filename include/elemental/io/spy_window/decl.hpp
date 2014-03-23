@@ -9,7 +9,7 @@
 #pragma once
 #ifndef ELEM_SPYWINDOW_DECL_HPP
 #define ELEM_SPYWINDOW_DECL_HPP
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 
 #include <QScrollArea>
 #include <QWidget>
@@ -37,5 +37,5 @@ private:
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 #endif // ifndef ELEM_SPYWINDOW_DECL_HPP

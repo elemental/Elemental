@@ -29,7 +29,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( J, "Jacobi matrix for Legendre polynomials" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( J, "Spy plot for Jacobi matrix" );
 #endif
         }

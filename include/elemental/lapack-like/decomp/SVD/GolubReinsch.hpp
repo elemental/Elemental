@@ -99,7 +99,7 @@ GolubReinsch
     s = d_STAR_STAR;
 }
 
-#ifdef HAVE_FLA_BSVD
+#ifdef ELEM_HAVE_FLA_BSVD
 template<typename F>
 inline void
 GolubReinschFlame

@@ -121,7 +121,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
         {
             // Pack
             const T* ABuffer = A.LockedBuffer();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<r; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
@@ -152,7 +152,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
         {
             // Unpack
             T* thisBuffer = this->Buffer();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<c; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
@@ -202,7 +202,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
             // Pack
             const T* ABuffer = A.LockedBuffer();
             const Int ALDim = A.LDim();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<c; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
@@ -234,7 +234,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
             // Unpack
             T* thisBuffer = this->Buffer();
             const Int thisLDim = this->LDim();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int k=0; k<r; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
@@ -586,7 +586,7 @@ void DM::CopyFromDifferentGrid( const DM& A )
                 Int sendWidth = Length(A.LocalWidth(),rowSend,numRowSends);
                 const T* ABuffer = A.LockedBuffer();
                 const Int ALDim = A.LDim();
-                PARALLEL_FOR
+                ELEM_PARALLEL_FOR
                 for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
                 {
                     const Int j = rowSend+jLoc*localRowStrideA;
@@ -646,7 +646,7 @@ void DM::CopyFromDifferentGrid( const DM& A )
                         // Unpack the data
                         T* buffer = this->Buffer();
                         const Int ldim = this->LDim();
-                        PARALLEL_FOR
+                        ELEM_PARALLEL_FOR
                         for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
                         {
                             const Int j = localRowOffset+jLoc*localRowStride;
@@ -710,13 +710,13 @@ void DM::CopyFromDifferentGrid( const DM& A )
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);

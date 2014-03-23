@@ -384,7 +384,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( STrue, "True sparse matrix" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( STrue, "True sparse spy plot" );
 #endif
         }
@@ -418,7 +418,7 @@ main( int argc, char* argv[] )
         {
             Display( L, "Estimated low-rank matrix" );
             Display( S, "Estimated sparse matrix" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( S, "Estimated sparse spy plot" );
 #endif
         }

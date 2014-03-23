@@ -28,53 +28,61 @@
 #include <random>
 #include <vector>
 
-#ifdef RELEASE
+#ifdef ELEM_RELEASE
 # define DEBUG_ONLY(cmd) 
 #else
 # define DEBUG_ONLY(cmd) cmd;
 #endif
 
 // If defined, the _OPENMP macro contains the date of the specification
-#ifdef HAVE_OPENMP
+#ifdef ELEM_HAVE_OPENMP
 # include <omp.h>
-# define PARALLEL_FOR _Pragma("omp parallel for")
-# ifdef HAVE_OMP_COLLAPSE
-#  define PARALLEL_FOR_COLLAPSE2 _Pragma("omp parallel for collapse(2)")
+# define ELEM_PARALLEL_FOR _Pragma("omp parallel for")
+# ifdef ELEM_HAVE_OMP_COLLAPSE
+#  define ELEM_PARALLEL_FOR_COLLAPSE2 _Pragma("omp parallel for collapse(2)")
 # else
-#  define PARALLEL_FOR_COLLAPSE2 PARALLEL_FOR
+#  define ELEM_PARALLEL_FOR_COLLAPSE2 ELEM_PARALLEL_FOR
 # endif
 #else
-# define PARALLEL_FOR 
-# define PARALLEL_FOR_COLLAPSE2
+# define ELEM_PARALLEL_FOR 
+# define ELEM_PARALLEL_FOR_COLLAPSE2
 #endif
 
-#ifdef AVOID_OMP_FMA
-# define FMA_PARALLEL_FOR 
+#ifdef ELEM_AVOID_OMP_FMA
+# define ELEM_FMA_PARALLEL_FOR 
 #else
-# define FMA_PARALLEL_FOR PARALLEL_FOR
+# define ELEM_FMA_PARALLEL_FOR ELEM_PARALLEL_FOR
 #endif
-#ifdef PARALLELIZE_INNER_LOOPS
-# define INNER_PARALLEL_FOR           PARALLEL_FOR
-# define INNER_PARALLEL_FOR_COLLAPSE2 PARALLEL_FOR_COLLAPSE2
-# define OUTER_PARALLEL_FOR 
-# define OUTER_PARALLEL_FOR_COLLAPSE2
+#ifdef ELEM_PARALLELIZE_INNER_LOOPS
+# define ELEM_INNER_PARALLEL_FOR           ELEM_PARALLEL_FOR
+# define ELEM_INNER_PARALLEL_FOR_COLLAPSE2 ELEM_PARALLEL_FOR_COLLAPSE2
+# define ELEM_OUTER_PARALLEL_FOR 
+# define ELEM_OUTER_PARALLEL_FOR_COLLAPSE2
 #else
-# define INNER_PARALLEL_FOR
-# define INNER_PARALLEL_FOR_COLLAPSE2
-# define OUTER_PARALLEL_FOR           PARALLEL_FOR
-# define OUTER_PARALLEL_FOR_COLLAPSE2 PARALLEL_FOR_COLLAPSE2
-#endif
-
-#if defined(BLAS_POST)
-#define BLAS(name) name ## _
-#else
-#define BLAS(name) name
+# define ELEM_INNER_PARALLEL_FOR
+# define ELEM_INNER_PARALLEL_FOR_COLLAPSE2
+# define ELEM_OUTER_PARALLEL_FOR           ELEM_PARALLEL_FOR
+# define ELEM_OUTER_PARALLEL_FOR_COLLAPSE2 ELEM_PARALLEL_FOR_COLLAPSE2
 #endif
 
-#if defined(LAPACK_POST)
-#define LAPACK(name) name ## _
+#if defined(ELEM_BLAS_POST)
+# define ELEM_BLAS(name) name ## _
 #else
-#define LAPACK(name) name
+# define ELEM_BLAS(name) name
+#endif
+
+#if defined(ELEM_LAPACK_POST)
+# define ELEM_LAPACK(name) name ## _
+#else
+# define ELEM_LAPACK(name) name
+#endif
+
+#if defined(ELEM_HAVE_SCALAPACK)
+# if defined(ELEM_LAPACK_POST)
+#  define ELEM_SCALAPACK(name) name ## _
+# else
+#  define ELEM_SCALAPACK(name) name
+# endif
 #endif
 
 // TODO: Think of how to better decouple the following components

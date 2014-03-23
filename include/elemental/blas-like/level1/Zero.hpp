@@ -19,7 +19,7 @@ Zero( Matrix<T>& A )
     DEBUG_ONLY(CallStackEntry cse("Zero"))
     const Int height = A.Height();
     const Int width = A.Width();
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
         MemZero( A.Buffer(0,j), height );
 }

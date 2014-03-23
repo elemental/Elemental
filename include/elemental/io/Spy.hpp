@@ -14,7 +14,7 @@
 #include "./spy_widget/impl.hpp"
 #include "./Display.hpp" // for ProcessEvents
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 # include <QApplication>
 #endif
 
@@ -25,7 +25,7 @@ inline void
 Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
 
@@ -46,7 +46,7 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
     ProcessEvents( 200 );
 #else
     LogicError("Qt5 not available");
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -54,7 +54,7 @@ inline void
 Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
@@ -62,7 +62,7 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
         Spy( A_CIRC_CIRC.Matrix(), title, tol );
 #else
     LogicError("Qt5 not available");
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 }
 
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
@@ -72,14 +72,14 @@ Spy
 ( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
     if( A.Grid().Rank() == 0 )
         Spy( A.LockedMatrix(), title, tol );
 #else
     LogicError("Qt5 not available");
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 }
 template<typename T>
 inline void
@@ -87,14 +87,14 @@ Spy
 ( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
     if( A.Grid().Rank() == A.Root() )
         Spy( A.LockedMatrix(), title, tol );
 #else
     LogicError("Qt5 not available");
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 }
 
 } // namespace elem

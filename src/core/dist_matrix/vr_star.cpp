@@ -158,7 +158,7 @@ DM::operator=( const DistMatrix<T,VC,STAR>& A )
     // Pack
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
     {
         const T* ACol = &ABuf[j*ALDim];
@@ -174,7 +174,7 @@ DM::operator=( const DistMatrix<T,VC,STAR>& A )
     // Unpack
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
     {
         const T* recvBufCol = &recvBuf[j*localHeight];
@@ -364,13 +364,13 @@ Int DM::RedundantSize() const { return 1; }
   OTHER(T,VR,  STAR);
 
 FULL(Int);
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);

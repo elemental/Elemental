@@ -19,7 +19,7 @@ SetDiagonal( Matrix<T>& A, S alpha )
     DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
     const Int height = A.Height();
     const Int width = A.Width();
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int j=0; j<Min(height,width); ++j )
         A.Set(j,j,alpha);
 }

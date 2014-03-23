@@ -118,7 +118,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
 
             const T* ABuf = A.LockedBuffer();
             const Int ALDim = A.LDim();
-            PARALLEL_FOR
+            ELEM_PARALLEL_FOR
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 sendBuf[jLoc] = ABuf[(offset+jLoc*r)*ALDim];
         }
@@ -136,7 +136,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
         // Unpack
         T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int k=0; k<c; ++k )
         {
             const T* data = &sendBuf[k*portionSize];
@@ -333,13 +333,13 @@ Int DM::RedundantSize() const { return this->grid_->MRSize(); }
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);

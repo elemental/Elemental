@@ -8,7 +8,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
  #include <QApplication>
 #endif
 
@@ -51,7 +51,7 @@ GridOrder gridOrder = ROW_MAJOR;
 // Qt5
 ColorMap colorMap=RED_BLACK_GREEN;
 Int numDiscreteColors = 15;
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 bool guiDisabled;
 bool elemInitializedQt = false;
 bool elemOpenedWindow = false;
@@ -68,69 +68,96 @@ namespace elem {
 void PrintVersion( std::ostream& os )
 {
     os << "Elemental version information:\n"
-       << "  Git revision: " << GIT_SHA1 << "\n"
+       << "  Git revision: " << ELEM_GIT_SHA1 << "\n"
        << "  Version:      " << Elemental_VERSION_MAJOR << "."
                              << Elemental_VERSION_MINOR << "\n"
-       << "  Build type:   " << CMAKE_BUILD_TYPE << "\n"
+       << "  Build type:   " << ELEM_CMAKE_BUILD_TYPE << "\n"
        << std::endl;
 }
 
 void PrintConfig( std::ostream& os )
 {
     os << "Elemental configuration:\n"
-       << "  Math libraries: " << MATH_LIBS "\n";
-#ifdef HAVE_FLA_BSVD
-    os << "  HAVE_FLA_BSVD\n";
+       << "  Math libraries:               " << ELEM_MATH_LIBS << "\n"
+       << "  Have FLAME bidiagonal SVD:    " 
+#ifdef ELEM_HAVE_FLA_BSVD
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef HAVE_OPENMP
-    os << "  HAVE_OPENMP\n";
+       << "  Have OpenMP:                  "
+#ifdef ELEM_HAVE_OPENMP
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef HAVE_QT5
-    os << "  HAVE_QT5\n";
+       << "  Have Qt5:                     "
+#ifdef ELEM_HAVE_QT5
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef HAVE_F90_INTERFACE
-    os << "  HAVE_F90_INTERFACE\n";
-#endif 
-#ifdef AVOID_COMPLEX_MPI
-    os << "  AVOID_COMPLEX_MPI\n";
+       << "  Have F90 interface:           "
+#ifdef ELEM_HAVE_F90_INTERFACE
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef HAVE_MPI_REDUCE_SCATTER_BLOCK
-    os << "  HAVE_MPI_REDUCE_SCATTER_BLOCK\n";
+       << "  Avoiding complex MPI:         "
+#ifdef ELEM_AVOID_COMPLEX_MPI
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef HAVE_MPI_IN_PLACE
-    os << "  HAVE_MPI_IN_PLACE\n";
+       << "  Have MPI_Reducescatter_block: "
+#ifdef ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    os << "  REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE\n";
+       << "  Have MPI_IN_PLACE:            "
+#ifdef ELEM_HAVE_MPI_IN_PLACE
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-#ifdef USE_BYTE_ALLGATHERS
-    os << "  USE_BYTE_ALLGATHERS\n";
+       << "  AllReduce ReduceScatterBlock: "
+#ifdef ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+       << "YES\n"
+#else
+       << "NO\n"
 #endif
-    os << std::endl;
+       << "  Use byte Allgathers:          "
+#ifdef ELEM_USE_BYTE_ALLGATHERS
+       << "YES\n"
+#else
+       << "NO\n"
+#endif
+       << std::endl;
 }
 
 void PrintCCompilerInfo( std::ostream& os )
 {
     os << "Elemental's C compiler info:\n"
-       << "  CMAKE_C_COMPILER:    " << CMAKE_C_COMPILER << "\n"
-       << "  MPI_C_COMPILER:      " << MPI_C_COMPILER << "\n"
-       << "  MPI_C_INCLUDE_PATH:  " << MPI_C_INCLUDE_PATH << "\n"
-       << "  MPI_C_COMPILE_FLAGS: " << MPI_C_COMPILE_FLAGS << "\n"
-       << "  MPI_C_LINK_FLAGS:    " << MPI_C_LINK_FLAGS << "\n"
-       << "  MPI_C_LIBRARIES:     " << MPI_C_LIBRARIES << "\n"
+       << "  ELEM_CMAKE_C_COMPILER:    " << ELEM_CMAKE_C_COMPILER << "\n"
+       << "  ELEM_MPI_C_COMPILER:      " << ELEM_MPI_C_COMPILER << "\n"
+       << "  ELEM_MPI_C_INCLUDE_PATH:  " << ELEM_MPI_C_INCLUDE_PATH << "\n"
+       << "  ELEM_MPI_C_COMPILE_FLAGS: " << ELEM_MPI_C_COMPILE_FLAGS << "\n"
+       << "  ELEM_MPI_C_LINK_FLAGS:    " << ELEM_MPI_C_LINK_FLAGS << "\n"
+       << "  ELEM_MPI_C_LIBRARIES:     " << ELEM_MPI_C_LIBRARIES << "\n"
        << std::endl;
 }
 
 void PrintCxxCompilerInfo( std::ostream& os )
 {
     os << "Elemental's C++ compiler info:\n"
-       << "  CMAKE_CXX_COMPILER:    " << CMAKE_CXX_COMPILER << "\n"
-       << "  CXX_FLAGS:             " << CXX_FLAGS << "\n"
-       << "  MPI_CXX_COMPILER:      " << MPI_CXX_COMPILER << "\n"
-       << "  MPI_CXX_INCLUDE_PATH:  " << MPI_CXX_INCLUDE_PATH << "\n"
-       << "  MPI_CXX_COMPILE_FLAGS: " << MPI_CXX_COMPILE_FLAGS << "\n"
-       << "  MPI_CXX_LINK_FLAGS:    " << MPI_CXX_LINK_FLAGS << "\n"
-       << "  MPI_CXX_LIBRARIES:     " << MPI_CXX_LIBRARIES << "\n"
+       << "  ELEM_CMAKE_CXX_COMPILER:    " << ELEM_CMAKE_CXX_COMPILER << "\n"
+       << "  ELEM_CXX_FLAGS:             " << ELEM_CXX_FLAGS << "\n"
+       << "  ELEM_MPI_CXX_COMPILER:      " << ELEM_MPI_CXX_COMPILER << "\n"
+       << "  ELEM_MPI_CXX_INCLUDE_PATH:  " << ELEM_MPI_CXX_INCLUDE_PATH << "\n"
+       << "  ELEM_MPI_CXX_COMPILE_FLAGS: " << ELEM_MPI_CXX_COMPILE_FLAGS << "\n"
+       << "  ELEM_MPI_CXX_LINK_FLAGS:    " << ELEM_MPI_CXX_LINK_FLAGS << "\n"
+       << "  ELEM_MPI_CXX_LIBRARIES:     " << ELEM_MPI_CXX_LIBRARIES << "\n"
        << std::endl;
 }
 
@@ -146,7 +173,7 @@ void SetNumDiscreteColors( Int numChunks )
 Int NumDiscreteColors()
 { return ::numDiscreteColors; }
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 bool GuiDisabled()
 { return ::guiDisabled; }
 
@@ -220,7 +247,7 @@ void UpdateMaxImagWindowVal( double maxVal )
         ::maxImagWindowVal = maxVal;
     ::haveMaxImagWindowVal = true;
 }
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 
 bool Initialized()
 { return ::numElemInits > 0; }
@@ -243,7 +270,7 @@ void Initialize( int& argc, char**& argv )
             LogicError
             ("Cannot initialize elemental after finalizing MPI");
         }
-#ifdef HAVE_OPENMP
+#ifdef ELEM_HAVE_OPENMP
         const Int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
@@ -260,7 +287,7 @@ void Initialize( int& argc, char**& argv )
     }
     else
     {
-#ifdef HAVE_OPENMP
+#ifdef ELEM_HAVE_OPENMP
         const Int provided = mpi::QueryThread();
         if( provided != mpi::THREAD_MULTIPLE )
         {
@@ -270,7 +297,7 @@ void Initialize( int& argc, char**& argv )
 #endif
     }
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     ::coreApp = QCoreApplication::instance();
     if( ::coreApp == 0 )
     {
@@ -362,7 +389,7 @@ void Finalize()
             mpi::Finalize();
         }
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
         if( ::elemInitializedQt )
         {
             if( ::elemOpenedWindow )
@@ -419,19 +446,19 @@ DEBUG_ONLY(
 
     void PushCallStack( std::string s )
     { 
-#ifdef HAVE_OPENMP
+#ifdef ELEM_HAVE_OPENMP
         if( omp_get_thread_num() != 0 )
             return;
-#endif // HAVE_OPENMP
+#endif // ELEM_HAVE_OPENMP
         ::callStack.push(s); 
     }
 
     void PopCallStack()
     { 
-#ifdef HAVE_OPENMP
+#ifdef ELEM_HAVE_OPENMP
         if( omp_get_thread_num() != 0 )
             return;
-#endif // HAVE_OPENMP
+#endif // ELEM_HAVE_OPENMP
         ::callStack.pop(); 
     }
 

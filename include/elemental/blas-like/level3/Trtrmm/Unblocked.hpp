@@ -28,14 +28,14 @@ TrtrmmLUnblocked( Matrix<T>& L, bool conjugate=false )
     const Int ldim = L.LDim();
     for( Int j=0; j<n; ++j )
     {
-        T* RESTRICT l10 = &LBuffer[j];
+        T* ELEM_RESTRICT l10 = &LBuffer[j];
         if( conjugate )
         {
             // L00 := L00 + l10^H l10
             for( Int k=0; k<j; ++k )
             {
                 const T gamma = l10[k*ldim];
-                T* RESTRICT L00Col = &LBuffer[k*ldim];
+                T* ELEM_RESTRICT L00Col = &LBuffer[k*ldim];
                 for( Int i=k; i<j; ++i )
                     L00Col[i] += Conj(l10[i*ldim])*gamma;
             }
@@ -46,7 +46,7 @@ TrtrmmLUnblocked( Matrix<T>& L, bool conjugate=false )
             for( Int k=0; k<j; ++k )
             {
                 const T gamma = l10[k*ldim];
-                T* RESTRICT L00Col = &LBuffer[k*ldim];
+                T* ELEM_RESTRICT L00Col = &LBuffer[k*ldim];
                 for( Int i=k; i<j; ++i )
                     L00Col[i] += l10[i*ldim]*gamma;
             }
@@ -80,14 +80,14 @@ TrtrmmUUnblocked( Matrix<T>& U, bool conjugate=false )
     const Int ldim = U.LDim();
     for( Int j=0; j<n; ++j )
     {
-        T* RESTRICT u01 = &UBuffer[j*ldim];
+        T* ELEM_RESTRICT u01 = &UBuffer[j*ldim];
         if( conjugate )
         {
             // U00 := U00 + u01 u01^H
             for( Int k=0; k<j; ++k )
             {
                 const T gamma = Conj(u01[k]);
-                T* RESTRICT U00Col = &UBuffer[k*ldim];
+                T* ELEM_RESTRICT U00Col = &UBuffer[k*ldim];
                 for( Int i=0; i<=k; ++i )
                     U00Col[i] += u01[i]*gamma;
             }
@@ -98,7 +98,7 @@ TrtrmmUUnblocked( Matrix<T>& U, bool conjugate=false )
             for( Int k=0; k<j; ++k )
             {
                 const T gamma = u01[k];
-                T* RESTRICT U00Col = &UBuffer[k*ldim];
+                T* ELEM_RESTRICT U00Col = &UBuffer[k*ldim];
                 for( Int i=0; i<=k; ++i )
                     U00Col[i] += u01[i]*gamma;
             }

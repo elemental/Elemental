@@ -35,7 +35,7 @@ inline T SampleUniform( T a, T b )
     typedef BASE(T) Real;
     T sample;
 
-#ifdef HAVE_UNIFORM_REAL_DIST
+#ifdef ELEM_HAVE_UNIFORM_REAL_DIST
     std::mt19937& gen = Generator();
     std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
     SetRealPart( sample, realUni(gen) ); 
@@ -64,7 +64,7 @@ inline T SampleUniform( T a, T b )
 template<>
 inline Int SampleUniform<Int>( Int a, Int b )
 {
-#ifdef HAVE_UNIFORM_INT_DIST
+#ifdef ELEM_HAVE_UNIFORM_INT_DIST
     std::mt19937& gen = Generator();
     std::uniform_int_distribution<Int> intDist(a,b-1); 
     return intDist(gen);

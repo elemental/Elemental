@@ -13,7 +13,7 @@
 #include "elemental/include-paths.hpp"
 
 #include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
+#ifdef ELEM_HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"
 #endif
 

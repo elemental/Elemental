@@ -52,7 +52,7 @@ enum ColorMap
 }
 using namespace color_map_wrapper;
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 // Return true if Qt5 was detected, but no GUI is allowed.
 // This is useful if images are to be written to file using Qt5's wrappers.
 bool GuiDisabled();
@@ -74,11 +74,11 @@ void UpdateMaxImagWindowVal( double maxVal );
 
 } // namespace elem
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 # include "./display_widget/decl.hpp"
 # include "./display_window-premoc.hpp"
 # include "./complex_display_window-premoc.hpp"
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 
 namespace elem {
 
@@ -86,7 +86,7 @@ void SetColorMap( ColorMap colorMap );
 ColorMap GetColorMap();
 void SetNumDiscreteColors( Int numChunks );
 Int NumDiscreteColors();
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 QRgb SampleColorMap( double value, double minVal, double maxVal );
 #endif 
 

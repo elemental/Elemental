@@ -123,7 +123,7 @@ Matrix<T>::operator=( const Matrix<T>& A )
     const Int ldimOfA = A.LDim();
     const T* src = A.LockedBuffer();
     T* dst = Buffer();
-    PARALLEL_FOR
+    ELEM_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
         MemCopy( &dst[j*ldim], &src[j*ldimOfA], height );
     return *this;
@@ -1101,15 +1101,15 @@ Matrix<T>::Resize_( Int height, Int width, Int ldim )
 // Instantiate for {Int,Real,Complex<Real>} for each Real in {float,double}
 // ########################################################################
 template class Matrix<Int>;
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 template class Matrix<float>;
-#endif // ifndef DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_FLOAT
 template class Matrix<double>;
-#ifndef DISABLE_COMPLEX
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_FLOAT
 template class Matrix<Complex<float>>;
-#endif // ifndef DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_FLOAT
 template class Matrix<Complex<double>>;
-#endif // ifndef DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_COMPLEX
 
 } // namespace elem

@@ -14,18 +14,18 @@
 namespace elem {
 namespace mpi {
 
-#if defined(HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \
-    defined(HAVE_MPIX_NONBLOCKING_COLLECTIVES)
-#define HAVE_NONBLOCKING 1
+#if defined(ELEM_HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \
+    defined(ELEM_HAVE_MPIX_NONBLOCKING_COLLECTIVES)
+#define ELEM_HAVE_NONBLOCKING 1
 #else
-#define HAVE_NONBLOCKING 0
+#define ELEM_HAVE_NONBLOCKING 0
 #endif
 
-#ifdef HAVE_NONBLOCKING_COLLECTIVES
-#ifdef HAVE_MPI3_NONBLOCKING_COLLECTIVES
-#define NONBLOCKING_COLL(name) MPI_ ## name
+#ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
+#ifdef ELEM_HAVE_MPI3_NONBLOCKING_COLLECTIVES
+#define ELEM_NONBLOCKING_COLL(name) MPI_ ## name
 #else
-#define NONBLOCKING_COLL(name) MPIX_ ## name
+#define ELEM_NONBLOCKING_COLL(name) MPIX_ ## name
 #endif
 #endif
 
@@ -71,7 +71,7 @@ typedef MPI_User_function UserFunction;
 // Standard constants
 const int ANY_SOURCE = MPI_ANY_SOURCE;
 const int ANY_TAG = MPI_ANY_TAG;
-#ifdef HAVE_MPI_QUERY_THREAD
+#ifdef ELEM_HAVE_MPI_QUERY_THREAD
 const int THREAD_SINGLE = MPI_THREAD_SINGLE;
 const int THREAD_FUNNELED = MPI_THREAD_FUNNELED;
 const int THREAD_SERIALIZED = MPI_THREAD_SERIALIZED;
@@ -313,7 +313,7 @@ void Broadcast( Complex<R>* buf, int count, int root, Comm comm );
 template<typename T>
 void Broadcast( T& b, int root, Comm comm );
 
-#ifdef HAVE_NONBLOCKING_COLLECTIVES
+#ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
 // Non-blocking broadcast
 // ----------------------
 template<typename R>
@@ -338,7 +338,7 @@ void  Gather
 ( const Complex<R>* sbuf, int sc,
         Complex<R>* rbuf, int rc, int root, Comm comm );
 
-#ifdef HAVE_NONBLOCKING_COLLECTIVES
+#ifdef ELEM_HAVE_NONBLOCKING_COLLECTIVES
 // Non-blocking gather
 // -------------------
 template<typename R>
@@ -574,20 +574,20 @@ template<> inline Datatype TypeMap<long unsigned>()
 { return MPI_UNSIGNED_LONG; }
 template<> inline Datatype TypeMap<long long int>()
 {
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
     return MPI_LONG_LONG_INT;
 #else
-    RuntimeError("MPI_LONG_LONG_INT does not exist");
+    throw std::runtime_error("MPI_LONG_LONG_INT does not exist");
     return 0;
 #endif
 }
 template<>
 inline Datatype TypeMap<unsigned long long>()
 {
-#ifdef HAVE_MPI_LONG_LONG
+#ifdef ELEM_HAVE_MPI_LONG_LONG
     return MPI_UNSIGNED_LONG_LONG;
 #else
-    RuntimeError("MPI_UNSIGNED_LONG_LONG does not exist");
+    throw std::runtime_error("MPI_UNSIGNED_LONG_LONG does not exist");
     return 0;
 #endif
 }

@@ -17,7 +17,8 @@ namespace elem {
 
 namespace trr2k {
 
-#ifndef RELEASE
+#ifndef ELEM_RELEASE
+
 void EnsureSame
 ( const Grid& gA, const Grid& gB, const Grid& gC, 
   const Grid& gD, const Grid& gE )
@@ -73,7 +74,8 @@ void CheckInput
     EnsureConformal( C, E, "C" );
     EnsureConformal( D, E, "D" );
 }
-#endif // ifndef RELEASE
+
+#endif // ifndef ELEM_RELEASE
 
 // E := alpha (A B + C D) + beta E
 template<typename T>

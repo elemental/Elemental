@@ -65,11 +65,11 @@ Memory<G>::Require( std::size_t size )
     if( size > size_ )
     {
         delete[] buffer_;
-#ifndef RELEASE
+#ifndef ELEM_RELEASE
         try {
 #endif
         buffer_ = new G[size];
-#ifndef RELEASE
+#ifndef ELEM_RELEASE
         } 
         catch( std::bad_alloc& e )
         {
@@ -89,7 +89,7 @@ template<typename G>
 inline void 
 Memory<G>::Release()
 {
-#ifndef POOL_MEMORY
+#ifndef ELEM_POOL_MEMORY
     this->Empty();
 #endif
 }

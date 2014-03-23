@@ -12,7 +12,7 @@
 
 #include "./Print.hpp"
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 # include <QFile>
 # include <QImage>
 # include <QPainter>
@@ -95,7 +95,7 @@ Binary( const Matrix<T>& A, std::string basename="matrix" )
             file.write( (char*)A.LockedBuffer(0,j), A.Height()*sizeof(T) );
 }
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 inline void
 SaveQImage
 ( const QImage& image, std::string basename="matrix", 
@@ -107,7 +107,7 @@ SaveQImage
     file.open( QIODevice::WriteOnly );
     image.save( &file, QtImageFormat(format) );
 }
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 
 template<typename T>
 inline void
@@ -115,7 +115,7 @@ RealPartImage
 ( const Matrix<T>& A, std::string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::RealPartImage"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -155,7 +155,7 @@ RealPartImage
     SaveQImage( image, basename, format );
 #else
     LogicError("Qt5 not available");
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 }
 
 template<typename T>
@@ -164,7 +164,7 @@ ImagPartImage
 ( const Matrix<T>& A, std::string basename="matrix", FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::ImagPartImage"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     typedef Base<T> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -204,7 +204,7 @@ ImagPartImage
     SaveQImage( image, basename, format );
 #else
     LogicError("Qt5 not available");
-#endif // ifdef HAVE_QT5
+#endif // ifdef ELEM_HAVE_QT5
 }
 
 template<typename Real>

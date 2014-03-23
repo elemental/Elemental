@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( A, "1-2-1 matrix" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( A, "1-2-1 spy plot" );
 #endif
         }

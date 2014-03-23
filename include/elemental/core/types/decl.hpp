@@ -16,7 +16,7 @@ typedef unsigned char byte;
 
 // If these are changes, you must make sure that they have 
 // existing MPI datatypes. This is only sometimes true for 'long long'
-#ifdef USE_64BIT_INTS
+#ifdef ELEM_USE_64BIT_INTS
 typedef long long int Int;
 typedef long long unsigned Unsigned;
 #else

@@ -10,7 +10,7 @@
 #ifndef ELEM_DISPLAY_HPP
 #define ELEM_DISPLAY_HPP
 
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
 # include "./display_window-premoc.hpp"
 # include "./complex_display_window-premoc.hpp"
 # include "./display_widget/impl.hpp"
@@ -22,7 +22,7 @@ namespace elem {
 inline void
 ProcessEvents( int numMsecs )
 {
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     QCoreApplication::instance()->processEvents
     ( QEventLoop::AllEvents, numMsecs );
 #endif
@@ -33,7 +33,7 @@ inline void
 Display( const Matrix<T>& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
     {
         Print( A, title );
@@ -65,7 +65,7 @@ inline void
 Display( const Matrix<Complex<T> >& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
     {
         Print( A, title );
@@ -104,7 +104,7 @@ inline void
 Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
     {
         Print( A, title );
@@ -126,7 +126,7 @@ inline void
 Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
     {
         Print( A, title );
@@ -144,7 +144,7 @@ inline void
 Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
     {
         Print( A, title );

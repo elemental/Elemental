@@ -11,7 +11,7 @@
 #define ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP
 
 // Not currently guarded due to CMake MOC handling requiring extra flags
-//#ifdef HAVE_QT5
+//#ifdef ELEM_HAVE_QT5
 
 #include <QPushButton>
 #include <QScrollArea>
@@ -19,7 +19,7 @@
 
 #include "elemental/include-paths.hpp"
 #include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
+#ifdef ELEM_HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"
 #endif
 #include "elemental/core.hpp"
@@ -61,6 +61,6 @@ public slots:
 
 } // namespace elem
 
-//#endif // ifdef HAVE_QT5
+//#endif // ifdef ELEM_HAVE_QT5
 
 #endif // ifndef ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP

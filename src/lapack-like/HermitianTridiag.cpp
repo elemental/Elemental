@@ -146,16 +146,16 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
   template void HermitianTridiag<T>\
   ( UpperOrLower uplo, DistMatrix<T>& A, DistMatrix<T,STAR,STAR>& t );
 
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 PROTO(float);
-#ifndef DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_COMPLEX
 PROTO(Complex<float>);
-#endif // ifndef DISABLE_COMPLEX
-#endif // ifndef DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_FLOAT
 
 PROTO(double);
-#ifndef DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_COMPLEX
 PROTO(Complex<double>);
-#endif // ifndef DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_COMPLEX
 
 } // namespace elem

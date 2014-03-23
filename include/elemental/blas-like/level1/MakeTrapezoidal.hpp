@@ -24,7 +24,7 @@ MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
 
     if( uplo == LOWER )
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int j=Max(0,offset+1); j<width; ++j )
         {
             const Int lastZeroRow = j-offset-1;
@@ -34,7 +34,7 @@ MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
     }
     else
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int j=0; j<width; ++j )
         {
             const Int firstZeroRow = Max(j-offset+1,0);
@@ -58,7 +58,7 @@ MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
 
     if( uplo == LOWER )
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -73,7 +73,7 @@ MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
     }
     else
     {
-        PARALLEL_FOR
+        ELEM_PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);

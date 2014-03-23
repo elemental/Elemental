@@ -47,12 +47,12 @@ set(ALIAS_CODE
      {
          Complex<double> a;
      }")
-check_cxx_source_compiles("${NORMAL_CODE}" HAVE_NORMAL_DIST)
-check_cxx_source_compiles("${UNIFORM_INT_CODE}" HAVE_UNIFORM_INT_DIST)
-check_cxx_source_compiles("${UNIFORM_REAL_CODE}" HAVE_UNIFORM_REAL_DIST)
-check_cxx_source_compiles("${STEADYCLOCK_CODE}" HAVE_STEADYCLOCK)
-check_cxx_source_compiles("${ALIAS_CODE}" HAVE_TEMPLATE_ALIAS)
-if(NOT HAVE_NORMAL_DIST OR NOT HAVE_TEMPLATE_ALIAS)
+check_cxx_source_compiles("${NORMAL_CODE}" ELEM_HAVE_NORMAL_DIST)
+check_cxx_source_compiles("${UNIFORM_INT_CODE}" ELEM_HAVE_UNIFORM_INT_DIST)
+check_cxx_source_compiles("${UNIFORM_REAL_CODE}" ELEM_HAVE_UNIFORM_REAL_DIST)
+check_cxx_source_compiles("${STEADYCLOCK_CODE}" ELEM_HAVE_STEADYCLOCK)
+check_cxx_source_compiles("${ALIAS_CODE}" ELEM_HAVE_TEMPLATE_ALIAS)
+if(NOT ELEM_HAVE_NORMAL_DIST OR NOT ELEM_HAVE_TEMPLATE_ALIAS)
   message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7)")
 endif()
 # Check for restrict

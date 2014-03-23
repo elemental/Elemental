@@ -16,7 +16,7 @@ namespace elem {
 
 using std::chrono::duration;
 using std::chrono::duration_cast;
-#ifdef HAVE_STEADYCLOCK
+#ifdef ELEM_HAVE_STEADYCLOCK
 using std::chrono::steady_clock;
 #else
 using std::chrono::high_resolution_clock;
@@ -39,7 +39,7 @@ private:
     bool running_ = false;
     std::string name_ = "[blank]";
     double totalTime_=0, lastPartialTime_=0;
-#ifdef HAVE_STEADYCLOCK
+#ifdef ELEM_HAVE_STEADYCLOCK
     steady_clock::time_point lastTime_;
 #else
     high_resolution_clock::time_point lastTime_;

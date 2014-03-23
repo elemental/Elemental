@@ -38,14 +38,14 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
         if( alpha11 == F(0) )
             throw ZeroPivotException();
 
-        F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
+        F* ELEM_RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
         if( conjugate )
         {
             // A22 := A22 - a21 (a21 / alpha11)^H
             for( Int k=0; k<a21Height; ++k )
             {
                 const F beta = Conj(a21[k]/alpha11);
-                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
+                F* ELEM_RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
                 for( Int i=k; i<a21Height; ++i )
                     A22Col[i] -= a21[i]*beta;
             }
@@ -56,7 +56,7 @@ Var3Unb( Matrix<F>& A, bool conjugate=false )
             for( Int k=0; k<a21Height; ++k )
             {
                 const F beta = a21[k]/alpha11;
-                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
+                F* ELEM_RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
                 for( Int i=k; i<a21Height; ++i )
                     A22Col[i] -= a21[i]*beta;
             }

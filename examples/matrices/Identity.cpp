@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( I, "Identity matrix" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( I, "Identity spy plot" );
 #endif
         }

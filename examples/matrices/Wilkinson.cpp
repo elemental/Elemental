@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( W, "Wilkinson matrix" );
-#ifdef HAVE_QT5
+#ifdef ELEM_HAVE_QT5
             Spy( W, "Wilkinson spy plot" );
 #endif
         }

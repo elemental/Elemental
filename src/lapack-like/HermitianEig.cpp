@@ -55,7 +55,7 @@ void InPlaceRedist
     Real* recvBuffer = &buffer[r*portionSize];
 
     // Pack
-    OUTER_PARALLEL_FOR
+    ELEM_OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         Real* data = &sendBuffer[k*portionSize];
@@ -63,7 +63,7 @@ void InPlaceRedist
         const Int thisColShift = Shift(k,colAlign,r);
         const Int thisLocalHeight = Length(height,thisColShift,r);
 
-        INNER_PARALLEL_FOR_COLLAPSE2
+        ELEM_INNER_PARALLEL_FOR_COLLAPSE2
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
@@ -77,7 +77,7 @@ void InPlaceRedist
 
     // Unpack
     const Int localHeight = Length(height,row,colAlign,r);
-    OUTER_PARALLEL_FOR
+    ELEM_OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         const Real* data = &recvBuffer[k*portionSize];
@@ -87,7 +87,7 @@ void InPlaceRedist
         const Int thisRowOffset = (thisRowShift-rowShift) / c;
         const Int thisLocalWidth = Length(width,thisRowShift,p);
 
-        INNER_PARALLEL_FOR
+        ELEM_INNER_PARALLEL_FOR
         for( Int j=0; j<thisLocalWidth; ++j )
         {
             const Real* dataCol = &(data[j*localHeight]);
@@ -934,15 +934,15 @@ void HermitianEig<Complex<float>>
   FLOAT_EIGVAL(F);\
   FLOAT_EIGPAIR(F);
 
-#ifndef DISABLE_FLOAT
+#ifndef ELEM_DISABLE_FLOAT
 ALL_OPTS(float);
-#ifndef DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_COMPLEX
 ALL_OPTS(Complex<float>);
-#endif // ifndef DISABLE_COMPLEX
-#endif // ifndef DISABLE_FLOAT
+#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_FLOAT
 ALL_OPTS(double);
-#ifndef DISABLE_COMPLEX
+#ifndef ELEM_DISABLE_COMPLEX
 ALL_OPTS(Complex<double>);
-#endif // ifndef DISABLE_COMPLEX
+#endif // ifndef ELEM_DISABLE_COMPLEX
 
 } // namespace elem
