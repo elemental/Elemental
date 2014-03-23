@@ -116,9 +116,6 @@ public:
     Int DistRank() const;
     Int CrossRank() const;
     Int RedundantRank() const;
-    Int DistSize() const;
-    Int CrossSize() const;
-    Int RedundantSize() const;
     Int Root() const;
     bool Participating() const;
     Int RowOwner( Int i ) const;     // rank in ColComm
@@ -151,6 +148,9 @@ public:
     virtual Int PartialRowStride() const;
     virtual Int PartialUnionColStride() const;
     virtual Int PartialUnionRowStride() const;
+    virtual Int DistSize() const = 0;
+    virtual Int CrossSize() const = 0;
+    virtual Int RedundantSize() const = 0;
 
     // Single-entry manipulation
     // =========================

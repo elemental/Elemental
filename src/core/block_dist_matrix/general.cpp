@@ -20,6 +20,12 @@ namespace elem {
 
 template<typename T,Dist U,Dist V>
 GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
+( const elem::Grid& g, Int root )
+: AbstractBlockDistMatrix<T>(g,root)
+{ }
+
+template<typename T,Dist U,Dist V>
+GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
 ( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
 : AbstractBlockDistMatrix<T>(g,blockHeight,blockWidth,root)
 { }
@@ -119,7 +125,87 @@ GeneralBlockDistMatrix<T,U,V>::Translate( BlockDistMatrix<T,U,V>& A ) const
     }
     else
     {
-        LogicError("Not yet written");
+        // TODO: Implement this in a more efficient manner, perhaps through
+        //       many rounds of point-to-point communication
+        // TODO: Turn this into a general routine for redistributing
+        //       between any matrix distributions supported by Elemental.
+        //       The key addition is mpi::Translate.
+        const Int distSize = A.DistSize();
+        const Int mLocal = this->LocalHeight();
+        const Int nLocal = this->LocalWidth();
+        const Int mLocalA = A.LocalHeight();
+        const Int nLocalA = A.LocalWidth();
+
+        // Determine how much data our process sends and recvs from every 
+        // other process
+        std::vector<int> sendCounts(distSize,0),
+                         recvCounts(distSize,0);
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        {
+            const Int j = this->GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            {
+                const Int i = this->GlobalRow(iLoc);
+                const Int owner = A.Owner(i,j);
+                ++sendCounts[owner];
+            }
+        }
+        for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+        {
+            const Int j = A.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
+            {
+                const Int i = A.GlobalRow(iLoc);
+                const Int owner = this->Owner(i,j);
+                ++recvCounts[owner];
+            }
+        }
+
+        // Translate the send/recv counts into displacements and allocate
+        // the send and recv buffers
+        std::vector<int> sendDispls(distSize), recvDispls(distSize);
+        int totalSend=0, totalRecv=0; 
+        for( int q=0; q<distSize; ++q )
+        {
+            sendDispls[q] = totalSend;
+            recvDispls[q] = totalRecv;
+            totalSend += sendCounts[q];
+            totalRecv += recvCounts[q];
+        }
+        std::vector<T> sendBuf(totalSend), recvBuf(totalRecv);
+
+        // Pack the send data
+        std::vector<int> offsets = sendDispls;
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+        {
+            const Int j = this->GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            {
+                const Int i = this->GlobalRow(iLoc);
+                const Int owner = A.Owner(i,j);
+                sendBuf[offsets[owner]++] = this->GetLocal(iLoc,jLoc);
+            }
+        }
+
+        // Perform the all-to-all communication
+        mpi::AllToAll
+        ( sendBuf.data(), sendCounts.data(), sendDispls.data(),
+          recvBuf.data(), recvCounts.data(), recvDispls.data(), 
+          this->DistComm() );
+        SwapClear( sendBuf );
+
+        // Unpack the received data
+        offsets = recvDispls;
+        for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+        {
+            const Int j = A.GlobalCol(jLoc);
+            for( Int iLoc=0; iLoc<mLocalA; ++iLoc )
+            {
+                const Int i = A.GlobalRow(iLoc);
+                const Int owner = this->Owner(i,j);
+                A.SetLocal( iLoc, jLoc, recvBuf[offsets[owner]++] );
+            }
+        }
     }
 }
 

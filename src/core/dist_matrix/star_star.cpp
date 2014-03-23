@@ -23,6 +23,78 @@ namespace elem {
 
 template<typename T>
 DM&
+DM::operator=( const DM& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,STAR]"))
+    this->Resize( A.Height(), A.Width() );
+    if( this->Grid() == A.Grid() )
+    {
+        this->matrix_ = A.LockedMatrix();
+    }
+    else
+    {
+        // TODO: Remember why I wrote this...
+        if( !mpi::Congruent
+             ( A.Grid().ViewingComm(), this->Grid().ViewingComm() ) )
+            LogicError
+            ("Redistributing between nonmatching grids currently requires"
+             " the viewing communicators to match.");
+
+        // Compute and allocate the amount of required memory
+        Int requiredMemory = 0;
+        if( A.Grid().VCRank() == 0 )
+            requiredMemory += A.Height()*A.Width();
+        if( this->Participating() )
+            requiredMemory += A.Height()*A.Width();
+        T* buffer = this->auxMemory_.Require( requiredMemory );
+        Int offset = 0;
+        T* sendBuf = &buffer[offset];
+        if( A.Grid().VCRank() == 0 )
+            offset += A.Height()*A.Width();
+        T* bcastBuffer = &buffer[offset];
+
+        // Send from the root of A to the root of this matrix's grid
+        mpi::Request sendRequest;
+        if( A.Grid().VCRank() == 0 )
+        {
+            for( Int j=0; j<A.Width(); ++j )
+                for( Int i=0; i<A.Height(); ++i )
+                    sendBuf[i+j*A.Height()] = A.GetLocal(i,j);
+            const Int recvViewingRank = this->Grid().VCToViewingMap(0);
+            mpi::ISend
+            ( sendBuf, A.Height()*A.Width(), recvViewingRank,
+              this->Grid().ViewingComm(), sendRequest );
+        }
+
+        // Receive on the root of this matrix's grid and then broadcast
+        // over this matrix's owning communicator
+        if( this->Participating() )
+        {
+            if( this->Grid().VCRank() == 0 )
+            {
+                const Int sendViewingRank = A.Grid().VCToViewingMap(0);
+                mpi::Recv
+                ( bcastBuffer, A.Height()*A.Width(), sendViewingRank,
+                  this->Grid().ViewingComm() );
+            }
+
+            mpi::Broadcast
+            ( bcastBuffer, A.Height()*A.Width(), 0, this->Grid().VCComm() );
+
+            for( Int j=0; j<A.Width(); ++j )
+                for( Int i=0; i<A.Height(); ++i )
+                    this->SetLocal(i,j,bcastBuffer[i+j*A.Height()]);
+        }
+
+        if( A.Grid().VCRank() == 0 )
+            mpi::Wait( sendRequest );
+        this->auxMemory_.Release();
+    }
+    return *this;
+}
+
+template<typename T>
+DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [MC,MR]"))
@@ -131,78 +203,6 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
 
 template<typename T>
 DM&
-DM::operator=( const DM& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [STAR,STAR]"))
-    this->Resize( A.Height(), A.Width() );
-    if( this->Grid() == A.Grid() )
-    {
-        this->matrix_ = A.LockedMatrix();
-    }
-    else
-    {
-        // TODO: Remember why I wrote this...
-        if( !mpi::Congruent
-             ( A.Grid().ViewingComm(), this->Grid().ViewingComm() ) )
-            LogicError
-            ("Redistributing between nonmatching grids currently requires"
-             " the viewing communicators to match.");
-
-        // Compute and allocate the amount of required memory
-        Int requiredMemory = 0;
-        if( A.Grid().VCRank() == 0 )
-            requiredMemory += A.Height()*A.Width();
-        if( this->Participating() )
-            requiredMemory += A.Height()*A.Width();
-        T* buffer = this->auxMemory_.Require( requiredMemory );
-        Int offset = 0;
-        T* sendBuf = &buffer[offset];
-        if( A.Grid().VCRank() == 0 )
-            offset += A.Height()*A.Width();
-        T* bcastBuffer = &buffer[offset];
-
-        // Send from the root of A to the root of this matrix's grid
-        mpi::Request sendRequest;
-        if( A.Grid().VCRank() == 0 )
-        {
-            for( Int j=0; j<A.Width(); ++j ) 
-                for( Int i=0; i<A.Height(); ++i )
-                    sendBuf[i+j*A.Height()] = A.GetLocal(i,j);
-            const Int recvViewingRank = this->Grid().VCToViewingMap(0);
-            mpi::ISend
-            ( sendBuf, A.Height()*A.Width(), recvViewingRank,
-              this->Grid().ViewingComm(), sendRequest );
-        }
-
-        // Receive on the root of this matrix's grid and then broadcast
-        // over this matrix's owning communicator
-        if( this->Participating() )
-        {
-            if( this->Grid().VCRank() == 0 )
-            {
-                const Int sendViewingRank = A.Grid().VCToViewingMap(0);
-                mpi::Recv
-                ( bcastBuffer, A.Height()*A.Width(), sendViewingRank,
-                  this->Grid().ViewingComm() );
-            }
-
-            mpi::Broadcast
-            ( bcastBuffer, A.Height()*A.Width(), 0, this->Grid().VCComm() );
-
-            for( Int j=0; j<A.Width(); ++j )
-                for( Int i=0; i<A.Height(); ++i )
-                    this->SetLocal(i,j,bcastBuffer[i+j*A.Height()]);
-        }
-
-        if( A.Grid().VCRank() == 0 )
-            mpi::Wait( sendRequest );
-        this->auxMemory_.Release();
-    }
-    return *this;
-}
-
-template<typename T>
-DM&
 DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[STAR,STAR] = [CIRC,CIRC]"))
@@ -258,34 +258,45 @@ template<typename T>
 Int DM::ColStride() const { return 1; }
 template<typename T>
 Int DM::RowStride() const { return 1; }
+template<typename T>
+Int DM::DistSize() const { return 1; }
+template<typename T>
+Int DM::CrossSize() const { return 1; }
+template<typename T>
+Int DM::RedundantSize() const { return this->grid_->VCSize(); }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
-#define COPY(T,U,V) \
+#define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
-  ( const DistMatrix<T,U,V>& A ); \
+  ( const DistMatrix<T,U,V>& A );
+#define OTHER(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const BlockDistMatrix<T,U,V>& A ); \
   template DistMatrix<T,ColDist,RowDist>& \
            DistMatrix<T,ColDist,RowDist>::operator= \
            ( const BlockDistMatrix<T,U,V>& A )
+#define BOTH(T,U,V) \
+  SELF(T,U,V); \
+  OTHER(T,U,V)
 #define FULL(T) \
   PROTO(T); \
-  COPY(T,CIRC,CIRC); \
-  COPY(T,MC,  MR  ); \
-  COPY(T,MC,  STAR); \
-  COPY(T,MD,  STAR); \
-  COPY(T,MR,  MC  ); \
-  COPY(T,MR,  STAR); \
-  COPY(T,STAR,MC  ); \
-  COPY(T,STAR,MD  ); \
-  COPY(T,STAR,MR  ); \
-  COPY(T,STAR,VC  ); \
-  COPY(T,STAR,VR  ); \
-  COPY(T,VC,  STAR); \
-  COPY(T,VR,  STAR);
+  BOTH( T,CIRC,CIRC); \
+  BOTH( T,MC,  MR  ); \
+  BOTH( T,MC,  STAR); \
+  BOTH( T,MD,  STAR); \
+  BOTH( T,MR,  MC  ); \
+  BOTH( T,MR,  STAR); \
+  BOTH( T,STAR,MC  ); \
+  BOTH( T,STAR,MD  ); \
+  BOTH( T,STAR,MR  ); \
+  OTHER(T,STAR,STAR); \
+  BOTH( T,STAR,VC  ); \
+  BOTH( T,STAR,VR  ); \
+  BOTH( T,VC,  STAR); \
+  BOTH( T,VR,  STAR);
 
 FULL(Int);
 #ifndef DISABLE_FLOAT

@@ -34,6 +34,9 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
+[o] Extend Grid class to support mappings from, e.g., (MDRank,root) -> VCRank
+    and use these mappings to build an (owner,root) -> VCRank mapping for 
+    [Block]DistMatrix
 [o] Rescaled multi-shift Hessenberg solves
 [o] Blocked algorithms for low-rank Cholesky updates
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])

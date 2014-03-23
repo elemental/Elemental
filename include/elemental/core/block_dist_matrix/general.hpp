@@ -163,10 +163,9 @@ protected:
     // Inherited constructors are part of C++11 but not yet widely supported.
     //using AbstractDistMatrix<T>::AbstractDistMatrix;
 
-    // Create a 0 x 0 distributed matrix
+    GeneralBlockDistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
     GeneralBlockDistMatrix
-    ( const elem::Grid& g=DefaultGrid(), Int blockHeight=32, Int blockWidth=32,
-      Int root=0 );
+    ( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root=0 );
 
     // Diagonal helper routines
     // ========================

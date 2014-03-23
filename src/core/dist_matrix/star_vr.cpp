@@ -23,6 +23,15 @@ namespace elem {
 
 template<typename T>
 DM&
+DM::operator=( const DM& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("DM[U,V] = DM[U,V]"))
+    A.Translate( *this );
+    return *this;
+}
+
+template<typename T>
+DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [MC,MR]"))
@@ -200,15 +209,6 @@ DM::operator=( const DistMatrix<T,VR,STAR>& A )
 
 template<typename T>
 DM&
-DM::operator=( const DM& A )
-{ 
-    DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [STAR,VR]"))
-    A.Translate( *this );
-    return *this;
-}
-
-template<typename T>
-DM&
 DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,VR] = [STAR,STAR]"))
@@ -318,34 +318,45 @@ template<typename T>
 Int DM::PartialRowStride() const { return this->grid_->MRSize(); }
 template<typename T>
 Int DM::PartialUnionRowStride() const { return this->grid_->MCSize(); }
+template<typename T>
+Int DM::DistSize() const { return this->grid_->VRSize(); }
+template<typename T>
+Int DM::CrossSize() const { return 1; }
+template<typename T>
+Int DM::RedundantSize() const { return 1; }
 
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
-#define COPY(T,U,V) \
+#define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
-  ( const DistMatrix<T,U,V>& A ); \
+  ( const DistMatrix<T,U,V>& A );
+#define OTHER(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const BlockDistMatrix<T,U,V>& A ); \
   template DistMatrix<T,ColDist,RowDist>& \
            DistMatrix<T,ColDist,RowDist>::operator= \
            ( const BlockDistMatrix<T,U,V>& A )
+#define BOTH(T,U,V) \
+  SELF(T,U,V); \
+  OTHER(T,U,V)
 #define FULL(T) \
   PROTO(T); \
-  COPY(T,CIRC,CIRC); \
-  COPY(T,MC,  MR  ); \
-  COPY(T,MC,  STAR); \
-  COPY(T,MD,  STAR); \
-  COPY(T,MR,  MC  ); \
-  COPY(T,MR,  STAR); \
-  COPY(T,STAR,MC  ); \
-  COPY(T,STAR,MD  ); \
-  COPY(T,STAR,MR  ); \
-  COPY(T,STAR,STAR); \
-  COPY(T,STAR,VC  ); \
-  COPY(T,VC,  STAR); \
-  COPY(T,VR,  STAR);
+  BOTH( T,CIRC,CIRC); \
+  BOTH( T,MC,  MR  ); \
+  BOTH( T,MC,  STAR); \
+  BOTH( T,MD,  STAR); \
+  BOTH( T,MR,  MC  ); \
+  BOTH( T,MR,  STAR); \
+  BOTH( T,STAR,MC  ); \
+  BOTH( T,STAR,MD  ); \
+  BOTH( T,STAR,MR  ); \
+  BOTH( T,STAR,STAR); \
+  BOTH( T,STAR,VC  ); \
+  OTHER(T,STAR,VR  ); \
+  BOTH( T,VC,  STAR); \
+  BOTH( T,VR,  STAR);
 
 FULL(Int);
 #ifndef DISABLE_FLOAT

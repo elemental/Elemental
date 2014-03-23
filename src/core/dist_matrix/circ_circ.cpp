@@ -23,6 +23,15 @@ namespace elem {
 
 template<typename T>
 DM&
+DM::operator=( const DM& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("DM[U,V] = DM[U,V]"))
+    A.Translate( *this );
+    return *this;
+}
+
+template<typename T>
+DM&
 DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MC,MR]"))
@@ -289,15 +298,6 @@ DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DM& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [CIRC,CIRC]"))
-    A.Translate( *this );
-    return *this;
-}
-
-template<typename T>
 void
 DM::CopyFromRoot( const Matrix<T>& A )
 {
@@ -343,10 +343,17 @@ template<typename T>
 mpi::Comm DM::ColComm() const { return mpi::COMM_SELF; }
 template<typename T>
 mpi::Comm DM::RowComm() const { return mpi::COMM_SELF; }
+
 template<typename T>
 Int DM::ColStride() const { return 1; }
 template<typename T>
 Int DM::RowStride() const { return 1; }
+template<typename T>
+Int DM::DistSize() const { return 1; }
+template<typename T>
+Int DM::CrossSize() const { return this->grid_->VCSize(); }
+template<typename T>
+Int DM::RedundantSize() const { return 1; }
 
 // Private section
 // ###############
@@ -450,33 +457,34 @@ DM::Scatter( DistMatrix<T,U,V>& A ) const
 // ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
-#define COPY(T,U,V) \
+#define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
-  ( const DistMatrix<T,U,V>& A ); \
+  ( const DistMatrix<T,U,V>& A );
+#define OTHER(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const BlockDistMatrix<T,U,V>& A ); \
-  template void DistMatrix<T,ColDist,RowDist>::CollectFrom \
-  ( const DistMatrix<T,U,V>& A ); \
-  template void DistMatrix<T,ColDist,RowDist>::Scatter \
-  ( DistMatrix<T,U,V>& A ) const; \
   template DistMatrix<T,ColDist,RowDist>& \
            DistMatrix<T,ColDist,RowDist>::operator= \
            ( const BlockDistMatrix<T,U,V>& A )
+#define BOTH(T,U,V) \
+  SELF(T,U,V); \
+  OTHER(T,U,V)
 #define FULL(T) \
   PROTO(T); \
-  COPY(T,MC,  MR); \
-  COPY(T,MC,  STAR); \
-  COPY(T,MD,  STAR); \
-  COPY(T,MR,  MC  ); \
-  COPY(T,MR,  STAR); \
-  COPY(T,STAR,MC  ); \
-  COPY(T,STAR,MD  ); \
-  COPY(T,STAR,MR  ); \
-  COPY(T,STAR,STAR); \
-  COPY(T,STAR,VC  ); \
-  COPY(T,STAR,VR  ); \
-  COPY(T,VC,  STAR); \
-  COPY(T,VR,  STAR);
+  OTHER(T,CIRC,CIRC); \
+  BOTH( T,MC,  MR  ); \
+  BOTH( T,MC,  STAR); \
+  BOTH( T,MD,  STAR); \
+  BOTH( T,MR,  MC  ); \
+  BOTH( T,MR,  STAR); \
+  BOTH( T,STAR,MC  ); \
+  BOTH( T,STAR,MD  ); \
+  BOTH( T,STAR,MR  ); \
+  BOTH( T,STAR,STAR); \
+  BOTH( T,STAR,VC  ); \
+  BOTH( T,STAR,VR  ); \
+  BOTH( T,VC,  STAR); \
+  BOTH( T,VR,  STAR);
 
 FULL(Int);
 #ifndef DISABLE_FLOAT

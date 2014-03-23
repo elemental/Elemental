@@ -25,11 +25,11 @@ template<typename T>
 DM&
 DM::operator=( const DM& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("[MC,MR] = [MC,MR]"))
+    DEBUG_ONLY(CallStackEntry cse("DM[U,V] = DM[U,V]"))
     if( this->Grid() == A.Grid() )
         A.Translate( *this );
-    else 
-        CopyFromDifferentGrid( A );
+    else
+        this->CopyFromDifferentGrid( A );
     return *this;
 }
 
@@ -468,22 +468,25 @@ template<typename T>
 Int DM::ColStride() const { return this->grid_->MCSize(); }
 template<typename T>
 Int DM::RowStride() const { return this->grid_->MRSize(); }
+template<typename T>
+Int DM::DistSize() const { return this->grid_->VCSize(); }
+template<typename T>
+Int DM::CrossSize() const { return 1; }
+template<typename T>
+Int DM::RedundantSize() const { return 1; }
 
 // Private section
 // ###############
-
-// Redistribute from a different process grid
-// ==========================================
 
 template<typename T>
 void DM::CopyFromDifferentGrid( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,MR]::CopyFromDifferentGrid"))
-    this->Resize( A.Height(), A.Width() ); 
+    this->Resize( A.Height(), A.Width() );
     // Just need to ensure that each viewing comm contains the other team's
     // owning comm. Congruence is too strong.
 
-    // Compute the number of process rows and columns that each process 
+    // Compute the number of process rows and columns that each process
     // needs to send to.
     const Int colStride = this->ColStride();
     const Int rowStride = this->RowStride();
@@ -514,8 +517,8 @@ void DM::CopyFromDifferentGrid( const DM& A )
     if( !inThisGrid && !inAGrid )
         return;
 
-    const Int maxSendSize = 
-        (A.Height()/(colStrideA*localColStrideA)+1) * 
+    const Int maxSendSize =
+        (A.Height()/(colStrideA*localColStrideA)+1) *
         (A.Width()/(rowStrideA*localRowStrideA)+1);
 
     // Translate the ranks from A's VC communicator to this's viewing so that
@@ -525,30 +528,30 @@ void DM::CopyFromDifferentGrid( const DM& A )
     const int sizeA = A.Grid().Size();
     std::vector<int> rankMap(sizeA), ranks(sizeA);
     if( A.Grid().Order() == COLUMN_MAJOR )
-    { 
+    {
         for( int j=0; j<sizeA; ++j )
             ranks[j] = j;
     }
     else
     {
         // The (i,j) = i + j*colStrideA rank in the column-major ordering is
-        // equal to the j + i*rowStrideA  rank in a row-major ordering.
+        // equal to the j + i*rowStrideA rank in a row-major ordering.
         // Since we desire rankMap[i+j*colStrideA] to correspond to process
         // (i,j) in A's grid's rank in this viewing group, ranks[i+j*colStrideA]
-        // should correspond to process (i,j) in A's owning group. Since the 
-        // owning group is ordered row-major in this case, its rank is 
-        // j+i*rowStrideA. Note that setting 
+        // should correspond to process (i,j) in A's owning group. Since the
+        // owning group is ordered row-major in this case, its rank is
+        // j+i*rowStrideA. Note that setting
         // ranks[j+i*rowStrideA] = i+j*colStrideA is *NOT* valid.
         for( int i=0; i<colStrideA; ++i )
             for( int j=0; j<rowStrideA; ++j )
                 ranks[i+j*colStrideA] = j+i*rowStrideA;
     }
     mpi::Translate
-    ( A.Grid().OwningGroup(),     sizeA, &ranks[0], 
-      this->Grid().ViewingComm(),        &rankMap[0] );
+    ( A.Grid().OwningGroup(), sizeA, &ranks[0],
+      this->Grid().ViewingComm(), &rankMap[0] );
 
     // Have each member of A's grid individually send to all numRow x numCol
-    // processes in order, while the members of this grid receive from all 
+    // processes in order, while the members of this grid receive from all
     // necessary processes at each step.
     Int requiredMemory = 0;
     if( inAGrid )
@@ -564,13 +567,13 @@ void DM::CopyFromDifferentGrid( const DM& A )
 
     Int recvRow = 0; // avoid compiler warnings...
     if( inAGrid )
-        recvRow = (((colRankA+colStrideA-colAlignA)%colStrideA)+colAlign) % 
+        recvRow = (((colRankA+colStrideA-colAlignA)%colStrideA)+colAlign) %
                   colStride;
     for( Int colSend=0; colSend<numColSends; ++colSend )
     {
         Int recvCol = 0; // avoid compiler warnings...
         if( inAGrid )
-            recvCol = (((rowRankA+rowStrideA-rowAlignA)%rowStrideA)+rowAlign) % 
+            recvCol = (((rowRankA+rowStrideA-rowAlignA)%rowStrideA)+rowAlign) %
                       rowStride;
         for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
         {
@@ -595,7 +598,7 @@ void DM::CopyFromDifferentGrid( const DM& A )
                 }
                 // Send data
                 const Int recvVCRank = recvRow + recvCol*colStride;
-                const Int recvViewingRank = 
+                const Int recvViewingRank =
                     this->Grid().VCToViewingMap( recvVCRank );
                 mpi::ISend
                 ( sendBuf, sendHeight*sendWidth, recvViewingRank,
@@ -614,12 +617,12 @@ void DM::CopyFromDifferentGrid( const DM& A )
 
                 const Int colShift = (colRank+colStride-recvColOffset)%colStride;
                 const Int rowShift = (rowRank+rowStride-recvRowOffset)%rowStride;
-                const Int numColRecvs = Length( colStrideA, colShift, colStride ); 
+                const Int numColRecvs = Length( colStrideA, colShift, colStride );
                 const Int numRowRecvs = Length( rowStrideA, rowShift, rowStride );
 
                 // Recv data
-                // For now, simply receive sequentially. Until we switch to 
-                // nonblocking recv's, we won't be using much of the 
+                // For now, simply receive sequentially. Until we switch to
+                // nonblocking recv's, we won't be using much of the
                 // recvBuf
                 Int sendRow = firstSendRow;
                 for( Int colRecv=0; colRecv<numColRecvs; ++colRecv )
@@ -677,29 +680,34 @@ void DM::CopyFromDifferentGrid( const DM& A )
 // ####################################################################
 
 #define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
-#define COPY(T,U,V) \
+#define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
-  ( const DistMatrix<T,U,V>& A ); \
+  ( const DistMatrix<T,U,V>& A );
+#define OTHER(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const BlockDistMatrix<T,U,V>& A ); \
   template DistMatrix<T,ColDist,RowDist>& \
            DistMatrix<T,ColDist,RowDist>::operator= \
            ( const BlockDistMatrix<T,U,V>& A )
+#define BOTH(T,U,V) \
+  SELF(T,U,V); \
+  OTHER(T,U,V)
 #define FULL(T) \
   PROTO(T); \
-  COPY(T,CIRC,CIRC); \
-  COPY(T,MC,  STAR); \
-  COPY(T,MD,  STAR); \
-  COPY(T,MR,  MC  ); \
-  COPY(T,MR,  STAR); \
-  COPY(T,STAR,MC  ); \
-  COPY(T,STAR,MD  ); \
-  COPY(T,STAR,MR  ); \
-  COPY(T,STAR,STAR); \
-  COPY(T,STAR,VC  ); \
-  COPY(T,STAR,VR  ); \
-  COPY(T,VC,  STAR); \
-  COPY(T,VR,  STAR);
+  BOTH( T,CIRC,CIRC); \
+  OTHER(T,MC,  MR  ); \
+  BOTH( T,MC,  STAR); \
+  BOTH( T,MD,  STAR); \
+  BOTH( T,MR,  MC  ); \
+  BOTH( T,MR,  STAR); \
+  BOTH( T,STAR,MC  ); \
+  BOTH( T,STAR,MD  ); \
+  BOTH( T,STAR,MR  ); \
+  BOTH( T,STAR,STAR); \
+  BOTH( T,STAR,VC  ); \
+  BOTH( T,STAR,VR  ); \
+  BOTH( T,VC,  STAR); \
+  BOTH( T,VR,  STAR);
 
 FULL(Int);
 #ifndef DISABLE_FLOAT

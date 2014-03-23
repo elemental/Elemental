@@ -192,6 +192,12 @@ template<typename T>
 Int BDM::ColStride() const { return this->grid_->MCSize(); }
 template<typename T>
 Int BDM::RowStride() const { return this->grid_->MRSize(); }
+template<typename T>
+Int BDM::DistSize() const { return this->grid_->VCSize(); }
+template<typename T>
+Int BDM::CrossSize() const { return 1; }
+template<typename T>
+Int BDM::RedundantSize() const { return 1; }
 
 // Private section
 // ###############
@@ -210,29 +216,34 @@ void BDM::CopyFromDifferentGrid( const BDM& A )
 // ####################################################################
 
 #define PROTO(T) template class BlockDistMatrix<T,ColDist,RowDist>
-#define COPY(T,U,V) \
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
-  ( const BlockDistMatrix<T,U,V>& A ); \
-  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix\
+#define SELF(T,U,V) \
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
+  ( const BlockDistMatrix<T,U,V>& A );
+#define OTHER(T,U,V) \
+  template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
   ( const DistMatrix<T,U,V>& A ); \
   template BlockDistMatrix<T,ColDist,RowDist>& \
            BlockDistMatrix<T,ColDist,RowDist>::operator= \
            ( const DistMatrix<T,U,V>& A )
+#define BOTH(T,U,V) \
+  SELF(T,U,V); \
+  OTHER(T,U,V)
 #define FULL(T) \
   PROTO(T); \
-  COPY(T,CIRC,CIRC); \
-  COPY(T,MC,  STAR); \
-  COPY(T,MD,  STAR); \
-  COPY(T,MR,  MC  ); \
-  COPY(T,MR,  STAR); \
-  COPY(T,STAR,MC  ); \
-  COPY(T,STAR,MD  ); \
-  COPY(T,STAR,MR  ); \
-  COPY(T,STAR,STAR); \
-  COPY(T,STAR,VC  ); \
-  COPY(T,STAR,VR  ); \
-  COPY(T,VC,  STAR); \
-  COPY(T,VR,  STAR);
+  BOTH( T,CIRC,CIRC); \
+  OTHER(T,MC,  MR  ); \
+  BOTH( T,MC,  STAR); \
+  BOTH( T,MD,  STAR); \
+  BOTH( T,MR,  MC  ); \
+  BOTH( T,MR,  STAR); \
+  BOTH( T,STAR,MC  ); \
+  BOTH( T,STAR,MD  ); \
+  BOTH( T,STAR,MR  ); \
+  BOTH( T,STAR,STAR); \
+  BOTH( T,STAR,VC  ); \
+  BOTH( T,STAR,VR  ); \
+  BOTH( T,VC,  STAR); \
+  BOTH( T,VR,  STAR);
 
 FULL(Int);
 #ifndef DISABLE_FLOAT

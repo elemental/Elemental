@@ -80,6 +80,9 @@ public:
     mpi::Comm RowComm() const override;
     Int RowStride() const override;
     Int ColStride() const override;
+    Int DistSize() const override;
+    Int CrossSize() const override;
+    Int RedundantSize() const override;
 
 private:
     // Friend declarations

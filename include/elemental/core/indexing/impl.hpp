@@ -64,6 +64,9 @@ inline Int MaxLength( Int n, Int stride )
 inline Int MaxLength_( Int n, Int stride )
 { return ( n>0 ? (n-1)/stride + 1 : 0 ); }
 
+inline Int GlobalIndex( Int iLoc, Int shift, Int numProcs )
+{ return shift + iLoc*numProcs; }
+
 // Indexing for block distributions
 // ================================
 
@@ -141,6 +144,23 @@ inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
 
 inline Int MaxBlockedLength_( Int n, Int bsize, Int cut, Int stride )
 { return BlockedLength_( n, 0, bsize, cut, stride ); }
+
+inline Int 
+GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs )
+{ 
+    // The number of global entries before the first block this process owns
+    // data in begins (NOTE: this is negative if we own the first block and
+    // the cut is nonzero)
+    const Int iBefore = shift*bsize - cut;
+
+    const Int iLocAdj = ( shift==0 ? iLoc+cut : iLoc );
+    const Int numFilledLocalBlocks = iLocAdj / bsize;
+    const Int iMid = numFilledLocalBlocks*bsize*numProcs;
+
+    const Int iPost = iLocAdj-numFilledLocalBlocks*bsize;
+
+    return iBefore + iMid + iPost;
+}
 
 // Miscellaneous indexing routines
 // ===============================

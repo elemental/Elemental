@@ -58,7 +58,8 @@ inline void View( DistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("View"))
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
-        LogicError("Block size was not 1 x 1");
+        LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
+                    "instead of 1x1");
     A.Attach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.Buffer(), B.LDim(), B.Root() );
@@ -110,7 +111,8 @@ inline void LockedView( DistMatrix<T,U,V>& A, const BlockDistMatrix<T,U,V>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedView"))
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
-        LogicError("Block size was not 1 x 1");
+        LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
+                    "instead of 1x1");
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.LockedBuffer(), B.LDim(), B.Root() );

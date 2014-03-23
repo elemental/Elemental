@@ -24,10 +24,21 @@ namespace elem {
 // ============================
 
 template<typename T>
+BDM::BlockDistMatrix( const elem::Grid& g, Int root )
+: GBDM(g,root)
+{ this->SetShifts(); }
+
+template<typename T>
 BDM::BlockDistMatrix
 ( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
 : GBDM(g,blockHeight,blockWidth,root)
 { this->SetShifts(); }
+
+template<typename T>
+BDM::BlockDistMatrix
+( Int height, Int width, const elem::Grid& g, Int root )
+: GBDM(g,root)
+{ this->SetShifts(); this->Resize(height,width); }
 
 template<typename T>
 BDM::BlockDistMatrix

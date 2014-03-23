@@ -9,6 +9,9 @@
 #include "elemental-lite.hpp"
 #include ELEM_ZEROS_INC
 
+#define MB_DEFAULT 32
+#define NB_DEFAULT 32
+
 namespace elem {
 
 // Public section
@@ -19,12 +22,26 @@ namespace elem {
 
 template<typename T>
 AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
-( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
+( const elem::Grid& g, Int root )
 : viewType_(OWNER),
   height_(0), width_(0),
   auxMemory_(),
   matrix_(0,0,true),
   colConstrained_(false), rowConstrained_(false), rootConstrained_(false),
+  blockHeight_(MB_DEFAULT), blockWidth_(NB_DEFAULT),
+  colAlign_(0), rowAlign_(0),
+  colCut_(0), rowCut_(0),
+  root_(root), grid_(&g)
+{ }
+
+template<typename T>
+AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
+( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
+: viewType_(OWNER),
+  height_(0), width_(0),
+  auxMemory_(),
+  matrix_(0,0,true),
+  colConstrained_(true), rowConstrained_(true), rootConstrained_(false),
   blockHeight_(blockHeight), blockWidth_(blockWidth),
   colAlign_(0), rowAlign_(0),
   colCut_(0), rowCut_(0),
@@ -702,21 +719,6 @@ AbstractBlockDistMatrix<T>::RedundantRank() const
 { return mpi::Rank(RedundantComm()); }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::DistSize() const
-{ return mpi::Size(DistComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::CrossSize() const
-{ return mpi::Size(CrossComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::RedundantSize() const
-{ return mpi::Size(RedundantComm()); }
-
-template<typename T>
 Int AbstractBlockDistMatrix<T>::Root() const { return root_; }
 
 template<typename T>
@@ -778,36 +780,16 @@ template<typename T>
 Int
 AbstractBlockDistMatrix<T>::GlobalRow( Int iLoc ) const
 { 
-    // The number of global entries before the first block this process owns
-    // data in begins (NOTE: this is negative if we own the first block and
-    // the cut is nonzero)
-    const Int iBefore = ColShift()*BlockHeight() - ColCut(); 
-
-    const Int iLocAdj = ( ColShift()==0 ? iLoc+ColCut() : iLoc );
-    const Int numFilledLocalBlocks = iLocAdj / BlockHeight();
-    const Int iMid = numFilledLocalBlocks*BlockHeight()*ColStride();
-
-    const Int iPost = iLocAdj-numFilledLocalBlocks*BlockHeight();
-
-    return iBefore + iMid + iPost;
+    return GlobalBlockedIndex
+           (iLoc,ColShift(),BlockHeight(),ColCut(),ColStride()); 
 }
 
 template<typename T>
 Int
 AbstractBlockDistMatrix<T>::GlobalCol( Int jLoc ) const
 { 
-    // The number of global entries before the first block this process owns
-    // data in begins (NOTE: this is negative if we own the first block and
-    // the cut is nonzero)
-    const Int jBefore = RowShift()*BlockWidth() - RowCut(); 
-
-    const Int jLocAdj = ( RowShift()==0 ? jLoc+RowCut() : jLoc );
-    const Int numFilledLocalBlocks = jLocAdj / BlockWidth();
-    const Int jMid = numFilledLocalBlocks*BlockWidth()*RowStride();
-
-    const Int jPost = jLocAdj-numFilledLocalBlocks*BlockWidth();
-
-    return jBefore + jMid + jPost;
+    return GlobalBlockedIndex
+           (jLoc,RowShift(),BlockWidth(),RowCut(),RowStride()); 
 }
 
 template<typename T>

@@ -84,6 +84,9 @@ public:
     Int RowStride() const override;
     Int PartialRowStride() const override;
     Int PartialUnionRowStride() const override;
+    Int DistSize() const override;
+    Int CrossSize() const override;
+    Int RedundantSize() const override;
 
 private:
     // Friend declarations

@@ -135,9 +135,6 @@ public:
     Int DistRank() const;
     Int CrossRank() const;
     Int RedundantRank() const;
-    Int DistSize() const;
-    Int CrossSize() const;
-    Int RedundantSize() const;
     Int Root() const;
     bool Participating() const;
     Int RowOwner( Int i ) const;     // rank in ColComm
@@ -170,6 +167,9 @@ public:
     virtual Int PartialRowStride() const;
     virtual Int PartialUnionColStride() const;
     virtual Int PartialUnionRowStride() const;
+    virtual Int DistSize() const = 0;
+    virtual Int CrossSize() const = 0;
+    virtual Int RedundantSize() const = 0;
 
     // Single-entry manipulation
     // =========================
@@ -342,10 +342,9 @@ protected:
 
     // Private constructors
     // ====================
-    // Create a 0 x 0 distributed matrix
+    AbstractBlockDistMatrix( const elem::Grid& g=DefaultGrid(),  Int root=0 );
     AbstractBlockDistMatrix
-    ( const elem::Grid& g=DefaultGrid(), 
-      Int blockHeight=32, Int blockWidth=32, Int root=0 );
+    ( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root=0 );
 
     // Exchange metadata with another matrix
     // =====================================

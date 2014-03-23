@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include ELEM_SCALE_INC
+#include ELEM_QR_INC
 #include ELEM_IO_INC
 #include ELEM_ONES_INC
 #include ELEM_UNIFORM_INC
@@ -44,6 +45,15 @@ main( int argc, char* argv[] )
         Scale( double(commRank), A.Matrix() );
         if( print )
             Print( A, "A" );
+        DistMatrix<double> AElem( A );
+        if( print )
+            Print( AElem, "AElem" );
+        qr::Explicit( AElem );
+        if( print )
+            Print( AElem, "QElem" );
+        A = AElem;
+        if( print )
+            Print( A, "Q" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

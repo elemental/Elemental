@@ -593,21 +593,6 @@ AbstractDistMatrix<T>::RedundantRank() const
 { return mpi::Rank(RedundantComm()); }
 
 template<typename T>
-Int
-AbstractDistMatrix<T>::DistSize() const
-{ return mpi::Size(DistComm()); }
-
-template<typename T>
-Int
-AbstractDistMatrix<T>::CrossSize() const
-{ return mpi::Size(CrossComm()); }
-
-template<typename T>
-Int
-AbstractDistMatrix<T>::RedundantSize() const
-{ return mpi::Size(RedundantComm()); }
-
-template<typename T>
 Int AbstractDistMatrix<T>::Root() const { return root_; }
 
 template<typename T>

@@ -31,14 +31,18 @@ public:
     // Inherited constructors are part of C++11 but not yet widely supported.
     //using GeneralDistMatrix<T,CIRC,CIRC>::GeneralDistMatrix;
 
-    // Create a 0 x 0 distributed matrix
+    // Create a 0 x 0 distributed matrix with default (and unpinned) block size
+    BlockDistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
+    // Create a 0 x 0 distributed matrix with fixed block size
     BlockDistMatrix
-    ( const elem::Grid& g=DefaultGrid(), Int blockHeight=32, Int blockWidth=32,
-      Int root=0 );
-    // Create a height x width distributed matrix
+    ( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root=0 );
+    // Create a height x width distributed matrix with default block size
     BlockDistMatrix
-    ( Int height, Int width, const elem::Grid& g=DefaultGrid(),
-      Int blockHeight=32, Int blockWidth=32, Int root=0 );
+    ( Int height, Int width, const elem::Grid& g=DefaultGrid(), Int root=0 );
+    // Create a height x width distributed matrix with fixed block size
+    BlockDistMatrix
+    ( Int height, Int width, const elem::Grid& g,
+      Int blockHeight, Int blockWidth, Int root=0 );
     // Create a copy of distributed matrix A (redistributing if necessary)
     BlockDistMatrix( const type& A );
     template<Dist U,Dist V> BlockDistMatrix( const BlockDistMatrix<T,U,V>& A );
@@ -84,6 +88,9 @@ public:
     mpi::Comm RowComm() const override;
     Int ColStride() const override;
     Int RowStride() const override;
+    Int DistSize() const override;
+    Int CrossSize() const override;
+    Int RedundantSize() const override;
 
 private:
     template<Dist U,Dist V>
