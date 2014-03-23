@@ -109,6 +109,7 @@
 #include "elemental/core/imports/lapack.hpp"
 #include "elemental/core/imports/flame.hpp"
 #include "elemental/core/imports/pmrrr.hpp"
+#include "elemental/core/imports/scalapack.hpp"
 
 // Implement the intertwined parts of the library
 #include "elemental/core/timer/impl.hpp"

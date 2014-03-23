@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_SCALE_INC
 #include ELEM_QR_INC
 #include ELEM_IO_INC
@@ -48,12 +49,48 @@ main( int argc, char* argv[] )
         DistMatrix<double> AElem( A );
         if( print )
             Print( AElem, "AElem" );
-        qr::Explicit( AElem );
+        MakeTrapezoidal( UPPER, AElem, -1 );
         if( print )
-            Print( AElem, "QElem" );
+            Print( AElem, "HElem" );
         A = AElem;
         if( print )
-            Print( A, "Q" );
+            Print( A, "H" );
+#ifdef ELEM_HAVE_SCALAPACK        
+        const int bhandle = blacs::Handle( A.DistComm().comm );
+        const int context = 
+            blacs::GridInit( bhandle, colMajor, A.ColStride(), A.RowStride() );
+        if( A.ColStride() != blacs::GridHeight(context) )
+            LogicError("Grid height did not match BLACS");
+        if( A.RowStride() != blacs::GridWidth(context) )
+            LogicError("Grid width did not match BLACS");
+        if( A.ColRank() != blacs::GridRow(context) )
+            LogicError("Grid row did not match BLACS");
+        if( A.RowRank() != blacs::GridCol(context) )
+            LogicError("Grid col did not match BLACS");
+        int desc[9];
+        desc[0] = 1;
+        desc[1] = context;
+        desc[2] = A.Height();
+        desc[3] = A.Width();
+        desc[4] = A.BlockHeight();
+        desc[5] = A.BlockWidth();
+        desc[6] = A.ColAlign();
+        desc[7] = A.RowAlign();
+        desc[8] = A.LDim();
+        if( m == n )
+        {
+            DistMatrix<Complex<double>,STAR,STAR> w( m, 1, g );
+            scalapack::HessenbergSchur( m, A.Buffer(), desc, w.Buffer() );
+            if( print )
+            {
+                Print( A, "Schur(H)" );
+                Print( w, "w(H)" );
+            }
+        }
+        blacs::FreeGrid( context );
+        blacs::FreeHandle( bhandle );
+        blacs::Exit(); 
+#endif
     }
     catch( std::exception& e ) { ReportException(e); }
 

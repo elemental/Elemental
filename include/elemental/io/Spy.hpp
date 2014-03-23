@@ -57,41 +57,42 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 #ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
-    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-    if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
-        Spy( A_CIRC_CIRC.Matrix(), title, tol );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Spy( A.Matrix(), title, tol );
+    }
+    else
+    {
+        DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Spy( A_CIRC_CIRC.Matrix(), title, tol );
+    }
 #else
     LogicError("Qt5 not available");
 #endif // ifdef ELEM_HAVE_QT5
 }
 
-// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
-template<typename T>
+template<typename T,Dist U,Dist V>
 inline void
 Spy
-( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
+( const BlockDistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef ELEM_HAVE_QT5
     if( GuiDisabled() )
         LogicError("GUI was disabled");
-    if( A.Grid().Rank() == 0 )
-        Spy( A.LockedMatrix(), title, tol );
-#else
-    LogicError("Qt5 not available");
-#endif // ifdef ELEM_HAVE_QT5
-}
-template<typename T>
-inline void
-Spy
-( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
-{
-    DEBUG_ONLY(CallStackEntry cse("Spy"))
-#ifdef ELEM_HAVE_QT5
-    if( GuiDisabled() )
-        LogicError("GUI was disabled");
-    if( A.Grid().Rank() == A.Root() )
-        Spy( A.LockedMatrix(), title, tol );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Spy( A.Matrix(), title, tol );
+    }
+    else
+    {
+        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Spy( A_CIRC_CIRC.Matrix(), title, tol );
+    }
 #else
     LogicError("Qt5 not available");
 #endif // ifdef ELEM_HAVE_QT5

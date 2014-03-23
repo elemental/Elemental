@@ -262,35 +262,38 @@ Write
   FileFormat format=BINARY, std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
-    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-    if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
-        Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantDistRank() == 0 )
+            Write( A.LockedMatrix(), basename, format, title );
+    }
+    else
+    {
+        DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
+    }
 }
 
-#ifndef SWIG
-// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
-
-template<typename T>
+template<typename T,Dist U,Dist V>
 inline void
 Write
-( const DistMatrix<T,STAR,STAR>& A, std::string basename="matrix", 
+( const BlockDistMatrix<T,U,V>& A, std::string basename="matrix", 
   FileFormat format=BINARY, std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
-    if( A.Grid().VCRank() == 0 )
-        Write( A.LockedMatrix(), basename, format, title );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Write( A.LockedMatrix(), basename, format, title );
+    }
+    else
+    {
+        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Write( A_CIRC_CIRC.LockedMatrix(), basename, format, title );
+    }
 }
-template<typename T>
-inline void
-Write
-( const DistMatrix<T,CIRC,CIRC>& A, std::string basename="matrix", 
-  FileFormat format=BINARY, std::string title="" )
-{
-    DEBUG_ONLY(CallStackEntry cse("Write"))
-    if( A.CrossRank() == A.Root() )
-        Write( A.LockedMatrix(), basename, format, title );
-}
-#endif // ifndef SWIG
 
 } // namespace elem
 

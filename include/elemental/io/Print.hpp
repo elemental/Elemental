@@ -39,7 +39,7 @@ Print
     DEBUG_ONLY(CallStackEntry cse("Print"))
     if( U == A.UGath && V == A.VGath )
     {
-        if( A.CrossRank() == A.Root() )
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Print( A.LockedMatrix(), title, os );
     }
     else
@@ -49,6 +49,7 @@ Print
             Print( A_CIRC_CIRC.LockedMatrix(), title, os );
     }
 }
+
 template<typename T,Dist U,Dist V>
 inline void
 Print
@@ -58,7 +59,7 @@ Print
     DEBUG_ONLY(CallStackEntry cse("Print"))
     if( U == A.UGath && V == A.VGath )
     {
-        if( A.CrossRank() == A.Root() )
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Print( A.LockedMatrix(), title, os );
     }
     else
