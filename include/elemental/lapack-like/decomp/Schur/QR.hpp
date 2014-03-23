@@ -20,7 +20,7 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool formATR=false )
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
     w.Resize( n, 1 );
-    lapack::Eig( n, A.Buffer(), A.LDim(), w.Buffer(), formATR );
+    lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), formATR );
 }
 
 template<typename F>
@@ -34,6 +34,26 @@ QR
     w.Resize( n, 1 );
     lapack::Schur
     ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), formATR );
+}
+
+template<typename F>
+inline void
+QR
+( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, 
+  bool formATR=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("schur::qr"))
+    LogicError("This routine is not yet written");
+}
+
+template<typename F>
+inline void
+QR
+( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q,
+  bool formATR=true )
+{
+    DEBUG_ONLY(CallStackEntry cse("schur::qr"))
+    LogicError("This routine is not yet written");
 }
 
 } // namespace schur

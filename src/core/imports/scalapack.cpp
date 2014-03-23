@@ -36,13 +36,13 @@ void ELEM_SCALAPACK(pshseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
   float* H, const int* desch, float* wr, float* wi, 
-  float* Z, const int* descz, float* work, const int* lwork, 
+  float* Q, const int* descq, float* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pdhseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
   double* H, const int* desch, double* wr, double* wi, 
-  double* Z, const int* descz, double* work, const int* lwork, 
+  double* Q, const int* descq, double* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 
 // Pipelined QR algorithm without AED
@@ -50,12 +50,12 @@ void ELEM_SCALAPACK(pdhseqr)
 void ELEM_SCALAPACK(pclahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, scomplex* H, const int* desch,
-  scomplex* w, const int* iloz, const int* ihiz, scomplex* Z, const int* descz,
+  scomplex* w, const int* iloq, const int* ihiq, scomplex* Q, const int* descq,
   scomplex* work, const int* lwork, int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pzlahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, dcomplex* H, const int* desch,
-  dcomplex* w, const int* iloz, const int* ihiz, dcomplex* Z, const int* descz,
+  dcomplex* w, const int* iloq, const int* ihiq, dcomplex* Q, const int* descq,
   dcomplex* work, const int* lwork, int* iwork, const int* liwork, int* info );
 
 // Pipelined QR algorithm with AED for big matrices
@@ -63,14 +63,14 @@ void ELEM_SCALAPACK(pzlahqr)
 void ELEM_SCALAPACK(pslaqr0)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* desch, 
-  float* wr, float* wi, const int* iloz, const int* ihiz, 
-  float* Z, const int* descz, float* work, const int* lwork, 
+  float* wr, float* wi, const int* iloq, const int* ihiq, 
+  float* Q, const int* descq, float* work, const int* lwork, 
   int* iwork, const int* liwork, int* info, const int* reclevel );
 void ELEM_SCALAPACK(pdlaqr0)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* desch, 
-  double* wr, double* wi, const int* iloz, const int* ihiz,
-  double* Z, const int* descz, double* work, const int* lwork, 
+  double* wr, double* wi, const int* iloq, const int* ihiq,
+  double* Q, const int* descq, double* work, const int* lwork, 
   int* iwork, const int* liwork, int* info, const int* reclevel );
 
 // Pipelined QR algorithm with AED for small matrices
@@ -78,14 +78,14 @@ void ELEM_SCALAPACK(pdlaqr0)
 void ELEM_SCALAPACK(pslaqr1)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* desch, 
-  float* wr, float* wi, const int* iloz, const int* ihiz, 
-  float* Z, const int* descz, float* work, const int* lwork, 
+  float* wr, float* wi, const int* iloq, const int* ihiq, 
+  float* Q, const int* descq, float* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pdlaqr1)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* desch, 
-  double* wr, double* wi, const int* iloz, const int* ihiz, 
-  double* Z, const int* descz, double* work, const int* lwork, 
+  double* wr, double* wi, const int* iloq, const int* ihiq, 
+  double* Q, const int* descq, double* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 
 } // extern "C"
@@ -154,23 +154,24 @@ namespace scalapack {
 // ScaLAPACK
 // =========
 
-// Hessenberg QR algorithm
-// -----------------------
+// Hessenberg Schur decomposition via the QR algorithm
+// ---------------------------------------------------
 
-void HessenbergSchur( int n, float* H, const int* desch, scomplex* w ) 
+void HessenbergSchur
+( int n, float* H, const int* desch, scomplex* w, bool fullTriangle ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job='E', compz='N';
+    const char job=(fullTriangle?'E':'S'), compz='N';
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int fakeLDim=1, lwork=-1, dummyIWork, liwork=-1, info;
-    int descz[9] = 
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    int descq[9] = 
         { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
     float dummyWork;
     std::vector<float> wr(n), wi(n);
     ELEM_SCALAPACK(pshseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descz,
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -179,7 +180,7 @@ void HessenbergSchur( int n, float* H, const int* desch, scomplex* w )
     std::vector<float> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pshseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descz,
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
 
     // Combine the real and imaginary components of the eigenvalues
@@ -187,20 +188,21 @@ void HessenbergSchur( int n, float* H, const int* desch, scomplex* w )
         w[j] = scomplex(wr[j],wi[j]);
 }
 
-void HessenbergSchur( int n, double* H, const int* desch, dcomplex* w ) 
+void HessenbergSchur
+( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job = 'E', compz='N';
+    const char job=(fullTriangle?'E':'S'), compz='N';
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int fakeLDim=1, lwork=-1, dummyIWork, liwork=-1, info;
-    int descz[9] = 
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    int descq[9] = 
         { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
     double dummyWork;
     std::vector<double> wr(n), wi(n);
     ELEM_SCALAPACK(pdhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descz,
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -209,7 +211,7 @@ void HessenbergSchur( int n, double* H, const int* desch, dcomplex* w )
     std::vector<double> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pdhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descz,
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
 
     // Combine the real and imaginary components of the eigenvalues
@@ -217,19 +219,21 @@ void HessenbergSchur( int n, double* H, const int* desch, dcomplex* w )
         w[j] = dcomplex(wr[j],wi[j]);
 }
 
-void HessenbergSchur( int n, scomplex* H, const int* desch, scomplex* w ) 
+void HessenbergSchur
+( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    ELEM_FORT_LOGICAL wantt=ELEM_FORT_FALSE, wantz=ELEM_FORT_FALSE;
+    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                      wantz=ELEM_FORT_FALSE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int fakeLDim=1, lwork=-1, dummyIWork, liwork=-1, info;
-    int descz[9] = 
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    int descq[9] = 
         { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
     scomplex dummyWork;
     ELEM_SCALAPACK(pclahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descz,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -238,23 +242,25 @@ void HessenbergSchur( int n, scomplex* H, const int* desch, scomplex* w )
     std::vector<scomplex> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pclahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descz,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
 }
 
-void HessenbergSchur( int n, dcomplex* H, const int* desch, dcomplex* w ) 
+void HessenbergSchur
+( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    ELEM_FORT_LOGICAL wantt=ELEM_FORT_FALSE, wantz=ELEM_FORT_FALSE;
+    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                      wantz=ELEM_FORT_FALSE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int fakeLDim=1, lwork=-1, dummyIWork, liwork=-1, info;
-    int descz[9] = 
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    int descq[9] = 
         { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzlahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descz,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -263,39 +269,151 @@ void HessenbergSchur( int n, dcomplex* H, const int* desch, dcomplex* w )
     std::vector<dcomplex> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pzlahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descz,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
 }
 
 void HessenbergSchur
-( int n, float* H, const int* desch, scomplex* w, float* U, const int* descu ) 
+( int n, float* H, const int* desch, scomplex* w, float* Q, const int* descq, 
+  bool fullTriangle, bool multiplyQ ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    LogicError("This routine not yet written");
+    const char job=(fullTriangle?'E':'S'), compz=(multiplyQ?'V':'I');
+    const int ilo=1, ihi=n;
+
+    // Query the workspace sizes
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    float dummyWork;
+    std::vector<float> wr(n), wi(n);
+    ELEM_SCALAPACK(pshseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
+      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+    // Compute the eigenvalues in parallel
+    lwork = dummyWork;
+    liwork = dummyIWork;
+    std::vector<float> work(lwork);
+    std::vector<int> iwork(liwork);
+    ELEM_SCALAPACK(pshseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
+      work.data(), &lwork, iwork.data(), &liwork, &info );
+
+    // Combine the real and imaginary components of the eigenvalues
+    for( int j=0; j<n; ++j )
+        w[j] = scomplex(wr[j],wi[j]);
 }
 
 void HessenbergSchur
 ( int n, double* H, const int* desch, dcomplex* w, 
-  double* U, const int* descu ) 
+  double* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    LogicError("This routine not yet written");
+    const char job=(fullTriangle?'E':'S'), compz=(multiplyQ?'V':'I');
+    const int ilo=1, ihi=n;
+
+    // Query the workspace sizes
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    double dummyWork;
+    std::vector<double> wr(n), wi(n);
+    ELEM_SCALAPACK(pdhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
+      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+    // Compute the eigenvalues in parallel
+    lwork = dummyWork;
+    liwork = dummyIWork;
+    std::vector<double> work(lwork);
+    std::vector<int> iwork(liwork);
+    ELEM_SCALAPACK(pdhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
+      work.data(), &lwork, iwork.data(), &liwork, &info );
+
+    // Combine the real and imaginary components of the eigenvalues
+    for( int j=0; j<n; ++j )
+        w[j] = scomplex(wr[j],wi[j]);
 }
 
 void HessenbergSchur
 ( int n, scomplex* H, const int* desch, scomplex* w, 
-  scomplex* U, const int* descu ) 
+  scomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    LogicError("This routine not yet written");
+    if( multiplyQ == false )
+        LogicError("Forcing the matrix to identity is not yet supported");
+    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                      wantz=ELEM_FORT_TRUE;
+    const int ilo=1, ihi=n;
+
+    // Query the workspace sizes
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    scomplex dummyWork;
+    ELEM_SCALAPACK(pclahqr)
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+    // Compute the eigenvalues in parallel
+    lwork = dummyWork.real();
+    liwork = dummyIWork;
+    std::vector<scomplex> work(lwork);
+    std::vector<int> iwork(liwork);
+    ELEM_SCALAPACK(pclahqr)
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+      work.data(), &lwork, iwork.data(), &liwork, &info );
 }
 
 void HessenbergSchur
 ( int n, dcomplex* H, const int* desch, dcomplex* w, 
-  dcomplex* U, const int* descu ) 
+  dcomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    LogicError("This routine not yet written");
+    if( multiplyQ == false )
+        LogicError("Forcing the matrix to identity is not yet supported");
+    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                      wantz=ELEM_FORT_TRUE;
+    const int ilo=1, ihi=n;
+
+    // Query the workspace sizes
+    int lwork=-1, dummyIWork, liwork=-1, info;
+    dcomplex dummyWork;
+    ELEM_SCALAPACK(pzlahqr)
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+    // Compute the eigenvalues in parallel
+    lwork = dummyWork.real();
+    liwork = dummyIWork;
+    std::vector<dcomplex> work(lwork);
+    std::vector<int> iwork(liwork);
+    ELEM_SCALAPACK(pzlahqr)
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+      work.data(), &lwork, iwork.data(), &liwork, &info );
+}
+
+// Hessenberg eigenvalues/pairs via the QR algorithm
+// -------------------------------------------------
+
+void HessenbergEig( int n, float* H, const int* desch, scomplex* w ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    HessenbergSchur( n, H, desch, w, false );
+}
+
+void HessenbergEig( int n, double* H, const int* desch, dcomplex* w ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    HessenbergSchur( n, H, desch, w, false );
+}
+
+void HessenbergEig( int n, scomplex* H, const int* desch, scomplex* w ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    HessenbergSchur( n, H, desch, w, false );
+}
+
+void HessenbergEig( int n, dcomplex* H, const int* desch, dcomplex* w ) 
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
+    HessenbergSchur( n, H, desch, w, false );
 }
 
 } // namespace scalapack

@@ -1060,13 +1060,13 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================
 
-void HessenbergEig( int n, float* H, int ldh, scomplex* w )
+void HessenbergSchur( int n, float* H, int ldh, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job='E', compz='N';
+    const char job=(fullTriangle?'S':'E'), compz='N';
     int ilo=1, ihi=n;
     int fakeLDim=1, lwork=-1, info;
     float dummyWork;
@@ -1089,13 +1089,14 @@ void HessenbergEig( int n, float* H, int ldh, scomplex* w )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
 }
 
-void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
+void HessenbergSchur
+( int n, double* H, int ldh, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job='E', compz='N';
+    const char job=(fullTriangle?'S':'E'), compz='N';
     int ilo=1, ihi=n;
     int fakeLDim=1, lwork=-1, info;
     double dummyWork;
@@ -1118,13 +1119,14 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
 }
 
-void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
+void HessenbergSchur
+( int n, scomplex* H, int ldh, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job='E', compz='N';
+    const char job=(fullTriangle?'S':'E'), compz='N';
     int ilo=1, ihi=n;
     int fakeLDim=1, lwork=-1, info;
     scomplex dummyWork;
@@ -1143,13 +1145,14 @@ void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
         RuntimeError("chseqr's failed to compute all eigenvalues");
 }
 
-void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
+void HessenbergSchur
+( int n, dcomplex* H, int ldh, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job='E', compz='N';
+    const char job=(fullTriangle?'S':'E'), compz='N';
     int ilo=1, ihi=n;
     int fakeLDim=1, lwork=-1, info;
     dcomplex dummyWork;
@@ -1168,47 +1171,157 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
         RuntimeError("zhseqr's failed to compute all eigenvalues");
 }
 
-void HessenbergSchur( int n, float* H, int ldh, float* Q, int ldq, scomplex* w )
+void HessenbergSchur
+( int n, float* H, int ldh, scomplex* w, float* Q, int ldq, 
+  bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
-    LogicError("This routine not yet written");
+
+    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    int ilo=1, ihi=n;
+    int lwork=-1, info;
+    float dummyWork;
+    std::vector<float> wr( n ), wi( n );
+    ELEM_LAPACK(shseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<float> work(lwork);
+    ELEM_LAPACK(shseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
+      work.data(), &lwork, &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("shseqr's failed to compute all eigenvalues");
+
+    for( int i=0; i<n; ++i )
+        w[i] = elem::Complex<float>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
-( int n, double* H, int ldh, double* Q, int ldq, dcomplex* w )
+( int n, double* H, int ldh, dcomplex* w, double* Q, int ldq, 
+  bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
-    LogicError("This routine not yet written");
+
+    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    int ilo=1, ihi=n;
+    int lwork=-1, info;
+    double dummyWork;
+    std::vector<double> wr( n ), wi( n );
+    ELEM_LAPACK(dhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<double> work(lwork);
+    ELEM_LAPACK(dhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
+      work.data(), &lwork, &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("dhseqr's failed to compute all eigenvalues");
+    
+    for( int i=0; i<n; ++i )
+        w[i] = elem::Complex<double>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
-( int n, scomplex* H, int ldh, scomplex* Q, int ldq, scomplex* w )
+( int n, scomplex* H, int ldh, scomplex* w, scomplex* Q, int ldq,
+  bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
-    LogicError("This routine not yet written");
+
+    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    int ilo=1, ihi=n;
+    int lwork=-1, info;
+    scomplex dummyWork;
+    ELEM_LAPACK(chseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real();
+    std::vector<scomplex> work(lwork);
+    ELEM_LAPACK(chseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
+      work.data(), &lwork, &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("chseqr's failed to compute all eigenvalues");
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, int ldh, dcomplex* Q, int ldq, dcomplex* w )
+( int n, dcomplex* H, int ldh, dcomplex* w, dcomplex* Q, int ldq,
+  bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
-    LogicError("This routine not yet written");
+
+    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    int ilo=1, ihi=n;
+    int lwork=-1, info;
+    dcomplex dummyWork;
+    ELEM_LAPACK(zhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real();
+    std::vector<dcomplex> work(lwork);
+    ELEM_LAPACK(zhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
+      work.data(), &lwork, &info );
+    if( info < 0 )
+        RuntimeError("Argument ",-info," had an illegal value");
+    else if( info > 0 )
+        RuntimeError("zhseqr's failed to compute all eigenvalues");
 }
+
+// Compute eigenvalues/pairs of an upper Hessenberg matrix
+// =======================================================
+
+void HessenbergEig( int n, float* H, int ldh, scomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    HessenbergSchur( n, H, ldh, w, false );
+}
+
+void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    HessenbergSchur( n, H, ldh, w, false );
+}
+
+void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    HessenbergSchur( n, H, ldh, w, false );
+}
+
+void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
+    HessenbergSchur( n, H, ldh, w, false );
+}
+
+// TODO: Compute eigenpairs
 
 // Compute the Schur decomposition of a square matrix
 // ==================================================
 
-void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle )
+void Schur( int n, float* A, int lda, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1250,9 +1363,9 @@ void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
 }
 
-void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
+void Schur( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1294,9 +1407,9 @@ void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
 }
 
-void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
+void Schur( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1333,9 +1446,9 @@ void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
         RuntimeError("chseqr's failed to compute all eigenvalues");
 }
 
-void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
+void Schur( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
@@ -1373,7 +1486,7 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
 }
 
 void Schur
-( int n, float* A, int lda, float* Q, int ldq, scomplex* w, bool fullTriangle )
+( int n, float* A, int lda, scomplex* w, float* Q, int ldq, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
@@ -1433,7 +1546,7 @@ void Schur
 }
 
 void Schur
-( int n, double* A, int lda, double* Q, int ldq, dcomplex* w, 
+( int n, double* A, int lda, dcomplex* w, double* Q, int ldq, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
@@ -1494,7 +1607,7 @@ void Schur
 }
 
 void Schur
-( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w, 
+( int n, scomplex* A, int lda, scomplex* w, scomplex* Q, int ldq, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
@@ -1550,7 +1663,7 @@ void Schur
 }
 
 void Schur
-( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w, 
+( int n, dcomplex* A, int lda, dcomplex* w, dcomplex* Q, int ldq, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
@@ -1604,6 +1717,35 @@ void Schur
     else if( info > 0 )
         RuntimeError("chseqr's failed to compute all eigenvalues");
 }
+
+// Compute the eigenvalues/pairs of a square matrix
+// ================================================
+
+void Eig( int n, float* A, int lda, scomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    Schur( n, A, lda, w, false );
+}
+
+void Eig( int n, double* A, int lda, dcomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    Schur( n, A, lda, w, false );
+}
+
+void Eig( int n, scomplex* A, int lda, scomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    Schur( n, A, lda, w, false );
+}
+
+void Eig( int n, dcomplex* A, int lda, dcomplex* w )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    Schur( n, A, lda, w, false );
+}
+
+// TODO: Also compute the eigenvectors
 
 } // namespace lapack
 } // namespace elem

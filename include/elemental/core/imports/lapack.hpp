@@ -13,9 +13,8 @@
 namespace elem {
 namespace lapack {
 
-//
 // Machine constants
-//
+// =================
 
 // Relative machine precision
 template<typename R> R MachineEpsilon();
@@ -58,9 +57,8 @@ template<typename R> R MachineOverflowThreshold();
 template<> float MachineOverflowThreshold<float>();
 template<> double MachineOverflowThreshold<double>();
 
-//
 // For safely computing norms without overflow/underflow
-//
+// =====================================================
 
 float SafeNorm( float alpha, float beta );
 double SafeNorm( double alpha, double beta );
@@ -72,6 +70,8 @@ double SafeNorm( Complex<double> alpha, double beta );
 float SafeNorm( float alpha, Complex<float> beta );
 double SafeNorm( double alpha, Complex<double> beta );
 
+// Givens rotations
+// ================
 //
 // Given phi and gamma, compute a Givens rotation such that
 //
@@ -87,9 +87,8 @@ double   Givens( double   phi, double   gamma, double* c, double  * s );
 scomplex Givens( scomplex phi, scomplex gamma, float * c, scomplex* s );
 dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s );
 
-//
 // Compute the eigen-values/pairs of a symmetric tridiagonal matrix
-//
+// ================================================================
 
 int SymmetricTridiagEig
 ( char job, char range, int n, float* d, float* e,
@@ -100,9 +99,8 @@ int SymmetricTridiagEig
   double vl, double vu, int il, int iu, double abstol,
   double* w, double* Z, int ldz );
 
-//
 // Compute the eigen-values/pairs of a Hermitian matrix
-//
+// ====================================================
 
 int HermitianEig
 ( char job, char range, char uplo, int n, float* A, int lda,
@@ -121,9 +119,8 @@ int HermitianEig
   double vl, double vu, int il, int iu, double abstol,
   double* w, dcomplex* Z, int ldz );
 
-//
 // Compute the SVD of a general matrix using a divide and conquer algorithm
-//
+// ========================================================================
 
 void DivideAndConquerSVD
 ( int m, int n, float* A, int lda, 
@@ -138,9 +135,8 @@ void DivideAndConquerSVD
 ( int m, int n, dcomplex* A, int lda, 
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
 
-//
 // Compute the SVD of a general matrix using the QR algorithm
-//
+// ==========================================================
 
 void QRSVD
 ( int m, int n, float* A, int lda, 
@@ -155,25 +151,22 @@ void QRSVD
 ( int m, int n, dcomplex* A, int lda, 
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
 
-//
 // Compute the singular values of a general matrix (using the QR algorithm)
-//
+// ========================================================================
 
 void SVD( int m, int n, float* A, int lda, float* s );
 void SVD( int m, int n, double* A, int lda, double* s );
 void SVD( int m, int n, scomplex* A, int lda, float* s );
 void SVD( int m, int n, dcomplex* A, int lda, double* s );
 
-//
 // Compute the singular values of a bidiagonal matrix via dqds
-//
+// ===========================================================
 
 void BidiagDQDS( int n, float* d, float* e );
 void BidiagDQDS( int n, double* d, double* e );
 
-//
 // Compute the SVD of a bidiagonal matrix using the QR algorithm
-//
+// =============================================================
 
 void BidiagQRAlg
 ( char uplo, int n, int numColsVTrans, int numRowsU,
@@ -188,45 +181,75 @@ void BidiagQRAlg
 ( char uplo, int n, int numColsVAdj, int numRowsU, 
   double* d, double* e, dcomplex* VAdj, int ldva, dcomplex* U, int ldu );
 
-// 
 // Compute the Schur decomposition of an upper Hessenberg matrix
-//
+// =============================================================
+
+void HessenbergSchur
+( int n, float* H, int ldh, scomplex* w, bool fullTriangle=false );
+void HessenbergSchur
+( int n, double* H, int ldh, dcomplex* w, bool fullTriangle=false );
+void HessenbergSchur
+( int n, scomplex* H, int ldh, scomplex* w, bool fullTriangle=false );
+void HessenbergSchur
+( int n, dcomplex* H, int ldh, dcomplex* w, bool fullTriangle=false );
+
+void HessenbergSchur
+( int n, float* H, int ldh, scomplex* w, float* Q, int ldq, 
+  bool fullTriangle=true, bool multiplyQ=false );
+void HessenbergSchur
+( int n, double* H, int ldh, dcomplex* w, double* Q, int ldq, 
+  bool fullTriangle=true, bool multiplyQ=false );
+void HessenbergSchur
+( int n, scomplex* H, int ldh, scomplex* w, scomplex* Q, int ldq, 
+  bool fullTriangle=false, bool multiplyQ=false );
+void HessenbergSchur
+( int n, dcomplex* H, int ldh, dcomplex* w, dcomplex* Q, int ldq, 
+  bool fullTriangle=false, bool multiplyQ=false );
+
+// Compute the eigenvalues/pairs of an upper Hessenberg matrix
+// ===========================================================
 
 void HessenbergEig( int n, float* H, int ldh, scomplex* w );
 void HessenbergEig( int n, double* H, int ldh, dcomplex* w );
 void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w );
 void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w );
 
-// TODO: HessenbergEig which computes eigenvectors?
+// TODO: A version which computes eigenvectors
 
-void HessenbergSchur( int n, float* H, int ldh, scomplex* w );
-void HessenbergSchur( int n, double* H, int ldh, dcomplex* w );
-void HessenbergSchur( int n, scomplex* H, int ldh, scomplex* w );
-void HessenbergSchur( int n, dcomplex* H, int ldh, dcomplex* w );
-
-//
 // Compute the Schur decomposition of a square matrix
-//
+// ==================================================
 
-void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle=false );
-void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle=false );
-void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle=false );
-void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle=false );
+void Schur
+( int n, float* A, int lda, scomplex* w, bool fullTriangle=false );
+void Schur
+( int n, double* A, int lda, dcomplex* w, bool fullTriangle=false );
+void Schur
+( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle=false );
+void Schur
+( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle=false );
+
+void Schur
+( int n, float* A, int lda, scomplex* w, float* Q, int ldq, 
+  bool fullTriangle=true );
+void Schur
+( int n, double* A, int lda, dcomplex* w, double* Q, int ldq, 
+  bool fullTriangle=true );
+void Schur
+( int n, scomplex* A, int lda, scomplex* w, scomplex* Q, int ldq, 
+  bool fullTriangle=true );
+void Schur
+( int n, dcomplex* A, int lda, dcomplex* w, dcomplex* Q, int ldq, 
+  bool fullTriangle=true );
+
+// Compute the eigenvalues/pairs of a square matrix
+// ================================================
+
+void Eig( int n, float* A, int lda, scomplex* w );
+void Eig( int n, double* A, int lda, dcomplex* w );
+void Eig( int n, scomplex* A, int lda, scomplex* w );
+void Eig( int n, dcomplex* A, int lda, dcomplex* w );
 
 // TODO: Eig which computes eigenvectors?
-
-void Schur
-( int n, float* A, int lda, float* Q, int ldq, scomplex* w, 
-  bool fullTriangle=true );
-void Schur
-( int n, double* A, int lda, double* Q, int ldq, dcomplex* w, 
-  bool fullTriangle=true );
-void Schur
-( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w, 
-  bool fullTriangle=true );
-void Schur
-( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w, 
-  bool fullTriangle=true );
 
 } // namespace lapack
 } // namespace elem

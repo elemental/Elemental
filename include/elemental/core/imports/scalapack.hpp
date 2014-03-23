@@ -29,38 +29,47 @@ void Exit( bool finished=false );
 
 } // namespace blacs
 
-
 namespace scalapack {
 
 // ScaLAPACK proper
 // ================
 
-// Hessenberg QR algorithm
-// -----------------------
+// Hessenberg Schur decomposition via the QR algorithm
+// ---------------------------------------------------
 // NOTE: In all of these routines, the matrix needs to be explicitly 
 //       upper-Hessenberg before the call, otherwise behavior is unpredictable
 
 void HessenbergSchur
-( int n, float* H, const int* desch, scomplex* w );
+( int n, float* H, const int* desch, scomplex* w, bool fullTriangle=false );
 void HessenbergSchur
-( int n, double* H, const int* desch, dcomplex* w );
+( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle=false );
 void HessenbergSchur
-( int n, scomplex* H, const int* desch, scomplex* w );
+( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle=false );
 void HessenbergSchur
-( int n, dcomplex* H, const int* desch, dcomplex* w );
+( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle=false );
 
 void HessenbergSchur
 ( int n, float* H, const int* desch, scomplex* w, 
-  float* U, const int* descu );
+  float* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
 void HessenbergSchur
 ( int n, double* H, const int* desch, dcomplex* w, 
-  double* U, const int* descu );
+  double* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
 void HessenbergSchur
 ( int n, scomplex* H, const int* desch, scomplex* w, 
-  scomplex* U, const int* descu );
+  scomplex* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
 void HessenbergSchur
 ( int n, dcomplex* H, const int* desch, dcomplex* w, 
-  dcomplex* U, const int* descu );
+  dcomplex* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
+
+// Hessenberg eigenvalues/pairs
+// ----------------------------
+
+void HessenbergEig( int n, float* H, const int* desch, scomplex* w );
+void HessenbergEig( int n, double* H, const int* desch, dcomplex* w );
+void HessenbergEig( int n, scomplex* H, const int* desch, scomplex* w );
+void HessenbergEig( int n, dcomplex* H, const int* desch, dcomplex* w );
+
+// TODO: Compute the eigenvectors
 
 } // namespace scalapack
 } // namespace elem
