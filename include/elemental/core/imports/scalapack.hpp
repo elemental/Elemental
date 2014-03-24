@@ -42,26 +42,34 @@ namespace scalapack {
 //       upper-Hessenberg before the call, otherwise behavior is unpredictable
 
 void HessenbergSchur
-( int n, float* H, const int* desch, scomplex* w, bool fullTriangle=false );
+( int n, float* H, const int* desch, scomplex* w, bool fullTriangle=false, 
+  bool aed=false );
 void HessenbergSchur
-( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle=false );
+( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle=false,
+  bool aed=false );
 void HessenbergSchur
-( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle=false );
+( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle=false,
+  bool aed=false );
 void HessenbergSchur
-( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle=false );
+( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle=false,
+  bool aed=false );
 
 void HessenbergSchur
 ( int n, float* H, const int* desch, scomplex* w, 
-  float* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
+  float* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false,
+  bool aed=false );
 void HessenbergSchur
 ( int n, double* H, const int* desch, dcomplex* w, 
-  double* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
+  double* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false,
+  bool aed=false );
 void HessenbergSchur
 ( int n, scomplex* H, const int* desch, scomplex* w, 
-  scomplex* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
+  scomplex* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false,
+  bool aed=false );
 void HessenbergSchur
 ( int n, dcomplex* H, const int* desch, dcomplex* w, 
-  dcomplex* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false );
+  dcomplex* Q, const int* descq, bool fullTriangle=true, bool multiplyQ=false,
+  bool aed=false );
 
 // Hessenberg eigenvalues/pairs
 // ----------------------------

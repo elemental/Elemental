@@ -47,6 +47,16 @@ void ELEM_SCALAPACK(pdhseqr)
 
 // Pipelined QR algorithm without AED
 // ----------------------------------
+void ELEM_SCALAPACK(pslahqr)
+( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+  const int* ilo, const int* ihi, float* H, const int* desch,
+  scomplex* w, const int* iloq, const int* ihiq, float* Q, const int* descq,
+  float* work, const int* lwork, int* iwork, const int* liwork, int* info );
+void ELEM_SCALAPACK(pdlahqr)
+( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+  const int* ilo, const int* ihi, double* H, const int* desch,
+  dcomplex* w, const int* iloq, const int* ihiq, double* Q, const int* descq,
+  double* work, const int* lwork, int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pclahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, scomplex* H, const int* desch,
@@ -158,73 +168,140 @@ namespace scalapack {
 // ---------------------------------------------------
 
 void HessenbergSchur
-( int n, float* H, const int* desch, scomplex* w, bool fullTriangle ) 
+( int n, float* H, const int* desch, scomplex* w, bool fullTriangle, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job=(fullTriangle?'S':'E'), compz='N';
     const int ilo=1, ihi=n;
-
-    // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
     int descq[9] = 
         { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
-    float dummyWork;
-    std::vector<float> wr(n), wi(n);
-    ELEM_SCALAPACK(pshseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+    int info;
+    if( aed )
+    {
+        std::cerr << 
+          "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
+          << std::endl;
+        const char job=(fullTriangle?'S':'E'), compz='N';
 
-    // Compute the eigenvalues in parallel
-    lwork = dummyWork;
-    liwork = dummyIWork;
-    std::vector<float> work(lwork);
-    std::vector<int> iwork(liwork);
-    ELEM_SCALAPACK(pshseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+        // Query the workspace sizes
+        int lwork=-1, dummyIWork, liwork=-1;
+        float dummyWork;
+        std::vector<float> wr(n), wi(n);
+        ELEM_SCALAPACK(pshseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          0, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
-    // Combine the real and imaginary components of the eigenvalues
-    for( int j=0; j<n; ++j )
-        w[j] = std::complex<float>(wr[j],wi[j]);
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<float> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pshseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          0, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pshseqr exited with info=",info);
+
+        // Combine the real and imaginary components of the eigenvalues
+        for( int j=0; j<n; ++j )
+            w[j] = std::complex<float>(wr[j],wi[j]);
+    }
+    else
+    {
+        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                          wantz=ELEM_FORT_FALSE;
+
+        // Query the workspace sizes
+        int lwork=-1, dummyIWork, liwork=-1;
+        float dummyWork;
+        ELEM_SCALAPACK(pslahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<float> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pslahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+          work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pslahqr exited with info=",info);
+    }
 }
 
 void HessenbergSchur
-( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle ) 
+( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle, bool aed )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job=(fullTriangle?'S':'E'), compz='N';
     const int ilo=1, ihi=n;
-
-    // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
     int descq[9] = 
         { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
-    double dummyWork;
-    std::vector<double> wr(n), wi(n);
-    ELEM_SCALAPACK(pdhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+    int info;
+    if( aed )
+    {
+        std::cerr << 
+          "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
+          << std::endl;
+        const char job=(fullTriangle?'S':'E'), compz='N';
 
-    // Compute the eigenvalues in parallel
-    lwork = dummyWork;
-    liwork = dummyIWork;
-    std::vector<double> work(lwork);
-    std::vector<int> iwork(liwork);
-    ELEM_SCALAPACK(pdhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 0, descq,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+        // Query the workspace sizes
+        int lwork=-1, dummyIWork, liwork=-1;
+        double dummyWork;
+        std::vector<double> wr(n), wi(n);
+        ELEM_SCALAPACK(pdhseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          0, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
-    // Combine the real and imaginary components of the eigenvalues
-    for( int j=0; j<n; ++j )
-        w[j] = std::complex<double>(wr[j],wi[j]);
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<double> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pdhseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          0, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pdhseqr exited with info=",info);
+
+        // Combine the real and imaginary components of the eigenvalues
+        for( int j=0; j<n; ++j )
+            w[j] = std::complex<double>(wr[j],wi[j]);
+    }
+    else
+    {
+        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                          wantz=ELEM_FORT_FALSE;
+
+        // Query the workspace sizes
+        int lwork=-1, dummyIWork, liwork=-1;
+        double dummyWork;
+        ELEM_SCALAPACK(pdlahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<double> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pdlahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+          work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pdlahqr exited with info=",info);
+    }
 }
 
 void HessenbergSchur
-( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle ) 
+( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle, 
+  bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                       wantz=ELEM_FORT_FALSE;
+    if( aed )
+        LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -244,14 +321,19 @@ void HessenbergSchur
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
+    if( info != 0 )
+        RuntimeError("pclahqr exited with info=",info);
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle ) 
+( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle,
+  bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                       wantz=ELEM_FORT_FALSE;
+    if( aed )
+        LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -271,87 +353,153 @@ void HessenbergSchur
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
+    if( info != 0 )
+        RuntimeError("pzlahqr exited with info=",info);
 }
 
 void HessenbergSchur
 ( int n, float* H, const int* desch, scomplex* w, float* Q, const int* descq, 
-  bool fullTriangle, bool multiplyQ ) 
+  bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    std::cerr << 
-      "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
-      << std::endl;
-    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
     const int ilo=1, ihi=n;
+    int info;
+    if( aed )
+    {
+        std::cerr << 
+          "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
+          << std::endl;
+        const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
 
-    // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
-    // querying, which is located in p{s,d}laqr1, 
-    //    https://github.com/poulson/scalapack/commits/master 
-    // we must be a bit more careful.
-    int lwork=-1, dummyIWork=3, liwork=-1, info;
-    float dummyWork;
-    std::vector<float> wr(n), wi(n);
-    ELEM_SCALAPACK(pshseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
+        // querying, which is located in p{s,d}laqr1, 
+        //    https://github.com/poulson/scalapack/commits/master 
+        // we must be a bit more careful.
+        int lwork=-1, dummyIWork=3, liwork=-1;
+        float dummyWork;
+        std::vector<float> wr(n), wi(n);
+        ELEM_SCALAPACK(pshseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          Q, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
-    // Compute the eigenvalues in parallel
-    lwork = dummyWork;
-    liwork = dummyIWork;
-    std::vector<float> work(lwork);
-    std::vector<int> iwork(liwork);
-    ELEM_SCALAPACK(pshseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<float> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pshseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          Q, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pshseqr exited with info=",info);
 
-    // Combine the real and imaginary components of the eigenvalues
-    for( int j=0; j<n; ++j )
-        w[j] = std::complex<float>(wr[j],wi[j]);
+        // Combine the real and imaginary components of the eigenvalues
+        for( int j=0; j<n; ++j )
+            w[j] = std::complex<float>(wr[j],wi[j]);
+    }
+    else
+    {
+        if( multiplyQ == false )
+            LogicError("Forcing the matrix to identity is not yet supported");
+        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                          wantz=ELEM_FORT_TRUE;
+
+        // Query the workspace sizes
+        int lwork=-1, dummyIWork, liwork=-1;
+        float dummyWork;
+        ELEM_SCALAPACK(pslahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<float> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pslahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+          work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pslahqr exited with info=",info);
+    }
 }
 
 void HessenbergSchur
 ( int n, double* H, const int* desch, dcomplex* w, 
-  double* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
+  double* Q, const int* descq, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    std::cerr << 
-      "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
-      << std::endl;
-    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
     const int ilo=1, ihi=n;
+    int info;
+    if( aed )
+    {
+        std::cerr << 
+          "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
+          << std::endl;
+        const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
 
-    // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
-    // querying, which is located in p{s,d}laqr1, 
-    //    https://github.com/poulson/scalapack/commits/master 
-    // we must be a bit more careful.
-    int lwork=-1, dummyIWork=3, liwork=-1, info;
-    double dummyWork;
-    std::vector<double> wr(n), wi(n);
-    ELEM_SCALAPACK(pdhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
+        // querying, which is located in p{s,d}laqr1, 
+        //    https://github.com/poulson/scalapack/commits/master 
+        // we must be a bit more careful.
+        int lwork=-1, dummyIWork=3, liwork=-1;
+        double dummyWork;
+        std::vector<double> wr(n), wi(n);
+        ELEM_SCALAPACK(pdhseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          Q, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
-    // Compute the eigenvalues in parallel
-    lwork = dummyWork;
-    liwork = dummyIWork;
-    std::vector<double> work(lwork);
-    std::vector<int> iwork(liwork);
-    ELEM_SCALAPACK(pdhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), Q, descq,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<double> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pdhseqr)
+        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
+          Q, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pdhseqr exited with info=",info);
 
-    // Combine the real and imaginary components of the eigenvalues
-    for( int j=0; j<n; ++j )
-        w[j] = std::complex<double>(wr[j],wi[j]);
+        // Combine the real and imaginary components of the eigenvalues
+        for( int j=0; j<n; ++j )
+            w[j] = std::complex<double>(wr[j],wi[j]);
+    }
+    else
+    {
+        if( multiplyQ == false )
+            LogicError("Forcing the matrix to identity is not yet supported");
+        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
+                          wantz=ELEM_FORT_TRUE;
+
+        // Query the workspace sizes
+        int lwork=-1, dummyIWork, liwork=-1;
+        double dummyWork;
+        ELEM_SCALAPACK(pdlahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+
+        // Compute the eigenvalues in parallel
+        lwork = dummyWork;
+        liwork = dummyIWork;
+        std::vector<double> work(lwork);
+        std::vector<int> iwork(liwork);
+        ELEM_SCALAPACK(pdlahqr)
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+          work.data(), &lwork, iwork.data(), &liwork, &info );
+        if( info != 0 )
+            RuntimeError("pdlahqr exited with info=",info);
+    }
 }
 
 void HessenbergSchur
 ( int n, scomplex* H, const int* desch, scomplex* w, 
-  scomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
+  scomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    if( multiplyQ == false )
+    if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
+    if( aed )
+        LogicError("AED is not supported for complex matrices");
     ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                       wantz=ELEM_FORT_TRUE;
     const int ilo=1, ihi=n;
@@ -371,15 +519,19 @@ void HessenbergSchur
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
+    if( info != 0 )
+        RuntimeError("pclahqr exited with info=",info);
 }
 
 void HessenbergSchur
 ( int n, dcomplex* H, const int* desch, dcomplex* w, 
-  dcomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
+  dcomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    if( multiplyQ == false )
+    if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
+    if( aed )
+        LogicError("AED is not supported for complex matrices");
     ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                       wantz=ELEM_FORT_TRUE;
     const int ilo=1, ihi=n;
@@ -399,6 +551,8 @@ void HessenbergSchur
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
       work.data(), &lwork, iwork.data(), &liwork, &info );
+    if( info != 0 )
+        RuntimeError("pzlahqr exited with info=",info);
 }
 
 // Hessenberg eigenvalues/pairs via the QR algorithm
