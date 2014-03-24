@@ -41,32 +41,32 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, r, order );
 
-        BlockDistMatrix<double> A(m,n,g,mb,nb);
+        BlockDistMatrix<Complex<double>> A(m,n,g,mb,nb);
         MakeOnes( A );
         Scale( double(commRank), A.Matrix() );
         if( print )
             Print( A, "A" );
-        DistMatrix<double> AElem( A );
+        DistMatrix<Complex<double>> AElem( A );
         Scale( 2., AElem );
         if( print )
-            Print( AElem, "AElem" );
+            Print( AElem, "A := 2 A" );
         A = AElem;
         if( print )
             Print( A, "A" );
 #ifdef ELEM_HAVE_SCALAPACK        
         if( m == n )
         {
-            DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
             // NOTE: There appears to be a bug in the parallel eigenvalue
-            //       reordering in P{S,D}HSEQR (within P{S,D}TRORD)
-            //BlockDistMatrix<double> Q(m,m,g,mb,nb);
-            //schur::QR( A, w, Q, fullTriangle );
-            schur::QR( A, w, fullTriangle );
+            //       reordering in P{S,D}HSEQR (within P{S,D}TRORD).
+            //       This driver was therefore switched to complex arithmetic.
+            DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
+            BlockDistMatrix<Complex<double>> Q(m,m,g,mb,nb);
+            schur::QR( A, w, Q, fullTriangle );
             if( print )
             {
                 Print( A, "Schur(A)" );
                 Print( w, "w(A)" );
-                //Print( Q, "Q" );
+                Print( Q, "Q" );
             }
         }
 #endif
