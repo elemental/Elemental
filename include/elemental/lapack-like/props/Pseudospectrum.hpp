@@ -402,13 +402,13 @@ Triangular
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
 
+    DistMatrix<C,VR,STAR> w(g);
 #ifdef ELEM_HAVE_SCALAPACK
     schur::QR( U, w );
 #else
     // We don't actually need the Schur vectors, but SDC requires their 
     // computation in order to form the full triangular factor
     DistMatrix<C> X(g);
-    DistMatrix<C,VR,STAR> w(g);
     const bool formATR = true;
     // TODO: Expose these as options
     const Int cutoff = 256;
@@ -960,13 +960,13 @@ Pseudospectrum
 
     if( schur )
     {
+        DistMatrix<C,VR,STAR> w(g);
 #ifdef ELEM_HAVE_SCALAPACK
         schur::QR( B, w );
 #else
         // We don't actually need the Schur vectors, but SDC requires their
         // computation in order to form the full triangular factor
         DistMatrix<C> X(g);
-        DistMatrix<C,VR,STAR> w(g);
         const bool formATR = true;
         // TODO: Expose these as options
         const Int cutoff = 256;

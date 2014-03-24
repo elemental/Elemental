@@ -264,7 +264,7 @@ Write
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( U == A.UGath && V == A.VGath )
     {
-        if( A.CrossRank() == A.Root() && A.RedundantDistRank() == 0 )
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
             Write( A.LockedMatrix(), basename, format, title );
     }
     else
