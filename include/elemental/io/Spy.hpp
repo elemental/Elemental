@@ -60,7 +60,7 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
     if( U == A.UGath && V == A.VGath )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
-            Spy( A.Matrix(), title, tol );
+            Spy( A.LockedMatrix(), title, tol );
     }
     else
     {
@@ -85,7 +85,7 @@ Spy
     if( U == A.UGath && V == A.VGath )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
-            Spy( A.Matrix(), title, tol );
+            Spy( A.LockedMatrix(), title, tol );
     }
     else
     {
