@@ -18,32 +18,33 @@ namespace schur {
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool formATR=false )
+QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool fullTriangle=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
     w.Resize( n, 1 );
-    lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), formATR );
+    lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
 }
 
 template<typename F>
 inline void
 QR
-( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, bool formATR=true )
+( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
+  bool fullTriangle=true )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
     Q.Resize( n, n );
     w.Resize( n, 1 );
     lapack::Schur
-    ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), formATR );
+    ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), fullTriangle );
 }
 
 template<typename F>
 inline void
 QR
 ( BlockDistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w,
-  bool formATR=false )
+  bool fullTriangle=false, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef ELEM_HAVE_SCALAPACK
@@ -81,7 +82,7 @@ QR
     // Run the QR algorithm in block form
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), formATR );
+    ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, aed );
     w = w_STAR_STAR;
 
     blacs::FreeGrid( context );
@@ -96,7 +97,7 @@ template<typename F>
 inline void
 QR
 ( BlockDistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w,
-  BlockDistMatrix<F>& Q, bool formATR=true )
+  BlockDistMatrix<F>& Q, bool fullTriangle=true, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef ELEM_HAVE_SCALAPACK
@@ -150,9 +151,10 @@ QR
     // Compute the Schur decomposition in block form, multiplying the 
     // accumulated Householder reflectors from the right
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
+    const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      Q.Buffer(), descq.data(), formATR, true );
+      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, aed );
     w = w_STAR_STAR;
 
     blacs::FreeGrid( context );
@@ -167,7 +169,7 @@ template<typename F>
 inline void
 QR
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, 
-  bool formATR=false )
+  bool fullTriangle=false, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef ELEM_HAVE_SCALAPACK
@@ -198,7 +200,8 @@ QR
     blacs::Desc desca = FillDesc( ABlock, context );
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
-    ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), formATR );
+    ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
+      fullTriangle, aed );
     A = ABlock;
     w = w_STAR_STAR;
 
@@ -214,7 +217,7 @@ template<typename F>
 inline void
 QR
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q,
-  bool formATR=true )
+  bool fullTriangle=true, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef ELEM_HAVE_SCALAPACK
@@ -257,9 +260,10 @@ QR
     // Compute the Schur decomposition in block form, multiplying the 
     // accumulated Householder reflectors from the right
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
+    const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      QBlock.Buffer(), descq.data(), formATR, true );
+      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, aed );
     A = ABlock;
     w = w_STAR_STAR;
     Q = QBlock;
