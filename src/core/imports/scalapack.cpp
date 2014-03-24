@@ -161,7 +161,7 @@ void HessenbergSchur
 ( int n, float* H, const int* desch, scomplex* w, bool fullTriangle ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job=(fullTriangle?'E':'S'), compz='N';
+    const char job=(fullTriangle?'S':'E'), compz='N';
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -185,14 +185,14 @@ void HessenbergSchur
 
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = scomplex(wr[j],wi[j]);
+        w[j] = std::complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
 ( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job=(fullTriangle?'E':'S'), compz='N';
+    const char job=(fullTriangle?'S':'E'), compz='N';
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -216,7 +216,7 @@ void HessenbergSchur
 
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = dcomplex(wr[j],wi[j]);
+        w[j] = std::complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -278,11 +278,17 @@ void HessenbergSchur
   bool fullTriangle, bool multiplyQ ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job=(fullTriangle?'E':'S'), compz=(multiplyQ?'V':'I');
+    std::cerr << 
+      "WARNING: PSHSEQR seems to have a bug in its eigenvalue reordering" 
+      << std::endl;
+    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
     const int ilo=1, ihi=n;
 
-    // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
+    // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
+    // querying, which is located in p{s,d}laqr1, 
+    //    https://github.com/poulson/scalapack/commits/master 
+    // we must be a bit more careful.
+    int lwork=-1, dummyIWork=3, liwork=-1, info;
     float dummyWork;
     std::vector<float> wr(n), wi(n);
     ELEM_SCALAPACK(pshseqr)
@@ -300,7 +306,7 @@ void HessenbergSchur
 
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = scomplex(wr[j],wi[j]);
+        w[j] = std::complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -308,11 +314,17 @@ void HessenbergSchur
   double* Q, const int* descq, bool fullTriangle, bool multiplyQ ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    const char job=(fullTriangle?'E':'S'), compz=(multiplyQ?'V':'I');
+    std::cerr << 
+      "WARNING: PDHSEQR seems to have a bug in its eigenvalue reordering" 
+      << std::endl;
+    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
     const int ilo=1, ihi=n;
 
-    // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
+    // Query the workspace sizes. Due to a bug in p{s,d}hseqr's workspace
+    // querying, which is located in p{s,d}laqr1, 
+    //    https://github.com/poulson/scalapack/commits/master 
+    // we must be a bit more careful.
+    int lwork=-1, dummyIWork=3, liwork=-1, info;
     double dummyWork;
     std::vector<double> wr(n), wi(n);
     ELEM_SCALAPACK(pdhseqr)
@@ -330,7 +342,7 @@ void HessenbergSchur
 
     // Combine the real and imaginary components of the eigenvalues
     for( int j=0; j<n; ++j )
-        w[j] = scomplex(wr[j],wi[j]);
+        w[j] = std::complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur

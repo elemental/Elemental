@@ -50,9 +50,13 @@ main( int argc, char* argv[] )
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<C> T( A ), Q(g);
         DistMatrix<C,VR,STAR> w(g);
+#ifdef ELEM_HAVE_SCALAPACK
+        schur::QR( T, w, Q );
+#else
         schur::SDC
         ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
           spreadFactor, random, progress );
+#endif
         MakeTriangular( UPPER, T );
 
         if( display )

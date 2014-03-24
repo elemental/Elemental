@@ -50,4 +50,20 @@ struct BlockDistData
 #include "./block_dist_matrix/vc_star.hpp"
 #include "./block_dist_matrix/vr_star.hpp"
 
+namespace elem {
+
+#ifdef ELEM_HAVE_SCALAPACK
+template<typename T>
+inline typename blacs::Desc
+FillDesc( const BlockDistMatrix<T>& A, int context )
+{
+    typename blacs::Desc desc = 
+        { 1, context, A.Height(), A.Width(), A.BlockHeight(), A.BlockWidth(), 
+          A.ColAlign(), A.RowAlign(), A.LDim() };
+    return desc;
+}
+#endif
+
+} // namespace elem
+
 #endif // ifndef ELEM_BLOCKDISTMATRIX_HPP

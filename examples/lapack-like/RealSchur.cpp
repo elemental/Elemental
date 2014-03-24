@@ -49,9 +49,13 @@ main( int argc, char* argv[] )
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<Real> T( A ), Q(g);
         DistMatrix<Complex<Real>,VR,STAR> w(g);
+#ifdef ELEM_HAVE_SCALAPACK
+        schur::QR( T, w, Q );
+#else
         schur::SDC
         ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
           spreadFactor, random, progress );
+#endif
         MakeTrapezoidal( UPPER, T, -1 );
         if( display )
         {

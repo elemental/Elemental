@@ -8,9 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_SCALE_INC
-#include ELEM_QR_INC
+#include ELEM_SCHUR_INC
 #include ELEM_IO_INC
 #include ELEM_ONES_INC
 #include ELEM_UNIFORM_INC
@@ -33,6 +32,7 @@ main( int argc, char* argv[] )
         const Int mb = Input("--blockHeight","height of dist block",32);
         const Int nb = Input("--blockWidth","width of dist block",32);
         const bool print = Input("--print","print wrong matrices?",false);
+        const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -47,49 +47,28 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
         DistMatrix<double> AElem( A );
+        Scale( 2., AElem );
         if( print )
             Print( AElem, "AElem" );
-        MakeTrapezoidal( UPPER, AElem, -1 );
-        if( print )
-            Print( AElem, "HElem" );
         A = AElem;
         if( print )
-            Print( A, "H" );
+            Print( A, "A" );
 #ifdef ELEM_HAVE_SCALAPACK        
-        const int bhandle = blacs::Handle( A.DistComm().comm );
-        const int context = 
-            blacs::GridInit( bhandle, colMajor, A.ColStride(), A.RowStride() );
-        if( A.ColStride() != blacs::GridHeight(context) )
-            LogicError("Grid height did not match BLACS");
-        if( A.RowStride() != blacs::GridWidth(context) )
-            LogicError("Grid width did not match BLACS");
-        if( A.ColRank() != blacs::GridRow(context) )
-            LogicError("Grid row did not match BLACS");
-        if( A.RowRank() != blacs::GridCol(context) )
-            LogicError("Grid col did not match BLACS");
-        int desc[9];
-        desc[0] = 1;
-        desc[1] = context;
-        desc[2] = A.Height();
-        desc[3] = A.Width();
-        desc[4] = A.BlockHeight();
-        desc[5] = A.BlockWidth();
-        desc[6] = A.ColAlign();
-        desc[7] = A.RowAlign();
-        desc[8] = A.LDim();
         if( m == n )
         {
-            DistMatrix<Complex<double>,STAR,STAR> w( m, 1, g );
-            scalapack::HessenbergSchur( m, A.Buffer(), desc, w.Buffer() );
+            DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
+            // NOTE: There appears to be a bug in the parallel eigenvalue
+            //       reordering in P{S,D}HSEQR (within P{S,D}TRORD)
+            //BlockDistMatrix<double> Q(m,m,g,mb,nb);
+            //schur::QR( A, w, Q, fullTriangle );
+            schur::QR( A, w, fullTriangle );
             if( print )
             {
-                Print( A, "Schur(H)" );
-                Print( w, "w(H)" );
+                Print( A, "Schur(A)" );
+                Print( w, "w(A)" );
+                //Print( Q, "Q" );
             }
         }
-        blacs::FreeGrid( context );
-        blacs::FreeHandle( bhandle );
-        blacs::Exit(); 
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

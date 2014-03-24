@@ -104,11 +104,21 @@ main( int argc, char* argv[] )
 
         // Begin by computing the Schur decomposition
         Timer timer;
-        DistMatrix<C> X;
         DistMatrix<C,VR,STAR> w;
         mpi::Barrier( mpi::COMM_WORLD );
+#ifdef ELEM_HAVE_SCALAPACK
         timer.Start();
         const bool formATR = true;
+        schur::QR( A, w );
+        mpi::Barrier( mpi::COMM_WORLD );
+        const double qrTime = timer.Stop();
+        if( mpi::WorldRank() == 0 )
+            std::cout << "QR algorithm took " << qrTime << " seconds" 
+                      << std::endl; 
+#else
+        timer.Start();
+        const bool formATR = true;
+        DistMatrix<C> X;
         schur::SDC
         ( A, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
           spreadFactor, random, progress );
@@ -116,6 +126,7 @@ main( int argc, char* argv[] )
         const double sdcTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
             std::cout << "SDC took " << sdcTime << " seconds" << std::endl; 
+#endif
 
         // Find a window if none is specified
         if( xWidth == 0. || yWidth == 0. )

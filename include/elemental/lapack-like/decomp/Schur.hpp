@@ -37,7 +37,11 @@ inline void
 Schur( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
+#ifdef ELEM_HAVE_SCALAPACK
+    schur::QR( A, w );
+#else
     schur::SDC( A, w );
+#endif
 }
 
 template<typename F>
@@ -46,7 +50,11 @@ Schur
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
+#ifdef ELEM_HAVE_SCALAPACK
+    schur::QR( A, w, Q );
+#else
     schur::SDC( A, w, Q );
+#endif
 }
 
 } // namespace elem

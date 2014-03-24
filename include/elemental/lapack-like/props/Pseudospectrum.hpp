@@ -402,6 +402,9 @@ Triangular
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
 
+#ifdef ELEM_HAVE_SCALAPACK
+    schur::QR( U, w );
+#else
     // We don't actually need the Schur vectors, but SDC requires their 
     // computation in order to form the full triangular factor
     DistMatrix<C> X(g);
@@ -419,6 +422,7 @@ Triangular
     ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
       spreadFactor, random, progress );
     X.Empty();
+#endif
 
     return TriangularPseudospectrum
            ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, 
@@ -956,6 +960,9 @@ Pseudospectrum
 
     if( schur )
     {
+#ifdef ELEM_HAVE_SCALAPACK
+        schur::QR( B, w );
+#else
         // We don't actually need the Schur vectors, but SDC requires their
         // computation in order to form the full triangular factor
         DistMatrix<C> X(g);
@@ -973,6 +980,7 @@ Pseudospectrum
         ( B, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol,
           spreadFactor, random, progress );
         X.Empty();
+#endif
  
         return TriangularPseudospectrum
                ( B, invNormMap, center, xSize, ySize,

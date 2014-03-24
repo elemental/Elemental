@@ -28,6 +28,10 @@
 #include <random>
 #include <vector>
 
+// The DEBUG_ONLY macro is, to the best of my knowledge, the only preprocessor
+// name defined by Elemental that is not namespaced with "ELEM". Given how
+// frequently it is used, I will leave it as-is unless/until a user/developer 
+// complains.
 #ifdef ELEM_RELEASE
 # define DEBUG_ONLY(cmd) 
 #else
@@ -92,15 +96,7 @@
 #include "elemental/core/memory/decl.hpp"
 #include "elemental/core/complex/decl.hpp"
 #include "elemental/core/types/decl.hpp"
-#include "elemental/core/matrix/forward_decl.hpp"
-#include "elemental/core/dist_matrix/forward_decl.hpp"
-#include "elemental/core/block_dist_matrix/forward_decl.hpp"
-#include "elemental/core/view/decl.hpp"
-#include "elemental/core/matrix.hpp"
 #include "elemental/core/imports/mpi.hpp"
-#include "elemental/core/grid/decl.hpp"
-#include "elemental/core/dist_matrix.hpp"
-#include "elemental/core/block_dist_matrix.hpp"
 #include "elemental/core/imports/choice.hpp"
 #include "elemental/core/imports/mpi_choice.hpp"
 #include "elemental/core/environment/decl.hpp"
@@ -110,6 +106,15 @@
 #include "elemental/core/imports/flame.hpp"
 #include "elemental/core/imports/pmrrr.hpp"
 #include "elemental/core/imports/scalapack.hpp"
+
+#include "elemental/core/matrix/forward_decl.hpp"
+#include "elemental/core/dist_matrix/forward_decl.hpp"
+#include "elemental/core/block_dist_matrix/forward_decl.hpp"
+#include "elemental/core/view/decl.hpp"
+#include "elemental/core/matrix.hpp"
+#include "elemental/core/grid/decl.hpp"
+#include "elemental/core/dist_matrix.hpp"
+#include "elemental/core/block_dist_matrix.hpp"
 
 // Implement the intertwined parts of the library
 #include "elemental/core/timer/impl.hpp"

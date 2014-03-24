@@ -30,6 +30,14 @@ MakeZeros( DistMatrix<T,U,V>& A )
     Zero( A.Matrix() );
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+MakeZeros( BlockDistMatrix<T,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeZeros"))
+    Zero( A.Matrix() );
+}
+
 template<typename T>
 inline void
 Zeros( Matrix<T>& A, Int m, Int n )
