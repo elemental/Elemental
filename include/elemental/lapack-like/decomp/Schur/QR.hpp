@@ -229,7 +229,7 @@ QR
     // There is not yet a 'form Q'
     Identity( Q, n, n ); 
     hessenberg::ApplyQ( UPPER, LEFT, NORMAL, A, t, Q );
-    MakeTrapezoidal( UPPER, A, t );
+    MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form
     const Int nb = 32;
