@@ -26,6 +26,12 @@ main( int argc, char* argv[] )
     {
         const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
+#ifdef ELEM_HAVE_SCALAPACK
+        // QR algorithm options
+        const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
+        const bool aed = Input("--aed","use Agg. Early Deflat.?",false);
+#else
+        // Spectral Divide and Conquer options
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",2);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
@@ -34,6 +40,7 @@ main( int argc, char* argv[] )
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const bool random = Input("--random","random RRQR?",true);
         const bool progress = Input("--progress","output progress?",false);
+#endif
         const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -50,7 +57,7 @@ main( int argc, char* argv[] )
         DistMatrix<Real> T( A ), Q(g);
         DistMatrix<Complex<Real>,VR,STAR> w(g);
 #ifdef ELEM_HAVE_SCALAPACK
-        schur::QR( T, w, Q );
+        schur::QR( T, w, Q, fullTriangle, aed );
 #else
         schur::SDC
         ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 

@@ -347,7 +347,8 @@ Triangular
             U.Set( i, j, A.Get(i,j) );
 
     Matrix<C> w;
-    schur::QR( U, w );
+    const bool fullTriangle = true;
+    schur::QR( U, w, fullTriangle );
 
     return TriangularPseudospectrum
            ( U, shifts, invNorms, lanczos, krylovSize, reorthog, deflate, 
@@ -403,13 +404,13 @@ Triangular
             U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
 
     DistMatrix<C,VR,STAR> w(g);
+    const bool fullTriangle = true;
 #ifdef ELEM_HAVE_SCALAPACK
-    schur::QR( U, w );
+    schur::QR( U, w, fullTriangle );
 #else
     // We don't actually need the Schur vectors, but SDC requires their 
     // computation in order to form the full triangular factor
     DistMatrix<C> X(g);
-    const bool formATR = true;
     // TODO: Expose these as options
     const Int cutoff = 256;
     const Int maxInnerIts = 2;
@@ -419,7 +420,7 @@ Triangular
     const Base<F> spreadFactor=1e-6;
     const bool random=true;
     schur::SDC
-    ( U, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
+    ( U, w, X, fullTriangle, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
       spreadFactor, random, progress );
     X.Empty();
 #endif
@@ -919,7 +920,8 @@ Pseudospectrum
     if( schur )
     {
         Matrix<C> w;
-        schur::QR( B, w );
+        const bool fullTriangle = true;
+        schur::QR( B, w, fullTriangle );
         return TriangularPseudospectrum
                ( B, invNormMap, center, xSize, ySize, 
                  lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
@@ -961,13 +963,13 @@ Pseudospectrum
     if( schur )
     {
         DistMatrix<C,VR,STAR> w(g);
+        const bool fullTriangle = true;
 #ifdef ELEM_HAVE_SCALAPACK
-        schur::QR( B, w );
+        schur::QR( B, w, fullTriangle );
 #else
         // We don't actually need the Schur vectors, but SDC requires their
         // computation in order to form the full triangular factor
         DistMatrix<C> X(g);
-        const bool formATR = true;
         // TODO: Expose these as options
         const Int cutoff = 256;
         const Int maxInnerIts = 2;
@@ -977,8 +979,8 @@ Pseudospectrum
         const Base<F> spreadFactor=1e-6;
         const bool random=true;
         schur::SDC
-        ( B, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol,
-          spreadFactor, random, progress );
+        ( B, w, X, fullTriangle, cutoff, maxInnerIts, maxOuterIts, signTol, 
+          relTol, spreadFactor, random, progress );
         X.Empty();
 #endif
  

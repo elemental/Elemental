@@ -1024,7 +1024,7 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
-  bool formATR=true, Int cutoff=256, Int maxInnerIts=2, Int maxOuterIts=10, 
+  bool fullTriangle=true, Int cutoff=256, Int maxInnerIts=2, Int maxOuterIts=10,
   BASE(F) signTol=0, BASE(F) relTol=0, BASE(F) spreadFactor=1e-6, 
   bool random=true, bool progress=false )
 {
@@ -1037,7 +1037,7 @@ SDC
         if( progress )
             std::cout << n << " <= " << cutoff <<": switching to QR algorithm"
                       << std::endl;
-        schur::QR( A, w, Q, formATR );
+        schur::QR( A, w, Q, fullTriangle );
         return;
     }
 
@@ -1064,13 +1064,13 @@ SDC
                   << " left subproblem" << std::endl;
     Matrix<F> Z;
     SDC
-    ( ATL, wT, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, random, progress );
+    ( ATL, wT, Z, fullTriangle, cutoff, maxInnerIts, maxOuterIts, signTol, 
+      relTol, spreadFactor, random, progress );
     if( progress )
         std::cout << "Left subproblem update" << std::endl;
     auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
-    if( formATR )
+    if( fullTriangle )
         Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
@@ -1078,11 +1078,11 @@ SDC
         std::cout << "Recursing on " << ABR.Height() << " x " << ABR.Width() 
                   << " right subproblem" << std::endl;
     SDC
-    ( ABR, wB, Z, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-      spreadFactor, random, progress );
+    ( ABR, wB, Z, fullTriangle, cutoff, maxInnerIts, maxOuterIts, signTol, 
+      relTol, spreadFactor, random, progress );
     if( progress )
         std::cout << "Right subproblem update" << std::endl;
-    if( formATR )
+    if( fullTriangle )
         Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
@@ -1417,7 +1417,7 @@ template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q, 
-  bool formATR=true, Int cutoff=256, Int maxInnerIts=2, Int maxOuterIts=10, 
+  bool fullTriangle=true, Int cutoff=256, Int maxInnerIts=2, Int maxOuterIts=10,
   BASE(F) signTol=0, BASE(F) relTol=0, BASE(F) spreadFactor=1e-6, 
   bool random=true, bool progress=false )
 {
@@ -1431,7 +1431,7 @@ SDC
     {
         if( progress && g.Rank() == 0 )
             std::cout << "One process: using QR algorithm" << std::endl;
-        schur::QR( A.Matrix(), w.Matrix(), Q.Matrix(), formATR );
+        schur::QR( A.Matrix(), w.Matrix(), Q.Matrix(), fullTriangle );
         return;
     }
     if( n <= cutoff )
@@ -1444,7 +1444,7 @@ SDC
         if( g.VCRank() == A_CIRC_CIRC.Root() )
             schur::QR
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
-              formATR );
+              fullTriangle );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
         Q = Q_CIRC_CIRC;
@@ -1478,11 +1478,11 @@ SDC
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub, progress );
     if( ATLSub.Participating() )
         SDC
-        ( ATLSub, wTSub, ZTSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
+        ( ATLSub, wTSub, ZTSub, fullTriangle, cutoff, maxInnerIts, maxOuterIts, 
           signTol, relTol, spreadFactor, random, progress );
     if( ABRSub.Participating() )
         SDC
-        ( ABRSub, wBSub, ZBSub, formATR, cutoff, maxInnerIts, maxOuterIts, 
+        ( ABRSub, wBSub, ZBSub, fullTriangle, cutoff, maxInnerIts, maxOuterIts, 
           signTol, relTol, spreadFactor, random, progress );
     
     // Ensure that the results are back on this level's grid
@@ -1501,7 +1501,7 @@ SDC
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );
 
-    if( formATR )
+    if( fullTriangle )
     {
         if( progress && g.Rank() == 0 )
             std::cout << "Updating top-right quadrant" << std::endl;
