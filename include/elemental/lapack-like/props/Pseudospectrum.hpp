@@ -516,13 +516,13 @@ TriangularPseudospectrum
 
     const Real xStep = xWidth/(xSize-1);
     const Real yStep = yWidth/(ySize-1);
-    const C corner = center - C(xWidth/2,yWidth/2);
+    const C corner = center + C(-xWidth/2,yWidth/2);
     Matrix<C> shifts( xSize*ySize, 1, U.Grid() );
     for( Int j=0; j<xSize*ySize; ++j )
     {
         const Int x = j / ySize;
         const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+        shifts.Set( j, 0, corner+C(x*xStep,-y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -554,13 +554,13 @@ HessenbergPseudospectrum
 
     const Real xStep = xWidth/(xSize-1);
     const Real yStep = yWidth/(ySize-1);
-    const C corner = center - C(xWidth/2,yWidth/2);
+    const C corner = center + C(-xWidth/2,yWidth/2);
     Matrix<C> shifts( xSize*ySize, 1, H.Grid() );
     for( Int j=0; j<xSize*ySize; ++j )
     {
         const Int x = j / ySize;
         const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+        shifts.Set( j, 0, corner+C(x*xStep,-y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -592,7 +592,7 @@ TriangularPseudospectrum
 
     const Real xStep = xWidth/(xSize-1);
     const Real yStep = yWidth/(ySize-1);
-    const C corner = center - C(xWidth/2,yWidth/2);
+    const C corner = center + C(-xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
@@ -600,7 +600,7 @@ TriangularPseudospectrum
         const Int i = shifts.GlobalRow(iLoc);
         const Int x = i / ySize;
         const Int y = i % ySize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,y*yStep) );
+        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,-y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -632,7 +632,7 @@ HessenbergPseudospectrum
 
     const Real xStep = xWidth/(xSize-1);
     const Real yStep = yWidth/(ySize-1);
-    const C corner = center - C(xWidth/2,yWidth/2);
+    const C corner = center + C(-xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
@@ -640,7 +640,7 @@ HessenbergPseudospectrum
         const Int i = shifts.GlobalRow(iLoc);
         const Int x = i / ySize;
         const Int y = i % ySize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,y*yStep) );
+        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,-y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -672,13 +672,13 @@ Pseudospectrum
 
     const Real xStep = xWidth/(xSize-1);
     const Real yStep = yWidth/(ySize-1);
-    const C corner = center - C(xWidth/2,yWidth/2);
+    const C corner = center + C(-xWidth/2,yWidth/2);
     Matrix<C> shifts( xSize*ySize, 1, A.Grid() );
     for( Int j=0; j<xSize*ySize; ++j )
     {
         const Int x = j / ySize;
         const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,y*yStep) );
+        shifts.Set( j, 0, corner+C(x*xStep,-y*yStep) );
     }
 
     // Form the vector of invNorms
@@ -710,7 +710,7 @@ Pseudospectrum
 
     const Real xStep = xWidth/(xSize-1);
     const Real yStep = yWidth/(ySize-1);
-    const C corner = center - C(xWidth/2,yWidth/2);
+    const C corner = center + C(-xWidth/2,yWidth/2);
     DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
@@ -718,7 +718,7 @@ Pseudospectrum
         const Int i = shifts.GlobalRow(iLoc);
         const Int x = i / ySize;
         const Int y = i % ySize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,y*yStep) );
+        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,-y*yStep) );
     }
 
     // Form the vector of invNorms

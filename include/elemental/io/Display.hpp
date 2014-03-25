@@ -111,19 +111,25 @@ Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
         return;
     }
 
-    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-    if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
-        Display( A_CIRC_CIRC.Matrix(), title );
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Display( A.LockedMatrix(), title );
+    }
+    else
+    {
+        DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
+            Display( A_CIRC_CIRC.Matrix(), title );
+    }
 #else
     Print( A, title );
 #endif
 }
 
-// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
-#ifndef SWIG
-template<typename T>
+template<typename T,Dist U,Dist V>
 inline void
-Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
+Display( const BlockDistMatrix<T,U,V>& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef ELEM_HAVE_QT5
@@ -133,31 +139,21 @@ Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
         return;
     }
 
-    if( A.Grid().Rank() == 0 )
-        Display( A.LockedMatrix(), title );
-#else
-    Print( A, title );
-#endif
-}
-template<typename T>
-inline void
-Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
-{
-    DEBUG_ONLY(CallStackEntry cse("Display"))
-#ifdef ELEM_HAVE_QT5
-    if( GuiDisabled() )
+    if( U == A.UGath && V == A.VGath )
     {
-        Print( A, title );
-        return;
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Display( A.LockedMatrix(), title );
     }
-
-    if( A.Grid().Rank() == A.Root() )
-        Display( A.LockedMatrix(), title );
+    else
+    {
+        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+        if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
+            Display( A_CIRC_CIRC.Matrix(), title );
+    }
 #else
     Print( A, title );
 #endif
 }
-#endif // ifndef SWIG
 
 } // namespace elem
 
