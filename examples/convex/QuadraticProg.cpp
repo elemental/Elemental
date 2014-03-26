@@ -12,8 +12,9 @@
 #include ELEM_DOT_INC
 #include ELEM_MAKEHERMITIAN_INC
 #include ELEM_MAKETRIANGULAR_INC
-#include ELEM_SETDIAGONAL_INC
+#include ELEM_UPDATEDIAGONAL_INC
 #include ELEM_GEMV_INC
+#include ELEM_HEMV_INC
 #include ELEM_TRSV_INC
 #include ELEM_HERK_INC
 #include ELEM_TRSM_INC
@@ -22,21 +23,23 @@
 #include ELEM_LU_INC
 #include ELEM_TRIANGULARINVERSE_INC
 #include ELEM_SOFTTHRESHOLD_INC
+#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
+#include ELEM_GAUSSIAN_INC
 #include ELEM_UNIFORM_INC
 #include ELEM_ZEROS_INC
 using namespace elem;
 
 // This driver is an adaptation of the solver described at
-//    http://www.stanford.edu/~boyd/papers/admm/linprog/linprog.html
+//    http://www.stanford.edu/~boyd/papers/admm/quadprog/quadprog.html
 // which is derived from the distributed ADMM article of Boyd et al.
 //
 // This example attempts to solve the following convex optimization problem:
-//     minimize    c' x
-//     subject to  A x = b, x >= 0
+//     minimize    (1/2) x' P x + q' x 
+//     subject to  lb <= x <= ub
 //
 
 template<typename Real>
-void PositiveClip( DistMatrix<Real>& X )
+void BoxClip( DistMatrix<Real>& X, Real lowerBound, Real upperBound )
 {
     const Int localWidth = X.LocalWidth();
     const Int localHeight = X.LocalHeight();
@@ -45,7 +48,9 @@ void PositiveClip( DistMatrix<Real>& X )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Real alpha = X.GetLocal(iLoc,jLoc);
-            X.SetLocal( iLoc, jLoc, Max(Real(0),alpha) );
+            const Real lClip = Max(lowerBound,alpha);
+            const Real clip = Min(lClip,upperBound);
+            X.SetLocal( iLoc, jLoc, clip );
         }
     }
 }
@@ -59,9 +64,12 @@ main( int argc, char* argv[] )
 
     try
     {
-        const Int m = Input("--m","height of matrix",100);
-        const Int n = Input("--n","width of matrix",200);
+        const Int n = Input("--n","problem size",200);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
+        const Real lb = Input("--lb","lower bound for x",0.5);
+        const Real ub = Input("--ub","upper bound for x",1.0);
+        const Real lbEig = Input("--lbEig","spectral lower bound",1.);
+        const Real ubEig = Input("--ubEig","spectral upper bound",2.);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
         const Real absTol = Input("--absTol","absolute tolerance",1.e-4);
@@ -73,78 +81,30 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Real> A, b, c, xTrue;
-        Uniform( A, m, n, 1., 1. ); // mean=radius=1, so sample in [0,2]
-        Zeros( xTrue, n, 1 );
-        if( xTrue.LocalWidth() == 1 )
-            for( Int iLoc=0; iLoc<xTrue.LocalHeight(); ++iLoc )
-                xTrue.SetLocal( iLoc, 0, Abs(SampleNormal<Real>()) );
-        Gemv( NORMAL, Real(1), A, xTrue, b ); 
-        Uniform( c, n, 1, 1., 1. ); // mean=radius=1, so sample in [0,2]
+        DistMatrix<Real> P, q;
+        HermitianUniformSpectrum( P, n, lbEig, ubEig );
+        Gaussian( q, n, 1 );
         if( print )
         {
-            Print( A,     "A"     );
-            Print( xTrue, "xTrue" );
-            Print( b,     "b"     );
-            Print( c,     "c"     );
+            Print( P, "P" );
+            Print( q, "q" );
         }
         if( display )
-            Display( A, "A" );
-        const Real objectiveTrue = Dot( c, xTrue );
-        if( mpi::WorldRank() == 0 )
-            std::cout << "c'xTrue=" << objectiveTrue << std::endl;
+            Display( P, "P" );
 
-        // Cache a custom partially-pivoted LU factorization of 
-        //    |  rho*I   A^H | = | B11  B12 |
-        //    |  A       0   |   | B21  B22 |
-        // by (justifiably) avoiding pivoting in the first n steps of
-        // the factorization, so that
-        //    [I,rho*I] = lu(rho*I).
-        // The factorization would then proceed with 
-        //    B21 := B21 U11^{-1} = A (rho*I)^{-1} = A/rho
-        //    B12 := L11^{-1} B12 = I A^H = A^H.
-        // The Schur complement would then be
-        //    B22 := B22 - B21 B12 = 0 - (A*A^H)/rho.
-        // We then factor said matrix with LU with partial pivoting and
-        // swap the necessary rows of B21 in order to implicitly commute
-        // the row pivots with the Gauss transforms in the manner standard
-        // for GEPP. Unless A A' is singular, pivoting should not be needed,
-        // as Cholesky factorization of the negative matrix should be valid.
-        //
-        // The result is the factorization
-        //   | I 0   | | rho*I A^H | = | I   0   | | rho*I U12 |,
-        //   | 0 P22 | | A     0   |   | L21 L22 | | 0     U22 |
-        // where [L22,U22] are stored within B22.
-        DistMatrix<Real> U12, L21, B22, bPiv;
-        U12.Align( 0,                 n%U12.RowStride() );
-        L21.Align( n%L21.ColStride(), 0                 );
-        B22.Align( n%B22.ColStride(), n%B22.RowStride() );
-        Adjoint( A, U12 );
-        L21 = A; Scale( 1/rho, L21 );
-        Herk( LOWER, NORMAL, -1/rho, A, B22 );
-        MakeHermitian( LOWER, B22 );
-        DistMatrix<Int,VC,STAR> p2;
-        LU( B22, p2 );
-        ApplyRowPivots( L21, p2 );
-        bPiv = b;
-        ApplyRowPivots( bPiv, p2 );
+        // Cache the factorization of P + rho*I
+        DistMatrix<Real> LMod( P );
+        UpdateDiagonal( LMod, rho );
+        Cholesky( LOWER, LMod );
+        MakeTriangular( LOWER, LMod );
 
-        // Possibly form the inverse of L22 U22
-        DistMatrix<Real> X22;
+        // Optionally invert the factor in place
         if( inv )
-        {
-            X22 = B22;
-            MakeTriangular( LOWER, X22 );
-            SetDiagonal( X22, 1. );
-            TriangularInverse( LOWER, UNIT, X22 );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B22, X22 );
-        }
-        
+            TriangularInverse( LOWER, NON_UNIT, LMod );
+
         // Start the ADMM
         Int numIter=0;
-        DistMatrix<Real> g, x, y, u, t, z;
-        Zeros( g, m+n, 1 );
-        PartitionDown( g, x, y, n ); 
+        DistMatrix<Real> x, u, t, z;
         DistMatrix<Real> zOld, xHat;
         Zeros( z, n, 1 );
         Zeros( u, n, 1 ); 
@@ -153,36 +113,23 @@ main( int argc, char* argv[] )
         {
             zOld = z;
 
-            // Find x from
-            //  | rho*I  A^H | | x | = | rho*(z-u)-c | 
-            //  | A      0   | | y |   | b           |
-            // via our cached custom factorization:
-            // 
-            // |x| = inv(U) inv(L) P' |rho*(z-u)-c|
-            // |y|                    |b          |
-            //     = |rho*I U12|^{-1} |I   0  | |I 0   | |rho*(z-u)-c|
-            //     = |0     U22|      |L21 L22| |0 P22'| |b          |
-            //     = "                        " |rho*(z-u)-c|
-            //                                  | P22' b    |
+            // x := (P+rho*I)^{-1} (rho(z-u)-q)
             x = z;
             Axpy( Real(-1), u, x );
             Scale( rho, x );
-            Axpy( Real(-1), c, x );
-            y = bPiv;
-            Gemv( NORMAL, Real(-1), L21, x, Real(1), y );
+            Axpy( Real(-1), q, x );
             if( inv )
             {
-                Gemv( NORMAL, Real(1.), X22, y, t );
-                y = t;
+                // TODO: Trsv
+                Gemv( ADJOINT, Real(1), LMod, x, t );
+                Gemv( NORMAL, Real(1), LMod, t, x );
             }
             else
             {
-                Trsv( LOWER, NORMAL, UNIT, B22, y );
-                Trsv( UPPER, NORMAL, NON_UNIT, B22, y );
+                Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
+                Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
             }
-            Gemv( NORMAL, Real(-1), U12, y, Real(1), x );
-            Scale( 1/rho, x );
-            
+
             // xHat := alpha*x + (1-alpha)*zOld
             xHat = x;
             Scale( alpha, xHat );
@@ -191,13 +138,16 @@ main( int argc, char* argv[] )
             // z := pos(xHat+u)
             z = xHat;
             Axpy( Real(1), u, z );
-            PositiveClip( z );
+            BoxClip( z, lb, ub );
 
             // u := u + (xHat-z)
             Axpy( Real(1),  xHat, u );
             Axpy( Real(-1), z,    u );
 
-            const Real objective = Dot( c, x );
+            // Form (1/2) x' P x + q' x
+            Zeros( t, n, 1 );
+            Hemv( LOWER, Real(1), P, x, Real(0), t );
+            const Real objective = 0.5*Dot(x,t) + Dot(q,x);
 
             // rNorm := || x - z ||_2
             t = x; 
