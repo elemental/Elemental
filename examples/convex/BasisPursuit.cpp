@@ -23,6 +23,8 @@ using namespace elem;
 // This driver is an adaptation of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
 // which is derived from the distributed ADMM article of Boyd et al.
+//
+// Basis pursuit seeks the solution to A x = b which minimizes || x ||_1
 
 typedef double Real;
 typedef Complex<Real> C;
