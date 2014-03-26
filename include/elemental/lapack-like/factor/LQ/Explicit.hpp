@@ -59,7 +59,9 @@ Explicit( Matrix<F>& L, Matrix<F>& A )
     Matrix<F> t;
     Matrix<Base<F>> d;
     LQ( A, t, d );
-    L = A;
+    Matrix<F> AL, AR;
+    PartitionRight( A, AL, AR, Min(A.Height(),A.Width()) );
+    L = AL;
     MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
@@ -78,7 +80,9 @@ Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     LQ( A, t, d );
-    L = A;
+    DistMatrix<F> AL(g), AR(g);
+    PartitionRight( A, AL, AR, Min(A.Height(),A.Width()) );
+    L = AL;
     MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
