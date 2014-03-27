@@ -500,6 +500,9 @@
 #define ELEM_CONVEX_DECL_INC "elemental/convex/decl.hpp"
 #define ELEM_CONVEX_IMPL_INC "elemental/convex/impl.hpp"
 
+#define ELEM_BASISPURSUIT_INC  "elemental/convex/BasisPursuit.hpp"
+#define ELEM_CLIP_INC          "elemental/convex/Clip.hpp"
+#define ELEM_LINEARPROGRAM_INC "elemental/convex/LinearProgram.hpp"
 #define ELEM_LOGBARRIER_INC    "elemental/convex/LogBarrier.hpp"
 #define ELEM_LOGDETDIV_INC     "elemental/convex/LogDetDiv.hpp"
 #define ELEM_SOFTTHRESHOLD_INC "elemental/convex/SoftThreshold.hpp"

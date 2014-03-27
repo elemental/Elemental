@@ -8,18 +8,20 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include ELEM_BASISPURSUIT_INC
+#include ELEM_LINEARPROGRAM_INC
 #include ELEM_UNIFORM_INC
 using namespace elem;
 
-// This driver is an adaptation of the solver described at
-//    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
+// This driver uses an adaptation of the solver described at
+//    http://www.stanford.edu/~boyd/papers/admm/linprog/linprog.html
 // which is derived from the distributed ADMM article of Boyd et al.
 //
-// Basis pursuit seeks the solution to A x = b which minimizes || x ||_1
+// It attempts to solve the following linear program:
+//     minimize    c' x
+//     subject to  A x = b, x >= 0
+//
 
 typedef double Real;
-typedef Complex<Real> C;
 
 int 
 main( int argc, char* argv[] )
@@ -31,43 +33,42 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","height of matrix",100);
         const Int n = Input("--n","width of matrix",200);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real probNnz = Input("--probNnz","prob. of nonzero x entry",0.1);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
         const Real absTol = Input("--absTol","absolute tolerance",1.e-4);
         const Real relTol = Input("--relTol","relative tolerance",1.e-2);
-        const Real pinvTol = Input("--pinvTol","pseudoinv tolerance",0.);
-        const bool usePinv = Input("--usePinv","Directly compute pinv(A)",true);
+        const bool inv = Input("--inv","form inv(LU) to avoid trsv?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<C> A, b, xTrue;
-        Uniform( A, m, n );
+        DistMatrix<Real> A, b, c, xTrue;
+        Uniform( A, m, n, 1., 1. ); // mean=radius=1, so sample in [0,2]
         Zeros( xTrue, n, 1 );
         if( xTrue.LocalWidth() == 1 )
-        {
             for( Int iLoc=0; iLoc<xTrue.LocalHeight(); ++iLoc )
-                if( SampleUniform<Real>() <= probNnz )
-                    xTrue.SetLocal( iLoc, 0, SampleBall<C>() );
-        }
-        Gemv( NORMAL, C(1), A, xTrue, b ); 
+                xTrue.SetLocal( iLoc, 0, Abs(SampleNormal<Real>()) );
+        Gemv( NORMAL, Real(1), A, xTrue, b ); 
+        Uniform( c, n, 1, 1., 1. ); // mean=radius=1, so sample in [0,2]
         if( print )
         {
             Print( A,     "A"     );
             Print( xTrue, "xTrue" );
             Print( b,     "b"     );
+            Print( c,     "c"     );
         }
         if( display )
             Display( A, "A" );
+        const Real objectiveTrue = Dot( c, xTrue );
+        if( mpi::WorldRank() == 0 )
+            std::cout << "c'xTrue=" << objectiveTrue << std::endl;
 
-        DistMatrix<C> x, z;
-        const Int numIter = 
-            BasisPursuit
-            ( A, b, x, z, alpha, rho, maxIter, absTol, relTol, usePinv, pinvTol,
-              progress );
+        DistMatrix<Real> x, z;
+        const Int numIter = LinearProgram
+        ( A, b, c, x, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+
         if( print )
         {
             Print( x, "x" );

@@ -10,6 +10,7 @@
 #ifndef ELEM_CONVEX_IMPL_HPP
 #define ELEM_CONVEX_IMPL_HPP
 
+#include "./Clip.hpp"
 #include "./LogBarrier.hpp"
 #include "./LogDetDiv.hpp"
 #include "./SoftThreshold.hpp"
