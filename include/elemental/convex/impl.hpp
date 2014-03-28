@@ -10,10 +10,16 @@
 #ifndef ELEM_CONVEX_IMPL_HPP
 #define ELEM_CONVEX_IMPL_HPP
 
+// Utilities
 #include "./Clip.hpp"
 #include "./LogBarrier.hpp"
 #include "./LogDetDiv.hpp"
 #include "./SoftThreshold.hpp"
 #include "./SVT.hpp"
+
+// ADMM 
+#include "./BasisPursuit.hpp"
+#include "./LinearProgram.hpp"
+#include "./QuadraticProgram.hpp"
 
 #endif // ifndef ELEM_CONVEX_IMPL_HPP

@@ -18,7 +18,6 @@
 #include ELEM_QR_INC
 #include ELEM_PSEUDOINVERSE_INC
 #include ELEM_SOFTTHRESHOLD_INC
-#include ELEM_UNIFORM_INC
 #include ELEM_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
@@ -35,7 +34,7 @@ BasisPursuit
 ( const Matrix<F>& A, const Matrix<F>& b,
   Matrix<F>& x, Matrix<F>& z, BASE(F) rho=1., BASE(F) alpha=1.2, 
   Int maxIter=500, BASE(F) absTol=1e-4, BASE(F) relTol=1e-2, bool usePinv=false,
-  BASE(F) pinvTol=0, bool progress=false )
+  BASE(F) pinvTol=0, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -158,6 +157,7 @@ BasisPursuit
     }
     if( maxIter == numIter )
         std::cout << "Basis pursuit failed to converge" << std::endl;
+    return numIter;
 }
 
 template<typename F>
@@ -166,7 +166,7 @@ BasisPursuit
 ( const DistMatrix<F>& A, const DistMatrix<F>& b, 
   DistMatrix<F>& x, DistMatrix<F>& z, BASE(F) rho=1., BASE(F) alpha=1.2, 
   Int maxIter=500, BASE(F) absTol=1e-4, BASE(F) relTol=1e-2, bool usePinv=false,
-  BASE(F) pinvTol=0, bool progress=false )
+  BASE(F) pinvTol=0, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -292,6 +292,7 @@ BasisPursuit
     }
     if( maxIter == numIter && grid.Rank() == 0 )
         std::cout << "Basis pursuit failed to converge" << std::endl;
+    return numIter;
 }
 
 } // namepace elem

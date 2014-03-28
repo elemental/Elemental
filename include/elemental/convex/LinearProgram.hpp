@@ -20,11 +20,9 @@
 #include ELEM_HERK_INC
 #include ELEM_TRSM_INC
 #include ELEM_FROBENIUSNORM_INC
-#include ELEM_ONENORM_INC
 #include ELEM_LU_INC
 #include ELEM_TRIANGULARINVERSE_INC
 #include ELEM_CLIP_INC
-#include ELEM_SOFTTHRESHOLD_INC
 #include ELEM_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
@@ -44,7 +42,7 @@ LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
   Matrix<Real>& x, Matrix<Real>& z, 
   Real rho=1., Real alpha=1.2, Int maxIter=500, 
-  Real absTol=1e-4, Real relTol=1e-2, bool inv=false, bool progress=false )
+  Real absTol=1e-4, Real relTol=1e-2, bool inv=false, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( IsComplex<Real>::val ) 
@@ -169,7 +167,6 @@ LinearProgram
 
         if( progress )
         {
-            const Real xOneNorm = OneNorm( xTmp );
             std::cout << numIter << ": "
               << "||x-z||_2=" << rNorm << ", "
               << "epsPri=" << epsPri << ", "
@@ -184,6 +181,7 @@ LinearProgram
     if( maxIter == numIter )
         std::cout << "ADMM failed to converge" << std::endl;
     x = xTmp;
+    return numIter;
 }
 
 template<typename Real>
@@ -192,7 +190,7 @@ LinearProgram
 ( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
   const DistMatrix<Real>& c, DistMatrix<Real>& x, DistMatrix<Real>& z, 
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-4, 
-  Real relTol=1e-2, bool inv=true, bool progress=false )
+  Real relTol=1e-2, bool inv=true, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( IsComplex<Real>::val ) 
@@ -321,7 +319,6 @@ LinearProgram
 
         if( progress )
         {
-            const Real xOneNorm = OneNorm( xTmp );
             if( grid.Rank() == 0 )
                 std::cout << numIter << ": "
                   << "||x-z||_2=" << rNorm << ", "
@@ -337,8 +334,8 @@ LinearProgram
     if( maxIter == numIter && grid.Rank() == 0 )
         std::cout << "ADMM failed to converge" << std::endl;
     x = xTmp;
+    return numIter;
 }
-
 
 } // namespace elem
 

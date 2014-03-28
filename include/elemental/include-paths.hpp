@@ -494,25 +494,31 @@
 #define ELEM_SPY_INC     "elemental/io/Spy.hpp"
 #define ELEM_WRITE_INC   "elemental/io/Write.hpp"
 
-// Support for convex optimization
-// ===============================
+// Convex optimization
+// ===================
 #define ELEM_CONVEX_INC      "elemental/convex.hpp"
 #define ELEM_CONVEX_DECL_INC "elemental/convex/decl.hpp"
 #define ELEM_CONVEX_IMPL_INC "elemental/convex/impl.hpp"
 
-#define ELEM_BASISPURSUIT_INC  "elemental/convex/BasisPursuit.hpp"
+// Utilities
+// ---------
 #define ELEM_CLIP_INC          "elemental/convex/Clip.hpp"
-#define ELEM_LINEARPROGRAM_INC "elemental/convex/LinearProgram.hpp"
 #define ELEM_LOGBARRIER_INC    "elemental/convex/LogBarrier.hpp"
 #define ELEM_LOGDETDIV_INC     "elemental/convex/LogDetDiv.hpp"
 #define ELEM_SOFTTHRESHOLD_INC "elemental/convex/SoftThreshold.hpp"
 #define ELEM_SVT_INC           "elemental/convex/SVT.hpp"
-
 // Specific SVT routines
-// ---------------------
+// ^^^^^^^^^^^^^^^^^^^^^
 #define ELEM_SVT_CROSS_INC     "elemental/convex/SVT/Cross.hpp"
 #define ELEM_SVT_NORMAL_INC    "elemental/convex/SVT/Normal.hpp"
 #define ELEM_SVT_PIVOTEDQR_INC "elemental/convex/SVT/PivotedQR.hpp"
 #define ELEM_SVT_TSQR_INC      "elemental/convex/SVT/TSQR.hpp"
+
+// ADMM
+// ----
+#define ELEM_BASISPURSUIT_INC     "elemental/convex/BasisPursuit.hpp"
+#define ELEM_LINEARPROGRAM_INC    "elemental/convex/LinearProgram.hpp"
+#define ELEM_QUADRATICPROGRAM_INC "elemental/convex/QuadraticProgram.hpp"
+
 
 #endif // ifndef ELEM_INCLUDEPATHS_HPP
