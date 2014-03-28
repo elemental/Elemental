@@ -35,8 +35,8 @@ main( int argc, char* argv[] )
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1.e-4);
-        const Real relTol = Input("--relTol","relative tolerance",1.e-2);
+        const Real absTol = Input("--absTol","absolute tolerance",1e-4);
+        const Real relTol = Input("--relTol","relative tolerance",1e-2);
         const bool inv = Input("--inv","form inv(LU) to avoid trsv?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);

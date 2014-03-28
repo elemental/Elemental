@@ -42,7 +42,7 @@ LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
   Matrix<Real>& x, Matrix<Real>& z, 
   Real rho=1., Real alpha=1.2, Int maxIter=500, 
-  Real absTol=1e-4, Real relTol=1e-2, bool inv=false, bool progress=true )
+  Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( IsComplex<Real>::val ) 
@@ -167,11 +167,16 @@ LinearProgram
 
         if( progress )
         {
+            t = xTmp;
+            LowerClip( t, Real(0) );
+            Axpy( Real(-1), xTmp, t );
+            const Real clipDist = FrobeniusNorm( t );
             std::cout << numIter << ": "
               << "||x-z||_2=" << rNorm << ", "
               << "epsPri=" << epsPri << ", "
               << "|rho| ||z-zOld||_2=" << sNorm << ", "
               << "epsDual=" << epsDual << ", "
+              << "||x-Pos(x)||_2=" << clipDist << ", "
               << "c'x=" << objective << std::endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
@@ -189,8 +194,8 @@ inline Int
 LinearProgram
 ( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
   const DistMatrix<Real>& c, DistMatrix<Real>& x, DistMatrix<Real>& z, 
-  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-4, 
-  Real relTol=1e-2, bool inv=true, bool progress=true )
+  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
+  Real relTol=1e-4, bool inv=true, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( IsComplex<Real>::val ) 
@@ -319,12 +324,17 @@ LinearProgram
 
         if( progress )
         {
+            t = xTmp;
+            LowerClip( t, Real(0) );
+            Axpy( Real(-1), xTmp, t );
+            const Real clipDist = FrobeniusNorm( t );
             if( grid.Rank() == 0 )
                 std::cout << numIter << ": "
                   << "||x-z||_2=" << rNorm << ", "
                   << "epsPri=" << epsPri << ", "
                   << "|rho| ||z-zOld||_2=" << sNorm << ", "
                   << "epsDual=" << epsDual << ", "
+                  << "||x-Pos(x)||_2=" << clipDist << ", "
                   << "c'x=" << objective << std::endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )

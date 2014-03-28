@@ -33,7 +33,7 @@ inline Int
 BasisPursuit
 ( const Matrix<F>& A, const Matrix<F>& b,
   Matrix<F>& x, Matrix<F>& z, BASE(F) rho=1., BASE(F) alpha=1.2, 
-  Int maxIter=500, BASE(F) absTol=1e-4, BASE(F) relTol=1e-2, bool usePinv=false,
+  Int maxIter=500, BASE(F) absTol=1e-6, BASE(F) relTol=1e-4, bool usePinv=false,
   BASE(F) pinvTol=0, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
@@ -165,7 +165,7 @@ inline Int
 BasisPursuit
 ( const DistMatrix<F>& A, const DistMatrix<F>& b, 
   DistMatrix<F>& x, DistMatrix<F>& z, BASE(F) rho=1., BASE(F) alpha=1.2, 
-  Int maxIter=500, BASE(F) absTol=1e-4, BASE(F) relTol=1e-2, bool usePinv=false,
+  Int maxIter=500, BASE(F) absTol=1e-6, BASE(F) relTol=1e-4, bool usePinv=false,
   BASE(F) pinvTol=0, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))

@@ -34,8 +34,8 @@ main( int argc, char* argv[] )
         const Real probNnz = Input("--probNnz","prob. of nonzero x entry",0.1);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1.e-4);
-        const Real relTol = Input("--relTol","relative tolerance",1.e-2);
+        const Real absTol = Input("--absTol","absolute tolerance",1e-6);
+        const Real relTol = Input("--relTol","relative tolerance",1e-4);
         const Real pinvTol = Input("--pinvTol","pseudoinv tolerance",0.);
         const bool usePinv = Input("--usePinv","Directly compute pinv(A)",true);
         const bool progress = Input("--progress","print progress?",true);

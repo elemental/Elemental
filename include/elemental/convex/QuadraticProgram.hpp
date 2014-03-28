@@ -39,7 +39,7 @@ QuadraticProgram
 ( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub,
   Matrix<Real>& x, Matrix<Real>& z,
   Real rho=1., Real alpha=1.2, Int maxIter=500, 
-  Real absTol=1e-4, Real relTol=1e-2, bool inv=false, bool progress=true )
+  Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("QuadraticProgram"))
     if( IsComplex<Real>::val ) 
@@ -88,7 +88,7 @@ QuadraticProgram
         Scale( alpha, xHat );
         Axpy( 1-alpha, zOld, xHat );
 
-        // z := pos(xHat+u)
+        // z := Clip(xHat+u,lb,ub)
         z = xHat;
         Axpy( Real(1), u, z );
         Clip( z, lb, ub );
@@ -118,11 +118,16 @@ QuadraticProgram
 
         if( progress )
         {
+            t = x;
+            Clip( t, lb, ub );
+            Axpy( Real(-1), x, t );
+            const Real clipDist = FrobeniusNorm( t );
             std::cout << numIter << ": "
               << "||x-z||_2=" << rNorm << ", "
               << "epsPri=" << epsPri << ", "
               << "|rho| ||z-zOld||_2=" << sNorm << ", "
               << "epsDual=" << epsDual << ", "
+              << "||x-Clip(x,lb,ub)||_2=" << clipDist << ", "
               << "(1/2) x' P x + q' x=" << objective << std::endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
@@ -139,8 +144,8 @@ inline Int
 QuadraticProgram
 ( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub,
   DistMatrix<Real>& x, DistMatrix<Real>& z, 
-  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-4, 
-  Real relTol=1e-2, bool inv=true, bool progress=true )
+  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
+  Real relTol=1e-4, bool inv=true, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("QuadraticProgram"))
     if( IsComplex<Real>::val ) 
@@ -190,7 +195,7 @@ QuadraticProgram
         Scale( alpha, xHat );
         Axpy( 1-alpha, zOld, xHat );
 
-        // z := pos(xHat+u)
+        // z := Clip(xHat+u,lb,ub)
         z = xHat;
         Axpy( Real(1), u, z );
         Clip( z, lb, ub );
@@ -220,12 +225,17 @@ QuadraticProgram
 
         if( progress )
         {
+            t = x;
+            Clip( t, lb, ub );
+            Axpy( Real(-1), x, t );
+            const Real clipDist = FrobeniusNorm( t );
             if( grid.Rank() == 0 )
                 std::cout << numIter << ": "
                   << "||x-z||_2=" << rNorm << ", "
                   << "epsPri=" << epsPri << ", "
                   << "|rho| ||z-zOld||_2=" << sNorm << ", "
                   << "epsDual=" << epsDual << ", "
+                  << "||x-Clip(x,lb,ub)||_2=" << clipDist << ", "
                   << "(1/2) x' P x + q' x=" << objective << std::endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )

@@ -39,8 +39,8 @@ main( int argc, char* argv[] )
         const Real ubEig = Input("--ubEig","spectral upper bound",2.);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1.e-4);
-        const Real relTol = Input("--relTol","relative tolerance",1.e-2);
+        const Real absTol = Input("--absTol","absolute tolerance",1e-6);
+        const Real relTol = Input("--relTol","relative tolerance",1e-4);
         const bool inv = Input("--inv","form inv(LU) to avoid trsv?",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
