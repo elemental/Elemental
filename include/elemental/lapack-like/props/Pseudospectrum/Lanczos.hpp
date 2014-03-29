@@ -365,8 +365,8 @@ ComputeNewEstimates
         if( !HasNan( HDiag, HSubdiag ) )
         {
             lapack::SymmetricTridiagEig     
-            ( 'N', 'I', krylovSize, HDiag.data(), HSubdiag.data(), 0, 0, 
-              krylovSize, krylovSize, 0, w.data(), 0, 1 );
+            ( krylovSize, HDiag.data(), HSubdiag.data(), w.data(), 
+              krylovSize-1, krylovSize-1 );
             const Real est = Sqrt(w[0]);
             activeEsts.Set( j, 0, Min(est,normCap) );
         }

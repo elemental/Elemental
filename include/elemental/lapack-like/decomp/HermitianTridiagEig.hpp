@@ -26,11 +26,8 @@ HermitianTridiagEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
-    lapack::SymmetricTridiagEig
-    ( 'N', 'A', n, d.Buffer(), e.Buffer(), 0, 0, 0, 0, absTol, 
-      w.Buffer(), 0, 1 );
+    lapack::SymmetricTridiagEig( n, d.Buffer(), e.Buffer(), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -138,13 +135,9 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     const Int k = ( n==0 ? 0 : iu-il+1 );
-    const Int ilConv = ( n==0 ? 1 : il+1 );
-    const Int iuConv = ( n==0 ? 0 : iu+1 );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     lapack::SymmetricTridiagEig
-    ( 'N', 'I', n, d.Buffer(), e.Buffer(), 0, 0, il, iu, absTol,
-      w.Buffer(), 0, 1 );
+    ( n, d.Buffer(), e.Buffer(), w.Buffer(), il, iu );
     w.Resize( k, 1 );
     Sort( w, sort );
 }
@@ -255,11 +248,9 @@ HermitianTridiagEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     const Int k = lapack::SymmetricTridiagEig
-    ( 'N', 'V', n, d.Buffer(), e.Buffer(), vl, vu, 0, 0, absTol, w.Buffer(), 
-      0, 1 );
+    ( n, d.Buffer(), e.Buffer(), w.Buffer(), vl, vu );
     w.Resize( k, 1 );
     Sort( w, sort );
 }
@@ -373,12 +364,10 @@ HermitianTridiagEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n );
     lapack::SymmetricTridiagEig
-    ( 'V', 'A', n, d.Buffer(), e.Buffer(), 0, 0, 0, 0, absTol, 
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( n, d.Buffer(), e.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim() );
     herm_eig::Sort( w, Z, sort );
 }
 
@@ -521,14 +510,10 @@ HermitianTridiagEig
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
     const Int k = ( n==0 ? 0 : iu-il+1 );
-    const Int ilConv = ( n==0 ? 1 : il+1 );
-    const Int iuConv = ( n==0 ? 0 : iu+1 );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n );
     lapack::SymmetricTridiagEig
-    ( 'V', 'I', n, d.Buffer(), e.Buffer(), 0, 0, il, iu, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( n, d.Buffer(), e.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(), il, iu );
     w.Resize( k, 1 );
     herm_eig::Sort( w, Z, sort );
 }
@@ -676,12 +661,10 @@ HermitianTridiagEig
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     const Int n = d.Height();
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n ); // This can be an unnecessary O(n^2) memory usage
     const Int k = lapack::SymmetricTridiagEig
-    ( 'V', 'V', n, d.Buffer(), e.Buffer(), vl, vu, 0, 0, absTol, w.Buffer(), 
-      Z.Buffer(), Z.LDim() );
+    ( n, d.Buffer(), e.Buffer(), w.Buffer(), Z.Buffer(), Z.LDim(), vl, vu );
     w.Resize( k, 1 );
     Z.Resize( n, k );
     herm_eig::Sort( w, Z, sort );

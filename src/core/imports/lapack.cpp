@@ -367,11 +367,11 @@ dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s )
 // Compute the EVD of a symmetric tridiagonal matrix
 // =================================================
 
-int SymmetricTridiagEig
+int SymmetricTridiagEigWrapper
 ( char job, char range, int n, float* d, float* e, float vl, float vu,
   int il, int iu, float abstol, float* w, float* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
         return 0;
 
@@ -400,11 +400,11 @@ int SymmetricTridiagEig
     return m;
 }
 
-int SymmetricTridiagEig
+int SymmetricTridiagEigWrapper
 ( char job, char range, int n, double* d, double* e, double vl, double vu,
   int il, int iu, double abstol, double* w, double* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
         return 0;
 
@@ -433,15 +433,127 @@ int SymmetricTridiagEig
     return m;
 }
 
+// Compute eigenvalues
+// -------------------
+
+// All eigenvalues
+// ^^^^^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'N', 'A', n, d, e, 0, 0, 0, 0, abstol, w, 0, 1 );
+}
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'N', 'A', n, d, e, 0, 0, 0, 0, abstol, w, 0, 1 );
+}
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
+int SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float vl, float vu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    return SymmetricTridiagEigWrapper
+    ( 'N', 'V', n, d, e, vl, vu, 0, 0, abstol, w, 0, 1 );
+}
+int SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double vl, double vu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    return SymmetricTridiagEigWrapper
+    ( 'N', 'V', n, d, e, vl, vu, 0, 0, abstol, w, 0, 1 );
+}
+
+// Index range
+// ^^^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, int il, int iu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+}
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, int il, int iu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+}
+
+// Compute eigenpairs
+// ------------------
+
+// All eigenpairs
+// ^^^^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float* Z, int ldz, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'V', 'A', n, d, e, 0, 0, 0, 0, abstol, w, Z, ldz );
+}
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double* Z, int ldz, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'V', 'A', n, d, e, 0, 0, 0, 0, abstol, w, Z, ldz );
+}
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
+int SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float* Z, int ldz,
+  float vl, float vu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    return SymmetricTridiagEigWrapper
+    ( 'V', 'V', n, d, e, vl, vu, 0, 0, abstol, w, Z, ldz );
+}
+int SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double* Z, int ldz,
+  double vl, double vu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    return SymmetricTridiagEigWrapper
+    ( 'V', 'V', n, d, e, vl, vu, 0, 0, abstol, w, Z, ldz );
+}
+
+// Index range
+// ^^^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float* Z, int ldz, 
+  int il, int iu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+}
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double* Z, int ldz,
+  int il, int iu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
+    SymmetricTridiagEigWrapper
+    ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+}
+
 // Compute the EVD of a Hermitian matrix
 // =====================================
 
-int HermitianEig
+int HermitianEigWrapper
 ( char job, char range, char uplo, int n, float* A, int lda, 
   float vl, float vu, int il, int iu, float abstol, 
   float* w, float* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -470,12 +582,12 @@ int HermitianEig
     return m;
 }
 
-int HermitianEig
+int HermitianEigWrapper
 ( char job, char range, char uplo, int n, double* A, int lda, 
   double vl, double vu, int il, int iu, double abstol, 
   double* w, double* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -504,12 +616,12 @@ int HermitianEig
     return m;
 }
 
-int HermitianEig
+int HermitianEigWrapper
 ( char job, char range, char uplo, int n, scomplex* A, int lda, 
   float vl, float vu, int il, int iu, float abstol, 
   float* w, scomplex* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -541,12 +653,12 @@ int HermitianEig
     return m;
 }
 
-int HermitianEig
+int HermitianEigWrapper
 ( char job, char range, char uplo, int n, dcomplex* A, int lda, 
   double vl, double vu, int il, int iu, double abstol, 
   double* w, dcomplex* Z, int ldz )
 {
-    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
@@ -576,6 +688,218 @@ int HermitianEig
     else if( info > 0 )
         RuntimeError("zheevr's failed");
     return m;
+}
+
+// Compute the eigenvalues
+// -----------------------
+
+// All eigenvalues
+// ^^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+}
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+}
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+}
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+}
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
+int HermitianEig
+( char uplo, int n, float* A, int lda, float* w, 
+  float vl, float vu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+}
+int HermitianEig
+( char uplo, int n, double* A, int lda, double* w, 
+  double vl, double vu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+}
+int HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, 
+  float vl, float vu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+}
+int HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, 
+  double vl, double vu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+}
+
+// Index range
+// ^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, 
+  int il, int iu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+}
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, 
+  int il, int iu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+}
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, 
+  int il, int iu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+}
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, 
+  int il, int iu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+}
+
+// Compute the eigenpairs
+// ----------------------
+
+// All eigenpairs
+// ^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz, 
+  float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+}
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+  double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+}
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+  float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+}
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+  double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+}
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
+int HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+  float vl, float vu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+}
+int HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+  double vl, double vu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+}
+int HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+  float vl, float vu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+}
+int HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+  double vl, double vu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    return HermitianEigWrapper
+    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+}
+
+// Index range
+// ^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+  int il, int iu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+}
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz, 
+  int il, int iu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+}
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+  int il, int iu, float abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+}
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+  int il, int iu, double abstol )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
+    HermitianEigWrapper
+    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
 }
 
 // Bidiagonal DQDS for singular values

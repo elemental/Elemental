@@ -144,11 +144,8 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
-    lapack::HermitianEig
-    ( 'N', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
-      w.Buffer(), 0, 1 );
+    lapack::HermitianEig( uploChar, n, A.Buffer(), A.LDim(), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -161,11 +158,8 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
-    lapack::HermitianEig
-    ( 'N', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
-      w.Buffer(), 0, 1 );
+    lapack::HermitianEig( uploChar, n, A.Buffer(), A.LDim(), w.Buffer() );
     Sort( w, sort );
 }
 
@@ -223,12 +217,10 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n );
     lapack::HermitianEig
-    ( 'V', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
     herm_eig::Sort( w, Z, sort );
 }
 
@@ -241,12 +233,10 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n );
     lapack::HermitianEig
-    ( 'V', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
     herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
@@ -360,14 +350,10 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
-    const Int ilConv = ( n==0 ? 1 : il+1 );
-    const Int iuConv = ( n==0 ? 0 : iu+1 );
     w.Resize( numEigs, 1 );
     lapack::HermitianEig
-    ( 'N', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
-      w.Buffer(), 0, 1 );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), il, iu );
     Sort( w, sort );
 }
 
@@ -380,14 +366,10 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
-    const Int ilConv = ( n==0 ? 1 : il+1 );
-    const Int iuConv = ( n==0 ? 0 : iu+1 );
     w.Resize( numEigs, 1 );
     lapack::HermitianEig
-    ( 'N', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
-      w.Buffer(), 0, 1 );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), il, iu );
     Sort( w, sort );
 }
 
@@ -445,15 +427,12 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
-    const Int ilConv = ( n==0 ? 1 : il+1 );
-    const Int iuConv = ( n==0 ? 0 : iu+1 );
     w.Resize( numEigs, 1 );
     Z.Resize( n, numEigs );
     lapack::HermitianEig
-    ( 'V', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
+      il, iu );
     herm_eig::Sort( w, Z, sort );
 }
 
@@ -467,15 +446,12 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
-    const Int ilConv = ( n==0 ? 1 : il+1 );
-    const Int iuConv = ( n==0 ? 0 : iu+1 );
     w.Resize( numEigs, 1 );
     Z.Resize( n, numEigs );
     lapack::HermitianEig
-    ( 'V', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
+      il, iu ); 
     herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
@@ -599,11 +575,9 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     const Int numEigs = lapack::HermitianEig
-    ( 'N', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
-      w.Buffer(), 0, 1 );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), vl, vu );
     w.Resize( numEigs, 1 );
     Sort( w, sort );
 }
@@ -623,11 +597,9 @@ void HermitianEig
     typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     const Int numEigs = lapack::HermitianEig
-    ( 'N', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
-      w.Buffer(), 0, 1 );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), vl, vu );
     w.Resize( numEigs, 1 );
     Sort( w, sort );
 }
@@ -701,12 +673,11 @@ void HermitianEig
     }
 
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n );
     const Int numEigs = lapack::HermitianEig
-    ( 'V', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
+      vl, vu );
     w.Resize( numEigs, 1 );
     Z.Resize( n, numEigs );
     herm_eig::Sort( w, Z, sort );
@@ -731,12 +702,11 @@ void HermitianEig
     }
 
     const char uploChar = UpperOrLowerToChar( uplo );
-    const Real absTol = 0; // use the default value for now
     w.Resize( n, 1 );
     Z.Resize( n, n );
     const Int numEigs = lapack::HermitianEig
-    ( 'V', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
-      w.Buffer(), Z.Buffer(), Z.LDim() );
+    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
+      vl, vu );
     w.Resize( numEigs, 1 );
     Z.Resize( n, numEigs );
     herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );

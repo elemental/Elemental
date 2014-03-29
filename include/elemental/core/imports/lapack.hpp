@@ -90,34 +90,156 @@ dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s );
 // Compute the eigen-values/pairs of a symmetric tridiagonal matrix
 // ================================================================
 
+// Compute eigenvalues
+// -------------------
+
+// All eigenvalues
+// ^^^^^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float abstol=0 );
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double abstol=0 );
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
 int SymmetricTridiagEig
-( char job, char range, int n, float* d, float* e,
-  float vl, float vu, int il, int iu, float abstol,
-  float* w, float* Z, int ldz );
+( int n, float* d, float* e, float* w, 
+  float vl, float vu, float abstol=0 );
 int SymmetricTridiagEig
-( char job, char range, int n, double* d, double* e,
-  double vl, double vu, int il, int iu, double abstol,
-  double* w, double* Z, int ldz );
+( int n, double* d, double* e, double* w, 
+  double vl, double vu, double abstol=0 );
+
+// Index range
+// ^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w,
+  int il, int iu, float abstol=0 );
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w,
+  int il, int iu, double abstol=0 );
+
+// Compute eigenpairs
+// ------------------
+
+// All eigenpairs
+// ^^^^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float* Z, int ldz, float abstol=0 );
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double* Z, int ldz, double abstol=0 );
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
+int SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float* Z, int ldz,
+  float vl, float vu, float abstol=0 );
+int SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double* Z, int ldz,
+  double vl, double vu, double abstol=0 );
+
+// Index range
+// ^^^^^^^^^^^
+void SymmetricTridiagEig
+( int n, float* d, float* e, float* w, float* Z, int ldz,
+  int il, int iu, float abstol=0 );
+void SymmetricTridiagEig
+( int n, double* d, double* e, double* w, double* Z, int ldz,
+  int il, int iu, double abstol=0 );
 
 // Compute the eigen-values/pairs of a Hermitian matrix
 // ====================================================
 
+// Compute eigenvalues
+// -------------------
+
+// All eigenvalues
+// ^^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float abstol=0 );
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double abstol=0 );
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, float abstol=0 );
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, double abstol=0 );
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
 int HermitianEig
-( char job, char range, char uplo, int n, float* A, int lda,
-  float vl, float vu, int il, int iu, float abstol,
-  float* w, float* Z, int ldz );
+( char uplo, int n, float* A, int lda, float* w,
+  float vl, float vu, float abstol=0 );
 int HermitianEig
-( char job, char range, char uplo, int n, double* A, int lda,
-  double vl, double vu, int il, int iu, double abstol,
-  double* w, double* Z, int ldz );
+( char uplo, int n, double* A, int lda, double* w,
+  double vl, double vu, double abstol=0 );
 int HermitianEig
-( char job, char range, char uplo, int n, scomplex* A, int lda,
-  float vl, float vu, int il, int iu, float abstol,
-  float* w, scomplex* Z, int ldz );
+( char uplo, int n, scomplex* A, int lda, float* w,
+  float vl, float vu, float abstol=0 );
 int HermitianEig
-( char job, char range, char uplo, int n, dcomplex* A, int lda,
-  double vl, double vu, int il, int iu, double abstol,
-  double* w, dcomplex* Z, int ldz );
+( char uplo, int n, dcomplex* A, int lda, double* w,
+  double vl, double vu, double abstol=0 );
+
+// Index range
+// ^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w,
+  int il, int iu, float abstol=0 );
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w,
+  int il, int iu, double abstol=0 );
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w,
+  int il, int iu, float abstol=0 );
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w,
+  int il, int iu, double abstol=0 );
+
+// Compute eigenpairs
+// ------------------
+
+// All eigenpairs
+// ^^^^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+  float abstol=0 );
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+  double abstol=0 );
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+  float abstol=0 );
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+  double abstol=0 );
+
+// Floating-point range
+// ^^^^^^^^^^^^^^^^^^^^
+int HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+  float vl, float vu, float abstol=0 );
+int HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+  double vl, double vu, double abstol=0 );
+int HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+  float vl, float vu, float abstol=0 );
+int HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+  double vl, double vu, double abstol=0 );
+
+// Index range
+// ^^^^^^^^^^^
+void HermitianEig
+( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+  int il, int iu, float abstol=0 );
+void HermitianEig
+( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+  int il, int iu, double abstol=0 );
+void HermitianEig
+( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+  int il, int iu, float abstol=0 );
+void HermitianEig
+( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+  int il, int iu, double abstol=0 );
 
 // Compute the SVD of a general matrix using a divide and conquer algorithm
 // ========================================================================
