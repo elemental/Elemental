@@ -22,6 +22,9 @@ std::stack<Int> blocksizeStack;
 Grid* defaultGrid = 0;
 Args* args = 0;
 
+// Default blocksizes for BlockDistMatrix
+Int blockHeight=32, blockWidth=32;
+
 // A common Mersenne twister configuration
 std::mt19937 generator;
 
@@ -437,6 +440,18 @@ const Grid& DefaultGrid()
     )
     return *::defaultGrid;
 }
+
+Int DefaultBlockHeight()
+{ return ::blockHeight; }
+
+Int DefaultBlockWidth()
+{ return ::blockWidth; }
+
+void SetDefaultBlockHeight( Int mb )
+{ ::blockHeight = mb; }
+
+void SetDefaultBlockWidth( Int nb )
+{ ::blockWidth = nb; }
 
 std::mt19937& Generator()
 { return ::generator; }

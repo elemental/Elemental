@@ -64,10 +64,9 @@ main( int argc, char* argv[] )
             Display( A, "A" );
 
         DistMatrix<C> x, z;
-        const Int numIter = 
-            BasisPursuit
-            ( A, b, x, z, alpha, rho, maxIter, absTol, relTol, usePinv, pinvTol,
-              progress );
+        BasisPursuit
+        ( A, b, x, z, alpha, rho, maxIter, absTol, relTol, usePinv, pinvTol,
+          progress );
         if( print )
         {
             Print( x, "x" );

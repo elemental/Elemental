@@ -74,10 +74,9 @@ main( int argc, char* argv[] )
             Display( P, "P" );
 
         DistMatrix<Real> x, z;
-        const Int numIter = 
-            QuadraticProgram
-            ( P, q, lb, ub, x, z, rho, alpha, maxIter, absTol, relTol, inv, 
-              progress );
+        QuadraticProgram
+        ( P, q, lb, ub, x, z, rho, alpha, maxIter, absTol, relTol, inv, 
+          progress );
 
         if( print )
         {

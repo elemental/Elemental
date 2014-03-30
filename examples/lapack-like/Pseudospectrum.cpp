@@ -28,10 +28,14 @@ main( int argc, char* argv[] )
 
     try 
     {
+        Int r = Input("--gridHeight","process grid height",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType = 
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
                               "5:HelmholtzPML1D,6:HelmholtzPML2D",5);
         const Int n = Input("--size","height of matrix",100);
+        const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
+        const Int nbDist = Input("--nbDist","distribution blocksize",32);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         const Real xWidth = Input("--xWidth","x width of image",0.);
@@ -62,6 +66,13 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        if( r == 0 )
+            r = Grid::FindFactor( mpi::Size(mpi::COMM_WORLD) );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( mpi::COMM_WORLD, r, order );
+        SetBlocksize( nbAlg );
+        SetDefaultBlockHeight( nbDist );
+        SetDefaultBlockWidth( nbDist );
         if( formatInt < 1 || formatInt >= FileFormat_MAX )
             LogicError("Invalid file format integer, should be in [1,",
                        FileFormat_MAX,")");
@@ -71,7 +82,7 @@ main( int argc, char* argv[] )
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
 
-        DistMatrix<C> A;
+        DistMatrix<C> A(g);
         switch( matType )
         {
         case 0: Uniform( A, n, n ); break;
@@ -94,8 +105,8 @@ main( int argc, char* argv[] )
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
-        DistMatrix<Real> invNormMap;
-        DistMatrix<Int> itCountMap;
+        DistMatrix<Real> invNormMap(g);
+        DistMatrix<Int> itCountMap(g);
         if( xWidth != 0. && yWidth != 0. )
         {
             itCountMap = Pseudospectrum

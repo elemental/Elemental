@@ -141,7 +141,6 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     w.Resize( n, 1 );
@@ -155,7 +154,6 @@ void HermitianEig
   DistMatrix<F,STAR,STAR>& A, DistMatrix<Base<F>,STAR,STAR>& w, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     w.Resize( n, 1 );
@@ -169,12 +167,11 @@ void HermitianEig
   DistMatrix<Base<F>,VR,STAR>& w, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
     // Check if we need to rescale the matrix, and do so if necessary
-    Real scale;
+    Base<F> scale;
     const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
@@ -214,7 +211,6 @@ void HermitianEig
   Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     w.Resize( n, 1 );
@@ -230,7 +226,6 @@ void HermitianEig
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     w.Resize( n, 1 );
@@ -347,7 +342,6 @@ void HermitianEig
   Matrix<Base<F>>& w, Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
@@ -363,7 +357,6 @@ void HermitianEig
   DistMatrix<Base<F>,STAR,STAR>& w, Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
@@ -379,12 +372,11 @@ void HermitianEig
   DistMatrix<Base<F>,VR,STAR>& w, Int il, Int iu, SortType sort ) 
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
     // Check if we need to rescale the matrix, and do so if necessary
-    Real scale;
+    Base<F> scale;
     const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
@@ -424,7 +416,6 @@ void HermitianEig
   Matrix<Base<F>>& w, Matrix<F>& Z, Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
@@ -443,7 +434,6 @@ void HermitianEig
   Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const Int numEigs = ( n==0 ? 0 : iu-il+1 );
@@ -572,7 +562,6 @@ void HermitianEig
         return; 
     }
 
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     w.Resize( n, 1 );
@@ -594,7 +583,6 @@ void HermitianEig
         return; 
     }
 
-    typedef Base<F> Real;
     const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     w.Resize( n, 1 );
@@ -611,7 +599,6 @@ void HermitianEig
   SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     if( vl >= vu )
     {
         w.Resize(0,1);
@@ -621,7 +608,7 @@ void HermitianEig
         LogicError("Hermitian matrices must be square");
 
     // Check if we need to rescale the matrix, and do so if necessary
-    Real scale;
+    Base<F> scale;
     const bool needRescaling = herm_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
@@ -663,7 +650,6 @@ void HermitianEig
   Base<F> vl, Base<F> vu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     if( vl >= vu )
     {
@@ -692,7 +678,6 @@ void HermitianEig
   Base<F> vl, Base<F> vu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    typedef Base<F> Real;
     const Int n = A.Height();
     if( vl >= vu )
     {

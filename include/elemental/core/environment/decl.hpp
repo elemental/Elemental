@@ -54,6 +54,11 @@ void SetBlocksize( Int blocksize );
 void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
 
+Int DefaultBlockHeight();
+Int DefaultBlockWidth();
+void SetDefaultBlockHeight( Int blockHeight );
+void SetDefaultBlockWidth( Int blockWidth );
+
 std::mt19937& Generator();
 
 template<typename T>

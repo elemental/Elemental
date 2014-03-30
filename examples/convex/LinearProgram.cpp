@@ -66,7 +66,7 @@ main( int argc, char* argv[] )
             std::cout << "c'xTrue=" << objectiveTrue << std::endl;
 
         DistMatrix<Real> x, z;
-        const Int numIter = LinearProgram
+        LinearProgram
         ( A, b, c, x, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
 
         if( print )

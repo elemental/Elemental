@@ -10,6 +10,7 @@
 #ifndef ELEM_SCHUR_QR_HPP
 #define ELEM_SCHUR_QR_HPP
 
+#include ELEM_MAKETRIANGULAR_INC
 #include ELEM_HESSENBERG_INC
 #include ELEM_IDENTITY_INC
 
@@ -24,6 +25,8 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool fullTriangle=false )
     const Int n = A.Height();
     w.Resize( n, 1 );
     lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
+    if( fullTriangle )
+        MakeTriangular( UPPER, A );
 }
 
 template<typename F>
@@ -38,6 +41,8 @@ QR
     w.Resize( n, 1 );
     lapack::Schur
     ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), fullTriangle );
+    if( fullTriangle )
+        MakeTriangular( UPPER, A );
 }
 
 template<typename F>
@@ -91,6 +96,8 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
+    if( fullTriangle )
+        MakeTriangular( UPPER, A );
 }
 
 template<typename F>
@@ -163,6 +170,8 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
+    if( fullTriangle )
+        MakeTriangular( UPPER, A );
 }
 
 template<typename F>
@@ -181,8 +190,7 @@ QR
     // Run the QR algorithm in block form
     // TODO: Create schur::HessenbergQR
     const Int n = A.Height(); 
-    const Int nb = 32;
-    BlockDistMatrix<F> ABlock( n, n, A.Grid(), nb, nb );
+    BlockDistMatrix<F> ABlock( n, n, A.Grid() );
     ABlock = A;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );
     const int context =
@@ -211,6 +219,8 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
+    if( fullTriangle )
+        MakeTriangular( UPPER, A );
 }
 
 template<typename F>
@@ -232,9 +242,7 @@ QR
     MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form
-    const Int nb = 32;
-    BlockDistMatrix<F> ABlock( n, n, A.Grid(), nb, nb ),
-                       QBlock( n, n, A.Grid(), nb, nb );
+    BlockDistMatrix<F> ABlock( n, n, A.Grid() ), QBlock( n, n, A.Grid() );
     ABlock = A;
     QBlock = Q;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );
@@ -274,6 +282,8 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
+    if( fullTriangle )
+        MakeTriangular( UPPER, A );
 }
 
 } // namespace schur

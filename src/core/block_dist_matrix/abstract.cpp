@@ -9,9 +9,6 @@
 #include "elemental-lite.hpp"
 #include ELEM_ZEROS_INC
 
-#define MB_DEFAULT 32
-#define NB_DEFAULT 32
-
 namespace elem {
 
 // Public section
@@ -28,7 +25,7 @@ AbstractBlockDistMatrix<T>::AbstractBlockDistMatrix
   auxMemory_(),
   matrix_(0,0,true),
   colConstrained_(false), rowConstrained_(false), rootConstrained_(false),
-  blockHeight_(MB_DEFAULT), blockWidth_(NB_DEFAULT),
+  blockHeight_(DefaultBlockHeight()), blockWidth_(DefaultBlockWidth()),
   colAlign_(0), rowAlign_(0),
   colCut_(0), rowCut_(0),
   root_(root), grid_(&g)

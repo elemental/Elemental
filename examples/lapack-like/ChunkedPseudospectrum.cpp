@@ -29,10 +29,14 @@ main( int argc, char* argv[] )
 
     try 
     {
+        Int r = Input("--gridHeight","process grid height",0);
+        const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType = 
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi"
                               "5:HelmholtzPML1D,6:HelmholtzPML2D",5);
         const Int n = Input("--size","height of matrix",100);
+        const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
+        const Int nbDist = Input("--nbDist","distribution blocksize",32);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         Real xWidth = Input("--xWidth","x width of image",0.);
@@ -41,7 +45,6 @@ main( int argc, char* argv[] )
         const Real ny = Input("--ny","num y chunks",2);
         const Int xSize = Input("--xSize","number of x samples",100);
         const Int ySize = Input("--ySize","number of y samples",100);
-        const bool schur = Input("--schur","Schur decomposition?",true);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
         const bool reorthog = Input("--reorthog","reorthog basis?",true);
@@ -72,12 +75,20 @@ main( int argc, char* argv[] )
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
+        const bool saveSchur = Input("--saveSchur","save Schur factor?",true);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int formatInt = Input("--format","write format",2);
         const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
         PrintInputReport();
 
+        if( r == 0 )
+            r = Grid::FindFactor( mpi::Size(mpi::COMM_WORLD) );
+        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+        const Grid g( mpi::COMM_WORLD, r, order );
+        SetBlocksize( nbAlg );
+        SetDefaultBlockHeight( nbDist );
+        SetDefaultBlockWidth( nbDist );
         if( formatInt < 1 || formatInt >= FileFormat_MAX )
             LogicError("Invalid file format integer, should be in [1,",
                        FileFormat_MAX,")");
@@ -87,17 +98,20 @@ main( int argc, char* argv[] )
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
 
-        DistMatrix<C> A;
+        std::string matName;
+        DistMatrix<C> A(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n ); break;
-        case 1: Haar( A, n ); break;
-        case 2: Lotkin( A, n ); break;
-        case 3: Grcar( A, n, numBands ); break;
-        case 4: FoxLi( A, n, omega ); break;
-        case 5: HelmholtzPML
+        case 0: matName="uniform"; Uniform( A, n, n ); break;
+        case 1: matName="Haar"; Haar( A, n ); break;
+        case 2: matName="Lotkin"; Lotkin( A, n ); break;
+        case 3: matName="Grcar"; Grcar( A, n, numBands ); break;
+        case 4: matName="FoxLi"; FoxLi( A, n, omega ); break;
+        case 5: matName="HelmholtzPML"; 
+                HelmholtzPML
                 ( A, n, C(omega), numPmlPoints, sigma, pmlExp ); break;
-        case 6: HelmholtzPML
+        case 6: matName="HelmholtzPML2D"; 
+                HelmholtzPML
                 ( A, mx, my, C(omega), numPmlPoints, sigma, pmlExp ); break;
         default: LogicError("Invalid matrix type");
         }
@@ -106,12 +120,9 @@ main( int argc, char* argv[] )
         if( write )
             Write( A, "A", format );
 
-        if( !schur )
-            LogicError("The Hessenberg chunked driver is not yet written");
-
         // Begin by computing the Schur decomposition
         Timer timer;
-        DistMatrix<C,VR,STAR> w;
+        DistMatrix<C,VR,STAR> w(g);
         mpi::Barrier( mpi::COMM_WORLD );
         const bool formATR = true;
 #ifdef ELEM_HAVE_SCALAPACK
@@ -124,7 +135,7 @@ main( int argc, char* argv[] )
                       << std::endl; 
 #else
         timer.Start();
-        DistMatrix<C> X;
+        DistMatrix<C> X(g);
         schur::SDC
         ( A, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
           spreadFactor, random, progress );
@@ -133,6 +144,13 @@ main( int argc, char* argv[] )
         if( mpi::WorldRank() == 0 )
             std::cout << "SDC took " << sdcTime << " seconds" << std::endl; 
 #endif
+        if( saveSchur )
+        {
+            std::ostringstream os;
+            os << matName << "-" << A.ColStride() << "x" << A.RowStride()
+               << A.DistRank();
+            write::Binary( A.LockedMatrix(), os.str() );
+        }
 
         // Find a window if none is specified
         if( xWidth == 0. || yWidth == 0. )
@@ -168,8 +186,8 @@ main( int argc, char* argv[] )
         }
 
         // Visualize/write the pseudospectrum within each window
-        DistMatrix<Real> invNormMap;
-        DistMatrix<Int> itCountMap;
+        DistMatrix<Real> invNormMap(g);
+        DistMatrix<Int> itCountMap(g);
         const Int xBlock = xSize / nx;
         const Int yBlock = ySize / ny;
         const Int xLeftover = xSize - (nx-1)*xBlock;

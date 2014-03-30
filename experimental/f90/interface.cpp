@@ -744,7 +744,6 @@ void FC_GLOBAL_(elem_block_symmetric_axbx_expand,NAME)
 void FC_GLOBAL_(elem_hermitian_axbx_expand,NAME)
 ( int* AHandle, int* BHandle, int* XHandle )
 {
-    auto& A = GetCpxDistMat( *AHandle );
     auto& B = GetCpxDistMat( *BHandle );
     auto& X = GetCpxDistMat( *XHandle );
     

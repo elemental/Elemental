@@ -129,7 +129,7 @@ inline void
 BinaryFlat
 ( DistMatrix<T,U,V>& A, Int height, Int width, const std::string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
     std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -307,7 +307,7 @@ BinaryFlat
 ( DistMatrix<T,CIRC,CIRC>& A, Int height, Int width, 
   const std::string filename )
 {
-    DEBUG_ONLY(CallStackEntry cse("read::Binary"))
+    DEBUG_ONLY(CallStackEntry cse("read::BinaryFlat"))
     std::ifstream file( filename.c_str(), std::ios::binary );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);

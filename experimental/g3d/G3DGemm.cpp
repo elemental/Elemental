@@ -140,7 +140,6 @@ void DistributeCols
 ( const mpi::Comm& depthComm,
   const DistMatrix<double>& A, DistMatrix<double>& B )
 {
-    const Grid& meshGrid = A.Grid();
     const int depthSize = mpi::Size( depthComm );
     const int depthRank = mpi::Rank( depthComm );
 
@@ -306,8 +305,6 @@ void SumContributions
 ( mpi::Comm& depthComm,
   const DistMatrix<double>& APartial, DistMatrix<double>& A )
 {
-    const Grid& meshGrid = APartial.Grid();
-
     A.Empty();
     A.AlignWith( APartial );
     A.Resize( APartial.Height(), APartial.Width() );
