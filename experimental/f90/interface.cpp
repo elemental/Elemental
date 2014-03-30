@@ -214,23 +214,23 @@ void FC_GLOBAL_(elem_free_grid,NAME)( int* handle )
 
 void FC_GLOBAL_(elem_register_dist_mat,NAME)
 ( int* handle, 
-  int* height, int* width, int* colAlignment, int* rowAlignment, 
+  int* height, int* width, int* colAlign, int* rowAlign, 
   double* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList );
     try 
     {
-        distMatList[index] = 
-            new DistMatrix<double>
-            (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
+        distMatList[index] = new DistMatrix<double>(grid);
+        distMatList[index]->Attach
+        (*height,*width,grid,*colAlign,*rowAlign,buffer,*ldim);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
 void FC_GLOBAL_(elem_register_cpx_dist_mat,NAME)
 ( int* handle, 
-  int* height, int* width, int* colAlignment, int* rowAlignment, 
+  int* height, int* width, int* colAlign, int* rowAlign, 
   void* voidBuffer, int* ldim, int* gridHandle )
 {
     Cpx* buffer = static_cast<Cpx*>(voidBuffer);
@@ -239,9 +239,9 @@ void FC_GLOBAL_(elem_register_cpx_dist_mat,NAME)
     const int index = GetOpenIndex( cpxDistMatList );
     try
     {
-        cpxDistMatList[index] = 
-            new DistMatrix<Cpx>
-            (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
+        cpxDistMatList[index] = new DistMatrix<Cpx>(grid);
+        cpxDistMatList[index]->Attach
+        (*height,*width,grid,*colAlign,*rowAlign,buffer,*ldim);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
@@ -306,16 +306,16 @@ void FC_GLOBAL_(elem_print_cpx_dist_mat,NAME)( int* AHandle )
 
 void FC_GLOBAL_(elem_register_dist_mat_vc_star,NAME)
 ( int* handle, 
-  int* height, int* width, int* colAlignment, 
+  int* height, int* width, int* colAlign, 
   Real* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList_VC_STAR );
     try
     {
-        distMatList_VC_STAR[index] = 
-            new DistMatrix<Real,VC,STAR>
-            (*height,*width,*colAlignment,0,buffer,*ldim,grid);
+        distMatList_VC_STAR[index] = new DistMatrix<Real,VC,STAR>(grid);
+        distMatList_VC_STAR[index]->Attach
+        (*height,*width,grid,*colAlign,0,buffer,*ldim);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
@@ -354,16 +354,16 @@ void FC_GLOBAL_(elem_print_dist_mat_vc_star,NAME)( int* AHandle )
 
 void FC_GLOBAL_(elem_register_dist_mat_vr_star,NAME)
 ( int* handle, 
-  int* height, int* width, int* colAlignment, 
+  int* height, int* width, int* colAlign, 
   Real* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList_VR_STAR );
     try
     {
-        distMatList_VR_STAR[index] = 
-            new DistMatrix<Real,VR,STAR>
-            (*height,*width,*colAlignment,0,buffer,*ldim,grid);
+        distMatList_VR_STAR[index] = new DistMatrix<Real,VR,STAR>(grid);
+        distMatList_VR_STAR[index]->Attach
+        (*height,*width,grid,*colAlign,0,buffer,*ldim);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
@@ -410,9 +410,9 @@ void FC_GLOBAL_(elem_register_dist_mat_star_star,NAME)
     const int index = GetOpenIndex( distMatList_STAR_STAR );
     try
     {
-        distMatList_STAR_STAR[index] = 
-            new DistMatrix<Real,STAR,STAR>
-            (*height,*width,0,0,buffer,*ldim,grid);
+        distMatList_STAR_STAR[index] = new DistMatrix<Real,STAR,STAR>(grid);
+        distMatList_STAR_STAR[index]->Attach
+        (*height,*width,grid,0,0,buffer,*ldim);
     } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }

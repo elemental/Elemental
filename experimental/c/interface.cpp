@@ -166,14 +166,13 @@ void ElemFreeGrid( ElemGrid grid )
 //
 
 ElemDistMat ElemRegisterDistMat
-( int height, int width, int colAlignment, int rowAlignment, 
+( int height, int width, int colAlign, int rowAlign, 
   Real* buffer, int ldim, ElemGrid gridHandle )
 {
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( distMatList );
-    distMatList[index] = 
-        new DistMatrix<Real>
-        (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
+    distMatList[index] = new DistMatrix<Real>(grid);
+    distMatList[index]->Attach(height,width,grid,colAlign,rowAlign,buffer,ldim);
     return index;
 }
 
@@ -186,16 +185,16 @@ ElemDistMat ElemCreateDistMat( ElemGrid gridHandle )
 }
 
 ElemCpxDistMat ElemRegisterCpxDistMat
-( int height, int width, int colAlignment, int rowAlignment, 
+( int height, int width, int colAlign, int rowAlign, 
   void* voidBuffer, int ldim, ElemGrid gridHandle )
 {
     Cpx* buffer = static_cast<Cpx*>(voidBuffer);
 
     const Grid& grid = GetGrid( gridHandle );
     const unsigned index = GetOpenIndex( cpxDistMatList );
-    cpxDistMatList[index] = 
-        new DistMatrix<Cpx>
-        (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
+    cpxDistMatList[index] = new DistMatrix<Cpx>(grid);
+    cpxDistMatList[index]->Attach
+    (height,width,grid,colAlign,rowAlign,buffer,ldim);
     return index;
 }
 
