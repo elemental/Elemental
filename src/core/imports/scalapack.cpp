@@ -26,6 +26,90 @@ void Cfree_blacs_system_handle( int bhandle );
 void Cblacs_gridexit( int context );
 void Cblacs_exit( int notDone );
 
+// TRMM
+// ====
+void ELEM_SCALAPACK(pstrmm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const float* alpha, 
+  const float* A, const int* iA, const int* jA, const int* descA,
+        float* B, const int* iB, const int* jB, const int* descB );
+void ELEM_SCALAPACK(pdtrmm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const double* alpha, 
+  const double* A, const int* iA, const int* jA, const int* descA,
+        double* B, const int* iB, const int* jB, const int* descB );
+void ELEM_SCALAPACK(pctrmm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const scomplex* alpha, 
+  const scomplex* A, const int* iA, const int* jA, const int* descA,
+        scomplex* B, const int* iB, const int* jB, const int* descB );
+void ELEM_SCALAPACK(pztrmm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const dcomplex* alpha, 
+  const dcomplex* A, const int* iA, const int* jA, const int* descA,
+        dcomplex* B, const int* iB, const int* jB, const int* descB );
+
+// TRSM
+// ====
+void ELEM_SCALAPACK(pstrsm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const float* alpha, 
+  const float* A, const int* iA, const int* jA, const int* descA,
+        float* B, const int* iB, const int* jB, const int* descB );
+void ELEM_SCALAPACK(pdtrsm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const double* alpha, 
+  const double* A, const int* iA, const int* jA, const int* descA,
+        double* B, const int* iB, const int* jB, const int* descB );
+void ELEM_SCALAPACK(pctrsm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const scomplex* alpha, 
+  const scomplex* A, const int* iA, const int* jA, const int* descA,
+        scomplex* B, const int* iB, const int* jB, const int* descB );
+void ELEM_SCALAPACK(pztrsm)
+( const char* side, const char* uplo, const char* trans, const char* diag,
+  const int* m, const int* n, const dcomplex* alpha, 
+  const dcomplex* A, const int* iA, const int* jA, const int* descA,
+        dcomplex* B, const int* iB, const int* jB, const int* descB );
+
+// Cholesky factorization
+// ======================
+void ELEM_SCALAPACK(pspotrf)
+( const char* uplo, const int* n, float* A, const int* iA, const int* jA,
+  const int* descA, int* info );
+void ELEM_SCALAPACK(pdpotrf)
+( const char* uplo, const int* n, double* A, const int* iA, const int* jA,
+  const int* descA, int* info );
+void ELEM_SCALAPACK(pcpotrf)
+( const char* uplo, const int* n, scomplex* A, const int* iA, const int* jA,
+  const int* descA, int* info );
+void ELEM_SCALAPACK(pzpotrf)
+( const char* uplo, const int* n, dcomplex* A, const int* iA, const int* jA,
+  const int* descA, int* info );
+
+// Two-sided TRSM/TRMM
+// ===================
+void ELEM_SCALAPACK(pssyngst)
+( const int* typeB, const char* uplo, const int* n, 
+        float* A, const int* iA, const int* jA, const int* descA,
+  const float* B, const int* iB, const int* jB, const int* descB,
+        float* scale, float* work, const int* lwork, int* info );
+void ELEM_SCALAPACK(pdsyngst)
+( const int* typeB, const char* uplo, const int* n, 
+        double* A, const int* iA, const int* jA, const int* descA,
+  const double* B, const int* iB, const int* jB, const int* descB,
+        double* scale, double* work, const int* lwork, int* info );
+void ELEM_SCALAPACK(pchengst)
+( const int* typeB, const char* uplo, const int* n, 
+        scomplex* A, const int* iA, const int* jA, const int* descA,
+  const scomplex* B, const int* iB, const int* jB, const int* descB,
+        float* scale, scomplex* work, const int* lwork, int* info );
+void ELEM_SCALAPACK(pzhengst)
+( const int* typeB, const char* uplo, const int* n, 
+        dcomplex* A, const int* iA, const int* jA, const int* descA,
+  const dcomplex* B, const int* iB, const int* jB, const int* descB,
+        double* scale, dcomplex* work, const int* lwork, int* info );
+
 // Hessenberg QR algorithm
 // =======================
 
@@ -35,67 +119,67 @@ void Cblacs_exit( int notDone );
 void ELEM_SCALAPACK(pshseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
-  float* H, const int* desch, float* wr, float* wi, 
-  float* Q, const int* descq, float* work, const int* lwork, 
+  float* H, const int* descH, float* wr, float* wi, 
+  float* Q, const int* descQ, float* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pdhseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
-  double* H, const int* desch, double* wr, double* wi, 
-  double* Q, const int* descq, double* work, const int* lwork, 
+  double* H, const int* descH, double* wr, double* wi, 
+  double* Q, const int* descQ, double* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 
 // Pipelined QR algorithm without AED
 // ----------------------------------
 void ELEM_SCALAPACK(pslahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* desch,
-  scomplex* w, const int* iloq, const int* ihiq, float* Q, const int* descq,
+  const int* ilo, const int* ihi, float* H, const int* descH,
+  scomplex* w, const int* iloq, const int* ihiq, float* Q, const int* descQ,
   float* work, const int* lwork, int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pdlahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* desch,
-  dcomplex* w, const int* iloq, const int* ihiq, double* Q, const int* descq,
+  const int* ilo, const int* ihi, double* H, const int* descH,
+  dcomplex* w, const int* iloq, const int* ihiq, double* Q, const int* descQ,
   double* work, const int* lwork, int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pclahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, scomplex* H, const int* desch,
-  scomplex* w, const int* iloq, const int* ihiq, scomplex* Q, const int* descq,
+  const int* ilo, const int* ihi, scomplex* H, const int* descH,
+  scomplex* w, const int* iloq, const int* ihiq, scomplex* Q, const int* descQ,
   scomplex* work, const int* lwork, int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pzlahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, dcomplex* H, const int* desch,
-  dcomplex* w, const int* iloq, const int* ihiq, dcomplex* Q, const int* descq,
+  const int* ilo, const int* ihi, dcomplex* H, const int* descH,
+  dcomplex* w, const int* iloq, const int* ihiq, dcomplex* Q, const int* descQ,
   dcomplex* work, const int* lwork, int* iwork, const int* liwork, int* info );
 
 // Pipelined QR algorithm with AED for big matrices
 // ------------------------------------------------
 void ELEM_SCALAPACK(pslaqr0)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* desch, 
+  const int* ilo, const int* ihi, float* H, const int* descH, 
   float* wr, float* wi, const int* iloq, const int* ihiq, 
-  float* Q, const int* descq, float* work, const int* lwork, 
+  float* Q, const int* descQ, float* work, const int* lwork, 
   int* iwork, const int* liwork, int* info, const int* reclevel );
 void ELEM_SCALAPACK(pdlaqr0)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* desch, 
+  const int* ilo, const int* ihi, double* H, const int* descH, 
   double* wr, double* wi, const int* iloq, const int* ihiq,
-  double* Q, const int* descq, double* work, const int* lwork, 
+  double* Q, const int* descQ, double* work, const int* lwork, 
   int* iwork, const int* liwork, int* info, const int* reclevel );
 
 // Pipelined QR algorithm with AED for small matrices
 // --------------------------------------------------
 void ELEM_SCALAPACK(pslaqr1)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, float* H, const int* desch, 
+  const int* ilo, const int* ihi, float* H, const int* descH, 
   float* wr, float* wi, const int* iloq, const int* ihiq, 
-  float* Q, const int* descq, float* work, const int* lwork, 
+  float* Q, const int* descQ, float* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 void ELEM_SCALAPACK(pdlaqr1)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
-  const int* ilo, const int* ihi, double* H, const int* desch, 
+  const int* ilo, const int* ihi, double* H, const int* descH, 
   double* wr, double* wi, const int* iloq, const int* ihiq, 
-  double* Q, const int* descq, double* work, const int* lwork, 
+  double* Q, const int* descQ, double* work, const int* lwork, 
   int* iwork, const int* liwork, int* info );
 
 } // extern "C"
@@ -103,9 +187,6 @@ void ELEM_SCALAPACK(pdlaqr1)
 namespace elem {
 
 namespace blacs {
-
-// BLACS
-// =====
 
 int Handle( MPI_Comm comm )
 { return Csys2blacs_handle( comm ); }
@@ -161,19 +242,322 @@ void Exit( bool finished )
 } // namespace blacs
 
 namespace scalapack {
-// ScaLAPACK
-// =========
+
+// TRMM
+// ====
+
+void Trmm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  float alpha, const float* A, const int* descA, 
+                     float* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pstrmm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+void Trmm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  double alpha, const double* A, const int* descA, 
+                      double* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pdtrmm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+void Trmm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  scomplex alpha, const scomplex* A, const int* descA, 
+                        scomplex* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pctrmm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+void Trmm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  dcomplex alpha, const dcomplex* A, const int* descA, 
+                        dcomplex* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pztrmm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+// TRSM
+// ====
+
+void Trsm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  float alpha, const float* A, const int* descA, 
+                     float* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pstrsm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+void Trsm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  double alpha, const double* A, const int* descA, 
+                      double* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pdtrsm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+void Trsm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  scomplex alpha, const scomplex* A, const int* descA, 
+                        scomplex* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pctrsm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+void Trsm
+( char side, char uplo, char trans, char diag, int m, int n, 
+  dcomplex alpha, const dcomplex* A, const int* descA, 
+                        dcomplex* B, const int* descB )
+{ 
+    int iA=1, jA=1, iB=1, jB=1;
+    ELEM_SCALAPACK(pztrsm)
+    ( &side, &uplo, &trans, &diag, &m, &n, 
+      &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
+}
+
+// Cholesky factorization
+// ======================
+
+void Cholesky( char uplo, int n, float* A, const int* descA )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    int iA=1,jA=1,info;
+    ELEM_SCALAPACK(pspotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    if( info != 0 )
+        RuntimeError("pspotrf returned with info=",info);
+}
+
+void Cholesky( char uplo, int n, double* A, const int* descA )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    int iA=1,jA=1,info;
+    ELEM_SCALAPACK(pdpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    if( info != 0 )
+        RuntimeError("pdpotrf returned with info=",info);
+}
+
+void Cholesky( char uplo, int n, scomplex* A, const int* descA )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    int iA=1,jA=1,info;
+    ELEM_SCALAPACK(pcpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    if( info != 0 )
+        RuntimeError("pcpotrf returned with info=",info);
+}
+
+void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
+    int iA=1,jA=1,info;
+    ELEM_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    if( info != 0 )
+        RuntimeError("pzpotrf returned with info=",info);
+}
+
+// Two-sided TRSM
+// ==============
+// NOTE: It is required that B have a positive diagonal
+
+void TwoSidedTrsm
+( char uplo, int n, float* A, const int* descA, 
+  const float* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    float scale, dummyWork;
+    ELEM_SCALAPACK(pssyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<float> work( lwork );
+    ELEM_SCALAPACK(pssyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pssyngst exited with info=",info);
+}
+
+void TwoSidedTrsm
+( char uplo, int n, double* A, const int* descA, 
+  const double* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    double scale, dummyWork;
+    ELEM_SCALAPACK(pdsyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<double> work( lwork );
+    ELEM_SCALAPACK(pdsyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pdsyngst exited with info=",info);
+}
+
+void TwoSidedTrsm
+( char uplo, int n, scomplex* A, const int* descA, 
+  const scomplex* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    float scale;
+    scomplex dummyWork;
+    ELEM_SCALAPACK(pchengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real();
+    std::vector<scomplex> work( lwork );
+    ELEM_SCALAPACK(pchengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pchengst exited with info=",info);
+}
+
+void TwoSidedTrsm
+( char uplo, int n, dcomplex* A, const int* descA, 
+  const dcomplex* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    double scale;
+    dcomplex dummyWork;
+    ELEM_SCALAPACK(pzhengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real();
+    std::vector<dcomplex> work( lwork );
+    ELEM_SCALAPACK(pzhengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pzhengst exited with info=",info);
+}
+
+// Two-sided TRMM
+// ==============
+// NOTE: It is required that B have a positive diagonal
+
+void TwoSidedTrmm
+( char uplo, int n, float* A, const int* descA, 
+  const float* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    float scale, dummyWork;
+    ELEM_SCALAPACK(pssyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<float> work( lwork );
+    ELEM_SCALAPACK(pssyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pssyngst exited with info=",info);
+}
+
+void TwoSidedTrmm
+( char uplo, int n, double* A, const int* descA, 
+  const double* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    double scale, dummyWork;
+    ELEM_SCALAPACK(pdsyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<double> work( lwork );
+    ELEM_SCALAPACK(pdsyngst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pdsyngst exited with info=",info);
+}
+
+void TwoSidedTrmm
+( char uplo, int n, scomplex* A, const int* descA, 
+  const scomplex* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    float scale;
+    scomplex dummyWork;
+    ELEM_SCALAPACK(pchengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real();
+    std::vector<scomplex> work( lwork );
+    ELEM_SCALAPACK(pchengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pchengst exited with info=",info);
+}
+
+void TwoSidedTrmm
+( char uplo, int n, dcomplex* A, const int* descA, 
+  const dcomplex* B, const int* descB )
+{
+    DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    double scale;
+    dcomplex dummyWork;
+    ELEM_SCALAPACK(pzhengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real();
+    std::vector<dcomplex> work( lwork );
+    ELEM_SCALAPACK(pzhengst)
+    ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
+      work.data(), &lwork, &info );
+    if( info != 0 )
+        RuntimeError("pzhengst exited with info=",info);
+}
 
 // Hessenberg Schur decomposition via the QR algorithm
-// ---------------------------------------------------
+// ===================================================
 
 void HessenbergSchur
-( int n, float* H, const int* desch, scomplex* w, bool fullTriangle, bool aed ) 
+( int n, float* H, const int* descH, scomplex* w, bool fullTriangle, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
-    int descq[9] = 
-        { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
+    int descQ[9] = 
+        { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     int info;
     if( aed )
     {
@@ -187,8 +571,8 @@ void HessenbergSchur
         float dummyWork;
         std::vector<float> wr(n), wi(n);
         ELEM_SCALAPACK(pshseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          0, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          0, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
         lwork = dummyWork;
@@ -196,8 +580,8 @@ void HessenbergSchur
         std::vector<float> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pshseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          0, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          0, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pshseqr exited with info=",info);
 
@@ -214,7 +598,7 @@ void HessenbergSchur
         int lwork=-1, dummyIWork, liwork=-1;
         float dummyWork;
         ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
           &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
@@ -223,7 +607,7 @@ void HessenbergSchur
         std::vector<float> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
           work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pslahqr exited with info=",info);
@@ -231,12 +615,12 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, double* H, const int* desch, dcomplex* w, bool fullTriangle, bool aed )
+( int n, double* H, const int* descH, dcomplex* w, bool fullTriangle, bool aed )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
-    int descq[9] = 
-        { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
+    int descQ[9] = 
+        { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     int info;
     if( aed )
     {
@@ -250,8 +634,8 @@ void HessenbergSchur
         double dummyWork;
         std::vector<double> wr(n), wi(n);
         ELEM_SCALAPACK(pdhseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          0, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          0, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
         lwork = dummyWork;
@@ -259,8 +643,8 @@ void HessenbergSchur
         std::vector<double> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pdhseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          0, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          0, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pdhseqr exited with info=",info);
 
@@ -277,7 +661,7 @@ void HessenbergSchur
         int lwork=-1, dummyIWork, liwork=-1;
         double dummyWork;
         ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
           &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
@@ -286,7 +670,7 @@ void HessenbergSchur
         std::vector<double> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
           work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pdlahqr exited with info=",info);
@@ -294,7 +678,7 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, scomplex* H, const int* desch, scomplex* w, bool fullTriangle, 
+( int n, scomplex* H, const int* descH, scomplex* w, bool fullTriangle, 
   bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
@@ -306,11 +690,11 @@ void HessenbergSchur
 
     // Query the workspace sizes
     int lwork=-1, dummyIWork, liwork=-1, info;
-    int descq[9] = 
-        { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
+    int descQ[9] = 
+        { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     scomplex dummyWork;
     ELEM_SCALAPACK(pclahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -319,14 +703,14 @@ void HessenbergSchur
     std::vector<scomplex> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pclahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       work.data(), &lwork, iwork.data(), &liwork, &info );
     if( info != 0 )
         RuntimeError("pclahqr exited with info=",info);
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, const int* desch, dcomplex* w, bool fullTriangle,
+( int n, dcomplex* H, const int* descH, dcomplex* w, bool fullTriangle,
   bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
@@ -338,11 +722,11 @@ void HessenbergSchur
 
     // Query the workspace sizes
     int lwork=-1, dummyIWork, liwork=-1, info;
-    int descq[9] = 
-        { 1, desch[1], 0, 0, desch[4], desch[5], desch[6], desch[7], 1 };
+    int descQ[9] = 
+        { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzlahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -351,14 +735,14 @@ void HessenbergSchur
     std::vector<dcomplex> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pzlahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, 0, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       work.data(), &lwork, iwork.data(), &liwork, &info );
     if( info != 0 )
         RuntimeError("pzlahqr exited with info=",info);
 }
 
 void HessenbergSchur
-( int n, float* H, const int* desch, scomplex* w, float* Q, const int* descq, 
+( int n, float* H, const int* descH, scomplex* w, float* Q, const int* descQ, 
   bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
@@ -379,8 +763,8 @@ void HessenbergSchur
         float dummyWork;
         std::vector<float> wr(n), wi(n);
         ELEM_SCALAPACK(pshseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          Q, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          Q, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
         lwork = dummyWork;
@@ -388,8 +772,8 @@ void HessenbergSchur
         std::vector<float> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pshseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          Q, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          Q, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pshseqr exited with info=",info);
 
@@ -408,7 +792,7 @@ void HessenbergSchur
         int lwork=-1, dummyIWork, liwork=-1;
         float dummyWork;
         ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
           &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
@@ -417,7 +801,7 @@ void HessenbergSchur
         std::vector<float> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
           work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pslahqr exited with info=",info);
@@ -425,8 +809,8 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, double* H, const int* desch, dcomplex* w, 
-  double* Q, const int* descq, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n, double* H, const int* descH, dcomplex* w, 
+  double* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
@@ -446,8 +830,8 @@ void HessenbergSchur
         double dummyWork;
         std::vector<double> wr(n), wi(n);
         ELEM_SCALAPACK(pdhseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          Q, descq, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          Q, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
         lwork = dummyWork;
@@ -455,8 +839,8 @@ void HessenbergSchur
         std::vector<double> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pdhseqr)
-        ( &job, &compz, &n, &ilo, &ihi, H, desch, wr.data(), wi.data(), 
-          Q, descq, work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          Q, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pdhseqr exited with info=",info);
 
@@ -475,7 +859,7 @@ void HessenbergSchur
         int lwork=-1, dummyIWork, liwork=-1;
         double dummyWork;
         ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
           &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
         // Compute the eigenvalues in parallel
@@ -484,7 +868,7 @@ void HessenbergSchur
         std::vector<double> work(lwork);
         std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
           work.data(), &lwork, iwork.data(), &liwork, &info );
         if( info != 0 )
             RuntimeError("pdlahqr exited with info=",info);
@@ -492,8 +876,8 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, scomplex* H, const int* desch, scomplex* w, 
-  scomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n, scomplex* H, const int* descH, scomplex* w, 
+  scomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     if( !multiplyQ )
@@ -508,7 +892,7 @@ void HessenbergSchur
     int lwork=-1, dummyIWork, liwork=-1, info;
     scomplex dummyWork;
     ELEM_SCALAPACK(pclahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -517,15 +901,15 @@ void HessenbergSchur
     std::vector<scomplex> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pclahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       work.data(), &lwork, iwork.data(), &liwork, &info );
     if( info != 0 )
         RuntimeError("pclahqr exited with info=",info);
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, const int* desch, dcomplex* w, 
-  dcomplex* Q, const int* descq, bool fullTriangle, bool multiplyQ, bool aed ) 
+( int n, dcomplex* H, const int* descH, dcomplex* w, 
+  dcomplex* Q, const int* descQ, bool fullTriangle, bool multiplyQ, bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     if( !multiplyQ )
@@ -540,7 +924,7 @@ void HessenbergSchur
     int lwork=-1, dummyIWork, liwork=-1, info;
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzlahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       &dummyWork, &lwork, &dummyIWork, &liwork, &info );
 
     // Compute the eigenvalues in parallel
@@ -549,37 +933,37 @@ void HessenbergSchur
     std::vector<dcomplex> work(lwork);
     std::vector<int> iwork(liwork);
     ELEM_SCALAPACK(pzlahqr)
-    ( &wantt, &wantz, &n, &ilo, &ihi, H, desch, w, &ilo, &ihi, Q, descq,
+    ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       work.data(), &lwork, iwork.data(), &liwork, &info );
     if( info != 0 )
         RuntimeError("pzlahqr exited with info=",info);
 }
 
 // Hessenberg eigenvalues/pairs via the QR algorithm
-// -------------------------------------------------
+// =================================================
 
-void HessenbergEig( int n, float* H, const int* desch, scomplex* w ) 
+void HessenbergEig( int n, float* H, const int* descH, scomplex* w ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
-    HessenbergSchur( n, H, desch, w, false );
+    HessenbergSchur( n, H, descH, w, false );
 }
 
-void HessenbergEig( int n, double* H, const int* desch, dcomplex* w ) 
+void HessenbergEig( int n, double* H, const int* descH, dcomplex* w ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
-    HessenbergSchur( n, H, desch, w, false );
+    HessenbergSchur( n, H, descH, w, false );
 }
 
-void HessenbergEig( int n, scomplex* H, const int* desch, scomplex* w ) 
+void HessenbergEig( int n, scomplex* H, const int* descH, scomplex* w ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
-    HessenbergSchur( n, H, desch, w, false );
+    HessenbergSchur( n, H, descH, w, false );
 }
 
-void HessenbergEig( int n, dcomplex* H, const int* desch, dcomplex* w ) 
+void HessenbergEig( int n, dcomplex* H, const int* descH, dcomplex* w ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergEig"))
-    HessenbergSchur( n, H, desch, w, false );
+    HessenbergSchur( n, H, descH, w, false );
 }
 
 } // namespace scalapack

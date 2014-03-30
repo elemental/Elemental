@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_HEMV_INC
 #include ELEM_QUADRATICPROGRAM_INC
 #include ELEM_HERMITIANUNIFORMSPECTRUM_INC
 #include ELEM_GAUSSIAN_INC
@@ -48,13 +49,26 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Real> P, q;
+        DistMatrix<Real> P, q, xTrue;
         HermitianUniformSpectrum( P, n, lbEig, ubEig );
-        Gaussian( q, n, 1 );
+        // Alternate the entries of xTrue between ub and lb
+        Zeros( xTrue, n, 1 );
+        if( xTrue.LocalWidth() == 1 )
+            for( Int iLoc=0; iLoc<xTrue.LocalHeight(); ++iLoc )
+                xTrue.SetLocal( iLoc, 0, 
+                    ( xTrue.GlobalRow(iLoc)%2==0 ? lb : ub ) );
+        // Set q := - P xTrue - du + dl
+        Zeros( q, n, 1 );
+        Hemv( LOWER, Real(-1), P, xTrue, Real(0), q );
+        if( q.LocalWidth() == 1 )
+            for( Int iLoc=0; iLoc<q.LocalHeight(); ++iLoc )
+                q.UpdateLocal( iLoc, 0,
+                    ( q.GlobalRow(iLoc)%2==0 ? 0.5 : -0.5 ) );
         if( print )
         {
             Print( P, "P" );
             Print( q, "q" );
+            Print( xTrue, "xTrue" );
         }
         if( display )
             Display( P, "P" );
