@@ -53,10 +53,7 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
         }
     }
     
-    Int numCorrupt;
-    mpi::AllReduce
-    ( &numLocalCorrupt, &numCorrupt, 1, mpi::SUM, A.Grid().VCComm() );
-    return numCorrupt;
+    return mpi::AllReduce( numLocalCorrupt, A.DistComm() );
 }
 
 template<typename F,Distribution U,Distribution V>

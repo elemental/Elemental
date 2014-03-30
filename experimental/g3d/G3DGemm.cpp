@@ -15,23 +15,23 @@ using namespace elem;
 // Initialize auxiliary communicators for depth dimension
 void InitDepthComms( int meshSize, mpi::Comm& depthComm, mpi::Comm& meshComm )
 {
-    const int rank = mpi::CommRank( mpi::COMM_WORLD );
+    const int rank = mpi::Rank( mpi::COMM_WORLD );
 
     // Build this process's meshComm (2d grid)
     const int depthRank = rank / meshSize;
     const int depthColor = rank % meshSize;
-    mpi::CommSplit( mpi::COMM_WORLD, depthColor, depthRank, depthComm );
+    mpi::Split( mpi::COMM_WORLD, depthColor, depthRank, depthComm );
 
     // Build this process's depthComm (depth communicator)
     const int meshRank = rank % meshSize;
     const int meshColor = rank / meshSize;
-    mpi::CommSplit( mpi::COMM_WORLD, meshColor, meshRank, meshComm );
+    mpi::Split( mpi::COMM_WORLD, meshColor, meshRank, meshComm );
 }
 
 // Have the top layer initialize the distributed matrix, A
-void InitA( DistMatrix<double,MC,MR>& A, bool print )
+void InitA( DistMatrix<double>& A, bool print )
 {
-    const int rank = mpi::CommRank(mpi::COMM_WORLD);
+    const int rank = mpi::Rank(mpi::COMM_WORLD);
     const Grid& g = A.Grid();
     const int meshSize = g.Size();
     const int depthRank = rank / meshSize;
@@ -46,9 +46,9 @@ void InitA( DistMatrix<double,MC,MR>& A, bool print )
 }
 
 // Have the top layer initialize the distributed matrix, B
-void InitB( DistMatrix<double,MC,MR>& B, bool print )
+void InitB( DistMatrix<double>& B, bool print )
 {
-    const int rank = mpi::CommRank(mpi::COMM_WORLD);
+    const int rank = mpi::Rank(mpi::COMM_WORLD);
     const Grid& g = B.Grid();
     const int meshSize = g.Size();
     const int depthRank = rank / meshSize;
@@ -69,9 +69,9 @@ void InitB( DistMatrix<double,MC,MR>& B, bool print )
 }
 
 // Have the top layer initialize the distributed matrix, C
-void InitC( DistMatrix<double,MC,MR>& C, bool print )
+void InitC( DistMatrix<double>& C, bool print )
 {
-    const int rank = mpi::CommRank(mpi::COMM_WORLD);
+    const int rank = mpi::Rank(mpi::COMM_WORLD);
     const Grid& g = C.Grid();
     const int meshSize = g.Size();
     const int depthRank = rank / meshSize;
@@ -84,10 +84,9 @@ void InitC( DistMatrix<double,MC,MR>& C, bool print )
 //    if depthRank == 0, B = A,
 //    otherwise,         B = 0.
 void CopyOrReset
-( const DistMatrix<double,MC,MR>& A, 
-        DistMatrix<double,MC,MR>& B )
+( const DistMatrix<double>& A, DistMatrix<double>& B )
 {
-    const int rank = mpi::CommRank( mpi::COMM_WORLD );
+    const int rank = mpi::Rank( mpi::COMM_WORLD );
     const Grid& meshGrid = A.Grid();
     const int meshSize = meshGrid.Size();
     const int depthRank = rank / meshSize;
@@ -105,10 +104,9 @@ void CopyOrReset
 // Broadcast a matrix from the root grid to the others
 void DepthBroadcast
 ( const mpi::Comm& depthComm,
-  const DistMatrix<double,MC,MR>& A, 
-        DistMatrix<double,MC,MR>& B )
+  const DistMatrix<double>& A, DistMatrix<double>& B )
 {
-    const int rank = mpi::CommRank(mpi::COMM_WORLD);
+    const int rank = mpi::Rank(mpi::COMM_WORLD);
     const Grid& meshGrid = A.Grid();
     const int meshSize = meshGrid.Size();
     const int depthRank = rank / meshSize;
@@ -140,8 +138,7 @@ void DepthBroadcast
  */
 void DistributeCols
 ( const mpi::Comm& depthComm,
-  const DistMatrix<double,MC,MR>& A, 
-        DistMatrix<double,MC,MR>& B )
+  const DistMatrix<double>& A, DistMatrix<double>& B )
 {
     const Grid& meshGrid = A.Grid();
     const int depthSize = mpi::Size( depthComm );
@@ -176,8 +173,7 @@ void DistributeCols
  */
 void DistributeRows
 ( const mpi::Comm& depthComm,
-  const DistMatrix<double,MC,MR>& A, 
-        DistMatrix<double,MC,MR>& B )
+  const DistMatrix<double>& A, DistMatrix<double>& B )
 {
     const int depthRank = mpi::Rank( depthComm );
     const int depthSize = mpi::Size( depthComm );
@@ -194,7 +190,7 @@ void DistributeRows
         sendBuf.resize( sendCount );
         MemZero( &sendBuf[0], sendCount ); // TODO: Is this necessary?!?
 
-        DistMatrix<double,MC,MR> 
+        DistMatrix<double> 
             AT(meshGrid), A0(meshGrid),
             AB(meshGrid), A1(meshGrid),
                           A2(meshGrid);
@@ -215,7 +211,7 @@ void DistributeRows
             const int offset = i*dataSize;
 
             // TODO: Avoid the extra copy...
-            DistMatrix<double,MC,MR> A1Contig( A1 );
+            DistMatrix<double> A1Contig( A1 );
             MemCopy( &sendBuf[offset], A1Contig.LockedBuffer(), dataSize );
 
             SlideLockedPartitionDown
@@ -232,9 +228,10 @@ void DistributeRows
     ( &sendBuf[0], recvCount, &recvBuf[0], recvCount, 0, depthComm );
 
     // Pad received data by zero
-    DistMatrix<double,MC,MR> 
-        dataBlock( blockSize, A.Width(), 0, 0, &recvBuf[0], 
-                   blockSize/meshGrid.Height(), meshGrid );
+    DistMatrix<double> dataBlock( meshGrid );
+    dataBlock.Attach
+    ( blockSize, A.Width(), meshGrid, 0, 0, 
+      &recvBuf[0], blockSize/meshGrid.Height() );
 
     // TODO: We can probably heavily simplify this...
     //
@@ -242,7 +239,7 @@ void DistributeRows
     // tmp_T <- padWithZeros(dataBlockT)
     // tmp <- transpose(tmp_T)
     // Layer x <- M((x*Mm/h):((x+1)*Mm/h - 1), :)
-    DistMatrix<double,MC,MR> dataBlockTrans( meshGrid );
+    DistMatrix<double> dataBlockTrans( meshGrid );
     Transpose( dataBlock, dataBlockTrans );
 
     std::vector<double> newData( sendCount );
@@ -251,11 +248,11 @@ void DistributeRows
 
     MemCopy( &newData[offset], dataBlockTrans.LockedBuffer(), recvCount );
 
-    DistMatrix<double,MC,MR> 
-        tmpTrans
-        ( A.Width(), A.Height(), 0, 0, &newData[0],
-          A.Width()/meshGrid.Width(), meshGrid );
-    DistMatrix<double,MC,MR> tmp( meshGrid );
+    DistMatrix<double> tmpTrans( meshGrid );
+    tmpTrans.Attach
+    ( A.Width(), A.Height(), meshGrid, 0, 0, 
+      &newData[0], A.Width()/meshGrid.Width() );
+    DistMatrix<double> tmp( meshGrid );
     Transpose( tmpTrans, tmp );
 
     Transpose( tmpTrans, B );
@@ -265,16 +262,16 @@ void DistributeRows
 void InitializeMatrices
 ( int type, mpi::Comm& depthComm,
   int m, int n, int k,
-  DistMatrix<double,MC,MR>& AOut,
-  DistMatrix<double,MC,MR>& BOut,
-  DistMatrix<double,MC,MR>& COut,
+  DistMatrix<double>& AOut,
+  DistMatrix<double>& BOut,
+  DistMatrix<double>& COut,
   bool print )
 {
     const Grid& meshGrid = AOut.Grid();
 
-    DistMatrix<double,MC,MR> A( m, k, meshGrid );
-    DistMatrix<double,MC,MR> B( k, n, meshGrid );
-    DistMatrix<double,MC,MR> C( m, n, meshGrid );
+    DistMatrix<double> A( m, k, meshGrid ),
+                       B( k, n, meshGrid ),
+                       C( m, n, meshGrid );
 
     //Initialize top layer with desired matrices
     InitA( A, print );
@@ -307,8 +304,7 @@ void InitializeMatrices
 // Reduce across depth to get end result C
 void SumContributions
 ( mpi::Comm& depthComm,
-  const DistMatrix<double,MC,MR>& APartial,
-        DistMatrix<double,MC,MR>& A )
+  const DistMatrix<double>& APartial, DistMatrix<double>& A )
 {
     const Grid& meshGrid = APartial.Grid();
 
@@ -331,7 +327,7 @@ int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const int commRank = mpi::Rank( comm );
 
     try
     {
@@ -378,13 +374,13 @@ int main( int argc, char* argv[] )
 
         mpi::Comm depthComm, meshComm;
         InitDepthComms( r*c, depthComm, meshComm );
-        const int depthRank = mpi::CommRank( depthComm );
+        const int depthRank = mpi::Rank( depthComm );
         const Grid meshGrid( meshComm, r, c );
 
-        DistMatrix<double,MC,MR> A( m, k, meshGrid );
-        DistMatrix<double,MC,MR> B( k, n, meshGrid );
-        DistMatrix<double,MC,MR> CPartial( m, n, meshGrid );
-        DistMatrix<double,MC,MR> C( m, n, meshGrid );
+        DistMatrix<double> A( m, k, meshGrid ),
+                           B( k, n, meshGrid ),
+                           CPartial( m, n, meshGrid ),
+                           C( m, n, meshGrid );
 
         InitializeMatrices( type, depthComm, m, n, k, A, B, CPartial, print );
 
