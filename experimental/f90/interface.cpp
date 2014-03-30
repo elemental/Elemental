@@ -13,6 +13,9 @@ using namespace elem;
 
 typedef int ElemGrid;
 
+typedef int ElemBlockDistMat;
+typedef int ElemCpxBlockDistMat;
+
 typedef int ElemDistMat;
 typedef int ElemCpxDistMat;
 
@@ -34,6 +37,9 @@ const int maxInt = std::numeric_limits<int>::max();
 
 std::vector<Grid*> gridList;
 
+std::vector<BlockDistMatrix<Real>*> blockDistMatList;
+std::vector<BlockDistMatrix<Cpx>*> cpxBlockDistMatList;
+
 std::vector<DistMatrix<Real>*> distMatList;
 std::vector<DistMatrix<Cpx>*> cpxDistMatList;
 
@@ -48,6 +54,12 @@ const Grid& GetGrid( ElemGrid grid )
     else
         return *gridList[grid];
 }
+
+BlockDistMatrix<double>& GetBlockDistMat( ElemBlockDistMat A )
+{ return *blockDistMatList[A]; }
+
+BlockDistMatrix<Cpx>& GetCpxBlockDistMat( ElemCpxBlockDistMat A )
+{ return *cpxBlockDistMatList[A]; }
 
 DistMatrix<double>& GetDistMat( ElemDistMat A )
 { return *distMatList[A]; }
@@ -73,6 +85,20 @@ int GetOpenIndex( std::vector<T*>& list )
             break;
     if( index == list.size() )
         list.push_back( 0 );
+    return index;
+}
+
+ElemBlockDistMat CreateBlockDistMat( const Grid& grid )
+{
+    const int index = GetOpenIndex( blockDistMatList );
+    blockDistMatList[index] = new BlockDistMatrix<double>( grid );
+    return index;
+}
+
+ElemCpxBlockDistMat CreateCpxBlockDistMat( const Grid& grid )
+{
+    const int index = GetOpenIndex( cpxBlockDistMatList );
+    cpxBlockDistMatList[index] = new BlockDistMatrix<Cpx>( grid );
     return index;
 }
 
@@ -122,9 +148,8 @@ void Cleanup( std::exception& e )
 
 extern "C" {
 
-//
 // Environment controls
-//
+// ====================
 
 void FC_GLOBAL(elem_initialize,NAME)()
 {
@@ -157,9 +182,8 @@ void FC_GLOBAL_(elem_set_row_major_tridiag_subgrid,NAME)()
 void FC_GLOBAL_(elem_set_col_major_tridiag_subgrid,NAME)()
 { SetHermitianTridiagGridOrder( COLUMN_MAJOR ); }
 
-//
 // Process grid management
-//
+// =======================
 
 void FC_GLOBAL_(elem_default_grid,NAME)( int* gridHandle )
 { *gridHandle = maxInt; }
@@ -208,14 +232,104 @@ void FC_GLOBAL_(elem_free_grid,NAME)( int* handle )
     }
 }
 
-//
-// Distributed matrix management
-//
+// Block [MC,MR]
+// =============
+
+void FC_GLOBAL_(elem_register_block_dist_mat,NAME)
+( int* handle, int* height, int* width, int* gridHandle, int* mb, int* nb, 
+  int* colAlign, int* rowAlign, int* colCut, int* rowCut, double* buffer, 
+  int* ldim )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( blockDistMatList );
+    try 
+    {
+        blockDistMatList[index] = new BlockDistMatrix<double>(grid);
+        blockDistMatList[index]->Attach
+        (*height,*width,grid,*mb,*nb,*colAlign,*rowAlign,*colCut,*rowCut,
+         buffer,*ldim);
+    } catch( std::exception& e ) { Cleanup(e); }
+    *handle = index;
+}
+
+void FC_GLOBAL_(elem_register_cpx_block_dist_mat,NAME)
+( int* handle, int* height, int* width, int* gridHandle, int* mb, int* nb, 
+  int* colAlign, int* rowAlign, int* colCut, int* rowCut, void* voidBuffer, 
+  int* ldim )
+{
+    Cpx* buffer = static_cast<Cpx*>(voidBuffer);
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( cpxBlockDistMatList );
+    try 
+    {
+        cpxBlockDistMatList[index] = new BlockDistMatrix<Cpx>(grid);
+        cpxBlockDistMatList[index]->Attach
+        (*height,*width,grid,*mb,*nb,*colAlign,*rowAlign,*colCut,*rowCut,
+         buffer,*ldim);
+    } catch( std::exception& e ) { Cleanup(e); }
+    *handle = index;
+}
+
+void FC_GLOBAL_(elem_create_block_dist_mat,NAME)
+( int* handle, int* gridHandle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( blockDistMatList );
+    try { blockDistMatList[index] = new BlockDistMatrix<Real>( grid ); }
+    catch( std::exception& e ) { Cleanup(e); }
+    *handle = index;
+}
+
+void FC_GLOBAL_(elem_create_cpx_block_dist_mat,NAME)
+( int* handle, int* gridHandle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( cpxBlockDistMatList );
+    try { cpxBlockDistMatList[index] = new BlockDistMatrix<Cpx>( grid ); }
+    catch( std::exception& e ) { Cleanup(e); }
+    *handle = index;
+}
+
+void FC_GLOBAL_(elem_free_block_dist_mat,NAME)( int* handle )
+{
+    if( blockDistMatList[*handle] != 0 )
+    {
+        delete blockDistMatList[*handle];
+        blockDistMatList[*handle] = 0;
+    }
+}
+
+void FC_GLOBAL_(elem_free_cpx_block_dist_mat,NAME)( int* handle )
+{
+    if( cpxBlockDistMatList[*handle] != 0 )
+    {
+        delete cpxBlockDistMatList[*handle];
+        cpxBlockDistMatList[*handle] = 0;
+    }
+}
+
+void FC_GLOBAL_(elem_print_block_dist_mat,NAME)( int* AHandle )
+{
+    const auto& A = GetBlockDistMat( *AHandle );
+    try
+    {
+        Print( A );
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_print_cpx_block_dist_mat,NAME)( int* AHandle )
+{
+    const auto& A = GetCpxBlockDistMat( *AHandle );
+    try { Print(A); }
+    catch( std::exception& e ) { Cleanup(e); }
+}
+
+// Elemental [MC,MR]
+// =================
 
 void FC_GLOBAL_(elem_register_dist_mat,NAME)
-( int* handle, 
-  int* height, int* width, int* colAlign, int* rowAlign, 
-  double* buffer, int* ldim, int* gridHandle )
+( int* handle, int* height, int* width, int* gridHandle, 
+  int* colAlign, int* rowAlign, double* buffer, int* ldim )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList );
@@ -229,9 +343,8 @@ void FC_GLOBAL_(elem_register_dist_mat,NAME)
 }
 
 void FC_GLOBAL_(elem_register_cpx_dist_mat,NAME)
-( int* handle, 
-  int* height, int* width, int* colAlign, int* rowAlign, 
-  void* voidBuffer, int* ldim, int* gridHandle )
+( int* handle, int* height, int* width, int* gridHandle, 
+  int* colAlign, int* rowAlign, void* voidBuffer, int* ldim )
 {
     Cpx* buffer = static_cast<Cpx*>(voidBuffer);
 
@@ -300,9 +413,8 @@ void FC_GLOBAL_(elem_print_cpx_dist_mat,NAME)( int* AHandle )
     catch( std::exception& e ) { Cleanup(e); }
 }
 
-//
 // [VC,* ] management
-//
+// ==================
 
 void FC_GLOBAL_(elem_register_dist_mat_vc_star,NAME)
 ( int* handle, 
@@ -348,9 +460,8 @@ void FC_GLOBAL_(elem_print_dist_mat_vc_star,NAME)( int* AHandle )
     catch( std::exception& e ) { Cleanup(e); }
 }
 
-//
 // [VR,* ] management
-//
+// ==================
 
 void FC_GLOBAL_(elem_register_dist_mat_vr_star,NAME)
 ( int* handle, 
@@ -398,9 +509,8 @@ void FC_GLOBAL_(elem_print_dist_mat_vr_star,NAME)( int* AHandle )
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
-//
 // [* ,* ] management
-//
+// ==================
 
 void FC_GLOBAL_(elem_register_dist_mat_star_star,NAME)
 ( int* handle, 
@@ -445,9 +555,8 @@ void FC_GLOBAL_(elem_print_dist_mat_star_star,NAME)( int* AHandle )
     catch( std::exception& e ) { Cleanup(e); }
 }
 
-//
 // Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
-//
+// =================================================================
 
 void FC_GLOBAL_(elem_cholesky,NAME)
 ( int* AHandle )
@@ -457,11 +566,29 @@ void FC_GLOBAL_(elem_cholesky,NAME)
     catch( std::exception& e ) { Cleanup(e); }
 }
 
+void FC_GLOBAL_(elem_block_cholesky,NAME)
+( int* AHandle )
+{
+    auto& A = GetBlockDistMat( *AHandle );
+    DistMatrix<double> AElem( A );
+    try { Cholesky( LOWER, AElem ); A = AElem; }
+    catch( std::exception& e ) { Cleanup(e); }
+}
+
 void FC_GLOBAL_(elem_cpx_cholesky,NAME)
 ( int* AHandle )
 {
     auto& A = GetCpxDistMat( *AHandle );
     try { Cholesky( LOWER, A ); }
+    catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_cpx_block_cholesky,NAME)
+( int* AHandle )
+{
+    auto& A = GetCpxBlockDistMat( *AHandle );
+    DistMatrix<Cpx> AElem( A );
+    try { Cholesky( LOWER, AElem ); A = AElem; }
     catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -480,6 +607,24 @@ void FC_GLOBAL_(elem_symmetric_eig,NAME)
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
+void FC_GLOBAL_(elem_block_symmetric_eig,NAME)
+( int* AHandle, int* wHandle, int* XHandle )
+{
+    auto& A = GetBlockDistMat( *AHandle );
+    auto& X = GetBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    try
+    {
+        DistMatrix<Real> AElem( A ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianEig( LOWER, AElem, w_VR_STAR, XElem, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+
 void FC_GLOBAL_(elem_hermitian_eig,NAME)
 ( int* AHandle, int* wHandle, int* XHandle )
 {
@@ -492,6 +637,23 @@ void FC_GLOBAL_(elem_hermitian_eig,NAME)
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING );
         w = w_VR_STAR;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_block_hermitian_eig,NAME)
+( int* AHandle, int* wHandle, int* XHandle )
+{
+    auto& A = GetCpxBlockDistMat( *AHandle );
+    auto& X = GetCpxBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    try
+    {
+        DistMatrix<Cpx> AElem( A ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianEig( LOWER, AElem, w_VR_STAR, XElem, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -508,6 +670,22 @@ void FC_GLOBAL_(elem_symmetric_axbx_reduce,NAME)
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
+void FC_GLOBAL_(elem_block_symmetric_axbx_reduce,NAME)
+( int* AHandle, int* BHandle )
+{
+    auto& A = GetBlockDistMat( *AHandle );
+    auto& B = GetBlockDistMat( *BHandle );
+
+    try
+    {
+        DistMatrix<Real> AElem( A ), BElem( B );
+        Cholesky( LOWER, BElem );
+        TwoSidedTrsm( LOWER, NON_UNIT, AElem, BElem );
+        A = AElem;
+        B = BElem;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
 void FC_GLOBAL_(elem_hermitian_axbx_reduce,NAME)
 ( int* AHandle, int* BHandle )
 {
@@ -521,16 +699,45 @@ void FC_GLOBAL_(elem_hermitian_axbx_reduce,NAME)
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
+void FC_GLOBAL_(elem_block_hermitian_axbx_reduce,NAME)
+( int* AHandle, int* BHandle )
+{
+    auto& A = GetCpxBlockDistMat( *AHandle );
+    auto& B = GetCpxBlockDistMat( *BHandle );
+
+    try
+    {
+        DistMatrix<Cpx> AElem( A ), BElem( B );
+        Cholesky( LOWER, BElem );
+        TwoSidedTrsm( LOWER, NON_UNIT, AElem, BElem );
+        A = AElem;
+        B = BElem;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
 void FC_GLOBAL_(elem_symmetric_axbx_expand,NAME)
 ( int* AHandle, int* BHandle, int* XHandle )
 {
-    auto& A = GetDistMat( *AHandle );
     auto& B = GetDistMat( *BHandle );
     auto& X = GetDistMat( *XHandle );
     
     try
     {
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, X );
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_block_symmetric_axbx_expand,NAME)
+( int* AHandle, int* BHandle, int* XHandle )
+{
+    auto& B = GetBlockDistMat( *BHandle );
+    auto& X = GetBlockDistMat( *XHandle );
+    
+    try
+    {
+        DistMatrix<Real> BElem( B ), XElem( X );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., BElem, XElem );
+        X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -544,6 +751,20 @@ void FC_GLOBAL_(elem_hermitian_axbx_expand,NAME)
     try
     {
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Cpx(1.), B, X );
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_block_hermitian_axbx_expand,NAME)
+( int* AHandle, int* BHandle, int* XHandle )
+{
+    auto& B = GetCpxBlockDistMat( *BHandle );
+    auto& X = GetCpxBlockDistMat( *XHandle );
+    
+    try
+    {
+        DistMatrix<Cpx> BElem( B ), XElem( X );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Cpx(1.), BElem, XElem );
+        X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -564,6 +785,26 @@ void FC_GLOBAL_(elem_symmetric_axbx,NAME)
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
+void FC_GLOBAL_(elem_block_symmetric_axbx,NAME)
+( int* AHandle, int* BHandle,
+  int* wHandle, int* XHandle )
+{
+    auto& A = GetBlockDistMat( *AHandle );
+    auto& B = GetBlockDistMat( *BHandle );
+    auto& X = GetBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    try
+    {
+        DistMatrix<Real> AElem( A ), BElem( B ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
 void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
 ( int* AHandle, int* BHandle,
   int* wHandle, int* XHandle,
@@ -580,6 +821,27 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
         HermitianGenDefiniteEig
         ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING );
         w = w_VR_STAR; 
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_block_symmetric_axbx_range,NAME)
+( int* AHandle, int* BHandle,
+  int* wHandle, int* XHandle,
+  Real* a, Real* b )
+{
+    auto& A = GetBlockDistMat( *AHandle );
+    auto& B = GetBlockDistMat( *BHandle );
+    auto& X = GetBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    try
+    {
+        DistMatrix<Real> AElem( A ), BElem( B ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, *a, *b, ASCENDING );
+        w = w_VR_STAR; 
+        X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -606,6 +868,31 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
+void FC_GLOBAL_(elem_block_symmetric_axbx_indices,NAME)
+( int* AHandle, int* BHandle,
+  int* wHandle, int* XHandle,
+  int* a, int* b ) 
+{
+    auto& A = GetBlockDistMat( *AHandle );
+    auto& B = GetBlockDistMat( *BHandle );
+    auto& X = GetBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+
+    // Convert from Fortran to C indexing
+    int aC = *a-1;
+    int bC = *b-1;
+    
+    try
+    {
+        DistMatrix<Real> AElem( A ), BElem( B ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, aC, bC, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
 void FC_GLOBAL_(elem_hermitian_axbx,NAME)
 ( int* AHandle, int* BHandle,
   int* wHandle, int* XHandle )
@@ -621,6 +908,26 @@ void FC_GLOBAL_(elem_hermitian_axbx,NAME)
         HermitianGenDefiniteEig
         ( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING );
         w = w_VR_STAR;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_block_hermitian_axbx,NAME)
+( int* AHandle, int* BHandle,
+  int* wHandle, int* XHandle )
+{
+    auto& A = GetCpxBlockDistMat( *AHandle );
+    auto& B = GetCpxBlockDistMat( *BHandle );
+    auto& X = GetCpxBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    try
+    {
+        DistMatrix<Cpx> AElem( A ), BElem( B ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -640,6 +947,27 @@ void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
         HermitianGenDefiniteEig
         ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING );
         w = w_VR_STAR;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
+void FC_GLOBAL_(elem_block_hermitian_axbx_range,NAME)
+( int* AHandle, int* BHandle,
+  int* wHandle, int* XHandle,
+  Real* a, Real* b )
+{
+    auto& A = GetCpxBlockDistMat( *AHandle );
+    auto& B = GetCpxBlockDistMat( *BHandle );
+    auto& X = GetCpxBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    try
+    {
+        DistMatrix<Cpx> AElem( A ), BElem( B ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, *a, *b, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
@@ -666,9 +994,33 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
     } catch( std::exception& e ) { Cleanup(e); }
 }
 
-//
+void FC_GLOBAL_(elem_block_hermitian_axbx_indices,NAME)
+( int* AHandle, int* BHandle,
+  int* wHandle, int* XHandle,
+  int* a, int* b )
+{
+    auto& A = GetCpxBlockDistMat( *AHandle );
+    auto& B = GetCpxBlockDistMat( *BHandle );
+    auto& X = GetCpxBlockDistMat( *XHandle );
+    auto& w = GetDistMat_STAR_STAR( *wHandle );
+    
+    // Convert from Fortran to C indexing
+    int aC = *a-1;
+    int bC = *b-1;
+
+    try
+    {
+        DistMatrix<Cpx> AElem( A ), BElem( B ), XElem( X );
+        DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, aC, bC, ASCENDING );
+        w = w_VR_STAR;
+        X = XElem;
+    } catch( std::exception& e ) { Cleanup(e); }
+}
+
 // Utilities
-//
+// =========
 
 void FC_GLOBAL_(elem_length,NAME)
 ( int* n, int* shift, int* modulus, int* length )
