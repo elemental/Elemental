@@ -71,11 +71,11 @@ inline FileFormat DetectFormat( const std::string filename )
     return FormatFromExtension( ext );
 }
 
-inline std::streamoff
+inline std::ifstream::pos_type
 FileSize( std::ifstream& file )
 {
     auto pos = file.tellg();
-    file.seekg( 0, std::ios::end );
+    file.seekg( 0, std::ifstream::end );
     auto numBytes = file.tellg();
     file.seekg( pos );
     return numBytes;

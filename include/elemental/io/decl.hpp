@@ -38,7 +38,7 @@ std::string FileExtension( FileFormat format );
 FileFormat FormatFromExtension( const std::string ext );
 FileFormat DetectFormat( const std::string filename );
 
-std::streamoff FileSize( std::ifstream& file );
+std::ifstream::pos_type FileSize( std::ifstream& file );
 
 // TODO: Many more color maps
 namespace color_map_wrapper {

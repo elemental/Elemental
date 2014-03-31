@@ -45,8 +45,8 @@ Binary( Matrix<T>& A, const std::string filename )
         RuntimeError("Could not open ",filename);
 
     Int height, width;
-    file >> height;
-    file >> width;
+    file.read( (char*)&height, sizeof(Int) );
+    file.read( (char*)&width,  sizeof(Int) );
     const Int numBytes = FileSize( file );
     const Int metaBytes = 2*sizeof(Int);
     const Int dataBytes = height*width*sizeof(T);
@@ -97,8 +97,8 @@ Binary( DistMatrix<T,U,V>& A, const std::string filename )
         RuntimeError("Could not open ",filename);
 
     Int height, width;
-    file >> height;
-    file >> width;
+    file.read( (char*)&height, sizeof(Int) );
+    file.read( (char*)&width,  sizeof(Int) );
     const Int numBytes = FileSize( file );
     const Int metaBytes = 2*sizeof(Int);
     const Int dataBytes = height*width*sizeof(T);
@@ -167,8 +167,8 @@ Binary( DistMatrix<T,STAR,V>& A, const std::string filename )
         RuntimeError("Could not open ",filename);
 
     Int height, width;
-    file >> height;
-    file >> width;
+    file.read( (char*)&height, sizeof(Int) );
+    file.read( (char*)&width,  sizeof(Int) );
     const Int numBytes = FileSize( file );
     const Int metaBytes = 2*sizeof(Int);
     const Int dataBytes = height*width*sizeof(T);
@@ -227,8 +227,8 @@ Binary( DistMatrix<T,STAR,STAR>& A, const std::string filename )
         RuntimeError("Could not open ",filename);
 
     Int height, width;
-    file >> height;
-    file >> width;
+    file.read( (char*)&height, sizeof(Int) );
+    file.read( (char*)&width,  sizeof(Int) );
     const Int numBytes = FileSize( file );
     const Int metaBytes = 2*sizeof(Int);
     const Int dataBytes = height*width*sizeof(T);
@@ -280,8 +280,8 @@ Binary( DistMatrix<T,CIRC,CIRC>& A, const std::string filename )
         RuntimeError("Could not open ",filename);
 
     Int height, width;
-    file >> height;
-    file >> width;
+    file.read( (char*)&height, sizeof(Int) );
+    file.read( (char*)&width,  sizeof(Int) );
     const Int numBytes = FileSize( file );
     const Int metaBytes = 2*sizeof(Int);
     const Int dataBytes = height*width*sizeof(T);

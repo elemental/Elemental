@@ -87,7 +87,11 @@ Binary( const Matrix<T>& A, std::string basename="matrix" )
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
 
-    file << A.Height() << A.Width();
+    Int n;
+    n = A.Height();
+    file.write( (char*)&n, sizeof(Int) );
+    n = A.Width();
+    file.write( (char*)&n, sizeof(Int) );
     if( A.Height() == A.LDim() )
         file.write( (char*)A.LockedBuffer(), A.Height()*A.Width()*sizeof(T) );
     else

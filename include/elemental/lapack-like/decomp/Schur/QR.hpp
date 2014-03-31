@@ -190,7 +190,8 @@ QR
     // Run the QR algorithm in block form
     // TODO: Create schur::HessenbergQR
     const Int n = A.Height(); 
-    BlockDistMatrix<F> ABlock( n, n, A.Grid() );
+    const Int nb = DefaultBlockHeight();
+    BlockDistMatrix<F> ABlock( n, n, A.Grid(), nb, nb );
     ABlock = A;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );
     const int context =
@@ -242,7 +243,9 @@ QR
     MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form
-    BlockDistMatrix<F> ABlock( n, n, A.Grid() ), QBlock( n, n, A.Grid() );
+    const Int nb = DefaultBlockHeight();
+    BlockDistMatrix<F> ABlock( n, n, A.Grid(), nb, nb ), 
+                       QBlock( n, n, A.Grid(), nb, nb );
     ABlock = A;
     QBlock = Q;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );

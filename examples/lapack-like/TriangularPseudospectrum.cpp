@@ -31,7 +31,11 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType =
-            Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi",1);
+            Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi,"
+                  "5:custom",1);
+        const std::string basename = 
+            Input("--basename","basename of distributed Schur factor",
+                  std::string("default"));
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
@@ -74,15 +78,20 @@ main( int argc, char* argv[] )
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
 
+        std::ostringstream os;
         DistMatrix<C> A(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n ); break;
-        case 1: Demmel( A, n ); break;
-        case 2: Lotkin( A, n ); break;
+        case 0: Uniform( A, n, n );      break;
+        case 1: Demmel( A, n );          break;
+        case 2: Lotkin( A, n );          break;
         case 3: Grcar( A, n, numBands ); break;
-        case 4: FoxLi( A, n, omega ); break;
-        default: LogicError("Invalid matrix type");
+        case 4: FoxLi( A, n, omega );    break;
+        default:
+            os << basename << "-" << A.ColStride() << "x" << A.RowStride()
+               << "-" << A.DistRank() << ".bin";
+            A.Resize( n, n );
+            read::Binary( A.Matrix(), os.str() ); 
         }
         MakeTriangular( UPPER, A );
         if( display )

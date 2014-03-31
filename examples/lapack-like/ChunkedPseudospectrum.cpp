@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType = 
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi"
-                              "5:HelmholtzPML1D,6:HelmholtzPML2D",5);
+                              "5:HelmholtzPML1D,6:HelmholtzPML2D",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
@@ -148,7 +148,7 @@ main( int argc, char* argv[] )
         {
             std::ostringstream os;
             os << matName << "-" << A.ColStride() << "x" << A.RowStride()
-               << A.DistRank();
+               << "-" << A.DistRank();
             write::Binary( A.LockedMatrix(), os.str() );
         }
 
