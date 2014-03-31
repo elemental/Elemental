@@ -12,6 +12,7 @@
 
 #include "mpi.h"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <complex>
 #include <cstddef>
@@ -67,6 +68,12 @@
 # define ELEM_INNER_PARALLEL_FOR_COLLAPSE2
 # define ELEM_OUTER_PARALLEL_FOR           ELEM_PARALLEL_FOR
 # define ELEM_OUTER_PARALLEL_FOR_COLLAPSE2 ELEM_PARALLEL_FOR_COLLAPSE2
+#endif
+
+#ifdef ELEM_HAVE_NOEXCEPT
+# define ELEM_NOEXCEPT noexcept
+#else
+# define ELEM_NOEXCEPT
 #endif
 
 #if defined(ELEM_BLAS_POST)

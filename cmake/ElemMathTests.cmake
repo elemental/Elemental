@@ -1,3 +1,7 @@
+set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
+set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
+set(CMAKE_REQUIRED_LIBRARIES "${MATH_LIBS};${MPI_C_LIBRARIES}")
+
 # Check for BLAS and LAPACK support
 # =================================
 if(PURE)
@@ -36,7 +40,6 @@ else()
   endif()
 endif()
 # Check the BLAS and LAPACK underscore conventions
-set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(daxpy  ELEM_HAVE_DAXPY)
 check_function_exists(daxpy_ ELEM_HAVE_DAXPY_POST)
 check_function_exists(dpotrf  ELEM_HAVE_DPOTRF)
@@ -74,14 +77,10 @@ endif()
 
 # Check for libFLAME support
 # ==========================
-set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(FLA_Bsvd_v_opd_var1 ELEM_HAVE_FLA_BSVD)
 
 # Check for ScaLAPACK support
 # ===========================
-set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
-set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
-set(CMAKE_REQUIRED_LIBRARIES "${MATH_LIBS};${MPI_C_LIBRARIES}")
 check_function_exists(pdpotrf  ELEM_HAVE_PDPOTRF)
 check_function_exists(pdpotrf_ ELEM_HAVE_PDPOTRF_POST)
 check_function_exists(Csys2blacs_handle ELEM_HAVE_CSYS2BLACS)

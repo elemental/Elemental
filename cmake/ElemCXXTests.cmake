@@ -47,11 +47,17 @@ set(ALIAS_CODE
      {
          Complex<double> a;
      }")
+set(NOEXCEPT_CODE
+    "#include <vector>
+     void Foo( const std::vector<int>& x ) noexcept { }
+     int main()
+     { return 0; }")
 check_cxx_source_compiles("${NORMAL_CODE}" ELEM_HAVE_NORMAL_DIST)
 check_cxx_source_compiles("${UNIFORM_INT_CODE}" ELEM_HAVE_UNIFORM_INT_DIST)
 check_cxx_source_compiles("${UNIFORM_REAL_CODE}" ELEM_HAVE_UNIFORM_REAL_DIST)
 check_cxx_source_compiles("${STEADYCLOCK_CODE}" ELEM_HAVE_STEADYCLOCK)
 check_cxx_source_compiles("${ALIAS_CODE}" ELEM_HAVE_TEMPLATE_ALIAS)
+check_cxx_source_compiles("${NOEXCEPT_CODE}" ELEM_HAVE_NOEXCEPT)
 if(NOT ELEM_HAVE_NORMAL_DIST OR NOT ELEM_HAVE_TEMPLATE_ALIAS)
   message(FATAL_ERROR "C++11 random number generation and template aliasing not found. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7)")
 endif()

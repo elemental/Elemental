@@ -35,7 +35,7 @@ public:
     // ============================
 #ifndef SWIG
     // Move constructor
-    GeneralBlockDistMatrix( type&& A ) noexcept;
+    GeneralBlockDistMatrix( type&& A ) ELEM_NOEXCEPT;
 #endif
 
     // Assignment and reconfiguration

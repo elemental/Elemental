@@ -33,7 +33,7 @@ public:
     Matrix( const Matrix<T>& A );
 #ifndef SWIG
     // Move the metadata from a given matrix
-    Matrix( Matrix<T>&& A ) noexcept;
+    Matrix( Matrix<T>&& A ) ELEM_NOEXCEPT;
 #endif 
     // Destructor
     ~Matrix();

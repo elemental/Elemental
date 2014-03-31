@@ -32,7 +32,7 @@ GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
 
 template<typename T,Dist U,Dist V>
 GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
-( GeneralBlockDistMatrix<T,U,V>&& A ) noexcept
+( GeneralBlockDistMatrix<T,U,V>&& A ) ELEM_NOEXCEPT
 : AbstractBlockDistMatrix<T>(std::move(A))
 { }
 

@@ -24,7 +24,7 @@ public:
     // ============================
 #ifndef SWIG
     // Move constructor
-    AbstractBlockDistMatrix( type&& A ) noexcept;
+    AbstractBlockDistMatrix( type&& A ) ELEM_NOEXCEPT;
 #endif
     virtual ~AbstractBlockDistMatrix();
 

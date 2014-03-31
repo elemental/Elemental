@@ -69,7 +69,7 @@ DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM::DistMatrix( DM&& A ) noexcept : GDM(std::move(A)) { }
+DM::DistMatrix( DM&& A ) ELEM_NOEXCEPT : GDM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 

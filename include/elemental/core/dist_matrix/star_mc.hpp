@@ -45,7 +45,7 @@ public:
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
 #ifndef SWIG
     // Move constructor
-    DistMatrix( type&& A ) noexcept;
+    DistMatrix( type&& A ) ELEM_NOEXCEPT;
 #endif
     ~DistMatrix();
 

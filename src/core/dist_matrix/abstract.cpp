@@ -29,7 +29,8 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid, Int root )
 { }
 
 template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) noexcept
+AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) 
+ELEM_NOEXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
   colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),

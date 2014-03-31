@@ -26,7 +26,7 @@ void FreeHandle( int bhandle );
 void FreeGrid( int context );
 void Exit( bool finished=false );
 
-typedef std::array<int,9> Desc;
+typedef typename std::array<int,9> Desc;
 
 } // namespace blacs
 

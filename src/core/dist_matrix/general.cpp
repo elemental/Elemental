@@ -25,7 +25,7 @@ GeneralDistMatrix<T,U,V>::GeneralDistMatrix( const elem::Grid& grid, Int root )
 
 template<typename T,Dist U,Dist V>
 GeneralDistMatrix<T,U,V>::GeneralDistMatrix( GeneralDistMatrix<T,U,V>&& A ) 
-noexcept
+ELEM_NOEXCEPT
 : AbstractDistMatrix<T>(std::move(A))
 { }
 

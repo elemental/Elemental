@@ -91,7 +91,7 @@ Matrix<T>::Matrix( const Matrix<T>& A )
 }
 
 template<typename T>
-Matrix<T>::Matrix( Matrix<T>&& A ) noexcept
+Matrix<T>::Matrix( Matrix<T>&& A ) ELEM_NOEXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), ldim_(A.ldim_),
   data_(nullptr), memory_(std::move(A.memory_))
