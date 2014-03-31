@@ -89,7 +89,7 @@
 #endif
 
 #if defined(ELEM_HAVE_SCALAPACK)
-# if defined(ELEM_LAPACK_POST)
+# if defined(ELEM_SCALAPACK_POST)
 #  define ELEM_SCALAPACK(name) name ## _
 # else
 #  define ELEM_SCALAPACK(name) name
