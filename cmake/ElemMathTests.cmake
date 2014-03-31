@@ -81,10 +81,12 @@ check_function_exists(FLA_Bsvd_v_opd_var1 ELEM_HAVE_FLA_BSVD)
 
 # Check for ScaLAPACK support
 # ===========================
-check_function_exists(pdpotrf  ELEM_HAVE_PDPOTRF)
-check_function_exists(pdpotrf_ ELEM_HAVE_PDPOTRF_POST)
+# NOTE: pdsyngst was chosen because MKL's ScaLAPACK only defines pdsyngst_,
+#       but not pdsyngst, despite defining both pdpotrf and pdpotrf_. 
+check_function_exists(pdsyngst  ELEM_HAVE_PDSYNGST)
+check_function_exists(pdsyngst_ ELEM_HAVE_PDSYNGST_POST)
 check_function_exists(Csys2blacs_handle ELEM_HAVE_CSYS2BLACS)
-if(ELEM_HAVE_PDPOTRF)
+if(ELEM_HAVE_PDSYNGST)
   check_function_exists(pdlaqr0 ELEM_HAVE_PDLAQR0)
   check_function_exists(pdlaqr1 ELEM_HAVE_PDLAQR1)
   if(NOT ELEM_HAVE_PDLAQR0 OR NOT ELEM_HAVE_PDLAQR1 OR 
@@ -96,7 +98,7 @@ if(ELEM_HAVE_PDPOTRF)
   endif()
   set(ELEM_SCALAPACK_POST FALSE)
   set(ELEM_SCALAPACK_DEFS "")
-elseif(ELEM_HAVE_PDPOTRF_POST)
+elseif(ELEM_HAVE_PDSYNGST_POST)
   check_function_exists(pdlaqr0_ ELEM_HAVE_PDLAQR0_POST)
   check_function_exists(pdlaqr1_ ELEM_HAVE_PDLAQR1_POST)
   if(NOT ELEM_HAVE_PDLAQR0_POST OR NOT ELEM_HAVE_PDLAQR1_POST OR
