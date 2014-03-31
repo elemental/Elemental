@@ -36,7 +36,6 @@ main( int argc, char* argv[] )
                               "5:HelmholtzPML1D,6:HelmholtzPML2D",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
-        const Int nbDist = Input("--nbDist","distribution blocksize",32);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         Real xWidth = Input("--xWidth","x width of image",0.);
@@ -53,8 +52,7 @@ main( int argc, char* argv[] )
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
 #ifdef ELEM_HAVE_SCALAPACK
         // QR algorithm options
-        // NOTE: There are none as of now. Perhaps the distribution block size
-        //       could be added, as it will greatly effect performance.
+        const Int nbDist = Input("--nbDist","distribution blocksize",32);
 #else
         // Spectral Divide and Conquer options
         const Int cutoff = Input("--cutoff","problem size for QR",256);
@@ -77,7 +75,8 @@ main( int argc, char* argv[] )
         const bool write = Input("--write","write matrices?",false);
         const bool saveSchur = Input("--saveSchur","save Schur factor?",true);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
-        const Int formatInt = Input("--format","write format",2);
+        const Int numerFormatInt = Input("--numerFormat","numerical format",2);
+        const Int imageFormatInt = Input("--imageFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
         PrintInputReport();
@@ -87,13 +86,15 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
-        SetDefaultBlockHeight( nbDist );
-        SetDefaultBlockWidth( nbDist );
-        if( formatInt < 1 || formatInt >= FileFormat_MAX )
-            LogicError("Invalid file format integer, should be in [1,",
+        if( numerFormatInt < 1 || numerFormatInt >= FileFormat_MAX )
+            LogicError("Invalid numerical format integer, should be in [1,",
+                       FileFormat_MAX,")");
+        if( imageFormatInt < 1 || imageFormatInt >= FileFormat_MAX )
+            LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        FileFormat format = static_cast<FileFormat>(formatInt);
+        FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
+        FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
         ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
@@ -118,7 +119,10 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
         if( write )
-            Write( A, "A", format );
+        {
+            Write( A, "A", numerFormat );
+            Write( A, "A", imageFormat );
+        }
 
         // Begin by computing the Schur decomposition
         Timer timer;
@@ -126,6 +130,8 @@ main( int argc, char* argv[] )
         mpi::Barrier( mpi::COMM_WORLD );
         const bool formATR = true;
 #ifdef ELEM_HAVE_SCALAPACK
+        SetDefaultBlockHeight( nbDist );
+        SetDefaultBlockWidth( nbDist );
         timer.Start();
         schur::QR( A, w, formATR );
         mpi::Barrier( mpi::COMM_WORLD );
@@ -234,8 +240,10 @@ main( int argc, char* argv[] )
                 }
                 if( write || writePseudo )
                 {
-                    Write( invNormMap, "invNormMap"+chunkTag, format );
-                    Write( itCountMap, "itCountMap"+chunkTag, format );
+                    Write( invNormMap, "invNormMap"+chunkTag, numerFormat );
+                    Write( invNormMap, "invNormMap"+chunkTag, imageFormat );
+                    Write( itCountMap, "itCountMap"+chunkTag, numerFormat );
+                    Write( itCountMap, "itCountMap"+chunkTag, imageFormat );
                 }
 
                 // Take the element-wise log
@@ -258,14 +266,18 @@ main( int argc, char* argv[] )
                 }
                 if( write || writePseudo )
                 {
-                    Write( invNormMap, "logInvNormMap"+chunkTag, format );
+                    Write( invNormMap, "logInvNormMap"+chunkTag, numerFormat );
+                    Write( invNormMap, "logInvNormMap"+chunkTag, imageFormat );
                     if( GetColorMap() != GRAYSCALE_DISCRETE )
                     {
                         auto colorMap = GetColorMap();
                         SetColorMap( GRAYSCALE_DISCRETE );
                         Write
                         ( invNormMap, "discreteLogInvNormMap"+chunkTag, 
-                          format );
+                          numerFormat );
+                        Write
+                        ( invNormMap, "discreteLogInvNormMap"+chunkTag, 
+                          imageFormat );
                         SetColorMap( colorMap );
                     }
                 }

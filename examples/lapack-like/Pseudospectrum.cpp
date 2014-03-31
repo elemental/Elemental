@@ -35,7 +35,9 @@ main( int argc, char* argv[] )
                               "5:HelmholtzPML1D,6:HelmholtzPML2D",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
+#ifdef ELEM_HAVE_SCALAPACK
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
+#endif
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         const Real xWidth = Input("--xWidth","x width of image",0.);
@@ -61,7 +63,8 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
-        const Int formatInt = Input("--format","write format",2);
+        const Int numerFormatInt = Input("--numerFormat","numerical format",2);
+        const Int imageFormatInt = Input("--imageFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
         PrintInputReport();
@@ -71,13 +74,19 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
+#ifdef ELEM_HAVE_SCALAPACK
         SetDefaultBlockHeight( nbDist );
         SetDefaultBlockWidth( nbDist );
-        if( formatInt < 1 || formatInt >= FileFormat_MAX )
-            LogicError("Invalid file format integer, should be in [1,",
+#endif
+        if( numerFormatInt < 1 || numerFormatInt >= FileFormat_MAX )
+            LogicError("Invalid numerical format integer, should be in [1,",
+                       FileFormat_MAX,")");
+        if( imageFormatInt < 1 || imageFormatInt >= FileFormat_MAX )
+            LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        FileFormat format = static_cast<FileFormat>(formatInt);
+        FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
+        FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
         ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
         C center(realCenter,imagCenter);
@@ -101,7 +110,10 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
         if( write )
-            Write( A, "A", format );
+        {
+            Write( A, "A", numerFormat );
+            Write( A, "A", imageFormat );
+        }
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
@@ -131,8 +143,10 @@ main( int argc, char* argv[] )
         }
         if( write || writePseudo )
         {
-            Write( invNormMap, "invNormMap", format );
-            Write( itCountMap, "itCountMap", format );
+            Write( invNormMap, "invNormMap", numerFormat );
+            Write( invNormMap, "invNormMap", imageFormat );
+            Write( itCountMap, "itCountMap", numerFormat );
+            Write( itCountMap, "itCountMap", imageFormat );
         }
 
         // Take the element-wise log
@@ -155,12 +169,14 @@ main( int argc, char* argv[] )
         }
         if( write || writePseudo )
         {
-            Write( invNormMap, "logInvNormMap", format );
+            Write( invNormMap, "logInvNormMap", numerFormat );
+            Write( invNormMap, "logInvNormMap", imageFormat );
             if( GetColorMap() != GRAYSCALE_DISCRETE )
             {
                 auto colorMap = GetColorMap();
                 SetColorMap( GRAYSCALE_DISCRETE );
-                Write( invNormMap, "discreteLogInvNormMap", format ); 
+                Write( invNormMap, "discreteLogInvNormMap", numerFormat ); 
+                Write( invNormMap, "discreteLogInvNormMap", imageFormat ); 
                 SetColorMap( colorMap );
             }
         }
