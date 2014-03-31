@@ -14,7 +14,7 @@
 #define Elemental_VERSION_MAJOR "@Elemental_VERSION_MAJOR@"
 #define Elemental_VERSION_MINOR "@Elemental_VERSION_MINOR@"
 #define ELEM_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
-#cmakedefine RELEASE
+#cmakedefine ELEM_RELEASE
 
 /* C compiler info */
 #define ELEM_CMAKE_C_COMPILER    "@CMAKE_C_COMPILER@"
