@@ -34,4 +34,4 @@ endif()
 
 set(OpenMP_CXX_FLAGS "-openmp")
 
-set(MATH_LIBS "-lmkl_scalapack_lp64 -lmkl_blacs_lp64 -mkl")
+set(MATH_LIBS "-lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64 -mkl")

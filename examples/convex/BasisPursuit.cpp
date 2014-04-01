@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_ZERONORM_INC
 #include ELEM_BASISPURSUIT_INC
 #include ELEM_UNIFORM_INC
 using namespace elem;
@@ -53,6 +54,7 @@ main( int argc, char* argv[] )
                 if( SampleUniform<Real>() <= probNnz )
                     xTrue.SetLocal( iLoc, 0, SampleBall<C>() );
         }
+        const Int trueZeroNorm = ZeroNorm( xTrue );
         Gemv( NORMAL, C(1), A, xTrue, b ); 
         if( print )
         {
@@ -71,6 +73,14 @@ main( int argc, char* argv[] )
         {
             Print( x, "x" );
             Print( z, "z" );
+        }
+        const Int xZeroNorm = ZeroNorm( x );
+        const Int zZeroNorm = ZeroNorm( z );
+        if( mpi::Rank(mpi::COMM_WORLD) == 0 )
+        {
+            std::cout << "|| xTrue ||_0 = " << trueZeroNorm << "\n"
+                      << "|| x     ||_0 = " << xZeroNorm << "\n"
+                      << "|| z     ||_0 = " << zZeroNorm << "\n" << std::endl;
         }
     }
     catch( std::exception& e ) { ReportException(e); }
