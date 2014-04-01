@@ -41,8 +41,8 @@ main( int argc, char* argv[] )
         const Real lambda = Input("--lambda","vector l1 penalty",0.01);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1e-6);
-        const Real relTol = Input("--relTol","relative tolerance",1e-4);
+        const Real absTol = Input("--absTol","absolute tolerance",1e-5);
+        const Real relTol = Input("--relTol","relative tolerance",1e-3);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices",false);
