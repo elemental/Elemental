@@ -11,6 +11,7 @@
 #define ELEM_INVERSE_SYMMETRIC_HPP
 
 #include ELEM_APPLYSYMMETRICPIVOTS_INC
+#include ELEM_TRDTRMM_INC
 #include ELEM_LDL_INC
 
 #include "./Triangular.hpp"

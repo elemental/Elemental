@@ -11,7 +11,7 @@
 #define ELEM_LDL_PIVOTED_HPP
 
 #include ELEM_CONJUGATE_INC
-#include ELEM_MAX_INC
+#include ELEM_MAXABS_INC
 #include ELEM_SCALE_INC
 #include ELEM_SWAP_INC
 #include ELEM_SYMMETRIC2X2SOLVE_INC
@@ -41,7 +41,7 @@ BunchKaufmanA( const Matrix<F>& A, BASE(F) gamma )
         gamma = (1+Sqrt(Real(17)))/8;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(A,1,0,n,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -55,8 +55,8 @@ BunchKaufmanA( const Matrix<F>& A, BASE(F) gamma )
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMax( LockedViewRange(A,r,  0,r+1,r  ) );
-    const auto bottomMax = VectorMax( LockedViewRange(A,r+1,r,n,  r+1) );
+    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,  0,r+1,r  ) );
+    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r+1,r,n,  r+1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -91,7 +91,7 @@ BunchKaufmanA( const DistMatrix<F>& A, BASE(F) gamma )
         gamma = (1+Sqrt(Real(17)))/8;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(A,1,0,n,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -105,8 +105,8 @@ BunchKaufmanA( const DistMatrix<F>& A, BASE(F) gamma )
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMax( LockedViewRange(A,r,  0,r+1,r  ) );
-    const auto bottomMax = VectorMax( LockedViewRange(A,r+1,r,n,  r+1) );
+    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,  0,r+1,r  ) );
+    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r+1,r,n,  r+1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -141,7 +141,7 @@ BunchKaufmanD( const Matrix<F>& A, BASE(F) gamma )
         gamma = Real(525)/1000;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(A,1,0,n,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -155,8 +155,8 @@ BunchKaufmanD( const Matrix<F>& A, BASE(F) gamma )
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMax( LockedViewRange(A,r,0,r+1,r  ) );
-    const auto bottomMax = VectorMax( LockedViewRange(A,r,r,n,  r+1) );
+    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,0,r+1,r  ) );
+    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r,r,n,  r+1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -184,7 +184,7 @@ BunchKaufmanD( const DistMatrix<F>& A, BASE(F) gamma )
         gamma = Real(525)/1000;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(A,1,0,n,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -198,8 +198,8 @@ BunchKaufmanD( const DistMatrix<F>& A, BASE(F) gamma )
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMax( LockedViewRange(A,r,0,r+1,r  ) );
-    const auto bottomMax = VectorMax( LockedViewRange(A,r,r,n,  r+1) );
+    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,0,r+1,r  ) );
+    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r,r,n,  r+1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -225,8 +225,8 @@ BunchParlett( const Matrix<F>& A, BASE(F) gamma )
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    const ValueInt<Real> diagMax = DiagonalMax( A );
-    const ValueIntPair<Real> offDiagMax = SymmetricMax( LOWER, A );
+    const ValueInt<Real> diagMax = DiagonalMaxAbs( A );
+    const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
     if( diagMax.value >= gamma*offDiagMax.value )
@@ -253,8 +253,8 @@ BunchParlett( const DistMatrix<F>& A, BASE(F) gamma )
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    const ValueInt<Real> diagMax = DiagonalMax( A );
-    const ValueIntPair<Real> offDiagMax = SymmetricMax( LOWER, A );
+    const ValueInt<Real> diagMax = DiagonalMaxAbs( A );
+    const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
     if( diagMax.value >= gamma*offDiagMax.value )
@@ -296,7 +296,7 @@ PanelBunchKaufmanA
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -335,8 +335,8 @@ PanelBunchKaufmanA
         Gemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
     } 
 
-    const auto leftMax   = VectorMax( zLeft );
-    const auto bottomMax = VectorMax( zStrictBottom );
+    const auto leftMax   = VectorMaxAbs( zLeft );
+    const auto bottomMax = VectorMaxAbs( zStrictBottom );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -387,7 +387,7 @@ PanelBunchKaufmanA
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -428,8 +428,8 @@ PanelBunchKaufmanA
         LocalGemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
     } 
 
-    const auto leftMax   = VectorMax( zLeft );
-    const auto bottomMax = VectorMax( zStrictBottom );
+    const auto leftMax   = VectorMaxAbs( zLeft );
+    const auto bottomMax = VectorMaxAbs( zStrictBottom );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -475,7 +475,7 @@ PanelBunchKaufmanD
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -513,8 +513,8 @@ PanelBunchKaufmanD
         Gemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
     } 
 
-    const auto leftMax   = VectorMax( zLeft );
-    const auto bottomMax = VectorMax( zBottom );
+    const auto leftMax   = VectorMaxAbs( zLeft );
+    const auto bottomMax = VectorMaxAbs( zBottom );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -558,7 +558,7 @@ PanelBunchKaufmanD
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMax( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -598,8 +598,8 @@ PanelBunchKaufmanD
         LocalGemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
     } 
 
-    const auto leftMax   = VectorMax( zLeft );
-    const auto bottomMax = VectorMax( zBottom );
+    const auto leftMax   = VectorMaxAbs( zLeft );
+    const auto bottomMax = VectorMaxAbs( zBottom );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -734,7 +734,7 @@ UnblockedPivoted
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = DiagonalMax( ABR );
+            const auto diagMax = DiagonalMaxAbs( ABR );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = ChoosePivot( ABR, pivotType, gamma );
@@ -812,7 +812,7 @@ UnblockedPivoted
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = DiagonalMax( ABR );
+            const auto diagMax = DiagonalMaxAbs( ABR );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = ChoosePivot( ABR, pivotType, gamma );
@@ -897,7 +897,7 @@ PanelPivoted
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
-            const auto diagMax = DiagonalMax( ABRBR );
+            const auto diagMax = DiagonalMaxAbs( ABRBR );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
@@ -1021,7 +1021,7 @@ PanelPivoted
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
-            const auto diagMax = DiagonalMax( ABRBR );
+            const auto diagMax = DiagonalMaxAbs( ABRBR );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );

@@ -10,16 +10,6 @@
 #ifndef ELEM_LDL_INERTIA_HPP
 #define ELEM_LDL_INERTIA_HPP
 
-#include ELEM_MAX_INC
-#include ELEM_SCALE_INC
-#include ELEM_SWAP_INC
-#include ELEM_SYMMETRIC2X2SOLVE_INC
-#include ELEM_SYR_INC
-#include ELEM_TRR_INC
-#include ELEM_TRR2_INC
-
-#include ELEM_ZEROS_INC
-
 // See Bunch and Kaufman's "Some Stable Methods for Calculating Inertia and
 // Solving Symmetric Linear Systems", Mathematics of Computation, 1977.
 //

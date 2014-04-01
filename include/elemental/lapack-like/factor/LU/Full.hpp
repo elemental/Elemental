@@ -10,7 +10,7 @@
 #ifndef ELEM_LU_FULL_HPP
 #define ELEM_LU_FULL_HPP
 
-#include ELEM_MAX_INC
+#include ELEM_MAXABS_INC
 #include ELEM_SCALE_INC
 #include ELEM_SWAP_INC
 #include ELEM_GERU_INC
@@ -33,7 +33,7 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q, Int pivotOffset=0 )
     {
         // Find the index and value of the pivot candidate
         auto ABR = ViewRange( A, k, k, m, n );
-        auto pivot = Max( ABR );
+        auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
         p.Set( k, 0, iPiv+pivotOffset );
@@ -78,7 +78,7 @@ Full
     {
         // Find the index and value of the pivot candidate
         auto ABR = ViewRange( A, k, k, m, n );
-        auto pivot = Max( ABR );
+        auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
         p.Set( k, 0, iPiv+pivotOffset );

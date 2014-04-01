@@ -17,6 +17,10 @@ elem::mpi::Op maxLocIntOp;
 elem::mpi::Op maxLocFloatOp;
 elem::mpi::Op maxLocDoubleOp;
 
+elem::mpi::Op minLocIntOp;
+elem::mpi::Op minLocFloatOp;
+elem::mpi::Op minLocDoubleOp;
+
 elem::mpi::Datatype typeIntIntPair;
 elem::mpi::Datatype typeFloatIntPair;
 elem::mpi::Datatype typeDoubleIntPair;
@@ -24,6 +28,10 @@ elem::mpi::Datatype typeDoubleIntPair;
 elem::mpi::Op maxLocPairIntOp;
 elem::mpi::Op maxLocPairFloatOp;
 elem::mpi::Op maxLocPairDoubleOp;
+
+elem::mpi::Op minLocPairIntOp;
+elem::mpi::Op minLocPairFloatOp;
+elem::mpi::Op minLocPairDoubleOp;
 } // anonymouse namespace   
 
 namespace elem {
@@ -48,6 +56,23 @@ MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 
 template<typename T>
 void
+MinLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{           
+    const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
+    ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
+    for( int j=0; j<*length; ++j )
+    {
+        const T inVal = inData[j].value;
+        const T outVal = outData[j].value;
+        const Int inInd = inData[j].index;
+        const Int outInd = outData[j].index; 
+        if( inVal < outVal || (inVal == outVal && inInd < outInd) )
+            outData[j] = inData[j];
+    }
+}
+
+template<typename T>
+void
 MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
     const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
@@ -63,6 +88,27 @@ MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
         const bool inIndLess = 
             ( inInd0 < outInd0 || (inInd0 == outInd0 && inInd1 < outInd1) );
         if( inVal > outVal || (inVal == outVal && inIndLess) )
+            outData[j] = inData[j];
+    }
+}
+
+template<typename T>
+void
+MinLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
+{           
+    const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
+    ValueIntPair<T>* outData = static_cast<ValueIntPair<T>*>(outVoid);
+    for( int j=0; j<*length; ++j )
+    {
+        const T inVal = inData[j].value;
+        const T outVal = outData[j].value;
+        const Int inInd0 = inData[j].indices[0];
+        const Int inInd1 = inData[j].indices[1];
+        const Int outInd0 = outData[j].indices[0];
+        const Int outInd1 = outData[j].indices[1];
+        const bool inIndLess = 
+            ( inInd0 < outInd0 || (inInd0 == outInd0 && inInd1 < outInd1) );
+        if( inVal < outVal || (inVal == outVal && inIndLess) )
             outData[j] = inData[j];
     }
 }
@@ -184,6 +230,27 @@ void CreateMaxLocOp<double>()
 }
 
 template<>
+void CreateMinLocOp<Int>()
+{
+    DEBUG_ONLY(CallStackEntry cse("CreateMinLocOp<Int>"))
+    Create( (UserFunction*)MinLocFunc<Int>, true, ::minLocIntOp );
+}
+
+template<>
+void CreateMinLocOp<float>()
+{
+    DEBUG_ONLY(CallStackEntry cse("CreateMinLocOp<float>"))
+    Create( (UserFunction*)MinLocFunc<float>, true, ::minLocFloatOp );
+}
+
+template<>
+void CreateMinLocOp<double>()
+{
+    DEBUG_ONLY(CallStackEntry cse("CreateMinLocOp<double>"))
+    Create( (UserFunction*)MinLocFunc<double>, true, ::minLocDoubleOp );
+}
+
+template<>
 void CreateMaxLocPairOp<Int>()
 {
     DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<Int>"))
@@ -202,6 +269,27 @@ void CreateMaxLocPairOp<double>()
 {
     DEBUG_ONLY(CallStackEntry cse("CreateMaxLocPairOp<double>"))
     Create( (UserFunction*)MaxLocPairFunc<double>, true, ::maxLocPairDoubleOp );
+}
+
+template<>
+void CreateMinLocPairOp<Int>()
+{
+    DEBUG_ONLY(CallStackEntry cse("CreateMinLocPairOp<Int>"))
+    Create( (UserFunction*)MinLocPairFunc<Int>, true, ::minLocPairIntOp );
+}
+
+template<>
+void CreateMinLocPairOp<float>()
+{
+    DEBUG_ONLY(CallStackEntry cse("CreateMinLocPairOp<float>"))
+    Create( (UserFunction*)MinLocPairFunc<float>, true, ::minLocPairFloatOp );
+}
+
+template<>
+void CreateMinLocPairOp<double>()
+{
+    DEBUG_ONLY(CallStackEntry cse("CreateMinLocPairOp<double>"))
+    Create( (UserFunction*)MinLocPairFunc<double>, true, ::minLocPairDoubleOp );
 }
 
 template<>
@@ -226,6 +314,27 @@ void DestroyMaxLocOp<double>()
 }
 
 template<>
+void DestroyMinLocOp<Int>()
+{
+    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocOp<Int>"))
+    Free( ::minLocIntOp );
+}
+
+template<>
+void DestroyMinLocOp<float>()
+{
+    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocOp<float>"))
+    Free( ::minLocFloatOp );
+}
+
+template<>
+void DestroyMinLocOp<double>()
+{
+    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocOp<double>"))
+    Free( ::minLocDoubleOp );
+}
+
+template<>
 void DestroyMaxLocPairOp<Int>()
 {
     DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<Int>"))
@@ -244,6 +353,27 @@ void DestroyMaxLocPairOp<double>()
 {
     DEBUG_ONLY(CallStackEntry cse("DestroyMaxLocPairOp<double>"))
     Free( ::maxLocPairDoubleOp );
+}
+
+template<>
+void DestroyMinLocPairOp<Int>()
+{
+    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocPairOp<Int>"))
+    Free( ::minLocPairIntOp );
+}
+
+template<>
+void DestroyMinLocPairOp<float>()
+{
+    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocPairOp<float>"))
+    Free( ::minLocPairFloatOp );
+}
+
+template<>
+void DestroyMinLocPairOp<double>()
+{
+    DEBUG_ONLY(CallStackEntry cse("DestroyMinLocPairOp<double>"))
+    Free( ::minLocPairDoubleOp );
 }
 
 template<>
@@ -268,6 +398,27 @@ Op MaxLocOp<double>()
 }
 
 template<>
+Op MinLocOp<Int>()
+{
+    DEBUG_ONLY(CallStackEntry cse("MinLocOp<Int>"))
+    return ::minLocIntOp;
+}
+
+template<>
+Op MinLocOp<float>()
+{
+    DEBUG_ONLY(CallStackEntry cse("MinLocOp<float>"))
+    return ::minLocFloatOp;
+}
+
+template<>
+Op MinLocOp<double>()
+{
+    DEBUG_ONLY(CallStackEntry cse("MinLocOp<double>"))
+    return ::minLocDoubleOp;
+}
+
+template<>
 Op MaxLocPairOp<Int>()
 {
     DEBUG_ONLY(CallStackEntry cse("MaxLocPairOp<Int>"))
@@ -288,6 +439,27 @@ Op MaxLocPairOp<double>()
     return ::maxLocPairDoubleOp;
 }
 
+template<>
+Op MinLocPairOp<Int>()
+{
+    DEBUG_ONLY(CallStackEntry cse("MinLocPairOp<Int>"))
+    return ::minLocPairIntOp;
+}
+
+template<>
+Op MinLocPairOp<float>()
+{
+    DEBUG_ONLY(CallStackEntry cse("MinLocPairOp<float>"))
+    return ::minLocPairFloatOp;
+}
+
+template<>
+Op MinLocPairOp<double>()
+{
+    DEBUG_ONLY(CallStackEntry cse("MinLocPairOp<double>"))
+    return ::minLocPairDoubleOp;
+}
+
 template void
 MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
 template void
@@ -296,11 +468,25 @@ template void
 MaxLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
 
 template void
+MinLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+
+template void
 MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
 template void
 MaxLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
 template void
 MaxLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
+
+template void
+MinLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
+template void
+MinLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
 
 } // namespace mpi
 } // namespace elem

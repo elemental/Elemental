@@ -7,16 +7,16 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MAX_HPP
-#define ELEM_MAX_HPP
+#ifndef ELEM_MIN_HPP
+#define ELEM_MIN_HPP
 
 namespace elem {
 
 template<typename Real>
 inline ValueInt<Real>
-VectorMax( const Matrix<Real>& x )
+VectorMin( const Matrix<Real>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
+    DEBUG_ONLY(CallStackEntry cse("VectorMin"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -38,7 +38,7 @@ VectorMax( const Matrix<Real>& x )
         for( Int i=1; i<m; ++i )
         {
             const Real value = x.Get(i,0);
-            if( value > pivot.value )
+            if( value < pivot.value )
             {
                 pivot.value = value;
                 pivot.index = i;
@@ -50,7 +50,7 @@ VectorMax( const Matrix<Real>& x )
         for( Int j=1; j<n; ++j )
         {
             const Real value = x.Get(0,j);
-            if( value > pivot.value )
+            if( value < pivot.value )
             {
                 pivot.value = value;
                 pivot.index = j;
@@ -62,9 +62,9 @@ VectorMax( const Matrix<Real>& x )
 
 template<typename Real,Dist U,Dist V>
 inline ValueInt<Real>
-VectorMax( const DistMatrix<Real,U,V>& x )
+VectorMin( const DistMatrix<Real,U,V>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMax"))
+    DEBUG_ONLY(CallStackEntry cse("VectorMin"))
     const Int m = x.Height();
     const Int n = x.Width();
     DEBUG_ONLY(
@@ -94,7 +94,7 @@ VectorMax( const DistMatrix<Real,U,V>& x )
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
                     const Real value = x.GetLocal(iLoc,0);
-                    if( value > localPivot.value )
+                    if( value < localPivot.value )
                     {
                         localPivot.value = value;
                         localPivot.index = x.GlobalRow(iLoc);
@@ -110,7 +110,7 @@ VectorMax( const DistMatrix<Real,U,V>& x )
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Real value = x.GetLocal(0,jLoc);
-                    if( value > localPivot.value )
+                    if( value < localPivot.value )
                     {
                         localPivot.value = value;
                         localPivot.index = x.GlobalCol(jLoc);
@@ -119,7 +119,7 @@ VectorMax( const DistMatrix<Real,U,V>& x )
             }
         }
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MaxLocOp<Real>(), x.DistComm() );
+                ( localPivot, mpi::MinLocOp<Real>(), x.DistComm() );
     }
     mpi::Broadcast( pivot.index, x.Root(), x.CrossComm() );
     mpi::Broadcast( pivot.value, x.Root(), x.CrossComm() );
@@ -128,9 +128,9 @@ VectorMax( const DistMatrix<Real,U,V>& x )
 
 template<typename Real>
 inline ValueIntPair<Real>
-Max( const Matrix<Real>& A )
+Min( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("Max"))
+    DEBUG_ONLY(CallStackEntry cse("Min"))
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -151,7 +151,7 @@ Max( const Matrix<Real>& A )
         for( Int i=0; i<m; ++i )
         {
             const Real value = A.Get(i,j);
-            if( value > pivot.value )
+            if( value < pivot.value )
             {
                 pivot.value = value;
                 pivot.indices[0] = i;
@@ -164,10 +164,10 @@ Max( const Matrix<Real>& A )
 
 template<typename Real,Dist U,Dist V>
 inline ValueIntPair<Real>
-Max( const DistMatrix<Real,U,V>& A )
+Min( const DistMatrix<Real,U,V>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("Max");
+        CallStackEntry cse("Min");
         if( !A.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
@@ -195,7 +195,7 @@ Max( const DistMatrix<Real,U,V>& A )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
                 const Real value = A.GetLocal(iLoc,jLoc);
-                if( value > localPivot.value )
+                if( value < localPivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
                     localPivot.value = value;
@@ -207,7 +207,7 @@ Max( const DistMatrix<Real,U,V>& A )
 
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
+                ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
     mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
     mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
@@ -216,10 +216,10 @@ Max( const DistMatrix<Real,U,V>& A )
 
 template<typename Real>
 inline ValueIntPair<Real>
-SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
+SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMax");
+        CallStackEntry cse("SymmetricMin");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
@@ -243,7 +243,7 @@ SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
             for( Int i=j; i<n; ++i )
             {
                 const Real value = A.Get(i,j);
-                if( value > pivot.value )
+                if( value < pivot.value )
                 {
                     pivot.value = value;
                     pivot.indices[0] = i;
@@ -259,7 +259,7 @@ SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
             for( Int i=0; i<=j; ++i )
             {
                 const Real value = A.Get(i,j);
-                if( value > pivot.value )
+                if( value < pivot.value )
                 {
                     pivot.value = value;
                     pivot.indices[0] = i;
@@ -273,10 +273,10 @@ SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
 
 template<typename Real,Dist U,Dist V>
 inline ValueIntPair<Real>
-SymmetricMax( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
+SymmetricMin( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMax");
+        CallStackEntry cse("SymmetricMin");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( !A.Grid().InGrid() )
@@ -309,7 +309,7 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
                     const Real value = A.GetLocal(iLoc,jLoc);
-                    if( value > localPivot.value )
+                    if( value < localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
                         localPivot.value = value;
@@ -328,7 +328,7 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
                     const Real value = A.GetLocal(iLoc,jLoc);
-                    if( value > localPivot.value )
+                    if( value < localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
                         localPivot.value = value;
@@ -341,7 +341,7 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
 
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
+                ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
     }
     mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
     mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
@@ -350,20 +350,20 @@ SymmetricMax( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
 
 template<typename Real>
 inline ValueInt<Real>
-DiagonalMax( const Matrix<Real>& A )
+DiagonalMin( const Matrix<Real>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
-    return VectorMax( A.GetDiagonal() );
+    DEBUG_ONLY(CallStackEntry cse("DiagonalMin"))
+    return VectorMin( A.GetDiagonal() );
 }
 
 template<typename Real,Dist U,Dist V>
 inline ValueInt<Real>
-DiagonalMax( const DistMatrix<Real,U,V>& A )
+DiagonalMin( const DistMatrix<Real,U,V>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
-    return VectorMax( A.GetDiagonal() );
+    DEBUG_ONLY(CallStackEntry cse("DiagonalMin"))
+    return VectorMin( A.GetDiagonal() );
 }
 
 } // namespace elem
 
-#endif // ifndef ELEM_MAX_HPP
+#endif // ifndef ELEM_MIN_HPP

@@ -56,6 +56,12 @@
   "elemental/blas-like/level1/MakeTriangular.hpp"
 #define ELEM_MAX_INC \
   "elemental/blas-like/level1/Max.hpp"
+#define ELEM_MAXABS_INC \
+  "elemental/blas-like/level1/MaxAbs.hpp"
+#define ELEM_MIN_INC \
+  "elemental/blas-like/level1/Min.hpp"
+#define ELEM_MINABS_INC \
+  "elemental/blas-like/level1/MinAbs.hpp"
 #define ELEM_NRM2_INC \
   "elemental/blas-like/level1/Nrm2.hpp"
 #define ELEM_QUASIDIAGONALSCALE_INC \
@@ -503,6 +509,7 @@
 // Utilities
 // ---------
 #define ELEM_CLIP_INC          "elemental/convex/Clip.hpp"
+#define ELEM_COVARIANCE_INC    "elemental/convex/Covariance.hpp"
 #define ELEM_LOGBARRIER_INC    "elemental/convex/LogBarrier.hpp"
 #define ELEM_LOGDETDIV_INC     "elemental/convex/LogDetDiv.hpp"
 #define ELEM_SOFTTHRESHOLD_INC "elemental/convex/SoftThreshold.hpp"
@@ -519,6 +526,7 @@
 #define ELEM_BASISPURSUIT_INC     "elemental/convex/BasisPursuit.hpp"
 #define ELEM_LINEARPROGRAM_INC    "elemental/convex/LinearProgram.hpp"
 #define ELEM_QUADRATICPROGRAM_INC "elemental/convex/QuadraticProgram.hpp"
+#define ELEM_SPARSEINVCOV_INC     "elemental/convex/SparseInvCov.hpp"
 
 
 #endif // ifndef ELEM_INCLUDEPATHS_HPP

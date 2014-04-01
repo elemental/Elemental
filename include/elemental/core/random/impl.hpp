@@ -73,16 +73,18 @@ inline Int SampleUniform<Int>( Int a, Int b )
 #endif
 }
 
-template<typename T>
-inline T SampleNormal( T mean, BASE(T) stddev )
+template<typename F>
+inline F SampleNormal( F mean, BASE(F) stddev )
 {
-    typedef BASE(T) Real;
-    T sample;
+    typedef Base<F> Real;
+    F sample;
 
     std::mt19937& gen = Generator();
+    if( IsComplex<F>::val )
+        stddev = stddev / Sqrt(Real(2));
     std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
     SetRealPart( sample, realNormal(gen) );
-    if( IsComplex<T>::val )
+    if( IsComplex<F>::val )
     {
         std::normal_distribution<Real> imagNormal( ImagPart(mean), stddev );
         SetImagPart( sample, imagNormal(gen) );

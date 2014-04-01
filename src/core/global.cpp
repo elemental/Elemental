@@ -332,6 +332,9 @@ void Initialize( int& argc, char**& argv )
     mpi::CreateMaxLocOp<Int>();
     mpi::CreateMaxLocOp<float>();
     mpi::CreateMaxLocOp<double>();
+    mpi::CreateMinLocOp<Int>();
+    mpi::CreateMinLocOp<float>();
+    mpi::CreateMinLocOp<double>();
 
     // Do the same for ValueIntPair
     mpi::CreateValueIntPairType<Int>();
@@ -340,6 +343,9 @@ void Initialize( int& argc, char**& argv )
     mpi::CreateMaxLocPairOp<Int>();
     mpi::CreateMaxLocPairOp<float>();
     mpi::CreateMaxLocPairOp<double>();
+    mpi::CreateMinLocPairOp<Int>();
+    mpi::CreateMinLocPairOp<float>();
+    mpi::CreateMinLocPairOp<double>();
 
     const unsigned rank = mpi::Rank( mpi::COMM_WORLD );
     // TODO: Allow for switching on/off reproducibility?
@@ -376,6 +382,9 @@ void Finalize()
             mpi::DestroyMaxLocOp<Int>();
             mpi::DestroyMaxLocOp<float>();
             mpi::DestroyMaxLocOp<double>();
+            mpi::DestroyMinLocOp<Int>();
+            mpi::DestroyMinLocOp<float>();
+            mpi::DestroyMinLocOp<double>();
 
             // Do the same for ValueIntPair
             mpi::DestroyValueIntPairType<Int>();
@@ -384,6 +393,9 @@ void Finalize()
             mpi::DestroyMaxLocPairOp<Int>();
             mpi::DestroyMaxLocPairOp<float>();
             mpi::DestroyMaxLocPairOp<double>();
+            mpi::DestroyMinLocPairOp<Int>();
+            mpi::DestroyMinLocPairOp<float>();
+            mpi::DestroyMinLocPairOp<double>();
 
             // Delete the default grid
             delete ::defaultGrid;

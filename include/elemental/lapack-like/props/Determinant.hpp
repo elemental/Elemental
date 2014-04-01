@@ -34,7 +34,7 @@ SafeDeterminant( const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
@@ -43,7 +43,7 @@ SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 SafeHPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
@@ -79,7 +79,7 @@ SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
@@ -92,7 +92,7 @@ SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 SafeHPDDeterminant
 ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
@@ -126,7 +126,7 @@ template<typename F>
 inline BASE(F) HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -134,7 +134,7 @@ template<typename F>
 inline BASE(F) HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -160,7 +160,7 @@ inline BASE(F)
 HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -169,7 +169,7 @@ inline BASE(F)
 HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 #endif // ifndef SWIG

@@ -16,22 +16,22 @@ namespace elem {
 namespace hpd_det {
 
 template<typename F>
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     Matrix<F> d;
     A.GetDiagonal( d );
-    SafeProduct<F> det( n );
-    det.rho = F(1);
+    SafeProduct<Real> det( n );
+    det.rho = Real(1);
 
-    const R scale = R(n)/R(2);
+    const Real scale = Real(n)/Real(2);
     for( Int i=0; i<n; ++i )
     {
-        const R delta = RealPart(d.Get(i,0));
+        const Real delta = RealPart(d.Get(i,0));
         det.kappa += Log(delta)/scale;
     }
 
@@ -39,11 +39,11 @@ AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
-    SafeProduct<F> det( A.Height() );
+    SafeProduct<Base<F>> det( A.Height() );
     try
     {
         elem::Cholesky( uplo, A );
@@ -58,40 +58,40 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
     DistMatrix<F,MD,STAR> d(g);
     A.GetDiagonal( d );
-    R localKappa = 0; 
+    Real localKappa = 0; 
     if( d.Participating() )
     {
-        const R scale = R(n)/R(2);
+        const Real scale = Real(n)/Real(2);
         const Int nLocalDiag = d.LocalHeight();
         for( Int iLoc=0; iLoc<nLocalDiag; ++iLoc )
         {
-            const R delta = RealPart(d.GetLocal(iLoc,0));
+            const Real delta = RealPart(d.GetLocal(iLoc,0));
             localKappa += Log(delta)/scale;
         }
     }
-    SafeProduct<F> det( n );
+    SafeProduct<Real> det( n );
     det.kappa = mpi::AllReduce( localKappa, g.VCComm() );
-    det.rho = F(1);
+    det.rho = Real(1);
 
     return det;
 }
 
 template<typename F> 
-inline SafeProduct<F> 
+inline SafeProduct<BASE(F)> 
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
-    SafeProduct<F> det( A.Height() );
+    SafeProduct<Base<F>> det( A.Height() );
     try
     {
         elem::Cholesky( uplo, A );

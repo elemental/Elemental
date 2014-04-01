@@ -10,7 +10,7 @@
 #ifndef ELEM_CHOLESKY_LVAR3PIVOTED_HPP
 #define ELEM_CHOLESKY_LVAR3PIVOTED_HPP
 
-#include ELEM_MAX_INC
+#include ELEM_MAXABS_INC
 #include ELEM_SCALE_INC
 #include ELEM_SWAP_INC
 
@@ -28,7 +28,7 @@ inline LDLPivot
 Full( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
-    const auto diagMax = DiagonalMax( A );
+    const auto diagMax = DiagonalMaxAbs( A );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -40,7 +40,7 @@ inline LDLPivot
 Full( const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
-    const auto diagMax = DiagonalMax( A );
+    const auto diagMax = DiagonalMaxAbs( A );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -61,7 +61,7 @@ PanelFull( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y )
             d.Update( i, 0, -X.Get(i,j)*Y.Get(i,j) );
 
     // Return maximum from it
-    auto diagMax = VectorMax( d );
+    auto diagMax = VectorMaxAbs( d );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -98,7 +98,7 @@ PanelFull
     }
 
     // Return maximum from it
-    auto diagMax = VectorMax( d );
+    auto diagMax = VectorMaxAbs( d );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;

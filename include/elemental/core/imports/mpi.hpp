@@ -520,6 +520,13 @@ template<typename R>
 void MaxLocPairFunc
 ( void* in, void* out, int* length, mpi::Datatype* datatype );
 
+template<typename R>
+void MinLocFunc
+( void* in, void* out, int* length, mpi::Datatype* datatype );
+template<typename R>
+void MinLocPairFunc
+( void* in, void* out, int* length, mpi::Datatype* datatype );
+
 template<typename R> mpi::Datatype& ValueIntType();
 template<> mpi::Datatype& ValueIntType<Int>();
 template<> mpi::Datatype& ValueIntType<float>();
@@ -564,6 +571,36 @@ template<typename R> void DestroyMaxLocPairOp();
 template<> void DestroyMaxLocPairOp<Int>();
 template<> void DestroyMaxLocPairOp<float>();
 template<> void DestroyMaxLocPairOp<double>();
+
+template<typename R> mpi::Op MinLocOp();
+template<> mpi::Op MinLocOp<Int>();
+template<> mpi::Op MinLocOp<float>();
+template<> mpi::Op MinLocOp<double>();
+
+template<typename R> mpi::Op MinLocPairOp();
+template<> mpi::Op MinLocPairOp<Int>();
+template<> mpi::Op MinLocPairOp<float>();
+template<> mpi::Op MinLocPairOp<double>();
+
+template<typename R> void CreateMinLocOp();
+template<> void CreateMinLocOp<Int>();
+template<> void CreateMinLocOp<float>();
+template<> void CreateMinLocOp<double>();
+
+template<typename R> void CreateMinLocPairOp();
+template<> void CreateMinLocPairOp<Int>();
+template<> void CreateMinLocPairOp<float>();
+template<> void CreateMinLocPairOp<double>();
+
+template<typename R> void DestroyMinLocOp();
+template<> void DestroyMinLocOp<Int>();
+template<> void DestroyMinLocOp<float>();
+template<> void DestroyMinLocOp<double>();
+
+template<typename R> void DestroyMinLocPairOp();
+template<> void DestroyMinLocPairOp<Int>();
+template<> void DestroyMinLocPairOp<float>();
+template<> void DestroyMinLocPairOp<double>();
 
 template<typename T> Datatype TypeMap();
 template<> inline Datatype TypeMap<byte>() { return MPI_UNSIGNED_CHAR; }
