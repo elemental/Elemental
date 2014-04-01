@@ -40,7 +40,7 @@ template<typename Real>
 inline Int
 LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
-  Matrix<Real>& x, Matrix<Real>& z, 
+  Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
   Real rho=1., Real alpha=1.2, Int maxIter=500, 
   Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true )
 {
@@ -94,7 +94,7 @@ LinearProgram
     Int numIter=0;
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Real> g, xTmp, y, u, t;
+    Matrix<Real> g, xTmp, y, t;
     Zeros( g, m+n, 1 );
     PartitionDown( g, xTmp, y, n );
     Matrix<Real> zOld, xHat;
@@ -194,6 +194,7 @@ inline Int
 LinearProgram
 ( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
   const DistMatrix<Real>& c, DistMatrix<Real>& x, DistMatrix<Real>& z, 
+  DistMatrix<Real>& u,
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
   Real relTol=1e-4, bool inv=true, bool progress=true )
 {
@@ -251,7 +252,7 @@ LinearProgram
     }
 
     Int numIter=0;
-    DistMatrix<Real> g(grid), xTmp(grid), y(grid), u(grid), t(grid);
+    DistMatrix<Real> g(grid), xTmp(grid), y(grid), t(grid);
     Zeros( g, m+n, 1 );
     PartitionDown( g, xTmp, y, n );
     DistMatrix<Real> zOld(grid), xHat(grid);

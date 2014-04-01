@@ -65,14 +65,16 @@ main( int argc, char* argv[] )
         if( mpi::WorldRank() == 0 )
             std::cout << "c'xTrue=" << objectiveTrue << std::endl;
 
-        DistMatrix<Real> x, z;
+        DistMatrix<Real> x, z, u;
         LinearProgram
-        ( A, b, c, x, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        ( A, b, c, x, z, u, rho, alpha, maxIter, absTol, relTol, inv, 
+          progress );
 
         if( print )
         {
             Print( x, "x" );
             Print( z, "z" );
+            Print( u, "u" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

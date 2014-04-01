@@ -37,7 +37,7 @@ template<typename Real>
 inline Int
 QuadraticProgram
 ( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub,
-  Matrix<Real>& x, Matrix<Real>& z,
+  Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
   Real rho=1., Real alpha=1.2, Int maxIter=500, 
   Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true )
 {
@@ -58,7 +58,7 @@ QuadraticProgram
 
     // Start the ADMM
     Int numIter=0;
-    Matrix<Real> u, t, zOld, xHat;
+    Matrix<Real> t, zOld, xHat;
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
     Zeros( t, n, 1 );
@@ -143,7 +143,7 @@ template<typename Real>
 inline Int
 QuadraticProgram
 ( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub,
-  DistMatrix<Real>& x, DistMatrix<Real>& z, 
+  DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u,
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
   Real relTol=1e-4, bool inv=true, bool progress=true )
 {
@@ -165,7 +165,7 @@ QuadraticProgram
 
     // Start the ADMM
     Int numIter=0;
-    DistMatrix<Real> u(grid), t(grid), zOld(grid), xHat(grid);
+    DistMatrix<Real> t(grid), zOld(grid), xHat(grid);
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
     Zeros( t, n, 1 );

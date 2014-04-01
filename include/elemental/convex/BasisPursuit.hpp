@@ -32,7 +32,7 @@ template<typename F>
 inline Int
 BasisPursuit
 ( const Matrix<F>& A, const Matrix<F>& b,
-  Matrix<F>& x, Matrix<F>& z, BASE(F) rho=1., BASE(F) alpha=1.2, 
+  Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, BASE(F) rho=1., BASE(F) alpha=1.2, 
   Int maxIter=500, BASE(F) absTol=1e-6, BASE(F) relTol=1e-4, bool usePinv=false,
   BASE(F) pinvTol=0, bool progress=true )
 {
@@ -80,7 +80,7 @@ BasisPursuit
 
     // Start the basis pursuit
     Int numIter=0;
-    Matrix<F> u, t, zOld, xHat;
+    Matrix<F> t, zOld, xHat;
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
@@ -164,7 +164,8 @@ template<typename F>
 inline Int
 BasisPursuit
 ( const DistMatrix<F>& A, const DistMatrix<F>& b, 
-  DistMatrix<F>& x, DistMatrix<F>& z, BASE(F) rho=1., BASE(F) alpha=1.2, 
+  DistMatrix<F>& x, DistMatrix<F>& z, DistMatrix<F>& u, 
+  BASE(F) rho=1., BASE(F) alpha=1.2, 
   Int maxIter=500, BASE(F) absTol=1e-6, BASE(F) relTol=1e-4, bool usePinv=false,
   BASE(F) pinvTol=0, bool progress=true )
 {
@@ -214,7 +215,7 @@ BasisPursuit
 
     // Start the basis pursuit
     Int numIter=0;
-    DistMatrix<F> u(grid), t(grid), zOld(grid), xHat(grid);
+    DistMatrix<F> t(grid), zOld(grid), xHat(grid);
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );

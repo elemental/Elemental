@@ -73,15 +73,16 @@ main( int argc, char* argv[] )
         if( display )
             Display( P, "P" );
 
-        DistMatrix<Real> x, z;
+        DistMatrix<Real> x, z, u;
         QuadraticProgram
-        ( P, q, lb, ub, x, z, rho, alpha, maxIter, absTol, relTol, inv, 
+        ( P, q, lb, ub, x, z, u, rho, alpha, maxIter, absTol, relTol, inv, 
           progress );
 
         if( print )
         {
             Print( x, "x" );
             Print( z, "z" );
+            Print( u, "u" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

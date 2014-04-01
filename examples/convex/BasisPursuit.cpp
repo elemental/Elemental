@@ -65,22 +65,25 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
-        DistMatrix<C> x, z;
+        DistMatrix<C> x, z, u;
         BasisPursuit
-        ( A, b, x, z, alpha, rho, maxIter, absTol, relTol, usePinv, pinvTol,
+        ( A, b, x, z, u, alpha, rho, maxIter, absTol, relTol, usePinv, pinvTol,
           progress );
         if( print )
         {
             Print( x, "x" );
             Print( z, "z" );
+            Print( u, "u" );
         }
         const Int xZeroNorm = ZeroNorm( x );
         const Int zZeroNorm = ZeroNorm( z );
+        const Int uZeroNorm = ZeroNorm( u );
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
         {
             std::cout << "|| xTrue ||_0 = " << trueZeroNorm << "\n"
                       << "|| x     ||_0 = " << xZeroNorm << "\n"
-                      << "|| z     ||_0 = " << zZeroNorm << "\n" << std::endl;
+                      << "|| z     ||_0 = " << zZeroNorm << "\n" 
+                      << "|| u     ||_0 = " << uZeroNorm << "\n" << std::endl;
         }
     }
     catch( std::exception& e ) { ReportException(e); }
