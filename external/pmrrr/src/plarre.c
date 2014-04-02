@@ -371,7 +371,7 @@ int plarre(proc_t *procinfo, char *jobz, char *range, in_t *Dstruct,
     /* Compute UNSHIFTED eigenvalues */
     if (!wantZ) {
       sigma = E[bl_end];
-      for (i=bl_begin; i<bl_end; i++) {
+      for (i=bl_begin; i<=bl_end; i++) {
 	W[i]   += sigma;
       }
     }
