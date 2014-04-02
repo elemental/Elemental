@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include <float.h>
 using namespace elem;
 
 int 
@@ -29,11 +30,15 @@ main( int argc, char* argv[] )
                   << "  safeMin: " << safeMinFloat << "\n"
                   << "  epsilon: " << epsilonFloat << "\n"
                   << "  safeInv: " << safeInvFloat << "\n"
+                  << "  FLT_MIN: " << FLT_MIN << "\n"
+                  << "  FLT_MAX: " << FLT_MAX << "\n"
                   << "\n"
                   << "Double precision:\n"
                   << "  safeMin: " << safeMinDouble << "\n"
                   << "  epsilon: " << epsilonDouble << "\n"
                   << "  safeInv: " << safeInvDouble << "\n"
+                  << "  DBL_MIN: " << DBL_MIN << "\n"
+                  << "  DBL_MAX: " << DBL_MAX << "\n"
                   << std::endl;
     }
 
