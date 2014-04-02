@@ -40,7 +40,7 @@ QR
     Q.Resize( n, n );
     w.Resize( n, 1 );
     lapack::Schur
-    ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), fullTriangle );
+    ( n, A.Buffer(), A.LDim(), w.Buffer(), Q.Buffer(), Q.LDim(), fullTriangle );
     if( fullTriangle )
         MakeTriangular( UPPER, A );
 }
