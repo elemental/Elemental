@@ -152,10 +152,21 @@ main( int argc, char* argv[] )
 #endif
         if( saveSchur )
         {
+            if( mpi::WorldRank() == 0 )
+            {
+                std::cout << "Writing Schur decomposition to file...";
+                std::cout.flush();
+            }
+            timer.Start();
             std::ostringstream os;
             os << matName << "-" << A.ColStride() << "x" << A.RowStride()
                << "-" << A.DistRank();
             write::Binary( A.LockedMatrix(), os.str() );
+            mpi::Barrier( mpi::COMM_WORLD );
+            const double saveSchurTime = timer.Stop();
+            if( mpi::WorldRank() == 0 )
+                std::cout << "DONE. " << saveSchurTime << " seconds" 
+                          << std::endl;
         }
 
         // Find a window if none is specified
@@ -215,6 +226,9 @@ main( int argc, char* argv[] )
                 const C chunkCenter = chunkCorner + 
                     0.5*C(xStep*xChunkSize,yStep*yChunkSize);
 
+                if( mpi::WorldRank() == 0 )
+                    std::cout << "Starting computation for chunk centered at "
+                              << chunkCenter << std::endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
                 itCountMap = TriangularPseudospectrum

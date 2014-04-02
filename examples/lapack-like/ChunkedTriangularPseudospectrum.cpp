@@ -166,6 +166,9 @@ main( int argc, char* argv[] )
                 const C chunkCenter = chunkCorner + 
                     0.5*C(xStep*xChunkSize,yStep*yChunkSize);
 
+                if( mpi::WorldRank() == 0 )
+                    std::cout << "Starting computation for chunk centered at "
+                              << chunkCenter << std::endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
                 itCountMap = TriangularPseudospectrum
