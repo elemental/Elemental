@@ -95,4 +95,8 @@ endif()
 #set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 #set(CMAKE_EXE_LINKER_FLAGS "-static")
 #set(MATH_LIBS "${LAPACK_FLAGS} ${ESSL_FLAGS} ${XLF_FLAGS} ${XL_FLAGS} -lxlopt -lxlfmath -lxl -lgfortran -lm -lpthread -ldl -Wl,--allow-multiple-definition")
-set(MATH_LIBS "${LAPACK_FLAGS} ${ESSL_FLAGS} ${MASS_FLAGS} ${XLF_FLAGS} ${XL_FLAGS} -lxlopt -lxlfmath -lxl -lpthread -ldl -Wl,--allow-multiple-definition")
+
+# NOTE: It is apparently important that MATH_LIBS not begin with a full path
+#       to a particular file, e.g., /path/to/libname.a, as CMake is 
+#       prepending -L for some reason.
+set(MATH_LIBS "-L/soft/libraries/alcf/current/xl/SCALAPACK/lib -lscalapack ${LAPACK_FLAGS} ${ESSL_FLAGS} ${MASS_FLAGS} ${XLF_FLAGS} ${XL_FLAGS} -lxlopt -lxlfmath -lxl -lpthread -ldl -Wl,--allow-multiple-definition")

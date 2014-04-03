@@ -141,8 +141,8 @@ main( int argc, char* argv[] )
                       << "|| SNoisy       ||_F         = " << SNoisyNorm << "\n"
                       << "|| cov(Omega)-I ||_F         = " << unitCovErrNorm 
                       << "\n"
-                      << "|| cov(D)-S ||_F / || S ||_F = " << covErrNorm/SNorm 
-                      << "\n"
+                      << "|| cov(D)-SNoisy ||_F / || S ||_F = " 
+                      << covErrNorm/SNorm << "\n"
                       << std::endl;
 
         DistMatrix<F> X, Z, U;

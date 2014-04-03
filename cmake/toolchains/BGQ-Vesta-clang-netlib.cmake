@@ -53,4 +53,4 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 #set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 #set(CMAKE_EXE_LINKER_FLAGS "-static")
-set(MATH_LIBS "-L/soft/libraries/alcf/current/gcc/LAPACK/lib -llapack -L/soft/libraries/alcf/current/gcc/BLAS/lib -lblas -lgfortran -lm")
+set(MATH_LIBS "-L/soft/libraries/alcf/current/gcc/SCALAPACK/lib -lscalapack -L/soft/libraries/alcf/current/gcc/LAPACK/lib -llapack -L/soft/libraries/alcf/current/gcc/BLAS/lib -lblas -lgfortran -lm")

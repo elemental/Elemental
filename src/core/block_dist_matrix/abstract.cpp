@@ -101,8 +101,8 @@ AbstractBlockDistMatrix<T>::operator=( AbstractBlockDistMatrix<T>&& A )
         rowShift_ = A.rowShift_;
         root_ = A.root_;
         grid_ = A.grid_;
-        return *this;
     }
+    return *this;
 }
 
 template<typename T>
