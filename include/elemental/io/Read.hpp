@@ -21,12 +21,110 @@ Ascii( Matrix<T>& A, const std::string filename )
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
-    LogicError("Not yet written");
+
+    // Walk through the file once to both count the number of rows and
+    // columns and to ensure that the number of columns is consistent
+    Int height=0, width=0;
+    std::string line;
+    while( !file.eof() )
+    {
+        std::getline( file, line );    
+        std::stringstream lineStream( line );
+        Int numCols=0;
+        T value;
+        while( lineStream >> value ) ++numCols;
+        if( numCols != 0 )
+        {
+            if( numCols != width && width != 0 )
+                LogicError("Inconsistent number of columns");
+            else
+                width = numCols;
+            ++height;
+        }
+    }
+    file.seekg(0);
+
+    // Resize the matrix and then read it
+    A.Resize( height, width );
+    Int i=0;
+    while( !file.eof() )
+    {
+        std::getline( file, line );
+        std::stringstream lineStream( line );
+        Int j=0;
+        T value;
+        while( lineStream >> value )
+        {
+            A.Set( i, j, value );
+            ++j;
+        }
+        ++i;
+    }
+}
+
+template<typename T,Dist U,Dist V>
+inline void
+Ascii( DistMatrix<T,U,V>& A, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::Ascii"))
+    std::ifstream file( filename.c_str() );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+
+    // Walk through the file once to both count the number of rows and
+    // columns and to ensure that the number of columns is consistent
+    Int height=0, width=0;
+    std::string line;
+    while( !file.eof() )
+    {
+        std::getline( file, line );    
+        std::stringstream lineStream( line );
+        Int numCols=0;
+        T value;
+        while( lineStream >> value ) ++numCols;
+        if( numCols != 0 )
+        {
+            if( numCols != width && width != 0 )
+                LogicError("Inconsistent number of columns");
+            else
+                width = numCols;
+            ++height;
+        }
+    }
+    file.seekg(0);
+
+    // Resize the matrix and then read in our local portion
+    A.Resize( height, width );
+    Int i=0;
+    while( !file.eof() )
+    {
+        std::getline( file, line );
+        std::stringstream lineStream( line );
+        Int j=0;
+        T value;
+        while( lineStream >> value )
+        {
+            A.Set( i, j, value );
+            ++j;
+        }
+        ++i;
+    }
 }
 
 template<typename T>
 inline void
 AsciiMatlab( Matrix<T>& A, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
+    std::ifstream file( filename.c_str() );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+    LogicError("Not yet written");
+}
+
+template<typename T,Dist U,Dist V>
+inline void
+AsciiMatlab( DistMatrix<T,U,V>& A, const std::string filename )
 {
     DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
     std::ifstream file( filename.c_str() );
