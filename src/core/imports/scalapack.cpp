@@ -595,7 +595,9 @@ void HessenbergSchur
                           wantz=ELEM_FORT_FALSE;
 
         // Query the workspace sizes
-        int lwork=-1, dummyIWork, liwork=-1;
+        // NOTE: dummyIWork will currently be left unmodified (hence the
+        //       zero initialization)!
+        int lwork=-1, dummyIWork=0, liwork=-1;
         float dummyWork;
         ELEM_SCALAPACK(pslahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
@@ -658,7 +660,9 @@ void HessenbergSchur
                           wantz=ELEM_FORT_FALSE;
 
         // Query the workspace sizes
-        int lwork=-1, dummyIWork, liwork=-1;
+        // NOTE: dummyIWork will currently be left unmodified (hence the
+        //       zero initialization)!
+        int lwork=-1, dummyIWork=0, liwork=-1;
         double dummyWork;
         ELEM_SCALAPACK(pdlahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
@@ -689,7 +693,9 @@ void HessenbergSchur
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
+    // NOTE: dummyIWork will currently be left unmodified (hence the
+    //       zero initialization)!
+    int lwork=-1, dummyIWork=0, liwork=-1, info;
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     scomplex dummyWork;
@@ -721,7 +727,9 @@ void HessenbergSchur
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
+    // NOTE: dummyIWork will currently be left unmodified (hence the
+    //       zero initialization)!
+    int lwork=-1, dummyIWork=0, liwork=-1, info;
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     dcomplex dummyWork;
@@ -789,7 +797,9 @@ void HessenbergSchur
                           wantz=ELEM_FORT_TRUE;
 
         // Query the workspace sizes
-        int lwork=-1, dummyIWork, liwork=-1;
+        // NOTE: dummyIWork will currently be left unmodified (hence the
+        //       zero initialization)!
+        int lwork=-1, dummyIWork=0, liwork=-1;
         float dummyWork;
         ELEM_SCALAPACK(pslahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
@@ -856,7 +866,9 @@ void HessenbergSchur
                           wantz=ELEM_FORT_TRUE;
 
         // Query the workspace sizes
-        int lwork=-1, dummyIWork, liwork=-1;
+        // NOTE: dummyIWork will currently be left unmodified (hence the
+        //       zero initialization)!
+        int lwork=-1, dummyIWork=0, liwork=-1;
         double dummyWork;
         ELEM_SCALAPACK(pdlahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
@@ -889,7 +901,9 @@ void HessenbergSchur
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
+    // NOTE: dummyIWork will currently be left unmodified (hence the
+    //       zero initialization)!
+    int lwork=-1, dummyIWork=0, liwork=-1, info;
     scomplex dummyWork;
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
@@ -921,7 +935,9 @@ void HessenbergSchur
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
-    int lwork=-1, dummyIWork, liwork=-1, info;
+    // NOTE: dummyIWork will currently be left unmodified (hence the
+    //       zero initialization)!
+    int lwork=-1, dummyIWork=0, liwork=-1, info;
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
