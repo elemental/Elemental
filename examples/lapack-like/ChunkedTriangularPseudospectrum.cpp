@@ -164,7 +164,7 @@ main( int argc, char* argv[] )
                 const C chunkCorner = corner + 
                     C(xStep*xChunk*xBlock,yStep*yChunk*yBlock);
                 const C chunkCenter = chunkCorner + 
-                    0.5*C(xStep*xChunkSize,yStep*yChunkSize);
+                    0.5*C(xStep*(xChunkSize-1),yStep*(yChunkSize-1));
 
                 if( mpi::WorldRank() == 0 )
                     std::cout << "Starting computation for chunk centered at "
