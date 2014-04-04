@@ -871,6 +871,7 @@ GeneralBlockDistMatrix<T,U,V>::DiagonalRoot( Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::DiagonalRoot"))
     LogicError("This routine is not yet written");
+    return 0;
 }
 
 template<typename T,Dist U,Dist V>
@@ -879,6 +880,7 @@ GeneralBlockDistMatrix<T,U,V>::DiagonalAlign( Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::DiagonalAlign"))
     LogicError("This routine is not yet written");
+    return 0;
 }
 
 template<typename T,Dist U,Dist V>
