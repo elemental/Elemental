@@ -863,6 +863,7 @@ GeneralBlockDistMatrix<T,U,V>::DiagonalAlignedWith
     // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
     //       diagonal distribution are variable except for special cases.
     LogicError("This routine is not yet written");
+    return false;
 }
 
 template<typename T,Dist U,Dist V>
