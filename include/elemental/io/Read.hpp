@@ -448,6 +448,9 @@ Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO )
     case BINARY:
         read::Binary( A, filename );
         break;
+    case BINARY_FLAT:
+        read::BinaryFlat( A, A.Height(), A.Width(), filename );
+        break;
     default:
         LogicError("Format unsupported for reading");
     }
@@ -463,9 +466,16 @@ Read
     if( format == AUTO )
         format = DetectFormat( filename ); 
 
-    if( sequential )
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Read( A.Matrix(), filename, format );
+    }
+    else if( sequential )
     {
         DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
+        if( format == BINARY_FLAT )
+            A_CIRC_CIRC.Resize( A.Height(), A.Width() );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Read( A_CIRC_CIRC.Matrix(), filename, format );
         A = A_CIRC_CIRC;
@@ -474,40 +484,22 @@ Read
     {
         switch( format )
         {
+        case ASCII:
+            read::Ascii( A, filename );
+            break;
+        case ASCII_MATLAB:
+            read::AsciiMatlab( A, filename );
+            break;
         case BINARY:
             read::Binary( A, filename );
+            break;
+        case BINARY_FLAT:
+            read::BinaryFlat( A, A.Height(), A.Width(), filename );
             break;
         default:
             LogicError("Unsupported distributed read format"); 
         }
     }
-}
-
-// If requesting [* ,* ] or [o ,o ] distributions, no copy is needed
-
-template<typename T>
-inline void
-Read
-( DistMatrix<T,STAR,STAR>& A, const std::string filename, 
-  FileFormat format=AUTO )
-{
-    DEBUG_ONLY(CallStackEntry cse("Read"))
-    if( format == AUTO )
-        format = DetectFormat( filename );
-    if( A.Grid().VCRank() == 0 )
-        Read( A.Matrix(), filename, format );
-}
-template<typename T>
-inline void
-Read
-( DistMatrix<T,CIRC,CIRC>& A, const std::string filename, 
-  FileFormat format=AUTO )
-{
-    DEBUG_ONLY(CallStackEntry cse("Read"))
-    if( format == AUTO )
-        format = DetectFormat( filename );
-    if( A.CrossRank() == A.Root() )
-        Read( A.Matrix(), filename, format );
 }
 
 } // namespace elem
