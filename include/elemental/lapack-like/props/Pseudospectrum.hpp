@@ -51,35 +51,35 @@ NumericallyNormal( const DistMatrix<F>& U, Base<F> tol )
 template<typename T>
 inline void
 ReshapeIntoGrids
-( Int xSize, Int ySize,
+( Int realSize, Int imagSize,
   const Matrix<T>& invNorms,   const Matrix<Int>& itCounts,
         Matrix<T>& invNormMap,       Matrix<Int>& itCountMap )
 {
 #if 0    
-    invNormMap.Resize( xSize, ySize );
-    itCountMap.Resize( xSize, ySize );
-    for( Int j=0; j<xSize; ++j )
+    invNormMap.Resize( realSize, imagSize );
+    itCountMap.Resize( realSize, imagSize );
+    for( Int j=0; j<realSize; ++j )
     {
-        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
-        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        auto normGridSub = View( invNormMap, 0, j, imagSize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, imagSize, 1 );
+        auto shiftSub = LockedView( invNorms, j*imagSize, 0, imagSize, 1 );
+        auto countSub = LockedView( itCounts, j*imagSize, 0, imagSize, 1 );
         normGridSub = shiftSub;
         countGridSub = countSub;
     }
 #else
     // The sequential case can be optimized much more heavily than in parallel
-    invNormMap.Resize( xSize, ySize, xSize );
-    itCountMap.Resize( xSize, ySize, xSize );
-    MemCopy( invNormMap.Buffer(), invNorms.LockedBuffer(), xSize*ySize );
-    MemCopy( itCountMap.Buffer(), itCounts.LockedBuffer(), xSize*ySize );
+    invNormMap.Resize( realSize, imagSize, realSize );
+    itCountMap.Resize( realSize, imagSize, realSize );
+    MemCopy( invNormMap.Buffer(), invNorms.LockedBuffer(), realSize*imagSize );
+    MemCopy( itCountMap.Buffer(), itCounts.LockedBuffer(), realSize*imagSize );
 #endif
 }
 
 template<typename T>
 inline void
 ReshapeIntoGrids
-( Int xSize, Int ySize,
+( Int realSize, Int imagSize,
   const DistMatrix<T,VR,STAR>& invNorms, 
   const DistMatrix<Int,VR,STAR>& itCounts,
         DistMatrix<T>& invNormMap, 
@@ -87,14 +87,14 @@ ReshapeIntoGrids
 {
     invNormMap.SetGrid( invNorms.Grid() );
     itCountMap.SetGrid( invNorms.Grid() );
-    invNormMap.Resize( xSize, ySize );
-    itCountMap.Resize( xSize, ySize );
-    for( Int j=0; j<xSize; ++j )
+    invNormMap.Resize( realSize, imagSize );
+    itCountMap.Resize( realSize, imagSize );
+    for( Int j=0; j<realSize; ++j )
     {
-        auto normGridSub = View( invNormMap, 0, j, ySize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, ySize, 1 );
-        auto shiftSub = LockedView( invNorms, j*ySize, 0, ySize, 1 );
-        auto countSub = LockedView( itCounts, j*ySize, 0, ySize, 1 );
+        auto normGridSub = View( invNormMap, 0, j, imagSize, 1 );
+        auto countGridSub = View( itCountMap, 0, j, imagSize, 1 );
+        auto shiftSub = LockedView( invNorms, j*imagSize, 0, imagSize, 1 );
+        auto countSub = LockedView( itCounts, j*imagSize, 0, imagSize, 1 );
         normGridSub = shiftSub;
         countGridSub = countSub;
     }
@@ -505,8 +505,8 @@ template<typename F>
 inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth,
+  Int realSize, Int imagSize, bool lanczos=true, Int krylovSize=10, 
   bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
   bool progress=false )
 {
@@ -514,15 +514,15 @@ TriangularPseudospectrum
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    const Real xStep = xWidth/(xSize-1);
-    const Real yStep = yWidth/(ySize-1);
-    const C corner = center + C(-xWidth/2,yWidth/2);
-    Matrix<C> shifts( xSize*ySize, 1, U.Grid() );
-    for( Int j=0; j<xSize*ySize; ++j )
+    const Real realStep = realWidth/(realSize-1);
+    const Real imagStep = imagWidth/(imagSize-1);
+    const C corner = center + C(-realWidth/2,imagWidth/2);
+    Matrix<C> shifts( realSize*imagSize, 1, U.Grid() );
+    for( Int j=0; j<realSize*imagSize; ++j )
     {
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,-y*yStep) );
+        const Int x = j / imagSize;
+        const Int y = j % imagSize;
+        shifts.Set( j, 0, corner+C(x*realStep,-y*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -535,7 +535,7 @@ TriangularPseudospectrum
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
     pspec::ReshapeIntoGrids
-    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    ( realSize, imagSize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -543,8 +543,8 @@ template<typename F>
 inline Matrix<Int>
 HessenbergPseudospectrum
 ( const Matrix<F>& H, Matrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth,
+  Int realSize, Int imagSize, bool lanczos=true, Int krylovSize=10, 
   bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
   bool progress=false )
 {
@@ -552,15 +552,15 @@ HessenbergPseudospectrum
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    const Real xStep = xWidth/(xSize-1);
-    const Real yStep = yWidth/(ySize-1);
-    const C corner = center + C(-xWidth/2,yWidth/2);
-    Matrix<C> shifts( xSize*ySize, 1, H.Grid() );
-    for( Int j=0; j<xSize*ySize; ++j )
+    const Real realStep = realWidth/(realSize-1);
+    const Real imagStep = imagWidth/(imagSize-1);
+    const C corner = center + C(-realWidth/2,imagWidth/2);
+    Matrix<C> shifts( realSize*imagSize, 1, H.Grid() );
+    for( Int j=0; j<realSize*imagSize; ++j )
     {
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,-y*yStep) );
+        const Int x = j / imagSize;
+        const Int y = j % imagSize;
+        shifts.Set( j, 0, corner+C(x*realStep,-y*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -573,7 +573,7 @@ HessenbergPseudospectrum
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
     pspec::ReshapeIntoGrids
-    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    ( realSize, imagSize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -581,26 +581,27 @@ template<typename F>
 inline DistMatrix<Int>
 TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
-  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth, 
+  Int realSize, Int imagSize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
 
-    const Real xStep = xWidth/(xSize-1);
-    const Real yStep = yWidth/(ySize-1);
-    const C corner = center + C(-xWidth/2,yWidth/2);
-    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
+    const Real realStep = realWidth/(realSize-1);
+    const Real imagStep = imagWidth/(imagSize-1);
+    const C corner = center + C(-realWidth/2,imagWidth/2);
+    DistMatrix<C,VR,STAR> shifts( realSize*imagSize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
         const Int i = shifts.GlobalRow(iLoc);
-        const Int x = i / ySize;
-        const Int y = i % ySize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,-y*yStep) );
+        const Int x = i / imagSize;
+        const Int y = i % imagSize;
+        shifts.SetLocal( iLoc, 0, corner+C(x*realStep,-y*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -613,7 +614,7 @@ TriangularPseudospectrum
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
     pspec::ReshapeIntoGrids
-    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    ( realSize, imagSize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -621,26 +622,27 @@ template<typename F>
 inline DistMatrix<Int>
 HessenbergPseudospectrum
 ( const DistMatrix<F>& H, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
-  bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
-  Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth, 
+  Int realSize, Int imagSize, bool lanczos=true, Int krylovSize=10, 
+  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
+  bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = H.Grid();
 
-    const Real xStep = xWidth/(xSize-1);
-    const Real yStep = yWidth/(ySize-1);
-    const C corner = center + C(-xWidth/2,yWidth/2);
-    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
+    const Real realStep = realWidth/(realSize-1);
+    const Real imagStep = imagWidth/(imagSize-1);
+    const C corner = center + C(-realWidth/2,imagWidth/2);
+    DistMatrix<C,VR,STAR> shifts( realSize*imagSize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
         const Int i = shifts.GlobalRow(iLoc);
-        const Int x = i / ySize;
-        const Int y = i % ySize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,-y*yStep) );
+        const Int x = i / imagSize;
+        const Int y = i % imagSize;
+        shifts.SetLocal( iLoc, 0, corner+C(x*realStep,-y*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -653,7 +655,7 @@ HessenbergPseudospectrum
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
     pspec::ReshapeIntoGrids
-    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    ( realSize, imagSize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -661,24 +663,24 @@ template<typename F>
 inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth,
-  Int xSize, Int ySize, bool schur=true, bool lanczos=true, Int krylovSize=10, 
-  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
-  bool progress=false )
+  Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth,
+  Int realSize, Int imagSize, bool schur=true, bool lanczos=true, 
+  Int krylovSize=10, bool reorthog=true, bool deflate=true, Int maxIts=1000, 
+  BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    const Real xStep = xWidth/(xSize-1);
-    const Real yStep = yWidth/(ySize-1);
-    const C corner = center + C(-xWidth/2,yWidth/2);
-    Matrix<C> shifts( xSize*ySize, 1, A.Grid() );
-    for( Int j=0; j<xSize*ySize; ++j )
+    const Real realStep = realWidth/(realSize-1);
+    const Real imagStep = imagWidth/(imagSize-1);
+    const C corner = center + C(-realWidth/2,imagWidth/2);
+    Matrix<C> shifts( realSize*imagSize, 1, A.Grid() );
+    for( Int j=0; j<realSize*imagSize; ++j )
     {
-        const Int x = j / ySize;
-        const Int y = j % ySize;
-        shifts.Set( j, 0, corner+C(x*xStep,-y*yStep) );
+        const Int x = j / imagSize;
+        const Int y = j % imagSize;
+        shifts.Set( j, 0, corner+C(x*realStep,-y*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -691,7 +693,7 @@ Pseudospectrum
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
     pspec::ReshapeIntoGrids
-    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    ( realSize, imagSize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -699,26 +701,27 @@ template<typename F>
 inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, BASE(F) xWidth, BASE(F) yWidth, Int xSize, Int ySize,
-  bool schur=false, bool lanczos=true, Int krylovSize=10, bool reorthog=true, 
-  bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
+  Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth, 
+  Int realSize, Int imagSize, bool schur=false, bool lanczos=true, 
+  Int krylovSize=10, bool reorthog=true, bool deflate=true, Int maxIts=1000, 
+  BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
-    const Real xStep = xWidth/(xSize-1);
-    const Real yStep = yWidth/(ySize-1);
-    const C corner = center + C(-xWidth/2,yWidth/2);
-    DistMatrix<C,VR,STAR> shifts( xSize*ySize, 1, g );
+    const Real realStep = realWidth/(realSize-1);
+    const Real imagStep = imagWidth/(imagSize-1);
+    const C corner = center + C(-realWidth/2,imagWidth/2);
+    DistMatrix<C,VR,STAR> shifts( realSize*imagSize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
     for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
     {
         const Int i = shifts.GlobalRow(iLoc);
-        const Int x = i / ySize;
-        const Int y = i % ySize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*xStep,-y*yStep) );
+        const Int x = i / imagSize;
+        const Int y = i % imagSize;
+        shifts.SetLocal( iLoc, 0, corner+C(x*realStep,-y*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -731,7 +734,7 @@ Pseudospectrum
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
     pspec::ReshapeIntoGrids
-    ( xSize, ySize, invNorms, itCounts, invNormMap, itCountMap );
+    ( realSize, imagSize, invNorms, itCounts, invNormMap, itCountMap );
     return itCountMap;
 }
 
@@ -740,7 +743,7 @@ inline Matrix<Int>
 TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  Int realSize, Int imagSize, bool lanczos=true, Int krylovSize=10, 
   bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
   bool progress=false )
 {
@@ -779,7 +782,7 @@ TriangularPseudospectrum
     }
 
     return TriangularPseudospectrum
-           ( U, invNormMap, center, width, width, xSize, ySize, 
+           ( U, invNormMap, center, width, width, realSize, imagSize, 
              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
@@ -788,7 +791,7 @@ inline Matrix<Int>
 HessenbergPseudospectrum
 ( const Matrix<F>& H, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center,
-  Int xSize, Int ySize, bool lanczos=true, Int krylovSize=10, 
+  Int realSize, Int imagSize, bool lanczos=true, Int krylovSize=10, 
   bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
   bool progress=false )
 {
@@ -814,7 +817,7 @@ HessenbergPseudospectrum
     }
 
     return HessenbergPseudospectrum
-           ( H, invNormMap, center, width, width, xSize, ySize, 
+           ( H, invNormMap, center, width, width, realSize, imagSize, 
              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
@@ -822,7 +825,7 @@ template<typename F>
 inline DistMatrix<Int>
 TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, Int xSize, Int ySize,
+  Complex<BASE(F)> center, Int realSize, Int imagSize,
   bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
@@ -860,7 +863,7 @@ TriangularPseudospectrum
     }
 
     return TriangularPseudospectrum
-           ( U, invNormMap, center, width, width, xSize, ySize, 
+           ( U, invNormMap, center, width, width, realSize, imagSize, 
              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
@@ -868,7 +871,7 @@ template<typename F>
 inline DistMatrix<Int>
 HessenbergPseudospectrum
 ( const DistMatrix<F>& H, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, Int xSize, Int ySize,
+  Complex<BASE(F)> center, Int realSize, Int imagSize,
   bool lanczos=true, Int krylovSize=10, bool reorthog=true, bool deflate=true, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
@@ -894,7 +897,7 @@ HessenbergPseudospectrum
     }
 
     return HessenbergPseudospectrum
-           ( H, invNormMap, center, width, width, xSize, ySize, 
+           ( H, invNormMap, center, width, width, realSize, imagSize, 
              lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
 }
 
@@ -903,9 +906,9 @@ inline Matrix<Int>
 Pseudospectrum
 ( const Matrix<F>& A, Matrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center,
-  Int xSize, Int ySize, bool schur=true, bool lanczos=true, Int krylovSize=10, 
-  bool reorthog=true, bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, 
-  bool progress=false )
+  Int realSize, Int imagSize, bool schur=true, bool lanczos=true, 
+  Int krylovSize=10, bool reorthog=true, bool deflate=true, Int maxIts=1000, 
+  BASE(F) tol=1e-6, bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -923,7 +926,7 @@ Pseudospectrum
         const bool fullTriangle = true;
         schur::QR( B, w, fullTriangle );
         return TriangularPseudospectrum
-               ( B, invNormMap, center, xSize, ySize, 
+               ( B, invNormMap, center, realSize, imagSize, 
                  lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
                  progress );
     }
@@ -931,7 +934,7 @@ Pseudospectrum
     {
         Hessenberg( UPPER, B );
         return HessenbergPseudospectrum
-               ( B, invNormMap, center, xSize, ySize, 
+               ( B, invNormMap, center, realSize, imagSize, 
                  lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
                  progress );
     }
@@ -941,7 +944,7 @@ template<typename F>
 inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
-  Complex<BASE(F)> center, Int xSize, Int ySize,
+  Complex<BASE(F)> center, Int realSize, Int imagSize,
   bool schur=false, bool lanczos=true, Int krylovSize=10, bool reorthog=true, 
   bool deflate=true, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false )
 {
@@ -985,7 +988,7 @@ Pseudospectrum
 #endif
  
         return TriangularPseudospectrum
-               ( B, invNormMap, center, xSize, ySize,
+               ( B, invNormMap, center, realSize, imagSize,
                  lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
                  progress );
     }
@@ -993,7 +996,7 @@ Pseudospectrum
     {
         Hessenberg( UPPER, B );
         return HessenbergPseudospectrum
-               ( B, invNormMap, center, xSize, ySize, 
+               ( B, invNormMap, center, realSize, imagSize, 
                  lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
                  progress );
     }

@@ -40,10 +40,10 @@ main( int argc, char* argv[] )
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
-        const Real xWidth = Input("--xWidth","x width of image",0.);
-        const Real yWidth = Input("--yWidth","y width of image",0.);
-        const Int xSize = Input("--xSize","number of x samples",100);
-        const Int ySize = Input("--ySize","number of y samples",100);
+        const Real realWidth = Input("--realWidth","x width of image",0.);
+        const Real imagWidth = Input("--imagWidth","y width of image",0.);
+        const Int realSize = Input("--realSize","number of x samples",100);
+        const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
         const bool reorthog = Input("--reorthog","reorthog basis?",true);
@@ -108,13 +108,13 @@ main( int argc, char* argv[] )
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
-        if( xWidth != 0. && yWidth != 0. )
+        if( realWidth != 0. && imagWidth != 0. )
             itCountMap = TriangularPseudospectrum
-            ( A, invNormMap, center, xWidth, yWidth, xSize, ySize,
+            ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize,
               lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
         else
             itCountMap = TriangularPseudospectrum
-            ( A, invNormMap, center, xSize, ySize,                
+            ( A, invNormMap, center, realSize, imagSize,                
               lanczos, krylovSize, reorthog, deflate, maxIts, tol, progress );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

@@ -41,12 +41,12 @@ main( int argc, char* argv[] )
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
-        Real xWidth = Input("--xWidth","x width of image",0.);
-        Real yWidth = Input("--yWidth","y width of image",0.);
+        Real realWidth = Input("--realWidth","x width of image",0.);
+        Real imagWidth = Input("--imagWidth","y width of image",0.);
         const Real nx = Input("--nx","num x chunks",2);
         const Real ny = Input("--ny","num y chunks",2);
-        const Int xSize = Input("--xSize","number of x samples",100);
-        const Int ySize = Input("--ySize","number of y samples",100);
+        const Int realSize = Input("--realSize","number of x samples",100);
+        const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
         const bool reorthog = Input("--reorthog","reorthog basis?",true);
@@ -109,7 +109,7 @@ main( int argc, char* argv[] )
 
         // Find a window if none is specified
         auto w = A.GetDiagonal();
-        if( xWidth == 0. || yWidth == 0. )
+        if( realWidth == 0. || imagWidth == 0. )
         {
             const Real radius = MaxNorm( w );
             const Real oneNorm = OneNorm( A );
@@ -137,34 +137,35 @@ main( int argc, char* argv[] )
                               << " based on the one norm, " << oneNorm 
                               << std::endl;
             }
-            xWidth = width;
-            yWidth = width;
+            realWidth = width;
+            imagWidth = width;
         }
 
         // Visualize/write the pseudospectrum within each window
         Timer timer;
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
-        const Int xBlock = xSize / nx;
-        const Int yBlock = ySize / ny;
-        const Int xLeftover = xSize - (nx-1)*xBlock;
-        const Int yLeftover = ySize - (ny-1)*yBlock;
-        const Real xStep = xWidth/(xSize-1);
-        const Real yStep = yWidth/(ySize-1);
-        const C corner = center - C(xWidth/2,yWidth/2);
-        for( Int xChunk=0; xChunk<nx; ++xChunk )
+        const Int xBlock = realSize / nx;
+        const Int yBlock = imagSize / ny;
+        const Int xLeftover = realSize - (nx-1)*xBlock;
+        const Int yLeftover = imagSize - (ny-1)*yBlock;
+        const Real xStep = realWidth/(realSize-1);
+        const Real yStep = imagWidth/(imagSize-1);
+        const C corner = center - C(realWidth/2,imagWidth/2);
+        for( Int realChunk=0; realChunk<nx; ++realChunk )
         {
-            const Int xChunkSize = ( xChunk==nx-1 ? xLeftover : xBlock );
-            const Real xChunkWidth = xStep*xChunkSize;
-            for( Int yChunk=0; yChunk<ny; ++yChunk )
+            const Int realChunkSize = ( realChunk==nx-1 ? xLeftover : xBlock );
+            const Real realChunkWidth = xStep*realChunkSize;
+            for( Int imagChunk=0; imagChunk<ny; ++imagChunk )
             {
-                const Int yChunkSize = ( yChunk==ny-1 ? yLeftover : yBlock );
-                const Real yChunkWidth = yStep*yChunkSize;
+                const Int imagChunkSize = 
+                    ( imagChunk==ny-1 ? yLeftover : yBlock );
+                const Real imagChunkWidth = yStep*imagChunkSize;
 
                 const C chunkCorner = corner + 
-                    C(xStep*xChunk*xBlock,yStep*yChunk*yBlock);
+                    C(xStep*realChunk*xBlock,yStep*imagChunk*yBlock);
                 const C chunkCenter = chunkCorner + 
-                    0.5*C(xStep*(xChunkSize-1),yStep*(yChunkSize-1));
+                    0.5*C(xStep*(realChunkSize-1),yStep*(imagChunkSize-1));
 
                 if( mpi::WorldRank() == 0 )
                     std::cout << "Starting computation for chunk centered at "
@@ -172,8 +173,8 @@ main( int argc, char* argv[] )
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
                 itCountMap = TriangularPseudospectrum
-                ( A, invNormMap, chunkCenter, xChunkWidth, yChunkWidth, 
-                  xChunkSize, yChunkSize, lanczos, krylovSize, reorthog, 
+                ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
+                  realChunkSize, imagChunkSize, lanczos, krylovSize, reorthog, 
                   deflate, maxIts, tol, progress );
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
@@ -185,7 +186,7 @@ main( int argc, char* argv[] )
                 }
 
                 std::ostringstream chunkStream;
-                chunkStream << "_" << xChunk << "_" << yChunk;
+                chunkStream << "_" << realChunk << "_" << imagChunk;
                 const std::string chunkTag = chunkStream.str();
                 if( display )
                 {

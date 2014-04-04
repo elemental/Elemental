@@ -40,10 +40,10 @@ main( int argc, char* argv[] )
 #endif
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
-        const Real xWidth = Input("--xWidth","x width of image",0.);
-        const Real yWidth = Input("--yWidth","y width of image",0.);
-        const Int xSize = Input("--xSize","number of x samples",100);
-        const Int ySize = Input("--ySize","number of y samples",100);
+        const Real realWidth = Input("--realWidth","x width of image",0.);
+        const Real imagWidth = Input("--imagWidth","y width of image",0.);
+        const Int realSize = Input("--realSize","number of x samples",100);
+        const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool schur = Input("--schur","Schur decomposition?",false);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
         const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
@@ -119,17 +119,17 @@ main( int argc, char* argv[] )
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
-        if( xWidth != 0. && yWidth != 0. )
+        if( realWidth != 0. && imagWidth != 0. )
         {
             itCountMap = Pseudospectrum
-            ( A, invNormMap, center, xWidth, yWidth, xSize, ySize, 
+            ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize, 
               schur, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
               progress );
         }
         else
         {
             itCountMap = Pseudospectrum
-            ( A, invNormMap, center, xSize, ySize, 
+            ( A, invNormMap, center, realSize, imagSize, 
               schur, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
               progress );
         }
