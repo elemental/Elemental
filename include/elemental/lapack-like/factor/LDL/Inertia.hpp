@@ -24,7 +24,7 @@ namespace elem {
 namespace ldl {
 
 template<typename F>
-inline elem::Inertia
+inline InertiaType
 Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
@@ -34,7 +34,7 @@ Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
         if( n != 0 && dSub.Height() != n-1 )
             LogicError("dSub was the wrong length");
     )
-    elem::Inertia inertia;
+    InertiaType inertia;
     inertia.numPositive = inertia.numNegative = inertia.numZero = 0;
 
     Int k=0;
@@ -64,7 +64,7 @@ Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
 }
 
 template<typename F>
-inline elem::Inertia
+inline InertiaType
 Inertia
 ( const DistMatrix<BASE(F),MC,STAR>& d, 
   const DistMatrix<BASE(F),MC,STAR>& dPrev, 
@@ -103,7 +103,7 @@ Inertia
 
     const Int mLocal = d.LocalHeight();
     const Int prevOff = ( dPrev.ColShift()==d.ColShift()-1 ? 0 : -1 );
-    elem::Inertia locInert;
+    InertiaType locInert;
     locInert.numPositive = locInert.numNegative = locInert.numZero = 0;
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
@@ -135,7 +135,7 @@ Inertia
     }
 
     // TODO: Combine into single communication
-    elem::Inertia inertia;
+    InertiaType inertia;
     inertia.numPositive = mpi::AllReduce( locInert.numPositive, d.ColComm() );
     inertia.numNegative = mpi::AllReduce( locInert.numNegative, d.ColComm() );
     inertia.numZero     = mpi::AllReduce( locInert.numZero,     d.ColComm() );
@@ -144,7 +144,7 @@ Inertia
 }
 
 template<typename F,Dist U,Dist V>
-inline elem::Inertia
+inline InertiaType
 Inertia( const DistMatrix<BASE(F),U,V>& d, const DistMatrix<F,U,V>& dSub )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))

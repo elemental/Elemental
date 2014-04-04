@@ -91,7 +91,7 @@ struct SafeProduct
 };
 
 // The basic eigenvalue structure of a Hermitian matrix
-struct Inertia
+struct InertiaType
 {
     Int numPositive, numNegative, numZero;
 };

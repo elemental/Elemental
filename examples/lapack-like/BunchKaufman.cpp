@@ -19,6 +19,7 @@
 #include ELEM_APPLYPACKEDREFLECTORS_INC
 #include ELEM_LDL_INC
 #include ELEM_FROBENIUSNORM_INC
+#include ELEM_INERTIA_INC
 
 #include ELEM_UNIFORM_INC
 #include ELEM_WIGNER_INC
@@ -112,7 +113,7 @@ main( int argc, char* argv[] )
         if( conjugate )
         {
             // Compute the inertia of A now that we are done with it.
-            Inertia inertia = HermitianInertia( LOWER, A, pivotType );
+            auto inertia = Inertia( LOWER, A, pivotType );
             if( mpi::WorldRank() == 0 )
             {
                 std::cout << "numPositive=" << inertia.numPositive << "\n"

@@ -105,34 +105,6 @@ LDLT
     ldl::Pivoted( A, dSub, p, false, pivotType );
 }
 
-template<typename F>
-inline elem::Inertia
-HermitianInertia
-( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
-{
-    DEBUG_ONLY(CallStackEntry cse("HermitianInertia"))
-    if( uplo == UPPER )
-        LogicError("This option not yet supported");
-    Matrix<Int> p;
-    Matrix<F> dSub;
-    ldl::Pivoted( A, dSub, p, true, pivotType ); 
-    return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
-}
-
-template<typename F>
-inline elem::Inertia
-HermitianInertia
-( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
-{
-    DEBUG_ONLY(CallStackEntry cse("HermitianInertia"))
-    if( uplo == UPPER )
-        LogicError("This option not yet supported");
-    DistMatrix<Int,VC,STAR> p( A.Grid() );
-    DistMatrix<F,MD,STAR> dSub( A.Grid() );
-    ldl::Pivoted( A, dSub, p, true, pivotType ); 
-    return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
-}
-
 } // namespace elem
 
 #endif // ifndef ELEM_LDL_HPP

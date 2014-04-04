@@ -339,6 +339,8 @@
   "elemental/lapack-like/props/Condition.hpp"
 #define ELEM_DETERMINANT_INC \
   "elemental/lapack-like/props/Determinant.hpp"
+#define ELEM_INERTIA_INC \
+  "elemental/lapack-like/props/Inertia.hpp"
 #define ELEM_NORM_INC \
   "elemental/lapack-like/props/Norm.hpp"
 #define ELEM_PSEUDOSPECTRUM_INC \
