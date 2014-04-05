@@ -53,6 +53,12 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Real uniformRealCenter = 
+            Input("--uniformRealCenter","real center of uniform dist",0.);
+        const Real uniformImagCenter =
+            Input("--uniformImagCenter","imag center of uniform dist",0.);
+        const Real uniformRadius =
+            Input("--uniformRadius","radius of uniform dist",1.);
         const Int numBands = Input("--numBands","num bands for Grcar",3);
         const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
         const bool progress = Input("--progress","print progress?",true);
@@ -77,17 +83,18 @@ main( int argc, char* argv[] )
             LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
-        FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
-        ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
+        const FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
+        const FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
+        const ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
-        C center(realCenter,imagCenter);
+        const C center(realCenter,imagCenter);
+        const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         std::ostringstream os;
         DistMatrix<C> A(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n );      break;
+        case 0: Uniform( A, n, n, uniformCenter, uniformRadius ); break;
         case 1: Demmel( A, n );          break;
         case 2: Lotkin( A, n );          break;
         case 3: Grcar( A, n, numBands ); break;
@@ -149,8 +156,8 @@ main( int argc, char* argv[] )
         const Int yBlock = imagSize / ny;
         const Int xLeftover = realSize - (nx-1)*xBlock;
         const Int yLeftover = imagSize - (ny-1)*yBlock;
-        const Real xStep = realWidth/(realSize-1);
-        const Real yStep = imagWidth/(imagSize-1);
+        const Real xStep = realWidth/realSize;
+        const Real yStep = imagWidth/imagSize;
         const C corner = center - C(realWidth/2,imagWidth/2);
         for( Int realChunk=0; realChunk<nx; ++realChunk )
         {
@@ -165,7 +172,7 @@ main( int argc, char* argv[] )
                 const C chunkCorner = corner + 
                     C(xStep*realChunk*xBlock,yStep*imagChunk*yBlock);
                 const C chunkCenter = chunkCorner + 
-                    0.5*C(xStep*(realChunkSize-1),yStep*(imagChunkSize-1));
+                    0.5*C(xStep*realChunkSize,yStep*imagChunkSize);
 
                 if( mpi::WorldRank() == 0 )
                     std::cout << "Starting computation for chunk centered at "

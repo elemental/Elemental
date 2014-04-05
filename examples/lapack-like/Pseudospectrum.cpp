@@ -51,6 +51,12 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate converged?",true);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Real uniformRealCenter = 
+            Input("--uniformRealCenter","real center of uniform dist",0.);
+        const Real uniformImagCenter =
+            Input("--uniformImagCenter","imag center of uniform dist",0.);
+        const Real uniformRadius = 
+            Input("--uniformRadius","radius of uniform dist",1.);
         const Int numBands = Input("--numBands","num bands for Grcar",3);
         const Real omega = Input("--omega","frequency for Fox-Li/Helm",16*M_PI);
         const Int mx = Input("--mx","number of x points for HelmholtzPML",30);
@@ -85,16 +91,17 @@ main( int argc, char* argv[] )
             LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
-        FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
-        ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
+        const FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
+        const FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
+        const ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
-        C center(realCenter,imagCenter);
+        const C center(realCenter,imagCenter);
+        const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         DistMatrix<C> A(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n ); break;
+        case 0: Uniform( A, n, n, uniformCenter, uniformRadius ); break;
         case 1: Haar( A, n ); break;
         case 2: Lotkin( A, n ); break;
         case 3: Grcar( A, n, numBands ); break;

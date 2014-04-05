@@ -501,6 +501,8 @@ Pseudospectrum
           tol, progress );
 }
 
+// Treat each pixel as being located a cell center and tesselate a box with
+// said square cells
 template<typename F>
 inline Matrix<Int>
 TriangularPseudospectrum
@@ -514,15 +516,15 @@ TriangularPseudospectrum
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    const Real realStep = realWidth/(realSize-1);
-    const Real imagStep = imagWidth/(imagSize-1);
+    const Real realStep = realWidth/realSize;
+    const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
     Matrix<C> shifts( realSize*imagSize, 1, U.Grid() );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
         const Int y = j % imagSize;
-        shifts.Set( j, 0, corner+C(x*realStep,-y*imagStep) );
+        shifts.Set( j, 0, corner+C((x+0.5)*realStep,-(y+0.5)*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -552,15 +554,15 @@ HessenbergPseudospectrum
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    const Real realStep = realWidth/(realSize-1);
-    const Real imagStep = imagWidth/(imagSize-1);
+    const Real realStep = realWidth/realSize;
+    const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
     Matrix<C> shifts( realSize*imagSize, 1, H.Grid() );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
         const Int y = j % imagSize;
-        shifts.Set( j, 0, corner+C(x*realStep,-y*imagStep) );
+        shifts.Set( j, 0, corner+C((x+0.5)*realStep,-(y+0.5)*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -591,8 +593,8 @@ TriangularPseudospectrum
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
 
-    const Real realStep = realWidth/(realSize-1);
-    const Real imagStep = imagWidth/(imagSize-1);
+    const Real realStep = realWidth/realSize;
+    const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
     DistMatrix<C,VR,STAR> shifts( realSize*imagSize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
@@ -601,7 +603,8 @@ TriangularPseudospectrum
         const Int i = shifts.GlobalRow(iLoc);
         const Int x = i / imagSize;
         const Int y = i % imagSize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*realStep,-y*imagStep) );
+        shifts.SetLocal
+        ( iLoc, 0, corner+C((x+0.5)*realStep,-(y+0.5)*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -632,8 +635,8 @@ HessenbergPseudospectrum
     typedef Complex<Real> C;
     const Grid& g = H.Grid();
 
-    const Real realStep = realWidth/(realSize-1);
-    const Real imagStep = imagWidth/(imagSize-1);
+    const Real realStep = realWidth/realSize;
+    const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
     DistMatrix<C,VR,STAR> shifts( realSize*imagSize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
@@ -642,7 +645,8 @@ HessenbergPseudospectrum
         const Int i = shifts.GlobalRow(iLoc);
         const Int x = i / imagSize;
         const Int y = i % imagSize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*realStep,-y*imagStep) );
+        shifts.SetLocal
+        ( iLoc, 0, corner+C((x+0.5)*realStep,-(y+0.5)*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -672,15 +676,15 @@ Pseudospectrum
     typedef Base<F> Real;
     typedef Complex<Real> C;
 
-    const Real realStep = realWidth/(realSize-1);
-    const Real imagStep = imagWidth/(imagSize-1);
+    const Real realStep = realWidth/realSize;
+    const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
     Matrix<C> shifts( realSize*imagSize, 1, A.Grid() );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
         const Int y = j % imagSize;
-        shifts.Set( j, 0, corner+C(x*realStep,-y*imagStep) );
+        shifts.Set( j, 0, corner+C((x+0.5)*realStep,-(y+0.5)*imagStep) );
     }
 
     // Form the vector of invNorms
@@ -711,8 +715,8 @@ Pseudospectrum
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
-    const Real realStep = realWidth/(realSize-1);
-    const Real imagStep = imagWidth/(imagSize-1);
+    const Real realStep = realWidth/realSize;
+    const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
     DistMatrix<C,VR,STAR> shifts( realSize*imagSize, 1, g );
     const Int numLocShifts = shifts.LocalHeight();
@@ -721,7 +725,8 @@ Pseudospectrum
         const Int i = shifts.GlobalRow(iLoc);
         const Int x = i / imagSize;
         const Int y = i % imagSize;
-        shifts.SetLocal( iLoc, 0, corner+C(x*realStep,-y*imagStep) );
+        shifts.SetLocal
+        ( iLoc, 0, corner+C((x+0.5)*realStep,-(y+0.5)*imagStep) );
     }
 
     // Form the vector of invNorms
