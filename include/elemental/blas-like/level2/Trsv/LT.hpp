@@ -37,57 +37,46 @@ TrsvLT
         if( L.Width() != xLength )
             LogicError("Nonconformal TrsvLT");
     )
+    const Int m = L.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( m, bsize );
     const Grid& g = L.Grid();
+
+    // Matrix views 
+    DistMatrix<F> L10(g), L11(g), x1(g);
+
+    // Temporary distributions
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), x1_STAR_STAR(g);
 
     if( x.Width() == 1 )
     {
-        // Matrix views 
-        DistMatrix<F> L10(g), L11(g);
-        DistMatrix<F> 
-            xT(g),  x0(g),
-            xB(g),  x1(g),
-                    x2(g);
-
-        // Temporary distributions
-        DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-        DistMatrix<F,STAR,STAR> x1_STAR_STAR(g);
-        DistMatrix<F,MC,  STAR> x1_MC_STAR(g);
-        DistMatrix<F,MC,  MR  > z1(g);
-        DistMatrix<F,MR,  MC  > z1_MR_MC(g);
-        DistMatrix<F,MR,  STAR> z_MR_STAR(g);
+        DistMatrix<F,MC,STAR> x1_MC_STAR(g);
+        DistMatrix<F,MC,MR  > z1(g);
+        DistMatrix<F,MR,MC  > z1_MR_MC(g);
+        DistMatrix<F,MR,STAR> z_MR_STAR(g);
 
         // Views of z[MR,* ]
-        DistMatrix<F,MR,STAR> z0_MR_STAR(g),
-                              z1_MR_STAR(g);
+        DistMatrix<F,MR,STAR> z0_MR_STAR(g), z1_MR_STAR(g);
 
         z_MR_STAR.AlignWith( L );
-        Zeros( z_MR_STAR, x.Height(), 1 );
+        Zeros( z_MR_STAR, m, 1 );
 
-        // Start the algorithm
-        PartitionUp
-        ( x, xT,
-             xB, 0 );
-        while( xT.Height() > 0 )
+        for( Int k=kLast; k>=0; k-=bsize )
         {
-            RepartitionUp
-            ( xT,  x0,
-                   x1,
-             /**/ /**/
-              xB,  x2 );
+            const Int nb = Min(bsize,m-k);
 
-            const Int n0 = x0.Height();
-            const Int n1 = x1.Height();
-            LockedView( L10, L, n0, 0,  n1, n0 );
-            LockedView( L11, L, n0, n0, n1, n1 );
-            View( z0_MR_STAR, z_MR_STAR, 0,  0, n0, 1 );
-            View( z1_MR_STAR, z_MR_STAR, n0, 0, n1, 1 );
+            LockedViewRange( L10, L, k, 0, k+nb, k    );
+            LockedViewRange( L11, L, k, k, k+nb, k+nb );
 
-            x1_MC_STAR.AlignWith( L10 );
-            z1.AlignWith( x1 );
-            //----------------------------------------------------------------//
-            if( x2.Height() != 0 )
+            ViewRange( x1, x, k, 0, k+nb, 1 );
+
+            ViewRange( z0_MR_STAR, z_MR_STAR, 0, 0, k,    1 );
+            ViewRange( z1_MR_STAR, z_MR_STAR, k, 0, k+nb, 1 );
+
+            if( k+nb != m )
             {
                 z1_MR_MC.RowSumScatterFrom( z1_MR_STAR );
+                z1.AlignWith( x1 );
                 z1 = z1_MR_MC;
                 Axpy( F(1), z1, x1 );
             }
@@ -96,77 +85,50 @@ TrsvLT
             L11_STAR_STAR = L11;
             Trsv
             ( LOWER, orientation, diag,
-              L11_STAR_STAR.LockedMatrix(),
-              x1_STAR_STAR.Matrix() );
+              L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
 
+            x1_MC_STAR.AlignWith( L10 );
             x1_MC_STAR = x1_STAR_STAR;
             LocalGemv( orientation, F(-1), L10, x1_MC_STAR, F(1), z0_MR_STAR );
-            //----------------------------------------------------------------//
-
-            SlidePartitionUp
-            ( xT,  x0,
-             /**/ /**/
-                   x1,
-              xB,  x2 );
         }
     }
     else
     {
-        // Matrix views 
-        DistMatrix<F> L10(g), L11(g);
-        DistMatrix<F> 
-            xL(g), xR(g),
-            x0(g), x1(g), x2(g);
-
-        // Temporary distributions
-        DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-        DistMatrix<F,STAR,STAR> x1_STAR_STAR(g);
-        DistMatrix<F,STAR,MC  > x1_STAR_MC(g);
-        DistMatrix<F,STAR,MR  > z_STAR_MR(g);
+        DistMatrix<F,STAR,MC> x1_STAR_MC(g);
+        DistMatrix<F,STAR,MR> z_STAR_MR(g);
 
         // Views of z[* ,MR], which will store updates to x
-        DistMatrix<F,STAR,MR> z0_STAR_MR(g),
-                              z1_STAR_MR(g);
+        DistMatrix<F,STAR,MR> z0_STAR_MR(g), z1_STAR_MR(g);
 
         z_STAR_MR.AlignWith( L );
-        Zeros( z_STAR_MR, 1, x.Width() );
+        Zeros( z_STAR_MR, 1, m );
 
-        // Start the algorithm
-        PartitionLeft( x,  xL, xR, 0 );
-        while( xL.Width() > 0 )
+        for( Int k=kLast; k>=0; k-=bsize )
         {
-            RepartitionLeft
-            ( xL,     /**/ xR,
-              x0, x1, /**/ x2 );
+            const Int nb = Min(bsize,m-k);
 
-            const Int n0 = x0.Width();
-            const Int n1 = x1.Width();
-            LockedView( L10, L, n0, 0,  n1, n0 );
-            LockedView( L11, L, n0, n0, n1, n1 );
-            View( z0_STAR_MR, z_STAR_MR, 0, 0,  1, n0 );
-            View( z1_STAR_MR, z_STAR_MR, 0, n0, 1, n1 );
+            LockedViewRange( L10, L, k, 0, k+nb, k    );
+            LockedViewRange( L11, L, k, k, k+nb, k+nb );
 
-            x1_STAR_MC.AlignWith( L10 );
-            //----------------------------------------------------------------//
-            if( x2.Width() != 0 )
+            ViewRange( x1, x, 0, k, 1, k+nb );
+
+            ViewRange( z0_STAR_MR, z_STAR_MR, 0, 0, 1, k    );
+            ViewRange( z1_STAR_MR, z_STAR_MR, 0, k, 1, k+nb );
+
+            if( k+nb != m )
                 x1.ColSumScatterUpdate( F(1), z1_STAR_MR );
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
             Trsv
             ( LOWER, orientation, diag,
-              L11_STAR_STAR.LockedMatrix(),
-              x1_STAR_STAR.Matrix() );
+              L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
 
+            x1_STAR_MC.AlignWith( L10 );
             x1_STAR_MC = x1_STAR_STAR;
             LocalGemv( orientation, F(-1), L10, x1_STAR_MC, F(1), z0_STAR_MR );
-            //----------------------------------------------------------------//
-
-            SlidePartitionLeft
-            ( xL, /**/ xR,
-              x0, /**/ x1, x2 );
         }
     }
 }

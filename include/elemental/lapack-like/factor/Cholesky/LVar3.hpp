@@ -111,7 +111,7 @@ ReverseLVar3( Matrix<F>& A )
     )
     const Int n = A.Height();
     const Int bsize = Blocksize();
-    const Int kLast = bsize*( n%bsize ? n/bsize : (n/bsize)-1 );
+    const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
@@ -193,7 +193,7 @@ ReverseLVar3( DistMatrix<F>& A )
 
     const Int n = A.Height();
     const Int bsize = Blocksize();
-    const Int kLast = bsize*( n%bsize ? n/bsize : (n/bsize)-1 );
+    const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);

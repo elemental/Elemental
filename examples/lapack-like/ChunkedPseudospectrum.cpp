@@ -40,8 +40,8 @@ main( int argc, char* argv[] )
         const Real imagCenter = Input("--imagCenter","imag center",0.);
         Real realWidth = Input("--realWidth","x width of image",0.);
         Real imagWidth = Input("--imagWidth","y width of image",0.);
-        const Real nx = Input("--nx","num x chunks",2);
-        const Real ny = Input("--ny","num y chunks",2);
+        const Real numReal = Input("--numReal","num real chunks",2);
+        const Real numImag = Input("--numImag","num imag chunks",2);
         const Int realSize = Input("--realSize","number of x samples",100);
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool lanczos = Input("--lanczos","use Lanczos?",true);
@@ -213,21 +213,22 @@ main( int argc, char* argv[] )
         // Visualize/write the pseudospectrum within each window
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
-        const Int xBlock = realSize / nx;
-        const Int yBlock = imagSize / ny;
-        const Int xLeftover = realSize - (nx-1)*xBlock;
-        const Int yLeftover = imagSize - (ny-1)*yBlock;
+        const Int xBlock = realSize / numReal;
+        const Int yBlock = imagSize / numImag;
+        const Int xLeftover = realSize - (numReal-1)*xBlock;
+        const Int yLeftover = imagSize - (numImag-1)*yBlock;
         const Real realStep = realWidth/realSize;
         const Real imagStep = imagWidth/imagSize;
         const C corner = center - C(realWidth/2,imagWidth/2);
-        for( Int realChunk=0; realChunk<nx; ++realChunk )
+        for( Int realChunk=0; realChunk<numReal; ++realChunk )
         {
-            const Int realChunkSize = ( realChunk==nx-1 ? xLeftover : xBlock );
+            const Int realChunkSize = 
+                ( realChunk==numReal-1 ? xLeftover : xBlock );
             const Real realChunkWidth = realStep*realChunkSize;
-            for( Int imagChunk=0; imagChunk<ny; ++imagChunk )
+            for( Int imagChunk=0; imagChunk<numImag; ++imagChunk )
             {
                 const Int imagChunkSize = 
-                    ( imagChunk==ny-1 ? yLeftover : yBlock );
+                    ( imagChunk==numImag-1 ? yLeftover : yBlock );
                 const Real imagChunkWidth = imagStep*imagChunkSize;
 
                 const C chunkCorner = corner + 

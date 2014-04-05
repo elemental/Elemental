@@ -56,7 +56,7 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
-    const Int kLast = bsize*( m%bsize ? m/bsize : (m/bsize)-1 );
+    const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
@@ -90,7 +90,7 @@ LUN
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
-    const Int kLast = bsize*( m%bsize ? m/bsize : (m/bsize)-1 );
+    const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
