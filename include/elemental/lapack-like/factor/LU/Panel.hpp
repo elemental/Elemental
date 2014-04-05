@@ -12,6 +12,7 @@
 
 #include ELEM_SCALE_INC
 #include ELEM_SWAP_INC
+#include ELEM_MAXABS_INC
 #include ELEM_GERU_INC
 
 namespace elem {
@@ -38,7 +39,7 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         auto A22     = ViewRange( A, k+1, k+1, m,   n   );
 
         // Find the index and value of the pivot candidate
-        auto pivot = VectorMax( ViewRange(A,k,k,m,k+1) );
+        auto pivot = VectorMaxAbs( ViewRange(A,k,k,m,k+1) );
         const Int iPiv = pivot.index + k;
         p.Set( k, 0, iPiv+pivotOffset );
 
