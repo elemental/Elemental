@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType = 
-            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi"
+            Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
                               "5:HelmholtzPML1D,6:HelmholtzPML2D",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);

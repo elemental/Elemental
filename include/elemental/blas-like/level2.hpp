@@ -20,6 +20,7 @@
 #include "./level2/Hemv.hpp"
 #include "./level2/Her.hpp"
 #include "./level2/Her2.hpp"
+#include "./level2/QuasiTrsv.hpp"
 #include "./level2/Symv.hpp"
 #include "./level2/Syr.hpp"
 #include "./level2/Syr2.hpp"
