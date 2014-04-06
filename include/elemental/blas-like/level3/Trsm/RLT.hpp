@@ -13,7 +13,7 @@
 #include ELEM_GEMM_INC
 
 namespace elem {
-namespace internal {
+namespace trsm {
 
 // Right Lower (Conjugate)Transpose (Non)Unit Trsm
 //   X := X tril(L)^-T,
@@ -22,67 +22,50 @@ namespace internal {
 //   X := X trilu(L)^-H
 template<typename F>
 inline void
-TrsmRLT
+RLT
 ( Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
-  bool checkIfSingular )
+  const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrsmRLT");
+        CallStackEntry cse("trsm::RLT");
         if( orientation == NORMAL )
             LogicError("TrsmRLT expects a (Conjugate)Transpose option");
     )
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    // Matrix views
-    DistMatrix<F> 
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-
-    DistMatrix<F> XL(g), XR(g),
-                  X0(g), X1(g), X2(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,VR,  STAR> L21_VR_STAR(g);
     DistMatrix<F,STAR,MR  > L21Trans_STAR_MR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    PartitionRight( X, XL, XR, 0 );
-    while( XR.Width() > 0 )
+    for( Int k=0; k<n; k+=bsize )
     {
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);
 
-        RepartitionRight
-        ( XL, /**/     XR,
-          X0, /**/ X1, X2 );
+        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
+        auto L21 = LockedViewRange( L, k+nb, k, n,    k+nb ); 
 
-        X1_VC_STAR.AlignWith( X2 );
-        X1Trans_STAR_MC.AlignWith( X2 );
-        L21_VR_STAR.AlignWith( X2 );
-        L21Trans_STAR_MR.AlignWith( X2 );
-        //--------------------------------------------------------------------//
+        auto X1 = ViewRange( X, 0, k,    m, k+nb );
+        auto X2 = ViewRange( X, 0, k+nb, m, n    );
+
         L11_STAR_STAR = L11; 
+        X1_VC_STAR.AlignWith( X2 );
         X1_VC_STAR = X1;  
         
         LocalTrsm
         ( RIGHT, LOWER, orientation, diag, 
           F(1), L11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
+        X1Trans_STAR_MC.AlignWith( X2 );
         X1_VC_STAR.TransposePartialColAllGather( X1Trans_STAR_MC );
         X1.TransposeRowFilterFrom( X1Trans_STAR_MC );
+        L21_VR_STAR.AlignWith( X2 );
         L21_VR_STAR = L21;
+        L21Trans_STAR_MR.AlignWith( X2 );
         L21_VR_STAR.TransposePartialColAllGather
         ( L21Trans_STAR_MR, (orientation==ADJOINT) ); 
 
@@ -91,21 +74,10 @@ TrsmRLT
         LocalGemm
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, L21Trans_STAR_MR, F(1), X2 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
-
-        SlidePartitionRight
-        ( XL,     /**/ XR,
-          X0, X1, /**/ X2 );
     }
 }
 
-} // namespace internal
+} // namespace trsm
 } // namespace elem
 
 #endif // ifndef ELEM_TRSM_RLT_HPP

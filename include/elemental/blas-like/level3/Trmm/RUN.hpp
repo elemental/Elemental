@@ -24,18 +24,18 @@
 #include ELEM_ZEROS_INC
 
 namespace elem {
-namespace internal {
+namespace trmm {
 
 template<typename T>
 inline void
-LocalTrmmAccumulateRUN
+LocalAccumulateRUN
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,  MR  >& U,
   const DistMatrix<T,STAR,MC  >& X_STAR_MC,
         DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalTrmmAccumulateRUN");
+        CallStackEntry cse("trmm::LocalAccumulateRUN");
         if( U.Grid() != X_STAR_MC.Grid() ||
             X_STAR_MC.Grid() != ZTrans_MR_STAR.Grid() )
             LogicError("{U,X,Z} must be distributed over the same grid");
@@ -43,7 +43,7 @@ LocalTrmmAccumulateRUN
             U.Height() != X_STAR_MC.Width() ||
             U.Height() != ZTrans_MR_STAR.Height() )
             LogicError
-            ("Nonconformal LocalTrmmAccumulateRUN:\n",
+            ("Nonconformal:\n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X[* ,MC] ~ ",X_STAR_MC.Height()," x ",X_STAR_MC.Width(),"\n",
              "  Z^H/T[MR,* ] ~ ",ZTrans_MR_STAR.Height()," x ",
@@ -134,13 +134,10 @@ LocalTrmmAccumulateRUN
 
 template<typename T>
 inline void
-TrmmRUNA
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+RUNA( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRUNA");
+        CallStackEntry cse("trmm::RUNA");
         if( U.Grid() != X.Grid() )
             LogicError("{U,X} must be distributed over the same grid");
     )
@@ -176,8 +173,8 @@ TrmmRUNA
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
         Zeros( Z1Trans_MR_STAR, X1.Width(), X1.Height() );
-        LocalTrmmAccumulateRUN
-        ( TRANSPOSE, diag, alpha, U, X1_STAR_MC, Z1Trans_MR_STAR );
+        LocalAccumulateRUN
+        ( TRANSPOSE, diag, T(1), U, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.RowSumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
@@ -193,18 +190,15 @@ TrmmRUNA
 
 template<typename T>
 inline void
-TrmmRUNCOld
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+RUNCOld( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRUNCOld");
+        CallStackEntry cse("trmm::RUNCOld");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || X.Width() != U.Height() )
             LogicError
-            ("Nonconformal TrmmRUNC:\n",
+            ("Nonconformal:\n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width());
     )
@@ -226,7 +220,6 @@ TrmmRUNCOld
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
     
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -271,18 +264,15 @@ TrmmRUNCOld
 
 template<typename T>
 inline void
-TrmmRUNC
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+RUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRUNC");
+        CallStackEntry cse("trmm::RUNC");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || X.Width() != U.Height() )
             LogicError
-            ("Nonconformal TrmmRUNC:\n",
+            ("Nonconformal:\n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width());
     )
@@ -304,7 +294,6 @@ TrmmRUNC
     DistMatrix<T,MC,  STAR> X1_MC_STAR(g);
     
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -354,20 +343,17 @@ TrmmRUNC
 //   X := X triuu(U)
 template<typename T>
 inline void
-TrmmRUN
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+RUN( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrmmRUN"))
+    DEBUG_ONLY(CallStackEntry cse("trmm::RUN"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
-        TrmmRUNA( diag, alpha, U, X );
+        RUNA( diag, U, X );
     else
-        TrmmRUNC( diag, alpha, U, X );
+        RUNC( diag, U, X );
 }
 
-} // namespace internal
+} // namespace trmm
 } // namespace elem
 
 #endif // ifndef ELEM_TRMM_RUN_HPP

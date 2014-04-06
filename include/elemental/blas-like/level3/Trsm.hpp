@@ -30,6 +30,7 @@ LocalTrsm
             LogicError
             ("Dist of RHS must conform with that of triangle");
     )
+    // NOTE: Is this prototype available yet?!?
     Trsm
     ( side, uplo, orientation, diag,
       alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
@@ -87,6 +88,8 @@ Trsm
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
+// TODO: Greatly improve (and allow the user to modify) the mechanism for 
+//       choosing between the different TRSM algorithms.
 template<typename F>
 inline void
 Trsm
@@ -112,10 +115,11 @@ Trsm
                 LogicError("Nonconformal Trsm");
         }
     )
+    Scale( alpha, B );
+
     // Call the single right-hand side algorithm if appropriate
     if( side == LEFT && B.Width() == 1 )
     {
-        Scale( alpha, B );
         Trsv( uplo, orientation, diag, A, B );
         return;
     }
@@ -135,18 +139,18 @@ Trsm
         if( orientation == NORMAL )
         {
             if( B.Width() > 5*p )
-                internal::TrsmLLNLarge( diag, alpha, A, B, checkIfSingular );
+                trsm::LLNLarge( diag, A, B, checkIfSingular );
             else
-                internal::TrsmLLNMedium( diag, alpha, A, B, checkIfSingular );
+                trsm::LLNMedium( diag, A, B, checkIfSingular );
         }
         else
         {
             if( B.Width() > 5*p )
-                internal::TrsmLLTLarge
-                ( orientation, diag, alpha, A, B, checkIfSingular );
+                trsm::LLTLarge
+                ( orientation, diag, A, B, checkIfSingular );
             else
-                internal::TrsmLLTMedium
-                ( orientation, diag, alpha, A, B, checkIfSingular );
+                trsm::LLTMedium
+                ( orientation, diag, A, B, checkIfSingular );
         }
     }
     else if( side == LEFT && uplo == UPPER )
@@ -154,35 +158,33 @@ Trsm
         if( orientation == NORMAL )
         {
             if( B.Width() > 5*p )
-                internal::TrsmLUNLarge( diag, alpha, A, B, checkIfSingular );
+                trsm::LUNLarge( diag, A, B, checkIfSingular );
             else
-                internal::TrsmLUNMedium( diag, alpha, A, B, checkIfSingular );
+                trsm::LUNMedium( diag, A, B, checkIfSingular );
         }
         else
         {
             if( B.Width() > 5*p )
-                internal::TrsmLUTLarge
-                ( orientation, diag, alpha, A, B, checkIfSingular );
+                trsm::LUTLarge
+                ( orientation, diag, A, B, checkIfSingular );
             else
-                internal::TrsmLUTMedium
-                ( orientation, diag, alpha, A, B, checkIfSingular );
+                trsm::LUTMedium
+                ( orientation, diag, A, B, checkIfSingular );
         }
     }
     else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrsmRLN( diag, alpha, A, B, checkIfSingular );
+            trsm::RLN( diag, A, B, checkIfSingular );
         else
-            internal::TrsmRLT
-            ( orientation, diag, alpha, A, B, checkIfSingular );
+            trsm::RLT( orientation, diag, A, B, checkIfSingular );
     }
     else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            internal::TrsmRUN( diag, alpha, A, B, checkIfSingular );
+            trsm::RUN( diag, A, B, checkIfSingular );
         else
-            internal::TrsmRUT
-            ( orientation, diag, alpha, A, B, checkIfSingular );
+            trsm::RUT( orientation, diag, A, B, checkIfSingular );
     }
 }
 

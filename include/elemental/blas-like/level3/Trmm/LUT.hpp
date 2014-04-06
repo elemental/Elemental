@@ -24,18 +24,18 @@
 #include ELEM_ZEROS_INC
 
 namespace elem {
-namespace internal {
+namespace trmm {
 
 template<typename T>
 inline void
-LocalTrmmAccumulateLUT
+LocalAccumulateLUT
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
   const DistMatrix<T>& U,
   const DistMatrix<T,MC,STAR>& X_MC_STAR,
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalTrmmAccumulateLUT");
+        CallStackEntry cse("trmm::LocalAccumulateLUT");
         if( U.Grid() != X_MC_STAR.Grid() ||
             X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
             LogicError("{U,X,Z} must be distributed over the same grid");
@@ -43,7 +43,7 @@ LocalTrmmAccumulateLUT
             U.Height() != X_MC_STAR.Height() ||
             U.Height() != Z_MR_STAR.Height() )
             LogicError
-            ("Nonconformal LocalTrmmAccumulateLUT:\n",
+            ("Nonconformal:\n",
              "  U        ~ ",U.Height()," x ",U.Width(),"\n",
              "  X[MC,* ] ~ ",X_MC_STAR.Height()," x ",X_MC_STAR.Width(),"\n",
              "  Z[MR,* ] ~ ",Z_MR_STAR.Height()," x ",Z_MR_STAR.Width(),"\n");
@@ -138,22 +138,19 @@ LocalTrmmAccumulateLUT
 
 template<typename T>
 inline void
-TrmmLUTA
-( Orientation orientation,
-  UnitOrNonUnit diag,
-  T alpha,
-  const DistMatrix<T>& U,
-        DistMatrix<T>& X )
+LUTA
+( Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmLUTA");
+        CallStackEntry cse("trmm::LUTA");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrmmLUTA expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )
             LogicError
-            ("Nonconformal TrmmLUTA: \n",
+            ("Nonconformal: \n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width(),"\n");
     )
@@ -186,8 +183,8 @@ TrmmLUTA
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
         Zeros( Z1_MR_STAR, X1.Height(), X1.Width() );
-        LocalTrmmAccumulateLUT
-        ( orientation, diag, alpha, U, X1_MC_STAR, Z1_MR_STAR );
+        LocalAccumulateLUT
+        ( orientation, diag, T(1), U, X1_MC_STAR, Z1_MR_STAR );
 
         Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
@@ -201,21 +198,19 @@ TrmmLUTA
 
 template<typename T>
 inline void
-TrmmLUTCOld
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUTCOld
+( Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmLUTCOld");
+        CallStackEntry cse("trmm::LUTCOld");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )
             LogicError
-            ("Nonconformal TrmmLUTC: \n",
+            ("Nonconformal: \n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width(),"\n");
     )
@@ -241,7 +236,6 @@ TrmmLUTCOld
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -298,21 +292,19 @@ TrmmLUTCOld
 
 template<typename T>
 inline void
-TrmmLUTC
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUTC
+( Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmLUTC");
+        CallStackEntry cse("trmm::LUTC");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )
             LogicError
-            ("Nonconformal TrmmLUTC: \n",
+            ("Nonconformal: \n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width(),"\n");
     )
@@ -335,7 +327,6 @@ TrmmLUTC
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
 
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -394,21 +385,19 @@ TrmmLUTC
 //   X := triuu(U)^H X
 template<typename T>
 inline void
-TrmmLUT
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUT
+( Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrmmLUT"))
+    DEBUG_ONLY(CallStackEntry cse("trmm::LUT"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
-        TrmmLUTA( orientation, diag, alpha, U, X );
+        LUTA( orientation, diag, U, X );
     else
-        TrmmLUTC( orientation, diag, alpha, U, X );
+        LUTC( orientation, diag, U, X );
 }
 
-} // namespace internal
+} // namespace trmm
 } // namespace elem
 
 #endif // ifndef ELEM_TRMM_LUT_HPP

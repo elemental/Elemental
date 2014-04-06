@@ -24,18 +24,18 @@
 #include ELEM_ZEROS_INC
 
 namespace elem {
-namespace internal {
+namespace trmm {
 
 template<typename T>
 inline void
-LocalTrmmAccumulateRUT
+LocalAccumulateRUT
 ( UnitOrNonUnit diag, T alpha,
   const DistMatrix<T>& U,
   const DistMatrix<T,MR,STAR>& XTrans_MR_STAR,
         DistMatrix<T,MC,STAR>& ZTrans_MC_STAR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalTrmmAccumulateRUT");
+        CallStackEntry cse("trmm::LocalAccumulateRUT");
         if( U.Grid() != XTrans_MR_STAR.Grid() ||
             XTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() )
             LogicError("{U,X,Z} must be distributed over the same grid");
@@ -44,7 +44,7 @@ LocalTrmmAccumulateRUT
             U.Height() != ZTrans_MC_STAR.Height() ||
             XTrans_MR_STAR.Width() != ZTrans_MC_STAR.Width() )
             LogicError
-            ("Nonconformal LocalTrmmAccumulateRUT: \n",
+            ("Nonconformal: \n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X^H/T[MR,* ] ~ ",XTrans_MR_STAR.Height()," x ",
                                  XTrans_MR_STAR.Width(),"\n",
@@ -141,13 +141,12 @@ LocalTrmmAccumulateRUT
 
 template<typename T>
 inline void
-TrmmRUTA
+RUTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRUTA");
+        CallStackEntry cse("trmm::RUTA");
         if( U.Grid() != X.Grid() )
             LogicError("{U,X} must be distributed over the same grid");
     )
@@ -182,8 +181,8 @@ TrmmRUTA
         //--------------------------------------------------------------------//
         X1.TransposeColAllGather( X1Trans_MR_STAR, conjugate );
         Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
-        LocalTrmmAccumulateRUT
-        ( diag, alpha,U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
+        LocalAccumulateRUT
+        ( diag, T(1), U, X1Trans_MR_STAR, Z1Trans_MC_STAR );
 
         Z1Trans.RowSumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
@@ -200,21 +199,19 @@ TrmmRUTA
 
 template<typename T>
 inline void
-TrmmRUTC
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+RUTC
+( Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRUTC");
+        CallStackEntry cse("trmm::RUTC");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrmmRUTC expects an Adjoint/Transpose option");
+            LogicError("Expected Adjoint/Transpose option");
         if( U.Height() != U.Width() || X.Width() != U.Height() )
             LogicError
-            ("Nonconformal TrmmRUTC: \n",
+            ("Nonconformal: \n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width());
     )
@@ -237,7 +234,6 @@ TrmmRUTC
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
     
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -287,21 +283,19 @@ TrmmRUTC
 //   X := X triuu(U)^H
 template<typename T>
 inline void
-TrmmRUT
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+RUT
+( Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<T>& U, DistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrmmRUT"))
+    DEBUG_ONLY(CallStackEntry cse("trmm::RUT"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
-        TrmmRUTA( orientation, diag, alpha, U, X );
+        RUTA( orientation, diag, U, X );
     else
-        TrmmRUTC( orientation, diag, alpha, U, X );
+        RUTC( orientation, diag, U, X );
 }
 
-} // namespace internal
+} // namespace trmm
 } // namespace elem
 
 #endif // ifndef ELEM_TRMM_RUT_HPP

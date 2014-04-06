@@ -113,6 +113,8 @@
   "elemental/blas-like/level2/Her2.hpp"
 #define ELEM_HER_INC \
   "elemental/blas-like/level2/Her.hpp"
+#define ELEM_QUASITRSV_INC \
+  "elemental/blas-like/level2/QuasiTrsv.hpp"
 #define ELEM_SYMV_INC \
   "elemental/blas-like/level2/Symv.hpp"
 #define ELEM_SYR2_INC \
@@ -137,6 +139,7 @@
 #define ELEM_HER2K_INC        "elemental/blas-like/level3/Her2k.hpp"
 #define ELEM_HERK_INC         "elemental/blas-like/level3/Herk.hpp"
 #define ELEM_MULTISHIFTTRSM_INC "elemental/blas-like/level3/MultiShiftTrsm.hpp"
+#define ELEM_QUASITRSM_INC    "elemental/blas-like/level3/QuasiTrsm.hpp"
 #define ELEM_SYMM_INC         "elemental/blas-like/level3/Symm.hpp"
 #define ELEM_SYR2K_INC        "elemental/blas-like/level3/Syr2k.hpp"
 #define ELEM_SYRK_INC         "elemental/blas-like/level3/Syrk.hpp"

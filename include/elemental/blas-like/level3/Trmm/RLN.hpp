@@ -24,18 +24,18 @@
 #include ELEM_ZEROS_INC
 
 namespace elem {
-namespace internal {
+namespace trmm {
 
 template<typename T>
 inline void
-LocalTrmmAccumulateRLN
+LocalAccumulateRLN
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,  MR  >& L,
   const DistMatrix<T,STAR,MC  >& X_STAR_MC,
         DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalTrmmAccumulateRLN");
+        CallStackEntry cse("trmm::LocalAccumulateRLN");
         if( L.Grid() != X_STAR_MC.Grid() || 
             X_STAR_MC.Grid() != ZTrans_MR_STAR.Grid() )
             LogicError("{L,X,Z} must be distributed over the same grid");
@@ -43,7 +43,7 @@ LocalTrmmAccumulateRLN
             L.Height() != X_STAR_MC.Width() ||
             L.Height() != ZTrans_MR_STAR.Height() )
             LogicError
-            ("Nonconformal LocalTrmmAccumulateRLN:\n",
+            ("Nonconformal:\n",
              DimsString(L,"L"),"\n",
              DimsString(X_STAR_MC,"X[* ,MC]"),"\n",
              DimsString(ZTrans_MR_STAR,"Z'[MR,* ]"));
@@ -133,13 +133,10 @@ LocalTrmmAccumulateRLN
 
 template<typename T>
 inline void
-TrmmRLNA
-( UnitOrNonUnit diag, 
-  T alpha, const DistMatrix<T>& L,
-                 DistMatrix<T>& X )
+RLNA( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRLNA");
+        CallStackEntry cse("trmm::RLNA");
         if( L.Grid() != X.Grid() )
             LogicError("{L,X} must be distributed over the same grid");
     )
@@ -175,8 +172,8 @@ TrmmRLNA
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
         Zeros( Z1Trans_MR_STAR, X1.Width(), X1.Height() );
-        LocalTrmmAccumulateRLN
-        ( TRANSPOSE, diag, alpha, L, X1_STAR_MC, Z1Trans_MR_STAR );
+        LocalAccumulateRLN
+        ( TRANSPOSE, diag, T(1), L, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.RowSumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
@@ -192,20 +189,16 @@ TrmmRLNA
     
 template<typename T>
 inline void
-TrmmRLNCOld
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& L,
-                 DistMatrix<T>& X )
+RLNCOld( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRLNCOld");
+        CallStackEntry cse("trmm::RLNCOld");
         if( L.Grid() != X.Grid() )
             LogicError
             ("L and X must be distributed over the same grid");
         if( L.Height() != L.Width() || X.Width() != L.Height() )
             LogicError
-            ("Nonconformal TrmmRLNC:\n",
-             DimsString(L,"L"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
     const Grid& g = L.Grid();
 
@@ -225,7 +218,6 @@ TrmmRLNCOld
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
 
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -270,19 +262,15 @@ TrmmRLNCOld
 
 template<typename T>
 inline void
-TrmmRLNC
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& L,
-                 DistMatrix<T>& X )
+RLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmRLNC");
+        CallStackEntry cse("trmm::RLNC");
         if( L.Grid() != X.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( L.Height() != L.Width() || X.Width() != L.Height() )
             LogicError
-            ("Nonconformal TrmmRLNC:\n",
-             DimsString(L,"L"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"));
     )
     const Grid& g = L.Grid();
 
@@ -302,7 +290,6 @@ TrmmRLNC
     DistMatrix<T,MC,  STAR> X1_MC_STAR(g);
 
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -352,20 +339,17 @@ TrmmRLNC
 //   X := X trilu(L)
 template<typename T>
 inline void
-TrmmRLN
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& L,
-                 DistMatrix<T>& X )
+RLN( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrmmRLN"))
+    DEBUG_ONLY(CallStackEntry cse("trmm::RLN"))
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
-        TrmmRLNA( diag, alpha, L, X );
+        RLNA( diag, L, X );
     else
-        TrmmRLNC( diag, alpha, L, X );
+        RLNC( diag, L, X );
 }
 
-} // namespace internal
+} // namespace trmm
 } // namespace elem
 
 #endif // ifndef ELEM_TRMM_RLN_HPP

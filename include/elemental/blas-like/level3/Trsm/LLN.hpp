@@ -13,7 +13,7 @@
 #include ELEM_GEMM_INC
 
 namespace elem {
-namespace internal {
+namespace trsm {
 
 // Left Lower NORMAL (Non)Unit Trsm 
 //   X := tril(L)^-1  X, or
@@ -22,54 +22,31 @@ namespace internal {
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
 inline void
-TrsmLLNLarge
-( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
+LLNLarge
+( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& X, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLLNLarge"))
+    DEBUG_ONLY(CallStackEntry cse("trsm::LLNLarge"))
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    // Matrix views
-    DistMatrix<F> 
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-    DistMatrix<F> XT(g),  X0(g), 
-                  XB(g),  X1(g),
-                          X2(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    PartitionDown
-    ( X, XT,
-         XB, 0 );
-    while( XB.Height() > 0 )
+    for( Int k=0; k<m; k+=bsize )
     {
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionDown
-        ( XT,  X0,
-         /**/ /**/
-               X1,
-          XB,  X2 );
+        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
+        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
 
-        L21_MC_STAR.AlignWith( X2 );
-        X1_STAR_MR.AlignWith( X2 );
-        //--------------------------------------------------------------------//
+        auto X1 = ViewRange( X, k,    0, k+nb, n );
+        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
@@ -78,80 +55,46 @@ TrsmLLNLarge
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
+        X1_STAR_MR.AlignWith( X2 );
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1          = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
+        L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;        // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        LocalGemm
-        ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12, 
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
-
-        SlidePartitionDown
-        ( XT,  X0,
-               X1,
-         /**/ /**/
-          XB,  X2 );
+        LocalGemm( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
     }
 }
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
 inline void
-TrsmLLNMedium
-( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
+LLNMedium
+( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& X, 
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLLNMedium"))
+    DEBUG_ONLY(CallStackEntry cse("trsm::LLNMedium"))
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    // Matrix views
-    DistMatrix<F> 
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-    DistMatrix<F> XT(g),  X0(g), 
-                  XB(g),  X1(g),
-                          X2(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    PartitionDown
-    ( X, XT,
-         XB, 0 );
-    while( XB.Height() > 0 )
+    for( Int k=0; k<m; k+=bsize )
     {
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionDown
-        ( XT,  X0,
-         /**/ /**/
-               X1,
-          XB,  X2 );
+        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
+        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
 
-        L21_MC_STAR.AlignWith( X2 );
-        X1Trans_MR_STAR.AlignWith( X2 );
-        //--------------------------------------------------------------------//
+        auto X1 = ViewRange( X, k,    0, k+nb, n );
+        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
+        X1Trans_MR_STAR.AlignWith( X2 );
         X1.TransposeColAllGather( X1Trans_MR_STAR ); // X1[* ,MR] <- X1[MC,MR]
 
         // X1^T[MR,* ] := X1^T[MR,* ] L11^-T[* ,* ]
@@ -161,78 +104,44 @@ TrsmLLNMedium
           F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
         X1.TransposeColFilterFrom( X1Trans_MR_STAR ); // X1[MC,MR] <- X1[* ,MR]
+        L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), L21_MC_STAR, X1Trans_MR_STAR, F(1), X2 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12, 
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
-
-        SlidePartitionDown
-        ( XT,  X0,
-               X1,
-         /**/ /**/
-          XB,  X2 );
     }
 }
 
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F>
 inline void
-TrsmLLNSmall
-( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+LLNSmall
+( UnitOrNonUnit diag, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrsmLLNSmall");
+        CallStackEntry cse("trsm::LLNSmall");
         if( L.ColAlign() != X.ColAlign() )
             LogicError("L and X are assumed to be aligned");
     )
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    // Matrix views
-    DistMatrix<F,VC,STAR> 
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-    DistMatrix<F,VC,STAR> XT(g),  X0(g), 
-                          XB(g),  X1(g),
-                                  X2(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
-    // Temporary distributions
-    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
-
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    PartitionDown
-    ( X, XT,
-         XB, 0 );
-    while( XB.Height() > 0 )
+    for( Int k=0; k<m; k+=bsize )
     {
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionDown
-        ( XT,  X0,
-         /**/ /**/
-               X1,
-          XB,  X2 );
+        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
+        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
 
-        //--------------------------------------------------------------------//
+        auto X1 = ViewRange( X, k,    0, k+nb, n );
+        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
 
@@ -243,23 +152,10 @@ TrsmLLNSmall
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
         LocalGemm( NORMAL, NORMAL, F(-1), L21, X1_STAR_STAR, F(1), X2 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12, 
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
-
-        SlidePartitionDown
-        ( XT,  X0,
-               X1,
-         /**/ /**/
-          XB,  X2 );
     }
 }
 
-} // namespace internal
+} // namespace trsm
 } // namespace elem
 
 #endif // ifndef ELEM_TRSM_LLN_HPP

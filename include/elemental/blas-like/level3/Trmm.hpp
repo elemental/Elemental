@@ -83,33 +83,34 @@ Trmm
   T alpha, const DistMatrix<T>& A, DistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("Trmm"))
+    Scale( alpha, X );
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrmmLLN( diag, alpha, A, X );
+            trmm::LLN( diag, A, X );
         else
-            internal::TrmmLLT( orientation, diag, alpha, A, X );
+            trmm::LLT( orientation, diag, A, X );
     }
     else if( side == LEFT )
     {
         if( orientation == NORMAL )
-            internal::TrmmLUN( diag, alpha, A, X );
+            trmm::LUN( diag, A, X );
         else
-            internal::TrmmLUT( orientation, diag, alpha, A, X );
+            trmm::LUT( orientation, diag, A, X );
     }
     else if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrmmRLN( diag, alpha, A, X );
+            trmm::RLN( diag, A, X );
         else
-            internal::TrmmRLT( orientation, diag, alpha, A, X );
+            trmm::RLT( orientation, diag, A, X );
     }
     else
     {
         if( orientation == NORMAL )
-            internal::TrmmRUN( diag, alpha, A, X );
+            trmm::RUN( diag, A, X );
         else
-            internal::TrmmRUT( orientation, diag, alpha, A, X );
+            trmm::RUT( orientation, diag, A, X );
     }
 }
 

@@ -13,7 +13,7 @@
 #include ELEM_GEMM_INC
 
 namespace elem {
-namespace internal {
+namespace trsm {
 
 // Left Upper Normal (Non)Unit Trsm
 //   X := triu(U)^-1  X, or
@@ -21,54 +21,32 @@ namespace internal {
 
 template<typename F>
 inline void
-TrsmLUNLarge
+LUNLarge
 ( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
-  bool checkIfSingular )
+  const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLUNLarge"))
+    DEBUG_ONLY(CallStackEntry cse("trsm::LUNLarge"))
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
-    // Matrix views
-    DistMatrix<F> 
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
-    DistMatrix<F> XT(g),  X0(g),
-                  XB(g),  X1(g),
-                          X2(g);
-
-    // Temporary distributions
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionUpDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    PartitionUp
-    ( X, XT,
-         XB, 0 );
-    while( XT.Height() > 0 )
+    const Int kLast = LastOffset( m, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( UTL, /**/ UTR,   U00, U01, /**/ U02,
-               /**/        U10, U11, /**/ U12,
-         /*************/  /******************/
-          UBL, /**/ UBR,   U20, U21, /**/ U22 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionUp
-        ( XT,  X0,
-               X1,
-         /**/ /**/
-          XB,  X2 );
+        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
+        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        U01_MC_STAR.AlignWith( X0 );
-        X1_STAR_MR.AlignWith( X0 );
-        //--------------------------------------------------------------------//
+        auto X0 = ViewRange( X, 0, 0, m, k    );
+        auto X1 = ViewRange( X, 0, k, m, k+nb );
+
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
         
@@ -77,77 +55,46 @@ TrsmLUNLarge
         ( LEFT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
+        X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
         X1          = X1_STAR_MR; // X1[MC,MR] <- X1[* ,MR]
+        U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;        // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
-
-        SlidePartitionUp
-        ( XT,  X0,
-         /**/ /**/
-               X1,
-          XB,  X2 );
     }
 }
 
 template<typename F>
 inline void
-TrsmLUNMedium
-( UnitOrNonUnit diag, F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
+LUNMedium
+( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrsmLUNMedium"))
+    DEBUG_ONLY(CallStackEntry cse("trsm::LUNMedium"))
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
-    // Matrix views
-    DistMatrix<F> 
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
-    DistMatrix<F> XT(g),  X0(g),
-                  XB(g),  X1(g),
-                          X2(g);
-
-    // Temporary distributions
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionUpDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    PartitionUp
-    ( X, XT,
-         XB, 0 );
-    while( XT.Height() > 0 )
+    const Int kLast = LastOffset( m, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( UTL, /**/ UTR,   U00, U01, /**/ U02,
-               /**/        U10, U11, /**/ U12,
-         /*************/  /******************/
-          UBL, /**/ UBR,   U20, U21, /**/ U22 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionUp
-        ( XT,  X0,
-               X1,
-         /**/ /**/
-          XB,  X2 );
+        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
+        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        U01_MC_STAR.AlignWith( X0 );
-        X1Trans_MR_STAR.AlignWith( X0 );
-        //--------------------------------------------------------------------//
+        auto X0 = ViewRange( X, 0, 0, m, k    );
+        auto X1 = ViewRange( X, 0, k, m, k+nb );
+
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
+        X1Trans_MR_STAR.AlignWith( X0 );
         X1.TransposeColAllGather( X1Trans_MR_STAR ); // X1[* ,MR] <- X1[MC,MR]
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
@@ -157,84 +104,52 @@ TrsmLUNMedium
           F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
         X1.TransposeColFilterFrom( X1Trans_MR_STAR );
 
+        U01_MC_STAR.AlignWith( X0 );
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), U01_MC_STAR, X1Trans_MR_STAR, F(1), X0 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
-
-        SlidePartitionUp
-        ( XT,  X0,
-         /**/ /**/
-               X1,
-          XB,  X2 );
     }
 }
 
 template<typename F>
 inline void
-TrsmLUNSmall
+LUNSmall
 ( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,VC,STAR>& U, DistMatrix<F,VC,STAR>& X,
+  const DistMatrix<F,VC,STAR>& U, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrsmLUNSmall");
+        CallStackEntry cse("trsm::LUNSmall");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
-            ("Nonconformal TrsmLUN: \n",
+            ("Nonconformal: \n",
              "  U ~ ",U.Height()," x ",U.Width(),"\n",
              "  X ~ ",X.Height()," x ",X.Width(),"\n");
         if( U.ColAlign() != X.ColAlign() )
             LogicError("U and X are assumed to be aligned");
     )
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
-    // Matrix views
-    DistMatrix<F,VC,STAR> 
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
-    DistMatrix<F,VC,STAR> XT(g),  X0(g),
-                          XB(g),  X1(g),
-                                  X2(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g);
 
-    // Temporary distributions
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
-
-    // Start the algorithm
-    Scale( alpha, X );
-    LockedPartitionUpDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    PartitionUp
-    ( X, XT,
-         XB, 0 );
-    while( XT.Height() > 0 )
+    const Int kLast = LastOffset( m, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( UTL, /**/ UTR,   U00, U01, /**/ U02,
-               /**/        U10, U11, /**/ U12,
-         /*************/  /******************/
-          UBL, /**/ UBR,   U20, U21, /**/ U22 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionUp
-        ( XT,  X0,
-               X1,
-         /**/ /**/
-          XB,  X2 );
+        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
+        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        //--------------------------------------------------------------------//
+        auto X0 = ViewRange( X, 0, 0, m, k    );
+        auto X1 = ViewRange( X, 0, k, m, k+nb );
+
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
         
@@ -246,23 +161,10 @@ TrsmLUNSmall
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
         LocalGemm( NORMAL, NORMAL, F(-1), U01, X1_STAR_STAR, F(1), X0 );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
-
-        SlidePartitionUp
-        ( XT,  X0,
-         /**/ /**/
-               X1,
-          XB,  X2 );
     }
 }
 
-} // namespace internal
+} // namespace trsm
 } // namespace elem
 
 #endif // ifndef ELEM_TRSM_LUN_HPP

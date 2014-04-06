@@ -24,18 +24,18 @@
 #include ELEM_ZEROS_INC
 
 namespace elem {
-namespace internal {
+namespace trmm {
 
 template<typename T>
 inline void
-LocalTrmmAccumulateLUN
+LocalAccumulateLUN
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,  MR  >& U,
   const DistMatrix<T,STAR,MR  >& XTrans_STAR_MR,
         DistMatrix<T,MC,  STAR>& Z_MC_STAR )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalTrmmAccumulateLUN");
+        CallStackEntry cse("trmm::LocalAccumulateLUN");
         if( U.Grid() != XTrans_STAR_MR.Grid() ||
             XTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() )
             LogicError("{U,X,Z} must be distributed over the same grid");
@@ -44,7 +44,7 @@ LocalTrmmAccumulateLUN
             U.Height() != Z_MC_STAR.Height() ||
             XTrans_STAR_MR.Height() != Z_MC_STAR.Width() )
             LogicError
-            ("Nonconformal LocalTrmmAccumulateLUN:\n",
+            ("Nonconformal:\n",
              DimsString(U,"U"),"\n",
              DimsString(XTrans_STAR_MR,"X'[* ,MR]"),"\n",
              DimsString(Z_MC_STAR,"Z[MC,* ]"));
@@ -134,19 +134,15 @@ LocalTrmmAccumulateLUN
 
 template<typename T>
 inline void
-TrmmLUNA
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUNA( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmULNA");
+        CallStackEntry cse("trmm::LUNA");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
-            ("Nonconformal TrmmLUNA:\n",
-             DimsString(U,"U"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"));
     )
     const Grid& g = U.Grid();
 
@@ -173,8 +169,8 @@ TrmmLUNA
         X1_VR_STAR = X1;
         X1_VR_STAR.TransposePartialColAllGather( X1Trans_STAR_MR );
         Zeros( Z1_MC_STAR, X1.Height(), X1.Width() );
-        LocalTrmmAccumulateLUN
-        ( TRANSPOSE, diag, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
+        LocalAccumulateLUN
+        ( TRANSPOSE, diag, T(1), U, X1Trans_STAR_MR, Z1_MC_STAR );
 
         X1.RowSumScatterFrom( Z1_MC_STAR );
         //--------------------------------------------------------------------//
@@ -187,19 +183,15 @@ TrmmLUNA
 
 template<typename T>
 inline void
-TrmmLUNCOld
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUNCOld( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmLUNCOld");
+        CallStackEntry cse("trmm::LUNCOld");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
-            ("Nonconformal TrmmLUN:\n",
-             DimsString(U,"U"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"));
     )
     const Grid& g = U.Grid();
 
@@ -221,7 +213,6 @@ TrmmLUNCOld
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -278,19 +269,15 @@ TrmmLUNCOld
 
 template<typename T>
 inline void
-TrmmLUNC
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrmmLUNC");
+        CallStackEntry cse("trmm::LUNC");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
-            ("Nonconformal TrmmLUN:\n",
-             DimsString(U,"U"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"));
     )
     const Grid& g = U.Grid();
 
@@ -310,7 +297,6 @@ TrmmLUNC
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
 
     // Start the algorithm
-    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -365,20 +351,17 @@ TrmmLUNC
 //   X := triuu(U) X
 template<typename T>
 inline void
-TrmmLUN
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& U,
-                 DistMatrix<T>& X )
+LUN( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::TrmmLUN"))
+    DEBUG_ONLY(CallStackEntry cse("trmm::LUN"))
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
-        TrmmLUNA( diag, alpha, U, X );
+        LUNA( diag, U, X );
     else
-        TrmmLUNC( diag, alpha, U, X );
+        LUNC( diag, U, X );
 }
 
-} // namespace internal
+} // namespace trmm
 } // namespace elem
 
 #endif // ifndef ELEM_TRMM_LUN_HPP
