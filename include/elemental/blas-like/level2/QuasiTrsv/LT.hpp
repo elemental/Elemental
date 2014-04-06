@@ -39,7 +39,7 @@ QuasiTrsvLTUnb( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
         Conjugate( x );
 
     F* xBuf = x.Buffer();
-    const F* LBuf = l.LockedBuffer();
+    const F* LBuf = L.LockedBuffer();
     const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const Int ldl = L.LDim();
     const Int m = L.Height();
@@ -217,7 +217,7 @@ QuasiTrsvLT( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x )
                 x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
 
             x1_STAR_STAR = x1;
-            L11_STAR_STAR = U11;
+            L11_STAR_STAR = L11;
             QuasiTrsvLT
             ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
