@@ -19,7 +19,9 @@ namespace internal {
 
 template<typename F>
 inline void
-QuasiTrsvLTUnb( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
+QuasiTrsvLTUnb
+( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
+  bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("internal::QuasiTrsvLTUnb");
@@ -67,6 +69,12 @@ QuasiTrsvLTUnb( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
             const Real gamma11 = lapack::Givens( delta11, delta12, &c, &s );
             const F gamma21    =        c*delta21 + s*delta22;
             const F gamma22    = -Conj(s)*delta21 + c*delta22;
+            if( checkIfSingular )
+            {
+                // TODO: Instead check if values are too small in magnitude
+                if( gamma11 == Real(0) || gamma22 == F(0) )
+                    LogicError("Singular diagonal block detected");
+            }
             // Solve against Q^T
             const F chi1 = xBuf[ k   *incx];
             const F chi2 = xBuf[(k+1)*incx];
@@ -83,6 +91,9 @@ QuasiTrsvLTUnb( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
         }
         else
         {
+            if( checkIfSingular )
+                if( LBuf[k+k*ldl] == F(0) )
+                    LogicError("Singular diagonal entry detected");
             // Solve the 1x1 linear system
             xBuf[k*incx] /= LBuf[k+k*ldl];
 
@@ -97,7 +108,9 @@ QuasiTrsvLTUnb( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
 
 template<typename F>
 inline void
-QuasiTrsvLT( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
+QuasiTrsvLT
+( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
+  bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("internal::QuasiTrsvLT");
@@ -142,7 +155,7 @@ QuasiTrsvLT( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
             x1 = ViewRange( x, 0, k, 1, kOld );
         }
 
-        QuasiTrsvLTUnb( TRANSPOSE, L11, x1 );
+        QuasiTrsvLTUnb( TRANSPOSE, L11, x1, checkIfSingular );
         Gemv( TRANSPOSE, F(-1), L10, x1, F(1), x0 );
 
         if( k == 0 )
@@ -156,7 +169,9 @@ QuasiTrsvLT( Orientation orientation, const Matrix<F>& L, Matrix<F>& x )
 
 template<typename F>
 inline void
-QuasiTrsvLT( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x )
+QuasiTrsvLT
+( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x,
+  bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("internal::QuasiTrsvLT");
@@ -219,7 +234,8 @@ QuasiTrsvLT( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x )
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
             QuasiTrsvLT
-            ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
+            ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(),
+              checkIfSingular );
             x1 = x1_STAR_STAR;
 
             x1_MR_STAR.AlignWith( L10 );
@@ -267,7 +283,8 @@ QuasiTrsvLT( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x )
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
             QuasiTrsvLT
-            ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
+            ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(),
+              checkIfSingular );
             x1 = x1_STAR_STAR;
 
             x1_STAR_MR.AlignWith( L10 );

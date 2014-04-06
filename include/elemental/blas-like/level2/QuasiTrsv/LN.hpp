@@ -19,7 +19,7 @@ namespace internal {
 
 template<typename F>
 inline void
-QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
+QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("internal::QuasiTrsvLNUnb");
@@ -60,6 +60,12 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
             const Real gamma11 = lapack::Givens( delta11, delta12, &c, &s );
             const F gamma21    =        c*delta21 + s*delta22;
             const F gamma22    = -Conj(s)*delta21 + c*delta22; 
+            if( checkIfSingular )
+            {
+                // TODO: Instead check if values are too small in magnitude
+                if( gamma11 == Real(0) || gamma22 == F(0) ) 
+                    LogicError("Singular diagonal block detected");
+            }
             // Solve against L
             xBuf[ k   *incx] /= gamma11;
             xBuf[(k+1)*incx] -= gamma21*xBuf[k*incx];
@@ -82,6 +88,9 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
         }
         else
         {
+            if( checkIfSingular )
+                if( LBuf[k+k*ldl] == F(0) )
+                    LogicError("Singular diagonal entry detected");
             // Solve the 1x1 linear system
             xBuf[k] /= LBuf[k+k*ldl];
 
@@ -97,7 +106,7 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
 
 template<typename F>
 inline void
-QuasiTrsvLN( const Matrix<F>& L, Matrix<F>& x )
+QuasiTrsvLN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("internal::QuasiTrsvLN");
@@ -135,7 +144,7 @@ QuasiTrsvLN( const Matrix<F>& L, Matrix<F>& x )
             x2 = ViewRange( x, 0, k+nb, 1, m    );
         }
 
-        QuasiTrsvLNUnb( L11, x1 );
+        QuasiTrsvLNUnb( L11, x1, checkIfSingular );
         Gemv( NORMAL, F(-1), L21, x1, F(1), x2 );
 
         k += nb;
@@ -144,7 +153,8 @@ QuasiTrsvLN( const Matrix<F>& L, Matrix<F>& x )
 
 template<typename F>
 inline void
-QuasiTrsvLN( const DistMatrix<F>& L, DistMatrix<F>& x )
+QuasiTrsvLN
+( const DistMatrix<F>& L, DistMatrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("internal::QuasiTrsvLN");
@@ -200,7 +210,9 @@ QuasiTrsvLN( const DistMatrix<F>& L, DistMatrix<F>& x )
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
-            QuasiTrsvLN( L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
+            QuasiTrsvLN
+            ( L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(), 
+              checkIfSingular );
             x1 = x1_STAR_STAR;
 
             x1_MR_STAR.AlignWith( L21 );
@@ -249,7 +261,9 @@ QuasiTrsvLN( const DistMatrix<F>& L, DistMatrix<F>& x )
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
-            QuasiTrsvLN( L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix() );
+            QuasiTrsvLN
+            ( L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(), 
+              checkIfSingular );
             x1 = x1_STAR_STAR;
 
             x1_STAR_MR.AlignWith( L21 );

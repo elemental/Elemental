@@ -20,48 +20,46 @@ namespace elem {
 template<typename F>
 inline void
 QuasiTrsv
-( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& x )
+( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& x, 
+  bool checkIfSingular=false )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvLN( A, x );
+            internal::QuasiTrsvLN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvLT( orientation, A, x );
+            internal::QuasiTrsvLT( orientation, A, x, checkIfSingular );
     }
     else
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvUN( A, x );
+            internal::QuasiTrsvUN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvUT( orientation, A, x );
+            internal::QuasiTrsvUT( orientation, A, x, checkIfSingular );
     }
 }
 
 template<typename F>
 inline void
 QuasiTrsv
-( UpperOrLower uplo,
-  Orientation orientation,
-  UnitOrNonUnit diag,
-  const DistMatrix<F>& A,
-        DistMatrix<F>& x )
+( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvLN( A, x );
+            internal::QuasiTrsvLN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvLT( orientation, A, x );
+            internal::QuasiTrsvLT( orientation, A, x, checkIfSingular );
     }
     else
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvUN( A, x );
+            internal::QuasiTrsvUN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvUT( orientation, A, x );
+            internal::QuasiTrsvUT( orientation, A, x, checkIfSingular );
     }
 }
 

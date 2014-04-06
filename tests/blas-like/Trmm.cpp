@@ -8,7 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_GEMM_INC
 #include ELEM_TRMM_INC
+#include ELEM_FROBENIUSNORM_INC
 #include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
@@ -26,10 +28,16 @@ void TestTrmm
     else
         Uniform( A, n, n );
     Uniform( X, m, n );
+    auto XCopy( X );
+    
+    // Form an explicit triangular copy to apply with Gemm
+    auto S( A );
+    MakeTriangular( uplo, S );
 
     if( print )
     {
         Print( A, "A" );
+        Print( S, "S" );
         Print( X, "X" );
     }
     if( g.Rank() == 0 )
@@ -53,7 +61,22 @@ void TestTrmm
              << gFlops << endl;
     }
     if( print )
-        Print( X, "X after solve" );
+        Print( X, "X after multiply" );
+    if( side == LEFT )
+        Gemm( orientation, NORMAL, -alpha, S, XCopy, T(1), X );
+    else
+        Gemm( NORMAL, orientation, -alpha, XCopy, S, T(1), X );
+    const auto XFrob = FrobeniusNorm( XCopy );
+    const auto SFrob = FrobeniusNorm( S );
+    const auto EFrob = FrobeniusNorm( X );
+    if( print )
+        Print( X, "error relative to Gemm" );
+    if( g.Rank() == 0 )
+    {
+        cout << "|| X ||_F = " << XFrob << "\n"
+             << "|| S ||_F = " << SFrob << "\n"
+             << "|| E ||_F = " << EFrob << "\n" << std::endl;
+    }
 }
 
 int 
