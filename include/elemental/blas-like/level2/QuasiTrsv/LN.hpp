@@ -43,7 +43,6 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
         const bool in2x2 = ( k+1<m && LBuf[k+(k+1)*ldl] != F(0) );
         if( in2x2 )
         {
-            --k;
             // Solve the 2x2 linear system via a 2x2 LQ decomposition produced
             // by the Givens rotation
             //    | L(k,k) L(k,k+1) | | c -conj(s) | = | gamma11 0 |
@@ -52,9 +51,9 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
             // lower-triangular matrix, say gamma21 and gamma22
             //
             // Extract the 2x2 diagonal block, D
-            const F delta11 = LBuf[   k +   k *ldl];
-            const F delta12 = LBuf[   k +(k+1)*ldl];
-            const F delta21 = LBuf[(k+1)+   k *ldl];
+            const F delta11 = LBuf[ k   + k   *ldl];
+            const F delta12 = LBuf[ k   +(k+1)*ldl];
+            const F delta21 = LBuf[(k+1)+ k   *ldl];
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
@@ -62,19 +61,19 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
             const F gamma21    =        c*delta21 + s*delta22;
             const F gamma22    = -Conj(s)*delta21 + c*delta22; 
             // Solve against L
-            xBuf[   k *incx] /= gamma11;
+            xBuf[ k   *incx] /= gamma11;
             xBuf[(k+1)*incx] -= gamma21*xBuf[k*incx];
             xBuf[(k+1)*incx] /= gamma22;
             // Solve against Q
-            const F chi1 = xBuf[    k*incx];
+            const F chi1 = xBuf[ k   *incx];
             const F chi2 = xBuf[(k+1)*incx];
-            xBuf[   k *incx] = c*chi1 - Conj(s)*chi2;
+            xBuf[ k   *incx] = c*chi1 - Conj(s)*chi2;
             xBuf[(k+1)*incx] = s*chi1 +       c*chi2;
 
             // Update x2 := x2 - L21 x1
             blas::Axpy
-            ( m-(k+2), -xBuf[    k*incx], 
-              &LBuf[(k+2)+    k*ldl], 1, &xBuf[(k+2)*incx], incx );
+            ( m-(k+2), -xBuf[ k   *incx], 
+              &LBuf[(k+2)+ k   *ldl], 1, &xBuf[(k+2)*incx], incx );
             blas::Axpy
             ( m-(k+2), -xBuf[(k+1)*incx], 
               &LBuf[(k+2)+(k+1)*ldl], 1, &xBuf[(k+2)*incx], incx );
@@ -93,7 +92,6 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x )
 
             k += 1;
         }
-        --k;
     }
 }
 

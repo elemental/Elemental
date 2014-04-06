@@ -54,9 +54,9 @@ QuasiTrsvUNUnb( const Matrix<F>& U, Matrix<F>& x )
             // upper-triangular matrix, say gamma12 and gamma22
             //
             // Extract the 2x2 diagonal block, D
-            const F delta11 = UBuf[   k +   k *ldu];
-            const F delta12 = UBuf[   k +(k+1)*ldu];
-            const F delta21 = UBuf[(k+1)+   k *ldu];
+            const F delta11 = UBuf[ k   + k   *ldu];
+            const F delta12 = UBuf[ k   +(k+1)*ldu];
+            const F delta21 = UBuf[(k+1)+ k   *ldu];
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
@@ -64,17 +64,17 @@ QuasiTrsvUNUnb( const Matrix<F>& U, Matrix<F>& x )
             const F gamma12    =        c*delta12 + s*delta22;
             const F gamma22    = -Conj(s)*delta12 + c*delta22;
             // Solve against Q
-            const F chi1 = xBuf[   k *incx];
+            const F chi1 = xBuf[ k   *incx];
             const F chi2 = xBuf[(k+1)*incx];
-            xBuf[   k *incx] =        c*chi1 + s*chi2;
+            xBuf[ k   *incx] =        c*chi1 + s*chi2;
             xBuf[(k+1)*incx] = -Conj(s)*chi1 + c*chi2;
             // Solve against R
             xBuf[(k+1)*incx] /= gamma22;
-            xBuf[   k *incx] -= gamma12*xBuf[(k+1)*incx];
-            xBuf[   k *incx] /= gamma11;
+            xBuf[ k   *incx] -= gamma12*xBuf[(k+1)*incx];
+            xBuf[ k   *incx] /= gamma11;
 
             // Update x0 := x0 - U01 x1
-            blas::Axpy( k, -xBuf[   k *incx], &UBuf[   k *ldu], 1, xBuf, incx );
+            blas::Axpy( k, -xBuf[ k   *incx], &UBuf[ k   *ldu], 1, xBuf, incx );
             blas::Axpy( k, -xBuf[(k+1)*incx], &UBuf[(k+1)*ldu], 1, xBuf, incx );
         }
         else
