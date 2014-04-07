@@ -193,19 +193,11 @@ main( int argc, char* argv[] )
             cout << "Will test TwoSidedTrmm" << uploChar << diagChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestTwoSidedTrmm<double>( testCorrectness, print, uplo, diag, m, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestTwoSidedTrmm<Complex<double>>
         ( testCorrectness, print, uplo, diag, m, g );
     }

@@ -195,22 +195,14 @@ main( int argc, char* argv[] )
             cout << "Will test HermitianTridiag" << uploChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "----------------------------------\n"
-                 << "Double-precision normal algorithm:\n"
-                 << "----------------------------------" << endl;
-        }
+            cout << "Double-precision normal algorithm:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<double>
         ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------------------\n"
-                 << "Double-precision square algorithm, row-major grid:\n"
-                 << "--------------------------------------------------" 
-                 << endl;
-        }
+            cout << "Double-precision square algorithm, "
+                 << "row-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<double>
@@ -218,48 +210,31 @@ main( int argc, char* argv[] )
 
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------------------\n"
-                 << "Double-precision square algorithm, col-major grid:\n"
-                 << "--------------------------------------------------" 
-                 << endl;
-        }
+            cout << "Double-precision square algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<double>
         ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-        {
-            cout << "------------------------------------------\n"
-                 << "Double-precision complex normal algorithm:\n"
-                 << "------------------------------------------" << endl;
-        }
+            cout << "Double-precision complex normal algorithm:"
+                 << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianTridiag<Complex<double>>
         ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-        {
-            cout << "-------------------------------------------\n"
-                 << "Double-precision complex square algorithm, \n"
-                 << "row-major grid:\n"
-                 << "-------------------------------------------" 
-                 << endl;
-        }
+            cout << "Double-precision complex square algorithm, "
+                 << "row-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianTridiag<Complex<double>>
         ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-        {
-            cout << "-------------------------------------------\n"
-                 << "Double-precision complex square algorithm, \n"
-                 << "col-major grid:\n"
-                 << "-------------------------------------------" 
-                 << endl;
-        }
+            cout << "Double-precision complex square algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianTridiag<Complex<double>>

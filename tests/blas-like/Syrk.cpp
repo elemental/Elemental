@@ -100,19 +100,11 @@ main( int argc, char* argv[] )
             cout << "Will test Syrk" << uploChar << transChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestSyrk<double>( print, uplo, orientation, m, k, 3., 4., g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestSyrk<Complex<double>>
         ( print, uplo, orientation, m, k,
           Complex<double>(3), Complex<double>(4), g );

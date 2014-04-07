@@ -29,7 +29,7 @@ RUT
     DEBUG_ONLY(
         CallStackEntry cse("trsm::RUT");
         if( orientation == NORMAL )
-            LogicError("TrsmRUT expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int n = X.Width();

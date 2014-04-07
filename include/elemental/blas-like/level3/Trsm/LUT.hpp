@@ -32,7 +32,7 @@ LUTLarge
     DEBUG_ONLY(
         CallStackEntry cse("trsm::LUTLarge");
         if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int n = X.Width();
@@ -85,7 +85,7 @@ LUTMedium
     DEBUG_ONLY(
         CallStackEntry cse("trsm::LUTMedium");
         if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int n = X.Width();
@@ -142,7 +142,7 @@ LUTSmall
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrsmLUT expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )
             LogicError
             ("Nonconformal: \n",

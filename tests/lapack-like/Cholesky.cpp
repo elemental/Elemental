@@ -170,20 +170,12 @@ main( int argc, char* argv[] )
             cout << "Will test Cholesky" << uploChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestCholesky<double>
         ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestCholesky<Complex<double>>
         ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
     }

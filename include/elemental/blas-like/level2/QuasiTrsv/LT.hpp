@@ -78,12 +78,12 @@ QuasiTrsvLTUnb
             // Solve against Q^T
             const F chi1 = xBuf[ k   *incx];
             const F chi2 = xBuf[(k+1)*incx];
-            xBuf[   k *incx] =        c*chi1 + s*chi2;
+            xBuf[ k   *incx] =        c*chi1 + s*chi2;
             xBuf[(k+1)*incx] = -Conj(s)*chi1 + c*chi2;
             // Solve against R^T
             xBuf[(k+1)*incx] /= gamma22;
-            xBuf[   k *incx] -= gamma21*xBuf[(k+1)*incx];
-            xBuf[   k *incx] /= gamma11;
+            xBuf[ k   *incx] -= gamma21*xBuf[(k+1)*incx];
+            xBuf[ k   *incx] /= gamma11;
 
             // Update x0 := x0 - L10^T x1
             blas::Axpy( k, -xBuf[ k   *incx], &LBuf[k  ], ldl, xBuf, incx );

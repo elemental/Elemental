@@ -143,7 +143,7 @@ LUT
         auto X1 = ViewRange( X, k,    0, k+nb, n );
         auto X2 = ViewRange( X, k+nb, 0, m,    n );
 
-        quasitrsm::LUTUnb( conjugate, U11, X1, checkIfSingular );
+        LUTUnb( conjugate, U11, X1, checkIfSingular );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
     }
 }

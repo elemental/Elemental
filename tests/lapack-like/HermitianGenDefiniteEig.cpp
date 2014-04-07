@@ -399,24 +399,16 @@ main( int argc, char* argv[] )
                  << " " << eigTypeString << " HermitianGenDefiniteEig." << endl;
 
         if( commRank == 0 )
-        {
-            cout << "------------------------------------------\n"
-                 << "Double-precision normal tridiag algorithm:\n"
-                 << "------------------------------------------" << endl;
-        }
+            cout << "Double-precision complex normal tridiag algorithm:"
+                 << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianGenDefiniteEig<double>
         ( testCorrectness, print, 
           eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "-------------------------------------------\n"
-                 << "Double-precision square tridiag algorithm, \n"
-                 << "row-major grid:\n"
-                 << "-------------------------------------------"
-                 << endl;
-        }
+            cout << "Double-precision square tridiag algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEig<double>
@@ -424,13 +416,8 @@ main( int argc, char* argv[] )
           eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "-------------------------------------------\n"
-                 << "Double-precision square tridiag algorithm, \n"
-                 << "col-major grid:\n"
-                 << "-------------------------------------------"
-                 << endl;
-        }
+            cout << "Double-precision square tridiag algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEig<double>
@@ -438,24 +425,15 @@ main( int argc, char* argv[] )
           eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "-------------------------------------------------------\n"
-                 << "Testing with double-precision complex normal algorithm:\n"
-                 << "-------------------------------------------------------" 
+            cout << "Double-precision complex normal tridiag algorithm:"
                  << endl;
-        }
         TestHermitianGenDefiniteEig<Complex<double>>
         ( testCorrectness, print, 
           eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "---------------------------------------------------\n"
-                 << "Double-precision complex square tridiag algorithm, \n"
-                 << "row-major grid:\n"
-                 << "---------------------------------------------------"
-                 << endl;
-        }
+            cout << "Double-precision complex square tridiag algorithm, "
+                 << "row-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEig<Complex<double>>
@@ -463,13 +441,8 @@ main( int argc, char* argv[] )
           eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "---------------------------------------------------\n"
-                 << "Double-precision complex square tridiag algorithm, \n"
-                 << "col-major grid:\n"
-                 << "---------------------------------------------------"
-                 << endl;
-        }
+            cout << "Double-precision complex square tridiag algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEig<Complex<double>>

@@ -8,18 +8,18 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_GEMM_INC
-#include ELEM_TRSM_INC
+#include ELEM_QUASITRSM_INC
 #include ELEM_FROBENIUSNORM_INC
 #include ELEM_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
 using namespace elem;
 
 template<typename F> 
-void TestTrsm
+void TestQuasiTrsm
 ( bool print,
-  LeftOrRight side, UpperOrLower uplo, 
-  Orientation orientation, UnitOrNonUnit diag,
+  LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   Int m, Int n, F alpha, const Grid& g )
 {
     DistMatrix<F> A(g), X(g);
@@ -28,28 +28,31 @@ void TestTrsm
         HermitianUniformSpectrum( A, m, 1, 10 );
     else
         HermitianUniformSpectrum( A, n, 1, 10 );
-    auto S( A );
-    MakeTriangular( uplo, S );
+    auto H( A );
+    if( uplo == LOWER )
+        MakeTrapezoidal( LOWER, H, 1 );
+    else
+        MakeTrapezoidal( UPPER, H, -1 );
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1), S, X, Y );
+    Gemm( NORMAL, NORMAL, F(1), H, X, Y );
 
     if( print )
     {
         Print( A, "A" );
-        Print( S, "S" );
+        Print( H, "H" );
         Print( X, "X" );
         Print( Y, "Y" );
     }
     if( g.Rank() == 0 )
     {
-        cout << "  Starting Trsm...";
+        cout << "  Starting QuasiTrsm...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    Trsm( side, uplo, orientation, diag, alpha, A, Y );
+    QuasiTrsm( side, uplo, orientation, alpha, A, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
@@ -65,12 +68,12 @@ void TestTrsm
     if( print )
         Print( Y, "Y after solve" );
     Axpy( F(-1), X, Y );
-    const auto SFrob = FrobeniusNorm( S );
+    const auto HFrob = FrobeniusNorm( H );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
-        cout << "|| S ||_F = " << SFrob << "\n"
+        cout << "|| H ||_F = " << HFrob << "\n"
              << "|| X ||_F = " << XFrob << "\n"
              << "|| E ||_F = " << EFrob << "\n" << std::endl;
     }
@@ -90,10 +93,9 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const char sideChar = Input("--side","side to solve from: L/R",'L');
         const char uploChar = Input
-            ("--uplo","lower or upper triangular: L/U",'L');
+            ("--uplo","lower or upper quasi-triangular: L/U",'L');
         const char transChar = Input
-            ("--trans","orientation of triangular matrix: N/T/C",'N');
-        const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
+            ("--trans","orientation of quasi-triangular matrix: N/T/C",'N');
         const Int m = Input("--m","height of result",100);
         const Int n = Input("--n","width of result",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -108,22 +110,21 @@ main( int argc, char* argv[] )
         const LeftOrRight side = CharToLeftOrRight( sideChar );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
-        const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         SetBlocksize( nb );
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test Trsm" 
-                 << sideChar << uploChar << transChar << diagChar << endl;
+            cout << "Will test QuasiTrsm" 
+                 << sideChar << uploChar << transChar << endl;
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestTrsm<double>( print, side, uplo, orientation, diag, m, n, 3., g );
+        TestQuasiTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestTrsm<Complex<double>>
-        ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
+        TestQuasiTrsm<Complex<double>>
+        ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }
 

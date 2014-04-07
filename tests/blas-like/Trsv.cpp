@@ -107,19 +107,11 @@ main( int argc, char* argv[] )
                  << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestTrsv<double>( print, uplo, orientation, diag, n, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestTrsv<Complex<double>>( print, uplo, orientation, diag, n, g );
     }
     catch( exception& e ) { ReportException(e); }

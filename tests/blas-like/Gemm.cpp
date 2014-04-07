@@ -239,19 +239,11 @@ main( int argc, char* argv[] )
             cout << "Will test Gemm" << transA << transB << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestGemm<double>( print, orientA, orientB, m, n, k, 3., 4., g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestGemm<Complex<double>>
         ( print, orientA, orientB, m, n, k, 
           Complex<double>(3), Complex<double>(4), g );

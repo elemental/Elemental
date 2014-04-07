@@ -107,19 +107,11 @@ main( int argc, char* argv[] )
             cout << "Will test Syr2k" << uploChar << transChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestSyr2k<double>( print, uplo, orientation, m, k, 3., 4., g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestSyr2k<Complex<double>>
         ( print, uplo, orientation, m, k, 
           Complex<double>(3), Complex<double>(4), g );

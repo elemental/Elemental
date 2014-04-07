@@ -43,7 +43,7 @@ QuasiTrsv
 template<typename F>
 inline void
 QuasiTrsv
-( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
+( UpperOrLower uplo, Orientation orientation, 
   const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))

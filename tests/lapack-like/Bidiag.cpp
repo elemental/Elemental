@@ -191,19 +191,11 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-        {
-            cout << "-----------------\n"
-                 << "Double-precision:\n"
-                 << "-----------------" << endl;
-        }
+            cout << "Double-precision:" << endl;
         TestBidiag<double>( m, n, g, testCorrectness, print, display );
 
         if( commRank == 0 )
-        {
-            cout << "-------------------------\n"
-                 << "Double-precision complex:\n"
-                 << "-------------------------" << endl;
-        }
+            cout << "Double-precision complex:" << endl;
         TestBidiag<Complex<double>>( m, n, g, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }

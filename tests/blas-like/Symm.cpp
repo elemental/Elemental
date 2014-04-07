@@ -101,19 +101,11 @@ main( int argc, char* argv[] )
             cout << "Will test Symm" << sideChar << uploChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestSymm<double>( side, uplo, m, n, 3., 4., print, g ); 
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestSymm<Complex<double>>
         ( side, uplo, m, n, Complex<double>(3), Complex<double>(4), print, g ); 
     }

@@ -219,23 +219,16 @@ main( int argc, char* argv[] )
             cout << "Will test HermitianEig " << uploChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "------------------------------------------\n"
-                 << "Double-precision normal tridiag algorithm:\n"
-                 << "------------------------------------------" << endl;
-        }
+            cout << "Double-precision normal tridiag algorithm:"
+                 << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEig<double>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "------------------------------------------\n"
-                 << "Double-precision square tridiag algorithm,\n"
-                 << "row-major grid:\n"
-                 << "------------------------------------------" << endl;
-        }
+            cout << "Double-precision square tridiag algorithm, "
+                 << "row-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEig<double>
@@ -243,12 +236,8 @@ main( int argc, char* argv[] )
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
  
         if( commRank == 0 )
-        {
-            cout << "------------------------------------------\n"
-                 << "Double-precision square tridiag algorithm,\n"
-                 << "col-major grid:\n"
-                 << "------------------------------------------" << endl;
-        }
+            cout << "Double-precision square tridiag algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEig<double>
@@ -256,25 +245,16 @@ main( int argc, char* argv[] )
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------------------\n"
-                 << "Double-precision complex normal tridiag algorithm:\n"
-                 << "--------------------------------------------------" 
+            cout << "Double-precision complex normal tridiag algorithm:"
                  << endl;
-        }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "---------------------------------------------------\n"
-                 << "Double-precision complex square tridiag algorithm, \n"
-                 << "row-major grid:\n"
-                 << "---------------------------------------------------"
-                 << endl;
-        }
+            cout << "Double-precision complex square tridiag algorithm, "
+                 << "row-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEig<Complex<double>>
@@ -282,13 +262,8 @@ main( int argc, char* argv[] )
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
-        {
-            cout << "---------------------------------------------------\n"
-                 << "Double-precision complex square tridiag algorithm, \n"
-                 << "col-major grid:\n"
-                 << "---------------------------------------------------"
-                 << endl;
-        }
+            cout << "Double-precision complex square tridiag algorithm, "
+                 << "col-major grid:" << endl;
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEig<Complex<double>>

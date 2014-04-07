@@ -99,19 +99,11 @@ main( int argc, char* argv[] )
             cout << "Will test Hemm" << sideChar << uploChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with doubles:                 \n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestHemm<double>( print, side, uplo, m, n, 3., 4., g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestHemm<Complex<double>>
         ( print, side, uplo, m, n, Complex<double>(3), Complex<double>(4), g );
     }

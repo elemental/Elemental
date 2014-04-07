@@ -119,19 +119,11 @@ main( int argc, char* argv[] )
                 << sideChar << uploChar << transChar << diagChar << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestTrmm<double>( print, side, uplo, orientation, diag, m, n, 3., g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestTrmm<Complex<double>>
         ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
     }

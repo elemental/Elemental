@@ -29,7 +29,7 @@ RLT
     DEBUG_ONLY(
         CallStackEntry cse("trsm::RLT");
         if( orientation == NORMAL )
-            LogicError("TrsmRLT expects a (Conjugate)Transpose option");
+            LogicError("Expected (Conjugate)Transpose option");
     )
     const Int m = X.Height();
     const Int n = X.Width();

@@ -38,8 +38,8 @@ LocalQuasiTrsm
 } // namespace elem
 
 #include "./QuasiTrsm/LLN.hpp"
-//#include "./QuasiTrsm/LLT.hpp"
-//#include "./QuasiTrsm/LUN.hpp"
+#include "./QuasiTrsm/LLT.hpp"
+#include "./QuasiTrsm/LUN.hpp"
 #include "./QuasiTrsm/LUT.hpp"
 //#include "./QuasiTrsm/RLN.hpp"
 //#include "./QuasiTrsm/RLT.hpp"
@@ -92,14 +92,12 @@ QuasiTrsm
         if( orientation == NORMAL )
             quasitrsm::LLN( A, B, checkIfSingular );
         else
-            //quasitrsm::LLT( orientation, A, B, checkIfSingular );
-            LogicError("This case not yet handled");
+            quasitrsm::LLT( orientation, A, B, checkIfSingular );
     }
     else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            //quasitrsm::LUN( A, B, checkIfSingular );
-            LogicError("This case not yet handled");
+            quasitrsm::LUN( A, B, checkIfSingular );
         else
             quasitrsm::LUT( orientation, A, B, checkIfSingular );
     }
@@ -177,11 +175,9 @@ QuasiTrsm
         else
         {
             if( B.Width() > 5*p )
-                //quasitrsm::LLTLarge( orientation, A, B, checkIfSingular );
-                LogicError("This case not yet handled");
+                quasitrsm::LLTLarge( orientation, A, B, checkIfSingular );
             else
-                //quasitrsm::LLTMedium( orientation, A, B, checkIfSingular );
-                LogicError("This case not yet handled");
+                quasitrsm::LLTMedium( orientation, A, B, checkIfSingular );
         }
     }
     else if( side == LEFT && uplo == UPPER )
@@ -189,11 +185,9 @@ QuasiTrsm
         if( orientation == NORMAL )
         {
             if( B.Width() > 5*p )
-                //quasitrsm::LUNLarge( A, B, checkIfSingular );
-                LogicError("This case not yet handled");
+                quasitrsm::LUNLarge( A, B, checkIfSingular );
             else
-                //quasitrsm::LUNMedium( A, B, checkIfSingular );
-                LogicError("This case not yet handled");
+                quasitrsm::LUNMedium( A, B, checkIfSingular );
         }
         else
         {
