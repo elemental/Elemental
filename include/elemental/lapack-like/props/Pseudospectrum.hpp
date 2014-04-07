@@ -19,7 +19,7 @@
 
 #include "./Pseudospectrum/Power.hpp"
 #include "./Pseudospectrum/Lanczos.hpp"
-#include "./Pseudospectrum/KrylovSpectral.hpp"
+#include "./Pseudospectrum/IRA.hpp"
 #include "./Pseudospectrum/Analytic.hpp"
 
 namespace elem {
@@ -146,7 +146,7 @@ TriangularPseudospectrum
     {
         if( krylovSize > 1 )
             itCounts =
-               pspec::TriangularKrylovSpectral
+               pspec::TriangularIRA
                ( UCpx, shifts, invNorms, krylovSize, reorthog, deflate, maxIts, 
                  tol, progress );
         else
@@ -193,7 +193,7 @@ HessenbergPseudospectrum
     {
         if( krylovSize > 1 )
             itCounts =
-               pspec::HessenbergKrylovSpectral
+               pspec::HessenbergIRA
                ( HCpx, shifts, invNorms, krylovSize, reorthog, deflate, maxIts, 
                  tol, progress );
         else
@@ -259,7 +259,7 @@ TriangularPseudospectrum
     {
         if( krylovSize > 1 )
             itCounts =
-               pspec::TriangularKrylovSpectral
+               pspec::TriangularIRA
                ( UCpx, shifts, invNorms, krylovSize, reorthog, deflate, maxIts, 
                  tol, progress );
         else
@@ -310,7 +310,7 @@ HessenbergPseudospectrum
     {
         if( krylovSize > 1 )
             itCounts =
-               pspec::HessenbergKrylovSpectral
+               pspec::HessenbergIRA
                ( HCpx, shifts, invNorms, krylovSize, reorthog, deflate, maxIts, 
                  tol, progress );
         else

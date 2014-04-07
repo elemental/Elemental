@@ -7,10 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_PSEUDOSPECTRUM_KRYLOVSPECTRAL_HPP
-#define ELEM_PSEUDOSPECTRUM_KRYLOVSPECTRAL_HPP
+#ifndef ELEM_PSEUDOSPECTRUM_IRA_HPP
+#define ELEM_PSEUDOSPECTRUM_IRA_HPP
 
 #include "./Lanczos.hpp"
+
+// TODO: Add option to form an upper-Hessenberg Rayleigh quotient when
+//       explicitly reorothogonalizing. 
 
 namespace elem {
 namespace pspec {
@@ -128,12 +131,12 @@ Restart
 
 template<typename Real>
 inline Matrix<Int>
-TriangularKrylovSpectral
+TriangularIRA
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int krylovSize=10, bool reorthog=true,
   bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularKrylovSpectral"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -153,7 +156,7 @@ TriangularKrylovSpectral
             preimage.Set( j, 0, j );
     }
 
-    // Simultaneously run a Krylov-spectral method for various shifts
+    // Simultaneously run IRA for different shifts
     std::vector<Matrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
     for( Int j=0; j<krylovSize+1; ++j )
         Zeros( VList[j], n, numShifts );
@@ -253,7 +256,7 @@ TriangularKrylovSpectral
         Restart
         ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
         if( progress )
-            std::cout << "Krylov-spectral contraction: " << subtimer.Stop()
+            std::cout << "IRA restart: " << subtimer.Stop()
                       << " seconds" << std::endl;
 
         const Int numActiveDone = ZeroNorm( activeConverged );
@@ -294,12 +297,12 @@ TriangularKrylovSpectral
 
 template<typename Real>
 inline Matrix<Int>
-HessenbergKrylovSpectral
+HessenbergIRA
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int krylovSize=10, bool reorthog=true,
   bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergKrylovSpectral"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = H.Height();
@@ -323,7 +326,7 @@ HessenbergKrylovSpectral
     Adjoint( H, HAdj );
     Matrix<C> activeShiftsConj;
 
-    // Simultaneously run a Krylov-spectral method for various shifts
+    // Simultaneously run IRA for different shifts
     std::vector<Matrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
     for( Int j=0; j<krylovSize+1; ++j )
         Zeros( VList[j], n, numShifts );
@@ -424,7 +427,7 @@ HessenbergKrylovSpectral
         Restart
         ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
         if( progress )
-            std::cout << "Krylov-spectral contraction: " << subtimer.Stop()
+            std::cout << "IRA restart: " << subtimer.Stop()
                       << " seconds" << std::endl;
 
         const Int numActiveDone = ZeroNorm( activeConverged );
@@ -465,14 +468,14 @@ HessenbergKrylovSpectral
 
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
-TriangularKrylovSpectral
+TriangularIRA
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
         Int krylovSize=10, bool reorthog=true,
   bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularKrylovSpectral"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -500,7 +503,7 @@ TriangularKrylovSpectral
         }
     }
 
-    // Simultaneously run a Krylov-spectral method for various shifts
+    // Simultaneously run IRA for different shifts
     std::vector<DistMatrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
     for( Int j=0; j<krylovSize+1; ++j )
     {
@@ -625,7 +628,7 @@ TriangularKrylovSpectral
         {
             mpi::Barrier( U.Grid().Comm() );
             if( U.Grid().Rank() == 0 )
-                std::cout << "Krylov-spectral computations: " << subtimer.Stop()
+                std::cout << "IRA computations: " << subtimer.Stop()
                           << " seconds" << std::endl;
         }
 
@@ -671,14 +674,14 @@ TriangularKrylovSpectral
 
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
-HessenbergKrylovSpectral
+HessenbergIRA
 ( const DistMatrix<Complex<Real>        >& H, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
         Int krylovSize=10, bool reorthog=true,
   bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergKrylovSpectral"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = H.Height();
@@ -712,7 +715,7 @@ HessenbergKrylovSpectral
     DistMatrix<C,STAR,VR> activeV_STAR_VR( H.Grid() );
     DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
 
-    // Simultaneously run a Krylov-spectral method for various shifts
+    // Simultaneously run IRA for different shifts
     std::vector<DistMatrix<C>> VList(krylovSize+1), activeVList(krylovSize+1);
     for( Int j=0; j<krylovSize+1; ++j )
     {
@@ -843,7 +846,7 @@ HessenbergKrylovSpectral
         {
             mpi::Barrier( H.Grid().Comm() );
             if( H.Grid().Rank() == 0 )
-                std::cout << "Krylov-spectral computations: " << subtimer.Stop()
+                std::cout << "IRA computations: " << subtimer.Stop()
                           << " seconds" << std::endl;
         }
 
@@ -890,4 +893,4 @@ HessenbergKrylovSpectral
 } // namespace pspec
 } // namespace elem
 
-#endif // ifndef ELEM_PSEUDOSPECTRUM_KRYLOVSPECTRAL_HPP
+#endif // ifndef ELEM_PSEUDOSPECTRUM_IRA_HPP
