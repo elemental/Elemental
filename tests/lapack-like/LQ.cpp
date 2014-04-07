@@ -166,19 +166,11 @@ main( int argc, char* argv[] )
             cout << "Will test LQ" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestLQ<double>( testCorrectness, print, m, n, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestLQ<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }

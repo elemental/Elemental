@@ -269,35 +269,19 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
 
         if( commRank == 0 )
-        {
-            std::cout << "--------------------\n"
-                      << "Testing with floats:\n"
-                      << "--------------------" << std::endl;
-        }
+            std::cout << "Testing with floats:" << std::endl;
         BlockDistMatrixTest<float>( m, n, g, mb, nb, print );
 
         if( commRank == 0 )
-        {
-            std::cout << "---------------------\n"
-                      << "Testing with doubles:\n"
-                      << "---------------------" << std::endl;
-        }
+            std::cout << "Testing with doubles:" << std::endl;
         BlockDistMatrixTest<double>( m, n, g, mb, nb, print );
 
         if( commRank == 0 )
-        {
-            std::cout << "--------------------------------------\n"
-                      << "Testing with single-precision complex:\n"
-                      << "--------------------------------------" << std::endl;
-        }
+            std::cout << "Testing with single-precision complex:" << std::endl;
         BlockDistMatrixTest<Complex<float>>( m, n, g, mb, nb, print );
         
         if( commRank == 0 )
-        {
-            std::cout << "--------------------------------------\n"
-                      << "Testing with double-precision complex:\n"
-                      << "--------------------------------------" << std::endl;
-        }
+            std::cout << "Testing with double-precision complex:" << std::endl;
         BlockDistMatrixTest<Complex<double>>( m, n, g, mb, nb, print );
     }
     catch( std::exception& e ) { ReportException(e); }

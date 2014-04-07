@@ -132,19 +132,11 @@ main( int argc, char* argv[] )
             cout << "Will test TSQR" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestQR<double>( testCorrectness, print, m, n, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestQR<double>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }

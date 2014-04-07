@@ -129,19 +129,11 @@ main( int argc, char* argv[] )
                  << ( pivot ? " with partial pivoting" : " " ) << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestLU<double>( pivot, testCorrectness, print, m );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestLU<Complex<double>>( pivot, testCorrectness, print, m );
     }
     catch( exception& e ) { ReportException(e); }

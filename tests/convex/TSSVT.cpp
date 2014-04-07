@@ -97,19 +97,11 @@ main( int argc, char* argv[] )
             cout << "Will test TSQR" << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestSVT<double>( testCorrectness, print, m, n, g, tau );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestSVT<double>( testCorrectness, print, m, n, g, tau );
     }
     catch( exception& e ) { ReportException(e); }

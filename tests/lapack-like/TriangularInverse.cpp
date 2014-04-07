@@ -143,20 +143,12 @@ main( int argc, char* argv[] )
                  << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestTriangularInverse<double>
         ( testCorrectness, print, uplo, diag, m, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestTriangularInverse<Complex<double>>
         ( testCorrectness, print, uplo, diag, m, g );
     }

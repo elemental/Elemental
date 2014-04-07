@@ -57,13 +57,13 @@ QuasiTrsvLNUnb( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
             const F delta22 = LBuf[(k+1)+(k+1)*ldl];
             // Decompose D = L Q
             Real c; F s;
-            const Real gamma11 = lapack::Givens( delta11, delta12, &c, &s );
-            const F gamma21    =        c*delta21 + s*delta22;
-            const F gamma22    = -Conj(s)*delta21 + c*delta22; 
+            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+            const F gamma21 =        c*delta21 + s*delta22;
+            const F gamma22 = -Conj(s)*delta21 + c*delta22; 
             if( checkIfSingular )
             {
                 // TODO: Instead check if values are too small in magnitude
-                if( gamma11 == Real(0) || gamma22 == F(0) ) 
+                if( gamma11 == F(0) || gamma22 == F(0) ) 
                     LogicError("Singular diagonal block detected");
             }
             // Solve against L

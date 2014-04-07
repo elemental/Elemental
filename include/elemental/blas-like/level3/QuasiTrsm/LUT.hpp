@@ -58,13 +58,13 @@ LUTUnb( bool conjugate, const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
             const F delta22 = UBuf[(k+1)+(k+1)*ldu];
             // Decompose D = Q R
             Real c; F s;
-            const Real gamma11 = lapack::Givens( delta11, delta21, &c, &s );
-            const F gamma12    =        c*delta12 + s*delta22;
-            const F gamma22    = -Conj(s)*delta12 + c*delta22;
+            const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+            const F gamma12 =        c*delta12 + s*delta22;
+            const F gamma22 = -Conj(s)*delta12 + c*delta22;
             if( checkIfSingular )
             {
                 // TODO: Check if sufficiently small instead
-                if( gamma11 == Real(0) || gamma22 == F(0) )
+                if( gamma11 == F(0) || gamma22 == F(0) )
                     LogicError("Singular diagonal block detected");
             }
             for( Int j=0; j<n; ++j )

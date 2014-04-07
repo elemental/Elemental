@@ -150,20 +150,12 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( commRank == 0 )
-        {
-            std::cout << "-----------------\n"
-                      << "Double-precision:\n"
-                      << "-----------------" << std::endl;
-        }
+            std::cout << "Double-precision:" << std::endl;
         TestHessenberg<double>
         ( uplo, orient, m, n, testCorrectness, print, display, grid );
 
         if( commRank == 0 )
-        {
-            std::cout << "-------------------------\n"
-                      << "Double-precision complex:\n"
-                      << "-------------------------" << std::endl;
-        }
+            std::cout << "Double-precision complex:" << std::endl;
         TestHessenberg<Complex<double>>
         ( uplo, orient, m, n, testCorrectness, print, display, grid );
     }

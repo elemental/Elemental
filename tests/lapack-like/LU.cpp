@@ -169,19 +169,11 @@ main( int argc, char* argv[] )
         }
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestLU<double>( pivot, testCorrectness, print, m, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestLU<Complex<double>>( pivot, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }

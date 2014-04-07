@@ -154,19 +154,11 @@ main( int argc, char* argv[] )
             cout << "Will test LDL" << (conjugated?"^H":"^T") << endl;
 
         if( commRank == 0 )
-        {
-            cout << "---------------------\n"
-                 << "Testing with doubles:\n"
-                 << "---------------------" << endl;
-        }
+            cout << "Testing with doubles:" << endl;
         TestLDL<double>( conjugated, testCorrectness, print, m, g );
 
         if( commRank == 0 )
-        {
-            cout << "--------------------------------------\n"
-                 << "Testing with double-precision complex:\n"
-                 << "--------------------------------------" << endl;
-        }
+            cout << "Testing with double-precision complex:" << endl;
         TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
