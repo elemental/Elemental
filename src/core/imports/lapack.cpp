@@ -43,43 +43,47 @@ void ELEM_LAPACK(zlartg)
 void ELEM_LAPACK(sstevr)
 ( const char* job, const char* range, const int* n,
   float* d, float* e, const float* vl, const float* vu, 
-  const int* il, const int* iu, const float* abstol, int * m, 
-  float* w, float* Z, const int* ldz, int* isuppz, 
-  float* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  const int* il, const int* iu, const float* absTol, int * m, 
+  float* w, float* Z, const int* ldZ, int* isuppZ, 
+  float* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 void ELEM_LAPACK(dstevr)
 ( const char* job, const char* range, const int* n,
   double* d, double* e, const double* vl, const double* vu, 
-  const int* il, const int* iu, const double* abstol, int * m, 
-  double* w, double* Z, const int* ldz, int* isuppz, 
-  double* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  const int* il, const int* iu, const double* absTol, int * m, 
+  double* w, double* Z, const int* ldZ, int* isuppZ, 
+  double* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 
 // Hermitian eigensolvers (via MRRR)
 void ELEM_LAPACK(ssyevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
-  float* A, const int* lda, const float* vl, const float* vu, 
-  const int* il, const int* iu, const float* abstol, int * m, 
-  float* w, float* Z, const int* ldz, int* isuppz, 
-  float* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  float* A, const int* ldA, const float* vl, const float* vu, 
+  const int* il, const int* iu, const float* absTol, int * m, 
+  float* w, float* Z, const int* ldZ, int* isuppZ, 
+  float* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 void ELEM_LAPACK(dsyevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
-  double* A, const int* lda, const double* vl, const double* vu, 
-  const int* il, const int* iu, const double* abstol, int * m, 
-  double* w, double* Z, const int* ldz, int* isuppz, 
-  double* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  double* A, const int* ldA, const double* vl, const double* vu, 
+  const int* il, const int* iu, const double* absTol, int * m, 
+  double* w, double* Z, const int* ldZ, int* isuppZ, 
+  double* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 void ELEM_LAPACK(cheevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
-  scomplex* A, const int* lda, const float* vl, const float* vu, 
-  const int* il, const int* iu, const float* abstol, int* m,
-  float* w, scomplex* Z, const int* ldz, int* isuppz, 
-  scomplex* work, const int* lwork, float* rwork, const int* lrwork, 
-  int* iwork, const int* liwork, int* info );
+  scomplex* A, const int* ldA, const float* vl, const float* vu, 
+  const int* il, const int* iu, const float* absTol, int* m,
+  float* w, scomplex* Z, const int* ldZ, int* isuppZ, 
+  scomplex* work, const int* workSize, float* rWork, const int* rWorkSize, 
+  int* iWork, const int* iWorkSize, int* info );
 void ELEM_LAPACK(zheevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
-  dcomplex* A, const int* lda, const double* vl, const double* vu, 
-  const int* il, const int* iu, const double* abstol, int* m,
-  double* w, dcomplex* Z, const int* ldz, int* isuppz, 
-  dcomplex* work, const int* lwork, double* rwork, const int* lrwork, 
-  int* iwork, const int* liwork, int* info );
+  dcomplex* A, const int* ldA, const double* vl, const double* vu, 
+  const int* il, const int* iu, const double* absTol, int* m,
+  double* w, dcomplex* Z, const int* ldZ, int* isuppZ, 
+  dcomplex* work, const int* workSize, double* rWork, const int* rWorkSize, 
+  int* iWork, const int* iWorkSize, int* info );
 
 // Bidiagonal DQDS
 void ELEM_LAPACK(slasq1)
@@ -89,118 +93,141 @@ void ELEM_LAPACK(dlasq1)
 
 // Bidiagonal QR
 void ELEM_LAPACK(sbdsqr)
-( const char* uplo, const int* n, const int* numColsVTrans, const int* numRowsU,
-  const int* numColsC, float* d, float* e, float* VTrans, const int* ldVTrans,
+( const char* uplo, const int* n, const int* numColsVT, const int* numRowsU,
+  const int* numColsC, float* d, float* e, float* VTrans, const int* ldVT,
   float* U, const int* ldU, float* C, const int* ldC, float* work, int* info );
 void ELEM_LAPACK(dbdsqr)
-( const char* uplo, const int* n, const int* numColsVTrans, const int* numRowsU,
+( const char* uplo, const int* n, const int* numColsVT, const int* numRowsU,
   const int* numColsC, double* d, double* e,
-  double* VTrans, const int* ldVTrans, double* U, const int* ldU,
+  double* VTrans, const int* ldVT, double* U, const int* ldU,
   double* C, const int* ldC, double* work, int* info );
 void ELEM_LAPACK(cbdsqr)
-( const char* uplo, const int* n, const int* numColsVAdj, const int* numRowsU,
+( const char* uplo, const int* n, const int* numColsVH, const int* numRowsU,
   const int* numColsC, float* d, float* e,
-  scomplex* VAdj, const int* ldVAdj, scomplex* U, const int* ldU,
+  scomplex* VH, const int* ldVH, scomplex* U, const int* ldU,
   scomplex* C, const int* ldC, float* work, int* info );
 void ELEM_LAPACK(zbdsqr)
-( const char* uplo, const int* n, const int* numColsVAdj, const int* numRowsU,
+( const char* uplo, const int* n, const int* numColsVH, const int* numRowsU,
   const int* numColsC, double* d, double* e,
-  dcomplex* VAdj, const int* ldVAdj, dcomplex* U, const int* ldU,
+  dcomplex* VH, const int* ldVH, dcomplex* U, const int* ldU,
   dcomplex* C, const int* ldC, double* work, int* info );
 
 // Divide and Conquer SVD
 void ELEM_LAPACK(sgesdd)
-( const char* jobz, const int* m, const int* n, float* A, const int* lda,
+( const char* jobz, const int* m, const int* n, float* A, const int* ldA,
   float* s, float* U, const int* ldu, float* VTrans, const int* ldvt,
-  float* work, const int* lwork, int* iwork, int* info );
+  float* work, const int* workSize, int* iWork, int* info );
 void ELEM_LAPACK(dgesdd)
-( const char* jobz, const int* m, const int* n, double* A, const int* lda,
+( const char* jobz, const int* m, const int* n, double* A, const int* ldA,
   double* s, double* U, const int* ldu, double* VTrans, const int* ldvt,
-  double* work, const int* lwork, int* iwork, int* info );
+  double* work, const int* workSize, int* iWork, int* info );
 void ELEM_LAPACK(cgesdd)
 ( const char* jobz, const int* m, const int* n,
-  scomplex* A, const int* lda, float* s,
+  scomplex* A, const int* ldA, float* s,
   scomplex* U, const int* ldu, scomplex* VTrans, const int* ldvt,
-  scomplex* work, const int* lwork, float* rwork,
-  int* iwork, int* info );
+  scomplex* work, const int* workSize, float* rWork,
+  int* iWork, int* info );
 void ELEM_LAPACK(zgesdd)
 ( const char* jobz, const int* m, const int* n,
-  dcomplex* A, const int* lda, double* s,
-  dcomplex* U, const int* ldu, dcomplex* VAdj, const int* ldva,
-  dcomplex* work, const int* lwork, double* rwork,
-  int* iwork, int* info );
+  dcomplex* A, const int* ldA, double* s,
+  dcomplex* U, const int* ldu, dcomplex* VH, const int* ldva,
+  dcomplex* work, const int* workSize, double* rWork,
+  int* iWork, int* info );
 
 // QR-algorithm SVD [DQDS when no singular vectors desired]
 void ELEM_LAPACK(sgesvd)
-( const char* jobu, const char* jobvt, const int* m, const int* n,
-  float* A, const int* lda,
+( const char* jobU, const char* jobVT, const int* m, const int* n,
+  float* A, const int* ldA,
   float* s, float* U, const int* ldu, float* VTrans, const int* ldvt,
-  float* work, const int* lwork, int* info );
+  float* work, const int* workSize, int* info );
 void ELEM_LAPACK(dgesvd)
-( const char* jobu, const char* jobvt, const int* m, const int* n,
-  double* A, const int* lda,
+( const char* jobU, const char* jobVT, const int* m, const int* n,
+  double* A, const int* ldA,
   double* s, double* U, const int* ldu, double* VTrans, const int* ldvt,
-  double* work, const int* lwork, int* info );
+  double* work, const int* workSize, int* info );
 void ELEM_LAPACK(cgesvd)
-( const char* jobu, const char* jobva, const int* m, const int* n,
-  scomplex* A, const int* lda, float* s,
+( const char* jobU, const char* jobVH, const int* m, const int* n,
+  scomplex* A, const int* ldA, float* s,
   scomplex* U, const int* ldu, scomplex* VTrans, const int* ldvt,
-  scomplex* work, const int* lwork, float* rwork, int* info );
+  scomplex* work, const int* workSize, float* rWork, int* info );
 void ELEM_LAPACK(zgesvd)
-( const char* jobu, const char* jobva, const int* m, const int* n,
-  dcomplex* A, const int* lda, double* s,
-  dcomplex* U, const int* ldu, dcomplex* VAdj, const int* ldva,
-  dcomplex* work, const int* lwork, double* rwork, int* info );
+( const char* jobU, const char* jobVH, const int* m, const int* n,
+  dcomplex* A, const int* ldA, double* s,
+  dcomplex* U, const int* ldu, dcomplex* VH, const int* ldva,
+  dcomplex* work, const int* workSize, double* rWork, int* info );
 
 // Reduction to Hessenberg form
 void ELEM_LAPACK(sgehrd)
-( const int* n, const int* ilo, const int* ihi, float* A, const int* lda,
-  float* tau, float* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, float* A, const int* ldA,
+  float* tau, float* work, const int* workSize, int* info );
 void ELEM_LAPACK(dgehrd)
-( const int* n, const int* ilo, const int* ihi, double* A, const int* lda,
-  double* tau, double* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, double* A, const int* ldA,
+  double* tau, double* work, const int* workSize, int* info );
 void ELEM_LAPACK(cgehrd)
-( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* lda,
-  scomplex* tau, scomplex* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* ldA,
+  scomplex* tau, scomplex* work, const int* workSize, int* info );
 void ELEM_LAPACK(zgehrd)
-( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* lda,
-  dcomplex* tau, dcomplex* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* ldA,
+  dcomplex* tau, dcomplex* work, const int* workSize, int* info );
 
 // Generates a unitary matrix defined as the product of Householder reflectors
 void ELEM_LAPACK(sorghr)
-( const int* n, const int* ilo, const int* ihi, float* A, const int* lda,
-  const float* tau, float* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, float* A, const int* ldA,
+  const float* tau, float* work, const int* workSize, int* info );
 void ELEM_LAPACK(dorghr)
-( const int* n, const int* ilo, const int* ihi, double* A, const int* lda,
-  const double* tau, double* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, double* A, const int* ldA,
+  const double* tau, double* work, const int* workSize, int* info );
 void ELEM_LAPACK(cunghr)
-( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* lda,
-  const scomplex* tau, scomplex* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* ldA,
+  const scomplex* tau, scomplex* work, const int* workSize, int* info );
 void ELEM_LAPACK(zunghr)
-( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* lda,
-  const dcomplex* tau, dcomplex* work, const int* lwork, int* info );
+( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* ldA,
+  const dcomplex* tau, dcomplex* work, const int* workSize, int* info );
 
 // Hessenberg QR algorithm
 void ELEM_LAPACK(shseqr)
-( const char* job, const char* compz, const int* n, 
-  const int* ilo, const int* ihi, float* H, const int* ldh, 
-  float* wr, float* wi, float* Z, const int* ldz, 
-  float* work, const int* lwork, int* info );
+( const char* job, const char* compZ, const int* n, 
+  const int* ilo, const int* ihi, float* H, const int* ldH, 
+  float* wr, float* wi, float* Z, const int* ldZ, 
+  float* work, const int* workSize, int* info );
 void ELEM_LAPACK(dhseqr)
-( const char* job, const char* compz, const int* n, 
-  const int* ilo, const int* ihi, double* H, const int* ldh, 
-  double* wr, double* wi, double* Z, const int* ldz, 
-  double* work, const int* lwork, int* info );
+( const char* job, const char* compZ, const int* n, 
+  const int* ilo, const int* ihi, double* H, const int* ldH, 
+  double* wr, double* wi, double* Z, const int* ldZ, 
+  double* work, const int* workSize, int* info );
 void ELEM_LAPACK(chseqr)
-( const char* job, const char* compz, const int* n,
-  const int* ilo, const int* ihi, scomplex* H, const int* ldh,
-  scomplex* w, scomplex* Z, const int* ldz,
-  scomplex* work, const int* lwork, int* info );
+( const char* job, const char* compZ, const int* n,
+  const int* ilo, const int* ihi, scomplex* H, const int* ldH,
+  scomplex* w, scomplex* Z, const int* ldZ,
+  scomplex* work, const int* workSize, int* info );
 void ELEM_LAPACK(zhseqr)
-( const char* job, const char* compz, const int* n,
-  const int* ilo, const int* ihi, dcomplex* H, const int* ldh,
-  dcomplex* w, dcomplex* Z, const int* ldz,
-  dcomplex* work, const int* lwork, int* info );
+( const char* job, const char* compZ, const int* n,
+  const int* ilo, const int* ihi, dcomplex* H, const int* ldH,
+  dcomplex* w, dcomplex* Z, const int* ldZ,
+  dcomplex* work, const int* workSize, int* info );
+
+// Compute eigenpairs of a general matrix using the QR algorithm followed
+// by a sequence of careful triangular solves
+void ELEM_LAPACK(sgeev)
+( const char* jobVL, const char* jobVR, const int* n, 
+  float* A, const int* ldA, float* wr, float* wi, 
+  float* VLPacked, const int* ldVL, float* VRPacked, const int* ldVR,
+  float* work, const int* workSize, int* info );
+void ELEM_LAPACK(dgeev)
+( const char* jobVL, const char* jobVR, const int* n, 
+  double* A, const int* ldA, double* wr, double* wi, 
+  double* VLPacked, const int* ldVL, double* VRPacked, const int* ldVR,
+  double* work, const int* workSize, int* info );
+void ELEM_LAPACK(cgeev)
+( const char* jobVL, const char* jobVR, const int* n,
+  scomplex* A, const int* ldA, scomplex* w,
+  scomplex* VL, const int* ldVL, scomplex* VR, const int* ldVR,
+  scomplex* work, const int* workSize, float* rWork, int* info );
+void ELEM_LAPACK(zgeev)
+( const char* jobVL, const char* jobVR, const int* n,
+  dcomplex* A, const int* ldA, dcomplex* w,
+  dcomplex* VL, const int* ldVL, dcomplex* VR, const int* ldVR,
+  dcomplex* work, const int* workSize, double* rWork, int* info );
 
 } // extern "C"
 
@@ -369,30 +396,30 @@ dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s )
 
 int SymmetricTridiagEigWrapper
 ( char job, char range, int n, float* d, float* e, float vl, float vu,
-  int il, int iu, float abstol, float* w, float* Z, int ldz )
+  int il, int iu, float absTol, float* w, float* Z, int ldZ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
         return 0;
 
-    std::vector<int> isuppz( 2*n );
+    std::vector<int> isuppZ( 2*n );
 
-    int lwork=-1, liwork=-1, m, info;
-    int dummyIwork;
-    float dummyWork;
+    int workSize=-1, iWorkSize=-1, m, info;
+    int iWorkDummy;
+    float workDummy;
     ELEM_LAPACK(sstevr)
-    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyIwork, &liwork,
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &iWorkDummy, &iWorkSize,
       &info );
 
-    lwork = dummyWork;
-    liwork = dummyIwork;
-    std::vector<float> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = workDummy;
+    iWorkSize = iWorkDummy;
+    std::vector<float> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_LAPACK(sstevr)
-    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork,
-      &info );
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
+      iWork.data(), &iWorkSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -402,30 +429,30 @@ int SymmetricTridiagEigWrapper
 
 int SymmetricTridiagEigWrapper
 ( char job, char range, int n, double* d, double* e, double vl, double vu,
-  int il, int iu, double abstol, double* w, double* Z, int ldz )
+  int il, int iu, double absTol, double* w, double* Z, int ldZ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEigWrapper"));
     if( n == 0 )
         return 0;
 
-    std::vector<int> isuppz( 2*n );
+    std::vector<int> isuppZ( 2*n );
 
-    int lwork=-1, liwork=-1, m, info;
-    int dummyIwork;
-    double dummyWork;
+    int workSize=-1, iWorkSize=-1, m, info;
+    int iWorkDummy;
+    double workDummy;
     ELEM_LAPACK(dstevr)
-    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyIwork, &liwork,
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &iWorkDummy, &iWorkSize,
       &info );
 
-    lwork = dummyWork;
-    liwork = dummyIwork;
-    std::vector<double> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = workDummy;
+    iWorkSize = iWorkDummy;
+    std::vector<double> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_LAPACK(dstevr)
-    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork,
-      &info );
+    ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
+      iWork.data(), &iWorkSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -439,52 +466,52 @@ int SymmetricTridiagEigWrapper
 // All eigenvalues
 // ^^^^^^^^^^^^^^^
 void SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float abstol )
+( int n, float* d, float* e, float* w, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'N', 'A', n, d, e, 0, 0, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'A', n, d, e, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double abstol )
+( int n, double* d, double* e, double* w, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'N', 'A', n, d, e, 0, 0, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'A', n, d, e, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float vl, float vu, float abstol )
+( int n, float* d, float* e, float* w, float vl, float vu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
-    ( 'N', 'V', n, d, e, vl, vu, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'V', n, d, e, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
 int SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double vl, double vu, double abstol )
+( int n, double* d, double* e, double* w, double vl, double vu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
-    ( 'N', 'V', n, d, e, vl, vu, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'V', n, d, e, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
 
 // Index range
 // ^^^^^^^^^^^^^
 void SymmetricTridiagEig
-( int n, float* d, float* e, float* w, int il, int iu, float abstol )
+( int n, float* d, float* e, float* w, int il, int iu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+    ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
 void SymmetricTridiagEig
-( int n, double* d, double* e, double* w, int il, int iu, double abstol )
+( int n, double* d, double* e, double* w, int il, int iu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+    ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
 
 // Compute eigenpairs
@@ -493,88 +520,88 @@ void SymmetricTridiagEig
 // All eigenpairs
 // ^^^^^^^^^^^^^^
 void SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float* Z, int ldz, float abstol )
+( int n, float* d, float* e, float* w, float* Z, int ldZ, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'V', 'A', n, d, e, 0, 0, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'A', n, d, e, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
 void SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double* Z, int ldz, double abstol )
+( int n, double* d, double* e, double* w, double* Z, int ldZ, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'V', 'A', n, d, e, 0, 0, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'A', n, d, e, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float* Z, int ldz,
-  float vl, float vu, float abstol )
+( int n, float* d, float* e, float* w, float* Z, int ldZ,
+  float vl, float vu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
-    ( 'V', 'V', n, d, e, vl, vu, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'V', n, d, e, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
 int SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double* Z, int ldz,
-  double vl, double vu, double abstol )
+( int n, double* d, double* e, double* w, double* Z, int ldZ,
+  double vl, double vu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     return SymmetricTridiagEigWrapper
-    ( 'V', 'V', n, d, e, vl, vu, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'V', n, d, e, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
 
 // Index range
 // ^^^^^^^^^^^^^
 void SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float* Z, int ldz, 
-  int il, int iu, float abstol )
+( int n, float* d, float* e, float* w, float* Z, int ldZ, 
+  int il, int iu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+    ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
 void SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double* Z, int ldz,
-  int il, int iu, double abstol )
+( int n, double* d, double* e, double* w, double* Z, int ldZ,
+  int il, int iu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SymmetricTridiagEig"));
     SymmetricTridiagEigWrapper
-    ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+    ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
 
 // Compute the EVD of a Hermitian matrix
 // =====================================
 
 int HermitianEigWrapper
-( char job, char range, char uplo, int n, float* A, int lda, 
-  float vl, float vu, int il, int iu, float abstol, 
-  float* w, float* Z, int ldz )
+( char job, char range, char uplo, int n, float* A, int ldA, 
+  float vl, float vu, int il, int iu, float absTol, 
+  float* w, float* Z, int ldZ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
-    std::vector<int> isuppz( 2*n );
+    std::vector<int> isuppZ( 2*n );
 
-    int lwork=-1, liwork=-1, m, info;
-    int dummyIwork;
-    float dummyWork;
+    int workSize=-1, iWorkSize=-1, m, info;
+    int iWorkDummy;
+    float workDummy;
     ELEM_LAPACK(ssyevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyIwork, &liwork, 
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &iWorkDummy, &iWorkSize,
       &info );
 
-    lwork = dummyWork;
-    liwork = dummyIwork;
-    std::vector<float> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = workDummy;
+    iWorkSize = iWorkDummy;
+    std::vector<float> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_LAPACK(ssyevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork, 
-      &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
+      iWork.data(), &iWorkSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -583,32 +610,32 @@ int HermitianEigWrapper
 }
 
 int HermitianEigWrapper
-( char job, char range, char uplo, int n, double* A, int lda, 
-  double vl, double vu, int il, int iu, double abstol, 
-  double* w, double* Z, int ldz )
+( char job, char range, char uplo, int n, double* A, int ldA, 
+  double vl, double vu, int il, int iu, double absTol, 
+  double* w, double* Z, int ldZ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
-    std::vector<int> isuppz( 2*n );
+    std::vector<int> isuppZ( 2*n );
 
-    int lwork=-1, liwork=-1, m, info;
-    int dummyIwork;
-    double dummyWork;
+    int workSize=-1, iWorkSize=-1, m, info;
+    int iWorkDummy;
+    double workDummy;
     ELEM_LAPACK(dsyevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyIwork, &liwork, 
-      &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, 
+      &iWorkDummy, &iWorkSize, &info );
 
-    lwork = dummyWork;
-    liwork = dummyIwork;
-    std::vector<double> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = workDummy;
+    iWorkSize = iWorkDummy;
+    std::vector<double> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_LAPACK(dsyevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), work.data(), &lwork, iwork.data(), &liwork, 
-      &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
+      iWork.data(), &iWorkSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -617,35 +644,35 @@ int HermitianEigWrapper
 }
 
 int HermitianEigWrapper
-( char job, char range, char uplo, int n, scomplex* A, int lda, 
-  float vl, float vu, int il, int iu, float abstol, 
-  float* w, scomplex* Z, int ldz )
+( char job, char range, char uplo, int n, scomplex* A, int ldA, 
+  float vl, float vu, int il, int iu, float absTol, 
+  float* w, scomplex* Z, int ldZ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
-    std::vector<int> isuppz( 2*n );
+    std::vector<int> isuppZ( 2*n );
 
-    int lwork=-1, lrwork=-1, liwork=-1, m, info;
-    int dummyIwork;
-    float dummyRwork;
-    scomplex dummyWork;
+    int workSize=-1, rWorkSize=-1, iWorkSize=-1, m, info;
+    int iWorkDummy;
+    float rWorkDummy;
+    scomplex workDummy;
     ELEM_LAPACK(cheevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyRwork, &lrwork,
-      &dummyIwork, &liwork, &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &rWorkDummy, &rWorkSize,
+      &iWorkDummy, &iWorkSize, &info );
 
-    lwork = dummyWork.real();
-    lrwork = dummyRwork;
-    liwork = dummyIwork;
-    std::vector<scomplex> work(lwork);
-    std::vector<float> rwork(lrwork);
-    std::vector<int> iwork(liwork);
+    workSize = workDummy.real();
+    rWorkSize = rWorkDummy;
+    iWorkSize = iWorkDummy;
+    std::vector<scomplex> work(workSize);
+    std::vector<float> rWork(rWorkSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_LAPACK(cheevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), work.data(), &lwork, rwork.data(), &lrwork,
-      iwork.data(), &liwork, &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
+      rWork.data(), &rWorkSize, iWork.data(), &iWorkSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -654,35 +681,35 @@ int HermitianEigWrapper
 }
 
 int HermitianEigWrapper
-( char job, char range, char uplo, int n, dcomplex* A, int lda, 
-  double vl, double vu, int il, int iu, double abstol, 
-  double* w, dcomplex* Z, int ldz )
+( char job, char range, char uplo, int n, dcomplex* A, int ldA, 
+  double vl, double vu, int il, int iu, double absTol, 
+  double* w, dcomplex* Z, int ldZ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEigWrapper"))
     if( n == 0 )
         return 0;
 
-    std::vector<int> isuppz( 2*n );
+    std::vector<int> isuppZ( 2*n );
 
-    int lwork=-1, lrwork=-1, liwork=-1, m, info;
-    int dummyIwork;
-    double dummyRwork;
-    dcomplex dummyWork;
+    int workSize=-1, rWorkSize=-1, iWorkSize=-1, m, info;
+    int iWorkDummy;
+    double rWorkDummy;
+    dcomplex workDummy;
     ELEM_LAPACK(zheevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), &dummyWork, &lwork, &dummyRwork, &lrwork,
-      &dummyIwork, &liwork, &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &rWorkDummy, &rWorkSize,
+      &iWorkDummy, &iWorkSize, &info );
 
-    lwork = dummyWork.real();
-    lrwork = dummyRwork;
-    liwork = dummyIwork;
-    std::vector<dcomplex> work(lwork);
-    std::vector<double> rwork(lrwork);
-    std::vector<int> iwork(liwork);
+    workSize = workDummy.real();
+    rWorkSize = rWorkDummy;
+    iWorkSize = iWorkDummy;
+    std::vector<dcomplex> work(workSize);
+    std::vector<double> rWork(rWorkSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_LAPACK(zheevr)
-    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
-      w, Z, &ldz, isuppz.data(), work.data(), &lwork, rwork.data(), &lrwork,
-      iwork.data(), &liwork, &info );
+    ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
+      w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
+      rWork.data(), &rWorkSize, iWork.data(), &iWorkSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -696,102 +723,102 @@ int HermitianEigWrapper
 // All eigenvalues
 // ^^^^^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float abstol )
+( char uplo, int n, float* A, int ldA, float* w, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double abstol )
+( char uplo, int n, double* A, int ldA, double* w, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, float abstol )
+( char uplo, int n, scomplex* A, int ldA, float* w, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, double abstol )
+( char uplo, int n, dcomplex* A, int ldA, double* w, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int HermitianEig
-( char uplo, int n, float* A, int lda, float* w, 
-  float vl, float vu, float abstol )
+( char uplo, int n, float* A, int ldA, float* w, 
+  float vl, float vu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
 int HermitianEig
-( char uplo, int n, double* A, int lda, double* w, 
-  double vl, double vu, double abstol )
+( char uplo, int n, double* A, int ldA, double* w, 
+  double vl, double vu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
 int HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, 
-  float vl, float vu, float abstol )
+( char uplo, int n, scomplex* A, int ldA, float* w, 
+  float vl, float vu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
 int HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, 
-  double vl, double vu, double abstol )
+( char uplo, int n, dcomplex* A, int ldA, double* w, 
+  double vl, double vu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'N', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, 0, 1 );
+    ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
 
 // Index range
 // ^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, 
-  int il, int iu, float abstol )
+( char uplo, int n, float* A, int ldA, float* w, 
+  int il, int iu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+    ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, 
-  int il, int iu, double abstol )
+( char uplo, int n, double* A, int ldA, double* w, 
+  int il, int iu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+    ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, 
-  int il, int iu, float abstol )
+( char uplo, int n, scomplex* A, int ldA, float* w, 
+  int il, int iu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+    ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, 
-  int il, int iu, double abstol )
+( char uplo, int n, dcomplex* A, int ldA, double* w, 
+  int il, int iu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'N', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, 0, 1 );
+    ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
 
 // Compute the eigenpairs
@@ -800,106 +827,106 @@ void HermitianEig
 // All eigenpairs
 // ^^^^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz, 
-  float abstol )
+( char uplo, int n, float* A, int ldA, float* w, float* Z, int ldZ, 
+  float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
-  double abstol )
+( char uplo, int n, double* A, int ldA, double* w, double* Z, int ldZ,
+  double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
-  float abstol )
+( char uplo, int n, scomplex* A, int ldA, float* w, scomplex* Z, int ldZ,
+  float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
-  double abstol )
+( char uplo, int n, dcomplex* A, int ldA, double* w, dcomplex* Z, int ldZ,
+  double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'A', uplo, n, A, lda, 0, 0, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
-  float vl, float vu, float abstol )
+( char uplo, int n, float* A, int ldA, float* w, float* Z, int ldZ,
+  float vl, float vu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
 int HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
-  double vl, double vu, double abstol )
+( char uplo, int n, double* A, int ldA, double* w, double* Z, int ldZ,
+  double vl, double vu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
 int HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
-  float vl, float vu, float abstol )
+( char uplo, int n, scomplex* A, int ldA, float* w, scomplex* Z, int ldZ,
+  float vl, float vu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
 int HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
-  double vl, double vu, double abstol )
+( char uplo, int n, dcomplex* A, int ldA, double* w, dcomplex* Z, int ldZ,
+  double vl, double vu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     return HermitianEigWrapper
-    ( 'V', 'V', uplo, n, A, lda, vl, vu, 0, 0, abstol, w, Z, ldz );
+    ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
 
 // Index range
 // ^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
-  int il, int iu, float abstol )
+( char uplo, int n, float* A, int ldA, float* w, float* Z, int ldZ,
+  int il, int iu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+    ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz, 
-  int il, int iu, double abstol )
+( char uplo, int n, double* A, int ldA, double* w, double* Z, int ldZ, 
+  int il, int iu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+    ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
-  int il, int iu, float abstol )
+( char uplo, int n, scomplex* A, int ldA, float* w, scomplex* Z, int ldZ,
+  int il, int iu, float absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+    ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
-  int il, int iu, double abstol )
+( char uplo, int n, dcomplex* A, int ldA, double* w, dcomplex* Z, int ldZ,
+  int il, int iu, double absTol )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HermitianEig"))
     HermitianEigWrapper
-    ( 'V', 'I', uplo, n, A, lda, 0, 0, il+1, iu+1, abstol, w, Z, ldz );
+    ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
 
 // Bidiagonal DQDS for singular values
@@ -951,8 +978,8 @@ void BidiagDQDS( int n, double* d, double* e )
 // ===============================
 
 void BidiagQRAlg
-( char uplo, int n, int numColsVTrans, int numRowsU,
-  float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU )
+( char uplo, int n, int numColsVT, int numRowsU,
+  float* d, float* e, float* VTrans, int ldVT, float* U, int ldU )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -963,7 +990,7 @@ void BidiagQRAlg
     const int numColsC=0, ldC=1;
     std::vector<float> work( 4*n );
     ELEM_LAPACK(sbdsqr)
-    ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
+    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -972,8 +999,8 @@ void BidiagQRAlg
 }
 
 void BidiagQRAlg
-( char uplo, int n, int numColsVTrans, int numRowsU, 
-  double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU )
+( char uplo, int n, int numColsVT, int numRowsU, 
+  double* d, double* e, double* VTrans, int ldVT, double* U, int ldU )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -984,7 +1011,7 @@ void BidiagQRAlg
     const int numColsC=0, ldC=1;
     std::vector<double> work( 4*n );
     ELEM_LAPACK(dbdsqr)
-    ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
+    ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -993,8 +1020,8 @@ void BidiagQRAlg
 }
 
 void BidiagQRAlg
-( char uplo, int n, int numColsVAdj, int numRowsU, 
-  float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU )
+( char uplo, int n, int numColsVH, int numRowsU, 
+  float* d, float* e, scomplex* VH, int ldVH, scomplex* U, int ldU )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -1005,7 +1032,7 @@ void BidiagQRAlg
     const int numColsC=0, ldC=1;
     std::vector<float> work( 4*n );
     ELEM_LAPACK(cbdsqr)
-    ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
+    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -1014,8 +1041,8 @@ void BidiagQRAlg
 }
 
 void BidiagQRAlg
-( char uplo, int n, int numColsVAdj, int numRowsU, 
-  double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU )
+( char uplo, int n, int numColsVH, int numRowsU, 
+  double* d, double* e, dcomplex* VH, int ldVH, dcomplex* U, int ldU )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::BidiagQRAlg"))
     if( n==0 )
@@ -1026,7 +1053,7 @@ void BidiagQRAlg
     const int numColsC=0, ldC=1;
     std::vector<double> work( 4*n );
     ELEM_LAPACK(zbdsqr)
-    ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
+    ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
@@ -1038,7 +1065,7 @@ void BidiagQRAlg
 // ======================
 
 void DivideAndConquerSVD
-( int m, int n, float* A, int lda, 
+( int m, int n, float* A, int ldA, 
   float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
@@ -1046,20 +1073,20 @@ void DivideAndConquerSVD
         return;
 
     const char jobz='S';
-    int lwork=-1, info;
-    float dummyWork;
+    int workSize=-1, info;
+    float workDummy;
     const int k = std::min(m,n);
-    std::vector<int> iwork(8*k);
+    std::vector<int> iWork(8*k);
 
     ELEM_LAPACK(sgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &dummyWork, &lwork,
-      iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, &workDummy, &workSize,
+      iWork.data(), &info );
 
-    lwork = dummyWork;
-    std::vector<float> work(lwork);
+    workSize = workDummy;
+    std::vector<float> work(workSize);
     ELEM_LAPACK(sgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, work.data(), &lwork,
-      iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, work.data(), &workSize,
+      iWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1067,7 +1094,7 @@ void DivideAndConquerSVD
 }
 
 void DivideAndConquerSVD
-( int m, int n, double* A, int lda, 
+( int m, int n, double* A, int ldA, 
   double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
@@ -1075,20 +1102,20 @@ void DivideAndConquerSVD
         return;
 
     const char jobz='S';
-    int lwork=-1, info;
-    double dummyWork;
+    int workSize=-1, info;
+    double workDummy;
     const int k = std::min(m,n);
-    std::vector<int> iwork(8*k);
+    std::vector<int> iWork(8*k);
 
     ELEM_LAPACK(dgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &dummyWork, &lwork,
-      iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, &workDummy, &workSize,
+      iWork.data(), &info );
 
-    lwork = dummyWork;
-    std::vector<double> work(lwork);
+    workSize = workDummy;
+    std::vector<double> work(workSize);
     ELEM_LAPACK(dgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, work.data(), &lwork,
-      iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, work.data(), &workSize,
+      iWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1096,31 +1123,31 @@ void DivideAndConquerSVD
 }
 
 void DivideAndConquerSVD
-( int m, int n, scomplex* A, int lda, 
-  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
+( int m, int n, scomplex* A, int ldA, 
+  float* s, scomplex* U, int ldu, scomplex* VH, int ldva )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
     const char jobz='S';
-    int lwork=-1, info;
+    int workSize=-1, info;
     const int k = std::min(m,n);
     const int K = std::max(m,n);
-    const int lrwork = k*std::max(5*k+7,2*K+2*k+1);
-    std::vector<float> rwork(lrwork);
-    std::vector<int> iwork(8*k);
+    const int rWorkSize = k*std::max(5*k+7,2*K+2*k+1);
+    std::vector<float> rWork(rWorkSize);
+    std::vector<int> iWork(8*k);
 
-    scomplex dummyWork;
+    scomplex workDummy;
     ELEM_LAPACK(cgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &dummyWork, &lwork,
-      rwork.data(), iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, &workDummy, &workSize,
+      rWork.data(), iWork.data(), &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<scomplex> work(workSize);
     ELEM_LAPACK(cgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, work.data(), &lwork,
-      rwork.data(), iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, work.data(), &workSize,
+      rWork.data(), iWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1128,31 +1155,31 @@ void DivideAndConquerSVD
 }
 
 void DivideAndConquerSVD
-( int m, int n, dcomplex* A, int lda, 
-  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
+( int m, int n, dcomplex* A, int ldA, 
+  double* s, dcomplex* U, int ldu, dcomplex* VH, int ldva )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::DivideAndConquerSVD"))
     if( m==0 || n==0 )
         return;
 
     const char jobz='S';
-    int lwork=-1, info;
-    dcomplex dummyWork;
+    int workSize=-1, info;
+    dcomplex workDummy;
     const int k = std::min(m,n);
     const int K = std::max(m,n);
-    const int lrwork = k*std::max(5*k+7,2*K+2*k+1);
-    std::vector<double> rwork(lrwork);
-    std::vector<int> iwork(8*k);
+    const int rWorkSize = k*std::max(5*k+7,2*K+2*k+1);
+    std::vector<double> rWork(rWorkSize);
+    std::vector<int> iWork(8*k);
 
     ELEM_LAPACK(zgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &dummyWork, &lwork,
-      rwork.data(), iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, &workDummy, &workSize,
+      rWork.data(), iWork.data(), &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<dcomplex> work(workSize);
     ELEM_LAPACK(zgesdd)
-    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, work.data(), &lwork,
-      rwork.data(), iwork.data(), &info );
+    ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, work.data(), &workSize,
+      rWork.data(), iWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1163,26 +1190,26 @@ void DivideAndConquerSVD
 // ================
 
 void QRSVD
-( int m, int n, float* A, int lda, 
+( int m, int n, float* A, int ldA, 
   float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='S', jobvt='S';
-    int lwork=-1, info;
-    float dummyWork;
+    const char jobU='S', jobVT='S';
+    int workSize=-1, info;
+    float workDummy;
 
     ELEM_LAPACK(sgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
-      &dummyWork, &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<float> work(lwork);
+    workSize = workDummy;
+    std::vector<float> work(workSize);
     ELEM_LAPACK(sgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
-      work.data(), &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1190,26 +1217,26 @@ void QRSVD
 }
 
 void QRSVD
-( int m, int n, double* A, int lda, 
+( int m, int n, double* A, int ldA, 
   double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='S', jobvt='S';
-    int lwork=-1, info;
-    double dummyWork;
+    const char jobU='S', jobVT='S';
+    int workSize=-1, info;
+    double workDummy;
 
     ELEM_LAPACK(dgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
-      &dummyWork, &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<double> work(lwork);
+    workSize = workDummy;
+    std::vector<double> work(workSize);
     ELEM_LAPACK(dgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
-      work.data(), &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1217,28 +1244,28 @@ void QRSVD
 }
 
 void QRSVD
-( int m, int n, scomplex* A, int lda, 
-  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
+( int m, int n, scomplex* A, int ldA, 
+  float* s, scomplex* U, int ldu, scomplex* VH, int ldva )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='S', jobva='S';
-    int lwork=-1, info;
+    const char jobU='S', jobVH='S';
+    int workSize=-1, info;
     const int k = std::min(m,n);
-    std::vector<float> rwork(5*k);
+    std::vector<float> rWork(5*k);
 
-    scomplex dummyWork;
+    scomplex workDummy;
     ELEM_LAPACK(cgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
-      &dummyWork, &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
+      &workDummy, &workSize, rWork.data(), &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<scomplex> work(workSize);
     ELEM_LAPACK(cgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
-      work.data(), &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
+      work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1246,28 +1273,28 @@ void QRSVD
 }
 
 void QRSVD
-( int m, int n, dcomplex* A, int lda, 
-  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
+( int m, int n, dcomplex* A, int ldA, 
+  double* s, dcomplex* U, int ldu, dcomplex* VH, int ldva )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::QRSVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='S', jobva='S';
-    int lwork=-1, info;
-    dcomplex dummyWork;
+    const char jobU='S', jobVH='S';
+    int workSize=-1, info;
+    dcomplex workDummy;
     const int k = std::min(m,n);
-    std::vector<double> rwork(5*k);
+    std::vector<double> rWork(5*k);
 
     ELEM_LAPACK(zgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
-      &dummyWork, &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
+      &workDummy, &workSize, rWork.data(), &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<dcomplex> work(workSize);
     ELEM_LAPACK(zgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
-      work.data(), &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
+      work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1277,104 +1304,104 @@ void QRSVD
 // Compute singular values (with DQDS)
 // ===================================
 
-void SVD( int m, int n, float* A, int lda, float* s )
+void SVD( int m, int n, float* A, int ldA, float* s )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='N', jobvt='N';
-    int fakeLDim=1, lwork=-1, info;
-    float dummyWork;
+    const char jobU='N', jobVT='N';
+    int fakeLDim=1, workSize=-1, info;
+    float workDummy;
 
     ELEM_LAPACK(sgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      &dummyWork, &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<float> work(lwork);
+    workSize = workDummy;
+    std::vector<float> work(workSize);
     ELEM_LAPACK(sgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      work.data(), &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("sgesvd's updating process failed");
 }
 
-void SVD( int m, int n, double* A, int lda, double* s )
+void SVD( int m, int n, double* A, int ldA, double* s )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='N', jobvt='N';
-    int fakeLDim=1, lwork=-1, info;
-    double dummyWork;
+    const char jobU='N', jobVT='N';
+    int fakeLDim=1, workSize=-1, info;
+    double workDummy;
 
     ELEM_LAPACK(dgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      &dummyWork, &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<double> work(lwork);
+    workSize = workDummy;
+    std::vector<double> work(workSize);
     ELEM_LAPACK(dgesvd)
-    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      work.data(), &lwork, &info );
+    ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("dgesvd's updating process failed");
 }
 
-void SVD( int m, int n, scomplex* A, int lda, float* s )
+void SVD( int m, int n, scomplex* A, int ldA, float* s )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='N', jobva='N';
-    int fakeLDim=1, lwork=-1, info;
-    scomplex dummyWork;
+    const char jobU='N', jobVH='N';
+    int fakeLDim=1, workSize=-1, info;
+    scomplex workDummy;
     const int k = std::min(m,n);
-    std::vector<float> rwork(5*k);
+    std::vector<float> rWork(5*k);
 
     ELEM_LAPACK(cgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      &dummyWork, &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &workDummy, &workSize, rWork.data(), &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<scomplex> work(workSize);
     ELEM_LAPACK(cgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      work.data(), &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
         RuntimeError("cgesvd's updating process failed");
 }
 
-void SVD( int m, int n, dcomplex* A, int lda, double* s )
+void SVD( int m, int n, dcomplex* A, int ldA, double* s )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::SVD"))
     if( m==0 || n==0 )
         return;
 
-    const char jobu='N', jobva='N';
-    int fakeLDim=1, lwork=-1, info;
-    dcomplex dummyWork;
+    const char jobU='N', jobVH='N';
+    int fakeLDim=1, workSize=-1, info;
+    dcomplex workDummy;
     const int k = std::min(m,n);
-    std::vector<double> rwork(5*k);
+    std::vector<double> rWork(5*k);
 
     ELEM_LAPACK(zgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      &dummyWork, &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &workDummy, &workSize, rWork.data(), &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<dcomplex> work(workSize);
     ELEM_LAPACK(zgesvd)
-    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
-      work.data(), &lwork, rwork.data(), &info );
+    ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
+      work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1384,26 +1411,26 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================
 
-void HessenbergSchur( int n, float* H, int ldh, scomplex* w, bool fullTriangle )
+void HessenbergSchur( int n, float* H, int ldH, scomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz='N';
+    const char job=(fullTriangle?'S':'E'), compZ='N';
     int ilo=1, ihi=n;
-    int fakeLDim=1, lwork=-1, info;
-    float dummyWork;
+    int fakeLDim=1, workSize=-1, info;
+    float workDummy;
     std::vector<float> wr( n ), wi( n );
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), 0, &fakeLDim,
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<float> work(lwork);
+    workSize = workDummy;
+    std::vector<float> work(workSize);
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), 0, &fakeLDim,
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1414,26 +1441,26 @@ void HessenbergSchur( int n, float* H, int ldh, scomplex* w, bool fullTriangle )
 }
 
 void HessenbergSchur
-( int n, double* H, int ldh, dcomplex* w, bool fullTriangle )
+( int n, double* H, int ldH, dcomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz='N';
+    const char job=(fullTriangle?'S':'E'), compZ='N';
     int ilo=1, ihi=n;
-    int fakeLDim=1, lwork=-1, info;
-    double dummyWork;
+    int fakeLDim=1, workSize=-1, info;
+    double workDummy;
     std::vector<double> wr( n ), wi( n );
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), 0, &fakeLDim,
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<double> work(lwork);
+    workSize = workDummy;
+    std::vector<double> work(workSize);
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), 0, &fakeLDim,
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1444,25 +1471,25 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, scomplex* H, int ldh, scomplex* w, bool fullTriangle )
+( int n, scomplex* H, int ldH, scomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz='N';
+    const char job=(fullTriangle?'S':'E'), compZ='N';
     int ilo=1, ihi=n;
-    int fakeLDim=1, lwork=-1, info;
-    scomplex dummyWork;
+    int fakeLDim=1, workSize=-1, info;
+    scomplex workDummy;
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<scomplex> work(workSize);
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1470,25 +1497,25 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, int ldh, dcomplex* w, bool fullTriangle )
+( int n, dcomplex* H, int ldH, dcomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz='N';
+    const char job=(fullTriangle?'S':'E'), compZ='N';
     int ilo=1, ihi=n;
-    int fakeLDim=1, lwork=-1, info;
-    dcomplex dummyWork;
+    int fakeLDim=1, workSize=-1, info;
+    dcomplex workDummy;
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<dcomplex> work(workSize);
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1496,27 +1523,27 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, float* H, int ldh, scomplex* w, float* Q, int ldq, 
+( int n, float* H, int ldH, scomplex* w, float* Q, int ldQ, 
   bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
     int ilo=1, ihi=n;
-    int lwork=-1, info;
-    float dummyWork;
+    int workSize=-1, info;
+    float workDummy;
     std::vector<float> wr( n ), wi( n );
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<float> work(lwork);
+    workSize = workDummy;
+    std::vector<float> work(workSize);
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1527,27 +1554,27 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, double* H, int ldh, dcomplex* w, double* Q, int ldq, 
+( int n, double* H, int ldH, dcomplex* w, double* Q, int ldQ, 
   bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
     int ilo=1, ihi=n;
-    int lwork=-1, info;
-    double dummyWork;
+    int workSize=-1, info;
+    double workDummy;
     std::vector<double> wr( n ), wi( n );
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<double> work(lwork);
+    workSize = workDummy;
+    std::vector<double> work(workSize);
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, wr.data(), wi.data(), Q, &ldq,
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1558,26 +1585,26 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, scomplex* H, int ldh, scomplex* w, scomplex* Q, int ldq,
+( int n, scomplex* H, int ldH, scomplex* w, scomplex* Q, int ldQ,
   bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
     int ilo=1, ihi=n;
-    int lwork=-1, info;
-    scomplex dummyWork;
+    int workSize=-1, info;
+    scomplex workDummy;
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<scomplex> work(workSize);
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1585,26 +1612,26 @@ void HessenbergSchur
 }
 
 void HessenbergSchur
-( int n, dcomplex* H, int ldh, dcomplex* w, dcomplex* Q, int ldq,
+( int n, dcomplex* H, int ldH, dcomplex* w, dcomplex* Q, int ldQ,
   bool fullTriangle, bool multiplyQ )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergSchur"))
     if( n == 0 )
         return;
 
-    const char job=(fullTriangle?'S':'E'), compz=(multiplyQ?'V':'I');
+    const char job=(fullTriangle?'S':'E'), compZ=(multiplyQ?'V':'I');
     int ilo=1, ihi=n;
-    int lwork=-1, info;
-    dcomplex dummyWork;
+    int workSize=-1, info;
+    dcomplex workDummy;
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
-      &dummyWork, &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
+      &workDummy, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work(lwork);
+    workSize = workDummy.real();
+    std::vector<dcomplex> work(workSize);
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, Q, &ldq, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," had an illegal value");
     else if( info > 0 )
@@ -1614,28 +1641,28 @@ void HessenbergSchur
 // Compute eigenvalues/pairs of an upper Hessenberg matrix
 // =======================================================
 
-void HessenbergEig( int n, float* H, int ldh, scomplex* w )
+void HessenbergEig( int n, float* H, int ldH, scomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
-    HessenbergSchur( n, H, ldh, w, false );
+    HessenbergSchur( n, H, ldH, w, false );
 }
 
-void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
+void HessenbergEig( int n, double* H, int ldH, dcomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
-    HessenbergSchur( n, H, ldh, w, false );
+    HessenbergSchur( n, H, ldH, w, false );
 }
 
-void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
+void HessenbergEig( int n, scomplex* H, int ldH, scomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
-    HessenbergSchur( n, H, ldh, w, false );
+    HessenbergSchur( n, H, ldH, w, false );
 }
 
-void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
+void HessenbergEig( int n, dcomplex* H, int ldH, dcomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::HessenbergEig"))
-    HessenbergSchur( n, H, ldh, w, false );
+    HessenbergSchur( n, H, ldH, w, false );
 }
 
 // TODO: Compute eigenpairs
@@ -1643,40 +1670,40 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
 // Compute the Schur decomposition of a square matrix
 // ==================================================
 
-void Schur( int n, float* A, int lda, scomplex* w, bool fullTriangle )
+void Schur( int n, float* A, int ldA, scomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    float dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    float workDummy;
     std::vector<float> tau( n );
     ELEM_LAPACK(sgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork;
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy;
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
     std::vector<float> wr( n ), wi( n );
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), 0, &fakeLDim,
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<float> work( lwork );
+    std::vector<float> work( workSize );
     ELEM_LAPACK(sgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), 0, &fakeLDim,
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
@@ -1687,40 +1714,40 @@ void Schur( int n, float* A, int lda, scomplex* w, bool fullTriangle )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
 }
 
-void Schur( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
+void Schur( int n, double* A, int ldA, dcomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    double dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    double workDummy;
     std::vector<double> tau( n );
     ELEM_LAPACK(dgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork;
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy;
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
     std::vector<double> wr( n ), wi( n );
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), 0, &fakeLDim,
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<double> work( lwork );
+    std::vector<double> work( workSize );
     ELEM_LAPACK(dgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), 0, &fakeLDim,
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
@@ -1731,78 +1758,78 @@ void Schur( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
 }
 
-void Schur( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
+void Schur( int n, scomplex* A, int ldA, scomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    scomplex dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    scomplex workDummy;
     std::vector<scomplex> tau( n );
     ELEM_LAPACK(cgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork.real();
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy.real();
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real()), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<scomplex> work( lwork );
+    std::vector<scomplex> work( workSize );
     ELEM_LAPACK(cgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
         RuntimeError("chseqr's failed to compute all eigenvalues");
 }
 
-void Schur( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
+void Schur( int n, dcomplex* A, int ldA, dcomplex* w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    dcomplex dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    dcomplex workDummy;
     std::vector<dcomplex> tau( n );
     ELEM_LAPACK(zgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork.real();
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy.real();
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real()), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<dcomplex> work( lwork );
+    std::vector<dcomplex> work( workSize );
     ELEM_LAPACK(zgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
@@ -1810,55 +1837,55 @@ void Schur( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
 }
 
 void Schur
-( int n, float* A, int lda, scomplex* w, float* Q, int ldq, bool fullTriangle )
+( int n, float* A, int ldA, scomplex* w, float* Q, int ldQ, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
     if( n == 0 )
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    float dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    float workDummy;
     std::vector<float> tau( n );
     ELEM_LAPACK(sgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork;
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy;
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
     ELEM_LAPACK(sorghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork), lwork );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy), workSize );
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
     std::vector<float> wr( n ), wi( n );
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), Q, &ldq, 
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<float> work( lwork );
+    std::vector<float> work( workSize );
     ELEM_LAPACK(sgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
-        MemCopy( &Q[j*ldq], &A[j*lda], n );
+        MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
     ELEM_LAPACK(sorghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     ELEM_LAPACK(shseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), Q, &ldq, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
@@ -1870,7 +1897,7 @@ void Schur
 }
 
 void Schur
-( int n, double* A, int lda, dcomplex* w, double* Q, int ldq, 
+( int n, double* A, int ldA, dcomplex* w, double* Q, int ldQ, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
@@ -1878,48 +1905,48 @@ void Schur
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    double dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    double workDummy;
     std::vector<double> tau( n );
     ELEM_LAPACK(dgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork;
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy;
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
     ELEM_LAPACK(dorghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork), lwork );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy), workSize );
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
     std::vector<double> wr( n ), wi( n );
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), Q, &ldq, 
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<double> work( lwork );
+    std::vector<double> work( workSize );
     ELEM_LAPACK(dgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
-        MemCopy( &Q[j*ldq], &A[j*lda], n );
+        MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
     ELEM_LAPACK(dorghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     ELEM_LAPACK(dhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, wr.data(), wi.data(), Q, &ldq, 
-      work.data(), &lwork, &info );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
+      work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
     else if( info > 0 )
@@ -1931,7 +1958,7 @@ void Schur
 }
 
 void Schur
-( int n, scomplex* A, int lda, scomplex* w, scomplex* Q, int ldq, 
+( int n, scomplex* A, int ldA, scomplex* w, scomplex* Q, int ldQ, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
@@ -1939,46 +1966,46 @@ void Schur
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    scomplex dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    scomplex workDummy;
     std::vector<scomplex> tau( n );
     ELEM_LAPACK(cgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork.real();
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy.real();
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
     ELEM_LAPACK(cunghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real()), lwork );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy.real()), workSize );
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, 
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real()), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, 
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<scomplex> work( lwork );
+    std::vector<scomplex> work( workSize );
     ELEM_LAPACK(cgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
-        MemCopy( &Q[j*ldq], &A[j*lda], n );
+        MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
     ELEM_LAPACK(cunghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     ELEM_LAPACK(chseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, work.data(), &lwork, 
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, work.data(), &workSize, 
       &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
@@ -1987,7 +2014,7 @@ void Schur
 }
 
 void Schur
-( int n, dcomplex* A, int lda, dcomplex* w, dcomplex* Q, int ldq, 
+( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* Q, int ldQ, 
   bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Schur"))
@@ -1995,46 +2022,46 @@ void Schur
         return;
 
     // Query the reduction to Hessenberg form workspace size
-    int ilo=1, ihi=n, lwork=-1, info;
-    dcomplex dummyWork;
+    int ilo=1, ihi=n, workSize=-1, info;
+    dcomplex workDummy;
     std::vector<dcomplex> tau( n );
     ELEM_LAPACK(zgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), &dummyWork, &lwork, &info );
-    lwork = dummyWork.real();
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
+    workSize = workDummy.real();
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
     ELEM_LAPACK(zunghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real()), lwork );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy.real()), workSize );
 
     // Query the QR algorithm workspace size
-    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, 
-      &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real()), lwork );
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, 
+      &workDummy, &negOne, &info );
+    workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
-    std::vector<dcomplex> work( lwork );
+    std::vector<dcomplex> work( workSize );
     ELEM_LAPACK(zgehrd)
-    ( &n, &ilo, &ihi, A, &lda, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Copy the Householder vectors over
     for( int j=0; j<n; ++j )
-        MemCopy( &Q[j*ldq], &A[j*lda], n );
+        MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
     ELEM_LAPACK(zunghr)
-    ( &n, &ilo, &ihi, Q, &ldq, tau.data(), work.data(), &lwork, &info );
+    ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
     ELEM_LAPACK(zhseqr)
-    ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, work.data(), &lwork, 
+    ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, work.data(), &workSize, 
       &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of QR alg had an illegal value");
@@ -2045,31 +2072,200 @@ void Schur
 // Compute the eigenvalues/pairs of a square matrix
 // ================================================
 
-void Eig( int n, float* A, int lda, scomplex* w )
+// Eigenvalues only
+// ----------------
+
+void Eig( int n, float* A, int ldA, scomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
-    Schur( n, A, lda, w, false );
+    Schur( n, A, ldA, w, false );
 }
 
-void Eig( int n, double* A, int lda, dcomplex* w )
+void Eig( int n, double* A, int ldA, dcomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
-    Schur( n, A, lda, w, false );
+    Schur( n, A, ldA, w, false );
 }
 
-void Eig( int n, scomplex* A, int lda, scomplex* w )
+void Eig( int n, scomplex* A, int ldA, scomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
-    Schur( n, A, lda, w, false );
+    Schur( n, A, ldA, w, false );
 }
 
-void Eig( int n, dcomplex* A, int lda, dcomplex* w )
+void Eig( int n, dcomplex* A, int ldA, dcomplex* w )
 {
     DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
-    Schur( n, A, lda, w, false );
+    Schur( n, A, ldA, w, false );
 }
 
-// TODO: Also compute the eigenvectors
+// Eigenpairs
+// ----------
+// NOTE: When the matrices are real, an interface is also provided which returns
+//       a packing of the eigenvectors which exploits the fact that, if the
+//       eigenvalue is real, so is the corresponding eigenvector, otherwise
+//       the eigenvalue's complex conjugate is also an eigenvalue, and the 
+//       corresponding eigenvector is also the conjugate. Thus, an n x n
+//       real matrix can be used to represent the eigenvectors if
+//           x(j  ) = X(:,j) + X(:,j+1)*1i,
+//           x(j+1) = X(:,j) - X(:,j+1)*1i
+//       when the j'th and j+1'th eigenvalues are complex conjugates.
+
+void Eig( int n, float* A, int ldA, scomplex* w, float* XPacked, int ldX )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    const char jobVL='N', jobVR='V';
+    const int fakeLDim = 1;
+
+    std::vector<float> wReal(n), wImag(n);
+    int workSize=-1, info;
+    float workDummy;
+    ELEM_LAPACK(sgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim, 
+      XPacked, &ldX, &workDummy, &workSize, &info );
+
+    workSize = workDummy;
+    std::vector<float> work( workSize );
+    ELEM_LAPACK(sgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim, 
+      XPacked, &ldX, work.data(), &workSize, &info );
+
+    // Post-process the eigenvalues
+    for( Int j=0; j<n; ++j )
+        w[j] = Complex<float>(wReal[j],wImag[j]);
+}
+
+void Eig( int n, double* A, int ldA, dcomplex* w, double* XPacked, int ldX )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    const char jobVL='N', jobVR='V';
+    const int fakeLDim = 1;
+
+    std::vector<double> wReal(n), wImag(n);
+    int workSize=-1, info;
+    double workDummy;
+    ELEM_LAPACK(dgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim,
+      XPacked, &ldX, &workDummy, &workSize, &info );
+
+    workSize = workDummy;
+    std::vector<double> work( workSize );
+    ELEM_LAPACK(dgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim,
+      XPacked, &ldX, work.data(), &workSize, &info );
+
+    // Post-process the eigenvalues
+    for( Int j=0; j<n; ++j )
+        w[j] = Complex<double>(wReal[j],wImag[j]);
+}
+
+void Eig( int n, float* A, int ldA, scomplex* w, scomplex* X, int ldX )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    float* XPacked = (float*)X;    
+    Eig( n, A, ldA, w, XPacked, ldX );
+    // Unpack the eigenvectors
+    std::vector<scomplex> z(n);
+    Int j=n-1;
+    while( j >= 0 )
+    {
+        const bool inPair = ( w[j].imag() != float(0) );
+        if( inPair )
+        {
+            for( Int i=0; i<n; ++i )
+                z[i] = XPacked[i+(j-1)*ldX] + XPacked[i+j*ldX];
+            for( Int i=0; i<n; ++i ) 
+            {
+                X[i+(j-1)*ldX] =      z[i];
+                X[i+ j   *ldX] = Conj(z[i]);
+            }
+            j -= 2;
+        }
+        else
+        {
+            for( Int i=0; i<n; ++i ) 
+                z[i] = XPacked[i+j*ldX];
+            for( Int i=0; i<n; ++i )
+                X[i+j*ldX] = z[i];
+            j -= 1; 
+        }
+    }
+}
+
+void Eig( int n, double* A, int ldA, dcomplex* w, dcomplex* X, int ldX )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    double* XPacked = (double*)X;    
+    Eig( n, A, ldA, w, XPacked, ldX );
+    // Unpack the eigenvectors
+    std::vector<scomplex> z(n);
+    Int j=n-1;
+    while( j >= 0 )
+    {
+        const bool inPair = ( w[j].imag() != double(0) );
+        if( inPair )
+        {
+            for( Int i=0; i<n; ++i )
+                z[i] = XPacked[i+(j-1)*ldX] + XPacked[i+j*ldX];
+            for( Int i=0; i<n; ++i ) 
+            {
+                X[i+(j-1)*ldX] =      z[i];
+                X[i+ j   *ldX] = Conj(z[i]);
+            }
+            j -= 2;
+        }
+        else
+        {
+            for( Int i=0; i<n; ++i ) 
+                z[i] = XPacked[i+j*ldX];
+            for( Int i=0; i<n; ++i )
+                X[i+j*ldX] = z[i];
+            j -= 1; 
+        }
+    }
+}
+
+void Eig( int n, scomplex* A, int ldA, scomplex* w, scomplex* X, int ldX )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    std::vector<float> rWork( 2*n );
+    const char jobVL='N', jobVR='V';
+    const int fakeLDim = 1;
+
+    int workSize=-1, info;
+    scomplex workDummy;
+    ELEM_LAPACK(cgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX, 
+      &workDummy, &workSize, rWork.data(), &info );
+
+    workSize = workDummy.real();
+    std::vector<scomplex> work( workSize );
+    ELEM_LAPACK(cgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX, 
+      work.data(), &workSize, rWork.data(), &info );
+}
+
+void Eig( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* X, int ldX )
+{
+    DEBUG_ONLY(CallStackEntry cse("lapack::Eig"))
+    std::vector<double> rWork( 2*n );
+    const char jobVL='N', jobVR='V';
+    const int fakeLDim = 1;
+
+    int workSize=-1, info;
+    dcomplex workDummy;
+    ELEM_LAPACK(zgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX,
+      &workDummy, &workSize, rWork.data(), &info );
+
+    workSize = workDummy.real();
+    std::vector<dcomplex> work( workSize );
+    ELEM_LAPACK(zgeev)
+    ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX,
+      work.data(), &workSize, rWork.data(), &info );
+}
+
+// TODO: Return the left eigenvectors?
 
 } // namespace lapack
 } // namespace elem

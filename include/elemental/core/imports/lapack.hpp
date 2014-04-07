@@ -124,26 +124,26 @@ void SymmetricTridiagEig
 // All eigenpairs
 // ^^^^^^^^^^^^^^
 void SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float* Z, int ldz, float abstol=0 );
+( int n, float* d, float* e, float* w, float* Z, int ldZ, float abstol=0 );
 void SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double* Z, int ldz, double abstol=0 );
+( int n, double* d, double* e, double* w, double* Z, int ldZ, double abstol=0 );
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float* Z, int ldz,
+( int n, float* d, float* e, float* w, float* Z, int ldZ,
   float vl, float vu, float abstol=0 );
 int SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double* Z, int ldz,
+( int n, double* d, double* e, double* w, double* Z, int ldZ,
   double vl, double vu, double abstol=0 );
 
 // Index range
 // ^^^^^^^^^^^
 void SymmetricTridiagEig
-( int n, float* d, float* e, float* w, float* Z, int ldz,
+( int n, float* d, float* e, float* w, float* Z, int ldZ,
   int il, int iu, float abstol=0 );
 void SymmetricTridiagEig
-( int n, double* d, double* e, double* w, double* Z, int ldz,
+( int n, double* d, double* e, double* w, double* Z, int ldZ,
   int il, int iu, double abstol=0 );
 
 // Compute the eigen-values/pairs of a Hermitian matrix
@@ -155,42 +155,42 @@ void SymmetricTridiagEig
 // All eigenvalues
 // ^^^^^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float abstol=0 );
+( char uplo, int n, float* A, int ldA, float* w, float abstol=0 );
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double abstol=0 );
+( char uplo, int n, double* A, int ldA, double* w, double abstol=0 );
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, float abstol=0 );
+( char uplo, int n, scomplex* A, int ldA, float* w, float abstol=0 );
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, double abstol=0 );
+( char uplo, int n, dcomplex* A, int ldA, double* w, double abstol=0 );
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int HermitianEig
-( char uplo, int n, float* A, int lda, float* w,
+( char uplo, int n, float* A, int ldA, float* w,
   float vl, float vu, float abstol=0 );
 int HermitianEig
-( char uplo, int n, double* A, int lda, double* w,
+( char uplo, int n, double* A, int ldA, double* w,
   double vl, double vu, double abstol=0 );
 int HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w,
+( char uplo, int n, scomplex* A, int ldA, float* w,
   float vl, float vu, float abstol=0 );
 int HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w,
+( char uplo, int n, dcomplex* A, int ldA, double* w,
   double vl, double vu, double abstol=0 );
 
 // Index range
 // ^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w,
+( char uplo, int n, float* A, int ldA, float* w,
   int il, int iu, float abstol=0 );
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w,
+( char uplo, int n, double* A, int ldA, double* w,
   int il, int iu, double abstol=0 );
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w,
+( char uplo, int n, scomplex* A, int ldA, float* w,
   int il, int iu, float abstol=0 );
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w,
+( char uplo, int n, dcomplex* A, int ldA, double* w,
   int il, int iu, double abstol=0 );
 
 // Compute eigenpairs
@@ -199,87 +199,87 @@ void HermitianEig
 // All eigenpairs
 // ^^^^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+( char uplo, int n, float* A, int ldA, float* w, float* Z, int ldZ,
   float abstol=0 );
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+( char uplo, int n, double* A, int ldA, double* w, double* Z, int ldZ,
   double abstol=0 );
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+( char uplo, int n, scomplex* A, int ldA, float* w, scomplex* Z, int ldZ,
   float abstol=0 );
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+( char uplo, int n, dcomplex* A, int ldA, double* w, dcomplex* Z, int ldZ,
   double abstol=0 );
 
 // Floating-point range
 // ^^^^^^^^^^^^^^^^^^^^
 int HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+( char uplo, int n, float* A, int ldA, float* w, float* Z, int ldZ,
   float vl, float vu, float abstol=0 );
 int HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+( char uplo, int n, double* A, int ldA, double* w, double* Z, int ldZ,
   double vl, double vu, double abstol=0 );
 int HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+( char uplo, int n, scomplex* A, int ldA, float* w, scomplex* Z, int ldZ,
   float vl, float vu, float abstol=0 );
 int HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+( char uplo, int n, dcomplex* A, int ldA, double* w, dcomplex* Z, int ldZ,
   double vl, double vu, double abstol=0 );
 
 // Index range
 // ^^^^^^^^^^^
 void HermitianEig
-( char uplo, int n, float* A, int lda, float* w, float* Z, int ldz,
+( char uplo, int n, float* A, int ldA, float* w, float* Z, int ldZ,
   int il, int iu, float abstol=0 );
 void HermitianEig
-( char uplo, int n, double* A, int lda, double* w, double* Z, int ldz,
+( char uplo, int n, double* A, int ldA, double* w, double* Z, int ldZ,
   int il, int iu, double abstol=0 );
 void HermitianEig
-( char uplo, int n, scomplex* A, int lda, float* w, scomplex* Z, int ldz,
+( char uplo, int n, scomplex* A, int ldA, float* w, scomplex* Z, int ldZ,
   int il, int iu, float abstol=0 );
 void HermitianEig
-( char uplo, int n, dcomplex* A, int lda, double* w, dcomplex* Z, int ldz,
+( char uplo, int n, dcomplex* A, int ldA, double* w, dcomplex* Z, int ldZ,
   int il, int iu, double abstol=0 );
 
 // Compute the SVD of a general matrix using a divide and conquer algorithm
 // ========================================================================
 
 void DivideAndConquerSVD
-( int m, int n, float* A, int lda, 
-  float* s, float* U, int ldu, float* VTrans, int ldvt );
+( int m, int n, float* A, int ldA, 
+  float* s, float* U, int ldU, float* VT, int ldVT );
 void DivideAndConquerSVD
-( int m, int n, double* A, int lda, 
-  double* s, double* U, int ldu, double* VTrans, int ldvt );
+( int m, int n, double* A, int ldA, 
+  double* s, double* U, int ldU, double* VT, int ldVT );
 void DivideAndConquerSVD
-( int m, int n, scomplex* A, int lda, 
-  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva );
+( int m, int n, scomplex* A, int ldA, 
+  float* s, scomplex* U, int ldU, scomplex* VH, int ldVH );
 void DivideAndConquerSVD
-( int m, int n, dcomplex* A, int lda, 
-  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
+( int m, int n, dcomplex* A, int ldA, 
+  double* s, dcomplex* U, int ldU, dcomplex* VH, int ldVH );
 
 // Compute the SVD of a general matrix using the QR algorithm
 // ==========================================================
 
 void QRSVD
-( int m, int n, float* A, int lda, 
-  float* s, float* U, int ldu, float* VTrans, int ldvt );
+( int m, int n, float* A, int ldA, 
+  float* s, float* U, int ldU, float* VT, int ldVT );
 void QRSVD
-( int m, int n, double* A, int lda, 
-  double* s, double* U, int ldu, double* VTrans, int ldvt );
+( int m, int n, double* A, int ldA, 
+  double* s, double* U, int ldU, double* VT, int ldVT );
 void QRSVD
-( int m, int n, scomplex* A, int lda, 
-  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva );
+( int m, int n, scomplex* A, int ldA, 
+  float* s, scomplex* U, int ldU, scomplex* VH, int ldVH );
 void QRSVD
-( int m, int n, dcomplex* A, int lda, 
-  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
+( int m, int n, dcomplex* A, int ldA, 
+  double* s, dcomplex* U, int ldU, dcomplex* VH, int ldVH );
 
 // Compute the singular values of a general matrix (using the QR algorithm)
 // ========================================================================
 
-void SVD( int m, int n, float* A, int lda, float* s );
-void SVD( int m, int n, double* A, int lda, double* s );
-void SVD( int m, int n, scomplex* A, int lda, float* s );
-void SVD( int m, int n, dcomplex* A, int lda, double* s );
+void SVD( int m, int n, float* A, int ldA, float* s );
+void SVD( int m, int n, double* A, int ldA, double* s );
+void SVD( int m, int n, scomplex* A, int ldA, float* s );
+void SVD( int m, int n, dcomplex* A, int ldA, double* s );
 
 // Compute the singular values of a bidiagonal matrix via dqds
 // ===========================================================
@@ -291,50 +291,50 @@ void BidiagDQDS( int n, double* d, double* e );
 // =============================================================
 
 void BidiagQRAlg
-( char uplo, int n, int numColsVTrans, int numRowsU,
-  float* d, float* e, float* VTrans, int ldvt, float* U, int ldu );
+( char uplo, int n, int numColsVT, int numRowsU,
+  float* d, float* e, float* VT, int ldVT, float* U, int ldU );
 void BidiagQRAlg
-( char uplo, int n, int numColsVTrans, int numRowsU, 
-  double* d, double* e, double* VTrans, int ldvt, double* U, int ldu );
+( char uplo, int n, int numColsVT, int numRowsU, 
+  double* d, double* e, double* VT, int ldVT, double* U, int ldU );
 void BidiagQRAlg
-( char uplo, int n, int numColsVAdj, int numRowsU,
-  float* d, float* e, scomplex* VAdj, int ldva, scomplex* U, int ldu );
+( char uplo, int n, int numColsVH, int numRowsU,
+  float* d, float* e, scomplex* VH, int ldVH, scomplex* U, int ldU );
 void BidiagQRAlg
-( char uplo, int n, int numColsVAdj, int numRowsU, 
-  double* d, double* e, dcomplex* VAdj, int ldva, dcomplex* U, int ldu );
+( char uplo, int n, int numColsVH, int numRowsU, 
+  double* d, double* e, dcomplex* VH, int ldVH, dcomplex* U, int ldU );
 
 // Compute the Schur decomposition of an upper Hessenberg matrix
 // =============================================================
 
 void HessenbergSchur
-( int n, float* H, int ldh, scomplex* w, bool fullTriangle=false );
+( int n, float* H, int ldH, scomplex* w, bool fullTriangle=false );
 void HessenbergSchur
-( int n, double* H, int ldh, dcomplex* w, bool fullTriangle=false );
+( int n, double* H, int ldH, dcomplex* w, bool fullTriangle=false );
 void HessenbergSchur
-( int n, scomplex* H, int ldh, scomplex* w, bool fullTriangle=false );
+( int n, scomplex* H, int ldH, scomplex* w, bool fullTriangle=false );
 void HessenbergSchur
-( int n, dcomplex* H, int ldh, dcomplex* w, bool fullTriangle=false );
+( int n, dcomplex* H, int ldH, dcomplex* w, bool fullTriangle=false );
 
 void HessenbergSchur
-( int n, float* H, int ldh, scomplex* w, float* Q, int ldq, 
+( int n, float* H, int ldH, scomplex* w, float* Q, int ldQ, 
   bool fullTriangle=true, bool multiplyQ=false );
 void HessenbergSchur
-( int n, double* H, int ldh, dcomplex* w, double* Q, int ldq, 
+( int n, double* H, int ldH, dcomplex* w, double* Q, int ldQ, 
   bool fullTriangle=true, bool multiplyQ=false );
 void HessenbergSchur
-( int n, scomplex* H, int ldh, scomplex* w, scomplex* Q, int ldq, 
+( int n, scomplex* H, int ldH, scomplex* w, scomplex* Q, int ldQ, 
   bool fullTriangle=false, bool multiplyQ=false );
 void HessenbergSchur
-( int n, dcomplex* H, int ldh, dcomplex* w, dcomplex* Q, int ldq, 
+( int n, dcomplex* H, int ldH, dcomplex* w, dcomplex* Q, int ldQ, 
   bool fullTriangle=false, bool multiplyQ=false );
 
 // Compute the eigenvalues/pairs of an upper Hessenberg matrix
 // ===========================================================
 
-void HessenbergEig( int n, float* H, int ldh, scomplex* w );
-void HessenbergEig( int n, double* H, int ldh, dcomplex* w );
-void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w );
-void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w );
+void HessenbergEig( int n, float* H, int ldH, scomplex* w );
+void HessenbergEig( int n, double* H, int ldH, dcomplex* w );
+void HessenbergEig( int n, scomplex* H, int ldH, scomplex* w );
+void HessenbergEig( int n, dcomplex* H, int ldH, dcomplex* w );
 
 // TODO: A version which computes eigenvectors
 
@@ -342,36 +342,41 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w );
 // ==================================================
 
 void Schur
-( int n, float* A, int lda, scomplex* w, bool fullTriangle=false );
+( int n, float* A, int ldA, scomplex* w, bool fullTriangle=false );
 void Schur
-( int n, double* A, int lda, dcomplex* w, bool fullTriangle=false );
+( int n, double* A, int ldA, dcomplex* w, bool fullTriangle=false );
 void Schur
-( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle=false );
+( int n, scomplex* A, int ldA, scomplex* w, bool fullTriangle=false );
 void Schur
-( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle=false );
+( int n, dcomplex* A, int ldA, dcomplex* w, bool fullTriangle=false );
 
 void Schur
-( int n, float* A, int lda, scomplex* w, float* Q, int ldq, 
+( int n, float* A, int ldA, scomplex* w, float* Q, int ldQ, 
   bool fullTriangle=true );
 void Schur
-( int n, double* A, int lda, dcomplex* w, double* Q, int ldq, 
+( int n, double* A, int ldA, dcomplex* w, double* Q, int ldQ, 
   bool fullTriangle=true );
 void Schur
-( int n, scomplex* A, int lda, scomplex* w, scomplex* Q, int ldq, 
+( int n, scomplex* A, int ldA, scomplex* w, scomplex* Q, int ldQ, 
   bool fullTriangle=true );
 void Schur
-( int n, dcomplex* A, int lda, dcomplex* w, dcomplex* Q, int ldq, 
+( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* Q, int ldQ, 
   bool fullTriangle=true );
 
 // Compute the eigenvalues/pairs of a square matrix
 // ================================================
 
-void Eig( int n, float* A, int lda, scomplex* w );
-void Eig( int n, double* A, int lda, dcomplex* w );
-void Eig( int n, scomplex* A, int lda, scomplex* w );
-void Eig( int n, dcomplex* A, int lda, dcomplex* w );
+void Eig( int n, float* A, int ldA, scomplex* w );
+void Eig( int n, double* A, int ldA, dcomplex* w );
+void Eig( int n, scomplex* A, int ldA, scomplex* w );
+void Eig( int n, dcomplex* A, int ldA, dcomplex* w );
 
-// TODO: Eig which computes eigenvectors?
+void Eig( int n, float* A, int ldA, scomplex* w, scomplex* X, int ldX );
+void Eig( int n, float* A, int ldA, scomplex* w, float* XPacked, int ldX );
+void Eig( int n, double* A, int ldA, dcomplex* w, dcomplex* X, int ldX );
+void Eig( int n, double* A, int ldA, dcomplex* w, double* XPacked, int ldX );
+void Eig( int n, scomplex* A, int ldA, scomplex* w, scomplex* X, int ldX );
+void Eig( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* X, int ldX );
 
 } // namespace lapack
 } // namespace elem
