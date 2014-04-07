@@ -56,6 +56,42 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
+( const std::vector<Matrix<Complex<Real> > >& HList,
+  const Matrix<Int>& activeConverged,
+  Matrix<Real>& activeEsts,
+  Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    const Real normCap = NormCap<Real>();
+    const Int numShifts = activeEsts.Height();
+    if( numShifts == 0 )
+        return;
+    Matrix<Complex<Real>> H, HTL;
+    std::vector<Complex<Real>> w(n);
+    for( Int j=0; j<numShifts; ++j )
+    {
+        H = HList[j];
+        HTL = View( H, 0, 0, n, n );
+        if( !activeConverged.Get(j,0) )
+        {
+            if( !HasNan(H) )
+            {
+                lapack::HessenbergEig( n, HTL.Buffer(), HTL.LDim(), w.data() );
+                Real estSquared=0;
+                for( Int k=0; k<n; ++k )
+                    if( w[k].Real() > estSquared )
+                        estSquared = w[k].Real();
+                activeEsts.Set( j, 0, Min(Sqrt(estSquared),normCap) );
+            }
+            else
+               activeEsts.Set( j, 0, normCap );
+        }
+    }
+}
+
+template<typename Real>
+inline void
+ComputeNewEstimates
 ( const std::vector<std::vector<Real> >& HDiagList,
   const std::vector<std::vector<Real> >& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
@@ -65,6 +101,19 @@ ComputeNewEstimates
     ComputeNewEstimates
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), 
       activeEsts.Matrix() );
+}
+
+template<typename Real>
+inline void
+ComputeNewEstimates
+( const std::vector<Matrix<Complex<Real> > >& HList,
+  const DistMatrix<Int,MR,STAR>& activeConverged,
+        DistMatrix<Real,MR,STAR>& activeEsts,
+        Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
+    ComputeNewEstimates
+    ( HList, activeConverged.LockedMatrix(), activeEsts.Matrix(), n );
 }
 
 template<typename Real>
@@ -115,6 +164,61 @@ Restart
 template<typename Real>
 inline void
 Restart
+( const std::vector<Matrix<Complex<Real> > >& HList,
+  const Matrix<Int>& activeConverged,
+  std::vector<Matrix<Complex<Real> > >& VList )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    const Int n = VList[0].Height();
+    const Int numShifts = VList[0].Width();
+    if( numShifts == 0 )
+        return;
+    const Int krylovSize = HList[0].Height();
+    Matrix<Complex<Real>> H, Q(krylovSize,krylovSize);
+    std::vector<Complex<Real>> w(krylovSize);
+    Matrix<Complex<Real>> u(n,1);
+    for( Int j=0; j<numShifts; ++j )
+    {
+        H = HList[j];
+
+        if( !activeConverged.Get(j,0) )
+        {
+            if( !HasNan(H) )
+            {
+                // TODO: Switch to lapack::HessenbergEig
+                lapack::Eig
+                ( krylovSize, H.Buffer(), H.LDim(), w.data(), 
+                  Q.Buffer(), Q.LDim() );
+
+                Real maxReal=0;
+                Int maxIdx=0;
+                for( Int k=0; k<krylovSize; ++k )
+                {
+                    if( w[k].real() > maxReal )
+                    {
+                        maxReal = w[k].real();
+                        maxIdx = k;
+                    }
+                }
+
+                Zeros( u, n, 1 );
+                for( Int k=0; k<krylovSize; ++k )
+                {
+                    const Matrix<Complex<Real>>& V = VList[k];
+                    auto v = LockedView( V, 0, j, n, 1 ); 
+                    Axpy( Q.Get(k,maxIdx), v, u );
+                }
+                Matrix<Complex<Real>>& V = VList[0];
+                auto v = View( V, 0, j, n, 1 );
+                v = u;
+            }
+        }
+    }
+}
+
+template<typename Real>
+inline void
+Restart
 ( const std::vector<std::vector<Real> >& HDiagList,
   const std::vector<std::vector<Real> >& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
@@ -127,6 +231,21 @@ Restart
         VLocList[j] = View( VList[j].Matrix() );
     Restart
     ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), VLocList );
+}
+
+template<typename Real>
+inline void
+Restart
+( const std::vector<Matrix<Complex<Real> > >& HList,
+  const DistMatrix<Int,MR,STAR>& activeConverged,
+  std::vector<DistMatrix<Complex<Real> > >& VList )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
+    const Int krylovSize = HList[0].Height();
+    std::vector<Matrix<Complex<Real>>> VLocList(krylovSize+1);
+    for( Int j=0; j<krylovSize+1; ++j )
+        VLocList[j] = View( VList[j].Matrix() );
+    Restart( HList, activeConverged.LockedMatrix(), VLocList );
 }
 
 template<typename Real>
@@ -223,10 +342,11 @@ TriangularIRA
             if( j != 0 )
             {
                 ColumnSubtractions
-                ( HSubdiagList, activeVList[j-1], activeVList[j+1] );
+                ( HSubdiagList, activeVList[j-1], activeVList[j+1], j-1 );
             }
             InnerProducts( activeVList[j], activeVList[j+1], HDiagList );
-            ColumnSubtractions( HDiagList, activeVList[j], activeVList[j+1] );
+            ColumnSubtractions
+            ( HDiagList, activeVList[j], activeVList[j+1], j );
             if( reorthog )
             {
                 // Explicitly (re)orthogonalize against all previous vectors
@@ -240,7 +360,7 @@ TriangularIRA
             }
             ColumnNorms( activeVList[j+1], HSubdiagList );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( HSubdiagList, activeVList[j+1] );
+            InvBetaScale( HSubdiagList, activeVList[j+1], j );
 
             ComputeNewEstimates
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
@@ -394,10 +514,11 @@ HessenbergIRA
             if( j != 0 )
             {
                 ColumnSubtractions
-                ( HSubdiagList, activeVList[j-1], activeVList[j+1] );
+                ( HSubdiagList, activeVList[j-1], activeVList[j+1], j-1 );
             }
             InnerProducts( activeVList[j], activeVList[j+1], HDiagList );
-            ColumnSubtractions( HDiagList, activeVList[j], activeVList[j+1] );
+            ColumnSubtractions
+            ( HDiagList, activeVList[j], activeVList[j+1], j );
             if( reorthog )
             {
                 // Explicitly (re)orthogonalize against all previous vectors
@@ -411,7 +532,7 @@ HessenbergIRA
             }
             ColumnNorms( activeVList[j+1], HSubdiagList );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( HSubdiagList, activeVList[j+1] );
+            InvBetaScale( HSubdiagList, activeVList[j+1], j );
 
             ComputeNewEstimates
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
@@ -589,10 +710,11 @@ TriangularIRA
             if( j != 0 )
             {
                 ColumnSubtractions
-                ( HSubdiagList, activeVList[j-1], activeVList[j+1] );
+                ( HSubdiagList, activeVList[j-1], activeVList[j+1], j-1 );
             }
             InnerProducts( activeVList[j], activeVList[j+1], HDiagList );
-            ColumnSubtractions( HDiagList, activeVList[j], activeVList[j+1] );
+            ColumnSubtractions
+            ( HDiagList, activeVList[j], activeVList[j+1], j );
             if( reorthog )
             {
                 // Explicitly (re)orthogonalize against all previous vectors
@@ -606,7 +728,7 @@ TriangularIRA
             }
             ColumnNorms( activeVList[j+1], HSubdiagList );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( HSubdiagList, activeVList[j+1] );
+            InvBetaScale( HSubdiagList, activeVList[j+1], j );
 
             ComputeNewEstimates
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
@@ -807,10 +929,11 @@ HessenbergIRA
             if( j != 0 )
             {
                 ColumnSubtractions
-                ( HSubdiagList, activeVList[j-1], activeVList[j+1] );
+                ( HSubdiagList, activeVList[j-1], activeVList[j+1], j-1 );
             }
             InnerProducts( activeVList[j], activeVList[j+1], HDiagList );
-            ColumnSubtractions( HDiagList, activeVList[j], activeVList[j+1] );
+            ColumnSubtractions
+            ( HDiagList, activeVList[j], activeVList[j+1], j );
             if( reorthog )
             {
                 // Explicitly (re)orthogonalize against all previous vectors
@@ -824,7 +947,7 @@ HessenbergIRA
             }
             ColumnNorms( activeVList[j+1], HSubdiagList );
             // TODO: Handle lucky breakdowns
-            InvBetaScale( HSubdiagList, activeVList[j+1] );
+            InvBetaScale( HSubdiagList, activeVList[j+1], j );
 
             ComputeNewEstimates
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
