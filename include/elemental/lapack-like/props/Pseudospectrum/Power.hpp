@@ -10,208 +10,10 @@
 #ifndef ELEM_PSEUDOSPECTRUM_POWER_HPP
 #define ELEM_PSEUDOSPECTRUM_POWER_HPP
 
-#include ELEM_MULTISHIFTTRSM_INC
-#include ELEM_MULTISHIFTHESSSOLVE_INC
-#include ELEM_ZERONORM_INC
-#include ELEM_ONES_INC
+#include "./Util.hpp"
 
 namespace elem {
 namespace pspec {
-
-template<typename F>
-inline Base<F> NormCap()
-{ return Base<F>(1)/lapack::MachineEpsilon<Base<F>>(); }
-
-template<typename F>
-inline void
-ColumnNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    typedef Base<F> Real;
-    const Int m = X.Height();
-    const Int n = X.Width();
-    norms.Resize( n, 1 );
-    for( Int j=0; j<n; ++j )
-    {
-        const Real alpha = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
-        norms.Set( j, 0, alpha );
-    }
-}
-
-template<typename F,Dist U,Dist V>
-inline void
-ColumnNorms( const DistMatrix<F,U,V>& X, DistMatrix<BASE(F),V,STAR>& norms )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.RowAlign() != norms.ColAlign() )
-            LogicError("Invalid norms alignment");
-    )
-    typedef Base<F> Real;
-    const Int n = X.Width();
-    const Int mLocal = X.LocalHeight();
-    const Int nLocal = X.LocalWidth();
-
-    // TODO: Switch to more stable parallel norm computation using scaling
-    norms.Resize( n, 1 ); 
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Base<F> localNorm = blas::Nrm2(mLocal,X.LockedBuffer(0,jLoc),1);
-        norms.SetLocal( jLoc, 0, localNorm*localNorm );
-    }
-
-    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, X.ColComm() );
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Real alpha = norms.GetLocal(jLoc,0);
-        norms.SetLocal( jLoc, 0, Sqrt(alpha) );
-    }
-}
-
-template<typename F>
-inline void
-FixColumns( Matrix<F>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::FixColumns"))
-    typedef Base<F> Real;
-    Matrix<Real> norms;
-    ColumnNorms( X, norms );
-    const Int m = X.Height();
-    const Int n = X.Width();
-    for( Int j=0; j<n; ++j )
-    {
-        auto x = View( X, 0, j, m, 1 );
-        Real norm = norms.Get(j,0);
-        if( norm == Real(0) )
-        {
-            MakeGaussian( x );
-            norm = FrobeniusNorm( x );
-        }
-        Scale( Real(1)/norm, x );
-    }
-}
-
-template<typename F,Dist U,Dist V>
-inline void
-FixColumns( DistMatrix<F,U,V>& X )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::FixColumns"))
-    typedef Base<F> Real;
-    DistMatrix<Real,V,STAR> norms( X.Grid() );
-    ColumnNorms( X, norms );
-    const Int m = X.Height();
-    const Int nLocal = X.LocalWidth();
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-    {
-        const Int j = X.GlobalCol(jLoc);
-        auto x = View( X, 0, j, m, 1 );
-        Real norm = norms.GetLocal(jLoc,0);
-        if( norm == Real(0) )
-        {
-            MakeGaussian( x );
-            norm = FrobeniusNorm( x );
-        }
-        Scale( Real(1)/norm, x );
-    }
-}
-
-template<typename Real>
-inline void CapEstimates( Matrix<Real>& activeEsts )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::CapEstimates"))
-    const Real normCap = NormCap<Real>();
-    const Int n = activeEsts.Height();
-    for( Int j=0; j<n; ++j )
-    {
-        Real alpha = activeEsts.Get(j,0);
-        if( std::isnan(alpha) || alpha >= normCap )
-            alpha = normCap;
-        activeEsts.Set( j, 0, alpha );
-    }
-}
-
-template<typename Real>
-inline void CapEstimates( DistMatrix<Real,MR,STAR>& activeEsts )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::CapEstimates"))
-    CapEstimates( activeEsts.Matrix() );
-}
-
-template<typename Real>
-inline Matrix<Int>
-FindConverged
-( const Matrix<Real>& lastActiveEsts, 
-  const Matrix<Real>& activeEsts,
-        Matrix<Int >& activeItCounts,
-        Real maxDiff )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::FindConverged"))
-    const Real normCap = NormCap<Real>();
-
-    const Int numActiveShifts=activeEsts.Height();
-    Matrix<Int> activeConverged;
-    Zeros( activeConverged, numActiveShifts, 1 );
-
-    for( Int j=0; j<numActiveShifts; ++j )
-    {
-        const Real lastEst = lastActiveEsts.Get(j,0);
-        const Real currEst = activeEsts.Get(j,0);
-        bool converged = false;
-        if( currEst >= normCap )
-            converged = true;
-        else if( Abs(currEst) > 0 )
-            converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
-
-        if( converged )
-            activeConverged.Set( j, 0, 1 );
-        else 
-            activeItCounts.Update( j, 0, 1 );
-    }
-    return activeConverged;
-}
-
-template<typename Real>
-inline DistMatrix<Int,MR,STAR>
-FindConverged
-( const DistMatrix<Real,MR,STAR>& lastActiveEsts,
-  const DistMatrix<Real,MR,STAR>& activeEsts,
-        DistMatrix<Int, VR,STAR>& activeItCounts,
-        Real maxDiff )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::NumConverged");
-        if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
-            activeEsts.ColAlign() )
-            LogicError("Invalid column alignment");
-    )
-    const Real normCap = NormCap<Real>();
-
-    DistMatrix<Int,MR,STAR> activeConverged( activeEsts.Grid() );
-    activeConverged.AlignWith( activeEsts );
-    Zeros( activeConverged, activeEsts.Height(), 1 );
-
-    const Int numLocShifts=activeEsts.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
-    {
-        const Real lastEst = lastActiveEsts.GetLocal(iLoc,0);
-        const Real currEst = activeEsts.GetLocal(iLoc,0);
-        bool converged = false;
-        if( currEst >= normCap )
-            converged = true;
-        else if( Abs(currEst) > 0 )
-            converged = (Abs(lastEst-currEst)/Abs(currEst) <= maxDiff);
-
-        if( converged )
-            activeConverged.SetLocal( iLoc, 0, 1 );
-        else 
-        {
-            const Int i = activeEsts.GlobalRow(iLoc);
-            activeItCounts.Update( i, 0, 1 );
-        }
-    }
-
-    return activeConverged;
-}
 
 template<typename Real>
 inline void
@@ -344,7 +146,7 @@ inline Matrix<Int>
 TriangularPower
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -437,7 +239,7 @@ inline Matrix<Int>
 HessenbergPower
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
     using namespace pspec;
@@ -539,7 +341,7 @@ TriangularPower
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -640,7 +442,7 @@ HessenbergPower
 ( const DistMatrix<Complex<Real>        >& H, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
     using namespace pspec;

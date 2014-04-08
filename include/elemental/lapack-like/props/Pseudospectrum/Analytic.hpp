@@ -10,7 +10,7 @@
 #ifndef ELEM_PSEUDOSPECTRUM_ANALYTIC_HPP
 #define ELEM_PSEUDOSPECTRUM_ANALYTIC_HPP
 
-#include "./Power.hpp"
+#include "./Util.hpp"
 
 namespace elem {
 namespace pspec {

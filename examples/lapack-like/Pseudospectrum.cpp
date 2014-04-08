@@ -45,10 +45,8 @@ main( int argc, char* argv[] )
         const Int realSize = Input("--realSize","number of x samples",100);
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool schur = Input("--schur","Schur decomposition?",false);
-        const bool lanczos = Input("--lanczos","use Lanczos?",true);
-        const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
-        const bool reorthog = Input("--reorthog","reorthog basis?",true);
-        const bool deflate = Input("--deflate","deflate converged?",true);
+        const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
+        const Int krylovSize = Input("--krylovSize","num Arnoldi vectors",10);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
         const Real uniformRealCenter = 
@@ -130,15 +128,13 @@ main( int argc, char* argv[] )
         {
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize, 
-              schur, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
-              progress );
+              schur, arnoldi, krylovSize, maxIts, tol, progress );
         }
         else
         {
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, realSize, imagSize, 
-              schur, lanczos, krylovSize, reorthog, deflate, maxIts, tol, 
-              progress );
+              schur, arnoldi, krylovSize, maxIts, tol, progress );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

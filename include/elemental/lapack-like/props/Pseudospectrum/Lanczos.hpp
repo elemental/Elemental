@@ -18,460 +18,6 @@ namespace pspec {
 const Int HCapacityInit = 10;
 
 template<typename Real>
-inline bool HasNan
-( const std::vector<Real>& HDiag, 
-  const std::vector<Real>& HSubdiag )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::HasNan"))
-    bool hasNan = false;
-    const Int n = HDiag.size();
-    for( Int j=0; j<n; ++j )
-        if( std::isnan( HDiag[j] ) )
-            hasNan = true;
-    for( Int j=0; j<n-1; ++j )
-        if( std::isnan( HSubdiag[j] ) )
-            hasNan = true;
-    return hasNan;
-}
-
-template<typename F>
-inline bool HasNan( const Matrix<F>& H )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::HasNan"))
-    bool hasNan = false;
-    const Int m = H.Height();
-    const Int n = H.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            if( std::isnan(H.GetRealPart(i,j)) ||
-                std::isnan(H.GetImagPart(i,j)) )
-                hasNan = true;
-    return hasNan;
-}
-
-template<typename F,typename FComp>
-inline void
-ColumnSubtractions
-( const std::vector<FComp>& components,
-  const Matrix<F>& X, Matrix<F>& Y )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnSubtractions"))
-    const Int numShifts = Y.Width();
-    if( numShifts == 0 )
-        return;
-    const Int m = Y.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const F gamma = components[j];
-        blas::Axpy( m, -gamma, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
-    }
-}
-
-template<typename F,typename FComp>
-inline void
-ColumnSubtractions
-( const std::vector<FComp>& components,
-  const DistMatrix<F>& X, DistMatrix<F>& Y )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnSubtractions");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
-    )
-    ColumnSubtractions( components, X.LockedMatrix(), Y.Matrix() );
-}
-
-template<typename F,typename FComp>
-inline void
-ColumnSubtractions
-( const std::vector<std::vector<FComp> >& diags,
-  const Matrix<F>& X, Matrix<F>& Y, Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnSubtractions"))
-    const Int numShifts = Y.Width();
-    if( numShifts == 0 )
-        return;
-    const Int m = Y.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const F gamma = diags[j][index];
-        blas::Axpy( m, -gamma, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
-    }
-}
-
-template<typename F,typename FComp>
-inline void
-ColumnSubtractions
-( const std::vector<std::vector<FComp> >& diags,
-  const DistMatrix<F>& X, DistMatrix<F>& Y, Int index )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnSubtractions");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
-    )
-    ColumnSubtractions( diags, X.LockedMatrix(), Y.Matrix(), index );
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const Matrix<F>& X,
-  const Matrix<F>& Y,
-        std::vector<BASE(F)>& innerProds )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
-    typedef Base<F> Real;
-    const Int numShifts = X.Width();
-    const Int m = X.Height();
-    innerProds.resize( numShifts );
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Real alpha =
-            RealPart(blas::Dot( m, X.LockedBuffer(0,j), 1,
-                                   Y.LockedBuffer(0,j), 1 ));
-        innerProds[j] = alpha;
-    }
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const Matrix<F>& X,
-  const Matrix<F>& Y,
-        std::vector<F>& innerProds )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
-    const Int numShifts = X.Width();
-    const Int m = X.Height();
-    innerProds.resize( numShifts );
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const F alpha =
-            blas::Dot( m, X.LockedBuffer(0,j), 1,
-                          Y.LockedBuffer(0,j), 1 );
-        innerProds[j] = alpha;
-    }
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const DistMatrix<F>& X,
-  const DistMatrix<F>& Y,
-        std::vector<BASE(F)>& innerProds )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
-    )
-    InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
-    const Int numLocShifts = X.LocalWidth();
-    mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const DistMatrix<F>& X,
-  const DistMatrix<F>& Y,
-        std::vector<F>& innerProds )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
-            LogicError("X and Y should have been aligned");
-    )
-    InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
-    const Int numLocShifts = X.LocalWidth();
-    mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const Matrix<F>& X,
-  const Matrix<F>& Y,
-        std::vector<std::vector<BASE(F)> >& diags )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
-    typedef Base<F> Real;
-    const Int numShifts = X.Width();
-    const Int m = X.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Real alpha = 
-            RealPart(blas::Dot( m, X.LockedBuffer(0,j), 1, 
-                                   Y.LockedBuffer(0,j), 1 ));
-        diags[j].push_back( alpha );
-    }
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const Matrix<F>& X,
-  const Matrix<F>& Y,
-        std::vector<std::vector<BASE(F)> >& diags,
-        Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
-    typedef Base<F> Real;
-    const Int numShifts = X.Width();
-    const Int m = X.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Real alpha = 
-            RealPart(blas::Dot( m, X.LockedBuffer(0,j), 1, 
-                                   Y.LockedBuffer(0,j), 1 ));
-        diags[j][index] = alpha;
-    }
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const Matrix<F>& X,
-  const Matrix<F>& Y,
-        std::vector<std::vector<F> >& diags )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
-    const Int numShifts = X.Width();
-    const Int m = X.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const F alpha = 
-            blas::Dot( m, X.LockedBuffer(0,j), 1, 
-                          Y.LockedBuffer(0,j), 1 );
-        diags[j].push_back( alpha );
-    }
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const Matrix<F>& X,
-  const Matrix<F>& Y,
-        std::vector<std::vector<F> >& diags,
-        Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
-    const Int numShifts = X.Width();
-    const Int m = X.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const F alpha = 
-            blas::Dot( m, X.LockedBuffer(0,j), 1, 
-                          Y.LockedBuffer(0,j), 1 );
-        diags[j][index] = alpha;
-    }
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const DistMatrix<F>& X,
-  const DistMatrix<F>& Y,
-        std::vector<std::vector<BASE(F)> >& diags )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() ) 
-            LogicError("X and Y should have been aligned");
-    )
-    std::vector<Base<F>> innerProds;
-    InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
-    const Int numLocShifts = X.LocalWidth();
-    mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc].push_back( innerProds[jLoc] );
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const DistMatrix<F>& X,
-  const DistMatrix<F>& Y,
-        std::vector<std::vector<BASE(F)> >& diags,
-        Int index )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() ) 
-            LogicError("X and Y should have been aligned");
-    )
-    std::vector<Base<F>> innerProds;
-    InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
-    const Int numLocShifts = X.LocalWidth();
-    mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc][index] = innerProds[jLoc];
-}
-
-
-template<typename F>
-inline void
-InnerProducts
-( const DistMatrix<F>& X,
-  const DistMatrix<F>& Y,
-        std::vector<std::vector<F> >& diags )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() ) 
-            LogicError("X and Y should have been aligned");
-    )
-    std::vector<F> innerProds;
-    InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
-    const Int numLocShifts = X.LocalWidth();
-    mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc].push_back( innerProds[jLoc] );
-}
-
-template<typename F>
-inline void
-InnerProducts
-( const DistMatrix<F>& X,
-  const DistMatrix<F>& Y,
-        std::vector<std::vector<F> >& diags,
-        Int index )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("pspec::ColumnNorms");
-        if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() ) 
-            LogicError("X and Y should have been aligned");
-    )
-    std::vector<F> innerProds;
-    InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
-    const Int numLocShifts = X.LocalWidth();
-    mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc][index] = innerProds[jLoc];
-}
-
-template<typename F>
-inline void
-ColumnNorms
-( const Matrix<F>& X,
-        std::vector<std::vector<BASE(F)> >& diags )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    typedef Base<F> Real;
-    Matrix<Real> norms;
-    ColumnNorms( X, norms );
-
-    const Int numShifts = X.Width();
-    for( Int j=0; j<numShifts; ++j )
-        diags[j].push_back( norms.Get(j,0) );
-}
-
-template<typename F>
-inline void
-ColumnNorms
-( const Matrix<F>& X,
-        std::vector<std::vector<BASE(F)> >& diags,
-        Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    typedef Base<F> Real;
-    Matrix<Real> norms;
-    ColumnNorms( X, norms );
-
-    const Int numShifts = X.Width();
-    for( Int j=0; j<numShifts; ++j )
-        diags[j][index] = norms.Get(j,0);
-}
-
-template<typename F>
-inline void
-ColumnNorms
-( const DistMatrix<F>& X,
-        std::vector<std::vector<BASE(F)> >& diags )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    typedef Base<F> Real;
-    DistMatrix<Real,MR,STAR> norms( X.Grid() );
-    ColumnNorms( X, norms );
-
-    const Int numLocShifts = X.LocalWidth();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc].push_back( norms.GetLocal(jLoc,0) );
-}
-
-template<typename F>
-inline void
-ColumnNorms
-( const DistMatrix<F>& X,
-        std::vector<std::vector<BASE(F)> >& diags,
-        Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
-    typedef Base<F> Real;
-    DistMatrix<Real,MR,STAR> norms( X.Grid() );
-    ColumnNorms( X, norms );
-
-    const Int numLocShifts = X.LocalWidth();
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
-        diags[jLoc][index] = norms.GetLocal(jLoc,0);
-}
-
-template<typename F>
-inline void
-InvBetaScale( const Matrix<BASE(F)>& scales, Matrix<F>& Y )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
-    typedef Base<F> Real;
-    const Int numShifts = Y.Width();
-    if( numShifts == 0 )
-        return;
-    const Int m = Y.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Real beta = scales.Get(j,0);
-        blas::Scal( m, F(1)/beta, Y.Buffer(0,j), 1 );
-    }
-}
-
-template<typename F>
-inline void
-InvBetaScale( const DistMatrix<BASE(F),MR,STAR>& scales, DistMatrix<F>& Y )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
-    InvBetaScale( scales.LockedMatrix(), Y.Matrix() );
-}
-
-template<typename F>
-inline void
-InvBetaScale
-( const std::vector<std::vector<BASE(F)> >& HSubdiagList,
-        Matrix<F>& Y, Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
-    typedef Base<F> Real;
-    const Int numShifts = Y.Width();
-    if( numShifts == 0 )
-        return;
-    const Int m = Y.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Real beta = HSubdiagList[j][index];
-        blas::Scal( m, F(1)/beta, Y.Buffer(0,j), 1 );
-    }
-}
-
-template<typename F>
-inline void
-InvBetaScale
-( const std::vector<std::vector<BASE(F)> >& HSubdiagList,
-        DistMatrix<F>& Y, Int index )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
-    InvBetaScale( HSubdiagList, Y.Matrix(), index );
-}
-
-template<typename Real>
 inline void
 ComputeNewEstimates
 ( const std::vector<std::vector<Real> >& HDiagList, 
@@ -489,7 +35,7 @@ ComputeNewEstimates
     {
         HDiag = HDiagList[j]; 
         HSubdiag = HSubdiagList[j];
-        if( !HasNan( HDiag, HSubdiag ) )
+        if( !HasNan(HDiag) && !HasNan(HSubdiag) )
         {
             lapack::SymmetricTridiagEig     
             ( krylovSize, HDiag.data(), HSubdiag.data(), w.data(), 
@@ -541,47 +87,6 @@ Deflate
             {
                 std::swap( HDiagList[swapFrom], HDiagList[swapTo] );
                 std::swap( HSubdiagList[swapFrom], HSubdiagList[swapTo] );
-                RowSwap( activeShifts, swapFrom, swapTo );
-                RowSwap( activePreimage, swapFrom, swapTo );
-                RowSwap( activeEsts, swapFrom, swapTo );
-                RowSwap( activeItCounts, swapFrom, swapTo );
-                ColumnSwap( activeXOld, swapFrom, swapTo );
-                ColumnSwap( activeX,    swapFrom, swapTo );
-            }
-            --swapTo;
-        }
-    }
-    if( progress )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
-}
-
-template<typename Real>
-inline void
-Deflate
-( std::vector<Matrix<Complex<Real> > >& HList,
-  Matrix<Complex<Real> >& activeShifts, 
-  Matrix<Int           >& activePreimage,
-  Matrix<Complex<Real> >& activeXOld,
-  Matrix<Complex<Real> >& activeX,
-  Matrix<Real          >& activeEsts, 
-  Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts,
-  bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
-    Timer timer;
-    if( progress )
-        timer.Start();
-    const Int numActive = activeX.Width(); 
-    Int swapTo = numActive-1;
-    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
-    {
-        if( activeConverged.Get(swapFrom,0) )
-        {
-            if( swapTo != swapFrom )
-            {
-                std::swap( HList[swapFrom], HList[swapTo] );
                 RowSwap( activeShifts, swapFrom, swapTo );
                 RowSwap( activePreimage, swapFrom, swapTo );
                 RowSwap( activeEsts, swapFrom, swapTo );
@@ -714,105 +219,11 @@ Deflate
 }
 
 template<typename Real>
-inline void
-Deflate
-( std::vector<Matrix<Complex<Real> > >& HList,
-  DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
-  DistMatrix<Int,          VR,STAR>& activePreimage,
-  DistMatrix<Complex<Real>        >& activeXOld,
-  DistMatrix<Complex<Real>        >& activeX,
-  DistMatrix<Real,         MR,STAR>& activeEsts,
-  DistMatrix<Int,          MR,STAR>& activeConverged,
-  DistMatrix<Int,          VR,STAR>& activeItCounts,
-  bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
-    Timer timer;
-    if( progress && activeShifts.Grid().Rank() == 0 )
-        timer.Start();
-    const Int numActive = activeX.Width(); 
-    Int swapTo = numActive-1;
-
-    DistMatrix<Complex<Real>,STAR,STAR> shiftsCopy( activeShifts );
-    DistMatrix<Int,STAR,STAR> preimageCopy( activePreimage );
-    DistMatrix<Real,STAR,STAR> estimatesCopy( activeEsts );
-    DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
-    DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
-    DistMatrix<Complex<Real>,VC,STAR> XOldCopy( activeXOld ), XCopy( activeX );
-
-    const Int n = ( activeX.LocalWidth()>0 ? HList[0].Height() : 0 );
-    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
-    {
-        if( convergedCopy.Get(swapFrom,0) )
-        {
-            if( swapTo != swapFrom )
-            {
-                // TODO: Avoid this large latency penalty
-                if( activeX.IsLocalCol(swapFrom) && 
-                    activeX.IsLocalCol(swapTo) )
-                {
-                    const Int localFrom = activeX.LocalCol(swapFrom);
-                    const Int localTo = activeX.LocalCol(swapTo);
-                    std::swap( HList[localFrom], HList[localTo] );
-                }
-                else if( activeX.IsLocalCol(swapFrom) )
-                {
-                    const Int localFrom = activeX.LocalCol(swapFrom);
-                    const Int partner = activeX.ColOwner(swapTo);
-                    DEBUG_ONLY(
-                        if( HList[localFrom].LDim() != n )
-                            LogicError("Leading dimension was incorrect");
-                    )
-                    mpi::TaggedSendRecv
-                    ( HList[localFrom].Buffer(), n*n,
-                      partner, swapFrom, partner, swapFrom, activeX.RowComm() );
-                }
-                else if( activeX.IsLocalCol(swapTo) )
-                {
-                    const Int localTo = activeX.LocalCol(swapTo);
-                    DEBUG_ONLY(
-                        if( HList[localTo].LDim() != n )
-                            LogicError("Leading dimension was incorrect");
-                    )
-                    const Int partner = activeX.ColOwner(swapFrom);
-                    mpi::TaggedSendRecv
-                    ( HList[localTo].Buffer(), n*n,
-                      partner, swapFrom, partner, swapFrom, activeX.RowComm() );
-                }
-
-                RowSwap( shiftsCopy, swapFrom, swapTo );
-                RowSwap( preimageCopy, swapFrom, swapTo );
-                RowSwap( estimatesCopy, swapFrom, swapTo );
-                RowSwap( itCountsCopy, swapFrom, swapTo );
-                ColumnSwap( XOldCopy, swapFrom, swapTo );
-                ColumnSwap( XCopy,    swapFrom, swapTo );
-            }
-            --swapTo;
-        }
-    }
-
-    activeShifts   = shiftsCopy;
-    activePreimage = preimageCopy;
-    activeEsts     = estimatesCopy;
-    activeItCounts = itCountsCopy;
-    activeXOld     = XOldCopy;
-    activeX        = XCopy;
-
-    if( progress ) 
-    {
-        mpi::Barrier( activeShifts.Grid().Comm() );
-        if( activeShifts.Grid().Rank() == 0 ) 
-            std::cout << "Deflation took " << timer.Stop() << " seconds"
-                      << std::endl;
-    }
-}
-
-template<typename Real>
 inline Matrix<Int>
 TriangularLanczos
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularLanczos"))
     using namespace pspec;
@@ -854,6 +265,7 @@ TriangularLanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     Matrix<Int> activePreimage;
+    std::vector<Real> realComponents;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -865,6 +277,8 @@ TriangularLanczos
         auto activeXNew = View( XNew, 0, 0, n, numActive );
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
+        HDiagList.resize( numActive );
+        HSubdiagList.resize( numActive );
 
         if( progress )
             timer.Start();
@@ -883,15 +297,26 @@ TriangularLanczos
             std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
                       << gflops << " GFlops" << std::endl;
         }
+
+        // Orthogonalize with respect to the old iterate
         if( numIts > 0 )
-            ColumnSubtractions
-            ( HSubdiagList, activeXOld, activeXNew, numIts-1 );
-        InnerProducts( activeX, activeXNew, HDiagList );
-        ColumnSubtractions( HDiagList, activeX, activeXNew, numIts );
-        ColumnNorms( activeXNew, HSubdiagList );
+        {
+            ExtractList( HSubdiagList, realComponents, numIts-1 );
+            ColumnSubtractions( realComponents, activeXOld, activeXNew );
+        }
+
+        // Orthogonalize with respect to the last iterate
+        InnerProducts( activeX, activeXNew, realComponents );
+        PushBackList( HDiagList, realComponents );
+        ColumnSubtractions( realComponents, activeX, activeXNew );
+
+        // Compute the norm of what is left
+        ColumnNorms( activeXNew, realComponents );
+        PushBackList( HSubdiagList, realComponents );
+
         activeXOld = activeX;
         activeX    = activeXNew; 
-        InvBetaScale( HSubdiagList, activeX, numIts );
+        InvBetaScale( realComponents, activeX );
         if( progress )
             subtimer.Start();
         ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
@@ -942,7 +367,7 @@ inline Matrix<Int>
 HessenbergLanczos
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergLanczos"))
     using namespace pspec;
@@ -988,6 +413,7 @@ HessenbergLanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     Matrix<Int> activePreimage;
+    std::vector<Real> realComponents;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -999,6 +425,8 @@ HessenbergLanczos
         auto activeXNew = View( XNew, 0, 0, n, numActive );
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
+        HDiagList.resize( numActive );
+        HSubdiagList.resize( numActive );
 
         if( progress )
             timer.Start();
@@ -1018,15 +446,26 @@ HessenbergLanczos
             std::cout << "  MultiShiftHessSolve's: " << msTime << " seconds, "
                       << gflops << " GFlops" << std::endl;
         }
+
+        // Orthogonalize with respect to the old iterate
         if( numIts > 0 )
-            ColumnSubtractions
-            ( HSubdiagList, activeXOld, activeXNew, numIts-1 );
-        InnerProducts( activeX, activeXNew, HDiagList );
-        ColumnSubtractions( HDiagList, activeX, activeXNew, numIts );
-        ColumnNorms( activeXNew, HSubdiagList );
+        {
+            ExtractList( HSubdiagList, realComponents, numIts-1 );
+            ColumnSubtractions( realComponents, activeXOld, activeXNew );
+        }
+
+        // Orthogonalize with respect to the last iterate
+        InnerProducts( activeX, activeXNew, realComponents );
+        PushBackList( HDiagList, realComponents );
+        ColumnSubtractions( realComponents, activeX, activeXNew );
+
+        // Compute the norm of what is left
+        ColumnNorms( activeXNew, realComponents );
+        PushBackList( HSubdiagList, realComponents );
+
         activeXOld = activeX;
         activeX    = activeXNew; 
-        InvBetaScale( HSubdiagList, activeX, numIts );
+        InvBetaScale( realComponents, activeX );
         if( progress )
             subtimer.Start();
         ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
@@ -1078,7 +517,7 @@ TriangularLanczos
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularLanczos"))
     using namespace pspec;
@@ -1129,6 +568,7 @@ TriangularLanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     DistMatrix<Int,VR,STAR> activePreimage(g);
+    std::vector<Real> realComponents;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -1140,6 +580,8 @@ TriangularLanczos
         auto activeXNew = View( XNew, 0, 0, n, numActive );
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
+        HDiagList.resize( activeX.LocalWidth() );
+        HSubdiagList.resize( activeX.LocalWidth() );
 
         if( progress )
         {
@@ -1170,15 +612,26 @@ TriangularLanczos
                           << gflops << " GFlops" << std::endl;
             }
         }
+
+        // Orthogonalize with respect to the old iterate
         if( numIts > 0 )
-            ColumnSubtractions
-            ( HSubdiagList, activeXOld, activeXNew, numIts-1 );
-        InnerProducts( activeX, activeXNew, HDiagList );
-        ColumnSubtractions( HDiagList, activeX, activeXNew, numIts );
-        ColumnNorms( activeXNew, HSubdiagList );
+        {
+            ExtractList( HSubdiagList, realComponents, numIts-1 );
+            ColumnSubtractions( realComponents, activeXOld, activeXNew );
+        }
+
+        // Orthogonalize with respect to the last iterate
+        InnerProducts( activeX, activeXNew, realComponents );
+        PushBackList( HDiagList, realComponents );
+        ColumnSubtractions( realComponents, activeX, activeXNew );
+
+        // Compute the norm of what is left
+        ColumnNorms( activeXNew, realComponents );
+        PushBackList( HSubdiagList, realComponents );
+
         activeXOld = activeX;
         activeX    = activeXNew;
-        InvBetaScale( HSubdiagList, activeX, numIts );
+        InvBetaScale( realComponents, activeX );
         if( progress )
         {
             mpi::Barrier( U.Grid().Comm() );
@@ -1242,7 +695,7 @@ HessenbergLanczos
 ( const DistMatrix<Complex<Real>        >& H, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  bool deflate=true, Int maxIts=1000, Real tol=1e-6, bool progress=false )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergLanczos"))
     using namespace pspec;
@@ -1299,6 +752,7 @@ HessenbergLanczos
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
     DistMatrix<Int,VR,STAR> activePreimage(g);
+    std::vector<Real> realComponents;
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
@@ -1310,6 +764,8 @@ HessenbergLanczos
         auto activeXNew = View( XNew, 0, 0, n, numActive );
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
+        HDiagList.resize( activeX.LocalWidth() );
+        HSubdiagList.resize( activeX.LocalWidth() );
 
         if( progress )
         {
@@ -1346,15 +802,26 @@ HessenbergLanczos
                           << " seconds, " << gflops << " GFlops" << std::endl;
             }
         }
+
+        // Orthogonalize with respect to the old iterate
         if( numIts > 0 )
-            ColumnSubtractions
-            ( HSubdiagList, activeXOld, activeXNew, numIts-1 );
-        InnerProducts( activeX, activeXNew, HDiagList );
-        ColumnSubtractions( HDiagList, activeX, activeXNew, numIts );
-        ColumnNorms( activeXNew, HSubdiagList );
+        {
+            ExtractList( HSubdiagList, realComponents, numIts-1 );
+            ColumnSubtractions( realComponents, activeXOld, activeXNew );
+        }
+
+        // Orthogonalize with respect to the last iterate
+        InnerProducts( activeX, activeXNew, realComponents );
+        PushBackList( HDiagList, realComponents );
+        ColumnSubtractions( realComponents, activeX, activeXNew );
+
+        // Compute the norm of what is left
+        ColumnNorms( activeXNew, realComponents );
+        PushBackList( HSubdiagList, realComponents );
+
         activeXOld = activeX;
         activeX    = activeXNew;
-        InvBetaScale( HSubdiagList, activeX, numIts );
+        InvBetaScale( realComponents, activeX );
         if( progress )
         {
             mpi::Barrier( H.Grid().Comm() );

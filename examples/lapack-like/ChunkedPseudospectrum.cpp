@@ -44,10 +44,8 @@ main( int argc, char* argv[] )
         const Real numImag = Input("--numImag","num imag chunks",2);
         const Int realSize = Input("--realSize","number of x samples",100);
         const Int imagSize = Input("--imagSize","number of y samples",100);
-        const bool lanczos = Input("--lanczos","use Lanczos?",true);
-        const Int krylovSize = Input("--krylovSize","num Lanczos vectors",10);
-        const bool reorthog = Input("--reorthog","reorthog basis?",true);
-        const bool deflate = Input("--deflate","deflate converged?",true);
+        const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
+        const Int krylovSize = Input("--krylovSize","num basis vectors",10);
         const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
 #ifdef ELEM_HAVE_SCALAPACK
@@ -243,8 +241,8 @@ main( int argc, char* argv[] )
                 timer.Start();
                 itCountMap = TriangularPseudospectrum
                 ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
-                  realChunkSize, imagChunkSize, lanczos, krylovSize, reorthog, 
-                  deflate, maxIts, tol, progress );
+                  realChunkSize, imagChunkSize, arnoldi, krylovSize,
+                  maxIts, tol, progress );
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );
