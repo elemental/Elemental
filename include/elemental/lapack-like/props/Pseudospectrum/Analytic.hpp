@@ -20,7 +20,10 @@ inline void
 Analytic
 ( const Matrix<Complex<Real> >& w, 
   const Matrix<Complex<Real> >& shifts, 
-        Matrix<Real          >& invNorms )
+        Matrix<Real          >& invNorms,
+  Int realSize=0, Int imagSize=0,
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
     using namespace pspec;
@@ -47,6 +50,8 @@ Analytic
             alpha = normCap;
         invNorms.Set( j, 0, alpha );
     }
+
+    // TODO: Store inverse distances?
 }
 
 template<typename Real>
@@ -54,7 +59,10 @@ inline void
 Analytic
 ( const DistMatrix<Complex<Real>,STAR,STAR>& w, 
   const DistMatrix<Complex<Real>,VR,  STAR>& shifts, 
-        DistMatrix<Real,         VR,  STAR>& invNorms )
+        DistMatrix<Real,         VR,  STAR>& invNorms,
+  Int realSize=0, Int imagSize=0,
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
     using namespace pspec;
@@ -82,6 +90,8 @@ Analytic
             alpha = normCap;
         invNorms.SetLocal( jLoc, 0, alpha );
     }
+
+    // TODO: Store inverse distances?
 }
 
 } // namespace pspec

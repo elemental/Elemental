@@ -40,6 +40,8 @@
   "elemental/blas-like/level1/Dot.hpp"
 #define ELEM_DOTU_INC \
   "elemental/blas-like/level1/Dotu.hpp"
+#define ELEM_ENTRYWISEMAP_INC \
+  "elemental/blas-like/level1/EntrywiseMap.hpp"
 #define ELEM_HADAMARD_INC \
   "elemental/blas-like/level1/Hadamard.hpp"
 #define ELEM_HILBERTSCHMIDT_INC \

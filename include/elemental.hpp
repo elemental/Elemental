@@ -10,12 +10,7 @@
 #ifndef ELEMENTAL_HPP
 #define ELEMENTAL_HPP
 
-#include "elemental/include-paths.hpp"
-
-#include "elemental/config.h"
-#ifdef ELEM_HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
+#include "elemental-lite.hpp"
 
 #include "elemental/core.hpp"
 #include "elemental/blas-like.hpp"
@@ -23,7 +18,5 @@
 #include "elemental/convex.hpp"
 #include "elemental/control.hpp"
 #include "elemental/matrices.hpp"
-
-#include "elemental/io.hpp"
 
 #endif // ifndef ELEMENTAL_HPP

@@ -10,6 +10,7 @@
 #ifndef ELEM_PSEUDOSPECTRUM_UTIL_HPP
 #define ELEM_PSEUDOSPECTRUM_UTIL_HPP
 
+#include ELEM_ENTRYWISEMAP_INC
 #include ELEM_MULTISHIFTTRSM_INC
 #include ELEM_MULTISHIFTHESSSOLVE_INC
 #include ELEM_FROBENIUSNORM_INC
@@ -43,53 +44,104 @@ NumericallyNormal( const DistMatrix<F>& U, Base<F> tol )
 
 template<typename T>
 inline void
-ReshapeIntoGrids
-( Int realSize, Int imagSize,
-  const Matrix<T>& invNorms,   const Matrix<Int>& itCounts,
-        Matrix<T>& invNormMap,       Matrix<Int>& itCountMap )
+ReshapeIntoGrid( Int realSize, Int imagSize, const Matrix<T>& x, Matrix<T>& X )
 {
 #if 0    
-    invNormMap.Resize( realSize, imagSize );
-    itCountMap.Resize( realSize, imagSize );
+    X.Resize( realSize, imagSize );
     for( Int j=0; j<realSize; ++j )
     {
-        auto normGridSub = View( invNormMap, 0, j, imagSize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, imagSize, 1 );
-        auto shiftSub = LockedView( invNorms, j*imagSize, 0, imagSize, 1 );
-        auto countSub = LockedView( itCounts, j*imagSize, 0, imagSize, 1 );
-        normGridSub = shiftSub;
-        countGridSub = countSub;
+        auto XSub = View( X, 0, j, imagSize, 1 );
+        auto xSub = LockedView( x, j*imagSize, 0, imagSize, 1 );
+        XSub = xSub;
     }
 #else
     // The sequential case can be optimized much more heavily than in parallel
-    invNormMap.Resize( realSize, imagSize, realSize );
-    itCountMap.Resize( realSize, imagSize, realSize );
-    MemCopy( invNormMap.Buffer(), invNorms.LockedBuffer(), realSize*imagSize );
-    MemCopy( itCountMap.Buffer(), itCounts.LockedBuffer(), realSize*imagSize );
+    X.Resize( realSize, imagSize, realSize );
+    MemCopy( X.Buffer(), x.LockedBuffer(), realSize*imagSize );
 #endif
 }
 
 template<typename T>
 inline void
-ReshapeIntoGrids
-( Int realSize, Int imagSize,
-  const DistMatrix<T,VR,STAR>& invNorms,
-  const DistMatrix<Int,VR,STAR>& itCounts,
-        DistMatrix<T>& invNormMap,
-        DistMatrix<Int>& itCountMap )
+ReshapeIntoGrid
+( Int realSize, Int imagSize, const DistMatrix<T,VR,STAR>& x, DistMatrix<T>& X )
 {
-    invNormMap.SetGrid( invNorms.Grid() );
-    itCountMap.SetGrid( invNorms.Grid() );
-    invNormMap.Resize( realSize, imagSize );
-    itCountMap.Resize( realSize, imagSize );
+    X.SetGrid( x.Grid() );
+    X.Resize( realSize, imagSize );
     for( Int j=0; j<realSize; ++j )
     {
-        auto normGridSub = View( invNormMap, 0, j, imagSize, 1 );
-        auto countGridSub = View( itCountMap, 0, j, imagSize, 1 );
-        auto shiftSub = LockedView( invNorms, j*imagSize, 0, imagSize, 1 );
-        auto countSub = LockedView( itCounts, j*imagSize, 0, imagSize, 1 );
-        normGridSub = shiftSub;
-        countGridSub = countSub;
+        auto XSub = View( X, 0, j, imagSize, 1 );
+        auto xSub = LockedView( x, j*imagSize, 0, imagSize, 1 );
+        XSub = xSub;
+    }
+}
+
+template<typename T>
+inline void
+RestoreOrdering
+( const Matrix<Int>& preimage, Matrix<T>& x )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
+    auto xCopy = x;
+    const Int numShifts = preimage.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Int dest = preimage.Get(j,0);
+        x.Set( dest, 0, xCopy.Get(j,0) );
+    }
+}
+
+template<typename T1,typename T2>
+inline void
+RestoreOrdering
+( const Matrix<Int>& preimage, Matrix<T1>& x, Matrix<T2>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
+    auto xCopy = x;
+    auto yCopy = y;
+    const Int numShifts = preimage.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Int dest = preimage.Get(j,0);
+        x.Set( dest, 0, xCopy.Get(j,0) );
+        y.Set( dest, 0, yCopy.Get(j,0) );
+    }
+}
+
+template<typename T>
+inline void
+RestoreOrdering
+( const DistMatrix<Int,VR,STAR>& preimage,
+        DistMatrix<T,  VR,STAR>& x )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
+    DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
+    DistMatrix<T,STAR,STAR> xCopy( x );
+    const Int numShifts = preimage.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Int dest = preimageCopy.Get(j,0);
+        x.Set( dest, 0, xCopy.Get(j,0) );
+    }
+}
+
+template<typename T1,typename T2>
+inline void
+RestoreOrdering
+( const DistMatrix<Int,VR,STAR>& preimage,
+        DistMatrix<T1, VR,STAR>& x,
+        DistMatrix<T2, VR,STAR>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
+    DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
+    DistMatrix<T1, STAR,STAR> xCopy( x );
+    DistMatrix<T2, STAR,STAR> yCopy( y );
+    const Int numShifts = preimage.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Int dest = preimageCopy.Get(j,0);
+        x.Set( dest, 0, xCopy.Get(j,0) );
+        y.Set( dest, 0, yCopy.Get(j,0) );
     }
 }
 
@@ -554,6 +606,97 @@ FindConverged
     }
 
     return activeConverged;
+}
+
+template<typename Real>
+inline void
+Snapshot
+( const Matrix<Real>& estimates, const Matrix<Int>& preimage, 
+  Int numIts, bool deflate,
+  Int realSize, Int imagSize,  
+  Int& numSaveCount, Int numFreq, std::string numBase, FileFormat numFormat,
+  Int& imgSaveCount, Int imgFreq, std::string imgBase, FileFormat imgFormat )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Snapshot"));
+    if( realSize != 0 && imagSize != 0 )
+    {
+        const bool numSave = ( numFreq > 0 && numSaveCount >= numFreq );
+        const bool imgSave = ( imgFreq > 0 && imgSaveCount >= imgFreq );
+        Matrix<Real> invNorms;
+        Matrix<Real> estMap; 
+        if( numSave || imgSave )
+        {
+            invNorms = estimates;
+            if( deflate )
+                RestoreOrdering( preimage, invNorms );
+            pspec::ReshapeIntoGrid( realSize, imagSize, invNorms, estMap );
+        }
+        if( numSave )
+        {
+            std::ostringstream os;
+            os << numBase << "-" << numIts;
+            Write( estMap, os.str(), numFormat );
+            numSaveCount = 0;
+        }
+        if( imgSave )
+        {
+            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
+            std::ostringstream os;
+            os << imgBase << "-" << numIts;
+            Write( estMap, os.str(), imgFormat );
+            auto colorMap = GetColorMap();
+            SetColorMap( GRAYSCALE_DISCRETE );
+            Write( estMap, os.str()+"-discrete", imgFormat );
+            SetColorMap( colorMap );
+            imgSaveCount = 0;
+        }
+    }
+}
+
+template<typename Real>
+inline void
+Snapshot
+( const DistMatrix<Real,MR,STAR>& estimates, 
+  const DistMatrix<Int,    VR,STAR>& preimage, 
+  Int numIts, bool deflate,
+  Int realSize, Int imagSize,  
+  Int& numSaveCount, Int numFreq, std::string numBase, FileFormat numFormat,
+  Int& imgSaveCount, Int imgFreq, std::string imgBase, FileFormat imgFormat )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Snapshot"));
+    if( realSize != 0 && imagSize != 0 )
+    {
+        const bool numSave = ( numFreq > 0 && numSaveCount >= numFreq );
+        const bool imgSave = ( imgFreq > 0 && imgSaveCount >= imgFreq );
+        DistMatrix<Real,VR,STAR> invNorms(estimates.Grid());
+        DistMatrix<Real> estMap(estimates.Grid()); 
+        if( numSave || imgSave )
+        {
+            invNorms = estimates;
+            if( deflate )
+                RestoreOrdering( preimage, invNorms );
+            pspec::ReshapeIntoGrid( realSize, imagSize, invNorms, estMap );
+        }
+        if( numSave )
+        {
+            std::ostringstream os;
+            os << numBase << "-" << numIts;
+            Write( estMap, os.str(), numFormat );
+            numSaveCount = 0;
+        }
+        if( imgSave )
+        {
+            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
+            std::ostringstream os;
+            os << imgBase << "-" << numIts;
+            Write( estMap, os.str(), imgFormat );
+            auto colorMap = GetColorMap();
+            SetColorMap( GRAYSCALE_DISCRETE );
+            Write( estMap, os.str()+"-discrete", imgFormat );
+            SetColorMap( colorMap );
+            imgSaveCount = 0;
+        }
+    }
 }
 
 } // namespace pspec

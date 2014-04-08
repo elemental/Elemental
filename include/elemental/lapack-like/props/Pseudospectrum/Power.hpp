@@ -105,48 +105,14 @@ Deflate
 }
 
 template<typename Real>
-inline void
-RestoreOrdering
-( const Matrix<Int>& preimage, Matrix<Real>& invNorms, Matrix<Int>& itCounts )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
-    auto invNormsCopy = invNorms;
-    auto itCountsCopy = itCounts;
-    const Int numShifts = preimage.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Int dest = preimage.Get(j,0);
-        invNorms.Set( dest, 0, invNormsCopy.Get(j,0) );
-        itCounts.Set( dest, 0, itCountsCopy.Get(j,0) );
-    }
-}
-
-template<typename Real>
-inline void
-RestoreOrdering
-( const DistMatrix<Int, VR,STAR>& preimage, 
-        DistMatrix<Real,VR,STAR>& invNorms,
-        DistMatrix<Int, VR,STAR>& itCounts )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
-    DistMatrix<Int, STAR,STAR> preimageCopy( preimage );
-    DistMatrix<Real,STAR,STAR> invNormsCopy( invNorms );
-    DistMatrix<Int, STAR,STAR> itCountsCopy( itCounts );
-    const Int numShifts = preimage.Height();
-    for( Int j=0; j<numShifts; ++j )
-    {
-        const Int dest = preimageCopy.Get(j,0);
-        invNorms.Set( dest, 0, invNormsCopy.Get(j,0) );
-        itCounts.Set( dest, 0, itCountsCopy.Get(j,0) );
-    }
-}
-
-template<typename Real>
 inline Matrix<Int>
 TriangularPower
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0,
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -174,6 +140,7 @@ TriangularPower
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
@@ -223,9 +190,15 @@ TriangularPower
               activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
+
+        // Save snapshots of the estimates at the requested rate
+        ++numSaveCount;
+        ++imgSaveCount;
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )
@@ -239,7 +212,10 @@ inline Matrix<Int>
 HessenbergPower
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0,
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
     using namespace pspec;
@@ -272,6 +248,7 @@ HessenbergPower
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
@@ -324,9 +301,15 @@ HessenbergPower
               activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
+
+        // Save snapshots of the estimates at the requested rate
+        ++numSaveCount;
+        ++imgSaveCount;
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )
@@ -341,7 +324,10 @@ TriangularPower
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0,
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -375,6 +361,7 @@ TriangularPower
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -425,9 +412,15 @@ TriangularPower
               activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
+
+        // Save snapshots of the estimates at the requested rate
+        ++numSaveCount;
+        ++imgSaveCount;
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )
@@ -442,7 +435,10 @@ HessenbergPower
 ( const DistMatrix<Complex<Real>        >& H, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0,
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
     using namespace pspec;
@@ -485,6 +481,7 @@ HessenbergPower
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -543,9 +540,15 @@ HessenbergPower
               activeConverged, activeItCounts, progress );
 
         lastActiveEsts = activeEsts;
+
+        // Save snapshots of the estimates at the requested rate
+        ++numSaveCount;
+        ++imgSaveCount;
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )

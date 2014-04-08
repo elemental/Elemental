@@ -275,7 +275,10 @@ inline Matrix<Int>
 TriangularIRA
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int basisSize=10, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0, 
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRA"))
     using namespace pspec;
@@ -311,6 +314,7 @@ TriangularIRA
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     Matrix<Real> lastActiveEsts;
@@ -403,6 +407,11 @@ TriangularIRA
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
+
+            if( numFreq > 0 )
+                ++numSaveCount;
+            if( imgFreq > 0 )
+                ++imgSaveCount;
         }
         if( progress )
             subtimer.Start();
@@ -436,9 +445,13 @@ TriangularIRA
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
+
+        // Save snapshots of the estimates at the requested rate
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )
@@ -452,7 +465,10 @@ inline Matrix<Int>
 HessenbergIRA
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int basisSize=10, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0, 
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRA"))
     using namespace pspec;
@@ -492,6 +508,7 @@ HessenbergIRA
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     Matrix<Real> lastActiveEsts;
@@ -584,7 +601,12 @@ HessenbergIRA
             if( j != 0 ) 
                 activeConverged =
                     FindConverged
-                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
+                    ( lastActiveEsts, activeEsts, activeItCounts, tol );    
+
+            if( numFreq > 0 )
+                ++numSaveCount;
+            if( imgFreq > 0 )
+                ++imgSaveCount;
         }
         if( progress )
             subtimer.Start();
@@ -618,9 +640,13 @@ HessenbergIRA
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
+
+        // Save snapshots of the estimates at the requested rate
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )
@@ -636,7 +662,10 @@ TriangularIRA
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
         Int basisSize=10, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0, 
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRA"))
     using namespace pspec;
@@ -645,7 +674,7 @@ TriangularIRA
     const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
     if( deflate && U.Grid().Rank() == 0 ) 
-        std::cerr << "WARNING: Deflation swaps not yet optimized!" << std::endl;
+        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
@@ -684,6 +713,7 @@ TriangularIRA
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -790,6 +820,11 @@ TriangularIRA
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
+
+            if( numFreq > 0 )
+                ++numSaveCount;
+            if( imgFreq > 0 )
+                ++imgSaveCount;
         }
         if( progress )
         {
@@ -835,9 +870,13 @@ TriangularIRA
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
+
+        // Save snapshots of the estimates at the requested rate
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )
@@ -853,7 +892,10 @@ HessenbergIRA
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
         Int basisSize=10, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true )
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  Int realSize=0, Int imagSize=0, 
+  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
+  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRA"))
     using namespace pspec;
@@ -862,7 +904,7 @@ HessenbergIRA
     const Int numShifts = shifts.Height();
     const Grid& g = H.Grid();
     if( deflate && H.Grid().Rank() == 0 ) 
-        std::cerr << "WARNING: Deflation swaps not yet optimized!" << std::endl;
+        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
@@ -907,6 +949,7 @@ HessenbergIRA
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
+    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -1019,6 +1062,11 @@ HessenbergIRA
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
+
+            if( numFreq > 0 )
+                ++numSaveCount;
+            if( imgFreq > 0 )
+                ++imgSaveCount;
         }
         if( progress )
         {
@@ -1064,9 +1112,13 @@ HessenbergIRA
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
+
+        // Save snapshots of the estimates at the requested rate
+        Snapshot
+        ( estimates, preimage, numIts, deflate, realSize, imagSize,
+          numSaveCount, numFreq, numBase, numFormat,
+          imgSaveCount, imgFreq, imgBase, imgFormat );
     } 
-    if( numDone != numShifts )
-        RuntimeError("Two-norm estimates did not converge in time");
 
     invNorms = estimates;
     if( deflate )

@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_ENTRYWISEMAP_INC
 #include ELEM_FROBENIUSNORM_INC
 #include ELEM_PSEUDOSPECTRUM_INC
 
@@ -46,7 +47,7 @@ main( int argc, char* argv[] )
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
         const Int krylovSize = Input("--krylovSize","num basis vectors",10);
-        const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
+        const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
 #ifdef ELEM_HAVE_SCALAPACK
         // QR algorithm options
@@ -75,12 +76,19 @@ main( int argc, char* argv[] )
         const double sigma = Input("--sigma","PML amplitude",1.5);
         const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
         const bool progress = Input("--progress","print progress?",true);
+        const bool deflate = Input("--deflate","deflate?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
         const bool saveSchur = Input("--saveSchur","save Schur factor?",true);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
-        const Int numerFormatInt = Input("--numerFormat","numerical format",2);
-        const Int imageFormatInt = Input("--imageFormat","image format",8);
+        const Int numFreq = Input("--numFreq","numerical save frequency",0);
+        const Int imgFreq = Input("--imgFreq","image save frequency",0);
+        const std::string numBase = 
+            Input("--numBase","numerical save basename",std::string("snap"));
+        const std::string imgBase = 
+            Input("--imgBase","image save basename",std::string("logSnap"));
+        const Int numFormatInt = Input("--numFormat","numerical format",2);
+        const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
         PrintInputReport();
@@ -90,15 +98,15 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
-        if( numerFormatInt < 1 || numerFormatInt >= FileFormat_MAX )
+        if( numFormatInt < 1 || numFormatInt >= FileFormat_MAX )
             LogicError("Invalid numerical format integer, should be in [1,",
                        FileFormat_MAX,")");
-        if( imageFormatInt < 1 || imageFormatInt >= FileFormat_MAX )
+        if( imgFormatInt < 1 || imgFormatInt >= FileFormat_MAX )
             LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        const FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
-        const FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
+        const FileFormat numFormat = static_cast<FileFormat>(numFormatInt);
+        const FileFormat imgFormat = static_cast<FileFormat>(imgFormatInt);
         const ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
         const C center(realCenter,imagCenter);
@@ -126,8 +134,8 @@ main( int argc, char* argv[] )
             Display( A, "A" );
         if( write )
         {
-            Write( A, "A", numerFormat );
-            Write( A, "A", imageFormat );
+            Write( A, "A", numFormat );
+            Write( A, "A", imgFormat );
         }
 
         // Begin by computing the Schur decomposition
@@ -225,6 +233,10 @@ main( int argc, char* argv[] )
             const Real realChunkWidth = realStep*realChunkSize;
             for( Int imagChunk=0; imagChunk<numImag; ++imagChunk )
             {
+                std::ostringstream chunkStream;
+                chunkStream << "_" << realChunk << "_" << imagChunk;
+                const std::string chunkTag = chunkStream.str();
+
                 const Int imagChunkSize = 
                     ( imagChunk==numImag-1 ? yLeftover : yBlock );
                 const Real imagChunkWidth = imagStep*imagChunkSize;
@@ -242,7 +254,9 @@ main( int argc, char* argv[] )
                 itCountMap = TriangularPseudospectrum
                 ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
                   realChunkSize, imagChunkSize, arnoldi, krylovSize,
-                  maxIts, tol, progress );
+                  maxIts, tol, progress, deflate, 
+                  numFreq, numBase+chunkTag, numFormat, 
+                  imgFreq, imgBase+chunkTag, imgFormat );
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );
@@ -252,9 +266,6 @@ main( int argc, char* argv[] )
                               << "num iterations=" << numIts << std::endl;
                 }
 
-                std::ostringstream chunkStream;
-                chunkStream << "_" << realChunk << "_" << imagChunk;
-                const std::string chunkTag = chunkStream.str();
                 if( display )
                 {
                     Display( invNormMap, "invNormMap"+chunkTag );
@@ -262,19 +273,15 @@ main( int argc, char* argv[] )
                 }
                 if( write || writePseudo )
                 {
-                    Write( invNormMap, "invNormMap"+chunkTag, numerFormat );
-                    Write( invNormMap, "invNormMap"+chunkTag, imageFormat );
-                    Write( itCountMap, "itCountMap"+chunkTag, numerFormat );
-                    Write( itCountMap, "itCountMap"+chunkTag, imageFormat );
+                    Write( invNormMap, "invNormMap"+chunkTag, numFormat );
+                    Write( invNormMap, "invNormMap"+chunkTag, imgFormat );
+                    Write( itCountMap, "itCountMap"+chunkTag, numFormat );
+                    Write( itCountMap, "itCountMap"+chunkTag, imgFormat );
                 }
 
-                // Take the element-wise log
-                const Int mLocal = invNormMap.LocalHeight();
-                const Int nLocal = invNormMap.LocalWidth();
-                for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-                    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                        invNormMap.SetLocal
-                        ( iLoc, jLoc, Log(invNormMap.GetLocal(iLoc,jLoc)) );
+                // Take the entrywise log
+                EntrywiseMap
+                ( invNormMap, []( Real alpha ) { return Log(alpha); } );
                 if( display )
                 {
                     Display( invNormMap, "logInvNormMap"+chunkTag );
@@ -288,18 +295,18 @@ main( int argc, char* argv[] )
                 }
                 if( write || writePseudo )
                 {
-                    Write( invNormMap, "logInvNormMap"+chunkTag, numerFormat );
-                    Write( invNormMap, "logInvNormMap"+chunkTag, imageFormat );
+                    Write( invNormMap, "logInvNormMap"+chunkTag, numFormat );
+                    Write( invNormMap, "logInvNormMap"+chunkTag, imgFormat );
                     if( GetColorMap() != GRAYSCALE_DISCRETE )
                     {
                         auto colorMap = GetColorMap();
                         SetColorMap( GRAYSCALE_DISCRETE );
                         Write
                         ( invNormMap, "discreteLogInvNormMap"+chunkTag, 
-                          numerFormat );
+                          numFormat );
                         Write
                         ( invNormMap, "discreteLogInvNormMap"+chunkTag, 
-                          imageFormat );
+                          imgFormat );
                         SetColorMap( colorMap );
                     }
                 }

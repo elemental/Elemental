@@ -25,6 +25,4 @@
 
 #include "elemental/io.hpp"
 
-
-
 #endif // ifndef ELEMENTAL_LITE_HPP

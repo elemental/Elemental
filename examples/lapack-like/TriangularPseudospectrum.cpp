@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_ENTRYWISEMAP_INC
 #include ELEM_FROBENIUSNORM_INC
 #include ELEM_PSEUDOSPECTRUM_INC
 #include ELEM_DEMMEL_INC
@@ -46,7 +47,7 @@ main( int argc, char* argv[] )
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
         const Int krylovSize = Input("--krylovSize","num Arnoldi vectors",10);
-        const Int maxIts = Input("--maxIts","maximum two-norm iter's",1000);
+        const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
         const Real uniformRealCenter = 
             Input("--uniformRealCenter","real center of uniform dist",0.);
@@ -57,11 +58,18 @@ main( int argc, char* argv[] )
         const Int numBands = Input("--numBands","num bands for Grcar",3);
         const Real omega = Input("--omega","frequency for Fox-Li",16*M_PI);
         const bool progress = Input("--progress","print progress?",true);
+        const bool deflate = Input("--deflate","deflate?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
-        const Int numerFormatInt = Input("--numerFormat","numerical format",2);
-        const Int imageFormatInt = Input("--imageFormat","image format",8);
+        const Int numFreq = Input("--numFreq","numerical save frequency",0);
+        const Int imgFreq = Input("--imgFreq","image save frequency",0);
+        const std::string numBase =
+            Input("--numBase","numerical save basename",std::string("snap"));
+        const std::string imgBase =
+            Input("--imgBase","image save basename",std::string("logSnap"));
+        const Int numFormatInt = Input("--numFormat","numerical format",2);
+        const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
         ProcessInput();
         PrintInputReport();
@@ -71,15 +79,15 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
-        if( numerFormatInt < 1 || numerFormatInt >= FileFormat_MAX )
+        if( numFormatInt < 1 || numFormatInt >= FileFormat_MAX )
             LogicError("Invalid numerical format integer, should be in [1,",
                        FileFormat_MAX,")");
-        if( imageFormatInt < 1 || imageFormatInt >= FileFormat_MAX )
+        if( imgFormatInt < 1 || imgFormatInt >= FileFormat_MAX )
             LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        const FileFormat numerFormat = static_cast<FileFormat>(numerFormatInt);
-        const FileFormat imageFormat = static_cast<FileFormat>(imageFormatInt);
+        const FileFormat numFormat = static_cast<FileFormat>(numFormatInt);
+        const FileFormat imgFormat = static_cast<FileFormat>(imgFormatInt);
         const ColorMap colorMap = static_cast<ColorMap>(colorMapInt);
         SetColorMap( colorMap );
         const C center(realCenter,imagCenter);
@@ -105,8 +113,8 @@ main( int argc, char* argv[] )
             Display( A, "A" );
         if( write )
         {
-            Write( A, "A", numerFormat );
-            Write( A, "A", imageFormat );
+            Write( A, "A", numFormat );
+            Write( A, "A", imgFormat );
         }
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
@@ -116,11 +124,13 @@ main( int argc, char* argv[] )
         if( realWidth != 0. && imagWidth != 0. )
             itCountMap = TriangularPseudospectrum
             ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize,
-              arnoldi, krylovSize, maxIts, tol, progress );
+              arnoldi, krylovSize, maxIts, tol, progress, deflate,
+              numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
         else
             itCountMap = TriangularPseudospectrum
             ( A, invNormMap, center, realSize, imagSize,                
-              arnoldi, krylovSize, maxIts, tol, progress );
+              arnoldi, krylovSize, maxIts, tol, progress, deflate,
+              numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;
@@ -131,19 +141,14 @@ main( int argc, char* argv[] )
         }
         if( write || writePseudo )
         {
-            Write( invNormMap, "invNormMap", numerFormat );
-            Write( invNormMap, "invNormMap", imageFormat );
-            Write( itCountMap, "itCountMap", numerFormat );
-            Write( itCountMap, "itCountMap", imageFormat );
+            Write( invNormMap, "invNormMap", numFormat );
+            Write( invNormMap, "invNormMap", imgFormat );
+            Write( itCountMap, "itCountMap", numFormat );
+            Write( itCountMap, "itCountMap", imgFormat );
         }
 
-        // Take the element-wise log
-        const Int mLocal = invNormMap.LocalHeight();
-        const Int nLocal = invNormMap.LocalWidth();
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                invNormMap.SetLocal
-                ( iLoc, jLoc, Log(invNormMap.GetLocal(iLoc,jLoc)) );
+        // Take the entrywise log
+        EntrywiseMap( invNormMap, []( Real alpha ) { return Log(alpha); } );
         if( display )
         {
             Display( invNormMap, "logInvNormMap" );
@@ -157,14 +162,14 @@ main( int argc, char* argv[] )
         }
         if( write || writePseudo ) 
         {
-            Write( invNormMap, "logInvNormMap", numerFormat );
-            Write( invNormMap, "logInvNormMap", imageFormat );
+            Write( invNormMap, "logInvNormMap", numFormat );
+            Write( invNormMap, "logInvNormMap", imgFormat );
             if( GetColorMap() != GRAYSCALE_DISCRETE )
             {
                 auto colorMap = GetColorMap();
                 SetColorMap( GRAYSCALE_DISCRETE );
-                Write( invNormMap, "discreteLogInvNormMap", numerFormat );
-                Write( invNormMap, "discreteLogInvNormMap", imageFormat );
+                Write( invNormMap, "discreteLogInvNormMap", numFormat );
+                Write( invNormMap, "discreteLogInvNormMap", imgFormat );
                 SetColorMap( colorMap );
             }
         }
