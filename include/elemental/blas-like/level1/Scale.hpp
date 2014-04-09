@@ -29,6 +29,39 @@ Scale( T alpha, Matrix<T>& A )
     }
 }
 
+template<typename Real>
+inline void
+Scale( Complex<Real> alpha, Matrix<Real>& AReal, Matrix<Real>& AImag )
+{
+    DEBUG_ONLY(CallStackEntry cse("Scale"))
+    typedef Complex<Real> C;
+    const Int m = AReal.Height();
+    const Int n = AReal.Width();
+    if( alpha != C(1) )
+    {
+        if( alpha == C(0) )
+        {
+            Scale( Real(0), AReal );
+            Scale( Real(0), AImag );
+        }
+        else
+        {
+            Matrix<Real> aReal, aImag, aRealCopy, aImagCopy;
+            for( Int j=0; j<n; ++j )
+            {
+                aReal = View( aReal, 0, j, m, 1 );
+                aImag = View( aImag, 0, j, m, 1 );
+                aRealCopy = aReal;
+                aImagCopy = aImag;
+                Scale( alpha.real(), aReal     );
+                Axpy( -alpha.imag(), aImagCopy );
+                Scale( alpha.real(), aImag     );
+                Axpy(  alpha.imag(), aRealCopy );
+            }
+        }
+    }
+}
+
 #ifndef SWIG
 template<typename T>
 inline void
@@ -41,17 +74,35 @@ inline void
 Scale( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A.Matrix() ); }
 
+template<typename Real,Dist U,Dist V>
+inline void
+Scale
+( Complex<Real> alpha, 
+  DistMatrix<Real,U,V>& AReal, DistMatrix<Real,U,V>& AImag )
+{ Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
+
 template<typename T,Dist U,Dist V>
 inline void
 Scale( T alpha, BlockDistMatrix<T,U,V>& A )
 { Scale( alpha, A.Matrix() ); }
+
+template<typename Real,Dist U,Dist V>
+inline void
+Scale
+( Complex<Real> alpha, 
+  BlockDistMatrix<Real,U,V>& AReal, BlockDistMatrix<Real,U,V>& AImag )
+{ Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
 #ifndef SWIG
 template<typename T,Dist U,Dist V>
 inline void
 Scale( Base<T> alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
-// TODO: BlockDistMatrix version?
+
+template<typename T,Dist U,Dist V>
+inline void
+Scale( Base<T> alpha, BlockDistMatrix<T,U,V>& A )
+{ Scale( T(alpha), A.Matrix() ); }
 #endif
 
 } // namespace elem
