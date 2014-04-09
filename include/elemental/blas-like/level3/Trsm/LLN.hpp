@@ -114,11 +114,12 @@ LLNMedium
 }
 
 // For small numbers of RHS's, e.g., width(X) < p
-template<typename F>
+template<typename F,Dist colDist>
 inline void
 LLNSmall
-( UnitOrNonUnit diag, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
-  bool checkIfSingular )
+( UnitOrNonUnit diag, 
+  const DistMatrix<F,colDist,STAR>& L, 
+        DistMatrix<F,colDist,STAR>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsm::LLNSmall");

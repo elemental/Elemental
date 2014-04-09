@@ -929,7 +929,7 @@ HessenbergIRA
     }
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
-    std::vector<Matrix<Complex<Real>>> HList(numShifts);
+    std::vector<Matrix<Complex<Real>>> HList(numMRShifts);
     std::vector<Real> realComponents;
     std::vector<Complex<Real>> components;
 

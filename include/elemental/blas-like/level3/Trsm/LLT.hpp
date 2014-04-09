@@ -131,14 +131,14 @@ LLTMedium
 }
 
 // TODO: Find a better name and/or namespace for this utility function
-template<typename F>
+template<typename F,Dist colDist>
 inline void AddInLocalData
-( const DistMatrix<F,VC,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
+( const DistMatrix<F,colDist,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::AddInLocalData"))
     const Int width = X1.Width();
     const Int localHeight = X1.LocalHeight();
-    const Int stride = X1.Grid().Size();
+    const Int stride = X1.ColStride();
     const Int offset = X1.ColShift();
     for( Int j=0; j<width; ++j )
     {
@@ -150,11 +150,11 @@ inline void AddInLocalData
 }
 
 // width(X) << p
-template<typename F>
+template<typename F,Dist colDist>
 inline void
 LLTSmall
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
+  const DistMatrix<F,colDist,STAR>& L, DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -203,11 +203,11 @@ LLTSmall
     }
 }
 
-template<typename F>
+template<typename F,Dist rowDist>
 inline void
 LLTSmall
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,STAR,VR>& L, DistMatrix<F,VR,STAR>& X,
+  const DistMatrix<F,STAR,rowDist>& L, DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

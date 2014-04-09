@@ -7,26 +7,21 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_QUASITRSM_LLT_HPP
-#define ELEM_QUASITRSM_LLT_HPP
+#ifndef ELEM_MULTISHIFTQUASITRSM_LLT_HPP
+#define ELEM_MULTISHIFTQUASITRSM_LLT_HPP
 
 #include ELEM_GEMM_INC
 #include ELEM_TRSM_INC
 
 namespace elem {
-namespace quasitrsm {
-
-// Left Lower (Conjugate)Transpose (Non)Unit QuasiTrsm
-//   X := tril(L)^-T,
-//   X := tril(L)^-H,
-//   X := trilu(L)^-T, or
-//   X := trilu(L)^-H
+namespace msquasitrsm {
 
 template<typename F>
 inline void
-LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+LLTUnb
+( bool conjugate, const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLTUnb"))
+    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LLTUnb"))
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -46,31 +41,26 @@ LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
         if( in2x2 )
         {
             --k;
-            // Solve the 2x2 linear systems via a 2x2 LQ decomposition produced
+            // Solve the 2x2 linear systems via 2x2 LQ decompositions produced
             // by the Givens rotation
-            //    | L(k,k) L(k,k+1) | | c -conj(s) | = | gamma11 0 |
-            //                        | s    c     |
+            //    | L(k,k)-shift L(k,k+1) | | c -conj(s) | = | gamma11 0 |
+            //                              | s    c     |
             // and by also forming the bottom two entries of the 2x2 resulting
             // lower-triangular matrix, say gamma21 and gamma22
             //
-            // Extract the 2x2 diagonal block, D
-            const F delta11 = LBuf[   k +   k *ldl];
+            // Extract the constant part of the 2x2 diagonal block, D
             const F delta12 = LBuf[   k +(k+1)*ldl];
             const F delta21 = LBuf[(k+1)+   k *ldl];
-            const F delta22 = LBuf[(k+1)+(k+1)*ldl];
-            // Decompose D = L Q
-            Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
-            const F gamma21 =        c*delta21 + s*delta22;
-            const F gamma22 = -Conj(s)*delta21 + c*delta22;
-            if( checkIfSingular )
-            {
-                // TODO: Instead check if values are too small in magnitude
-                if( gamma11 == F(0) || gamma22 == F(0) )
-                    LogicError("Singular diagonal block detected");
-            }
             for( Int j=0; j<n; ++j )
             {
+                const F delta11 = LBuf[   k +   k *ldl] - shifts.Get(j,0);
+                const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
+                // Decompose D = L Q
+                Real c; F s;
+                const F gamma11 = lapack::Givens( delta11, delta12, &c, &s );
+                const F gamma21 =        c*delta21 + s*delta22;
+                const F gamma22 = -Conj(s)*delta21 + c*delta22;
+
                 F* xBuf = &XBuf[j*ldx];
                 // Solve against Q^T
                 const F chi1 = xBuf[k  ];
@@ -90,14 +80,11 @@ LLTUnb( bool conjugate, const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
         }
         else
         {
-            if( checkIfSingular )
-                if( LBuf[k+k*ldl] == F(0) )
-                    LogicError("Singular diagonal entry detected");
             for( Int j=0; j<n; ++j )
             {
                 F* xBuf = &XBuf[j*ldx];
                 // Solve the 1x1 linear system
-                xBuf[k] /= LBuf[k+k*ldl];
+                xBuf[k] /= LBuf[k+k*ldl] - shifts.Get(j,0);
 
                 // Update x0 := x0 - l10^T chi_1
                 blas::Axpy( k, -xBuf[k], &LBuf[k], ldl, xBuf, 1 );
@@ -113,10 +100,10 @@ template<typename F>
 inline void
 LLT
 ( Orientation orientation, 
-  const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
+  const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LLT");
+        CallStackEntry cse("msquasitrsm::LLT");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
@@ -141,7 +128,7 @@ LLT
         auto X0 = ViewRange( X, 0, 0, k,    n );
         auto X1 = ViewRange( X, k, 0, k+nb, n );
 
-        LLTUnb( conjugate, L11, X1, checkIfSingular );
+        LLTUnb( conjugate, L11, shifts, X1 );
         Gemm( orientation, NORMAL, F(-1), L10, X1, F(1), X0 );
 
         if( k == 0 )
@@ -156,10 +143,11 @@ template<typename F>
 inline void
 LLTLarge
 ( Orientation orientation, 
-  const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
+  const DistMatrix<F>& L, const DistMatrix<F,VR,STAR>& shifts, 
+        DistMatrix<F>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LLTLarge");
+        CallStackEntry cse("msquasitrsm::LLTLarge");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
@@ -189,12 +177,12 @@ LLTLarge
         auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
+        X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
         // X1[* ,VR] := L11^-[T/H][* ,* ] X1[* ,VR]
-        LocalQuasiTrsm
-        ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, X1_STAR_VR,
-          checkIfSingular );
+        LocalMultiShiftQuasiTrsm
+        ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, shifts, X1_STAR_VR );
 
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR] <- X1[* ,VR]
@@ -215,14 +203,14 @@ LLTLarge
 }
 
 // width(X) ~= p
-template<typename F>
+template<typename F,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LLTMedium
-( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& X, 
-  bool checkIfSingular )
+( Orientation orientation, const DistMatrix<F>& L, 
+  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, DistMatrix<F>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LLTMedium");
+        CallStackEntry cse("msquasitrsm::LLTMedium");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
@@ -234,6 +222,9 @@ LLTMedium
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
+
+    DistMatrix<F,MR,  STAR> shifts_MR_STAR( shifts ),
+                            shifts_MR_STAR_Align(g);
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -257,9 +248,11 @@ LLTMedium
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
-        LocalQuasiTrsm
+        shifts_MR_STAR_Align.AlignWith( X1Trans_MR_STAR );
+        shifts_MR_STAR_Align = shifts_MR_STAR;
+        LocalMultiShiftQuasiTrsm
         ( RIGHT, LOWER, NORMAL,
-          F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
 
         X1.TransposeColFilterFrom( X1Trans_MR_STAR, (orientation==ADJOINT) );
         L10_STAR_MC.AlignWith( X0 );
@@ -281,15 +274,16 @@ LLTMedium
 using trsm::AddInLocalData;
 
 // width(X) << p
-template<typename F,Dist colDist>
+template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LLTSmall
 ( Orientation orientation, 
-  const DistMatrix<F,colDist,STAR>& L, DistMatrix<F,colDist,STAR>& X,
-  bool checkIfSingular )
+  const DistMatrix<F,colDist,STAR>& L, 
+  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
+        DistMatrix<F,colDist,STAR>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LLTSmall");
+        CallStackEntry cse("msquasitrsm::LLTSmall");
         if( L.Grid() != X.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( orientation == NORMAL )
@@ -307,8 +301,8 @@ LLTSmall
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> Z1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), Z1_STAR_STAR(g),
+                            shifts_STAR_STAR(shifts);
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -332,9 +326,9 @@ LLTSmall
 
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
-        LocalQuasiTrsm
-        ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, Z1_STAR_STAR,
-          checkIfSingular );
+        LocalMultiShiftQuasiTrsm
+        ( LEFT, LOWER, orientation, F(1), 
+          L11_STAR_STAR, shifts_STAR_STAR, Z1_STAR_STAR );
         X1 = Z1_STAR_STAR;
 
         if( k == 0 )
@@ -344,15 +338,16 @@ LLTSmall
     }
 }
 
-template<typename F,Dist rowDist>
+template<typename F,Dist rowDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LLTSmall
 ( Orientation orientation, 
-  const DistMatrix<F,STAR,rowDist>& L, DistMatrix<F,rowDist,STAR>& X,
-  bool checkIfSingular )
+  const DistMatrix<F,STAR,rowDist>& L, 
+  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
+        DistMatrix<F,rowDist,STAR>& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LLTSmall");
+        CallStackEntry cse("msquasitrsm::LLTSmall");
         if( L.Grid() != X.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( orientation == NORMAL )
@@ -370,7 +365,8 @@ LLTSmall
     const Int bsize = Blocksize();
     const Grid& g = L.Grid();
 
-    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g),
+                            shifts_STAR_STAR(shifts);
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -391,9 +387,9 @@ LLTSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
 
         // X1[* ,* ] := L11^-[T/H][* ,* ] X1[* ,* ]
-        LocalQuasiTrsm
+        LocalMultiShiftQuasiTrsm
         ( LEFT, LOWER, orientation,
-          F(1), L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, shifts_STAR_STAR, X1_STAR_STAR );
 
         X1 = X1_STAR_STAR;
 
@@ -407,7 +403,7 @@ LLTSmall
     }
 }
 
-} // namespace quasitrsm
+} // namespace msquasitrsm
 } // namespace elem
 
-#endif // ifndef ELEM_QUASITRSM_LLT_HPP
+#endif // ifndef ELEM_MULTISHIFTQUASITRSM_LLT_HPP

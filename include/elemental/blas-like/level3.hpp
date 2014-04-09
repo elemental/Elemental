@@ -14,6 +14,7 @@
 #include "./level3/Hemm.hpp"
 #include "./level3/Her2k.hpp"
 #include "./level3/Herk.hpp"
+#include "./level3/MultiShiftQuasiTrsm.hpp"
 #include "./level3/MultiShiftTrsm.hpp"
 #include "./level3/QuasiTrsm.hpp"
 #include "./level3/Symm.hpp"

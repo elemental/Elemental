@@ -7,23 +7,19 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_QUASITRSM_LUN_HPP
-#define ELEM_QUASITRSM_LUN_HPP
+#ifndef ELEM_MULTISHIFTQUASITRSM_LUN_HPP
+#define ELEM_MULTISHIFTQUASITRSM_LUN_HPP
 
 #include ELEM_GEMM_INC
 
 namespace elem {
-namespace quasitrsm {
-
-// Left Upper Normal (Non)Unit Trsm
-//   X := triu(U)^-1  X, or
-//   X := triuu(U)^-1 X
+namespace msquasitrsm {
 
 template<typename F>
 inline void
-LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNUnb"))
+    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNUnb"))
     const Int m = X.Height();
     const Int n = X.Width();
     typedef Base<F> Real;
@@ -40,32 +36,27 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
         if( in2x2 )
         {
             --k;
-            // Solve the 2x2 linear systems via a 2x2 QR decomposition produced
+            // Solve the 2x2 linear systems via 2x2 QR decompositions produced
             // by the Givens rotation
-            //    | c        s | | U(k,  k) | = | gamma11 | 
-            //    | -conj(s) c | | U(k+1,k) |   | 0       |
+            //    | c        s | | U(k,  k)-shift | = | gamma11 | 
+            //    | -conj(s) c | | U(k+1,k)       |   | 0       |
             //
             // and by also forming the right two entries of the 2x2 resulting
             // upper-triangular matrix, say gamma12 and gamma22
             //
-            // Extract the 2x2 diagonal block, D
-            const F delta11 = UBuf[ k   + k   *ldu];
+            // Extract the constant part of the 2x2 diagonal block, D
             const F delta12 = UBuf[ k   +(k+1)*ldu];
             const F delta21 = UBuf[(k+1)+ k   *ldu];
-            const F delta22 = UBuf[(k+1)+(k+1)*ldu];
-            // Decompose D = Q R
-            Real c; F s;
-            const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
-            const F gamma12 =        c*delta12 + s*delta22;
-            const F gamma22 = -Conj(s)*delta12 + c*delta22;
-            if( checkIfSingular )
-            {
-                // TODO: Instead check if values are too small in magnitude
-                if( gamma11 == F(0) || gamma22 == F(0) )
-                    LogicError("Singular diagonal block detected");
-            }
             for( Int j=0; j<n; ++j )
             {
+                const F delta11 = UBuf[ k   + k   *ldu] - shifts.Get(j,0);
+                const F delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
+                // Decompose D = Q R
+                Real c; F s;
+                const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+                const F gamma12 =        c*delta12 + s*delta22;
+                const F gamma22 = -Conj(s)*delta12 + c*delta22;
+
                 F* xBuf = &XBuf[j*ldx];
                 // Solve against Q
                 const F chi1 = xBuf[k  ];
@@ -85,14 +76,11 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
         }
         else
         {
-            if( checkIfSingular )
-                if( UBuf[k+k*ldu] == F(0) )
-                    LogicError("Singular diagonal entry detected");
             for( Int j=0; j<n; ++j )
             {
                 F* xBuf = &XBuf[j*ldx];
                 // Solve the 1x1 linear system
-                xBuf[k] /= UBuf[k+k*ldu];
+                xBuf[k] /= UBuf[k+k*ldu] - shifts.Get(j,0);
 
                 // Update x0 := x0 - u01 chi_1
                 blas::Axpy( k, -xBuf[k], &UBuf[k*ldu], 1, xBuf, 1 );
@@ -104,10 +92,11 @@ LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 
 template<typename F>
 inline void
-LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
+LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUN"))
+    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUN"))
     const Int m = X.Height();
+    const Int n = X.Width();
     const Int bsize = Blocksize();
 
     const Int kLast = LastOffset( m, bsize );
@@ -125,7 +114,7 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
         auto X0 = ViewRange( X, 0, 0, m, k    );
         auto X1 = ViewRange( X, 0, k, m, k+nb );
 
-        LUNUnb( U11, X1, checkIfSingular );
+        LUNUnb( U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
 
         if( k == 0 )
@@ -138,9 +127,10 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LUNLarge
-( const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+( const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts, 
+        DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNLarge"))
+    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNLarge"))
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
@@ -167,12 +157,12 @@ LUNLarge
         auto X1 = ViewRange( X, 0, k, m, k+nb );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
+        X1_STAR_VR.AlignWith( shifts );
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
         
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
-        LocalQuasiTrsm
-        ( LEFT, UPPER, NORMAL, F(1), U11_STAR_STAR, X1_STAR_VR,
-          checkIfSingular );
+        LocalMultiShiftQuasiTrsm
+        ( LEFT, UPPER, NORMAL, F(1), U11_STAR_STAR, shifts, X1_STAR_VR );
 
         X1_STAR_MR.AlignWith( X0 );
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
@@ -190,12 +180,14 @@ LUNLarge
     }
 }
 
-template<typename F>
+template<typename F,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LUNMedium
-( const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+( const DistMatrix<F>& U, 
+  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
+        DistMatrix<F>& X )
 {
-    DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNMedium"))
+    DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNMedium"))
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
@@ -204,6 +196,9 @@ LUNMedium
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
+
+    DistMatrix<F,MR,  STAR> shifts_MR_STAR(shifts),
+                            shifts_MR_STAR_Align(g);
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -226,9 +221,11 @@ LUNMedium
         
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         //              = (U11^-1[* ,* ] X1[* ,MR])^T
-        LocalQuasiTrsm
+        shifts_MR_STAR_Align.AlignWith( X1Trans_MR_STAR );
+        shifts_MR_STAR_Align = shifts_MR_STAR;
+        LocalMultiShiftQuasiTrsm
         ( RIGHT, UPPER, TRANSPOSE,
-          F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
+          F(1), U11_STAR_STAR, shifts_MR_STAR_Align, X1Trans_MR_STAR );
         X1.TransposeColFilterFrom( X1Trans_MR_STAR );
 
         U01_MC_STAR.AlignWith( X0 );
@@ -245,14 +242,15 @@ LUNMedium
     }
 }
 
-template<typename F,Dist colDist>
+template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
 inline void
 LUNSmall
-( const DistMatrix<F,colDist,STAR>& U, DistMatrix<F,colDist,STAR>& X,
-  bool checkIfSingular )
+( const DistMatrix<F,     colDist,STAR        >& U, 
+  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
+        DistMatrix<F,     colDist,STAR        >& X )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("quasitrsm::LUNSmall");
+        CallStackEntry cse("msquasitrsm::LUNSmall");
         if( U.Grid() != X.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || U.Width() != X.Height() )
@@ -268,7 +266,8 @@ LUNSmall
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g),
+                            shifts_STAR_STAR(shifts);
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -289,9 +288,9 @@ LUNSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
         
         // X1[* ,* ] := U11^-1[* ,* ] X1[* ,* ]
-        LocalQuasiTrsm
+        LocalMultiShiftQuasiTrsm
         ( LEFT, UPPER, NORMAL, 
-          F(1), U11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
+          F(1), U11_STAR_STAR, shifts_STAR_STAR, X1_STAR_STAR );
         X1 = X1_STAR_STAR;
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
@@ -304,7 +303,7 @@ LUNSmall
     }
 }
 
-} // namespace quasitrsm
+} // namespace msquasitrsm
 } // namespace elem
 
-#endif // ifndef ELEM_QUASITRSM_LUN_HPP
+#endif // ifndef ELEM_MULTISHIFTQUASITRSM_LUN_HPP

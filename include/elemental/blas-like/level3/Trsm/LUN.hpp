@@ -27,7 +27,6 @@ LUNLarge
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::LUNLarge"))
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -74,7 +73,6 @@ LUNMedium
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::LUNMedium"))
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -113,11 +111,11 @@ LUNMedium
     }
 }
 
-template<typename F>
+template<typename F,Dist colDist>
 inline void
 LUNSmall
 ( UnitOrNonUnit diag,
-  const DistMatrix<F,VC,STAR>& U, DistMatrix<F,VC,STAR>& X,
+  const DistMatrix<F,colDist,STAR>& U, DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(

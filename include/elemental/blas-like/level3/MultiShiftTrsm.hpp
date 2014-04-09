@@ -10,6 +10,34 @@
 #ifndef ELEM_MULTISHIFTTRSM_HPP
 #define ELEM_MULTISHIFTTRSM_HPP
 
+namespace elem {
+
+template<typename F,Dist shiftColDist,
+                    Dist     XColDist,Dist XRowDist>
+inline void
+LocalMultiShiftTrsm
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  F alpha, const DistMatrix<F,STAR,STAR>& A,
+           const DistMatrix<F,shiftColDist,STAR    >& shifts,
+                 DistMatrix<F,    XColDist,XRowDist>& X )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("LocalMultiShiftTrsm");
+        if( (side == LEFT &&  (     XColDist != STAR ||
+                                shiftColDist != XRowDist) ) ||
+            (side == RIGHT && (     XRowDist != STAR ||
+                                shiftColDist != XColDist) ) )
+            LogicError
+            ("Dist of RHS and shifts must conform with that of triangle");
+    )
+    // NOTE: Is this prototype available yet?!?
+    MultiShiftTrsm
+    ( side, uplo, orientation, 
+      alpha, A.LockedMatrix(), shifts.LockedMatrix(), X.Matrix() );
+}
+
+} // namespace elem
+
 #include "./MultiShiftTrsm/LUN.hpp"
 #include "./MultiShiftTrsm/LUT.hpp"
 

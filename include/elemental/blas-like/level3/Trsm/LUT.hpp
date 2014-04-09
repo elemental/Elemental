@@ -130,11 +130,11 @@ LUTMedium
 }
 
 // width(X) << p
-template<typename F>
+template<typename F,Dist rowDist>
 inline void
 LUTSmall
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F,STAR,VR>& U, DistMatrix<F,VR,STAR>& X,
+  const DistMatrix<F,STAR,rowDist>& U, DistMatrix<F,rowDist,STAR>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
