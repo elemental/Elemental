@@ -119,7 +119,7 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
           F(1), U01Trans_STAR_MC, U12Trans_MR_STAR, F(1), U02 );
         U01.TransposeRowFilterFrom( U01Trans_STAR_MC );
 
-        U12_STAR_VR.TransposePartialColFilterFrom( U12Trans_MR_STAR );
+        U12_STAR_VR.TransposePartialRowFilterFrom( U12Trans_MR_STAR );
         LocalTrsm
         ( LEFT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, U12_STAR_VR );
         LocalTriangularInverse( UPPER, diag, U11_STAR_STAR );
