@@ -132,9 +132,7 @@ TriangularIRL
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int basisSize=10, bool reorthog=true,
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRL"))
     using namespace pspec;
@@ -169,9 +167,11 @@ TriangularIRL
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     Matrix<Real> lastActiveEsts;
@@ -265,10 +265,10 @@ TriangularIRL
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
 
-            if( numFreq > 0 )
-                ++numSaveCount;
-            if( imgFreq > 0 )
-                ++imgSaveCount;
+            if( snapCtrl.numFreq > 0 )
+                ++snapCtrl.numSaveCount;
+            if( snapCtrl.imgFreq > 0 )
+                ++snapCtrl.imgSaveCount;
         }
         if( progress )
             subtimer.Start();
@@ -305,10 +305,7 @@ TriangularIRL
         }
 
         // Save snapshots of the estimates at the requested rate
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize, 
-          numSaveCount, numFreq, numBase, numFormat, 
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -324,9 +321,7 @@ HessenbergIRL
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int basisSize=10, bool reorthog=true,
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRL"))
     using namespace pspec;
@@ -365,9 +360,11 @@ HessenbergIRL
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     Matrix<Real> lastActiveEsts;
@@ -462,10 +459,10 @@ HessenbergIRL
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
 
-            if( numFreq > 0 )
-                ++numSaveCount;
-            if( imgFreq > 0 )
-                ++imgSaveCount;
+            if( snapCtrl.numFreq > 0 )
+                ++snapCtrl.numSaveCount;
+            if( snapCtrl.imgFreq > 0 )
+                ++snapCtrl.imgSaveCount;
         }
         if( progress )
             subtimer.Start();
@@ -502,10 +499,7 @@ HessenbergIRL
         }
 
         // Save snapshots of the estimates at the requested rate
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize, 
-          numSaveCount, numFreq, numBase, numFormat, 
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -523,9 +517,7 @@ TriangularIRL
         DistMatrix<Real,         VR,STAR>& invNorms, 
         Int basisSize=10, bool reorthog=true,
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRL"))
     using namespace pspec;
@@ -572,9 +564,11 @@ TriangularIRL
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -683,10 +677,10 @@ TriangularIRL
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
 
-            if( numFreq > 0 )
-                ++numSaveCount;
-            if( imgFreq > 0 )
-                ++imgSaveCount;
+            if( snapCtrl.numFreq > 0 )
+                ++snapCtrl.numSaveCount;
+            if( snapCtrl.imgFreq > 0 )
+                ++snapCtrl.imgSaveCount;
         }
         if( progress )
         {
@@ -734,10 +728,7 @@ TriangularIRL
         }
 
         // Save snapshots of the estimates at the requested rate
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize, 
-          numSaveCount, numFreq, numBase, numFormat, 
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -755,9 +746,7 @@ HessenbergIRL
         DistMatrix<Real,         VR,STAR>& invNorms, 
         Int basisSize=10, bool reorthog=true,
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRL"))
     using namespace pspec;
@@ -810,9 +799,11 @@ HessenbergIRL
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -927,10 +918,10 @@ HessenbergIRL
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, tol );
             
-            if( numFreq > 0 )
-                ++numSaveCount;
-            if( imgFreq > 0 )
-                ++imgSaveCount;
+            if( snapCtrl.numFreq > 0 )
+                ++snapCtrl.numSaveCount;
+            if( snapCtrl.imgFreq > 0 )
+                ++snapCtrl.imgSaveCount;
         }
         if( progress )
         {
@@ -978,10 +969,7 @@ HessenbergIRL
         }
 
         // Save snapshots of the estimates at the requested rate
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize, 
-          numSaveCount, numFreq, numBase, numFormat, 
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;

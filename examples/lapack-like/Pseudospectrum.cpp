@@ -128,6 +128,14 @@ main( int argc, char* argv[] )
             Write( A, "A", imgFormat );
         }
 
+        SnapshotCtrl snapCtrl;
+        snapCtrl.imgFreq = imgFreq;
+        snapCtrl.numFreq = numFreq;
+        snapCtrl.imgFormat = imgFormat;
+        snapCtrl.numFormat = numFormat;
+        snapCtrl.imgBase = imgBase;
+        snapCtrl.numBase = numBase;
+
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
@@ -137,14 +145,14 @@ main( int argc, char* argv[] )
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize, 
               schur, arnoldi, krylovSize, maxIts, tol, progress, deflate,
-              numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+              snapCtrl );
         }
         else
         {
             itCountMap = Pseudospectrum
             ( A, invNormMap, center, realSize, imagSize, 
               schur, arnoldi, krylovSize, maxIts, tol, progress, deflate,
-              numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+              snapCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

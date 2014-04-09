@@ -117,6 +117,14 @@ main( int argc, char* argv[] )
             Write( A, "A", imgFormat );
         }
 
+        SnapshotCtrl snapCtrl;
+        snapCtrl.imgFreq = imgFreq;
+        snapCtrl.numFreq = numFreq;
+        snapCtrl.imgFormat = imgFormat;
+        snapCtrl.numFormat = numFormat;
+        snapCtrl.imgBase = imgBase;
+        snapCtrl.numBase = numBase;
+
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
@@ -124,13 +132,11 @@ main( int argc, char* argv[] )
         if( realWidth != 0. && imagWidth != 0. )
             itCountMap = TriangularPseudospectrum
             ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize,
-              arnoldi, krylovSize, maxIts, tol, progress, deflate,
-              numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+              arnoldi, krylovSize, maxIts, tol, progress, deflate, snapCtrl );
         else
             itCountMap = TriangularPseudospectrum
             ( A, invNormMap, center, realSize, imagSize,                
-              arnoldi, krylovSize, maxIts, tol, progress, deflate,
-              numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+              arnoldi, krylovSize, maxIts, tol, progress, deflate, snapCtrl );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;

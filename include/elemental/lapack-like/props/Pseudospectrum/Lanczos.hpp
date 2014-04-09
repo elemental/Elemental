@@ -224,9 +224,7 @@ TriangularLanczos
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularLanczos"))
     using namespace pspec;
@@ -262,9 +260,11 @@ TriangularLanczos
         HSubdiagList[j].reserve( HCapacityInit-1 );
     }
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
@@ -357,12 +357,11 @@ TriangularLanczos
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -378,9 +377,7 @@ HessenbergLanczos
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergLanczos"))
     using namespace pspec;
@@ -420,9 +417,11 @@ HessenbergLanczos
         HSubdiagList[j].reserve( HCapacityInit-1 );
     }
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
@@ -516,12 +515,11 @@ HessenbergLanczos
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -538,9 +536,7 @@ TriangularLanczos
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularLanczos"))
     using namespace pspec;
@@ -584,9 +580,11 @@ TriangularLanczos
         HSubdiagList[j].reserve( HCapacityInit-1 );
     }
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -704,12 +702,11 @@ TriangularLanczos
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -726,9 +723,7 @@ HessenbergLanczos
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergLanczos"))
     using namespace pspec;
@@ -778,9 +773,11 @@ HessenbergLanczos
         HSubdiagList[j].reserve( HCapacityInit-1 );
     }
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -904,12 +901,11 @@ HessenbergLanczos
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;

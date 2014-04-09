@@ -110,9 +110,7 @@ TriangularPower
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -134,13 +132,15 @@ TriangularPower
             preimage.Set( j, 0, j );
     }
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
     Matrix<C> X;
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
@@ -192,12 +192,11 @@ TriangularPower
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -213,9 +212,7 @@ HessenbergPower
 ( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
     using namespace pspec;
@@ -242,13 +239,15 @@ HessenbergPower
     Adjoint( H, HAdj );
     Matrix<C> activeShiftsConj; 
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
     Matrix<C> X;
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     Matrix<Real> estimates(numShifts,1);
     Zeros( estimates, numShifts, 1 );
     auto lastActiveEsts = estimates;
@@ -303,12 +302,11 @@ HessenbergPower
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -325,9 +323,7 @@ TriangularPower
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -355,13 +351,15 @@ TriangularPower
         }
     }
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
     DistMatrix<C> X(g);
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -414,12 +412,11 @@ TriangularPower
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;
@@ -436,9 +433,7 @@ HessenbergPower
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
     using namespace pspec;
@@ -475,13 +470,15 @@ HessenbergPower
     DistMatrix<C,STAR,VR> activeX_STAR_VR( H.Grid() );
     DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
 
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
     DistMatrix<C> X(g);
     Gaussian( X, n, numShifts );
     FixColumns( X );
     Int numIts=0, numDone=0;
-    Int numSaveCount=0, imgSaveCount=0;
     DistMatrix<Real,MR,STAR> estimates(g);
     estimates.AlignWith( shifts );
     Zeros( estimates, numShifts, 1 );
@@ -542,12 +539,11 @@ HessenbergPower
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        ++numSaveCount;
-        ++imgSaveCount;
-        Snapshot
-        ( estimates, preimage, numIts, deflate, realSize, imagSize,
-          numSaveCount, numFreq, numBase, numFormat,
-          imgSaveCount, imgFreq, imgBase, imgFormat );
+        if( snapCtrl.numFreq > 0 )
+            ++snapCtrl.numSaveCount;
+        if( snapCtrl.imgFreq > 0 )
+            ++snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
     } 
 
     invNorms = estimates;

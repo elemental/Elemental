@@ -154,6 +154,12 @@ main( int argc, char* argv[] )
             imagWidth = width;
         }
 
+        SnapshotCtrl snapCtrl;
+        snapCtrl.imgFreq = imgFreq;
+        snapCtrl.numFreq = numFreq;
+        snapCtrl.imgFormat = imgFormat;
+        snapCtrl.numFormat = numFormat;
+
         // Visualize/write the pseudospectrum within each window
         Timer timer;
         DistMatrix<Real> invNormMap(g);
@@ -190,11 +196,12 @@ main( int argc, char* argv[] )
                               << chunkCenter << std::endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
+                snapCtrl.imgBase = imgBase+chunkTag;
+                snapCtrl.numBase = numBase+chunkTag;
                 itCountMap = TriangularPseudospectrum
                 ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
                   realChunkSize, imagChunkSize, arnoldi, krylovSize, 
-                  maxIts, tol, progress, deflate,
-                  numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                  maxIts, tol, progress, deflate, snapCtrl );
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );

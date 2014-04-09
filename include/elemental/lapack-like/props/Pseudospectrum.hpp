@@ -31,9 +31,7 @@ TriangularPseudospectrum
 ( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, 
   Matrix<BASE(F)>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -62,9 +60,7 @@ TriangularPseudospectrum
         if( progress )
             std::cout << "Matrix was numerically normal" << std::endl;
         auto w = UCpx.GetDiagonal();
-        pspec::Analytic
-        ( w, shifts, invNorms, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+        pspec::Analytic( w, shifts, invNorms, snapCtrl );
         Zeros( itCounts, shifts.Height(), 1 );        
         return itCounts;
     }
@@ -75,21 +71,17 @@ TriangularPseudospectrum
             itCounts =
                pspec::TriangularIRA
                ( UCpx, shifts, invNorms, basisSize, maxIts, tol, progress, 
-                 deflate, realSize, imagSize, 
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 deflate, snapCtrl );
         else
             itCounts = 
                pspec::TriangularLanczos
                ( UCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-                 realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 snapCtrl );
     }
     else
         itCounts =
            pspec::TriangularPower
-           ( UCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-             realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+           ( UCpx, shifts, invNorms, maxIts, tol, progress, deflate, snapCtrl );
 
     return itCounts;
 }
@@ -100,9 +92,7 @@ HessenbergPseudospectrum
 ( const Matrix<F>& H, const Matrix<Complex<BASE(F)> >& shifts, 
   Matrix<BASE(F)>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
@@ -129,21 +119,17 @@ HessenbergPseudospectrum
             itCounts =
                pspec::HessenbergIRA
                ( HCpx, shifts, invNorms, basisSize, maxIts, tol, progress,
-                 deflate, realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 deflate, snapCtrl );
         else
             itCounts = 
                pspec::HessenbergLanczos
                ( HCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-                 realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 snapCtrl );
     }
     else
         itCounts =
            pspec::HessenbergPower
-           ( HCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-             realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+           ( HCpx, shifts, invNorms, maxIts, tol, progress, deflate, snapCtrl );
 
     return itCounts;
 }
@@ -154,9 +140,7 @@ TriangularPseudospectrum
 ( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -190,10 +174,7 @@ TriangularPseudospectrum
             std::cout << "Matrix was numerically normal" << std::endl;
         auto w = UCpx.GetDiagonal();
         DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
-        pspec::Analytic
-        ( w_STAR_STAR, shifts, invNorms,
-          realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+        pspec::Analytic( w_STAR_STAR, shifts, invNorms, snapCtrl );
         itCounts.AlignWith( shifts );
         Zeros( itCounts, shifts.Height(), 1 );
         return itCounts;
@@ -205,21 +186,17 @@ TriangularPseudospectrum
             itCounts =
                pspec::TriangularIRA
                ( UCpx, shifts, invNorms, basisSize, maxIts, tol, progress,
-                 deflate, realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 deflate, snapCtrl );
         else
             itCounts = 
                pspec::TriangularLanczos
                ( UCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-                 realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 snapCtrl );
     }
     else
         itCounts =
            pspec::TriangularPower
-           ( UCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-             realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+           ( UCpx, shifts, invNorms, maxIts, tol, progress, deflate, snapCtrl );
 
     return itCounts;
 }
@@ -230,9 +207,7 @@ HessenbergPseudospectrum
 ( const DistMatrix<F>& H, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
@@ -263,21 +238,17 @@ HessenbergPseudospectrum
             itCounts =
                pspec::HessenbergIRA
                ( HCpx, shifts, invNorms, basisSize, maxIts, tol, progress,
-                 deflate, realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 deflate, snapCtrl );
         else
             itCounts = 
                pspec::HessenbergLanczos
                ( HCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-                 realSize, imagSize,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 snapCtrl );
     }
     else
         itCounts =
            pspec::HessenbergPower
-           ( HCpx, shifts, invNorms, maxIts, tol, progress, deflate,
-             realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+           ( HCpx, shifts, invNorms, maxIts, tol, progress, deflate, snapCtrl );
 
     return itCounts;
 }
@@ -290,9 +261,7 @@ Triangular
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
   Matrix<BASE(F)>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Triangular"))
     typedef Base<F> Real;
@@ -310,8 +279,7 @@ Triangular
 
     return TriangularPseudospectrum
            ( U, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-             deflate, realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             deflate, snapCtrl );
 }
 
 template<typename F>
@@ -320,9 +288,7 @@ Hessenberg
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
   Matrix<BASE(F)>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Hessenberg"))
     typedef Base<F> Real;
@@ -338,8 +304,7 @@ Hessenberg
 
     return HessenbergPseudospectrum
            ( H, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-             deflate, realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             deflate, snapCtrl );
 }
 
 template<typename F>
@@ -348,9 +313,7 @@ Triangular
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Triangular"))
     typedef Base<F> Real;
@@ -391,8 +354,7 @@ Triangular
 
     return TriangularPseudospectrum
            ( U, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-             deflate, realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             deflate, snapCtrl );
 }
 
 template<typename F>
@@ -401,9 +363,7 @@ Hessenberg
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Hessenberg"))
     typedef Base<F> Real;
@@ -424,8 +384,7 @@ Hessenberg
 
     return HessenbergPseudospectrum
            ( H, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-             deflate, realSize, imagSize,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             deflate, snapCtrl );
 }
 
 } // namespace pspec
@@ -436,21 +395,17 @@ Pseudospectrum
 ( const Matrix<F>& A, const Matrix<Complex<BASE(F)> >& shifts, 
   Matrix<BASE(F)>& invNorms, bool schur=true, bool arnoldi=true, 
   Int basisSize=10, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false,
-  bool deflate=true, Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  bool deflate=true, SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     if( schur )
         return pspec::Triangular
         ( A, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
     else
         return pspec::Hessenberg
         ( A, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 }
 
 template<typename F>
@@ -458,23 +413,19 @@ inline DistMatrix<Int,VR,STAR>
 Pseudospectrum
 ( const DistMatrix<F>& A, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
   DistMatrix<BASE(F),VR,STAR>& invNorms, 
-  bool schur=false, bool arnoldi=true, Int basisSize=10, 
+  bool schur=true, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int realSize=0, Int imagSize=0,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     if( schur )
         return pspec::Triangular
         ( A, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
     else
         return pspec::Hessenberg
         ( A, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 }
 
 // Treat each pixel as being located a cell center and tesselate a box with
@@ -486,12 +437,14 @@ TriangularPseudospectrum
   Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth,
   Int realSize, Int imagSize, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -509,8 +462,7 @@ TriangularPseudospectrum
     auto itCounts = 
         TriangularPseudospectrum
         ( U, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
@@ -526,12 +478,14 @@ HessenbergPseudospectrum
   Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth,
   Int realSize, Int imagSize, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -549,8 +503,7 @@ HessenbergPseudospectrum
     auto itCounts = 
         HessenbergPseudospectrum
         ( H, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
@@ -566,13 +519,15 @@ TriangularPseudospectrum
   Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth, 
   Int realSize, Int imagSize, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = U.Grid();
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -593,8 +548,7 @@ TriangularPseudospectrum
     auto itCounts = 
         TriangularPseudospectrum
         ( U, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
@@ -610,13 +564,15 @@ HessenbergPseudospectrum
   Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth, 
   Int realSize, Int imagSize, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = H.Grid();
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -637,8 +593,7 @@ HessenbergPseudospectrum
     auto itCounts = 
         HessenbergPseudospectrum
         ( H, shifts, invNorms, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
@@ -654,13 +609,14 @@ Pseudospectrum
   Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth,
   Int realSize, Int imagSize, bool schur=true, bool arnoldi=true, 
   Int basisSize=10, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false,
-  bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  bool deflate=true, SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -678,8 +634,7 @@ Pseudospectrum
     auto itCounts = 
         Pseudospectrum
         ( A, shifts, invNorms, schur, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
@@ -693,16 +648,17 @@ inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, BASE(F) realWidth, BASE(F) imagWidth, 
-  Int realSize, Int imagSize, bool schur=false, bool arnoldi=true, 
+  Int realSize, Int imagSize, bool schur=true, bool arnoldi=true, 
   Int basisSize=10, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false,
-  bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  bool deflate=true, SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
@@ -723,8 +679,7 @@ Pseudospectrum
     auto itCounts =
         Pseudospectrum
         ( A, shifts, invNorms, schur, arnoldi, basisSize, maxIts, tol, progress,
-          deflate, realSize, imagSize,
-          numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+          deflate, snapCtrl );
 
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
@@ -740,10 +695,12 @@ TriangularPseudospectrum
   Complex<BASE(F)> center,
   Int realSize, Int imagSize, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     auto diag = U.GetDiagonal();
     const Base<F> radius = MaxNorm( diag );
@@ -779,8 +736,7 @@ TriangularPseudospectrum
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, realSize, imagSize, 
-             arnoldi, basisSize, maxIts, tol, progress, deflate,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
 }
 
 template<typename F>
@@ -790,10 +746,12 @@ HessenbergPseudospectrum
   Complex<BASE(F)> center,
   Int realSize, Int imagSize, bool arnoldi=true, Int basisSize=10, 
   Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Base<F> infNorm = InfinityNorm( H );
     const Base<F> oneNorm = OneNorm( H );
@@ -816,8 +774,7 @@ HessenbergPseudospectrum
 
     return HessenbergPseudospectrum
            ( H, invNormMap, center, width, width, realSize, imagSize, 
-             arnoldi, basisSize, maxIts, tol, progress, deflate,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
 }
 
 template<typename F>
@@ -826,11 +783,13 @@ TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, Int realSize, Int imagSize,
   bool arnoldi=true, Int basisSize=10, Int maxIts=1000, BASE(F) tol=1e-6, 
-  bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  bool progress=false, bool deflate=true, SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
+
     auto diag = U.GetDiagonal();
     const Base<F> radius = MaxNorm( diag );
     const Base<F> oneNorm = OneNorm( U );
@@ -865,8 +824,7 @@ TriangularPseudospectrum
 
     return TriangularPseudospectrum
            ( U, invNormMap, center, width, width, realSize, imagSize, 
-             arnoldi, basisSize, maxIts, tol, progress, deflate,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
 }
 
 template<typename F>
@@ -875,11 +833,12 @@ HessenbergPseudospectrum
 ( const DistMatrix<F>& H, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, Int realSize, Int imagSize,
   bool arnoldi=true, Int basisSize=10, Int maxIts=1000, BASE(F) tol=1e-6, 
-  bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  bool progress=false, bool deflate=true, SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Base<F> oneNorm = OneNorm( H );
     const Base<F> infNorm = InfinityNorm( H );
@@ -902,8 +861,7 @@ HessenbergPseudospectrum
 
     return HessenbergPseudospectrum
            ( H, invNormMap, center, width, width, realSize, imagSize, 
-             arnoldi, basisSize, maxIts, tol, progress, deflate,
-             numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+             arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
 }
 
 template<typename F>
@@ -913,13 +871,14 @@ Pseudospectrum
   Complex<BASE(F)> center,
   Int realSize, Int imagSize, bool schur=true, bool arnoldi=true, 
   Int basisSize=10, Int maxIts=1000, BASE(F) tol=1e-6, bool progress=false,
-  bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  bool deflate=true, SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Int n = A.Height();
     Matrix<C> B( n, n );
@@ -934,16 +893,14 @@ Pseudospectrum
         schur::QR( B, w, fullTriangle );
         return TriangularPseudospectrum
                ( B, invNormMap, center, realSize, imagSize, 
-                 arnoldi, basisSize, maxIts, tol, progress, deflate,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
     }
     else
     {
         Hessenberg( UPPER, B );
         return HessenbergPseudospectrum
                ( B, invNormMap, center, realSize, imagSize, 
-                 arnoldi, basisSize, maxIts, tol, progress, deflate,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
     }
 }
 
@@ -952,14 +909,16 @@ inline DistMatrix<Int>
 Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<BASE(F)>& invNormMap, 
   Complex<BASE(F)> center, Int realSize, Int imagSize,
-  bool schur=false, bool arnoldi=true, Int basisSize=10, Int maxIts=1000, 
+  bool schur=true, bool arnoldi=true, Int basisSize=10, Int maxIts=1000, 
   BASE(F) tol=1e-6, bool progress=false, bool deflate=true,
-  Int numFreq=0, std::string numBase="ps", FileFormat numFormat=ASCII_MATLAB,
-  Int imgFreq=0, std::string imgBase="ps", FileFormat imgFormat=PNG )
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
     typedef Complex<Real> C;
+
+    snapCtrl.realSize = realSize;
+    snapCtrl.imagSize = imagSize;
 
     const Grid& g = A.Grid();
     DistMatrix<C> B(g);
@@ -998,16 +957,14 @@ Pseudospectrum
  
         return TriangularPseudospectrum
                ( B, invNormMap, center, realSize, imagSize,
-                 arnoldi, basisSize, maxIts, tol, progress, deflate,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
     }
     else
     {
         Hessenberg( UPPER, B );
         return HessenbergPseudospectrum
                ( B, invNormMap, center, realSize, imagSize, 
-                 arnoldi, basisSize, maxIts, tol, progress, deflate,
-                 numFreq, numBase, numFormat, imgFreq, imgBase, imgFormat );
+                 arnoldi, basisSize, maxIts, tol, progress, deflate, snapCtrl );
     }
 }
 
