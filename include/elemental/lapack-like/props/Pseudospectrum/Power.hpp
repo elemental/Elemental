@@ -55,6 +55,45 @@ Deflate
 template<typename Real>
 inline void
 Deflate
+( Matrix<Complex<Real> >& activeShifts,
+  Matrix<Int           >& activePreimage,
+  Matrix<Real          >& activeXReal,
+  Matrix<Real          >& activeXImag,
+  Matrix<Real          >& activeEsts,
+  Matrix<Int           >& activeConverged,
+  Matrix<Int           >& activeItCounts,
+  bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    Timer timer;
+    if( progress )
+        timer.Start();
+    const Int numActive = activeXReal.Width();
+    Int swapTo = numActive-1;
+    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
+    {
+        if( activeConverged.Get(swapFrom,0) )
+        {
+            if( swapTo != swapFrom )
+            {
+                RowSwap( activeShifts, swapFrom, swapTo );
+                RowSwap( activePreimage, swapFrom, swapTo );
+                RowSwap( activeEsts, swapFrom, swapTo );
+                RowSwap( activeItCounts, swapFrom, swapTo );
+                ColumnSwap( activeXReal,    swapFrom, swapTo );
+                ColumnSwap( activeXImag,    swapFrom, swapTo );
+            }
+            --swapTo;
+        }
+    }
+    if( progress )
+        std::cout << "Deflation took " << timer.Stop() << " seconds"
+                  << std::endl;
+}
+
+template<typename Real>
+inline void
+Deflate
 ( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Complex<Real>        >& activeX,
@@ -102,6 +141,66 @@ Deflate
     if( progress && activeShifts.Grid().Rank() == 0 )
         std::cout << "Deflation took " << timer.Stop() << " seconds"
                   << std::endl;
+}
+
+template<typename Real>
+inline void
+Deflate
+( DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
+  DistMatrix<Int,          VR,STAR>& activePreimage,
+  DistMatrix<Real                 >& activeXReal,
+  DistMatrix<Real                 >& activeXImag,
+  DistMatrix<Real,         MR,STAR>& activeEsts,
+  DistMatrix<Int,          MR,STAR>& activeConverged,
+  DistMatrix<Int,          VR,STAR>& activeItCounts,
+  bool progress=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
+    Timer timer;
+    if( progress && activeShifts.Grid().Rank() == 0 )
+        timer.Start();
+    const Int numActive = activeXReal.Width();
+    Int swapTo = numActive-1;
+
+    DistMatrix<Complex<Real>,STAR,STAR> shiftsCopy( activeShifts );
+    DistMatrix<Int,STAR,STAR> preimageCopy( activePreimage );
+    DistMatrix<Real,STAR,STAR> estimatesCopy( activeEsts );
+    DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
+    DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
+    DistMatrix<Real,VC,STAR> XRealCopy( activeXReal ),
+                             XImagCopy( activeXImag );
+
+    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
+    {
+        if( convergedCopy.Get(swapFrom,0) )
+        {
+            if( swapTo != swapFrom )
+            {
+                RowSwap( shiftsCopy, swapFrom, swapTo );
+                RowSwap( preimageCopy, swapFrom, swapTo );
+                RowSwap( estimatesCopy, swapFrom, swapTo );
+                RowSwap( itCountsCopy, swapFrom, swapTo );
+                ColumnSwap( XRealCopy,    swapFrom, swapTo );
+                ColumnSwap( XImagCopy,    swapFrom, swapTo );
+            }
+            --swapTo;
+        }
+    }
+
+    activeShifts   = shiftsCopy;
+    activePreimage = preimageCopy;
+    activeEsts     = estimatesCopy;
+    activeItCounts = itCountsCopy;
+    activeXReal    = XRealCopy;
+    activeXImag    = XImagCopy;
+
+    if( progress )
+    {
+        mpi::Barrier( activeShifts.Grid().Comm() );
+        if( activeShifts.Grid().Rank() == 0 )
+            std::cout << "Deflation took " << timer.Stop() << " seconds"
+                      << std::endl;
+    }
 }
 
 template<typename Real>

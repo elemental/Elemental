@@ -226,8 +226,8 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         LUNUnb( U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -247,7 +247,7 @@ LUN
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUN"))
     const Int m = XReal.Height();
-    const Int n = XReal.Width()/2;
+    const Int n = XReal.Width();
     const Int bsize = Blocksize();
 
     const Int kLast = LastOffset( m, bsize );
@@ -262,10 +262,10 @@ LUN
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, m, k    );
-        auto X0Imag = ViewRange( XImag, 0, 0, m, k    );
-        auto X1Real = ViewRange( XReal, 0, k, m, k+nb );
-        auto X1Imag = ViewRange( XImag, 0, k, m, k+nb );
+        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
+        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
+        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
+        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
 
         LUNUnb( U11, shifts, X1Real, X1Imag );
         Gemm( NORMAL, NORMAL, Real(-1), U01, X1Real, Real(1), X0Real );
@@ -307,8 +307,8 @@ LUNLarge
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -365,10 +365,10 @@ LUNLarge
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, m, k    );
-        auto X0Imag = ViewRange( XImag, 0, 0, m, k    );
-        auto X1Real = ViewRange( XReal, 0, k, m, k+nb );
-        auto X1Imag = ViewRange( XImag, 0, k, m, k+nb );
+        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
+        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
+        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
+        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -437,8 +437,8 @@ LUNMedium
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -502,10 +502,10 @@ LUNMedium
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, m, k    );
-        auto X0Imag = ViewRange( XImag, 0, 0, m, k    );
-        auto X1Real = ViewRange( XReal, 0, k, m, k+nb );
-        auto X1Imag = ViewRange( XImag, 0, k, m, k+nb );
+        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
+        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
+        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
+        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1RealTrans_MR_STAR.AlignWith( X0Real );
@@ -581,8 +581,8 @@ LUNSmall
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
@@ -649,10 +649,10 @@ LUNSmall
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, m, k    );
-        auto X0Imag = ViewRange( XImag, 0, 0, m, k    );
-        auto X1Real = ViewRange( XReal, 0, k, m, k+nb );
-        auto X1Imag = ViewRange( XImag, 0, k, m, k+nb );
+        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
+        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
+        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
+        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1Real_STAR_STAR = X1Real; 

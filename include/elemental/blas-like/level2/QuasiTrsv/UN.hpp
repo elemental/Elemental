@@ -124,7 +124,6 @@ QuasiTrsvUN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
         const bool in2x2 = ( k>0 && U.Get(k,k-1) != F(0) );
         if( in2x2 )
             --k;
-        const Int nb = kOld-k;
 
         auto U01 = LockedViewRange( U, 0, k, k,    kOld );
         auto U11 = LockedViewRange( U, k, k, kOld, kOld );

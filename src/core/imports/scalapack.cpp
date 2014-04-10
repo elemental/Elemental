@@ -93,22 +93,22 @@ void ELEM_SCALAPACK(pssyngst)
 ( const int* typeB, const char* uplo, const int* n, 
         float* A, const int* iA, const int* jA, const int* descA,
   const float* B, const int* iB, const int* jB, const int* descB,
-        float* scale, float* work, const int* lwork, int* info );
+        float* scale, float* work, const int* workSize, int* info );
 void ELEM_SCALAPACK(pdsyngst)
 ( const int* typeB, const char* uplo, const int* n, 
         double* A, const int* iA, const int* jA, const int* descA,
   const double* B, const int* iB, const int* jB, const int* descB,
-        double* scale, double* work, const int* lwork, int* info );
+        double* scale, double* work, const int* workSize, int* info );
 void ELEM_SCALAPACK(pchengst)
 ( const int* typeB, const char* uplo, const int* n, 
         scomplex* A, const int* iA, const int* jA, const int* descA,
   const scomplex* B, const int* iB, const int* jB, const int* descB,
-        float* scale, scomplex* work, const int* lwork, int* info );
+        float* scale, scomplex* work, const int* workSize, int* info );
 void ELEM_SCALAPACK(pzhengst)
 ( const int* typeB, const char* uplo, const int* n, 
         dcomplex* A, const int* iA, const int* jA, const int* descA,
   const dcomplex* B, const int* iB, const int* jB, const int* descB,
-        double* scale, dcomplex* work, const int* lwork, int* info );
+        double* scale, dcomplex* work, const int* workSize, int* info );
 
 // Hessenberg QR algorithm
 // =======================
@@ -120,67 +120,73 @@ void ELEM_SCALAPACK(pshseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
   float* H, const int* descH, float* wr, float* wi, 
-  float* Q, const int* descQ, float* work, const int* lwork, 
-  int* iwork, const int* liwork, int* info );
+  float* Q, const int* descQ, float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize, int* info );
 void ELEM_SCALAPACK(pdhseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
   double* H, const int* descH, double* wr, double* wi, 
-  double* Q, const int* descQ, double* work, const int* lwork, 
-  int* iwork, const int* liwork, int* info );
+  double* Q, const int* descQ, double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize, int* info );
 
 // Pipelined QR algorithm without AED
 // ----------------------------------
 void ELEM_SCALAPACK(pslahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* descH,
-  scomplex* w, const int* iloq, const int* ihiq, float* Q, const int* descQ,
-  float* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ,
+  float* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 void ELEM_SCALAPACK(pdlahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* descH,
-  dcomplex* w, const int* iloq, const int* ihiq, double* Q, const int* descQ,
-  double* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  double* wr, double* wi, const int* iloQ, const int* ihiQ, 
+  double* Q, const int* descQ,
+  double* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 void ELEM_SCALAPACK(pclahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, scomplex* H, const int* descH,
-  scomplex* w, const int* iloq, const int* ihiq, scomplex* Q, const int* descQ,
-  scomplex* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  scomplex* w, const int* iloQ, const int* ihiQ, scomplex* Q, const int* descQ,
+  scomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 void ELEM_SCALAPACK(pzlahqr)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, dcomplex* H, const int* descH,
-  dcomplex* w, const int* iloq, const int* ihiq, dcomplex* Q, const int* descQ,
-  dcomplex* work, const int* lwork, int* iwork, const int* liwork, int* info );
+  dcomplex* w, const int* iloQ, const int* ihiQ, dcomplex* Q, const int* descQ,
+  dcomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
+  int* info );
 
 // Pipelined QR algorithm with AED for big matrices
 // ------------------------------------------------
 void ELEM_SCALAPACK(pslaqr0)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* descH, 
-  float* wr, float* wi, const int* iloq, const int* ihiq, 
-  float* Q, const int* descQ, float* work, const int* lwork, 
-  int* iwork, const int* liwork, int* info, const int* reclevel );
+  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ, float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize, int* info, const int* reclevel );
 void ELEM_SCALAPACK(pdlaqr0)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* descH, 
-  double* wr, double* wi, const int* iloq, const int* ihiq,
-  double* Q, const int* descQ, double* work, const int* lwork, 
-  int* iwork, const int* liwork, int* info, const int* reclevel );
+  double* wr, double* wi, const int* iloQ, const int* ihiQ,
+  double* Q, const int* descQ, double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize, int* info, const int* reclevel );
 
 // Pipelined QR algorithm with AED for small matrices
 // --------------------------------------------------
 void ELEM_SCALAPACK(pslaqr1)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* descH, 
-  float* wr, float* wi, const int* iloq, const int* ihiq, 
-  float* Q, const int* descQ, float* work, const int* lwork, 
-  int* iwork, const int* liwork, int* info );
+  float* wr, float* wi, const int* iloQ, const int* ihiQ, 
+  float* Q, const int* descQ, float* work, const int* workSize, 
+  int* iWork, const int* iWorkSize, int* info );
 void ELEM_SCALAPACK(pdlaqr1)
 ( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* descH, 
-  double* wr, double* wi, const int* iloq, const int* ihiq, 
-  double* Q, const int* descQ, double* work, const int* lwork, 
-  int* iwork, const int* liwork, int* info );
+  double* wr, double* wi, const int* iloQ, const int* ihiQ, 
+  double* Q, const int* descQ, double* work, const int* workSize, 
+  int* iWork, const int* iWorkSize, int* info );
 
 } // extern "C"
 
@@ -385,17 +391,17 @@ void TwoSidedTrsm
   const float* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
-    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     ELEM_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<float> work( lwork );
+    workSize = dummyWork;
+    std::vector<float> work( workSize );
     ELEM_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pssyngst exited with info=",info);
 }
@@ -405,17 +411,17 @@ void TwoSidedTrsm
   const double* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
-    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     ELEM_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<double> work( lwork );
+    workSize = dummyWork;
+    std::vector<double> work( workSize );
     ELEM_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pdsyngst exited with info=",info);
 }
@@ -425,18 +431,18 @@ void TwoSidedTrsm
   const scomplex* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
-    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
     ELEM_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work( lwork );
+    workSize = dummyWork.real();
+    std::vector<scomplex> work( workSize );
     ELEM_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pchengst exited with info=",info);
 }
@@ -446,18 +452,18 @@ void TwoSidedTrsm
   const dcomplex* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
-    int typeB=1,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work( lwork );
+    workSize = dummyWork.real();
+    std::vector<dcomplex> work( workSize );
     ELEM_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pzhengst exited with info=",info);
 }
@@ -471,17 +477,17 @@ void TwoSidedTrmm
   const float* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
-    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     ELEM_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<float> work( lwork );
+    workSize = dummyWork;
+    std::vector<float> work( workSize );
     ELEM_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pssyngst exited with info=",info);
 }
@@ -491,17 +497,17 @@ void TwoSidedTrmm
   const double* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
-    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     ELEM_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork;
-    std::vector<double> work( lwork );
+    workSize = dummyWork;
+    std::vector<double> work( workSize );
     ELEM_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pdsyngst exited with info=",info);
 }
@@ -511,18 +517,18 @@ void TwoSidedTrmm
   const scomplex* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
-    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
     ELEM_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<scomplex> work( lwork );
+    workSize = dummyWork.real();
+    std::vector<scomplex> work( workSize );
     ELEM_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pchengst exited with info=",info);
 }
@@ -532,18 +538,18 @@ void TwoSidedTrmm
   const dcomplex* B, const int* descB )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
-    int typeB=2,iA=1,jA=1,iB=1,jB=1,lwork=-1,info;
+    int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      &dummyWork, &lwork, &info );
+      &dummyWork, &workSize, &info );
 
-    lwork = dummyWork.real();
-    std::vector<dcomplex> work( lwork );
+    workSize = dummyWork.real();
+    std::vector<dcomplex> work( workSize );
     ELEM_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
-      work.data(), &lwork, &info );
+      work.data(), &workSize, &info );
     if( info != 0 )
         RuntimeError("pzhengst exited with info=",info);
 }
@@ -556,6 +562,7 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
+    std::vector<float> wr(n), wi(n);
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     int info;
@@ -567,53 +574,63 @@ void HessenbergSchur
         const char job=(fullTriangle?'S':'E'), compz='N';
 
         // Query the workspace sizes
-        int lwork=-1, dummyIWork, liwork=-1;
+        int workSize=-1, dummyIWork, iWorkSize=-1;
         float dummyWork;
-        std::vector<float> wr(n), wi(n);
+
         ELEM_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          0, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+          0, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<float> work(lwork);
-        std::vector<int> iwork(liwork);
+        workSize = dummyWork;
+        iWorkSize = dummyIWork;
+        std::vector<float> work(workSize);
+        std::vector<int> iWork(iWorkSize);
         ELEM_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          0, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
+          0, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pshseqr exited with info=",info);
-
-        // Combine the real and imaginary components of the eigenvalues
-        for( int j=0; j<n; ++j )
-            w[j] = std::complex<float>(wr[j],wi[j]);
     }
     else
     {
         ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                           wantz=ELEM_FORT_FALSE;
 
-        // Query the workspace sizes
-        // NOTE: dummyIWork will currently be left unmodified (hence the
-        //       zero initialization)!
-        int lwork=-1, dummyIWork=0, liwork=-1;
-        float dummyWork;
-        ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        // PSLAHQR does not support a workspace query and instead assumes
+        // that the workspace is at least 
+        //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
+
+        const Int context  = descH[1];
+        const Int mb       = descH[4];
+        const Int nb       = descH[5];
+        const Int rowAlign = descH[7];
+        const Int ldH      = descH[8];
+        const Int ldQ      = descQ[8];
+
+        const Int rowCut = 0;
+        const Int rowRank = blacs::GridCol( context );
+        const Int rowStride = blacs::GridWidth( context );
+
+        const Int localWidth =
+            BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
+        const Int numRowBlocks = n/mb + 1;
+        int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
+            iWorkSize=0;
+        std::vector<float> work(workSize);
+        std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<float> work(lwork);
-        std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-          work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          &ilo, &ihi, 0, descQ, work.data(), &workSize, 
+          iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pslahqr exited with info=",info);
     }
+    // Combine the real and imaginary components of the eigenvalues
+    for( int j=0; j<n; ++j )
+        w[j] = std::complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -621,6 +638,7 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
+    std::vector<double> wr(n), wi(n);
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     int info;
@@ -632,53 +650,62 @@ void HessenbergSchur
         const char job=(fullTriangle?'S':'E'), compz='N';
 
         // Query the workspace sizes
-        int lwork=-1, dummyIWork, liwork=-1;
+        int workSize=-1, dummyIWork, iWorkSize=-1;
         double dummyWork;
-        std::vector<double> wr(n), wi(n);
         ELEM_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          0, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+          0, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<double> work(lwork);
-        std::vector<int> iwork(liwork);
+        workSize = dummyWork;
+        iWorkSize = dummyIWork;
+        std::vector<double> work(workSize);
+        std::vector<int> iWork(iWorkSize);
         ELEM_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          0, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
+          0, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pdhseqr exited with info=",info);
-
-        // Combine the real and imaginary components of the eigenvalues
-        for( int j=0; j<n; ++j )
-            w[j] = std::complex<double>(wr[j],wi[j]);
     }
     else
     {
         ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                           wantz=ELEM_FORT_FALSE;
 
-        // Query the workspace sizes
-        // NOTE: dummyIWork will currently be left unmodified (hence the
-        //       zero initialization)!
-        int lwork=-1, dummyIWork=0, liwork=-1;
-        double dummyWork;
-        ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        // PDLAHQR does not support a workspace query and instead assumes
+        // that the workspace is at least 
+        //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
+
+        const Int context  = descH[1];
+        const Int mb       = descH[4];
+        const Int nb       = descH[5];
+        const Int rowAlign = descH[7];
+        const Int ldH      = descH[8];
+        const Int ldQ      = descQ[8];
+
+        const Int rowCut = 0;
+        const Int rowRank = blacs::GridCol( context );
+        const Int rowStride = blacs::GridWidth( context );
+
+        const Int localWidth = 
+            BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
+        const Int numRowBlocks = n/mb + 1;
+        int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
+            iWorkSize=0;
+        std::vector<double> work(workSize);
+        std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<double> work(lwork);
-        std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-          work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          &ilo, &ihi, 0, descQ, work.data(), &workSize, 
+          iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pdlahqr exited with info=",info);
     }
+    // Combine the real and imaginary components of the eigenvalues
+    for( int j=0; j<n; ++j )
+        w[j] = std::complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -695,22 +722,22 @@ void HessenbergSchur
     // Query the workspace sizes
     // NOTE: dummyIWork will currently be left unmodified (hence the
     //       zero initialization)!
-    int lwork=-1, dummyIWork=0, liwork=-1, info;
+    int workSize=-1, dummyIWork=0, iWorkSize=-1, info;
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     scomplex dummyWork;
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+      &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
     // Compute the eigenvalues in parallel
-    lwork = dummyWork.real();
-    liwork = dummyIWork;
-    std::vector<scomplex> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = dummyWork.real();
+    iWorkSize = dummyIWork;
+    std::vector<scomplex> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+      work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
         RuntimeError("pclahqr exited with info=",info);
 }
@@ -729,22 +756,22 @@ void HessenbergSchur
     // Query the workspace sizes
     // NOTE: dummyIWork will currently be left unmodified (hence the
     //       zero initialization)!
-    int lwork=-1, dummyIWork=0, liwork=-1, info;
+    int workSize=-1, dummyIWork=0, iWorkSize=-1, info;
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+      &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
     // Compute the eigenvalues in parallel
-    lwork = dummyWork.real();
-    liwork = dummyIWork;
-    std::vector<dcomplex> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = dummyWork.real();
+    iWorkSize = dummyIWork;
+    std::vector<dcomplex> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+      work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
         RuntimeError("pzlahqr exited with info=",info);
 }
@@ -755,6 +782,7 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
+    std::vector<float> wr(n), wi(n);
     int info;
     if( aed )
     {
@@ -767,27 +795,22 @@ void HessenbergSchur
         // querying, which is located in p{s,d}laqr1, 
         //    https://github.com/poulson/scalapack/commits/master 
         // we must be a bit more careful.
-        int lwork=-1, dummyIWork=3, liwork=-1;
+        int workSize=-1, dummyIWork=3, iWorkSize=-1;
         float dummyWork;
-        std::vector<float> wr(n), wi(n);
         ELEM_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          Q, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+          Q, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<float> work(lwork);
-        std::vector<int> iwork(liwork);
+        workSize = dummyWork;
+        iWorkSize = dummyIWork;
+        std::vector<float> work(workSize);
+        std::vector<int> iWork(iWorkSize);
         ELEM_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          Q, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
+          Q, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pshseqr exited with info=",info);
-
-        // Combine the real and imaginary components of the eigenvalues
-        for( int j=0; j<n; ++j )
-            w[j] = std::complex<float>(wr[j],wi[j]);
     }
     else
     {
@@ -796,26 +819,40 @@ void HessenbergSchur
         ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                           wantz=ELEM_FORT_TRUE;
 
-        // Query the workspace sizes
-        // NOTE: dummyIWork will currently be left unmodified (hence the
-        //       zero initialization)!
-        int lwork=-1, dummyIWork=0, liwork=-1;
-        float dummyWork;
-        ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        // PSLAHQR does not support a workspace query and instead assumes
+        // that the workspace is at least 
+        //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
+
+        const Int context  = descH[1];
+        const Int mb       = descH[4];
+        const Int nb       = descH[5];
+        const Int rowAlign = descH[7];
+        const Int ldH      = descH[8];
+        const Int ldQ      = descQ[8];
+
+        const Int rowCut = 0;
+        const Int rowRank = blacs::GridCol( context );
+        const Int rowStride = blacs::GridWidth( context );
+
+        const Int localWidth =
+            BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
+        const Int numRowBlocks = n/mb + 1;
+        int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
+            iWorkSize=0;
+        std::vector<float> work(workSize);
+        std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<float> work(lwork);
-        std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pslahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-          work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          &ilo, &ihi, Q, descQ, work.data(), &workSize, 
+          iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pslahqr exited with info=",info);
     }
+    // Combine the real and imaginary components of the eigenvalues
+    for( int j=0; j<n; ++j )
+        w[j] = std::complex<float>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -824,6 +861,7 @@ void HessenbergSchur
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
     const int ilo=1, ihi=n;
+    std::vector<double> wr(n), wi(n);
     int info;
     if( aed )
     {
@@ -836,27 +874,22 @@ void HessenbergSchur
         // querying, which is located in p{s,d}laqr1, 
         //    https://github.com/poulson/scalapack/commits/master 
         // we must be a bit more careful.
-        int lwork=-1, dummyIWork=3, liwork=-1;
+        int workSize=-1, dummyIWork=3, iWorkSize=-1;
         double dummyWork;
-        std::vector<double> wr(n), wi(n);
         ELEM_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          Q, descQ, &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+          Q, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<double> work(lwork);
-        std::vector<int> iwork(liwork);
+        workSize = dummyWork;
+        iWorkSize = dummyIWork;
+        std::vector<double> work(workSize);
+        std::vector<int> iWork(iWorkSize);
         ELEM_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
-          Q, descQ, work.data(), &lwork, iwork.data(), &liwork, &info );
+          Q, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pdhseqr exited with info=",info);
-
-        // Combine the real and imaginary components of the eigenvalues
-        for( int j=0; j<n; ++j )
-            w[j] = std::complex<double>(wr[j],wi[j]);
     }
     else
     {
@@ -865,26 +898,40 @@ void HessenbergSchur
         ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
                           wantz=ELEM_FORT_TRUE;
 
-        // Query the workspace sizes
-        // NOTE: dummyIWork will currently be left unmodified (hence the
-        //       zero initialization)!
-        int lwork=-1, dummyIWork=0, liwork=-1;
-        double dummyWork;
-        ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-          &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+        // PDLAHQR does not support a workspace query and instead assumes
+        // that the workspace is at least 
+        //     3*N + max(2*max(ldH,ldQ)+2*localWidth,numRowBlocks)
+
+        const Int context  = descH[1];
+        const Int mb       = descH[4];
+        const Int nb       = descH[5];
+        const Int rowAlign = descH[7];
+        const Int ldH      = descH[8];
+        const Int ldQ      = descQ[8];
+
+        const Int rowCut = 0;
+        const Int rowRank = blacs::GridCol( context );
+        const Int rowStride = blacs::GridWidth( context );
+
+        const Int localWidth =
+            BlockedLength(n,rowRank,rowAlign,nb,rowCut,rowStride);
+        const Int numRowBlocks = n/mb + 1;
+        int workSize= 3*n + Max(2*Max(ldH,ldQ)+2*localWidth,numRowBlocks),
+            iWorkSize=0;
+        std::vector<double> work(workSize);
+        std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        lwork = dummyWork;
-        liwork = dummyIWork;
-        std::vector<double> work(lwork);
-        std::vector<int> iwork(liwork);
         ELEM_SCALAPACK(pdlahqr)
-        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-          work.data(), &lwork, iwork.data(), &liwork, &info );
+        ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
+          &ilo, &ihi, Q, descQ, work.data(), &workSize, 
+          iWork.data(), &iWorkSize, &info );
         if( info != 0 )
             RuntimeError("pdlahqr exited with info=",info);
     }
+    // Combine the real and imaginary components of the eigenvalues
+    for( int j=0; j<n; ++j )
+        w[j] = std::complex<double>(wr[j],wi[j]);
 }
 
 void HessenbergSchur
@@ -903,20 +950,20 @@ void HessenbergSchur
     // Query the workspace sizes
     // NOTE: dummyIWork will currently be left unmodified (hence the
     //       zero initialization)!
-    int lwork=-1, dummyIWork=0, liwork=-1, info;
+    int workSize=-1, dummyIWork=0, iWorkSize=-1, info;
     scomplex dummyWork;
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+      &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
     // Compute the eigenvalues in parallel
-    lwork = dummyWork.real();
-    liwork = dummyIWork;
-    std::vector<scomplex> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = dummyWork.real();
+    iWorkSize = dummyIWork;
+    std::vector<scomplex> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+      work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
         RuntimeError("pclahqr exited with info=",info);
 }
@@ -937,20 +984,20 @@ void HessenbergSchur
     // Query the workspace sizes
     // NOTE: dummyIWork will currently be left unmodified (hence the
     //       zero initialization)!
-    int lwork=-1, dummyIWork=0, liwork=-1, info;
+    int workSize=-1, dummyIWork=0, iWorkSize=-1, info;
     dcomplex dummyWork;
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-      &dummyWork, &lwork, &dummyIWork, &liwork, &info );
+      &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
     // Compute the eigenvalues in parallel
-    lwork = dummyWork.real();
-    liwork = dummyIWork;
-    std::vector<dcomplex> work(lwork);
-    std::vector<int> iwork(liwork);
+    workSize = dummyWork.real();
+    iWorkSize = dummyIWork;
+    std::vector<dcomplex> work(workSize);
+    std::vector<int> iWork(iWorkSize);
     ELEM_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
-      work.data(), &lwork, iwork.data(), &liwork, &info );
+      work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
         RuntimeError("pzlahqr exited with info=",info);
 }

@@ -1383,7 +1383,6 @@ inline void PullSubproblems
         wB = wB_MC_MR;
     }
 
-
     if( progress && grid.Rank() == 0 )
         std::cout << "Pulling ZT and ZB" << std::endl;
     if( !sameGrid )

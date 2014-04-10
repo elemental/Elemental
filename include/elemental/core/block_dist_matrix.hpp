@@ -57,6 +57,8 @@ template<typename T>
 inline typename blacs::Desc
 FillDesc( const BlockDistMatrix<T>& A, int context )
 {
+    if( A.ColCut() != 0 || A.RowCut() != 0 )
+        LogicError("Cannot produce a meaningful descriptor if nonzero cut");
     typename blacs::Desc desc = 
         { 1, context, A.Height(), A.Width(), A.BlockHeight(), A.BlockWidth(), 
           A.ColAlign(), A.RowAlign(), A.LDim() };

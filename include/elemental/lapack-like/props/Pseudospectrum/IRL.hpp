@@ -525,8 +525,6 @@ TriangularIRL
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
-    if( deflate && U.Grid().Rank() == 0 ) 
-        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
@@ -754,8 +752,6 @@ HessenbergIRL
     const Int n = H.Height();
     const Int numShifts = shifts.Height();
     const Grid& g = H.Grid();
-    if( deflate && H.Grid().Rank() == 0 ) 
-        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);

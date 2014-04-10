@@ -10,6 +10,7 @@
 #ifndef ELEM_SCHUR_QR_HPP
 #define ELEM_SCHUR_QR_HPP
 
+#include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_MAKETRIANGULAR_INC
 #include ELEM_HESSENBERG_INC
 #include ELEM_IDENTITY_INC
@@ -25,8 +26,13 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool fullTriangle=false )
     const Int n = A.Height();
     w.Resize( n, 1 );
     lapack::Schur( n, A.Buffer(), A.LDim(), w.Buffer(), fullTriangle );
-    if( fullTriangle )
+    if( IsComplex<F>::val )
         MakeTriangular( UPPER, A );
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        DEBUG_ONLY(CheckQuasiTriangular(A))
+    }
 }
 
 template<typename F>
@@ -41,8 +47,13 @@ QR
     w.Resize( n, 1 );
     lapack::Schur
     ( n, A.Buffer(), A.LDim(), w.Buffer(), Q.Buffer(), Q.LDim(), fullTriangle );
-    if( fullTriangle )
+    if( IsComplex<F>::val )
         MakeTriangular( UPPER, A );
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        DEBUG_ONLY(CheckQuasiTriangular(A))
+    }
 }
 
 template<typename F>
@@ -96,8 +107,13 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
-    if( fullTriangle )
+    if( IsComplex<F>::val )
         MakeTriangular( UPPER, A );
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        DEBUG_ONLY(CheckQuasiTriangular(A))
+    }
 }
 
 template<typename F>
@@ -170,8 +186,13 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
-    if( fullTriangle )
+    if( IsComplex<F>::val )
         MakeTriangular( UPPER, A );
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        DEBUG_ONLY(CheckQuasiTriangular(A))
+    }
 }
 
 template<typename F>
@@ -220,8 +241,13 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
-    if( fullTriangle )
+    if( IsComplex<F>::val )
         MakeTriangular( UPPER, A );
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        DEBUG_ONLY(CheckQuasiTriangular(A))
+    }
 }
 
 template<typename F>
@@ -285,8 +311,13 @@ QR
 #else
     LogicError("Distributed schur::QR currently requires ScaLAPACK support");
 #endif
-    if( fullTriangle )
+    if( IsComplex<F>::val )
         MakeTriangular( UPPER, A );
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        DEBUG_ONLY(CheckQuasiTriangular(A))
+    }
 }
 
 } // namespace schur

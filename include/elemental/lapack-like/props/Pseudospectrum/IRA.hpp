@@ -224,291 +224,6 @@ Restart
 }
 
 template<typename Real>
-inline void
-Deflate
-( std::vector<Matrix<Complex<Real> > >& HList,
-  Matrix<Complex<Real> >& activeShifts,
-  Matrix<Int           >& activePreimage,
-  Matrix<Complex<Real> >& activeXOld,
-  Matrix<Complex<Real> >& activeX,
-  Matrix<Real          >& activeEsts,
-  Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts,
-  bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
-    Timer timer;
-    if( progress )
-        timer.Start();
-    const Int numActive = activeX.Width();
-    Int swapTo = numActive-1;
-    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
-    {
-        if( activeConverged.Get(swapFrom,0) )
-        {
-            if( swapTo != swapFrom )
-            {
-                std::swap( HList[swapFrom], HList[swapTo] );
-                RowSwap( activeShifts, swapFrom, swapTo );
-                RowSwap( activePreimage, swapFrom, swapTo );
-                RowSwap( activeEsts, swapFrom, swapTo );
-                RowSwap( activeItCounts, swapFrom, swapTo );
-                ColumnSwap( activeXOld, swapFrom, swapTo );
-                ColumnSwap( activeX,    swapFrom, swapTo );
-            }
-            --swapTo;
-        }
-    }
-    if( progress )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
-}
-
-template<typename Real>
-inline void
-Deflate
-( std::vector<Matrix<Complex<Real> > >& HList,
-  Matrix<Complex<Real> >& activeShifts,
-  Matrix<Int           >& activePreimage,
-  Matrix<Real          >& activeXOldReal,
-  Matrix<Real          >& activeXOldImag,
-  Matrix<Real          >& activeXReal,
-  Matrix<Real          >& activeXImag,
-  Matrix<Real          >& activeEsts,
-  Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts,
-  bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
-    Timer timer;
-    if( progress )
-        timer.Start();
-    const Int numActive = activeXReal.Width();
-    Int swapTo = numActive-1;
-    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
-    {
-        if( activeConverged.Get(swapFrom,0) )
-        {
-            if( swapTo != swapFrom )
-            {
-                std::swap( HList[swapFrom], HList[swapTo] );
-                RowSwap( activeShifts, swapFrom, swapTo );
-                RowSwap( activePreimage, swapFrom, swapTo );
-                RowSwap( activeEsts, swapFrom, swapTo );
-                RowSwap( activeItCounts, swapFrom, swapTo );
-                ColumnSwap( activeXOldReal, swapFrom, swapTo );
-                ColumnSwap( activeXOldImag, swapFrom, swapTo );
-                ColumnSwap( activeXReal,    swapFrom, swapTo );
-                ColumnSwap( activeXImag,    swapFrom, swapTo );
-            }
-            --swapTo;
-        }
-    }
-    if( progress )
-        std::cout << "Deflation took " << timer.Stop() << " seconds"
-                  << std::endl;
-}
-
-template<typename Real>
-inline void
-Deflate
-( std::vector<Matrix<Complex<Real> > >& HList,
-  DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
-  DistMatrix<Int,          VR,STAR>& activePreimage,
-  DistMatrix<Complex<Real>        >& activeXOld,
-  DistMatrix<Complex<Real>        >& activeX,
-  DistMatrix<Real,         MR,STAR>& activeEsts,
-  DistMatrix<Int,          MR,STAR>& activeConverged,
-  DistMatrix<Int,          VR,STAR>& activeItCounts,
-  bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
-    Timer timer;
-    if( progress && activeShifts.Grid().Rank() == 0 )
-        timer.Start();
-    const Int numActive = activeX.Width();
-    Int swapTo = numActive-1;
-
-    DistMatrix<Complex<Real>,STAR,STAR> shiftsCopy( activeShifts );
-    DistMatrix<Int,STAR,STAR> preimageCopy( activePreimage );
-    DistMatrix<Real,STAR,STAR> estimatesCopy( activeEsts );
-    DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
-    DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
-    DistMatrix<Complex<Real>,VC,STAR> XOldCopy( activeXOld ), XCopy( activeX );
-
-    const Int n = ( activeX.LocalWidth()>0 ? HList[0].Height() : 0 );
-    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
-    {
-        if( convergedCopy.Get(swapFrom,0) )
-        {
-            if( swapTo != swapFrom )
-            {
-                // TODO: Avoid this large latency penalty
-                if( activeX.IsLocalCol(swapFrom) &&
-                    activeX.IsLocalCol(swapTo) )
-                {
-                    const Int localFrom = activeX.LocalCol(swapFrom);
-                    const Int localTo = activeX.LocalCol(swapTo);
-                    std::swap( HList[localFrom], HList[localTo] );
-                }
-                else if( activeX.IsLocalCol(swapFrom) )
-                {
-                    const Int localFrom = activeX.LocalCol(swapFrom);
-                    const Int partner = activeX.ColOwner(swapTo);
-                    DEBUG_ONLY(
-                        if( HList[localFrom].LDim() != n )
-                            LogicError("Leading dimension was incorrect");
-                    )
-                    mpi::TaggedSendRecv
-                    ( HList[localFrom].Buffer(), n*n,
-                      partner, swapFrom, partner, swapFrom, activeX.RowComm() );
-                }
-                else if( activeX.IsLocalCol(swapTo) )
-                {
-                    const Int localTo = activeX.LocalCol(swapTo);
-                    DEBUG_ONLY(
-                        if( HList[localTo].LDim() != n )
-                            LogicError("Leading dimension was incorrect");
-                    )
-                    const Int partner = activeX.ColOwner(swapFrom);
-                    mpi::TaggedSendRecv
-                    ( HList[localTo].Buffer(), n*n,
-                      partner, swapFrom, partner, swapFrom, activeX.RowComm() );
-                }
-
-                RowSwap( shiftsCopy, swapFrom, swapTo );
-                RowSwap( preimageCopy, swapFrom, swapTo );
-                RowSwap( estimatesCopy, swapFrom, swapTo );
-                RowSwap( itCountsCopy, swapFrom, swapTo );
-                ColumnSwap( XOldCopy, swapFrom, swapTo );
-                ColumnSwap( XCopy,    swapFrom, swapTo );
-            }
-            --swapTo;
-        }
-    }
-
-    activeShifts   = shiftsCopy;
-    activePreimage = preimageCopy;
-    activeEsts     = estimatesCopy;
-    activeItCounts = itCountsCopy;
-    activeXOld     = XOldCopy;
-    activeX        = XCopy;
-
-    if( progress )
-    {
-        mpi::Barrier( activeShifts.Grid().Comm() );
-        if( activeShifts.Grid().Rank() == 0 )
-            std::cout << "Deflation took " << timer.Stop() << " seconds"
-                      << std::endl;
-    }
-}
-
-template<typename Real>
-inline void
-Deflate
-( std::vector<Matrix<Complex<Real> > >& HList,
-  DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
-  DistMatrix<Int,          VR,STAR>& activePreimage,
-  DistMatrix<Real                 >& activeXOldReal,
-  DistMatrix<Real                 >& activeXOldImag,
-  DistMatrix<Real                 >& activeXReal,
-  DistMatrix<Real                 >& activeXImag,
-  DistMatrix<Real,         MR,STAR>& activeEsts,
-  DistMatrix<Int,          MR,STAR>& activeConverged,
-  DistMatrix<Int,          VR,STAR>& activeItCounts,
-  bool progress=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
-    Timer timer;
-    if( progress && activeShifts.Grid().Rank() == 0 )
-        timer.Start();
-    const Int numActive = activeXReal.Width();
-    Int swapTo = numActive-1;
-
-    DistMatrix<Complex<Real>,STAR,STAR> shiftsCopy( activeShifts );
-    DistMatrix<Int,STAR,STAR> preimageCopy( activePreimage );
-    DistMatrix<Real,STAR,STAR> estimatesCopy( activeEsts );
-    DistMatrix<Int, STAR,STAR> itCountsCopy( activeItCounts );
-    DistMatrix<Int, STAR,STAR> convergedCopy( activeConverged );
-    DistMatrix<Real,VC,STAR> XOldRealCopy( activeXOldReal ), 
-                             XOldImagCopy( activeXOldImag ), 
-                             XRealCopy( activeXReal ),
-                             XImagCopy( activeXImag );
-
-    const Int n = ( activeXReal.LocalWidth()>0 ? HList[0].Height() : 0 );
-    for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
-    {
-        if( convergedCopy.Get(swapFrom,0) )
-        {
-            if( swapTo != swapFrom )
-            {
-                // TODO: Avoid this large latency penalty
-                if( activeXReal.IsLocalCol(swapFrom) &&
-                    activeXReal.IsLocalCol(swapTo) )
-                {
-                    const Int localFrom = activeXReal.LocalCol(swapFrom);
-                    const Int localTo = activeXReal.LocalCol(swapTo);
-                    std::swap( HList[localFrom], HList[localTo] );
-                }
-                else if( activeXReal.IsLocalCol(swapFrom) )
-                {
-                    const Int localFrom = activeXReal.LocalCol(swapFrom);
-                    const Int partner = activeXReal.ColOwner(swapTo);
-                    DEBUG_ONLY(
-                        if( HList[localFrom].LDim() != n )
-                            LogicError("Leading dimension was incorrect");
-                    )
-                    mpi::TaggedSendRecv
-                    ( HList[localFrom].Buffer(), n*n,
-                      partner, swapFrom, partner, swapFrom, 
-                      activeXReal.RowComm() );
-                }
-                else if( activeXReal.IsLocalCol(swapTo) )
-                {
-                    const Int localTo = activeXReal.LocalCol(swapTo);
-                    DEBUG_ONLY(
-                        if( HList[localTo].LDim() != n )
-                            LogicError("Leading dimension was incorrect");
-                    )
-                    const Int partner = activeXReal.ColOwner(swapFrom);
-                    mpi::TaggedSendRecv
-                    ( HList[localTo].Buffer(), n*n,
-                      partner, swapFrom, partner, swapFrom, 
-                      activeXReal.RowComm() );
-                }
-
-                RowSwap( shiftsCopy, swapFrom, swapTo );
-                RowSwap( preimageCopy, swapFrom, swapTo );
-                RowSwap( estimatesCopy, swapFrom, swapTo );
-                RowSwap( itCountsCopy, swapFrom, swapTo );
-                ColumnSwap( XOldRealCopy, swapFrom, swapTo );
-                ColumnSwap( XOldImagCopy, swapFrom, swapTo );
-                ColumnSwap( XRealCopy,    swapFrom, swapTo );
-                ColumnSwap( XImagCopy,    swapFrom, swapTo );
-            }
-            --swapTo;
-        }
-    }
-
-    activeShifts   = shiftsCopy;
-    activePreimage = preimageCopy;
-    activeEsts     = estimatesCopy;
-    activeItCounts = itCountsCopy;
-    activeXOldReal = XOldRealCopy;
-    activeXOldImag = XOldImagCopy;
-    activeXReal    = XRealCopy;
-    activeXImag    = XImagCopy;
-
-    if( progress )
-    {
-        mpi::Barrier( activeShifts.Grid().Comm() );
-        if( activeShifts.Grid().Rank() == 0 )
-            std::cout << "Deflation took " << timer.Stop() << " seconds"
-                      << std::endl;
-    }
-}
-
-template<typename Real>
 inline Matrix<Int>
 TriangularIRA
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
@@ -697,13 +412,13 @@ TriangularIRA
 
 template<typename Real>
 inline Matrix<Int>
-TriangularIRA
+QuasiTriangularIRA
 ( const Matrix<Real>& U, const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, const Int basisSize=10, 
   Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
   SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRA"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangularIRA"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -733,6 +448,7 @@ TriangularIRA
         Zeros( VRealList[j], n, numShifts );
         Zeros( VImagList[j], n, numShifts );
     }
+    // The variance will be off from that of the usual complex case
     Gaussian( VRealList[0], n, numShifts );
     Gaussian( VImagList[0], n, numShifts );
     std::vector<Matrix<Complex<Real>>> HList(numShifts);
@@ -793,9 +509,9 @@ TriangularIRA
             {
                 const double msTime = subtimer.Stop();
                 const Int numActiveShifts = activeShifts.Height();
-                const double gflops = (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
-                          << gflops << " GFlops" << std::endl;
+                const double gflops = (4.*n*n*numActiveShifts)/(msTime*1.e9);
+                std::cout << "  MultiShiftQuasiTrsm's: " << msTime 
+                          << " seconds, " << gflops << " GFlops" << std::endl;
             }
 
             // Orthogonalize with respect to the old iterate
@@ -909,8 +625,7 @@ TriangularIRA
     return itCounts;
 }
 
-// TODO: Continue creating real variants
-
+// TODO: A real variant of the Hessenberg IRA
 template<typename Real>
 inline Matrix<Int>
 HessenbergIRA
@@ -1119,8 +834,6 @@ TriangularIRA
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
-    if( deflate && U.Grid().Rank() == 0 ) 
-        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
@@ -1332,6 +1045,257 @@ TriangularIRA
 
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
+QuasiTriangularIRA
+( const DistMatrix<Real                 >& U, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
+        DistMatrix<Real,         VR,STAR>& invNorms, 
+        Int basisSize=10, 
+  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
+  SnapshotCtrl snapCtrl=SnapshotCtrl() )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangularIRA"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+    const Int numShifts = shifts.Height();
+    const Grid& g = U.Grid();
+
+    // Keep track of the number of iterations per shift
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    DistMatrix<Int,VR,STAR> preimage(g);
+    DistMatrix<C,  VR,STAR> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.AlignWith( shifts );
+        preimage.Resize( numShifts, 1 );
+        const Int numLocShifts = preimage.LocalHeight();
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
+        {
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
+        }
+    }
+
+    // Simultaneously run IRA for different shifts
+    std::vector<DistMatrix<Real>> VRealList(basisSize+1), 
+                                  VImagList(basisSize+1),
+                                  activeVRealList(basisSize+1),
+                                  activeVImagList(basisSize+1);
+    for( Int j=0; j<basisSize+1; ++j )
+    {
+        VRealList[j].SetGrid( U.Grid() );
+        VImagList[j].SetGrid( U.Grid() );
+        Zeros( VRealList[j], n, numShifts );
+        Zeros( VImagList[j], n, numShifts );
+    }
+    // The variance will be off from that of the usual complex case
+    Gaussian( VRealList[0], n, numShifts );
+    Gaussian( VImagList[0], n, numShifts );
+    const Int numMRShifts = VRealList[0].LocalWidth();
+    std::vector<Matrix<Complex<Real>>> HList(numMRShifts);
+    std::vector<Real> realComponents;
+    std::vector<Complex<Real>> components;
+
+    DistMatrix<Int,MR,STAR> activeConverged(g);
+    Zeros( activeConverged, numShifts, 1 );
+
+    snapCtrl.numSaveCount = 0;
+    snapCtrl.imgSaveCount = 0;
+
+    Timer timer, subtimer;
+    Int numIts=0, numDone=0;
+    DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
+    estimates.AlignWith( shifts );
+    Zeros( estimates, numShifts, 1 );
+    DistMatrix<Int,VR,STAR> activePreimage(g);
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        for( Int j=0; j<basisSize+1; ++j )
+        {
+            activeVRealList[j] = View( VRealList[j], 0, 0, n, numActive ); 
+            activeVImagList[j] = View( VImagList[j], 0, 0, n, numActive ); 
+        }
+        if( deflate )
+        {
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            Zeros( activeConverged, numActive, 1 );
+        }
+        HList.resize( activeEsts.LocalHeight() );
+        for( Int jLoc=0; jLoc<HList.size(); ++jLoc )
+            Zeros( HList[jLoc], basisSize+1, basisSize );
+
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                timer.Start();
+        }
+        ColumnNorms( activeVRealList[0], activeVImagList[0], realComponents );
+        InvBetaScale( realComponents, activeVRealList[0] );
+        InvBetaScale( realComponents, activeVImagList[0] );
+        for( Int j=0; j<basisSize; ++j )
+        {
+            lastActiveEsts = activeEsts;
+            activeVRealList[j+1] = activeVRealList[j];
+            activeVImagList[j+1] = activeVImagList[j];
+            if( progress )
+            { 
+                mpi::Barrier( U.Grid().Comm() );
+                if( U.Grid().Rank() == 0 )
+                    subtimer.Start();
+            }
+            MultiShiftQuasiTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, 
+              activeVRealList[j+1], activeVImagList[j+1] );
+            MultiShiftQuasiTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, 
+              activeVRealList[j+1], activeVImagList[j+1] );
+            if( progress )
+            {
+                mpi::Barrier( U.Grid().Comm() );
+                if( U.Grid().Rank() == 0 )
+                {
+                    const double msTime = subtimer.Stop();
+                    const Int numActiveShifts = activeShifts.Height();
+                    const double gflops = 
+                        (4.*n*n*numActiveShifts)/(msTime*1.e9);
+                    std::cout << "  MultiShiftQuasiTrsm's: " << msTime 
+                              << " seconds, " << gflops << " GFlops" 
+                              << std::endl;
+                }
+            }
+
+            // Orthogonalize with respect to the old iterate
+            if( j > 0 )
+            {
+                ExtractList( HList, components, j, j-1 );
+                // TODO: Conjugate components?
+                PlaceList( HList, components, j-1, j );
+                ColumnSubtractions
+                ( components, activeVRealList[j-1], activeVImagList[j-1],
+                              activeVRealList[j+1], activeVImagList[j+1] );
+            }
+
+            // Orthogonalize with respect to the last iterate
+            InnerProducts
+            ( activeVRealList[j+0], activeVImagList[j+0],
+              activeVRealList[j+1], activeVImagList[j+1], components );
+            PlaceList( HList, components, j, j );
+            ColumnSubtractions
+            ( components, activeVRealList[j+0], activeVImagList[j+0],
+                          activeVRealList[j+1], activeVImagList[j+1] );
+
+            // Explicitly (re)orthogonalize against all previous vectors
+            for( Int i=0; i<j-1; ++i )
+            {
+                InnerProducts
+                ( activeVRealList[i  ], activeVImagList[i  ],
+                  activeVRealList[j+1], activeVImagList[j+1], components );
+                PlaceList( HList, components, i, j );
+                ColumnSubtractions
+                ( components, activeVRealList[i  ], activeVImagList[i  ],
+                              activeVRealList[j+1], activeVImagList[j+1] );
+            }
+            if( j > 0 )
+            {
+                InnerProducts
+                ( activeVRealList[j-1], activeVImagList[j-1],
+                  activeVRealList[j+1], activeVImagList[j+1], components );
+                UpdateList( HList, components, j-1, j );
+                ColumnSubtractions
+                ( components, activeVRealList[j-1], activeVImagList[j-1],
+                              activeVRealList[j+1], activeVImagList[j+1] );
+            }
+
+            // Compute the norm of what is left
+            ColumnNorms
+            ( activeVRealList[j+1], activeVImagList[j+1], realComponents );
+            PlaceList( HList, realComponents, j+1, j );
+
+            // TODO: Handle lucky breakdowns
+            InvBetaScale( realComponents, activeVRealList[j+1] );
+            InvBetaScale( realComponents, activeVImagList[j+1] );
+
+            ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
+            // We will have the same estimate two iterations in a row when
+            // restarting
+            if( j != 0 ) 
+                activeConverged =
+                    FindConverged
+                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
+
+            if( snapCtrl.numFreq > 0 )
+                ++snapCtrl.numSaveCount;
+            if( snapCtrl.imgFreq > 0 )
+                ++snapCtrl.imgSaveCount;
+        }
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                subtimer.Start();
+        }
+        Restart( HList, activeConverged, activeVRealList, activeVImagList );
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+                std::cout << "IRA computations: " << subtimer.Stop()
+                          << " seconds" << std::endl;
+        }
+
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        numIts += basisSize;
+        if( progress )
+        {
+            mpi::Barrier( U.Grid().Comm() );
+            if( U.Grid().Rank() == 0 )
+            {
+                const double iterTime = timer.Stop();
+                std::cout << "iteration " << numIts << ": " << iterTime
+                          << " seconds, " << numDone << " of " << numShifts
+                          << " converged" << std::endl;
+            }
+        }
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+        {
+            Deflate
+            ( activeShifts, activePreimage, 
+              activeVRealList[0], activeVImagList[0], activeEsts, 
+              activeConverged, activeItCounts, progress );
+            lastActiveEsts = activeEsts;
+        }
+
+        // Save snapshots of the estimates at the requested rate
+        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
+    } 
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
+}
+
+// TODO: Real Hessenberg algorithm
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
 HessenbergIRA
 ( const DistMatrix<Complex<Real>        >& H, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
@@ -1346,8 +1310,6 @@ HessenbergIRA
     const Int n = H.Height();
     const Int numShifts = shifts.Height();
     const Grid& g = H.Grid();
-    if( deflate && H.Grid().Rank() == 0 ) 
-        std::cerr << "NOTE: Deflation swaps not yet optimized!" << std::endl;
 
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);

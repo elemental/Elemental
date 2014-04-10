@@ -112,30 +112,63 @@ main( int argc, char* argv[] )
         const C center(realCenter,imagCenter);
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
+        bool isReal = true;
         std::string matName;
-        DistMatrix<C> A(g);
+        DistMatrix<Real> AReal(g);
+        DistMatrix<C> ACpx(g);
         switch( matType )
         {
         case 0: matName="uniform"; 
-                Uniform( A, n, n, uniformCenter, uniformRadius ); break;
-        case 1: matName="Haar"; Haar( A, n ); break;
-        case 2: matName="Lotkin"; Lotkin( A, n ); break;
-        case 3: matName="Grcar"; Grcar( A, n, numBands ); break;
-        case 4: matName="FoxLi"; FoxLi( A, n, omega ); break;
+                Uniform( ACpx, n, n, uniformCenter, uniformRadius ); 
+                isReal = false;
+                break;
+        case 1: matName="Haar"; 
+                Haar( ACpx, n ); 
+                isReal = false;
+                break;
+        case 2: matName="Lotkin"; 
+                Lotkin( AReal, n ); 
+                isReal = true;
+                break;
+        case 3: matName="Grcar"; 
+                Grcar( AReal, n, numBands ); 
+                isReal = true;
+                break;
+        case 4: matName="FoxLi"; 
+                FoxLi( ACpx, n, omega ); 
+                isReal = false;
+                break;
         case 5: matName="HelmholtzPML"; 
                 HelmholtzPML
-                ( A, n, C(omega), numPmlPoints, sigma, pmlExp ); break;
+                ( ACpx, n, C(omega), numPmlPoints, sigma, pmlExp ); 
+                isReal = false;
+                break;
         case 6: matName="HelmholtzPML2D"; 
                 HelmholtzPML
-                ( A, mx, my, C(omega), numPmlPoints, sigma, pmlExp ); break;
+                ( ACpx, mx, my, C(omega), numPmlPoints, sigma, pmlExp ); 
+                isReal = false;
+                break;
         default: LogicError("Invalid matrix type");
         }
         if( display )
-            Display( A, "A" );
+        {
+            if( isReal )
+                Display( AReal, "A" );
+            else
+                Display( ACpx, "A" );
+        }
         if( write )
         {
-            Write( A, "A", numFormat );
-            Write( A, "A", imgFormat );
+            if( isReal )
+            {
+                Write( AReal, "A", numFormat );
+                Write( AReal, "A", imgFormat );
+            }
+            else
+            {
+                Write( ACpx, "A", numFormat );
+                Write( ACpx, "A", imgFormat );
+            }
         }
 
         // Begin by computing the Schur decomposition
@@ -147,7 +180,10 @@ main( int argc, char* argv[] )
         SetDefaultBlockHeight( nbDist );
         SetDefaultBlockWidth( nbDist );
         timer.Start();
-        schur::QR( A, w, formATR );
+        if( isReal )
+            schur::QR( AReal, w, formATR );
+        else
+            schur::QR( ACpx, w, formATR );
         mpi::Barrier( mpi::COMM_WORLD );
         const double qrTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
@@ -155,10 +191,20 @@ main( int argc, char* argv[] )
                       << std::endl; 
 #else
         timer.Start();
-        DistMatrix<C> X(g);
-        schur::SDC
-        ( A, w, X, formATR, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          spreadFactor, random, progress );
+        if( isReal )
+        {
+            DistMatrix<Real> XReal(g);
+            schur::SDC
+            ( AReal, w, XReal, formATR, cutoff, maxInnerIts, maxOuterIts, 
+              signTol, relTol, spreadFactor, random, progress );
+        }
+        else
+        {
+            DistMatrix<C> XCpx(g);
+            schur::SDC
+            ( ACpx, w, XCpx, formATR, cutoff, maxInnerIts, maxOuterIts, 
+              signTol, relTol, spreadFactor, random, progress );
+        }
         mpi::Barrier( mpi::COMM_WORLD );
         const double sdcTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
@@ -172,10 +218,22 @@ main( int argc, char* argv[] )
                 std::cout.flush();
             }
             timer.Start();
-            std::ostringstream os;
-            os << matName << "-" << A.ColStride() << "x" << A.RowStride()
-               << "-" << A.DistRank();
-            write::Binary( A.LockedMatrix(), os.str() );
+            if( isReal )
+            {
+                std::ostringstream os;
+                os << matName << "-" 
+                   << AReal.ColStride() << "x" << AReal.RowStride()
+                   << "-" << AReal.DistRank();
+                write::Binary( AReal.LockedMatrix(), os.str() );
+            } 
+            else
+            {
+                std::ostringstream os;
+                os << matName << "-" 
+                   << ACpx.ColStride() << "x" << ACpx.RowStride()
+                   << "-" << ACpx.DistRank();
+                write::Binary( ACpx.LockedMatrix(), os.str() );
+            }
             mpi::Barrier( mpi::COMM_WORLD );
             const double saveSchurTime = timer.Stop();
             if( mpi::WorldRank() == 0 )
@@ -187,7 +245,7 @@ main( int argc, char* argv[] )
         if( realWidth == 0. || imagWidth == 0. )
         {
             const Real radius = MaxNorm( w );
-            const Real oneNorm = OneNorm( A );
+            const Real oneNorm = ( isReal ? OneNorm(AReal) : OneNorm(ACpx) );
             Real width;
             if( oneNorm == 0. && radius == 0. )
             {
@@ -259,10 +317,22 @@ main( int argc, char* argv[] )
                 timer.Start();
                 snapCtrl.numBase = numBase+chunkTag;
                 snapCtrl.imgBase = imgBase+chunkTag;
-                itCountMap = TriangularPseudospectrum
-                ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
-                  realChunkSize, imagChunkSize, arnoldi, krylovSize,
-                  maxIts, tol, progress, deflate, snapCtrl );
+                if( isReal )
+                {
+                    itCountMap = QuasiTriangularPseudospectrum
+                    ( AReal, invNormMap, chunkCenter, 
+                      realChunkWidth, imagChunkWidth, 
+                      realChunkSize, imagChunkSize, arnoldi, krylovSize,
+                      maxIts, tol, progress, deflate, snapCtrl );
+                }
+                else
+                {
+                    itCountMap = TriangularPseudospectrum
+                    ( ACpx, invNormMap, chunkCenter, 
+                      realChunkWidth, imagChunkWidth, 
+                      realChunkSize, imagChunkSize, arnoldi, krylovSize,
+                      maxIts, tol, progress, deflate, snapCtrl );
+                }
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );

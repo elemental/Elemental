@@ -89,12 +89,12 @@ MultiShiftQuasiTrsm
         if( side == LEFT )
         {
             if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
         else
         {
             if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
     )
     Scale( alpha, B );
@@ -150,12 +150,12 @@ MultiShiftQuasiTrsm
         if( side == LEFT )
         {
             if( A.Height() != BReal.Height() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
         else
         {
             if( A.Height() != BReal.Width() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
     )
     Scale( alpha, BReal, BImag );
@@ -213,12 +213,12 @@ MultiShiftQuasiTrsm
         if( side == LEFT )
         {
             if( A.Height() != B.Height() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
         else
         {
             if( A.Height() != B.Width() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
     )
     Scale( alpha, B );
@@ -229,34 +229,46 @@ MultiShiftQuasiTrsm
     {
         if( orientation == NORMAL )
         {
+            msquasitrsm::LLNLarge( A, shifts, B );
+            /*
             if( B.Width() > 5*p )
                 msquasitrsm::LLNLarge( A, shifts, B );
             else
                 msquasitrsm::LLNMedium( A, shifts, B );
+            */
         }
         else
         {
+            msquasitrsm::LLTLarge( orientation, A, shifts, B );
+            /*
             if( B.Width() > 5*p )
                 msquasitrsm::LLTLarge( orientation, A, shifts, B );
             else
                 msquasitrsm::LLTMedium( orientation, A, shifts, B );
+            */
         }
     }
     else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
         {
+            msquasitrsm::LUNLarge( A, shifts, B );
+            /*
             if( B.Width() > 5*p )
                 msquasitrsm::LUNLarge( A, shifts, B );
             else
                 msquasitrsm::LUNMedium( A, shifts, B );
+            */
         }
         else
         {
+            msquasitrsm::LUTLarge( orientation, A, shifts, B );
+            /*
             if( B.Width() > 5*p )
                 msquasitrsm::LUTLarge( orientation, A, shifts, B );
             else
                 msquasitrsm::LUTMedium( orientation, A, shifts, B );
+            */
         }
     }
     else if( side == RIGHT && uplo == LOWER )
@@ -300,12 +312,12 @@ MultiShiftQuasiTrsm
         if( side == LEFT )
         {
             if( A.Height() != BReal.Height() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
         else
         {
             if( A.Height() != BReal.Width() )
-                LogicError("Nonconformal Trsm");
+                LogicError("Nonconformal");
         }
     )
     Scale( alpha, BReal, BImag );
@@ -337,17 +349,23 @@ MultiShiftQuasiTrsm
     {
         if( orientation == NORMAL )
         {
+            msquasitrsm::LUNLarge( A, shifts, BReal, BImag );
+            /*
             if( BReal.Width() > 5*p )
                 msquasitrsm::LUNLarge( A, shifts, BReal, BImag );
             else
                 msquasitrsm::LUNMedium( A, shifts, BReal, BImag );
+            */
         }
         else
         {
+            msquasitrsm::LUTLarge( orientation, A, shifts, BReal, BImag );
+            /*
             if( BReal.Width() > 5*p )
                 msquasitrsm::LUTLarge( orientation, A, shifts, BReal, BImag );
             else
                 msquasitrsm::LUTMedium( orientation, A, shifts, BReal, BImag );
+            */
         }
     }
     else if( side == RIGHT && uplo == LOWER )

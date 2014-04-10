@@ -54,9 +54,9 @@ Scale( Complex<Real> alpha, Matrix<Real>& AReal, Matrix<Real>& AImag )
                 aRealCopy = aReal;
                 aImagCopy = aImag;
                 Scale( alpha.real(), aReal     );
-                Axpy( -alpha.imag(), aImagCopy );
+                Axpy( -alpha.imag(), aImagCopy, aReal );
                 Scale( alpha.real(), aImag     );
-                Axpy(  alpha.imag(), aRealCopy );
+                Axpy(  alpha.imag(), aRealCopy, aImag );
             }
         }
     }

@@ -139,7 +139,6 @@ QuasiTrsvLT
         const bool in2x2 = ( k>0 && L.Get(k-1,k) != F(0) );
         if( in2x2 )
             --k;
-        const Int nb = kOld-k;
 
         auto L10 = LockedViewRange( L, k, 0, kOld, k    );
         auto L11 = LockedViewRange( L, k, k, kOld, kOld );
