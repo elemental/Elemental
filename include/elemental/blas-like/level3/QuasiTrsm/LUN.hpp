@@ -197,7 +197,6 @@ LUNMedium
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNMedium"))
     const Int m = X.Height();
-    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 

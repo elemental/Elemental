@@ -195,7 +195,6 @@ QuasiTrsvUN
             const bool in2x2 = ( k>0 && U.Get(k,k-1) != F(0) );
             if( in2x2 )
                 --k;
-            const Int nb = kOld-k;
 
             LockedViewRange( U01, U, 0, k, k,    kOld );
             LockedViewRange( U11, U, k, k, kOld, kOld );
@@ -244,7 +243,6 @@ QuasiTrsvUN
             const bool in2x2 = ( k>0 && U.Get(k,k-1) != F(0) );
             if( in2x2 )
                 --k;
-            const Int nb = kOld-k;
 
             LockedViewRange( U01, U, 0, k, k,    kOld );
             LockedViewRange( U11, U, k, k, kOld, kOld );

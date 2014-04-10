@@ -300,6 +300,32 @@ ColumnSubtractions
     }
 }
 
+template<typename Real>
+inline void
+ColumnSubtractions
+( const std::vector<Complex<Real> >& components,
+  const Matrix<Real>& XReal, const Matrix<Real>& XImag,
+        Matrix<Real>& YReal,       Matrix<Real>& YImag )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnSubtractions"))
+    const Int numShifts = YReal.Width();
+    if( numShifts == 0 )
+        return;
+    const Int m = YReal.Height();
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Complex<Real> gamma = components[j];
+        blas::Axpy
+        ( m, -gamma.real(), XReal.LockedBuffer(0,j), 1, YReal.Buffer(0,j), 1 );
+        blas::Axpy
+        ( m,  gamma.imag(), XImag.LockedBuffer(0,j), 1, YReal.Buffer(0,j), 1 );
+        blas::Axpy
+        ( m, -gamma.real(), XImag.LockedBuffer(0,j), 1, YImag.Buffer(0,j), 1 );
+        blas::Axpy
+        ( m, -gamma.imag(), XReal.LockedBuffer(0,j), 1, YImag.Buffer(0,j), 1 );
+    }
+}
+
 template<typename F,typename FComp>
 inline void
 ColumnSubtractions
@@ -312,6 +338,24 @@ ColumnSubtractions
             LogicError("X and Y should have been aligned");
     )
     ColumnSubtractions( components, X.LockedMatrix(), Y.Matrix() );
+}
+
+template<typename Real>
+inline void
+ColumnSubtractions
+( const std::vector<Complex<Real> >& components,
+  const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
+        DistMatrix<Real>& YReal,       DistMatrix<Real>& YImag )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::ColumnSubtractions");
+        if( XReal.ColAlign() != YReal.ColAlign() || 
+            XReal.RowAlign() != YReal.RowAlign() )
+            LogicError("X and Y should have been aligned");
+    )
+    ColumnSubtractions
+    ( components, XReal.LockedMatrix(), XImag.LockedMatrix(), 
+                  YReal.Matrix(),       YImag.Matrix() );
 }
 
 template<typename F>
@@ -327,6 +371,23 @@ ColumnNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
     {
         const Real alpha = blas::Nrm2( m, X.LockedBuffer(0,j), 1 );
         norms.Set( j, 0, alpha );
+    }
+}
+
+template<typename Real>
+inline void
+ColumnNorms
+( const Matrix<Real>& XReal, const Matrix<Real>& XImag, Matrix<Real>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    const Int m = XReal.Height();
+    const Int n = XReal.Width();
+    norms.Resize( n, 1 );
+    for( Int j=0; j<n; ++j )
+    {
+        const Real alpha = blas::Nrm2( m, XReal.LockedBuffer(0,j), 1 );
+        const Real beta  = blas::Nrm2( m, XImag.LockedBuffer(0,j), 1 );
+        norms.Set( j, 0, lapack::SafeNorm(alpha,beta) );
     }
 }
 
@@ -360,6 +421,39 @@ ColumnNorms( const DistMatrix<F,U,V>& X, DistMatrix<BASE(F),V,STAR>& norms )
     }
 }
 
+template<typename Real,Dist U,Dist V>
+inline void
+ColumnNorms
+( const DistMatrix<Real,U,V>& XReal, 
+  const DistMatrix<Real,U,V>& XImag, DistMatrix<Real,V,STAR>& norms )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::ColumnNorms");
+        if( XReal.RowAlign() != norms.ColAlign() )
+            LogicError("Invalid norms alignment");
+    )
+    const Int n = XReal.Width();
+    const Int mLocal = XReal.LocalHeight();
+    const Int nLocal = XReal.LocalWidth();
+
+    // TODO: Switch to more stable parallel norm computation using scaling
+    norms.Resize( n, 1 );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    {
+        const Real alpha = blas::Nrm2(mLocal,XReal.LockedBuffer(0,jLoc),1);
+        const Real beta = blas::Nrm2(mLocal,XImag.LockedBuffer(0,jLoc),1);
+        const Real gamma = lapack::SafeNorm(alpha,beta);
+        norms.SetLocal( jLoc, 0, gamma*gamma );
+    }
+
+    mpi::AllReduce( norms.Buffer(), nLocal, mpi::SUM, XReal.ColComm() );
+    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    {
+        const Real alpha = norms.GetLocal(jLoc,0);
+        norms.SetLocal( jLoc, 0, Sqrt(alpha) );
+    }
+}
+
 template<typename F>
 inline void
 ColumnNorms( const Matrix<F>& X, std::vector<BASE(F)>& norms )
@@ -375,6 +469,22 @@ ColumnNorms( const Matrix<F>& X, std::vector<BASE(F)>& norms )
         norms[j] = normCol.Get(j,0);
 }
 
+template<typename Real>
+inline void
+ColumnNorms
+( const Matrix<Real>& XReal, 
+  const Matrix<Real>& XImag, std::vector<Real>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    Matrix<Real> normCol;
+    ColumnNorms( XReal, XImag, normCol );
+
+    const Int numShifts = XReal.Width();
+    norms.resize( numShifts );
+    for( Int j=0; j<numShifts; ++j )
+        norms[j] = normCol.Get(j,0);
+}
+
 template<typename F>
 inline void
 ColumnNorms( const DistMatrix<F>& X, std::vector<BASE(F)>& norms )
@@ -385,6 +495,22 @@ ColumnNorms( const DistMatrix<F>& X, std::vector<BASE(F)>& norms )
     ColumnNorms( X, normCol );
 
     const Int numLocShifts = X.LocalWidth();
+    norms.resize( numLocShifts );
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        norms[jLoc] = normCol.GetLocal(jLoc,0);
+}
+
+template<typename Real>
+inline void
+ColumnNorms
+( const DistMatrix<Real>& XReal, 
+  const DistMatrix<Real>& XImag, std::vector<Real>& norms )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
+    DistMatrix<Real,MR,STAR> normCol( XReal.Grid() );
+    ColumnNorms( XReal, XImag, normCol );
+
+    const Int numLocShifts = XReal.LocalWidth();
     norms.resize( numLocShifts );
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
         norms[jLoc] = normCol.GetLocal(jLoc,0);
@@ -409,6 +535,29 @@ InnerProducts
     }
 }
 
+template<typename Real>
+inline void
+InnerProducts
+( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
+  const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
+        std::vector<Real>& innerProds )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
+    const Int numShifts = XReal.Width();
+    const Int m = XReal.Height();
+    innerProds.resize( numShifts );
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Real alpha =
+            blas::Dot( m, XReal.LockedBuffer(0,j), 1,
+                          YReal.LockedBuffer(0,j), 1 );
+        const Real beta = 
+            blas::Dot( m, XImag.LockedBuffer(0,j), 1,
+                          YImag.LockedBuffer(0,j), 1 );
+        innerProds[j] = alpha + beta;
+    }
+}
+
 template<typename F>
 inline void
 InnerProducts
@@ -424,6 +573,36 @@ InnerProducts
             blas::Dot( m, X.LockedBuffer(0,j), 1,
                           Y.LockedBuffer(0,j), 1 );
         innerProds[j] = alpha;
+    }
+}
+
+template<typename Real>
+inline void
+InnerProducts
+( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
+  const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
+        std::vector<Complex<Real> >& innerProds )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
+    const Int numShifts = XReal.Width();
+    const Int m = XReal.Height();
+    innerProds.resize( numShifts );
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Real alpha =
+            blas::Dot( m, XReal.LockedBuffer(0,j), 1,
+                          YReal.LockedBuffer(0,j), 1 );
+        const Real beta = 
+            blas::Dot( m, XImag.LockedBuffer(0,j), 1,
+                          YImag.LockedBuffer(0,j), 1 );
+        const Real delta = 
+            blas::Dot( m, XReal.LockedBuffer(0,j), 1,
+                          YImag.LockedBuffer(0,j), 1 );
+        const Real gamma =
+            blas::Dot( m, XImag.LockedBuffer(0,j), 1,
+                          YReal.LockedBuffer(0,j), 1 );
+        // Keep in mind that XImag should be conjugated
+        innerProds[j] = Complex<Real>(alpha+beta,delta-gamma);
     }
 }
 
@@ -443,6 +622,27 @@ InnerProducts
     mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
 }
 
+template<typename Real>
+inline void
+InnerProducts
+( const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
+  const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
+  std::vector<Real>& innerProds )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::InnerProducts");
+        if( XReal.ColAlign() != YReal.ColAlign() || 
+            XReal.RowAlign() != YReal.RowAlign() )
+            LogicError("X and Y should have been aligned");
+    )
+    InnerProducts
+    ( XReal.LockedMatrix(), XImag.LockedMatrix(), 
+      YReal.LockedMatrix(), YImag.LockedMatrix(), innerProds );
+    const Int numLocShifts = XReal.LocalWidth();
+    mpi::AllReduce
+    ( innerProds.data(), numLocShifts, mpi::SUM, XReal.ColComm() );
+}
+
 template<typename F>
 inline void
 InnerProducts
@@ -456,6 +656,27 @@ InnerProducts
     InnerProducts( X.LockedMatrix(), Y.LockedMatrix(), innerProds );
     const Int numLocShifts = X.LocalWidth();
     mpi::AllReduce( innerProds.data(), numLocShifts, mpi::SUM, X.ColComm() );
+}
+
+template<typename Real>
+inline void
+InnerProducts
+( const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
+  const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
+        std::vector<Complex<Real> >& innerProds )
+{
+    DEBUG_ONLY(
+        CallStackEntry cse("pspec::InnerProducts");
+        if( XReal.ColAlign() != YReal.ColAlign() || 
+            XReal.RowAlign() != YReal.RowAlign() )
+            LogicError("X and Y should have been aligned");
+    )
+    InnerProducts
+    ( XReal.LockedMatrix(), XImag.LockedMatrix(), 
+      YReal.LockedMatrix(), YImag.LockedMatrix(), innerProds );
+    const Int numLocShifts = XReal.LocalWidth();
+    mpi::AllReduce
+    ( innerProds.data(), numLocShifts, mpi::SUM, XReal.ColComm() );
 }
 
 template<typename F>
