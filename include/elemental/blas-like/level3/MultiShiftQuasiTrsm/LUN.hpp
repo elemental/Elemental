@@ -15,6 +15,11 @@
 namespace elem {
 namespace msquasitrsm {
 
+// NOTE: The less stable blas::Givens is used instead of lapack::Givens due to
+//       the fact that the caching of an expensive-to-compute function of 
+//       machine constants is recomputed for every call of the latter to avoid
+//       a thread safety issue.
+
 template<typename F>
 inline void
 LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
@@ -61,7 +66,7 @@ LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
                 const F delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; F s;
-                const F gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+                const F gamma11 = blas::Givens( delta11, delta21, &c, &s );
                 const F gamma12 =        c*delta12 + s*delta22;
                 const F gamma22 = -Conj(s)*delta12 + c*delta22;
 
@@ -150,7 +155,7 @@ LUNUnb
                 const C delta22 = UBuf[(k+1)+(k+1)*ldu] - shifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
-                const C gamma11 = lapack::Givens( delta11, delta21, &c, &s );
+                const C gamma11 = blas::Givens( delta11, delta21, &c, &s );
                 const C gamma12 =        c*delta12 + s*delta22;
                 const C gamma22 = -Conj(s)*delta12 + c*delta22;
 

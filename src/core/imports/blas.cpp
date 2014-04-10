@@ -55,6 +55,7 @@ double ELEM_BLAS(dnrm2) ( const int* n, const double  * x, const int* incx );
 float  ELEM_BLAS(scnrm2)( const int* n, const scomplex* x, const int* incx );
 double ELEM_BLAS(dznrm2)( const int* n, const dcomplex* x, const int* incx );
 
+// Apply a Givens rotation to a pair of vectors
 void ELEM_BLAS(srot)
 ( const int* n, float* x, const int* incx, float* y, const int* incy,
   const float* c, const float* s );
@@ -68,6 +69,17 @@ void ELEM_BLAS(zrot)
 ( const int* n, dcomplex* x, const int* incx, dcomplex* y, const int* incy,
   const double* c, const dcomplex* s );
 
+// Quickly compute a Givens rotation
+void ELEM_BLAS(srotg)
+( float* alpha, float* beta, float* c, float* s );
+void ELEM_BLAS(drotg)
+( double* alpha, double* beta, double* c, double* s );
+void ELEM_BLAS(crotg)
+( scomplex* alpha, scomplex* beta, float* c, scomplex* s );
+void ELEM_BLAS(zrotg)
+( dcomplex* alpha, dcomplex* beta, double* c, dcomplex* s );
+
+// Scale a vector
 void ELEM_BLAS(sscal)
 ( const int* n, const float   * alpha, float   * x, const int* incx );
 void ELEM_BLAS(dscal)
@@ -580,6 +592,19 @@ float Nrm2( int n, const scomplex* x, int incx )
 { return ELEM_BLAS(scnrm2)( &n, x, &incx ); }
 double Nrm2( int n, const dcomplex* x, int incx )
 { return ELEM_BLAS(dznrm2)( &n, x, &incx ); }
+
+float Givens
+( float alpha, float beta, float* c, float* s )
+{ ELEM_BLAS(srotg)( &alpha, &beta, c, s ); return alpha; }
+double Givens
+( double alpha, double beta, double* c, double* s )
+{ ELEM_BLAS(drotg)( &alpha, &beta, c, s ); return alpha; }
+scomplex Givens
+( scomplex alpha, scomplex beta, float* c, scomplex* s )
+{ ELEM_BLAS(crotg)( &alpha, &beta, c, s ); return alpha; }
+dcomplex Givens
+( dcomplex alpha, dcomplex beta, double* c, dcomplex* s )
+{ ELEM_BLAS(zrotg)( &alpha, &beta, c, s ); return alpha; }
 
 void Rot
 ( int n, float* x, int incx, float* y, int incy, float c, float s )

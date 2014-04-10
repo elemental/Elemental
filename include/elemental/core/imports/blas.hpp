@@ -70,6 +70,15 @@ float  Nrm2( int n, const scomplex* x, int incx );
 double Nrm2( int n, const dcomplex* x, int incx );
 template<typename F> F Nrm2( int n, const F* x, int incx );
 
+float Givens
+( float alpha, float beta, float* c, float* s );
+double Givens
+( double alpha, double beta, double* c, double* s );
+scomplex Givens
+( scomplex alpha, scomplex beta, float* c, scomplex* s );
+dcomplex Givens
+( dcomplex alpha, dcomplex beta, double* c, dcomplex* s );
+
 void Rot
 ( int n, float   * x, int incx, float   * y, int incy, float  c, float    s );
 void Rot
