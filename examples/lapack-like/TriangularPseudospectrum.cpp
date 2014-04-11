@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
         const Int realSize = Input("--realSize","number of x samples",100);
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
-        const Int krylovSize = Input("--krylovSize","num Arnoldi vectors",10);
+        const Int basisSize = Input("--basisSize","num Arnoldi vectors",10);
         const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
         const Real uniformRealCenter = 
@@ -117,13 +117,20 @@ main( int argc, char* argv[] )
             Write( A, "A", imgFormat );
         }
 
-        SnapshotCtrl snapCtrl;
-        snapCtrl.imgFreq = imgFreq;
-        snapCtrl.numFreq = numFreq;
-        snapCtrl.imgFormat = imgFormat;
-        snapCtrl.numFormat = numFormat;
-        snapCtrl.imgBase = imgBase;
-        snapCtrl.numBase = numBase;
+        PseudospecCtrl<Real> psCtrl;
+        psCtrl.schur = true;
+        psCtrl.maxIts = maxIts;
+        psCtrl.tol = tol;
+        psCtrl.deflate = deflate;
+        psCtrl.arnoldi = arnoldi;
+        psCtrl.basisSize = basisSize;
+        psCtrl.progress = progress;
+        psCtrl.snapCtrl.imgFreq = imgFreq;
+        psCtrl.snapCtrl.numFreq = numFreq;
+        psCtrl.snapCtrl.imgFormat = imgFormat;
+        psCtrl.snapCtrl.numFormat = numFormat;
+        psCtrl.snapCtrl.imgBase = imgBase;
+        psCtrl.snapCtrl.numBase = numBase;
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
@@ -132,11 +139,10 @@ main( int argc, char* argv[] )
         if( realWidth != 0. && imagWidth != 0. )
             itCountMap = TriangularPseudospectrum
             ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize,
-              arnoldi, krylovSize, maxIts, tol, progress, deflate, snapCtrl );
+              psCtrl );
         else
             itCountMap = TriangularPseudospectrum
-            ( A, invNormMap, center, realSize, imagSize,                
-              arnoldi, krylovSize, maxIts, tol, progress, deflate, snapCtrl );
+            ( A, invNormMap, center, realSize, imagSize, psCtrl );
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;

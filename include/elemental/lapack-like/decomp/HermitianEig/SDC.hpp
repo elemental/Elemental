@@ -26,6 +26,8 @@
 
 // TODO: Reference to Yuji's work
 
+// TODO: HermitianSdcCtrl
+
 namespace elem {
 namespace herm_eig {
 

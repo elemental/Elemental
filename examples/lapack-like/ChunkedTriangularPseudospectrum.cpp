@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
         const Int realSize = Input("--realSize","number of x samples",100);
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
-        const Int krylovSize = Input("--krylovSize","num Arnoldi vectors",10);
+        const Int basisSize = Input("--basisSize","num Arnoldi vectors",10);
         const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
         const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
         const Real uniformRealCenter = 
@@ -154,11 +154,18 @@ main( int argc, char* argv[] )
             imagWidth = width;
         }
 
-        SnapshotCtrl snapCtrl;
-        snapCtrl.imgFreq = imgFreq;
-        snapCtrl.numFreq = numFreq;
-        snapCtrl.imgFormat = imgFormat;
-        snapCtrl.numFormat = numFormat;
+        PseudospecCtrl<Real> psCtrl;
+        psCtrl.schur = true;
+        psCtrl.maxIts = maxIts;
+        psCtrl.tol = tol;
+        psCtrl.deflate = deflate;
+        psCtrl.arnoldi = arnoldi;
+        psCtrl.basisSize = basisSize;
+        psCtrl.progress = progress;
+        psCtrl.snapCtrl.imgFreq = imgFreq;
+        psCtrl.snapCtrl.numFreq = numFreq;
+        psCtrl.snapCtrl.imgFormat = imgFormat;
+        psCtrl.snapCtrl.numFormat = numFormat;
 
         // Visualize/write the pseudospectrum within each window
         Timer timer;
@@ -196,12 +203,11 @@ main( int argc, char* argv[] )
                               << chunkCenter << std::endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
-                snapCtrl.imgBase = imgBase+chunkTag;
-                snapCtrl.numBase = numBase+chunkTag;
+                psCtrl.snapCtrl.imgBase = imgBase+chunkTag;
+                psCtrl.snapCtrl.numBase = numBase+chunkTag;
                 itCountMap = TriangularPseudospectrum
                 ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
-                  realChunkSize, imagChunkSize, arnoldi, krylovSize, 
-                  maxIts, tol, progress, deflate, snapCtrl );
+                  realChunkSize, imagChunkSize, psCtrl );
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );

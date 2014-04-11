@@ -20,6 +20,8 @@
 
 namespace elem {
 
+// Configurations for how often and what format numerical (num) and image (img)
+// snapshots of the pseudospectral estimates should be saved
 struct SnapshotCtrl
 {
     Int realSize, imagSize;
@@ -32,6 +34,39 @@ struct SnapshotCtrl
     : realSize(0), imagSize(0),
       imgFreq(0), numFreq(0), imgSaveCount(0), numSaveCount(0),
       imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB)
+    { }
+};
+
+template<typename Real>
+struct PseudospecCtrl
+{
+    // Preprocessing configuration
+    bool schur; // begin with reduction to Schur form?
+    bool forceComplexSchur;
+    bool forceComplexPs;
+    SdcCtrl<Real> sdcCtrl;
+
+    // Convergence and deflation criteria
+    Int maxIts;
+    Real tol;
+    bool deflate; 
+
+    // (Implicitly Restarted) Arnoldi/Lanczos. If basisSize > 1, then
+    // there is implicit restarting
+    bool arnoldi;
+    Int basisSize;
+    bool reorthog; // only matters for IRL, which isn't currently used
+
+    // Whether or not to print progress information at each iteration
+    bool progress;
+
+    SnapshotCtrl snapCtrl;
+
+    PseudospecCtrl()
+    : schur(true), forceComplexSchur(false), forceComplexPs(false), sdcCtrl(),
+      maxIts(200), tol(1e-6), deflate(true),
+      arnoldi(true), basisSize(10), reorthog(true),
+      progress(false), snapCtrl()
     { }
 };
 

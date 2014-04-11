@@ -205,18 +205,20 @@ Deflate
 
 template<typename Real>
 inline Matrix<Int>
-TriangularPower
+Power
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
-  Matrix<Real>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::Power"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
 
+    const Int maxIts = psCtrl.maxIts;
+    const bool deflate = psCtrl.deflate;
+    const bool progress = psCtrl.progress;
+
     // Keep track of the number of iterations per shift
     Matrix<Int> itCounts;
     Ones( itCounts, numShifts, 1 );
@@ -231,8 +233,13 @@ TriangularPower
             preimage.Set( j, 0, j );
     }
 
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.numSaveCount = 0;
+    psCtrl.snapCtrl.imgSaveCount = 0;
+
+    // The Hessenberg case currently requires explicit access to the adjoint
+    Matrix<C> UAdj, activeShiftsConj;
+    if( !psCtrl.schur )
+        Adjoint( U, UAdj );
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -256,14 +263,31 @@ TriangularPower
 
         if( progress )
             timer.Start(); 
-        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
-        FixColumns( activeX );
-        MultiShiftTrsm( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
+
+        if( psCtrl.schur )
+        {
+            MultiShiftTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
+            FixColumns( activeX );
+            MultiShiftTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
+        }
+        else
+        {
+            Conjugate( activeShifts, activeShiftsConj );
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), U, activeShifts, activeX );
+            FixColumns( activeX );
+            MultiShiftHessSolve
+            ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeX );
+        }
+
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 
         auto activeConverged = 
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
+            FindConverged
+            ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
             numDone += numActiveDone;
@@ -291,121 +315,11 @@ TriangularPower
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        if( snapCtrl.numFreq > 0 )
-            ++snapCtrl.numSaveCount;
-        if( snapCtrl.imgFreq > 0 )
-            ++snapCtrl.imgSaveCount;
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
-    } 
-
-    invNorms = estimates;
-    if( deflate )
-        RestoreOrdering( preimage, invNorms, itCounts );
-
-    return itCounts;
-}
-
-template<typename Real>
-inline Matrix<Int>
-HessenbergPower
-( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
-  Matrix<Real>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
-    using namespace pspec;
-    typedef Complex<Real> C;
-    const Int n = H.Height();
-    const Int numShifts = shifts.Height();
-
-    // Keep track of the number of iterations per shift
-    Matrix<Int> itCounts;
-    Ones( itCounts, numShifts, 1 );
-
-    // Keep track of the pivoting history if deflation is requested
-    Matrix<Int> preimage;
-    Matrix<C> pivShifts( shifts );
-    if( deflate )
-    {
-        preimage.Resize( numShifts, 1 );
-        for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
-    }
-
-    // Since we don't have adjoint Hessenberg solves yet
-    Matrix<C> HAdj;
-    Adjoint( H, HAdj );
-    Matrix<C> activeShiftsConj; 
-
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
-
-    // Simultaneously run inverse iteration for various shifts
-    Timer timer;
-    Matrix<C> X;
-    Gaussian( X, n, numShifts );
-    FixColumns( X );
-    Int numIts=0, numDone=0;
-    Matrix<Real> estimates(numShifts,1);
-    Zeros( estimates, numShifts, 1 );
-    auto lastActiveEsts = estimates;
-    Matrix<Int> activePreimage;
-    while( true )
-    {
-        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        auto activeX = View( X, 0, 0, n, numActive );
-        if( deflate )
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
-
-        if( progress )
-            timer.Start(); 
-        Conjugate( activeShifts, activeShiftsConj );
-        MultiShiftHessSolve
-        ( UPPER, NORMAL, C(1), H, activeShifts, activeX );
-        FixColumns( activeX );
-        MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj, activeShiftsConj, activeX );
-        ColumnNorms( activeX, activeEsts );
-        CapEstimates( activeEsts );
-
-        auto activeConverged = 
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
-        const Int numActiveDone = ZeroNorm( activeConverged );
-        if( deflate )
-            numDone += numActiveDone;
-        else
-            numDone = numActiveDone;
-        if( progress )
-        {
-            const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
-        }
-
-        ++numIts;
-        if( numIts >= maxIts )
-            break;
-
-        if( numDone == numShifts )
-            break;
-        else if( deflate && numActiveDone != 0 )
-            Deflate
-            ( activeShifts, activePreimage, activeX, activeEsts,
-              activeConverged, activeItCounts, progress );
-
-        lastActiveEsts = activeEsts;
-
-        // Save snapshots of the estimates at the requested rate
-        if( snapCtrl.numFreq > 0 )
-            ++snapCtrl.numSaveCount;
-        if( snapCtrl.imgFreq > 0 )
-            ++snapCtrl.imgSaveCount;
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
+        if( psCtrl.snapCtrl.numFreq > 0 )
+            ++psCtrl.snapCtrl.numSaveCount;
+        if( psCtrl.snapCtrl.imgFreq > 0 )
+            ++psCtrl.snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 
     invNorms = estimates;
@@ -417,12 +331,11 @@ HessenbergPower
 
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
-TriangularPower
+Power
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
     using namespace pspec;
@@ -431,6 +344,10 @@ TriangularPower
     const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();
 
+    const Int maxIts = psCtrl.maxIts;
+    const bool deflate = psCtrl.deflate;
+    const bool progress = psCtrl.progress;
+
     // Keep track of the number of iterations per shift
     DistMatrix<Int,VR,STAR> itCounts(g);
     Ones( itCounts, numShifts, 1 );
@@ -450,8 +367,18 @@ TriangularPower
         }
     }
 
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.numSaveCount = 0;
+    psCtrl.snapCtrl.imgSaveCount = 0;
+
+    // The Hessenberg case currently requires explicit access to the adjoint
+    DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
+    DistMatrix<C,VR,STAR> activeShiftsConj(g);
+    DistMatrix<C,STAR,VR> activeX_STAR_VR(g);
+    if( !psCtrl.schur )
+    {
+        U_VC_STAR = U;
+        Adjoint( U, UAdj_VC_STAR );
+    }
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -474,22 +401,40 @@ TriangularPower
         if( deflate )
             activePreimage = View( preimage, 0, 0, numActive, 1 );
 
-        if( progress && U.Grid().Rank() == 0 )
+        if( progress && g.Rank() == 0 )
             timer.Start();
-        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
-        FixColumns( activeX );
-        MultiShiftTrsm( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
+        if( psCtrl.schur )
+        {
+            MultiShiftTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
+            FixColumns( activeX );
+            MultiShiftTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
+        }
+        else
+        {
+            Conjugate( activeShifts, activeShiftsConj );
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
+              activeX_STAR_VR );
+            FixColumns( activeX_STAR_VR );
+            MultiShiftHessSolve
+            ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj,
+              activeX_STAR_VR );
+            activeX = activeX_STAR_VR;
+        }
         ColumnNorms( activeX, activeEsts );
         CapEstimates( activeEsts );
 
         auto activeConverged =
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
+            FindConverged
+            ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
         if( deflate )
             numDone += numActiveDone;
         else
             numDone = numActiveDone;
-        if( progress && U.Grid().Rank() == 0 )
+        if( progress && g.Rank() == 0 )
         {
             const double iterTime = timer.Stop();
             std::cout << "iteration " << numIts << ": " << iterTime 
@@ -511,138 +456,11 @@ TriangularPower
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        if( snapCtrl.numFreq > 0 )
-            ++snapCtrl.numSaveCount;
-        if( snapCtrl.imgFreq > 0 )
-            ++snapCtrl.imgSaveCount;
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
-    } 
-
-    invNorms = estimates;
-    if( deflate )
-        RestoreOrdering( preimage, invNorms, itCounts );
-
-    return itCounts;
-}
-
-template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-HessenbergPower
-( const DistMatrix<Complex<Real>        >& H, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real,         VR,STAR>& invNorms, 
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergPower"))
-    using namespace pspec;
-    typedef Complex<Real> C;
-    const Int n = H.Height();
-    const Int numShifts = shifts.Height();
-    const Grid& g = H.Grid();
-
-    // Keep track of the number of iterations per shift
-    DistMatrix<Int,VR,STAR> itCounts(g);
-    Ones( itCounts, numShifts, 1 );
-
-    // Keep track of the pivoting history if deflation is requested
-    DistMatrix<Int,VR,STAR> preimage(g);
-    DistMatrix<C,  VR,STAR> pivShifts( shifts );
-    if( deflate )
-    {
-        preimage.AlignWith( shifts );
-        preimage.Resize( numShifts, 1 );
-        const Int numLocShifts = preimage.LocalHeight();
-        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
-        {
-            const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
-        }
-    }
-
-    // NOTE: These redistributions could be hoisted outside of this routine,
-    //       but they will likely be cheap relative to the communication in
-    //       a single iteration of the below loop
-    DistMatrix<C,VC,STAR> H_VC_STAR( H );
-    DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
-    Adjoint( H, HAdj_VC_STAR );
-    DistMatrix<C,STAR,VR> activeX_STAR_VR( H.Grid() );
-    DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
-
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
-
-    // Simultaneously run inverse iteration for various shifts
-    Timer timer;
-    DistMatrix<C> X(g);
-    Gaussian( X, n, numShifts );
-    FixColumns( X );
-    Int numIts=0, numDone=0;
-    DistMatrix<Real,MR,STAR> estimates(g);
-    estimates.AlignWith( shifts );
-    Zeros( estimates, numShifts, 1 );
-    auto lastActiveEsts = estimates;
-    DistMatrix<Int,VR,STAR> activePreimage(g);
-    while( true )
-    {
-        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        auto activeX = View( X, 0, 0, n, numActive );
-        if( deflate )
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
-
-        if( progress && H.Grid().Rank() == 0 )
-            timer.Start();
-        // Note: this redistribution sequence might be avoidable
-        activeX_STAR_VR = activeX; 
-        Conjugate( activeShifts, activeShiftsConj );
-        MultiShiftHessSolve
-        ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
-          activeX_STAR_VR );
-        FixColumns( activeX_STAR_VR );
-        MultiShiftHessSolve
-        ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShiftsConj, 
-          activeX_STAR_VR );
-        activeX = activeX_STAR_VR;
-        ColumnNorms( activeX, activeEsts );
-        CapEstimates( activeEsts );
-
-        auto activeConverged =
-            FindConverged( lastActiveEsts, activeEsts, activeItCounts, tol );
-        const Int numActiveDone = ZeroNorm( activeConverged );
-        if( deflate )
-            numDone += numActiveDone;
-        else
-            numDone = numActiveDone;
-        if( progress && H.Grid().Rank() == 0 )
-        {
-            const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime 
-                      << " seconds, " << numDone << " of " << numShifts 
-                      << " converged" << std::endl;
-        }
-
-        ++numIts;
-        if( numIts >= maxIts )
-            break;
-
-        if( numDone == numShifts )
-            break;
-        else if( deflate && numActiveDone != 0 )
-            Deflate
-            ( activeShifts, activePreimage, activeX, activeEsts,
-              activeConverged, activeItCounts, progress );
-
-        lastActiveEsts = activeEsts;
-
-        // Save snapshots of the estimates at the requested rate
-        if( snapCtrl.numFreq > 0 )
-            ++snapCtrl.numSaveCount;
-        if( snapCtrl.imgFreq > 0 )
-            ++snapCtrl.imgSaveCount;
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
+        if( psCtrl.snapCtrl.numFreq > 0 )
+            ++psCtrl.snapCtrl.numSaveCount;
+        if( psCtrl.snapCtrl.imgFreq > 0 )
+            ++psCtrl.snapCtrl.imgSaveCount;
+        Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 
     invNorms = estimates;

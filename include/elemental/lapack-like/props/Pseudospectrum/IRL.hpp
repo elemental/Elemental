@@ -128,17 +128,21 @@ Restart
 
 template<typename Real>
 inline Matrix<Int>
-TriangularIRL
+IRL
 ( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
-  Matrix<Real>& invNorms, const Int basisSize=10, bool reorthog=true,
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRL"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::IRL"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
+
+    const Int maxIts = psCtrl.maxIts;
+    const Int basisSize = psCtrl.basisSize;
+    const bool reorthog = psCtrl.reorthog;
+    const bool deflate = psCtrl.deflate;
+    const bool progress = psCtrl.progress;
 
     // Keep track of the number of iterations per shift
     Matrix<Int> itCounts;
@@ -154,6 +158,11 @@ TriangularIRL
             preimage.Set( j, 0, j );
     }
 
+    // The Hessenberg algorithm currently needs explicit access to the adjoint
+    Matrix<C> UAdj, activeShiftsConj;
+    if( !psCtrl.schur )
+        Adjoint( U, UAdj );
+
     // Simultaneously run IRL for different shifts
     std::vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -167,8 +176,8 @@ TriangularIRL
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
 
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.numSaveCount = 0;
+    psCtrl.snapCtrl.imgSaveCount = 0;
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
@@ -208,420 +217,17 @@ TriangularIRL
         {
             lastActiveEsts = activeEsts;
             activeVList[j+1] = activeVList[j];
-            if( progress )
-                subtimer.Start();
-            MultiShiftTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeVList[j+1] );
-            MultiShiftTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeVList[j+1] );
-            if( progress )
+            if( psCtrl.schur )
             {
-                const double msTime = subtimer.Stop();
-                const Int numActiveShifts = activeShifts.Height();
-                const double gflops = (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftTrsm's: " << msTime << " seconds, "
-                          << gflops << " GFlops" << std::endl;
-            }
-
-            // Orthogonalize with respect to the old iterate
-            if( j > 0 )
-            {
-                ExtractList( HSubdiagList, realComponents, j-1 );
-                ColumnSubtractions
-                ( realComponents, activeVList[j-1], activeVList[j+1] );
-            }
-
-            // Orthogonalize with respect to the last iterate
-            InnerProducts( activeVList[j], activeVList[j+1], realComponents );
-            PushBackList( HDiagList, realComponents );
-            ColumnSubtractions
-            ( realComponents, activeVList[j], activeVList[j+1] );
-
-            if( reorthog )
-            {
-                // Explicitly (re)orthogonalize against all previous vectors
-                for( Int i=0; i<j; ++i )
-                {
-                    InnerProducts
-                    ( activeVList[i], activeVList[j+1], components );
-                    ColumnSubtractions
-                    ( components, activeVList[i], activeVList[j+1] );
-                }
-            }
-
-            // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PushBackList( HSubdiagList, realComponents );
-
-            // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
-
-            ComputeNewEstimates
-            ( HDiagList, HSubdiagList, activeConverged, activeEsts );
-            // We will have the same estimate two iterations in a row when
-            // restarting
-            if( j != 0 ) 
-                activeConverged =
-                    FindConverged
-                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
-
-            if( snapCtrl.numFreq > 0 )
-                ++snapCtrl.numSaveCount;
-            if( snapCtrl.imgFreq > 0 )
-                ++snapCtrl.imgSaveCount;
-        }
-        if( progress )
-            subtimer.Start();
-        Restart
-        ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
-        if( progress )
-            std::cout << "IRL restart: " << subtimer.Stop()
-                      << " seconds" << std::endl;
-
-        const Int numActiveDone = ZeroNorm( activeConverged );
-        if( deflate )
-            numDone += numActiveDone;
-        else
-            numDone = numActiveDone;
-        numIts += basisSize;
-        if( progress )
-        {
-            const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
-        }
-        if( numIts >= maxIts )
-            break;
-
-        if( numDone == numShifts )
-            break;
-        else if( deflate && numActiveDone != 0 )
-        {
-            Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
-              activeConverged, activeItCounts, progress );
-            lastActiveEsts = activeEsts;
-        }
-
-        // Save snapshots of the estimates at the requested rate
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
-    } 
-
-    invNorms = estimates;
-    if( deflate )
-        RestoreOrdering( preimage, invNorms, itCounts );
-
-    return itCounts;
-}
-
-template<typename Real>
-inline Matrix<Int>
-HessenbergIRL
-( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
-  Matrix<Real>& invNorms, const Int basisSize=10, bool reorthog=true,
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRL"))
-    using namespace pspec;
-    typedef Complex<Real> C;
-    const Int n = H.Height();
-    const Int numShifts = shifts.Height();
-
-    // Keep track of the number of iterations per shift
-    Matrix<Int> itCounts;
-    Ones( itCounts, numShifts, 1 );
-
-    // Keep track of the pivoting history if deflation is requested
-    Matrix<Int> preimage;
-    Matrix<C> pivShifts( shifts );
-    if( deflate )
-    {
-        preimage.Resize( numShifts, 1 );
-        for( Int j=0; j<numShifts; ++j )
-            preimage.Set( j, 0, j );
-    }
-
-    Matrix<C> HAdj;
-    Adjoint( H, HAdj );
-    Matrix<C> activeShiftsConj;
-
-    // Simultaneously run IRL for different shifts
-    std::vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
-    for( Int j=0; j<basisSize+1; ++j )
-        Zeros( VList[j], n, numShifts );
-    Gaussian( VList[0], n, numShifts );
-    std::vector<std::vector<Real>> 
-        HDiagList(numShifts), HSubdiagList(numShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
-
-    Matrix<Int> activeConverged;
-    Zeros( activeConverged, numShifts, 1 );
-
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
-
-    Timer timer, subtimer;
-    Int numIts=0, numDone=0;
-    Matrix<Real> estimates(numShifts,1);
-    Zeros( estimates, numShifts, 1 );
-    Matrix<Real> lastActiveEsts;
-    Matrix<Int> activePreimage;
-    while( true )
-    {
-        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        for( Int j=0; j<basisSize+1; ++j )
-            activeVList[j] = View( VList[j], 0, 0, n, numActive ); 
-        if( deflate )
-        {
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
-            Zeros( activeConverged, numActive, 1 );
-        }
-
-        // Reset the Rayleigh quotients
-        for( Int j=0; j<numActive; ++j )
-        {
-            HDiagList[j].resize(0);
-            HDiagList[j].reserve(basisSize);
-            HSubdiagList[j].resize(0);
-            HSubdiagList[j].reserve(basisSize);
-        }
-
-        if( progress )
-            timer.Start();
-        Matrix<Real> colNorms;
-        ColumnNorms( activeVList[0], colNorms );
-        InvBetaScale( colNorms, activeVList[0] );
-        for( Int j=0; j<basisSize; ++j )
-        {
-            lastActiveEsts = activeEsts;
-            activeVList[j+1] = activeVList[j];
-            if( progress )
-                subtimer.Start();
-            Conjugate( activeShifts, activeShiftsConj );
-            MultiShiftHessSolve
-            ( UPPER, NORMAL, C(1), H, activeShifts, activeVList[j+1] );
-            MultiShiftHessSolve
-            ( LOWER, NORMAL, C(1), HAdj, activeShiftsConj, activeVList[j+1] );
-            if( progress )
-            {
-                const double msTime = subtimer.Stop();
-                const Int numActiveShifts = activeShifts.Height();
-                const double gflops = (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                std::cout << "  MultiShiftHessSolve's: " << msTime 
-                          << " seconds, " << gflops << " GFlops" << std::endl;
-            }
-
-            // Orthogonalize with respect to the old iterate
-            if( j > 0 )
-            {
-                ExtractList( HSubdiagList, realComponents, j-1 );
-                ColumnSubtractions
-                ( realComponents, activeVList[j-1], activeVList[j+1] );
-            }
-
-            // Orthogonalize with respect to the last iterate
-            InnerProducts( activeVList[j], activeVList[j+1], realComponents );
-            PushBackList( HDiagList, realComponents );
-            ColumnSubtractions
-            ( realComponents, activeVList[j], activeVList[j+1] );
-
-            if( reorthog )
-            {
-                // Explicitly (re)orthogonalize against all previous vectors
-                for( Int i=0; i<j; ++i )
-                {
-                    InnerProducts
-                    ( activeVList[i], activeVList[j+1], components );
-                    ColumnSubtractions
-                    ( components, activeVList[i], activeVList[j+1] );
-                }
-            }
-
-            // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PushBackList( HSubdiagList, realComponents );
-
-            // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
-
-            ComputeNewEstimates
-            ( HDiagList, HSubdiagList, activeConverged, activeEsts );
-            // We will have the same estimate two iterations in a row when
-            // restarting
-            if( j != 0 ) 
-                activeConverged =
-                    FindConverged
-                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
-
-            if( snapCtrl.numFreq > 0 )
-                ++snapCtrl.numSaveCount;
-            if( snapCtrl.imgFreq > 0 )
-                ++snapCtrl.imgSaveCount;
-        }
-        if( progress )
-            subtimer.Start();
-        Restart
-        ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
-        if( progress )
-            std::cout << "IRL restart: " << subtimer.Stop()
-                      << " seconds" << std::endl;
-
-        const Int numActiveDone = ZeroNorm( activeConverged );
-        if( deflate )
-            numDone += numActiveDone;
-        else
-            numDone = numActiveDone;
-        numIts += basisSize;
-        if( progress )
-        {
-            const double iterTime = timer.Stop();
-            std::cout << "iteration " << numIts << ": " << iterTime
-                      << " seconds, " << numDone << " of " << numShifts
-                      << " converged" << std::endl;
-        }
-        if( numIts >= maxIts )
-            break;
-
-        if( numDone == numShifts )
-            break;
-        else if( deflate && numActiveDone != 0 )
-        {
-            Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
-              activeConverged, activeItCounts, progress );
-            lastActiveEsts = activeEsts;
-        }
-
-        // Save snapshots of the estimates at the requested rate
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
-    } 
-
-    invNorms = estimates;
-    if( deflate )
-        RestoreOrdering( preimage, invNorms, itCounts );
-
-    return itCounts;
-}
-
-template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-TriangularIRL
-( const DistMatrix<Complex<Real>        >& U, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real,         VR,STAR>& invNorms, 
-        Int basisSize=10, bool reorthog=true,
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularIRL"))
-    using namespace pspec;
-    typedef Complex<Real> C;
-    const Int n = U.Height();
-    const Int numShifts = shifts.Height();
-    const Grid& g = U.Grid();
-
-    // Keep track of the number of iterations per shift
-    DistMatrix<Int,VR,STAR> itCounts(g);
-    Ones( itCounts, numShifts, 1 );
-
-    // Keep track of the pivoting history if deflation is requested
-    DistMatrix<Int,VR,STAR> preimage(g);
-    DistMatrix<C,  VR,STAR> pivShifts( shifts );
-    if( deflate )
-    {
-        preimage.AlignWith( shifts );
-        preimage.Resize( numShifts, 1 );
-        const Int numLocShifts = preimage.LocalHeight();
-        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
-        {
-            const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
-        }
-    }
-
-    // Simultaneously run IRL for different shifts
-    std::vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
-    for( Int j=0; j<basisSize+1; ++j )
-    {
-        VList[j].SetGrid( U.Grid() );
-        Zeros( VList[j], n, numShifts );
-    }
-    Gaussian( VList[0], n, numShifts );
-    const Int numMRShifts = VList[0].LocalWidth();
-    std::vector<std::vector<Real>> HDiagList(numMRShifts), 
-                                   HSubdiagList(numMRShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
-
-    DistMatrix<Int,MR,STAR> activeConverged(g);
-    Zeros( activeConverged, numShifts, 1 );
-
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
-
-    Timer timer, subtimer;
-    Int numIts=0, numDone=0;
-    DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
-    estimates.AlignWith( shifts );
-    Zeros( estimates, numShifts, 1 );
-    DistMatrix<Int,VR,STAR> activePreimage(g);
-    while( true )
-    {
-        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        for( Int j=0; j<basisSize+1; ++j )
-            activeVList[j] = View( VList[j], 0, 0, n, numActive ); 
-        if( deflate )
-        {
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
-            Zeros( activeConverged, numActive, 1 );
-        }
-
-        // Reset the Rayleigh quotients
-        const Int numActiveMR = estimates.LocalHeight();
-        for( Int jLoc=0; jLoc<numActiveMR; ++jLoc )
-        {
-            HDiagList[jLoc].resize(0);
-            HDiagList[jLoc].reserve(basisSize);
-            HSubdiagList[jLoc].resize(0);
-            HSubdiagList[jLoc].reserve(basisSize);
-        }
-
-        if( progress )
-        {
-            mpi::Barrier( U.Grid().Comm() );
-            if( U.Grid().Rank() == 0 )
-                timer.Start();
-        }
-        DistMatrix<Real,MR,STAR> colNorms(g);
-        ColumnNorms( activeVList[0], colNorms );
-        InvBetaScale( colNorms, activeVList[0] );
-        for( Int j=0; j<basisSize; ++j )
-        {
-            lastActiveEsts = activeEsts;
-            activeVList[j+1] = activeVList[j];
-            if( progress )
-            { 
-                mpi::Barrier( U.Grid().Comm() );
-                if( U.Grid().Rank() == 0 )
+                if( progress )
                     subtimer.Start();
-            }
-            MultiShiftTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeVList[j+1] );
-            MultiShiftTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeVList[j+1] );
-            if( progress )
-            {
-                mpi::Barrier( U.Grid().Comm() );
-                if( U.Grid().Rank() == 0 )
+                MultiShiftTrsm
+                ( LEFT, UPPER, NORMAL, 
+                  C(1), U, activeShifts, activeVList[j+1] );
+                MultiShiftTrsm
+                ( LEFT, UPPER, ADJOINT, 
+                  C(1), U, activeShifts, activeVList[j+1] );
+                if( progress )
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
@@ -632,241 +238,24 @@ TriangularIRL
                               << std::endl;
                 }
             }
-
-            // Orthogonalize with respect to the old iterate
-            if( j > 0 )
+            else
             {
-                ExtractList( HSubdiagList, realComponents, j-1 );
-                ColumnSubtractions
-                ( realComponents, activeVList[j-1], activeVList[j+1] );
-            }
-
-            // Orthogonalize with respect to the last iterate
-            InnerProducts( activeVList[j], activeVList[j+1], realComponents );
-            PushBackList( HDiagList, realComponents );
-            ColumnSubtractions
-            ( realComponents, activeVList[j], activeVList[j+1] );
-
-            if( reorthog )
-            {
-                // Explicitly (re)orthogonalize against all previous vectors
-                for( Int i=0; i<j; ++i )
-                {
-                    InnerProducts
-                    ( activeVList[i], activeVList[j+1], components );
-                    ColumnSubtractions
-                    ( components, activeVList[i], activeVList[j+1] );
-                }
-            }
-
-            // Compute the norm of what is left
-            ColumnNorms( activeVList[j+1], realComponents );
-            PushBackList( HSubdiagList, realComponents );
-
-            // TODO: Handle lucky breakdowns
-            InvBetaScale( realComponents, activeVList[j+1] );
-
-            ComputeNewEstimates
-            ( HDiagList, HSubdiagList, activeConverged, activeEsts );
-            // We will have the same estimate two iterations in a row when
-            // restarting
-            if( j != 0 ) 
-                activeConverged =
-                    FindConverged
-                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
-
-            if( snapCtrl.numFreq > 0 )
-                ++snapCtrl.numSaveCount;
-            if( snapCtrl.imgFreq > 0 )
-                ++snapCtrl.imgSaveCount;
-        }
-        if( progress )
-        {
-            mpi::Barrier( U.Grid().Comm() );
-            if( U.Grid().Rank() == 0 )
-                subtimer.Start();
-        }
-        Restart( HDiagList, HSubdiagList, activeConverged, activeVList );
-        if( progress )
-        {
-            mpi::Barrier( U.Grid().Comm() );
-            if( U.Grid().Rank() == 0 )
-                std::cout << "IRL computations: " << subtimer.Stop()
-                          << " seconds" << std::endl;
-        }
-
-        const Int numActiveDone = ZeroNorm( activeConverged );
-        if( deflate )
-            numDone += numActiveDone;
-        else
-            numDone = numActiveDone;
-        numIts += basisSize;
-        if( progress )
-        {
-            mpi::Barrier( U.Grid().Comm() );
-            if( U.Grid().Rank() == 0 )
-            {
-                const double iterTime = timer.Stop();
-                std::cout << "iteration " << numIts << ": " << iterTime
-                          << " seconds, " << numDone << " of " << numShifts
-                          << " converged" << std::endl;
-            }
-        }
-        if( numIts >= maxIts )
-            break;
-
-        if( numDone == numShifts )
-            break;
-        else if( deflate && numActiveDone != 0 )
-        {
-            Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
-              activeConverged, activeItCounts, progress );
-            lastActiveEsts = activeEsts;
-        }
-
-        // Save snapshots of the estimates at the requested rate
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
-    } 
-
-    invNorms = estimates;
-    if( deflate )
-        RestoreOrdering( preimage, invNorms, itCounts );
-
-    return itCounts;
-}
-
-template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-HessenbergIRL
-( const DistMatrix<Complex<Real>        >& H, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real,         VR,STAR>& invNorms, 
-        Int basisSize=10, bool reorthog=true,
-  Int maxIts=1000, Real tol=1e-6, bool progress=false, bool deflate=true,
-  SnapshotCtrl snapCtrl=SnapshotCtrl() )
-{
-    DEBUG_ONLY(CallStackEntry cse("pspec::HessenbergIRL"))
-    using namespace pspec;
-    typedef Complex<Real> C;
-    const Int n = H.Height();
-    const Int numShifts = shifts.Height();
-    const Grid& g = H.Grid();
-
-    // Keep track of the number of iterations per shift
-    DistMatrix<Int,VR,STAR> itCounts(g);
-    Ones( itCounts, numShifts, 1 );
-
-    // Keep track of the pivoting history if deflation is requested
-    DistMatrix<Int,VR,STAR> preimage(g);
-    DistMatrix<C,  VR,STAR> pivShifts( shifts );
-    if( deflate )
-    {
-        preimage.AlignWith( shifts );
-        preimage.Resize( numShifts, 1 );
-        const Int numLocShifts = preimage.LocalHeight();
-        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
-        {
-            const Int i = preimage.GlobalRow(iLoc);
-            preimage.SetLocal( iLoc, 0, i );
-        }
-    }
-
-    DistMatrix<C,VC,STAR> H_VC_STAR( H );
-    DistMatrix<C,VC,STAR> HAdj_VC_STAR( H.Grid() );
-    Adjoint( H, HAdj_VC_STAR );
-    DistMatrix<C,STAR,VR> activeV_STAR_VR( H.Grid() );
-    DistMatrix<C,VR,STAR> activeShiftsConj( H.Grid() );
-
-    // Simultaneously run IRL for different shifts
-    std::vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
-    for( Int j=0; j<basisSize+1; ++j )
-    {
-        VList[j].SetGrid( H.Grid() );
-        Zeros( VList[j], n, numShifts );
-    }
-    Gaussian( VList[0], n, numShifts );
-    const Int numMRShifts = VList[0].LocalWidth();
-    std::vector<std::vector<Real>> HDiagList(numMRShifts), 
-                                   HSubdiagList(numMRShifts);
-    std::vector<Real> realComponents;
-    std::vector<Complex<Real>> components;
-
-    DistMatrix<Int,MR,STAR> activeConverged(g);
-    Zeros( activeConverged, numShifts, 1 );
-
-    snapCtrl.numSaveCount = 0;
-    snapCtrl.imgSaveCount = 0;
-
-    Timer timer, subtimer;
-    Int numIts=0, numDone=0;
-    DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
-    estimates.AlignWith( shifts );
-    Zeros( estimates, numShifts, 1 );
-    DistMatrix<Int,VR,STAR> activePreimage(g);
-    while( true )
-    {
-        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        for( Int j=0; j<basisSize+1; ++j )
-            activeVList[j] = View( VList[j], 0, 0, n, numActive ); 
-        if( deflate )
-        {
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
-            Zeros( activeConverged, numActive, 1 );
-        }
-
-        // Reset the Rayleigh quotients
-        const Int numActiveMR = estimates.LocalHeight();
-        for( Int jLoc=0; jLoc<numActiveMR; ++jLoc )
-        {
-            HDiagList[jLoc].resize(0);
-            HDiagList[jLoc].reserve(basisSize);
-            HSubdiagList[jLoc].resize(0);
-            HSubdiagList[jLoc].reserve(basisSize);
-        }
-
-        if( progress )
-        {
-            mpi::Barrier( H.Grid().Comm() );
-            if( H.Grid().Rank() == 0 )
-                timer.Start();
-        }
-        DistMatrix<Real,MR,STAR> colNorms(g);
-        ColumnNorms( activeVList[0], colNorms );
-        InvBetaScale( colNorms, activeVList[0] );
-        for( Int j=0; j<basisSize; ++j )
-        {
-            lastActiveEsts = activeEsts;
-            activeVList[j+1] = activeVList[j];
-            if( progress )
-            { 
-                mpi::Barrier( H.Grid().Comm() );
-                if( H.Grid().Rank() == 0 )
+                if( progress )
                     subtimer.Start();
-            }
-            // NOTE: This redistribution sequence might not be necessary
-            activeV_STAR_VR = activeVList[j+1];
-            Conjugate( activeShifts, activeShiftsConj );
-            MultiShiftHessSolve
-            ( UPPER, NORMAL, C(1), H_VC_STAR, activeShifts, 
-              activeV_STAR_VR );
-            MultiShiftHessSolve
-            ( LOWER, NORMAL, C(1), HAdj_VC_STAR, activeShiftsConj,
-              activeV_STAR_VR );
-            activeVList[j+1] = activeV_STAR_VR;
-            if( progress )
-            {
-                mpi::Barrier( H.Grid().Comm() );
-                if( H.Grid().Rank() == 0 )
+                Conjugate( activeShifts, activeShiftsConj );
+                MultiShiftHessSolve
+                ( UPPER, NORMAL, 
+                  C(1), U, activeShifts, activeVList[j+1] );
+                MultiShiftHessSolve
+                ( LOWER, NORMAL, 
+                  C(1), UAdj, activeShiftsConj, activeVList[j+1] );
+                if( progress )
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = 
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                    std::cout << "  MultiShiftHessSolve's: " << msTime 
+                    std::cout << "  MultiShiftHessSolve's: " << msTime
                               << " seconds, " << gflops << " GFlops" 
                               << std::endl;
                 }
@@ -912,24 +301,292 @@ HessenbergIRL
             if( j != 0 ) 
                 activeConverged =
                     FindConverged
-                    ( lastActiveEsts, activeEsts, activeItCounts, tol );
-            
-            if( snapCtrl.numFreq > 0 )
-                ++snapCtrl.numSaveCount;
-            if( snapCtrl.imgFreq > 0 )
-                ++snapCtrl.imgSaveCount;
+                    ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
+
+            if( psCtrl.snapCtrl.numFreq > 0 )
+                ++psCtrl.snapCtrl.numSaveCount;
+            if( psCtrl.snapCtrl.imgFreq > 0 )
+                ++psCtrl.snapCtrl.imgSaveCount;
+        }
+        if( progress )
+            subtimer.Start();
+        Restart
+        ( HDiagList, HSubdiagList, activeVList, activeConverged, activeEsts );
+        if( progress )
+            std::cout << "IRL restart: " << subtimer.Stop()
+                      << " seconds" << std::endl;
+
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        numIts += basisSize;
+        if( progress )
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime
+                      << " seconds, " << numDone << " of " << numShifts
+                      << " converged" << std::endl;
+        }
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+        {
+            Deflate
+            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+              activeConverged, activeItCounts, progress );
+            lastActiveEsts = activeEsts;
+        }
+
+        // Save snapshots of the estimates at the requested rate
+        Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
+    } 
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+
+    return itCounts;
+}
+
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
+IRL
+( const DistMatrix<Complex<Real>        >& U, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
+        DistMatrix<Real,         VR,STAR>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::IRL"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+    const Int numShifts = shifts.Height();
+    const Grid& g = U.Grid();
+
+    const Int maxIts = psCtrl.maxIts;
+    const Int basisSize = psCtrl.basisSize;
+    const bool reorthog = psCtrl.reorthog;
+    const bool deflate = psCtrl.deflate;
+    const bool progress = psCtrl.progress;
+
+    // Keep track of the number of iterations per shift
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    DistMatrix<Int,VR,STAR> preimage(g);
+    DistMatrix<C,  VR,STAR> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.AlignWith( shifts );
+        preimage.Resize( numShifts, 1 );
+        const Int numLocShifts = preimage.LocalHeight();
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
+        {
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
+        }
+    }
+
+    // The Hessenberg algorithm currently requires explicit adjoint access
+    DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
+    DistMatrix<C,VR,STAR> activeShiftsConj(g);
+    DistMatrix<C,STAR,VR> activeV_STAR_VR(g);
+    if( !psCtrl.schur )
+    {
+        U_VC_STAR = U;
+        Adjoint( U, UAdj_VC_STAR );
+    }
+
+    // Simultaneously run IRL for different shifts
+    std::vector<DistMatrix<C>> VList(basisSize+1), activeVList(basisSize+1);
+    for( Int j=0; j<basisSize+1; ++j )
+    {
+        VList[j].SetGrid( g );
+        Zeros( VList[j], n, numShifts );
+    }
+    Gaussian( VList[0], n, numShifts );
+    const Int numMRShifts = VList[0].LocalWidth();
+    std::vector<std::vector<Real>> HDiagList(numMRShifts), 
+                                   HSubdiagList(numMRShifts);
+    std::vector<Real> realComponents;
+    std::vector<Complex<Real>> components;
+
+    DistMatrix<Int,MR,STAR> activeConverged(g);
+    Zeros( activeConverged, numShifts, 1 );
+
+    psCtrl.snapCtrl.numSaveCount = 0;
+    psCtrl.snapCtrl.imgSaveCount = 0;
+
+    Timer timer, subtimer;
+    Int numIts=0, numDone=0;
+    DistMatrix<Real,MR,STAR> estimates(g), lastActiveEsts(g);
+    estimates.AlignWith( shifts );
+    Zeros( estimates, numShifts, 1 );
+    DistMatrix<Int,VR,STAR> activePreimage(g);
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        for( Int j=0; j<basisSize+1; ++j )
+            activeVList[j] = View( VList[j], 0, 0, n, numActive ); 
+        if( deflate )
+        {
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            Zeros( activeConverged, numActive, 1 );
+        }
+
+        // Reset the Rayleigh quotients
+        const Int numActiveMR = estimates.LocalHeight();
+        for( Int jLoc=0; jLoc<numActiveMR; ++jLoc )
+        {
+            HDiagList[jLoc].resize(0);
+            HDiagList[jLoc].reserve(basisSize);
+            HSubdiagList[jLoc].resize(0);
+            HSubdiagList[jLoc].reserve(basisSize);
+        }
+
+        if( progress )
+        {
+            mpi::Barrier( g.Comm() );
+            if( g.Rank() == 0 )
+                timer.Start();
+        }
+        DistMatrix<Real,MR,STAR> colNorms(g);
+        ColumnNorms( activeVList[0], colNorms );
+        InvBetaScale( colNorms, activeVList[0] );
+        for( Int j=0; j<basisSize; ++j )
+        {
+            lastActiveEsts = activeEsts;
+            activeVList[j+1] = activeVList[j];
+            if( psCtrl.schur )
+            {
+                if( progress )
+                { 
+                    mpi::Barrier( g.Comm() );
+                    if( g.Rank() == 0 )
+                        subtimer.Start();
+                }
+                MultiShiftTrsm
+                ( LEFT, UPPER, NORMAL, 
+                  C(1), U, activeShifts, activeVList[j+1] );
+                MultiShiftTrsm
+                ( LEFT, UPPER, ADJOINT, 
+                  C(1), U, activeShifts, activeVList[j+1] );
+                if( progress )
+                {
+                    mpi::Barrier( g.Comm() );
+                    if( g.Rank() == 0 )
+                    {
+                        const double msTime = subtimer.Stop();
+                        const Int numActiveShifts = activeShifts.Height();
+                        const double gflops = 
+                            (8.*n*n*numActiveShifts)/(msTime*1.e9);
+                        std::cout << "  MultiShiftTrsm's: " << msTime 
+                                  << " seconds, " << gflops << " GFlops" 
+                                  << std::endl;
+                    }
+                }
+            }
+            else
+            {
+                if( progress )
+                {
+                    mpi::Barrier( g.Comm() );
+                    if( g.Rank() == 0 )
+                        subtimer.Start();
+                }
+                // NOTE: This redistribution sequence might not be necessary
+                activeV_STAR_VR = activeVList[j+1];
+                Conjugate( activeShifts, activeShiftsConj );
+                MultiShiftHessSolve
+                ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
+                  activeV_STAR_VR );
+                MultiShiftHessSolve
+                ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj,
+                  activeV_STAR_VR );
+                activeVList[j+1] = activeV_STAR_VR;
+                if( progress )
+                {
+                    mpi::Barrier( g.Comm() );
+                    if( g.Rank() == 0 )
+                    {
+                        const double msTime = subtimer.Stop();
+                        const Int numActiveShifts = activeShifts.Height();
+                        const double gflops =
+                            (32.*n*n*numActiveShifts)/(msTime*1.e9);
+                        std::cout << "  MultiShiftHessSolve's: " << msTime
+                                  << " seconds, " << gflops << " GFlops"
+                                  << std::endl;
+                    }
+                }
+            }
+
+            // Orthogonalize with respect to the old iterate
+            if( j > 0 )
+            {
+                ExtractList( HSubdiagList, realComponents, j-1 );
+                ColumnSubtractions
+                ( realComponents, activeVList[j-1], activeVList[j+1] );
+            }
+
+            // Orthogonalize with respect to the last iterate
+            InnerProducts( activeVList[j], activeVList[j+1], realComponents );
+            PushBackList( HDiagList, realComponents );
+            ColumnSubtractions
+            ( realComponents, activeVList[j], activeVList[j+1] );
+
+            if( reorthog )
+            {
+                // Explicitly (re)orthogonalize against all previous vectors
+                for( Int i=0; i<j; ++i )
+                {
+                    InnerProducts
+                    ( activeVList[i], activeVList[j+1], components );
+                    ColumnSubtractions
+                    ( components, activeVList[i], activeVList[j+1] );
+                }
+            }
+
+            // Compute the norm of what is left
+            ColumnNorms( activeVList[j+1], realComponents );
+            PushBackList( HSubdiagList, realComponents );
+
+            // TODO: Handle lucky breakdowns
+            InvBetaScale( realComponents, activeVList[j+1] );
+
+            ComputeNewEstimates
+            ( HDiagList, HSubdiagList, activeConverged, activeEsts );
+            // We will have the same estimate two iterations in a row when
+            // restarting
+            if( j != 0 ) 
+                activeConverged =
+                    FindConverged
+                    ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
+
+            if( psCtrl.snapCtrl.numFreq > 0 )
+                ++psCtrl.snapCtrl.numSaveCount;
+            if( psCtrl.snapCtrl.imgFreq > 0 )
+                ++psCtrl.snapCtrl.imgSaveCount;
         }
         if( progress )
         {
-            mpi::Barrier( H.Grid().Comm() );
-            if( H.Grid().Rank() == 0 )
+            mpi::Barrier( g.Comm() );
+            if( g.Rank() == 0 )
                 subtimer.Start();
         }
         Restart( HDiagList, HSubdiagList, activeConverged, activeVList );
         if( progress )
         {
-            mpi::Barrier( H.Grid().Comm() );
-            if( H.Grid().Rank() == 0 )
+            mpi::Barrier( g.Comm() );
+            if( g.Rank() == 0 )
                 std::cout << "IRL computations: " << subtimer.Stop()
                           << " seconds" << std::endl;
         }
@@ -942,8 +599,8 @@ HessenbergIRL
         numIts += basisSize;
         if( progress )
         {
-            mpi::Barrier( H.Grid().Comm() );
-            if( H.Grid().Rank() == 0 )
+            mpi::Barrier( g.Comm() );
+            if( g.Rank() == 0 )
             {
                 const double iterTime = timer.Stop();
                 std::cout << "iteration " << numIts << ": " << iterTime
@@ -965,7 +622,7 @@ HessenbergIRL
         }
 
         // Save snapshots of the estimates at the requested rate
-        Snapshot( estimates, preimage, numIts, deflate, snapCtrl );
+        Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 
     invNorms = estimates;
