@@ -10,24 +10,33 @@
 #include "elemental-lite.hpp"
 #include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_GEMM_INC
-#include ELEM_QUASITRSM_INC
+#include ELEM_MULTISHIFTQUASITRSM_INC
 #include ELEM_FROBENIUSNORM_INC
 #include ELEM_HERMITIANUNIFORMSPECTRUM_INC
+#include ELEM_UNIFORM_INC
 using namespace std;
 using namespace elem;
 
 template<typename F> 
-void TestQuasiTrsm
+void TestMultiShiftQuasiTrsm
 ( bool print,
   LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   Int m, Int n, F alpha, const Grid& g )
 {
+    typedef Base<F> Real;
     DistMatrix<F> A(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
 
     if( side == LEFT )
+    {
         HermitianUniformSpectrum( A, m, 1, 10 );
+        Uniform( shifts, m, 1, F(0), Real(0.5) );
+    }
     else
+    {
         HermitianUniformSpectrum( A, n, 1, 10 );
+        Uniform( shifts, n, 1, F(0), Real(0.5) );
+    }
     // TODO: Enforce fact that A should not have consecutive nonzeros in the
     //       subdiagonal
     auto H( A );
@@ -38,26 +47,44 @@ void TestQuasiTrsm
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
+    Zeros( Y, m, n );
     if( side == LEFT )
-        Gemm( NORMAL, NORMAL, F(1), H, X, Y );
+    {
+        Gemm( NORMAL, NORMAL, F(1), H, X, F(1), Y );
+        for( Int j=0; j<n; ++j )
+        {
+            auto x = LockedView( X, 0, j, m, 1 );
+            auto y =       View( Y, 0, j, m, 1 );
+            Axpy( -shifts.Get(j,0), x, y );
+        }
+    }
     else
-        Gemm( NORMAL, NORMAL, F(1), X, H, Y );
+    {
+        Gemm( NORMAL, NORMAL, F(1), X, H, F(1), Y );
+        for( Int i=0; i<m; ++i )
+        {
+            auto x = LockedView( X, i, 0, 1, n );
+            auto y =       View( Y, i, 0, 1, n );
+            Axpy( -shifts.Get(i,0), x, y );
+        }
+    }
 
     if( print )
     {
         Print( A, "A" );
         Print( H, "H" );
+        Print( shifts, "shifts" );
         Print( X, "X" );
         Print( Y, "Y" );
     }
     if( g.Rank() == 0 )
     {
-        cout << "  Starting QuasiTrsm...";
+        cout << "  Starting MultiShiftQuasiTrsm...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    QuasiTrsm( side, uplo, orientation, alpha, A, Y );
+    MultiShiftQuasiTrsm( side, uplo, orientation, alpha, A, shifts, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
@@ -67,7 +94,7 @@ void TestQuasiTrsm
     if( g.Rank() == 0 )
     {
         cout << "DONE. \n"
-             << "  Time = " << runTime << " seconds. GFlops = " << gFlops 
+             << "  Time = " << runTime << " seconds. GFlops ~= " << gFlops 
              << endl;
     }
     if( print )
@@ -119,16 +146,17 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test QuasiTrsm" 
+            cout << "Will test MultiShiftQuasiTrsm" 
                  << sideChar << uploChar << transChar << endl;
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestQuasiTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
+        TestMultiShiftQuasiTrsm<double>
+        ( print, side, uplo, orientation, m, n, 3., g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestQuasiTrsm<Complex<double>>
+        TestMultiShiftQuasiTrsm<Complex<double>>
         ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }
