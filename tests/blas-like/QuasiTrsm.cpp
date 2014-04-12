@@ -16,36 +16,68 @@
 using namespace std;
 using namespace elem;
 
+template<typename F>
+void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeQuasiTriangular"))
+    const Int n = A.Height();
+    if( uplo == LOWER )
+    {
+        MakeTrapezoidal( LOWER, A, 1 );
+        auto dSup = A.GetDiagonal(+1);
+        DistMatrix<F,STAR,STAR> dSup_STAR_STAR( dSup );
+        for( Int j=0; j<n-2; ++j )
+        {
+            const F thisSup = dSup_STAR_STAR.Get(j,  0);
+            const F nextSup = dSup_STAR_STAR.Get(j+1,0);
+            if( thisSup != F(0) && nextSup != F(0) )
+            {
+                A.Set(j+1,j+2,0);
+                dSup_STAR_STAR.Set(j+1,0,0);
+            }
+        }
+    }
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        auto dSub = A.GetDiagonal(-1);
+        DistMatrix<F,STAR,STAR> dSub_STAR_STAR( dSub );
+        for( Int j=0; j<n-2; ++j )
+        {
+            const F thisSub = dSub_STAR_STAR.Get(j,  0);
+            const F nextSub = dSub_STAR_STAR.Get(j+1,0);
+            if( thisSub != F(0) && nextSub != F(0) )
+            {
+                A.Set(j+2,j+1,0);
+                dSub_STAR_STAR.Set(j+1,0,0);
+            }
+        }
+    }
+}
+
 template<typename F> 
 void TestQuasiTrsm
 ( bool print,
   LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   Int m, Int n, F alpha, const Grid& g )
 {
-    DistMatrix<F> A(g), X(g);
+    DistMatrix<F> H(g), X(g);
 
     if( side == LEFT )
-        HermitianUniformSpectrum( A, m, 1, 10 );
+        HermitianUniformSpectrum( H, m, 1, 10 );
     else
-        HermitianUniformSpectrum( A, n, 1, 10 );
-    // TODO: Enforce fact that A should not have consecutive nonzeros in the
-    //       subdiagonal
-    auto H( A );
-    if( uplo == LOWER )
-        MakeTrapezoidal( LOWER, H, 1 );
-    else
-        MakeTrapezoidal( UPPER, H, -1 );
+        HermitianUniformSpectrum( H, n, 1, 10 );
+    MakeQuasiTriangular( uplo, H );
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
     if( side == LEFT )
-        Gemm( NORMAL, NORMAL, F(1), H, X, Y );
+        Gemm( orientation, NORMAL, F(1)/alpha, H, X, Y );
     else
-        Gemm( NORMAL, NORMAL, F(1), X, H, Y );
+        Gemm( NORMAL, orientation, F(1)/alpha, X, H, Y );
 
     if( print )
     {
-        Print( A, "A" );
         Print( H, "H" );
         Print( X, "X" );
         Print( Y, "Y" );
@@ -57,7 +89,7 @@ void TestQuasiTrsm
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    QuasiTrsm( side, uplo, orientation, alpha, A, Y );
+    QuasiTrsm( side, uplo, orientation, alpha, H, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 

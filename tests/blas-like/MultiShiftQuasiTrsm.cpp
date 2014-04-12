@@ -17,6 +17,47 @@
 using namespace std;
 using namespace elem;
 
+template<typename F>
+void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeQuasiTriangular"))
+    const Int n = A.Height();
+    if( n < 3 )
+        return;
+    if( uplo == LOWER )
+    {
+        MakeTrapezoidal( LOWER, A, 1 );
+        auto dSup = A.GetDiagonal(+1);
+        DistMatrix<F,STAR,STAR> dSup_STAR_STAR( dSup );
+        for( Int j=0; j<n-2; ++j )
+        {
+            const F thisSup = dSup_STAR_STAR.Get(j,  0);
+            const F nextSup = dSup_STAR_STAR.Get(j+1,0);
+            if( thisSup != F(0) && nextSup != F(0) )
+            {
+                A.Set(j+1,j+2,0);
+                dSup_STAR_STAR.Set(j+1,0,0);
+            }
+        }
+    }
+    else
+    {
+        MakeTrapezoidal( UPPER, A, -1 );
+        auto dSub = A.GetDiagonal(-1);
+        DistMatrix<F,STAR,STAR> dSub_STAR_STAR( dSub );
+        for( Int j=0; j<n-2; ++j )
+        {
+            const F thisSub = dSub_STAR_STAR.Get(j,  0);
+            const F nextSub = dSub_STAR_STAR.Get(j+1,0);
+            if( thisSub != F(0) && nextSub != F(0) )
+            {
+                A.Set(j+2,j+1,0);
+                dSub_STAR_STAR.Set(j+1,0,0);
+            }
+        }
+    }
+}
+
 template<typename F> 
 void TestMultiShiftQuasiTrsm
 ( bool print,
@@ -24,54 +65,47 @@ void TestMultiShiftQuasiTrsm
   Int m, Int n, F alpha, const Grid& g )
 {
     typedef Base<F> Real;
-    DistMatrix<F> A(g), X(g);
+    DistMatrix<F> H(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g);
 
     if( side == LEFT )
     {
-        HermitianUniformSpectrum( A, m, 1, 10 );
+        HermitianUniformSpectrum( H, m, 1, 10 );
         Uniform( shifts, m, 1, F(0), Real(0.5) );
     }
     else
     {
-        HermitianUniformSpectrum( A, n, 1, 10 );
+        HermitianUniformSpectrum( H, n, 1, 10 );
         Uniform( shifts, n, 1, F(0), Real(0.5) );
     }
-    // TODO: Enforce fact that A should not have consecutive nonzeros in the
-    //       subdiagonal
-    auto H( A );
-    if( uplo == LOWER )
-        MakeTrapezoidal( LOWER, H, 1 );
-    else
-        MakeTrapezoidal( UPPER, H, -1 );
+    MakeQuasiTriangular( uplo, H );
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
     Zeros( Y, m, n );
     if( side == LEFT )
     {
-        Gemm( NORMAL, NORMAL, F(1), H, X, F(1), Y );
+        Gemm( orientation, NORMAL, F(1)/alpha, H, X, F(1), Y );
         for( Int j=0; j<n; ++j )
         {
             auto x = LockedView( X, 0, j, m, 1 );
             auto y =       View( Y, 0, j, m, 1 );
-            Axpy( -shifts.Get(j,0), x, y );
+            Axpy( -shifts.Get(j,0)/alpha, x, y );
         }
     }
     else
     {
-        Gemm( NORMAL, NORMAL, F(1), X, H, F(1), Y );
+        Gemm( NORMAL, orientation, F(1)/alpha, X, H, F(1), Y );
         for( Int i=0; i<m; ++i )
         {
             auto x = LockedView( X, i, 0, 1, n );
             auto y =       View( Y, i, 0, 1, n );
-            Axpy( -shifts.Get(i,0), x, y );
+            Axpy( -shifts.Get(i,0)/alpha, x, y );
         }
     }
 
     if( print )
     {
-        Print( A, "A" );
         Print( H, "H" );
         Print( shifts, "shifts" );
         Print( X, "X" );
@@ -84,7 +118,7 @@ void TestMultiShiftQuasiTrsm
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    MultiShiftQuasiTrsm( side, uplo, orientation, alpha, A, shifts, Y );
+    MultiShiftQuasiTrsm( side, uplo, orientation, alpha, H, shifts, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 

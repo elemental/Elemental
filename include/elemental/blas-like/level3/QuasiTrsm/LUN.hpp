@@ -108,6 +108,7 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUN"))
     const Int m = X.Height();
+    const Int n = X.Width();
     const Int bsize = Blocksize();
 
     const Int kLast = LastOffset( m, bsize );
@@ -122,8 +123,8 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         LUNUnb( U11, X1, checkIfSingular );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -142,6 +143,7 @@ LUNLarge
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNLarge"))
     const Int m = X.Height();
+    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -162,8 +164,8 @@ LUNLarge
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -196,6 +198,7 @@ LUNMedium
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNMedium"))
     const Int m = X.Height();
+    const Int n = X.Width();
     const Int bsize = Blocksize();
     const Grid& g = U.Grid();
 
@@ -215,8 +218,8 @@ LUNMedium
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -280,8 +283,8 @@ LUNSmall
         auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
         auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = ViewRange( X, 0, 0, k,    n );
+        auto X1 = ViewRange( X, k, 0, k+nb, n );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
