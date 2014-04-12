@@ -33,7 +33,7 @@ void TestTrsm
 
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
-    Gemm( NORMAL, NORMAL, F(1), S, X, Y );
+    Gemm( NORMAL, NORMAL, F(1)/alpha, S, X, Y );
 
     if( print )
     {

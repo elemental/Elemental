@@ -29,8 +29,15 @@ LUTUnb
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
+
+    Matrix<F> modShifts;
     if( conjugate )
+    {
         Conjugate( X );
+        Conjugate( shifts, modShifts );
+    }
+    else
+        modShifts = LockedView( shifts );
 
     const F* UBuf = U.LockedBuffer();
           F* XBuf = X.Buffer();
@@ -56,8 +63,8 @@ LUTUnb
             const F delta21 = UBuf[(k+1)+ k   *ldU];
             for( Int j=0; j<n; ++j )
             {
-                const F delta11 = UBuf[ k   + k   *ldU] - shifts.Get(j,0);
-                const F delta22 = UBuf[(k+1)+(k+1)*ldU] - shifts.Get(j,0);
+                const F delta11 = UBuf[ k   + k   *ldU] - modShifts.Get(j,0);
+                const F delta22 = UBuf[(k+1)+(k+1)*ldU] - modShifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; F s;
                 const F gamma11 = blas::Givens( delta11, delta21, &c, &s );
@@ -92,7 +99,7 @@ LUTUnb
             for( Int j=0; j<n; ++j )
             {
                 F* xBuf = &XBuf[j*ldX];
-                xBuf[k] /= UBuf[k+k*ldU] - shifts.Get(j,0);
+                xBuf[k] /= UBuf[k+k*ldU] - modShifts.Get(j,0);
                 blas::Axpy
                 ( m-(k+1), -xBuf[k], &UBuf[k+(k+1)*ldU], ldU, &xBuf[k+1], 1 );
             }
@@ -115,8 +122,15 @@ LUTUnb
     typedef Complex<Real> C;
     const Int m = XReal.Height();
     const Int n = XReal.Width();
+  
+    Matrix<C> modShifts;
     if( conjugate )
+    {
         Scale( Real(-1), XImag );
+        Conjugate( shifts, modShifts );
+    }
+    else
+        modShifts = LockedView( shifts );
 
     const Real* UBuf = U.LockedBuffer();
           Real* XRealBuf = XReal.Buffer();
@@ -144,8 +158,8 @@ LUTUnb
             const Real delta21 = UBuf[(k+1)+ k   *ldU];
             for( Int j=0; j<n; ++j )
             {
-                const C delta11 = UBuf[ k   + k   *ldU] - shifts.Get(j,0);
-                const C delta22 = UBuf[(k+1)+(k+1)*ldU] - shifts.Get(j,0);
+                const C delta11 = UBuf[ k   + k   *ldU] - modShifts.Get(j,0);
+                const C delta22 = UBuf[(k+1)+(k+1)*ldU] - modShifts.Get(j,0);
                 // Decompose D = Q R
                 Real c; C s;
                 const C gamma11 = blas::Givens( delta11, delta21, &c, &s );
@@ -193,7 +207,7 @@ LUTUnb
                 Real* xRealBuf = &XRealBuf[j*ldXReal];
                 Real* xImagBuf = &XImagBuf[j*ldXImag];
                 C eta1( xRealBuf[k], xImagBuf[k] );
-                eta1 /= UBuf[k+k*ldU] - shifts.Get(j,0);
+                eta1 /= UBuf[k+k*ldU] - modShifts.Get(j,0);
                 xRealBuf[k] = eta1.real();
                 xImagBuf[k] = eta1.imag();
                 blas::Axpy
@@ -226,6 +240,14 @@ LUT
     const Int bsize = Blocksize();
 
     const bool conjugate = ( orientation==ADJOINT );
+    Matrix<F> modShifts;
+    if( conjugate )
+    {
+        Conjugate( X );
+        Conjugate( shifts, modShifts );
+    }
+    else
+        modShifts = LockedView( shifts );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -239,9 +261,12 @@ LUT
         auto X1 = ViewRange( X, k,    0, k+nb, n );
         auto X2 = ViewRange( X, k+nb, 0, m,    n );
 
-        LUTUnb( conjugate, U11, shifts, X1 );
-        Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
+        LUTUnb( false, U11, modShifts, X1 );
+        Gemm( TRANSPOSE, NORMAL, F(-1), U12, X1, F(1), X2 );
     }
+
+    if( conjugate )
+        Conjugate( X );
 }
 
 template<typename Real>
@@ -262,6 +287,14 @@ LUT
     const Int bsize = Blocksize();
 
     const bool conjugate = ( orientation==ADJOINT );
+    Matrix<Complex<Real>> modShifts;
+    if( conjugate )
+    {
+        Scale( Real(-1), XImag );
+        Conjugate( shifts, modShifts );
+    }
+    else
+        modShifts = LockedView( shifts );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -278,10 +311,12 @@ LUT
         auto X2Real = ViewRange( XReal, k+nb, 0, m,    n );
         auto X2Imag = ViewRange( XImag, k+nb, 0, m,    n );
 
-        LUTUnb( conjugate, U11, shifts, X1Real, X1Imag );
-        Gemm( orientation, NORMAL, Real(-1), U12, X1Real, Real(1), X2Real );
-        Gemm( orientation, NORMAL, Real(-1), U12, X1Imag, Real(1), X2Imag );
+        LUTUnb( false, U11, modShifts, X1Real, X1Imag );
+        Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Real, Real(1), X2Real );
+        Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Imag, Real(1), X2Imag );
     }
+    if( conjugate )
+        Scale( Real(-1), XImag );
 }
 
 // width(X) >> p

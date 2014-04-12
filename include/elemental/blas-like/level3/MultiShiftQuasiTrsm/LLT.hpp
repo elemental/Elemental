@@ -36,8 +36,14 @@ LLTUnb
     const Int ldl = L.LDim();
     const Int ldx = X.LDim();
 
+    Matrix<F> modShifts;
     if( conjugate )
+    {
         Conjugate( X );
+        Conjugate( shifts, modShifts );
+    }
+    else
+        modShifts = LockedView( shifts );
 
     Int k=m-1;
     while( k >= 0 )
@@ -58,8 +64,8 @@ LLTUnb
             const F delta21 = LBuf[(k+1)+   k *ldl];
             for( Int j=0; j<n; ++j )
             {
-                const F delta11 = LBuf[   k +   k *ldl] - shifts.Get(j,0);
-                const F delta22 = LBuf[(k+1)+(k+1)*ldl] - shifts.Get(j,0);
+                const F delta11 = LBuf[   k +   k *ldl] - modShifts.Get(j,0);
+                const F delta22 = LBuf[(k+1)+(k+1)*ldl] - modShifts.Get(j,0);
                 // Decompose D = L Q
                 Real c; F s;
                 const F gamma11 = blas::Givens( delta11, delta12, &c, &s );
@@ -89,7 +95,7 @@ LLTUnb
             {
                 F* xBuf = &XBuf[j*ldx];
                 // Solve the 1x1 linear system
-                xBuf[k] /= LBuf[k+k*ldl] - shifts.Get(j,0);
+                xBuf[k] /= LBuf[k+k*ldl] - modShifts.Get(j,0);
 
                 // Update x0 := x0 - l10^T chi_1
                 blas::Axpy( k, -xBuf[k], &LBuf[k], ldl, xBuf, 1 );
@@ -117,6 +123,14 @@ LLT
     const Int bsize = Blocksize();
 
     const bool conjugate = ( orientation==ADJOINT );
+    Matrix<F> modShifts;
+    if( conjugate )
+    {
+        Conjugate( X );
+        Conjugate( shifts, modShifts );
+    }
+    else
+        modShifts = LockedView( shifts );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -133,14 +147,17 @@ LLT
         auto X0 = ViewRange( X, 0, 0, k,    n );
         auto X1 = ViewRange( X, k, 0, k+nb, n );
 
-        LLTUnb( conjugate, L11, shifts, X1 );
-        Gemm( orientation, NORMAL, F(-1), L10, X1, F(1), X0 );
+        LLTUnb( false, L11, modShifts, X1 );
+        Gemm( TRANSPOSE, NORMAL, F(-1), L10, X1, F(1), X0 );
 
         if( k == 0 )
             break;
         kOld = k;
         k -= Min(bsize,k);
     }
+
+    if( conjugate )
+        Conjugate( X );
 }
 
 // width(X) >> p
