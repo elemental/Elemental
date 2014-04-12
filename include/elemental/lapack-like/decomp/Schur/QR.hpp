@@ -31,7 +31,7 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool fullTriangle=false )
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckQuasiTriangular(A))
+        DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -52,7 +52,7 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckQuasiTriangular(A))
+        DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -112,7 +112,7 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckQuasiTriangular(A))
+        DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -191,7 +191,7 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckQuasiTriangular(A))
+        DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -246,7 +246,7 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckQuasiTriangular(A))
+        DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -316,7 +316,7 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckQuasiTriangular(A))
+        DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 

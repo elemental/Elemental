@@ -15,17 +15,34 @@ namespace schur {
 
 template<typename Real>
 inline void
-CheckQuasiTriangular( const Matrix<Real>& U )
+CheckRealSchur( const Matrix<Real>& U )
 {
-    DEBUG_ONLY(CallStackEntry cse("CheckQuasiTriangular")) 
+    DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     const Int n = U.Height();
+
+    auto uMain = U.GetDiagonal();
+    auto uSub = U.GetDiagonal( -1 );
+    auto uSup = U.GetDiagonal( +1 );
+    for( Int j=0; j<n-1; ++j )
+    {
+        const Real thisDiag = uMain.Get(j,  0);
+        const Real nextDiag = uMain.Get(j+1,0);
+        const Real thisSub = uSub.Get(j,0);
+        const Real thisSup = uSup.Get(j,0);
+        if( uSub.Get(j,0) != Real(0) && thisDiag != nextDiag ) 
+            LogicError
+            ("Diagonal of 2x2 block was not constant: ",thisDiag," and ",
+             nextDiag);
+        if( thisSub*thisSup >= 0 )
+            LogicError("b*c >= 0: b=",thisSup," and c=",thisSub);
+    }
+
     if( n < 3 )
         return;
-    Real thisSub, nextSub=U.Get(1,0);
     for( Int j=0; j<n-2; ++j )
     {
-        thisSub = nextSub;
-        nextSub = U.Get(j+2,j+1);
+        const Real thisSub = uSub.Get(j,  0);
+        const Real nextSub = uSub.Get(j+1,0);
         if( thisSub != Real(0) && nextSub != Real(0) )
             LogicError
             ("Quasi-triangular assumption broken at j=",j,
@@ -35,19 +52,37 @@ CheckQuasiTriangular( const Matrix<Real>& U )
 
 template<typename Real>
 inline void
-CheckQuasiTriangular( const DistMatrix<Real>& U )
+CheckRealSchur( const DistMatrix<Real>& U )
 {
-    DEBUG_ONLY(CallStackEntry cse("CheckQuasiTriangular")) 
+    DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     const Int n = U.Height();
+
+    auto uMain = U.GetDiagonal();
+    auto uSub = U.GetDiagonal( -1 );
+    auto uSup = U.GetDiagonal( +1 );
+    DistMatrix<Real,STAR,STAR> uMain_STAR_STAR( uMain ),
+                               uSub_STAR_STAR( uSub ),
+                               uSup_STAR_STAR( uSup );
+    for( Int j=0; j<n-1; ++j )
+    {
+        const Real thisDiag = uMain_STAR_STAR.Get(j,  0);
+        const Real nextDiag = uMain_STAR_STAR.Get(j+1,0);
+        const Real thisSub = uSub_STAR_STAR.Get(j,0);
+        const Real thisSup = uSup_STAR_STAR.Get(j,0);
+        if( thisSub != Real(0) && thisDiag != nextDiag ) 
+            LogicError
+            ("Diagonal of 2x2 block was not constant: ",thisDiag," and ",
+             nextDiag);
+        if( thisSub*thisSup >= 0 )
+            LogicError("b*c >= 0: b=",thisSup," and c=",thisSub);
+    }
+
     if( n < 3 )
         return;
-    auto uSub = U.GetDiagonal( -1 );
-    DistMatrix<Real,STAR,STAR> uSub_STAR_STAR( uSub );
-    Real thisSub, nextSub=uSub_STAR_STAR.Get(0,0);
     for( Int j=0; j<n-2; ++j )
     {
-        thisSub = nextSub;
-        nextSub = uSub_STAR_STAR.Get(j+1,0);
+        const Real thisSub = uSub_STAR_STAR.Get(j,  0);
+        const Real nextSub = uSub_STAR_STAR.Get(j+1,0);
         if( thisSub != Real(0) && nextSub != Real(0) )
             LogicError
             ("Quasi-triangular assumption broken at j=",j,
@@ -58,6 +93,7 @@ CheckQuasiTriangular( const DistMatrix<Real>& U )
 } // namespace schur
 } // namespace elem
 
+#include "./Schur/RealToComplex.hpp"
 #include "./Schur/QR.hpp"
 #include "./Schur/SDC.hpp"
 #include "./Schur/InverseFreeSDC.hpp"
