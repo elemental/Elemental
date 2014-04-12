@@ -10,6 +10,7 @@
 #ifndef ELEM_PSEUDOSPECTRUM_HPP
 #define ELEM_PSEUDOSPECTRUM_HPP
 
+#include ELEM_COPY_INC
 #include ELEM_MAXNORM_INC
 #include ELEM_ONENORM_INC
 #include ELEM_TWONORMESTIMATE_INC
@@ -80,7 +81,8 @@ TriangularPseudospectrum
 template<typename Real>
 inline Matrix<Int>
 QuasiTriangularPseudospectrum
-( const Matrix<Real>& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Real>& U, const Matrix<Complex<Real> >& w,
+  const Matrix<Complex<Real> >& shifts, 
   Matrix<Real>& invNorms, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
@@ -93,20 +95,15 @@ QuasiTriangularPseudospectrum
     // of the case where the matrix is a constant multiple of the identity 
     // matrix, which, after shifting, can lead to the zero matrix, which would 
     // cause problems for the Lanczos convergence criteria.
-    // TODO: QuasiTriangular version 
-    /*
-    if( pspec::NumericallyNormal( U, psCtrl.tol ) )
+    if( pspec::NumericallyNormal( U, w, psCtrl.tol ) )
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
             std::cout << "Matrix was numerically normal" << std::endl;
-        // TODO: Need to compute the eigenvalues of the quasi-triang matrix
-        auto w = U.GetDiagonal();
         pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         Zeros( itCounts, shifts.Height(), 1 );        
         return itCounts;
     }
-    */
 
     return pspec::IRA( U, shifts, invNorms, psCtrl );
 }
@@ -210,7 +207,8 @@ TriangularPseudospectrum
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 QuasiTriangularPseudospectrum
-( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& w,
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
   DistMatrix<Real,VR,STAR>& invNorms, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
@@ -224,22 +222,17 @@ QuasiTriangularPseudospectrum
     // of the case where the matrix is a constant multiple of the identity 
     // matrix, which, after shifting, can lead to the zero matrix, which would 
     // cause problems for the Lanczos convergence criteria.
-    // TODO
-    /*
-    if( pspec::NumericallyNormal( U, psCtrl.tol ) )
+    if( pspec::NumericallyNormal( U, w, psCtrl.tol ) )
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && U.Grid().Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
-        // TODO: Compute eigenvalues
-        auto w = U.GetDiagonal();
-        DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
+        DistMatrix<Complex<Real>,STAR,STAR> w_STAR_STAR( w );
         pspec::Analytic( w_STAR_STAR, shifts, invNorms, psCtrl.snapCtrl );
         itCounts.AlignWith( shifts );
         Zeros( itCounts, shifts.Height(), 1 );
         return itCounts;
     }
-    */
 
     return pspec::IRA( U, shifts, invNorms, psCtrl );
 }
@@ -296,13 +289,26 @@ Pseudospectrum
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
 
+    if( psCtrl.forceComplexSchur )
+    {
+        Matrix<C> ACpx;
+        Copy( A, ACpx );
+        return Pseudospectrum( ACpx, shifts, invNorms, psCtrl );
+    }
+
     if( psCtrl.schur )
     {
         Matrix<Real> U( A );
         Matrix<C> w;
         const bool fullTriangle = true;
         schur::QR( U, w, fullTriangle );
-        return QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
+        if( psCtrl.forceComplexPs )
+        {
+            Matrix<C> UCpx;
+            schur::RealToComplex( U, UCpx );
+            return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
+        }
+        return QuasiTriangularPseudospectrum( U, w, shifts, invNorms, psCtrl );
     }
     else
         LogicError("Real Hessenberg algorithm not yet supported");
@@ -317,12 +323,7 @@ Pseudospectrum
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
 
-    const Int n = A.Height();
-    Matrix<C> U( n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            U.Set( i, j, A.Get(i,j) );
-
+    Matrix<C> U( A );
     if( psCtrl.schur )
     {
         Matrix<C> w;
@@ -348,6 +349,13 @@ Pseudospectrum
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
+    if( psCtrl.forceComplexSchur )
+    {
+        DistMatrix<C> ACpx(g);
+        Copy( A, ACpx );
+        return Pseudospectrum( ACpx, shifts, invNorms, psCtrl );
+    }
+
     if( psCtrl.schur )
     {
         DistMatrix<Real> U( A );
@@ -362,7 +370,13 @@ Pseudospectrum
         schur::SDC( U, w, X, fullTriangle, psCtrl.sdcCtrl );
         X.Empty();
 #endif
-        return QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
+        if( psCtrl.forceComplexPs )
+        {
+            DistMatrix<C> UCpx(g);
+            schur::RealToComplex( U, UCpx );
+            return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
+        }
+        return QuasiTriangularPseudospectrum( U, w, shifts, invNorms, psCtrl );
     }
     else
         LogicError("Real Hessenberg algorithm not yet supported");
@@ -380,15 +394,7 @@ Pseudospectrum
     typedef Complex<Real> C;
 
     const Grid& g = A.Grid();
-    DistMatrix<C> U(g);
-    U.AlignWith( A );
-    const Int n = A.Height();
-    U.Resize( n, n );
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            U.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc) );
+    DistMatrix<C> U( A );
 
     if( psCtrl.schur )
     {
@@ -455,7 +461,8 @@ TriangularPseudospectrum
 template<typename Real>
 inline Matrix<Int>
 QuasiTriangularPseudospectrum
-( const Matrix<Real>& U, Matrix<Real>& invNormMap, 
+( const Matrix<Real>& U, const Matrix<Complex<Real> >& w, 
+  Matrix<Real>& invNormMap, 
   Complex<Real> center, Real realWidth, Real imagWidth,
   Int realSize, Int imagSize, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
@@ -480,7 +487,7 @@ QuasiTriangularPseudospectrum
     // Form the vector of invNorms
     Matrix<Real> invNorms;
     auto itCounts = 
-        QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
+        QuasiTriangularPseudospectrum( U, w, shifts, invNorms, psCtrl );
 
     // Rearrange the vectors into grids
     Matrix<Int> itCountMap; 
@@ -570,7 +577,8 @@ TriangularPseudospectrum
 template<typename Real>
 inline DistMatrix<Int>
 QuasiTriangularPseudospectrum
-( const DistMatrix<Real>& U, DistMatrix<Real>& invNormMap, 
+( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& w,
+  DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Real realWidth, Real imagWidth, 
   Int realSize, Int imagSize, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
@@ -599,7 +607,7 @@ QuasiTriangularPseudospectrum
     // Form the vector of invNorms
     DistMatrix<Real,VR,STAR> invNorms(g);
     auto itCounts = 
-        QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
+        QuasiTriangularPseudospectrum( U, w, shifts, invNorms, psCtrl );
 
     // Rearrange the vectors into grids
     DistMatrix<Int> itCountMap(g); 
@@ -775,18 +783,15 @@ TriangularPseudospectrum
 template<typename Real>
 inline Matrix<Int>
 QuasiTriangularPseudospectrum
-( const Matrix<Real>& U, Matrix<Real>& invNormMap, 
+( const Matrix<Real>& U, const Matrix<Complex<Real> >& w,
+  Matrix<Real>& invNormMap, 
   Complex<Real> center,
   Int realSize, Int imagSize, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
-    // TODO: Properly compute eigenvalues of 2x2 blocks
-    std::cerr << "WARNING: Eigenvalues of 2x2 blocks not yet computed" 
-              << std::endl;
-    auto diag = U.GetDiagonal();
-    const Real radius = MaxNorm( diag );
+    const Real radius = MaxNorm( w );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -818,7 +823,8 @@ QuasiTriangularPseudospectrum
     }
 
     return QuasiTriangularPseudospectrum
-           ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
+           ( U, w, invNormMap, center, width, width, realSize, imagSize, 
+             psCtrl );
 }
 
 template<typename F>
@@ -901,18 +907,14 @@ TriangularPseudospectrum
 template<typename Real>
 inline DistMatrix<Int>
 QuasiTriangularPseudospectrum
-( const DistMatrix<Real>& U, DistMatrix<Real>& invNormMap, 
+( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& w,
+  DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
-    // TODO: Properly compute eigenvalues of 2x2 blocks
-    if( U.Grid().Rank() == 0 )
-        std::cerr << "WARNING: Eigenvalues of 2x2 blocks not yet computed" 
-                  << std::endl;
-    auto diag = U.GetDiagonal();
-    const Real radius = MaxNorm( diag );
+    const Real radius = MaxNorm( w );
     const Real oneNorm = OneNorm( U );
 
     // Essentially three cases are handled here:
@@ -944,7 +946,8 @@ QuasiTriangularPseudospectrum
     }
 
     return QuasiTriangularPseudospectrum
-           ( U, invNormMap, center, width, width, realSize, imagSize, psCtrl );
+           ( U, w, invNormMap, center, width, width, realSize, imagSize, 
+             psCtrl );
 }
 
 template<typename F>
@@ -1015,15 +1018,33 @@ Pseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
-    if( !psCtrl.schur )
-        LogicError("Real Hessenberg algorithm not yet supported");
 
-    Matrix<Real> B( A );
-    Matrix<C> w;
-    const bool fullTriangle = true;
-    schur::QR( B, w, fullTriangle );
-    return QuasiTriangularPseudospectrum
-           ( B, invNormMap, center, realSize, imagSize, psCtrl );
+    if( psCtrl.forceComplexSchur )
+    {
+        Matrix<C> ACpx;
+        Copy( A, ACpx );
+        return Pseudospectrum
+               ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
+    }
+
+    if( psCtrl.schur )
+    {
+        Matrix<Real> B( A );
+        Matrix<C> w;
+        const bool fullTriangle = true;
+        schur::QR( B, w, fullTriangle );
+        if( psCtrl.forceComplexPs )
+        {
+            Matrix<C> BCpx;
+            schur::RealToComplex( B, BCpx );
+            return TriangularPseudospectrum
+                   ( BCpx, invNormMap, center, realSize, imagSize, psCtrl );
+        }
+        return QuasiTriangularPseudospectrum
+               ( B, w, invNormMap, center, realSize, imagSize, psCtrl );
+    }
+    else
+        LogicError("Real Hessenberg algorithm not yet supported");
 }
 
 template<typename Real>
@@ -1073,26 +1094,42 @@ Pseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
-    if( !psCtrl.schur )
-        LogicError("Real Hessenberg algorithm not yet supported");
-
     const Grid& g = A.Grid();
-    DistMatrix<Real> B( A );
 
-    DistMatrix<C,VR,STAR> w(g);
-    const bool fullTriangle = true;
+    if( psCtrl.forceComplexSchur )
+    {
+        DistMatrix<C> ACpx(g);
+        Copy( A, ACpx );
+        return Pseudospectrum
+               ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
+    }
+
+    if( psCtrl.schur )
+    {
+        DistMatrix<Real> B( A );
+        DistMatrix<C,VR,STAR> w(g);
+        const bool fullTriangle = true;
 #ifdef ELEM_HAVE_SCALAPACK
-    schur::QR( B, w, fullTriangle );
+        schur::QR( B, w, fullTriangle );
 #else
-    // We don't actually need the Schur vectors, but SDC requires their
-    // computation in order to form the full triangular factor
-    DistMatrix<Real> X(g);
-    schur::SDC( B, w, X, fullTriangle, psCtrl.sdcCtrl );
-    X.Empty();
+        // We don't actually need the Schur vectors, but SDC requires their
+        // computation in order to form the full triangular factor
+        DistMatrix<Real> X(g);
+        schur::SDC( B, w, X, fullTriangle, psCtrl.sdcCtrl );
+        X.Empty();
 #endif
- 
-    return QuasiTriangularPseudospectrum
-           ( B, invNormMap, center, realSize, imagSize, psCtrl );
+        if( psCtrl.forceComplexPs ) 
+        {
+            DistMatrix<C> BCpx(g);
+            schur::RealToComplex( B, BCpx );
+            return TriangularPseudospectrum
+                   ( BCpx, invNormMap, center, realSize, imagSize, psCtrl );
+        }
+        return QuasiTriangularPseudospectrum
+               ( B, w, invNormMap, center, realSize, imagSize, psCtrl );
+    }
+    else
+        LogicError("Real Hessenberg algorithm not yet supported");
 }
 
 } // namespace elem

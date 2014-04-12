@@ -327,7 +327,7 @@ main( int argc, char* argv[] )
                 if( isReal )
                 {
                     itCountMap = QuasiTriangularPseudospectrum
-                    ( AReal, invNormMap, chunkCenter, 
+                    ( AReal, w, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );
                 }

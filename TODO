@@ -32,9 +32,6 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
-[o] Conversion of real quasi-triangular Schur factor to complex triangular
-[o] Ability to use real or complex Schur factor for real matrices in 
-    pseudospectral computations
 [o] Extend Grid class to support mappings from, e.g., (MDRank,root) -> VCRank
     and use these mappings to build an (owner,root) -> VCRank mapping for 
     [Block]DistMatrix

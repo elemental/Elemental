@@ -46,6 +46,12 @@ main( int argc, char* argv[] )
         const Int realSize = Input("--realSize","number of x samples",100);
         const Int imagSize = Input("--imagSize","number of y samples",100);
         const bool schur = Input("--schur","Schur decomposition?",true);
+        const bool forceComplexSchur = 
+            Input("--forceComplexSchur",
+                  "switch to complex arithmetic for QR alg.",false);
+        const bool forceComplexPs = 
+            Input("--forceComplexPs",
+                  "switch to complex arithmetic for PS iter's",true);
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
         const Int basisSize = Input("--basisSize","num Arnoldi vectors",10);
         const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
@@ -104,32 +110,69 @@ main( int argc, char* argv[] )
         const C center(realCenter,imagCenter);
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
-        DistMatrix<C> A(g);
+        bool isReal = true;
+        std::string matName;
+        DistMatrix<Real> AReal(g);
+        DistMatrix<C> ACpx(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n, uniformCenter, uniformRadius ); break;
-        case 1: Haar( A, n ); break;
-        case 2: Lotkin( A, n ); break;
-        case 3: Grcar( A, n, numBands ); break;
-        case 4: FoxLi( A, n, omega ); break;
-        case 5: HelmholtzPML
-                ( A, n, C(omega), numPmlPoints, sigma, pmlExp ); break;
-        case 6: HelmholtzPML
-                ( A, mx, my, C(omega), numPmlPoints, sigma, pmlExp ); break;
+        case 0: matName="uniform";
+                Uniform( ACpx, n, n, uniformCenter, uniformRadius );
+                isReal = false;
+                break;
+        case 1: matName="Haar";
+                Haar( ACpx, n );
+                isReal = false;
+                break;
+        case 2: matName="Lotkin";
+                Lotkin( AReal, n );
+                isReal = true;
+                break;
+        case 3: matName="Grcar";
+                Grcar( AReal, n, numBands );
+                isReal = true;
+                break;
+        case 4: matName="FoxLi";
+                FoxLi( ACpx, n, omega );
+                isReal = false;
+                break;
+        case 5: matName="HelmholtzPML";
+                HelmholtzPML
+                ( ACpx, n, C(omega), numPmlPoints, sigma, pmlExp );
+                isReal = false;
+                break;
+        case 6: matName="HelmholtzPML2D";
+                HelmholtzPML
+                ( ACpx, mx, my, C(omega), numPmlPoints, sigma, pmlExp );
+                isReal = false;
+                break;
         default: LogicError("Invalid matrix type");
         }
-        if( print )
-            Print( A, "A" );
         if( display )
-            Display( A, "A" );
+        {
+            if( isReal )
+                Display( AReal, "A" );
+            else
+                Display( ACpx, "A" );
+        }
         if( write )
         {
-            Write( A, "A", numFormat );
-            Write( A, "A", imgFormat );
+            if( isReal )
+            {
+                Write( AReal, "A", numFormat );
+                Write( AReal, "A", imgFormat );
+            }
+            else
+            {
+                Write( ACpx, "A", numFormat );
+                Write( ACpx, "A", imgFormat );
+            }
         }
 
         PseudospecCtrl<Real> psCtrl;
         psCtrl.schur = schur;
+        psCtrl.forceComplexSchur = forceComplexSchur;
+        psCtrl.forceComplexPs = forceComplexPs;
         psCtrl.maxIts = maxIts;
         psCtrl.tol = tol;
         psCtrl.deflate = deflate;
@@ -149,14 +192,23 @@ main( int argc, char* argv[] )
         DistMatrix<Int> itCountMap(g);
         if( realWidth != 0. && imagWidth != 0. )
         {
-            itCountMap = Pseudospectrum
-            ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize, 
-              psCtrl );
+            if( isReal )
+                itCountMap = Pseudospectrum
+                ( AReal, invNormMap, center, realWidth, imagWidth, 
+                  realSize, imagSize, psCtrl );
+            else
+                itCountMap = Pseudospectrum
+                ( ACpx, invNormMap, center, realWidth, imagWidth, 
+                  realSize, imagSize, psCtrl );
         }
         else
         {
-            itCountMap = Pseudospectrum
-            ( A, invNormMap, center, realSize, imagSize, psCtrl );
+            if( isReal )
+                itCountMap = Pseudospectrum
+                ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+            else
+                itCountMap = Pseudospectrum
+                ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

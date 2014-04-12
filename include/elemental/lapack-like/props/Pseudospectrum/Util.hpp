@@ -74,7 +74,7 @@ namespace pspec {
 
 template<typename F>
 inline bool
-NumericallyNormal( const Matrix<F>& U, Base<F> tol )
+NumericallyNormal( const Matrix<F>& U, BASE(F) tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
@@ -85,13 +85,36 @@ NumericallyNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-NumericallyNormal( const DistMatrix<F>& U, Base<F> tol )
+NumericallyNormal
+( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& w, BASE(F) tol )
+{
+    const Base<F> eigFrob = FrobeniusNorm( w );
+    const Base<F> upperFrob = FrobeniusNorm( U );
+    const Base<F> strictlyUpperFrob = Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
+    return strictlyUpperFrob <= tol*eigFrob;
+}
+
+template<typename F>
+inline bool
+NumericallyNormal( const DistMatrix<F>& U, BASE(F) tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
     const Base<F> upperFrob = FrobeniusNorm( U );
     const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;
+}
+
+template<typename F>
+inline bool
+NumericallyNormal
+( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& w, 
+  BASE(F) tol )
+{
+    const Base<F> eigFrob = FrobeniusNorm( w );
+    const Base<F> upperFrob = FrobeniusNorm( U );
+    const Base<F> strictlyUpperFrob = Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
+    return strictlyUpperFrob <= tol*eigFrob;
 }
 
 template<typename T>
