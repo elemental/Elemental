@@ -77,8 +77,8 @@ RealToComplex( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real> >& U )
         if( U.Get(j+1,j) != Real(0) )
         {
             // Compute the Schur decomposition of the 2x2 block.
-            // TODO: Switch to an analytical formula which exploits the fact
-            //       that the block is in standard real Schur form
+            // TODO: Switch to an analytical formula. Note that ScaLAPACK
+            //       typically does not return the 2x2 blocks in standard form
             auto U11 = ViewRange( U, j, j, j+2, j+2 );
             U11_STAR_STAR = U11;
             lapack::HessenbergSchur
@@ -101,6 +101,7 @@ RealToComplex( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real> >& U )
             U12Copy_STAR_VR = U12_STAR_VR;
             LocalGemm
             ( ADJOINT, NORMAL, C(1), Q11, U12Copy_STAR_VR, C(0), U12_STAR_VR );
+            U12 = U12_STAR_VR;
         }
     }
 }
