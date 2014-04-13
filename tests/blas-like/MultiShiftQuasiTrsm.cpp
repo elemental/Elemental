@@ -80,6 +80,10 @@ void TestMultiShiftQuasiTrsm
     }
     MakeQuasiTriangular( uplo, H );
 
+    auto modShifts(shifts);
+    if( orientation == ADJOINT )
+        Conjugate( modShifts );
+
     Uniform( X, m, n );
     DistMatrix<F> Y(g);
     Zeros( Y, m, n );
@@ -90,7 +94,7 @@ void TestMultiShiftQuasiTrsm
         {
             auto x = LockedView( X, 0, j, m, 1 );
             auto y =       View( Y, 0, j, m, 1 );
-            Axpy( -shifts.Get(j,0)/alpha, x, y );
+            Axpy( -modShifts.Get(j,0)/alpha, x, y );
         }
     }
     else
@@ -100,7 +104,7 @@ void TestMultiShiftQuasiTrsm
         {
             auto x = LockedView( X, i, 0, 1, n );
             auto y =       View( Y, i, 0, 1, n );
-            Axpy( -shifts.Get(i,0)/alpha, x, y );
+            Axpy( -modShifts.Get(i,0)/alpha, x, y );
         }
     }
 

@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include ELEM_CONJUGATE_INC
 #include ELEM_MAKETRAPEZOIDAL_INC
 #include ELEM_UPDATEDIAGONAL_INC
 #include ELEM_AXPY_INC
@@ -31,13 +32,17 @@ void TestCorrectness
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
+
+    auto modShifts( shifts );
+    if( orientation == ADJOINT )
+        Conjugate( modShifts );
     
     DistMatrix<F> Z( Y );
     for( Int j=0; j<n; ++j )
     {
         auto x = LockedView( X, 0, j, m, 1 );
         auto z =       View( Z, 0, j, m, 1 );
-        Axpy( shifts.Get(j,0), x, z );
+        Axpy( modShifts.Get(j,0), x, z );
     }
     {
         DistMatrix<F> H_MC_MR( H ), X_MC_MR(X);

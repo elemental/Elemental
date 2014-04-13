@@ -15,11 +15,6 @@
 namespace elem {
 namespace msquasitrsm {
 
-// NOTE: The less stable blas::Givens is used instead of lapack::Givens due to
-//       the fact that the caching of an expensive-to-compute function of 
-//       machine constants is recomputed for every call of the latter to avoid
-//       a thread safety issue.
-
 template<typename F>
 inline void
 LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
