@@ -26,42 +26,28 @@
 
 namespace elem {
 
-template<typename F>
+template<typename Real>
 inline Matrix<Int>
 TriangularPseudospectrum
-( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, 
-  PseudospecCtrl<BASE(F)> psCtrl=PseudospecCtrl<BASE(F)>() )
+( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
-    typedef Base<F> Real;
-    typedef Complex<Real> C;
 
     psCtrl.schur = true;
-
-    Matrix<C> UCpx;
-    if( IsComplex<F>::val )
-        UCpx = LockedView( U );
-    else
-    {
-        const Int n = U.Height();
-        UCpx.Resize( n, n );
-        for( Int j=0; j<n; ++j )
-            for( Int i=0; i<n; ++i )
-                UCpx.Set( i, j, U.Get(i,j) );
-    }
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
     // of the case where the matrix is a constant multiple of the identity 
     // matrix, which, after shifting, can lead to the zero matrix, which would 
     // cause problems for the Lanczos convergence criteria.
-    if( pspec::NumericallyNormal( UCpx, psCtrl.tol ) )
+    if( pspec::NumericallyNormal( U, psCtrl.tol ) )
     {
         Matrix<Int> itCounts;
         if( psCtrl.progress )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = UCpx.GetDiagonal();
+        auto w = U.GetDiagonal();
         pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         Zeros( itCounts, shifts.Height(), 1 );        
         return itCounts;
@@ -70,12 +56,28 @@ TriangularPseudospectrum
     if( psCtrl.arnoldi )
     {
         if( psCtrl.basisSize > 1 )
-            return pspec::IRA( UCpx, shifts, invNorms, psCtrl );
+            return pspec::IRA( U, shifts, invNorms, psCtrl );
         else
-            return pspec::Lanczos( UCpx, shifts, invNorms, psCtrl );
+            return pspec::Lanczos( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( UCpx, shifts, invNorms, psCtrl );
+        return pspec::Power( U, shifts, invNorms, psCtrl );
+}
+
+template<typename Real>
+inline Matrix<Int>
+TriangularPseudospectrum
+( const Matrix<Real>& U, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    Matrix<Complex<Real>> UCpx;
+    Copy( U, UCpx );
+
+    psCtrl.schur = true;
+
+    return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -146,47 +148,31 @@ HessenbergPseudospectrum
         return pspec::Power( HCpx, shifts, invNorms, psCtrl );
 }
 
-template<typename F>
+template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 TriangularPseudospectrum
-( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  DistMatrix<BASE(F),VR,STAR>& invNorms, 
-  PseudospecCtrl<BASE(F)> psCtrl=PseudospecCtrl<BASE(F)>() )
+( const DistMatrix<Complex<Real> >& U, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+  DistMatrix<Real,VR,STAR>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
-    typedef Base<F> Real;
-    typedef Complex<Real> C;
+    const Grid& g = U.Grid();
 
     psCtrl.schur = true;
-
-    const Grid& g = U.Grid();
-    DistMatrix<C> UCpx(g);
-    if( IsComplex<F>::val )
-        UCpx = LockedView( U );
-    else
-    {
-        UCpx.AlignWith( U );
-        const Int n = U.Height();
-        UCpx.Resize( n, n );
-        const Int mLocal = U.LocalHeight();
-        const Int nLocal = U.LocalWidth();
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                UCpx.SetLocal( iLoc, jLoc, U.GetLocal(iLoc,jLoc) );
-    }
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
     // of the case where the matrix is a constant multiple of the identity 
     // matrix, which, after shifting, can lead to the zero matrix, which would 
     // cause problems for the Lanczos convergence criteria.
-    if( pspec::NumericallyNormal( UCpx, psCtrl.tol ) )
+    if( pspec::NumericallyNormal( U, psCtrl.tol ) )
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
-        if( psCtrl.progress && U.Grid().Rank() == 0 )
+        if( psCtrl.progress && g.Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = UCpx.GetDiagonal();
-        DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
+        auto w = U.GetDiagonal();
+        DistMatrix<Complex<Real>,STAR,STAR> w_STAR_STAR( w );
         pspec::Analytic( w_STAR_STAR, shifts, invNorms, psCtrl.snapCtrl );
         itCounts.AlignWith( shifts );
         Zeros( itCounts, shifts.Height(), 1 );
@@ -196,12 +182,28 @@ TriangularPseudospectrum
     if( psCtrl.arnoldi )
     {
         if( psCtrl.basisSize > 1 )
-            return pspec::IRA( UCpx, shifts, invNorms, psCtrl );
+            return pspec::IRA( U, shifts, invNorms, psCtrl );
         else
-            return pspec::Lanczos( UCpx, shifts, invNorms, psCtrl );
+            return pspec::Lanczos( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( UCpx, shifts, invNorms, psCtrl );
+        return pspec::Power( U, shifts, invNorms, psCtrl );
+}
+
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
+TriangularPseudospectrum
+( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+  DistMatrix<Real,VR,STAR>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
+    DistMatrix<Complex<Real>> UCpx(U.Grid());
+    Copy( U, UCpx );
+
+    psCtrl.schur = true;
+
+    return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -225,7 +227,7 @@ QuasiTriangularPseudospectrum
     if( pspec::NumericallyNormal( U, w, psCtrl.tol ) )
     {
         DistMatrix<Int,VR,STAR> itCounts(g);
-        if( psCtrl.progress && U.Grid().Rank() == 0 )
+        if( psCtrl.progress && g.Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
         DistMatrix<Complex<Real>,STAR,STAR> w_STAR_STAR( w );
         pspec::Analytic( w_STAR_STAR, shifts, invNorms, psCtrl.snapCtrl );

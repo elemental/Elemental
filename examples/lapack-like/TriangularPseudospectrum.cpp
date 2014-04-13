@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType =
             Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi,"
-                  "5:custom",1);
+                  "5:custom real,6:custom complex",1);
         const std::string basename = 
             Input("--basename","basename of distributed Schur factor",
                   std::string("default"));
@@ -93,28 +93,72 @@ main( int argc, char* argv[] )
         const C center(realCenter,imagCenter);
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
+        bool isReal = true;
         std::ostringstream os;
-        DistMatrix<C> A(g);
+        DistMatrix<Real> AReal(g);
+        DistMatrix<C> ACpx(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n, uniformCenter, uniformRadius ); break;
-        case 1: Demmel( A, n );          break;
-        case 2: Lotkin( A, n );          break;
-        case 3: Grcar( A, n, numBands ); break;
-        case 4: FoxLi( A, n, omega );    break;
+        case 0: 
+            Uniform( ACpx, n, n, uniformCenter, uniformRadius ); 
+            isReal = false;
+            break;
+        case 1: 
+            Demmel( AReal, n );
+            isReal = true;
+            break;
+        case 2: 
+            Lotkin( AReal, n );
+            isReal = true;
+            break;
+        case 3: 
+            Grcar( AReal, n, numBands ); 
+            isReal = true;
+            break;
+        case 4: 
+            FoxLi( ACpx, n, omega );
+            isReal = false;
+            break;
+        case 5:
+            os << basename << "-" 
+               << AReal.ColStride() << "x" << AReal.RowStride() << "-"
+               << AReal.DistRank() << ".bin";
+            AReal.Resize( n, n );
+            read::Binary( AReal.Matrix(), os.str() ); 
+            break;
+        case 6:
+            os << basename << "-" 
+               << ACpx.ColStride() << "x" << ACpx.RowStride() << "-"
+               << ACpx.DistRank() << ".bin";
+            ACpx.Resize( n, n );
+            read::Binary( ACpx.Matrix(), os.str() ); 
+            break;
         default:
-            os << basename << "-" << A.ColStride() << "x" << A.RowStride()
-               << "-" << A.DistRank() << ".bin";
-            A.Resize( n, n );
-            read::Binary( A.Matrix(), os.str() ); 
+            LogicError("Invalid matrix type");
         }
-        MakeTriangular( UPPER, A );
+        if( isReal )
+            MakeTriangular( UPPER, AReal );
+        else
+            MakeTriangular( UPPER, ACpx );
         if( display )
-            Display( A, "A" );
+        {
+            if( isReal ) 
+                Display( AReal, "A" );
+            else
+                Display( ACpx, "A" );
+        }
         if( write )
         {
-            Write( A, "A", numFormat );
-            Write( A, "A", imgFormat );
+            if( isReal )
+            {
+                Write( AReal, "A", numFormat );
+                Write( AReal, "A", imgFormat );
+            }
+            else
+            {
+                Write( ACpx, "A", numFormat );
+                Write( ACpx, "A", imgFormat );
+            }
         }
 
         PseudospecCtrl<Real> psCtrl;
@@ -137,12 +181,25 @@ main( int argc, char* argv[] )
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
         if( realWidth != 0. && imagWidth != 0. )
-            itCountMap = TriangularPseudospectrum
-            ( A, invNormMap, center, realWidth, imagWidth, realSize, imagSize,
-              psCtrl );
+        {
+            if( isReal )
+                itCountMap = TriangularPseudospectrum
+                ( AReal, invNormMap, center, realWidth, imagWidth, 
+                  realSize, imagSize, psCtrl );
+            else
+                itCountMap = TriangularPseudospectrum
+                ( ACpx, invNormMap, center, realWidth, imagWidth, 
+                  realSize, imagSize, psCtrl );
+        }
         else
-            itCountMap = TriangularPseudospectrum
-            ( A, invNormMap, center, realSize, imagSize, psCtrl );
+        {
+            if( isReal )
+                itCountMap = TriangularPseudospectrum
+                ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+            else
+                itCountMap = TriangularPseudospectrum
+                ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
+        }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;
