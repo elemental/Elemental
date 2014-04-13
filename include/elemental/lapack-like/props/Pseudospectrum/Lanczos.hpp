@@ -386,12 +386,14 @@ Lanczos
 
         // Save snapshots of the estimates at the requested rate
         psCtrl.snapCtrl.Iterate();
-        Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
+        Snapshot
+        ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
     } 
 
     invNorms = estimates;
     if( deflate )
         RestoreOrdering( preimage, invNorms, itCounts );
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
 
     return itCounts;
 }
@@ -621,12 +623,14 @@ Lanczos
 
         // Save snapshots of the estimates at the requested rate
         psCtrl.snapCtrl.Iterate();
-        Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
+        Snapshot
+        ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
     } 
 
     invNorms = estimates;
     if( deflate )
         RestoreOrdering( preimage, invNorms, itCounts );
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
 
     return itCounts;
 }

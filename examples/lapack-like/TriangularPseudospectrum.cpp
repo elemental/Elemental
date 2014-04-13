@@ -63,11 +63,11 @@ main( int argc, char* argv[] )
         const bool write = Input("--write","write matrices?",false);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int numSaveFreq = 
-            Input("--numSaveFreq","numerical save frequency",0);
+            Input("--numSaveFreq","numerical save frequency",-1);
         const Int imgSaveFreq = 
-            Input("--imgSaveFreq","image save frequency",0);
+            Input("--imgSaveFreq","image save frequency",-1);
         const Int imgDispFreq =
-            Input("--imgDispFreq","image display frequency",0);
+            Input("--imgDispFreq","image display frequency",-1);
         const std::string numBase =
             Input("--numBase","numerical save basename",std::string("snap"));
         const std::string imgBase =
@@ -208,45 +208,6 @@ main( int argc, char* argv[] )
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations=" << numIts << std::endl;
-        if( display )
-        {
-            Display( invNormMap, "invNormMap" );
-            Display( itCountMap, "itCountMap" );
-        }
-        if( write || writePseudo )
-        {
-            Write( invNormMap, "invNormMap", numFormat );
-            Write( invNormMap, "invNormMap", imgFormat );
-            Write( itCountMap, "itCountMap", numFormat );
-            Write( itCountMap, "itCountMap", imgFormat );
-        }
-
-        // Take the entrywise log
-        EntrywiseMap( invNormMap, []( Real alpha ) { return Log(alpha); } );
-        if( display )
-        {
-            Display( invNormMap, "logInvNormMap" );
-            if( GetColorMap() != GRAYSCALE_DISCRETE )
-            {       
-                auto colorMap = GetColorMap();
-                SetColorMap( GRAYSCALE_DISCRETE );
-                Display( invNormMap, "discreteLogInvNormMap" );
-                SetColorMap( colorMap );
-            }
-        }
-        if( write || writePseudo ) 
-        {
-            Write( invNormMap, "logInvNormMap", numFormat );
-            Write( invNormMap, "logInvNormMap", imgFormat );
-            if( GetColorMap() != GRAYSCALE_DISCRETE )
-            {
-                auto colorMap = GetColorMap();
-                SetColorMap( GRAYSCALE_DISCRETE );
-                Write( invNormMap, "discreteLogInvNormMap", numFormat );
-                Write( invNormMap, "discreteLogInvNormMap", imgFormat );
-                SetColorMap( colorMap );
-            }
-        }
     }
     catch( exception& e ) { ReportException(e); }
 
