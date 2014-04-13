@@ -233,8 +233,7 @@ Power
             preimage.Set( j, 0, j );
     }
 
-    psCtrl.snapCtrl.numSaveCount = 0;
-    psCtrl.snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.ResetCounts();
 
     // The Hessenberg case currently requires explicit access to the adjoint
     Matrix<C> UAdj, activeShiftsConj;
@@ -315,10 +314,7 @@ Power
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        if( psCtrl.snapCtrl.numFreq > 0 )
-            ++psCtrl.snapCtrl.numSaveCount;
-        if( psCtrl.snapCtrl.imgFreq > 0 )
-            ++psCtrl.snapCtrl.imgSaveCount;
+        psCtrl.snapCtrl.Iterate();
         Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 
@@ -367,8 +363,7 @@ Power
         }
     }
 
-    psCtrl.snapCtrl.numSaveCount = 0;
-    psCtrl.snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.ResetCounts();
 
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
@@ -456,10 +451,7 @@ Power
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        if( psCtrl.snapCtrl.numFreq > 0 )
-            ++psCtrl.snapCtrl.numSaveCount;
-        if( psCtrl.snapCtrl.imgFreq > 0 )
-            ++psCtrl.snapCtrl.imgSaveCount;
+        psCtrl.snapCtrl.Iterate();
         Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 

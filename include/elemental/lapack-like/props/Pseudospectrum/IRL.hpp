@@ -176,8 +176,7 @@ IRL
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
 
-    psCtrl.snapCtrl.numSaveCount = 0;
-    psCtrl.snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.ResetCounts();
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
@@ -303,10 +302,7 @@ IRL
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
 
-            if( psCtrl.snapCtrl.numFreq > 0 )
-                ++psCtrl.snapCtrl.numSaveCount;
-            if( psCtrl.snapCtrl.imgFreq > 0 )
-                ++psCtrl.snapCtrl.imgSaveCount;
+            psCtrl.snapCtrl.Iterate();
         }
         if( progress )
             subtimer.Start();
@@ -420,8 +416,7 @@ IRL
     DistMatrix<Int,MR,STAR> activeConverged(g);
     Zeros( activeConverged, numShifts, 1 );
 
-    psCtrl.snapCtrl.numSaveCount = 0;
-    psCtrl.snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.ResetCounts();
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
@@ -571,10 +566,7 @@ IRL
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
 
-            if( psCtrl.snapCtrl.numFreq > 0 )
-                ++psCtrl.snapCtrl.numSaveCount;
-            if( psCtrl.snapCtrl.imgFreq > 0 )
-                ++psCtrl.snapCtrl.imgSaveCount;
+            psCtrl.snapCtrl.Iterate();
         }
         if( progress )
         {

@@ -35,8 +35,6 @@ TriangularPseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
-    psCtrl.schur = true;
-
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
     // of the case where the matrix is a constant multiple of the identity 
@@ -53,6 +51,7 @@ TriangularPseudospectrum
         return itCounts;
     }
 
+    psCtrl.schur = true;
     if( psCtrl.arnoldi )
     {
         if( psCtrl.basisSize > 1 )
@@ -75,8 +74,7 @@ TriangularPseudospectrum
     Matrix<Complex<Real>> UCpx;
     Copy( U, UCpx );
 
-    psCtrl.schur = true;
-
+    // TODO: Use a real multi-shift TRSM instead
     return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
 }
 
@@ -89,8 +87,6 @@ QuasiTriangularPseudospectrum
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
-
-    psCtrl.schur = true;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -107,45 +103,46 @@ QuasiTriangularPseudospectrum
         return itCounts;
     }
 
+    psCtrl.schur = true;
     return pspec::IRA( U, shifts, invNorms, psCtrl );
 }
 
-template<typename F>
+template<typename Real>
 inline Matrix<Int>
 HessenbergPseudospectrum
-( const Matrix<F>& H, const Matrix<Complex<BASE(F)> >& shifts, 
-  Matrix<BASE(F)>& invNorms, 
-  PseudospecCtrl<BASE(F)> psCtrl=PseudospecCtrl<BASE(F)>() )
+( const Matrix<Complex<Real> >& H, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
-    typedef Base<F> Real;
-    typedef Complex<Real> C;
-
-    psCtrl.schur = false;
-
-    Matrix<C> HCpx;
-    if( IsComplex<F>::val )
-        HCpx = LockedView( H );
-    else
-    {
-        const Int n = H.Height();
-        HCpx.Resize( n, n );
-        for( Int j=0; j<n; ++j )
-            for( Int i=0; i<n; ++i )
-                HCpx.Set( i, j, H.Get(i,j) );
-    }
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       triangular version of Pseudospectrum?
+    psCtrl.schur = false;
     if( psCtrl.arnoldi )
     {
         if( psCtrl.basisSize > 1 )
-            return pspec::IRA( HCpx, shifts, invNorms, psCtrl );
+            return pspec::IRA( H, shifts, invNorms, psCtrl );
         else
-            return pspec::Lanczos( HCpx, shifts, invNorms, psCtrl );
+            return pspec::Lanczos( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( HCpx, shifts, invNorms, psCtrl );
+        return pspec::Power( H, shifts, invNorms, psCtrl );
+}
+
+template<typename Real>
+inline Matrix<Int>
+HessenbergPseudospectrum
+( const Matrix<Real>& H, const Matrix<Complex<Real> >& shifts, 
+  Matrix<Real>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+    Matrix<Complex<Real>> HCpx;
+    Copy( H, HCpx );
+
+    // TODO: Use a real multi-shift Hess. solve instead
+    return HessenbergPseudospectrum( HCpx, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -158,8 +155,6 @@ TriangularPseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     const Grid& g = U.Grid();
-
-    psCtrl.schur = true;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -179,6 +174,7 @@ TriangularPseudospectrum
         return itCounts;
     }
 
+    psCtrl.schur = true;
     if( psCtrl.arnoldi )
     {
         if( psCtrl.basisSize > 1 )
@@ -201,8 +197,7 @@ TriangularPseudospectrum
     DistMatrix<Complex<Real>> UCpx(U.Grid());
     Copy( U, UCpx );
 
-    psCtrl.schur = true;
-
+    // TODO: Use a real multi-shift TRSM instead
     return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
 }
 
@@ -216,8 +211,6 @@ QuasiTriangularPseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     const Grid& g = U.Grid();
-
-    psCtrl.schur = true;
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -236,49 +229,46 @@ QuasiTriangularPseudospectrum
         return itCounts;
     }
 
+    psCtrl.schur = true;
     return pspec::IRA( U, shifts, invNorms, psCtrl );
 }
 
-template<typename F>
+template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 HessenbergPseudospectrum
-( const DistMatrix<F>& H, const DistMatrix<Complex<BASE(F)>,VR,STAR>& shifts,
-  DistMatrix<BASE(F),VR,STAR>& invNorms, 
-  PseudospecCtrl<BASE(F)> psCtrl=PseudospecCtrl<BASE(F)>() )
+( const DistMatrix<Complex<Real> >& H, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+  DistMatrix<Real,VR,STAR>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
-    typedef Base<F> Real;
-    typedef Complex<Real> C;
-
-    psCtrl.schur = false;
-
-    const Grid& g = H.Grid();
-    DistMatrix<C> HCpx(g);
-    if( IsComplex<F>::val )
-        HCpx = LockedView( H );
-    else
-    {
-        HCpx.AlignWith( H );
-        const Int n = H.Height();
-        HCpx.Resize( n, n );
-        const Int mLocal = H.LocalHeight();
-        const Int nLocal = H.LocalWidth();
-        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-                HCpx.SetLocal( iLoc, jLoc, H.GetLocal(iLoc,jLoc) );
-    }
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularPseudospectrum
+    psCtrl.schur = false;
     if( psCtrl.arnoldi )
     {
         if( psCtrl.basisSize > 1 )
-            return pspec::IRA( HCpx, shifts, invNorms, psCtrl );
+            return pspec::IRA( H, shifts, invNorms, psCtrl );
         else
-            return pspec::Lanczos( HCpx, shifts, invNorms, psCtrl );
+            return pspec::Lanczos( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( HCpx, shifts, invNorms, psCtrl );
+        return pspec::Power( H, shifts, invNorms, psCtrl );
+}
+
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
+HessenbergPseudospectrum
+( const DistMatrix<Real>& H, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+  DistMatrix<Real,VR,STAR>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
+    DistMatrix<Complex<Real>> HCpx(H.Grid());
+    Copy( H, HCpx );
+
+    return HessenbergPseudospectrum( HCpx, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>

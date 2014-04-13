@@ -267,8 +267,7 @@ Lanczos
         HSubdiagList[j].reserve( HCapacityInit-1 );
     }
 
-    psCtrl.snapCtrl.numSaveCount = 0;
-    psCtrl.snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.ResetCounts();
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
@@ -386,10 +385,7 @@ Lanczos
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        if( psCtrl.snapCtrl.numFreq > 0 )
-            ++psCtrl.snapCtrl.numSaveCount;
-        if( psCtrl.snapCtrl.imgFreq > 0 )
-            ++psCtrl.snapCtrl.imgSaveCount;
+        psCtrl.snapCtrl.Iterate();
         Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 
@@ -465,8 +461,7 @@ Lanczos
         HSubdiagList[j].reserve( HCapacityInit-1 );
     }
 
-    psCtrl.snapCtrl.numSaveCount = 0;
-    psCtrl.snapCtrl.imgSaveCount = 0;
+    psCtrl.snapCtrl.ResetCounts();
 
     Timer timer, subtimer;
     Int numIts=0, numDone=0;
@@ -625,10 +620,7 @@ Lanczos
         lastActiveEsts = activeEsts;
 
         // Save snapshots of the estimates at the requested rate
-        if( psCtrl.snapCtrl.numFreq > 0 )
-            ++psCtrl.snapCtrl.numSaveCount;
-        if( psCtrl.snapCtrl.imgFreq > 0 )
-            ++psCtrl.snapCtrl.imgSaveCount;
+        psCtrl.snapCtrl.Iterate();
         Snapshot( estimates, preimage, numIts, deflate, psCtrl.snapCtrl );
     } 
 

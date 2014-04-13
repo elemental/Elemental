@@ -81,8 +81,12 @@ main( int argc, char* argv[] )
         const bool write = Input("--write","write matrices?",false);
         const bool saveSchur = Input("--saveSchur","save Schur factor?",true);
         const bool writePseudo = Input("--writePs","write pseudospec.",false);
-        const Int numFreq = Input("--numFreq","numerical save frequency",0);
-        const Int imgFreq = Input("--imgFreq","image save frequency",0);
+        const Int numSaveFreq = 
+            Input("--numSaveFreq","numerical save frequency",0);
+        const Int imgSaveFreq = 
+            Input("--imgSaveFreq","image save frequency",0);
+        const Int imgDispFreq =
+            Input("--imgDispFreq","image display frequency",0);
         const std::string numBase = 
             Input("--numBase","numerical save basename",std::string("snap"));
         const std::string imgBase = 
@@ -282,8 +286,9 @@ main( int argc, char* argv[] )
         psCtrl.arnoldi = arnoldi;
         psCtrl.basisSize = basisSize;
         psCtrl.progress = progress;
-        psCtrl.snapCtrl.imgFreq = imgFreq;
-        psCtrl.snapCtrl.numFreq = numFreq;
+        psCtrl.snapCtrl.imgSaveFreq = imgSaveFreq;
+        psCtrl.snapCtrl.numSaveFreq = numSaveFreq;
+        psCtrl.snapCtrl.imgDispFreq = imgDispFreq;
         psCtrl.snapCtrl.imgFormat = imgFormat;
         psCtrl.snapCtrl.numFormat = numFormat;
 

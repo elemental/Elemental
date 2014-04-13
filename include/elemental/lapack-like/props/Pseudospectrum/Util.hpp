@@ -25,16 +25,31 @@ namespace elem {
 struct SnapshotCtrl
 {
     Int realSize, imagSize;
-    Int imgFreq, numFreq;
-    Int imgSaveCount, numSaveCount;
+
+    Int imgSaveFreq, numSaveFreq, imgDispFreq;
+    Int imgSaveCount, numSaveCount, imgDispCount;
     std::string imgBase, numBase;
     FileFormat imgFormat, numFormat;
 
     SnapshotCtrl()
     : realSize(0), imagSize(0),
-      imgFreq(0), numFreq(0), imgSaveCount(0), numSaveCount(0),
+      imgSaveFreq(0), numSaveFreq(0), imgDispFreq(0), 
+      imgSaveCount(0), numSaveCount(0), imgDispCount(0),
       imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB)
     { }
+
+    void ResetCounts()
+    {
+        imgSaveCount = 0;
+        numSaveCount = 0;
+        imgDispCount = 0;
+    }
+    void Iterate()
+    {
+        ++imgSaveCount;
+        ++numSaveCount;
+        ++imgDispCount;
+    }
 };
 
 template<typename Real>
@@ -914,14 +929,17 @@ Snapshot
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = 
-            ( snapCtrl.numFreq > 0 && 
-              snapCtrl.numSaveCount >= snapCtrl.numFreq );
+            ( snapCtrl.numSaveFreq > 0 && 
+              snapCtrl.numSaveCount >= snapCtrl.numSaveFreq );
         const bool imgSave = 
-            ( snapCtrl.imgFreq > 0 && 
-              snapCtrl.imgSaveCount >= snapCtrl.imgFreq );
+            ( snapCtrl.imgSaveFreq > 0 && 
+              snapCtrl.imgSaveCount >= snapCtrl.imgSaveFreq );
+        const bool imgDisp = 
+            ( snapCtrl.imgDispFreq > 0 &&
+              snapCtrl.imgDispCount >= snapCtrl.imgDispFreq );
         Matrix<Real> invNorms;
         Matrix<Real> estMap; 
-        if( numSave || imgSave )
+        if( numSave || imgSave || imgDisp )
         {
             invNorms = estimates;
             if( deflate )
@@ -936,9 +954,10 @@ Snapshot
             Write( estMap, os.str(), snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
+        if( imgSave || imgDisp )
+            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
         if( imgSave )
         {
-            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
             std::ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
@@ -947,6 +966,17 @@ Snapshot
             Write( estMap, os.str()+"-discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
             snapCtrl.imgSaveCount = 0;
+        }
+        if( imgDisp )
+        {
+            std::ostringstream os;
+            os << snapCtrl.imgBase << "-" << numIts;
+            Display( estMap, os.str() );       
+            auto colorMap = GetColorMap();
+            SetColorMap( GRAYSCALE_DISCRETE );
+            Display( estMap, os.str()+"-discrete" );
+            SetColorMap( colorMap );
+            snapCtrl.imgDispCount = 0;
         }
     }
 }
@@ -962,14 +992,17 @@ Snapshot
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = 
-            ( snapCtrl.numFreq > 0 && 
-              snapCtrl.numSaveCount >= snapCtrl.numFreq );
+            ( snapCtrl.numSaveFreq > 0 && 
+              snapCtrl.numSaveCount >= snapCtrl.numSaveFreq );
         const bool imgSave = 
-            ( snapCtrl.imgFreq > 0 && 
-              snapCtrl.imgSaveCount >= snapCtrl.imgFreq );
+            ( snapCtrl.imgSaveFreq > 0 && 
+              snapCtrl.imgSaveCount >= snapCtrl.imgSaveFreq );
+        const bool imgDisp =
+            ( snapCtrl.imgDispFreq > 0 &&
+              snapCtrl.imgDispCount >= snapCtrl.imgDispFreq );
         DistMatrix<Real,VR,STAR> invNorms(estimates.Grid());
         DistMatrix<Real> estMap(estimates.Grid()); 
-        if( numSave || imgSave )
+        if( numSave || imgSave || imgDisp )
         {
             invNorms = estimates;
             if( deflate )
@@ -977,16 +1010,10 @@ Snapshot
             pspec::ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, invNorms, estMap );
         }
-        if( numSave )
-        {
-            std::ostringstream os;
-            os << snapCtrl.numBase << "-" << numIts;
-            Write( estMap, os.str(), snapCtrl.numFormat );
-            snapCtrl.numSaveCount = 0;
-        }
+        if( imgSave || imgDisp )
+            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
         if( imgSave )
         {
-            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
             std::ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
@@ -995,6 +1022,17 @@ Snapshot
             Write( estMap, os.str()+"-discrete", snapCtrl.imgFormat );
             SetColorMap( colorMap );
             snapCtrl.imgSaveCount = 0;
+        }
+        if( imgDisp )
+        {
+            std::ostringstream os;
+            os << snapCtrl.imgBase << "-" << numIts;
+            Display( estMap, os.str() );
+            auto colorMap = GetColorMap();
+            SetColorMap( GRAYSCALE_DISCRETE );
+            Display( estMap, os.str()+"-discrete" );
+            SetColorMap( colorMap );
+            snapCtrl.imgDispCount = 0;
         }
     }
 }
