@@ -52,12 +52,12 @@ Analytic
     // TODO: Store inverse distances?
 }
 
-template<typename Real>
+template<typename Real,Dist colDist,Dist rowDist>
 inline void
 Analytic
-( const DistMatrix<Complex<Real>,STAR,STAR>& w, 
-  const DistMatrix<Complex<Real>,VR,  STAR>& shifts, 
-        DistMatrix<Real,         VR,  STAR>& invNorms,
+( const DistMatrix<Complex<Real>,colDist,rowDist>& w, 
+  const DistMatrix<Complex<Real>,VR,     STAR   >& shifts, 
+        DistMatrix<Real,         VR,     STAR   >& invNorms,
         SnapshotCtrl snapCtrl=SnapshotCtrl() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
@@ -71,14 +71,16 @@ Analytic
     if( n == 0 )
         return;
 
+    DistMatrix<C> w_STAR_STAR( w );
+
     const Int numLocShifts = shifts.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
         const C shift = shifts.GetLocal(jLoc,0);
-        Real minDist = Abs(shift-w.GetLocal(0,0));
+        Real minDist = Abs(shift-w_STAR_STAR.GetLocal(0,0));
         for( Int k=1; k<n; ++k )
         {
-            const Real dist = Abs(shift-w.GetLocal(k,0));
+            const Real dist = Abs(shift-w_STAR_STAR.GetLocal(k,0));
             minDist = Min(dist,minDist);
         }
         Real alpha = Real(1)/minDist;

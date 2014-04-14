@@ -34,7 +34,8 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int matType =
             Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi,"
-                  "5:custom",1);
+                  "5:custom real,6:custom complex",1);
+        bool quasi = Input("--quasi","Quasi-triang. real matrix?",true);
         const std::string basename =
             Input("--basename","basename of distributed Schur factor",
                   std::string("default"));
@@ -100,36 +101,91 @@ main( int argc, char* argv[] )
         const C center(realCenter,imagCenter);
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
+        bool isReal = true;
         std::ostringstream os;
-        DistMatrix<C> A(g);
+        DistMatrix<Real> AReal(g);
+        DistMatrix<C> ACpx(g);
         switch( matType )
         {
-        case 0: Uniform( A, n, n, uniformCenter, uniformRadius ); break;
-        case 1: Demmel( A, n );          break;
-        case 2: Lotkin( A, n );          break;
-        case 3: Grcar( A, n, numBands ); break;
-        case 4: FoxLi( A, n, omega );    break;
+        case 0: 
+            Uniform( ACpx, n, n, uniformCenter, uniformRadius ); 
+            MakeTriangular( UPPER, ACpx );
+            isReal = false;
+            break;
+        case 1: 
+            Demmel( AReal, n ); 
+            MakeTriangular( UPPER, AReal );
+            isReal = true;
+            break;
+        case 2: 
+            Lotkin( AReal, n );
+            MakeTriangular( UPPER, AReal );
+            isReal = true;
+            break;
+        case 3: 
+            Grcar( AReal, n, numBands ); 
+            MakeTriangular( UPPER, AReal );
+            isReal = true;
+            break;
+        case 4: 
+            FoxLi( ACpx, n, omega );
+            MakeTriangular( UPPER, ACpx );
+            isReal = false;
+            break;
+        case 5:
+            os << basename << "-" 
+               << AReal.ColStride() << "x" << AReal.RowStride()
+               << "-" << AReal.DistRank() << ".bin";
+            AReal.Resize( n, n );
+            read::Binary( AReal.Matrix(), os.str() );
+            isReal = true;
+            break;
+        case 6:
+            os << basename << "-" << ACpx.ColStride() << "x" << ACpx.RowStride()
+               << "-" << ACpx.DistRank() << ".bin";
+            ACpx.Resize( n, n );
+            read::Binary( ACpx.Matrix(), os.str() );
+            isReal = false;
+            break;
         default:
-            os << basename << "-" << A.ColStride() << "x" << A.RowStride()
-               << "-" << A.DistRank() << ".bin";
-            A.Resize( n, n );
-            read::Binary( A.Matrix(), os.str() );
+            LogicError("Invalid matrix type");
         }
-        MakeTriangular( UPPER, A );
         if( display )
-            Display( A, "A" );
+        {
+            if( isReal )
+                Display( AReal, "A" );
+            else
+                Display( ACpx, "A" );
+        }
         if( write )
         {
-            Write( A, "A", numFormat );
-            Write( A, "A", imgFormat );
+            if( isReal )
+            {
+                Write( AReal, "A", numFormat );
+                Write( AReal, "A", imgFormat );
+            }
+            else
+            {
+                Write( ACpx, "A", numFormat );
+                Write( ACpx, "A", imgFormat );
+            }
         }
 
         // Find a window if none is specified
-        auto w = A.GetDiagonal();
         if( realWidth == 0. || imagWidth == 0. )
         {
-            const Real radius = MaxNorm( w );
-            const Real oneNorm = OneNorm( A );
+            Real radius;
+            if( isReal )
+            {
+                if( quasi )
+                    radius = MaxNorm( pspec::QuasiTriangEig( AReal ) );
+                else
+                    radius = MaxNorm( AReal.GetDiagonal() );
+            }
+            else
+                radius = MaxNorm( ACpx.GetDiagonal() );
+        
+            const Real oneNorm = ( isReal ? OneNorm(AReal) : OneNorm(ACpx) );
             Real width;
             if( oneNorm == 0. && radius == 0. )
             {
@@ -210,9 +266,26 @@ main( int argc, char* argv[] )
                 timer.Start();
                 psCtrl.snapCtrl.imgBase = imgBase+chunkTag;
                 psCtrl.snapCtrl.numBase = numBase+chunkTag;
-                itCountMap = TriangularPseudospectrum
-                ( A, invNormMap, chunkCenter, realChunkWidth, imagChunkWidth, 
-                  realChunkSize, imagChunkSize, psCtrl );
+                if( isReal )
+                {
+                    if( quasi )
+                        itCountMap = QuasiTriangularPseudospectrum
+                        ( AReal, invNormMap, chunkCenter, 
+                          realChunkWidth, imagChunkWidth, 
+                          realChunkSize, imagChunkSize, psCtrl );
+                    else
+                        itCountMap = TriangularPseudospectrum
+                        ( AReal, invNormMap, chunkCenter, 
+                          realChunkWidth, imagChunkWidth, 
+                          realChunkSize, imagChunkSize, psCtrl );
+                }
+                else
+                {
+                    itCountMap = TriangularPseudospectrum
+                    ( ACpx, invNormMap, chunkCenter, 
+                      realChunkWidth, imagChunkWidth, 
+                      realChunkSize, imagChunkSize, psCtrl );
+                }
                 mpi::Barrier( mpi::COMM_WORLD );
                 const double pseudoTime = timer.Stop();
                 const Int numIts = MaxNorm( itCountMap );

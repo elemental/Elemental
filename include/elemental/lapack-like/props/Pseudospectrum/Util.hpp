@@ -88,8 +88,91 @@ struct PseudospecCtrl
 namespace pspec {
 
 template<typename F>
+inline void
+QuasiTriangEig
+( const Matrix<F>& dMain, const Matrix<F>& dSub, const Matrix<F>& dSup, 
+  Matrix<Complex<BASE(F)> >& w )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangEig"))
+    const Int n = dMain.Height();
+    if( mpi::WorldRank() == 0 )
+        std::cout << "n=" << n << ", w ~ " << w.Height() << " x " 
+                  << w.Width() << std::endl;
+    Matrix<F> H11(2,2);
+    w.Resize( n, 1 );
+
+    Int j=0;
+    while( j < n )
+    {
+        if( j == n-1 || dSub.Get(j,0) == F(0) )
+        {
+            w.Set( j, 0, dMain.Get(j,0) );
+            ++j;
+        }
+        else
+        {
+            H11.Set( 0, 0, dMain.Get(j,0) );
+            H11.Set( 1, 0, dSub.Get(j,0) );
+            H11.Set( 0, 1, dSup.Get(j,0) );
+            H11.Set( 1, 1, dMain.Get(j+1,0) );
+            lapack::HessenbergEig( 2, H11.Buffer(), H11.LDim(), w.Buffer(j,0) );
+            j += 2;
+        }
+    }
+}
+
+template<typename F>
+inline void
+QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<BASE(F)> >& w )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangEig"))
+    auto dMain = U.GetDiagonal(); 
+    auto dSub = U.GetDiagonal(-1);
+    auto dSup = U.GetDiagonal(+1);
+    QuasiTriangEig( dMain, dSub, dSup, w );
+}
+
+template<typename F>
+inline Matrix<Complex<BASE(F)> >
+QuasiTriangEig( const Matrix<F>& U )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangEig"))
+    Matrix<Complex<Base<F>>> w;
+    QuasiTriangEig( U, w );
+    return w;
+}
+
+template<typename F,Dist colDist,Dist rowDist>
+inline void
+QuasiTriangEig
+( const DistMatrix<F>& U, DistMatrix<Complex<BASE(F)>,colDist,rowDist>& w )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangEig"))
+    const Grid& g = U.Grid();
+    DistMatrix<F,STAR,STAR> dMain(g), dSub(g), dSup(g);
+    DistMatrix<Complex<Base<F>>> w_STAR_STAR(g);
+    dMain = U.GetDiagonal();
+    dSub = U.GetDiagonal(-1);
+    dSup = U.GetDiagonal(+1);
+    w_STAR_STAR.Resize( U.Height(), 1 );
+    QuasiTriangEig
+    ( dMain.Matrix(), dSub.Matrix(), dSup.Matrix(), w_STAR_STAR.Matrix() );
+    w = w_STAR_STAR;
+}
+
+template<typename F>
+inline DistMatrix<Complex<BASE(F)>,VR,STAR>
+QuasiTriangEig( const DistMatrix<F>& U )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::QuasiTriangEig"))
+    DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());
+    QuasiTriangEig( U, w );
+    return w;
+}
+
+template<typename F>
 inline bool
-NumericallyNormal( const Matrix<F>& U, BASE(F) tol )
+TriangIsNormal( const Matrix<F>& U, BASE(F) tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
@@ -100,9 +183,20 @@ NumericallyNormal( const Matrix<F>& U, BASE(F) tol )
 
 template<typename F>
 inline bool
-NumericallyNormal
-( const Matrix<F>& U, const Matrix<Complex<BASE(F)> >& w, BASE(F) tol )
+TriangIsNormal( const DistMatrix<F>& U, BASE(F) tol )
 {
+    auto w = U.GetDiagonal();
+    const Base<F> diagFrob = FrobeniusNorm( w );
+    const Base<F> upperFrob = FrobeniusNorm( U );
+    const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
+    return offDiagFrob <= tol*diagFrob;
+}
+
+template<typename F>
+inline bool
+QuasiTriangIsNormal( const Matrix<F>& U, BASE(F) tol )
+{
+    const auto w = QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
     const Base<F> upperFrob = FrobeniusNorm( U );
     const Base<F> strictlyUpperFrob = Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
@@ -111,21 +205,9 @@ NumericallyNormal
 
 template<typename F>
 inline bool
-NumericallyNormal( const DistMatrix<F>& U, BASE(F) tol )
+QuasiTriangIsNormal( const DistMatrix<F>& U, BASE(F) tol )
 {
-    auto w = U.GetDiagonal();
-    const Base<F> diagFrob = FrobeniusNorm( w );
-    const Base<F> upperFrob = FrobeniusNorm( U );
-    const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
-    return offDiagFrob <= tol*diagFrob;
-}
-
-template<typename F>
-inline bool
-NumericallyNormal
-( const DistMatrix<F>& U, const DistMatrix<Complex<BASE(F)>,VR,STAR>& w, 
-  BASE(F) tol )
-{
+    const auto w = QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
     const Base<F> upperFrob = FrobeniusNorm( U );
     const Base<F> strictlyUpperFrob = Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);

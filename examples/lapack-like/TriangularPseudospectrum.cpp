@@ -34,6 +34,7 @@ main( int argc, char* argv[] )
         const Int matType =
             Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi,"
                   "5:custom real,6:custom complex",1);
+        bool quasi = Input("--quasi","Quasi-triang real matrix?",true);
         const std::string basename = 
             Input("--basename","basename of distributed Schur factor",
                   std::string("default"));
@@ -105,22 +106,27 @@ main( int argc, char* argv[] )
         {
         case 0: 
             Uniform( ACpx, n, n, uniformCenter, uniformRadius ); 
+            MakeTriangular( UPPER, ACpx );
             isReal = false;
             break;
         case 1: 
             Demmel( AReal, n );
+            MakeTriangular( UPPER, AReal );
             isReal = true;
             break;
         case 2: 
             Lotkin( AReal, n );
+            MakeTriangular( UPPER, AReal );
             isReal = true;
             break;
         case 3: 
             Grcar( AReal, n, numBands ); 
+            MakeTriangular( UPPER, AReal );
             isReal = true;
             break;
         case 4: 
             FoxLi( ACpx, n, omega );
+            MakeTriangular( UPPER, ACpx );
             isReal = false;
             break;
         case 5:
@@ -129,6 +135,7 @@ main( int argc, char* argv[] )
                << AReal.DistRank() << ".bin";
             AReal.Resize( n, n );
             read::Binary( AReal.Matrix(), os.str() ); 
+            isReal = true;
             break;
         case 6:
             os << basename << "-" 
@@ -136,14 +143,11 @@ main( int argc, char* argv[] )
                << ACpx.DistRank() << ".bin";
             ACpx.Resize( n, n );
             read::Binary( ACpx.Matrix(), os.str() ); 
+            isReal = false;
             break;
         default:
             LogicError("Invalid matrix type");
         }
-        if( isReal )
-            MakeTriangular( UPPER, AReal );
-        else
-            MakeTriangular( UPPER, ACpx );
         if( display )
         {
             if( isReal ) 
@@ -188,9 +192,16 @@ main( int argc, char* argv[] )
         if( realWidth != 0. && imagWidth != 0. )
         {
             if( isReal )
-                itCountMap = TriangularPseudospectrum
-                ( AReal, invNormMap, center, realWidth, imagWidth, 
-                  realSize, imagSize, psCtrl );
+            {
+                if( quasi )
+                    itCountMap = QuasiTriangularPseudospectrum
+                    ( AReal, invNormMap, center, realWidth, imagWidth, 
+                      realSize, imagSize, psCtrl );
+                else
+                    itCountMap = TriangularPseudospectrum
+                    ( AReal, invNormMap, center, realWidth, imagWidth, 
+                      realSize, imagSize, psCtrl );
+            }
             else
                 itCountMap = TriangularPseudospectrum
                 ( ACpx, invNormMap, center, realWidth, imagWidth, 
@@ -199,8 +210,16 @@ main( int argc, char* argv[] )
         else
         {
             if( isReal )
-                itCountMap = TriangularPseudospectrum
-                ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+            {
+                if( quasi )
+                {
+                    itCountMap = QuasiTriangularPseudospectrum
+                    ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+                }
+                else
+                    itCountMap = TriangularPseudospectrum
+                    ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+            }
             else
                 itCountMap = TriangularPseudospectrum
                 ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
