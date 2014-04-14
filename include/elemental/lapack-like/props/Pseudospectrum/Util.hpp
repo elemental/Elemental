@@ -137,7 +137,7 @@ inline void
 ReshapeIntoGrid( Int realSize, Int imagSize, const Matrix<T>& x, Matrix<T>& X )
 {
 #if 0    
-    X.Resize( realSize, imagSize );
+    X.Resize( imagSize, realSize );
     for( Int j=0; j<realSize; ++j )
     {
         auto XSub = View( X, 0, j, imagSize, 1 );
@@ -146,7 +146,7 @@ ReshapeIntoGrid( Int realSize, Int imagSize, const Matrix<T>& x, Matrix<T>& X )
     }
 #else
     // The sequential case can be optimized much more heavily than in parallel
-    X.Resize( realSize, imagSize, realSize );
+    X.Resize( imagSize, realSize, imagSize );
     MemCopy( X.Buffer(), x.LockedBuffer(), realSize*imagSize );
 #endif
 }
@@ -157,7 +157,7 @@ ReshapeIntoGrid
 ( Int realSize, Int imagSize, const DistMatrix<T,VR,STAR>& x, DistMatrix<T>& X )
 {
     X.SetGrid( x.Grid() );
-    X.Resize( realSize, imagSize );
+    X.Resize( imagSize, realSize );
     for( Int j=0; j<realSize; ++j )
     {
         auto XSub = View( X, 0, j, imagSize, 1 );

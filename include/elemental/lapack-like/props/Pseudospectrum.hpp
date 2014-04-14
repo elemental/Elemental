@@ -1065,7 +1065,6 @@ Pseudospectrum
         schur::SDC( B, w, X, fullTriangle psCtrl.sdcCtrl );
         X.Empty();
 #endif
- 
         return TriangularPseudospectrum
                ( B, invNormMap, center, realSize, imagSize, psCtrl );
     }
