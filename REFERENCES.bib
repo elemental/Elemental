@@ -461,6 +461,17 @@ Useful for randomized rank-revealing factorizations of rank-deficient matrices
 Convex optimization
 ===================
 
+The line search reference for the L-BFGS algorithm of ByrdEtAl-1995
+@article{MoreThuente-1994,
+  author={Jorge J. Mor\'e and David J. Thuente},
+  title={Line search algorithms with guaranteed sufficient decrease},
+  journal={ACM Transactions on Mathematical Software},
+  volume=20,
+  number=3,
+  pages={286--307},
+  year=1994
+} 
+
 Introduced the lasso
 @article{Tibshirani-1995,
   author={Robert Tibshirani},
@@ -471,6 +482,29 @@ Introduced the lasso
   pages={267--288},
   year=1996
 } 
+
+The basis for Elemental's (upcoming) L-BFGS implementation
+@article{ByrdEtAl-1995,
+  author={Richard H. Byrd and Peihuang Lu and Jorge Nocedal and Ciyou Zhu},
+  title={A limited memory algorithm for bound constrained optimization},
+  journal={SIAM Journal on Scientific Computing},
+  volume=16,
+  number=5,
+  pages={1190--1208},
+  year=1995
+}
+
+Section 4 contains the sparse covariance selection experiment used in 
+examples/convex/SparseInvCov.cpp
+@article{dAspremontBanerjeeElGhaoui-2008,
+  author={Alexandre d'Aspremont and Onureena Banerjee and Laurent El Ghaoui},
+  title={First-order methods for sparse covariance selection},
+  journal={SIAM Journal on Matrix Analysis and Applications},
+  volume=30,
+  number=1,
+  pages={56--66},
+  year=2008
+}
 
 Introduces techniques for L+S decompositions and proves that exact recovery
 is often possible
