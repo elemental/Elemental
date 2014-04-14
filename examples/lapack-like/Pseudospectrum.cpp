@@ -71,10 +71,8 @@ main( int argc, char* argv[] )
         const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
         const bool progress = Input("--progress","print progress?",true);
         const bool deflate = Input("--deflate","deflate?",true);
-        const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
-        const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int numSaveFreq = 
             Input("--numSaveFreq","numerical save frequency",-1);
         const Int imgSaveFreq = 

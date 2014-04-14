@@ -80,7 +80,6 @@ main( int argc, char* argv[] )
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
         const bool saveSchur = Input("--saveSchur","save Schur factor?",true);
-        const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int numSaveFreq = 
             Input("--numSaveFreq","numerical save frequency",-1);
         const Int imgSaveFreq = 

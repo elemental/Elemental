@@ -65,7 +65,6 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
-        const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int numSaveFreq = 
             Input("--numSaveFreq","numerical save frequency",-1);
         const Int imgSaveFreq = 
@@ -178,7 +177,7 @@ main( int argc, char* argv[] )
             if( isReal )
             {
                 if( quasi )
-                    radius = MaxNorm( pspec::QuasiTriangEig( AReal ) );
+                    radius = MaxNorm( schur::QuasiTriangEig( AReal ) );
                 else
                     radius = MaxNorm( AReal.GetDiagonal() );
             }

@@ -98,7 +98,7 @@ QuasiTriangularPseudospectrum
         Matrix<Int> itCounts;
         if( psCtrl.progress )
             std::cout << "Matrix was numerically normal" << std::endl;
-        const auto w = pspec::QuasiTriangEig( U );
+        const auto w = schur::QuasiTriangEig( U );
         pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         Zeros( itCounts, shifts.Height(), 1 );        
         return itCounts;
@@ -222,7 +222,7 @@ QuasiTriangularPseudospectrum
         DistMatrix<Int,VR,STAR> itCounts(g);
         if( psCtrl.progress && g.Rank() == 0 )
             std::cout << "Matrix was numerically normal" << std::endl;
-        auto w = pspec::QuasiTriangEig( U );
+        auto w = schur::QuasiTriangEig( U );
         pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
         itCounts.AlignWith( shifts );
         Zeros( itCounts, shifts.Height(), 1 );
@@ -783,7 +783,7 @@ QuasiTriangularPseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
-    const auto w = pspec::QuasiTriangEig( U );
+    const auto w = schur::QuasiTriangEig( U );
     const Real radius = MaxNorm( w );
     const Real oneNorm = OneNorm( U );
 
@@ -906,7 +906,7 @@ QuasiTriangularPseudospectrum
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
-    const auto w = pspec::QuasiTriangEig( U );
+    const auto w = schur::QuasiTriangEig( U );
     const Real radius = MaxNorm( w );
     const Real oneNorm = OneNorm( U );
 

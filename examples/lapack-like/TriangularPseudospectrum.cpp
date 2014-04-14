@@ -62,7 +62,6 @@ main( int argc, char* argv[] )
         const bool deflate = Input("--deflate","deflate?",true);
         const bool display = Input("--display","display matrices?",false);
         const bool write = Input("--write","write matrices?",false);
-        const bool writePseudo = Input("--writePs","write pseudospec.",false);
         const Int numSaveFreq = 
             Input("--numSaveFreq","numerical save frequency",-1);
         const Int imgSaveFreq = 
