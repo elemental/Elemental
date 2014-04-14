@@ -35,7 +35,7 @@ inline T SampleUniform( T a, T b )
     typedef BASE(T) Real;
     T sample;
 
-#ifdef ELEM_HAVE_UNIFORM_REAL_DIST
+#ifdef ELEM_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
     std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
     SetRealPart( sample, realUni(gen) ); 
@@ -64,7 +64,7 @@ inline T SampleUniform( T a, T b )
 template<>
 inline Int SampleUniform<Int>( Int a, Int b )
 {
-#ifdef ELEM_HAVE_UNIFORM_INT_DIST
+#ifdef ELEM_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
     std::uniform_int_distribution<Int> intDist(a,b-1); 
     return intDist(gen);
@@ -79,6 +79,7 @@ inline F SampleNormal( F mean, BASE(F) stddev )
     typedef Base<F> Real;
     F sample;
 
+#ifdef ELEM_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
     if( IsComplex<F>::val )
         stddev = stddev / Sqrt(Real(2));
@@ -89,6 +90,26 @@ inline F SampleNormal( F mean, BASE(F) stddev )
         std::normal_distribution<Real> imagNormal( ImagPart(mean), stddev );
         SetImagPart( sample, imagNormal(gen) );
     }
+#else
+    // Run Marsiglia's polar method
+    // ============================
+    // NOTE: Half of the generated samples are thrown away in the case that
+    //       F is real.
+    while( true )
+    {
+        const Real U = SampleUniform<Real>(-1,1);
+        const Real V = SampleUniform<Real>(-1,1);
+        const Real S = Sqrt(U*U+V*V);
+        if( S > 0 && S < 1)
+        {
+            const Real W = Sqrt(-2*Log(S)/S);
+            SetRealPart( sample, RealPart(mean) + stddev*U*W );
+            if( IsComplex<F>::val )
+                SetImagPart( sample, ImagPart(mean) + stddev*V*W );
+            break;
+        }
+    }
+#endif
 
     return sample;
 }
