@@ -29,6 +29,7 @@ main( int argc, char* argv[] )
             static_cast<SignScaling>(Input("--scaling","scaling strategy",0));
         const Int maxIts = Input("--maxIts","max number of iter's",100);
         const double tol = Input("--tol","convergence tolerance",1e-6);
+        const bool progress = Input("--progress","print sign progress?",true);
         const bool print = Input("--print","print matrix?",false);
         const bool display = Input("--display","display matrix?",false);
         ProcessInput();
@@ -41,10 +42,14 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
 
+        SignCtrl<Real> signCtrl;
+        signCtrl.maxIts = maxIts;
+        signCtrl.tol = tol;
+        signCtrl.progress = progress;
+        signCtrl.scaling = scaling;
+
         // Compute sgn(A)
-        const Int numIter = sign::Newton( A, scaling, maxIts, tol );
-        if( mpi::WorldRank() == 0 )
-            std::cout << "num iterations: " << numIter << std::endl;
+        Sign( A, signCtrl );
         if( print )
             Print( A, "A" );
         if( display )

@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
         const Int basisSize = Input("--basisSize","num Arnoldi vectors",10);
         const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
-        const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Real psTol = Input("--psTol","tolerance for pseudospectra",1e-6);
         const Real uniformRealCenter = 
             Input("--uniformRealCenter","real center of uniform dist",0.);
         const Real uniformImagCenter =
@@ -216,7 +216,7 @@ main( int argc, char* argv[] )
         PseudospecCtrl<Real> psCtrl;
         psCtrl.schur = true;
         psCtrl.maxIts = maxIts;
-        psCtrl.tol = tol;
+        psCtrl.tol = psTol;
         psCtrl.deflate = deflate;
         psCtrl.arnoldi = arnoldi;
         psCtrl.basisSize = basisSize;

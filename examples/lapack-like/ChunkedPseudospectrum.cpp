@@ -48,7 +48,7 @@ main( int argc, char* argv[] )
         const bool arnoldi = Input("--arnoldi","use Arnoldi?",true);
         const Int basisSize = Input("--basisSize","num basis vectors",10);
         const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
-        const Real tol = Input("--tol","tolerance for norm estimates",1e-6);
+        const Real psTol = Input("--psTol","tolerance for pseudospectra",1e-6);
 #ifdef ELEM_HAVE_SCALAPACK
         // QR algorithm options
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
@@ -58,9 +58,9 @@ main( int argc, char* argv[] )
         const Int maxInnerIts = Input("--maxInnerIts","SDC limit",2);
         const Int maxOuterIts = Input("--maxOuterIts","SDC limit",10);
         const bool random = Input("--random","Random RRQR in SDC",true);
-        const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-9);
-        const Real relTol = Input("--relTol","Rel. tol. for SDC",1e-6);
+        const Real sdcTol = Input("--sdcTol","Rel. tol. for SDC",1e-6);
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
+        const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-9);
 #endif
         const Real uniformRealCenter = 
             Input("--uniformRealCenter","real center of uniform dist",0.);
@@ -193,20 +193,26 @@ main( int argc, char* argv[] )
             std::cout << "QR algorithm took " << qrTime << " seconds" 
                       << std::endl; 
 #else
+        SdcCtrl<Real> sdcCtrl;
+        sdcCtrl.cutoff = cutoff;
+        sdcCtrl.maxInnerIts = maxInnerIts;
+        sdcCtrl.maxOuterIts = maxOuterIts;
+        sdcCtrl.tol = sdcTol;
+        sdcCtrl.spreadFactor = spreadFactor;
+        sdcCtrl.random = random;
+        sdcCtrl.progress = progress;
+        sdcCtrl.signCtrl.tol = signTol;
+        sdcCtrl.signCtrl.progress = progress;
         timer.Start();
         if( isReal )
         {
             DistMatrix<Real> XReal(g);
-            schur::SDC
-            ( AReal, w, XReal, formATR, cutoff, maxInnerIts, maxOuterIts, 
-              signTol, relTol, spreadFactor, random, progress );
+            schur::SDC( AReal, w, XReal, formATR, sdcCtrl );
         }
         else
         {
             DistMatrix<C> XCpx(g);
-            schur::SDC
-            ( ACpx, w, XCpx, formATR, cutoff, maxInnerIts, maxOuterIts, 
-              signTol, relTol, spreadFactor, random, progress );
+            schur::SDC( ACpx, w, XCpx, formATR, sdcCtrl );
         }
         mpi::Barrier( mpi::COMM_WORLD );
         const double sdcTime = timer.Stop();
@@ -280,7 +286,7 @@ main( int argc, char* argv[] )
         PseudospecCtrl<Real> psCtrl;
         psCtrl.schur = true;
         psCtrl.maxIts = maxIts;
-        psCtrl.tol = tol;
+        psCtrl.tol = psTol;
         psCtrl.deflate = deflate;
         psCtrl.arnoldi = arnoldi;
         psCtrl.basisSize = basisSize;

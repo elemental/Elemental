@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",2);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
         const Real signTol = Input("--signTol","sign tolerance",Real(0));
-        const Real relTol = Input("--relTol","rel. tol.",Real(0));
+        const Real sdcTol = Input("--sdcTol","SDC split tolerance",Real(0));
         const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
         const bool random = Input("--random","random RRQR?",true);
         const bool progress = Input("--progress","output progress?",false);
@@ -59,9 +59,17 @@ main( int argc, char* argv[] )
 #ifdef ELEM_HAVE_SCALAPACK
         schur::QR( T, w, Q, fullTriangle, aed );
 #else
-        schur::SDC
-        ( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, signTol, relTol, 
-          spreadFactor, random, progress );
+        SdcCtrl<Real> sdcCtrl;
+        sdcCtrl.cutoff = cutoff;
+        sdcCtrl.maxInnerIts = maxInnerIts;
+        sdcCtrl.maxOuterIts = maxOuterIts;
+        sdcCtrl.tol = sdcTol;
+        sdcCtrl.spreadFactor = spreadFactor;
+        sdcCtrl.random = random;
+        sdcCtrl.progress = progress;
+        sdcCtrl.signCtrl.tol = signTol;
+        sdcCtrl.signCtrl.progress = progress;
+        schur::SDC( T, w, Q, true, sdcCtrl );
 #endif
         MakeTrapezoidal( UPPER, T, -1 );
         if( display )

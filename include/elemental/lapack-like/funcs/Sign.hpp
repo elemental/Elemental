@@ -26,6 +26,20 @@
 // http://www.siam.org/books/ot104/OT104HighamChapter5.pdf
 
 namespace elem {
+
+template<typename Real>
+struct SignCtrl {
+    Int maxIts;
+    Real tol;
+    Real power;
+    SignScaling scaling;
+    bool progress;
+
+    SignCtrl()
+    : maxIts(100), tol(0), power(1), scaling(SIGN_SCALE_FROB), progress(false)
+    { }
+};
+
 namespace sign {
 
 template<typename F>
@@ -129,22 +143,20 @@ NewtonSchulzStep
 // the different choices of p, which are usually in {0,1,2}
 template<typename F>
 inline Int
-Newton
-( Matrix<F>& A, SignScaling scaling=SIGN_SCALE_FROB, Int maxIts=100, 
-  BASE(F) tol=0, BASE(F) p=1, bool progress=false )
+Newton( Matrix<F>& A, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
-    if( tol == Real(0) )
-        tol = A.Height()*lapack::MachineEpsilon<Real>();
+    if( signCtrl.tol == Real(0) )
+        signCtrl.tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
     Matrix<F> B;
     Matrix<F> *X=&A, *XNew=&B;
-    while( numIts < maxIts )
+    while( numIts < signCtrl.maxIts )
     {
         // Overwrite XNew with the new iterate
-        NewtonStep( *X, *XNew, scaling );
+        NewtonStep( *X, *XNew, signCtrl.scaling );
 
         // Use the difference in the iterates to test for convergence
         Axpy( Real(-1), *XNew, *X );
@@ -154,12 +166,12 @@ Newton
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( progress )
+        if( signCtrl.progress )
             std::cout << "after " << numIts << " Newton iter's: " 
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
-                      << tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,p)*tol )
+                      << signCtrl.tol << std::endl;
+        if( oneDiff/oneNew <= Pow(oneNew,signCtrl.power)*signCtrl.tol )
             break;
     }
     if( X != &A )
@@ -169,22 +181,20 @@ Newton
 
 template<typename F>
 inline Int
-Newton
-( DistMatrix<F>& A, SignScaling scaling=SIGN_SCALE_FROB,
-  Int maxIts=100, BASE(F) tol=0, BASE(F) p=1, bool progress=false )
+Newton( DistMatrix<F>& A, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
-    if( tol == Real(0) )
-        tol = A.Height()*lapack::MachineEpsilon<Real>();
+    if( signCtrl.tol == Real(0) )
+        signCtrl.tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
     DistMatrix<F> B( A.Grid() );
     DistMatrix<F> *X=&A, *XNew=&B;
-    while( numIts < maxIts )
+    while( numIts < signCtrl.maxIts )
     {
         // Overwrite XNew with the new iterate
-        NewtonStep( *X, *XNew, scaling );
+        NewtonStep( *X, *XNew, signCtrl.scaling );
 
         // Use the difference in the iterates to test for convergence
         Axpy( Real(-1), *XNew, *X );
@@ -194,12 +204,12 @@ Newton
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( progress && A.Grid().Rank() == 0 )
+        if( signCtrl.progress && A.Grid().Rank() == 0 )
             std::cout << "after " << numIts << " Newton iter's: "
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
-                      << tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,p)*tol )
+                      << signCtrl.tol << std::endl;
+        if( oneDiff/oneNew <= Pow(oneNew,signCtrl.power)*signCtrl.tol )
             break;
     }
     if( X != &A )
@@ -213,37 +223,40 @@ Newton
 
 template<typename F>
 inline void
-Sign( Matrix<F>& A )
+Sign( Matrix<F>& A, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
-    sign::Newton( A );
+    sign::Newton( A, signCtrl );
 }
 
 template<typename F>
 inline void
-Sign( Matrix<F>& A, Matrix<F>& N )
+Sign
+( Matrix<F>& A, Matrix<F>& N, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     Matrix<F> ACopy( A );
-    sign::Newton( A );
+    sign::Newton( A, signCtrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
 }
 
 template<typename F>
 inline void
-Sign( DistMatrix<F>& A )
+Sign( DistMatrix<F>& A, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
-    sign::Newton( A );
+    sign::Newton( A, signCtrl );
 }
 
 template<typename F>
 inline void
-Sign( DistMatrix<F>& A, DistMatrix<F>& N )
+Sign
+( DistMatrix<F>& A, DistMatrix<F>& N, 
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     DistMatrix<F> ACopy( A );
-    sign::Newton( A );
+    sign::Newton( A, signCtrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
 }
 

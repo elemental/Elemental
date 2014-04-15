@@ -22,8 +22,10 @@ namespace elem {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-inline int
-Lyapunov( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X )
+inline void
+Lyapunov
+( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X, 
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Lyapunov");
@@ -42,12 +44,14 @@ Lyapunov( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X )
     WTL = A;
     Adjoint( A, WBR ); Scale( F(-1), WBR );
     WTR = C; Scale( F(-1), WTR );
-    return Sylvester( m, W, X );
+    Sylvester( m, W, X, signCtrl );
 }
 
 template<typename F>
-inline int
-Lyapunov( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X )
+inline void
+Lyapunov
+( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X,
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -69,7 +73,7 @@ Lyapunov( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X )
     WTL = A;
     Adjoint( A, WBR ); Scale( F(-1), WBR );
     WTR = C; Scale( F(-1), WTR );
-    return Sylvester( m, W, X );
+    Sylvester( m, W, X, signCtrl );
 }
 
 } // namespace elem

@@ -1062,7 +1062,7 @@ Pseudospectrum
         // We don't actually need the Schur vectors, but SDC requires their
         // computation in order to form the full triangular factor
         DistMatrix<C> X(g);
-        schur::SDC( B, w, X, fullTriangle psCtrl.sdcCtrl );
+        schur::SDC( B, w, X, fullTriangle, psCtrl.sdcCtrl );
         X.Empty();
 #endif
         return TriangularPseudospectrum

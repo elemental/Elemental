@@ -29,7 +29,7 @@ main( int argc, char* argv[] )
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",1);
         const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
-        const Real relTol = Input("--relTol","rel. tol.",Real(0));
+        const Real tol = Input("--tol","relative tol.",Real(0));
         const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -38,12 +38,17 @@ main( int argc, char* argv[] )
         auto A = Wigner<C>( g, n );
         const Real frobA = FrobeniusNorm( A );
 
+        HermitianSdcCtrl<Real> sdcCtrl;
+        sdcCtrl.cutoff = cutoff;
+        sdcCtrl.maxInnerIts = maxInnerIts;
+        sdcCtrl.maxOuterIts = maxOuterIts;
+        sdcCtrl.tol = tol;
+
         // Attempt to compute the spectral decomposition of A, 
         // but do not overwrite A
         DistMatrix<C> ACopy( A ), Q(g);
         DistMatrix<Real,VR,STAR>  w(g);
-        herm_eig::SDC
-        ( LOWER, ACopy, w, Q, cutoff, maxInnerIts, maxOuterIts, relTol );
+        herm_eig::SDC( LOWER, ACopy, w, Q, sdcCtrl );
 
         if( display )
         {

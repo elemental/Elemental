@@ -31,11 +31,13 @@ namespace elem {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-inline int
-Sylvester( Int m, Matrix<F>& W, Matrix<F>& X )
+inline void
+Sylvester
+( Int m, Matrix<F>& W, Matrix<F>& X, 
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sylvester"))
-    const Int numIts = sign::Newton( W );
+    Sign( W, signCtrl );
     Matrix<F> WTL, WTR,
               WBL, WBR;
     PartitionDownDiagonal
@@ -56,17 +58,17 @@ Sylvester( Int m, Matrix<F>& W, Matrix<F>& X )
     const Real errorWBR = FrobeniusNorm( WBR );
     const Real errorWBL = FrobeniusNorm( WBL );
     */
-
-    return numIts;
 }
 
 template<typename F>
-inline int
-Sylvester( Int m, DistMatrix<F>& W, DistMatrix<F>& X )
+inline void
+Sylvester
+( Int m, DistMatrix<F>& W, DistMatrix<F>& X, 
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sylvester"))
     const Grid& g = W.Grid();
-    const Int numIts = sign::Newton( W );
+    Sign( W, signCtrl );
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
     PartitionDownDiagonal
@@ -88,15 +90,13 @@ Sylvester( Int m, DistMatrix<F>& W, DistMatrix<F>& X )
     const Real errorWBR = FrobeniusNorm( WBR );
     const Real errorWBL = FrobeniusNorm( WBL );
     */
-
-    return numIts;
 }
 
-
 template<typename F>
-inline int
+inline void
 Sylvester
-( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, Matrix<F>& X )
+( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, Matrix<F>& X,
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -118,14 +118,14 @@ Sylvester
     WTL = A;
     WBR = B; Scale( F(-1), WBR );
     WTR = C; Scale( F(-1), WTR );
-    return Sylvester( m, W, X );
+    Sylvester( m, W, X, signCtrl );
 }
 
 template<typename F>
-inline int
+inline void
 Sylvester
 ( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C, 
-  DistMatrix<F>& X )
+  DistMatrix<F>& X, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -150,7 +150,7 @@ Sylvester
     WTL = A;
     WBR = B; Scale( F(-1), WBR );
     WTR = C; Scale( F(-1), WTR );
-    return Sylvester( m, W, X );
+    Sylvester( m, W, X, signCtrl );
 }
 
 } // namespace elem

@@ -32,11 +32,12 @@ namespace elem {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-inline int
-Ricatti( Matrix<F>& W, Matrix<F>& X )
+inline void
+Ricatti
+( Matrix<F>& W, Matrix<F>& X, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
-    const Int numIts = sign::Newton( W );
+    Sign( W, signCtrl );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
               WBL, WBR;
@@ -52,17 +53,17 @@ Ricatti( Matrix<F>& W, Matrix<F>& X )
     PartitionRight( W, ML, MR, n );
     Scale( F(-1), MR );
     LeastSquares( NORMAL, ML, MR, X );
-
-    return numIts;
 }
 
 template<typename F>
-inline int
-Ricatti( DistMatrix<F>& W, DistMatrix<F>& X )
+inline void
+Ricatti
+( DistMatrix<F>& W, DistMatrix<F>& X, 
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
     const Grid& g = W.Grid();
-    const Int numIts = sign::Newton( W );
+    Sign( W, signCtrl );
     const Int n = W.Height()/2;
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
@@ -78,15 +79,14 @@ Ricatti( DistMatrix<F>& W, DistMatrix<F>& X )
     PartitionRight( W, ML, MR, n );
     Scale( F(-1), MR );
     LeastSquares( NORMAL, ML, MR, X );
-
-    return numIts;
 }
 
 template<typename F>
-inline int
+inline void
 Ricatti
 ( UpperOrLower uplo, 
-  const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, Matrix<F>& X )
+  const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, Matrix<F>& X,
+  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -112,15 +112,15 @@ Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    return Ricatti( W, X );
+    Ricatti( W, X, signCtrl );
 }
 
 template<typename F>
-inline int
+inline void
 Ricatti
 ( UpperOrLower uplo, 
   const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, 
-  DistMatrix<F>& X )
+  DistMatrix<F>& X, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -149,7 +149,7 @@ Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    return Ricatti( W, X );
+    Ricatti( W, X, signCtrl );
 }
 
 } // namespace elem
