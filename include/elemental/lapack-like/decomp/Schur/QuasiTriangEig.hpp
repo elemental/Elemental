@@ -23,9 +23,6 @@ QuasiTriangEig
 {
     DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
     const Int n = dMain.Height();
-    if( mpi::WorldRank() == 0 )
-        std::cout << "n=" << n << ", w ~ " << w.Height() << " x "
-                  << w.Width() << std::endl;
     Matrix<F> H11(2,2);
     w.Resize( n, 1 );
 
@@ -78,7 +75,7 @@ QuasiTriangEig
     DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> dMain(g), dSub(g), dSup(g);
-    DistMatrix<Complex<Base<F>>> w_STAR_STAR(g);
+    DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR(g);
     dMain = U.GetDiagonal();
     dSub = U.GetDiagonal(-1);
     dSup = U.GetDiagonal(+1);
