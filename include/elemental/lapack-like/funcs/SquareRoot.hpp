@@ -24,6 +24,19 @@
 //       Sign
 
 namespace elem {
+
+template<typename Real>
+struct SquareRootCtrl {
+    Int maxIts;
+    Real tol;
+    Real power;
+    bool progress;
+
+    SquareRootCtrl()
+    : maxIts(100), tol(0), power(1), progress(false)
+    { }
+};
+
 namespace square_root {
 
 template<typename F>
@@ -65,18 +78,19 @@ NewtonStep
 
 template<typename F>
 inline int
-Newton( Matrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
+Newton
+( Matrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
 
-    if( tol == Real(0) )
-        tol = A.Height()*lapack::MachineEpsilon<Real>();
+    if( sqrtCtrl.tol == Real(0) )
+        sqrtCtrl.tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
-    while( numIts < maxIts )
+    while( numIts < sqrtCtrl.maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( A, *X, *XNew, XTmp );
@@ -89,27 +103,35 @@ Newton( Matrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( oneDiff/oneNew <= tol )
+        if( sqrtCtrl.progress )
+            std::cout << "after " << numIts << " Newton iter's: "
+                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
+                      << sqrtCtrl.tol << std::endl;
+        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*sqrtCtrl.tol )
             break;
     }
-    A = *X;
+    if( X != &A )
+        A = *X;
     return numIts;
 }
 
 template<typename F>
 inline int
-Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
+Newton
+( DistMatrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
-    DistMatrix<F> B(A), C(A.Grid()), XTmp(A.Grid());
+    const Grid& g = A.Grid();
+    DistMatrix<F> B(A), C(g), XTmp(g);
     DistMatrix<F> *X=&B, *XNew=&C;
 
-    if( tol == Real(0) )
-        tol = A.Height()*lapack::MachineEpsilon<Real>();
+    if( sqrtCtrl.tol == Real(0) )
+        sqrtCtrl.tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
-    while( numIts < maxIts )
+    while( numIts < sqrtCtrl.maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( A, *X, *XNew, XTmp );
@@ -122,10 +144,16 @@ Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( oneDiff/oneNew <= tol )
+        if( sqrtCtrl.progress && g.Rank() == 0 )
+            std::cout << "after " << numIts << " Newton iter's: "
+                      << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                      << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
+                      << sqrtCtrl.tol << std::endl;
+        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*sqrtCtrl.tol )
             break;
     }
-    A = *X;
+    if( X != &A )
+        A = *X;
     return numIts;
 }
 
@@ -133,18 +161,20 @@ Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
 
 template<typename F>
 inline void
-SquareRoot( Matrix<F>& A )
+SquareRoot
+( Matrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
-    square_root::Newton( A );
+    square_root::Newton( A, sqrtCtrl );
 }
 
 template<typename F>
 inline void
-SquareRoot( DistMatrix<F>& A )
+SquareRoot
+( DistMatrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
-    square_root::Newton( A );
+    square_root::Newton( A, sqrtCtrl );
 }
 
 //
