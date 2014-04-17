@@ -204,7 +204,8 @@ endif()
 include(ElemMathTests)
 
 # Now append the extra flags
-set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS} ${EXTRA_FLAGS}")
+set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
+set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CXX_FLAGS})
 
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 add_subdirectory(external/pmrrr)
