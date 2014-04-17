@@ -26,9 +26,8 @@ Ascii( Matrix<T>& A, const std::string filename )
     // columns and to ensure that the number of columns is consistent
     Int height=0, width=0;
     std::string line;
-    while( !file.eof() )
+    while( std::getline( file, line ) )
     {
-        std::getline( file, line );    
         std::stringstream lineStream( line );
         Int numCols=0;
         T value;
@@ -42,14 +41,14 @@ Ascii( Matrix<T>& A, const std::string filename )
             ++height;
         }
     }
-    file.seekg(0);
+    file.clear();
+    file.seekg(0,file.beg);
 
     // Resize the matrix and then read it
     A.Resize( height, width );
     Int i=0;
-    while( !file.eof() )
+    while( std::getline( file, line ) )
     {
-        std::getline( file, line );
         std::stringstream lineStream( line );
         Int j=0;
         T value;
@@ -75,9 +74,8 @@ Ascii( DistMatrix<T,U,V>& A, const std::string filename )
     // columns and to ensure that the number of columns is consistent
     Int height=0, width=0;
     std::string line;
-    while( !file.eof() )
+    while( std::getline( file, line ) )
     {
-        std::getline( file, line );    
         std::stringstream lineStream( line );
         Int numCols=0;
         T value;
@@ -91,14 +89,14 @@ Ascii( DistMatrix<T,U,V>& A, const std::string filename )
             ++height;
         }
     }
-    file.seekg(0);
+    file.clear();
+    file.seekg(0,file.beg);
 
     // Resize the matrix and then read in our local portion
     A.Resize( height, width );
     Int i=0;
-    while( !file.eof() )
+    while( std::getline( file, line ) )
     {
-        std::getline( file, line );
         std::stringstream lineStream( line );
         Int j=0;
         T value;

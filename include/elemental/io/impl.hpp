@@ -55,13 +55,19 @@ inline std::string FileExtension( FileFormat format )
 
 inline FileFormat FormatFromExtension( const std::string ext )
 {
+    bool foundFormat = false;
     FileFormat format = BINARY;
     for( int j=1; j<FileFormat_MAX; ++j )
     {
         format = static_cast<FileFormat>(j);
         if( FileExtension(format) == ext )
+        {
+            foundFormat = true;
             break;
+        }
     }
+    if( !foundFormat )
+        RuntimeError("Did not detect file format");
     return format;
 }
 
