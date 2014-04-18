@@ -65,6 +65,11 @@ main( int argc, char* argv[] )
         A = ASqrt;
         if( print )
             Print( A, "A := ASqrt" );
+
+        const Grid newGrid( comm, order );
+        A.SetGrid( newGrid );
+        if( print )
+            Print( A, "A after changing grid" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

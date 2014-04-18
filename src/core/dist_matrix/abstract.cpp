@@ -94,6 +94,7 @@ AbstractDistMatrix<T>::Empty()
     colConstrained_ = false;
     rowConstrained_ = false;
     rootConstrained_ = false;
+    SetShifts();
 }
 
 template<typename T>
@@ -112,9 +113,8 @@ AbstractDistMatrix<T>::SetGrid( const elem::Grid& grid )
 {
     if( grid_ != &grid )
     {
-        Empty();
         grid_ = &grid; 
-        SetShifts();
+        Empty();
     }
 }
 
