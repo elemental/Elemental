@@ -1061,7 +1061,7 @@ Matrix<T>::AssertValidEntry( Int i, Int j ) const
     DEBUG_ONLY(CallStackEntry cse("Matrix::AssertValidEntry"))
     if( i < 0 || j < 0 )
         LogicError("Indices must be non-negative");
-    if( i > Height() || j > Width() )
+    if( i >= Height() || j >= Width() )
         LogicError
         ("Out of bounds: (",i,",",j,") of ",Height()," x ",Width()," Matrix");
 }
