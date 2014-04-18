@@ -126,6 +126,7 @@ Grid::SetUpGrid()
         mpi::Translate
         ( vectorColGroup, size_, ranks.data(), 
           viewingGroup_,         vectorColToViewingMap_.data() );
+        mpi::Free( vectorColGroup );
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
@@ -191,6 +192,8 @@ Grid::~Grid()
     {
         if( InGrid() )
         {
+            mpi::Free( matrixDiagComm_ );
+            mpi::Free( matrixDiagPerpComm_ );
             mpi::Free( matrixColComm_ );
             mpi::Free( matrixRowComm_ );
             mpi::Free( vectorColComm_ );
