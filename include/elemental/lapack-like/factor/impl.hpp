@@ -19,6 +19,7 @@
 #include "./RQ.hpp"
 
 #include "./GQR.hpp"
+#include "./GRQ.hpp"
 
 #include "./ID.hpp"
 #include "./Skeleton.hpp"

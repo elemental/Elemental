@@ -244,6 +244,8 @@
 
 #define ELEM_GQR_INC \
   "elemental/lapack-like/factor/GQR.hpp"
+#define ELEM_GRQ_INC \
+  "elemental/lapack-like/factor/GRQ.hpp"
 
 #define ELEM_ID_INC \
   "elemental/lapack-like/factor/ID.hpp"
