@@ -11,12 +11,16 @@
 #define ELEM_FACTOR_IMPL_HPP
 
 #include "./Cholesky.hpp"
-#include "./ID.hpp"
 #include "./LDL.hpp"
-#include "./LQ.hpp"
 #include "./LU.hpp"
+
+#include "./LQ.hpp"
 #include "./QR.hpp"
 #include "./RQ.hpp"
+
+#include "./GQR.hpp"
+
+#include "./ID.hpp"
 #include "./Skeleton.hpp"
 
 #endif // ifndef ELEM_FACTOR_IMPL_HPP

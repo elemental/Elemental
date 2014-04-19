@@ -230,18 +230,23 @@
 
 #define ELEM_CHOLESKY_INC \
   "elemental/lapack-like/factor/Cholesky.hpp"
-#define ELEM_ID_INC \
-  "elemental/lapack-like/factor/ID.hpp"
 #define ELEM_LDL_INC \
   "elemental/lapack-like/factor/LDL.hpp"
-#define ELEM_LQ_INC \
-  "elemental/lapack-like/factor/LQ.hpp"
 #define ELEM_LU_INC \
   "elemental/lapack-like/factor/LU.hpp"
+
+#define ELEM_LQ_INC \
+  "elemental/lapack-like/factor/LQ.hpp"
 #define ELEM_QR_INC \
   "elemental/lapack-like/factor/QR.hpp"
 #define ELEM_RQ_INC \
   "elemental/lapack-like/factor/RQ.hpp"
+
+#define ELEM_GQR_INC \
+  "elemental/lapack-like/factor/GQR.hpp"
+
+#define ELEM_ID_INC \
+  "elemental/lapack-like/factor/ID.hpp"
 #define ELEM_SKELETON_INC \
   "elemental/lapack-like/factor/Skeleton.hpp"
 

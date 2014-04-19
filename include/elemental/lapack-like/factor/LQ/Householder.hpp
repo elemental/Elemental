@@ -49,6 +49,7 @@ Householder( Matrix<F>& A )
     Matrix<F> t;
     Matrix<Base<F>> d;
     Householder( A, t, d );
+    MakeTriangular( LOWER, A );
 }
 
 template<typename F> 
@@ -94,6 +95,7 @@ Householder( DistMatrix<F>& A )
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
     Householder( A, t, d );
+    MakeTriangular( LOWER, A );
 }
 
 } // namespace lq

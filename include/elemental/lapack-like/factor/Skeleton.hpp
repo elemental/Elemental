@@ -85,7 +85,7 @@ Skeleton
     Pseudoinverse( B );
 
     // Form K := A pinv(AR)
-    DistMatrix<F> K;
+    DistMatrix<F> K(g);
     Gemm( NORMAL, ADJOINT, F(1), A, B, K );
 
     // Find the column permutation (force the same number of steps)

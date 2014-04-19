@@ -10,6 +10,8 @@
 #ifndef ELEM_RQ_HOUSEHOLDER_HPP
 #define ELEM_RQ_HOUSEHOLDER_HPP
 
+#include ELEM_MAKETRAPEZOIDAL_INC
+
 #include "./ApplyQ.hpp"
 #include "./PanelHouseholder.hpp"
 
@@ -55,6 +57,7 @@ Householder( Matrix<F>& A )
     Matrix<F> t;
     Matrix<Base<F>> d;
     Householder( A, t, d );
+    MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
 }
 
 template<typename F> 
@@ -106,6 +109,7 @@ Householder( DistMatrix<F>& A )
     DistMatrix<F,MD,STAR> t(A.Grid());
     DistMatrix<Base<F>,MD,STAR> d(A.Grid());
     Householder( A, t, d );
+    MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
 }
 
 } // namespace rq
