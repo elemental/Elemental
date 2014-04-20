@@ -10,9 +10,20 @@
 #ifndef ELEM_SOLVE_IMPL_HPP
 #define ELEM_SOLVE_IMPL_HPP
 
+// LU with partial pivoting
 #include "./GaussianElimination.hpp"
+
+// Cholesky factorization
 #include "./HPDSolve.hpp"
+
+// Bunch-Kaufman
+#include "./SymmetricSolve.hpp"
+#include "./HermitianSolve.hpp"
+
+// QR factorization
 #include "./LeastSquares.hpp"
+
+// Simultaneous upper-Hessenberg QR factorizations
 #include "./MultiShiftHessSolve.hpp"
 
 #endif // ifndef ELEM_SOLVE_IMPL_HPP

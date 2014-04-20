@@ -411,8 +411,15 @@
   "elemental/lapack-like/solve/GaussianElimination.hpp"
 #define ELEM_HPDSOLVE_INC \
   "elemental/lapack-like/solve/HPDSolve.hpp"
+
+#define ELEM_HERMITIANSOLVE_INC \
+  "elemental/lapack-like/solve/HermitianSolve.hpp"
+#define ELEM_SYMMETRICSOLVE_INC \
+  "elemental/lapack-like/solve/SymmetricSolve.hpp"
+
 #define ELEM_LEASTSQUARES_INC \
   "elemental/lapack-like/solve/LeastSquares.hpp"
+
 #define ELEM_MULTISHIFTHESSSOLVE_INC \
   "elemental/lapack-like/solve/MultiShiftHessSolve.hpp"
 
