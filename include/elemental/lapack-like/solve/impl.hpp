@@ -20,8 +20,12 @@
 #include "./SymmetricSolve.hpp"
 #include "./HermitianSolve.hpp"
 
-// QR factorization
+// QR/LQ factorization
 #include "./LeastSquares.hpp"
+
+// Generalized QR/RQ factorization
+#include "./GLM.hpp"
+#include "./LSE.hpp"
 
 // Simultaneous upper-Hessenberg QR factorizations
 #include "./MultiShiftHessSolve.hpp"

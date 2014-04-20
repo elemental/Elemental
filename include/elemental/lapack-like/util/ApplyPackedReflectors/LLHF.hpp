@@ -69,7 +69,7 @@ LLHF
         const Int kj = k+jOff;
 
         auto HPan = LockedViewRange( H, ki, 0, ki+nb, kj+nb );
-        auto ATop = ViewRange( A, 0, 0, k+nb, nA );
+        auto ATop = ViewRange( A, 0, 0, kj+nb, nA );
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
         Conjugate( HPan, HPanConj );
@@ -125,7 +125,7 @@ LLHF
         const Int kj = k+jOff;
 
         auto HPan = LockedViewRange( H, ki, 0, ki+nb, kj+nb );
-        auto ATop = ViewRange( A, 0, 0, k+nb, nA );
+        auto ATop = ViewRange( A, 0, 0, kj+nb, nA );
         auto t1 = LockedView( t, k, 0, nb, 1 );
 
         Conjugate( HPan, HPanConj );

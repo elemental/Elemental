@@ -420,6 +420,11 @@
 #define ELEM_LEASTSQUARES_INC \
   "elemental/lapack-like/solve/LeastSquares.hpp"
 
+#define ELEM_GLM_INC \
+  "elemental/lapack-like/solve/GLM.hpp"
+#define ELEM_LSE_INC \
+  "elemental/lapack-like/solve/LSE.hpp"
+
 #define ELEM_MULTISHIFTHESSSOLVE_INC \
   "elemental/lapack-like/solve/MultiShiftHessSolve.hpp"
 
