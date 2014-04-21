@@ -17,7 +17,7 @@
 //
 // The problem formulation is 
 //     min || y ||_2 subject to d = A x + B y,
-//      x
+//     x,y
 // where A is m x n, B is m x p, and n <= m <= n+p. It is assumed that 
 // A has full column rank, n, and [A B] has full row rank, m.
 //
