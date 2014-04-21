@@ -54,6 +54,10 @@ main( int argc, char* argv[] )
         auto BCopy( B );
         auto DCopy( D );
 
+        const Real AFrob = FrobeniusNorm( A );
+        const Real BFrob = FrobeniusNorm( B );
+        const Real CFrob = FrobeniusNorm( C );
+        const Real DFrob = FrobeniusNorm( D );
         if( print )
         {
             Print( A, "A" );
@@ -71,15 +75,23 @@ main( int argc, char* argv[] )
                 Print( C, "rotated residuals" );
         }
         
-        const Real DFrob = FrobeniusNorm( DCopy ); 
         Gemm( NORMAL, NORMAL, F(-1), BCopy, X, F(1), DCopy );
         const Real EFrob = FrobeniusNorm( DCopy );
         if( print )
             Print( DCopy, "D - B X" );
         if( commRank == 0 )
-            std::cout << "|| D       ||_F = " << DFrob << "\n"
+            std::cout << "|| A       ||_F = " << AFrob << "\n"
+                      << "|| B       ||_F = " << BFrob << "\n"
+                      << "|| C       ||_F = " << CFrob << "\n"
+                      << "|| D       ||_F = " << DFrob << "\n"
                       << "|| B X - D ||_F = " << EFrob << "\n"
                       << std::endl;
+        if( resid )
+        {
+            const Real residFrob = FrobeniusNorm( C );
+            if( commRank == 0 )
+                std::cout << "|| A X - C ||_F = " << residFrob << std::endl;
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
 

@@ -159,20 +159,17 @@ GeneralDistMatrix<T,U,V>::Translate( DistMatrix<T,U,V>& A ) const
         }
         if( root != A.Root() )
         {
-            // If the new root is different, send over the CrossComm
+            // Send to the correct new root over the cross communicator
             if( crossRank == root )
-            {
                 mpi::Send( buffer, recvSize, A.Root(), A.CrossComm() );
-            }
             else if( crossRank == A.Root() )
-            {
                 mpi::Recv( buffer, recvSize, root, A.CrossComm() );
-                for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
-                    MemCopy
-                    ( A.Buffer(0,jLoc), &buffer[jLoc*localHeightA], 
-                      localHeightA );
-            }
         }
+        // Unpack
+        if( crossRank == A.Root() )
+            for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
+                MemCopy
+                ( A.Buffer(0,jLoc), &buffer[jLoc*localHeightA], localHeightA );
         if( crossRank == root || crossRank == A.Root() )
             A.auxMemory_.Release();
     }
