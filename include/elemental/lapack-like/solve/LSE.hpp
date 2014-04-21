@@ -135,7 +135,9 @@ LSE
             Matrix<F> R22T, R22B;
             PartitionUp( R22, R22T, R22B, m-n );
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22T, D );
-            Axpy( F(-1), D, G2 );
+            Matrix<F> G2T, G2B;
+            PartitionUp( G2, G2T, G2B, m-n );
+            Axpy( F(-1), D, G2T );
         }
         MakeZeros( G1 );
     }
@@ -224,7 +226,9 @@ LSE
             DistMatrix<F> R22T(g), R22B(g);
             PartitionUp( R22, R22T, R22B, m-n );
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R22T, D );
-            Axpy( F(-1), D, G2 );
+            DistMatrix<F> G2T(g), G2B(g);
+            PartitionUp( G2, G2T, G2B, m-n );
+            Axpy( F(-1), D, G2T );
         }
         MakeZeros( G1 );
     }

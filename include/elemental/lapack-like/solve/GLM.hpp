@@ -75,13 +75,13 @@ GLM( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
     Matrix<F> R11, R21;
     PartitionDown( A, R11, R21, n );
     Matrix<F> T11, T12, T21, T22;
-    PartitionDownOffsetDiagonal
+    PartitionUpOffsetDiagonal
     ( p-m,
       B, T11, T12,
-         T21, T22, n );
+         T21, T22, m-n );
     Zeros( Y, p, numRhs );
     Matrix<F> C1, C2;
-    PartitionDown( Y, C1, C2, n );
+    PartitionDown( Y, C1, C2, n+p-m );
 
     // Solve T22 C2 = G2
     C2 = G2;
@@ -133,13 +133,13 @@ GLM( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y )
     DistMatrix<F> R11(g), R21(g);
     PartitionDown( A, R11, R21, n );
     DistMatrix<F> T11(g), T12(g), T21(g), T22(g);
-    PartitionDownOffsetDiagonal
+    PartitionUpOffsetDiagonal
     ( p-m,
       B, T11, T12,
-         T21, T22, n );
+         T21, T22, m-n );
     Zeros( Y, p, numRhs );
     DistMatrix<F> C1(g), C2(g);
-    PartitionDown( Y, C1, C2, n );
+    PartitionDown( Y, C1, C2, n+p-m );
 
     // Solve T22 C2 = G2
     C2 = G2;

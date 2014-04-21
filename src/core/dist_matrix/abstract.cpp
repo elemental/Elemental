@@ -125,6 +125,8 @@ AbstractDistMatrix<T>::Resize( Int height, Int width )
     DEBUG_ONLY(
         CallStackEntry cse("ADM::Resize");
         AssertNotLocked();
+        if( Viewing() && (height > height_ || width > width_) )
+            LogicError("Tried to increase the size of a view");
     )
     height_ = height; 
     width_ = width;
@@ -141,6 +143,9 @@ AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
     DEBUG_ONLY(
         CallStackEntry cse("ADM::Resize");
         AssertNotLocked();
+        if( Viewing() && 
+            (height > height_ || width > width_ || ldim > matrix_.LDim()) )
+            LogicError("Tried to increase the size of a view");
     )
     height_ = height; 
     width_ = width;
