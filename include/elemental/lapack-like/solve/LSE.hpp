@@ -15,8 +15,8 @@
 #include ELEM_TRMM_INC
 #include ELEM_GRQ_INC
 
-// This driver solves a sequence of General (Gauss-Markov) Linear Model (LSE)
-// problems using a Generalized QR factorization. 
+// This driver solves a sequence of Equality-constrained Least Squares (LSE)
+// problems using a Generalized RQ factorization. 
 //
 // The problem formulation is 
 //     min || A x - c ||_2 subject to B x = d,
