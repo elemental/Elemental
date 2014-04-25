@@ -518,6 +518,8 @@
   "elemental/matrices/NormalUniformSpectrum.hpp"
 #define ELEM_UNIFORM_INC \
   "elemental/matrices/Uniform.hpp"
+#define ELEM_UNIFORMHELMHOLTZGREENS_INC \
+  "elemental/matrices/UniformHelmholtzGreens.hpp"
 #define ELEM_WIGNER_INC \
   "elemental/matrices/Wigner.hpp"
 

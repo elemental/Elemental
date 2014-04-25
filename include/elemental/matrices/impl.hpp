@@ -69,6 +69,7 @@
 #include "./HermitianUniformSpectrum.hpp"
 #include "./NormalUniformSpectrum.hpp"
 #include "./Uniform.hpp"
+#include "./UniformHelmholtzGreens.hpp"
 
 // Gaussian
 #include "./Gaussian.hpp"

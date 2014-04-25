@@ -39,7 +39,8 @@ main( int argc, char* argv[] )
         const Int matType = 
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
                               "5:HelmholtzPML1D,6:HelmholtzPML2D,7:Trefethen,"
-                              "8:Bull's head,9:Triangle,10:Whale",4);
+                              "8:Bull's head,9:Triangle,10:Whale,"
+                              "11:UniformHelmholtzGreen's",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
         const Real realCenter = Input("--realCenter","real center",0.);
@@ -80,6 +81,7 @@ main( int argc, char* argv[] )
         const Int numPmlPoints = Input("--numPml","num PML points for Helm",5);
         const double sigma = Input("--sigma","PML amplitude",1.5);
         const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
+        const double lambda = Input("--lambda","wavelength of U.H.Green's",0.1);
         const bool progress = Input("--progress","print progress?",true);
         const bool deflate = Input("--deflate","deflate?",true);
         const bool display = Input("--display","display matrices?",false);
@@ -170,6 +172,10 @@ main( int argc, char* argv[] )
                 break;
         case 10: matName="Whale";
                  Whale( ACpx, n );
+                 isReal = false;
+                 break;
+        case 11: matName="UniformHelmholtzGreens";
+                 UniformHelmholtzGreens( ACpx, n, lambda );
                  isReal = false;
                  break;
         default: LogicError("Invalid matrix type");
