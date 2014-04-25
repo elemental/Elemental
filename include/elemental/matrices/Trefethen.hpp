@@ -101,15 +101,6 @@ Trefethen( const Grid& g, Int n )
     Trefethen( A, n );
     return A;
 }
-
-template<typename Real,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<Complex<Real>,U,V>
-Trefethen( const Grid& g, Int n )
-{
-    BlockDistMatrix<Complex<Real>,U,V> A(g);
-    Trefethen( A, n );
-    return A;
-}
 #endif
 
 } // namespace elem

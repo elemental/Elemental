@@ -212,16 +212,6 @@ ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
     return A;
 }
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<F,U,V>
-ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
-{
-    const Int n = 3*(1u<<k);
-    BlockDistMatrix<F,U,V> A( n, n, g );
-    MakeExtendedKahan( A, phi, mu );
-    return A;
-}
 #endif
 
 } // namespace elem

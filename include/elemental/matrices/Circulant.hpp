@@ -84,15 +84,6 @@ Circulant( const Grid& g, const std::vector<T>& a )
     Circulant( A, a );
     return A;
 }
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<T,U,V>
-Circulant( const Grid& g, const std::vector<T>& a )
-{
-    BlockDistMatrix<T,U,V> A(g);
-    Circulant( A, a );
-    return A;
-}
 #endif
 
 } // namespace elem

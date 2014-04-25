@@ -86,15 +86,6 @@ Triangle( const Grid& g, Int n )
     Triangle( A, n );
     return A;
 }
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<F,U,V>
-Triangle( const Grid& g, Int n )
-{
-    BlockDistMatrix<F,U,V> A(g);
-    Triangle( A, n );
-    return A;
-}
 #endif
 
 } // namespace elem

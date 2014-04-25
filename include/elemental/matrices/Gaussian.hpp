@@ -34,17 +34,6 @@ Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
-{
-    Matrix<T> A( m, n );
-    MakeGaussian( A, mean, stddev );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
@@ -140,6 +129,15 @@ Gaussian( BlockDistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 }
 
 #ifndef SWIG
+template<typename T>
+inline Matrix<T>
+Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
+{
+    Matrix<T> A( m, n );
+    MakeGaussian( A, mean, stddev );
+    return A;
+}
+
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
@@ -148,7 +146,6 @@ Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
     MakeGaussian( A, mean, stddev );
     return A;
 }
-// TODO: BlockDistMatrix version?
 #endif
 
 } // namespace elem

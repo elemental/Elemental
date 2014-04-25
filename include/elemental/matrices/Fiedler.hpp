@@ -82,15 +82,6 @@ Fiedler( const Grid& g, const std::vector<F>& c )
     Fiedler( A, c );
     return A;
 }
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<F,U,V>
-Fiedler( const Grid& g, const std::vector<F>& c )
-{
-    BlockDistMatrix<F,U,V> A(g);
-    Fiedler( A, c );
-    return A;
-}
 #endif
 
 } // namespace elem

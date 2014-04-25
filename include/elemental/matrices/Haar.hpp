@@ -26,17 +26,6 @@ Haar( Matrix<F>& A, Int n )
     qr::Explicit( A );
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-Haar( Int n )
-{
-    auto A = Gaussian<F>( n, n );
-    qr::Explicit( A );
-    return A;
-}
-#endif
-
 template<typename F>
 inline void
 ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Int n )
@@ -60,6 +49,15 @@ Haar( DistMatrix<F>& A, Int n )
 }
 
 #ifndef SWIG
+template<typename F>
+inline Matrix<F>
+Haar( Int n )
+{
+    auto A = Gaussian<F>( n, n );
+    qr::Explicit( A );
+    return A;
+}
+
 template<typename F>
 inline DistMatrix<F>
 Haar( const Grid& g, Int n )

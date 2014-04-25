@@ -27,17 +27,6 @@ Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i+j] );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Hankel( Int m, Int n, const std::vector<T>& a )
-{
-    Matrix<T> A;
-    Hankel( A, m, n, a );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
@@ -62,6 +51,15 @@ Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
 }
 
 #ifndef SWIG
+template<typename T> 
+inline Matrix<T>
+Hankel( Int m, Int n, const std::vector<T>& a )
+{
+    Matrix<T> A;
+    Hankel( A, m, n, a );
+    return A;
+}
+
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Hankel( const Grid& g, Int m, Int n, const std::vector<T>& a )

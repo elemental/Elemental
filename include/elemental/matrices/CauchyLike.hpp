@@ -139,18 +139,6 @@ CauchyLike
     CauchyLike( A, r, s, x, y );
     return A;
 }
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<F,U,V>
-CauchyLike
-( const Grid& g,
-  const std::vector<F>& r, const std::vector<F>& s, 
-  const std::vector<F>& x, const std::vector<F>& y )
-{
-    BlockDistMatrix<F,U,V> A(g);
-    CauchyLike( A, r, s, x, y );
-    return A;
-}
 #endif
 
 } // namespace elem

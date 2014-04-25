@@ -75,17 +75,6 @@ GKS( Matrix<F>& A, Int n )
     MakeGKS( A );
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-GKS( Int n )
-{
-    Matrix<F> A( n, n );
-    MakeGKS( A );
-    return A;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 GKS( DistMatrix<F,U,V>& A, Int n )
@@ -96,6 +85,15 @@ GKS( DistMatrix<F,U,V>& A, Int n )
 }
 
 #ifndef SWIG
+template<typename F>
+inline Matrix<F>
+GKS( Int n )
+{
+    Matrix<F> A( n, n );
+    MakeGKS( A );
+    return A;
+}
+
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 GKS( const Grid& g, Int n )

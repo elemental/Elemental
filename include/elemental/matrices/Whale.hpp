@@ -107,15 +107,6 @@ Whale( const Grid& g, Int n )
     Whale( A, n );
     return A;
 }
-
-template<typename Real,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<Complex<Real>,U,V>
-Whale( const Grid& g, Int n )
-{
-    BlockDistMatrix<Complex<Real>,U,V> A(g);
-    Whale( A, n );
-    return A;
-}
 #endif
 
 } // namespace elem

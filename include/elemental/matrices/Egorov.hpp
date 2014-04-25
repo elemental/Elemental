@@ -118,15 +118,6 @@ Egorov( const Grid& g, const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
     return A;
 }
-
-template<typename Real,Dist U=MC,Dist V=MR,class RealFunctor>
-inline BlockDistMatrix<Complex<Real>,U,V>
-Egorov( const Grid& g, const RealFunctor& phase, Int n )
-{
-    BlockDistMatrix<Complex<Real>,U,V> A( n, n, g );
-    MakeEgorov( A, phase );
-    return A;
-}
 #endif
 
 } // namespace elem

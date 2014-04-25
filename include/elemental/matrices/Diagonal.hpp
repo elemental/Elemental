@@ -76,15 +76,6 @@ Diagonal( const Grid& g, const std::vector<T>& d )
     Diagonal( D, d );
     return D;
 }
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<T,U,V>
-Diagonal( const Grid& g, const std::vector<T>& d )
-{
-    BlockDistMatrix<T,U,V> D(g);
-    Diagonal( D, d );
-    return D;
-}
 #endif
 
 } // namespace elem

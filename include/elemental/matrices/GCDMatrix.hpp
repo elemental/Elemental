@@ -51,17 +51,6 @@ GCDMatrix( Matrix<T>& G, Int m, Int n )
     MakeGCDMatrix( G );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-GCDMatrix( Int m, Int n )
-{
-    Matrix<T> G( m, n );
-    MakeGCDMatrix( G );
-    return G;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
@@ -72,6 +61,15 @@ GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
 }
 
 #ifndef SWIG
+template<typename T>
+inline Matrix<T>
+GCDMatrix( Int m, Int n )
+{
+    Matrix<T> G( m, n );
+    MakeGCDMatrix( G );
+    return G;
+}
+
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 GCDMatrix( const Grid& g, Int m, Int n )

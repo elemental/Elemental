@@ -95,15 +95,6 @@ BullsHead( const Grid& g, Int n )
     BullsHead( A, n );
     return A;
 }
-
-template<typename Real,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<Complex<Real>,U,V>
-BullsHead( const Grid& g, Int n )
-{
-    BlockDistMatrix<Complex<Real>,U,V> A(g);
-    BullsHead( A, n );
-    return A;
-}
 #endif
 
 } // namespace elem

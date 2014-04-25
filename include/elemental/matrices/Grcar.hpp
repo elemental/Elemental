@@ -86,15 +86,6 @@ Grcar( const Grid& g, Int n, Int k=3 )
     Grcar( A, n, k );
     return A;
 }
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<T,U,V>
-Grcar( const Grid& g, Int n, Int k=3 )
-{
-    BlockDistMatrix<T,U,V> A(g);
-    Grcar( A, n, k );
-    return A;
-}
 #endif
 
 // TODO: MakeGrcar?

@@ -47,17 +47,6 @@ Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
     MakeForsythe( J, alpha, lambda );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Forsythe( Int n, T alpha, T lambda )
-{
-    Matrix<T> J( n, n );
-    MakeForsythe( J, alpha, lambda );
-    return J;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
@@ -68,6 +57,15 @@ Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
 }
 
 #ifndef SWIG
+template<typename T>
+inline Matrix<T>
+Forsythe( Int n, T alpha, T lambda )
+{
+    Matrix<T> J( n, n );
+    MakeForsythe( J, alpha, lambda );
+    return J;
+}
+
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Forsythe( const Grid& g, Int n, T alpha, T lambda )

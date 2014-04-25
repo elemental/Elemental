@@ -122,15 +122,6 @@ Demmel( const Grid& g, Int n )
     Demmel( A, n );
     return A;
 }
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline BlockDistMatrix<F,U,V>
-Demmel( const Grid& g, Int n )
-{
-    BlockDistMatrix<F,U,V> A(g);
-    Demmel( A, n );
-    return A;
-}
 #endif
 
 } // namespace elem
