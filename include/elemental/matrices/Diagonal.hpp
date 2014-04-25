@@ -26,17 +26,6 @@ Diagonal( Matrix<S>& D, const std::vector<T>& d )
         D.Set( j, j, d[j] );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Diagonal( const std::vector<T>& d )
-{
-    Matrix<T> D;
-    Diagonal( D, d );
-    return D;
-}
-#endif
-
 template<typename S,typename T,Dist U,Dist V>
 inline void
 Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
@@ -53,12 +42,46 @@ Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
     }
 }
 
+template<typename S,typename T,Dist U,Dist V>
+inline void
+Diagonal( BlockDistMatrix<S,U,V>& D, const std::vector<T>& d )
+{
+    DEBUG_ONLY(CallStackEntry cse("Diagonal"))
+    const Int n = d.size();
+    Zeros( D, n, n );
+
+    const Int localWidth = D.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = D.GlobalCol(jLoc);
+        D.Set( j, j, d[j] );
+    }
+}
+
 #ifndef SWIG
+template<typename T> 
+inline Matrix<T>
+Diagonal( const std::vector<T>& d )
+{
+    Matrix<T> D;
+    Diagonal( D, d );
+    return D;
+}
+
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Diagonal( const Grid& g, const std::vector<T>& d )
 {
     DistMatrix<T,U,V> D(g);
+    Diagonal( D, d );
+    return D;
+}
+
+template<typename T,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<T,U,V>
+Diagonal( const Grid& g, const std::vector<T>& d )
+{
+    BlockDistMatrix<T,U,V> D(g);
     Diagonal( D, d );
     return D;
 }

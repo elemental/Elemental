@@ -44,17 +44,6 @@ Demmel( Matrix<F>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Demmel( Int n )
-{
-    Matrix<F> A;
-    Demmel( A, n );
-    return A;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Demmel( DistMatrix<F,U,V>& A, Int n )
@@ -85,12 +74,60 @@ Demmel( DistMatrix<F,U,V>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
+template<typename F,Dist U,Dist V>
+inline void
+Demmel( BlockDistMatrix<F,U,V>& A, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Demmel"))
+    typedef Base<F> Real;
+    if( n == 0 )
+    {
+        A.Resize( 0, 0 );
+        return;
+    }
+    else if( n == 1 )
+    {
+        A.Resize( 1, 1 );
+        A.Set( 0, 0, -Real(1) );
+        return;
+    }
+    
+    const Real B = Pow(10.,4./(n-1));
+
+    const Int numDiags = 2*n-1;
+    std::vector<F> a( numDiags, 0 );
+    for( Int j=0; j<n-1; ++j )
+        a[j] = -Pow(B,Real(n-1-j));
+    a[n-1] = -1;
+    for( Int j=n; j<numDiags; ++j )
+        a[j] = 0;
+    Toeplitz( A, n, n, a );
+}
+
 #ifndef SWIG
+template<typename F> 
+inline Matrix<F>
+Demmel( Int n )
+{
+    Matrix<F> A;
+    Demmel( A, n );
+    return A;
+}
+
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Demmel( const Grid& g, Int n )
 {
     DistMatrix<F,U,V> A(g);
+    Demmel( A, n );
+    return A;
+}
+
+template<typename F,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<F,U,V>
+Demmel( const Grid& g, Int n )
+{
+    BlockDistMatrix<F,U,V> A(g);
     Demmel( A, n );
     return A;
 }

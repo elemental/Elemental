@@ -38,17 +38,6 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Cauchy( const std::vector<F>& x, const std::vector<F>& y )
-{
-    Matrix<F> A;
-    Cauchy( A, x, y );
-    return A;
-}
-#endif
-
 template<typename F1,typename F2,Dist U,Dist V>
 inline void
 Cauchy
@@ -80,12 +69,61 @@ Cauchy
     }
 }
 
+template<typename F1,typename F2,Dist U,Dist V>
+inline void
+Cauchy
+( BlockDistMatrix<F1,U,V>& A, const std::vector<F2>& x, const std::vector<F2>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("Cauchy"))
+    const Int m = x.size();
+    const Int n = y.size();
+    A.Resize( m, n );
+
+    const F1 one = F1(1);
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            DEBUG_ONLY(
+                // TODO: Use tolerance instead?
+                if( x[i] == y[j] )
+                    LogicError
+                    ( "x[", i, "] = y[", j, "] (", x[i], 
+                      ") is not allowed for Cauchy matrices" );
+            )
+            A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
+        }
+    }
+}
+
 #ifndef SWIG
+template<typename F> 
+inline Matrix<F>
+Cauchy( const std::vector<F>& x, const std::vector<F>& y )
+{
+    Matrix<F> A;
+    Cauchy( A, x, y );
+    return A;
+}
+
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
 {
     DistMatrix<F,U,V> A(g);
+    Cauchy( A, x, y );
+    return A;
+}
+
+template<typename F,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<F,U,V>
+Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
+{
+    BlockDistMatrix<F,U,V> A(g);
     Cauchy( A, x, y );
     return A;
 }

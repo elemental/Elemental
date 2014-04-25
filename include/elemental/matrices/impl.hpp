@@ -10,10 +10,10 @@
 #ifndef ELEM_MATRICES_IMPL_HPP
 #define ELEM_MATRICES_IMPL_HPP
 
-//
-// Deterministic
-//
+// Deterministic matrices
+// ======================
 
+#include "./BullsHead.hpp"
 #include "./Cauchy.hpp"
 #include "./CauchyLike.hpp"
 #include "./Circulant.hpp"
@@ -54,14 +54,14 @@
 #include "./Riemann.hpp"
 #include "./Ris.hpp"
 #include "./Toeplitz.hpp"
+#include "./Trefethen.hpp"
 #include "./TriW.hpp"
 #include "./Walsh.hpp"
 #include "./Wilkinson.hpp"
 #include "./Zeros.hpp"
 
-//
-// Random
-//
+// Random matrices
+// ===============
 
 // Uniform
 #include "./HermitianUniformSpectrum.hpp"

@@ -44,19 +44,6 @@ CauchyLike
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-CauchyLike
-( const std::vector<F>& r, const std::vector<F>& s,
-  const std::vector<F>& x, const std::vector<F>& y )
-{
-    Matrix<F> A;
-    CauchyLike( A, r, s, x, y );
-    return A;
-}
-#endif
-
 template<typename F1,typename F2,Dist U,Dist V>
 inline void
 CauchyLike
@@ -93,7 +80,54 @@ CauchyLike
     }
 }
 
+template<typename F1,typename F2,Dist U,Dist V>
+inline void
+CauchyLike
+( BlockDistMatrix<F1,U,V>& A,
+  const std::vector<F2>& r, const std::vector<F2>& s, 
+  const std::vector<F2>& x, const std::vector<F2>& y )
+{
+    DEBUG_ONLY(CallStackEntry cse("CauchyLike"))
+    const Int m = r.size();
+    const Int n = s.size();
+    if( x.size() != (Unsigned)m )
+        LogicError("x vector was the wrong length");
+    if( y.size() != (Unsigned)n )
+        LogicError("y vector was the wrong length");
+    A.Resize( m, n );
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            DEBUG_ONLY(
+                // TODO: Use tolerance instead?
+                if( x[i] == y[j] )
+                    LogicError
+                    ( "x[", i, "] = y[", j, "] (", x[i],
+                      ") is not allowed for Cauchy-like matrices" );
+            )
+            A.SetLocal( iLoc, jLoc, r[i]*s[j]/(x[i]-y[j]) );
+        }
+    }
+}
+
 #ifndef SWIG
+template<typename F> 
+inline Matrix<F>
+CauchyLike
+( const std::vector<F>& r, const std::vector<F>& s,
+  const std::vector<F>& x, const std::vector<F>& y )
+{
+    Matrix<F> A;
+    CauchyLike( A, r, s, x, y );
+    return A;
+}
+
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 CauchyLike
@@ -102,6 +136,18 @@ CauchyLike
   const std::vector<F>& x, const std::vector<F>& y )
 {
     DistMatrix<F,U,V> A(g);
+    CauchyLike( A, r, s, x, y );
+    return A;
+}
+
+template<typename F,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<F,U,V>
+CauchyLike
+( const Grid& g,
+  const std::vector<F>& r, const std::vector<F>& s, 
+  const std::vector<F>& x, const std::vector<F>& y )
+{
+    BlockDistMatrix<F,U,V> A(g);
     CauchyLike( A, r, s, x, y );
     return A;
 }

@@ -24,17 +24,6 @@ Circulant( Matrix<T>& A, const std::vector<T>& a )
             A.Set( i, j, a[Mod(i-j,n)] );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Circulant( const std::vector<T>& a )
-{
-    Matrix<T> A;
-    Circulant( A, a );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
@@ -56,12 +45,51 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
     }
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+Circulant( BlockDistMatrix<T,U,V>& A, const std::vector<T>& a )
+{
+    DEBUG_ONLY(CallStackEntry cse("Circulant"))
+    const Int n = a.size();
+    A.Resize( n, n );
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            A.SetLocal( iLoc, jLoc, a[Mod(i-j,n)] );
+        }
+    }
+}
+
 #ifndef SWIG
+template<typename T> 
+inline Matrix<T>
+Circulant( const std::vector<T>& a )
+{
+    Matrix<T> A;
+    Circulant( A, a );
+    return A;
+}
+
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 Circulant( const Grid& g, const std::vector<T>& a )
 {
     DistMatrix<T,U,V> A(g);
+    Circulant( A, a );
+    return A;
+}
+
+template<typename T,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<T,U,V>
+Circulant( const Grid& g, const std::vector<T>& a )
+{
+    BlockDistMatrix<T,U,V> A(g);
     Circulant( A, a );
     return A;
 }

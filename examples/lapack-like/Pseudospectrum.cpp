@@ -11,11 +11,14 @@
 #include ELEM_ENTRYWISEMAP_INC
 #include ELEM_FROBENIUSNORM_INC
 #include ELEM_PSEUDOSPECTRUM_INC
+
+#include ELEM_BULLSHEAD_INC
 #include ELEM_GRCAR_INC
 #include ELEM_FOXLI_INC
 #include ELEM_HELMHOLTZPML_INC
 #include ELEM_LOTKIN_INC
 #include ELEM_UNIFORM_INC
+#include ELEM_TREFETHEN_INC
 using namespace std;
 using namespace elem;
 
@@ -31,9 +34,10 @@ main( int argc, char* argv[] )
     {
         Int r = Input("--gridHeight","process grid height",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int matType = 
+        const Int matType =
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
-                              "5:HelmholtzPML1D,6:HelmholtzPML2D",4);
+                              "5:HelmholtzPML1D,6:HelmholtzPML2D,7:Trefethen,"
+                              "8:Bull's head",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
 #ifdef ELEM_HAVE_SCALAPACK
@@ -146,6 +150,14 @@ main( int argc, char* argv[] )
         case 6: matName="HelmholtzPML2D";
                 HelmholtzPML
                 ( ACpx, mx, my, C(omega), numPmlPoints, sigma, pmlExp );
+                isReal = false;
+                break;
+        case 7: matName="Trefethen";
+                Trefethen( ACpx, n );
+                isReal = false;
+                break;
+        case 8: matName="BullsHead";
+                BullsHead( ACpx, n );
                 isReal = false;
                 break;
         default: LogicError("Invalid matrix type");

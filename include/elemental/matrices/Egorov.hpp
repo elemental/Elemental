@@ -52,9 +52,48 @@ MakeEgorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
     }
 }
 
+template<typename Real,Dist U,Dist V,class RealFunctor>
+inline void
+MakeEgorov( BlockDistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const Real theta = phase(i,j);
+            const Real realPart = Cos(theta);
+            const Real imagPart = Sin(theta);
+            A.SetLocal( iLoc, jLoc, Complex<Real>(realPart,imagPart) );
+        }
+    }
+}
+
 template<typename Real,class RealFunctor>
 inline void
 Egorov( Matrix<Complex<Real> >& A, const RealFunctor& phase, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Egorov"))
+    A.Resize( n, n );
+    MakeEgorov( A, phase );
+}
+
+template<typename Real,Dist U,Dist V,class RealFunctor>
+inline void
+Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Egorov"))
+    A.Resize( n, n );
+    MakeEgorov( A, phase );
+}
+
+template<typename Real,Dist U,Dist V,class RealFunctor>
+inline void
+Egorov( BlockDistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.Resize( n, n );
@@ -70,23 +109,21 @@ Egorov( const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
     return A;
 }
-#endif
 
-template<typename Real,Dist U,Dist V,class RealFunctor>
-inline void
-Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("Egorov"))
-    A.Resize( n, n );
-    MakeEgorov( A, phase );
-}
-
-#ifndef SWIG
 template<typename Real,Dist U=MC,Dist V=MR,class RealFunctor>
 inline DistMatrix<Complex<Real>,U,V>
 Egorov( const Grid& g, const RealFunctor& phase, Int n )
 {
     DistMatrix<Complex<Real>,U,V> A( n, n, g );
+    MakeEgorov( A, phase );
+    return A;
+}
+
+template<typename Real,Dist U=MC,Dist V=MR,class RealFunctor>
+inline BlockDistMatrix<Complex<Real>,U,V>
+Egorov( const Grid& g, const RealFunctor& phase, Int n )
+{
+    BlockDistMatrix<Complex<Real>,U,V> A( n, n, g );
     MakeEgorov( A, phase );
     return A;
 }

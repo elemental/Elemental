@@ -24,17 +24,6 @@ Fiedler( Matrix<F>& A, const std::vector<F>& c )
             A.Set( i, j, Abs(c[i]-c[j]) );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Fiedler( const std::vector<F>& c )
-{
-    Matrix<F> A;
-    Fiedler( A, c ); 
-    return A;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
@@ -55,12 +44,50 @@ Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
     }
 }
 
+template<typename F,Dist U,Dist V>
+inline void
+Fiedler( BlockDistMatrix<F,U,V>& A, const std::vector<F>& c )
+{
+    DEBUG_ONLY(CallStackEntry cse("Fiedler"))
+    const Int n = c.size();
+    A.Resize( n, n );
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            A.SetLocal( iLoc, jLoc, Abs(c[i]-c[j]) );
+        }
+    }
+}
+
 #ifndef SWIG
+template<typename F> 
+inline Matrix<F>
+Fiedler( const std::vector<F>& c )
+{
+    Matrix<F> A;
+    Fiedler( A, c ); 
+    return A;
+}
+
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 Fiedler( const Grid& g, const std::vector<F>& c )
 {
     DistMatrix<F,U,V> A(g);
+    Fiedler( A, c );
+    return A;
+}
+
+template<typename F,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<F,U,V>
+Fiedler( const Grid& g, const std::vector<F>& c )
+{
+    BlockDistMatrix<F,U,V> A(g);
     Fiedler( A, c );
     return A;
 }

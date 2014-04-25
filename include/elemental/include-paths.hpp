@@ -457,6 +457,7 @@
 
 // Deterministic matrices
 // ----------------------
+#define ELEM_BULLSHEAD_INC        "elemental/matrices/BullsHead.hpp"
 #define ELEM_CAUCHY_INC           "elemental/matrices/Cauchy.hpp"
 #define ELEM_CAUCHYLIKE_INC       "elemental/matrices/CauchyLike.hpp"
 #define ELEM_CIRCULANT_INC        "elemental/matrices/Circulant.hpp"
@@ -497,6 +498,7 @@
 #define ELEM_RIEMANN_INC          "elemental/matrices/Riemann.hpp"
 #define ELEM_RIS_INC              "elemental/matrices/Ris.hpp"
 #define ELEM_TOEPLITZ_INC         "elemental/matrices/Toeplitz.hpp"
+#define ELEM_TREFETHEN_INC        "elemental/matrices/Trefethen.hpp"
 #define ELEM_TRIW_INC             "elemental/matrices/TriW.hpp"
 #define ELEM_WALSH_INC            "elemental/matrices/Walsh.hpp"
 #define ELEM_WILKINSON_INC        "elemental/matrices/Wilkinson.hpp"

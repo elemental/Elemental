@@ -115,9 +115,76 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     DiagonalScale( LEFT, NORMAL, d, A );
 }
 
+template<typename F,Dist U,Dist V>
+inline void
+MakeExtendedKahan( BlockDistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
+    typedef Base<F> R;
+
+    if( A.Height() != A.Width() )
+        LogicError("Extended Kahan matrices must be square");
+    const Int n = A.Height();
+    if( n % 3 != 0 )
+        LogicError("Dimension must be an integer multiple of 3");
+    const Int l = n / 3;
+    if( !l || (l & (l-1)) )
+        LogicError("n/3 is not a power of two");
+    Int k=0;
+    while( Int(1u<<k) < l )
+        ++k;
+
+    if( phi <= R(0) || phi >= R(1) )
+        LogicError("phi must be in (0,1)");
+    if( mu <= R(0) || mu >= R(1) )
+        LogicError("mu must be in (0,1)");
+
+    // Start by setting A to the identity, and then modify the necessary 
+    // l x l blocks of its 3 x 3 partitioning.
+    MakeIdentity( A );
+    auto ABlock = View( A, 2*l, 2*l, l, l );
+    Scale( mu, ABlock );
+    ABlock = View( A, 0, l, l, l );
+    MakeWalsh( ABlock, k );
+    Scale( -phi, ABlock );
+    ABlock = View( A, l, 2*l, l, l );
+    MakeWalsh( ABlock, k );
+    Scale( phi, ABlock );
+
+    // Now scale R by S
+    const R zeta = Sqrt(R(1)-phi*phi);
+    BlockDistMatrix<R,U,STAR> d( n, 1, A.Grid() );
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    {
+        const Int i = d.GlobalRow(iLoc);
+        d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
+    }
+    DiagonalScale( LEFT, NORMAL, d, A );
+}
+
 template<typename F>
 inline void
 ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
+{
+    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
+    const Int n = 3*(1u<<k);
+    A.Resize( n, n );
+    MakeExtendedKahan( A, phi, mu );
+}
+
+template<typename F,Dist U,Dist V>
+inline void
+ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
+{
+    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
+    const Int n = 3*(1u<<k);
+    A.Resize( n, n );
+    MakeExtendedKahan( A, phi, mu );
+}
+
+template<typename F,Dist U,Dist V>
+inline void
+ExtendedKahan( BlockDistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -135,25 +202,23 @@ ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
     MakeExtendedKahan( A, phi, mu );
     return A;
 }
-#endif
 
-template<typename F,Dist U,Dist V>
-inline void
-ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
-{
-    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
-    const Int n = 3*(1u<<k);
-    A.Resize( n, n );
-    MakeExtendedKahan( A, phi, mu );
-}
-
-#ifndef SWIG
 template<typename F,Dist U=MC,Dist V=MR>
 inline DistMatrix<F,U,V>
 ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
 {
     const Int n = 3*(1u<<k);
     DistMatrix<F,U,V> A( n, n, g );
+    MakeExtendedKahan( A, phi, mu );
+    return A;
+}
+
+template<typename F,Dist U=MC,Dist V=MR>
+inline BlockDistMatrix<F,U,V>
+ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
+{
+    const Int n = 3*(1u<<k);
+    BlockDistMatrix<F,U,V> A( n, n, g );
     MakeExtendedKahan( A, phi, mu );
     return A;
 }
