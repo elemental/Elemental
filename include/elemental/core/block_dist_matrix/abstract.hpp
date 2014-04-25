@@ -44,25 +44,30 @@ public:
     // -----------
     void Align
     ( Int blockHeight, Int blockWidth, 
-      Int colAlign, Int rowAlign, Int colCut=0, Int rowCut=0 );
-    void AlignCols( Int blockHeight, Int colAlign, Int colCut=0 );
-    void AlignRows( Int blockWidth, Int rowAlign, Int rowCut=0 );
+      Int colAlign, Int rowAlign, Int colCut=0, Int rowCut=0, 
+      bool constrain=true );
+    void AlignCols
+    ( Int blockHeight, Int colAlign, Int colCut=0, bool constrain=true );
+    void AlignRows
+    ( Int blockWidth, Int rowAlign, Int rowCut=0, bool constrain=true );
     void FreeAlignments();
-    void SetRoot( Int root );
-    void AlignWith( const elem::BlockDistData& data );
-    virtual void AlignColsWith( const elem::BlockDistData& data );
-    virtual void AlignRowsWith( const elem::BlockDistData& data );
+    void SetRoot( Int root, bool constrain=true );
+    void AlignWith( const elem::BlockDistData& data, bool constrain=true );
+    virtual void AlignColsWith
+    ( const elem::BlockDistData& data, bool constrain=true );
+    virtual void AlignRowsWith
+    ( const elem::BlockDistData& data, bool constrain=true );
     // TODO: The interface for these routines could be improved
     void AlignAndResize
     ( Int blockHeight, Int blockWidth, 
       Int colAlign, Int rowAlign, Int colCut, Int rowCut, 
-      Int height, Int width, bool force=false );
+      Int height, Int width, bool force=false, bool constrain=true );
     void AlignColsAndResize
     ( Int blockHeight, Int colAlign, Int colCut, Int height, Int width, 
-      bool force=false );
+      bool force=false, bool constrain=true );
     void AlignRowsAndResize
     ( Int blockWidth, Int rowAlign, Int rowCut, Int height, Int width, 
-      bool force=false );
+      bool force=false, bool constrain=true );
 
     // Buffer attachment
     // -----------------

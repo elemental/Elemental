@@ -30,13 +30,14 @@ Trefethen( Matrix<Complex<Real> >& A, Int n )
     typedef Complex<Real> C;
     const Int numDiags = 2*n-1;
     std::vector<C> a( numDiags, 0 );
-    a[n-4] = 2;
-    a[n-3] = -1;
-    a[n-2] = C(0,2);
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = -4;
-    a[n+2] = C(0,-2);
+    const Int mainDiag = n-1;
+    a[mainDiag-3] = 2;
+    a[mainDiag-2] = -1;
+    a[mainDiag-1] = C(0,2);
+    a[mainDiag-0] = 0;
+    a[mainDiag+1] = 0;
+    a[mainDiag+2] = -4;
+    a[mainDiag+3] = C(0,-2);
     Toeplitz( A, n, n, a );
 }
 
@@ -50,13 +51,14 @@ Trefethen( DistMatrix<Complex<Real>,U,V>& A, Int n )
     typedef Complex<Real> C;
     const Int numDiags = 2*n-1;
     std::vector<C> a( numDiags, 0 );
-    a[n-4] = 2;
-    a[n-3] = -1;
-    a[n-2] = C(0,2);
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = -4;
-    a[n+2] = C(0,-2);
+    const Int mainDiag = n-1;
+    a[mainDiag-3] = 2;
+    a[mainDiag-2] = -1;
+    a[mainDiag-1] = C(0,2);
+    a[mainDiag-0] = 0;
+    a[mainDiag+1] = 0;
+    a[mainDiag+2] = -4;
+    a[mainDiag+3] = C(0,-2);
     Toeplitz( A, n, n, a );
 }
 
@@ -70,13 +72,14 @@ Trefethen( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     typedef Complex<Real> C;
     const Int numDiags = 2*n-1;
     std::vector<C> a( numDiags, 0 );
-    a[n-4] = 2;
-    a[n-3] = -1;
-    a[n-2] = C(0,2);
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = -4;
-    a[n+2] = C(0,-2);
+    const Int mainDiag = n-1;
+    a[mainDiag-3] = 2;
+    a[mainDiag-2] = -1;
+    a[mainDiag-1] = C(0,2);
+    a[mainDiag-0] = 0;
+    a[mainDiag+1] = 0;
+    a[mainDiag+2] = -4;
+    a[mainDiag+3] = C(0,-2);
     Toeplitz( A, n, n, a );
 }
 

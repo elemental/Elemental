@@ -44,8 +44,10 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
-    void AlignColsWith( const elem::DistData& data ) override;
-    void AlignRowsWith( const elem::DistData& data ) override;
+    void AlignColsWith
+    ( const elem::DistData& data, bool constrain=true ) override;
+    void AlignRowsWith
+    ( const elem::DistData& data, bool constrain=true ) override;
 
     void Translate( DistMatrix<T,U,V>& A ) const;
 

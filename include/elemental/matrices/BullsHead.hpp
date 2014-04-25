@@ -30,11 +30,12 @@ BullsHead( Matrix<Complex<Real> >& A, Int n )
     typedef Complex<Real> C;
     const Int numDiags = 2*n-1;
     std::vector<C> a( numDiags, 0 );
-    a[n-2] = C(0,2);
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = 1;
-    a[n+2] = Real(7)/Real(10);
+    const Int mainDiag = n-1;
+    a[mainDiag-1] = C(0,2);
+    a[mainDiag-0] = 0;
+    a[mainDiag+1] = 0;
+    a[mainDiag+2] = 1;
+    a[mainDiag+3] = Real(7)/Real(10);
     Toeplitz( A, n, n, a );
 }
 
@@ -48,11 +49,12 @@ BullsHead( DistMatrix<Complex<Real>,U,V>& A, Int n )
     typedef Complex<Real> C;
     const Int numDiags = 2*n-1;
     std::vector<C> a( numDiags, 0 );
-    a[n-2] = C(0,2);
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = 1;
-    a[n+2] = Real(7)/Real(10);
+    const Int mainDiag = n-1;
+    a[mainDiag-1] = C(0,2);
+    a[mainDiag-0] = 0;
+    a[mainDiag+1] = 0;
+    a[mainDiag+2] = 1;
+    a[mainDiag+3] = Real(7)/Real(10);
     Toeplitz( A, n, n, a );
 }
 
@@ -66,11 +68,12 @@ BullsHead( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     typedef Complex<Real> C;
     const Int numDiags = 2*n-1;
     std::vector<C> a( numDiags, 0 );
-    a[n-2] = C(0,2);
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = 1;
-    a[n+2] = Real(7)/Real(10);
+    const Int mainDiag = n-1;
+    a[mainDiag-1] = C(0,2);
+    a[mainDiag-0] = 0;
+    a[mainDiag+1] = 0;
+    a[mainDiag+2] = 1;
+    a[mainDiag+3] = Real(7)/Real(10);
     Toeplitz( A, n, n, a );
 }
 

@@ -223,7 +223,7 @@ AbstractDistMatrix<T>::MakeConsistent()
 
 template<typename T>
 void
-AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
+AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign, bool constrain )
 { 
     DEBUG_ONLY(CallStackEntry cse("ADM::Align"))
     const bool requireChange = colAlign_ != colAlign || rowAlign_ != rowAlign;
@@ -233,8 +233,11 @@ AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
     )
     if( requireChange )
         Empty();
-    colConstrained_ = true;
-    rowConstrained_ = true;
+    if( constrain )
+    {
+        colConstrained_ = true;
+        rowConstrained_ = true;
+    }
     colAlign_ = colAlign;
     rowAlign_ = rowAlign;
     SetShifts();
@@ -242,7 +245,7 @@ AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignCols( Int colAlign )
+AbstractDistMatrix<T>::AlignCols( Int colAlign, bool constrain )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignCols");
@@ -251,14 +254,15 @@ AbstractDistMatrix<T>::AlignCols( Int colAlign )
     )
     if( colAlign_ != colAlign )
         EmptyData();
-    colConstrained_ = true;
+    if( constrain )
+        colConstrained_ = true;
     colAlign_ = colAlign;
     SetShifts();
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignRows( Int rowAlign )
+AbstractDistMatrix<T>::AlignRows( Int rowAlign, bool constrain )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignRows");
@@ -267,7 +271,8 @@ AbstractDistMatrix<T>::AlignRows( Int rowAlign )
     )
     if( rowAlign_ != rowAlign )
         EmptyData();
-    rowConstrained_ = true;
+    if( constrain )
+        rowConstrained_ = true;
     rowAlign_ = rowAlign;
     SetShifts();
 }
@@ -288,7 +293,7 @@ AbstractDistMatrix<T>::FreeAlignments()
 
 template<typename T>
 void
-AbstractDistMatrix<T>::SetRoot( Int root )
+AbstractDistMatrix<T>::SetRoot( Int root, bool constrain )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ADM::SetRoot");
@@ -298,21 +303,24 @@ AbstractDistMatrix<T>::SetRoot( Int root )
     if( root != root_ )
         Empty();
     root_ = root;
-    rootConstrained_ = true;
+    if( constrain )
+        rootConstrained_ = true;
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignWith( const elem::DistData& data )
+AbstractDistMatrix<T>::AlignWith
+( const elem::DistData& data, bool constrain )
 { 
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignWith"))
-    AlignColsWith( data );
-    AlignRowsWith( data );
+    AlignColsWith( data, constrain );
+    AlignRowsWith( data, constrain );
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
+AbstractDistMatrix<T>::AlignColsWith
+( const elem::DistData& data, bool constrain )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignColsWith");
@@ -324,7 +332,8 @@ AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
+AbstractDistMatrix<T>::AlignRowsWith
+( const elem::DistData& data, bool constrain )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ADM::AlignRowsWith");
@@ -337,7 +346,8 @@ AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignAndResize
-( Int colAlign, Int rowAlign, Int height, Int width, bool force )
+( Int colAlign, Int rowAlign, Int height, Int width, 
+  bool force, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignAndResize"))
     if( !Viewing() )
@@ -353,6 +363,11 @@ AbstractDistMatrix<T>::AlignAndResize
             SetRowShift();
         }
     }
+    if( constrain )
+    {
+        colConstrained_ = true;
+        rowConstrained_ = true;
+    }
     if( force && (colAlign_ != colAlign || rowAlign_ != rowAlign) )
         LogicError("Could not set alignments"); 
     Resize( height, width );
@@ -361,7 +376,7 @@ AbstractDistMatrix<T>::AlignAndResize
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignColsAndResize
-( Int colAlign, Int height, Int width, bool force )
+( Int colAlign, Int height, Int width, bool force, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignColsAndResize"))
     if( !Viewing() && (force || !ColConstrained()) )
@@ -369,6 +384,8 @@ AbstractDistMatrix<T>::AlignColsAndResize
         colAlign_ = colAlign;
         SetColShift(); 
     }
+    if( constrain )
+        colConstrained_ = true;
     if( force && colAlign_ != colAlign )
         LogicError("Could not set col alignment");
     Resize( height, width );
@@ -377,7 +394,7 @@ AbstractDistMatrix<T>::AlignColsAndResize
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignRowsAndResize
-( Int rowAlign, Int height, Int width, bool force )
+( Int rowAlign, Int height, Int width, bool force, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignRowsAndResize"))
     if( !Viewing() && (force || !RowConstrained()) )
@@ -385,6 +402,8 @@ AbstractDistMatrix<T>::AlignRowsAndResize
         rowAlign_ = rowAlign;
         SetRowShift(); 
     }
+    if( constrain )
+        rowConstrained_ = true;
     if( force && rowAlign_ != rowAlign )
         LogicError("Could not set row alignment");
     Resize( height, width );

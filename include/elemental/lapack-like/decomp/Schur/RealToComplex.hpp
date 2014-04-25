@@ -91,6 +91,7 @@ RealToComplex( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real> >& U )
             auto U01 = ViewRange( U, 0, j, j, j+2 );
             U01_VC_STAR = U01;
             U01Copy_VC_STAR = U01_VC_STAR;
+
             LocalGemm
             ( NORMAL, NORMAL, C(1), U01Copy_VC_STAR, Q11, C(0), U01_VC_STAR );
             U01 = U01_VC_STAR;

@@ -266,7 +266,7 @@ template<typename T>
 void
 AbstractBlockDistMatrix<T>::Align
 ( Int blockHeight, Int blockWidth, 
-  Int colAlign, Int rowAlign, Int colCut, Int rowCut )
+  Int colAlign, Int rowAlign, Int colCut, Int rowCut, bool constrain )
 { 
     DEBUG_ONLY(CallStackEntry cse("ABDM::Align"))
     const bool requireChange = 
@@ -279,8 +279,11 @@ AbstractBlockDistMatrix<T>::Align
     )
     if( requireChange )
         Empty();
-    colConstrained_ = true;
-    rowConstrained_ = true;
+    if( constrain )
+    {
+        colConstrained_ = true;
+        rowConstrained_ = true;
+    }
     blockHeight_ = blockHeight;
     blockWidth_ = blockWidth;
     colAlign_ = colAlign;
@@ -293,7 +296,7 @@ AbstractBlockDistMatrix<T>::Align
 template<typename T>
 void
 AbstractBlockDistMatrix<T>::AlignCols
-( Int blockHeight, Int colAlign, Int colCut )
+( Int blockHeight, Int colAlign, Int colCut, bool constrain )
 { 
     DEBUG_ONLY(CallStackEntry cse("ABDM::AlignCols"))
     const bool requireChange = 
@@ -306,7 +309,8 @@ AbstractBlockDistMatrix<T>::AlignCols
     )
     if( requireChange )
         EmptyData();
-    colConstrained_ = true;
+    if( constrain )
+        colConstrained_ = true;
     blockHeight_ = blockHeight;
     colAlign_ = colAlign;
     colCut_ = colCut;
@@ -316,7 +320,7 @@ AbstractBlockDistMatrix<T>::AlignCols
 template<typename T>
 void
 AbstractBlockDistMatrix<T>::AlignRows
-( Int blockWidth, Int rowAlign, Int rowCut )
+( Int blockWidth, Int rowAlign, Int rowCut, bool constrain )
 { 
     DEBUG_ONLY(CallStackEntry cse("ABDM::AlignRows"))
     const bool requireChange = 
@@ -329,7 +333,8 @@ AbstractBlockDistMatrix<T>::AlignRows
     )
     if( requireChange )
         EmptyData();
-    rowConstrained_ = true;
+    if( constrain )
+        rowConstrained_ = true;
     blockWidth_ = blockWidth;
     rowAlign_ = rowAlign;
     rowCut_ = rowCut;
@@ -352,7 +357,7 @@ AbstractBlockDistMatrix<T>::FreeAlignments()
 
 template<typename T>
 void
-AbstractBlockDistMatrix<T>::SetRoot( Int root )
+AbstractBlockDistMatrix<T>::SetRoot( Int root, bool constrain )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ABDM::SetRoot");
@@ -362,20 +367,24 @@ AbstractBlockDistMatrix<T>::SetRoot( Int root )
     if( root != root_ )
         Empty();
     root_ = root;
+    if( constrain )
+        rootConstrained_ = true;
 }
 
 template<typename T>
 void
-AbstractBlockDistMatrix<T>::AlignWith( const elem::BlockDistData& data )
+AbstractBlockDistMatrix<T>::AlignWith
+( const elem::BlockDistData& data, bool constrain )
 { 
     DEBUG_ONLY(CallStackEntry cse("ABDM::AlignWith"))
-    AlignColsWith( data );
-    AlignRowsWith( data );
+    AlignColsWith( data, constrain );
+    AlignRowsWith( data, constrain );
 }
 
 template<typename T>
 void
-AbstractBlockDistMatrix<T>::AlignColsWith( const elem::BlockDistData& data )
+AbstractBlockDistMatrix<T>::AlignColsWith
+( const elem::BlockDistData& data, bool constrain )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ABDM::AlignColsWith");
@@ -387,7 +396,8 @@ AbstractBlockDistMatrix<T>::AlignColsWith( const elem::BlockDistData& data )
 
 template<typename T>
 void
-AbstractBlockDistMatrix<T>::AlignRowsWith( const elem::BlockDistData& data )
+AbstractBlockDistMatrix<T>::AlignRowsWith
+( const elem::BlockDistData& data, bool constrain )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ABDM::AlignRowsWith");
@@ -402,7 +412,7 @@ void
 AbstractBlockDistMatrix<T>::AlignAndResize
 ( Int blockHeight, Int blockWidth, 
   Int colAlign, Int rowAlign, Int colCut, Int rowCut,
-  Int height, Int width, bool force )
+  Int height, Int width, bool force, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::AlignAndResize"))
     if( !Viewing() )
@@ -422,6 +432,11 @@ AbstractBlockDistMatrix<T>::AlignAndResize
             SetRowShift();
         }
     }
+    if( constrain )
+    {
+        colConstrained_ = true;
+        rowConstrained_ = true;
+    }
     if( force && 
         (blockHeight_ != blockHeight || blockWidth_ != blockWidth || 
          colAlign_    != colAlign    || rowAlign_   != rowAlign   ||
@@ -433,7 +448,8 @@ AbstractBlockDistMatrix<T>::AlignAndResize
 template<typename T>
 void
 AbstractBlockDistMatrix<T>::AlignColsAndResize
-( Int blockHeight, Int colAlign, Int colCut, Int height, Int width, bool force )
+( Int blockHeight, Int colAlign, Int colCut, Int height, Int width, 
+  bool force, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::AlignColsAndResize"))
     if( !Viewing() && (force || !ColConstrained()) )
@@ -443,6 +459,8 @@ AbstractBlockDistMatrix<T>::AlignColsAndResize
         colCut_ = colCut;
         SetColShift(); 
     }
+    if( constrain )
+        colConstrained_ = true;
     if( force && 
         (colAlign_ != colAlign || colCut_ != colCut || 
          blockHeight_ != blockHeight) )
@@ -453,7 +471,8 @@ AbstractBlockDistMatrix<T>::AlignColsAndResize
 template<typename T>
 void
 AbstractBlockDistMatrix<T>::AlignRowsAndResize
-( Int blockWidth, Int rowAlign, Int rowCut, Int height, Int width, bool force )
+( Int blockWidth, Int rowAlign, Int rowCut, Int height, Int width, 
+  bool force, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::AlignRowsAndResize"))
     if( !Viewing() && (force || !RowConstrained()) )
@@ -463,6 +482,8 @@ AbstractBlockDistMatrix<T>::AlignRowsAndResize
         rowCut_ = rowCut;
         SetRowShift(); 
     }
+    if( constrain )
+        rowConstrained_ = true;
     if( force && 
         (rowAlign_ != rowAlign || rowCut_ != rowCut ||
          blockWidth_ != blockWidth) )

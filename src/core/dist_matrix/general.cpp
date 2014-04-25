@@ -42,19 +42,20 @@ GeneralDistMatrix<T,U,V>::operator=( GeneralDistMatrix<T,U,V>&& A )
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::AlignColsWith( const elem::DistData& data )
+GeneralDistMatrix<T,U,V>::AlignColsWith
+( const elem::DistData& data, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::AlignColsWith")) 
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == U || data.colDist == UPart )
-        this->AlignCols( data.colAlign );    
+        this->AlignCols( data.colAlign, constrain );
     else if( data.rowDist == U || data.rowDist == UPart )
-        this->AlignCols( data.rowAlign );
+        this->AlignCols( data.rowAlign, constrain );
     else if( data.colDist == UScat )
-        this->AlignCols( data.colAlign % this->ColStride() );
+        this->AlignCols( data.colAlign % this->ColStride(), constrain );
     else if( data.rowDist == UScat )
-        this->AlignCols( data.rowAlign % this->ColStride() );
+        this->AlignCols( data.rowAlign % this->ColStride(), constrain );
     DEBUG_ONLY(
         else if( U != UGath && data.colDist != UGath && data.rowDist != UGath ) 
             LogicError("Nonsensical alignment");
@@ -63,19 +64,20 @@ GeneralDistMatrix<T,U,V>::AlignColsWith( const elem::DistData& data )
 
 template<typename T,Dist U,Dist V>
 void
-GeneralDistMatrix<T,U,V>::AlignRowsWith( const elem::DistData& data )
+GeneralDistMatrix<T,U,V>::AlignRowsWith
+( const elem::DistData& data, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::AlignRowsWith")) 
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == V || data.colDist == VPart )
-        this->AlignRows( data.colAlign );    
+        this->AlignRows( data.colAlign, constrain );
     else if( data.rowDist == V || data.rowDist == VPart )
-        this->AlignRows( data.rowAlign );
+        this->AlignRows( data.rowAlign, constrain );
     else if( data.colDist == VScat )
-        this->AlignRows( data.colAlign % this->RowStride() );
+        this->AlignRows( data.colAlign % this->RowStride(), constrain );
     else if( data.rowDist == VScat )
-        this->AlignRows( data.rowAlign % this->RowStride() );
+        this->AlignRows( data.rowAlign % this->RowStride(), constrain );
     DEBUG_ONLY(
         else if( V != VGath && data.colDist != VGath && data.rowDist != VGath ) 
             LogicError("Nonsensical alignment");
@@ -97,9 +99,9 @@ GeneralDistMatrix<T,U,V>::Translate( DistMatrix<T,U,V>& A ) const
     if( !A.RootConstrained() )
         A.SetRoot( root );
     if( !A.ColConstrained() )
-        A.AlignCols( colAlign );
+        A.AlignCols( colAlign, false );
     if( !A.RowConstrained() )
-        A.AlignRows( rowAlign );
+        A.AlignRows( rowAlign, false );
     A.Resize( height, width );
     if( !g.InGrid() )
         return;
@@ -290,7 +292,7 @@ GeneralDistMatrix<T,U,V>::ColAllGather( DistMatrix<T,UGath,V>& A ) const
           << std::endl;
     }
 #endif
-    A.AlignRowsAndResize( this->RowAlign(), height, width );
+    A.AlignRowsAndResize( this->RowAlign(), height, width, false, false );
 
     if( this->Participating() )
     {
@@ -530,7 +532,7 @@ GeneralDistMatrix<T,U,V>::RowAllGather( DistMatrix<T,U,VGath>& A ) const
     )
     const Int height = this->Height();
     const Int width = this->Width();
-    A.AlignColsAndResize( this->ColAlign(), height, width );
+    A.AlignColsAndResize( this->ColAlign(), height, width, false, false );
 
     if( this->Participating() )
     {
@@ -749,7 +751,8 @@ GeneralDistMatrix<T,U,V>::PartialColAllGather( DistMatrix<T,UPart,V>& A ) const
           "on the (conjugate-)transpose" << std::endl;
     }
 #endif
-    A.AlignColsAndResize( this->ColAlign()%A.ColStride(), height, width );
+    A.AlignColsAndResize
+    ( this->ColAlign()%A.ColStride(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -872,7 +875,8 @@ GeneralDistMatrix<T,U,V>::PartialRowAllGather( DistMatrix<T,U,VPart>& A ) const
     )
     const Int height = this->Height();
     const Int width = this->Width();
-    A.AlignRowsAndResize( this->RowAlign()%A.RowStride(), height, width );
+    A.AlignRowsAndResize
+    ( this->RowAlign()%A.RowStride(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1029,7 +1033,7 @@ GeneralDistMatrix<T,U,V>::ColFilterFrom( const DistMatrix<T,UGath,V>& A )
     )
     const Int height = A.Height();
     const Int width = A.Width();
-    this->AlignRowsAndResize( A.RowAlign(), height, width );
+    this->AlignRowsAndResize( A.RowAlign(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1110,7 +1114,7 @@ GeneralDistMatrix<T,U,V>::RowFilterFrom( const DistMatrix<T,U,VGath>& A )
     )
     const Int height = A.Height();
     const Int width = A.Width();
-    this->AlignColsAndResize( A.ColAlign(), height, width );
+    this->AlignColsAndResize( A.ColAlign(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1188,7 +1192,7 @@ GeneralDistMatrix<T,U,V>::PartialColFilterFrom( const DistMatrix<T,UPart,V>& A )
     )
     const Int height = A.Height();
     const Int width = A.Width();
-    this->AlignColsAndResize( A.ColAlign(), height, width );
+    this->AlignColsAndResize( A.ColAlign(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1282,7 +1286,7 @@ GeneralDistMatrix<T,U,V>::PartialRowFilterFrom( const DistMatrix<T,U,VPart>& A )
     )
     const Int height = A.Height();
     const Int width = A.Width();
-    this->AlignRowsAndResize( A.RowAlign(), height, width );
+    this->AlignRowsAndResize( A.RowAlign(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1375,7 +1379,7 @@ GeneralDistMatrix<T,U,V>::PartialColAllToAllFrom
     )
     const Int height = A.Height();
     const Int width = A.Width();
-    this->AlignColsAndResize( A.ColAlign(), height, width );
+    this->AlignColsAndResize( A.ColAlign(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1520,7 +1524,7 @@ GeneralDistMatrix<T,U,V>::PartialRowAllToAllFrom
     )
     const Int height = A.Height();
     const Int width = A.Width();
-    this->AlignRowsAndResize( A.RowAlign(), height, width );
+    this->AlignRowsAndResize( A.RowAlign(), height, width, false, false );
     if( !this->Participating() )
         return;
 
@@ -1665,7 +1669,8 @@ GeneralDistMatrix<T,U,V>::PartialColAllToAll
     )
     const Int height = this->Height();
     const Int width = this->Width();
-    A.AlignColsAndResize( this->ColAlign()%A.ColStride(), height, width );
+    A.AlignColsAndResize
+    ( this->ColAlign()%A.ColStride(), height, width, false, false );
     if( !A.Participating() )
         return;
 
@@ -1807,7 +1812,8 @@ GeneralDistMatrix<T,U,V>::PartialRowAllToAll
     )
     const Int height = this->Height();
     const Int width = this->Width();
-    A.AlignRowsAndResize( this->RowAlign()%A.RowStride(), height, width );
+    A.AlignRowsAndResize
+    ( this->RowAlign()%A.RowStride(), height, width, false, false );
     if( !A.Participating() )
         return;
 
@@ -1944,7 +1950,8 @@ GeneralDistMatrix<T,U,V>::RowSumScatterFrom( const DistMatrix<T,U,VGath>& A )
         CallStackEntry cse("GDM::RowSumScatterFrom");
         this->AssertSameGrid( A.Grid() );
     )
-    this->AlignColsAndResize( A.ColAlign(), A.Height(), A.Width() );
+    this->AlignColsAndResize
+    ( A.ColAlign(), A.Height(), A.Width(), false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -1959,7 +1966,8 @@ GeneralDistMatrix<T,U,V>::ColSumScatterFrom( const DistMatrix<T,UGath,V>& A )
         CallStackEntry cse("GDM::ColSumScatterFrom");
         this->AssertSameGrid( A.Grid() );
     )
-    this->AlignRowsAndResize( A.RowAlign(), A.Height(), A.Width() );
+    this->AlignRowsAndResize
+    ( A.RowAlign(), A.Height(), A.Width(), false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -1990,7 +1998,8 @@ GeneralDistMatrix<T,U,V>::PartialRowSumScatterFrom
         CallStackEntry cse("GDM::PartialRowSumScatterFrom");
         this->AssertSameGrid( A.Grid() );
     )
-    this->AlignAndResize( A.ColAlign(), A.RowAlign(), A.Height(), A.Width() );
+    this->AlignAndResize
+    ( A.ColAlign(), A.RowAlign(), A.Height(), A.Width(), false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -2006,7 +2015,8 @@ GeneralDistMatrix<T,U,V>::PartialColSumScatterFrom
         CallStackEntry cse("GDM::PartialColSumScatterFrom");
         this->AssertSameGrid( A.Grid() );
     )
-    this->AlignAndResize( A.ColAlign(), A.RowAlign(), A.Height(), A.Width() );
+    this->AlignAndResize
+    ( A.ColAlign(), A.RowAlign(), A.Height(), A.Width(), false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -2673,14 +2683,14 @@ GeneralDistMatrix<T,U,V>::TransposeColFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposeColFilterFrom"))
     DistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.RowFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -2693,14 +2703,14 @@ GeneralDistMatrix<T,U,V>::TransposeRowFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposeRowFilterFrom"))
     DistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.ColFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -2713,14 +2723,14 @@ GeneralDistMatrix<T,U,V>::TransposePartialColFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposePartialColFilterFrom"))
     DistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.PartialRowFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -2733,14 +2743,14 @@ GeneralDistMatrix<T,U,V>::TransposePartialRowFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposePartialRowFilterFrom"))
     DistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.PartialColFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -2787,14 +2797,14 @@ GeneralDistMatrix<T,U,V>::TransposeColSumScatterFrom
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposeColSumScatterFrom"))
     DistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.RowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( ASumFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -2807,14 +2817,14 @@ GeneralDistMatrix<T,U,V>::TransposePartialColSumScatterFrom
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposePartialColSumScatterFrom"))
     DistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.PartialRowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( ASumFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -2845,14 +2855,14 @@ GeneralDistMatrix<T,U,V>::TransposeColSumScatterUpdate
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposeColSumScatterUpdate"))
     DistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.RowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     // ALoc += alpha ASumFiltLoc'
     elem::Matrix<T>& ALoc = this->Matrix();
     const elem::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
@@ -2880,14 +2890,14 @@ GeneralDistMatrix<T,U,V>::TransposePartialColSumScatterUpdate
     DEBUG_ONLY(CallStackEntry cse("GDM::TransposePartialColSumScatterUpdate"))
     DistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.PartialRowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     // ALoc += alpha ASumFiltLoc'
     elem::Matrix<T>& ALoc = this->Matrix();
     const elem::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
@@ -3197,7 +3207,7 @@ GeneralDistMatrix<T,U,V>::GetDiagonalHelper
     DEBUG_ONLY(CallStackEntry cse("GDM::GetDiagonalHelper"))
     d.SetGrid( this->Grid() );
     d.SetRoot( this->DiagonalRoot(offset) );
-    d.AlignCols( this->DiagonalAlign(offset) );
+    d.AlignCols( this->DiagonalAlign(offset), false );
     d.Resize( this->DiagonalLength(offset), 1 );
     if( !d.Participating() )
         return;

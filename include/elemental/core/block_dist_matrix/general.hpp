@@ -44,8 +44,10 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
-    void AlignColsWith( const elem::BlockDistData& data ) override;
-    void AlignRowsWith( const elem::BlockDistData& data ) override;
+    void AlignColsWith
+    ( const elem::BlockDistData& data, bool constrain=true ) override;
+    void AlignRowsWith
+    ( const elem::BlockDistData& data, bool constrain=true ) override;
 
     void Translate( BlockDistMatrix<T,U,V>& A ) const;
 

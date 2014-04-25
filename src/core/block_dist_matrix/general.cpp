@@ -49,21 +49,26 @@ GeneralBlockDistMatrix<T,U,V>::operator=( GeneralBlockDistMatrix<T,U,V>&& A )
 
 template<typename T,Dist U,Dist V>
 void
-GeneralBlockDistMatrix<T,U,V>::AlignColsWith( const elem::BlockDistData& data )
+GeneralBlockDistMatrix<T,U,V>::AlignColsWith
+( const elem::BlockDistData& data, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::AlignColsWith")) 
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == U || data.colDist == UPart )
-        this->AlignCols( data.blockHeight, data.colAlign, data.colCut );
+        this->AlignCols
+        ( data.blockHeight, data.colAlign, data.colCut, constrain );
     else if( data.rowDist == U || data.rowDist == UPart )
-        this->AlignCols( data.blockWidth, data.rowAlign, data.rowCut );
+        this->AlignCols
+        ( data.blockWidth, data.rowAlign, data.rowCut, constrain );
     else if( data.colDist == UScat )
         this->AlignCols
-        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut );
+        ( data.blockHeight, data.colAlign % this->ColStride(), data.colCut, 
+          constrain );
     else if( data.rowDist == UScat )
         this->AlignCols
-        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut );
+        ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut,
+          constrain );
     DEBUG_ONLY(
         else if( U != UGath && data.colDist != UGath && data.rowDist != UGath ) 
             LogicError("Nonsensical alignment");
@@ -72,21 +77,26 @@ GeneralBlockDistMatrix<T,U,V>::AlignColsWith( const elem::BlockDistData& data )
 
 template<typename T,Dist U,Dist V>
 void
-GeneralBlockDistMatrix<T,U,V>::AlignRowsWith( const elem::BlockDistData& data )
+GeneralBlockDistMatrix<T,U,V>::AlignRowsWith
+( const elem::BlockDistData& data, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::AlignRowsWith")) 
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == V || data.colDist == VPart )
-        this->AlignRows( data.blockHeight, data.colAlign, data.colCut );
+        this->AlignRows
+        ( data.blockHeight, data.colAlign, data.colCut, constrain );
     else if( data.rowDist == V || data.rowDist == VPart )
-        this->AlignRows( data.blockWidth, data.rowAlign, data.rowCut );
+        this->AlignRows
+        ( data.blockWidth, data.rowAlign, data.rowCut, constrain );
     else if( data.colDist == VScat )
         this->AlignRows
-        ( data.blockHeight, data.colAlign % this->RowStride(), data.colCut );
+        ( data.blockHeight, data.colAlign % this->RowStride(), data.colCut,
+          constrain );
     else if( data.rowDist == VScat )
         this->AlignRows
-        ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut );
+        ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut,
+          constrain );
     DEBUG_ONLY(
         else if( V != VGath && data.colDist != VGath && data.rowDist != VGath )
             LogicError("Nonsensical alignment");
@@ -109,11 +119,11 @@ GeneralBlockDistMatrix<T,U,V>::Translate( BlockDistMatrix<T,U,V>& A ) const
     const Int root = this->Root();
     A.SetGrid( this->Grid() );
     if( !A.RootConstrained() )
-        A.SetRoot( root );
+        A.SetRoot( root, false );
     if( !A.ColConstrained() )
-        A.AlignCols( blockHeight, colAlign, colCut );
+        A.AlignCols( blockHeight, colAlign, colCut, false );
     if( !A.RowConstrained() )
-        A.AlignRows( blockWidth, rowAlign, rowCut );
+        A.AlignRows( blockWidth, rowAlign, rowCut, false );
     A.Resize( height, width );
     const bool aligned = 
         blockHeight == A.BlockHeight() && blockWidth == A.BlockWidth() &&
@@ -387,7 +397,8 @@ GeneralBlockDistMatrix<T,U,V>::RowSumScatterFrom
         this->AssertSameGrid( A.Grid() );
     )
     this->AlignColsAndResize
-    ( A.BlockHeight(), A.ColAlign(), A.ColCut(), A.Height(), A.Width() );
+    ( A.BlockHeight(), A.ColAlign(), A.ColCut(), A.Height(), A.Width(), 
+      false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -404,7 +415,8 @@ GeneralBlockDistMatrix<T,U,V>::ColSumScatterFrom
         this->AssertSameGrid( A.Grid() );
     )
     this->AlignRowsAndResize
-    ( A.BlockWidth(), A.RowAlign(), A.RowCut(), A.Height(), A.Width() );
+    ( A.BlockWidth(), A.RowAlign(), A.RowCut(), A.Height(), A.Width(),
+      false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -439,7 +451,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialRowSumScatterFrom
     this->AlignAndResize
     ( A.BlockHeight(), A.BlockWidth(), 
       A.ColAlign(), A.RowAlign(), A.ColCut(), A.RowCut(), 
-      A.Height(), A.Width() );
+      A.Height(), A.Width(), false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -458,7 +470,7 @@ GeneralBlockDistMatrix<T,U,V>::PartialColSumScatterFrom
     this->AlignAndResize
     ( A.BlockHeight(), A.BlockWidth(), 
       A.ColAlign(), A.RowAlign(), A.ColCut(), A.RowCut(), 
-      A.Height(), A.Width() );
+      A.Height(), A.Width(), false, false );
     // NOTE: This will be *slightly* slower than necessary due to the result
     //       of the MPI operations being added rather than just copied
     Zeros( this->Matrix(), this->LocalHeight(), this->LocalWidth() );
@@ -598,14 +610,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposeColFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposeColFilterFrom"))
     BlockDistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.RowFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -618,14 +630,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposeRowFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposeRowFilterFrom"))
     BlockDistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.ColFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -638,14 +650,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialColFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposePartialColFilterFrom"))
     BlockDistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.PartialRowFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -658,14 +670,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialRowFilterFrom
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposePartialRowFilterFrom"))
     BlockDistMatrix<T,V,U> AFilt( A.Grid() );
     if( this->ColConstrained() )
-        AFilt.AlignRowsWith( *this );
+        AFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        AFilt.AlignColsWith( *this );
+        AFilt.AlignColsWith( *this, false );
     AFilt.PartialColFilterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( AFilt );
+        this->AlignColsWith( AFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( AFilt );
+        this->AlignRowsWith( AFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( AFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -714,14 +726,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposeColSumScatterFrom
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposeColSumScatterFrom"))
     BlockDistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.RowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( ASumFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -734,14 +746,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialColSumScatterFrom
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposePartialColSumScatterFrom"))
     BlockDistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.PartialRowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     this->Resize( A.Width(), A.Height() );
     Transpose( ASumFilt.LockedMatrix(), this->Matrix(), conjugate );
 }
@@ -772,14 +784,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposeColSumScatterUpdate
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposeColSumScatterUpdate"))
     BlockDistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.RowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     // ALoc += alpha ASumFiltLoc'
     elem::Matrix<T>& ALoc = this->Matrix();
     const elem::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
@@ -807,14 +819,14 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialColSumScatterUpdate
     DEBUG_ONLY(CallStackEntry cse("GBDM::TransposePartialColSumScatterUpdate"))
     BlockDistMatrix<T,V,U> ASumFilt( A.Grid() );
     if( this->ColConstrained() )
-        ASumFilt.AlignRowsWith( *this );
+        ASumFilt.AlignRowsWith( *this, false );
     if( this->RowConstrained() )
-        ASumFilt.AlignColsWith( *this );
+        ASumFilt.AlignColsWith( *this, false );
     ASumFilt.PartialRowSumScatterFrom( A );
     if( !this->ColConstrained() )
-        this->AlignColsWith( ASumFilt );
+        this->AlignColsWith( ASumFilt, false );
     if( !this->RowConstrained() )
-        this->AlignRowsWith( ASumFilt );
+        this->AlignRowsWith( ASumFilt, false );
     // ALoc += alpha ASumFiltLoc'
     elem::Matrix<T>& ALoc = this->Matrix();
     const elem::Matrix<T>& BLoc = ASumFilt.LockedMatrix();

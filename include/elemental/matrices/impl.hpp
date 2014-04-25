@@ -55,8 +55,10 @@
 #include "./Ris.hpp"
 #include "./Toeplitz.hpp"
 #include "./Trefethen.hpp"
+#include "./Triangle.hpp"
 #include "./TriW.hpp"
 #include "./Walsh.hpp"
+#include "./Whale.hpp"
 #include "./Wilkinson.hpp"
 #include "./Zeros.hpp"
 

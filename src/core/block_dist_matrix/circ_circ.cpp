@@ -222,7 +222,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
     const Int nb = A.BlockWidth();
     const Int colCut = A.ColCut();
     const Int rowCut = A.RowCut();
-    this->Align( mb, nb, 0, 0 );
+    this->Align( mb, nb, 0, 0, false );
     this->Resize( m, n );
     if( A.RedundantSize() != 1 )
         LogicError("This routine does not yet support non-trivial redundancy");

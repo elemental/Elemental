@@ -17,8 +17,10 @@
 #include ELEM_FOXLI_INC
 #include ELEM_HELMHOLTZPML_INC
 #include ELEM_LOTKIN_INC
-#include ELEM_UNIFORM_INC
 #include ELEM_TREFETHEN_INC
+#include ELEM_TRIANGLE_INC
+#include ELEM_UNIFORM_INC
+#include ELEM_WHALE_INC
 using namespace std;
 using namespace elem;
 
@@ -37,7 +39,7 @@ main( int argc, char* argv[] )
         const Int matType =
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
                               "5:HelmholtzPML1D,6:HelmholtzPML2D,7:Trefethen,"
-                              "8:Bull's head",4);
+                              "8:Bull's head,9:Triangle,10:Whale",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
 #ifdef ELEM_HAVE_SCALAPACK
@@ -160,6 +162,14 @@ main( int argc, char* argv[] )
                 BullsHead( ACpx, n );
                 isReal = false;
                 break;
+        case 9: matName="Triangle";
+                Triangle( AReal, n );
+                isReal = true;
+                break;
+        case 10: matName="Whale";
+                 Whale( ACpx, n );
+                 isReal = false;
+                 break;
         default: LogicError("Invalid matrix type");
         }
         if( display )

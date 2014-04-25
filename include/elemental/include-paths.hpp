@@ -499,8 +499,10 @@
 #define ELEM_RIS_INC              "elemental/matrices/Ris.hpp"
 #define ELEM_TOEPLITZ_INC         "elemental/matrices/Toeplitz.hpp"
 #define ELEM_TREFETHEN_INC        "elemental/matrices/Trefethen.hpp"
+#define ELEM_TRIANGLE_INC         "elemental/matrices/Triangle.hpp"
 #define ELEM_TRIW_INC             "elemental/matrices/TriW.hpp"
 #define ELEM_WALSH_INC            "elemental/matrices/Walsh.hpp"
+#define ELEM_WHALE_INC            "elemental/matrices/Whale.hpp"
 #define ELEM_WILKINSON_INC        "elemental/matrices/Wilkinson.hpp"
 #define ELEM_ZEROS_INC            "elemental/matrices/Zeros.hpp"
 

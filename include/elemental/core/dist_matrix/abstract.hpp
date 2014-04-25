@@ -42,20 +42,25 @@ public:
     void MakeConsistent();
     // Realignment
     // -----------
-    void Align( Int colAlign, Int rowAlign );
-    void AlignCols( Int colAlign );
-    void AlignRows( Int rowAlign );
+    void Align( Int colAlign, Int rowAlign, bool constrain=true );
+    void AlignCols( Int colAlign, bool constrain=true );
+    void AlignRows( Int rowAlign, bool constrain=true );
     void FreeAlignments();
-    void SetRoot( Int root );
-    void AlignWith( const elem::DistData& data );
-    virtual void AlignColsWith( const elem::DistData& data );
-    virtual void AlignRowsWith( const elem::DistData& data );
+    void SetRoot( Int root, bool constrain=true );
+    void AlignWith( const elem::DistData& data, bool constrain=true );
+    virtual void AlignColsWith
+    ( const elem::DistData& data, bool constrain=true );
+    virtual void AlignRowsWith
+    ( const elem::DistData& data, bool constrain=true );
     void AlignAndResize
-    ( Int colAlign, Int rowAlign, Int height, Int width, bool force=false );
+    ( Int colAlign, Int rowAlign, Int height, Int width, 
+      bool force=false, bool constrain=true );
     void AlignColsAndResize
-    ( Int colAlign, Int height, Int width, bool force=false );
+    ( Int colAlign, Int height, Int width, 
+      bool force=false, bool constrain=true );
     void AlignRowsAndResize
-    ( Int rowAlign, Int height, Int width, bool force=false );
+    ( Int rowAlign, Int height, Int width, 
+      bool force=false, bool constrain=true );
 
     // Buffer attachment
     // -----------------
