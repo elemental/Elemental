@@ -21,6 +21,7 @@
 #include ELEM_TREFETHEN_INC
 #include ELEM_TRIANGLE_INC
 #include ELEM_UNIFORM_INC
+#include ELEM_UNIFORMHELMHOLTZGREENS_INC
 #include ELEM_WHALE_INC
 using namespace std;
 using namespace elem;
@@ -90,7 +91,7 @@ main( int argc, char* argv[] )
         const double lambda = Input("--lambda","wavelength of U.H.Green's",0.1);
         // Hatano-Nelson options 
         const double gHatano = Input("--gHatano","g in Hatano-Nelson",0.5);
-        const bool periodic = Input("--periodic","periodic HatanoNelson?",true
+        const bool periodic = Input("--periodic","periodic HatanoNelson?",true);
         // Input/Output options
         const bool progress = Input("--progress","print progress?",true);
         const bool deflate = Input("--deflate","deflate?",true);
