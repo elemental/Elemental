@@ -224,7 +224,7 @@ MultiShiftQuasiTrsm
     Scale( alpha, B );
     // TODO: Call the single right-hand side algorithm if appropriate
 
-    const Int p = B.Grid().Size();
+    //const Int p = B.Grid().Size();
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
