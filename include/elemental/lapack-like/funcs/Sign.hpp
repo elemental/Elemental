@@ -51,7 +51,7 @@ NewtonStep
     typedef Base<F> Real;
 
     // Calculate mu while forming XNew := inv(X)
-    Real mu;
+    Real mu=1;
     Matrix<Int> p;
     XNew = X;
     LU( XNew, p );
@@ -63,8 +63,6 @@ NewtonStep
     inverse::AfterLUPartialPiv( XNew, p );
     if( scaling == SIGN_SCALE_FROB )
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
-    else if( scaling == SIGN_SCALE_NONE )
-        mu = 1;
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
@@ -83,7 +81,7 @@ NewtonStep
     typedef Base<F> Real;
 
     // Calculate mu while forming B := inv(X)
-    Real mu;
+    Real mu=1;
     DistMatrix<Int,VC,STAR> p( X.Grid() );
     XNew = X;
     LU( XNew, p );
@@ -95,8 +93,6 @@ NewtonStep
     inverse::AfterLUPartialPiv( XNew, p );
     if( scaling == SIGN_SCALE_FROB )
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
-    else if( scaling == SIGN_SCALE_NONE )
-        mu = 1;
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);

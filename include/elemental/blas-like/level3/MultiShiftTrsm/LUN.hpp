@@ -30,7 +30,7 @@ LeftUnb
     {
     case NORMAL:    orientChar = 'N'; break;
     case TRANSPOSE: orientChar = 'T'; break;
-    case ADJOINT:   orientChar = 'C'; break;
+    default:        orientChar = 'C';
     }
     auto diag = T.GetDiagonal();
     const Int n = T.Height();

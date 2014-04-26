@@ -125,7 +125,7 @@ GeneralDistMatrix<T,U,V>::Translate( DistMatrix<T,U,V>& A ) const
         const Int maxHeight = MaxLength( height, colStride );
         const Int maxWidth  = MaxLength( width,  rowStride );
         const Int pkgSize = mpi::Pad( maxHeight*maxWidth );
-        T* buffer;
+        T* buffer=0;
         if( crossRank == root || crossRank == A.Root() )
             buffer = A.auxMemory_.Require( pkgSize );
 
