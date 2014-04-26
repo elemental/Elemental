@@ -10,7 +10,8 @@
 #ifndef ELEM_WHALE_HPP
 #define ELEM_WHALE_HPP
 
-#include "./Toeplitz.hpp"
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -28,19 +29,15 @@ Whale( Matrix<Complex<Real> >& A, Int n )
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-4] = -1;
-    a[mainDiag-3] = C(-3,-2);
-    a[mainDiag-2] = C( 0, 1);
-    a[mainDiag-1] = 1;
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 10;
-    a[mainDiag+2] = C(3,1);
-    a[mainDiag+3] = 4;
-    a[mainDiag+4] = C(0,1);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, -1,        4 );
+    SetDiagonal( A, C(-3,-2),  3 );
+    SetDiagonal( A, C( 0, 1),  2 );
+    SetDiagonal( A,  1,        1 );
+    SetDiagonal( A, 10,       -1 );
+    SetDiagonal( A, C( 3, 1), -2 );
+    SetDiagonal( A,  4,       -3 );
+    SetDiagonal( A, C( 0, 1), -4 );
 }
 
 template<typename Real,Dist U,Dist V>
@@ -51,19 +48,15 @@ Whale( DistMatrix<Complex<Real>,U,V>& A, Int n )
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-4] = -1;
-    a[mainDiag-3] = C(-3,-2);
-    a[mainDiag-2] = C( 0, 1);
-    a[mainDiag-1] = 1;
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 10;
-    a[mainDiag+2] = C(3,1);
-    a[mainDiag+3] = 4;
-    a[mainDiag+4] = C(0,1);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, -1,        4 );
+    SetDiagonal( A, C(-3,-2),  3 );
+    SetDiagonal( A, C( 0, 1),  2 );
+    SetDiagonal( A,  1,        1 );
+    SetDiagonal( A, 10,       -1 );
+    SetDiagonal( A, C( 3, 1), -2 );
+    SetDiagonal( A,  4,       -3 );
+    SetDiagonal( A, C( 0, 1), -4 );
 }
 
 template<typename Real,Dist U,Dist V>
@@ -74,19 +67,15 @@ Whale( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-4] = -1;
-    a[mainDiag-3] = C(-3,-2);
-    a[mainDiag-2] = C( 0, 1);
-    a[mainDiag-1] = 1;
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 10;
-    a[mainDiag+2] = C(3,1);
-    a[mainDiag+3] = 4;
-    a[mainDiag+4] = C(0,1);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, -1,        4 );
+    SetDiagonal( A, C(-3,-2),  3 );
+    SetDiagonal( A, C( 0, 1),  2 );
+    SetDiagonal( A,  1,        1 );
+    SetDiagonal( A, 10,       -1 );
+    SetDiagonal( A, C( 3, 1), -2 );
+    SetDiagonal( A,  4,       -3 );
+    SetDiagonal( A, C( 0, 1), -4 );
 }
 
 #ifndef SWIG

@@ -14,6 +14,7 @@
 
 #include ELEM_BULLSHEAD_INC
 #include ELEM_GRCAR_INC
+#include ELEM_HATANONELSON_INC
 #include ELEM_FOXLI_INC
 #include ELEM_HELMHOLTZPML_INC
 #include ELEM_LOTKIN_INC
@@ -41,13 +42,21 @@ main( int argc, char* argv[] )
             Input("--matType","0:uniform,1:Haar,2:Lotkin,3:Grcar,4:FoxLi,"
                               "5:HelmholtzPML1D,6:HelmholtzPML2D,7:Trefethen,"
                               "8:Bull's head,9:Triangle,10:Whale,"
-                              "11:UniformHelmholtzGreen's",4);
+                              "11:UniformHelmholtzGreen's,12:HatanoNelson",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
 #ifdef ELEM_HAVE_SCALAPACK
+        // QR algorithm options
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
 #else
-        const Int cutoff = Input("--cutoff","SDC cutoff for QR alg.",400);
+        // Spectral Divide and Conquer options
+        const Int cutoff = Input("--cutoff","problem size for QR",256);
+        const Int maxInnerIts = Input("--maxInnerIts","SDC limit",2);
+        const Int maxOuterIts = Input("--maxOuterIts","SDC limit",10);
+        const bool random = Input("--random","Random RRQR in SDC",true);
+        const Real sdcTol = Input("--sdcTol","Rel. tol. for SDC",1e-6);
+        const Real spreadFactor = Input("--spreadFactor","median pert.",1e-6);
+        const Real signTol = Input("--signTol","Sign tolerance for SDC",1e-9);
 #endif
         const Real realCenter = Input("--realCenter","real center",0.);
         const Real imagCenter = Input("--imagCenter","imag center",0.);
@@ -66,20 +75,29 @@ main( int argc, char* argv[] )
         const Int basisSize = Input("--basisSize","num Arnoldi vectors",10);
         const Int maxIts = Input("--maxIts","maximum pseudospec iter's",200);
         const Real psTol = Input("--psTol","tolerance for pseudospectra",1e-6);
+        // Uniform options
         const Real uniformRealCenter = 
             Input("--uniformRealCenter","real center of uniform dist",0.);
         const Real uniformImagCenter =
             Input("--uniformImagCenter","imag center of uniform dist",0.);
         const Real uniformRadius = 
             Input("--uniformRadius","radius of uniform dist",1.);
+        // Grcar options
         const Int numBands = Input("--numBands","num bands for Grcar",3);
+        // Fox-Li options
         const Real omega = Input("--omega","frequency for Fox-Li/Helm",16*M_PI);
+        // Helmholtz-PML options [also uses Fox-Li omega]
         const Int mx = Input("--mx","number of x points for HelmholtzPML",30);
         const Int my = Input("--my","number of y points for HelmholtzPML",30);
         const Int numPmlPoints = Input("--numPml","num PML points for Helm",5);
         const double sigma = Input("--sigma","PML amplitude",1.5);
         const double pmlExp = Input("--pmlExp","PML takeoff exponent",3.);
+        // Uniform Helmholtz Green's options
         const double lambda = Input("--lambda","wavelength of U.H.Green's",0.1);
+        // Hatano-Nelson options [also uses uniform real center]
+        const double gHatano = Input("--gHatano","g in Hatano-Nelson",0.5);
+        const bool periodic = Input("--periodic","periodic HatanoNelson?",true);
+        // Input/Output options
         const bool progress = Input("--progress","print progress?",true);
         const bool deflate = Input("--deflate","deflate?",true);
         const bool display = Input("--display","display matrices?",false);
@@ -179,6 +197,11 @@ main( int argc, char* argv[] )
                  UniformHelmholtzGreens( ACpx, n, lambda );
                  isReal = false;
                  break;
+        case 12: matName="HatanoNelson";
+                 HatanoNelson
+                 ( AReal, n, realCenter, uniformRadius, gHatano, periodic );
+                 isReal = true;
+                 break;
         default: LogicError("Invalid matrix type");
         }
         if( display )
@@ -214,6 +237,14 @@ main( int argc, char* argv[] )
         psCtrl.progress = progress;
 #ifndef ELEM_HAVE_SCALAPACK
         psCtrl.sdcCtrl.cutoff = cutoff;
+        psCtrl.sdcCtrl.maxInnerIts = maxInnerIts;
+        psCtrl.sdcCtrl.maxOuterIts = maxOuterIts;
+        psCtrl.sdcCtrl.tol = sdcTol;
+        psCtrl.sdcCtrl.spreadFactor = spreadFactor;
+        psCtrl.sdcCtrl.random = random;
+        psCtrl.sdcCtrl.progress = progress;
+        psCtrl.sdcCtrl.signCtrl.tol = signTol;
+        psCtrl.sdcCtrl.signCtrl.progress = progress;
 #endif
         psCtrl.snapCtrl.imgSaveFreq = imgSaveFreq;
         psCtrl.snapCtrl.numSaveFreq = numSaveFreq;

@@ -71,7 +71,7 @@ Analytic
     if( n == 0 )
         return;
 
-    DistMatrix<C> w_STAR_STAR( w );
+    DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
 
     const Int numLocShifts = shifts.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )

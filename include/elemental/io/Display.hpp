@@ -119,7 +119,7 @@ Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
     else
     {
         DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-        if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
 #else
@@ -147,7 +147,7 @@ Display( const BlockDistMatrix<T,U,V>& A, std::string title="Default" )
     else
     {
         BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
-        if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             Display( A_CIRC_CIRC.Matrix(), title );
     }
 #else

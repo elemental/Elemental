@@ -10,7 +10,8 @@
 #ifndef ELEM_TRIANGLE_HPP
 #define ELEM_TRIANGLE_HPP
 
-#include "./Toeplitz.hpp"
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -27,13 +28,9 @@ Triangle( Matrix<F>& A, Int n )
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
-    const Int numDiags = 2*n-1;
-    std::vector<F> a( numDiags, 0 );
-    a[n-2] = 1;
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = F(1)/F(4);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, 1,          1 );
+    SetDiagonal( A, F(1)/F(4), -2 );
 }
 
 template<typename F,Dist U,Dist V>
@@ -43,13 +40,9 @@ Triangle( DistMatrix<F,U,V>& A, Int n )
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
-    const Int numDiags = 2*n-1;
-    std::vector<F> a( numDiags, 0 );
-    a[n-2] = 1;
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = F(1)/F(4);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, 1,          1 );
+    SetDiagonal( A, F(1)/F(4), -2 );
 }
 
 template<typename F,Dist U,Dist V>
@@ -59,13 +52,9 @@ Triangle( BlockDistMatrix<F,U,V>& A, Int n )
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
         LogicError("Must be at least 3x3 to have a second-order symbol");
-    const Int numDiags = 2*n-1;
-    std::vector<F> a( numDiags, 0 );
-    a[n-2] = 1;
-    a[n-1] = 0;
-    a[n  ] = 0;
-    a[n+1] = F(1)/F(4);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, 1,          1 );
+    SetDiagonal( A, F(1)/F(4), -2 );
 }
 
 #ifndef SWIG

@@ -288,22 +288,19 @@ Pseudospectrum
         return Pseudospectrum( ACpx, shifts, invNorms, psCtrl );
     }
 
-    if( psCtrl.schur )
-    {
-        Matrix<Real> U( A );
-        Matrix<C> w;
-        const bool fullTriangle = true;
-        schur::QR( U, w, fullTriangle );
-        if( psCtrl.forceComplexPs )
-        {
-            Matrix<C> UCpx;
-            schur::RealToComplex( U, UCpx );
-            return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
-        }
-        return QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
-    }
-    else
+    if( !psCtrl.schur )
         LogicError("Real Hessenberg algorithm not yet supported");
+    Matrix<Real> U( A );
+    Matrix<C> w;
+    const bool fullTriangle = true;
+    schur::QR( U, w, fullTriangle );
+    if( psCtrl.forceComplexPs )
+    {
+        Matrix<C> UCpx;
+        schur::RealToComplex( U, UCpx );
+        return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
+    }
+    return QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -348,30 +345,27 @@ Pseudospectrum
         return Pseudospectrum( ACpx, shifts, invNorms, psCtrl );
     }
 
-    if( psCtrl.schur )
-    {
-        DistMatrix<Real> U( A );
-        DistMatrix<C,VR,STAR> w(g);
-        const bool fullTriangle = true;
-#ifdef ELEM_HAVE_SCALAPACK
-        schur::QR( U, w, fullTriangle );
-#else
-        // We don't actually need the Schur vectors, but SDC requires their 
-        // computation in order to form the full triangular factor
-        DistMatrix<Real> X(g);
-        schur::SDC( U, w, X, fullTriangle, psCtrl.sdcCtrl );
-        X.Empty();
-#endif
-        if( psCtrl.forceComplexPs )
-        {
-            DistMatrix<C> UCpx(g);
-            schur::RealToComplex( U, UCpx );
-            return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
-        }
-        return QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
-    }
-    else
+    if( !psCtrl.schur )
         LogicError("Real Hessenberg algorithm not yet supported");
+    DistMatrix<Real> U( A );
+    DistMatrix<C,VR,STAR> w(g);
+    const bool fullTriangle = true;
+#ifdef ELEM_HAVE_SCALAPACK
+    schur::QR( U, w, fullTriangle );
+#else
+    // We don't actually need the Schur vectors, but SDC requires their 
+    // computation in order to form the full triangular factor
+    DistMatrix<Real> X(g);
+    schur::SDC( U, w, X, fullTriangle, psCtrl.sdcCtrl );
+    X.Empty();
+#endif
+    if( psCtrl.forceComplexPs )
+    {
+        DistMatrix<C> UCpx(g);
+        schur::RealToComplex( U, UCpx );
+        return TriangularPseudospectrum( UCpx, shifts, invNorms, psCtrl );
+    }
+    return QuasiTriangularPseudospectrum( U, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -1019,24 +1013,21 @@ Pseudospectrum
                ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
     }
 
-    if( psCtrl.schur )
-    {
-        Matrix<Real> B( A );
-        Matrix<C> w;
-        const bool fullTriangle = true;
-        schur::QR( B, w, fullTriangle );
-        if( psCtrl.forceComplexPs )
-        {
-            Matrix<C> BCpx;
-            schur::RealToComplex( B, BCpx );
-            return TriangularPseudospectrum
-                   ( BCpx, invNormMap, center, realSize, imagSize, psCtrl );
-        }
-        return QuasiTriangularPseudospectrum
-               ( B, invNormMap, center, realSize, imagSize, psCtrl );
-    }
-    else
+    if( !psCtrl.schur )
         LogicError("Real Hessenberg algorithm not yet supported");
+    Matrix<Real> B( A );
+    Matrix<C> w;
+    const bool fullTriangle = true;
+    schur::QR( B, w, fullTriangle );
+    if( psCtrl.forceComplexPs )
+    {
+        Matrix<C> BCpx;
+        schur::RealToComplex( B, BCpx );
+        return TriangularPseudospectrum
+               ( BCpx, invNormMap, center, realSize, imagSize, psCtrl );
+    }
+    return QuasiTriangularPseudospectrum
+           ( B, invNormMap, center, realSize, imagSize, psCtrl );
 }
 
 template<typename Real>
@@ -1095,32 +1086,29 @@ Pseudospectrum
                ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
     }
 
-    if( psCtrl.schur )
-    {
-        DistMatrix<Real> B( A );
-        DistMatrix<C,VR,STAR> w(g);
-        const bool fullTriangle = true;
-#ifdef ELEM_HAVE_SCALAPACK
-        schur::QR( B, w, fullTriangle );
-#else
-        // We don't actually need the Schur vectors, but SDC requires their
-        // computation in order to form the full triangular factor
-        DistMatrix<Real> X(g);
-        schur::SDC( B, w, X, fullTriangle, psCtrl.sdcCtrl );
-        X.Empty();
-#endif
-        if( psCtrl.forceComplexPs ) 
-        {
-            DistMatrix<C> BCpx(g);
-            schur::RealToComplex( B, BCpx );
-            return TriangularPseudospectrum
-                   ( BCpx, invNormMap, center, realSize, imagSize, psCtrl );
-        }
-        return QuasiTriangularPseudospectrum
-               ( B, invNormMap, center, realSize, imagSize, psCtrl );
-    }
-    else
+    if( !psCtrl.schur )
         LogicError("Real Hessenberg algorithm not yet supported");
+    DistMatrix<Real> B( A );
+    DistMatrix<C,VR,STAR> w(g);
+    const bool fullTriangle = true;
+#ifdef ELEM_HAVE_SCALAPACK
+    schur::QR( B, w, fullTriangle );
+#else
+    // We don't actually need the Schur vectors, but SDC requires their
+    // computation in order to form the full triangular factor
+    DistMatrix<Real> X(g);
+    schur::SDC( B, w, X, fullTriangle, psCtrl.sdcCtrl );
+    X.Empty();
+#endif
+    if( psCtrl.forceComplexPs ) 
+    {
+        DistMatrix<C> BCpx(g);
+        schur::RealToComplex( B, BCpx );
+        return TriangularPseudospectrum
+               ( BCpx, invNormMap, center, realSize, imagSize, psCtrl );
+    }
+    return QuasiTriangularPseudospectrum
+           ( B, invNormMap, center, realSize, imagSize, psCtrl );
 }
 
 } // namespace elem

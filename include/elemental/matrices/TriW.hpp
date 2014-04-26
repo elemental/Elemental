@@ -10,7 +10,8 @@
 #ifndef ELEM_TRIW_HPP
 #define ELEM_TRIW_HPP
 
-#include ELEM_TOEPLITZ_INC
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -20,14 +21,37 @@ TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
-        LogicError("Number of superdiagonals of ones must be non-negative");
-    const Int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
-    std::vector<T> a( numDiags, 0 );
-    if( n > 0 )
-        a[n-1] = 1;
-    for( Int j=0; j<std::min(n-1,k); ++j )
-        a[n-2-j] = alpha;
-    Toeplitz( A, m, n, a );
+        LogicError("Number of superdiagonals must be non-negative");
+    Zeros( A, n, n );
+    SetDiagonal( A, 1 );
+    for( Int j=0; j<Min(n-1,k); ++j ) 
+        SetDiagonal( A, alpha, j+1 );
+}
+
+template<typename T,Dist U,Dist V>
+inline void
+TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriW"))
+    if( k < 0 )
+        LogicError("Number of superdiagonals must be non-negative");
+    Zeros( A, n, n );
+    SetDiagonal( A, 1 );
+    for( Int j=0; j<Min(n-1,k); ++j )
+        SetDiagonal( A, alpha, j+1 );
+}
+
+template<typename T,Dist U,Dist V>
+inline void
+TriW( BlockDistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
+{
+    DEBUG_ONLY(CallStackEntry cse("TriW"))
+    if( k < 0 )
+        LogicError("Number of superdiagonals must be non-negative");
+    Zeros( A, n, n );
+    SetDiagonal( A, 1 );
+    for( Int j=0; j<Min(n-1,k); ++j )
+        SetDiagonal( A, alpha, j+1 );
 }
 
 #ifndef SWIG
@@ -39,25 +63,7 @@ TriW( Int m, Int n, T alpha, Int k )
     TriW( A, m, n, alpha, k );
     return A;
 }
-#endif
 
-template<typename T,Dist U,Dist V>
-inline void
-TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
-{
-    DEBUG_ONLY(CallStackEntry cse("TriW"))
-    if( k < 0 )
-        LogicError("Number of superdiagonals of ones must be non-negative");
-    const Int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
-    std::vector<T> a( numDiags, 0 );
-    if( n > 0 )
-        a[n-1] = 1;
-    for( Int j=0; j<std::min(n-1,k); ++j )
-        a[n-2-j] = alpha;
-    Toeplitz( A, m, n, a );
-}
-
-#ifndef SWIG
 template<typename T,Dist U=MC,Dist V=MR>
 inline DistMatrix<T,U,V>
 TriW( const Grid& g, Int m, Int n, T alpha, Int k )

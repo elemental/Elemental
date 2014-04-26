@@ -31,6 +31,7 @@
 #include "./Grcar.hpp"
 #include "./Hankel.hpp"
 #include "./Hanowa.hpp"
+#include "./HatanoNelson.hpp"
 #include "./Helmholtz.hpp"
 #include "./HelmholtzPML.hpp"
 #include "./HermitianFromEVD.hpp"

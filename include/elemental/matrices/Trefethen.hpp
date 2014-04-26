@@ -10,7 +10,8 @@
 #ifndef ELEM_TREFETHEN_HPP
 #define ELEM_TREFETHEN_HPP
 
-#include "./Toeplitz.hpp"
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -28,17 +29,12 @@ Trefethen( Matrix<Complex<Real> >& A, Int n )
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-3] = 2;
-    a[mainDiag-2] = -1;
-    a[mainDiag-1] = C(0,2);
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 0;
-    a[mainDiag+2] = -4;
-    a[mainDiag+3] = C(0,-2);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A,  2,       3 );
+    SetDiagonal( A, -1,       2 );
+    SetDiagonal( A, C(0,2),   1 );
+    SetDiagonal( A, -4,      -2 );
+    SetDiagonal( A, C(0,-2), -3 );
 }
 
 template<typename Real,Dist U,Dist V>
@@ -49,17 +45,12 @@ Trefethen( DistMatrix<Complex<Real>,U,V>& A, Int n )
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-3] = 2;
-    a[mainDiag-2] = -1;
-    a[mainDiag-1] = C(0,2);
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 0;
-    a[mainDiag+2] = -4;
-    a[mainDiag+3] = C(0,-2);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A,  2,       3 );
+    SetDiagonal( A, -1,       2 );
+    SetDiagonal( A, C(0,2),   1 );
+    SetDiagonal( A, -4,      -2 );
+    SetDiagonal( A, C(0,-2), -3 );
 }
 
 template<typename Real,Dist U,Dist V>
@@ -70,17 +61,12 @@ Trefethen( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-3] = 2;
-    a[mainDiag-2] = -1;
-    a[mainDiag-1] = C(0,2);
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 0;
-    a[mainDiag+2] = -4;
-    a[mainDiag+3] = C(0,-2);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A,  2,       3 );
+    SetDiagonal( A, -1,       2 );
+    SetDiagonal( A, C(0,2),   1 );
+    SetDiagonal( A, -4,      -2 );
+    SetDiagonal( A, C(0,-2), -3 );
 }
 
 #ifndef SWIG

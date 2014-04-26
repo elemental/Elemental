@@ -483,6 +483,10 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    if( uplo == LOWER )
+        MakeZeros( ABL );
+    else
+        MakeZeros( ATR );
     Matrix<Real> wT, wB;
     PartitionDown( w, wT, wB, part.index );
 
@@ -516,6 +520,10 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    if( uplo == LOWER )
+        MakeZeros( ABL );
+    else
+        MakeZeros( ATR );
     Matrix<Real> wT, wB;
     PartitionDown( w, wT, wB, part.index );
     Matrix<F> QL, QR;
@@ -563,6 +571,10 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    if( uplo == LOWER )
+        MakeZeros( ABL );
+    else
+        MakeZeros( ATR );
     DistMatrix<Real,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
 
@@ -610,6 +622,10 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    if( uplo == LOWER )
+        MakeZeros( ABL );
+    else
+        MakeZeros( ATR );
     DistMatrix<Real,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
     DistMatrix<F> QL(g), QR(g);

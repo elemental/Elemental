@@ -144,6 +144,7 @@ void CommGroup( Comm comm, Group& group );
 void Dup( Group group, Group& newGroup );
 void Union( Group groupA, Group groupB, Group& newGroup );
 void Incl( Group group, int n, const int* ranks, Group& subGroup );
+void Excl( Group group, int n, const int* ranks, Group& subGroup );
 void Difference( Group parent, Group subset, Group& complement );
 void Free( Group& group );
 int Translate( Group origGroup, int origRank, Group newGroup );

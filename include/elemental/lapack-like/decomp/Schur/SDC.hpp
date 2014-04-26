@@ -975,6 +975,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    MakeZeros( ABL );
     Matrix<Complex<BASE(F)>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
 
@@ -1017,6 +1018,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    MakeZeros( ABL );
     Matrix<Complex<BASE(F)>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
     Matrix<F> QL, QR;
@@ -1097,6 +1099,8 @@ inline void SplitGrid
                       << std::endl;
         leftGrid = new Grid( grid.VCComm(), leftGroup, rLeft );
         rightGrid = new Grid( grid.VCComm(), rightGroup, rRight );
+        mpi::Free( leftGroup );
+        mpi::Free( rightGroup );
     }
 }
 
@@ -1185,12 +1189,8 @@ inline void PullSubproblems
     wBSub.Empty();
     if( !sameGrid )
     {
-        mpi::Group leftOwning = leftGrid->OwningGroup();
-        mpi::Group rightOwning = rightGrid->OwningGroup();
         delete leftGrid;
         delete rightGrid;
-        mpi::Free( leftOwning );
-        mpi::Free( rightOwning );
     }
 }
 
@@ -1218,7 +1218,7 @@ SDC
                       << ": using QR algorithm" << std::endl;
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
         DistMatrix<Complex<BASE(F)>,CIRC,CIRC> w_CIRC_CIRC( w );
-        if( g.VCRank() == A_CIRC_CIRC.Root() )
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             schur::QR( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix() );
         A = A_CIRC_CIRC;
         w = w_CIRC_CIRC;
@@ -1234,6 +1234,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    MakeZeros( ABL );
     DistMatrix<Complex<BASE(F)>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
 
@@ -1357,12 +1358,8 @@ inline void PullSubproblems
     ZBSub.Empty();
     if( !sameGrid )
     {
-        mpi::Group leftOwning = leftGrid->OwningGroup();
-        mpi::Group rightOwning = rightGrid->OwningGroup();
         delete leftGrid;
         delete rightGrid;
-        mpi::Free( leftOwning );
-        mpi::Free( rightOwning );
     }
 }
 
@@ -1392,7 +1389,7 @@ SDC
                       << ": using QR algorithm" << std::endl;
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
         DistMatrix<Complex<BASE(F)>,CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
-        if( g.VCRank() == A_CIRC_CIRC.Root() )
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             schur::QR
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
               fullTriangle );
@@ -1412,6 +1409,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
+    MakeZeros( ABL );
     DistMatrix<Complex<BASE(F)>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
     DistMatrix<F> QL(g), QR(g);

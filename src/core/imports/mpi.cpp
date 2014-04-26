@@ -223,7 +223,7 @@ void Dup( Group group, Group& newGroup )
 {
     DEBUG_ONLY(CallStackEntry cse("mpi::Dup"))
     // For some reason, MPI_Group_dup does not exist
-    Union( group, group, newGroup );
+    Excl( group, 0, 0, newGroup ); 
 }
 
 void Union( Group groupA, Group groupB, Group& newGroup )
@@ -238,6 +238,15 @@ void Incl( Group group, int n, const int* ranks, Group& subGroup )
     SafeMpi( 
         MPI_Group_incl
         ( group.group, n, const_cast<int*>(ranks), &subGroup.group ) 
+    );
+}
+
+void Excl( Group group, int n, const int* ranks, Group& subGroup )
+{
+    DEBUG_ONLY(CallStackEntry cse("mpi::Excl"))
+    SafeMpi(
+        MPI_Group_excl
+        ( group.group, n, const_cast<int*>(ranks), &subGroup.group )
     );
 }
 

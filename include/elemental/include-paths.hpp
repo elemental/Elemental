@@ -512,6 +512,8 @@
   "elemental/matrices/Gaussian.hpp"
 #define ELEM_HAAR_INC \
   "elemental/matrices/Haar.hpp"
+#define ELEM_HATANONELSON_INC \
+  "elemental/matrices/HatanoNelson.hpp"
 #define ELEM_HERMITIANUNIFORMSPECTRUM_INC \
   "elemental/matrices/HermitianUniformSpectrum.hpp"
 #define ELEM_NORMALUNIFORMSPECTRUM_INC \

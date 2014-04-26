@@ -10,7 +10,8 @@
 #ifndef ELEM_BULLSHEAD_HPP
 #define ELEM_BULLSHEAD_HPP
 
-#include "./Toeplitz.hpp"
+#include ELEM_SETDIAGONAL_INC
+#include ELEM_ZEROS_INC
 
 namespace elem {
 
@@ -28,15 +29,10 @@ BullsHead( Matrix<Complex<Real> >& A, Int n )
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-1] = C(0,2);
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 0;
-    a[mainDiag+2] = 1;
-    a[mainDiag+3] = Real(7)/Real(10);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, C(0,2),            1 );
+    SetDiagonal( A, 1,                -2 );
+    SetDiagonal( A, Real(7)/Real(10), -3 );
 }
 
 template<typename Real,Dist U,Dist V>
@@ -47,15 +43,10 @@ BullsHead( DistMatrix<Complex<Real>,U,V>& A, Int n )
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-1] = C(0,2);
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 0;
-    a[mainDiag+2] = 1;
-    a[mainDiag+3] = Real(7)/Real(10);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, C(0,2),            1 );
+    SetDiagonal( A, 1,                -2 );
+    SetDiagonal( A, Real(7)/Real(10), -3 );
 }
 
 template<typename Real,Dist U,Dist V>
@@ -66,15 +57,10 @@ BullsHead( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     if( n < 4 )
         LogicError("Must be at least 4x4 to have a third-order symbol");
     typedef Complex<Real> C;
-    const Int numDiags = 2*n-1;
-    std::vector<C> a( numDiags, 0 );
-    const Int mainDiag = n-1;
-    a[mainDiag-1] = C(0,2);
-    a[mainDiag-0] = 0;
-    a[mainDiag+1] = 0;
-    a[mainDiag+2] = 1;
-    a[mainDiag+3] = Real(7)/Real(10);
-    Toeplitz( A, n, n, a );
+    Zeros( A, n, n );
+    SetDiagonal( A, C(0,2),            1 );
+    SetDiagonal( A, 1,                -2 );
+    SetDiagonal( A, Real(7)/Real(10), -3 );
 }
 
 #ifndef SWIG
