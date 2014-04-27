@@ -239,7 +239,7 @@ void TestHermitianGenDefiniteEig
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigvals, UpperOrLower uplo, 
   Int m, char range, Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort,
-  const Grid& g )
+  const Grid& g, const HermitianEigCtrl<Base<F>> ctrl )
 {
     typedef Base<F> Real;
     DistMatrix<F> A(g), AOrig(g);
@@ -288,20 +288,26 @@ void TestHermitianGenDefiniteEig
     if( onlyEigvals )
     {
         if( range == 'A' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, sort );
+            HermitianGenDefiniteEig
+            ( eigType, uplo, A, B, w, sort, ctrl );
         else if( range == 'I' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, il, iu, sort );
+            HermitianGenDefiniteEig
+            ( eigType, uplo, A, B, w, il, iu, sort, ctrl );
         else
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, vl, vu, sort );
+            HermitianGenDefiniteEig
+            ( eigType, uplo, A, B, w, vl, vu, sort, ctrl );
     }
     else
     {
         if( range == 'A' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, sort );
+            HermitianGenDefiniteEig
+            ( eigType, uplo, A, B, w, X, sort, ctrl );
         else if( range == 'I' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, il, iu, sort );
+            HermitianGenDefiniteEig
+            ( eigType, uplo, A, B, w, X, il, iu, sort, ctrl );
         else
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, vl, vu, sort );
+            HermitianGenDefiniteEig
+            ( eigType, uplo, A, B, w, X, vl, vu, sort, ctrl );
     }
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -357,6 +363,8 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+        const bool testReal = Input("--testReal","test real matrices?",true);
+        const bool testCpx = Input("--testCpx","test complex matrices?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -398,56 +406,51 @@ main( int argc, char* argv[] )
                  << ( uplo==LOWER ? "lower" : "upper" )
                  << " " << eigTypeString << " HermitianGenDefiniteEig." << endl;
 
-        if( commRank == 0 )
-            cout << "Double-precision complex normal tridiag algorithm:"
-                 << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianGenDefiniteEig<double>
-        ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
+        HermitianEigCtrl<double> ctrl;
 
         if( commRank == 0 )
-            cout << "Double-precision square tridiag algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianGenDefiniteEig<double>
-        ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
+            cout << "Normal tridiag algorithms:" << endl;
+        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+        if( testReal )
+            TestHermitianGenDefiniteEig<double>
+            ( testCorrectness, print, 
+              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
+              ctrl );
+        if( testCpx )
+            TestHermitianGenDefiniteEig<Complex<double>>
+            ( testCorrectness, print, 
+              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
+              ctrl );
 
         if( commRank == 0 )
-            cout << "Double-precision square tridiag algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianGenDefiniteEig<double>
-        ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
+            cout << "Square row-major algorithms:" << endl;
+        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl.tridiagCtrl.order = ROW_MAJOR;
+        if( testReal )
+            TestHermitianGenDefiniteEig<double>
+            ( testCorrectness, print, 
+              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
+              ctrl );
+        if( testCpx )
+            TestHermitianGenDefiniteEig<Complex<double>>
+            ( testCorrectness, print, 
+              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
+              ctrl );
 
         if( commRank == 0 )
-            cout << "Double-precision complex normal tridiag algorithm:"
-                 << endl;
-        TestHermitianGenDefiniteEig<Complex<double>>
-        ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
-
-        if( commRank == 0 )
-            cout << "Double-precision complex square tridiag algorithm, "
-                 << "row-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianGenDefiniteEig<Complex<double>>
-        ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
-
-        if( commRank == 0 )
-            cout << "Double-precision complex square tridiag algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianGenDefiniteEig<Complex<double>>
-        ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
+            cout << "Square column-major algorithms:" << endl;
+        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl.tridiagCtrl.order = COLUMN_MAJOR;
+        if( testReal )
+            TestHermitianGenDefiniteEig<double>
+            ( testCorrectness, print, 
+              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
+              ctrl );
+        if( testCpx )
+            TestHermitianGenDefiniteEig<Complex<double>>
+            ( testCorrectness, print, 
+              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
+              ctrl );
     }
     catch( exception& e ) { ReportException(e); }
 

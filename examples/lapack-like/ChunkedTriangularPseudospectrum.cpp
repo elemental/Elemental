@@ -78,6 +78,7 @@ main( int argc, char* argv[] )
         const Int numFormatInt = Input("--numFormat","numerical format",2);
         const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
+        const bool itCounts = Input("--itCounts","display iter. counts?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -226,6 +227,7 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.imgDispFreq = imgDispFreq;
         psCtrl.snapCtrl.imgFormat = imgFormat;
         psCtrl.snapCtrl.numFormat = numFormat;
+        psCtrl.snapCtrl.itCounts = itCounts;
 
         // Visualize/write the pseudospectrum within each window
         Timer timer;

@@ -28,23 +28,6 @@
 
 namespace elem {
 
-template<typename Real>
-struct HermitianSdcCtrl {
-    Int cutoff;
-    Int maxInnerIts;
-    Int maxOuterIts;
-    Real tol;
-    Real spreadFactor;
-    bool random;
-    bool progress;
-
-    HermitianSdcCtrl()
-    : cutoff(256), maxInnerIts(2), maxOuterIts(10),
-      tol(0), spreadFactor(1e-6),
-      random(true), progress(false)
-    { }
-};
-
 namespace herm_eig {
 
 using elem::schur::ComputePartition;
@@ -144,8 +127,8 @@ QDWHDivide
 template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ, 
+  const HermitianSdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::RandomizedSignDivide"))
 
@@ -153,8 +136,9 @@ RandomizedSignDivide
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real oneA = OneNorm( A );
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*lapack::MachineEpsilon<Real>();
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*lapack::MachineEpsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -196,7 +180,7 @@ RandomizedSignDivide
         part.value /= oneA;
 
         ++it;
-        if( part.value <= sdcCtrl.tol || it == sdcCtrl.maxInnerIts )
+        if( part.value <= tol || it == sdcCtrl.maxInnerIts )
             break;
         else
             A = V;
@@ -207,8 +191,8 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
+  const HermitianSdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::RandomizedSignDivide"))
 
@@ -217,8 +201,9 @@ RandomizedSignDivide
     const Int n = A.Height();
     MakeHermitian( uplo, A );
     const Real oneA = OneNorm( A );
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*lapack::MachineEpsilon<Real>();
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*lapack::MachineEpsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -261,7 +246,7 @@ RandomizedSignDivide
         part.value /= oneA;
 
         ++it;
-        if( part.value <= sdcCtrl.tol || it == sdcCtrl.maxInnerIts )
+        if( part.value <= tol || it == sdcCtrl.maxInnerIts )
             break;
         else
             A = V;
@@ -272,8 +257,7 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<BASE(F)>
 SpectralDivide
-( UpperOrLower uplo, Matrix<F>& A, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+( UpperOrLower uplo, Matrix<F>& A, const HermitianSdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -283,8 +267,9 @@ SpectralDivide
     const auto median = Median(A.GetRealPartOfDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
@@ -299,19 +284,18 @@ SpectralDivide
         G = A;
         UpdateDiagonal( G, F(shift) );
 
-        //part = SignDivide( uplo, A, G );
         part = RandomizedSignDivide( uplo, A, G, false, sdcCtrl );
 
         ++it;
-        if( part.value <= sdcCtrl.tol )
+        if( part.value <= tol )
             break;
         else if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -320,7 +304,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& Q, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -330,8 +314,9 @@ SpectralDivide
     const auto median = Median(A.GetRealPartOfDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
@@ -346,19 +331,18 @@ SpectralDivide
         Q = A;
         UpdateDiagonal( Q, F(shift) );
 
-        //part = SignDivide( uplo, A, Q, true );
         part = RandomizedSignDivide( uplo, A, Q, true, sdcCtrl );
 
         ++it;
-        if( part.value <= sdcCtrl.tol )
+        if( part.value <= tol )
             break;
         else if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -367,7 +351,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -377,8 +361,9 @@ SpectralDivide
     const auto median = Median(A.GetRealPartOfDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
@@ -394,19 +379,18 @@ SpectralDivide
         G = A;
         UpdateDiagonal( G, F(shift) );
 
-        //part = SignDivide( uplo, A, G );
         part = RandomizedSignDivide( uplo, A, G, false, sdcCtrl );
 
         ++it;
-        if( part.value <= sdcCtrl.tol )
+        if( part.value <= tol )
             break;
         else if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -415,7 +399,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& Q, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -425,8 +409,9 @@ SpectralDivide
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(A.GetRealPartOfDiagonal());
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
@@ -442,19 +427,18 @@ SpectralDivide
         Q = A;
         UpdateDiagonal( Q, F(shift) );
 
-        //part = SignDivide( uplo, A, Q, true );
         part = RandomizedSignDivide( uplo, A, Q, true, sdcCtrl );
 
         ++it;
-        if( part.value <= sdcCtrl.tol )
+        if( part.value <= tol )
             break;
         else if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -463,7 +447,7 @@ template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
@@ -499,7 +483,7 @@ template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Q, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
@@ -545,7 +529,7 @@ template<typename F>
 inline void
 SDC
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
@@ -595,7 +579,7 @@ inline void
 SDC
 ( UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Q, 
-  HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
+  const HermitianSdcCtrl<BASE(F)> sdcCtrl=HermitianSdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 

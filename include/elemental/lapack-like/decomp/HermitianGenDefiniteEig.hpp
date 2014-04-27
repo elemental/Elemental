@@ -27,7 +27,8 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, SortType sort=UNSORTED )
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -38,7 +39,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, sort );
+    HermitianEig( uplo, A, w, sort, ctrl );
 }
 
 template<typename F>
@@ -46,7 +47,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<BASE(F),VR,STAR>& w, SortType sort=UNSORTED )
+  DistMatrix<BASE(F),VR,STAR>& w, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -57,7 +59,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, sort );
+    HermitianEig( uplo, A, w, sort, ctrl );
 }
 
 // Return the full set of eigenpairs
@@ -68,7 +70,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
-  SortType sort=UNSORTED )
+  SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -79,7 +82,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, sort );
+    HermitianEig( uplo, A, w, X, sort, ctrl );
     if( type == AXBX || type == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -98,7 +101,8 @@ HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
-  SortType sort=UNSORTED )
+  SortType sort=UNSORTED, 
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -109,7 +113,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, sort );
+    HermitianEig( uplo, A, w, X, sort, ctrl );
     if( type == AXBX || type == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -130,7 +134,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
-  Int a, Int b, SortType sort=UNSORTED )
+  Int a, Int b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -141,7 +146,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b, sort );
+    HermitianEig( uplo, A, w, a, b, sort, ctrl );
 }
 
 template<typename F>
@@ -150,7 +155,8 @@ HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w,
-  Int a, Int b, SortType sort=UNSORTED )
+  Int a, Int b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -161,7 +167,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b, sort );
+    HermitianEig( uplo, A, w, a, b, sort, ctrl );
 }
 
 // Return the eigenpairs with eigenvalues in the specified index range
@@ -172,7 +178,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
-  Int a, Int b, SortType sort=UNSORTED )
+  Int a, Int b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -183,7 +190,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b, sort );
+    HermitianEig( uplo, A, w, X, a, b, sort, ctrl );
     if( type == AXBX || type == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -202,7 +209,8 @@ HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
-  Int a, Int b, SortType sort=UNSORTED )
+  Int a, Int b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -213,7 +221,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b, sort );
+    HermitianEig( uplo, A, w, X, a, b, sort, ctrl );
     if( type == AXBX || type == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -234,7 +242,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
-  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -245,7 +254,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b, sort );
+    HermitianEig( uplo, A, w, a, b, sort, ctrl );
 }
 
 template<typename F> 
@@ -253,7 +262,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<BASE(F),VR,STAR>& w,
-  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -264,7 +274,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b, sort );
+    HermitianEig( uplo, A, w, a, b, sort, ctrl );
 }
 
 // Return the eigenpairs with eigenvalues in the specified interval
@@ -275,7 +285,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
-  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -286,7 +297,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b, sort );
+    HermitianEig( uplo, A, w, X, a, b, sort, ctrl );
     if( type == AXBX || type == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
@@ -305,7 +316,8 @@ HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
-  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -316,7 +328,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b, sort );
+    HermitianEig( uplo, A, w, X, a, b, sort, ctrl );
     if( type == AXBX || type == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );

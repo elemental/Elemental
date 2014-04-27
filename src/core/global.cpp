@@ -47,10 +47,6 @@ Int localTrrkDoubleBlocksize = 64;
 Int localTrrkComplexFloatBlocksize = 64;
 Int localTrrkComplexDoubleBlocksize = 64;
 
-// Tuning parameters for advanced routines
-HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_DEFAULT;
-GridOrder gridOrder = ROW_MAJOR;
-
 // Qt5
 ColorMap colorMap=RED_BLACK_GREEN;
 Int numDiscreteColors = 15;
@@ -599,17 +595,5 @@ Int LocalTrrkBlocksize<Complex<float>>()
 template<>
 Int LocalTrrkBlocksize<Complex<double>>()
 { return ::localTrrkComplexDoubleBlocksize; }
-
-void SetHermitianTridiagApproach( HermitianTridiagApproach approach )
-{ ::tridiagApproach = approach; }
-
-HermitianTridiagApproach GetHermitianTridiagApproach()
-{ return ::tridiagApproach; }
-
-void SetHermitianTridiagGridOrder( GridOrder order )
-{ ::gridOrder = order; }
-
-GridOrder GetHermitianTridiagGridOrder()
-{ return ::gridOrder; }
 
 } // namespace elem

@@ -24,12 +24,14 @@ struct SnapshotCtrl
     Int imgSaveCount, numSaveCount, imgDispCount;
     std::string imgBase, numBase;
     FileFormat imgFormat, numFormat;
+    bool itCounts;
 
     SnapshotCtrl()
     : realSize(0), imagSize(0),
       imgSaveFreq(-1), numSaveFreq(-1), imgDispFreq(-1), 
       imgSaveCount(0), numSaveCount(0), imgDispCount(0),
-      imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB)
+      imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB),
+      itCounts(true)
     { }
 
     void ResetCounts()
@@ -72,20 +74,25 @@ Snapshot
         if( numSave || imgSave || imgDisp )
         {
             invNorms = estimates;
-            itCountsReord = itCounts;
-            if( deflate )
-                RestoreOrdering( preimage, invNorms, itCountsReord );
             ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, invNorms, estMap );
-            ReshapeIntoGrid
-            ( snapCtrl.realSize, snapCtrl.imagSize, itCountsReord, itCountMap );
+            if( snapCtrl.itCounts )
+            {
+                itCountsReord = itCounts;
+                if( deflate )
+                    RestoreOrdering( preimage, invNorms, itCountsReord );
+                ReshapeIntoGrid
+                ( snapCtrl.realSize, snapCtrl.imagSize, itCountsReord, 
+                  itCountMap );
+            }
         }
         if( numSave )
         {
             std::ostringstream os;
             os << snapCtrl.numBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.numFormat );
-            Write( itCountMap, os.str()+"-counts", snapCtrl.numFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, os.str()+"-counts", snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
@@ -95,7 +102,8 @@ Snapshot
             std::ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
-            Write( itCountMap, os.str()+"-counts", snapCtrl.imgFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, os.str()+"-counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Write( estMap, os.str()+"-discrete", snapCtrl.imgFormat );
@@ -107,7 +115,8 @@ Snapshot
             std::ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Display( estMap, os.str() );       
-            Display( itCountMap, os.str()+"-counts" );
+            if( snapCtrl.itCounts )
+                Display( itCountMap, os.str()+"-counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Display( estMap, os.str()+"-discrete" );
@@ -135,14 +144,16 @@ FinalSnapshot
         {
             ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, estimates, estMap );
-            ReshapeIntoGrid
-            ( snapCtrl.realSize, snapCtrl.imagSize, itCounts, itCountMap );
+            if( snapCtrl.itCounts )
+                ReshapeIntoGrid
+                ( snapCtrl.realSize, snapCtrl.imagSize, itCounts, itCountMap );
         }
         if( numSave )
         {
             std::string base = snapCtrl.numBase;
             Write( estMap, base, snapCtrl.numFormat );
-            Write( itCountMap, base+"-counts", snapCtrl.numFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, base+"-counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
             EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
@@ -150,7 +161,8 @@ FinalSnapshot
         {
             std::string base = snapCtrl.imgBase;
             Write( estMap, base, snapCtrl.imgFormat );
-            Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Write( estMap, base+"-discrete", snapCtrl.imgFormat );
@@ -160,7 +172,8 @@ FinalSnapshot
         {
             std::string base = snapCtrl.imgBase;
             Display( estMap, base );       
-            Display( itCountMap, base+"-counts" );
+            if( snapCtrl.itCounts )
+                Display( itCountMap, base+"-counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Display( estMap, base+"-discrete" );
@@ -196,20 +209,25 @@ Snapshot
         if( numSave || imgSave || imgDisp )
         {
             invNorms = estimates;
-            itCountsReord = itCounts;
-            if( deflate )
-                RestoreOrdering( preimage, invNorms, itCountsReord );
             ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, invNorms, estMap );
-            ReshapeIntoGrid
-            ( snapCtrl.realSize, snapCtrl.imagSize, itCountsReord, itCountMap );
+            if( snapCtrl.itCounts )
+            {
+                itCountsReord = itCounts;
+                if( deflate )
+                    RestoreOrdering( preimage, invNorms, itCountsReord );
+                ReshapeIntoGrid
+                ( snapCtrl.realSize, snapCtrl.imagSize, itCountsReord, 
+                  itCountMap );
+            }
         }
         if( numSave )
         {
             std::ostringstream os;
             os << snapCtrl.numBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.numFormat );
-            Write( itCountMap, os.str()+"-counts", snapCtrl.numFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, os.str()+"-counts", snapCtrl.numFormat );
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
@@ -219,7 +237,8 @@ Snapshot
             std::ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Write( estMap, os.str(), snapCtrl.imgFormat );
-            Write( itCountMap, os.str()+"-counts", snapCtrl.imgFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, os.str()+"-counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Write( estMap, os.str()+"-discrete", snapCtrl.imgFormat );
@@ -231,7 +250,8 @@ Snapshot
             std::ostringstream os;
             os << snapCtrl.imgBase << "-" << numIts;
             Display( estMap, os.str() );
-            Display( itCountMap, os.str()+"-counts" );
+            if( snapCtrl.itCounts )
+                Display( itCountMap, os.str()+"-counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Display( estMap, os.str()+"-discrete" );
@@ -260,14 +280,16 @@ FinalSnapshot
         {
             ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, estimates, estMap );
-            ReshapeIntoGrid
-            ( snapCtrl.realSize, snapCtrl.imagSize, itCounts, itCountMap );
+            if( snapCtrl.itCounts )
+                ReshapeIntoGrid
+                ( snapCtrl.realSize, snapCtrl.imagSize, itCounts, itCountMap );
         }
         if( numSave )
         {
             std::string base = snapCtrl.numBase;
             Write( estMap, base, snapCtrl.numFormat );
-            Write( itCountMap, base+"-counts", snapCtrl.numFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, base+"-counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
             EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
@@ -275,7 +297,8 @@ FinalSnapshot
         {
             std::string base = snapCtrl.imgBase;
             Write( estMap, base, snapCtrl.imgFormat );
-            Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
+            if( snapCtrl.itCounts )
+                Write( itCountMap, base+"-counts", snapCtrl.imgFormat );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Write( estMap, base+"-discrete", snapCtrl.imgFormat );
@@ -285,7 +308,8 @@ FinalSnapshot
         {
             std::string base = snapCtrl.imgBase;
             Display( estMap, base );           
-            Display( itCountMap, base+"-counts" );
+            if( snapCtrl.itCounts )
+                Display( itCountMap, base+"-counts" );
             auto colorMap = GetColorMap();
             SetColorMap( GRAYSCALE_DISCRETE );
             Display( estMap, base+"-discrete" );

@@ -14,6 +14,7 @@
 #include ELEM_APPLYPACKEDREFLECTORS_INC
 #include ELEM_HERMITIANTRIDIAG_INC
 #include ELEM_HERMITIANTRIDIAGEIG_INC
+#include ELEM_HERMITIANEIG_INC
 #include ELEM_MAXNORM_INC
 
 // The targeted number of pieces to break the eigenvectors into during the
@@ -138,33 +139,50 @@ bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, Base<F>& scale )
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    const Int n = A.Height();
-    const char uploChar = UpperOrLowerToChar( uplo );
-    w.Resize( n, 1 );
-    lapack::HermitianEig( uploChar, n, A.Buffer(), A.LDim(), w.Buffer() );
+    if( ctrl.useSdc )
+    {
+        herm_eig::SDC( uplo, A, w, ctrl.sdcCtrl );
+    } 
+    else
+    {
+        const Int n = A.Height();
+        const char uploChar = UpperOrLowerToChar( uplo );
+        w.Resize( n, 1 );
+        lapack::HermitianEig( uploChar, n, A.Buffer(), A.LDim(), w.Buffer() );
+    }
     Sort( w, sort );
 }
 
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F,STAR,STAR>& A, DistMatrix<Base<F>,STAR,STAR>& w, SortType sort )
+  DistMatrix<F,STAR,STAR>& A, DistMatrix<Base<F>,STAR,STAR>& w, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    const Int n = A.Height();
-    const char uploChar = UpperOrLowerToChar( uplo );
-    w.Resize( n, 1 );
-    lapack::HermitianEig( uploChar, n, A.Buffer(), A.LDim(), w.Buffer() );
+    if( ctrl.useSdc )
+    {
+        herm_eig::SDC( uplo, A.Matrix(), w.Matrix(), ctrl.sdcCtrl );
+    }
+    else
+    {
+        const Int n = A.Height();
+        const char uploChar = UpperOrLowerToChar( uplo );
+        w.Resize( n, 1 );
+        lapack::HermitianEig( uploChar, n, A.Buffer(), A.LDim(), w.Buffer() );
+    }
     Sort( w, sort );
 }
 
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& w, SortType sort )
+  DistMatrix<Base<F>,VR,STAR>& w, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( A.Height() != A.Width() )
@@ -176,14 +194,22 @@ void HermitianEig
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
-    // Tridiagonalize A
-    HermitianTridiag( uplo, A );
+    if( ctrl.useSdc )
+    {
+        herm_eig::SDC( uplo, A, w, ctrl.sdcCtrl );
+    }
+    else
+    {
+        // Tridiagonalize A
+        HermitianTridiag( uplo, A, ctrl.tridiagCtrl );
 
-    // Solve the symmetric tridiagonal EVP
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d = A.GetRealPartOfDiagonal();
-    auto e = A.GetRealPartOfDiagonal( subdiagonal );
-    HermitianTridiagEig( d, e, w, sort );
+        // Solve the symmetric tridiagonal EVP
+        const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+        auto d = A.GetRealPartOfDiagonal();
+        auto e = A.GetRealPartOfDiagonal( subdiagonal );
+        HermitianTridiagEig( d, e, w, UNSORTED );
+    }
+    Sort( w, sort );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -193,13 +219,15 @@ void HermitianEig
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w, SortType sort )
+  DistMatrix<float,VR,STAR>& w, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w, SortType sort )
+  DistMatrix<float,VR,STAR>& w, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Compute the full set of eigenpairs
@@ -208,37 +236,54 @@ void HermitianEig<Complex<float>>
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
-  Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
+  Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    const Int n = A.Height();
-    const char uploChar = UpperOrLowerToChar( uplo );
-    w.Resize( n, 1 );
-    Z.Resize( n, n );
-    lapack::HermitianEig
-    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
+    if( ctrl.useSdc )
+    {
+        herm_eig::SDC( uplo, A, w, Z, ctrl.sdcCtrl );
+    }
+    else
+    {
+        const Int n = A.Height();
+        const char uploChar = UpperOrLowerToChar( uplo );
+        w.Resize( n, 1 );
+        Z.Resize( n, n );
+        lapack::HermitianEig
+        ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
+    }
     herm_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, SortType sort )
+  DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
-    const Int n = A.Height();
-    const char uploChar = UpperOrLowerToChar( uplo );
-    w.Resize( n, 1 );
-    Z.Resize( n, n );
-    lapack::HermitianEig
-    ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
+    if( ctrl.useSdc )
+    {
+        herm_eig::SDC( uplo, A.Matrix(), w.Matrix(), Z.Matrix(), ctrl.sdcCtrl );
+    }
+    else
+    {
+        const Int n = A.Height();
+        const char uploChar = UpperOrLowerToChar( uplo );
+        w.Resize( n, 1 );
+        Z.Resize( n, n );
+        lapack::HermitianEig
+        ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
+    }
     herm_eig::Sort( w.Matrix(), Z.Matrix(), sort );
 }
 
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ, SortType sort )
+  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
@@ -251,67 +296,74 @@ void HermitianEig
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
-    // Tridiagonalize A
-    const Grid& g = A.Grid();
-    DistMatrix<F,STAR,STAR> t(g);
-    HermitianTridiag( uplo, A, t );
-
-    // Solve the symmetric tridiagonal EVP. The main subtlety is that we are
-    // using a padded [MC,MR] distributed matrix's local buffer to hold the
-    // local buffer for a [* ,VR].
-    const Int n = A.Height();
-    const Int k = n; // full set of eigenpairs
-    const Int N = MaxLength(n,g.Height())*g.Height();
-    const Int K = MaxLength(k,g.Size())*g.Size(); 
-    paddedZ.Align( 0, 0 );
-    paddedZ.Resize( N, K );
-    DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
+    if( ctrl.useSdc )
     {
-        // Grab a slice of size Z_STAR_VR_BufferSize from the very end
-        // of paddedZBuffer so that we can later redistribute in place
-        Real* paddedZBuf = (Real*)paddedZ.Buffer();
-        const Int paddedZBufSize =
-            ( IsComplex<F>::val ? 2*paddedZ.LDim()*paddedZ.LocalWidth()
-                                :   paddedZ.LDim()*paddedZ.LocalWidth() );
-        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
-        Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
-        Z_STAR_VR.Attach( n, k, g, 0, 0, Z_STAR_VR_Buf, n );
+        herm_eig::SDC( uplo, A, w, paddedZ, ctrl.sdcCtrl );
     }
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-    auto d = A.GetRealPartOfDiagonal();
-    auto e = A.GetRealPartOfDiagonal( subdiagonal );
-    HermitianTridiagEig( d, e, w, Z_STAR_VR, UNSORTED );
+    else
     {
-        // Redistribute Z piece-by-piece in place. This is to keep the 
-        // send/recv buffer memory usage low.
-        const Int p = g.Size();
-        const Int numEqualPanels = K/p;
-        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const Int nbProp = numPanelsPerComm*p;
+        // Tridiagonalize A
+        const Grid& g = A.Grid();
+        DistMatrix<F,STAR,STAR> t(g);
+        HermitianTridiag( uplo, A, t, ctrl.tridiagCtrl );
 
-        // Manually maintain information about the implicit Z[* ,VR] stored 
-        // at the end of the paddedZ[MC,MR] buffers.
-        Int alignment = 0;
-        const Real* readBuffer = Z_STAR_VR.LockedBuffer();
-        for( Int j=0; j<k; j+=nbProp )
+        // Solve the symmetric tridiagonal EVP. The main subtlety is that we are
+        // using a padded [MC,MR] distributed matrix's local buffer to hold the
+        // local buffer for a [* ,VR].
+        const Int n = A.Height();
+        const Int k = n; // full set of eigenpairs
+        const Int N = MaxLength(n,g.Height())*g.Height();
+        const Int K = MaxLength(k,g.Size())*g.Size(); 
+        paddedZ.Align( 0, 0 );
+        paddedZ.Resize( N, K );
+        DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
         {
-            const Int nb = Min(nbProp,k-j);
-            auto paddedZ1 = View( paddedZ, 0, j, n, nb );
-
-            // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            herm_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
-            
-            // Update the Z1[* ,VR] information
-            const Int localWidth = nb/p;
-            readBuffer = &readBuffer[localWidth*n];
-            alignment = (alignment+nb) % p;
+            // Grab a slice of size Z_STAR_VR_BufferSize from the very end
+            // of paddedZBuffer so that we can later redistribute in place
+            Real* paddedZBuf = (Real*)paddedZ.Buffer();
+            const Int paddedZBufSize =
+                ( IsComplex<F>::val ? 2*paddedZ.LDim()*paddedZ.LocalWidth()
+                                    :   paddedZ.LDim()*paddedZ.LocalWidth() );
+            const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+            const Int Z_STAR_VR_BufSize = n*Z_STAR_VR_LocalWidth;
+            Real* Z_STAR_VR_Buf = &paddedZBuf[paddedZBufSize-Z_STAR_VR_BufSize];
+            Z_STAR_VR.Attach( n, k, g, 0, 0, Z_STAR_VR_Buf, n );
         }
-    }
-    paddedZ.Resize( n, k ); // We can simply shrink matrices
+        const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+        auto d = A.GetRealPartOfDiagonal();
+        auto e = A.GetRealPartOfDiagonal( subdiagonal );
+        HermitianTridiagEig( d, e, w, Z_STAR_VR, UNSORTED );
+        {
+            // Redistribute Z piece-by-piece in place. This is to keep the 
+            // send/recv buffer memory usage low.
+            const Int p = g.Size();
+            const Int numEqualPanels = K/p;
+            const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+            const Int nbProp = numPanelsPerComm*p;
 
-    // Backtransform the tridiagonal eigenvectors, Z
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
+            // Manually maintain information about the implicit Z[* ,VR] stored 
+            // at the end of the paddedZ[MC,MR] buffers.
+            Int alignment = 0;
+            const Real* readBuffer = Z_STAR_VR.LockedBuffer();
+            for( Int j=0; j<k; j+=nbProp )
+            {
+                const Int nb = Min(nbProp,k-j);
+                auto paddedZ1 = View( paddedZ, 0, j, n, nb );
+
+                // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
+                herm_eig::InPlaceRedist( paddedZ1, alignment, readBuffer );
+            
+                // Update the Z1[* ,VR] information
+                const Int localWidth = nb/p;
+                readBuffer = &readBuffer[localWidth*n];
+                alignment = (alignment+nb) % p;
+            }
+        }
+        paddedZ.Resize( n, k ); // We can simply shrink matrices
+
+        // Backtransform the tridiagonal eigenvectors, Z
+        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
+    }
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -323,14 +375,15 @@ void HermitianEig
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ, SortType sort )
+  DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
-  SortType sort )
+  SortType sort, const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Compute the eigenvalues within an inclusive index range
@@ -339,7 +392,8 @@ void HermitianEig<Complex<float>>
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
-  Matrix<Base<F>>& w, Int il, Int iu, SortType sort )
+  Matrix<Base<F>>& w, Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -354,7 +408,8 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, Int il, Int iu, SortType sort )
+  DistMatrix<Base<F>,STAR,STAR>& w, Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -369,7 +424,8 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& w, Int il, Int iu, SortType sort ) 
+  DistMatrix<Base<F>,VR,STAR>& w, Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( A.Height() != A.Width() )
@@ -382,7 +438,7 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
-    HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A, ctrl.tridiagCtrl );
 
     // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
@@ -398,13 +454,15 @@ void HermitianEig
 template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float >& A,
-  DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort )
+  DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort )
+  DistMatrix<float,VR,STAR>& w, Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Compute the eigenpairs within an inclusive index range
@@ -413,7 +471,8 @@ void HermitianEig<Complex<float>>
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
-  Matrix<Base<F>>& w, Matrix<F>& Z, Int il, Int iu, SortType sort )
+  Matrix<Base<F>>& w, Matrix<F>& Z, Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -431,7 +490,8 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
-  Int il, Int iu, SortType sort )
+  Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -449,7 +509,8 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ, 
-  Int il, Int iu, SortType sort )
+  Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
@@ -465,7 +526,7 @@ void HermitianEig
     // Tridiagonalize A
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
-    HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t, ctrl.tridiagCtrl );
   
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR] in place, panel by panel.
@@ -537,14 +598,16 @@ template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ,
-  Int il, Int iu, SortType sort )
+  Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
-  Int il, Int iu, SortType sort )
+  Int il, Int iu, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Compute the eigenvalues within a half-open, (a,b], interval
@@ -553,7 +616,8 @@ void HermitianEig<Complex<float>>
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, 
-  Matrix<Base<F>>& w, Base<F> vl, Base<F> vu, SortType sort )
+  Matrix<Base<F>>& w, Base<F> vl, Base<F> vu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( vl >= vu )
@@ -574,7 +638,8 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& w, Base<F> vl, Base<F> vu, SortType sort )
+  DistMatrix<Base<F>,STAR,STAR>& w, Base<F> vl, Base<F> vu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( vl >= vu )
@@ -596,7 +661,7 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, Base<F> vl, Base<F> vu,
-  SortType sort )
+  SortType sort, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( vl >= vu )
@@ -614,7 +679,7 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
-    HermitianTridiag( uplo, A );
+    HermitianTridiag( uplo, A, ctrl.tridiagCtrl );
 
     // Solve the symmetric tridiagonal EVP
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
@@ -631,14 +696,14 @@ template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
   DistMatrix<float,VR,STAR>& w, float vl, float vu,
-  SortType sort )
+  SortType sort, const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w, float vl, float vu,
-  SortType sort )
+  SortType sort, const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Compute the eigenpairs with eigenvalues in a half-open, (a,b], interval
@@ -647,7 +712,8 @@ void HermitianEig<Complex<float>>
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
-  Base<F> vl, Base<F> vu, SortType sort )
+  Base<F> vl, Base<F> vu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -675,7 +741,8 @@ void HermitianEig
   DistMatrix<F,STAR,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& w, 
   DistMatrix<F,STAR,STAR>& Z, 
-  Base<F> vl, Base<F> vu, SortType sort )
+  Base<F> vl, Base<F> vu, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     const Int n = A.Height();
@@ -701,7 +768,7 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
-  Base<F> vl, Base<F> vu, SortType sort )
+  Base<F> vl, Base<F> vu, SortType sort, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     typedef Base<F> Real;
@@ -724,7 +791,7 @@ void HermitianEig
     // Tridiagonalize A
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
-    HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t, ctrl.tridiagCtrl );
 
     // Get an upper-bound on the number of local eigenvalues in the range
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
@@ -801,85 +868,99 @@ template<>
 void HermitianEig<float>
 ( UpperOrLower uplo, DistMatrix<float>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ,
-  float vl, float vu, SortType sort )
+  float vl, float vu, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
 ( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
-  float vl, float vu, SortType sort )
+  float vl, float vu, SortType sort,
+  const HermitianEigCtrl<float> ctrl )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Full set of eigenvalues
 #define FULL_EIGVAL(F) \
   template void HermitianEig\
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort ); \
+  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, SortType sort ); \
+    DistMatrix<Base<F>,STAR,STAR>& w, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    SortType sort )
+    SortType sort, const HermitianEigCtrl<Base<F>> sdcCtrl );
 // Full set of eigenpairs
 #define FULL_EIGPAIR(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
-    SortType sort ); \
+    SortType sort, const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
     DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
-    SortType sort ); \
+    SortType sort, const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    DistMatrix<F>& Z, SortType sort )
+    DistMatrix<F>& Z, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl );
 // Integer range of eigenvalues
 #define INT_EIGVAL(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Int il, Int iu,\
-    SortType sort ); \
+    SortType sort, const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
-    DistMatrix<Base<F>,STAR,STAR>& w, Int il, Int iu, SortType sort ); \
+    DistMatrix<Base<F>,STAR,STAR>& w, Int il, Int iu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    Int il, Int iu, SortType sort )
+    Int il, Int iu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl );
 // Integer range of eigenpairs
 #define INT_EIGPAIR(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
-    Int il, Int iu, SortType sort ); \
+    Int il, Int iu, SortType sort, const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
     DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
-    Int il, Int iu, SortType sort ); \
+    Int il, Int iu, SortType sort, const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    DistMatrix<F>& Z, Int il, Int iu, SortType sort )
+    DistMatrix<F>& Z, Int il, Int iu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl );
 // Floating-point range of eigenvalues
 #define FLOAT_EIGVAL(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,\
-    Base<F> vl, Base<F> vu, SortType sort ); \
+    Base<F> vl, Base<F> vu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
     DistMatrix<Base<F>,STAR,STAR>& w,\
-    Base<F> vl, Base<F> vu, SortType sort ); \
+    Base<F> vl, Base<F> vu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    Base<F> vl, Base<F> vu, SortType sort )
+    Base<F> vl, Base<F> vu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl );
 // Floating-point range of eigenpairs
 #define FLOAT_EIGPAIR(F) \
   template void HermitianEig\
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,\
-    Base<F> vl, Base<F> vu, SortType sort ); \
+    Base<F> vl, Base<F> vu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,\
     DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,\
-    Base<F> vl, Base<F> vu, SortType sort ); \
+    Base<F> vl, Base<F> vu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
   template void HermitianEig\
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
-    DistMatrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort )
+    DistMatrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort, \
+    const HermitianEigCtrl<Base<F>> sdcCtrl ); \
 // All options
 #define ALL_OPTS(F) \
   FULL_EIGVAL(F);\

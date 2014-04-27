@@ -87,8 +87,8 @@ QDWHInner( Matrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
         const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Cpx alpha = a-b/c;
-        const Cpx beta = b/c;
+        const Real alpha = a-b/c;
+        const Real beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -101,7 +101,7 @@ QDWHInner( Matrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             qr::Explicit( Q, colPiv );
-            Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
+            Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
         {
@@ -226,8 +226,8 @@ QDWHInner
         const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Cpx alpha = a-b/c;
-        const Cpx beta = b/c;
+        const Real alpha = a-b/c;
+        const Real beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -240,7 +240,7 @@ QDWHInner
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             qr::Explicit( Q, colPiv );
-            Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
+            Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
         {
@@ -369,8 +369,8 @@ QDWHInner
         const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Cpx alpha = a-b/c;
-        const Cpx beta = b/c;
+        const Real alpha = a-b/c;
+        const Real beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -384,7 +384,7 @@ QDWHInner
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             qr::Explicit( Q, colPiv );
-            Trrk( uplo, NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
+            Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
         {
@@ -507,8 +507,8 @@ QDWHInner
         const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Cpx alpha = a-b/c;
-        const Cpx beta = b/c;
+        const Real alpha = a-b/c;
+        const Real beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -522,7 +522,7 @@ QDWHInner
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             qr::Explicit( Q, colPiv );
-            Trrk( uplo, NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
+            Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
         {

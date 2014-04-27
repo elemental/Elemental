@@ -22,25 +22,28 @@ enum HermitianTridiagApproach
 }
 using namespace hermitian_tridiag_approach_wrapper;
 
+struct HermitianTridiagCtrl {
+    HermitianTridiagApproach approach;
+    GridOrder order;
+
+    HermitianTridiagCtrl() 
+    : approach(HERMITIAN_TRIDIAG_SQUARE), order(ROW_MAJOR) 
+    { }
+};
+
 template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t,
+  const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
 
 template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A );
-
-void SetHermitianTridiagApproach( HermitianTridiagApproach approach );
-HermitianTridiagApproach GetHermitianTridiagApproach();
-
-// If dropping down to a square grid, the two simplest approaches are to take 
-// the first r^2 processes from the original grid (for an r x r grid) and to
-// either order them column-major or row-major to form the square grid.
-void SetHermitianTridiagGridOrder( GridOrder order );
-GridOrder GetHermitianTridiagGridOrder();
+void HermitianTridiag
+( UpperOrLower uplo, DistMatrix<F>& A,
+  const HermitianTridiagCtrl ctrl=HermitianTridiagCtrl() );
 
 } // namespace elem
 

@@ -100,7 +100,8 @@ template<typename F>
 void TestHermitianEig
 ( bool testCorrectness, bool print,
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, Int m, 
-  Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort, const Grid& g )
+  Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort, const Grid& g,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     typedef Base<F> Real;
     DistMatrix<F> A(g), AOrig(g), Z(g);
@@ -134,20 +135,20 @@ void TestHermitianEig
     if( onlyEigvals )
     {
         if( range == 'A' )
-            HermitianEig( uplo, A, w, sort );
+            HermitianEig( uplo, A, w, sort, ctrl );
         else if( range == 'I' )
-            HermitianEig( uplo, A, w, il, iu, sort );
+            HermitianEig( uplo, A, w, il, iu, sort, ctrl );
         else
-            HermitianEig( uplo, A, w, vl, vu, sort );
+            HermitianEig( uplo, A, w, vl, vu, sort, ctrl );
     }
     else
     {
         if( range == 'A' )
-            HermitianEig( uplo, A, w, Z, sort );
+            HermitianEig( uplo, A, w, Z, sort, ctrl );
         else if( range == 'I' )
-            HermitianEig( uplo, A, w, Z, il, iu, sort );
+            HermitianEig( uplo, A, w, Z, il, iu, sort, ctrl );
         else
-            HermitianEig( uplo, A, w, Z, vl, vu, sort );
+            HermitianEig( uplo, A, w, Z, vl, vu, sort, ctrl );
     }
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -198,6 +199,8 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+        const bool testReal = Input("--testReal","test real matrices?",true);
+        const bool testCpx = Input("--testCpx","test complex matrices?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -218,57 +221,51 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Will test HermitianEig " << uploChar << endl;
 
-        if( commRank == 0 )
-            cout << "Double-precision normal tridiag algorithm:"
-                 << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianEig<double>
-        ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
+        HermitianEigCtrl<double> ctrl;
 
         if( commRank == 0 )
-            cout << "Double-precision square tridiag algorithm, "
-                 << "row-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianEig<double>
-        ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
- 
-        if( commRank == 0 )
-            cout << "Double-precision square tridiag algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianEig<double>
-        ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
+            cout << "Normal tridiag algorithms:" << endl;
+        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+        if( testReal )
+            TestHermitianEig<double>
+            ( testCorrectness, print, 
+              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
+              ctrl );
+        if( testCpx )
+            TestHermitianEig<Complex<double>>
+            ( testCorrectness, print, 
+              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
+              ctrl );
 
         if( commRank == 0 )
-            cout << "Double-precision complex normal tridiag algorithm:"
-                 << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianEig<Complex<double>>
-        ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
+            cout << "Square row-major tridiag algorithms:" << endl;
+        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl.tridiagCtrl.order = ROW_MAJOR;
+        if( testReal )
+            TestHermitianEig<double>
+            ( testCorrectness, print, 
+              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
+              ctrl );
+        if( testCpx )
+            TestHermitianEig<Complex<double>>
+            ( testCorrectness, print, 
+              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
+              ctrl );
 
         if( commRank == 0 )
-            cout << "Double-precision complex square tridiag algorithm, "
-                 << "row-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianEig<Complex<double>>
-        ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
-
-        if( commRank == 0 )
-            cout << "Double-precision complex square tridiag algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianEig<Complex<double>>
-        ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
+            cout << "Square column-major tridiag algorithms:" << endl;
+        ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl.tridiagCtrl.order = COLUMN_MAJOR;
+        if( testReal )
+            TestHermitianEig<double>
+            ( testCorrectness, print, 
+              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
+              ctrl );
+        if( testCpx )
+            TestHermitianEig<Complex<double>>
+            ( testCorrectness, print, 
+              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
+              ctrl );
     }
     catch( exception& e ) { ReportException(e); }
 

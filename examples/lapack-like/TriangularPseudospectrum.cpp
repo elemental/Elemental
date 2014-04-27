@@ -75,6 +75,7 @@ main( int argc, char* argv[] )
         const Int numFormatInt = Input("--numFormat","numerical format",2);
         const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
+        const bool itCounts = Input("--itCounts","display iter. counts?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -183,6 +184,7 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.numFormat = numFormat;
         psCtrl.snapCtrl.imgBase = imgBase;
         psCtrl.snapCtrl.numBase = numBase;
+        psCtrl.snapCtrl.itCounts = itCounts;
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.

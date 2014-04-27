@@ -78,16 +78,16 @@ NewtonStep
 
 template<typename F>
 inline int
-Newton
-( Matrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
+Newton( Matrix<F>& A, const SquareRootCtrl<BASE(F)>& sqrtCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
 
-    if( sqrtCtrl.tol == Real(0) )
-        sqrtCtrl.tol = A.Height()*lapack::MachineEpsilon<Real>();
+    Real tol = sqrtCtrl.tol;
+    if( tol == Real(0) )
+        tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
     while( numIts < sqrtCtrl.maxIts )
@@ -107,8 +107,8 @@ Newton
             std::cout << "after " << numIts << " Newton iter's: "
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
-                      << sqrtCtrl.tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*sqrtCtrl.tol )
+                      << tol << std::endl;
+        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*tol )
             break;
     }
     if( X != &A )
@@ -118,8 +118,7 @@ Newton
 
 template<typename F>
 inline int
-Newton
-( DistMatrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
+Newton( DistMatrix<F>& A, const SquareRootCtrl<BASE(F)>& sqrtCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
@@ -127,8 +126,9 @@ Newton
     DistMatrix<F> B(A), C(g), XTmp(g);
     DistMatrix<F> *X=&B, *XNew=&C;
 
-    if( sqrtCtrl.tol == Real(0) )
-        sqrtCtrl.tol = A.Height()*lapack::MachineEpsilon<Real>();
+    Real tol = sqrtCtrl.tol;
+    if( tol == Real(0) )
+        tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
     while( numIts < sqrtCtrl.maxIts )
@@ -148,8 +148,8 @@ Newton
             std::cout << "after " << numIts << " Newton iter's: "
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
-                      << sqrtCtrl.tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*sqrtCtrl.tol )
+                      << tol << std::endl;
+        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*tol )
             break;
     }
     if( X != &A )
@@ -162,7 +162,8 @@ Newton
 template<typename F>
 inline void
 SquareRoot
-( Matrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
+( Matrix<F>& A, 
+  const SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A, sqrtCtrl );
@@ -171,7 +172,8 @@ SquareRoot
 template<typename F>
 inline void
 SquareRoot
-( DistMatrix<F>& A, SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
+( DistMatrix<F>& A, 
+  const SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A, sqrtCtrl );
@@ -183,7 +185,9 @@ SquareRoot
 
 template<typename F>
 inline void
-HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
+HPSDSquareRoot
+( UpperOrLower uplo, Matrix<F>& A, 
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;
@@ -191,7 +195,7 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
     // Get the EVD of A
     Matrix<Real> w;
     Matrix<F> Z;
-    HermitianEig( uplo, A, w, Z );
+    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );
@@ -229,7 +233,9 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F>
 inline void
-HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
+HPSDSquareRoot
+( UpperOrLower uplo, DistMatrix<F>& A,
+  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;
@@ -238,7 +244,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
-    HermitianEig( uplo, A, w, Z );
+    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );

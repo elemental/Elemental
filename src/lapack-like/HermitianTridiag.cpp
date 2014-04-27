@@ -43,13 +43,12 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
 template<typename F> 
 void
 HermitianTridiag
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t,
+  const HermitianTridiagCtrl ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     const Grid& g = A.Grid();
-    const HermitianTridiagApproach approach = GetHermitianTridiagApproach();
-    const GridOrder order = GetHermitianTridiagGridOrder();
-    if( approach == HERMITIAN_TRIDIAG_NORMAL )
+    if( ctrl.approach == HERMITIAN_TRIDIAG_NORMAL )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
@@ -57,14 +56,14 @@ HermitianTridiag
         else
             herm_tridiag::U( A, t );
     }
-    else if( approach == HERMITIAN_TRIDIAG_SQUARE )
+    else if( ctrl.approach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh 
         const Int p = g.Size();
         const Int pSqrt = Int(sqrt(double(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( order == g.Order() )
+        if( ctrl.order == g.Order() )
         {
             for( Int j=0; j<pSqrt; ++j )
                 for( Int i=0; i<pSqrt; ++i )
@@ -125,11 +124,12 @@ HermitianTridiag
 
 template<typename F>
 void
-HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
+HermitianTridiag
+( UpperOrLower uplo, DistMatrix<F>& A, const HermitianTridiagCtrl ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
     DistMatrix<F,STAR,STAR> t(A.Grid());
-    HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t, ctrl );
     if( uplo == UPPER )
         MakeTrapezoidal( LOWER, A, 1 );
     else
@@ -142,9 +142,10 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
   template void HermitianTridiag<T>\
   ( UpperOrLower uplo, Matrix<T>& A, Matrix<T>& t ); \
   template void HermitianTridiag<T>\
-  ( UpperOrLower uplo, DistMatrix<T>& A ); \
+  ( UpperOrLower uplo, DistMatrix<T>& A, const HermitianTridiagCtrl ctrl ); \
   template void HermitianTridiag<T>\
-  ( UpperOrLower uplo, DistMatrix<T>& A, DistMatrix<T,STAR,STAR>& t );
+  ( UpperOrLower uplo, DistMatrix<T>& A, DistMatrix<T,STAR,STAR>& t, \
+    const HermitianTridiagCtrl ctrl );
 
 #ifndef ELEM_DISABLE_FLOAT
 PROTO(float);

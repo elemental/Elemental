@@ -67,7 +67,7 @@ ComputePartition( Matrix<F>& A )
         ValueInt<Real> part;
         part.value = -1;
         part.index = -1;
-        return;
+        return part;
     }
 
     // Compute the sets of row and column sums
@@ -166,8 +166,7 @@ ComputePartition( DistMatrix<F>& A )
 template<typename F>
 inline ValueInt<BASE(F)>
 SignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ=false, 
-  SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
 
@@ -208,8 +207,8 @@ SignDivide
 template<typename F>
 inline ValueInt<BASE(F)>
 SignDivide
-( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false, 
-  SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
+  const SdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
     const Grid& g = A.Grid();
@@ -251,15 +250,15 @@ SignDivide
 template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ=false, 
-  SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*lapack::MachineEpsilon<Real>();
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*lapack::MachineEpsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -301,7 +300,7 @@ RandomizedSignDivide
         part.value /= oneA;
 
         ++it;
-        if( part.value <= sdcCtrl.tol || it == sdcCtrl.maxInnerIts )
+        if( part.value <= tol || it == sdcCtrl.maxInnerIts )
             break;
         else
             A = V;
@@ -312,16 +311,17 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
-( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false,
-  SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ,
+  const SdcCtrl<BASE(F)>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*lapack::MachineEpsilon<Real>();
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*lapack::MachineEpsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -364,7 +364,7 @@ RandomizedSignDivide
         part.value /= oneA;
 
         ++it;
-        if( part.value <= sdcCtrl.tol || it == sdcCtrl.maxInnerIts )
+        if( part.value <= tol || it == sdcCtrl.maxInnerIts )
             break;
         else
             A = V;
@@ -374,20 +374,21 @@ RandomizedSignDivide
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( Matrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+SpectralDivide( Matrix<Real>& A, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const ValueInt<Real> median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     Matrix<Real> G, ACopy;
     if( sdcCtrl.maxOuterIts > 1 )
         ACopy = A;
@@ -410,7 +411,7 @@ SpectralDivide( Matrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
             else
                 part = SignDivide( A, G, false, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress )
                     std::cout << "Converged during outer iter " << it-1
@@ -419,7 +420,7 @@ SpectralDivide( Matrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
             }
             else if( sdcCtrl.progress )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -431,10 +432,10 @@ SpectralDivide( Matrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError 
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -442,20 +443,21 @@ SpectralDivide( Matrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Complex<Real> >& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+( Matrix<Complex<Real> >& A, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     Matrix<F> G, ACopy;
     if( sdcCtrl.maxOuterIts > 1 )
         ACopy = A;
@@ -483,7 +485,7 @@ SpectralDivide
             else
                 part = SignDivide( A, G, false, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress )
                     std::cout << "Converged during outer iter " << it-1
@@ -492,7 +494,7 @@ SpectralDivide
             }
             else if( sdcCtrl.progress )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -504,10 +506,10 @@ SpectralDivide
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -515,20 +517,21 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Real>& A, Matrix<Real>& Q, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+( Matrix<Real>& A, Matrix<Real>& Q, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const auto median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     Matrix<Real> ACopy;
     if( sdcCtrl.maxOuterIts > 1 )
         ACopy = A;
@@ -551,7 +554,7 @@ SpectralDivide
             else
                 part = SignDivide( A, Q, true, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress )
                     std::cout << "Converged during outer iter " << it-1
@@ -560,7 +563,7 @@ SpectralDivide
             }
             else if( sdcCtrl.progress )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -572,10 +575,10 @@ SpectralDivide
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -584,20 +587,21 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
-  SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+  const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     Matrix<F> ACopy;
     if( sdcCtrl.maxOuterIts > 1 )
         ACopy = A;
@@ -625,7 +629,7 @@ SpectralDivide
             else
                 part = SignDivide( A, Q, true, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress )
                     std::cout << "Converged during outer iter " << it-1
@@ -634,7 +638,7 @@ SpectralDivide
             }
             else if( sdcCtrl.progress )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -646,30 +650,31 @@ SpectralDivide
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( DistMatrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+SpectralDivide( DistMatrix<Real>& A, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const auto median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<Real> ACopy(g), G(g);
     if( sdcCtrl.maxOuterIts > 1 )
@@ -694,7 +699,7 @@ SpectralDivide( DistMatrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
             else
                 part = SignDivide( A, G, false, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress && g.Rank() == 0 )
                     std::cout << "Converged during outer iter " << it-1
@@ -703,7 +708,7 @@ SpectralDivide( DistMatrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
             }
             else if( sdcCtrl.progress && g.Rank() == 0 )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -715,10 +720,10 @@ SpectralDivide( DistMatrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -726,20 +731,21 @@ SpectralDivide( DistMatrix<Real>& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Complex<Real> >& A, SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+( DistMatrix<Complex<Real> >& A, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<F> ACopy(g), G(g);
     if( sdcCtrl.maxOuterIts > 1 )
@@ -770,7 +776,7 @@ SpectralDivide
             else
                 part = SignDivide( A, G, false, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress && g.Rank() == 0 )
                     std::cout << "Converged during outer iter " << it-1
@@ -779,7 +785,7 @@ SpectralDivide
             }
             else if( sdcCtrl.progress && g.Rank() == 0 )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -791,10 +797,10 @@ SpectralDivide
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -802,21 +808,21 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Real>& A, DistMatrix<Real>& Q, 
-  SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+( DistMatrix<Real>& A, DistMatrix<Real>& Q, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const auto median = Median(A.GetDiagonal());
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<Real> ACopy(g);
     if( sdcCtrl.maxOuterIts > 1 )
@@ -842,7 +848,7 @@ SpectralDivide
             else
                 part = SignDivide( A, Q, true, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress && g.Rank() == 0 )
                     std::cout << "Converged during outer iter " << it-1
@@ -851,7 +857,7 @@ SpectralDivide
             }
             else if( sdcCtrl.progress && g.Rank() == 0 )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -863,10 +869,10 @@ SpectralDivide
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -875,20 +881,21 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
-  SdcCtrl<Real> sdcCtrl=SdcCtrl<Real>() )
+  const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
-    if( sdcCtrl.tol == Real(0) )
-        sdcCtrl.tol = 500*n*eps;
+    Real tol = sdcCtrl.tol;
+    if( tol == Real(0) )
+        tol = 500*n*eps;
     const Real spread = sdcCtrl.spreadFactor*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
-    part.value = 2*sdcCtrl.tol; // initialize with unacceptable value
+    part.value = 2*tol; // initialize with unacceptable value
     const Grid& g = A.Grid();
     DistMatrix<F> ACopy(g);
     if( sdcCtrl.maxOuterIts > 1 )
@@ -919,7 +926,7 @@ SpectralDivide
             else
                 part = SignDivide( A, Q, true, sdcCtrl );
 
-            if( part.value <= sdcCtrl.tol )
+            if( part.value <= tol )
             {
                 if( sdcCtrl.progress && g.Rank() == 0 )
                     std::cout << "Converged during outer iter " << it-1
@@ -928,7 +935,7 @@ SpectralDivide
             }
             else if( sdcCtrl.progress && g.Rank() == 0 )
                 std::cout << "part.value=" << part.value << " was greater than "
-                          << sdcCtrl.tol << " during outer iter " << it-1 
+                          << tol << " during outer iter " << it-1 
                           << std::endl;
         } 
         catch( SingularMatrixException& e ) 
@@ -940,10 +947,10 @@ SpectralDivide
         if( it != sdcCtrl.maxOuterIts )
             A = ACopy;
     }
-    if( part.value > sdcCtrl.tol )
+    if( part.value > tol )
         RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
-          part.value, ", tol=", sdcCtrl.tol );
+          part.value, ", tol=", tol );
 
     return part;
 }
@@ -952,7 +959,7 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, 
-  SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+  const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -994,7 +1001,7 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
-  bool fullTriangle=true, SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+  bool fullTriangle=true, const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -1198,7 +1205,7 @@ template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>>& w, 
-  SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+  const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
@@ -1367,7 +1374,7 @@ template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q, 
-  bool fullTriangle=true, SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+  bool fullTriangle=true, const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     typedef Base<F> Real;
