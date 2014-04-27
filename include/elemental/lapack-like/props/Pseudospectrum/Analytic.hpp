@@ -21,7 +21,7 @@ Analytic
 ( const Matrix<Complex<Real> >& w, 
   const Matrix<Complex<Real> >& shifts, 
         Matrix<Real          >& invNorms,
-        SnapshotCtrl snapCtrl=SnapshotCtrl() )
+        SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
     using namespace pspec;
@@ -48,8 +48,10 @@ Analytic
             alpha = normCap;
         invNorms.Set( j, 0, alpha );
     }
-
-    // TODO: Store inverse distances?
+    
+    snapCtrl.itCounts = false;
+    Matrix<Int> itCounts;
+    FinalSnapshot( invNorms, itCounts, snapCtrl );
 }
 
 template<typename Real,Dist colDist,Dist rowDist>
@@ -58,7 +60,7 @@ Analytic
 ( const DistMatrix<Complex<Real>,colDist,rowDist>& w, 
   const DistMatrix<Complex<Real>,VR,     STAR   >& shifts, 
         DistMatrix<Real,         VR,     STAR   >& invNorms,
-        SnapshotCtrl snapCtrl=SnapshotCtrl() )
+        SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
     using namespace pspec;
@@ -89,7 +91,9 @@ Analytic
         invNorms.SetLocal( jLoc, 0, alpha );
     }
 
-    // TODO: Store inverse distances?
+    snapCtrl.itCounts = false;
+    DistMatrix<Int,VR,STAR> itCounts(w.Grid());
+    FinalSnapshot( invNorms, itCounts, snapCtrl );
 }
 
 } // namespace pspec

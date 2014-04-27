@@ -26,7 +26,7 @@ Grcar( Matrix<T>& A, Int n, Int k=3 )
     if( n > 1 )
         SetDiagonal( A, -1, -1 );
     for( Int j=0; j<Min(n,k+1); ++j )
-        SetDiagonal( A, n-1-j, 1 );
+        SetDiagonal( A, 1, j );
 }
 
 template<typename T,Dist U,Dist V>
@@ -40,7 +40,7 @@ Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
     if( n > 1 )
         SetDiagonal( A, -1, -1 );
     for( Int j=0; j<Min(n,k+1); ++j )
-        SetDiagonal( A, n-1-j, 1 );
+        SetDiagonal( A, 1, j );
 }
 
 template<typename T,Dist U,Dist V>
@@ -54,7 +54,7 @@ Grcar( BlockDistMatrix<T,U,V>& A, Int n, Int k=3 )
     if( n > 1 )
         SetDiagonal( A, -1, -1 );
     for( Int j=0; j<Min(n,k+1); ++j )
-        SetDiagonal( A, n-1-j, 1 );
+        SetDiagonal( A, 1, j );
 }
 
 #ifndef SWIG

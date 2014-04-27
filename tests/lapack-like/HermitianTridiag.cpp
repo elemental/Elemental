@@ -104,7 +104,8 @@ void TestCorrectness
 template<typename F>
 void TestHermitianTridiag
 ( UpperOrLower uplo, Int m, const Grid& g, 
-  bool testCorrectness, bool print, bool display )
+  bool testCorrectness, bool print, bool display, 
+  const HermitianTridiagCtrl& ctrl )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
@@ -134,7 +135,7 @@ void TestHermitianTridiag
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    HermitianTridiag( uplo, A, t );
+    HermitianTridiag( uplo, A, t, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 16./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -179,6 +180,8 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
+        const bool testReal = Input("--testReal","test real matrices?",true);
+        const bool testCpx = Input("--testCpx","test complex matrices?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -194,51 +197,39 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Will test HermitianTridiag" << uploChar << endl;
 
-        if( commRank == 0 )
-            cout << "Double-precision normal algorithm:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<double>
-        ( uplo, m, g, testCorrectness, print, display );
+        HermitianTridiagCtrl ctrl;
 
         if( commRank == 0 )
-            cout << "Double-precision square algorithm, "
-                 << "row-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<double>
-        ( uplo, m, g, testCorrectness, print, display );
-
-
-        if( commRank == 0 )
-            cout << "Double-precision square algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<double>
-        ( uplo, m, g, testCorrectness, print, display );
+            cout << "Normal algorithms:" << endl;
+        ctrl.approach = HERMITIAN_TRIDIAG_NORMAL;
+        if( testReal )
+            TestHermitianTridiag<double>
+            ( uplo, m, g, testCorrectness, print, display, ctrl );
+        if( testCpx )
+            TestHermitianTridiag<Complex<double>>
+            ( uplo, m, g, testCorrectness, print, display, ctrl );
 
         if( commRank == 0 )
-            cout << "Double-precision complex normal algorithm:"
-                 << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<Complex<double>>
-        ( uplo, m, g, testCorrectness, print, display );
+            cout << "Square row-major algorithm:" << endl;
+        ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl.order = ROW_MAJOR;
+        if( testReal )
+            TestHermitianTridiag<double>
+            ( uplo, m, g, testCorrectness, print, display, ctrl );
+        if( testCpx )
+            TestHermitianTridiag<Complex<double>>
+            ( uplo, m, g, testCorrectness, print, display, ctrl );
 
         if( commRank == 0 )
-            cout << "Double-precision complex square algorithm, "
-                 << "row-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<Complex<double>>
-        ( uplo, m, g, testCorrectness, print, display );
-
-        if( commRank == 0 )
-            cout << "Double-precision complex square algorithm, "
-                 << "col-major grid:" << endl;
-        SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
-        SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<Complex<double>>
-        ( uplo, m, g, testCorrectness, print, display );
+            cout << "Square column-major algorithm:" << endl;
+        ctrl.approach = HERMITIAN_TRIDIAG_SQUARE;
+        ctrl.order = COLUMN_MAJOR;
+        if( testReal )
+            TestHermitianTridiag<double>
+            ( uplo, m, g, testCorrectness, print, display, ctrl );
+        if( testCpx )
+            TestHermitianTridiag<Complex<double>>
+            ( uplo, m, g, testCorrectness, print, display, ctrl );
     }
     catch( exception& e ) { ReportException(e); }
 
