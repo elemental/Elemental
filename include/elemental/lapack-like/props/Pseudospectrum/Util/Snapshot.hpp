@@ -74,13 +74,15 @@ Snapshot
         if( numSave || imgSave || imgDisp )
         {
             invNorms = estimates;
+            if( deflate )
+                RestoreOrdering( preimage, invNorms );
             ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, invNorms, estMap );
             if( snapCtrl.itCounts )
             {
                 itCountsReord = itCounts;
                 if( deflate )
-                    RestoreOrdering( preimage, invNorms, itCountsReord );
+                    RestoreOrdering( preimage, itCountsReord );
                 ReshapeIntoGrid
                 ( snapCtrl.realSize, snapCtrl.imagSize, itCountsReord, 
                   itCountMap );
@@ -209,13 +211,15 @@ Snapshot
         if( numSave || imgSave || imgDisp )
         {
             invNorms = estimates;
+            if( deflate )
+                RestoreOrdering( preimage, invNorms );
             ReshapeIntoGrid
             ( snapCtrl.realSize, snapCtrl.imagSize, invNorms, estMap );
             if( snapCtrl.itCounts )
             {
                 itCountsReord = itCounts;
                 if( deflate )
-                    RestoreOrdering( preimage, invNorms, itCountsReord );
+                    RestoreOrdering( preimage, itCountsReord );
                 ReshapeIntoGrid
                 ( snapCtrl.realSize, snapCtrl.imagSize, itCountsReord, 
                   itCountMap );
