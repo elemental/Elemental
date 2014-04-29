@@ -106,7 +106,7 @@ int odsq6(int *i0, int *n0, double *z__,
     *dmin__ = d__;
 
     if (*pp == 0) {
-	i__1 = *n0 - 3 << 2;
+	i__1 = (*n0-3) << 2;
 	for (j4 = *i0 << 2; j4 <= i__1; j4 += 4) {
 	    z__[j4 - 2] = d__ + z__[j4 - 1];
 	    if (z__[j4 - 2] == 0.) {
@@ -130,7 +130,7 @@ int odsq6(int *i0, int *n0, double *z__,
 /* L10: */
 	}
     } else {
-	i__1 = *n0 - 3 << 2;
+	i__1 = (*n0-3) << 2;
 	for (j4 = *i0 << 2; j4 <= i__1; j4 += 4) {
 	    z__[j4 - 3] = d__ + z__[j4];
 	    if (z__[j4 - 3] == 0.) {
@@ -159,7 +159,7 @@ int odsq6(int *i0, int *n0, double *z__,
 
     *dnm2 = d__;
     *dmin2 = *dmin__;
-    j4 = (*n0 - 2 << 2) - *pp;
+    j4 = ((*n0-2) << 2) - *pp;
     j4p2 = j4 + (*pp << 1) - 1;
     z__[j4 - 2] = *dnm2 + z__[j4p2];
     if (z__[j4 - 2] == 0.) {

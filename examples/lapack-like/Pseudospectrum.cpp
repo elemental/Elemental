@@ -109,9 +109,9 @@ main( int argc, char* argv[] )
         const Int imgDispFreq =
             Input("--imgDispFreq","image display frequency",-1);
         const std::string numBase =
-            Input("--numBase","numerical save basename",std::string("snap"));
+            Input("--numBase","numerical save basename",std::string("num"));
         const std::string imgBase =
-            Input("--imgBase","image save basename",std::string("logSnap"));
+            Input("--imgBase","image save basename",std::string("img"));
         const Int numFormatInt = Input("--numFormat","numerical format",2);
         const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
@@ -252,8 +252,8 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.imgDispFreq = imgDispFreq;
         psCtrl.snapCtrl.imgFormat = imgFormat;
         psCtrl.snapCtrl.numFormat = numFormat;
-        psCtrl.snapCtrl.imgBase = imgBase;
-        psCtrl.snapCtrl.numBase = numBase;
+        psCtrl.snapCtrl.imgBase = matName+"-"+imgBase;
+        psCtrl.snapCtrl.numBase = matName+"-"+numBase;
         psCtrl.snapCtrl.itCounts = itCounts;
 
         // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 

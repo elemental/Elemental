@@ -72,9 +72,9 @@ main( int argc, char* argv[] )
         const Int imgDispFreq =
             Input("--imgDispFreq","image display frequency",-1);
         const std::string numBase =
-            Input("--numBase","numerical save basename",std::string("snap"));
+            Input("--numBase","numerical save basename",std::string("num"));
         const std::string imgBase =
-            Input("--imgBase","image save basename",std::string("logSnap"));
+            Input("--imgBase","image save basename",std::string("img"));
         const Int numFormatInt = Input("--numFormat","numerical format",2);
         const Int imgFormatInt = Input("--imgFormat","image format",8);
         const Int colorMapInt = Input("--colorMap","color map",0);
@@ -102,37 +102,38 @@ main( int argc, char* argv[] )
         const C uniformCenter(uniformRealCenter,uniformImagCenter);
 
         bool isReal = true;
+        std::string matName;
         std::ostringstream os;
         DistMatrix<Real> AReal(g);
         DistMatrix<C> ACpx(g);
         switch( matType )
         {
-        case 0: 
+        case 0: matName="uniform";
             Uniform( ACpx, n, n, uniformCenter, uniformRadius ); 
             MakeTriangular( UPPER, ACpx );
             isReal = false;
             break;
-        case 1: 
+        case 1: matName="Demmel";
             Demmel( AReal, n ); 
             MakeTriangular( UPPER, AReal );
             isReal = true;
             break;
-        case 2: 
+        case 2: matName="Lotkin";
             Lotkin( AReal, n );
             MakeTriangular( UPPER, AReal );
             isReal = true;
             break;
-        case 3: 
+        case 3: matName="Grcar";
             Grcar( AReal, n, numBands ); 
             MakeTriangular( UPPER, AReal );
             isReal = true;
             break;
-        case 4: 
+        case 4: matName="FoxLi";
             FoxLi( ACpx, n, omega );
             MakeTriangular( UPPER, ACpx );
             isReal = false;
             break;
-        case 5:
+        case 5: matName=basename;
             os << basename << "-" 
                << AReal.ColStride() << "x" << AReal.RowStride()
                << "-" << AReal.DistRank() << ".bin";
@@ -140,7 +141,7 @@ main( int argc, char* argv[] )
             read::Binary( AReal.Matrix(), os.str() );
             isReal = true;
             break;
-        case 6:
+        case 6: matName=basename;
             os << basename << "-" << ACpx.ColStride() << "x" << ACpx.RowStride()
                << "-" << ACpx.DistRank() << ".bin";
             ACpx.Resize( n, n );
@@ -265,8 +266,8 @@ main( int argc, char* argv[] )
                               << chunkCenter << std::endl;
                 mpi::Barrier( mpi::COMM_WORLD );
                 timer.Start();
-                psCtrl.snapCtrl.imgBase = imgBase+chunkTag;
-                psCtrl.snapCtrl.numBase = numBase+chunkTag;
+                psCtrl.snapCtrl.imgBase = matName+"-"+imgBase+chunkTag;
+                psCtrl.snapCtrl.numBase = matName+"-"+numBase+chunkTag;
                 if( isReal )
                 {
                     if( quasi )
