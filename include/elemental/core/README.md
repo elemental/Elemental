@@ -2,18 +2,23 @@
 
 #### Axpy interface
 
--  `axpy_interface/`:
--  `axpy_interface.hpp`:
+-  `AxpyInterface/`:
+-  `AxpyInterface.hpp`:
 
 #### Complex arithmetic 
 
--  `complex/`:
--  `complex.hpp`:
+-  `Complex/`:
+-  `Complex.hpp`:
+
+#### `BlockDistMatrix`
+
+-  `BlockDistMatrix/`:
+-  `BlockDistMatrix.hpp`:
 
 #### `DistMatrix`
 
--  `dist_matrix/`:
--  `dist_matrix.hpp`:
+-  `DistMatrix/`:
+-  `DistMatrix.hpp`:
 
 #### Basic environment
 
@@ -21,7 +26,7 @@
 
 #### Process grid
 
--  `grid/`:
+-  `Grid/`:
 
 #### Imported functionality
 
@@ -33,37 +38,25 @@
 
 #### `Matrix`
 
--  `matrix/`:
--  `matrix.hpp`:
+-  `Matrix/`:
+-  `Matrix.hpp`:
 
 #### Memory
 
--  `memory/`:
-
-#### Partitioning
-
--  `partition/`:
+-  `Memory/`:
 
 #### Random number generation
 
 -  `random/`:
 
-#### Repartitioning
+#### Matrix view manipulation
 
--  `repartition/`:
-
-#### Sliding partitions
-
--  `slide_partition/`:
+-  `views/`:
 
 #### Timings
 
--  `timer/`:
+-  `Timer/`:
 
 #### Datatypes
 
 -  `types/`:
-
-#### Viewing (sub)matrices
-
--  `view/`:

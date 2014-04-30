@@ -10,7 +10,7 @@
 #ifndef ELEM_AXPYINTERFACE_HPP
 #define ELEM_AXPYINTERFACE_HPP
 
-#include "./axpy_interface/decl.hpp"
-#include "./axpy_interface/impl.hpp"
+#include "./AxpyInterface/decl.hpp"
+#include "./AxpyInterface/impl.hpp"
 
 #endif // ifndef ELEM_AXPYINTERFACE_HPP

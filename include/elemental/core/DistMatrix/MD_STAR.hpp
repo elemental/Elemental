@@ -93,7 +93,6 @@ private:
 #ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
-    friend void HandleDiagPath<>( type& A, const type& B );
 #endif 
 };
 

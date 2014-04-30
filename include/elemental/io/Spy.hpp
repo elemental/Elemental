@@ -10,8 +10,8 @@
 #ifndef ELEM_SPY_HPP
 #define ELEM_SPY_HPP
 
-#include "./spy_window/decl.hpp"
-#include "./spy_widget/impl.hpp"
+#include "./SpyWindow/decl.hpp"
+#include "./SpyWidget/impl.hpp"
 #include "./Display.hpp" // for ProcessEvents
 
 #ifdef ELEM_HAVE_QT5

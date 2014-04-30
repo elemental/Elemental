@@ -11,9 +11,9 @@
 #define ELEM_DISPLAY_HPP
 
 #ifdef ELEM_HAVE_QT5
-# include "./display_window-premoc.hpp"
-# include "./complex_display_window-premoc.hpp"
-# include "./display_widget/impl.hpp"
+# include "./DisplayWindow-premoc.hpp"
+# include "./ComplexDisplayWindow-premoc.hpp"
+# include "./DisplayWidget/impl.hpp"
 # include <QApplication>
 #endif
 

@@ -10,7 +10,7 @@
 #ifndef ELEM_COMPLEX_HPP
 #define ELEM_COMPLEX_HPP
 
-#include "./complex/decl.hpp"
-#include "./complex/impl.hpp"
+#include "./Complex/decl.hpp"
+#include "./Complex/impl.hpp"
 
 #endif // ifndef ELEM_COMPLEX_HPP

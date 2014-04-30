@@ -90,7 +90,6 @@ private:
     // Friend declarations
     // ===================
 #ifndef SWIG
-    friend void HandleDiagPath<>( type& A, const type& B );
     template<typename S,Dist U,Dist V> friend class DistMatrix;
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
 #endif 

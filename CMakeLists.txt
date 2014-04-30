@@ -187,7 +187,21 @@ include(ElemFortranTests)
 include(ElemCXXTests)
 include(ElemMPITests)
 include(ElemOpenMPTests)
+
 include(ElemQt5Tests)
+if(ELEM_HAVE_QT5)
+  set(ELEM_HEADERS_PREMOC 
+      "include/elemental/io/DisplayWindow-premoc.hpp;include/elemental/io/ComplexDisplayWindow-premoc.hpp")
+  qt_wrap_cpp(elemental ELEM_MOC_SRC ${ELEM_HEADERS_PREMOC})
+  include_directories(${Qt5Widgets_INCLUDE_DIRS})
+  add_definitions(${Qt5Widgets_DEFINITIONS})
+  set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
+
+  # Qt5Widgets_DIR = Qt5_LIBDIR/cmake/Qt5Widgets
+  get_filename_component(Qt5_CMAKEDIR ${Qt5Widgets_DIR} PATH)
+  get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
+endif()
+
 include(ElemSWIGTests)
 
 # Set the library type from the 'ELEM_SHARED_LIBRARIES' option

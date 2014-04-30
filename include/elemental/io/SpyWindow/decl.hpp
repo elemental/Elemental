@@ -15,7 +15,7 @@
 #include <QWidget>
 
 #include "elemental-lite.hpp"
-#include "elemental/io/spy_widget/decl.hpp"
+#include "elemental/io/SpyWidget/decl.hpp"
 
 namespace elem {
 

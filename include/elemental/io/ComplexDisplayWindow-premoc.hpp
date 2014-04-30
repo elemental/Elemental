@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_IO_DISPLAYWINDOW_DECL_HPP
-#define ELEM_IO_DISPLAYWINDOW_DECL_HPP
+#ifndef ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP
+#define ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP
 
 // Not currently guarded due to CMake MOC handling requiring extra flags
 //#ifdef ELEM_HAVE_QT5
@@ -26,34 +26,36 @@
 #include "elemental/blas-like/decl.hpp"
 #include "elemental/lapack-like/decl.hpp"
 #include "elemental/convex/decl.hpp"
-#include "elemental/io/display_widget/decl.hpp"
+#include "elemental/io/DisplayWidget/decl.hpp"
 
 namespace elem {
 
 // Unfortunately Q_OBJECT does not support templates...
-class DisplayWindow : public QWidget
+class ComplexDisplayWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    DisplayWindow( QWidget* parent=0 );    
-    ~DisplayWindow();
+    ComplexDisplayWindow( QWidget* parent=0 );    
+    ~ComplexDisplayWindow();
 
     void Display
-    ( const Matrix<double>* A, 
+    ( const Matrix<Complex<double> >* A, 
       QString title=QString("Default title") );
     void Display
-    ( const Matrix<double>* A, 
-      double minVal, double maxVal,
+    ( const Matrix<Complex<double> >* A, 
+      double minRealVal, double maxRealVal,
+      double minImagVal, double maxImagVal,
       QString title=QString("Default title") );
 
 private:
-    QScrollArea *scroll_;
-    DisplayWidget<double> *display_;
-    const Matrix<double> *matrix_;
+    QScrollArea *realScroll_, *imagScroll_;
+    DisplayWidget<Complex<double> > *realDisplay_, *imagDisplay_;
+    const Matrix<Complex<double> > *matrix_;
 
 public slots:
-    void Save();
+    void SaveReal();
+    void SaveImag();
     void SetScale( bool global );
 };
 
@@ -61,4 +63,4 @@ public slots:
 
 //#endif // ifdef ELEM_HAVE_QT5
 
-#endif // ifndef ELEM_IO_DISPLAYWINDOW_DECL_HPP
+#endif // ifndef ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP

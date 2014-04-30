@@ -7,8 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_SLIDEPARTITION_IMPL_HPP
-#define ELEM_SLIDEPARTITION_IMPL_HPP
+#ifndef ELEM_VIEWS_SLIDEPARTITION_HPP
+#define ELEM_VIEWS_SLIDEPARTITION_HPP
+
+#include "./View.hpp"
 
 namespace elem {
 
@@ -16,9 +18,8 @@ namespace elem {
 #define M  Matrix<T>
 #define DM DistMatrix<T,U,V>
 
-//
-// SlidePartitionUp
-//
+// Slide a partition upward
+// ========================
 
 template<typename T>
 inline void
@@ -68,9 +69,8 @@ SlideLockedPartitionUp
     LockedView2x1( AB, A1, A2 );
 }
 
-//
-// SlidePartitionDown
-//
+// Slide a partition downward
+// ==========================
 
 template<typename T>
 inline void
@@ -120,9 +120,8 @@ SlideLockedPartitionDown
     LockedView( AB, A2 );
 }
 
-//
-// SlidePartitionLeft
-//
+// Slide a partition leftward
+// ==========================
 
 template<typename T>
 inline void
@@ -168,9 +167,8 @@ SlideLockedPartitionLeft
     LockedView1x2( AR, A1, A2 );
 }
 
-//
-// SlidePartitionRight
-//
+// Slide a partition rightward
+// ===========================
 
 template<typename T>
 inline void
@@ -216,9 +214,8 @@ SlideLockedPartitionRight
     LockedView( AR, A2 );
 }
 
-//
-// SlidePartitionUpDiagonal
-//
+// Slide a partition upward on a diagonal
+// ======================================
 
 template<typename T>
 inline void
@@ -280,9 +277,8 @@ SlideLockedPartitionUpDiagonal
                         A21, A22 );
 }
 
-//
-// SlidePartitionDownDiagonal
-//
+// Slide a partition downward on a diagonal
+// ========================================
 
 template<typename T>
 inline void
@@ -349,4 +345,4 @@ SlideLockedPartitionDownDiagonal
 
 } // namespace elem
 
-#endif // ifndef ELEM_SLIDEPARTITION_IMPL_HPP
+#endif // ifndef ELEM_VIEWS_SLIDEPARTITION_HPP

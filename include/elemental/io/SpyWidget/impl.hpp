@@ -15,7 +15,7 @@
 #include <QPixmap>
 #include <QStylePainter>
 
-#include "elemental/io/display_widget/decl.hpp"
+#include "elemental/io/DisplayWidget/decl.hpp"
 
 namespace elem {
 

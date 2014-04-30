@@ -33,22 +33,22 @@ struct BlockDistData
 
 } // namespace elem
 
-#include "./block_dist_matrix/abstract.hpp"
-#include "./block_dist_matrix/general.hpp"
-#include "./block_dist_matrix/circ_circ.hpp"
-#include "./block_dist_matrix/mc_mr.hpp"
-#include "./block_dist_matrix/mc_star.hpp"
-#include "./block_dist_matrix/md_star.hpp"
-#include "./block_dist_matrix/mr_mc.hpp"
-#include "./block_dist_matrix/mr_star.hpp"
-#include "./block_dist_matrix/star_mc.hpp"
-#include "./block_dist_matrix/star_md.hpp"
-#include "./block_dist_matrix/star_mr.hpp"
-#include "./block_dist_matrix/star_star.hpp"
-#include "./block_dist_matrix/star_vc.hpp"
-#include "./block_dist_matrix/star_vr.hpp"
-#include "./block_dist_matrix/vc_star.hpp"
-#include "./block_dist_matrix/vr_star.hpp"
+#include "./BlockDistMatrix/Abstract.hpp"
+#include "./BlockDistMatrix/General.hpp"
+#include "./BlockDistMatrix/CIRC_CIRC.hpp"
+#include "./BlockDistMatrix/MC_MR.hpp"
+#include "./BlockDistMatrix/MC_STAR.hpp"
+#include "./BlockDistMatrix/MD_STAR.hpp"
+#include "./BlockDistMatrix/MR_MC.hpp"
+#include "./BlockDistMatrix/MR_STAR.hpp"
+#include "./BlockDistMatrix/STAR_MC.hpp"
+#include "./BlockDistMatrix/STAR_MD.hpp"
+#include "./BlockDistMatrix/STAR_MR.hpp"
+#include "./BlockDistMatrix/STAR_STAR.hpp"
+#include "./BlockDistMatrix/STAR_VC.hpp"
+#include "./BlockDistMatrix/STAR_VR.hpp"
+#include "./BlockDistMatrix/VC_STAR.hpp"
+#include "./BlockDistMatrix/VR_STAR.hpp"
 
 namespace elem {
 

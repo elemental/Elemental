@@ -52,30 +52,30 @@ process grid into a 4D mesh: `ColComm` x `RowComm` x `RedundantComm` x `CrossCom
 We are now ready to describe the contents of this folder (in addition to this
 file):
 
--  `abstract.hpp`: The underlying distribution-agnostic base class
--  `circ_circ.hpp`: The `<T,CIRC,CIRC>` specialization, which provides a
+-  `Abstract.hpp`: The underlying distribution-agnostic base class
+-  `CIRC_CIRC.hpp`: The `<T,CIRC,CIRC>` specialization, which provides a
    distributed matrix where only one process owns data. It provides a simple
    mechanism for forming a matrix on a single process and then redistributing
    into another distribution, e.g., `(MC,MR)`.
--  `mc_mr.hpp`: The standard matrix distribution
--  `mc_star.hpp`: Only distribute each column like a standard matrix 
+-  `MC_MR.hpp`: The standard matrix distribution
+-  `MC_STAR.hpp`: Only distribute each column like a standard matrix
    distribution
--  `md_star.hpp`: Distribute each column like the diagonal of the standard
+-  `MD_STAR.hpp`: Distribute each column like the diagonal of the standard
    matrix distribution
--  `mr_mc.hpp`: The transpose of the standard matrix distribution
--  `mr_star.hpp`: Distribute each column like the row of a standard matrix 
+-  `MR_MC.hpp`: The transpose of the standard matrix distribution
+-  `MR_STAR.hpp`: Distribute each column like the row of a standard matrix
    distribution
--  `star_mc.hpp`: Distribute each row like a column of the standard matrix 
+-  `STAR_MC.hpp`: Distribute each row like a column of the standard matrix
    distribution
--  `star_md.hpp`: Distribute each row like the diagonal of a standard matrix
+-  `STAR_MD.hpp`: Distribute each row like the diagonal of a standard matrix
    distribution
--  `star_mr.hpp`: Distribute each row like a standard matrix distribution
--  `star_star.hpp`: Give each process a full copy of the matrix
--  `star_vc.hpp`: Distribute each row using a round-robin wrapping over a 
+-  `STAR_MR.hpp`: Distribute each row like a standard matrix distribution
+-  `STAR_STAR.hpp`: Give each process a full copy of the matrix
+-  `STAR_VC.hpp`: Distribute each row using a round-robin wrapping over a
    column-major ordering of the process grid
--  `star_vr.hpp`: Distribute each row using a round-robin wrapping over a 
+-  `STAR_VR.hpp`: Distribute each row using a round-robin wrapping over a
    row-major ordering of the process grid
--  `vc_star.hpp`: Distribute each column using a round-robin wrapping over a
+-  `VC_STAR.hpp`: Distribute each column using a round-robin wrapping over a
    column-major ordering of the process grid
--  `vr_star.hpp`: Distribute each column using a round-robin wrapping over a 
+-  `VR_STAR.hpp`: Distribute each column using a round-robin wrapping over a
    row-major ordering of the process grid

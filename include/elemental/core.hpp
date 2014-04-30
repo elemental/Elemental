@@ -99,9 +99,9 @@
 // TODO: Think of how to better decouple the following components
 
 // Declare the intertwined core parts of our library
-#include "elemental/core/timer/decl.hpp"
-#include "elemental/core/memory/decl.hpp"
-#include "elemental/core/complex/decl.hpp"
+#include "elemental/core/Timer/decl.hpp"
+#include "elemental/core/Memory/decl.hpp"
+#include "elemental/core/Complex/decl.hpp"
 #include "elemental/core/types/decl.hpp"
 #include "elemental/core/imports/mpi.hpp"
 #include "elemental/core/imports/choice.hpp"
@@ -114,36 +114,32 @@
 #include "elemental/core/imports/pmrrr.hpp"
 #include "elemental/core/imports/scalapack.hpp"
 
-#include "elemental/core/matrix/forward_decl.hpp"
-#include "elemental/core/dist_matrix/forward_decl.hpp"
-#include "elemental/core/block_dist_matrix/forward_decl.hpp"
-#include "elemental/core/view/decl.hpp"
-#include "elemental/core/matrix.hpp"
-#include "elemental/core/grid/decl.hpp"
-#include "elemental/core/dist_matrix.hpp"
-#include "elemental/core/block_dist_matrix.hpp"
+#include "elemental/core/Matrix/forward_decl.hpp"
+#include "elemental/core/DistMatrix/forward_decl.hpp"
+#include "elemental/core/BlockDistMatrix/forward_decl.hpp"
+#include "elemental/core/Matrix.hpp"
+#include "elemental/core/Grid/decl.hpp"
+#include "elemental/core/DistMatrix.hpp"
+#include "elemental/core/BlockDistMatrix.hpp"
 
 // Implement the intertwined parts of the library
-#include "elemental/core/timer/impl.hpp"
-#include "elemental/core/memory/impl.hpp"
-#include "elemental/core/complex/impl.hpp"
+#include "elemental/core/Timer/impl.hpp"
+#include "elemental/core/Memory/impl.hpp"
+#include "elemental/core/Complex/impl.hpp"
 #include "elemental/core/types/impl.hpp"
-#include "elemental/core/grid/impl.hpp"
+#include "elemental/core/Grid/impl.hpp"
 #include "elemental/core/environment/impl.hpp"
 #include "elemental/core/indexing/impl.hpp"
 
 // Declare and implement the decoupled parts of the core of the library
 // (perhaps these should be moved into their own directory?)
-#include "elemental/core/view/impl.hpp"
-#include "elemental/core/partition/decl.hpp"
-#include "elemental/core/partition/impl.hpp"
-#include "elemental/core/repartition/decl.hpp"
-#include "elemental/core/repartition/impl.hpp"
-#include "elemental/core/slide_partition/decl.hpp"
-#include "elemental/core/slide_partition/impl.hpp"
+#include "elemental/core/views/View.hpp"
+#include "elemental/core/views/Partition.hpp"
+#include "elemental/core/views/Repartition.hpp"
+#include "elemental/core/views/SlidePartition.hpp"
 #include "elemental/core/random/decl.hpp"
 #include "elemental/core/random/impl.hpp"
-#include "elemental/core/axpy_interface/decl.hpp"
-#include "elemental/core/axpy_interface/impl.hpp"
+#include "elemental/core/AxpyInterface/decl.hpp"
+#include "elemental/core/AxpyInterface/impl.hpp"
 
 #endif // ifndef ELEM_CORE_HPP
