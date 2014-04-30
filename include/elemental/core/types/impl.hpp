@@ -18,13 +18,13 @@ SafeProduct<F>::SafeProduct( Int numEntries )
 : rho(1), kappa(0), n(numEntries)
 { }
 
-namespace distribution_wrapper {
+namespace DistNS {
 
 inline std::string 
-DistToString( Distribution distribution )
+DistToString( Dist dist )
 {
     std::string distString;
-    switch( distribution )
+    switch( dist )
     {
         case MC: distString = "MC"; break;
         case MD: distString = "MD"; break;
@@ -36,34 +36,34 @@ DistToString( Distribution distribution )
     return distString;
 }
 
-inline Distribution 
+inline Dist 
 StringToDist( std::string s )
 {
     // Most compilers' logic for detecting potentially uninitialized variables
     // is horrendously bad.
-    Distribution distribution=MC;
+    Dist dist=MC;
     if( s == "MC" )
-        distribution = MC;
+        dist = MC;
     else if( s == "MD" )
-        distribution = MD;
+        dist = MD;
     else if( s == "MR" )
-        distribution = MR;
+        dist = MR;
     else if( s == "VC" )
-        distribution = VC;
+        dist = VC;
     else if( s == "VR" )
-        distribution = VR;
+        dist = VR;
     else if( s == "* " || s == " *" || s == "*" )
-        distribution = STAR;
+        dist = STAR;
     else
         LogicError
         ("StringToDist expects string in "
          "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}");
-    return distribution;
+    return dist;
 }
 
-} // namespace distribution_wrapper
+} // namespace DistNS
 
-namespace left_or_right_wrapper {
+namespace LeftOrRightNS {
 
 inline char 
 LeftOrRightToChar( LeftOrRight side )
@@ -93,9 +93,9 @@ CharToLeftOrRight( char c )
     return side;
 }
 
-} // namespace left_or_right_wrapper
+} // namespace LeftOrRightNS
 
-namespace orientation_wrapper {
+namespace OrientationNS {
 
 inline char 
 OrientationToChar( Orientation orientation )
@@ -128,9 +128,9 @@ CharToOrientation( char c )
     return orientation;
 }
 
-} // namespace orientation_wrapper
+} // namespace OrientationNS
 
-namespace unit_or_non_unit_wrapper {
+namespace UnitOrNonUnitNS {
 
 inline char 
 UnitOrNonUnitToChar( UnitOrNonUnit diag )
@@ -160,9 +160,9 @@ CharToUnitOrNonUnit( char c )
     return diag;
 }
 
-} // namespace unit_or_non_unit_wrapper
+} // namespace UnitOrNonUnitNS
 
-namespace upper_or_lower_wrapper {
+namespace UpperOrLowerNS {
 
 inline char 
 UpperOrLowerToChar( UpperOrLower uplo )
@@ -192,7 +192,7 @@ CharToUpperOrLower( char c )
     return uplo;
 }
 
-} // namespace upper_or_lower_wrapper
+} // namespace UpperOrLowerNS
 
 } // namespace elem
 

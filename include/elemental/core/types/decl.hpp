@@ -96,17 +96,17 @@ struct InertiaType
     Int numPositive, numNegative, numZero;
 };
 
-namespace conjugation_wrapper {
+namespace ConjugationNS {
 enum Conjugation
 {
     UNCONJUGATED,
     CONJUGATED
 };
 }
-using namespace conjugation_wrapper;
+using namespace ConjugationNS;
 
-namespace distribution_wrapper {
-enum Distribution
+namespace DistNS {
+enum Dist
 {
     MC,   // Col of a matrix distribution
     MD,   // Diagonal of a matrix distribution
@@ -116,11 +116,11 @@ enum Distribution
     STAR, // Give to every process
     CIRC  // Give to a single process
 };
-std::string DistToString( Distribution distribution );
-Distribution StringToDist( std::string s );
+std::string DistToString( Dist distribution );
+Dist StringToDist( std::string s );
 }
-using namespace distribution_wrapper;
-typedef Distribution Dist;
+using namespace DistNS;
+typedef Dist Distribution;
 
 #ifndef SWIG
 template<Dist U,Dist V>
@@ -158,7 +158,7 @@ template<Dist U,Dist V> constexpr Dist ScatteredColDist()
 { return ScatteredRowDist<V,U>(); }
 #endif // ifndef SWIG
 
-namespace viewtype_wrapper {
+namespace ViewTypeNS {
 enum ViewType
 {
     OWNER = 0x0,
@@ -177,27 +177,27 @@ static inline bool IsFixedSize( ViewType v )
 static inline bool IsLocked( ViewType v )
 { return ( v & LOCKED_OWNER ) != 0; }
 }
-using namespace viewtype_wrapper;
+using namespace ViewTypeNS;
 
-namespace forward_or_backward_wrapper {
+namespace ForwardOrBackwardNS {
 enum ForwardOrBackward
 {
     FORWARD,
     BACKWARD
 };
 }
-using namespace forward_or_backward_wrapper;
+using namespace ForwardOrBackwardNS;
 
-namespace grid_order_wrapper {
+namespace GridOrderNS {
 enum GridOrder
 {
     ROW_MAJOR,
     COLUMN_MAJOR
 };
 }
-using namespace grid_order_wrapper;
+using namespace GridOrderNS;
 
-namespace left_or_right_wrapper {
+namespace LeftOrRightNS {
 enum LeftOrRight
 {
     LEFT,
@@ -206,9 +206,9 @@ enum LeftOrRight
 char LeftOrRightToChar( LeftOrRight side );
 LeftOrRight CharToLeftOrRight( char c );
 }
-using namespace left_or_right_wrapper;
+using namespace LeftOrRightNS;
 
-namespace sort_type_wrapper {
+namespace SortTypeNS {
 enum SortType
 {
     UNSORTED,
@@ -216,9 +216,9 @@ enum SortType
     ASCENDING
 };
 }
-using namespace sort_type_wrapper;
+using namespace SortTypeNS;
 
-namespace norm_type_wrapper {
+namespace NormTypeNS {
 enum NormType
 {
     ONE_NORM,           // Operator one norm
@@ -230,9 +230,9 @@ enum NormType
     TWO_NORM            // Infinity-norm of the singular values
 };
 }
-using namespace norm_type_wrapper;
+using namespace NormTypeNS;
 
-namespace orientation_wrapper {
+namespace OrientationNS {
 enum Orientation
 {
     NORMAL,
@@ -242,9 +242,9 @@ enum Orientation
 char OrientationToChar( Orientation orientation );
 Orientation CharToOrientation( char c );
 }
-using namespace orientation_wrapper;
+using namespace OrientationNS;
 
-namespace unit_or_non_unit_wrapper {
+namespace UnitOrNonUnitNS {
 enum UnitOrNonUnit
 {
     NON_UNIT,
@@ -253,9 +253,9 @@ enum UnitOrNonUnit
 char UnitOrNonUnitToChar( UnitOrNonUnit diag );
 UnitOrNonUnit CharToUnitOrNonUnit( char c );
 }
-using namespace unit_or_non_unit_wrapper;
+using namespace UnitOrNonUnitNS;
 
-namespace upper_or_lower_wrapper {
+namespace UpperOrLowerNS {
 enum UpperOrLower
 {
     LOWER,
@@ -264,16 +264,16 @@ enum UpperOrLower
 char UpperOrLowerToChar( UpperOrLower uplo );
 UpperOrLower CharToUpperOrLower( char c );
 }
-using namespace upper_or_lower_wrapper;
+using namespace UpperOrLowerNS;
 
-namespace vertical_or_horizontal_wrapper {
+namespace VerticalOrHorizontalNS {
 enum VerticalOrHorizontal
 {
     VERTICAL,
     HORIZONTAL
 };
 }
-using namespace vertical_or_horizontal_wrapper;
+using namespace VerticalOrHorizontalNS;
 
 } // namespace elem
 

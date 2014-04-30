@@ -14,7 +14,7 @@
 
 namespace elem {
 
-namespace hermitian_gen_definite_eig_type_wrapper {
+namespace HermitianGenDefiniteEigTypeNS {
 enum HermitianGenDefiniteEigType
 {
     AXBX=1,
@@ -22,7 +22,7 @@ enum HermitianGenDefiniteEigType
     BAX=3
 };
 }
-using namespace hermitian_gen_definite_eig_type_wrapper;
+using namespace HermitianGenDefiniteEigTypeNS;
 
 template<typename Real>
 struct HermitianSdcCtrl {

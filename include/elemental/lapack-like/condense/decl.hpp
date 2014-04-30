@@ -12,7 +12,7 @@
 
 namespace elem {
 
-namespace hermitian_tridiag_approach_wrapper {
+namespace HermitianTridiagApproachNS {
 enum HermitianTridiagApproach
 {
     HERMITIAN_TRIDIAG_NORMAL, // Keep the current grid
@@ -20,7 +20,7 @@ enum HermitianTridiagApproach
     HERMITIAN_TRIDIAG_DEFAULT // Square grid algorithm only if already square
 };
 }
-using namespace hermitian_tridiag_approach_wrapper;
+using namespace HermitianTridiagApproachNS;
 
 struct HermitianTridiagCtrl {
     HermitianTridiagApproach approach;

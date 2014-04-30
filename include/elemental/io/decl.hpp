@@ -13,7 +13,7 @@
 namespace elem {
 
 // TODO: Distributed file formats?
-namespace file_format_wrapper {
+namespace FileFormatNS {
 enum FileFormat
 {
     AUTO, // Automatically detect from file extension
@@ -24,6 +24,7 @@ enum FileFormat
     BMP,
     JPG,
     JPEG,
+    MATRIX_MARKET,
     PNG,
     PPM,
     XBM,
@@ -31,7 +32,7 @@ enum FileFormat
     FileFormat_MAX // For detecting number of entries in enum
 };
 }
-using namespace file_format_wrapper;
+using namespace FileFormatNS;
 
 const char* QtImageFormat( FileFormat format );
 std::string FileExtension( FileFormat format );
@@ -41,7 +42,7 @@ FileFormat DetectFormat( const std::string filename );
 std::ifstream::pos_type FileSize( std::ifstream& file );
 
 // TODO: Many more color maps
-namespace color_map_wrapper {
+namespace ColorMapNS {
 enum ColorMap
 {
     GRAYSCALE,
@@ -50,7 +51,7 @@ enum ColorMap
     BLUE_RED
 };
 }
-using namespace color_map_wrapper;
+using namespace ColorMapNS;
 
 #ifdef ELEM_HAVE_QT5
 // Return true if Qt5 was detected, but no GUI is allowed.

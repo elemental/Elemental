@@ -12,7 +12,7 @@
 
 namespace elem {
 
-namespace ldl_pivot_type_wrapper {
+namespace LDLPivotTypeNS {
 enum LDLPivotType
 {
     BUNCH_KAUFMAN_A=0,
@@ -22,7 +22,7 @@ enum LDLPivotType
     BUNCH_PARLETT=4
 };
 }
-using namespace ldl_pivot_type_wrapper;
+using namespace LDLPivotTypeNS;
 
 struct LDLPivot
 {

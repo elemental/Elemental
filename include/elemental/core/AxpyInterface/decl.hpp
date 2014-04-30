@@ -17,10 +17,10 @@
 
 namespace elem {
 
-namespace axpy_type_wrapper {
+namespace AxpyTypeNS {
 enum AxpyType { LOCAL_TO_GLOBAL, GLOBAL_TO_LOCAL };
 }
-using namespace axpy_type_wrapper;
+using namespace AxpyTypeNS;
 
 template<typename T>
 class AxpyInterface

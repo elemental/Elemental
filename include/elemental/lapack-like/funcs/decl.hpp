@@ -14,14 +14,14 @@
 
 namespace elem {
 
-namespace sign_scaling_wrapper {
+namespace SignScalingNS {
 enum SignScaling {
     SIGN_SCALE_NONE,
     SIGN_SCALE_DET,
     SIGN_SCALE_FROB
 };
 } 
-using namespace sign_scaling_wrapper;
+using namespace SignScalingNS;
 
 } // namespace elem
 
