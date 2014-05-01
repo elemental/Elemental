@@ -15,6 +15,7 @@
 #include "./Write/Binary.hpp"
 #include "./Write/BinaryFlat.hpp"
 #include "./Write/Image.hpp"
+#include "./Write/MatrixMarket.hpp"
 
 namespace elem {
 
@@ -27,10 +28,11 @@ Write
     DEBUG_ONLY(CallStackEntry cse("Write"))
     switch( format )
     {
-    case ASCII:        write::Ascii( A, basename, title );       break;
-    case ASCII_MATLAB: write::AsciiMatlab( A, basename, title ); break;
-    case BINARY:       write::Binary( A, basename );             break;
-    case BINARY_FLAT:  write::BinaryFlat( A, basename );         break;
+    case ASCII:         write::Ascii( A, basename, title );       break;
+    case ASCII_MATLAB:  write::AsciiMatlab( A, basename, title ); break;
+    case BINARY:        write::Binary( A, basename );             break;
+    case BINARY_FLAT:   write::BinaryFlat( A, basename );         break;
+    case MATRIX_MARKET: write::MatrixMarket( A, basename );       break;
     case BMP:
     case JPG:
     case JPEG:
