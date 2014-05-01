@@ -14,6 +14,7 @@
 #include "./Read/AsciiMatlab.hpp"
 #include "./Read/Binary.hpp"
 #include "./Read/BinaryFlat.hpp"
+#include "./Read/MatrixMarket.hpp"
 
 namespace elem {
 
@@ -38,6 +39,9 @@ Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO )
         break;
     case BINARY_FLAT:
         read::BinaryFlat( A, A.Height(), A.Width(), filename );
+        break;
+    case MATRIX_MARKET:
+        read::MatrixMarket( A, filename );
         break;
     default:
         LogicError("Format unsupported for reading");
@@ -83,6 +87,9 @@ Read
             break;
         case BINARY_FLAT:
             read::BinaryFlat( A, A.Height(), A.Width(), filename );
+            break;
+        case MATRIX_MARKET:
+            read::MatrixMarket( A, filename );
             break;
         default:
             LogicError("Unsupported distributed read format"); 

@@ -45,6 +45,7 @@ inline std::string FileExtension( FileFormat format )
     case BMP:              return "bmp";  break;
     case JPG:              return "jpg";  break;
     case JPEG:             return "jpeg"; break;
+    case MATRIX_MARKET:    return "mm";   break;
     case PNG:              return "png";  break;
     case PPM:              return "ppm";  break;
     case XBM:              return "xbm";  break;
