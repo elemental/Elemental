@@ -241,6 +241,24 @@ MatrixMarket( DistMatrix<T,U,V>& A, const std::string filename )
     A = A_CIRC_CIRC;
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+MatrixMarket( BlockDistMatrix<T,U,V>& A, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::MatrixMarket"))
+    BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
+    if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+    {
+        Matrix<T> ASeq;
+        MatrixMarket( ASeq, filename );
+        A_CIRC_CIRC.CopyFromRoot( ASeq );
+        ASeq.Empty();
+    }
+    else
+        A_CIRC_CIRC.CopyFromNonRoot();
+    A = A_CIRC_CIRC;
+}
+
 } // namespace read
 } // namespace elem
 

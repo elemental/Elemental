@@ -48,9 +48,6 @@ RQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
     rq::Householder( A, t, d );
 }
 
-// Variants which perform (Businger-Golub) pivoting
-// ================================================
-
 } // namespace elem
 
 #endif // ifndef ELEM_RQ_HPP

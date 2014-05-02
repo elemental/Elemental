@@ -35,6 +35,17 @@ AsciiMatlab( DistMatrix<T,U,V>& A, const std::string filename )
     LogicError("Not yet written");
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+AsciiMatlab( BlockDistMatrix<T,U,V>& A, const std::string filename )
+{
+    DEBUG_ONLY(CallStackEntry cse("read::AsciiMatlab"))
+    std::ifstream file( filename.c_str() );
+    if( !file.is_open() )
+        RuntimeError("Could not open ",filename);
+    LogicError("Not yet written");
+}
+
 } // namespace read
 } // namespace elem
 

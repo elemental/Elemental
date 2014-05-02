@@ -97,6 +97,55 @@ Read
     }
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+Read
+( BlockDistMatrix<T,U,V>& A, const std::string filename, FileFormat format=AUTO,
+  bool sequential=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("Read"))
+    if( format == AUTO )
+        format = DetectFormat( filename ); 
+
+    if( U == A.UGath && V == A.VGath )
+    {
+        if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+            Read( A.Matrix(), filename, format );
+    }
+    else if( sequential )
+    {
+        BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
+        if( format == BINARY_FLAT )
+            A_CIRC_CIRC.Resize( A.Height(), A.Width() );
+        if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+            Read( A_CIRC_CIRC.Matrix(), filename, format );
+        A = A_CIRC_CIRC;
+    }
+    else
+    {
+        switch( format )
+        {
+        case ASCII:
+            read::Ascii( A, filename );
+            break;
+        case ASCII_MATLAB:
+            read::AsciiMatlab( A, filename );
+            break;
+        case BINARY:
+            read::Binary( A, filename );
+            break;
+        case BINARY_FLAT:
+            read::BinaryFlat( A, A.Height(), A.Width(), filename );
+            break;
+        case MATRIX_MARKET:
+            read::MatrixMarket( A, filename );
+            break;
+        default:
+            LogicError("Unsupported distributed read format"); 
+        }
+    }
+}
+
 } // namespace elem
 
 #endif // ifndef ELEM_READ_HPP
