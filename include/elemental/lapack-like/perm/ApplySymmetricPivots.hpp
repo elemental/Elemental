@@ -10,7 +10,7 @@
 #ifndef ELEM_LAPACK_APPLYSYMMETRICPIVOTS_HPP
 #define ELEM_LAPACK_APPLYSYMMETRICPIVOTS_HPP
 
-#include "elemental/blas-like/level1/Swap.hpp"
+#include ELEM_SWAP_INC
 
 namespace elem {
 

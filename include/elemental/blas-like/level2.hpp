@@ -10,10 +10,6 @@
 #ifndef ELEM_BLAS2_HPP
 #define ELEM_BLAS2_HPP
 
-#include "./level2/ApplyColumnPivots.hpp"
-#include "./level2/ApplyRowPivots.hpp"
-#include "./level2/ApplySymmetricPivots.hpp"
-#include "./level2/ComposePivots.hpp"
 #include "./level2/Gemv.hpp"
 #include "./level2/Ger.hpp"
 #include "./level2/Geru.hpp"

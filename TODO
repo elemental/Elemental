@@ -32,6 +32,8 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
+[o] Simplify MPI wrappers by allowing for displacements to be automatically
+    computed from counts if not specified
 [o] Extend Grid class to support mappings from, e.g., (MDRank,root) -> VCRank
     and use these mappings to build an (owner,root) -> VCRank mapping for 
     [Block]DistMatrix

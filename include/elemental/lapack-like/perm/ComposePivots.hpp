@@ -10,7 +10,7 @@
 #ifndef ELEM_LAPACK_COMPOSEPIVOTS_HPP
 #define ELEM_LAPACK_COMPOSEPIVOTS_HPP
 
-#include <algorithm>
+#include ELEM_MAXNORM_INC
 
 namespace elem {
 
@@ -35,8 +35,7 @@ ComposePivots
         return;
     }
 
-    const Int* pBuffer = p.LockedBuffer();
-    const Int range = *std::max_element( pBuffer, pBuffer+n ) + 1;
+    const Int range = MaxNorm( p );
 
     // Construct the preimage of {0,...,range-1} under the permutation in 
     // O(range) work
@@ -45,7 +44,7 @@ ComposePivots
         preimage[i] = i;
     for( Int i=0; i<n; ++i )
     {
-        const Int j = pBuffer[i];
+        const Int j = p.Get(i,0);
         std::swap( preimage[i], preimage[j] );
     }
 

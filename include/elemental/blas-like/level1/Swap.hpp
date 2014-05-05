@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_SWAP_HPP
-#define ELEM_SWAP_HPP
+#ifndef ELEM_BLAS_SWAP_HPP
+#define ELEM_BLAS_SWAP_HPP
 
 namespace elem {
 
@@ -414,4 +414,4 @@ inline void HermitianSwap
 
 } // namespace elem
 
-#endif // ifndef ELEM_SWAP_HPP
+#endif // ifndef ELEM_BLAS_SWAP_HPP

@@ -95,14 +95,6 @@
 // ----------------
 #define ELEM_BLAS2_INC "elemental/blas-like/level2.hpp"
 
-#define ELEM_APPLYCOLUMNPIVOTS_INC \
-  "elemental/blas-like/level2/ApplyColumnPivots.hpp"
-#define ELEM_APPLYROWPIVOTS_INC \
-  "elemental/blas-like/level2/ApplyRowPivots.hpp"
-#define ELEM_APPLYSYMMETRICPIVOTS_INC \
-  "elemental/blas-like/level2/ApplySymmetricPivots.hpp"
-#define ELEM_COMPOSEPIVOTS_INC \
-  "elemental/blas-like/level2/ComposePivots.hpp"
 #define ELEM_GEMV_INC \
   "elemental/blas-like/level2/Gemv.hpp"
 #define ELEM_GER_INC \
@@ -343,6 +335,17 @@
   "elemental/lapack-like/funcs/Inverse/Symmetric.hpp"
 #define ELEM_HERMITIANINVERSE_INC \
   "elemental/lapack-like/funcs/Inverse/Hermitian.hpp"
+
+// Permutations
+// ------------
+#define ELEM_APPLYCOLUMNPIVOTS_INC \
+  "elemental/lapack-like/perm/ApplyColumnPivots.hpp"
+#define ELEM_APPLYROWPIVOTS_INC \
+  "elemental/lapack-like/perm/ApplyRowPivots.hpp"
+#define ELEM_APPLYSYMMETRICPIVOTS_INC \
+  "elemental/lapack-like/perm/ApplySymmetricPivots.hpp"
+#define ELEM_COMPOSEPIVOTS_INC \
+  "elemental/lapack-like/perm/ComposePivots.hpp"
 
 // Matrix properties
 // -----------------

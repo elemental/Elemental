@@ -144,8 +144,6 @@ inline void
 LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    p.Resize( Min(A.Height(),A.Width()), 1 );
-    q.Resize( Min(A.Height(),A.Width()), 1 );
     lu::Full( A, p, q );
 }
 
@@ -216,8 +214,6 @@ inline void
 LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, DistMatrix<Int,VC,STAR>& q )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    p.Resize( Min(A.Height(),A.Width()), 1 );
-    q.Resize( Min(A.Height(),A.Width()), 1 );
     lu::Full( A, p, q );
 }
 
