@@ -87,12 +87,12 @@ Deflate
             {
                 std::swap( HDiagList[swapFrom], HDiagList[swapTo] );
                 std::swap( HSubdiagList[swapFrom], HSubdiagList[swapTo] );
-                RowSwap( activeShifts, swapFrom, swapTo );
+                RowSwap( activeShifts,   swapFrom, swapTo );
                 RowSwap( activePreimage, swapFrom, swapTo );
-                RowSwap( activeEsts, swapFrom, swapTo );
+                RowSwap( activeEsts,     swapFrom, swapTo );
                 RowSwap( activeItCounts, swapFrom, swapTo );
-                ColumnSwap( activeXOld, swapFrom, swapTo );
-                ColumnSwap( activeX,    swapFrom, swapTo );
+                ColSwap( activeXOld,     swapFrom, swapTo );
+                ColSwap( activeX,        swapFrom, swapTo );
             }
             --swapTo;
         }
@@ -191,12 +191,12 @@ Deflate
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                 }
 
-                RowSwap( shiftsCopy, swapFrom, swapTo );
-                RowSwap( preimageCopy, swapFrom, swapTo );
+                RowSwap( shiftsCopy,    swapFrom, swapTo );
+                RowSwap( preimageCopy,  swapFrom, swapTo );
                 RowSwap( estimatesCopy, swapFrom, swapTo );
-                RowSwap( itCountsCopy, swapFrom, swapTo );
-                ColumnSwap( XOldCopy, swapFrom, swapTo );
-                ColumnSwap( XCopy,    swapFrom, swapTo );
+                RowSwap( itCountsCopy,  swapFrom, swapTo );
+                ColSwap( XOldCopy,      swapFrom, swapTo );
+                ColSwap( XCopy,         swapFrom, swapTo );
             }
             --swapTo;
         }

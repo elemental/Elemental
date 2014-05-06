@@ -20,12 +20,12 @@
 using namespace std;
 using namespace elem;
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 void TestCorrectness
 ( bool conjugated, bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& dSub,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistMatrix<Int,UPerm,STAR>& pPerm,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -40,7 +40,7 @@ void TestCorrectness
     // random set of 100 vectors to the application of tril(A) tril(A)^H
     if( print )
         Print( X, "X" );
-    ldl::MultiplyAfter( A, dSub, p, Y, conjugated );
+    ldl::MultiplyAfter( A, dSub, pPerm, Y, conjugated );
     if( print )
         Print( Y, "P' L B L' P X" );
     Symm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y, conjugated );
@@ -67,7 +67,7 @@ void TestCorrectness
     }
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 void TestLDL
 ( bool conjugated, bool testCorrectness, bool print, 
   Int m, const Grid& g )
@@ -99,11 +99,11 @@ void TestLDL
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     DistMatrix<F,MD,STAR> dSub(g);
-    DistMatrix<Int,VC,STAR> p(g);
+    DistMatrix<Int,UPerm,STAR> pPerm(g);
     if( conjugated )
-        LDLH( A, dSub, p );
+        LDLH( A, dSub, pPerm );
     else
-        LDLT( A, dSub, p );
+        LDLT( A, dSub, pPerm );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -115,9 +115,12 @@ void TestLDL
              << gFlops << endl;
     }
     if( print )
+    {
         Print( A, "A after factorization" );
+        Print( pPerm, "pPerm" );
+    }
     if( testCorrectness )
-        TestCorrectness( conjugated, print, A, dSub, p, AOrig );
+        TestCorrectness( conjugated, print, A, dSub, pPerm, AOrig );
 }
 
 int 
@@ -155,11 +158,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestLDL<double>( conjugated, testCorrectness, print, m, g );
+        TestLDL<double,VC>( conjugated, testCorrectness, print, m, g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
+        TestLDL<Complex<double>,VC>( conjugated, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

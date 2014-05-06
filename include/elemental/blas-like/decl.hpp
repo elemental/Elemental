@@ -12,45 +12,6 @@
 
 namespace elem {
 
-struct PivotMeta
-{
-    Int align;
-    mpi::Comm comm;
-
-    // Will treat vector lengths as one
-    std::vector<int> sendCounts, sendDispls,
-                     recvCounts, recvDispls;
-
-    std::vector<int> sendIdx, sendRanks,
-                     recvIdx, recvRanks;
-
-    int TotalSend() const { return sendCounts.back()+sendDispls.back(); }
-    int TotalRecv() const { return recvCounts.back()+recvDispls.back(); }
-
-    void ScaleUp( Int length )
-    {
-        const int p = sendCounts.size();
-        for( int q=0; q<p; ++q )
-        {
-            sendCounts[q] *= length;
-            sendDispls[q] *= length;
-            recvCounts[q] *= length;
-            recvDispls[q] *= length;
-        }
-    }
-    void ScaleDown( Int length )
-    {
-        const int p = sendCounts.size();
-        for( int q=0; q<p; ++q )
-        {
-            sendCounts[q] /= length;
-            sendDispls[q] /= length;
-            recvCounts[q] /= length;
-            recvDispls[q] /= length;
-        }
-    }
-};
-
 template<typename T>
 void Trrk
 ( UpperOrLower uplo, 

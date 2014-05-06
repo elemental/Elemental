@@ -69,7 +69,7 @@ template<typename F>
 inline void
 SolveAfter
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
+  const Matrix<F>& A, const Matrix<Int>& pPerm, Matrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
@@ -77,12 +77,12 @@ SolveAfter
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( p.Height() != A.Height() )
-            LogicError("A and p must be the same height");
+        if( pPerm.Height() != A.Height() )
+            LogicError("A and pPerm must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, p );
+        PermuteRows( B, pPerm );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
@@ -90,30 +90,31 @@ SolveAfter
     {
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, p );
+        InversePermuteRows( B, pPerm );
     }
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 SolveAfter
 ( Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B )
+  const DistMatrix<F>& A, 
+  const DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Grid() != B.Grid() || A.Grid() != pPerm.Grid() )
+            LogicError("{A,B,pPerm} must be distributed over the same grid");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( A.Height() != p.Height() )
-            LogicError("A and p must be the same height");
+        if( A.Height() != pPerm.Height() )
+            LogicError("A and pPerm must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, p );
+        PermuteRows( B, pPerm );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
@@ -121,7 +122,7 @@ SolveAfter
     {
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, p );
+        InversePermuteRows( B, pPerm );
     }
 }
 
@@ -129,7 +130,10 @@ template<typename F>
 inline void
 SolveAfter
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<Int>& p, const Matrix<Int>& q, Matrix<F>& B )
+  const Matrix<F>& A, 
+  const Matrix<Int>& pPerm, 
+  const Matrix<Int>& qPerm, 
+        Matrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
@@ -137,61 +141,64 @@ SolveAfter
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( p.Height() != A.Height() )
+        if( pPerm.Height() != A.Height() )
             LogicError("A and p must be the same height");
-        if( q.Height() != A.Height() )
+        if( qPerm.Height() != A.Height() )
             LogicError("A and q must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, p );
+        PermuteRows( B, pPerm );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, q );
+        InversePermuteRows( B, qPerm );
     }
     else
     {
-        ApplyRowPivots( B, q );
+        PermuteRows( B, qPerm );
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, p );
+        InversePermuteRows( B, pPerm );
     }
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 SolveAfter
 ( Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, 
-                          const DistMatrix<Int,VC,STAR>& q,
+  const DistMatrix<F>& A, 
+  const DistMatrix<Int,UPerm,STAR>& pPerm, 
+  const DistMatrix<Int,UPerm,STAR>& qPerm,
         DistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Grid() != B.Grid() || 
+            A.Grid() != pPerm.Grid() || 
+            pPerm.Grid() != qPerm.Grid() )
+            LogicError("{A,B,pPerm,qPerm} must be distributed over same grid");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( A.Height() != p.Height() )
-            LogicError("A and p must be the same height");
-        if( A.Height() != q.Height() )
-            LogicError("A and q must be the same height");
+        if( A.Height() != pPerm.Height() )
+            LogicError("A and pPerm must be the same height");
+        if( A.Height() != qPerm.Height() )
+            LogicError("A and qPerm must be the same height");
     )
     if( orientation == NORMAL )
     {
-        ApplyRowPivots( B, p );
+        PermuteRows( B, pPerm );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, q );
+        InversePermuteRows( B, qPerm );
     }
     else
     {
-        ApplyRowPivots( B, p );
+        PermuteRows( B, qPerm );
         Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
         Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        ApplyInverseRowPivots( B, p );
+        InversePermuteRows( B, pPerm );
     }
 }
 

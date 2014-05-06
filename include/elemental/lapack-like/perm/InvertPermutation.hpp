@@ -30,8 +30,8 @@ InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
     DEBUG_ONLY(
         // This is obviously necessary but not sufficient for 'perm' to contain
         // a reordering of (0,1,...,n-1).
-        const Int range = MaxNorm( perm );
-        if( range != n-1 )
+        const Int range = MaxNorm( perm ) + 1;
+        if( range != n )
             LogicError("Invalid permutation range");
     )
 
@@ -39,10 +39,10 @@ InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
         invPerm.Set( perm.Get(i,0), 0, i );
 }
 
-template<Dist U,Dist V>
+template<Dist U>
 inline void
 InvertPermutation
-( const DistMatrix<Int,U,V>& perm, DistMatrix<Int,U,V>& invPerm )
+( const DistMatrix<Int,U,STAR>& perm, DistMatrix<Int,U,STAR>& invPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("InvertPermutation");
@@ -59,14 +59,10 @@ InvertPermutation
     DEBUG_ONLY(
         // This is obviously necessary but not sufficient for 'perm' to contain
         // a reordering of (0,1,...,n-1).
-        const Int range = MaxNorm( perm );
-        if( range != n-1 )
+        const Int range = MaxNorm( perm ) + 1;
+        if( range != n )
             LogicError("Invalid permutation range");
     )
-
-    // Only the processes who own this column of data need participate
-    if( perm.RowShift() != 0 )
-        return;
 
     const mpi::Comm colComm = perm.ColComm();
     const Int commSize = mpi::Size( colComm );
@@ -115,7 +111,7 @@ InvertPermutation
     SwapClear( sendDispls );
 
     // Unpack the received data
-    for( Int k=0; k<totalRecv/2; ++k )
+    for( Int k=0; k<recvTotal/2; ++k )
     {
         const Int iDest = recvBuf[2*k+0];
         const Int i     = recvBuf[2*k+1];

@@ -23,11 +23,11 @@ inline void
 Explicit( Matrix<F>& A, bool colPiv=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
-    Matrix<Int> p;
+    Matrix<Int> pPerm;
     Matrix<F> t;
     Matrix<Base<F>> d;
     if( colPiv )
-        QR( A, t, d, p );
+        QR( A, t, d, pPerm );
     else
         QR( A, t, d );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
@@ -40,11 +40,11 @@ Explicit( DistMatrix<F>& A, bool colPiv=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,VR,STAR> p(g);
+    DistMatrix<Int,VR,STAR> pPerm(g);
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     if( colPiv )
-        QR( A, t, d, p );
+        QR( A, t, d, pPerm );
     else
         QR( A, t, d );
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
@@ -58,9 +58,9 @@ Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    Matrix<Int> p;
+    Matrix<Int> pPerm;
     if( colPiv )
-        QR( A, t, d, p );
+        QR( A, t, d, pPerm );
     else
         QR( A, t, d );
     Matrix<F> AT, AB;
@@ -79,11 +79,45 @@ Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<Int,VR,STAR> p(g);
+    DistMatrix<Int,VR,STAR> pPerm(g);
     if( colPiv )
-        QR( A, t, d, p );
+        QR( A, t, d, pPerm );
     else
         QR( A, t, d );
+    DistMatrix<F> AT(g), AB(g);
+    PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
+    R = AT;
+    MakeTriangular( UPPER, R );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+    DiagonalScale( RIGHT, NORMAL, d, A );
+}
+
+template<typename F>
+inline void
+Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& pPerm )
+{
+    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    Matrix<F> t;
+    Matrix<Base<F>> d;
+    QR( A, t, d, pPerm );
+    Matrix<F> AT, AB;
+    PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
+    R = AT;
+    MakeTriangular( UPPER, R );
+    ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
+    DiagonalScale( RIGHT, NORMAL, d, A );
+} 
+
+template<typename F,Dist UPerm>
+inline void
+Explicit
+( DistMatrix<F>& A, DistMatrix<F>& R, DistMatrix<Int,UPerm,STAR>& pPerm )
+{
+    DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
+    const Grid& g = A.Grid();
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
+    QR( A, t, d, pPerm );
     DistMatrix<F> AT(g), AB(g);
     PartitionDown( A, AT, AB, Min(A.Height(),A.Width()) );
     R = AT;

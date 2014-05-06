@@ -13,6 +13,7 @@
 #include ELEM_DIAGONALSCALETRAPEZOID_INC
 #include ELEM_GEMV_INC
 #include ELEM_GER_INC
+#include ELEM_SWAP_INC
 
 #include ELEM_REFLECTOR_INC
 
@@ -25,9 +26,9 @@ namespace qr {
 
 template<typename F>
 inline BASE(F)
-ColumnNorms( const Matrix<F>& A, std::vector<BASE(F)>& norms )
+ColNorms( const Matrix<F>& A, std::vector<BASE(F)>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ColumnNorms"))
+    DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -54,20 +55,16 @@ FindPivot( const std::vector<Real>& norms, Int col )
 }
 
 template<typename F> 
-inline void
+inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p,
+( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm,
   Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    DEBUG_ONLY(
-        if( maxSteps > Min(m,n) )
-            LogicError("Too many steps requested");
-    )
-    p.Resize( maxSteps, 1 );
+    maxSteps = Min(maxSteps,Min(m,n));
     t.Resize( maxSteps, 1 );
     d.Resize( maxSteps, 1 );
 
@@ -77,11 +74,17 @@ BusingerGolub
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
     std::vector<Real> origNorms;
-    const Real maxOrigNorm = ColumnNorms( A, origNorms );
+    const Real maxOrigNorm = ColNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
-    for( Int k=0; k<maxSteps; ++k )
+    // Initialize the inverse permutation to the identity
+    pPerm.Resize( n, 1 );
+    for( Int j=0; j<n; ++j )
+        pPerm.Set( j, 0, j ); 
+
+    Int k=0;
+    for( ; k<maxSteps; ++k )
     {
         auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
         auto a12     = ViewRange( A, k,   k+1, k+1, n   );
@@ -92,12 +95,8 @@ BusingerGolub
         // Find the next column pivot
         const ValueInt<Real> pivot = FindPivot( norms, k );
         if( pivot.value <= tol*maxOrigNorm )
-        {
-            p.Resize( k, 1 );
-            t.Resize( k, 1 );
             break;
-        }
-        p.Set( k, 0, pivot.index );
+        RowSwap( pPerm, k, pivot.index );
  
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -151,9 +150,9 @@ BusingerGolub
     }
 
     // Form d and rescale R
-    auto R = View( A, 0, 0, maxSteps, n );
+    auto R = View( A, 0, 0, k, n );
     d = R.GetRealPartOfDiagonal();
-    for( Int j=0; j<maxSteps; ++j )
+    for( Int j=0; j<k; ++j )
     {
         const Real delta = d.Get(j,0);
         if( delta >= Real(0) )
@@ -162,71 +161,74 @@ BusingerGolub
             d.Set(j,0,Real(-1));
     }
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
+
+    return k;
 }
 
 template<typename F> 
-inline void
+inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& p,
+( Matrix<F>& A, Matrix<Int>& pPerm,
   Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    BusingerGolub( A, t, d, p, maxSteps, tol, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, maxSteps, tol, alwaysRecompute );
 }
 
 template<typename F> 
-inline void
+inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p,
+( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm,
   Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
-    // Use a tolerance of -1 so that we always perform numSteps iterations
-    BusingerGolub( A, t, d, p, numSteps, Base<F>(-1), alwaysRecompute );
+    // Use a tolerance of -1 so that we do not stop early
+    return BusingerGolub
+           ( A, t, d, pPerm, numSteps, Base<F>(-1), alwaysRecompute );
 }
 
 // If we don't need 't' or 'd' from the above routine
 template<typename F> 
-inline void
+inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& p, Int numSteps, bool alwaysRecompute=false )
+( Matrix<F>& A, Matrix<Int>& pPerm, Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, numSteps, alwaysRecompute );
 }
 
 template<typename F> 
-inline void
+inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm, 
   bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     const Int numSteps = Min(A.Height(),A.Width());
-    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, numSteps, alwaysRecompute );
 }
 
 // If we don't need 't' or 'd' from the above routine
 template<typename F> 
-inline void
-BusingerGolub( Matrix<F>& A, Matrix<Int>& p, bool alwaysRecompute=false )
+inline Int
+BusingerGolub( Matrix<F>& A, Matrix<Int>& pPerm, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    BusingerGolub( A, t, d, p, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, alwaysRecompute );
 }
 
 template<typename F>
 inline ValueInt<BASE(F)>
-FindColumnPivot
+FindColPivot
 ( const DistMatrix<F>& A, const std::vector<BASE(F)>& norms, Int col )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::FindColumnPivot"))
+    DEBUG_ONLY(CallStackEntry cse("qr::FindColPivot"))
     typedef Base<F> Real;
     const Int localColsBefore = A.LocalColOffset(col);
     const ValueInt<Real> localPivot = FindPivot( norms, localColsBefore );
@@ -238,9 +240,9 @@ FindColumnPivot
 
 template<typename F>
 inline BASE(F)
-ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
+ColNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ColumnNorms"))
+    DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -309,11 +311,11 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
 
 template<typename F>
 inline void
-ReplaceColumnNorms
+ReplaceColNorms
 ( const DistMatrix<F>& A, std::vector<Int>& inaccurateNorms, 
   std::vector<BASE(F)>& norms, std::vector<BASE(F)>& origNorms )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ReplaceColumnNorms"))
+    DEBUG_ONLY(CallStackEntry cse("qr::ReplaceColNorms"))
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int numInaccurate = inaccurateNorms.size();
@@ -378,43 +380,44 @@ ReplaceColumnNorms
     }
 }
 
-template<typename F>
-inline void
+template<typename F,Dist UPerm>
+inline Int
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
-  DistMatrix<Int,VR,STAR>& p, Int maxSteps, BASE(F) tol, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, Int maxSteps, BASE(F) tol, 
   bool alwaysRecompute=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::BusingerGolub");
-        if( A.Grid() != p.Grid() || A.Grid() != t.Grid() || 
+        if( A.Grid() != pPerm.Grid() || A.Grid() != t.Grid() || 
             t.Grid() != d.Grid() )
-            LogicError("A, t, d, and p must have the same grid");
+            LogicError("A, t, d, and pPerm must have the same grid");
     )
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
-    DEBUG_ONLY(
-        if( maxSteps > Min(m,n) )
-            LogicError("Too many steps requested");
-    )
+    maxSteps = Min(maxSteps,Min(m,n));
     t.SetRoot( A.DiagonalRoot() );
     d.SetRoot( A.DiagonalRoot() );
     t.AlignCols( A.DiagonalAlign() );
     d.AlignCols( A.DiagonalAlign() );
     t.Resize( maxSteps, 1 );
-    p.Resize( maxSteps, 1 );
     d.Resize( maxSteps, 1 );
 
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
     std::vector<Real> origNorms( A.LocalWidth() );
-    const Real maxOrigNorm = ColumnNorms( A, origNorms );
+    const Real maxOrigNorm = ColNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
     std::vector<Int> inaccurateNorms;
+
+    // Initialize the inverse permutation to the identity
+    pPerm.Resize( n, 1 );
+    for( Int jLoc=0; jLoc<pPerm.LocalHeight(); ++jLoc ) 
+        pPerm.SetLocal( jLoc, 0, pPerm.GlobalRow(jLoc) );
 
     const Grid& g = A.Grid();
     DistMatrix<F> z21(g);
@@ -422,7 +425,8 @@ BusingerGolub
     DistMatrix<F,MR,STAR> z21_MR_STAR(g);
     DistMatrix<F,STAR,MR> a12_STAR_MR(g);
 
-    for( Int k=0; k<maxSteps; ++k )
+    Int k=0;
+    for( ; k<maxSteps; ++k )
     {
         auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
         auto a12     = ViewRange( A, k,   k+1, k+1, n   );
@@ -431,14 +435,10 @@ BusingerGolub
         auto AB2     = ViewRange( A, k,   k+1, m,   n   );
 
         // Find the next column pivot
-        const ValueInt<Real> pivot = FindColumnPivot( A, norms, k );
+        const ValueInt<Real> pivot = FindColPivot( A, norms, k );
         if( pivot.value <= tol*maxOrigNorm )
-        {
-            p.Resize( k, 1 );
-            t.Resize( k, 1 );
             break;
-        }
-        p.Set( k, 0, pivot.index );
+        RowSwap( pPerm, k, pivot.index );
 
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -536,11 +536,11 @@ BusingerGolub
             }
         }
         // Step 2: Compute the replacement norms and also reset origNorms
-        ReplaceColumnNorms( A, inaccurateNorms, norms, origNorms );
+        ReplaceColNorms( A, inaccurateNorms, norms, origNorms );
     }
 
     // Form d and rescale R
-    auto R = View( A, 0, 0, maxSteps, n );
+    auto R = View( A, 0, 0, k, n );
     d = R.GetRealPartOfDiagonal();
     const Int diagLengthLoc = d.LocalHeight();
     for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
@@ -552,66 +552,70 @@ BusingerGolub
             d.SetLocal(jLoc,0,Real(-1));
     }
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
+
+    return k;
 }
 
 // If we don't need 't' or 'd' from the above routine
-template<typename F>
-inline void
+template<typename F,Dist UPerm>
+inline Int
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p,
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm,
   Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
     DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
-    BusingerGolub( A, t, d, p, maxSteps, tol, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, maxSteps, tol, alwaysRecompute );
 }
 
-template<typename F>
-inline void
+template<typename F,Dist UPerm>
+inline Int
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
-  DistMatrix<Int,VR,STAR>& p, Int numSteps, bool alwaysRecompute=false )
+  DistMatrix<Int,UPerm,STAR>& pPerm, Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
-    // Use a tolerance of -1 so that we always perform numSteps iterations
-    BusingerGolub( A, t, d, p, numSteps, BASE(F)(-1), alwaysRecompute );
+    // Use a tolerance of -1 so that we do not stop early
+    return BusingerGolub
+           ( A, t, d, pPerm, numSteps, BASE(F)(-1), alwaysRecompute );
 }
 
 // If we don't need 't' or 'd' from the above routine
-template<typename F>
-inline void
+template<typename F,Dist UPerm>
+inline Int
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p,
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm,
   Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
     DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
-    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, numSteps, alwaysRecompute );
 }
 
-template<typename F>
-inline void
+template<typename F,Dist UPerm>
+inline Int
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d,
-  DistMatrix<Int,VR,STAR>& p, bool alwaysRecompute=false )
+  DistMatrix<Int,UPerm,STAR>& pPerm, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     const Int numSteps = Min(A.Height(),A.Width());
-    BusingerGolub( A, t, d, p, numSteps, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, numSteps, alwaysRecompute );
 }
 
 // If we don't need 't' or 'd' from the above routine
-template<typename F>
-inline void
+template<typename F,Dist UPerm>
+inline Int
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, bool alwaysRecompute=false )
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
+  bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
     DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
-    BusingerGolub( A, t, d, p, alwaysRecompute );
+    return BusingerGolub( A, t, d, pPerm, alwaysRecompute );
 }
 
 } // namespace qr

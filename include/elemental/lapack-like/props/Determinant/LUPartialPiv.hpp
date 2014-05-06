@@ -11,20 +11,20 @@
 #define ELEM_DETERMINANT_LUPARTIALPIV_HPP
 
 #include ELEM_LU_INC
-#include ELEM_PIVOTPARITY_INC
+#include ELEM_PERMUTATIONPARITY_INC
 
 namespace elem {
 namespace det {
 
 template<typename F>
 inline SafeProduct<F> 
-AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& p )
+AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    if( A.Height() != p.Height() )
-        LogicError("Pivot vector is incorrect length");
+    if( A.Height() != pPerm.Height() )
+        LogicError("Permutation vector is incorrect length");
 
     typedef Base<F> R;
     const Int n = A.Height();
@@ -40,7 +40,7 @@ AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& p )
         det.rho *= delta/alpha;
         det.kappa += Log(alpha)/scale;
     }
-    const bool isOdd = PivotParity( p );
+    const bool isOdd = PermutationParity( pPerm );
     if( isOdd )
         det.rho = -det.rho;
 
@@ -57,9 +57,9 @@ LUPartialPiv( Matrix<F>& A )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        Matrix<Int> p;
-        elem::LU( A, p ); 
-        det = det::AfterLUPartialPiv( A, p );
+        Matrix<Int> pPerm;
+        elem::LU( A, pPerm ); 
+        det = det::AfterLUPartialPiv( A, pPerm );
     } 
     catch( SingularMatrixException& e )
     {
@@ -69,17 +69,18 @@ LUPartialPiv( Matrix<F>& A )
     return det;
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline SafeProduct<F> 
-AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
+AfterLUPartialPiv
+( const DistMatrix<F>& A, const DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    if( A.Grid() != p.Grid() )
+    if( A.Grid() != pPerm.Grid() )
         LogicError("A and p must have the same grid");
-    if( A.Height() != p.Height() )
-        LogicError("Pivot vector is incorrect length");
+    if( A.Height() != pPerm.Height() )
+        LogicError("Permutation vector is incorrect length");
 
     typedef Base<F> R;
     const Int n = A.Height();
@@ -105,7 +106,7 @@ AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
     det.rho = mpi::AllReduce( localRho, mpi::PROD, g.VCComm() );
     det.kappa = mpi::AllReduce( localKappa, mpi::SUM, g.VCComm() );
 
-    const bool isOdd = PivotParity( p );
+    const bool isOdd = PermutationParity( pPerm );
     if( isOdd )
         det.rho = -det.rho;
 
@@ -122,9 +123,9 @@ LUPartialPiv( DistMatrix<F>& A )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        DistMatrix<Int,VC,STAR> p( A.Grid() );
-        elem::LU( A, p );
-        det = det::AfterLUPartialPiv( A, p );
+        DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
+        elem::LU( A, pPerm );
+        det = det::AfterLUPartialPiv( A, pPerm );
     }
     catch( SingularMatrixException& e ) 
     {

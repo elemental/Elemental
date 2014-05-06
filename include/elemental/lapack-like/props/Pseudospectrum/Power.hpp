@@ -38,11 +38,11 @@ Deflate
         {
             if( swapTo != swapFrom )
             {
-                RowSwap( activeShifts, swapFrom, swapTo );
+                RowSwap( activeShifts,   swapFrom, swapTo );
                 RowSwap( activePreimage, swapFrom, swapTo );
-                RowSwap( activeEsts, swapFrom, swapTo );
+                RowSwap( activeEsts,     swapFrom, swapTo );
                 RowSwap( activeItCounts, swapFrom, swapTo );
-                ColumnSwap( activeX, swapFrom, swapTo );
+                ColSwap( activeX,        swapFrom, swapTo );
             }
             --swapTo;
         }
@@ -76,12 +76,12 @@ Deflate
         {
             if( swapTo != swapFrom )
             {
-                RowSwap( activeShifts, swapFrom, swapTo );
+                RowSwap( activeShifts,   swapFrom, swapTo );
                 RowSwap( activePreimage, swapFrom, swapTo );
-                RowSwap( activeEsts, swapFrom, swapTo );
+                RowSwap( activeEsts,     swapFrom, swapTo );
                 RowSwap( activeItCounts, swapFrom, swapTo );
-                ColumnSwap( activeXReal,    swapFrom, swapTo );
-                ColumnSwap( activeXImag,    swapFrom, swapTo );
+                ColSwap( activeXReal,    swapFrom, swapTo );
+                ColSwap( activeXImag,    swapFrom, swapTo );
             }
             --swapTo;
         }
@@ -122,11 +122,11 @@ Deflate
         {
             if( swapTo != swapFrom )
             {
-                RowSwap( shiftsCopy, swapFrom, swapTo );
-                RowSwap( preimageCopy, swapFrom, swapTo );
+                RowSwap( shiftsCopy,    swapFrom, swapTo );
+                RowSwap( preimageCopy,  swapFrom, swapTo );
                 RowSwap( estimatesCopy, swapFrom, swapTo );
-                RowSwap( itCountsCopy, swapFrom, swapTo );
-                ColumnSwap( XCopy, swapFrom, swapTo );
+                RowSwap( itCountsCopy,  swapFrom, swapTo );
+                ColSwap( XCopy,         swapFrom, swapTo );
             }
             --swapTo;
         }
@@ -176,12 +176,12 @@ Deflate
         {
             if( swapTo != swapFrom )
             {
-                RowSwap( shiftsCopy, swapFrom, swapTo );
-                RowSwap( preimageCopy, swapFrom, swapTo );
+                RowSwap( shiftsCopy,    swapFrom, swapTo );
+                RowSwap( preimageCopy,  swapFrom, swapTo );
                 RowSwap( estimatesCopy, swapFrom, swapTo );
-                RowSwap( itCountsCopy, swapFrom, swapTo );
-                ColumnSwap( XRealCopy,    swapFrom, swapTo );
-                ColumnSwap( XImagCopy,    swapFrom, swapTo );
+                RowSwap( itCountsCopy,  swapFrom, swapTo );
+                ColSwap( XRealCopy,     swapFrom, swapTo );
+                ColSwap( XImagCopy,     swapFrom, swapTo );
             }
             --swapTo;
         }

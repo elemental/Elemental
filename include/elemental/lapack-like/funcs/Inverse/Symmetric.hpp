@@ -10,14 +10,19 @@
 #ifndef ELEM_INVERSE_SYMMETRIC_HPP
 #define ELEM_INVERSE_SYMMETRIC_HPP
 
-#include ELEM_APPLYSYMMETRICPIVOTS_INC
+#include ELEM_MAKESYMMETRIC_INC
 #include ELEM_TRDTRMM_INC
 #include ELEM_LDL_INC
+
+#include ELEM_INVERTPERMUTATION_INC
+#include ELEM_PERMUTECOLS_INC
+#include ELEM_PERMUTEROWS_INC
 
 #include "./Triangular.hpp"
 
 namespace elem {
 
+// NOTE: This overwrites both triangles of the inverse.
 template<typename F>
 inline void
 SymmetricInverse
@@ -27,12 +32,18 @@ SymmetricInverse
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
-        Matrix<Int> p;
+        Matrix<Int> pPerm;
         Matrix<F> dSub;
-        ldl::Pivoted( A, dSub, p, conjugate, pivotType );
+        ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
-        ApplyInverseSymmetricPivots( LOWER, A, p, conjugate );
+
+        // NOTE: Fill in both triangles of the inverse
+        Matrix<Int> pInvPerm;
+        InvertPermutation( pPerm, pInvPerm );
+        MakeSymmetric( LOWER, A, conjugate );
+        PermuteRows( A, pInvPerm, pPerm );
+        PermuteCols( A, pInvPerm, pPerm ); 
     }
     else
         LogicError("This option is not yet supported");
@@ -47,12 +58,18 @@ SymmetricInverse
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
-        DistMatrix<Int,VC,STAR> p( A.Grid() );
+        DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
         DistMatrix<F,MD,STAR> dSub( A.Grid() );
-        ldl::Pivoted( A, dSub, p, conjugate, pivotType );
+        ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
-        ApplyInverseSymmetricPivots( LOWER, A, p, conjugate );
+
+        // NOTE: Fill in both triangles of the inverse
+        DistMatrix<Int,VC,STAR> pInvPerm(pPerm.Grid());
+        InvertPermutation( pPerm, pInvPerm );
+        MakeSymmetric( LOWER, A, conjugate );
+        PermuteRows( A, pInvPerm, pPerm );
+        PermuteCols( A, pInvPerm, pPerm );
     }
     else
         LogicError("This option is not yet supported");

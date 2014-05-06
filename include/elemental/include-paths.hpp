@@ -338,14 +338,26 @@
 
 // Permutations
 // ------------
-#define ELEM_APPLYCOLUMNPIVOTS_INC \
-  "elemental/lapack-like/perm/ApplyColumnPivots.hpp"
+#define ELEM_APPLYCOLPIVOTS_INC \
+  "elemental/lapack-like/perm/ApplyColPivots.hpp"
 #define ELEM_APPLYROWPIVOTS_INC \
   "elemental/lapack-like/perm/ApplyRowPivots.hpp"
 #define ELEM_APPLYSYMMETRICPIVOTS_INC \
   "elemental/lapack-like/perm/ApplySymmetricPivots.hpp"
-#define ELEM_COMPOSEPIVOTS_INC \
-  "elemental/lapack-like/perm/ComposePivots.hpp"
+#define ELEM_EXPLICITPERMUTATION_INC \
+  "elemental/lapack-like/perm/ExplicitPermutation.hpp"
+#define ELEM_INVERTPERMUTATION_INC \
+  "elemental/lapack-like/perm/InvertPermutation.hpp"
+#define ELEM_PERMUTATIONMETA_INC \
+  "elemental/lapack-like/perm/PermutationMeta.hpp"
+#define ELEM_PERMUTECOLS_INC \
+  "elemental/lapack-like/perm/PermuteCols.hpp"
+#define ELEM_PERMUTEROWS_INC \
+  "elemental/lapack-like/perm/PermuteRows.hpp"
+#define ELEM_PIVOTSTOPARTIALPERMUTATION_INC \
+  "elemental/lapack-like/perm/PivotsToPartialPermutation.hpp"
+#define ELEM_PIVOTSTOPERMUTATION_INC \
+  "elemental/lapack-like/perm/PivotsToPermutation.hpp"
 
 // Matrix properties
 // -----------------
@@ -445,6 +457,8 @@
   "elemental/lapack-like/util/HyperbolicReflector.hpp"
 #define ELEM_MEDIAN_INC \
   "elemental/lapack-like/util/Median.hpp"
+#define ELEM_PERMUTATIONPARITY_INC \
+  "elemental/lapack-like/util/PermutationParity.hpp"
 #define ELEM_PIVOTPARITY_INC \
   "elemental/lapack-like/util/PivotParity.hpp"
 #define ELEM_REFLECTOR_INC \

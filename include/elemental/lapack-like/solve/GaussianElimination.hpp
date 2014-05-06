@@ -24,8 +24,9 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
     )
+
     Matrix<Int> p1;
-    std::vector<Int> image, preimage;
+    Matrix<Int> p1Perm, p1InvPerm;
 
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -44,9 +45,9 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         auto B2   = ViewRange( B, k+nb, 0,    mA,   nB   );
         auto BB   = ViewRange( B, k,    0,    mA,   nB   );
 
-        lu::Panel( APan, p1, k );
-        ComposePivots( p1, k, image, preimage );
-        ApplyRowPivots( BB, image, preimage );
+        lu::Panel( APan, p1 );
+        PivotsToPartialPermutation( p1, p1Perm, p1InvPerm ); 
+        PermuteRows( BB, p1Perm, p1InvPerm );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
@@ -68,7 +69,13 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
     )
+    const Int mA = A.Height();
+    const Int nA = A.Width();
+    const Int minDimA = Min(mA,nA);
+    const Int nB = B.Width();
+    const Int bsize = Blocksize();
     const Grid& g = A.Grid();
+
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
@@ -77,18 +84,12 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     DistMatrix<F,STAR,MR  > B1_STAR_MR(g);
     DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
 
+    DistMatrix<Int,VC,STAR> p1Perm(g), p1InvPerm(g);
+
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
     DistMatrix<F,MC,STAR> A21_MC_STAR_B(g);
 
-    // Pivot composition
-    std::vector<Int> image, preimage;
-
-    const Int mA = A.Height();
-    const Int nA = A.Width();
-    const Int minDimA = Min(mA,nA);
-    const Int nB = B.Width();
-    const Int bsize = Blocksize();
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
@@ -104,11 +105,11 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A11_STAR_STAR = A11;
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
-        p1_STAR_STAR.Resize( nb, 1 );
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, k );
-        ComposePivots( p1_STAR_STAR, k, image, preimage );
-        ApplyRowPivots( APan, image, preimage );
-        ApplyRowPivots( BB,   image, preimage );
+
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR );
+        PivotsToPartialPermutation( p1_STAR_STAR, p1Perm, p1InvPerm );
+        PermuteRows( APan, p1Perm, p1InvPerm );
+        PermuteRows( BB,   p1Perm, p1InvPerm );
 
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;

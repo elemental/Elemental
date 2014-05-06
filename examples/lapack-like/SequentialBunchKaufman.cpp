@@ -64,19 +64,19 @@ main( int argc, char* argv[] )
         }
 
         // Make a copy of A and then overwrite it with its LDL factorization
-        Matrix<Int> p;
+        Matrix<Int> perm;
         Matrix<C> dSub, factA( A );
         MakeTriangular( LOWER, factA );
         if( conjugate )
-            LDLH( factA, dSub, p, pivotType );
+            LDLH( factA, dSub, perm, pivotType );
         else
-            LDLT( factA, dSub, p, pivotType );
+            LDLT( factA, dSub, perm, pivotType );
         if( print && mpi::WorldRank()==0 )
         {
             Print( A,     "A"     );
             Print( factA, "factA" );
             Print( dSub,  "dSub"  );
-            Print( p,     "p"     );
+            Print( perm,  "perm" );
         }
 
         // Generate a random set of vectors
@@ -90,7 +90,7 @@ main( int argc, char* argv[] )
             Print( X, "X" );
             Print( B, "B" );
         }
-        ldl::SolveAfter( factA, dSub, p, B, conjugate );
+        ldl::SolveAfter( factA, dSub, perm, B, conjugate );
         const Real AFrob = HermitianFrobeniusNorm( LOWER, A );
         const Real XFrob = FrobeniusNorm( X );
         Axpy( C(-1), B, X );

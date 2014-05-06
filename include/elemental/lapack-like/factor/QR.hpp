@@ -56,35 +56,35 @@ QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
 
 template<typename F> 
 inline void
-QR( Matrix<F>& A, Matrix<Int>& p )
+QR( Matrix<F>& A, Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    qr::BusingerGolub( A, p );
+    qr::BusingerGolub( A, pPerm );
+}
+
+template<typename F,Dist UPerm> 
+inline void
+QR( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
+{
+    DEBUG_ONLY(CallStackEntry cse("QR"))
+    qr::BusingerGolub( A, pPerm );
 }
 
 template<typename F> 
 inline void
-QR( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p )
+QR( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    qr::BusingerGolub( A, p );
+    qr::BusingerGolub( A, t, d, pPerm );
 }
 
-template<typename F> 
-inline void
-QR( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& p )
-{
-    DEBUG_ONLY(CallStackEntry cse("QR"))
-    qr::BusingerGolub( A, t, d, p );
-}
-
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, 
-    DistMatrix<BASE(F),MD,STAR>& d, DistMatrix<Int,VR,STAR>& p )
+    DistMatrix<BASE(F),MD,STAR>& d, DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    qr::BusingerGolub( A, t, d, p );
+    qr::BusingerGolub( A, t, d, pPerm );
 }
 
 } // namespace elem

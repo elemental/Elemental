@@ -17,7 +17,7 @@ namespace cholesky {
 
 template<typename F>
 inline void
-UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
+UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UUnblockedPivoted");
@@ -25,7 +25,12 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
             LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    Matrix<Int> pInvPerm;
+    pInvPerm.Resize( n, 1 );
+    for( Int i=0; i<n; ++i )
+        pInvPerm.Set( i, 0, i );
      
     for( Int k=0; k<n; ++k )
     {
@@ -36,7 +41,7 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( UPPER, A, k, from );
-        p.Set( k, 0, from );
+        RowSwap( pInvPerm, k, from );
 
         // a12 := a12 / sqrt(alpha11)
         const BASE(F) delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -52,21 +57,28 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
         Her( UPPER, -F(1), a12, A22 );
         Conjugate( a12 );
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
-UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UUnblockedPivoted");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( A.Grid() != p.Grid() )
-            LogicError("A and p must share the same grid");
+        if( A.Grid() != pPerm.Grid() )
+            LogicError("A and pPerm must share the same grid");
     )
     const Int n = A.Height();
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    DistMatrix<Int,UPerm,STAR> pInvPerm(A.Grid());
+    pInvPerm.AlignWith( pPerm );
+    pInvPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
+        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
 
     for( Int k=0; k<n; ++k )
     {
@@ -77,7 +89,7 @@ UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( UPPER, A, k, from );
-        p.Set( k, 0, from );
+        RowSwap( pInvPerm, k, from );
 
         // a12 := a12 / sqrt(alpha11)
         const BASE(F) delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -93,6 +105,7 @@ UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         Her( UPPER, -F(1), a12, A22 );
         Conjugate( a12 );
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
@@ -100,7 +113,7 @@ UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 template<typename F>
 inline void
 UPanelPivoted
-( Matrix<F>& A, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<Int>& pInvPerm, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
@@ -108,8 +121,8 @@ UPanelPivoted
     DEBUG_ONLY(
         if( A.Width() != n )
             LogicError("A must be square");
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("pivot vector is the wrong size");
+        if( pInvPerm.Height() != n || pInvPerm.Width() != 1 )
+            LogicError("inverse permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
@@ -129,7 +142,7 @@ UPanelPivoted
         HermitianSwap( UPPER, A, to, from );
         RowSwap( XTrail, 0, pivot.from[0] );
         RowSwap( YTrail, 0, pivot.from[0] );
-        p.Set( off+k, 0, from );
+        RowSwap( pInvPerm, off+k, from );
 
         // Update ABR(k,k:end) -= X(k,0:k-1) Y(k:n-off-1,0:k-1)^T
         auto x10 = LockedViewRange( X,   k, 0, k+1,   k     );
@@ -153,18 +166,20 @@ UPanelPivoted
     }
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 UPanelPivoted
-( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
-  DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
+( DistMatrix<F>& A, 
+  DistMatrix<Int,UPerm,STAR>& pInvPerm, 
+  DistMatrix<F,MC,STAR>& X, 
+  DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
             LogicError("A must be square");
-        if( p.Height() != n || p.Width() != 1 )
+        if( pInvPerm.Height() != n || pInvPerm.Width() != 1 )
             LogicError("pivot vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
@@ -187,7 +202,7 @@ UPanelPivoted
         HermitianSwap( UPPER, A, to, from );
         RowSwap( XTrail, 0, pivot.from[0] );
         RowSwap( YTrail, 0, pivot.from[0] );
-        p.Set( off+k, 0, from );
+        RowSwap( pInvPerm, off+k, from );
 
         // Update ABR(k,k:end) -= X(k,0:k-1) Y(k:n-off-1,0:k-1)^T
         auto a1R = ViewRange( ABR, k, k, k+1, n-off );
@@ -216,7 +231,7 @@ UPanelPivoted
 
 template<typename F>
 inline void
-UVar3( Matrix<F>& A, Matrix<Int>& p )
+UVar3( Matrix<F>& A, Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UVar3");
@@ -224,14 +239,19 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
             LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    Matrix<Int> pInvPerm;
+    pInvPerm.Resize( n, 1 );
+    for( Int i=0; i<n; ++i )
+        pInvPerm.Set( i, 0, i );
 
     Matrix<F> X, Y;
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        UPanelPivoted( A, p, X, Y, nb, k );
+        UPanelPivoted( A, pInvPerm, X, Y, nb, k );
 
         // Update the bottom-right panel
         auto XTrail = ViewRange( X, nb,   0,    n-k, nb );
@@ -239,11 +259,12 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
         auto ATrail = ViewRange( A, k+nb, k+nb, n,   n  );
         Trrk( UPPER, NORMAL, TRANSPOSE, F(-1), XTrail, YTrail, F(1), ATrail );
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
-UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+UVar3( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UVar3");
@@ -251,7 +272,13 @@ UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
             LogicError("A must be square");
     )
     const Int n = A.Height();
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    DistMatrix<Int,UPerm,STAR> pInvPerm(A.Grid());
+    pInvPerm.AlignWith( pPerm );
+    pInvPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
+        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
 
     DistMatrix<F,MC,STAR> X( A.Grid() );
     DistMatrix<F,MR,STAR> Y( A.Grid() );
@@ -259,7 +286,7 @@ UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        UPanelPivoted( A, p, X, Y, nb, k );
+        UPanelPivoted( A, pInvPerm, X, Y, nb, k );
 
         // Update the bottom-right panel
         auto XTrail = ViewRange( X, nb,   0,    n-k, nb );
@@ -267,6 +294,7 @@ UVar3( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         auto ATrail = ViewRange( A, k+nb, k+nb, n,   n  );
         LocalTrrk( UPPER, TRANSPOSE, F(-1), XTrail, YTrail, F(1), ATrail );
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
 } // namespace cholesky

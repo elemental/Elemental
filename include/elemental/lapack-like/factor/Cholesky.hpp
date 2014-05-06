@@ -66,7 +66,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F>
 inline void
-Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
+Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Cholesky");
@@ -74,9 +74,9 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p )
             LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::LVar3( A, pPerm );
     else
-        cholesky::UVar3( A, p );
+        cholesky::UVar3( A, pPerm );
 }
 
 template<typename F>
@@ -116,15 +116,16 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     }
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
-Cholesky( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+Cholesky
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("Cholesky"))
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::LVar3( A, pPerm );
     else
-        cholesky::UVar3( A, p );
+        cholesky::UVar3( A, pPerm );
 }
 
 template<typename F> 

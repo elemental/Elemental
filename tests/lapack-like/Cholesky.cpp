@@ -18,11 +18,11 @@
 using namespace std;
 using namespace elem;
 
-template<typename F>
+template<typename F,Dist UPerm>
 void TestCorrectness
 ( bool pivot, UpperOrLower uplo,
   const DistMatrix<F>& A,
-  const DistMatrix<Int,VC,STAR>& p,
+  const DistMatrix<Int,UPerm,STAR>& pPerm,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -43,7 +43,7 @@ void TestCorrectness
     const Real frobNormY = FrobeniusNorm( Y );
 
     if( pivot )
-        cholesky::SolveAfter( uplo, NORMAL, A, p, Y );
+        cholesky::SolveAfter( uplo, NORMAL, A, pPerm, Y );
     else
         cholesky::SolveAfter( uplo, NORMAL, A, Y );
     Axpy( F(-1), Y, X );
@@ -66,13 +66,13 @@ void TestCorrectness
     }
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 void TestCholesky
 ( bool testCorrectness, bool pivot, bool unblocked, bool print, bool printDiag,
   UpperOrLower uplo, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,VC,STAR> p(g);
+    DistMatrix<Int,UPerm,STAR> pPerm(g);
 
     HermitianUniformSpectrum( A, m, 1e-9, 10 );
     if( testCorrectness )
@@ -101,12 +101,12 @@ void TestCholesky
         if( unblocked )
         {
             if( uplo == LOWER )
-                cholesky::LUnblockedPivoted( A, p );
+                cholesky::LUnblockedPivoted( A, pPerm );
             else
-                cholesky::UUnblockedPivoted( A, p );
+                cholesky::UUnblockedPivoted( A, pPerm );
         }
         else
-            Cholesky( uplo, A, p );
+            Cholesky( uplo, A, pPerm );
     }
     else
         Cholesky( uplo, A );
@@ -124,12 +124,12 @@ void TestCholesky
     { 
         Print( A, "A after factorization" );
         if( pivot )
-            Print( p, "p" );
+            Print( pPerm, "pPerm" );
     }
     if( printDiag )
         Print( A.GetRealPartOfDiagonal(), "diag(A)" );
     if( testCorrectness )
-        TestCorrectness( pivot, uplo, A, p, AOrig );
+        TestCorrectness( pivot, uplo, A, pPerm, AOrig );
 }
 
 int 
@@ -171,12 +171,12 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestCholesky<double>
+        TestCholesky<double,VC>
         ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestCholesky<Complex<double>>
+        TestCholesky<Complex<double>,VC>
         ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }

@@ -168,9 +168,9 @@ inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 }
 
 template<typename F>
-inline void ColumnSwap( Matrix<F>& A, Int to, Int from )
+inline void ColSwap( Matrix<F>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnSwap"))
+    DEBUG_ONLY(CallStackEntry cse("ColSwap"))
     if( to == from )
         return;
     const Int m = A.Height();
@@ -180,9 +180,9 @@ inline void ColumnSwap( Matrix<F>& A, Int to, Int from )
 }
 
 template<typename F,Dist U,Dist V>
-inline void ColumnSwap( DistMatrix<F,U,V>& A, Int to, Int from )
+inline void ColSwap( DistMatrix<F,U,V>& A, Int to, Int from )
 {
-    DEBUG_ONLY(CallStackEntry cse("ColumnSwap"))
+    DEBUG_ONLY(CallStackEntry cse("ColSwap"))
     if( to == from )
         return;
     if( !A.Participating() )
@@ -235,7 +235,7 @@ inline void SymmetricSwap
         if( from+1 < n )
         {
             auto ABot = ViewRange( A, from+1, 0, n, n );
-            ColumnSwap( ABot, to, from );
+            ColSwap( ABot, to, from );
         }
         // Inner swap
         if( to+1 < from )
@@ -298,7 +298,7 @@ inline void SymmetricSwap
         if( to > 0 )
         {
             auto ATop = ViewRange( A, 0, 0, to, n );
-            ColumnSwap( ATop, to, from ); 
+            ColSwap( ATop, to, from ); 
         }
     }
 }
@@ -329,7 +329,7 @@ inline void SymmetricSwap
         if( from+1 < n )
         {
             auto ABot = ViewRange( A, from+1, 0, n, n );
-            ColumnSwap( ABot, to, from );
+            ColSwap( ABot, to, from );
         }
         // Inner swap
         if( to+1 < from )
@@ -392,7 +392,7 @@ inline void SymmetricSwap
         if( to > 0 )
         {
             auto ATop = ViewRange( A, 0, 0, to, n );
-            ColumnSwap( ATop, to, from ); 
+            ColSwap( ATop, to, from ); 
         }
     }
 }

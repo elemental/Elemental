@@ -10,9 +10,12 @@
 #ifndef ELEM_LU_HPP
 #define ELEM_LU_HPP
 
-#include ELEM_APPLYROWPIVOTS_INC
 #include ELEM_GEMM_INC
 #include ELEM_TRSM_INC
+
+#include ELEM_APPLYROWPIVOTS_INC
+#include ELEM_INVERTPERMUTATION_INC
+#include ELEM_PIVOTSTOPARTIALPERMUTATION_INC
 
 #include "./LU/Local.hpp"
 #include "./LU/Panel.hpp"
@@ -106,16 +109,25 @@ LU( DistMatrix<F>& A )
 
 template<typename F> 
 inline void
-LU( Matrix<F>& A, Matrix<Int>& p )
+LU( Matrix<F>& A, Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    std::vector<Int> image, preimage;
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.Resize( minDim, 1 );
     const Int bsize = Blocksize();
+
+    // Initialize inv(P) to the identity matrix
+    Matrix<Int> pInvPerm;
+    pInvPerm.Resize( m, 1 );
+    for( Int i=0; i<m; ++i )
+        pInvPerm.Set( i, 0, i );
+
+    // Temporaries for accumulating partial permutations for each block
+    Matrix<Int> p1;
+    Matrix<Int> p1Perm, p1InvPerm;
+
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
@@ -126,50 +138,58 @@ LU( Matrix<F>& A, Matrix<Int>& p )
         auto ABL  = ViewRange( A, k,    0,    m,    k    );
         auto ABRL = ViewRange( A, k,    k,    m,    k+nb );
         auto ABRR = ViewRange( A, k,    k+nb, m,    n    );
-        auto p1 = View( p, k, 0, nb, 1 );
 
-        lu::Panel( ABRL, p1, k );
+        lu::Panel( ABRL, p1 );
+        PivotsToPartialPermutation( p1, p1Perm, p1InvPerm );
+        PermuteRows( ABL, p1Perm, p1InvPerm );
+        PermuteRows( ABRR, p1Perm, p1InvPerm );
 
-        ComposePivots( p1, k, image, preimage );
-        ApplyRowPivots( ABL, image, preimage );
-        ApplyRowPivots( ABRR, image, preimage );
+        // Update the preimage of the permutation
+        auto pInvPermB = ViewRange( pInvPerm, k, 0, m, 1 ); 
+        PermuteRows( pInvPermB, p1Perm, p1InvPerm );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
     }
+    // Convert from the preimage to the image
+    InvertPermutation( pInvPerm, pPerm );
 }
 
 template<typename F> 
 inline void
-LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
+LU( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    lu::Full( A, p, q );
+    lu::Full( A, pPerm, qPerm );
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
-LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LU");
-        if( A.Grid() != p.Grid() )
-            LogicError("{A,p} must be distributed over the same grid");
+        if( A.Grid() != pPerm.Grid() )
+            LogicError("{A,pPerm} must be distributed over the same grid");
     )
-    std::vector<Int> image, preimage;
-
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int bsize = Blocksize();
     const Grid& g = A.Grid();
+
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
     DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
 
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int minDim = Min(m,n);
-    p.Resize( minDim, 1 );
-    const Int bsize = Blocksize();
+    // Initialize the inverse permutation to the identity
+    DistMatrix<Int,UPerm,STAR> pInvPerm( m, 1, g );
+    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
+        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
+    DistMatrix<Int,UPerm,STAR> p1Perm(g), p1InvPerm(g);
+
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
@@ -181,15 +201,18 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         auto ABL  = ViewRange( A, k,    0,    m,    k    );
         auto ABRL = ViewRange( A, k,    k,    m,    k+nb );
         auto ABRR = ViewRange( A, k,    k+nb, m,    n    );
-        auto p1 = View( p, k, 0, nb, 1 );
 
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
         A11_STAR_STAR = A11;
-        p1_STAR_STAR.Resize( p1.Height(), 1 );
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, k );
-        ComposePivots( p1_STAR_STAR, k, image, preimage );
-        ApplyRowPivots( AB, image, preimage );
+
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR );
+        PivotsToPartialPermutation( p1_STAR_STAR, p1Perm, p1InvPerm );
+        PermuteRows( AB, p1Perm, p1InvPerm );
+
+        // Update the preimage of the permutation
+        auto pInvPermB = ViewRange( pInvPerm, k, 0, m, 1 ); 
+        PermuteRows( pInvPermB, p1Perm, p1InvPerm );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
@@ -205,16 +228,20 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         A11 = A11_STAR_STAR;
         A12 = A12_STAR_MR;
         A21 = A21_MC_STAR;
-        p1 = p1_STAR_STAR;
     }
+    // Convert from the preimage to the image
+    InvertPermutation( pInvPerm, pPerm );
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
-LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, DistMatrix<Int,VC,STAR>& q )
+LU
+( DistMatrix<F>& A, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
+  DistMatrix<Int,UPerm,STAR>& qPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    lu::Full( A, p, q );
+    lu::Full( A, pPerm, qPerm );
 }
 
 } // namespace elem

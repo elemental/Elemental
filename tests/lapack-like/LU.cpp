@@ -18,12 +18,12 @@
 using namespace std;
 using namespace elem;
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 void TestCorrectness
 ( Int pivoting, bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<Int,VC,STAR>& p,
-  const DistMatrix<Int,VC,STAR>& q,
+  const DistMatrix<Int,UPerm,STAR>& pPerm,
+  const DistMatrix<Int,UPerm,STAR>& qPerm,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -39,9 +39,9 @@ void TestCorrectness
     if( pivoting == 0 )
         lu::SolveAfter( NORMAL, A, Y );
     else if( pivoting == 1 )
-        lu::SolveAfter( NORMAL, A, p, Y );
+        lu::SolveAfter( NORMAL, A, pPerm, Y );
     else
-        lu::SolveAfter( NORMAL, A, p, q, Y );
+        lu::SolveAfter( NORMAL, A, pPerm, qPerm, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real oneNormOfX = OneNorm( X );
@@ -69,13 +69,13 @@ void TestCorrectness
     }
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 void TestLU
 ( Int pivoting, bool testCorrectness, bool print, 
   Int m, const Grid& g )
 {
     DistMatrix<F> A(g), ARef(g);
-    DistMatrix<Int,VC,STAR> p(g), q(g);
+    DistMatrix<Int,UPerm,STAR> pPerm(g), qPerm(g);
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -102,9 +102,9 @@ void TestLU
     if( pivoting == 0 )
         LU( A );
     else if( pivoting == 1 )
-        LU( A, p );
+        LU( A, pPerm );
     else if( pivoting == 2 )
-        LU( A, p, q );
+        LU( A, pPerm, qPerm );
 
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -120,12 +120,12 @@ void TestLU
     {
         Print( A, "A after factorization" );
         if( pivoting >= 1 )
-            Print( p, "p after factorization");
+            Print( pPerm, "pPerm after factorization");
         if( pivoting == 2 )
-            Print( q, "q after factorization");
+            Print( qPerm, "qPerm after factorization");
     }
     if( testCorrectness )
-        TestCorrectness( pivoting, print, A, p, q, ARef );
+        TestCorrectness( pivoting, print, A, pPerm, qPerm, ARef );
 }
 
 int 
@@ -170,11 +170,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestLU<double>( pivot, testCorrectness, print, m, g );
+        TestLU<double,MC>( pivot, testCorrectness, print, m, g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestLU<Complex<double>>( pivot, testCorrectness, print, m, g );
+        TestLU<Complex<double>,MC>( pivot, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -20,14 +20,21 @@ namespace lu {
 
 template<typename F>
 inline void
-Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q, Int pivotOffset=0 )
+Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::Panel"))
+    DEBUG_ONLY(CallStackEntry cse("lu::Full"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.Resize( minDim, 1 );
-    q.Resize( minDim, 1 );
+
+    // Initialize the inverse permutations for P and Q^T
+    Matrix<Int> pInvPerm, qInvPerm;
+    pInvPerm.Resize( m, 1 );
+    for( Int i=0; i<m; ++i )
+        pInvPerm.Set( i, 0, i );
+    qInvPerm.Resize( n, 1 );
+    for( Int j=0; j<n; ++j )
+        qInvPerm.Set( j, 0, j );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -36,11 +43,12 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q, Int pivotOffset=0 )
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
-        p.Set( k, 0, iPiv+pivotOffset );
-        q.Set( k, 0, jPiv+pivotOffset );
 
-        RowSwap( A, iPiv, k );
-        ColumnSwap( A, jPiv, k );
+        RowSwap( A,        k, iPiv );
+        RowSwap( pInvPerm, k, iPiv );
+
+        ColSwap( A,        k, jPiv );
+        RowSwap( qInvPerm, k, jPiv );
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
@@ -53,26 +61,37 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q, Int pivotOffset=0 )
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
     }
+    InvertPermutation( pInvPerm, pPerm );
+    InvertPermutation( qInvPerm, qPerm );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 Full
 ( DistMatrix<F>& A, 
-  DistMatrix<Int,VC,STAR>& p, 
-  DistMatrix<Int,VC,STAR>& q,
-  Int pivotOffset=0 )
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
+  DistMatrix<Int,UPerm,STAR>& qPerm )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::Panel");
-        if( A.Grid() != p.Grid() || p.Grid() != q.Grid() )
+        CallStackEntry cse("lu::Full");
+        if( A.Grid() != pPerm.Grid() || pPerm.Grid() != qPerm.Grid() )
             LogicError("Matrices must be distributed over the same grid");
     )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    p.Resize( minDim, 1 );
-    q.Resize( minDim, 1 );
+    const Grid& g = A.Grid();
+
+    // Initialize the inverse permutations for P and Q^T
+    DistMatrix<Int,UPerm,STAR> pInvPerm(g), qInvPerm(g);
+    pInvPerm.AlignWith( qPerm );
+    pInvPerm.Resize( m, 1 );
+    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
+        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
+    qInvPerm.AlignWith( qPerm );
+    qInvPerm.Resize( n, 1 );
+    for( Int jLoc=0; jLoc<qInvPerm.LocalHeight(); ++jLoc )
+        qInvPerm.SetLocal( jLoc, 0, qInvPerm.GlobalRow(jLoc) );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -81,11 +100,12 @@ Full
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
-        p.Set( k, 0, iPiv+pivotOffset );
-        q.Set( k, 0, jPiv+pivotOffset );
 
-        RowSwap( A, iPiv, k );
-        ColumnSwap( A, jPiv, k );
+        RowSwap( A,        iPiv, k );
+        RowSwap( pInvPerm, iPiv, k );
+
+        ColSwap( A,        jPiv, k );
+        RowSwap( qInvPerm, jPiv, k );
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
@@ -98,6 +118,8 @@ Full
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
     }
+    InvertPermutation( pInvPerm, pPerm );
+    InvertPermutation( qInvPerm, qPerm );
 }
 
 } // namespace lu

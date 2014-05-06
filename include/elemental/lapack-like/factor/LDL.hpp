@@ -44,11 +44,11 @@ LDLH( Matrix<F>& A )
 template<typename F>
 inline void
 LDLH
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
     DEBUG_ONLY(CallStackEntry cse("LDLH"))
-    ldl::Pivoted( A, dSub, p, true, pivotType );
+    ldl::Pivoted( A, dSub, pPerm, true, pivotType );
 }
 
 template<typename F>
@@ -59,14 +59,16 @@ LDLH( DistMatrix<F>& A )
     ldl::Var3( A, true );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 LDLH
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p,
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& dSub, 
+  DistMatrix<Int,UPerm,STAR>& pPerm,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
     DEBUG_ONLY(CallStackEntry cse("LDLH"))
-    ldl::Pivoted( A, dSub, p, true, pivotType );
+    ldl::Pivoted( A, dSub, pPerm, true, pivotType );
 }
 
 template<typename F>
@@ -80,11 +82,11 @@ LDLT( Matrix<F>& A )
 template<typename F>
 inline void
 LDLT
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
     DEBUG_ONLY(CallStackEntry cse("LDLT"))
-    ldl::Pivoted( A, dSub, p, false, pivotType );
+    ldl::Pivoted( A, dSub, pPerm, false, pivotType );
 }
 
 template<typename F>
@@ -95,14 +97,16 @@ LDLT( DistMatrix<F>& A )
     ldl::Var3( A, false );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 LDLT
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p,
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& dSub, 
+  DistMatrix<Int,UPerm,STAR>& pPerm,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A )
 {
     DEBUG_ONLY(CallStackEntry cse("LDLT"))
-    ldl::Pivoted( A, dSub, p, false, pivotType );
+    ldl::Pivoted( A, dSub, pPerm, false, pivotType );
 }
 
 } // namespace elem

@@ -11,8 +11,10 @@
 #define ELEM_CHOLESKY_SOLVEAFTER_HPP
 
 #include ELEM_CONJUGATE_INC
-#include ELEM_APPLYROWPIVOTS_INC
 #include ELEM_TRSM_INC
+
+#include ELEM_INVERTPERMUTATION_INC
+#include ELEM_PERMUTEROWS_INC
 
 namespace elem {
 namespace cholesky {
@@ -49,18 +51,21 @@ template<typename F>
 inline void
 SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
+  const Matrix<F>& A, const Matrix<Int>& pPerm, Matrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( p.Height() != A.Height() )
-            LogicError("Pivot vector is wrong size");
+        if( pPerm.Height() != A.Height() )
+            LogicError("Permutation vector is wrong size");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
     )
-    ApplyRowPivots( B, p );
+    Matrix<Int> pInvPerm;
+    InvertPermutation( pPerm, pInvPerm );
+
+    PermuteRows( B, pPerm, pInvPerm );
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -75,7 +80,7 @@ SolveAfter
     }
     if( orientation == TRANSPOSE )
         Conjugate( B );
-    ApplyInverseRowPivots( B, p );
+    PermuteRows( B, pInvPerm, pPerm );
 }
 
 template<typename F> 
@@ -109,11 +114,13 @@ SolveAfter
         Conjugate( B );
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B )
+  const DistMatrix<F>& A, 
+  const DistMatrix<Int,UPerm,STAR>& pPerm, 
+        DistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::SolveAfter");
@@ -121,12 +128,15 @@ SolveAfter
             LogicError("{A,B} must be distributed over the same grid");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( A.Height() != p.Height() )
-            LogicError("Pivot vector is wrong height");
+        if( A.Height() != pPerm.Height() )
+            LogicError("Permutation vector is wrong height");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
     )
-    ApplyRowPivots( B, p );
+    DistMatrix<Int,UPerm,STAR> pInvPerm(pPerm.Grid());
+    InvertPermutation( pPerm, pInvPerm );
+
+    PermuteRows( B, pPerm, pInvPerm );
     if( orientation == TRANSPOSE )
         Conjugate( B );
     if( uplo == LOWER )
@@ -141,7 +151,7 @@ SolveAfter
     }
     if( orientation == TRANSPOSE )
         Conjugate( B );
-    ApplyInverseRowPivots( B, p );
+    PermuteRows( B, pInvPerm, pPerm );
 }
 
 } // namespace cholesky

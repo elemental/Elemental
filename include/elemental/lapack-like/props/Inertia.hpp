@@ -21,9 +21,9 @@ Inertia( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
-    Matrix<Int> p;
+    Matrix<Int> pPerm;
     Matrix<F> dSub;
-    ldl::Pivoted( A, dSub, p, true, pivotType );
+    ldl::Pivoted( A, dSub, pPerm, true, pivotType );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
@@ -35,9 +35,9 @@ Inertia
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
-    DistMatrix<Int,VC,STAR> p( A.Grid() );
+    DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
-    ldl::Pivoted( A, dSub, p, true, pivotType );
+    ldl::Pivoted( A, dSub, pPerm, true, pivotType );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 

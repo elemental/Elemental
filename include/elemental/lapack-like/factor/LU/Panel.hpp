@@ -20,7 +20,7 @@ namespace lu {
 
 template<typename F>
 inline void
-Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
+Panel( Matrix<F>& A, Matrix<Int>& pivots )
 {
     DEBUG_ONLY(CallStackEntry cse("lu::Panel"))
     const Int m = A.Height();
@@ -29,7 +29,7 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         if( m < n )
             LogicError("Must be a column panel");
     )
-    p.Resize( n, 1 );
+    pivots.Resize( n, 1 );
 
     for( Int k=0; k<n; ++k )
     {
@@ -41,7 +41,7 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         // Find the index and value of the pivot candidate
         auto pivot = VectorMaxAbs( ViewRange(A,k,k,m,k+1) );
         const Int iPiv = pivot.index + k;
-        p.Set( k, 0, iPiv+pivotOffset );
+        pivots.Set( k, 0, iPiv );
 
         // Swap the pivot row and current row
         if( iPiv != k )
@@ -66,17 +66,14 @@ inline void
 Panel
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
-  DistMatrix<Int,STAR,STAR>& p, 
-  Int pivotOffset=0 )
+  DistMatrix<Int,STAR,STAR>& pivots )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::Panel");
-        if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
+        if( A.Grid() != pivots.Grid() || pivots.Grid() != B.Grid() )
             LogicError("Matrices must be distributed over the same grid");
         if( A.Width() != B.Width() )
             LogicError("A and B must be the same width");
-        if( A.Height() != p.Height() || p.Width() != 1 )
-            LogicError("p must be a vector that conforms with A");
     )
     typedef Base<F> Real;
 
@@ -85,6 +82,8 @@ Panel
     const Int mB = B.Height();
     const Int nB = B.Width();
     std::vector<F> pivotBuffer( n );
+
+    pivots.Resize( n, 1 );
 
     for( Int k=0; k<n; ++k )
     {
@@ -122,7 +121,7 @@ Panel
         const ValueInt<Real> pivot = 
             mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), B.ColComm() );
         const Int iPiv = pivot.index;
-        p.SetLocal( k, 0, iPiv+pivotOffset );
+        pivots.SetLocal( k, 0, iPiv );
 
         // Perform the pivot within this panel
         if( iPiv < n )

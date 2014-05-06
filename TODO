@@ -32,6 +32,8 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
+[o] qr::SolveAfter
+[o] Add Bunch-Kaufman C now that explicit permutations are used
 [o] Simplify MPI wrappers by allowing for displacements to be automatically
     computed from counts if not specified
 [o] Extend Grid class to support mappings from, e.g., (MDRank,root) -> VCRank
@@ -41,7 +43,6 @@ Incremental functionality improvements
 [o] Blocked algorithms for low-rank Cholesky updates
 [o] Relative interval subset computation for HermitianEig (i.e., in [-1,1])
 [o] Sequential blocked reduction to tridiagonal form
-[o] Use pivot image rather than LAPACK-style so that Bunch-Kaufman C can be used
 [o] Quadratic-time Haar generation via random Householder reflectors
 [-] 'Control' equivalents to 'Attach' for DistMatrix, and ability to forfeit
     buffers in (Dist)Matrix

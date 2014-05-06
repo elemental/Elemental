@@ -7,16 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_LAPACK_DECL_HPP
-#define ELEM_LAPACK_DECL_HPP
+#ifndef ELEM_PERM_HPP
+#define ELEM_PERM_HPP
 
-#include "./util/decl.hpp"
-#include "./factor/decl.hpp"
-#include "./condense/decl.hpp"
-#include "./decomp/decl.hpp"
-#include "./solve/decl.hpp"
-#include "./funcs/decl.hpp"
 #include "./perm/decl.hpp"
-#include "./props/decl.hpp"
+#include "./perm/impl.hpp"
 
-#endif // ifndef ELEM_LAPACK_DECL_HPP
+#endif // ifndef ELEM_PERM_HPP

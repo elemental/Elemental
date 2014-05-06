@@ -8,11 +8,11 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include ELEM_APPLYCOLUMNPIVOTS_INC
-#include ELEM_APPLYROWPIVOTS_INC
 #include ELEM_GEMM_INC
 #include ELEM_SKELETON_INC
 #include ELEM_FROBENIUSNORM_INC
+#include ELEM_PERMUTECOLS_INC
+#include ELEM_PERMUTEROWS_INC
 #include ELEM_UNIFORM_INC
 #include ELEM_ZEROS_INC
 using namespace std;
@@ -47,24 +47,24 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         const Grid& g = A.Grid();
-        DistMatrix<Int,VR,STAR> pR(g), pC(g);
+        DistMatrix<Int,VR,STAR> permR(g), permC(g);
         DistMatrix<C> Z(g);
-        Skeleton( A, pR, pC, Z, maxSteps, tol );
-        const Int numSteps = pR.Height();
+        Skeleton( A, permR, permC, Z, maxSteps, tol );
+        const Int rank = Z.Height();
         if( print )
         {
-            Print( pR, "pR" );
-            Print( pC, "pC" );
+            Print( permR, "permR" );
+            Print( permC, "permC" );
             Print( Z, "Z" );
         }
 
         // Form the matrices of A's (hopefully) dominant rows and columns
         DistMatrix<C> AR( A );
-        ApplyRowPivots( AR, pR );
-        AR.Resize( numSteps, A.Width() );
+        InversePermuteRows( AR, permR );
+        AR.Resize( rank, A.Width() );
         DistMatrix<C> AC( A );
-        ApplyColumnPivots( AC, pC );
-        AC.Resize( A.Height(), numSteps );
+        InversePermuteCols( AC, permC );
+        AC.Resize( A.Height(), rank );
         if( print )
         {
             Print( AC, "AC" );

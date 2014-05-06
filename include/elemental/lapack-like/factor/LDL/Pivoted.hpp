@@ -19,6 +19,9 @@
 #include ELEM_TRR_INC
 #include ELEM_TRR2_INC
 
+#include ELEM_INVERTPERMUTATION_INC
+#include ELEM_PERMUTEROWS_INC
+
 #include ELEM_ZEROS_INC
 
 // TODO: Reference LAPACK's dsytf2 and zhetf2
@@ -706,7 +709,7 @@ ChoosePanelPivot
 template<typename F>
 inline void
 UnblockedPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
 {
     DEBUG_ONLY(
@@ -718,11 +721,16 @@ UnblockedPivoted
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        p.Resize( 0, 1 );
+        pPerm.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    Matrix<Int> pInvPerm;
+    pInvPerm.Resize( n, 1 );
+    for( Int j=0; j<n; ++j )
+        pInvPerm.Set( j, 0, j );
      
     Matrix<F> Y21;
 
@@ -744,6 +752,7 @@ UnblockedPivoted
         {
             const Int from = k + pivot.from[0];
             SymmetricSwap( LOWER, A, k, from, conjugate );
+            RowSwap( pInvPerm, k, from );
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
@@ -752,7 +761,6 @@ UnblockedPivoted
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
-            p.Set( k, 0, from );
             k += 1;
         }
         else
@@ -761,6 +769,8 @@ UnblockedPivoted
             const Int from1 = k + pivot.from[1];
             SymmetricSwap( LOWER, A, k,   from0, conjugate );
             SymmetricSwap( LOWER, A, k+1, from1, conjugate );
+            RowSwap( pInvPerm, k+0, from0 );
+            RowSwap( pInvPerm, k+1, from1 );
 
             // Rank-two update: A22 -= A21 inv(D11) A21'
             auto D11 = ViewRange( ABR, 0, 0, 2,   2   );
@@ -774,17 +784,18 @@ UnblockedPivoted
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( k, 0, D11.Get(1,0) );
             D11.Set( 1, 0, 0 );
-            p.Set( k,   0, from0 );
-            p.Set( k+1, 0, from1 );
             k += 2;
         }
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 UnblockedPivoted
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& dSub, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
@@ -792,14 +803,20 @@ UnblockedPivoted
         CallStackEntry cse("ldl::UnblockedPivoted");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( A.Grid() != dSub.Grid() || dSub.Grid() != p.Grid() )
-            LogicError("A, dSub, and p must share the same grid");
+        if( A.Grid() != dSub.Grid() || dSub.Grid() != pPerm.Grid() )
+            LogicError("A, dSub, and pPerm must share the same grid");
     )
     const Int n = A.Height();
     dSub.SetRoot( A.DiagonalRoot(-1) );
     dSub.AlignCols( A.DiagonalAlign(-1) );
     Zeros( dSub, n-1, 1 );
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    DistMatrix<Int,UPerm,STAR> pInvPerm(pPerm.Grid());
+    pInvPerm.AlignWith( pPerm );
+    pInvPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
+        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
 
     DistMatrix<F> Y21( A.Grid() );
     DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
@@ -822,6 +839,7 @@ UnblockedPivoted
         {
             const Int from = k + pivot.from[0];
             SymmetricSwap( LOWER, A, k, from, conjugate );
+            RowSwap( pInvPerm, k, from ); 
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
@@ -830,7 +848,6 @@ UnblockedPivoted
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
-            p.Set( k, 0, from );
             k += 1;
         }
         else
@@ -839,6 +856,8 @@ UnblockedPivoted
             const Int from1 = k + pivot.from[1];
             SymmetricSwap( LOWER, A, k,   from0, conjugate );
             SymmetricSwap( LOWER, A, k+1, from1, conjugate );
+            RowSwap( pInvPerm, k+0, from0 );
+            RowSwap( pInvPerm, k+1, from1 );
 
             // Rank-two update: A22 -= A21 inv(D11) A21'
             auto D11 = ViewRange( ABR, 0, 0, 2,   2   );
@@ -853,11 +872,10 @@ UnblockedPivoted
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( k, 0, D11_STAR_STAR.GetLocal(1,0) );
             D11.Set( 1, 0, 0 );
-            p.Set( k,   0, from0 );
-            p.Set( k+1, 0, from1 );
             k += 2;
         }
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
@@ -865,7 +883,7 @@ UnblockedPivoted
 template<typename F>
 inline void
 PanelPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pInvPerm, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
@@ -879,8 +897,8 @@ PanelPivoted
             LogicError("A must be square");
         if( dSub.Height() != n-1 || dSub.Width() != 1 )
             LogicError("dSub is the wrong size" );
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("pivot vector is the wrong size");
+        if( pInvPerm.Height() != n || pInvPerm.Width() != 1 )
+            LogicError("inverse permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
@@ -899,6 +917,7 @@ PanelPivoted
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
             const auto diagMax = DiagonalMaxAbs( ABRBR );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
+            RowSwap( pInvPerm, k+off, k+off+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -914,6 +933,7 @@ PanelPivoted
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
+        RowSwap( pInvPerm, to, from );
         RowSwap( X0, to-off, from-off );
         RowSwap( Y0, to-off, from-off );
 
@@ -940,7 +960,6 @@ PanelPivoted
             Scale( delta11Inv, a21 );
             x21 = a21;
 
-            p.Set( off+k, 0, from );
             k += 1;
         }
         else
@@ -975,17 +994,17 @@ PanelPivoted
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( off+k, 0, D11.Get(1,0) );
             D11.Set( 1, 0, 0 );
-            p.Set( off+k,   0, off+k );
-            p.Set( off+k+1, 0, from  );
             k += 2;
         }
     }
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 PanelPivoted
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& dSub, 
+  DistMatrix<Int,UPerm,STAR>& pInvPerm, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=0 )
@@ -999,8 +1018,8 @@ PanelPivoted
             LogicError("A must be square");
         if( dSub.Height() != n-1 || dSub.Width() != 1 )
             LogicError("dSub is the wrong size" );
-        if( p.Height() != n || p.Width() != 1 )
-            LogicError("pivot vector is the wrong size");
+        if( pInvPerm.Height() != n || pInvPerm.Width() != 1 )
+            LogicError("inverse permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
@@ -1025,6 +1044,7 @@ PanelPivoted
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
+            RowSwap( pInvPerm, off+k, off+k+diagMax.index );
         }
         const auto pivot = ChoosePanelPivot( ABR, X0, Y0, pivotType, gamma );
         const Int from = off + pivot.from[pivot.nb-1];
@@ -1038,6 +1058,7 @@ PanelPivoted
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
+        RowSwap( pInvPerm, to, from );
         RowSwap( X0, to-off, from-off );
         RowSwap( Y0, to-off, from-off );
 
@@ -1067,7 +1088,6 @@ PanelPivoted
             Scale( delta11Inv, a21 );
             x21 = a21;
 
-            p.Set( off+k, 0, from );
             k += 1;
         }
         else
@@ -1104,8 +1124,6 @@ PanelPivoted
             // Trsm can still be used. Thus, return the subdiagonal.
             dSub.Set( off+k, 0, D11_STAR_STAR.GetLocal(1,0) );
             D11.Set( 1, 0, 0 );
-            p.Set( off+k,   0, off+k );
-            p.Set( off+k+1, 0, from  );
             k += 2;
         }
     }
@@ -1114,7 +1132,7 @@ PanelPivoted
 template<typename F>
 inline void
 BlockedPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
 {
     DEBUG_ONLY(
@@ -1126,11 +1144,16 @@ BlockedPivoted
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        p.Resize( 0, 1 );
+        pPerm.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    Matrix<Int> pInvPerm;
+    pInvPerm.Resize( n, 1 );
+    for( Int i=0; i<n; ++i )
+        pInvPerm.Set( i, 0, i );
 
     Matrix<F> X, Y;
     const Int bsize = Blocksize();
@@ -1139,7 +1162,7 @@ BlockedPivoted
     {
         const Int nbProp = Min(bsize,n-k);
         PanelPivoted
-        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
+        ( A, dSub, pInvPerm, X, Y, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = X.Width();
 
         // Update the bottom-right panel
@@ -1150,12 +1173,15 @@ BlockedPivoted
 
         k += nb;
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 BlockedPivoted
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& dSub, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
@@ -1169,13 +1195,19 @@ BlockedPivoted
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        p.Resize( 0, 1 );
+        pPerm.Resize( 0, 1 );
         return;
     }
     dSub.SetRoot( A.DiagonalRoot(-1) );
     dSub.AlignCols( A.DiagonalAlign(-1) );
     Zeros( dSub, n-1, 1 );
-    p.Resize( n, 1 );
+
+    // Initialize the inverse permutation to the identity
+    DistMatrix<Int,UPerm,STAR> pInvPerm(pPerm.Grid());
+    pInvPerm.AlignWith( pPerm );
+    pInvPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
+        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
 
     DistMatrix<F,MC,STAR> X(g);
     DistMatrix<F,MR,STAR> Y(g);
@@ -1185,7 +1217,7 @@ BlockedPivoted
     {
         const Int nbProp = Min(bsize,n-k);
         PanelPivoted
-        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
+        ( A, dSub, pInvPerm, X, Y, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = X.Width();
 
         // Update the bottom-right panel
@@ -1196,12 +1228,13 @@ BlockedPivoted
 
         k += nb;
     }
+    InvertPermutation( pInvPerm, pPerm );
 }
 
 template<typename F>
 inline void
 Pivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
@@ -1210,17 +1243,19 @@ Pivoted
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        BlockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        BlockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
         break;
     default:
-        UnblockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        UnblockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
     }
 }
 
-template<typename F>
+template<typename F,Dist UPerm>
 inline void
 Pivoted
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& dSub, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   BASE(F) gamma=0 )
 {
@@ -1230,10 +1265,10 @@ Pivoted
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        BlockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        BlockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
         break;
     default:
-        UnblockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
+        UnblockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
     }
 }
 

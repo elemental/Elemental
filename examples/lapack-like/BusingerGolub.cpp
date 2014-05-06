@@ -10,10 +10,11 @@
 #include "elemental-lite.hpp"
 #include ELEM_MAKETRIANGULAR_INC
 #include ELEM_UPDATEDIAGONAL_INC
-#include ELEM_APPLYCOLUMNPIVOTS_INC
 
 #include ELEM_QR_INC
 #include ELEM_FROBENIUSNORM_INC
+
+#include ELEM_PERMUTECOLS_INC
 
 #include ELEM_IDENTITY_INC
 #include ELEM_UNIFORM_INC
@@ -53,21 +54,21 @@ main( int argc, char* argv[] )
         auto QRPiv( A );
         DistMatrix<C,MD,STAR> tPiv(g);
         DistMatrix<Real,MD,STAR> dPiv(g);
-        DistMatrix<Int,VR,STAR> p(g);
-        qr::BusingerGolub( QRPiv, tPiv, dPiv, p, alwaysRecompute );
+        DistMatrix<Int,VR,STAR> perm(g);
+        qr::BusingerGolub( QRPiv, tPiv, dPiv, perm, alwaysRecompute );
         if( display )
         {
             Display( QRPiv, "QRPiv" );
             Display( tPiv, "tPiv" );
             Display( dPiv, "dPiv" );
-            Display( p, "p" );
+            Display( perm, "perm" );
         }
         if( print )
         {
             Print( QRPiv, "QRPiv" );
             Print( tPiv, "tPiv" );
             Print( dPiv, "dPiv" );
-            Print( p, "p" );
+            Print( perm, "perm" );
         }
 
         // Compute the standard QR decomposition of A
@@ -96,7 +97,7 @@ main( int argc, char* argv[] )
         auto E( QRPiv );
         MakeTriangular( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
-        ApplyInverseColumnPivots( E, p ); 
+        InversePermuteCols( E, perm );
         Axpy( C(-1), A, E );
         const Real frobQRPiv = FrobeniusNorm( E );
         if( display )

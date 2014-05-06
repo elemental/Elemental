@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include ELEM_APPLYCOLUMNPIVOTS_INC
 #include ELEM_GEMM_INC
 #include ELEM_ID_INC
 #include ELEM_FROBENIUSNORM_INC
+#include ELEM_PERMUTECOLS_INC
 #include ELEM_UNIFORM_INC
 #include ELEM_ZEROS_INC
 using namespace std;
@@ -45,20 +45,20 @@ main( int argc, char* argv[] )
         if( print )
             Print( A, "A" );
 
-        DistMatrix<Int,VR,STAR> p(g);
+        DistMatrix<Int,VR,STAR> perm(g);
         DistMatrix<C,STAR,VR> Z(g);
-        ID( A, p, Z, maxSteps, tol );
-        const Int numSteps = p.Height();
+        ID( A, perm, Z, maxSteps, tol );
+        const Int rank = Z.Height();
         if( print )
         {
-            Print( p, "p" );
+            Print( perm, "perm" );
             Print( Z, "Z" );
         }
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
-        ApplyColumnPivots( A, p );
+        InversePermuteCols( A, perm );
         auto hatA( A );
-        hatA.Resize( m, numSteps );
+        hatA.Resize( m, rank );
         if( print )
         {
             Print( A, "A P" );
@@ -67,7 +67,7 @@ main( int argc, char* argv[] )
 
         // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
         DistMatrix<C> AL(g), AR(g);
-        PartitionRight( A, AL, AR, numSteps );
+        PartitionRight( A, AL, AR, rank );
         MakeZeros( AL );
         {
             DistMatrix<C,MC,STAR> hatA_MC_STAR(g);

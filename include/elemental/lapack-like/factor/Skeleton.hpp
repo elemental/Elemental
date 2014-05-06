@@ -12,6 +12,7 @@
 
 #include ELEM_ADJOINT_INC
 #include ELEM_QR_BUSINGERGOLUB_INC
+#include ELEM_PERMUTECOLS_INC
 #include ELEM_PSEUDOINVERSE_INC
 
 // NOTE: There are *many* algorithms for (pseudo-)skeleton/CUR decompositions,
@@ -28,19 +29,18 @@ template<typename F>
 inline void
 Skeleton
 ( const Matrix<F>& A, 
-  Matrix<Int>& pR, Matrix<Int>& pC, 
+  Matrix<Int>& permR, Matrix<Int>& permC, 
   Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Skeleton"))
     // Find the row permutation
     Matrix<F> B;
     Adjoint( A, B );
-    qr::BusingerGolub( B, pR, maxSteps, tol );
-    const Int numSteps = pR.Height();
+    const Int numSteps = qr::BusingerGolub( B, permR, maxSteps, tol );
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
-    ApplyColumnPivots( B, pR );
+    InversePermuteCols( B, permR );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -50,11 +50,11 @@ Skeleton
 
     // Find the column permutation (force the same number of steps)
     B = A;
-    qr::BusingerGolub( B, pC, numSteps );
+    qr::BusingerGolub( B, permC, numSteps );
 
     // Form pinv(AC)
     B = A;
-    ApplyColumnPivots( B, pC );
+    InversePermuteCols( B, permC );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -62,11 +62,11 @@ Skeleton
     Gemm( NORMAL, NORMAL, F(1), B, K, Z );
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 Skeleton
 ( const DistMatrix<F>& A, 
-  DistMatrix<Int,VR,STAR>& pR, DistMatrix<Int,VR,STAR>& pC, 
+  DistMatrix<Int,UPerm,STAR>& permR, DistMatrix<Int,UPerm,STAR>& permC, 
   DistMatrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Skeleton"))
@@ -75,12 +75,11 @@ Skeleton
     // Find the row permutation
     DistMatrix<F> B(g);
     Adjoint( A, B );
-    qr::BusingerGolub( B, pR, maxSteps, tol );
-    const Int numSteps = pR.Height();
+    const Int numSteps = qr::BusingerGolub( B, permR, maxSteps, tol );
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
-    ApplyColumnPivots( B, pR );
+    InversePermuteCols( B, permR );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 
@@ -90,11 +89,11 @@ Skeleton
 
     // Find the column permutation (force the same number of steps)
     B = A;
-    qr::BusingerGolub( B, pC, numSteps );
+    qr::BusingerGolub( B, permC, numSteps );
 
     // Form pinv(AC)
     B = A;
-    ApplyColumnPivots( B, pC );
+    InversePermuteCols( B, permC );
     B.Resize( B.Height(), numSteps );
     Pseudoinverse( B );
 

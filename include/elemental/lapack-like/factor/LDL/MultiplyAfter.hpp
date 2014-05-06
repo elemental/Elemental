@@ -12,8 +12,10 @@
 
 #include ELEM_DIAGONALSCALE_INC
 #include ELEM_QUASIDIAGONALSCALE_INC
-#include ELEM_APPLYROWPIVOTS_INC
 #include ELEM_TRMM_INC
+
+#include ELEM_INVERTPERMUTATION_INC
+#include ELEM_PERMUTEROWS_INC
 
 namespace elem {
 namespace ldl {
@@ -59,7 +61,7 @@ MultiplyAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated=false )
 template<typename F> 
 inline void
 MultiplyAfter
-( const Matrix<F>& A, const Matrix<F>& dSub, const Matrix<Int>& p, 
+( const Matrix<F>& A, const Matrix<F>& dSub, const Matrix<Int>& pPerm, 
   Matrix<F>& B, bool conjugated=false )
 {
     DEBUG_ONLY(
@@ -68,44 +70,55 @@ MultiplyAfter
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( p.Height() != A.Height() )
-            LogicError("A and p must be the same height");
+        if( pPerm.Height() != A.Height() )
+            LogicError("A and pPerm must be the same height");
         // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
-    ApplyRowPivots( B, p );
+
+    Matrix<Int> pInvPerm;
+    InvertPermutation( pPerm, pInvPerm );
+    
+    PermuteRows( B, pPerm, pInvPerm );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    ApplyInverseRowPivots( B, p );
+    PermuteRows( B, pInvPerm, pPerm );
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 MultiplyAfter
-( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, 
-  const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B, bool conjugated=false )
+( const DistMatrix<F>& A, 
+  const DistMatrix<F,MD,STAR>& dSub, 
+  const DistMatrix<Int,UPerm,STAR>& pPerm, 
+        DistMatrix<F>& B, 
+        bool conjugated=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::MultiplyAfter");
-        if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        if( A.Grid() != B.Grid() || A.Grid() != pPerm.Grid() )
+            LogicError("{A,B,pPerm} must be distributed over the same grid");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( A.Height() != p.Height() )
-            LogicError("A and p must be the same height");
+        if( A.Height() != pPerm.Height() )
+            LogicError("A and pPerm must be the same height");
         // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
-    ApplyRowPivots( B, p );
+
+    DistMatrix<Int,UPerm,STAR> pInvPerm(pPerm.Grid());
+    InvertPermutation( pPerm, pInvPerm );
+
+    PermuteRows( B, pPerm, pInvPerm );
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-    ApplyInverseRowPivots( B, p );
+    PermuteRows( B, pInvPerm, pPerm );
 }
 
 } // namespace ldl

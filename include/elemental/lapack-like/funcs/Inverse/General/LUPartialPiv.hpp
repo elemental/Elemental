@@ -12,11 +12,11 @@
 
 #include ELEM_MAKETRIANGULAR_INC
 #include ELEM_ZERO_INC
-#include ELEM_APPLYCOLUMNPIVOTS_INC
 #include ELEM_GEMM_INC
 #include ELEM_TRSM_INC
 
 #include ELEM_LU_INC
+#include ELEM_PERMUTECOLS_INC
 #include ELEM_TRIANGULARINVERSE_INC
 
 #include ELEM_ZEROS_INC
@@ -33,12 +33,12 @@ namespace inverse {
 
 template<typename F> 
 inline void
-AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
+AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != p.Height() )
+    if( A.Height() != pPerm.Height() )
         LogicError("Pivot vector is incorrect length");
 
     TriangularInverse( UPPER, NON_UNIT, A );
@@ -90,7 +90,7 @@ AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
     }
 
     // inv(A) := inv(A) P
-    ApplyInverseColumnPivots( A, p );
+    InversePermuteCols( A, pPerm );
 }
 
 template<typename F> 
@@ -100,22 +100,22 @@ LUPartialPiv( Matrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    Matrix<Int> p;
-    elem::LU( A, p );
-    inverse::AfterLUPartialPiv( A, p );
+    Matrix<Int> pPerm;
+    elem::LU( A, pPerm );
+    inverse::AfterLUPartialPiv( A, pPerm );
 }
 
 template<typename F> 
 inline void
-AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
+AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != p.Height() )
+    if( A.Height() != pPerm.Height() )
         LogicError("Pivot vector is incorrect length");
-    if( A.Grid() != p.Grid() )
-        LogicError("A and p must have the same grid");
+    if( A.Grid() != pPerm.Grid() )
+        LogicError("A and pPerm must have the same grid");
     const Grid& g = A.Grid();
     TriangularInverse( UPPER, NON_UNIT, A );
 
@@ -178,7 +178,7 @@ AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
     }
 
     // inv(A) := inv(A) P
-    ApplyInverseColumnPivots( A, p );
+    InversePermuteCols( A, pPerm );
 }
 
 template<typename F> 
@@ -189,9 +189,9 @@ LUPartialPiv( DistMatrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();
-    DistMatrix<Int,VC,STAR> p( g );
-    elem::LU( A, p );
-    inverse::AfterLUPartialPiv( A, p );
+    DistMatrix<Int,VC,STAR> pPerm( g );
+    elem::LU( A, pPerm );
+    inverse::AfterLUPartialPiv( A, pPerm );
 }
 
 } // namespace inverse

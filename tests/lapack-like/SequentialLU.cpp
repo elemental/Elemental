@@ -22,7 +22,7 @@ template<typename F>
 void TestCorrectness
 ( bool pivoted, bool print, 
   const Matrix<F>& A,
-  const Matrix<Int>& p,
+  const Matrix<Int>& pPerm,
   const Matrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -35,7 +35,7 @@ void TestCorrectness
     Uniform( X, m, 100 );
     Y = X;
     if( pivoted )
-        ApplyRowPivots( Y, p );
+        PermuteRows( Y, pPerm );
 
     // Solve against the (pivoted) right-hand sides
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
@@ -68,7 +68,7 @@ template<typename F>
 void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
 {
     Matrix<F> A, ARef;
-    Matrix<Int> p;
+    Matrix<Int> pPerm;
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -85,7 +85,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
     cout.flush();
     const double startTime = mpi::Time();
     if( pivot )
-        LU( A, p );
+        LU( A, pPerm );
     else
         LU( A );
     const double runTime = mpi::Time() - startTime;
@@ -98,10 +98,10 @@ void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
     {
         Print( A, "A after factorization" );
         if( pivot )
-            Print( p, "p after factorization" );
+            Print( pPerm, "pPerm after factorization" );
     }
     if( testCorrectness )
-        TestCorrectness( pivot, print, A, p, ARef );
+        TestCorrectness( pivot, print, A, pPerm, ARef );
 }
 
 int 

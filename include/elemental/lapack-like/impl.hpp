@@ -16,6 +16,7 @@
 #include "./decomp.hpp"
 #include "./solve.hpp"
 #include "./funcs.hpp"
+#include "./perm.hpp"
 #include "./props.hpp"
 
 #endif // ifndef ELEM_LAPACK_IMPL_HPP

@@ -84,15 +84,14 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
+( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization
-    qr::BusingerGolub( A, p, maxSteps, tol );
-    const Int numSteps = p.Height();
+    const Int numSteps = qr::BusingerGolub( A, pPerm, maxSteps, tol );
 
     Real pinvTol;
     if( tol < Real(0) )
@@ -110,10 +109,12 @@ BusingerGolub
     PseudoTrsm( RL, Z, pinvTol );
 }
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+( DistMatrix<F>& A, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
+  DistMatrix<F,STAR,VR>& Z, 
   Int maxSteps, BASE(F) tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
@@ -121,8 +122,7 @@ BusingerGolub
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A
-    qr::BusingerGolub( A, p, maxSteps, tol );
-    const Int numSteps = p.Height();
+    const Int numSteps = qr::BusingerGolub( A, pPerm, maxSteps, tol );
 
     Real pinvTol;
     if( tol < Real(0) )
@@ -145,19 +145,19 @@ BusingerGolub
 template<typename F> 
 inline void
 ID
-( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
+( const Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, 
   Int maxSteps, BASE(F) tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     Matrix<F> B( A );
-    id::BusingerGolub( B, p, Z, maxSteps, tol );
+    id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
 
 #ifndef SWIG
 template<typename F> 
 inline void
 ID
-( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
+( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, 
   Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
@@ -166,46 +166,50 @@ ID
         View( B, A );
     else
         B = A;
-    id::BusingerGolub( B, p, Z, maxSteps, tol );
+    id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
 #endif // ifndef SWIG
 
 template<typename F> 
 inline void
-ID( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps )
+ID( const Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, Int numSteps )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, p, Z, numSteps, BASE(F)(-1) );
+    ID( A, pPerm, Z, numSteps, BASE(F)(-1) );
 }
 
 #ifndef SWIG
 template<typename F> 
 inline void
 ID
-( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps, 
+( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, Int numSteps, 
   bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
+    ID( A, pPerm, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
 #endif // ifndef SWIG
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 ID
-( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+( const DistMatrix<F>& A, 
+        DistMatrix<Int,UPerm,STAR>& pPerm, 
+        DistMatrix<F,STAR,VR>& Z, 
   Int maxSteps, BASE(F) tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     DistMatrix<F> B( A );
-    id::BusingerGolub( B, p, Z, maxSteps, tol );
+    id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
 
 #ifndef SWIG
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 ID
-( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+( DistMatrix<F>& A, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
+  DistMatrix<F,STAR,VR>& Z, 
   Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
@@ -214,29 +218,33 @@ ID
         View( B, A );
     else
         B = A;
-    id::BusingerGolub( B, p, Z, maxSteps, tol );
+    id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
 #endif // ifndef SWIG
 
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 ID
-( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+( const DistMatrix<F>& A, 
+        DistMatrix<Int,UPerm,STAR>& pPerm, 
+        DistMatrix<F,STAR,VR>& Z, 
   Int numSteps )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, p, Z, numSteps, BASE(F)(-1) );
+    ID( A, pPerm, Z, numSteps, BASE(F)(-1) );
 }
 
 #ifndef SWIG
-template<typename F> 
+template<typename F,Dist UPerm> 
 inline void
 ID
-( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+( DistMatrix<F>& A, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, 
+  DistMatrix<F,STAR,VR>& Z, 
   Int numSteps, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
+    ID( A, pPerm, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
 #endif // ifndef SWIG
 

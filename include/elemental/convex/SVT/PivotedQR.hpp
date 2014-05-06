@@ -35,8 +35,8 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     const Int n = A.Width();
     Matrix<F> ACopy( A ), t;
     Matrix<Real> d;
-    Matrix<Int> p;
-    qr::BusingerGolub( ACopy, t, d, p, numSteps );
+    Matrix<Int> pPerm;
+    qr::BusingerGolub( ACopy, t, d, pPerm, numSteps );
     Matrix<F> ACopyUpper;
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
 
@@ -46,7 +46,7 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     svd::Thresholded( U, s, V, tau, relative );
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    ApplyInverseRowPivots( V, p );
+    InversePermuteRows( V, pPerm );
     Matrix<F> RThresh;
     Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
 
@@ -75,8 +75,8 @@ PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     DistMatrix<F> ACopy( A );
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Real,MD,STAR> d(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    qr::BusingerGolub( ACopy, t, d, p, numSteps );
+    DistMatrix<Int,VR,STAR> pPerm(g);
+    qr::BusingerGolub( ACopy, t, d, pPerm, numSteps );
     DistMatrix<F> ACopyUpper(g);
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
 
@@ -86,7 +86,7 @@ PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
     svd::Thresholded( U, s, V, tau, relative );
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
-    ApplyInverseRowPivots( V, p );
+    InversePermuteRows( V, pPerm );
     DistMatrix<F> RThresh(g);
     Gemm( NORMAL, ADJOINT, F(1), U, V, RThresh );
 

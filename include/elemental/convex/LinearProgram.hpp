@@ -74,11 +74,11 @@ LinearProgram
     L21 = A; Scale( 1/rho, L21 );
     Herk( LOWER, NORMAL, -1/rho, A, B22 );
     MakeHermitian( LOWER, B22 );
-    Matrix<Int> p2;
-    LU( B22, p2 );
-    ApplyRowPivots( L21, p2 );
+    Matrix<Int> perm2;
+    LU( B22, perm2 );
+    PermuteRows( L21, perm2 );
     bPiv = b;
-    ApplyRowPivots( bPiv, p2 );
+    PermuteRows( bPiv, perm2 );
 
     // Possibly form the inverse of L22 U22
     Matrix<Real> X22;
@@ -234,11 +234,11 @@ LinearProgram
     L21 = A; Scale( 1/rho, L21 );
     Herk( LOWER, NORMAL, -1/rho, A, B22 );
     MakeHermitian( LOWER, B22 );
-    DistMatrix<Int,VC,STAR> p2(grid);
-    LU( B22, p2 );
-    ApplyRowPivots( L21, p2 );
+    DistMatrix<Int,VC,STAR> perm2(grid);
+    LU( B22, perm2 );
+    PermuteRows( L21, perm2 );
     bPiv = b;
-    ApplyRowPivots( bPiv, p2 );
+    PermuteRows( bPiv, perm2 );
 
     // Possibly form the inverse of L22 U22
     DistMatrix<Real> X22(grid);
