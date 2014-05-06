@@ -15,6 +15,7 @@
 #include ELEM_INFINITYNORM_INC
 #include ELEM_ONENORM_INC
 #include ELEM_UNIFORM_INC
+#include ELEM_EXPLICITPERMUTATION_INC
 using namespace std;
 using namespace elem;
 
@@ -120,9 +121,19 @@ void TestLU
     {
         Print( A, "A after factorization" );
         if( pivoting >= 1 )
+        {
             Print( pPerm, "pPerm after factorization");
+            DistMatrix<Int> P(g);
+            ExplicitPermutation( pPerm, P );
+            Print( P, "P" );
+        }
         if( pivoting == 2 )
+        {
             Print( qPerm, "qPerm after factorization");
+            DistMatrix<Int> Q(g);
+            ExplicitPermutation( qPerm, Q );
+            Print( Q, "Q" );
+        }
     }
     if( testCorrectness )
         TestCorrectness( pivoting, print, A, pPerm, qPerm, ARef );
