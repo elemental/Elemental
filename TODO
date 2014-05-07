@@ -18,7 +18,7 @@ Fundamental functionality additions
 [o] Finishing prototype generalized Spectral Divide and Conquer
 [-] Windowed QR with column pivoting
 [-] Power-method-like p-norm estimation
-[-] QL factorization and {lq,ql}::SolveAfter
+[-] QL factorization and ql::SolveAfter
 [-] Strong RRQR and RRLQ 
 [-] CUR decompositions (already have (pseudo-)skeleton)
 [-] Complete Orthogonal Decompositions (especially URV)

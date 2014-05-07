@@ -13,6 +13,7 @@
 #include "./RQ/ApplyQ.hpp"
 #include "./RQ/Cholesky.hpp"
 #include "./RQ/Householder.hpp"
+#include "./RQ/SolveAfter.hpp"
 
 namespace elem {
 
