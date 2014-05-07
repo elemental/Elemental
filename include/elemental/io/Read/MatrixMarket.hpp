@@ -231,13 +231,11 @@ MatrixMarket( DistMatrix<T,U,V>& A, const std::string filename )
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {
-        Matrix<T> ASeq;
-        MatrixMarket( ASeq, filename );
-        A_CIRC_CIRC.CopyFromRoot( ASeq );
-        ASeq.Empty();
+        MatrixMarket( A_CIRC_CIRC.Matrix(), filename );
+        A_CIRC_CIRC.Resize
+        ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
     }
-    else
-        A_CIRC_CIRC.CopyFromNonRoot();
+    A_CIRC_CIRC.MakeSizeConsistent();
     A = A_CIRC_CIRC;
 }
 
@@ -249,13 +247,11 @@ MatrixMarket( BlockDistMatrix<T,U,V>& A, const std::string filename )
     BlockDistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
     {
-        Matrix<T> ASeq;
-        MatrixMarket( ASeq, filename );
-        A_CIRC_CIRC.CopyFromRoot( ASeq );
-        ASeq.Empty();
+        MatrixMarket( A_CIRC_CIRC.Matrix(), filename );
+        A_CIRC_CIRC.Resize
+        ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
     }
-    else
-        A_CIRC_CIRC.CopyFromNonRoot();
+    A_CIRC_CIRC.MakeSizeConsistent();
     A = A_CIRC_CIRC;
 }
 

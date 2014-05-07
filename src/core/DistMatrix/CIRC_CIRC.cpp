@@ -299,35 +299,27 @@ DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 
 template<typename T>
 void
-DM::CopyFromRoot( const Matrix<T>& A )
+DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromRoot"))
-    const Grid& grid = this->Grid();
-    if( grid.VCRank() != this->Root() )
+    if( this->CrossRank() != this->Root() )
         LogicError("Called CopyFromRoot from non-root");
 
-    Int dims[2];
-    dims[0] = A.Height();
-    dims[1] = A.Width();
-    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
+    this->Resize( A.Height(), A.Width() );
+    this->MakeSizeConsistent( includingViewers );
 
-    this->Resize( dims[0], dims[1] );
     this->matrix_ = A;
 }
 
 template<typename T>
 void
-DM::CopyFromNonRoot()
+DM::CopyFromNonRoot( bool includingViewers )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromNonRoot"))
-    const Grid& grid = this->Grid();
-    if( grid.VCRank() == this->Root() )
+    if( this->CrossRank() == this->Root() )
         LogicError("Called CopyFromNonRoot from root");
 
-    Int dims[2];
-    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
-
-    this->Resize( dims[0], dims[1] );
+    this->MakeSizeConsistent( includingViewers );
 }
 
 // Basic queries

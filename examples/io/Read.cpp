@@ -32,9 +32,14 @@ main( int argc, char* argv[] )
         DistMatrix<double> A(m,n);
         Read( A, filename );
         if( display )
-            Display( A, "A" );
+            Display( A, "A (distributed read)" );
         if( print )
-            Print( A, "A" );
+            Print( A, "A (distributed read)" );
+        Read( A, filename, AUTO, true );
+        if( display )
+            Display( A, "A (sequential read)" );
+        if( print )
+            Print( A, "A (sequential read)" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

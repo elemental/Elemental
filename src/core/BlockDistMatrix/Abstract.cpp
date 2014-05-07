@@ -181,13 +181,13 @@ AbstractBlockDistMatrix<T>::Resize( Int height, Int width, Int ldim )
 
 template<typename T>
 void
-AbstractBlockDistMatrix<T>::MakeConsistent()
+AbstractBlockDistMatrix<T>::MakeConsistent( bool includingViewers )
 {
     DEBUG_ONLY(CallStackEntry cse("ABDM::MakeConsistent"))
-    const elem::Grid& g = *grid_;
-    const Int vcRoot = g.VCToViewingMap(0);
-    Int message[13];
-    if( g.ViewingRank() == vcRoot )
+
+    const Int msgLength = 13;
+    Int message[msgLength];
+    if( CrossRank() == Root() )
     {
         message[ 0] = viewType_;
         message[ 1] = height_;
@@ -203,7 +203,20 @@ AbstractBlockDistMatrix<T>::MakeConsistent()
         message[11] = rowCut_;
         message[12] = root_;
     }
-    mpi::Broadcast( message, 13, vcRoot, g.ViewingComm() );
+
+    const elem::Grid& g = *grid_;
+    if( !g.InGrid() && !includingViewers )
+        LogicError("Non-participating process called MakeConsistent");
+    if( g.InGrid() )
+    {
+        // TODO: Ensure roots are consistent within each cross communicator
+        mpi::Broadcast( message, msgLength, Root(), CrossComm() );
+    }
+    if( includingViewers )
+    {
+        const Int vcRoot = g.VCToViewingMap(0);
+        mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
+    }
     const ViewType newViewType    = static_cast<ViewType>(message[0]);
     const Int newHeight           = message[ 1]; 
     const Int newWidth            = message[ 2];
@@ -217,46 +230,53 @@ AbstractBlockDistMatrix<T>::MakeConsistent()
     const Int newColCut           = message[10];
     const Int newRowCut           = message[11];
     const Int root                = message[12];
-    if( !Participating() )
+
+    root_            = root;
+    viewType_        = newViewType;
+    colConstrained_  = newConstrainedCol;
+    rowConstrained_  = newConstrainedRow;
+    rootConstrained_ = newConstrainedRoot;
+    blockHeight_     = newBlockHeight;
+    blockWidth_      = newBlockWidth;
+    colAlign_        = newColAlign;
+    rowAlign_        = newRowAlign;
+    colCut_          = newColCut;
+    rowCut_          = newRowCut;
+
+    SetShifts();
+    Resize( newHeight, newWidth );
+}
+
+template<typename T>
+void
+AbstractBlockDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
+{
+    DEBUG_ONLY(CallStackEntry cse("ABDM::MakeSizeConsistent"))
+
+    const Int msgLength = 2;
+    Int message[msgLength];
+    if( CrossRank() == Root() )
     {
-        root_ = root;
-        viewType_ = newViewType;
-        colConstrained_ = newConstrainedCol;
-        rowConstrained_ = newConstrainedRow;
-        rootConstrained_ = newConstrainedRoot;
-        blockHeight_ = newBlockHeight;
-        blockWidth_ = newBlockWidth;
-        colAlign_ = newColAlign;
-        rowAlign_ = newRowAlign;
-        colCut_ = newColCut;
-        rowCut_ = newRowCut;
-        SetShifts();
-        Resize( newHeight, newWidth );
+        message[0] = height_;
+        message[1] = width_;
     }
-    DEBUG_ONLY(
-        else
-        {
-            if( viewType_ != newViewType )
-                LogicError("Inconsistent ViewType");
-            if( height_ != newHeight )
-                LogicError("Inconsistent height");
-            if( width_ != newWidth )
-                LogicError("Inconsistent width");
-            if( colConstrained_ != newConstrainedCol || 
-                colAlign_ != newColAlign )
-                LogicError("Inconsistent column constraint");
-            if( rowConstrained_ != newConstrainedRow || 
-                rowAlign_ != newRowAlign )
-                LogicError("Inconsistent row constraint");
-            if( blockHeight_ != newBlockHeight || 
-                blockWidth_  != newBlockWidth )
-                LogicError("Inconsistent block size");
-            if( colCut_ != newColCut || rowCut_ != newRowCut )
-                LogicError("Inconsistent block cuts");
-            if( root != root_ || rootConstrained_ != newConstrainedRoot )
-                LogicError("Inconsistent root");
-        }
-    )
+
+    const elem::Grid& g = *grid_;
+    if( !g.InGrid() && !includingViewers )
+        LogicError("Non-participating process called MakeSizeConsistent");
+    if( g.InGrid() )
+    {
+        // TODO: Ensure roots are consistent within each cross communicator
+        mpi::Broadcast( message, msgLength, Root(), CrossComm() );
+    }
+    if( includingViewers )
+    {
+        const Int vcRoot = g.VCToViewingMap(0);
+        mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
+    }
+    const Int newHeight = message[0]; 
+    const Int newWidth  = message[1];
+    Resize( newHeight, newWidth );
 }
 
 // Realignment

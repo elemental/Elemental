@@ -61,7 +61,11 @@ Read
     if( U == A.UGath && V == A.VGath )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+        {
             Read( A.Matrix(), filename, format );
+            A.Resize( A.Matrix().Height(), A.Matrix().Width() );
+        }
+        A.MakeSizeConsistent();
     }
     else if( sequential )
     {
@@ -69,7 +73,12 @@ Read
         if( format == BINARY_FLAT )
             A_CIRC_CIRC.Resize( A.Height(), A.Width() );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+        {
             Read( A_CIRC_CIRC.Matrix(), filename, format );
+            A_CIRC_CIRC.Resize
+            ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
+        }
+        A_CIRC_CIRC.MakeSizeConsistent();
         A = A_CIRC_CIRC;
     }
     else
@@ -110,7 +119,11 @@ Read
     if( U == A.UGath && V == A.VGath )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
+        {
             Read( A.Matrix(), filename, format );
+            A.Resize( A.Matrix().Height(), A.Matrix().Width() );
+        }
+        A.MakeSizeConsistent();
     }
     else if( sequential )
     {
@@ -118,7 +131,12 @@ Read
         if( format == BINARY_FLAT )
             A_CIRC_CIRC.Resize( A.Height(), A.Width() );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
+        {
             Read( A_CIRC_CIRC.Matrix(), filename, format );
+            A_CIRC_CIRC.Resize
+            ( A_CIRC_CIRC.Matrix().Height(), A_CIRC_CIRC.Matrix().Width() );
+        }
+        A_CIRC_CIRC.MakeSizeConsistent();
         A = A_CIRC_CIRC;
     }
     else

@@ -49,19 +49,18 @@ DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
+    if( m == 0 || n == 0 )
+        return;
 
     // Compute the range of the real values in A
     Real minVal=0, maxVal=0;
-    if( m != 0 && n != 0 )
+    minVal = maxVal = A->GetRealPart( 0, 0 );
+    for( Int j=0; j<n; ++j )
     {
-        minVal = maxVal = A->GetRealPart( 0, 0 );
-        for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
         {
-            for( Int i=0; i<m; ++i )
-            {
-                minVal = std::min( minVal, A->GetRealPart(i,j) );
-                maxVal = std::max( maxVal, A->GetRealPart(i,j) );
-            }
+            minVal = std::min( minVal, A->GetRealPart(i,j) );
+            maxVal = std::max( maxVal, A->GetRealPart(i,j) );
         }
     }
 
@@ -76,10 +75,12 @@ DisplayWidget<T>::DisplayReal
     DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayReal"))
     const Int m = A->Height();
     const Int n = A->Width();
+    if( m == 0 || n == 0 )
+        return;
 
     // TODO: Parameterize these instead
-    const Int mPix = Max( 500, 2*m );
-    const Int nPix = Max( 500, 2*n );
+    const Int mPix = 2*m;
+    const Int nPix = 2*n;
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );
@@ -116,19 +117,18 @@ DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
     typedef Base<T> Real;
     const Int m = A->Height();
     const Int n = A->Width();
+    if( m == 0 || n == 0 )
+        return;
 
     // Compute the range of the real values in A
     Real minVal=0, maxVal=0;
-    if( m != 0 && n != 0 )
+    minVal = maxVal = A->GetImagPart( 0, 0 );
+    for( Int j=0; j<n; ++j )
     {
-        minVal = maxVal = A->GetImagPart( 0, 0 );
-        for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
         {
-            for( Int i=0; i<m; ++i )
-            {
-                minVal = std::min( minVal, A->GetImagPart(i,j) );
-                maxVal = std::max( maxVal, A->GetImagPart(i,j) );
-            }
+            minVal = std::min( minVal, A->GetImagPart(i,j) );
+            maxVal = std::max( maxVal, A->GetImagPart(i,j) );
         }
     }
 
@@ -143,10 +143,12 @@ DisplayWidget<T>::DisplayImag
     DEBUG_ONLY(CallStackEntry cse("DisplayWidget::DisplayImag"))
     const Int m = A->Height();
     const Int n = A->Width();
+    if( m == 0 || n == 0 )
+        return;
 
     // TODO: Parameterize these instead
-    const Int mPix = Max( 500, 2*m );
-    const Int nPix = Max( 500, 2*n );
+    const Int mPix = 2*m;
+    const Int nPix = 2*n;
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );

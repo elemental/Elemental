@@ -25,18 +25,29 @@ namespace elem {
 template<typename T>
 DM::DistMatrix( const elem::Grid& grid, Int root )
 : GDM(grid,root)
-{ this->SetShifts(); }
+{ 
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts(); 
+}
 
 template<typename T>
 DM::DistMatrix( Int height, Int width, const elem::Grid& grid, Int root )
 : GDM(grid,root)
-{ this->SetShifts(); this->Resize(height,width); }
+{ 
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts(); 
+    this->Resize(height,width); 
+}
 
 template<typename T>
 DM::DistMatrix( const DM& A )
 : GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("DistMatrix::DistMatrix"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -50,6 +61,8 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
 : GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("DistMatrix::DistMatrix"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
     this->SetShifts();
     if( ColDist != U || RowDist != V ||
         reinterpret_cast<const DM*>(&A) != this )
@@ -64,6 +77,8 @@ DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
 : GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("DistMatrix::DistMatrix"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
     this->SetShifts();
     *this = A;
 }

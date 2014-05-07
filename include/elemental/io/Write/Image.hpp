@@ -61,8 +61,8 @@ RealPartImage
     }
 
     // TODO: Parameterize these instead
-    const Int mPix = Max( 500, 2*m );
-    const Int nPix = Max( 500, 2*n );
+    const Int mPix = 2*m;
+    const Int nPix = 2*n;
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     QImage image( nPix, mPix, QImage::Format_RGB32 );
@@ -110,8 +110,8 @@ ImagPartImage
     }
 
     // TODO: Parameterize these instead
-    const Int mPix = Max( 500, 2*m );
-    const Int nPix = Max( 500, 2*n );
+    const Int mPix = 2*m;
+    const Int nPix = 2*n;
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     QImage image( nPix, mPix, QImage::Format_RGB32 );

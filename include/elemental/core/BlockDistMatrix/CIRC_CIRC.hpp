@@ -71,8 +71,8 @@ public:
     type& operator=( const BlockDistMatrix<T,STAR,VR  >& A );
     type& operator=( const BlockDistMatrix<T,STAR,STAR>& A );
     type& operator=( const BlockDistMatrix<T,CIRC,CIRC>& A );
-    void CopyFromRoot( const Matrix<T>& A );
-    void CopyFromNonRoot();
+    void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
+    void CopyFromNonRoot( bool includingViewers=false );
  #ifndef SWIG
     // Move assignment
     type& operator=( type&& A );

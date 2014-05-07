@@ -39,7 +39,8 @@ public:
     void SetGrid( const elem::Grid& grid );
     void Resize( Int height, Int width );
     void Resize( Int height, Int width, Int ldim );
-    void MakeConsistent();
+    void MakeConsistent( bool includingViewers=false );
+    void MakeSizeConsistent( bool includingViewers=false );
     // Realignment
     // -----------
     void Align

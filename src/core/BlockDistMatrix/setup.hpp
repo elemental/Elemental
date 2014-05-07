@@ -26,32 +26,51 @@ namespace elem {
 template<typename T>
 BDM::BlockDistMatrix( const elem::Grid& g, Int root )
 : GBDM(g,root)
-{ this->SetShifts(); }
+{ 
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts(); 
+}
 
 template<typename T>
 BDM::BlockDistMatrix
 ( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
 : GBDM(g,blockHeight,blockWidth,root)
-{ this->SetShifts(); }
+{ 
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts(); 
+}
 
 template<typename T>
 BDM::BlockDistMatrix
 ( Int height, Int width, const elem::Grid& g, Int root )
 : GBDM(g,root)
-{ this->SetShifts(); this->Resize(height,width); }
+{ 
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts(); this->Resize(height,width); 
+}
 
 template<typename T>
 BDM::BlockDistMatrix
 ( Int height, Int width, const elem::Grid& g,
   Int blockHeight, Int blockWidth, Int root )
 : GBDM(g,blockHeight,blockWidth,root)
-{ this->SetShifts(); this->Resize(height,width); }
+{ 
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts(); 
+    this->Resize(height,width); 
+}
 
 template<typename T>
 BDM::BlockDistMatrix( const BDM& A )
 : GBDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -65,6 +84,8 @@ BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
 : GBDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
     this->SetShifts();
     if( ColDist != U || RowDist != V ||
         reinterpret_cast<const BDM*>(&A) != this )
@@ -79,12 +100,14 @@ BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 : GBDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BlockDistMatrix::BlockDistMatrix"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
     this->SetShifts();
     *this = A;
 }
 
 template<typename T>
-BDM::BlockDistMatrix( BDM&& A ) ELEM_NOEXCEPT : GBDM(std::move(A)) { }
+BDM::BlockDistMatrix( BDM&& A ) ELEM_NOEXCEPT : GBDM(std::move(A)) { } 
 
 template<typename T> BDM::~BlockDistMatrix() { }
 

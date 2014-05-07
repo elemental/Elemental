@@ -65,8 +65,8 @@ public:
     type& operator=( const DistMatrix<T,STAR,VR  >& A );
     type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
-    void CopyFromRoot( const Matrix<T>& A );
-    void CopyFromNonRoot();
+    void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
+    void CopyFromNonRoot( bool includingViewers=false );
 #ifndef SWIG
     // Move assignment
     type& operator=( type&& A );

@@ -157,13 +157,13 @@ AbstractDistMatrix<T>::Resize( Int height, Int width, Int ldim )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::MakeConsistent()
+AbstractDistMatrix<T>::MakeConsistent( bool includingViewers )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::MakeConsistent"))
-    const elem::Grid& g = *grid_;
-    const Int vcRoot = g.VCToViewingMap(0);
-    Int message[9];
-    if( g.ViewingRank() == vcRoot )
+
+    const Int msgLength = 9;
+    Int message[msgLength];
+    if( CrossRank() == Root() )
     {
         message[0] = viewType_;
         message[1] = height_;
@@ -175,47 +175,69 @@ AbstractDistMatrix<T>::MakeConsistent()
         message[7] = rowAlign_;
         message[8] = root_;
     }
-    mpi::Broadcast( message, 9, vcRoot, g.ViewingComm() );
-    const ViewType newViewType = static_cast<ViewType>(message[0]);
-    const Int newHeight = message[1]; 
-    const Int newWidth = message[2];
-    const bool newConstrainedCol = message[3];
-    const bool newConstrainedRow = message[4];
-    const bool newConstrainedRoot = message[5];
-    const Int newColAlign = message[6];
-    const Int newRowAlign = message[7];
-    const Int root = message[8];
-    if( !Participating() )
+
+    const elem::Grid& g = *grid_;
+    if( !g.InGrid() && !includingViewers )
+        LogicError("Non-participating process called MakeConsistent");
+    if( g.InGrid() )
     {
-        root_ = root;
-        viewType_ = newViewType;
-        colConstrained_ = newConstrainedCol;
-        rowConstrained_ = newConstrainedRow;
-        rootConstrained_ = newConstrainedRoot;
-        colAlign_ = newColAlign;
-        rowAlign_ = newRowAlign;
-        SetShifts();
-        Resize( newHeight, newWidth );
+        // TODO: Ensure roots are consistent within each cross communicator
+        mpi::Broadcast( message, msgLength, Root(), CrossComm() );
     }
-    DEBUG_ONLY(
-        else
-        {
-            if( viewType_ != newViewType )
-                LogicError("Inconsistent ViewType");
-            if( height_ != newHeight )
-                LogicError("Inconsistent height");
-            if( width_ != newWidth )
-                LogicError("Inconsistent width");
-            if( colConstrained_ != newConstrainedCol || 
-                colAlign_ != newColAlign )
-                LogicError("Inconsistent column constraint");
-            if( rowConstrained_ != newConstrainedRow || 
-                rowAlign_ != newRowAlign )
-                LogicError("Inconsistent row constraint");
-            if( rootConstrained_ != newConstrainedRoot || root != root_ )
-                LogicError("Inconsistent root");
-        }
-    )
+    if( includingViewers )
+    {
+        const Int vcRoot = g.VCToViewingMap(0);
+        mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
+    }
+    const ViewType newViewType    = static_cast<ViewType>(message[0]);
+    const Int newHeight           = message[1]; 
+    const Int newWidth            = message[2];
+    const bool newConstrainedCol  = message[3];
+    const bool newConstrainedRow  = message[4];
+    const bool newConstrainedRoot = message[5];
+    const Int newColAlign         = message[6];
+    const Int newRowAlign         = message[7];
+    const Int root                = message[8];
+
+    root_            = root;
+    viewType_        = newViewType;
+    colConstrained_  = newConstrainedCol;
+    rowConstrained_  = newConstrainedRow;
+    rootConstrained_ = newConstrainedRoot;
+    colAlign_        = newColAlign;
+    rowAlign_        = newRowAlign;
+
+    SetShifts();
+    Resize( newHeight, newWidth );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::MakeSizeConsistent"))
+
+    const Int msgSize = 2;
+    Int message[msgSize];
+    if( CrossRank() == Root() )
+    {
+        message[0] = height_;
+        message[1] = width_;
+    }
+
+    const elem::Grid& g = *grid_;
+    if( !g.InGrid() && !includingViewers )
+        LogicError("Non-participating process called MakeSizeConsistent");
+    if( g.InGrid() )
+        mpi::Broadcast( message, msgSize, Root(), CrossComm() );
+    if( includingViewers )
+    {
+        const Int vcRoot = g.VCToViewingMap(0);
+        mpi::Broadcast( message, msgSize, vcRoot, g.ViewingComm() );
+    }
+    const Int newHeight = message[0]; 
+    const Int newWidth  = message[1];
+    Resize( newHeight, newWidth );
 }
 
 // Realignment
