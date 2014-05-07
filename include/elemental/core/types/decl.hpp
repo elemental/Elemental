@@ -96,6 +96,47 @@ struct InertiaType
     Int numPositive, numNegative, numZero;
 };
 
+// At some point this enum will be a member of each matrix class and will
+// be used to simplify the syntax of various operations
+namespace MatrixClassNS {
+enum MatrixClass
+{
+    UNSPECIFIED,
+    GENERAL,
+    HERMITIAN,
+    HERMITIAN_LOWER,
+    HERMITIAN_UPPER, 
+    SYMMETRIC,
+    SYMMETRIC_LOWER,
+    SYMMETRIC_UPPER,
+    SKEW_SYMMETRIC,
+    SKEW_SYMMETRIC_LOWER,
+    SKEW_SYMMETRIC_UPPER,
+    UNITARY,
+    TRIANGULAR_LOWER,
+    TRIANGULAR_LOWER_UNIT,
+    TRIANGULAR_UPPER,
+    TRIANGULAR_UPPER_UNIT,
+    HESSENBERG_LOWER,
+    HESSENBERG_UPPER,
+    PERMUTATION,
+    PERMUTATION_VECTOR,
+    PIVOT_SEQUENCE,
+    // Packed factorizations/decompositions
+    LU_PACKED,
+    QR_PACKED,
+    RQ_PACKED,
+    LQ_PACKED,
+    QL_PACKED,
+    BIDIAG_PACKED,
+    TRIDIAG_LOWER_PACKED,
+    TRIDIAG_UPPER_PACKED,
+    HESSENBERG_LOWER_PACKED,
+    HESSENBERG_UPPER_PACKED
+};
+}
+using namespace MatrixClassNS;
+
 namespace ConjugationNS {
 enum Conjugation
 {
