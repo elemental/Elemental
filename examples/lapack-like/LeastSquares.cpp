@@ -25,7 +25,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const bool adjoint = Input("--adjoint","adjoint solve?",false);
+        const char trans = Input("--trans","orientation",'N');
         const Int m = Input("--height","height of matrix",100);
         const Int n = Input("--width","width of matrix",100);
         const Int numRhs = Input("--numRhs","# of right-hand sides",1);
@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
+        const Orientation orientation = CharToOrientation( trans );
 
         // Set the algorithmic blocksize
         SetBlocksize( blocksize );
@@ -91,39 +91,8 @@ main( int argc, char* argv[] )
                           << "||B||_F       = " << BFrobNorm << "\n"
                           << "||X||_F       = " << XFrobNorm << "\n"
                           << "||A X - B||_F = " << RFrobNorm << "\n"
-                          << "||A X - B||_F / (||A||_F ||X||_F epsilon n) = " 
+                          << "||op(A)X-B||_F / (||A||_F ||X||_F epsilon n) = " 
                           << frobResidual << "\n" << std::endl;
-
-            // Compute the relevant infinity norms and a relative residual
-            const double AInfNorm = InfinityNorm( ACopy );
-            const double BInfNorm = InfinityNorm( B );
-            const double XInfNorm = InfinityNorm( X );
-            const double RInfNorm = InfinityNorm( R );
-            const double infResidual = RInfNorm / (AInfNorm*XInfNorm*epsilon*n);
-            if( commRank == 0 )
-                std::cout << "||A||_oo       = " << AInfNorm << "\n"
-                          << "||B||_oo       = " << BInfNorm << "\n"
-                          << "||X||_oo       = " << XInfNorm << "\n"
-                          << "||A X - B||_oo = " << RInfNorm << "\n"
-                          << "||A X - B||_oo / (||A||_oo ||X||_oo epsilon n) = "
-                          << infResidual << "\n" << std::endl;
-
-            // Compute the relevant one norms and a relative residual
-            const double AOneNorm = OneNorm( ACopy );
-            const double BOneNorm = OneNorm( B );
-            const double XOneNorm = OneNorm( X );
-            const double ROneNorm = OneNorm( R );
-            const double oneResidual = ROneNorm / (AOneNorm*XOneNorm*epsilon*n);
-            if( commRank == 0 )
-                std::cout << "||A||_1       = " << AOneNorm << "\n"
-                          << "||B||_1       = " << BOneNorm << "\n"
-                          << "||X||_1       = " << XOneNorm << "\n"
-                          << "||A X - B||_1 = " << ROneNorm << "\n"
-                          << "||A X - B||_1 / (||A||_1 ||X||_1 epsilon n) = " 
-                          << oneResidual << "\n" << std::endl;
-            
-            if( commRank == 0 )
-                std::cout << std::endl;
         }
     }
     catch( std::exception& e ) { ReportException(e); }

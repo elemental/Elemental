@@ -14,6 +14,7 @@
 #include "./QR/BusingerGolub.hpp"
 #include "./QR/Cholesky.hpp"
 #include "./QR/Householder.hpp"
+#include "./QR/SolveAfter.hpp"
 #include "./QR/Explicit.hpp"
 #include "./QR/TS.hpp"
 

@@ -18,7 +18,7 @@ Fundamental functionality additions
 [o] Finishing prototype generalized Spectral Divide and Conquer
 [-] Windowed QR with column pivoting
 [-] Power-method-like p-norm estimation
-[-] QL factorization
+[-] QL factorization and {lq,ql}::SolveAfter
 [-] Strong RRQR and RRLQ 
 [-] CUR decompositions (already have (pseudo-)skeleton)
 [-] Complete Orthogonal Decompositions (especially URV)
@@ -32,7 +32,6 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
-[o] qr::SolveAfter
 [o] Add Bunch-Kaufman C now that explicit permutations are used
 [o] Simplify MPI wrappers by allowing for displacements to be automatically
     computed from counts if not specified
@@ -53,7 +52,6 @@ Incremental functionality improvements
 [-] Distribute between different grids for any distribution
 [-] Way for DistMatrix with single process to view Matrix, and operator=
 [-] Ostrowski matrices
-[-] Transpose option for LeastSquares
 [-] Various approaches (e.g., HJS) for parallel tridiagonalization
 [-] Wrappers for more LAPACK eigensolvers
 [-] Sequential versions of Trr2k 
@@ -74,10 +72,7 @@ Maintenance priorities
 
 Bug avoidance
 -------------
-[o] More error checks in (Dist)Matrix, e.g., in GetLocal and (Locked)Buffer
 [-] Have matrix data zeroed by default? (to prevent NaN initialization bugs)
-[-] Investigate (potential) minor memory leak in schur::SDC
-[-] Investigate (potential) occasional invalid reads in PMR_process_r_queue
 
 Instrumentation/visualization/testing
 -------------------------------------
@@ -90,8 +85,9 @@ Instrumentation/visualization/testing
     normal, triangular, Hessenberg, etc., so that each test driver can easily
     test each member from that class.
 
-Consistency
------------
+Consistency/modularity
+----------------------
+[-] Extract BLAS/LAPACK/MPI wrappers into a separate project
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 [-] Consistent implementation of unblocked routines
 [-] Separate out local blas-like and lapack-like operations

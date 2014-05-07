@@ -12,6 +12,7 @@
 
 #include "./LQ/ApplyQ.hpp"
 #include "./LQ/Householder.hpp"
+#include "./LQ/SolveAfter.hpp"
 #include "./LQ/Explicit.hpp"
 
 namespace elem {
