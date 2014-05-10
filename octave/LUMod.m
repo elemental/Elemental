@@ -47,15 +47,8 @@ for i=minDim-1:-1:1,
     % Simultaneously perform 
     %   U := P_i U and
     %   L := P_i L P_i^T
-    upsSub = A(i,i);
-    uSub(i) = upsSub;
-    lambdaSup = A(i+1,i);
-    A([i,i+1],:)=A([i+1,i],:);
-    A(i,  i) = 0;
-    A(i+1,i) = 0;
-    A(i+2:end,[i,i+1])=A(i+2:end,[i+1,i]);
-
-    % Update
+    %
+    % Then update
     %     L := L T_{i,L}^{-1},
     %     U := T_{i,L} U, 
     %     w := T_{i,L} P_i w,
@@ -63,19 +56,23 @@ for i=minDim-1:-1:1,
     % 
     % More succinctly,
     %     gamma    := w(i) / w(i+1),
-    %     L(:,i)   += gamma L(:,i+1),
-    %     U(i+1,:) -= gamma U(i,:),
     %     w(i)     := w(i+1), 
-    %     w(i+1)   := 0.
-    % TODO: Combine this with the previous permutation?
+    %     w(i+1)   := 0,
+    %     L(:,i)   += gamma L(:,i+1),
+    %     U(i+1,:) -= gamma U(i,:).
     gamma = w(i) / w(i+1);
-    A(i+2:end,i) = A(i+2:end,i) + gamma*A(i+2:end,i+1);
+    uSub(i) = A(i,i);
+    lambdaSup = A(i+1,i);
     lambda_ii = 1 + gamma*lambdaSup;
-    A(i+1,i) = gamma;
-    A(i+1,i+2:end) = A(i+1,i+2:end) - gamma*A(i,i+2:end);
-    A(i+1,i+1) = A(i+1,i+1) - gamma*A(i,i+1);
-    w(i)   = w(i+1);
-    w(i+1) = 0;
+    w(i) = w(i+1);
+    A(i,  i) = gamma;
+    A(i+1,i) = 0;
+    % The following operation can be efficient in distributed settings
+    A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]) + ...
+                        [gamma*A(i+2:end,i),0*A(i+2:end,i+1)];
+    % The following two operations should be merged in distributed settings
+    A([i,i+1],:)=A([i+1,i],:);
+    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
 
     % Force L back to *unit* lower-triangular form via the transform
     %     L := L T_{i,U}^{-1} D^{-1}, 
@@ -96,20 +93,13 @@ for i=minDim-1:-1:1,
     eta = lambdaSup/lambda_ii;
     delta_i = lambda_ii;
     delta_ip1 = 1 - eta*gamma;
-    A(i+2:end,i+1) = A(i+2:end,i+1) - eta*A(i+2:end,i);
-    A(i+1,    i  ) = gamma          / delta_i;
-    A(i+2:end,i  ) = A(i+2:end,i  ) / delta_i;
-    A(i+2:end,i+1) = A(i+2:end,i+1) / delta_ip1;
+    A(i+2:end,i+1) = (A(i+2:end,i+1) - eta*A(i+2:end,i)) / delta_ip1;
+    A(i+1:end,i  ) = A(i+1:end,i  ) / delta_i;
 
-    A(i,i      ) = A(i,i      ) + eta*upsSub;
-    A(i,i+1    ) = A(i,i+1    ) + eta*A(i+1,i+1    );
-    A(i,i+2:end) = A(i,i+2:end) + eta*A(i+1,i+2:end);
-    A(i,i      ) = A(i,i      )*delta_i;
-    A(i,i+1    ) = A(i,i+1    )*delta_i;
-    A(i,i+2:end) = A(i,i+2:end)*delta_i;
+    A(i,i      ) = (A(i,i      ) + eta*uSub(i)       ) * delta_i;
+    A(i,i+1:end) = (A(i,i+1:end) + eta*A(i+1,i+1:end)) * delta_i;
     uSub(i)        = uSub(i)       *delta_ip1;
-    A(i+1,i+1    ) = A(i+1,i+1    )*delta_ip1;
-    A(i+1,i+2:end) = A(i+1,i+2:end)*delta_ip1;
+    A(i+1,i+1:end) = A(i+1,i+1:end)*delta_ip1;
 
     w(i) = w(i)*delta_i;
   else
@@ -125,12 +115,10 @@ for i=minDim-1:-1:1,
     %     U(i+1,:) -= gamma U(i,:),
     %     w(i+1)   := 0.
     gamma = w(i+1) / w(i);
+    A(i+1,    i) = A(i+1,    i) + gamma;
     A(i+2:end,i) = A(i+2:end,i) + gamma*A(i+2:end,i+1);
-    A(i+1,i) = A(i+1,i) + gamma;
-    A(i+1,i+2:end) = A(i+1,i+2:end) - gamma*A(i,i+2:end);
     uSub(i) = -gamma*A(i,i);
-    A(i+1,i+1) = A(i+1,i+1) - gamma*A(i,i+1);
-    w(i+1) = 0;
+    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
   end
 end
 
@@ -147,17 +135,9 @@ for i=1:minDim-1,
 
     % Simultaneously perform 
     %   U := P_i U and
-    %   L := P_i L P_i^T
-    tmp = uSub(i);
-    upsSub = A(i,i);
-    uSub(i) = upsSub;
-    lambdaSup = A(i+1,i);
-    A([i,i+1],:)=A([i+1,i],:);
-    A(i,  i) = tmp;
-    A(i+1,i) = 0;
-    A(i+2:end,[i,i+1])=A(i+2:end,[i+1,i]);
-
-    % Update
+    %   L := P_i L P_i^T.
+    %
+    % Then update
     %     L := L T_{i,L}^{-1},
     %     U := T_{i,L} U, 
     % where T_{i,L} is the Gauss transform which zeros U(i+1,i).
@@ -166,13 +146,17 @@ for i=1:minDim-1,
     %     gamma    := U(i+1,i) / U(i,i),
     %     L(:,i)   += gamma L(:,i+1),
     %     U(i+1,:) -= gamma U(i,:),
-    % TODO: Combine this with the previous permutation?
-    gamma = uSub(i) / A(i,i);
+    gamma = A(i,i) / uSub(i);
+    lambdaSup = A(i+1,i);
     lambda_ii = 1 + gamma*lambdaSup;
-    A(i+1,    i  ) = gamma;
-    A(i+2:end,i  ) = A(i+2:end,i) + gamma*A(i+2:end,i+1);
-    A(i+1,i+1    ) = A(i+1,i+1    ) - gamma*A(i,i+1    );
-    A(i+1,i+2:end) = A(i+1,i+2:end) - gamma*A(i,i+2:end);
+    A(i+1,i) = uSub(i);
+    uSub(i) = A(i,i);
+    A(i,i) = gamma;
+    A([i,i+1],:)=A([i+1,i],:);
+    % The following operation can be efficient in distributed settings
+    A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]) + ...
+                        [gamma*A(i+2:end,i),0*A(i+2:end,i+1)];
+    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
 
     % Force L back to *unit* lower-triangular form via the transform
     %     L := L T_{i,U}^{-1} D^{-1}, 
@@ -191,14 +175,12 @@ for i=1:minDim-1,
     eta = lambdaSup/lambda_ii;
     delta_i = lambda_ii;
     delta_ip1 = 1 - eta*gamma;
-    A(i+2:end,i+1) = A(i+2:end,i+1) - eta*A(i+2:end,i);
-    A(i+1,    i  ) = gamma          / delta_i;
-    A(i+2:end,i  ) = A(i+2:end,i  ) / delta_i;
-    A(i+2:end,i+1) = A(i+2:end,i+1) / delta_ip1;
+    A(i+2:end,i+1) = (A(i+2:end,i+1) - eta*A(i+2:end,i)) / delta_ip1;
+    A(i+1:end,i  ) =  A(i+1:end,i  )                     / delta_i;
 
-    A(i,i+1:end) = A(i,i+1:end) + eta*A(i+1,i+1:end);
-    A(i,  i  :end) = A(i,  i  :end)*delta_i;
-    A(i+1,i+1:end) = A(i+1,i+1:end)*delta_ip1;
+    A(i,i) = A(i,i)*delta_i;
+    A(i,  i+1:end) = (A(i,  i+1:end) + eta*A(i+1,i+1:end))*delta_i;
+    A(i+1,i+1:end) =  A(i+1,i+1:end)                      *delta_ip1;
   else
     % Update
     %     L := L T_{i,L}^{-1},
@@ -210,8 +192,8 @@ for i=1:minDim-1,
     %     L(:,i)   += gamma L(:,i+1),
     %     U(i+1,:) -= gamma U(i,:).
     gamma = uSub(i) / A(i,i);
-    A(i+1,    i) = A(i+1,    i) + gamma*1;
-    A(i+2:end,i) = A(i+2:end,i) + gamma*A(i+2:end,i+1);
-    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
+    A(i+1,    i      ) = A(i+1,    i      ) + gamma;
+    A(i+2:end,i      ) = A(i+2:end,i      ) + gamma*A(i+2:end,i+1    );
+    A(i+1,    i+1:end) = A(i+1,    i+1:end) - gamma*A(i,      i+1:end);
   end
 end

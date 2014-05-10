@@ -62,7 +62,6 @@ for i=minDim-1:-1:1,
     %     U(i+1,:) -= gamma U(i,:),
     %     w(i)     := w(i+1), 
     %     w(i+1)   := 0.
-    % TODO: Combine this with the previous permutation?
     gamma = w(i) / w(i+1);
     L(:,i) = L(:,i) + gamma*L(:,i+1);
     U(i+1,:) = U(i+1,:) - gamma*U(i,:);
@@ -143,7 +142,6 @@ for i=1:minDim-1,
     %     gamma    := U(i+1,i) / U(i,i),
     %     L(:,i)   += gamma L(:,i+1),
     %     U(i+1,:) -= gamma U(i,:),
-    % TODO: Combine this with the previous permutation?
     gamma = U(i+1,i) / U(i,i);
     L(:,i) = L(:,i) + gamma*L(:,i+1); 
     U(i+1,:) = U(i+1,:) - gamma*U(i,:);
