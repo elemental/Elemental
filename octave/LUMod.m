@@ -62,17 +62,19 @@ for i=minDim-1:-1:1,
     %     U(i+1,:) -= gamma U(i,:).
     gamma = w(i) / w(i+1);
     uSub(i) = A(i,i);
-    lambdaSup = A(i+1,i);
-    lambda_ii = 1 + gamma*lambdaSup;
+    lambdaSub = A(i+1,i);
+    lambda_ii = 1 + gamma*lambdaSub;
     w(i) = w(i+1);
     A(i,  i) = gamma;
     A(i+1,i) = 0;
-    % The following operation can be efficient in distributed settings
-    A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]) + ...
-                        [gamma*A(i+2:end,i),0*A(i+2:end,i+1)];
-    % The following two operations should be merged in distributed settings
+
+    lBiCopy = A(i+2:end,i);
+    A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]);
+    A(i+2:end,i) = A(i+2:end,i) + gamma*lBiCopy;
+
+    uip1RCopy = A(i+1,i+1:end);
     A([i,i+1],:)=A([i+1,i],:);
-    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
+    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*uip1RCopy;
 
     % Force L back to *unit* lower-triangular form via the transform
     %     L := L T_{i,U}^{-1} D^{-1}, 
@@ -90,7 +92,7 @@ for i=minDim-1:-1:1,
     %     U(i+1,:) *= delta_{i+1},
     % and the effect on w is
     %     w(i) *= delta_i.
-    eta = lambdaSup/lambda_ii;
+    eta = lambdaSub/lambda_ii;
     delta_i = lambda_ii;
     delta_ip1 = 1 - eta*gamma;
     A(i+2:end,i+1) = (A(i+2:end,i+1) - eta*A(i+2:end,i)) / delta_ip1;
@@ -147,15 +149,18 @@ for i=1:minDim-1,
     %     L(:,i)   += gamma L(:,i+1),
     %     U(i+1,:) -= gamma U(i,:),
     gamma = A(i,i) / uSub(i);
-    lambdaSup = A(i+1,i);
-    lambda_ii = 1 + gamma*lambdaSup;
+    lambdaSub = A(i+1,i);
+    lambda_ii = 1 + gamma*lambdaSub;
     A(i+1,i) = uSub(i);
     A(i,i) = gamma;
-    % The following operation can be efficient in distributed settings
-    A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]) + ...
-                        [gamma*A(i+2:end,i),0*A(i+2:end,i+1)];
+
+    lBiCopy = A(i+2:end,i);
+    A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]);
+    A(i+2:end,i) = A(i+2:end,i) + gamma*lBiCopy;
+
+    uip1RCopy = A(i+1,i+1:end);
     A([i,i+1],:)=A([i+1,i],:);
-    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
+    A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*uip1RCopy;
 
     % Force L back to *unit* lower-triangular form via the transform
     %     L := L T_{i,U}^{-1} D^{-1}, 
@@ -171,7 +176,7 @@ for i=1:minDim-1,
     %     U(i,:)   += eta U(i+1,:)
     %     U(i,:)   *= delta(i),
     %     U(i+1,:) *= delta(i+1).
-    eta = lambdaSup/lambda_ii;
+    eta = lambdaSub/lambda_ii;
     delta_i = lambda_ii;
     delta_ip1 = 1 - eta*gamma;
     A(i+2:end,i+1) = (A(i+2:end,i+1) - eta*A(i+2:end,i)) / delta_ip1;

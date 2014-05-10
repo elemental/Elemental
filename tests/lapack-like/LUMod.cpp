@@ -9,6 +9,8 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include ELEM_GEMM_INC
+#include ELEM_GER_INC
+#include ELEM_GERU_INC
 #include ELEM_LU_INC
 #include ELEM_FROBENIUSNORM_INC
 #include ELEM_INFINITYNORM_INC
@@ -20,28 +22,22 @@ using namespace elem;
 
 template<typename F,Dist UPerm> 
 void TestCorrectness
-( Int pivoting, bool print, 
+( bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& pPerm,
-  const DistMatrix<Int,UPerm,STAR>& qPerm,
+  const DistMatrix<Int,UPerm,STAR>& perm,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
-    const Int m = AOrig.Height();
+    const Int n = AOrig.Width();
 
     if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
 
     // Generate random right-hand sides
-    auto X = Uniform<F>( g, m, 100 );
+    auto X = Uniform<F>( g, n, 100 );
     auto Y( X );
-    if( pivoting == 0 )
-        lu::SolveAfter( NORMAL, A, Y );
-    else if( pivoting == 1 )
-        lu::SolveAfter( NORMAL, A, pPerm, Y );
-    else
-        lu::SolveAfter( NORMAL, A, pPerm, qPerm, Y );
+    lu::SolveAfter( NORMAL, A, perm, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const Real oneNormOfX = OneNorm( X );
@@ -70,12 +66,12 @@ void TestCorrectness
 }
 
 template<typename F,Dist UPerm> 
-void TestLU
-( Int pivoting, bool testCorrectness, bool print, 
-  Int m, const Grid& g )
+void TestLUMod
+( bool conjugate, Base<F> tau,
+  bool testCorrectness, bool print, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<Int,UPerm,STAR> pPerm(g), qPerm(g);
+    DistMatrix<Int,UPerm,STAR> perm(g);
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -92,50 +88,71 @@ void TestLU
     if( print )
         Print( A, "A" );
 
-    if( g.Rank() == 0 )
     {
-        cout << "  Starting LU factorization...";
-        cout.flush();
+        if( g.Rank() == 0 )
+        {
+            cout << "  Starting full LU factorization...";
+            cout.flush();
+        }
+        mpi::Barrier( g.Comm() );
+        const double startTime = mpi::Time();
+        LU( A, perm );
+        mpi::Barrier( g.Comm() );
+        const double runTime = mpi::Time() - startTime;
+        const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
+        const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
+        if( g.Rank() == 0 )
+            cout << "DONE.\n" << "  Time = " << runTime << " seconds. GFlops = "
+                 << gFlops << endl;
     }
-    mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
-    if( pivoting == 0 )
-        LU( A );
-    else if( pivoting == 1 )
-        LU( A, pPerm );
-    else if( pivoting == 2 )
-        LU( A, pPerm, qPerm );
 
-    mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
-    if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
     if( print )
     {
-        Print( A, "A after factorization" );
-        if( pivoting >= 1 )
-        {
-            Print( pPerm, "pPerm after factorization");
-            DistMatrix<Int> P(g);
-            ExplicitPermutation( pPerm, P );
-            Print( P, "P" );
-        }
-        if( pivoting == 2 )
-        {
-            Print( qPerm, "qPerm after factorization");
-            DistMatrix<Int> Q(g);
-            ExplicitPermutation( qPerm, Q );
-            Print( Q, "Q" );
-        }
+        Print( A, "A after original factorization" );
+        Print( perm, "perm after original factorization");
+        DistMatrix<Int> P(g);
+        ExplicitPermutation( perm, P );
+        Print( P, "P" );
     }
+
+    // Generate random vectors u and v
+    DistMatrix<F> u(g), v(g);
+    Uniform( u, m, 1 );
+    Uniform( v, m, 1 );
     if( testCorrectness )
-        TestCorrectness( pivoting, print, A, pPerm, qPerm, AOrig );
+    {
+        if( conjugate )
+            Ger( F(1), u, v, AOrig );
+        else
+            Geru( F(1), u, v, AOrig );
+    }
+
+    { 
+        if( g.Rank() == 0 )
+        {
+            cout << "  Starting rank-one LU modification...";
+            cout.flush();
+        }
+        mpi::Barrier( g.Comm() );
+        const double startTime = mpi::Time();
+        lu::Mod( A, perm, u, v, conjugate, tau );
+        mpi::Barrier( g.Comm() );
+        const double runTime = mpi::Time() - startTime;
+        if( g.Rank() == 0 )
+            cout << "DONE.\n" << "  Time = " << runTime << " seconds." << endl;
+    }
+
+    if( print )
+    {
+        Print( A, "A after modification" );
+        Print( perm, "perm after modification");
+        DistMatrix<Int> P(g);
+        ExplicitPermutation( perm, P );
+        Print( P, "P" );
+    }
+
+    if( testCorrectness )
+        TestCorrectness( print, A, perm, AOrig );
 }
 
 int 
@@ -152,14 +169,13 @@ main( int argc, char* argv[] )
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const Int pivot = Input("--pivot","0: none, 1: partial, 2: full",1);
+        const double tau = Input("--tau","pivot threshold",0.1);
+        const bool conjugate = Input("--conjugate","conjugate v?",true);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
-        if( pivot < 0 || pivot > 2 )
-            LogicError("Invalid pivot value");
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -167,24 +183,15 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
         SetBlocksize( nb );
         ComplainIfDebug();
-        if( commRank == 0 )
-        {
-            cout << "Will test LU with ";
-            if( pivot == 0 )
-                cout << "no pivoting" << std::endl;
-            else if( pivot == 1 )
-                cout << "partial pivoting" << std::endl;
-            else if( pivot == 2 )
-                cout << "full pivoting" << std::endl;
-        }
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestLU<double,MC>( pivot, testCorrectness, print, m, g );
+        TestLUMod<double,MC>( conjugate, tau, testCorrectness, print, m, g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestLU<Complex<double>,MC>( pivot, testCorrectness, print, m, g );
+        TestLUMod<Complex<double>,MC>
+        ( conjugate, tau, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

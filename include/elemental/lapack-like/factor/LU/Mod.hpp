@@ -63,18 +63,16 @@ Mod
     for( Int i=minDim-2; i>=0; --i )
     {
         // Decide if we should pivot the i'th and i+1'th rows of w
+        const F lambdaSub = A.Get( i+1, i );
         const F ups_ii = A.Get(i,i); 
         const F omega_i = w.Get( i, 0 );
         const F omega_ip1 = w.Get( i+1, 0 );
-        const Real rightTerm = Abs(A.Get(i+1,i)*omega_i+omega_ip1);
+        const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
         auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
         auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto ai    = ViewRange( A, i,   0,   i+1, n   );
-        auto aiL   = ViewRange( A, i,   0,   i+1, i+1 );
         auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto aip1  = ViewRange( A, i+1, 0,   i+2, n   );
         auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
 
         if( pivot )
@@ -98,21 +96,18 @@ Mod
             //     w(i+1)   := 0,
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
-            const F gamma = w.Get(i,0) / omega_ip1;
-            uSub.Set( i, 0, ups_ii );
-            const F lambdaSup = A.Get(i+1,i);
-            const F lambda_ii = F(1) + gamma*lambdaSup;
+            const F gamma = omega_i / omega_ip1;
+            const F lambda_ii = F(1) + gamma*lambdaSub;
             A.Set( i,   i, gamma );
             A.Set( i+1, i, 0     );
+
             auto lBiCopy = lBi;
-            Scale( gamma, lBi );
-            Axpy( F(1), lBip1, lBi );
-            lBip1 = lBiCopy;
-            auto aiCopy = ai;
-            MakeZeros( aiL );
-            Scale( -gamma, uiR );
-            Axpy( F(1), aip1, ai );
-            aip1 = aiCopy;
+            Swap( NORMAL, lBi, lBip1 );
+            Axpy( gamma, lBiCopy, lBi );
+
+            auto uip1RCopy = uip1R;
+            RowSwap( A, i, i+1 );
+            Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
             //     L := L T_{i,U}^{-1} D^{-1}, 
@@ -130,19 +125,20 @@ Mod
             //     U(i+1,:) *= delta_{i+1},
             // and the effect on w is
             //     w(i) *= delta_i.
-            const F eta = lambdaSup/lambda_ii;
+            const F eta = lambdaSub/lambda_ii;
             const F delta_i = lambda_ii;
             const F delta_ip1 = F(1) - eta*gamma;
+
             Axpy( -eta, lBi, lBip1 );
-            Scale( 1/delta_ip1, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( 1/delta_i, lBi );
+            Scale( F(1)/delta_i,   lBi   );
+            Scale( F(1)/delta_ip1, lBip1 );
 
             A.Set( i, i, eta*ups_ii*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i, uiR );
-            uSub.Set( i, 0, ups_ii*delta_i );
+            Scale( delta_i,   uiR   );
             Scale( delta_ip1, uip1R );
+            uSub.Set( i, 0, ups_ii*delta_ip1 );
 
             // Finally set w(i)
             w.Set( i, 0, omega_ip1*delta_i );
@@ -160,11 +156,11 @@ Mod
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:),
             //     w(i+1)   := 0.
-            const Real gamma = omega_ip1 / omega_i;
+            const F gamma = omega_ip1 / omega_i;
             A.Update( i+1, i, gamma );
             Axpy(  gamma, lBip1, lBi );
-            uSub.Set( i, 0, -gamma*ups_ii );
             Axpy( -gamma, uiR, uip1R );
+            uSub.Set( i, 0, -gamma*ups_ii );
         }
     }
 
@@ -181,17 +177,15 @@ Mod
     for( Int i=0; i<minDim-1; ++i ) 
     {
         // Decide if we should pivot the i'th and i+1'th rows U
+        const F lambdaSub = A.Get(i+1,i);
         const F ups_ii = A.Get( i, i );
         const F ups_ip1i = uSub.Get( i, 0 );
-        const Real rightTerm = Abs(A.Get(i+1,i)*ups_ii+ups_ip1i);
+        const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
         auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
         auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto ai    = ViewRange( A, i,   0,   i+1, n   );
-        auto aiL   = ViewRange( A, i,   0,   i+1, i+1 );
         auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto aip1  = ViewRange( A, i+1, 0,   i+2, n   );
         auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
 
         if( pivot )
@@ -213,20 +207,17 @@ Mod
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
             const F gamma = ups_ii / ups_ip1i;
-            const F lambdaSup = A.Get(i+1,i);
-            const F lambda_ii = F(1) + gamma*lambdaSup;
+            const F lambda_ii = F(1) + gamma*lambdaSub;
             A.Set( i+1, i, ups_ip1i );
-            uSub.Set( i, 0, ups_ii );
             A.Set( i, i, gamma );
+
             auto lBiCopy = lBi;
-            Scale( gamma, lBi );
-            Axpy( F(1), lBip1, lBi );
-            lBip1 = lBiCopy;
-            auto aiCopy = ai;
-            MakeZeros( aiL );
-            Scale( -gamma, uiR );
-            Axpy( F(1), aip1, ai );
-            aip1 = aiCopy;
+            Swap( NORMAL, lBi, lBip1 );
+            Axpy( gamma, lBiCopy, lBi );
+
+            auto uip1RCopy = uip1R;
+            RowSwap( A, i, i+1 );
+            Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
             //     L := L T_{i,U}^{-1} D^{-1}, 
@@ -242,17 +233,18 @@ Mod
             //     U(i,:)   += eta U(i+1,:)
             //     U(i,:)   *= delta_i,
             //     U(i+1,:) *= delta_{i+1}.
-            const F eta = lambdaSup/lambda_ii;
+            const F eta = lambdaSub/lambda_ii;
             const F delta_i = lambda_ii;
             const F delta_ip1 = F(1) - eta*gamma;
+
             Axpy( -eta, lBi, lBip1 );
-            Scale( 1/delta_ip1, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( 1/delta_i, lBi );
+            Scale( F(1)/delta_i,   lBi   );
+            Scale( F(1)/delta_ip1, lBip1 );
 
             A.Set( i, i, ups_ip1i*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i, uiR );
+            Scale( delta_i,   uiR   );
             Scale( delta_ip1, uip1R );
         }
         else
@@ -266,7 +258,7 @@ Mod
             //     gamma    := U(i+1,i)/ U(i,i),
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
-            const Real gamma = ups_ip1i / ups_ii;
+            const F gamma = ups_ip1i / ups_ii;
             A.Update( i+1, i, gamma );
             Axpy(  gamma, lBip1, lBi );
             Axpy( -gamma, uiR, uip1R );
@@ -302,24 +294,23 @@ Mod
     uSub.AlignCols( A.DiagonalAlign(-1) );
     Zeros( uSub, minDim-1, 1 );
 
-    // TODO: Consider locally maintaining all of w to avoid continual Bcast's
+    // TODO: Consider locally maintaining all of w to avoid unnecessarily 
+    //       broadcasting at every iteration.
 
     // Reduce w to a multiple of e0
     for( Int i=minDim-2; i>=0; --i )
     {
         // Decide if we should pivot the i'th and i+1'th rows of w
+        const F lambdaSub = A.Get(i+1,i);
         const F ups_ii = A.Get(i,i); 
         const F omega_i = w.Get( i, 0 );
         const F omega_ip1 = w.Get( i+1, 0 );
-        const Real rightTerm = Abs(A.Get(i+1,i)*omega_i+omega_ip1);
+        const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
         auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
         auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto ai    = ViewRange( A, i,   0,   i+1, n   );
-        auto aiL   = ViewRange( A, i,   0,   i+1, i+1 );
         auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto aip1  = ViewRange( A, i+1, 0,   i+2, n   );
         auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
 
         if( pivot )
@@ -343,21 +334,18 @@ Mod
             //     w(i+1)   := 0,
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
-            const F gamma = w.Get(i,0) / omega_ip1;
-            uSub.Set( i, 0, ups_ii );
-            const F lambdaSup = A.Get(i+1,i);
-            const F lambda_ii = F(1) + gamma*lambdaSup;
+            const F gamma = omega_i / omega_ip1;
+            const F lambda_ii = F(1) + gamma*lambdaSub;
             A.Set( i,   i, gamma );
             A.Set( i+1, i, 0     );
+
             auto lBiCopy = lBi;
-            Scale( gamma, lBi );
-            Axpy( F(1), lBip1, lBi );
-            lBip1 = lBiCopy;
-            auto aiCopy = ai;
-            MakeZeros( aiL );
-            Scale( -gamma, uiR );
-            Axpy( F(1), aip1, ai );
-            aip1 = aiCopy;
+            Swap( NORMAL, lBi, lBip1 );
+            Axpy( gamma, lBiCopy, lBi );
+
+            auto uip1RCopy = uip1R;
+            RowSwap( A, i, i+1 );
+            Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
             //     L := L T_{i,U}^{-1} D^{-1}, 
@@ -375,19 +363,20 @@ Mod
             //     U(i+1,:) *= delta_{i+1},
             // and the effect on w is
             //     w(i) *= delta_i.
-            const F eta = lambdaSup/lambda_ii;
+            const F eta = lambdaSub/lambda_ii;
             const F delta_i = lambda_ii;
             const F delta_ip1 = F(1) - eta*gamma;
+
             Axpy( -eta, lBi, lBip1 );
-            Scale( 1/delta_ip1, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( 1/delta_i, lBi );
+            Scale( F(1)/delta_i,   lBi   );
+            Scale( F(1)/delta_ip1, lBip1 );
 
             A.Set( i, i, eta*ups_ii*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i, uiR );
-            uSub.Set( i, 0, ups_ii*delta_i );
+            Scale( delta_i,   uiR   );
             Scale( delta_ip1, uip1R );
+            uSub.Set( i, 0, ups_ii*delta_ip1 );
 
             // Finally set w(i)
             w.Set( i, 0, omega_ip1*delta_i );
@@ -405,11 +394,11 @@ Mod
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:),
             //     w(i+1)   := 0.
-            const Real gamma = omega_ip1 / omega_i;
+            const F gamma = omega_ip1 / omega_i;
             A.Update( i+1, i, gamma );
             Axpy(  gamma, lBip1, lBi );
-            uSub.Set( i, 0, -gamma*ups_ii );
             Axpy( -gamma, uiR, uip1R );
+            uSub.Set( i, 0, -gamma*ups_ii );
         }
     }
 
@@ -427,17 +416,15 @@ Mod
     for( Int i=0; i<minDim-1; ++i ) 
     {
         // Decide if we should pivot the i'th and i+1'th rows U
+        const F lambdaSub = A.Get( i+1, i );
         const F ups_ii = A.Get( i, i );
         const F ups_ip1i = uSub.Get( i, 0 );
-        const Real rightTerm = Abs(A.Get(i+1,i)*ups_ii+ups_ip1i);
+        const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
         auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
         auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto ai    = ViewRange( A, i,   0,   i+1, n   );
-        auto aiL   = ViewRange( A, i,   0,   i+1, i+1 );
         auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto aip1  = ViewRange( A, i+1, 0,   i+2, n   );
         auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
 
         if( pivot )
@@ -459,20 +446,17 @@ Mod
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
             const F gamma = ups_ii / ups_ip1i;
-            const F lambdaSup = A.Get(i+1,i);
-            const F lambda_ii = F(1) + gamma*lambdaSup;
+            const F lambda_ii = F(1) + gamma*lambdaSub;
             A.Set( i+1, i, ups_ip1i );
-            uSub.Set( i, 0, ups_ii );
             A.Set( i, i, gamma );
+
             auto lBiCopy = lBi;
-            Scale( gamma, lBi );
-            Axpy( F(1), lBip1, lBi );
-            lBip1 = lBiCopy;
-            auto aiCopy = ai;
-            MakeZeros( aiL );
-            Scale( -gamma, uiR );
-            Axpy( F(1), aip1, ai );
-            aip1 = aiCopy;
+            Swap( NORMAL, lBi, lBip1 );
+            Axpy( gamma, lBiCopy, lBi );
+
+            auto uip1RCopy = uip1R;
+            RowSwap( A, i, i+1 );
+            Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
             //     L := L T_{i,U}^{-1} D^{-1}, 
@@ -488,17 +472,17 @@ Mod
             //     U(i,:)   += eta U(i+1,:)
             //     U(i,:)   *= delta_i,
             //     U(i+1,:) *= delta_{i+1}.
-            const F eta = lambdaSup/lambda_ii;
+            const F eta = lambdaSub/lambda_ii;
             const F delta_i = lambda_ii;
             const F delta_ip1 = F(1) - eta*gamma;
             Axpy( -eta, lBi, lBip1 );
-            Scale( 1/delta_ip1, lBip1 );
             A.Set( i+1, i, gamma/delta_i );
-            Scale( 1/delta_i, lBi );
+            Scale( F(1)/delta_i,   lBi   );
+            Scale( F(1)/delta_ip1, lBip1 );
 
             A.Set( i, i, ups_ip1i*delta_i );
             Axpy( eta, uip1R, uiR );
-            Scale( delta_i, uiR );
+            Scale( delta_i,   uiR   );
             Scale( delta_ip1, uip1R );
         }
         else
@@ -512,7 +496,7 @@ Mod
             //     gamma    := U(i+1,i)/ U(i,i),
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
-            const Real gamma = ups_ip1i / ups_ii;
+            const F gamma = ups_ip1i / ups_ii;
             A.Update( i+1, i, gamma );
             Axpy(  gamma, lBip1, lBi );
             Axpy( -gamma, uiR, uip1R );
