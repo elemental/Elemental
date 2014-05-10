@@ -96,7 +96,7 @@ for i=minDim-1:-1:1,
     A(i+2:end,i+1) = (A(i+2:end,i+1) - eta*A(i+2:end,i)) / delta_ip1;
     A(i+1:end,i  ) = A(i+1:end,i  ) / delta_i;
 
-    A(i,i      ) = (A(i,i      ) + eta*uSub(i)       ) * delta_i;
+    A(i,i      ) = (               eta*uSub(i)       ) * delta_i;
     A(i,i+1:end) = (A(i,i+1:end) + eta*A(i+1,i+1:end)) * delta_i;
     uSub(i)        = uSub(i)       *delta_ip1;
     A(i+1,i+1:end) = A(i+1,i+1:end)*delta_ip1;
@@ -150,12 +150,11 @@ for i=1:minDim-1,
     lambdaSup = A(i+1,i);
     lambda_ii = 1 + gamma*lambdaSup;
     A(i+1,i) = uSub(i);
-    uSub(i) = A(i,i);
     A(i,i) = gamma;
-    A([i,i+1],:)=A([i+1,i],:);
     % The following operation can be efficient in distributed settings
     A(i+2:end,[i,i+1]) = A(i+2:end,[i+1,i]) + ...
                         [gamma*A(i+2:end,i),0*A(i+2:end,i+1)];
+    A([i,i+1],:)=A([i+1,i],:);
     A(i+1,i+1:end) = A(i+1,i+1:end) - gamma*A(i,i+1:end);
 
     % Force L back to *unit* lower-triangular form via the transform

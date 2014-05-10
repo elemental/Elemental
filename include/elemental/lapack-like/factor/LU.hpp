@@ -19,6 +19,7 @@
 #include "./LU/Local.hpp"
 #include "./LU/Panel.hpp"
 #include "./LU/Full.hpp"
+#include "./LU/Mod.hpp"
 #include "./LU/SolveAfter.hpp"
 
 namespace elem {
