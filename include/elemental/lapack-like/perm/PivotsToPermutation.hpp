@@ -38,8 +38,10 @@ PivotsToPermutation
     for( Int i=0; i<range; ++i )
         perm.Set( i, 0, i );
 
-    // Track the image of the pivot sequence
-    for( Int i=n-1; i>=0; --i )
+    // Track the location of the nonzero column in each row of the permutation
+    // NOTE: Assuming that we have enough memory, it would be faster to perform
+    //       this procedure sequentially
+    for( Int i=0; i<n; ++i )
     {
         const Int j = pivots.Get(i,0)-offset;
         RowSwap( perm, i, j );
@@ -73,10 +75,10 @@ PivotsToPermutation
     for( Int iLoc=0; iLoc<perm.LocalHeight(); ++iLoc )
         perm.SetLocal( iLoc, 0, perm.GlobalRow(iLoc) );
 
-    // Track the image of the pivot sequence
+    // Track the location of the nonzero column in each row of the permutation
     // NOTE: Assuming that we have enough memory, it would be faster to perform
     //       this procedure sequentially
-    for( Int i=n-1; i>=0; --i )
+    for( Int i=0; i<n; ++i )
     {
         const Int j = pivots.Get(i,0)-offset;
         RowSwap( perm, i, j );
@@ -106,8 +108,10 @@ PivotsToInversePermutation
     for( Int i=0; i<range; ++i )
         invPerm.Set( i, 0, i );
 
-    // Track the preimage of the pivot sequence
-    for( Int i=0; i<n; ++i )
+    // Track the location of the nonzero in each column of the permutation
+    // NOTE: Assuming that we have enough memory, it would be faster to perform
+    //       this procedure sequentially
+    for( Int i=n-1; i>=0; --i )
     {
         const Int j = pivots.Get(i,0)-offset;
         RowSwap( invPerm, i, j );
@@ -141,10 +145,10 @@ PivotsToInversePermutation
     for( Int iLoc=0; iLoc<invPerm.LocalHeight(); ++iLoc )
         invPerm.SetLocal( iLoc, 0, invPerm.GlobalRow(iLoc) );
 
-    // Track the preimage of the pivot sequence
+    // Track the location of the nonzero in each column of the permutation
     // NOTE: Assuming that we have enough memory, it would be faster to perform
     //       this procedure sequentially
-    for( Int i=0; i<n; ++i )
+    for( Int i=n-1; i>=0; --i )
     {
         const Int j = pivots.Get(i,0)-offset;
         RowSwap( invPerm, i, j );

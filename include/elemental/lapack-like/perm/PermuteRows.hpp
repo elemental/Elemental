@@ -43,7 +43,7 @@ PermuteRows
     Matrix<T> APreimageCopy( b, n );
     for( Int i=0; i<b; ++i ) 
     {
-        const Int iPre = invPerm.Get(i,0);
+        const Int iPre = perm.Get(i,0);
         if( iPre >= b )
             for( Int j=0; j<n; ++j )
                 APreimageCopy.Set(i,j,A.Get(iPre,j));
@@ -52,8 +52,8 @@ PermuteRows
     // Apply the permutations
     for( Int i=0; i<b; ++i )
     {
-        const Int iPre = invPerm.Get(i,0);
-        const Int iPost = perm.Get(i,0);
+        const Int iPre = perm.Get(i,0);
+        const Int iPost = invPerm.Get(i,0);
         // Move row[i] into row[image[i]]
         for( Int j=0; j<n; ++j )
             A.Set(iPost,j,ARowPanCopy.Get(i,j));

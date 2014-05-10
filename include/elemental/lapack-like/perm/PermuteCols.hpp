@@ -42,7 +42,7 @@ PermuteCols( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm )
     Matrix<T> APreimageCopy( m, b );
     for( Int j=0; j<b; ++j )
     {
-        const Int jPre = invPerm.Get(j,0);
+        const Int jPre = perm.Get(j,0);
         if( jPre >= b )
             MemCopy( APreimageCopy.Buffer(0,j), A.LockedBuffer(0,jPre), m );
     }
@@ -50,8 +50,8 @@ PermuteCols( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm )
     // Apply the permutations
     for( Int j=0; j<b; ++j )
     {
-        const Int jPre = invPerm.Get(j,0);
-        const Int jPost = perm.Get(j,0);
+        const Int jPre = perm.Get(j,0);
+        const Int jPost = invPerm.Get(j,0);
         // Move row[j] into row[jPost]
         MemCopy( A.Buffer(0,jPost), AColPanCopy.LockedBuffer(0,j), m );
         // Move row[jPre] into row[j]

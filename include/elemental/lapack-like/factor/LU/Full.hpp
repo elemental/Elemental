@@ -27,14 +27,13 @@ Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
     const Int n = A.Width();
     const Int minDim = Min(m,n);
 
-    // Initialize the inverse permutations for P and Q^T
-    Matrix<Int> pInvPerm, qInvPerm;
-    pInvPerm.Resize( m, 1 );
+    // Initialize the permutations P and Q
+    pPerm.Resize( m, 1 );
     for( Int i=0; i<m; ++i )
-        pInvPerm.Set( i, 0, i );
-    qInvPerm.Resize( n, 1 );
+        pPerm.Set( i, 0, i );
+    qPerm.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
-        qInvPerm.Set( j, 0, j );
+        qPerm.Set( j, 0, j );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -44,11 +43,11 @@ Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
 
-        RowSwap( A,        k, iPiv );
-        RowSwap( pInvPerm, k, iPiv );
+        RowSwap( A,     k, iPiv );
+        RowSwap( pPerm, k, iPiv );
 
-        ColSwap( A,        k, jPiv );
-        RowSwap( qInvPerm, k, jPiv );
+        ColSwap( A,     k, jPiv );
+        RowSwap( qPerm, k, jPiv );
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
@@ -61,8 +60,6 @@ Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
     }
-    InvertPermutation( pInvPerm, pPerm );
-    InvertPermutation( qInvPerm, qPerm );
 }
 
 template<typename F,Dist UPerm>
@@ -80,18 +77,15 @@ Full
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    const Grid& g = A.Grid();
 
-    // Initialize the inverse permutations for P and Q^T
-    DistMatrix<Int,UPerm,STAR> pInvPerm(g), qInvPerm(g);
-    pInvPerm.AlignWith( qPerm );
-    pInvPerm.Resize( m, 1 );
-    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
-        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
-    qInvPerm.AlignWith( qPerm );
-    qInvPerm.Resize( n, 1 );
-    for( Int jLoc=0; jLoc<qInvPerm.LocalHeight(); ++jLoc )
-        qInvPerm.SetLocal( jLoc, 0, qInvPerm.GlobalRow(jLoc) );
+    // Initialize the permutations P and Q
+    qPerm.AlignWith( pPerm );
+    pPerm.Resize( m, 1 );
+    qPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
+        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
+    for( Int jLoc=0; jLoc<qPerm.LocalHeight(); ++jLoc )
+        qPerm.SetLocal( jLoc, 0, qPerm.GlobalRow(jLoc) );
 
     for( Int k=0; k<minDim; ++k )
     {
@@ -101,11 +95,11 @@ Full
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
 
-        RowSwap( A,        iPiv, k );
-        RowSwap( pInvPerm, iPiv, k );
+        RowSwap( A,     iPiv, k );
+        RowSwap( pPerm, iPiv, k );
 
-        ColSwap( A,        jPiv, k );
-        RowSwap( qInvPerm, jPiv, k );
+        ColSwap( A,     jPiv, k );
+        RowSwap( qPerm, jPiv, k );
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
@@ -118,8 +112,6 @@ Full
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
     }
-    InvertPermutation( pInvPerm, pPerm );
-    InvertPermutation( qInvPerm, qPerm );
 }
 
 } // namespace lu

@@ -24,8 +24,8 @@ ExplicitPermutation( const Matrix<Int>& perm, Matrix<Int>& P )
     )
     const Int n = perm.Height();
     Zeros( P, n, n );
-    for( Int j=0; j<n; ++j )
-        P.Set( perm.Get(j,0), j, 1 );
+    for( Int i=0; i<n; ++i )
+        P.Set( i, perm.Get(i,0), 1 );
 }
 
 template<Dist UPerm,Dist U,Dist V>
@@ -40,8 +40,8 @@ ExplicitPermutation
     )
     const Int n = perm.Height();
     Zeros( P, n, n );
-    for( Int j=0; j<n; ++j )
-        P.Set( perm.Get(j,0), j, 1 );
+    for( Int i=0; i<n; ++i )
+        P.Set( i, perm.Get(i,0), 1 );
 }
 
 } // namespace elem

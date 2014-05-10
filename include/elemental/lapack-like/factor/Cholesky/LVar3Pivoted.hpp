@@ -16,8 +16,6 @@
 
 #include ELEM_HER_INC
 
-#include ELEM_INVERTPERMUTATION_INC
-
 #include ELEM_ZEROS_INC
 
 namespace elem {
@@ -120,11 +118,10 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& pPerm )
     )
     const Int n = A.Height();
 
-    // Initialize the inverse permutation to the identity
-    Matrix<Int> pInvPerm;
-    pInvPerm.Resize( n, 1 );
+    // Initialize the permutation to the identity
+    pPerm.Resize( n, 1 );
     for( Int i=0; i<n; ++i ) 
-        pInvPerm.Set( i, 0, i );
+        pPerm.Set( i, 0, i );
      
     for( Int k=0; k<n; ++k )
     {
@@ -135,7 +132,7 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& pPerm )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        RowSwap( pInvPerm, k, from );
+        RowSwap( pPerm, k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const BASE(F) delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -148,7 +145,6 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& pPerm )
         auto A22 = ViewRange( ABR, 1, 1, n-k, n-k );
         Her( LOWER, F(-1), a21, A22 );
     }
-    InvertPermutation( pInvPerm, pPerm );
 }
 
 template<typename F,Dist UPerm>
@@ -164,12 +160,10 @@ LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
     )
     const Int n = A.Height();
 
-    // Initialize the inverse permutation to the identity
-    DistMatrix<Int,UPerm,STAR> pInvPerm(A.Grid());
-    pInvPerm.AlignWith( pPerm );
-    pInvPerm.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
-        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
+    // Initialize the permutation to the identity
+    pPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
+        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
 
     for( Int k=0; k<n; ++k )
     {
@@ -180,7 +174,7 @@ LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         // Apply the pivot
         const Int from = k + pivot.from[0];
         HermitianSwap( LOWER, A, k, from );
-        RowSwap( pInvPerm, k, from );
+        RowSwap( pPerm, k, from );
 
         // a21 := a21 / sqrt(alpha11)
         const BASE(F) delta11 = Sqrt(ABR.GetRealPart(0,0));
@@ -193,7 +187,6 @@ LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         auto A22 = ViewRange( ABR, 1, 1, n-k, n-k );
         Her( LOWER, F(-1), a21, A22 );
     }
-    InvertPermutation( pInvPerm, pPerm );
 }
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
@@ -201,7 +194,7 @@ LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
 template<typename F>
 inline void
 LPanelPivoted
-( Matrix<F>& A, Matrix<Int>& pInvPerm, 
+( Matrix<F>& A, Matrix<Int>& pPerm, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
@@ -209,8 +202,8 @@ LPanelPivoted
     DEBUG_ONLY(
         if( A.Width() != n )
             LogicError("A must be square");
-        if( pInvPerm.Height() != n || pInvPerm.Width() != 1 )
-            LogicError("inverse permutation vector is the wrong size");
+        if( pPerm.Height() != n || pPerm.Width() != 1 )
+            LogicError("permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
@@ -230,7 +223,7 @@ LPanelPivoted
         HermitianSwap( LOWER, A, to, from );
         RowSwap( XTrail, 0, pivot.from[0] );
         RowSwap( YTrail, 0, pivot.from[0] );
-        RowSwap( pInvPerm, off+k, from );
+        RowSwap( pPerm, off+k, from );
 
         // Update ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T
         auto XB0 = LockedViewRange( X,   k, 0, n-off, k   );
@@ -257,7 +250,7 @@ LPanelPivoted
 template<typename F,Dist UPerm>
 inline void
 LPanelPivoted
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pInvPerm, 
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
@@ -265,8 +258,8 @@ LPanelPivoted
     DEBUG_ONLY(
         if( A.Width() != n )
             LogicError("A must be square");
-        if( pInvPerm.Height() != n || pInvPerm.Width() != 1 )
-            LogicError("inverse permutation vector is the wrong size");
+        if( pPerm.Height() != n || pPerm.Width() != 1 )
+            LogicError("permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
@@ -288,7 +281,7 @@ LPanelPivoted
         HermitianSwap( LOWER, A, to, from );
         RowSwap( XTrail, 0, pivot.from[0] );
         RowSwap( YTrail, 0, pivot.from[0] );
-        RowSwap( pInvPerm, off+k, from );
+        RowSwap( pPerm, off+k, from );
 
         // ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T
         auto aB1 = ViewRange( ABR, k, k, n-off, k+1 );
@@ -326,18 +319,17 @@ LVar3( Matrix<F>& A, Matrix<Int>& pPerm )
     )
     const Int n = A.Height();
 
-    // Initialize the inverse permutation to the identity
-    Matrix<Int> pInvPerm;
-    pInvPerm.Resize( n, 1 );
+    // Initialize the permutation to the identity
+    pPerm.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        pInvPerm.Set( i, 0, i );
+        pPerm.Set( i, 0, i );
 
     Matrix<F> X, Y;
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        LPanelPivoted( A, pInvPerm, X, Y, nb, k );
+        LPanelPivoted( A, pPerm, X, Y, nb, k );
 
         // Update the bottom-right panel
         auto XTrail = ViewRange( X, nb,   0,    n-k, nb );
@@ -345,7 +337,6 @@ LVar3( Matrix<F>& A, Matrix<Int>& pPerm )
         auto ATrail = ViewRange( A, k+nb, k+nb, n,   n  );
         Trrk( LOWER, NORMAL, TRANSPOSE, F(-1), XTrail, YTrail, F(1), ATrail );
     }
-    InvertPermutation( pInvPerm, pPerm );
 }
 
 template<typename F,Dist UPerm>
@@ -359,12 +350,10 @@ LVar3( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
     )
     const Int n = A.Height();
 
-    // Initialize the inverse permutation to the identity
-    DistMatrix<Int,UPerm,STAR> pInvPerm(A.Grid());
-    pInvPerm.AlignWith( pPerm );
-    pInvPerm.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
-        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
+    // Initialize the permutation to the identity
+    pPerm.Resize( n, 1 );
+    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
+        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
 
     DistMatrix<F,MC,STAR> X( A.Grid() );
     DistMatrix<F,MR,STAR> Y( A.Grid() );
@@ -372,7 +361,7 @@ LVar3( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        LPanelPivoted( A, pInvPerm, X, Y, nb, k );
+        LPanelPivoted( A, pPerm, X, Y, nb, k );
 
         // Update the bottom-right panel
         auto XTrail = ViewRange( X, nb,   0,    n-k, nb );
@@ -380,7 +369,6 @@ LVar3( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         auto ATrail = ViewRange( A, k+nb, k+nb, n,   n  );
         LocalTrrk( LOWER, TRANSPOSE, F(-1), XTrail, YTrail, F(1), ATrail );
     }
-    InvertPermutation( pInvPerm, pPerm );
 }
 
 } // namespace cholesky

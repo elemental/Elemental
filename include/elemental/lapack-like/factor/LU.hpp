@@ -14,7 +14,6 @@
 #include ELEM_TRSM_INC
 
 #include ELEM_APPLYROWPIVOTS_INC
-#include ELEM_INVERTPERMUTATION_INC
 #include ELEM_PIVOTSTOPARTIALPERMUTATION_INC
 
 #include "./LU/Local.hpp"
@@ -118,11 +117,10 @@ LU( Matrix<F>& A, Matrix<Int>& pPerm )
     const Int minDim = Min(m,n);
     const Int bsize = Blocksize();
 
-    // Initialize inv(P) to the identity matrix
-    Matrix<Int> pInvPerm;
-    pInvPerm.Resize( m, 1 );
+    // Initialize P to the identity matrix
+    pPerm.Resize( m, 1 );
     for( Int i=0; i<m; ++i )
-        pInvPerm.Set( i, 0, i );
+        pPerm.Set( i, 0, i );
 
     // Temporaries for accumulating partial permutations for each block
     Matrix<Int> p1;
@@ -145,14 +143,12 @@ LU( Matrix<F>& A, Matrix<Int>& pPerm )
         PermuteRows( ABRR, p1Perm, p1InvPerm );
 
         // Update the preimage of the permutation
-        auto pInvPermB = ViewRange( pInvPerm, k, 0, m, 1 ); 
-        PermuteRows( pInvPermB, p1Perm, p1InvPerm );
+        auto pPermB = ViewRange( pPerm, k, 0, m, 1 ); 
+        PermuteRows( pPermB, p1Perm, p1InvPerm );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
     }
-    // Convert from the preimage to the image
-    InvertPermutation( pInvPerm, pPerm );
 }
 
 template<typename F> 
@@ -184,10 +180,10 @@ LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
     DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
 
-    // Initialize the inverse permutation to the identity
-    DistMatrix<Int,UPerm,STAR> pInvPerm( m, 1, g );
-    for( Int iLoc=0; iLoc<pInvPerm.LocalHeight(); ++iLoc )
-        pInvPerm.SetLocal( iLoc, 0, pInvPerm.GlobalRow(iLoc) );
+    // Initialize the permutation to the identity
+    pPerm.Resize( m, 1 );
+    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
+        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
     DistMatrix<Int,UPerm,STAR> p1Perm(g), p1InvPerm(g);
 
     for( Int k=0; k<minDim; k+=bsize )
@@ -211,8 +207,8 @@ LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         PermuteRows( AB, p1Perm, p1InvPerm );
 
         // Update the preimage of the permutation
-        auto pInvPermB = ViewRange( pInvPerm, k, 0, m, 1 ); 
-        PermuteRows( pInvPermB, p1Perm, p1InvPerm );
+        auto pPermB = ViewRange( pPerm, k, 0, m, 1 ); 
+        PermuteRows( pPermB, p1Perm, p1InvPerm );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
@@ -229,8 +225,6 @@ LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         A12 = A12_STAR_MR;
         A21 = A21_MC_STAR;
     }
-    // Convert from the preimage to the image
-    InvertPermutation( pInvPerm, pPerm );
 }
 
 template<typename F,Dist UPerm> 

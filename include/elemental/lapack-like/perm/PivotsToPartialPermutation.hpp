@@ -30,6 +30,7 @@ PivotsToPartialPermutation
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
     // A log-linear algorithm with a higher coefficient is also possible.
+
     for( Int i=0; i<b; ++i ) 
     {
         Int k = pivots.Get(i,0) - offset;
@@ -41,10 +42,9 @@ PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        invPerm.Set( i, 0, k );
+        perm.Set( i, 0, k );
     }
 
-    // Construct the image using a similar algorithm.
     for( Int i=0; i<b; ++i )
     {
         Int k = i;
@@ -56,7 +56,7 @@ PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        perm.Set( i, 0, k );
+        invPerm.Set( i, 0, k );
     }
 }
 
@@ -83,6 +83,7 @@ PivotsToPartialPermutation
     // Assume that an O(1) number of pivots is supplied and run an algorithm
     // which is quadratic in the number of pivots, but with a low coefficient.
     // A log-linear algorithm with a higher coefficient is also possible.
+
     for( Int i=0; i<b; ++i ) 
     {
         Int k = pivots.Get(i,0) - offset;
@@ -94,7 +95,7 @@ PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        invPerm.Set( i, 0, k );
+        perm.Set( i, 0, k );
     }
 
     // Construct the image using a similar algorithm.
@@ -109,7 +110,7 @@ PivotsToPartialPermutation
             else if( k == j )
                 k = relSwap;
         }
-        perm.Set( i, 0, k );
+        invPerm.Set( i, 0, k );
     }
 }
 

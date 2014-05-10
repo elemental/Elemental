@@ -17,6 +17,8 @@
 
 #include ELEM_REFLECTOR_INC
 
+#include ELEM_INVERTPERMUTATION_INC
+
 #include ELEM_ZEROS_INC
 
 #include <algorithm>
@@ -79,9 +81,10 @@ BusingerGolub
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
     // Initialize the inverse permutation to the identity
-    pPerm.Resize( n, 1 );
+    Matrix<Int> pInvPerm;
+    pInvPerm.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
-        pPerm.Set( j, 0, j ); 
+        pInvPerm.Set( j, 0, j ); 
 
     Int k=0;
     for( ; k<maxSteps; ++k )
@@ -96,7 +99,7 @@ BusingerGolub
         const ValueInt<Real> pivot = FindPivot( norms, k );
         if( pivot.value <= tol*maxOrigNorm )
             break;
-        RowSwap( pPerm, k, pivot.index );
+        RowSwap( pInvPerm, k, pivot.index );
  
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -148,6 +151,7 @@ BusingerGolub
             }
         }
     }
+    InvertPermutation( pInvPerm, pPerm );
 
     // Form d and rescale R
     auto R = View( A, 0, 0, k, n );
@@ -415,9 +419,11 @@ BusingerGolub
     std::vector<Int> inaccurateNorms;
 
     // Initialize the inverse permutation to the identity
-    pPerm.Resize( n, 1 );
-    for( Int jLoc=0; jLoc<pPerm.LocalHeight(); ++jLoc ) 
-        pPerm.SetLocal( jLoc, 0, pPerm.GlobalRow(jLoc) );
+    DistMatrix<Int,UPerm,STAR> pInvPerm( pPerm.Grid() );
+    pInvPerm.AlignWith( pPerm );
+    pInvPerm.Resize( n, 1 );
+    for( Int jLoc=0; jLoc<pInvPerm.LocalHeight(); ++jLoc ) 
+        pInvPerm.SetLocal( jLoc, 0, pInvPerm.GlobalRow(jLoc) );
 
     const Grid& g = A.Grid();
     DistMatrix<F> z21(g);
@@ -438,7 +444,7 @@ BusingerGolub
         const ValueInt<Real> pivot = FindColPivot( A, norms, k );
         if( pivot.value <= tol*maxOrigNorm )
             break;
-        RowSwap( pPerm, k, pivot.index );
+        RowSwap( pInvPerm, k, pivot.index );
 
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -538,6 +544,7 @@ BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColNorms( A, inaccurateNorms, norms, origNorms );
     }
+    InvertPermutation( pInvPerm, pPerm );
 
     // Form d and rescale R
     auto R = View( A, 0, 0, k, n );

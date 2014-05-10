@@ -89,40 +89,40 @@ inline PermutationMeta::PermutationMeta
 
     for( Int i=0; i<b; ++i )
     {
-        const Int permVal = perm.Get(i,0);
-        const Int invPermVal = invPerm.Get(i,0);        
+        const Int preVal = perm.Get(i,0);
+        const Int postVal = invPerm.Get(i,0);        
 
         // Handle sends 
-        if( perm.IsLocalRow(i) )
+        if( invPerm.IsLocalRow(i) )
         {
-            const Int iLoc = perm.LocalRow( i );
-            const Int sendTo = perm.RowOwner( permVal );
+            const Int iLoc = invPerm.LocalRow( i );
+            const Int sendTo = invPerm.RowOwner( postVal );
             sendIdx.push_back( iLoc );
             sendRanks.push_back( sendTo );
             ++sendCounts[sendTo];
         }
-        if( invPermVal >= b && perm.IsLocalRow(invPermVal) )
+        if( preVal >= b && invPerm.IsLocalRow(preVal) )
         {
-            const Int iLoc = perm.LocalRow( invPermVal );
-            const Int sendTo = perm.RowOwner( i) ;
+            const Int iLoc = invPerm.LocalRow( preVal );
+            const Int sendTo = invPerm.RowOwner( i) ;
             sendIdx.push_back( iLoc );
             sendRanks.push_back( sendTo );
             ++sendCounts[sendTo];
         }
 
         // Handle recvs
-        if( perm.IsLocalRow(permVal) )
+        if( invPerm.IsLocalRow(postVal) )
         {
-            const Int iLoc = perm.LocalRow( permVal );
-            const Int recvFrom = perm.RowOwner( i );
+            const Int iLoc = invPerm.LocalRow( postVal );
+            const Int recvFrom = invPerm.RowOwner( i );
             recvIdx.push_back( iLoc );
             recvRanks.push_back( recvFrom );
             ++recvCounts[recvFrom];
         }
-        if( invPermVal >= b && perm.IsLocalRow(i) )
+        if( preVal >= b && invPerm.IsLocalRow(i) )
         {
-            const Int iLoc = perm.LocalRow( i );
-            const Int recvFrom = perm.RowOwner( invPermVal );
+            const Int iLoc = invPerm.LocalRow( i );
+            const Int recvFrom = invPerm.RowOwner( preVal );
             recvIdx.push_back( iLoc );
             recvRanks.push_back( recvFrom );
             ++recvCounts[recvFrom];
