@@ -66,7 +66,7 @@ import elem_mpi
 // Types, Grid, MPI
 // ================
 
-// We do not need to %include complex/decl.hpp or matrix.hpp, because we are 
+// We do not need to %include Complex/decl.hpp or Matrix.hpp, because we are 
 // using typemaps to convert the Elemental classes to equivalent Python and 
 // NumPy objects. Using %import prevents SWIG from generating any wrappers.
 
@@ -107,14 +107,14 @@ GATTP(ViewingComm)
 #undef GATTB
 
 %include "elemental/core.hpp"
-%import  "elemental/core/complex/decl.hpp"
+%import  "elemental/core/Complex/decl.hpp"
 %import  "elemental/core/imports/mpi.hpp"
 %import  "elemental/core/imports/choice.hpp"
 %include "elemental/core/imports/mpi_choice.hpp"
 %include "elemental/core/types/decl.hpp"
 %include "elemental/core/environment/decl.hpp"
-%include "elemental/core/grid/decl.hpp"
-%import  "elemental/core/matrix.hpp"
+%include "elemental/core/Grid/decl.hpp"
+%import  "elemental/core/Matrix.hpp"
 
 // AbstractDistMatrix
 // ==================
@@ -160,10 +160,10 @@ AbDM(elem::Complex<double>)
 
 %nodefaultctor DistData;
 
-%include "elemental/core/dist_matrix/forward_decl.hpp"
-%include "elemental/core/dist_matrix.hpp"
-%include "elemental/core/dist_matrix/abstract.hpp"
-%include "elemental/core/dist_matrix/general.hpp"
+%include "elemental/core/DistMatrix/forward_decl.hpp"
+%include "elemental/core/DistMatrix.hpp"
+%include "elemental/core/DistMatrix/Abstract.hpp"
+%include "elemental/core/DistMatrix/General.hpp"
 
 namespace elem {
 %template(AbstractDistMatrix_i) AbstractDistMatrix<Int>;
@@ -229,20 +229,24 @@ DCC(double)
 DCC(elem::Complex<float>)
 DCC(elem::Complex<double>)
 
-%include "elemental/core/dist_matrix/circ_circ.hpp"
-%include "elemental/core/dist_matrix/mc_mr.hpp"
-%include "elemental/core/dist_matrix/mc_star.hpp"
-%include "elemental/core/dist_matrix/md_star.hpp"
-%include "elemental/core/dist_matrix/mr_mc.hpp"
-%include "elemental/core/dist_matrix/mr_star.hpp"
-%include "elemental/core/dist_matrix/star_mc.hpp"
-%include "elemental/core/dist_matrix/star_md.hpp"
-%include "elemental/core/dist_matrix/star_mr.hpp"
-%include "elemental/core/dist_matrix/star_star.hpp"
-%include "elemental/core/dist_matrix/star_vc.hpp"
-%include "elemental/core/dist_matrix/star_vr.hpp"
-%include "elemental/core/dist_matrix/vc_star.hpp"
-%include "elemental/core/dist_matrix/vr_star.hpp"
+// Avoid the fact that SWIG does not support the C++11 'override' keyword
+%define override 
+%enddef
+
+%include "elemental/core/DistMatrix/CIRC_CIRC.hpp"
+%include "elemental/core/DistMatrix/MC_MR.hpp"
+%include "elemental/core/DistMatrix/MC_STAR.hpp"
+%include "elemental/core/DistMatrix/MD_STAR.hpp"
+%include "elemental/core/DistMatrix/MR_MC.hpp"
+%include "elemental/core/DistMatrix/MR_STAR.hpp"
+%include "elemental/core/DistMatrix/STAR_MC.hpp"
+%include "elemental/core/DistMatrix/STAR_MD.hpp"
+%include "elemental/core/DistMatrix/STAR_MR.hpp"
+%include "elemental/core/DistMatrix/STAR_STAR.hpp"
+%include "elemental/core/DistMatrix/STAR_VC.hpp"
+%include "elemental/core/DistMatrix/STAR_VR.hpp"
+%include "elemental/core/DistMatrix/VC_STAR.hpp"
+%include "elemental/core/DistMatrix/VR_STAR.hpp"
 
 %define DISTMATRIX(F,U,V,sfx)
 %template(DistMatrix_ ## sfx) DistMatrix<F,U,V>;
