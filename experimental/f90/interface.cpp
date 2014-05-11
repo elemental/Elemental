@@ -47,6 +47,9 @@ std::vector<DistMatrix<Real,VC,  STAR>*> distMatList_VC_STAR;
 std::vector<DistMatrix<Real,VR,  STAR>*> distMatList_VR_STAR;
 std::vector<DistMatrix<Real,STAR,STAR>*> distMatList_STAR_STAR;
 
+HermitianTridiagApproach hermTridiagApproach=HERMITIAN_TRIDIAG_DEFAULT;
+GridOrder hermTridiagOrder=COLUMN_MAJOR;
+
 const Grid& GetGrid( ElemGrid grid )
 {
     if( grid == maxInt )
@@ -168,19 +171,19 @@ void FC_GLOBAL(elem_blocksize,NAME)( int* blocksize )
 { *blocksize = Blocksize(); }
 
 void FC_GLOBAL_(elem_set_normal_tridiag_approach,NAME)()
-{ SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL ); }
+{ ::hermTridiagApproach = HERMITIAN_TRIDIAG_NORMAL; }
 
 void FC_GLOBAL_(elem_set_square_tridiag_approach,NAME)()
-{ SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE ); }
+{ ::hermTridiagApproach = HERMITIAN_TRIDIAG_SQUARE; }
 
 void FC_GLOBAL_(elem_set_default_tridiag_approach,NAME)()
-{ SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_DEFAULT ); }
+{ ::hermTridiagApproach = HERMITIAN_TRIDIAG_DEFAULT; }
 
 void FC_GLOBAL_(elem_set_row_major_tridiag_subgrid,NAME)()
-{ SetHermitianTridiagGridOrder( ROW_MAJOR ); }
+{ ::hermTridiagOrder = ROW_MAJOR; }
 
 void FC_GLOBAL_(elem_set_col_major_tridiag_subgrid,NAME)()
-{ SetHermitianTridiagGridOrder( COLUMN_MAJOR ); }
+{ ::hermTridiagOrder = COLUMN_MAJOR; }
 
 // Process grid management
 // =======================
@@ -601,8 +604,12 @@ void FC_GLOBAL_(elem_symmetric_eig,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING );
+        HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -616,9 +623,13 @@ void FC_GLOBAL_(elem_block_symmetric_eig,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real> AElem( A ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianEig( LOWER, AElem, w_VR_STAR, XElem, ASCENDING );
+        HermitianEig( LOWER, AElem, w_VR_STAR, XElem, ASCENDING, ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -634,8 +645,12 @@ void FC_GLOBAL_(elem_hermitian_eig,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING );
+        HermitianEig( LOWER, A, w_VR_STAR, X, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -649,9 +664,13 @@ void FC_GLOBAL_(elem_block_hermitian_eig,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Cpx> AElem( A ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianEig( LOWER, AElem, w_VR_STAR, XElem, ASCENDING );
+        HermitianEig( LOWER, AElem, w_VR_STAR, XElem, ASCENDING, ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -778,8 +797,13 @@ void FC_GLOBAL_(elem_symmetric_axbx,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
-        HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING );
+        HermitianGenDefiniteEig
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -795,10 +819,14 @@ void FC_GLOBAL_(elem_block_symmetric_axbx,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real> AElem( A ), BElem( B ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, ASCENDING );
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, ASCENDING, ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -816,9 +844,13 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING );
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING, ctrl );
         w = w_VR_STAR; 
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -835,10 +867,15 @@ void FC_GLOBAL_(elem_block_symmetric_axbx_range,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real> AElem( A ), BElem( B ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, *a, *b, ASCENDING );
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, *a, *b, ASCENDING, 
+          ctrl );
         w = w_VR_STAR; 
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -860,9 +897,13 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC, ASCENDING );
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -883,10 +924,15 @@ void FC_GLOBAL_(elem_block_symmetric_axbx_indices,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real> AElem( A ), BElem( B ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, aC, bC, ASCENDING );
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, aC, bC, ASCENDING, 
+          ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -903,9 +949,13 @@ void FC_GLOBAL_(elem_hermitian_axbx,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING );
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -921,10 +971,14 @@ void FC_GLOBAL_(elem_block_hermitian_axbx,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Cpx> AElem( A ), BElem( B ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, ASCENDING );
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, ASCENDING, ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -942,9 +996,13 @@ void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING );
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -961,10 +1019,15 @@ void FC_GLOBAL_(elem_block_hermitian_axbx_range,NAME)
     
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Cpx> AElem( A ), BElem( B ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, *a, *b, ASCENDING );
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, *a, *b, ASCENDING, 
+          ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }
@@ -986,9 +1049,13 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
 
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC, ASCENDING );
+        ( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC, ASCENDING, ctrl );
         w = w_VR_STAR;
     } catch( std::exception& e ) { Cleanup(e); }
 }
@@ -1009,10 +1076,15 @@ void FC_GLOBAL_(elem_block_hermitian_axbx_indices,NAME)
 
     try
     {
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.tridiagCtrl.approach = ::hermTridiagApproach;
+        ctrl.tridiagCtrl.order = ::hermTridiagOrder;
+
         DistMatrix<Cpx> AElem( A ), BElem( B ), XElem( X );
         DistMatrix<Real,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig
-        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, aC, bC, ASCENDING );
+        ( AXBX, LOWER, AElem, BElem, w_VR_STAR, XElem, aC, bC, ASCENDING,
+          ctrl );
         w = w_VR_STAR;
         X = XElem;
     } catch( std::exception& e ) { Cleanup(e); }

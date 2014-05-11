@@ -46,6 +46,7 @@ This is the root directory of the entire project, and it contains:
 -  `external/`: non-standard external code which Elemental builds on top of
 -  `include/`: Elemental's header files; most of the library resides here
 -  `LICENSE`: the New BSD License file
+-  `octave/`: pedagogical versions of algorithms used in Elemental
 -  `PUBLICATIONS`: publications directly related to this source code
 -  `README.md`: this file
 -  `REFERENCES`: some publications referenced in the creation of this software
