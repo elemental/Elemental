@@ -18,7 +18,6 @@
 #include ELEM_ZEROS_INC
 
 namespace elem {
-namespace lu {
 
 // Begin with an LU factorization with partial pivoting, 
 //     A = P^T L U,
@@ -37,18 +36,22 @@ namespace lu {
 
 template<typename F>
 inline void
-Mod
+LUMod
 ( Matrix<F>& A, Matrix<Int>& perm, 
   const Matrix<F>& u, const Matrix<F>& v, bool conjugate=true, 
   BASE(F) tau=0.1 )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::Mod"))
+    DEBUG_ONLY(CallStackEntry cse("LUMod"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     if( minDim != m )
         LogicError("It is assumed that height(A) <= width(A)");
+    if( u.Height() != m || u.Width() != 1 )
+        LogicError("u is expected to be a conforming column vector");
+    if( v.Height() != n || v.Width() != 1 )
+        LogicError("v is expected to be a conforming column vector");
 
     // w := inv(L) P u
     auto w( u );
@@ -268,20 +271,26 @@ Mod
 
 template<typename F,Dist UPerm>
 inline void
-Mod
+LUMod
 ( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& perm, 
   const DistMatrix<F>& u, const DistMatrix<F>& v, bool conjugate=true, 
   BASE(F) tau=0.1 )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::Mod"))
+    DEBUG_ONLY(CallStackEntry cse("LUMod"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Grid& g = A.Grid();
-    // TODO: More checks, e.g., on Grid
     if( minDim != m )
         LogicError("It is assumed that height(A) <= width(A)");
+    if( u.Height() != m || u.Width() != 1 )
+        LogicError("u is expected to be a conforming column vector");
+    if( v.Height() != n || v.Width() != 1 )
+        LogicError("v is expected to be a conforming column vector");
+    if( A.Grid() != perm.Grid() || perm.Grid() != u.Grid() ||
+        u.Grid() != v.Grid() )
+        LogicError("Grids must match");
 
     // w := inv(L) P u
     auto w( u );
@@ -504,7 +513,6 @@ Mod
     }
 }
 
-} // namespace lu
 } // namespace elem
 
 #endif // ifndef ELEM_LU_MOD_HPP

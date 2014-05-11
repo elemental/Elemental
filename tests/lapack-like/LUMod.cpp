@@ -135,7 +135,7 @@ void TestLUMod
         }
         mpi::Barrier( g.Comm() );
         const double startTime = mpi::Time();
-        lu::Mod( A, perm, u, v, conjugate, tau );
+        LUMod( A, perm, u, v, conjugate, tau );
         mpi::Barrier( g.Comm() );
         const double runTime = mpi::Time() - startTime;
         if( g.Rank() == 0 )
