@@ -21,7 +21,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w )
+Schur( Matrix<F>& A, Matrix<Complex<Base<F>>>& w )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
     schur::QR( A, w );
@@ -29,7 +29,7 @@ Schur( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w )
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q )
+Schur( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
     schur::QR( A, w, Q );
@@ -37,7 +37,7 @@ Schur( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q )
 
 template<typename F>
 inline void
-Schur( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w )
+Schur( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
 #ifdef ELEM_HAVE_SCALAPACK
@@ -50,7 +50,7 @@ Schur( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w )
 template<typename F>
 inline void
 Schur
-( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q )
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
 #ifdef ELEM_HAVE_SCALAPACK

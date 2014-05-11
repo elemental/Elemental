@@ -22,10 +22,8 @@ public:
     Memory( std::size_t size );
     ~Memory();
 
-#ifndef SWIG
     Memory( Memory<G>&& mem );
     Memory<G>& operator=( Memory<G>&& mem );
-#endif
 
     // Exchange metadata with 'mem'
     void ShallowSwap( Memory<G>& mem );

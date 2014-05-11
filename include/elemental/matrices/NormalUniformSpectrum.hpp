@@ -22,7 +22,7 @@ namespace elem {
 template<typename Real>
 inline void
 MakeNormalUniformSpectrum
-( Matrix<Complex<Real> >& A, Complex<Real> center=0, Real radius=1 )
+( Matrix<Complex<Real>>& A, Complex<Real> center=0, Real radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeNormalUniformSpectrum"))
     typedef Complex<Real> C;
@@ -95,23 +95,12 @@ MakeNormalUniformSpectrum
 template<typename Real>
 inline void
 NormalUniformSpectrum
-( Matrix<Complex<Real> >& A, Int n, Complex<Real> center=0, Real radius=1 )
+( Matrix<Complex<Real>>& A, Int n, Complex<Real> center=0, Real radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalUniformSpectrum"))
     A.Resize( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
 }
-
-#ifndef SWIG
-template<typename Real>
-inline Matrix<Complex<Real> >
-NormalUniformSpectrum( Int n, Complex<Real> center=0, Real radius=1 )
-{
-    Matrix<Complex<Real> > A( n, n );
-    MakeNormalUniformSpectrum( A, center, radius );
-    return A;
-}
-#endif
 
 template<typename Real,Dist U,Dist V>
 inline void
@@ -123,18 +112,6 @@ NormalUniformSpectrum
     A.Resize( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
 }
-
-#ifndef SWIG
-template<typename Real,Dist U=MC,Dist V=MR>
-inline DistMatrix<Complex<Real>,U,V>
-NormalUniformSpectrum
-( const Grid& g, Int n, Complex<Real> center=0, Real radius=1 )
-{
-    DistMatrix<Complex<Real>,U,V> A( n, n, g );
-    MakeNormalUniformSpectrum( A, center, radius );
-    return A;
-}
-#endif
 
 } // namespace elem
 

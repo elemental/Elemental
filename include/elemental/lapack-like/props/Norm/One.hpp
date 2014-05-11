@@ -13,7 +13,7 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 OneNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneNorm"))
@@ -32,7 +32,7 @@ OneNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
@@ -69,7 +69,7 @@ HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
@@ -77,7 +77,7 @@ SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 OneNorm( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneNorm"))
@@ -114,7 +114,7 @@ OneNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
@@ -227,7 +227,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))

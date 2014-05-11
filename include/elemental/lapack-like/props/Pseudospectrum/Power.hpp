@@ -18,12 +18,12 @@ namespace pspec {
 template<typename Real>
 inline void
 Deflate
-( Matrix<Complex<Real> >& activeShifts, 
-  Matrix<Int           >& activePreimage,
-  Matrix<Complex<Real> >& activeX,
-  Matrix<Real          >& activeEsts, 
-  Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts,
+( Matrix<Complex<Real>>& activeShifts, 
+  Matrix<Int          >& activePreimage,
+  Matrix<Complex<Real>>& activeX,
+  Matrix<Real         >& activeEsts, 
+  Matrix<Int          >& activeConverged,
+  Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
@@ -55,13 +55,13 @@ Deflate
 template<typename Real>
 inline void
 Deflate
-( Matrix<Complex<Real> >& activeShifts,
-  Matrix<Int           >& activePreimage,
-  Matrix<Real          >& activeXReal,
-  Matrix<Real          >& activeXImag,
-  Matrix<Real          >& activeEsts,
-  Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts,
+( Matrix<Complex<Real>>& activeShifts,
+  Matrix<Int          >& activePreimage,
+  Matrix<Real         >& activeXReal,
+  Matrix<Real         >& activeXImag,
+  Matrix<Real         >& activeEsts,
+  Matrix<Int          >& activeConverged,
+  Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
@@ -206,7 +206,7 @@ Deflate
 template<typename Real>
 inline Matrix<Int>
 Power
-( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Power"))

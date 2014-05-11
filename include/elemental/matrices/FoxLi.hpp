@@ -18,7 +18,7 @@ namespace elem {
 
 template<typename Real>
 inline void
-FoxLi( Matrix<Complex<Real> >& A, Int n, Real omega )
+FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 {
     DEBUG_ONLY(CallStackEntry cse("FoxLi"))
     typedef Complex<Real> C;
@@ -114,26 +114,6 @@ FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
     DiagonalScale( LEFT, NORMAL, sqrtWeightsTrans, A );
     DiagonalScale( RIGHT, NORMAL, sqrtWeightsTrans, A );
 }
-
-#ifndef SWIG
-template<typename Real>
-inline Matrix<Complex<Real> >
-FoxLi( Int n, Real omega )
-{
-    Matrix<Complex<Real>> A;
-    FoxLi( A, n, omega );
-    return A;
-}
-
-template<typename Real,Dist U,Dist V>
-inline DistMatrix<Complex<Real>,U,V>
-FoxLi( const Grid& g, Int n, Real omega )
-{
-    DistMatrix<Complex<Real>,U,V> A(g);
-    FoxLi( A, n, omega );
-    return A;
-}
-#endif
 
 } // namespace elem
 

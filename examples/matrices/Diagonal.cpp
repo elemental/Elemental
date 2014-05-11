@@ -29,7 +29,8 @@ main( int argc, char* argv[] )
         for( Int j=0; j<n; ++j )
             d[j] = j;
 
-        auto D = Diagonal( DefaultGrid(), d );
+        DistMatrix<double> D;
+        Diagonal( D, d );
         if( display )
         {
             Display( D, "Diagonal matrix" );

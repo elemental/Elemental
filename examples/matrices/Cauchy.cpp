@@ -31,7 +31,8 @@ main( int argc, char* argv[] )
         for( Int j=0; j<n; ++j )
             y[j] = j+m;
 
-        auto A = Cauchy( DefaultGrid(), x, y );
+        DistMatrix<double> A;
+        Cauchy( A, x, y );
         if( display )
             Display( A, "Cauchy");
         if( print )

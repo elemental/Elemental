@@ -25,7 +25,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        auto A = Fourier<double>( DefaultGrid(), n );
+        DistMatrix<Complex<double>> A;
+        Fourier( A, n );
         if( display )
             Display( A, "Fourier Matrix" );
         if( print )

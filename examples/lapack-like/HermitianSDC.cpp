@@ -34,8 +34,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
-        auto A = Wigner<C>( g, n );
+        DistMatrix<C> A;
+        Wigner( A, n );
         const Real frobA = FrobeniusNorm( A );
 
         HermitianSdcCtrl<Real> sdcCtrl;
@@ -46,8 +46,8 @@ main( int argc, char* argv[] )
 
         // Attempt to compute the spectral decomposition of A, 
         // but do not overwrite A
-        DistMatrix<C> ACopy( A ), Q(g);
-        DistMatrix<Real,VR,STAR>  w(g);
+        DistMatrix<C> ACopy( A ), Q;
+        DistMatrix<Real,VR,STAR>  w;
         herm_eig::SDC( LOWER, ACopy, w, Q, sdcCtrl );
 
         if( display )

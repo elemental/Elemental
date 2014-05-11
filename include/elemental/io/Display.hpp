@@ -62,7 +62,7 @@ Display( const Matrix<T>& A, std::string title="Default" )
 
 template<typename T>
 inline void
-Display( const Matrix<Complex<T> >& A, std::string title="Default" )
+Display( const Matrix<Complex<T>>& A, std::string title="Default" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
 #ifdef ELEM_HAVE_QT5
@@ -75,7 +75,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="Default" )
     // Convert A to double-precision since Qt's MOC does not support templates
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<Complex<double> >* ADouble = new Matrix<Complex<double> >( m, n );
+    Matrix<Complex<double>>* ADouble = new Matrix<Complex<double>>( m, n );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )

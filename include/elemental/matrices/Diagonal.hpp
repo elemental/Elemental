@@ -58,26 +58,6 @@ Diagonal( BlockDistMatrix<S,U,V>& D, const std::vector<T>& d )
     }
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Diagonal( const std::vector<T>& d )
-{
-    Matrix<T> D;
-    Diagonal( D, d );
-    return D;
-}
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Diagonal( const Grid& g, const std::vector<T>& d )
-{
-    DistMatrix<T,U,V> D(g);
-    Diagonal( D, d );
-    return D;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_DIAGONAL_HPP

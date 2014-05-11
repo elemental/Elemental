@@ -631,23 +631,23 @@ inline Datatype TypeMap<unsigned long long>()
 }
 template<> inline Datatype TypeMap<float>() { return MPI_FLOAT; }
 template<> inline Datatype TypeMap<double>() { return MPI_DOUBLE; }
-template<> inline Datatype TypeMap<Complex<float> >()
+template<> inline Datatype TypeMap<Complex<float>>()
 { return MPI_COMPLEX; }
-template<> inline Datatype TypeMap<Complex<double> >()
+template<> inline Datatype TypeMap<Complex<double>>()
 { return MPI_DOUBLE_COMPLEX; }
 
-template<> inline Datatype TypeMap<ValueInt<Int> >()
+template<> inline Datatype TypeMap<ValueInt<Int>>()
 { return ValueIntType<Int>(); }
-template<> inline Datatype TypeMap<ValueInt<float> >()
+template<> inline Datatype TypeMap<ValueInt<float>>()
 { return ValueIntType<float>(); }
-template<> inline Datatype TypeMap<ValueInt<double> >()
+template<> inline Datatype TypeMap<ValueInt<double>>()
 { return ValueIntType<double>(); }
 
-template<> inline Datatype TypeMap<ValueIntPair<Int> >()
+template<> inline Datatype TypeMap<ValueIntPair<Int>>()
 { return ValueIntPairType<Int>(); }
-template<> inline Datatype TypeMap<ValueIntPair<float> >()
+template<> inline Datatype TypeMap<ValueIntPair<float>>()
 { return ValueIntPairType<float>(); }
-template<> inline Datatype TypeMap<ValueIntPair<double> >()
+template<> inline Datatype TypeMap<ValueIntPair<double>>()
 { return ValueIntPairType<double>(); }
 
 } // mpi

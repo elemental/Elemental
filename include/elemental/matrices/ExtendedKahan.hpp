@@ -26,7 +26,7 @@ namespace elem {
 
 template<typename F> 
 inline void
-MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
+MakeExtendedKahan( Matrix<F>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
     typedef Base<F> R;
@@ -70,7 +70,7 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
 
 template<typename F,Dist U,Dist V>
 inline void
-MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
+MakeExtendedKahan( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
     typedef Base<F> R;
@@ -117,7 +117,7 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 
 template<typename F,Dist U,Dist V>
 inline void
-MakeExtendedKahan( BlockDistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
+MakeExtendedKahan( BlockDistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
     typedef Base<F> R;
@@ -164,7 +164,7 @@ MakeExtendedKahan( BlockDistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 
 template<typename F>
 inline void
-ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
+ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -174,7 +174,7 @@ ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
 
 template<typename F,Dist U,Dist V>
 inline void
-ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
+ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -184,35 +184,13 @@ ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 
 template<typename F,Dist U,Dist V>
 inline void
-ExtendedKahan( BlockDistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
+ExtendedKahan( BlockDistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
     A.Resize( n, n );
     MakeExtendedKahan( A, phi, mu );
 }
-
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
-{
-    const Int n = 3*(1u<<k);
-    Matrix<F> A( n, n );
-    MakeExtendedKahan( A, phi, mu );
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
-{
-    const Int n = 3*(1u<<k);
-    DistMatrix<F,U,V> A( n, n, g );
-    MakeExtendedKahan( A, phi, mu );
-    return A;
-}
-#endif
 
 } // namespace elem
 

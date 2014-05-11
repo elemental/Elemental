@@ -60,6 +60,31 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
     }
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+MakeOneTwoOne( BlockDistMatrix<T,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
+    if( A.Height() != A.Width() )
+        LogicError("Cannot make a non-square matrix 1-2-1");
+    MakeZeros( A );
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            if( i == j )
+                A.SetLocal( iLoc, jLoc, T(2) );
+            else if( i == j-1 || i == j+1 )
+                A.SetLocal( iLoc, jLoc, T(1) );
+        }
+    }
+}
+
 template<typename T> 
 inline void
 OneTwoOne( Matrix<T>& A, Int n )
@@ -68,17 +93,6 @@ OneTwoOne( Matrix<T>& A, Int n )
     A.Resize( n, n );
     MakeOneTwoOne( A );
 }
-
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-OneTwoOne( Int n )
-{
-    Matrix<T> A( n, n );
-    MakeOneTwoOne( A );
-    return A;
-}
-#endif
 
 template<typename T,Dist U,Dist V> 
 inline void
@@ -89,16 +103,14 @@ OneTwoOne( DistMatrix<T,U,V>& A, Int n )
     MakeOneTwoOne( A );
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR> 
-inline DistMatrix<T,U,V>
-OneTwoOne( const Grid& g, Int n )
+template<typename T,Dist U,Dist V> 
+inline void
+OneTwoOne( BlockDistMatrix<T,U,V>& A, Int n )
 {
-    DistMatrix<T,U,V> A( n, n, g );
+    DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
+    A.Resize( n, n );
     MakeOneTwoOne( A );
-    return A;
 }
-#endif
 
 } // namespace elem
 

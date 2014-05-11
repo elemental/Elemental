@@ -34,7 +34,7 @@ namespace pivot {
 
 template<typename F>
 inline LDLPivot
-BunchKaufmanA( const Matrix<F>& A, BASE(F) gamma )
+BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanA"))
     typedef Base<F> Real;
@@ -84,7 +84,7 @@ BunchKaufmanA( const Matrix<F>& A, BASE(F) gamma )
 
 template<typename F>
 inline LDLPivot
-BunchKaufmanA( const DistMatrix<F>& A, BASE(F) gamma )
+BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanA"))
     typedef Base<F> Real;
@@ -134,7 +134,7 @@ BunchKaufmanA( const DistMatrix<F>& A, BASE(F) gamma )
 
 template<typename F>
 inline LDLPivot
-BunchKaufmanD( const Matrix<F>& A, BASE(F) gamma )
+BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanD"))
     typedef Base<F> Real;
@@ -177,7 +177,7 @@ BunchKaufmanD( const Matrix<F>& A, BASE(F) gamma )
 
 template<typename F>
 inline LDLPivot
-BunchKaufmanD( const DistMatrix<F>& A, BASE(F) gamma )
+BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchKaufmanD"))
     typedef Base<F> Real;
@@ -220,7 +220,7 @@ BunchKaufmanD( const DistMatrix<F>& A, BASE(F) gamma )
 
 template<typename F>
 inline LDLPivot
-BunchParlett( const Matrix<F>& A, BASE(F) gamma )
+BunchParlett( const Matrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
     typedef Base<F> Real;
@@ -248,7 +248,7 @@ BunchParlett( const Matrix<F>& A, BASE(F) gamma )
 
 template<typename F>
 inline LDLPivot
-BunchParlett( const DistMatrix<F>& A, BASE(F) gamma )
+BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::BunchParlett"))
     typedef Base<F> Real;
@@ -279,7 +279,7 @@ BunchParlett( const DistMatrix<F>& A, BASE(F) gamma )
 template<typename F>
 inline LDLPivot
 PanelBunchKaufmanA
-( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, BASE(F) gamma )
+( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA"))
     typedef Base<F> Real;
@@ -367,7 +367,7 @@ inline LDLPivot
 PanelBunchKaufmanA
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
-  BASE(F) gamma )
+  Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanA"))
     typedef Base<F> Real;
@@ -458,7 +458,7 @@ PanelBunchKaufmanA
 template<typename F>
 inline LDLPivot
 PanelBunchKaufmanD
-( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, BASE(F) gamma )
+( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD"))
     typedef Base<F> Real;
@@ -538,7 +538,7 @@ inline LDLPivot
 PanelBunchKaufmanD
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, const DistMatrix<F,MR,STAR>& Y, 
-  BASE(F) gamma )
+  Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::pivot::PanelBunchKaufmanD"))
     typedef Base<F> Real;
@@ -622,7 +622,7 @@ PanelBunchKaufmanD
 
 template<typename F>
 inline LDLPivot
-ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
+ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePivot"))
     LDLPivot pivot;
@@ -640,7 +640,7 @@ ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
 
 template<typename F>
 inline LDLPivot
-ChoosePivot( const DistMatrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
+ChoosePivot( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePivot"))
     LDLPivot pivot;
@@ -660,7 +660,7 @@ template<typename F>
 inline LDLPivot
 ChoosePanelPivot
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
-  LDLPivotType pivotType, BASE(F) gamma )
+  LDLPivotType pivotType, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePanelPivot"))
     LDLPivot pivot;
@@ -685,7 +685,7 @@ ChoosePanelPivot
 ( const DistMatrix<F>& A, 
   const DistMatrix<F,MC,STAR>& X, 
   const DistMatrix<F,MR,STAR>& Y, 
-  LDLPivotType pivotType, BASE(F) gamma )
+  LDLPivotType pivotType, Base<F> gamma )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::ChoosePanelPivot"))
     LDLPivot pivot;
@@ -709,7 +709,7 @@ template<typename F>
 inline void
 UnblockedPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::UnblockedPivoted");
@@ -794,7 +794,7 @@ UnblockedPivoted
   DistMatrix<F,MD,STAR>& dSub, 
   DistMatrix<Int,UPerm,STAR>& pPerm, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  BASE(F) gamma=0 )
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::UnblockedPivoted");
@@ -880,7 +880,7 @@ PanelPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  BASE(F) gamma=0 )
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
     const Int n = A.Height();
@@ -1001,7 +1001,7 @@ PanelPivoted
   DistMatrix<Int,UPerm,STAR>& pPerm, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
-  BASE(F) gamma=0 )
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
     const Int n = A.Height();
@@ -1127,7 +1127,7 @@ template<typename F>
 inline void
 BlockedPivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::BlockedPivoted");
@@ -1175,7 +1175,7 @@ BlockedPivoted
   DistMatrix<F,MD,STAR>& dSub, 
   DistMatrix<Int,UPerm,STAR>& pPerm, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  BASE(F) gamma=0 )
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::BlockedPivoted");
@@ -1224,7 +1224,7 @@ template<typename F>
 inline void
 Pivoted
 ( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, BASE(F) gamma=0 )
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
     switch( pivotType )
@@ -1246,7 +1246,7 @@ Pivoted
   DistMatrix<F,MD,STAR>& dSub, 
   DistMatrix<Int,UPerm,STAR>& pPerm, 
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  BASE(F) gamma=0 )
+  Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
     switch( pivotType )

@@ -47,6 +47,27 @@ MakeIdentity( DistMatrix<T,U,V>& I )
     }
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+MakeIdentity( BlockDistMatrix<T,U,V>& I )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
+    Zero( I.Matrix() );
+
+    const Int localHeight = I.LocalHeight();
+    const Int localWidth = I.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = I.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = I.GlobalRow(iLoc);
+            if( i == j )
+                I.SetLocal( iLoc, jLoc, T(1) );
+        }
+    }
+}
+
 template<typename T>
 inline void
 Identity( Matrix<T>& I, Int m, Int n )
@@ -55,17 +76,6 @@ Identity( Matrix<T>& I, Int m, Int n )
     I.Resize( m, n );
     MakeIdentity( I );
 }
-
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Identity( Int m, Int n )
-{
-    Matrix<T> I( m, n );
-    MakeIdentity( I );
-    return I;
-}
-#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -76,16 +86,14 @@ Identity( DistMatrix<T,U,V>& I, Int m, Int n )
     MakeIdentity( I );
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Identity( const Grid& g, Int m, Int n )
+template<typename T,Dist U,Dist V>
+inline void
+Identity( BlockDistMatrix<T,U,V>& I, Int m, Int n )
 {
-    DistMatrix<T,U,V> I( m, n, g );
+    DEBUG_ONLY(CallStackEntry cse("Identity"))
+    I.Resize( m, n );
     MakeIdentity( I );
-    return I;
 }
-#endif
 
 } // namespace elem
 

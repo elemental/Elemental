@@ -13,7 +13,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 EntrywiseOneNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseOneNorm"))
@@ -28,7 +28,7 @@ EntrywiseOneNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseOneNorm"))
@@ -71,7 +71,7 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseOneNorm"))
@@ -79,7 +79,7 @@ SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseOneNorm"))
@@ -100,7 +100,7 @@ EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseOneNorm"))
@@ -154,7 +154,7 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseOneNorm"))

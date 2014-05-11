@@ -22,7 +22,7 @@ namespace elem {
 
 template<typename Real>
 inline void
-UniformHelmholtzGreens( Matrix<Complex<Real> >& A, Int n, Real lambda )
+UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
@@ -193,26 +193,6 @@ UniformHelmholtzGreens
         }
     }
 }
-
-#ifndef SWIG
-template<typename Real>
-inline Matrix<Complex<Real> >
-UniformHelmholtzGreens( Int n, Real lambda )
-{
-    Matrix<Complex<Real>> A;
-    UniformHelmholtzGreens( A, n, lambda );
-    return A;
-}
-
-template<typename Real,Dist U,Dist V>
-inline DistMatrix<Complex<Real>,U,V>
-UniformHelmholtzGreens( const Grid& g, Int n, Real lambda )
-{
-    DistMatrix<Complex<Real>,U,V> A(g);
-    UniformHelmholtzGreens( A, n, lambda );
-    return A;
-}
-#endif
 
 } // namespace elem
 

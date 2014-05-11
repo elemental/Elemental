@@ -104,26 +104,6 @@ Demmel( BlockDistMatrix<F,U,V>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Demmel( Int n )
-{
-    Matrix<F> A;
-    Demmel( A, n );
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Demmel( const Grid& g, Int n )
-{
-    DistMatrix<F,U,V> A(g);
-    Demmel( A, n );
-    return A;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_DEMMEL_HPP

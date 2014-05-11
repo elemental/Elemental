@@ -25,17 +25,6 @@ Lotkin( Matrix<F>& A, Int n )
         A.Set( 0, j, F(1) );
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-Lotkin( Int n )
-{
-    Matrix<F> A;
-    Lotkin( A, n );
-    return A;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Lotkin( DistMatrix<F,U,V>& A, Int n )
@@ -51,18 +40,20 @@ Lotkin( DistMatrix<F,U,V>& A, Int n )
     } 
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Lotkin( const Grid& g, Int n )
+template<typename F,Dist U,Dist V>
+inline void
+Lotkin( BlockDistMatrix<F,U,V>& A, Int n )
 {
-    DistMatrix<F,U,V> A(g);
-    Lotkin( A, n );
-    return A;
+    DEBUG_ONLY(CallStackEntry cse("Lotkin"))
+    Hilbert( A, n );
+    // Set first row to all ones
+    if( A.ColShift() == 0 )
+    {
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            A.SetLocal( 0, jLoc, F(1) );
+    } 
 }
-#endif
-
-// TODO: MakeLotkin?
 
 } // namespace elem
 

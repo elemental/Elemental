@@ -25,7 +25,7 @@ namespace ldl {
 
 template<typename F>
 inline InertiaType
-Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
+Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
     typedef Base<F> Real;
@@ -66,8 +66,8 @@ Inertia( const Matrix<BASE(F)>& d, const Matrix<F>& dSub )
 template<typename F>
 inline InertiaType
 Inertia
-( const DistMatrix<BASE(F),MC,STAR>& d, 
-  const DistMatrix<BASE(F),MC,STAR>& dPrev, 
+( const DistMatrix<Base<F>,MC,STAR>& d, 
+  const DistMatrix<Base<F>,MC,STAR>& dPrev, 
   const DistMatrix<F,MC,STAR>& dSub, 
   const DistMatrix<F,MC,STAR>& dSubPrev )
 {
@@ -145,7 +145,7 @@ Inertia
 
 template<typename F,Dist U,Dist V>
 inline InertiaType
-Inertia( const DistMatrix<BASE(F),U,V>& d, const DistMatrix<F,U,V>& dSub )
+Inertia( const DistMatrix<Base<F>,U,V>& d, const DistMatrix<F,U,V>& dSub )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
     typedef Base<F> Real;

@@ -23,7 +23,7 @@ namespace elem {
 
 template<typename Real> 
 inline void
-BullsHead( Matrix<Complex<Real> >& A, Int n )
+BullsHead( Matrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("BullsHead"))
     if( n < 4 )
@@ -62,26 +62,6 @@ BullsHead( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     SetDiagonal( A, 1,                -2 );
     SetDiagonal( A, Real(7)/Real(10), -3 );
 }
-
-#ifndef SWIG
-template<typename Real> 
-inline Matrix<Complex<Real>>
-BullsHead( Int n )
-{
-    Matrix<Complex<Real>> A;
-    BullsHead( A, n );
-    return A;
-}
-
-template<typename Real,Dist U=MC,Dist V=MR>
-inline DistMatrix<Complex<Real>,U,V>
-BullsHead( const Grid& g, Int n )
-{
-    DistMatrix<Complex<Real>,U,V> A(g);
-    BullsHead( A, n );
-    return A;
-}
-#endif
 
 } // namespace elem
 

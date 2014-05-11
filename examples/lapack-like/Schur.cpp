@@ -48,9 +48,9 @@ main( int argc, char* argv[] )
         const Grid& g = DefaultGrid();
         DistMatrix<C> A(g);
         if( matType == 0 )
-            A = Uniform<C>( g, n, n );
+            Uniform( A, n, n );
         else
-            A = Haar<C>( g, n );
+            Haar( A, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the Schur decomposition of A, but do not overwrite A

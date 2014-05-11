@@ -16,7 +16,7 @@ namespace elem {
 namespace hpd_det {
 
 template<typename F>
-inline SafeProduct<BASE(F)> 
+inline SafeProduct<Base<F>> 
 AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
@@ -39,7 +39,7 @@ AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<BASE(F)> 
+inline SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
@@ -58,7 +58,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-inline SafeProduct<BASE(F)> 
+inline SafeProduct<Base<F>> 
 AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
@@ -87,7 +87,7 @@ AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F> 
-inline SafeProduct<BASE(F)> 
+inline SafeProduct<Base<F>> 
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))

@@ -27,8 +27,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
-        auto X = HermitianUniformSpectrum<double>( g, n, lower, upper );
+        DistMatrix<double> X;
+        HermitianUniformSpectrum( X, n, lower, upper );
         if( display )
             Display( X, "Hermitian uniform spectrum" );
         if( print )

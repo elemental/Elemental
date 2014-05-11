@@ -32,9 +32,9 @@ template<typename F>
 inline Int
 BasisPursuit
 ( const Matrix<F>& A, const Matrix<F>& b,
-  Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, BASE(F) rho=1., BASE(F) alpha=1.2, 
-  Int maxIter=500, BASE(F) absTol=1e-6, BASE(F) relTol=1e-4, bool usePinv=false,
-  BASE(F) pinvTol=0, bool progress=true )
+  Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, Base<F> rho=1., Base<F> alpha=1.2, 
+  Int maxIter=500, Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool usePinv=false,
+  Base<F> pinvTol=0, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -165,9 +165,9 @@ inline Int
 BasisPursuit
 ( const DistMatrix<F>& A, const DistMatrix<F>& b, 
   DistMatrix<F>& x, DistMatrix<F>& z, DistMatrix<F>& u, 
-  BASE(F) rho=1., BASE(F) alpha=1.2, 
-  Int maxIter=500, BASE(F) absTol=1e-6, BASE(F) relTol=1e-4, bool usePinv=false,
-  BASE(F) pinvTol=0, bool progress=true )
+  Base<F> rho=1., Base<F> alpha=1.2, 
+  Int maxIter=500, Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool usePinv=false,
+  Base<F> pinvTol=0, bool progress=true )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b

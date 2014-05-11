@@ -37,17 +37,6 @@ Wilkinson( Matrix<T>& A, Int k )
     }
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Wilkinson( Int k )
-{
-    Matrix<T> A;
-    Wilkinson( A, k );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Wilkinson( DistMatrix<T,U,V>& A, Int k )
@@ -77,17 +66,6 @@ Wilkinson( DistMatrix<T,U,V>& A, Int k )
         }
     }
 }
-
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Wilkinson( const Grid& g, Int k )
-{
-    DistMatrix<T,U,V> A( g );
-    Wilkinson( A, k );
-    return A;
-}
-#endif
 
 } // namespace elem
 

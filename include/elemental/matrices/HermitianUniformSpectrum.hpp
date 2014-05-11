@@ -21,7 +21,7 @@ namespace elem {
 
 template<typename F>
 inline void
-MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
+MakeHermitianUniformSpectrum( Matrix<F>& A, Base<F> lower=0, Base<F> upper=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeHermitianUniformSpectrum"))
     if( A.Height() != A.Width() )
@@ -54,7 +54,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 template<typename F,Dist U,Dist V>
 inline void
 MakeHermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
+( DistMatrix<F,U,V>& A, Base<F> lower=0, Base<F> upper=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeHermitianUniformSpectrum"))
     if( A.Height() != A.Width() )
@@ -120,45 +120,22 @@ MakeHermitianUniformSpectrum
 template<typename F>
 inline void
 HermitianUniformSpectrum
-( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+( Matrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
     A.Resize( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
-
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
-{
-    Matrix<F> A( n, n );
-    MakeHermitianUniformSpectrum( A, lower, upper );
-    return A;
-}
-#endif
 
 template<typename F,Dist U,Dist V>
 inline void
 HermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+( DistMatrix<F,U,V>& A, Int n, Base<F> lower=0, Base<F> upper=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
     A.Resize( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
 }
-
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-HermitianUniformSpectrum
-( const Grid& g, Int n, BASE(F) lower=0, BASE(F) upper=1 )
-{
-    DistMatrix<F,U,V> A( n, n, g );
-    MakeHermitianUniformSpectrum( A, lower, upper );
-    return A;
-}
-#endif
 
 } // namespace elem
 

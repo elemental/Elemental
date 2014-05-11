@@ -15,7 +15,7 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F) 
+inline Base<F> 
 LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
@@ -23,19 +23,17 @@ LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
     return -safeDet.kappa*safeDet.n;
 }
 
-#ifndef SWIG
 template<typename F>
-inline BASE(F)
+inline Base<F>
 LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
 }
-#endif
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
@@ -43,16 +41,14 @@ LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
     return -safeDet.kappa*safeDet.n;
 }
 
-#ifndef SWIG
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
 }
-#endif
 
 } // namespace elem
 

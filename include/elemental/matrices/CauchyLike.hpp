@@ -116,31 +116,6 @@ CauchyLike
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-CauchyLike
-( const std::vector<F>& r, const std::vector<F>& s,
-  const std::vector<F>& x, const std::vector<F>& y )
-{
-    Matrix<F> A;
-    CauchyLike( A, r, s, x, y );
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-CauchyLike
-( const Grid& g,
-  const std::vector<F>& r, const std::vector<F>& s, 
-  const std::vector<F>& x, const std::vector<F>& y )
-{
-    DistMatrix<F,U,V> A(g);
-    CauchyLike( A, r, s, x, y );
-    return A;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_CAUCHYLIKE_HPP

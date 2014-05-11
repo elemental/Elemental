@@ -30,7 +30,8 @@ main( int argc, char* argv[] )
         if( numRows > n || numCols > n )
             LogicError("Submatrix too large");
 
-        auto A = Fourier<double>( DefaultGrid(), n );
+        DistMatrix<Complex<double>> A;
+        Fourier( A, n );
         if( display )
             Display( A, "Fourier Matrix" );
         if( print )

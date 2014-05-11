@@ -20,7 +20,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 TwoNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
@@ -32,7 +32,7 @@ TwoNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
@@ -44,7 +44,7 @@ HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
@@ -57,7 +57,7 @@ SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 TwoNorm( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
@@ -69,7 +69,7 @@ TwoNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
@@ -81,7 +81,7 @@ HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))

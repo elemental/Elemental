@@ -31,11 +31,11 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Create a circulant matrix
-        const Grid& g = DefaultGrid();
         std::vector<C> a( n );
         for( Int j=0; j<n; ++j )
             a[j] = j;
-        auto A = Circulant( g, a );
+        DistMatrix<C> A;
+        Circulant( A, a );
         if( display )
             Display( A, "Circulant" );
         if( print )
@@ -43,14 +43,16 @@ main( int argc, char* argv[] )
 
         // Create a Fourier matrix, which can be used to diagonalize circulant
         // matrices
-        auto F = Fourier<Real>( g, n );
+        DistMatrix<C> F;
+        Fourier( F, n );
         if( display )
             Display( F, "DFT matrix" );
         if( print )
             Print( F, "DFT matrix:" );
         
         // Form B := A F
-        auto B = Zeros<C>( g, n, n );
+        DistMatrix<C> B;
+        Zeros( B, n, n );
         Gemm( NORMAL, NORMAL, C(1), A, F, C(0), B );
 
         // Form A := F^H B = F^H \hat A F

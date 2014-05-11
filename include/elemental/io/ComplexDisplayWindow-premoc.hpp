@@ -40,18 +40,18 @@ public:
     ~ComplexDisplayWindow();
 
     void Display
-    ( const Matrix<Complex<double> >* A, 
+    ( const Matrix<Complex<double>>* A, 
       QString title=QString("Default title") );
     void Display
-    ( const Matrix<Complex<double> >* A, 
+    ( const Matrix<Complex<double>>* A, 
       double minRealVal, double maxRealVal,
       double minImagVal, double maxImagVal,
       QString title=QString("Default title") );
 
 private:
     QScrollArea *realScroll_, *imagScroll_;
-    DisplayWidget<Complex<double> > *realDisplay_, *imagDisplay_;
-    const Matrix<Complex<double> > *matrix_;
+    DisplayWidget<Complex<double>> *realDisplay_, *imagDisplay_;
+    const Matrix<Complex<double>> *matrix_;
 
 public slots:
     void SaveReal();

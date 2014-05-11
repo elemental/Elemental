@@ -58,12 +58,10 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
     }
 }
 
-#ifndef SWIG
 template<typename T>
 inline void
-Axpy( BASE(T) alpha, const Matrix<T>& X, Matrix<T>& Y )
+Axpy( Base<T> alpha, const Matrix<T>& X, Matrix<T>& Y )
 { Axpy( T(alpha), X, Y ); }
-#endif
 
 template<typename T,Dist U1,Dist V1,
                     Dist U2,Dist V2>
@@ -89,15 +87,13 @@ Axpy( T alpha, const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
     }
 }
 
-#ifndef SWIG
 template<typename T,Dist U1,Dist V1,
                     Dist U2,Dist V2>
 inline void
 Axpy
-( BASE(T) alpha,
+( Base<T> alpha,
   const DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 { Axpy( T(alpha), X, Y ); }
-#endif
 
 } // namespace elem
 

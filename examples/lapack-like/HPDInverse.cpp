@@ -34,8 +34,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
-        auto A = HermitianUniformSpectrum<C>( g, n, Real(1), Real(20) );
+        DistMatrix<C> A;
+        HermitianUniformSpectrum( A, n, Real(1), Real(20) );
         if( print )
             Print( A, "A" );
 
@@ -50,7 +50,8 @@ main( int argc, char* argv[] )
         }
 
         // Form I - invA*A and print the relevant norms
-        auto E = Identity<C>( g, n, n );
+        DistMatrix<C> E;
+        Identity( E, n, n );
         Hemm( LEFT, uplo, C(-1), invA, A, C(1), E );
 
         const Real frobNormA = HermitianFrobeniusNorm( uplo, A );

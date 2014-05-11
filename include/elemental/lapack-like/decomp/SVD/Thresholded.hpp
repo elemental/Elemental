@@ -25,7 +25,7 @@ namespace svd {
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
@@ -83,7 +83,7 @@ TallAbsoluteThresholded
 template<typename F>
 inline void
 TallRelativeThresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) relTol )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallRelativeThresholded");
@@ -139,8 +139,8 @@ TallRelativeThresholded
 template<typename F>
 inline void
 TallThresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, 
-  BASE(F) tol=0, bool relative=false )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -152,8 +152,8 @@ TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) tol=0 )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> tol=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
@@ -221,8 +221,8 @@ TallAbsoluteThresholded
 template<typename F>
 inline void
 TallRelativeThresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) relTol )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallRelativeThresholded");
@@ -286,8 +286,8 @@ TallRelativeThresholded
 template<typename F>
 inline void
 TallThresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) tol=0, bool relative=false )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -300,9 +300,9 @@ template<typename F>
 inline void
 TallAbsoluteThresholded
 ( DistMatrix<F,VC,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& s, 
+  DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
-  BASE(F) tol=0 )
+  Base<F> tol=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
@@ -369,9 +369,9 @@ template<typename F>
 inline void
 TallRelativeThresholded
 ( DistMatrix<F,VC,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& s, 
+  DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
-  BASE(F) relTol )
+  Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallRelativeThresholded");
@@ -436,9 +436,9 @@ template<typename F>
 inline void
 TallThresholded
 ( DistMatrix<F,VC,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& s, 
+  DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
-  BASE(F) tol=0, bool relative=false )
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -450,7 +450,7 @@ TallThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideAbsoluteThresholded");
@@ -508,7 +508,7 @@ WideAbsoluteThresholded
 template<typename F>
 inline void
 WideRelativeThresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) relTol )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideThresholded");
@@ -564,8 +564,8 @@ WideRelativeThresholded
 template<typename F>
 inline void
 WideThresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, 
-  BASE(F) tol=0, bool relative=false )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
@@ -577,8 +577,8 @@ WideThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) tol=0 )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> tol=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideAbsoluteThresholded");
@@ -646,8 +646,8 @@ WideAbsoluteThresholded
 template<typename F>
 inline void
 WideRelativeThresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) relTol )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideRelativeThresholded");
@@ -711,8 +711,8 @@ WideRelativeThresholded
 template<typename F>
 inline void
 WideThresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) tol=0, bool relative=false )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
@@ -727,8 +727,8 @@ WideThresholded
 template<typename F>
 inline void
 Thresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, 
-  BASE(F) tol=0, bool relative=false )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )
@@ -740,8 +740,8 @@ Thresholded
 template<typename F>
 inline void
 Thresholded
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
-  BASE(F) tol=0, bool relative=false )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
+  Base<F> tol=0, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )

@@ -15,7 +15,7 @@ namespace elem {
 // Draw each entry from a uniform PDF over a closed ball.
 template<typename T>
 inline void
-MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
+MakeUniform( Matrix<T>& A, T center=0, Base<T> radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     const Int m = A.Height();
@@ -27,27 +27,16 @@ MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 
 template<typename T>
 inline void
-Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
+Uniform( Matrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Uniform( Int m, Int n, T center=0, BASE(T) radius=1 )
-{
-    Matrix<T> A( m, n );
-    MakeUniform( A, center, radius );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
-MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
+MakeUniform( DistMatrix<T,U,V>& A, T center=0, Base<T> radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     if( A.RedundantSize() == 1 )
@@ -85,7 +74,7 @@ MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-MakeUniform( BlockDistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
+MakeUniform( BlockDistMatrix<T,U,V>& A, T center=0, Base<T> radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     if( A.RedundantSize() == 1 )
@@ -123,7 +112,7 @@ MakeUniform( BlockDistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
+Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, Base<T> radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
     A.Resize( m, n );
@@ -132,24 +121,12 @@ Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-Uniform( BlockDistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
+Uniform( BlockDistMatrix<T,U,V>& A, Int m, Int n, T center=0, Base<T> radius=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
     A.Resize( m, n );
     MakeUniform( A, center, radius );
 }
-
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
-{
-    DistMatrix<T,U,V> A( m, n, g );
-    MakeUniform( A, center, radius );
-    return A;
-}
-// TODO: BlockDistMatrix variant?
-#endif
 
 } // namespace elem
 

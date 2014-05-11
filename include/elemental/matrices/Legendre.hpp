@@ -61,6 +61,34 @@ MakeLegendre( DistMatrix<F,U,V>& A )
     }
 }
 
+template<typename F,Dist U,Dist V>
+inline void
+MakeLegendre( BlockDistMatrix<F,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
+    if( A.Height() != A.Width() )
+        LogicError("Cannot make a non-square matrix Legendre");
+    MakeZeros( A );
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            if( j == i+1 || j == i-1 )
+            {
+                const Int k = Max( i, j );
+                const F gamma = F(1) / Pow( F(2)*F(k), F(2) );
+                const F beta = F(1) / (F(2)*Sqrt(F(1)-gamma));
+                A.SetLocal( iLoc, jLoc, beta );
+            }
+        }
+    }
+}
+
 template<typename F> 
 inline void
 Legendre( Matrix<F>& A, Int n )
@@ -69,17 +97,6 @@ Legendre( Matrix<F>& A, Int n )
     A.Resize( n, n );
     MakeLegendre( A );
 }
-
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Legendre( Int n )
-{
-    Matrix<F> A;
-    Legendre( A, n );
-    return A;
-}
-#endif
 
 template<typename F,Dist U,Dist V> 
 inline void
@@ -90,16 +107,14 @@ Legendre( DistMatrix<F,U,V>& A, Int n )
     MakeLegendre( A );
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR> 
-inline DistMatrix<F,U,V>
-Legendre( const Grid& g, Int n )
+template<typename F,Dist U,Dist V> 
+inline void
+Legendre( BlockDistMatrix<F,U,V>& A, Int n )
 {
-    DistMatrix<F,U,V> A(g);
-    Legendre( A, n );
-    return A;
+    DEBUG_ONLY(CallStackEntry cse("Legendre"))
+    A.Resize( n, n );
+    MakeLegendre( A );
 }
-#endif
 
 } // namespace elem
 

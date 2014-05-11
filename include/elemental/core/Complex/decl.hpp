@@ -13,26 +13,6 @@
 namespace elem {
 
 
-#ifdef SWIG
-
-#define Complex std::complex
-
-template<typename Real> struct BaseHelper { };
-%template(BaseHelper_i) BaseHelper<Int>;
-%extend BaseHelper<Int> { typedef Int type; }
-%template(BaseHelper_s) BaseHelper<float>;
-%extend BaseHelper<float> { typedef float type; }
-%template(BaseHelper_d) BaseHelper<double>;
-%extend BaseHelper<double> { typedef double type; }
-%template(BaseHelper_c) BaseHelper<Complex<float> >;
-%extend BaseHelper<Complex<float> > { typedef float type; }
-%template(BaseHelper_z) BaseHelper<Complex<double> >;
-%extend BaseHelper<Complex<double> > { typedef double type; }
-
-#define BASE(F) typename BaseHelper<F>::type 
-
-#else /* ifndef SWIG */
-
 template<typename Real>
 using Complex = std::complex<Real>;
 
@@ -45,12 +25,6 @@ struct BaseHelper<Complex<Real>> { typedef Real type; };
 template<typename F>
 using Base = typename BaseHelper<F>::type;
 
-// I would like to deprecate BASE(F), but it is the best compromise which
-// allows the same code to be used for the limited SWIG C++ parser
-#define BASE(F) Base<F>
-
-#endif
-
 template<typename Real>
 std::ostream& operator<<( std::ostream& os, Complex<Real> alpha );
 
@@ -59,7 +33,7 @@ std::ostream& operator<<( std::ostream& os, Complex<Real> alpha );
 template<typename Real>
 struct IsComplex { enum { val=0 }; };
 template<typename Real>
-struct IsComplex<Complex<Real> > { enum { val=1 }; };
+struct IsComplex<Complex<Real>> { enum { val=1 }; };
 
 // Return the real/imaginary part of a real or complex number
 template<typename Real>
@@ -93,7 +67,7 @@ void UpdateImagPart( Complex<Real>& alpha, const Real& beta );
 
 // Euclidean (l_2) magnitudes
 template<typename F>
-BASE(F) Abs( const F& alpha );
+Base<F> Abs( const F& alpha );
 template<typename Real>
 Real SafeAbs( const Real& alpha );
 template<typename Real>
@@ -101,7 +75,7 @@ Real SafeAbs( const Complex<Real>& alpha );
 
 // Square-root free (l_1) magnitudes
 template<typename F>
-BASE(F) FastAbs( const F& alpha );
+Base<F> FastAbs( const F& alpha );
 
 // Conjugation
 template<typename Real>
@@ -165,11 +139,9 @@ F Atanh( const F& alpha );
 template<typename F>
 Base<F> Arg( const F& alpha );
 
-#ifndef SWIG
 // Convert polar coordinates to the complex number
 template<typename Real>
 Complex<Real> Polar( const Real& r, const Real& theta=0 );
-#endif
 
 // Exponential
 template<typename F>

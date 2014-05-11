@@ -22,7 +22,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
+Spy( const Matrix<T>& A, std::string title="Default", Base<T> tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef ELEM_HAVE_QT5
@@ -51,7 +51,7 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
+Spy( const DistMatrix<T,U,V>& A, std::string title="Default", Base<T> tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef ELEM_HAVE_QT5
@@ -76,7 +76,7 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 template<typename T,Dist U,Dist V>
 inline void
 Spy
-( const BlockDistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
+( const BlockDistMatrix<T,U,V>& A, std::string title="Default", Base<T> tol=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Spy"))
 #ifdef ELEM_HAVE_QT5

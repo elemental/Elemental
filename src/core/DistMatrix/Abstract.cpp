@@ -1131,7 +1131,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
-  DistMatrix<BASE(T),STAR,STAR>& ASub ) const
+  DistMatrix<Base<T>,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfSubmatrix"))
     const Int m = rowInd.size();
@@ -1171,7 +1171,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
-  DistMatrix<BASE(T),STAR,STAR>& ASub ) const
+  DistMatrix<Base<T>,STAR,STAR>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfSubmatrix"))
     const Int m = rowInd.size();
@@ -1219,7 +1219,7 @@ AbstractDistMatrix<T>::GetSubmatrix
 }
 
 template<typename T>
-DistMatrix<BASE(T),STAR,STAR>
+DistMatrix<Base<T>,STAR,STAR>
 AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
@@ -1230,7 +1230,7 @@ AbstractDistMatrix<T>::GetRealPartOfSubmatrix
 }
 
 template<typename T>
-DistMatrix<BASE(T),STAR,STAR>
+DistMatrix<Base<T>,STAR,STAR>
 AbstractDistMatrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
@@ -1276,7 +1276,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-  const DistMatrix<BASE(T),STAR,STAR>& ASub )
+  const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfSubmatrix"))
     const Int m = rowInd.size();
@@ -1309,7 +1309,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-  const DistMatrix<BASE(T),STAR,STAR>& ASub )
+  const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfSubmatrix"))
     const Int m = rowInd.size();
@@ -1375,7 +1375,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-  BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
+  Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfSubmatrix"))
     const Int m = rowInd.size();
@@ -1408,7 +1408,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-  BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub )
+  Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfSubmatrix"))
     const Int m = rowInd.size();
@@ -1516,7 +1516,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetRealPartOfLocalSubmatrix
 ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
-  elem::Matrix<BASE(T)>& ASub ) const
+  elem::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetRealPartOfLocalSubmatrix"))
     LockedMatrix().GetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
@@ -1526,7 +1526,7 @@ template<typename T>
 void
 AbstractDistMatrix<T>::GetImagPartOfLocalSubmatrix
 ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
-  elem::Matrix<BASE(T)>& ASub ) const
+  elem::Matrix<Base<T>>& ASub ) const
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::GetImagPartOfLocalSubmatrix"))
     LockedMatrix().GetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
@@ -1546,7 +1546,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetRealPartOfLocalSubmatrix
 ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-  const elem::Matrix<BASE(T)>& ASub )
+  const elem::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetRealPartOfLocalSubmatrix"))
     Matrix().SetRealPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
@@ -1556,7 +1556,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::SetImagPartOfLocalSubmatrix
 ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-  const elem::Matrix<BASE(T)>& ASub )
+  const elem::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SetImagPartOfLocalSubmatrix"))
     Matrix().SetImagPartOfSubmatrix( rowIndLoc, colIndLoc, ASub );
@@ -1576,7 +1576,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateRealPartOfLocalSubmatrix
 ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-  BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
+  Base<T> alpha, const elem::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateRealPartOfLocalSubmatrix"))
     Matrix().UpdateRealPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );
@@ -1586,7 +1586,7 @@ template<typename T>
 void 
 AbstractDistMatrix<T>::UpdateImagPartOfLocalSubmatrix
 ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-  BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub )
+  Base<T> alpha, const elem::Matrix<Base<T>>& ASub )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::UpdateImagPartOfLocalSubmatrix"))
     Matrix().UpdateImagPartOfSubmatrix( rowIndLoc, colIndLoc, alpha, ASub );

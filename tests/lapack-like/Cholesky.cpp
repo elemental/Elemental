@@ -31,8 +31,9 @@ void TestCorrectness
 
     // Test correctness by multiplying a random set of vectors by A, then
     // using the Cholesky factorization to solve.
-    auto X = Uniform<F>( g, m, 100 );
-    auto Y = Zeros<F>( g, m, 100 );
+    DistMatrix<F> X(g), Y(g);
+    Uniform( X, m, 100 );
+    Zeros( Y, m, 100 );
     Hemm( LEFT, uplo, F(1), AOrig, X, F(0), Y );
     const Real maxNormL = HermitianMaxNorm( uplo, A );
     const Real maxNormA = HermitianMaxNorm( uplo, AOrig );

@@ -100,26 +100,6 @@ Cauchy
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Cauchy( const std::vector<F>& x, const std::vector<F>& y )
-{
-    Matrix<F> A;
-    Cauchy( A, x, y );
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
-{
-    DistMatrix<F,U,V> A(g);
-    Cauchy( A, x, y );
-    return A;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_CAUCHY_HPP

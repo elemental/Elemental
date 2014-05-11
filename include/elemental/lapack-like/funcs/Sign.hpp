@@ -139,7 +139,7 @@ NewtonSchulzStep
 // the different choices of p, which are usually in {0,1,2}
 template<typename F>
 inline Int
-Newton( Matrix<F>& A, const SignCtrl<BASE(F)>& signCtrl )
+Newton( Matrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
@@ -178,7 +178,7 @@ Newton( Matrix<F>& A, const SignCtrl<BASE(F)>& signCtrl )
 
 template<typename F>
 inline Int
-Newton( DistMatrix<F>& A, const SignCtrl<BASE(F)>& signCtrl )
+Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
@@ -221,7 +221,7 @@ Newton( DistMatrix<F>& A, const SignCtrl<BASE(F)>& signCtrl )
 
 template<typename F>
 inline void
-Sign( Matrix<F>& A, const SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+Sign( Matrix<F>& A, const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     sign::Newton( A, signCtrl );
@@ -231,7 +231,7 @@ template<typename F>
 inline void
 Sign
 ( Matrix<F>& A, Matrix<F>& N, 
-  const SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     Matrix<F> ACopy( A );
@@ -241,7 +241,7 @@ Sign
 
 template<typename F>
 inline void
-Sign( DistMatrix<F>& A, const SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+Sign( DistMatrix<F>& A, const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     sign::Newton( A, signCtrl );
@@ -251,7 +251,7 @@ template<typename F>
 inline void
 Sign
 ( DistMatrix<F>& A, DistMatrix<F>& N, 
-  const SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     DistMatrix<F> ACopy( A );
@@ -272,7 +272,7 @@ template<typename F>
 inline void
 HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, 
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -300,7 +300,7 @@ template<typename F>
 inline void
 HermitianSign
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -336,7 +336,7 @@ template<typename F>
 inline void
 HermitianSign
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -365,7 +365,7 @@ template<typename F>
 inline void
 HermitianSign
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;

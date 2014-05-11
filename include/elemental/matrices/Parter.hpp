@@ -24,17 +24,6 @@ Parter( Matrix<F>& P, Int n )
             P.Set( i, j, F(1)/(F(i)-F(j)+oneHalf) );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Parter( Int n )
-{
-    Matrix<F> P;
-    Parter( P, n );
-    return P;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Parter( DistMatrix<F,U,V>& P, Int n )
@@ -55,16 +44,25 @@ Parter( DistMatrix<F,U,V>& P, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Parter( const Grid& g, Int n )
+template<typename F,Dist U,Dist V>
+inline void
+Parter( BlockDistMatrix<F,U,V>& P, Int n )
 {
-    DistMatrix<F,U,V> P(g);
-    Parter( P, n );
-    return P;
+    DEBUG_ONLY(CallStackEntry cse("Parter"))
+    const F oneHalf = F(1)/F(2);
+    P.Resize( n, n );
+    const Int localHeight = P.LocalHeight();
+    const Int localWidth = P.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = P.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = P.GlobalRow(iLoc);
+            P.SetLocal( iLoc, jLoc, F(1)/(F(i)-F(j)+oneHalf) );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

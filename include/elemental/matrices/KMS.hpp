@@ -26,17 +26,6 @@ KMS( Matrix<T>& K, Int n, T rho )
     }
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-KMS( Int n, T rho )
-{
-    Matrix<T> K;
-    KMS( K, n, rho );
-    return K;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 KMS( DistMatrix<T,U,V>& K, Int n, T rho )
@@ -58,16 +47,26 @@ KMS( DistMatrix<T,U,V>& K, Int n, T rho )
     }
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-KMS( const Grid& g, Int n, T rho )
+template<typename T,Dist U,Dist V>
+inline void
+KMS( BlockDistMatrix<T,U,V>& K, Int n, T rho )
 {
-    DistMatrix<T,U,V> K(g);
-    KMS( K, n, rho );
-    return K;
+    DEBUG_ONLY(CallStackEntry cse("KMS"))
+    const Int localHeight = K.LocalHeight();
+    const Int localWidth = K.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = K.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = K.GlobalRow(iLoc);
+            if( i < j )
+                K.SetLocal( iLoc, jLoc, Pow(rho,T(j-i)) );
+            else
+                K.SetLocal( iLoc, jLoc, Conj(Pow(rho,T(i-j))) );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

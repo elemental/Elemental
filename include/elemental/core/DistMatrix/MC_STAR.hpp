@@ -43,10 +43,8 @@ public:
     DistMatrix( const type& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
-#ifndef SWIG
     // Move constructor
     DistMatrix( type&& A ) ELEM_NOEXCEPT;
-#endif
     // Destructor
     ~DistMatrix();
 
@@ -67,10 +65,8 @@ public:
     type& operator=( const DistMatrix<T,STAR,VR  >& A );
     type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
-#ifndef SWIG
     // Move assignment
     type& operator=( type&& A );
-#endif
 
     // Basic queries
     // =============
@@ -89,10 +85,8 @@ public:
 private:
     // Friend declarations
     // ===================
-#ifndef SWIG
     template<typename S,Dist U,Dist V> friend class DistMatrix;
     template<typename S,Dist U,Dist V> friend class BlockDistMatrix;
-#endif
 };
 
 } // namespace elem

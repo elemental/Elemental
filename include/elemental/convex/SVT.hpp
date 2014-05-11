@@ -19,7 +19,7 @@ namespace elem {
 
 template<typename F>
 inline Int
-SVT( Matrix<F>& A, BASE(F) tau, bool relative=false )
+SVT( Matrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     return svt::Normal( A, tau, relative );
@@ -27,7 +27,7 @@ SVT( Matrix<F>& A, BASE(F) tau, bool relative=false )
 
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
+SVT( DistMatrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     // NOTE: This should be less accurate (but faster) than svt::Normal
@@ -36,7 +36,7 @@ SVT( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 
 template<typename F>
 inline Int
-SVT( Matrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
+SVT( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     // Preprocess with numSteps iterations of pivoted QR factorization
@@ -45,7 +45,7 @@ SVT( Matrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 
 template<typename F>
 inline Int
-SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
+SVT( DistMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     // Preprocess with numSteps iterations of pivoted QR factorization
@@ -55,7 +55,7 @@ SVT( DistMatrix<F>& A, BASE(F) tau, Int relaxedRank, bool relative=false )
 // Singular-value soft-thresholding based on TSQR
 template<typename F,Dist U>
 inline Int
-SVT( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
+SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     return svt::TSQR( A, tau, relative );

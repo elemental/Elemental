@@ -66,6 +66,35 @@ MakeGKS( DistMatrix<F,U,V>& A )
     }
 }
 
+template<typename F,Dist U,Dist V>
+inline void
+MakeGKS( BlockDistMatrix<F,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeGKS"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    if( m != n )
+        LogicError("Cannot make a non-square matrix GKS");
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        const F jDiag = F(1)/Sqrt(F(j));
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            if( i < j )
+                A.SetLocal( iLoc, jLoc, -jDiag );
+            else if( i == j )
+                A.SetLocal( iLoc, jLoc, jDiag );
+            else
+                A.SetLocal( iLoc, jLoc, 0 );
+        }
+    }
+}
+
 template<typename F>
 inline void
 GKS( Matrix<F>& A, Int n )
@@ -84,25 +113,14 @@ GKS( DistMatrix<F,U,V>& A, Int n )
     MakeGKS( A );
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-GKS( Int n )
+template<typename F,Dist U,Dist V>
+inline void
+GKS( BlockDistMatrix<F,U,V>& A, Int n )
 {
-    Matrix<F> A( n, n );
+    DEBUG_ONLY(CallStackEntry cse("GKS"))
+    A.Resize( n, n );
     MakeGKS( A );
-    return A;
 }
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-GKS( const Grid& g, Int n )
-{
-    DistMatrix<F,U,V> A( n, n, g );
-    MakeGKS( A );
-    return A;
-}
-#endif
 
 } // namespace elem
 

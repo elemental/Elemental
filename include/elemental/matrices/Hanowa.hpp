@@ -72,27 +72,34 @@ Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Hanowa( Int n, T mu )
+template<typename T,Dist U,Dist V>
+inline void
+Hanowa( BlockDistMatrix<T,U,V>& A, Int n, T mu )
 {
-    Matrix<T> A;
-    Hanowa( A, n, mu );
-    return A;
-}
+    DEBUG_ONLY(CallStackEntry cse("Hanowa"))
+    if( n % 2 != 0 )
+        LogicError("n must be an even integer");
+    A.Resize( n, n );
+    const Int m = n/2;
+    std::vector<T> d(m);
 
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Hanowa( const Grid& g, Int n, T mu )
-{
-    DistMatrix<T,U,V> A(g);
-    Hanowa( A, n, mu );
-    return A;
-}
-#endif
+    for( Int j=0; j<m; ++j )
+        d[j] = mu;
+    auto ABlock = View( A, 0, 0, m, m );
+    Diagonal( ABlock, d );
+    ABlock = View( A, m, m, m, m );
+    Diagonal( ABlock, d );
 
-// TODO: MakeHanowa?
+    for( Int j=0; j<m; ++j )
+        d[j] = -(j+1);
+    ABlock = View( A, 0, m, m, m );
+    Diagonal( ABlock, d );
+
+    for( Int j=0; j<m; ++j )
+        d[j] = j+1;
+    ABlock = View( A, m, 0, m, m );
+    Diagonal( ABlock, d );
+}
 
 } // namespace elem
 

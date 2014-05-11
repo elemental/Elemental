@@ -17,7 +17,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 KyFanNorm( const Matrix<F>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("KyFanNorm"))
@@ -36,7 +36,7 @@ KyFanNorm( const Matrix<F>& A, Int k )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianKyFanNorm"))
@@ -55,7 +55,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanNorm"))
@@ -75,7 +75,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("KyFanNorm"))
@@ -97,7 +97,7 @@ KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianKyFanNorm"))
@@ -119,7 +119,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanNorm"))

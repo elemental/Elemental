@@ -20,8 +20,8 @@ const Int HCapacityInit = 10;
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real> >& HDiagList, 
-  const std::vector<std::vector<Real> >& HSubdiagList,
+( const std::vector<std::vector<Real>>& HDiagList, 
+  const std::vector<std::vector<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
@@ -51,8 +51,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real> >& HDiagList, 
-  const std::vector<std::vector<Real> >& HSubdiagList,
+( const std::vector<std::vector<Real>>& HDiagList, 
+  const std::vector<std::vector<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ComputeNewEstimates"))
@@ -62,15 +62,15 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Deflate
-( std::vector<std::vector<Real> >& HDiagList,
-  std::vector<std::vector<Real> >& HSubdiagList,
-  Matrix<Complex<Real> >& activeShifts, 
-  Matrix<Int           >& activePreimage,
-  Matrix<Complex<Real> >& activeXOld,
-  Matrix<Complex<Real> >& activeX,
-  Matrix<Real          >& activeEsts, 
-  Matrix<Int           >& activeConverged,
-  Matrix<Int           >& activeItCounts,
+( std::vector<std::vector<Real>>& HDiagList,
+  std::vector<std::vector<Real>>& HSubdiagList,
+  Matrix<Complex<Real>>& activeShifts, 
+  Matrix<Int          >& activePreimage,
+  Matrix<Complex<Real>>& activeXOld,
+  Matrix<Complex<Real>>& activeX,
+  Matrix<Real         >& activeEsts, 
+  Matrix<Int          >& activeConverged,
+  Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Deflate"))
@@ -105,8 +105,8 @@ Deflate
 template<typename Real>
 inline void
 Deflate
-( std::vector<std::vector<Real> >& HDiagList,
-  std::vector<std::vector<Real> >& HSubdiagList,
+( std::vector<std::vector<Real>>& HDiagList,
+  std::vector<std::vector<Real>>& HSubdiagList,
   DistMatrix<Complex<Real>,VR,STAR>& activeShifts,
   DistMatrix<Int,          VR,STAR>& activePreimage,
   DistMatrix<Complex<Real>        >& activeXOld,
@@ -221,7 +221,7 @@ Deflate
 template<typename Real>
 inline Matrix<Int>
 Lanczos
-( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Lanczos"))

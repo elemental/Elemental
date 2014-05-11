@@ -25,7 +25,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        auto J = Legendre<double>( DefaultGrid(), n );
+        DistMatrix<double> J;
+        Legendre( J, n );
         if( display )
         {
             Display( J, "Jacobi matrix for Legendre polynomials" );

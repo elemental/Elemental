@@ -31,20 +31,16 @@ public:
     Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
     // Create a copy of a matrix
     Matrix( const Matrix<T>& A );
-#ifndef SWIG
     // Move the metadata from a given matrix
     Matrix( Matrix<T>&& A ) ELEM_NOEXCEPT;
-#endif 
     // Destructor
     ~Matrix();
 
     // Assignment and reconfiguration
     // ==============================
     Matrix<T>& operator=( const Matrix<T>& A );
-#ifndef SWIG
     // Move the metadata from the given matrix
     Matrix<T>& operator=( Matrix<T>&& A );
-#endif
     void Empty();
     void Resize( Int height, Int width );
     void Resize( Int height, Int width, Int ldim );
@@ -72,35 +68,33 @@ public:
     // Single-entry manipulation
     // =========================
     T Get( Int i, Int j ) const;
-    BASE(T) GetRealPart( Int i, Int j ) const;
-    BASE(T) GetImagPart( Int i, Int j ) const;
+    Base<T> GetRealPart( Int i, Int j ) const;
+    Base<T> GetImagPart( Int i, Int j ) const;
     void Set( Int i, Int j, T alpha );
-    void SetRealPart( Int i, Int j, BASE(T) alpha );
-    void SetImagPart( Int i, Int j, BASE(T) alpha );
+    void SetRealPart( Int i, Int j, Base<T> alpha );
+    void SetImagPart( Int i, Int j, Base<T> alpha );
     void Update( Int i, Int j, T alpha );
-    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
-    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
+    void UpdateRealPart( Int i, Int j, Base<T> alpha );
+    void UpdateImagPart( Int i, Int j, Base<T> alpha );
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 
     // Diagonal manipulation
     // =====================
     void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal( Matrix<BASE(T) >& d, Int offset=0 ) const;
-#ifndef SWIG
+    void GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset=0 ) const;
     Matrix<T> GetDiagonal( Int offset=0 ) const;
-    Matrix<BASE(T) > GetRealPartOfDiagonal( Int offset=0 ) const;
-    Matrix<BASE(T) > GetImagPartOfDiagonal( Int offset=0 ) const;
-#endif
+    Matrix<Base<T>> GetRealPartOfDiagonal( Int offset=0 ) const;
+    Matrix<Base<T>> GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const Matrix<T>& d, Int offset=0 );
-    void SetRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
-    void SetImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+    void SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
+    void SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
 
     void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
-    void UpdateImagPartOfDiagonal( const Matrix<BASE(T) >& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset=0 );
 
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
@@ -112,38 +106,36 @@ public:
       Matrix<T>& ASub ) const;
     void GetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      Matrix<BASE(T)>& ASub ) const;
+      Matrix<Base<T>>& ASub ) const;
     void GetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      Matrix<BASE(T)>& ASub ) const;
-#ifndef SWIG
+      Matrix<Base<T>>& ASub ) const;
     Matrix<T> GetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-    Matrix<BASE(T)> GetRealPartOfSubmatrix
+    Matrix<Base<T>> GetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-    Matrix<BASE(T)> GetImagPartOfSubmatrix
+    Matrix<Base<T>> GetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-#endif
 
     void SetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       const Matrix<T>& ASub );
     void SetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const Matrix<BASE(T)>& ASub );
+      const Matrix<Base<T>>& ASub );
     void SetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const Matrix<BASE(T)>& ASub );
+      const Matrix<Base<T>>& ASub );
 
     void UpdateSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       T alpha, const Matrix<T>& ASub );
     void UpdateRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      BASE(T) alpha, const Matrix<BASE(T)>& ASub );
+      Base<T> alpha, const Matrix<Base<T>>& ASub );
     void UpdateImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      BASE(T) alpha, const Matrix<BASE(T)>& ASub );
+      Base<T> alpha, const Matrix<Base<T>>& ASub );
 
     void MakeSubmatrixReal
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
@@ -185,7 +177,6 @@ private:
    
     // Friend declarations
     // ===================
-#ifndef SWIG
     template <typename F>               friend class Matrix;
     template <typename F>               friend class AbstractDistMatrix;
     template <typename F>               friend class AbstractBlockDistMatrix;
@@ -193,7 +184,6 @@ private:
     template <typename F,Dist U,Dist V> friend class GeneralBlockDistMatrix;
     template <typename F,Dist U,Dist V> friend class DistMatrix;
     template <typename F,Dist U,Dist V> friend class BlockDistMatrix;
-#endif 
 };
 
 } // namespace elem

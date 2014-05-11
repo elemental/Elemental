@@ -34,7 +34,7 @@ namespace elem {
 template<typename F>
 inline void
 Ricatti
-( Matrix<F>& W, Matrix<F>& X, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
     Sign( W, signCtrl );
@@ -59,7 +59,7 @@ template<typename F>
 inline void
 Ricatti
 ( DistMatrix<F>& W, DistMatrix<F>& X, 
-  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
     const Grid& g = W.Grid();
@@ -86,7 +86,7 @@ inline void
 Ricatti
 ( UpperOrLower uplo, 
   const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, Matrix<F>& X,
-  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -120,7 +120,7 @@ inline void
 Ricatti
 ( UpperOrLower uplo, 
   const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, 
-  DistMatrix<F>& X, SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  DistMatrix<F>& X, SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");

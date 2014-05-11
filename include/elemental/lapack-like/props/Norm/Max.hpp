@@ -13,7 +13,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 MaxNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
@@ -33,7 +33,7 @@ MaxNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
@@ -70,7 +70,7 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
@@ -78,7 +78,7 @@ SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 MaxNorm( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
@@ -104,7 +104,7 @@ MaxNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
@@ -151,7 +151,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))

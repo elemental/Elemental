@@ -18,7 +18,7 @@ namespace lq {
 
 template<typename F> 
 inline void
-Householder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
+Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Householder"))
     const Int m = A.Height();
@@ -55,7 +55,7 @@ Householder( Matrix<F>& A )
 template<typename F> 
 inline void
 Householder
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Householder");

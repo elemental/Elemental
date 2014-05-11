@@ -18,15 +18,15 @@ namespace elem {
 
 // A :=  Z Omega Z^T, where Omega is complex-valued and diagonal
 
-template<typename R>
+template<typename Real>
 inline void
 NormalFromEVD
-(       Matrix<Complex<R> >& A,
-  const Matrix<Complex<R> >& w,
-  const Matrix<Complex<R> >& Z )
+(       Matrix<Complex<Real>>& A,
+  const Matrix<Complex<Real>>& w,
+  const Matrix<Complex<Real>>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
 
     Matrix<C> Y1, Z1Copy;
 
@@ -46,28 +46,15 @@ NormalFromEVD
     }
 }
 
-#ifndef SWIG
-template<typename R>
-inline Matrix<Complex<R> >
-NormalFromEVD
-( const Matrix<Complex<R> >& w,
-  const Matrix<Complex<R> >& Z )
-{
-    Matrix<Complex<R> > A;
-    NormalFromEVD( A, w, Z );
-    return A;
-}
-#endif
-
-template<typename R>
+template<typename Real>
 inline void
 NormalFromEVD
-(       DistMatrix<Complex<R> >& A,
-  const DistMatrix<Complex<R>,VR,STAR>& w,
-  const DistMatrix<Complex<R> >& Z )
+(       DistMatrix<Complex<Real>>& A,
+  const DistMatrix<Complex<Real>,VR,STAR>& w,
+  const DistMatrix<Complex<Real>>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("NormalFromEVD"))
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
     const Grid& g = A.Grid();
     DistMatrix<C,MC,  STAR> Z1_MC_STAR(g);
     DistMatrix<C,VR,  STAR> Z1_VR_STAR(g);
@@ -97,19 +84,6 @@ NormalFromEVD
         LocalGemm( NORMAL, NORMAL, C(1), Z1_MC_STAR, Z1Adj_STAR_MR, C(1), A );
     }
 }
-
-#ifndef SWIG
-template<typename R>
-inline DistMatrix<Complex<R> >
-NormalFromEVD
-( const DistMatrix<Complex<R>,VR,STAR>& w,
-  const DistMatrix<Complex<R> >& Z )
-{
-    DistMatrix<Complex<R>> A( w.Grid() );
-    NormalFromEVD( A, w, Z );
-    return A;
-}
-#endif
 
 } // namespace elem
 

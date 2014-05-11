@@ -23,7 +23,7 @@ namespace id {
 
 template<typename F>
 inline void
-PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
+PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
     typedef Base<F> Real;
@@ -68,7 +68,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
 // RR
 template<typename F>
 inline void
-PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
+PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
     DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
@@ -84,7 +84,7 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
+( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, Int maxSteps, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
@@ -115,7 +115,7 @@ BusingerGolub
 ( DistMatrix<F>& A, 
   DistMatrix<Int,UPerm,STAR>& pPerm, 
   DistMatrix<F,STAR,VR>& Z, 
-  Int maxSteps, BASE(F) tol )
+  Int maxSteps, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
@@ -146,19 +146,18 @@ template<typename F>
 inline void
 ID
 ( const Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, 
-  Int maxSteps, BASE(F) tol )
+  Int maxSteps, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     Matrix<F> B( A );
     id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
 
-#ifndef SWIG
 template<typename F> 
 inline void
 ID
 ( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, 
-  Int maxSteps, BASE(F) tol, bool canOverwrite=false )
+  Int maxSteps, Base<F> tol, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     Matrix<F> B;
@@ -168,17 +167,15 @@ ID
         B = A;
     id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
-#endif // ifndef SWIG
 
 template<typename F> 
 inline void
 ID( const Matrix<F>& A, Matrix<Int>& pPerm, Matrix<F>& Z, Int numSteps )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, pPerm, Z, numSteps, BASE(F)(-1) );
+    ID( A, pPerm, Z, numSteps, Base<F>(-1) );
 }
 
-#ifndef SWIG
 template<typename F> 
 inline void
 ID
@@ -186,9 +183,8 @@ ID
   bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, pPerm, Z, numSteps, BASE(F)(-1), canOverwrite );
+    ID( A, pPerm, Z, numSteps, Base<F>(-1), canOverwrite );
 }
-#endif // ifndef SWIG
 
 template<typename F,Dist UPerm> 
 inline void
@@ -196,21 +192,20 @@ ID
 ( const DistMatrix<F>& A, 
         DistMatrix<Int,UPerm,STAR>& pPerm, 
         DistMatrix<F,STAR,VR>& Z, 
-  Int maxSteps, BASE(F) tol )
+  Int maxSteps, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     DistMatrix<F> B( A );
     id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
 
-#ifndef SWIG
 template<typename F,Dist UPerm> 
 inline void
 ID
 ( DistMatrix<F>& A, 
   DistMatrix<Int,UPerm,STAR>& pPerm, 
   DistMatrix<F,STAR,VR>& Z, 
-  Int maxSteps, BASE(F) tol, bool canOverwrite=false )
+  Int maxSteps, Base<F> tol, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     DistMatrix<F> B( A.Grid() );
@@ -220,7 +215,6 @@ ID
         B = A;
     id::BusingerGolub( B, pPerm, Z, maxSteps, tol );
 }
-#endif // ifndef SWIG
 
 template<typename F,Dist UPerm> 
 inline void
@@ -231,10 +225,9 @@ ID
   Int numSteps )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, pPerm, Z, numSteps, BASE(F)(-1) );
+    ID( A, pPerm, Z, numSteps, Base<F>(-1) );
 }
 
-#ifndef SWIG
 template<typename F,Dist UPerm> 
 inline void
 ID
@@ -244,9 +237,8 @@ ID
   Int numSteps, bool canOverwrite=false )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    ID( A, pPerm, Z, numSteps, BASE(F)(-1), canOverwrite );
+    ID( A, pPerm, Z, numSteps, Base<F>(-1), canOverwrite );
 }
-#endif // ifndef SWIG
 
 } // namespace elem
 

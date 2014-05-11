@@ -15,6 +15,8 @@
 namespace elem {
 
 // 1D Helmholtz
+// ============
+
 template<typename F> 
 inline void
 Helmholtz( Matrix<F>& H, Int n, F shift )
@@ -36,18 +38,34 @@ Helmholtz( Matrix<F>& H, Int n, F shift )
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Helmholtz( Int n, F shift )
+template<typename F,Dist U,Dist V>
+inline void
+Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
 {
-    Matrix<F> H;
-    Helmholtz( H, n, shift );
-    return H;
+    DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
+    typedef Base<F> R;
+    Zeros( H, n, n );
+
+    const R hInv = n+1; 
+    const R hInvSquared = hInv*hInv;
+    const F mainTerm = 2*hInvSquared - shift;
+
+    const Int localHeight = H.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = H.GlobalRow(iLoc);
+
+        H.Set( i, i, mainTerm );
+        if( i != 0 )
+            H.Set( i, i-1, -hInvSquared );
+        if( i != n-1 )
+            H.Set( i, i+1, -hInvSquared );
+    }
 }
-#endif
 
 // 2D Helmholtz
+// ============
+
 template<typename F> 
 inline void
 Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
@@ -79,18 +97,43 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Helmholtz( Int nx, Int ny, F shift )
+template<typename F,Dist U,Dist V>
+inline void
+Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
 {
-    Matrix<F> H;
-    Helmholtz( H, nx, ny, shift );
-    return H;
+    DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
+    typedef Base<F> R;
+    const Int n = nx*ny;
+    Zeros( H, n, n );
+
+    const R hxInv = nx+1; 
+    const R hyInv = ny+1;
+    const R hxInvSquared = hxInv*hxInv;
+    const R hyInvSquared = hyInv*hyInv;
+    const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
+
+    const Int localHeight = H.LocalHeight();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = H.GlobalRow(iLoc);
+        const Int x = i % nx;
+        const Int y = i/nx;
+
+        H.Set( i, i, mainTerm );
+        if( x != 0 )
+            H.Set( i, i-1, -hxInvSquared );
+        if( x != nx-1 )
+            H.Set( i, i+1, -hxInvSquared );
+        if( y != 0 )
+            H.Set( i, i-nx, -hyInvSquared );
+        if( y != ny-1 )
+            H.Set( i, i+nx, -hyInvSquared );
+    }
 }
-#endif
 
 // 3D Helmholtz
+// ============
+
 template<typename F> 
 inline void
 Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
@@ -129,101 +172,6 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Helmholtz( Int nx, Int ny, Int nz, F shift )
-{
-    Matrix<F> H;
-    Helmholtz( H, nx, ny, nz, shift );
-    return H;
-}
-#endif
-
-// 1D Helmholtz
-template<typename F,Dist U,Dist V>
-inline void
-Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
-{
-    DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
-    typedef Base<F> R;
-    Zeros( H, n, n );
-
-    const R hInv = n+1; 
-    const R hInvSquared = hInv*hInv;
-    const F mainTerm = 2*hInvSquared - shift;
-
-    const Int localHeight = H.LocalHeight();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-    {
-        const Int i = H.GlobalRow(iLoc);
-
-        H.Set( i, i, mainTerm );
-        if( i != 0 )
-            H.Set( i, i-1, -hInvSquared );
-        if( i != n-1 )
-            H.Set( i, i+1, -hInvSquared );
-    }
-}
-
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Helmholtz( const Grid& g, Int n, F shift )
-{
-    DistMatrix<F,U,V> H(g);
-    Helmholtz( H, n, shift );
-    return H;
-}
-#endif
-
-// 2D Helmholtz
-template<typename F,Dist U,Dist V>
-inline void
-Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
-{
-    DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
-    typedef Base<F> R;
-    const Int n = nx*ny;
-    Zeros( H, n, n );
-
-    const R hxInv = nx+1; 
-    const R hyInv = ny+1;
-    const R hxInvSquared = hxInv*hxInv;
-    const R hyInvSquared = hyInv*hyInv;
-    const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
-
-    const Int localHeight = H.LocalHeight();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-    {
-        const Int i = H.GlobalRow(iLoc);
-        const Int x = i % nx;
-        const Int y = i/nx;
-
-        H.Set( i, i, mainTerm );
-        if( x != 0 )
-            H.Set( i, i-1, -hxInvSquared );
-        if( x != nx-1 )
-            H.Set( i, i+1, -hxInvSquared );
-        if( y != 0 )
-            H.Set( i, i-nx, -hyInvSquared );
-        if( y != ny-1 )
-            H.Set( i, i+nx, -hyInvSquared );
-    }
-}
-
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Helmholtz( const Grid& g, Int nx, Int ny, F shift )
-{
-    DistMatrix<F,U,V> H(g);
-    Helmholtz( H, nx, ny, shift );
-    return H;
-}
-#endif
-
-// 3D Helmholtz
 template<typename F,Dist U,Dist V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
@@ -264,17 +212,6 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
             H.Set( i, i+nx*ny, -hzInvSquared );
     }
 }
-
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Helmholtz( const Grid& g, Int nx, Int ny, Int nz, F shift )
-{
-    DistMatrix<F,U,V> H(g);
-    Helmholtz( H, nx, ny, nz, shift );
-    return H;
-}
-#endif
 
 } // namespace elem
 

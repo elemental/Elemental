@@ -78,7 +78,7 @@ NewtonStep
 
 template<typename F>
 inline int
-Newton( Matrix<F>& A, const SquareRootCtrl<BASE(F)>& sqrtCtrl )
+Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
@@ -118,7 +118,7 @@ Newton( Matrix<F>& A, const SquareRootCtrl<BASE(F)>& sqrtCtrl )
 
 template<typename F>
 inline int
-Newton( DistMatrix<F>& A, const SquareRootCtrl<BASE(F)>& sqrtCtrl )
+Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
@@ -163,7 +163,7 @@ template<typename F>
 inline void
 SquareRoot
 ( Matrix<F>& A, 
-  const SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
+  const SquareRootCtrl<Base<F>> sqrtCtrl=SquareRootCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A, sqrtCtrl );
@@ -173,7 +173,7 @@ template<typename F>
 inline void
 SquareRoot
 ( DistMatrix<F>& A, 
-  const SquareRootCtrl<BASE(F)> sqrtCtrl=SquareRootCtrl<BASE(F)>() )
+  const SquareRootCtrl<Base<F>> sqrtCtrl=SquareRootCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A, sqrtCtrl );
@@ -187,7 +187,7 @@ template<typename F>
 inline void
 HPSDSquareRoot
 ( UpperOrLower uplo, Matrix<F>& A, 
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;
@@ -235,7 +235,7 @@ template<typename F>
 inline void
 HPSDSquareRoot
 ( UpperOrLower uplo, DistMatrix<F>& A,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() )
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;

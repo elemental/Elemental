@@ -24,7 +24,7 @@ namespace elem {
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
+SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     if( useQR )
@@ -36,7 +36,7 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
 template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& U, Matrix<F>& V )
+  Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #if 1
@@ -48,7 +48,7 @@ inline void HermitianSVD
     U.Resize( n, n );
     for( Int j=0; j<n; ++j )
     {
-        const BASE(F) sigma = s.Get( j, 0 );
+        const Base<F> sigma = s.Get( j, 0 );
         F* UCol = U.Buffer( 0, j );
         const F* VCol = V.LockedBuffer( 0, j );
         if( sigma >= 0 )
@@ -75,7 +75,7 @@ inline void HermitianSVD
 template<typename F>
 inline void
 SVD
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
@@ -86,7 +86,7 @@ SVD
 template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, 
-  DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
+  DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
     // Grab an eigenvalue decomposition of A
@@ -133,7 +133,7 @@ inline void HermitianSVD
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
+SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     const Int m = A.Height();
@@ -144,7 +144,7 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& s )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #if 1
@@ -164,7 +164,7 @@ inline void HermitianSVD
 
 template<typename F>
 inline void
-SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
+SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
@@ -173,7 +173,7 @@ SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
     // Grab the eigenvalues of A
@@ -183,7 +183,7 @@ inline void HermitianSVD
     const Int numLocalVals = s.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
-        const BASE(F) sigma = s.GetLocal(iLoc,0);
+        const Base<F> sigma = s.GetLocal(iLoc,0);
         s.SetLocal(iLoc,0,Abs(sigma));
     }
 

@@ -57,28 +57,6 @@ Grcar( BlockDistMatrix<T,U,V>& A, Int n, Int k=3 )
         SetDiagonal( A, 1, j );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Grcar( Int n, Int k=3 )
-{
-    Matrix<T> A;
-    Grcar( A, n, k );
-    return A;
-}
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Grcar( const Grid& g, Int n, Int k=3 )
-{
-    DistMatrix<T,U,V> A(g);
-    Grcar( A, n, k );
-    return A;
-}
-#endif
-
-// TODO: MakeGrcar?
-
 } // namespace elem
 
 #endif // ifndef ELEM_GRCAR_HPP

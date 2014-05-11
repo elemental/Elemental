@@ -35,12 +35,14 @@ void TestCorrectness
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
-    auto Y = Identity<F>( g, m, m );
+    DistMatrix<F> Y(g);
+    Identity( Y, m, m );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
-        auto W = Identity<F>( g, m, m );
+        DistMatrix<F> W(g);
+        Identity( W, m, m );
         if( order == FORWARD )
         {
             ApplyPackedReflectors
@@ -56,7 +58,8 @@ void TestCorrectness
             Print( W, "Q" );
         }
     }
-    auto Z = Zeros<F>( g, m, m );
+    DistMatrix<F> Z(g);
+    Zeros( Z, m, m );
     Herk( uplo, NORMAL, F(1), Y, F(0), Z );
     MakeHermitian( uplo, Z );
     
@@ -98,8 +101,9 @@ void TestUT
   Int m, Int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
-    auto H = Uniform<F>( g, m, m );
-    auto A = Uniform<F>( g, m, m );
+    DistMatrix<F> H(g), A(g);
+    Uniform( H, m, m );
+    Uniform( A, m, m );
 
     const Int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
     DistMatrix<F,MD,STAR> t(g);

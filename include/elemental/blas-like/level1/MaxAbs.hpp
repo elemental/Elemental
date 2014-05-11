@@ -15,7 +15,7 @@ namespace elem {
 // TODO: Add options for FastAbs instead of Abs
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 VectorMaxAbs( const Matrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
@@ -65,7 +65,7 @@ VectorMaxAbs( const Matrix<F>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 VectorMaxAbs( const DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
@@ -132,7 +132,7 @@ VectorMaxAbs( const DistMatrix<F,U,V>& x )
 }
 
 template<typename F>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 MaxAbs( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
@@ -169,7 +169,7 @@ MaxAbs( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 MaxAbs( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(
@@ -222,7 +222,7 @@ MaxAbs( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(
@@ -281,7 +281,7 @@ SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 SymmetricMaxAbs( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(
@@ -360,7 +360,7 @@ SymmetricMaxAbs( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 DiagonalMaxAbs( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMaxAbs"))
@@ -368,7 +368,7 @@ DiagonalMaxAbs( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 DiagonalMaxAbs( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMaxAbs"))

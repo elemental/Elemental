@@ -50,25 +50,28 @@ Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
     }
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Hankel( Int m, Int n, const std::vector<T>& a )
+template<typename T,Dist U,Dist V>
+inline void
+Hankel( BlockDistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
-    Matrix<T> A;
-    Hankel( A, m, n, a );
-    return A;
-}
+    DEBUG_ONLY(CallStackEntry cse("Hankel"))
+    const Int length = m+n-1;
+    if( a.size() != (Unsigned)length )
+        LogicError("a was the wrong size");
+    A.Resize( m, n );
 
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Hankel( const Grid& g, Int m, Int n, const std::vector<T>& a )
-{
-    DistMatrix<T,U,V> A(g);
-    Hankel( A, m, n, a );
-    return A;
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            A.SetLocal( iLoc, jLoc, a[i+j] );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

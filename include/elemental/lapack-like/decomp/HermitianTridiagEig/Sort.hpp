@@ -20,7 +20,7 @@ namespace herm_eig {
 
 template<typename F>
 inline void
-Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, SortType sort=ASCENDING )
+Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
     if( sort == UNSORTED )
@@ -47,7 +47,7 @@ template<typename F,Dist U1,Dist V1,
                     Dist U2,Dist V2>
 inline void
 Sort
-( DistMatrix<BASE(F),U1,V1>& w, DistMatrix<F,U2,V2>& Z, 
+( DistMatrix<Base<F>,U1,V1>& w, DistMatrix<F,U2,V2>& Z, 
   SortType sort=ASCENDING )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))

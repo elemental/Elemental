@@ -135,8 +135,8 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& pPerm )
         RowSwap( pPerm, k, from );
 
         // a21 := a21 / sqrt(alpha11)
-        const BASE(F) delta11 = Sqrt(ABR.GetRealPart(0,0));
-        const BASE(F) delta11Inv = BASE(F)(1)/delta11;
+        const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
+        const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.Set(0,0,delta11);
         auto a21 = ViewRange( ABR, 1, 0, n-k, 1 );
         Scale( delta11Inv, a21 );
@@ -177,8 +177,8 @@ LUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         RowSwap( pPerm, k, from );
 
         // a21 := a21 / sqrt(alpha11)
-        const BASE(F) delta11 = Sqrt(ABR.GetRealPart(0,0));
-        const BASE(F) delta11Inv = BASE(F)(1)/delta11;
+        const Base<F> delta11 = Sqrt(ABR.GetRealPart(0,0));
+        const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.Set(0,0,delta11);
         auto a21 = ViewRange( ABR, 1, 0, n-k, 1 );
         Scale( delta11Inv, a21 );
@@ -233,8 +233,8 @@ LPanelPivoted
         aB1.MakeReal(0,0);
 
         // a21 := a21 / sqrt(alpha11)
-        const BASE(F) delta11 = Sqrt(ABR.GetRealPart(k,k));
-        const BASE(F) delta11Inv = BASE(F)(1)/delta11;
+        const Base<F> delta11 = Sqrt(ABR.GetRealPart(k,k));
+        const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.SetRealPart(k,k,delta11);
         auto a21 = ViewRange( ABR, k+1, k, n-off, k+1 );
         Scale( delta11Inv, a21 );
@@ -294,8 +294,8 @@ LPanelPivoted
         aB1.MakeReal(0,0);
 
         // a21 := a21 / sqrt(alpha11)
-        const BASE(F) delta11 = Sqrt(ABR.GetRealPart(k,k));
-        const BASE(F) delta11Inv = BASE(F)(1)/delta11;
+        const Base<F> delta11 = Sqrt(ABR.GetRealPart(k,k));
+        const Base<F> delta11Inv = Base<F>(1)/delta11;
         ABR.SetRealPart(k,k,delta11);
         auto a21 = ViewRange( ABR, k+1, k, n-off, k+1 );
         Scale( delta11Inv, a21 );

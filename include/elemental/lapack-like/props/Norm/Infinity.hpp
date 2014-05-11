@@ -15,7 +15,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 InfinityNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityNorm"))
@@ -34,7 +34,7 @@ InfinityNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInfinityNorm"))
@@ -42,7 +42,7 @@ HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInfinityNorm"))
@@ -50,7 +50,7 @@ SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 InfinityNorm( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityNorm"))
@@ -87,7 +87,7 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
@@ -96,7 +96,7 @@ HermitianInfinityNorm
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInfinityNorm"))

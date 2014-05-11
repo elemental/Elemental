@@ -16,7 +16,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 OneCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneCondition"))
@@ -31,7 +31,7 @@ OneCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 OneCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneCondition"))

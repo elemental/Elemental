@@ -27,17 +27,6 @@ Lehmer( Matrix<F>& L, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Lehmer( Int n )
-{
-    Matrix<F> L;
-    Lehmer( L, n );
-    return L;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Lehmer( DistMatrix<F,U,V>& L, Int n )
@@ -60,16 +49,27 @@ Lehmer( DistMatrix<F,U,V>& L, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Lehmer( const Grid& g, Int n )
+template<typename F,Dist U,Dist V>
+inline void
+Lehmer( BlockDistMatrix<F,U,V>& L, Int n )
 {
-    DistMatrix<F,U,V> L(g);
-    Lehmer( L, n );
-    return L;
+    DEBUG_ONLY(CallStackEntry cse("Lehmer"))
+    L.Resize( n, n );
+    const Int localHeight = L.LocalHeight();
+    const Int localWidth = L.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = L.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = L.GlobalRow(iLoc);
+            if( i < j )
+                L.SetLocal( iLoc, jLoc, F(i+1)/F(j+1) );
+            else
+                L.SetLocal( iLoc, jLoc, F(j+1)/F(i+1) );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

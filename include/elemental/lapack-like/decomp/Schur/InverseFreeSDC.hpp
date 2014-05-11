@@ -36,7 +36,7 @@ namespace schur {
 
 template<typename F>
 inline int
-InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
+InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
     typedef Base<F> Real;
@@ -104,7 +104,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 
 template<typename F>
 inline int
-InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
+InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
     typedef Base<F> Real;
@@ -172,7 +172,7 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 InverseFreeSignDivide( Matrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
@@ -214,7 +214,7 @@ InverseFreeSignDivide( Matrix<F>& X )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 InverseFreeSignDivide( DistMatrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))

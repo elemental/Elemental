@@ -35,13 +35,15 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
-    auto Z = Identity<F>( g, m, n );
+    DistMatrix<F> Z(g);
+    Identity( Z, m, n );
     qr::ApplyQ( LEFT, NORMAL, A, t, d, Z );
     qr::ApplyQ( LEFT, ADJOINT, A, t, d, Z );
     auto ZUpper = View( Z, 0, 0, minDim, minDim );
 
     // Form X := I - Q^H Q
-    auto X = Identity<F>( g, minDim, minDim );
+    DistMatrix<F> X(g);
+    Identity( X, minDim, minDim );
     Axpy( F(-1), ZUpper, X );
 
     Real oneNormOfError = OneNorm( X );

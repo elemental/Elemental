@@ -43,7 +43,7 @@ namespace polar {
 
 template<typename F>
 inline Int 
-QDWHInner( Matrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
+QDWHInner( Matrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
     typedef Base<F> Real;
@@ -181,7 +181,7 @@ QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, Int maxIts=20 )
 template<typename F>
 inline Int 
 QDWHInner
-( DistMatrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
+( DistMatrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
     typedef Base<F> Real;
@@ -324,7 +324,7 @@ namespace herm_polar {
 template<typename F>
 inline int
 QDWHInner
-( UpperOrLower uplo, Matrix<F>& A, BASE(F) sMinUpper, 
+( UpperOrLower uplo, Matrix<F>& A, Base<F> sMinUpper, 
   bool colPiv=false, Int maxIts=20 )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
@@ -461,7 +461,7 @@ QDWH
 template<typename F>
 inline int
 QDWHInner
-( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) sMinUpper, 
+( UpperOrLower uplo, DistMatrix<F>& A, Base<F> sMinUpper, 
   bool colPiv=false, Int maxIts=20 )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))

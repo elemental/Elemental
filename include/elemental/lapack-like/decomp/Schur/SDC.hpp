@@ -56,7 +56,7 @@ struct SdcCtrl {
 namespace schur {
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 ComputePartition( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::ComputePartition"))
@@ -103,7 +103,7 @@ ComputePartition( Matrix<F>& A )
 // most practical computations, it is at least O(n^2) work, which should dwarf
 // the O(n lg p) unparallelized component of this algorithm.
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 ComputePartition( DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::ComputePartition"))
@@ -164,9 +164,9 @@ ComputePartition( DistMatrix<F>& A )
 // G should be a rational function of A. If returnQ=true, G will be set to
 // the computed unitary matrix upon exit.
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 SignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<BASE(F)>& sdcCtrl )
+( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<Base<F>>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
 
@@ -205,10 +205,10 @@ SignDivide
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 SignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
-  const SdcCtrl<BASE(F)>& sdcCtrl )
+  const SdcCtrl<Base<F>>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
     const Grid& g = A.Grid();
@@ -248,9 +248,9 @@ SignDivide
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 RandomizedSignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<BASE(F)>& sdcCtrl )
+( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<Base<F>>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -309,10 +309,10 @@ RandomizedSignDivide
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ,
-  const SdcCtrl<BASE(F)>& sdcCtrl )
+  const SdcCtrl<Base<F>>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -443,7 +443,7 @@ SpectralDivide( Matrix<Real>& A, const SdcCtrl<Real>& sdcCtrl )
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Complex<Real> >& A, const SdcCtrl<Real>& sdcCtrl )
+( Matrix<Complex<Real>>& A, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -586,7 +586,7 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
+( Matrix<Complex<Real>>& A, Matrix<Complex<Real>>& Q, 
   const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
@@ -731,7 +731,7 @@ SpectralDivide( DistMatrix<Real>& A, const SdcCtrl<Real>& sdcCtrl )
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Complex<Real> >& A, const SdcCtrl<Real>& sdcCtrl )
+( DistMatrix<Complex<Real>>& A, const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -880,7 +880,7 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
+( DistMatrix<Complex<Real>>& A, DistMatrix<Complex<Real>>& Q,
   const SdcCtrl<Real>& sdcCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
@@ -958,8 +958,8 @@ SpectralDivide
 template<typename F>
 inline void
 SDC
-( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, 
-  const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, 
+  const SdcCtrl<Base<F>> sdcCtrl=SdcCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -983,7 +983,7 @@ SDC
     ( A, ATL, ATR,
          ABL, ABR, part.index );
     MakeZeros( ABL );
-    Matrix<Complex<BASE(F)>> wT, wB;
+    Matrix<Complex<Base<F>>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
 
     // Recurse on the two subproblems
@@ -1000,8 +1000,8 @@ SDC
 template<typename F>
 inline void
 SDC
-( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
-  bool fullTriangle=true, const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
+  bool fullTriangle=true, const SdcCtrl<Base<F>> sdcCtrl=SdcCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -1026,7 +1026,7 @@ SDC
     ( A, ATL, ATR,
          ABL, ABR, part.index );
     MakeZeros( ABL );
-    Matrix<Complex<BASE(F)>> wT, wB;
+    Matrix<Complex<Base<F>>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
     Matrix<F> QL, QR;
     PartitionRight( Q, QL, QR, part.index );
@@ -1204,8 +1204,8 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>>& w, 
-  const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>>& w, 
+  const SdcCtrl<Base<F>> sdcCtrl=SdcCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Grid& g = A.Grid();
@@ -1224,7 +1224,7 @@ SDC
             std::cout << n << " <= " << sdcCtrl.cutoff 
                       << ": using QR algorithm" << std::endl;
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
-        DistMatrix<Complex<BASE(F)>,CIRC,CIRC> w_CIRC_CIRC( w );
+        DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( w );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             schur::QR( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix() );
         A = A_CIRC_CIRC;
@@ -1242,13 +1242,13 @@ SDC
     ( A, ATL, ATR,
          ABL, ABR, part.index );
     MakeZeros( ABL );
-    DistMatrix<Complex<BASE(F)>,VR,STAR> wT(g), wB(g);
+    DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
 
     if( sdcCtrl.progress && g.Rank() == 0 )
         std::cout << "Pushing subproblems" << std::endl;
     DistMatrix<F> ATLSub, ABRSub;
-    DistMatrix<Complex<BASE(F)>,VR,STAR> wTSub, wBSub;
+    DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
     PushSubproblems
     ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, sdcCtrl.progress );
     if( ATLSub.Participating() )
@@ -1373,8 +1373,8 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q, 
-  bool fullTriangle=true, const SdcCtrl<BASE(F)> sdcCtrl=SdcCtrl<BASE(F)>() )
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q, 
+  bool fullTriangle=true, const SdcCtrl<Base<F>> sdcCtrl=SdcCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     typedef Base<F> Real;
@@ -1395,7 +1395,7 @@ SDC
             std::cout << n << " <= " << sdcCtrl.cutoff 
                       << ": using QR algorithm" << std::endl;
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
-        DistMatrix<Complex<BASE(F)>,CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
+        DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( n, 1, g );
         if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
             schur::QR
             ( A_CIRC_CIRC.Matrix(), w_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(),
@@ -1417,14 +1417,14 @@ SDC
     ( A, ATL, ATR,
          ABL, ABR, part.index );
     MakeZeros( ABL );
-    DistMatrix<Complex<BASE(F)>,VR,STAR> wT(g), wB(g);
+    DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
     DistMatrix<F> QL(g), QR(g);
     PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the two subproblems
     DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;
-    DistMatrix<Complex<BASE(F)>,VR,STAR> wTSub, wBSub;
+    DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
     if( sdcCtrl.progress && g.Rank() == 0 )
         std::cout << "Pushing subproblems" << std::endl;
     PushSubproblems

@@ -49,17 +49,6 @@ Ones( Matrix<T>& A, Int m, Int n )
     MakeOnes( A );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Ones( Int m, Int n )
-{
-    Matrix<T> A( m, n );
-    MakeOnes( A );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Ones( DistMatrix<T,U,V>& A, Int m, Int n )
@@ -77,18 +66,6 @@ Ones( BlockDistMatrix<T,U,V>& A, Int m, Int n )
     A.Resize( m, n );
     MakeOnes( A );
 }
-
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Ones( const Grid& g, Int m, Int n )
-{
-    DistMatrix<T,U,V> A( m, n, g );
-    MakeOnes( A );
-    return A;
-}
-// TODO: BlockDistMatrix version?
-#endif
 
 } // namespace elem
 

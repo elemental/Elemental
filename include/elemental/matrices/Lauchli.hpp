@@ -30,17 +30,6 @@ Lauchli( Matrix<T>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Lauchli( Int n, T mu )
-{
-    Matrix<T> A;
-    Lauchli( A, n, mu );
-    return A;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
@@ -56,18 +45,20 @@ Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
     Diagonal( ABlock, d );
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Lauchli( const Grid& g, Int n, T mu )
+template<typename T,Dist U,Dist V>
+inline void
+Lauchli( BlockDistMatrix<T,U,V>& A, Int n, T mu )
 {
-    DistMatrix<T,U,V> A(g);
-    Lauchli( A, n, mu );
-    return A;
-}
-#endif
+    DEBUG_ONLY(CallStackEntry cse("Lauchli"))
+    A.Resize( n+1, n );
 
-// TODO: MakeLauchli?
+    auto ABlock = View( A, 0, 0, 1, n );
+    MakeOnes( ABlock );
+
+    std::vector<T> d(n,mu);
+    ABlock = View( A, 1, 0, n, n );
+    Diagonal( ABlock, d );
+}
 
 } // namespace elem
 

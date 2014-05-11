@@ -25,17 +25,6 @@ Pei( Matrix<T>& P, Int n, T alpha )
         P.Update( j, j, alpha );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Pei( Int n, T alpha )
-{
-    Matrix<T> P;
-    Pei( P, n, alpha );
-    return P;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
@@ -57,16 +46,26 @@ Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
     }
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Pei( const Grid& g, Int n, T alpha )
+template<typename T,Dist U,Dist V>
+inline void
+Pei( BlockDistMatrix<T,U,V>& P, Int n, T alpha )
 {
-    DistMatrix<T,U,V> P(g);
-    Pei( P, n, alpha );
-    return P;
+    DEBUG_ONLY(CallStackEntry cse("Pei"))
+    P.Resize( n, n );
+    const Int localHeight = P.LocalHeight();
+    const Int localWidth = P.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = P.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = P.GlobalRow(iLoc);
+            P.SetLocal( iLoc, jLoc, T(1) );
+            if( i == j )
+                P.UpdateLocal( iLoc, jLoc, alpha );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

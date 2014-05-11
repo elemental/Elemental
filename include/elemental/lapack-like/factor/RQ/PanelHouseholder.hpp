@@ -21,7 +21,7 @@ namespace rq {
 
 template<typename F> 
 inline void
-PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
+PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::PanelHouseholder"))
     const Int m = A.Height();
@@ -90,7 +90,7 @@ PanelHouseholder( Matrix<F>& A )
 template<typename F> 
 inline void
 PanelHouseholder
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("rq::PanelHouseholder");

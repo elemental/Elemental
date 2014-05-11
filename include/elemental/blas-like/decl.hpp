@@ -234,40 +234,40 @@ void TrrkTT
 template<typename T> void SetLocalSymvBlocksize( Int blocksize );
 template<> void SetLocalSymvBlocksize<float>( Int blocksize );
 template<> void SetLocalSymvBlocksize<double>( Int blocksize );
-template<> void SetLocalSymvBlocksize<Complex<float> >( Int blocksize );
-template<> void SetLocalSymvBlocksize<Complex<double> >( Int blocksize );
+template<> void SetLocalSymvBlocksize<Complex<float>>( Int blocksize );
+template<> void SetLocalSymvBlocksize<Complex<double>>( Int blocksize );
 
 template<typename T> void SetLocalTrrkBlocksize( Int blocksize );
 template<> void SetLocalTrrkBlocksize<float>( Int blocksize );
 template<> void SetLocalTrrkBlocksize<double>( Int blocksize );
 template<> void 
-SetLocalTrrkBlocksize<Complex<float> >( Int blocksize );
+SetLocalTrrkBlocksize<Complex<float>>( Int blocksize );
 template<> void 
-SetLocalTrrkBlocksize<Complex<double> >( Int blocksize );
+SetLocalTrrkBlocksize<Complex<double>>( Int blocksize );
 
 template<typename T> void SetLocalTrr2kBlocksize( Int blocksize );
 template<> void SetLocalTrr2kBlocksize<float>( Int blocksize );
 template<> void SetLocalTrr2kBlocksize<double>( Int blocksize );
-template<> void SetLocalTrr2kBlocksize<Complex<float> >( Int blocksize );
-template<> void SetLocalTrr2kBlocksize<Complex<double> >( Int blocksize );
+template<> void SetLocalTrr2kBlocksize<Complex<float>>( Int blocksize );
+template<> void SetLocalTrr2kBlocksize<Complex<double>>( Int blocksize );
 
 template<typename T> Int LocalSymvBlocksize();
 template<> Int LocalSymvBlocksize<float>();
 template<> Int LocalSymvBlocksize<double>();
-template<> Int LocalSymvBlocksize<Complex<float> >();
-template<> Int LocalSymvBlocksize<Complex<double> >();
+template<> Int LocalSymvBlocksize<Complex<float>>();
+template<> Int LocalSymvBlocksize<Complex<double>>();
 
 template<typename T> Int LocalTrrkBlocksize();
 template<> Int LocalTrrkBlocksize<float>();
 template<> Int LocalTrrkBlocksize<double>();
-template<> Int LocalTrrkBlocksize<Complex<float> >();
-template<> Int LocalTrrkBlocksize<Complex<double> >();
+template<> Int LocalTrrkBlocksize<Complex<float>>();
+template<> Int LocalTrrkBlocksize<Complex<double>>();
 
 template<typename T> Int LocalTrr2kBlocksize();
 template<> Int LocalTrr2kBlocksize<float>();
 template<> Int LocalTrr2kBlocksize<double>();
-template<> Int LocalTrr2kBlocksize<Complex<float> >();
-template<> Int LocalTrr2kBlocksize<Complex<double> >();
+template<> Int LocalTrr2kBlocksize<Complex<float>>();
+template<> Int LocalTrr2kBlocksize<Complex<double>>();
 
 } // namespace elem
 

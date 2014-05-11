@@ -64,26 +64,6 @@ Fiedler( BlockDistMatrix<F,U,V>& A, const std::vector<F>& c )
     }
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Fiedler( const std::vector<F>& c )
-{
-    Matrix<F> A;
-    Fiedler( A, c ); 
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Fiedler( const Grid& g, const std::vector<F>& c )
-{
-    DistMatrix<F,U,V> A(g);
-    Fiedler( A, c );
-    return A;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_FIEDLER_HPP

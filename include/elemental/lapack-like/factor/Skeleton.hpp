@@ -30,7 +30,7 @@ inline void
 Skeleton
 ( const Matrix<F>& A, 
   Matrix<Int>& permR, Matrix<Int>& permC, 
-  Matrix<F>& Z, Int maxSteps, BASE(F) tol )
+  Matrix<F>& Z, Int maxSteps, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Skeleton"))
     // Find the row permutation
@@ -67,7 +67,7 @@ inline void
 Skeleton
 ( const DistMatrix<F>& A, 
   DistMatrix<Int,UPerm,STAR>& permR, DistMatrix<Int,UPerm,STAR>& permC, 
-  DistMatrix<F>& Z, Int maxSteps, BASE(F) tol )
+  DistMatrix<F>& Z, Int maxSteps, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("Skeleton"))
     const Grid& g = A.Grid();

@@ -20,7 +20,6 @@ public:
     // ========
     typedef AbstractBlockDistMatrix<T> absType;
     typedef GeneralBlockDistMatrix<T,U,V> type;
-#ifndef SWIG
     static constexpr Dist UDiag = DiagColDist<U,V>();
     static constexpr Dist VDiag = DiagRowDist<U,V>();
     static constexpr Dist UGath = GatheredDist<U>();
@@ -29,18 +28,14 @@ public:
     static constexpr Dist VPart = PartialDist<V>();
     static constexpr Dist UScat = ScatteredColDist<U,V>();
     static constexpr Dist VScat = ScatteredRowDist<U,V>();
-#endif
 
     // Constructors and destructors
     // ============================
-#ifndef SWIG
     // Move constructor
     GeneralBlockDistMatrix( type&& A ) ELEM_NOEXCEPT;
-#endif
 
     // Assignment and reconfiguration
     // ==============================
-#ifndef SWIG
     // Move assignment
     type& operator=( type&& A );
 
@@ -120,7 +115,6 @@ public:
     ( T alpha, const BlockDistMatrix<T,V,UGath>& A );
     void AdjointPartialColSumScatterUpdate
     ( T alpha, const BlockDistMatrix<T,V,UPart>& A );
-#endif
 
     // Diagonal manipulation
     // =====================
@@ -128,34 +122,33 @@ public:
     ( const elem::BlockDistData& d, Int offset=0 ) const;
     Int DiagonalRoot( Int offset=0 ) const;
     Int DiagonalAlign( Int offset=0 ) const;
-#ifndef SWIG
+
     void GetDiagonal( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
+    ( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 ) const;
+    ( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
 
     BlockDistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
-    BlockDistMatrix<BASE(T),UDiag,VDiag> 
+    BlockDistMatrix<Base<T>,UDiag,VDiag> 
     GetRealPartOfDiagonal( Int offset=0 ) const;
-    BlockDistMatrix<BASE(T),UDiag,VDiag> 
+    BlockDistMatrix<Base<T>,UDiag,VDiag> 
     GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+    ( const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 );
     void SetImagPartOfDiagonal
-    ( const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, Int offset=0 );
+    ( const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 );
 
     void UpdateDiagonal
     ( T alpha, const BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
     void UpdateRealPartOfDiagonal
-    ( BASE(T) alpha, const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, 
+    ( Base<T> alpha, const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, 
       Int offset=0 );
     void UpdateImagPartOfDiagonal
-    ( BASE(T) alpha, const BlockDistMatrix<BASE(T),UDiag,VDiag>& d, 
+    ( Base<T> alpha, const BlockDistMatrix<Base<T>,UDiag,VDiag>& d, 
       Int offset=0 );
-#endif // ifndef SWIG
 
 protected:
 
@@ -171,21 +164,17 @@ protected:
 
     // Diagonal helper routines
     // ========================
-#ifndef SWIG
     template<typename S,class Function>
     void GetDiagonalHelper
     ( BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func ) const;
     template<typename S,class Function>
     void SetDiagonalHelper
     ( const BlockDistMatrix<S,UDiag,VDiag>& d, Int offset, Function func );
-#endif // ifndef SWIG
 
     // Friend declarations
     // ===================
-#ifndef SWIG
     template<typename S,Dist J,Dist K> friend class DistMatrix;
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
-#endif 
 };
 
 } // namespace elem

@@ -23,7 +23,7 @@ namespace svt {
 
 template<typename F>
 inline Int
-PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
+PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");
@@ -61,7 +61,7 @@ PivotedQR( Matrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
 
 template<typename F>
 inline Int
-PivotedQR( DistMatrix<F>& A, BASE(F) tau, Int numSteps, bool relative=false )
+PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");

@@ -31,10 +31,11 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
-        auto L = Uniform<C>( g, n, n );
+        DistMatrix<C> L;
+        Uniform( L, n, n );
         MakeTrapezoidal( LOWER, L, -1 );
-        auto A = Zeros<C>( g, n, n );
+        DistMatrix<C> A;
+        Zeros( A, n, n );
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
         if( print )
             Print( A, "A" );

@@ -35,8 +35,9 @@ main( int argc, char* argv[] )
 
         const Int nOdd = n/2;
         const Int nEven = n - nOdd;
-        auto AEven = Zeros<double>( DefaultGrid(), nEven, nEven );
-        auto AOdd = Zeros<double>( DefaultGrid(), nOdd, nOdd );
+        DistMatrix<double> AEven, AOdd;
+        Zeros( AEven, nEven, nEven );
+        Zeros( AOdd, nOdd, nOdd );
         
         // Fill AEven and AOdd
         for( Int k=0; k<n; ++k )

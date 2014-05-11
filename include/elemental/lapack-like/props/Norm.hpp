@@ -26,7 +26,7 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
     DEBUG_ONLY(CallStackEntry cse("Norm"))
@@ -61,7 +61,7 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
@@ -97,7 +97,7 @@ SymmetricNorm
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
@@ -133,7 +133,7 @@ HermitianNorm
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
     DEBUG_ONLY(CallStackEntry cse("Norm"))
@@ -168,7 +168,7 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
@@ -204,7 +204,7 @@ SymmetricNorm
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {

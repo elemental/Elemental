@@ -144,7 +144,7 @@ Image
 template<typename Real>
 inline void
 Image
-( const Matrix<Complex<Real> >& A, std::string basename="matrix", 
+( const Matrix<Complex<Real>>& A, std::string basename="matrix", 
   FileFormat format=PNG )
 {
     DEBUG_ONLY(CallStackEntry cse("write::Image"))

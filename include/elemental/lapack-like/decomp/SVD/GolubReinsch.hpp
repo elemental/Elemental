@@ -26,7 +26,7 @@ namespace svd {
 template<typename F>
 inline void
 GolubReinsch
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     typedef Base<F> Real;
@@ -103,7 +103,7 @@ GolubReinsch
 template<typename F>
 inline void
 GolubReinschFlame
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschFlame"))
     typedef Base<F> Real;
@@ -194,8 +194,8 @@ GolubReinsch
 template<>
 inline void
 GolubReinsch
-( DistMatrix<Complex<double> >& A, 
-  DistMatrix<double,VR,STAR>& s, DistMatrix<Complex<double> >& V )
+( DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& s, DistMatrix<Complex<double>>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
@@ -204,7 +204,7 @@ GolubReinsch
 
 template<typename F>
 inline void
-GolubReinsch( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
+GolubReinsch( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     typedef Base<F> Real;

@@ -39,7 +39,7 @@ inline void
 LUMod
 ( Matrix<F>& A, Matrix<Int>& perm, 
   const Matrix<F>& u, const Matrix<F>& v, bool conjugate=true, 
-  BASE(F) tau=0.1 )
+  Base<F> tau=0.1 )
 {
     DEBUG_ONLY(CallStackEntry cse("LUMod"))
     typedef Base<F> Real;
@@ -274,7 +274,7 @@ inline void
 LUMod
 ( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& perm, 
   const DistMatrix<F>& u, const DistMatrix<F>& v, bool conjugate=true, 
-  BASE(F) tau=0.1 )
+  Base<F> tau=0.1 )
 {
     DEBUG_ONLY(CallStackEntry cse("LUMod"))
     typedef Base<F> Real;

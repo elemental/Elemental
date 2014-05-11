@@ -15,7 +15,7 @@ namespace elem {
 // Draw each entry from a normal PDF
 template<typename T>
 inline void
-MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
+MakeGaussian( Matrix<T>& A, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     const Int m = A.Height();
@@ -27,7 +27,7 @@ MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
 
 template<typename T>
 inline void
-Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.Resize( m, n );
@@ -36,7 +36,7 @@ Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
+MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     if( A.RedundantSize() == 1 )
@@ -74,7 +74,7 @@ MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-MakeGaussian( BlockDistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
+MakeGaussian( BlockDistMatrix<T,U,V>& A, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
     if( A.RedundantSize() == 1 )
@@ -112,7 +112,7 @@ MakeGaussian( BlockDistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.Resize( m, n );
@@ -121,32 +121,12 @@ Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 
 template<typename T,Dist U,Dist V>
 inline void
-Gaussian( BlockDistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+Gaussian( BlockDistMatrix<T,U,V>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
-
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
-{
-    Matrix<T> A( m, n );
-    MakeGaussian( A, mean, stddev );
-    return A;
-}
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
-{
-    DistMatrix<T,U,V> A( m, n, g );
-    MakeGaussian( A, mean, stddev );
-    return A;
-}
-#endif
 
 } // namespace elem
 

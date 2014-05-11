@@ -30,17 +30,6 @@ Redheffer( Matrix<T>& R, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Redheffer( Int n )
-{
-    Matrix<T> R;
-    Redheffer( R, n );
-    return R;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 Redheffer( DistMatrix<T,U,V>& R, Int n )
@@ -63,16 +52,27 @@ Redheffer( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Redheffer( const Grid& g, Int n )
+template<typename T,Dist U,Dist V>
+inline void
+Redheffer( BlockDistMatrix<T,U,V>& R, Int n )
 {
-    DistMatrix<T,U,V> R(g);
-    Redheffer( R, n );
-    return R;
+    DEBUG_ONLY(CallStackEntry cse("Redheffer"))
+    R.Resize( n, n );
+    const Int localHeight = R.LocalHeight();
+    const Int localWidth = R.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = R.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = R.GlobalRow(iLoc);
+            if( j==0 || ((j+1)%(i+1))==0 )
+                R.SetLocal( iLoc, jLoc, T(1) );
+            else
+                R.SetLocal( iLoc, jLoc, T(0) );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

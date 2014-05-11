@@ -25,7 +25,7 @@ template<typename F>
 inline void
 Lyapunov
 ( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X, 
-  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Lyapunov");
@@ -51,7 +51,7 @@ template<typename F>
 inline void
 Lyapunov
 ( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X,
-  SignCtrl<BASE(F)> signCtrl=SignCtrl<BASE(F)>() )
+  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");

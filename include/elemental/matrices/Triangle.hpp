@@ -57,26 +57,6 @@ Triangle( BlockDistMatrix<F,U,V>& A, Int n )
     SetDiagonal( A, F(1)/F(4), -2 );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Triangle( Int n )
-{
-    Matrix<F> A;
-    Triangle( A, n );
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Triangle( const Grid& g, Int n )
-{
-    DistMatrix<F,U,V> A(g);
-    Triangle( A, n );
-    return A;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_TRIANGLE_HPP

@@ -16,7 +16,7 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 FrobeniusCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))
@@ -31,7 +31,7 @@ FrobeniusCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 FrobeniusCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))

@@ -24,7 +24,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        auto I = Identity<double>( DefaultGrid(), n, n );
+        DistMatrix<double> I;
+        Identity( I, n, n );
         if( display )
         {
             Display( I, "Identity matrix" );

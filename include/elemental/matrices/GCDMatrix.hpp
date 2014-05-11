@@ -42,6 +42,24 @@ MakeGCDMatrix( DistMatrix<T,U,V>& G )
     }
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+MakeGCDMatrix( BlockDistMatrix<T,U,V>& G )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
+    const Int localHeight = G.LocalHeight();
+    const Int localWidth = G.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = G.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = G.GlobalRow(iLoc);
+            G.SetLocal( iLoc, jLoc, T(GCD(i+1,j+1)) );
+        }
+    }
+}
+
 template<typename T>
 inline void
 GCDMatrix( Matrix<T>& G, Int m, Int n )
@@ -60,25 +78,14 @@ GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
     MakeGCDMatrix( G );
 }
 
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-GCDMatrix( Int m, Int n )
+template<typename T,Dist U,Dist V>
+inline void
+GCDMatrix( BlockDistMatrix<T,U,V>& G, Int m, Int n )
 {
-    Matrix<T> G( m, n );
+    DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
+    G.Resize( m, n );
     MakeGCDMatrix( G );
-    return G;
 }
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-GCDMatrix( const Grid& g, Int m, Int n )
-{
-    DistMatrix<T,U,V> G( m, n, g );
-    MakeGCDMatrix( G );
-    return G;
-}
-#endif
 
 } // namespace elem
 

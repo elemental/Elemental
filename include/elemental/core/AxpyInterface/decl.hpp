@@ -56,11 +56,11 @@ private:
     std::vector<byte> recvVector_;
     std::vector<mpi::Request> eomSendRequests_;
 
-    std::vector<std::deque<std::vector<byte> > >
+    std::vector<std::deque<std::vector<byte>>>
         dataVectors_, requestVectors_, replyVectors_;
-    std::vector<std::deque<bool> > 
+    std::vector<std::deque<bool>> 
         sendingData_, sendingRequest_, sendingReply_;
-    std::vector<std::deque<mpi::Request> > 
+    std::vector<std::deque<mpi::Request>> 
         dataSendRequests_, requestSendRequests_, replySendRequests_;
 
     // Check if we are done with this attachment's work
@@ -79,7 +79,7 @@ private:
 
     Int ReadyForSend
     ( Int sendSize,
-      std::deque<std::vector<byte> >& sendVectors,
+      std::deque<std::vector<byte>>& sendVectors,
       std::deque<mpi::Request>& requests, 
       std::deque<bool>& requestStatuses );
 };

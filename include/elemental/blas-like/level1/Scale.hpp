@@ -62,12 +62,10 @@ Scale( Complex<Real> alpha, Matrix<Real>& AReal, Matrix<Real>& AImag )
     }
 }
 
-#ifndef SWIG
 template<typename T>
 inline void
 Scale( Base<T> alpha, Matrix<T>& A )
 { Scale( T(alpha), A ); }
-#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -93,7 +91,6 @@ Scale
   BlockDistMatrix<Real,U,V>& AReal, BlockDistMatrix<Real,U,V>& AImag )
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
-#ifndef SWIG
 template<typename T,Dist U,Dist V>
 inline void
 Scale( Base<T> alpha, DistMatrix<T,U,V>& A )
@@ -103,7 +100,6 @@ template<typename T,Dist U,Dist V>
 inline void
 Scale( Base<T> alpha, BlockDistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
-#endif
 
 } // namespace elem
 

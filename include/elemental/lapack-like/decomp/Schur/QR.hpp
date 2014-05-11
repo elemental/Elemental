@@ -20,7 +20,7 @@ namespace schur {
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool fullTriangle=false )
+QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
@@ -38,7 +38,7 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, bool fullTriangle=false )
 template<typename F>
 inline void
 QR
-( Matrix<F>& A, Matrix<Complex<BASE(F)>>& w, Matrix<F>& Q, 
+( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
   bool fullTriangle=true )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
@@ -59,7 +59,7 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w,
+( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
   bool fullTriangle=false, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
@@ -119,7 +119,7 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w,
+( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
   BlockDistMatrix<F>& Q, bool fullTriangle=true, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
@@ -198,7 +198,7 @@ QR
 template<typename F>
 inline void
 QR
-( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, 
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, 
   bool fullTriangle=false, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
@@ -253,7 +253,7 @@ QR
 template<typename F>
 inline void
 QR
-( DistMatrix<F>& A, DistMatrix<Complex<BASE(F)>,VR,STAR>& w, DistMatrix<F>& Q,
+( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q,
   bool fullTriangle=true, bool aed=false )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))

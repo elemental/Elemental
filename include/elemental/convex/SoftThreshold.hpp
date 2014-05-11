@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename F>
 inline F
-SoftThreshold( F alpha, BASE(F) tau )
+SoftThreshold( F alpha, Base<F> tau )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SoftThreshold");
@@ -29,7 +29,7 @@ SoftThreshold( F alpha, BASE(F) tau )
 
 template<typename F>
 inline void
-SoftThreshold( Matrix<F>& A, BASE(F) tau, bool relative=false )
+SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
@@ -43,7 +43,7 @@ SoftThreshold( Matrix<F>& A, BASE(F) tau, bool relative=false )
 
 template<typename F,Dist U,Dist V>
 inline void
-SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau, bool relative=false )
+SoftThreshold( DistMatrix<F,U,V>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )

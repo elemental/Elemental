@@ -21,7 +21,7 @@ namespace svt {
 
 template<typename F>
 inline Int
-Cross( Matrix<F>& A, BASE(F) tau, bool relative=false )
+Cross( Matrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
@@ -39,7 +39,7 @@ Cross( Matrix<F>& A, BASE(F) tau, bool relative=false )
 
 template<typename F>
 inline Int
-Cross( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
+Cross( DistMatrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
@@ -57,7 +57,7 @@ Cross( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
 
 template<typename F>
 inline Int
-TallCross( DistMatrix<F,VC,STAR>& A, BASE(F) tau, bool relative=false )
+TallCross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::TallCross"))
     typedef Base<F> Real;

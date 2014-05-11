@@ -17,7 +17,7 @@ namespace pspec {
 
 template<typename F>
 inline bool
-TriangIsNormal( const Matrix<F>& U, BASE(F) tol )
+TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
@@ -28,7 +28,7 @@ TriangIsNormal( const Matrix<F>& U, BASE(F) tol )
 
 template<typename F>
 inline bool
-TriangIsNormal( const DistMatrix<F>& U, BASE(F) tol )
+TriangIsNormal( const DistMatrix<F>& U, Base<F> tol )
 {
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
@@ -39,7 +39,7 @@ TriangIsNormal( const DistMatrix<F>& U, BASE(F) tol )
 
 template<typename F>
 inline bool
-QuasiTriangIsNormal( const Matrix<F>& U, BASE(F) tol )
+QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
@@ -50,7 +50,7 @@ QuasiTriangIsNormal( const Matrix<F>& U, BASE(F) tol )
 
 template<typename F>
 inline bool
-QuasiTriangIsNormal( const DistMatrix<F>& U, BASE(F) tol )
+QuasiTriangIsNormal( const DistMatrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );
@@ -111,7 +111,7 @@ ColumnSubtractions
 template<typename Real>
 inline void
 ColumnSubtractions
-( const std::vector<Complex<Real> >& components,
+( const std::vector<Complex<Real>>& components,
   const Matrix<Real>& XReal, const Matrix<Real>& XImag,
         Matrix<Real>& YReal,       Matrix<Real>& YImag )
 {
@@ -151,7 +151,7 @@ ColumnSubtractions
 template<typename Real>
 inline void
 ColumnSubtractions
-( const std::vector<Complex<Real> >& components,
+( const std::vector<Complex<Real>>& components,
   const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
         DistMatrix<Real>& YReal,       DistMatrix<Real>& YImag )
 {
@@ -168,7 +168,7 @@ ColumnSubtractions
 
 template<typename F>
 inline void
-ColumnNorms( const Matrix<F>& X, Matrix<BASE(F)>& norms )
+ColumnNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
     typedef Base<F> Real;
@@ -201,7 +201,7 @@ ColumnNorms
 
 template<typename F,Dist U,Dist V>
 inline void
-ColumnNorms( const DistMatrix<F,U,V>& X, DistMatrix<BASE(F),V,STAR>& norms )
+ColumnNorms( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& norms )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::ColumnNorms");
@@ -264,7 +264,7 @@ ColumnNorms
 
 template<typename F>
 inline void
-ColumnNorms( const Matrix<F>& X, std::vector<BASE(F)>& norms )
+ColumnNorms( const Matrix<F>& X, std::vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
     typedef Base<F> Real;
@@ -295,7 +295,7 @@ ColumnNorms
 
 template<typename F>
 inline void
-ColumnNorms( const DistMatrix<F>& X, std::vector<BASE(F)>& norms )
+ColumnNorms( const DistMatrix<F>& X, std::vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::ColumnNorms"))
     typedef Base<F> Real;
@@ -327,7 +327,7 @@ ColumnNorms
 template<typename F>
 inline void
 InnerProducts
-( const Matrix<F>& X, const Matrix<F>& Y, std::vector<BASE(F)>& innerProds )
+( const Matrix<F>& X, const Matrix<F>& Y, std::vector<Base<F>>& innerProds )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
     typedef Base<F> Real;
@@ -389,7 +389,7 @@ inline void
 InnerProducts
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
   const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
-        std::vector<Complex<Real> >& innerProds )
+        std::vector<Complex<Real>>& innerProds )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::InnerProducts"))
     const Int numShifts = XReal.Width();
@@ -418,7 +418,7 @@ template<typename F>
 inline void
 InnerProducts
 ( const DistMatrix<F>& X, const DistMatrix<F>& Y, 
-  std::vector<BASE(F)>& innerProds )
+  std::vector<Base<F>>& innerProds )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::InnerProducts");
@@ -471,7 +471,7 @@ inline void
 InnerProducts
 ( const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
   const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
-        std::vector<Complex<Real> >& innerProds )
+        std::vector<Complex<Real>>& innerProds )
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::InnerProducts");
@@ -489,7 +489,7 @@ InnerProducts
 
 template<typename F>
 inline void
-InvBetaScale( const std::vector<BASE(F)>& scales, Matrix<F>& Y )
+InvBetaScale( const std::vector<Base<F>>& scales, Matrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
     const Int numShifts = Y.Width();
@@ -502,7 +502,7 @@ InvBetaScale( const std::vector<BASE(F)>& scales, Matrix<F>& Y )
 
 template<typename F>
 inline void
-InvBetaScale( const std::vector<BASE(F)>& scales, DistMatrix<F>& Y )
+InvBetaScale( const std::vector<Base<F>>& scales, DistMatrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::InvBetaScale"))
     InvBetaScale( scales, Y.Matrix() );

@@ -39,7 +39,8 @@ main( int argc, char* argv[] )
         SetColorMap( colorMap );
 
         Complex<double> shift( realShift, imagShift );
-        auto H = Helmholtz( DefaultGrid(), n, shift );
+        DistMatrix<Complex<double>> H;
+        Helmholtz( H, n, shift );
         if( display )
             Display( H, "Helmholtz matrix" );
         if( print )

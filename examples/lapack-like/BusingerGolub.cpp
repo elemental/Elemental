@@ -42,8 +42,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
-        auto A = Uniform<C>( g, m, n );
+        DistMatrix<C> A;
+        Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
         if( display )
             Display( A, "A" );
@@ -52,9 +52,9 @@ main( int argc, char* argv[] )
 
         // Compute the pivoted QR decomposition of A, but do not overwrite A
         auto QRPiv( A );
-        DistMatrix<C,MD,STAR> tPiv(g);
-        DistMatrix<Real,MD,STAR> dPiv(g);
-        DistMatrix<Int,VR,STAR> perm(g);
+        DistMatrix<C,MD,STAR> tPiv;
+        DistMatrix<Real,MD,STAR> dPiv;
+        DistMatrix<Int,VR,STAR> perm;
         qr::BusingerGolub( QRPiv, tPiv, dPiv, perm, alwaysRecompute );
         if( display )
         {
@@ -73,8 +73,8 @@ main( int argc, char* argv[] )
 
         // Compute the standard QR decomposition of A
         auto QRNoPiv( A );
-        DistMatrix<C,MD,STAR> tNoPiv(g);
-        DistMatrix<Real,MD,STAR> dNoPiv(g);
+        DistMatrix<C,MD,STAR> tNoPiv;
+        DistMatrix<Real,MD,STAR> dNoPiv;
         if( blockedUnpiv )
             QR( QRNoPiv, tNoPiv, dNoPiv );
         else

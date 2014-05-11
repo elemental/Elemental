@@ -102,7 +102,7 @@ template<typename Real>
 inline void
 LUNUnb
 ( const Matrix<Real>& U, 
-  const Matrix<Complex<Real> >& shifts, 
+  const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(
@@ -242,7 +242,7 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename Real>
 inline void
 LUN
-( const Matrix<Real>& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUN"))

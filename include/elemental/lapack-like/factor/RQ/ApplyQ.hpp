@@ -20,7 +20,7 @@ template<typename F>
 inline void
 ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const Matrix<F>& A, const Matrix<F>& t, const Matrix<BASE(F)>& d,
+  const Matrix<F>& A, const Matrix<F>& t, const Matrix<Base<F>>& d,
   Matrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
@@ -70,7 +70,7 @@ inline void
 ApplyQ
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t, 
-  const DistMatrix<BASE(F),Ud,Vd>& d, DistMatrix<F>& B )
+  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const bool normal = (orientation==NORMAL);

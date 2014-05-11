@@ -24,7 +24,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        auto W = Wilkinson<double>( DefaultGrid(), k );
+        DistMatrix<double> W;
+        Wilkinson( W, k );
         if( display )
         {
             Display( W, "Wilkinson matrix" );

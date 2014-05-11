@@ -51,7 +51,7 @@ sInv( Int j, Int n, Int numPmlPoints, Real h, Real pmlExp, Real sigma, Real k )
 template<typename Real> 
 inline void
 HelmholtzPML
-( Matrix<Complex<Real> >& H, Int n, Complex<Real> omega, 
+( Matrix<Complex<Real>>& H, Int n, Complex<Real> omega, 
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
@@ -92,7 +92,7 @@ HelmholtzPML
 template<typename Real> 
 inline void
 HelmholtzPML
-( DistMatrix<Complex<Real> >& H, Int n, Complex<Real> omega, 
+( DistMatrix<Complex<Real>>& H, Int n, Complex<Real> omega, 
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
@@ -136,7 +136,7 @@ HelmholtzPML
 template<typename Real> 
 inline void
 HelmholtzPML
-( Matrix<Complex<Real> >& H, Int nx, Int ny, Complex<Real> omega, 
+( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, 
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
@@ -196,7 +196,7 @@ HelmholtzPML
 template<typename Real> 
 inline void
 HelmholtzPML
-( DistMatrix<Complex<Real> >& H, Int nx, Int ny, Complex<Real> omega, 
+( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, 
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
@@ -259,7 +259,7 @@ HelmholtzPML
 template<typename Real> 
 inline void
 HelmholtzPML
-( Matrix<Complex<Real> >& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
+( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
@@ -337,7 +337,7 @@ HelmholtzPML
 template<typename Real> 
 inline void
 HelmholtzPML
-( DistMatrix<Complex<Real> >& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
+( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
@@ -413,74 +413,6 @@ HelmholtzPML
             H.Set( i, i+nx*ny, -zTermR );
     }
 }
-
-#ifndef SWIG
-template<typename Real> 
-inline Matrix<Complex<Real> >
-HelmholtzPML
-( Int n, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
-{
-    Matrix<Complex<Real>> H;
-    HelmholtzPML( H, n, omega, numPmlPoints, sigma, pmlExp );
-    return H;
-}
-
-template<typename Real> 
-inline DistMatrix<Complex<Real> >
-HelmholtzPML
-( const Grid& g, Int n, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
-{
-    Matrix<Complex<Real>> H(g);
-    HelmholtzPML( H, n, omega, numPmlPoints, sigma, pmlExp );
-    return H;
-}
-
-template<typename Real> 
-inline Matrix<Complex<Real> >
-HelmholtzPML
-( Int nx, Int ny, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
-{
-    Matrix<Complex<Real>> H;
-    HelmholtzPML( H, nx, ny, omega, numPmlPoints, sigma, pmlExp );
-    return H;
-}
-
-template<typename Real> 
-inline DistMatrix<Complex<Real> >
-HelmholtzPML
-( const Grid& g, Int nx, Int ny, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
-{
-    Matrix<Complex<Real>> H(g);
-    HelmholtzPML( H, nx, ny, omega, numPmlPoints, sigma, pmlExp );
-    return H;
-}
-
-template<typename Real> 
-inline Matrix<Complex<Real> >
-HelmholtzPML
-( Int nx, Int ny, Int nz, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
-{
-    Matrix<Complex<Real>> H;
-    HelmholtzPML( H, nx, ny, nz, omega, numPmlPoints, sigma, pmlExp );
-    return H;
-}
-
-template<typename Real> 
-inline DistMatrix<Complex<Real> >
-HelmholtzPML
-( const Grid& g, Int nx, Int ny, Int nz, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
-{
-    Matrix<Complex<Real>> H(g);
-    HelmholtzPML( H, nx, ny, nz, omega, numPmlPoints, sigma, pmlExp );
-    return H;
-}
-#endif
 
 } // namespace elem
 

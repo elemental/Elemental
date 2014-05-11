@@ -25,7 +25,7 @@ namespace svd {
 template<typename F>
 inline void
 ChanUpper
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(
@@ -61,7 +61,7 @@ ChanUpper
 template<typename F>
 inline void
 ChanUpper
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::ChanUpper");    
@@ -93,7 +93,7 @@ ChanUpper
 template<typename F>
 inline void
 Chan
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
     DEBUG_ONLY(
@@ -102,7 +102,7 @@ Chan
             LogicError("Nonsensical switchpoint for SVD");
     )
     // Check if we need to rescale the matrix, and do so if necessary
-    BASE(F) scale;
+    Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         Scale( scale, A );
@@ -132,11 +132,11 @@ Chan
 
 template<typename F>
 inline void
-Chan( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
+Chan( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Chan"))
     // Check if we need to rescale the matrix, and do so if necessary
-    BASE(F) scale;
+    Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         Scale( scale, A );

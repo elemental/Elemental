@@ -18,8 +18,8 @@ namespace pspec {
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real> >& HDiagList,
-  const std::vector<std::vector<Real> >& HSubdiagList,
+( const std::vector<std::vector<Real>>& HDiagList,
+  const std::vector<std::vector<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
@@ -53,8 +53,8 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<std::vector<Real> >& HDiagList,
-  const std::vector<std::vector<Real> >& HSubdiagList,
+( const std::vector<std::vector<Real>>& HDiagList,
+  const std::vector<std::vector<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
@@ -67,10 +67,10 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Restart
-( const std::vector<std::vector<Real> >& HDiagList,
-  const std::vector<std::vector<Real> >& HSubdiagList,
+( const std::vector<std::vector<Real>>& HDiagList,
+  const std::vector<std::vector<Real>>& HSubdiagList,
   const Matrix<Int>& activeConverged,
-  std::vector<Matrix<Complex<Real> > >& VList )
+  std::vector<Matrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int n = VList[0].Height();
@@ -112,10 +112,10 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<std::vector<Real> >& HDiagList,
-  const std::vector<std::vector<Real> >& HSubdiagList,
+( const std::vector<std::vector<Real>>& HDiagList,
+  const std::vector<std::vector<Real>>& HSubdiagList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  std::vector<DistMatrix<Complex<Real> > >& VList )
+  std::vector<DistMatrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HDiagList[0].size();
@@ -129,7 +129,7 @@ Restart
 template<typename Real>
 inline Matrix<Int>
 IRL
-( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::IRL"))

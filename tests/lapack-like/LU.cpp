@@ -34,7 +34,8 @@ void TestCorrectness
         cout << "Testing error..." << endl;
 
     // Generate random right-hand sides
-    auto X = Uniform<F>( g, m, 100 );
+    DistMatrix<F> X(g);
+    Uniform( X, m, 100 );
     auto Y( X );
     if( pivoting == 0 )
         lu::SolveAfter( NORMAL, A, Y );

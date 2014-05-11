@@ -18,7 +18,7 @@ namespace pspec {
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Complex<Real> > >& HList,
+( const std::vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts,
   Int n )
@@ -55,7 +55,7 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 ComputeNewEstimates
-( const std::vector<Matrix<Complex<Real> > >& HList,
+( const std::vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts,
         Int n )
@@ -68,9 +68,9 @@ ComputeNewEstimates
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real> > >& HList,
+( const std::vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  std::vector<Matrix<Complex<Real> > >& VList )
+  std::vector<Matrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int n = VList[0].Height();
@@ -123,10 +123,10 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real> > >& HList,
+( const std::vector<Matrix<Complex<Real>>>& HList,
   const Matrix<Int>& activeConverged,
-  std::vector<Matrix<Real> >& VRealList,
-  std::vector<Matrix<Real> >& VImagList )
+  std::vector<Matrix<Real>>& VRealList,
+  std::vector<Matrix<Real>>& VImagList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int n = VRealList[0].Height();
@@ -190,9 +190,9 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real> > >& HList,
+( const std::vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  std::vector<DistMatrix<Complex<Real> > >& VList )
+  std::vector<DistMatrix<Complex<Real>>>& VList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
@@ -205,10 +205,10 @@ Restart
 template<typename Real>
 inline void
 Restart
-( const std::vector<Matrix<Complex<Real> > >& HList,
+( const std::vector<Matrix<Complex<Real>>>& HList,
   const DistMatrix<Int,MR,STAR>& activeConverged,
-  std::vector<DistMatrix<Real> >& VRealList,
-  std::vector<DistMatrix<Real> >& VImagList )
+  std::vector<DistMatrix<Real>>& VRealList,
+  std::vector<DistMatrix<Real>>& VImagList )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Restart"))
     const Int basisSize = HList[0].Width();
@@ -226,7 +226,7 @@ Restart
 template<typename Real>
 inline Matrix<Int>
 IRA
-( const Matrix<Complex<Real> >& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::IRA"))
@@ -449,7 +449,7 @@ IRA
 template<typename Real>
 inline Matrix<Int>
 IRA
-( const Matrix<Real>& U, const Matrix<Complex<Real> >& shifts, 
+( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::IRA"))

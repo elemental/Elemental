@@ -20,7 +20,7 @@ namespace svt {
 
 template<typename F,Dist U>
 inline Int
-TSQR( DistMatrix<F,U,STAR>& A, BASE(F) tau, bool relative=false )
+TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     const Int p = mpi::Size( A.ColComm() );

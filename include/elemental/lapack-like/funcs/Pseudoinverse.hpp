@@ -22,7 +22,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
+Pseudoinverse( Matrix<F>& A, Base<F> tolerance=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
     typedef Base<F> R;
@@ -64,7 +64,7 @@ Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
 
 template<typename F>
 inline void
-HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
+HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
     typedef Base<F> R;
@@ -98,7 +98,7 @@ HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
 
 template<typename F>
 inline void
-Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
+Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
     typedef Base<F> R;
@@ -142,7 +142,7 @@ Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
 template<typename F>
 inline void
 HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) tolerance=0 )
+( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
     typedef Base<F> R;

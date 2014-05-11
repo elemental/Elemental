@@ -66,26 +66,6 @@ Circulant( BlockDistMatrix<T,U,V>& A, const std::vector<T>& a )
     }
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Circulant( const std::vector<T>& a )
-{
-    Matrix<T> A;
-    Circulant( A, a );
-    return A;
-}
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Circulant( const Grid& g, const std::vector<T>& a )
-{
-    DistMatrix<T,U,V> A(g);
-    Circulant( A, a );
-    return A;
-}
-#endif
-
 } // namespace elem
 
 #endif // ifndef ELEM_CIRCULANT_HPP

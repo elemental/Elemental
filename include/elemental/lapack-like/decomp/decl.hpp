@@ -55,115 +55,115 @@ struct HermitianEigCtrl
 // Compute the eigenvalues of a Hermitian matrix
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& w, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  DistMatrix<Base<F>,STAR,STAR>& w, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, 
   SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 // Compute the full eigenvalue decomposition of a Hermitian matrix
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z, 
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z, 
   SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
+  DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z, 
   SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
+  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
   SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 // Compute the eigenvalues of a Hermitian matrix within a selected range
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
-  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,
+  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& w,
+  DistMatrix<Base<F>,STAR,STAR>& w,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& w,
-  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  DistMatrix<Base<F>,STAR,STAR>& w,
+  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, 
   Int lowerBound, Int upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w,
-  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,
+  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 // Compute a selected set of eigenpairs of a Hermitian matrix
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
+  Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
-  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
+  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo,
   DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& w, 
+  DistMatrix<Base<F>,STAR,STAR>& w, 
   DistMatrix<F,STAR,STAR>& Z,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo,
   DistMatrix<F,STAR,STAR>& A, 
-  DistMatrix<BASE(F),STAR,STAR>& w, 
+  DistMatrix<Base<F>,STAR,STAR>& w, 
   DistMatrix<F,STAR,STAR>& Z,
-  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
+  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
   Int lowerBound, Int upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
-  BASE(F) lowerBound, BASE(F) upperBound, SortType sort=UNSORTED,
-  const HermitianEigCtrl<BASE(F)> ctrl=HermitianEigCtrl<BASE(F)>() );
+  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
+  Base<F> lowerBound, Base<F> upperBound, SortType sort=UNSORTED,
+  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 } // namespace elem
 

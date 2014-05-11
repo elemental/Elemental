@@ -35,7 +35,7 @@ LQ( DistMatrix<F>& A )
 
 template<typename F> 
 inline void
-LQ( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
+LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
     lq::Householder( A, t, d );
@@ -43,7 +43,7 @@ LQ( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d )
 
 template<typename F> 
 inline void
-LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d )
+LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
     lq::Householder( A, t, d );

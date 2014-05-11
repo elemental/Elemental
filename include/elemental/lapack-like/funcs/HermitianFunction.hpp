@@ -80,7 +80,7 @@ RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
 template<typename Real,class Function>
 inline void
 ComplexHermitianFunction
-( UpperOrLower uplo, Matrix<Complex<Real> >& A, Function func )
+( UpperOrLower uplo, Matrix<Complex<Real>>& A, Function func )
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
     if( A.Height() != A.Width() )
@@ -108,7 +108,7 @@ ComplexHermitianFunction
 template<typename Real,class Function>
 inline void
 ComplexHermitianFunction
-( UpperOrLower uplo, DistMatrix<Complex<Real> >& A, Function func )
+( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, Function func )
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
     if( A.Height() != A.Width() )

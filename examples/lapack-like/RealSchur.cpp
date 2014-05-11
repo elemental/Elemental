@@ -45,17 +45,16 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
-        DistMatrix<Real> A(g);
+        DistMatrix<Real> A;
         if( matType == 0 )
-            A = Uniform<Real>( g, n, n );
+            Uniform( A, n, n );
         else
-            A = Haar<Real>( g, n );
+            Haar( A, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the Schur decomposition of A, but do not overwrite A
-        DistMatrix<Real> T( A ), Q(g);
-        DistMatrix<Complex<Real>,VR,STAR> w(g);
+        DistMatrix<Real> T( A ), Q;
+        DistMatrix<Complex<Real>,VR,STAR> w;
 #ifdef ELEM_HAVE_SCALAPACK
         schur::QR( T, w, Q, fullTriangle, aed );
 #else
@@ -80,7 +79,7 @@ main( int argc, char* argv[] )
             Display( w, "w" );
         }
 
-        DistMatrix<Real> G(g);
+        DistMatrix<Real> G;
         Gemm( NORMAL, NORMAL, Real(1), Q, T, G );
         Gemm( NORMAL, ADJOINT, Real(-1), G, Q, Real(1), A );
         const Real frobE = FrobeniusNorm( A );

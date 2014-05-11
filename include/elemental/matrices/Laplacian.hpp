@@ -15,6 +15,8 @@
 namespace elem {
 
 // 1D Laplacian
+// ============
+
 template<typename F> 
 inline void
 Laplacian( Matrix<F>& L, Int n )
@@ -23,46 +25,6 @@ Laplacian( Matrix<F>& L, Int n )
     Helmholtz( L, n, F(0) );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Laplacian( Int n )
-{ return Helmholtz( n, F(0) ); }
-#endif
-
-// 2D Laplacian
-template<typename F> 
-inline void
-Laplacian( Matrix<F>& L, Int nx, Int ny )
-{
-    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
-    Helmholtz( L, nx, ny, F(0) );
-}
-
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Laplacian( Int nx, Int ny )
-{ return Helmholtz( nx, ny, F(0) ); }
-#endif
-
-// 3D Laplacian
-template<typename F> 
-inline void
-Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
-{
-    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
-    Helmholtz( L, nx, ny, nz, F(0) );
-}
-
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Laplacian( Int nx, Int ny, Int nz )
-{ return Helmholtz( nx, ny, nz, F(0) ); }
-#endif
-
-// 1D Laplacian
 template<typename F,Dist U,Dist V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int n )
@@ -71,14 +33,25 @@ Laplacian( DistMatrix<F,U,V>& L, Int n )
     Helmholtz( L, n, F(0) );
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Laplacian( const Grid& g, Int n )
-{ return Helmholtz( g, n, F(0) ); }
-#endif
+template<typename F,Dist U,Dist V>
+inline void
+Laplacian( BlockDistMatrix<F,U,V>& L, Int n )
+{
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
+    Helmholtz( L, n, F(0) );
+}
 
 // 2D Laplacian
+// ============
+
+template<typename F> 
+inline void
+Laplacian( Matrix<F>& L, Int nx, Int ny )
+{
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
+    Helmholtz( L, nx, ny, F(0) );
+}
+
 template<typename F,Dist U,Dist V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
@@ -87,14 +60,25 @@ Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
     Helmholtz( L, nx, ny, F(0) );
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Laplacian( const Grid& g, Int nx, Int ny )
-{ return Helmholtz( g, nx, ny, F(0) ); }
-#endif
+template<typename F,Dist U,Dist V>
+inline void
+Laplacian( BlockDistMatrix<F,U,V>& L, Int nx, Int ny )
+{
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
+    Helmholtz( L, nx, ny, F(0) );
+}
 
 // 3D Laplacian
+// ============
+
+template<typename F> 
+inline void
+Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
+{
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
+    Helmholtz( L, nx, ny, nz, F(0) );
+}
+
 template<typename F,Dist U,Dist V>
 inline void
 Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
@@ -103,12 +87,13 @@ Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Laplacian( const Grid& g, Int nx, Int ny, Int nz )
-{ return Helmholtz( g, nx, ny, nz, F(0) ); }
-#endif
+template<typename F,Dist U,Dist V>
+inline void
+Laplacian( BlockDistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
+{
+    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
+    Helmholtz( L, nx, ny, nz, F(0) );
+}
 
 } // namespace elem
 

@@ -21,13 +21,13 @@ inline void
 MakeKahan( Matrix<F>& A, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
 
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
         LogicError("Cannot make a non-square matrix Kahan");
-    if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
+    if( Abs(phi) >= Real(1) || Abs(phi) == Real(0) )
         LogicError("|phi| must be in (0,1)");
 
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
@@ -35,7 +35,7 @@ MakeKahan( Matrix<F>& A, F phi )
     MakeZeros( A );
     for( Int i=0; i<n; ++i )
     {
-        const F zetaPow = Pow( zeta, R(i) );
+        const F zetaPow = Pow( zeta, Real(i) );
         A.Set( i, i, zetaPow );
         for( Int j=1; j<n; ++j )
             A.Set( i, j, -phi*zetaPow );
@@ -47,13 +47,13 @@ inline void
 MakeKahan( DistMatrix<F,U,V>& A, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
 
     const Int m = A.Height();
     const Int n = A.Width();
     if( m != n )
         LogicError("Cannot make a non-square matrix Kahan");
-    if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
+    if( Abs(phi) >= Real(1) || Abs(phi) == Real(0) )
         LogicError("|phi| must be in (0,1)");
 
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
@@ -63,7 +63,42 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = A.GlobalRow(iLoc);
-        const F zetaPow = Pow( zeta, R(i) );
+        const F zetaPow = Pow( zeta, Real(i) );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            const Int j = A.GlobalCol(jLoc);
+            if( i > j )       
+                A.SetLocal( iLoc, jLoc, F(0) ); 
+            else if( i == j )
+                A.SetLocal( iLoc, jLoc, zetaPow );
+            else
+                A.SetLocal( iLoc, jLoc, -phi*zetaPow );
+        }
+    }
+}
+
+template<typename F,Dist U,Dist V>
+inline void
+MakeKahan( BlockDistMatrix<F,U,V>& A, F phi )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
+    typedef Base<F> Real;
+
+    const Int m = A.Height();
+    const Int n = A.Width();
+    if( m != n )
+        LogicError("Cannot make a non-square matrix Kahan");
+    if( Abs(phi) >= Real(1) || Abs(phi) == Real(0) )
+        LogicError("|phi| must be in (0,1)");
+
+    const F zeta = Sqrt(F(1)-phi*Conj(phi));
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    {
+        const Int i = A.GlobalRow(iLoc);
+        const F zetaPow = Pow( zeta, Real(i) );
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -86,17 +121,6 @@ Kahan( Matrix<F>& A, Int n, F phi )
     MakeKahan( A, phi );
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-Kahan( Int n, F phi )
-{
-    Matrix<F> A( n, n );
-    MakeKahan( A, phi );
-    return A;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
@@ -106,16 +130,14 @@ Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
     MakeKahan( A, phi );
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Kahan( const Grid& g, Int n, F phi )
+template<typename F,Dist U,Dist V>
+inline void
+Kahan( BlockDistMatrix<F,U,V>& A, Int n, F phi )
 {
-    DistMatrix<F,U,V> A( n, n, g );
+    DEBUG_ONLY(CallStackEntry cse("Kahan"))
+    A.Resize( n, n );
     MakeKahan( A, phi );
-    return A;
 }
-#endif
 
 } // namespace elem
 

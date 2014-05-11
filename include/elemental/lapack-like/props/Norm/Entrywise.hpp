@@ -13,8 +13,8 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
-EntrywiseNorm( const Matrix<F>& A, BASE(F) p )
+inline Base<F>
+EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
     // TODO: Make this more numerically stable
@@ -29,8 +29,8 @@ EntrywiseNorm( const Matrix<F>& A, BASE(F) p )
 }
 
 template<typename F>
-inline BASE(F)
-HermitianEntrywiseNorm( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
+inline Base<F>
+HermitianEntrywiseNorm( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
@@ -73,17 +73,17 @@ HermitianEntrywiseNorm( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricEntrywiseNorm
-( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
-EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
+inline Base<F>
+EntrywiseNorm( const DistMatrix<F,U,V>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
     typedef Base<F> Real;
@@ -104,9 +104,9 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianEntrywiseNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
@@ -160,9 +160,9 @@ HermitianEntrywiseNorm
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricEntrywiseNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );

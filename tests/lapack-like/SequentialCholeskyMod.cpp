@@ -31,8 +31,9 @@ void TestCorrectness
 
     // Test correctness by multiplying a random set of vectors by 
     // A + alpha V V^H, then using the Cholesky factorization to solve.
-    auto X = Uniform<F>( m, 100 );
-    auto Y = Zeros<F>( m, 100 );
+    Matrix<F> X, Y;
+    Uniform( X, m, 100 );
+    Zeros( Y, m, 100 );
     Hemm( LEFT, uplo, F(1), B, X, F(0), Y );
     const Real maxNormT = MaxNorm( T );
     const Real maxNormB = HermitianMaxNorm( uplo, B );

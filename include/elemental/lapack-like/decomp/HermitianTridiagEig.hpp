@@ -34,7 +34,7 @@ HermitianTridiagEig
 template<typename Real>
 inline void 
 HermitianTridiagEig
-( Matrix<Real>& d, Matrix<Complex<Real> >& e, Matrix<Real>& w, SortType sort )
+( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     typedef Complex<Real> C;
@@ -145,7 +145,7 @@ HermitianTridiagEig
 template<typename Real>
 inline void 
 HermitianTridiagEig
-( Matrix<Real>& d, Matrix<Complex<Real> >& e, Matrix<Real>& w, 
+( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, 
   Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
@@ -258,7 +258,7 @@ HermitianTridiagEig
 template<typename Real>
 inline void 
 HermitianTridiagEig
-( Matrix<Real>& d, Matrix<Complex<Real> >& e, Matrix<Real>& w, 
+( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, 
   Real vl, Real vu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
@@ -374,8 +374,8 @@ HermitianTridiagEig
 template<typename Real>
 inline void 
 HermitianTridiagEig
-( Matrix<Real>& d, Matrix<Complex<Real> >& e, Matrix<Real>& w, 
-  Matrix<Complex<Real> >& Z, SortType sort )
+( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, 
+  Matrix<Complex<Real>>& Z, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     typedef Complex<Real> C;
@@ -487,9 +487,9 @@ HermitianTridiagEig
 template<typename F,Dist U1,Dist V1,Dist U2,Dist V2,Dist U3,Dist U4,Dist V4>
 inline void 
 HermitianTridiagEig
-( const DistMatrix<BASE(F),U1,V1  >& d,
+( const DistMatrix<Base<F>,U1,V1  >& d,
   const DistMatrix<F,      U2,V2  >& e,
-        DistMatrix<BASE(F),U3,STAR>& w, 
+        DistMatrix<Base<F>,U3,STAR>& w, 
         DistMatrix<F,      U4,V4  >& Z, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
@@ -521,8 +521,8 @@ HermitianTridiagEig
 template<typename Real>
 inline void 
 HermitianTridiagEig
-( Matrix<Real>& d, Matrix<Complex<Real> >& e, Matrix<Real>& w, 
-  Matrix<Complex<Real> >& Z, Int il, Int iu, SortType sort )
+( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, 
+  Matrix<Complex<Real>>& Z, Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     typedef Complex<Real> C;
@@ -639,9 +639,9 @@ HermitianTridiagEig
 template<typename F,Dist U1,Dist V1,Dist U2,Dist V2,Dist U3,Dist U4,Dist V4>
 inline void 
 HermitianTridiagEig
-( const DistMatrix<BASE(F),U1,V1  >& d,
+( const DistMatrix<Base<F>,U1,V1  >& d,
   const DistMatrix<F,      U2,V2  >& e,
-        DistMatrix<BASE(F),U3,STAR>& w, 
+        DistMatrix<Base<F>,U3,STAR>& w, 
         DistMatrix<F,      U4,V4  >& Z, Int il, Int iu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
@@ -673,8 +673,8 @@ HermitianTridiagEig
 template<typename Real>
 inline void 
 HermitianTridiagEig
-( Matrix<Real>& d, Matrix<Complex<Real> >& e, Matrix<Real>& w, 
-  Matrix<Complex<Real> >& Z, Real vl, Real vu, SortType sort )
+( Matrix<Real>& d, Matrix<Complex<Real>>& e, Matrix<Real>& w, 
+  Matrix<Complex<Real>>& Z, Real vl, Real vu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     typedef Complex<Real> C;
@@ -831,10 +831,10 @@ HermitianTridiagEig
 template<typename F,Dist U1,Dist V1,Dist U2,Dist V2,Dist U3,Dist U4,Dist V4>
 inline void 
 HermitianTridiagEig
-( const DistMatrix<BASE(F),U1,V1  >& d,
+( const DistMatrix<Base<F>,U1,V1  >& d,
   const DistMatrix<F,      U2,V2  >& e,
-        DistMatrix<BASE(F),U3,STAR>& w, 
-        DistMatrix<F,      U4,V4  >& Z, BASE(F) vl, BASE(F) vu, SortType sort )
+        DistMatrix<Base<F>,U3,STAR>& w, 
+        DistMatrix<F,      U4,V4  >& Z, Base<F> vl, Base<F> vu, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     DistMatrix<F,STAR,U3> Z_STAR_U3( Z );

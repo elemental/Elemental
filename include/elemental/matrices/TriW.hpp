@@ -54,28 +54,6 @@ TriW( BlockDistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
         SetDiagonal( A, alpha, j+1 );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-TriW( Int m, Int n, T alpha, Int k )
-{
-    Matrix<T> A;
-    TriW( A, m, n, alpha, k );
-    return A;
-}
-
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-TriW( const Grid& g, Int m, Int n, T alpha, Int k )
-{
-    DistMatrix<T,U,V> A(g);
-    TriW( A, m, n, alpha, k );
-    return A;
-}
-#endif
-
-// TODO: MakeTriW?
-
 } // namespace elem
 
 #endif // ifndef ELEM_TRIW_HPP

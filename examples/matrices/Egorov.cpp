@@ -45,11 +45,13 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid& g = DefaultGrid();
+
         FourierPhase<double> fourier( n );
         Phase<double> phase( n );
-        auto F = Egorov<double>( g, fourier, n );
-        auto G = Egorov<double>( g, phase,   n );
+
+        DistMatrix<Complex<double>> F, G;
+        Egorov( F, fourier, n );
+        Egorov( G, phase,   n );
 
         if( display )
         {

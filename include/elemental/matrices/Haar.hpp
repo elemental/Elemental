@@ -28,7 +28,7 @@ Haar( Matrix<F>& A, Int n )
 
 template<typename F>
 inline void
-ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Int n )
+ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("ImplicitHaar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
@@ -48,30 +48,10 @@ Haar( DistMatrix<F>& A, Int n )
     qr::Explicit( A );
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-Haar( Int n )
-{
-    auto A = Gaussian<F>( n, n );
-    qr::Explicit( A );
-    return A;
-}
-
-template<typename F>
-inline DistMatrix<F>
-Haar( const Grid& g, Int n )
-{
-    auto A = Gaussian<F>( g, n, n );
-    qr::Explicit( A );
-    return A;
-}
-#endif
-
 template<typename F>
 inline void
 ImplicitHaar
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, 
   Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Haar"))

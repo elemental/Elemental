@@ -63,7 +63,7 @@ Sort( DistMatrix<Real,U,V>& X, SortType sort=ASCENDING )
 // Tagged sort
 
 template<typename Real>
-inline std::vector<ValueInt<Real> >
+inline std::vector<ValueInt<Real>>
 TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
@@ -94,7 +94,7 @@ TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING )
 }
 
 template<typename Real,Dist U,Dist V>
-inline std::vector<ValueInt<Real> >
+inline std::vector<ValueInt<Real>>
 TaggedSort( const DistMatrix<Real,U,V>& x, SortType sort=ASCENDING )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))

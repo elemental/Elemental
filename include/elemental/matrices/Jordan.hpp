@@ -53,6 +53,29 @@ MakeJordan( DistMatrix<T,U,V>& J, T lambda )
     }
 }
 
+template<typename T,Dist U,Dist V>
+inline void
+MakeJordan( BlockDistMatrix<T,U,V>& J, T lambda )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeJordan"))
+    Zero( J.Matrix() );
+
+    const Int localHeight = J.LocalHeight();
+    const Int localWidth = J.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = J.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = J.GlobalRow(iLoc);
+            if( i == j )
+                J.SetLocal( iLoc, jLoc, lambda );
+            else if( i == j-1 )
+                J.SetLocal( iLoc, jLoc, T(1) );
+        }
+    }
+}
+
 template<typename T>
 inline void
 Jordan( Matrix<T>& J, Int n, T lambda )
@@ -61,17 +84,6 @@ Jordan( Matrix<T>& J, Int n, T lambda )
     J.Resize( n, n );
     MakeJordan( J, lambda );
 }
-
-#ifndef SWIG
-template<typename T>
-inline Matrix<T>
-Jordan( Int n, T lambda )
-{
-    Matrix<T> J( n, n );
-    MakeJordan( J, lambda );
-    return J;
-}
-#endif
 
 template<typename T,Dist U,Dist V>
 inline void
@@ -82,16 +94,14 @@ Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
     MakeJordan( J, lambda );
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Jordan( const Grid& g, Int n, T lambda )
+template<typename T,Dist U,Dist V>
+inline void
+Jordan( BlockDistMatrix<T,U,V>& J, Int n, T lambda )
 {
-    DistMatrix<T,U,V> J( n, n, g );
+    DEBUG_ONLY(CallStackEntry cse("Jordan"))
+    J.Resize( n, n );
     MakeJordan( J, lambda );
-    return J;
 }
-#endif
 
 } // namespace elem
 

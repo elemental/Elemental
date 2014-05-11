@@ -42,18 +42,19 @@ main( int argc, char* argv[] )
         if( mpi::WorldRank() == 0 )
             std::cout << "Grid is " 
                       << g.Height() << " x " << g.Width() << std::endl;
-        auto A = Uniform<C>( g, m, n );
+        DistMatrix<C> A(g);
+        Uniform( A, m, n );
         if( print )
             Print( A, "A" );
 
         // Compute just the singular values 
-        DistMatrix<Real,VR,STAR> sOnly( g );
+        DistMatrix<Real,VR,STAR> sOnly(g);
         auto U( A );
         SVD( U, sOnly );
 
         // Compute the SVD of A 
-        DistMatrix<C> V( g );
-        DistMatrix<Real,VR,STAR> s( g );
+        DistMatrix<C> V(g);
+        DistMatrix<Real,VR,STAR> s(g);
         U = A;
         SVD( U, s, V );
         if( print )

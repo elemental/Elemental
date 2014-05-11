@@ -23,7 +23,7 @@ namespace elem {
 
 template<typename Real> 
 inline void
-Trefethen( Matrix<Complex<Real> >& A, Int n )
+Trefethen( Matrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Trefethen"))
     if( n < 4 )
@@ -68,26 +68,6 @@ Trefethen( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
     SetDiagonal( A, -4,      -2 );
     SetDiagonal( A, C(0,-2), -3 );
 }
-
-#ifndef SWIG
-template<typename Real> 
-inline Matrix<Complex<Real>>
-Trefethen( Int n )
-{
-    Matrix<Complex<Real>> A;
-    Trefethen( A, n );
-    return A;
-}
-
-template<typename Real,Dist U=MC,Dist V=MR>
-inline DistMatrix<Complex<Real>,U,V>
-Trefethen( const Grid& g, Int n )
-{
-    DistMatrix<Complex<Real>,U,V> A(g);
-    Trefethen( A, n );
-    return A;
-}
-#endif
 
 } // namespace elem
 

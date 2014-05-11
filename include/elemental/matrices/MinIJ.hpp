@@ -23,17 +23,6 @@ MinIJ( Matrix<T>& M, Int n )
             M.Set( i, j, std::min(i+1,j+1) );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-MinIJ( Int n )
-{
-    Matrix<T> M;
-    MinIJ( M, n );
-    return M;
-}
-#endif
-
 template<typename T,Dist U,Dist V>
 inline void
 MinIJ( DistMatrix<T,U,V>& M, Int n )
@@ -53,16 +42,24 @@ MinIJ( DistMatrix<T,U,V>& M, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-MinIJ( const Grid& g, Int n )
+template<typename T,Dist U,Dist V>
+inline void
+MinIJ( BlockDistMatrix<T,U,V>& M, Int n )
 {
-    DistMatrix<T,U,V> M(g);
-    MinIJ( M, n );
-    return M;
+    DEBUG_ONLY(CallStackEntry cse("MinIJ"))
+    M.Resize( n, n );
+    const Int localHeight = M.LocalHeight();
+    const Int localWidth = M.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = M.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = M.GlobalRow(iLoc);
+            M.SetLocal( iLoc, jLoc, std::min(i+1,j+1) );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

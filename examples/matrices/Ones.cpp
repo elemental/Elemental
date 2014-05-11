@@ -25,7 +25,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        auto A = Ones<double>( DefaultGrid(), m, n );
+        DistMatrix<double> A;
+        Ones( A, m, n );
         if( display )
             Display( A, "Ones" );
         if( print )

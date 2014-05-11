@@ -22,7 +22,7 @@ namespace svt {
 
 template<typename F>
 inline Int
-Normal( Matrix<F>& A, BASE(F) tau, bool relative=false )
+Normal( Matrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
     typedef Base<F> Real;
@@ -40,7 +40,7 @@ Normal( Matrix<F>& A, BASE(F) tau, bool relative=false )
 
 template<typename F>
 inline Int
-Normal( DistMatrix<F>& A, BASE(F) tau, bool relative=false )
+Normal( DistMatrix<F>& A, Base<F> tau, bool relative=false )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
     typedef Base<F> Real;

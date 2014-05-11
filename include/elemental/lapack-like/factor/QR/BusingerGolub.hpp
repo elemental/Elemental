@@ -27,8 +27,8 @@ namespace elem {
 namespace qr {
 
 template<typename F>
-inline BASE(F)
-ColNorms( const Matrix<F>& A, std::vector<BASE(F)>& norms )
+inline Base<F>
+ColNorms( const Matrix<F>& A, std::vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
     typedef Base<F> Real;
@@ -59,8 +59,8 @@ FindPivot( const std::vector<Real>& norms, Int col )
 template<typename F> 
 inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& pPerm,
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     typedef Base<F> Real;
@@ -173,7 +173,7 @@ template<typename F>
 inline Int
 BusingerGolub
 ( Matrix<F>& A, Matrix<Int>& pPerm,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
@@ -184,7 +184,7 @@ BusingerGolub
 template<typename F> 
 inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm,
+( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& pPerm,
   Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
@@ -208,7 +208,7 @@ BusingerGolub
 template<typename F> 
 inline Int
 BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<BASE(F)>& d, Matrix<Int>& pPerm, 
+( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& pPerm, 
   bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
@@ -228,9 +228,9 @@ BusingerGolub( Matrix<F>& A, Matrix<Int>& pPerm, bool alwaysRecompute=false )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 FindColPivot
-( const DistMatrix<F>& A, const std::vector<BASE(F)>& norms, Int col )
+( const DistMatrix<F>& A, const std::vector<Base<F>>& norms, Int col )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::FindColPivot"))
     typedef Base<F> Real;
@@ -243,8 +243,8 @@ FindColPivot
 }
 
 template<typename F>
-inline BASE(F)
-ColNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
+inline Base<F>
+ColNorms( const DistMatrix<F>& A, std::vector<Base<F>>& norms )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ColNorms"))
     typedef Base<F> Real;
@@ -317,7 +317,7 @@ template<typename F>
 inline void
 ReplaceColNorms
 ( const DistMatrix<F>& A, std::vector<Int>& inaccurateNorms, 
-  std::vector<BASE(F)>& norms, std::vector<BASE(F)>& origNorms )
+  std::vector<Base<F>>& norms, std::vector<Base<F>>& origNorms )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ReplaceColNorms"))
     typedef Base<F> Real;
@@ -387,8 +387,8 @@ ReplaceColNorms
 template<typename F,Dist UPerm>
 inline Int
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, Int maxSteps, BASE(F) tol, 
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, 
+  DistMatrix<Int,UPerm,STAR>& pPerm, Int maxSteps, Base<F> tol, 
   bool alwaysRecompute=false )
 {
     DEBUG_ONLY(
@@ -568,7 +568,7 @@ template<typename F,Dist UPerm>
 inline Int
 BusingerGolub
 ( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm,
-  Int maxSteps, BASE(F) tol, bool alwaysRecompute=false )
+  Int maxSteps, Base<F> tol, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
@@ -579,13 +579,13 @@ BusingerGolub
 template<typename F,Dist UPerm>
 inline Int
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d, 
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, 
   DistMatrix<Int,UPerm,STAR>& pPerm, Int numSteps, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     // Use a tolerance of -1 so that we do not stop early
     return BusingerGolub
-           ( A, t, d, pPerm, numSteps, BASE(F)(-1), alwaysRecompute );
+           ( A, t, d, pPerm, numSteps, Base<F>(-1), alwaysRecompute );
 }
 
 // If we don't need 't' or 'd' from the above routine
@@ -604,7 +604,7 @@ BusingerGolub
 template<typename F,Dist UPerm>
 inline Int
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<BASE(F),MD,STAR>& d,
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d,
   DistMatrix<Int,UPerm,STAR>& pPerm, bool alwaysRecompute=false )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))

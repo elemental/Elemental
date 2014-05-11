@@ -30,7 +30,8 @@ void TestCorrectness
     // Form I - Q^H Q
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
-    auto Z = Identity<F>( g, n, n );
+    DistMatrix<F> Z(g);
+    Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
     Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
     Real oneNormOfError = HermitianOneNorm( UPPER, Z );

@@ -22,7 +22,7 @@ Copy( const Matrix<T>& A, Matrix<T>& B )
 
 template<typename Real>
 inline void
-Copy( const Matrix<Real>& A, Matrix<Complex<Real> >& B )
+Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     const Int m = A.Height();

@@ -21,7 +21,7 @@ namespace elem {
 template<typename F> 
 inline void
 HatanoNelson
-( Matrix<F>& A, Int n, F center, BASE(F) radius, F g, bool periodic=true )
+( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic=true )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
@@ -42,7 +42,7 @@ HatanoNelson
 template<typename F,Dist U,Dist V>
 inline void
 HatanoNelson
-( DistMatrix<F,U,V>& A, Int n, F center, BASE(F) radius, F g, 
+( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, 
   bool periodic=true )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
@@ -64,7 +64,7 @@ HatanoNelson
 template<typename F,Dist U,Dist V>
 inline void
 HatanoNelson
-( BlockDistMatrix<F,U,V>& A, Int n, F center, BASE(F) radius, F g, 
+( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, 
   bool periodic=true )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
@@ -82,27 +82,6 @@ HatanoNelson
         A.Set( n-1, 0,   Exp( g) );
     }
 }
-
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-HatanoNelson( Int n, F center, BASE(F) radius, F g, bool periodic=true )
-{
-    Matrix<F> A;
-    HatanoNelson( A, n, center, radius, g, periodic );
-    return A;
-}
-
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-HatanoNelson
-( const Grid& grid, Int n, F center, BASE(F) radius, F g, bool periodic=true )
-{
-    DistMatrix<F,U,V> A(grid);
-    HatanoNelson( A, n, center, radius, g, periodic );
-    return A;
-}
-#endif
 
 } // namespace elem
 

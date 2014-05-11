@@ -45,8 +45,8 @@ GRQ( DistMatrix<F>& A, DistMatrix<F>& B )
 template<typename F> 
 inline void
 GRQ
-( Matrix<F>& A, Matrix<F>& tA, Matrix<BASE(F)>& dA, 
-  Matrix<F>& B, Matrix<F>& tB, Matrix<BASE(F)>& dB )
+( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA, 
+  Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB )
 {
     DEBUG_ONLY(CallStackEntry cse("GRQ"))
     rq::Householder( A, tA, dA );
@@ -57,8 +57,8 @@ GRQ
 template<typename F> 
 inline void
 GRQ
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tA, DistMatrix<BASE(F),MD,STAR>& dA,
-  DistMatrix<F>& B, DistMatrix<F,MD,STAR>& tB, DistMatrix<BASE(F),MD,STAR>& dB )
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tA, DistMatrix<Base<F>,MD,STAR>& dA,
+  DistMatrix<F>& B, DistMatrix<F,MD,STAR>& tB, DistMatrix<Base<F>,MD,STAR>& dB )
 {
     DEBUG_ONLY(CallStackEntry cse("GRQ"))
     rq::Householder( A, tA, dA );

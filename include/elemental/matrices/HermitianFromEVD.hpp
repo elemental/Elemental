@@ -22,7 +22,7 @@ inline void
 HermitianFromEVD
 ( UpperOrLower uplo,
         Matrix<F>& A,
-  const Matrix<BASE(F)>& w,
+  const Matrix<Base<F>>& w,
   const Matrix<F>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
@@ -48,26 +48,12 @@ HermitianFromEVD
     }
 }
 
-#ifndef SWIG
-template<typename F>
-inline Matrix<F>
-HermitianFromEVD
-( UpperOrLower uplo,
-  const Matrix<BASE(F)>& w,
-  const Matrix<F>& Z )
-{
-    Matrix<F> A;
-    HermitianFromEVD( uplo, A, w, Z );
-    return A;
-}
-#endif
-
 template<typename F>
 inline void
 HermitianFromEVD
 ( UpperOrLower uplo,
         DistMatrix<F>& A,
-  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<Base<F>,VR,STAR>& w,
   const DistMatrix<F>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFromEVD"))
@@ -106,20 +92,6 @@ HermitianFromEVD
         LocalTrrk( uplo, F(1), Z1_MC_STAR, Z1Adj_STAR_MR, F(1), A );
     }
 }
-
-#ifndef SWIG
-template<typename F>
-inline DistMatrix<F>
-HermitianFromEVD
-( UpperOrLower uplo,
-  const DistMatrix<BASE(F),VR,STAR>& w,
-  const DistMatrix<F>& Z )
-{
-    DistMatrix<F> A(w.Grid());
-    HermitianFromEVD( uplo, A, w, Z );
-    return A;
-}
-#endif
 
 } // namespace elem
 

@@ -176,7 +176,7 @@ RootPhases( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 }
 
 template<typename F,Dist U>
-inline Matrix<BASE(F)>&
+inline Matrix<Base<F>>&
 RootSignature( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 {
     const Int p = mpi::Size( A.ColComm() );
@@ -190,7 +190,7 @@ RootSignature( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 }
 
 template<typename F,Dist U>
-inline const Matrix<BASE(F)>&
+inline const Matrix<Base<F>>&
 RootSignature( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 {
     const Int p = mpi::Size( A.ColComm() );

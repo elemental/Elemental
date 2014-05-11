@@ -18,9 +18,9 @@ namespace pspec {
 template<typename Real>
 inline void
 Analytic
-( const Matrix<Complex<Real> >& w, 
-  const Matrix<Complex<Real> >& shifts, 
-        Matrix<Real          >& invNorms,
+( const Matrix<Complex<Real>>& w, 
+  const Matrix<Complex<Real>>& shifts, 
+        Matrix<Real         >& invNorms,
         SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))

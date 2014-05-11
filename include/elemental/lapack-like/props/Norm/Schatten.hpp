@@ -17,8 +17,8 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
-SchattenNorm( const Matrix<F>& A, BASE(F) p )
+inline Base<F>
+SchattenNorm( const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SchattenNorm"))
     typedef Base<F> R;
@@ -35,9 +35,9 @@ SchattenNorm( const Matrix<F>& A, BASE(F) p )
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianSchattenNorm
-( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSchattenNorm"))
     typedef Base<F> R;
@@ -54,9 +54,9 @@ HermitianSchattenNorm
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricSchattenNorm
-( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSchattenNorm"))
     typedef Base<F> R;
@@ -74,8 +74,8 @@ SymmetricSchattenNorm
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
-SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
+inline Base<F>
+SchattenNorm( const DistMatrix<F,U,V>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SchattenNorm"))
     typedef Base<F> R;
@@ -93,9 +93,9 @@ SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSchattenNorm"))
     typedef Base<F> R;
@@ -113,9 +113,9 @@ HermitianSchattenNorm
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSchattenNorm"))
     typedef Base<F> R;

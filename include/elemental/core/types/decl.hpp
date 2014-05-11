@@ -40,7 +40,7 @@ struct ValueInt
 };
 
 template<typename Real>
-struct ValueInt<Complex<Real> >
+struct ValueInt<Complex<Real>>
 {
     Complex<Real> value;
     Int index;
@@ -64,7 +64,7 @@ struct ValueIntPair
 };
 
 template<typename Real>
-struct ValueIntPair<Complex<Real> >
+struct ValueIntPair<Complex<Real>>
 {
     Complex<Real> value;
     Int indices[2];
@@ -84,7 +84,7 @@ template<typename F>
 struct SafeProduct
 {
     F rho;
-    BASE(F) kappa;
+    Base<F> kappa;
     Int n;
 
     SafeProduct( Int numEntries );
@@ -163,7 +163,6 @@ Dist StringToDist( std::string s );
 using namespace DistNS;
 typedef Dist Distribution;
 
-#ifndef SWIG
 template<Dist U,Dist V>
 constexpr Dist DiagColDist() { return ( U==STAR ? V : U ); }
 template<Dist U,Dist V>
@@ -197,7 +196,6 @@ template<> constexpr Dist ScatteredRowDist<VR,STAR>() { return MC; }
 
 template<Dist U,Dist V> constexpr Dist ScatteredColDist() 
 { return ScatteredRowDist<V,U>(); }
-#endif // ifndef SWIG
 
 namespace ViewTypeNS {
 enum ViewType

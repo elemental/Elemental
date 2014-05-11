@@ -51,7 +51,6 @@ This is the root directory of the entire project, and it contains:
 -  `README.md`: this file
 -  `REFERENCES`: some publications referenced in the creation of this software
 -  `src/`: Elemental's source files; a small portion of the library is here
--  `swig/`: Elemental's Python interface (via SWIG)
 -  `tests/`: programs meant to test the accuracy of Elemental
 -  `TODO`: a list of near/long-term goals of the project
 -  `vagrant/`: lightweight preconfigured virtual-machines for Elemental

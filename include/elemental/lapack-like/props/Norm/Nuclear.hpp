@@ -15,51 +15,51 @@
 namespace elem {
 
 template<typename F> 
-inline BASE(F)
+inline Base<F>
 NuclearNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("NuclearNorm"))
-    return SchattenNorm( A, BASE(F)(1) );
+    return SchattenNorm( A, Base<F>(1) );
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianNuclearNorm"))
-    return HermitianSchattenNorm( uplo, A, BASE(F)(1) );
+    return HermitianSchattenNorm( uplo, A, Base<F>(1) );
 }
 
 template<typename F>
-inline BASE(F)
+inline Base<F>
 SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricNuclearNorm"))
-    return SymmetricSchattenNorm( uplo, A, BASE(F)(1) );
+    return SymmetricSchattenNorm( uplo, A, Base<F>(1) );
 }
 
 template<typename F,Dist U,Dist V> 
-inline BASE(F)
+inline Base<F>
 NuclearNorm( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("NuclearNorm"))
-    return SchattenNorm( A, BASE(F)(1) );
+    return SchattenNorm( A, Base<F>(1) );
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianNuclearNorm"))
-    return HermitianSchattenNorm( uplo, A, BASE(F)(1) );
+    return HermitianSchattenNorm( uplo, A, Base<F>(1) );
 }
 
 template<typename F,Dist U,Dist V>
-inline BASE(F)
+inline Base<F>
 SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricNuclearNorm"))
-    return SymmetricSchattenNorm( uplo, A, BASE(F)(1) );
+    return SymmetricSchattenNorm( uplo, A, Base<F>(1) );
 }
 
 } // namespace elem

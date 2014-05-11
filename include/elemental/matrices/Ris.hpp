@@ -24,17 +24,6 @@ Ris( Matrix<F>& R, Int n )
             R.Set( i, j, oneHalf/(F(n-i-j)-oneHalf) );
 }
 
-#ifndef SWIG
-template<typename F> 
-inline Matrix<F>
-Ris( Int n )
-{
-    Matrix<F> R;
-    Ris( R, n );
-    return R;
-}
-#endif
-
 template<typename F,Dist U,Dist V>
 inline void
 Ris( DistMatrix<F,U,V>& R, Int n )
@@ -55,16 +44,25 @@ Ris( DistMatrix<F,U,V>& R, Int n )
     }
 }
 
-#ifndef SWIG
-template<typename F,Dist U=MC,Dist V=MR>
-inline DistMatrix<F,U,V>
-Ris( const Grid& g, Int n )
+template<typename F,Dist U,Dist V>
+inline void
+Ris( BlockDistMatrix<F,U,V>& R, Int n )
 {
-    DistMatrix<F,U,V> R(g);
-    Ris( R, n );
-    return R;
+    DEBUG_ONLY(CallStackEntry cse("Ris"))
+    const F oneHalf = F(1)/F(2);
+    R.Resize( n, n );
+    const Int localHeight = R.LocalHeight();
+    const Int localWidth = R.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = R.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = R.GlobalRow(iLoc);
+            R.SetLocal( iLoc, jLoc, oneHalf/(F(n-i-j)-oneHalf) );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

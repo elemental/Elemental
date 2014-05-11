@@ -104,7 +104,7 @@ inline void
 LUTUnb
 ( bool conjugate, 
   const Matrix<Real>& U, 
-  const Matrix<Complex<Real> >& shifts, 
+  const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUTUnb"))
@@ -251,7 +251,7 @@ inline void
 LUT
 ( Orientation orientation, 
   const Matrix<Real>& U, 
-  const Matrix<Complex<Real> >& shifts, 
+  const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
     DEBUG_ONLY(

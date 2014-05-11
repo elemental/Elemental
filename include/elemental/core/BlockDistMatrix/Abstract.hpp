@@ -22,18 +22,16 @@ public:
 
     // Constructors and destructors
     // ============================
-#ifndef SWIG
     // Move constructor
     AbstractBlockDistMatrix( type&& A ) ELEM_NOEXCEPT;
-#endif
+
     virtual ~AbstractBlockDistMatrix();
 
     // Assignment and reconfiguration
     // ==============================
-#ifndef SWIG
     // Move assignment
     type& operator=( type&& A );
-#endif
+
     void Empty();
     void EmptyData();
     void SetGrid( const elem::Grid& grid );
@@ -41,6 +39,7 @@ public:
     void Resize( Int height, Int width, Int ldim );
     void MakeConsistent( bool includingViewers=false );
     void MakeSizeConsistent( bool includingViewers=false );
+
     // Realignment
     // -----------
     void Align
@@ -185,28 +184,28 @@ public:
     // NOTE: Local entry manipulation is often much faster and should be
     //       preferred in most circumstances where performance matters.
     T Get( Int i, Int j ) const;
-    BASE(T) GetRealPart( Int i, Int j ) const;
-    BASE(T) GetImagPart( Int i, Int j ) const;
+    Base<T> GetRealPart( Int i, Int j ) const;
+    Base<T> GetImagPart( Int i, Int j ) const;
     void Set( Int i, Int j, T alpha );
-    void SetRealPart( Int i, Int j, BASE(T) alpha );
-    void SetImagPart( Int i, Int j, BASE(T) alpha );
+    void SetRealPart( Int i, Int j, Base<T> alpha );
+    void SetImagPart( Int i, Int j, Base<T> alpha );
     void Update( Int i, Int j, T alpha );
-    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
-    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
+    void UpdateRealPart( Int i, Int j, Base<T> alpha );
+    void UpdateImagPart( Int i, Int j, Base<T> alpha );
     void MakeReal( Int i, Int j );
     void Conjugate( Int i, Int j );
 
     // Local entry manipulation
     // ------------------------
     T GetLocal( Int iLoc, Int jLoc ) const;
-    BASE(T) GetLocalRealPart( Int iLoc, Int jLoc ) const;
-    BASE(T) GetLocalImagPart( Int iLoc, Int jLoc ) const;
+    Base<T> GetLocalRealPart( Int iLoc, Int jLoc ) const;
+    Base<T> GetLocalImagPart( Int iLoc, Int jLoc ) const;
     void SetLocal( Int iLoc, Int jLoc, T alpha );
-    void SetLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
-    void SetLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
+    void SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
     void UpdateLocal( Int iLoc, Int jLoc, T alpha );
-    void UpdateLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
-    void UpdateLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha );
+    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha );
     void MakeLocalReal( Int iLoc, Int jLoc );
     void ConjugateLocal( Int iLoc, Int jLoc );
 
@@ -225,38 +224,36 @@ public:
       DistMatrix<T,STAR,STAR>& ASub ) const;
     void GetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      DistMatrix<BASE(T),STAR,STAR>& ASub ) const;
+      DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
     void GetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      DistMatrix<BASE(T),STAR,STAR>& ASub ) const;
-#ifndef SWIG
+      DistMatrix<Base<T>,STAR,STAR>& ASub ) const;
     DistMatrix<T,STAR,STAR> GetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-    DistMatrix<BASE(T),STAR,STAR> GetRealPartOfSubmatrix
+    DistMatrix<Base<T>,STAR,STAR> GetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-    DistMatrix<BASE(T),STAR,STAR> GetImagPartOfSubmatrix
+    DistMatrix<Base<T>,STAR,STAR> GetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const;
-#endif
 
     void SetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       const DistMatrix<T,STAR,STAR>& ASub );
     void SetRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const DistMatrix<BASE(T),STAR,STAR>& ASub );
+      const DistMatrix<Base<T>,STAR,STAR>& ASub );
     void SetImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      const DistMatrix<BASE(T),STAR,STAR>& ASub );
+      const DistMatrix<Base<T>,STAR,STAR>& ASub );
 
     void UpdateSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       T alpha, const DistMatrix<T,STAR,STAR>& ASub );
     void UpdateRealPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub );
+      Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
     void UpdateImagPartOfSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-      BASE(T) alpha, const DistMatrix<BASE(T),STAR,STAR>& ASub );
+      Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
 
     void MakeSubmatrixReal
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd );
@@ -270,41 +267,39 @@ public:
       elem::Matrix<T>& ASub ) const;
     void GetRealPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-      elem::Matrix<BASE(T)>& ASub ) const;
+      elem::Matrix<Base<T>>& ASub ) const;
     void GetImagPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-      elem::Matrix<BASE(T)>& ASub ) const;
-#ifndef SWIG
+      elem::Matrix<Base<T>>& ASub ) const;
     elem::Matrix<T> GetLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, 
       const std::vector<Int>& colIndLoc ) const;
-    elem::Matrix<BASE(T)> GetRealPartOfLocalSubmatrix
+    elem::Matrix<Base<T>> GetRealPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, 
       const std::vector<Int>& colIndLoc ) const;
-    elem::Matrix<BASE(T)> GetImagPartOfLocalSubmatrix
+    elem::Matrix<Base<T>> GetImagPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, 
       const std::vector<Int>& colIndLoc ) const;
-#endif
 
     void SetLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
       const elem::Matrix<T>& ASub );
     void SetRealPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-      const elem::Matrix<BASE(T)>& ASub );
+      const elem::Matrix<Base<T>>& ASub );
     void SetImagPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-      const elem::Matrix<BASE(T)>& ASub );
+      const elem::Matrix<Base<T>>& ASub );
 
     void UpdateLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
       T alpha, const elem::Matrix<T>& ASub );
     void UpdateRealPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-      BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub );
+      Base<T> alpha, const elem::Matrix<Base<T>>& ASub );
     void UpdateImagPartOfLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-      BASE(T) alpha, const elem::Matrix<BASE(T)>& ASub );
+      Base<T> alpha, const elem::Matrix<Base<T>>& ASub );
 
     void MakeLocalSubmatrixReal
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
@@ -365,12 +360,10 @@ protected:
 
     // Friend declarations
     // ===================
-#ifndef SWIG
     template<typename S,Dist J,Dist K> friend class GeneralDistMatrix;
     template<typename S,Dist J,Dist K> friend class DistMatrix;
     template<typename S,Dist J,Dist K> friend class GeneralBlockDistMatrix;
     template<typename S,Dist J,Dist K> friend class BlockDistMatrix;
-#endif
 };
 
 template<typename T>

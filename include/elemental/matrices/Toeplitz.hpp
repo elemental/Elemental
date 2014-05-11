@@ -27,17 +27,6 @@ Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i-j+(n-1)] );
 }
 
-#ifndef SWIG
-template<typename T> 
-inline Matrix<T>
-Toeplitz( Int m, Int n, const std::vector<T>& a )
-{
-    Matrix<T> A;
-    Toeplitz( A, m, n, a );
-    return A;
-}
-#endif
-
 template<typename S,typename T,Dist U,Dist V>
 inline void
 Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
@@ -61,16 +50,28 @@ Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
     }
 }
 
-#ifndef SWIG
-template<typename T,Dist U=MC,Dist V=MR>
-inline DistMatrix<T,U,V>
-Toeplitz( const Grid& g, Int m, Int n, const std::vector<T>& a )
+template<typename S,typename T,Dist U,Dist V>
+inline void
+Toeplitz( BlockDistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
-    DistMatrix<T,U,V> A(g);
-    Toeplitz( A, m, n, a );
-    return A;
+    DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
+    const Int length = m+n-1;
+    if( a.size() != Unsigned(length) )
+        LogicError("a was the wrong size");
+    A.Resize( m, n );
+
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            A.SetLocal( iLoc, jLoc, a[i-j+(n-1)] );
+        }
+    }
 }
-#endif
 
 } // namespace elem
 

@@ -36,8 +36,8 @@ main( int argc, char* argv[] )
 
         SetBlocksize( nb );
 
-        const Grid& g = DefaultGrid();
-        auto A = Uniform<C>( g, m, n );
+        DistMatrix<C> A;
+        Uniform( A, m, n );
         if( print )
             Print( A, "A" );
 

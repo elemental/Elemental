@@ -15,7 +15,7 @@ namespace elem {
 // TODO: Add options for FastAbs instead of Abs
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 VectorMinAbs( const Matrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
@@ -64,7 +64,7 @@ VectorMinAbs( const Matrix<F>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 VectorMinAbs( const DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
@@ -131,7 +131,7 @@ VectorMinAbs( const DistMatrix<F,U,V>& x )
 }
 
 template<typename F>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 MinAbs( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MinAbs"))
@@ -168,7 +168,7 @@ MinAbs( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 MinAbs( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(
@@ -221,7 +221,7 @@ MinAbs( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(
@@ -279,7 +279,7 @@ SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueIntPair<BASE(F)>
+inline ValueIntPair<Base<F>>
 SymmetricMinAbs( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(
@@ -357,7 +357,7 @@ SymmetricMinAbs( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 DiagonalMinAbs( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMinAbs"))
@@ -365,7 +365,7 @@ DiagonalMinAbs( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueInt<BASE(F)>
+inline ValueInt<Base<F>>
 DiagonalMinAbs( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMinAbs"))

@@ -20,7 +20,7 @@
 namespace elem {
 
 template<typename F>
-inline BASE(F) 
+inline Base<F> 
 LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LogDetDiv"))
@@ -58,7 +58,7 @@ LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 }
 
 template<typename F>
-inline BASE(F) 
+inline Base<F> 
 LogDetDiv( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LogDetDiv"))

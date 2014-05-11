@@ -98,7 +98,6 @@ void MemZero( T* buffer, std::size_t numEntries );
 template<typename T>
 void SwapClear( T& x );
 
-#ifndef SWIG
 inline void BuildStream( std::ostringstream& os ) { }
 
 template<typename T,typename... Args>
@@ -125,7 +124,6 @@ inline void RuntimeError( Args... args )
     os << std::endl;
     throw std::logic_error( os.str().c_str() );
 }
-#endif // ifndef SWIG
 
 // This is the only place that Elemental is currently using duck-typing.
 // I'm not sure if it's a good idea to use it more often.

@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename Real> 
 inline void
-MakeFourier( Matrix<Complex<Real> >& A )
+MakeFourier( Matrix<Complex<Real>>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
     const Int m = A.Height();
@@ -64,9 +64,37 @@ MakeFourier( DistMatrix<Complex<Real>,U,V>& A )
     }
 }
 
+template<typename Real,Dist U,Dist V>
+inline void
+MakeFourier( BlockDistMatrix<Complex<Real>,U,V>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
+    const Int m = A.Height();
+    const Int n = A.Width();
+    if( m != n )
+        LogicError("Cannot make a non-square DFT matrix");
+
+    const Real pi = 4*Atan( Real(1) );
+    const Real nSqrt = Sqrt( Real(n) );
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const Real theta = -2*pi*i*j/n;
+            const Real realPart = Cos(theta)/nSqrt;
+            const Real imagPart = Sin(theta)/nSqrt;
+            A.SetLocal( iLoc, jLoc, Complex<Real>(realPart,imagPart) );
+        }
+    }
+}
+
 template<typename Real>
 inline void
-Fourier( Matrix<Complex<Real> >& A, Int n )
+Fourier( Matrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.Resize( n, n );
@@ -82,25 +110,14 @@ Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
     MakeFourier( A );
 }
 
-#ifndef SWIG
-template<typename Real>
-inline Matrix<Complex<Real> >
-Fourier( Int n )
+template<typename Real,Dist U,Dist V>
+inline void
+Fourier( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
 {
-    Matrix<Complex<Real>> A( n, n );
+    DEBUG_ONLY(CallStackEntry cse("Fourier"))
+    A.Resize( n, n );
     MakeFourier( A );
-    return A;
 }
-
-template<typename Real,Dist U=MC,Dist V=MR>
-inline DistMatrix<Complex<Real>,U,V>
-Fourier( const Grid& g, Int n )
-{
-    DistMatrix<Complex<Real>,U,V> A( n, n, g );
-    MakeFourier( A );
-    return A;
-}
-#endif
 
 } // namespace elem
 

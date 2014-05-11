@@ -25,7 +25,7 @@ SolveAfter
 ( Orientation orientation, 
   const Matrix<F>& A, 
   const Matrix<F>& t, 
-  const Matrix<BASE(F)>& d, 
+  const Matrix<Base<F>>& d, 
   const Matrix<F>& B,       
         Matrix<F>& X )
 {
@@ -86,7 +86,7 @@ SolveAfter
 ( Orientation orientation,
   const DistMatrix<F>& A, 
   const DistMatrix<F,MD,STAR>& t, 
-  const DistMatrix<BASE(F),MD,STAR>& d,
+  const DistMatrix<Base<F>,MD,STAR>& d,
   const DistMatrix<F>& B, 
         DistMatrix<F>& X )
 {
