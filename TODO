@@ -1,7 +1,7 @@
 Each of the following categories lists goals in an order which roughly 
 corresponds to the order in which they are hoped to be added.
 Items are marked using the following code:
-  [x] ~ planned to be finished before the next release (0.82)
+  [x] ~ planned to be finished before the next release 
   [o] ~ hopefully started in the near future 
   [-] ~ marked for eventual development
 
@@ -12,7 +12,6 @@ Fundamental functionality additions
 -----------------------------------
 [o] Estimate for spectral radius
 [o] Low-rank modifications of QR
-[o] Low-rank modifications of LU
 [o] Banded Cholesky factorization
 [o] QR with full pivoting (Businger-Golub plus row-sorting or row-pivoting)
 [o] Finishing prototype generalized Spectral Divide and Conquer
@@ -27,7 +26,7 @@ Fundamental functionality additions
 [-] TSQR for non-powers-of-two
 [-] TSLU (via tournament pivoting)
 [-] Successive Band Reduction
-[-] Nonsymmetric (generalized) eigensolver via QR/QZ algorithm
+[-] Native nonsymmetric (generalized) eigensolver via QR (QZ) algorithm
 [-] Generalized Sylvester equations
 
 Incremental functionality improvements
@@ -95,7 +94,12 @@ Consistency/modularity
 
 Documentation
 -------------
-[o] Finish adding per-directory README's (e.g., swig/ and cmake/toolchains/)
+[o] Finish adding per-directory README's (e.g., cmake/toolchains/)
+
+External Interfaces
+-------------------
+[o] Manually expose a C interface
+[o] Use the C interface to interact with other languages (e.g., Python, R, etc.)
 
 Build system
 ------------
@@ -105,11 +109,6 @@ Build system
 [o] Support for BLIS
 [o] Support for automatically downloading and building netlib BLAS and LAPACK
 [o] Speed up build with C++11's extern templates
-
-Python interface
-----------------
-[o] Update SWIG interface to support routines added since 0.81
-[o] Update SWIG interface to allow for Int != int
 
 MPI and Threading
 -----------------

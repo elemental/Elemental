@@ -11,7 +11,8 @@ cmake_minimum_required(VERSION 2.8.8)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 include(CheckFunctionExists)
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake/")
 include(GetGitRevisionDescription)
 include(language_support_v2)
 
@@ -178,12 +179,13 @@ if(NOT WIN32) # I forget why we need this guard
   endforeach()
 endif()
 
-include(ElemFortranTests)
-include(ElemCXXTests)
-include(ElemMPITests)
-include(ElemOpenMPTests)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+include(tests/Fortran)
+include(tests/CXX)
+include(tests/MPI)
+include(tests/OpenMP)
 
-include(ElemQt5Tests)
+include(tests/Qt5)
 if(ELEM_HAVE_QT5)
   set(ELEM_HEADERS_PREMOC 
       "include/elemental/io/DisplayWindow-premoc.hpp;include/elemental/io/ComplexDisplayWindow-premoc.hpp")
@@ -205,7 +207,7 @@ else()
   set(LIBRARY_TYPE STATIC)
 endif()
 
-include(ElemMathTests)
+include(tests/Math)
 
 # Now append the extra flags
 set(CXX_FLAGS "${CXX_FLAGS} ${EXTRA_FLAGS}")
@@ -251,9 +253,9 @@ foreach(FLAG ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
   set(QT5_COMPILESTRING "${QT5_COMPILE_STRING} ${FLAG}")
 endforeach()
 set(QT5_LIBSTRING "-L${Qt5_LIBDIR} -lQt5Widgets -lQt5Gui -lQt5Core")
-configure_file(${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
-               ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/ElemVars.cmake
+               ${PROJECT_BINARY_DIR}/conf/ElemVars @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/conf/ElemVars DESTINATION conf)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
 file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
@@ -431,5 +433,5 @@ endif()
 
 # If Elemental is a subproject, then pass some variables to the parent
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(./cmake/elemental_sub.cmake)
+  include(./cmake/ElemSub.cmake)
 endif()
