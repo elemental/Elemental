@@ -39,7 +39,7 @@ void InitA( DistMatrix<double>& A, bool print )
     if( depthRank == 0 )
     {
         MakeIdentity( A );
-        Scal( 10.0, A );
+        Scale( 10.0, A );
         if( print )
             Print( A, "A" );
     }
