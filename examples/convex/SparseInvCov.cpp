@@ -6,20 +6,20 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_MAKEHERMITIAN_INC
-#include ELEM_MIN_INC
-#include ELEM_UPDATEDIAGONAL_INC
-#include ELEM_TRMM_INC
-#include ELEM_CHOLESKY_INC
-#include ELEM_HERMITIANEIG_INC
-#include ELEM_HERMITIANINVERSE_INC
-#include ELEM_GAUSSIAN_INC
-#include ELEM_UNIFORM_INC
-#include ELEM_COVARIANCE_INC
-#include ELEM_SPARSEINVCOV_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_MAKEHERMITIAN_INC
+#include EL_MIN_INC
+#include EL_UPDATEDIAGONAL_INC
+#include EL_TRMM_INC
+#include EL_CHOLESKY_INC
+#include EL_HERMITIANEIG_INC
+#include EL_HERMITIANINVERSE_INC
+#include EL_GAUSSIAN_INC
+#include EL_UNIFORM_INC
+#include EL_COVARIANCE_INC
+#include EL_SPARSEINVCOV_INC
+using namespace El;
 
 // This driver is an adaptation of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/covsel/covsel.html

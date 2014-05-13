@@ -6,9 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental.hpp"
+#include "El.hpp"
 using namespace std;
-using namespace elem;
+using namespace El;
 
 template<typename T>
 void TimedGemm

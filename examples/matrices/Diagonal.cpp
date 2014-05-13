@@ -6,11 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_DIAGONAL_INC
-#include ELEM_ZEROS_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_DIAGONAL_INC
+#include EL_ZEROS_INC
+using namespace El;
 
 int 
 main( int argc, char* argv[] )
@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( D, "Diagonal matrix" );
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
             Spy( D, "Diagonal spy plot" );
 #endif
         }

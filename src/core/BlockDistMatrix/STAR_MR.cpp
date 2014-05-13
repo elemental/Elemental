@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #define ColDist STAR
 #define RowDist MR
 
 #include "./setup.hpp"
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -266,16 +266,16 @@ Int BDM::RedundantSize() const { return this->grid_->MCSize(); }
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);
 #endif 
 
-} // namespace elem
+} // namespace El

@@ -6,9 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+using namespace El;
 using namespace std;
  
 // Typedef our real and complex types to 'Real' and 'C' for convenience
@@ -19,7 +19,7 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is elem::Initialize.
+    // does so if necessary. The full routine is El::Initialize.
     Initialize( argc, argv );
 
     // Surround the Elemental calls with try/catch statements in order to 

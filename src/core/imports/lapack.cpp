@@ -6,48 +6,48 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
-using elem::scomplex;
-using elem::dcomplex;
+using El::scomplex;
+using El::dcomplex;
 
 extern "C" {
 
 // Machine constants
-float ELEM_LAPACK(slamch)( const char* cmach );
-double ELEM_LAPACK(dlamch)( const char* cmach );
+float EL_LAPACK(slamch)( const char* cmach );
+double EL_LAPACK(dlamch)( const char* cmach );
 
 // Safe norms
-float  ELEM_LAPACK(slapy2)( const float * alpha, const float * beta );
-double ELEM_LAPACK(dlapy2)( const double* alpha, const double* beta );
-float ELEM_LAPACK(slapy3)
+float  EL_LAPACK(slapy2)( const float * alpha, const float * beta );
+double EL_LAPACK(dlapy2)( const double* alpha, const double* beta );
+float EL_LAPACK(slapy3)
 ( const float * alpha, const float * beta, const float * gamma );
-double ELEM_LAPACK(dlapy3)
+double EL_LAPACK(dlapy3)
 ( const double* alpha, const double* beta, const double* gamma );
 
 // Safely compute a Givens rotation
-void ELEM_LAPACK(slartg)
+void EL_LAPACK(slartg)
 ( const float* phi, const float* gamma,
   float* c, float* s, float* rho );
-void ELEM_LAPACK(dlartg)
+void EL_LAPACK(dlartg)
 ( const double* phi, const double* gamma,
   double* c, double* s, double* rho );
-void ELEM_LAPACK(clartg)
+void EL_LAPACK(clartg)
 ( const scomplex* phi, const scomplex* gamma,
   float* c, scomplex* s, scomplex* rho );
-void ELEM_LAPACK(zlartg)
+void EL_LAPACK(zlartg)
 ( const dcomplex* phi, const dcomplex* gamma,
   double* c, dcomplex* s, dcomplex* rho );
 
 // Symmetric tridiagonal eigensolvers (via MRRR)
-void ELEM_LAPACK(sstevr)
+void EL_LAPACK(sstevr)
 ( const char* job, const char* range, const int* n,
   float* d, float* e, const float* vl, const float* vu, 
   const int* il, const int* iu, const float* absTol, int * m, 
   float* w, float* Z, const int* ldZ, int* isuppZ, 
   float* work, const int* workSize, int* iWork, const int* iWorkSize, 
   int* info );
-void ELEM_LAPACK(dstevr)
+void EL_LAPACK(dstevr)
 ( const char* job, const char* range, const int* n,
   double* d, double* e, const double* vl, const double* vu, 
   const int* il, const int* iu, const double* absTol, int * m, 
@@ -56,28 +56,28 @@ void ELEM_LAPACK(dstevr)
   int* info );
 
 // Hermitian eigensolvers (via MRRR)
-void ELEM_LAPACK(ssyevr)
+void EL_LAPACK(ssyevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
   float* A, const int* ldA, const float* vl, const float* vu, 
   const int* il, const int* iu, const float* absTol, int * m, 
   float* w, float* Z, const int* ldZ, int* isuppZ, 
   float* work, const int* workSize, int* iWork, const int* iWorkSize, 
   int* info );
-void ELEM_LAPACK(dsyevr)
+void EL_LAPACK(dsyevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
   double* A, const int* ldA, const double* vl, const double* vu, 
   const int* il, const int* iu, const double* absTol, int * m, 
   double* w, double* Z, const int* ldZ, int* isuppZ, 
   double* work, const int* workSize, int* iWork, const int* iWorkSize, 
   int* info );
-void ELEM_LAPACK(cheevr)
+void EL_LAPACK(cheevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
   scomplex* A, const int* ldA, const float* vl, const float* vu, 
   const int* il, const int* iu, const float* absTol, int* m,
   float* w, scomplex* Z, const int* ldZ, int* isuppZ, 
   scomplex* work, const int* workSize, float* rWork, const int* rWorkSize, 
   int* iWork, const int* iWorkSize, int* info );
-void ELEM_LAPACK(zheevr)
+void EL_LAPACK(zheevr)
 ( const char* job, const char* range, const char* uplo, const int* n,
   dcomplex* A, const int* ldA, const double* vl, const double* vu, 
   const int* il, const int* iu, const double* absTol, int* m,
@@ -86,48 +86,48 @@ void ELEM_LAPACK(zheevr)
   int* iWork, const int* iWorkSize, int* info );
 
 // Bidiagonal DQDS
-void ELEM_LAPACK(slasq1)
+void EL_LAPACK(slasq1)
 ( const int* n, float* d, float* e, float* work, int* info );
-void ELEM_LAPACK(dlasq1)
+void EL_LAPACK(dlasq1)
 ( const int* n, double* d, double* e, double* work, int* info );
 
 // Bidiagonal QR
-void ELEM_LAPACK(sbdsqr)
+void EL_LAPACK(sbdsqr)
 ( const char* uplo, const int* n, const int* numColsVT, const int* numRowsU,
   const int* numColsC, float* d, float* e, float* VTrans, const int* ldVT,
   float* U, const int* ldU, float* C, const int* ldC, float* work, int* info );
-void ELEM_LAPACK(dbdsqr)
+void EL_LAPACK(dbdsqr)
 ( const char* uplo, const int* n, const int* numColsVT, const int* numRowsU,
   const int* numColsC, double* d, double* e,
   double* VTrans, const int* ldVT, double* U, const int* ldU,
   double* C, const int* ldC, double* work, int* info );
-void ELEM_LAPACK(cbdsqr)
+void EL_LAPACK(cbdsqr)
 ( const char* uplo, const int* n, const int* numColsVH, const int* numRowsU,
   const int* numColsC, float* d, float* e,
   scomplex* VH, const int* ldVH, scomplex* U, const int* ldU,
   scomplex* C, const int* ldC, float* work, int* info );
-void ELEM_LAPACK(zbdsqr)
+void EL_LAPACK(zbdsqr)
 ( const char* uplo, const int* n, const int* numColsVH, const int* numRowsU,
   const int* numColsC, double* d, double* e,
   dcomplex* VH, const int* ldVH, dcomplex* U, const int* ldU,
   dcomplex* C, const int* ldC, double* work, int* info );
 
 // Divide and Conquer SVD
-void ELEM_LAPACK(sgesdd)
+void EL_LAPACK(sgesdd)
 ( const char* jobz, const int* m, const int* n, float* A, const int* ldA,
   float* s, float* U, const int* ldu, float* VTrans, const int* ldvt,
   float* work, const int* workSize, int* iWork, int* info );
-void ELEM_LAPACK(dgesdd)
+void EL_LAPACK(dgesdd)
 ( const char* jobz, const int* m, const int* n, double* A, const int* ldA,
   double* s, double* U, const int* ldu, double* VTrans, const int* ldvt,
   double* work, const int* workSize, int* iWork, int* info );
-void ELEM_LAPACK(cgesdd)
+void EL_LAPACK(cgesdd)
 ( const char* jobz, const int* m, const int* n,
   scomplex* A, const int* ldA, float* s,
   scomplex* U, const int* ldu, scomplex* VTrans, const int* ldvt,
   scomplex* work, const int* workSize, float* rWork,
   int* iWork, int* info );
-void ELEM_LAPACK(zgesdd)
+void EL_LAPACK(zgesdd)
 ( const char* jobz, const int* m, const int* n,
   dcomplex* A, const int* ldA, double* s,
   dcomplex* U, const int* ldu, dcomplex* VH, const int* ldva,
@@ -135,72 +135,72 @@ void ELEM_LAPACK(zgesdd)
   int* iWork, int* info );
 
 // QR-algorithm SVD [DQDS when no singular vectors desired]
-void ELEM_LAPACK(sgesvd)
+void EL_LAPACK(sgesvd)
 ( const char* jobU, const char* jobVT, const int* m, const int* n,
   float* A, const int* ldA,
   float* s, float* U, const int* ldu, float* VTrans, const int* ldvt,
   float* work, const int* workSize, int* info );
-void ELEM_LAPACK(dgesvd)
+void EL_LAPACK(dgesvd)
 ( const char* jobU, const char* jobVT, const int* m, const int* n,
   double* A, const int* ldA,
   double* s, double* U, const int* ldu, double* VTrans, const int* ldvt,
   double* work, const int* workSize, int* info );
-void ELEM_LAPACK(cgesvd)
+void EL_LAPACK(cgesvd)
 ( const char* jobU, const char* jobVH, const int* m, const int* n,
   scomplex* A, const int* ldA, float* s,
   scomplex* U, const int* ldu, scomplex* VTrans, const int* ldvt,
   scomplex* work, const int* workSize, float* rWork, int* info );
-void ELEM_LAPACK(zgesvd)
+void EL_LAPACK(zgesvd)
 ( const char* jobU, const char* jobVH, const int* m, const int* n,
   dcomplex* A, const int* ldA, double* s,
   dcomplex* U, const int* ldu, dcomplex* VH, const int* ldva,
   dcomplex* work, const int* workSize, double* rWork, int* info );
 
 // Reduction to Hessenberg form
-void ELEM_LAPACK(sgehrd)
+void EL_LAPACK(sgehrd)
 ( const int* n, const int* ilo, const int* ihi, float* A, const int* ldA,
   float* tau, float* work, const int* workSize, int* info );
-void ELEM_LAPACK(dgehrd)
+void EL_LAPACK(dgehrd)
 ( const int* n, const int* ilo, const int* ihi, double* A, const int* ldA,
   double* tau, double* work, const int* workSize, int* info );
-void ELEM_LAPACK(cgehrd)
+void EL_LAPACK(cgehrd)
 ( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* ldA,
   scomplex* tau, scomplex* work, const int* workSize, int* info );
-void ELEM_LAPACK(zgehrd)
+void EL_LAPACK(zgehrd)
 ( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* ldA,
   dcomplex* tau, dcomplex* work, const int* workSize, int* info );
 
 // Generates a unitary matrix defined as the product of Householder reflectors
-void ELEM_LAPACK(sorghr)
+void EL_LAPACK(sorghr)
 ( const int* n, const int* ilo, const int* ihi, float* A, const int* ldA,
   const float* tau, float* work, const int* workSize, int* info );
-void ELEM_LAPACK(dorghr)
+void EL_LAPACK(dorghr)
 ( const int* n, const int* ilo, const int* ihi, double* A, const int* ldA,
   const double* tau, double* work, const int* workSize, int* info );
-void ELEM_LAPACK(cunghr)
+void EL_LAPACK(cunghr)
 ( const int* n, const int* ilo, const int* ihi, scomplex* A, const int* ldA,
   const scomplex* tau, scomplex* work, const int* workSize, int* info );
-void ELEM_LAPACK(zunghr)
+void EL_LAPACK(zunghr)
 ( const int* n, const int* ilo, const int* ihi, dcomplex* A, const int* ldA,
   const dcomplex* tau, dcomplex* work, const int* workSize, int* info );
 
 // Hessenberg QR algorithm
-void ELEM_LAPACK(shseqr)
+void EL_LAPACK(shseqr)
 ( const char* job, const char* compZ, const int* n, 
   const int* ilo, const int* ihi, float* H, const int* ldH, 
   float* wr, float* wi, float* Z, const int* ldZ, 
   float* work, const int* workSize, int* info );
-void ELEM_LAPACK(dhseqr)
+void EL_LAPACK(dhseqr)
 ( const char* job, const char* compZ, const int* n, 
   const int* ilo, const int* ihi, double* H, const int* ldH, 
   double* wr, double* wi, double* Z, const int* ldZ, 
   double* work, const int* workSize, int* info );
-void ELEM_LAPACK(chseqr)
+void EL_LAPACK(chseqr)
 ( const char* job, const char* compZ, const int* n,
   const int* ilo, const int* ihi, scomplex* H, const int* ldH,
   scomplex* w, scomplex* Z, const int* ldZ,
   scomplex* work, const int* workSize, int* info );
-void ELEM_LAPACK(zhseqr)
+void EL_LAPACK(zhseqr)
 ( const char* job, const char* compZ, const int* n,
   const int* ilo, const int* ihi, dcomplex* H, const int* ldH,
   dcomplex* w, dcomplex* Z, const int* ldZ,
@@ -208,22 +208,22 @@ void ELEM_LAPACK(zhseqr)
 
 // Compute eigenpairs of a general matrix using the QR algorithm followed
 // by a sequence of careful triangular solves
-void ELEM_LAPACK(sgeev)
+void EL_LAPACK(sgeev)
 ( const char* jobVL, const char* jobVR, const int* n, 
   float* A, const int* ldA, float* wr, float* wi, 
   float* VLPacked, const int* ldVL, float* VRPacked, const int* ldVR,
   float* work, const int* workSize, int* info );
-void ELEM_LAPACK(dgeev)
+void EL_LAPACK(dgeev)
 ( const char* jobVL, const char* jobVR, const int* n, 
   double* A, const int* ldA, double* wr, double* wi, 
   double* VLPacked, const int* ldVL, double* VRPacked, const int* ldVR,
   double* work, const int* workSize, int* info );
-void ELEM_LAPACK(cgeev)
+void EL_LAPACK(cgeev)
 ( const char* jobVL, const char* jobVR, const int* n,
   scomplex* A, const int* ldA, scomplex* w,
   scomplex* VL, const int* ldVL, scomplex* VR, const int* ldVR,
   scomplex* work, const int* workSize, float* rWork, int* info );
-void ELEM_LAPACK(zgeev)
+void EL_LAPACK(zgeev)
 ( const char* jobVL, const char* jobVR, const int* n,
   dcomplex* A, const int* ldA, dcomplex* w,
   dcomplex* VL, const int* ldVL, dcomplex* VR, const int* ldVR,
@@ -231,7 +231,7 @@ void ELEM_LAPACK(zgeev)
 
 } // extern "C"
 
-namespace elem {
+namespace El {
 namespace lapack {
 
 // Machine constants
@@ -241,128 +241,128 @@ template<>
 float MachineEpsilon<float>()
 {
     const char cmach = 'E';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineEpsilon<double>()
 {
     const char cmach = 'E';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<> 
 float MachineSafeMin<float>()
 {
     const char cmach = 'S';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineSafeMin<double>()
 {
     const char cmach = 'S';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<> 
 float MachineBase<float>()
 {
     const char cmach = 'B';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineBase<double>()
 {
     const char cmach = 'B';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<>
 float MachinePrecision<float>()
 {
     const char cmach = 'P';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachinePrecision<double>()
 {
     const char cmach = 'P';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<> 
 float MachineUnderflowExponent<float>()
 {
     const char cmach = 'M';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineUnderflowExponent<double>()
 {
     const char cmach = 'M';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<>
 float MachineUnderflowThreshold<float>()
 {
     const char cmach = 'U';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineUnderflowThreshold<double>()
 {
     const char cmach = 'U';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<> 
 float MachineOverflowExponent<float>()
 {
     const char cmach = 'L';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineOverflowExponent<double>()
 {
     const char cmach = 'L';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 template<> 
 float MachineOverflowThreshold<float>()
 {
     const char cmach = 'O';
-    return ELEM_LAPACK(slamch)( &cmach );
+    return EL_LAPACK(slamch)( &cmach );
 }
 
 template<> 
 double MachineOverflowThreshold<double>()
 {
     const char cmach = 'O';
-    return ELEM_LAPACK(dlamch)( &cmach );
+    return EL_LAPACK(dlamch)( &cmach );
 }
 
 // Safely compute norms
 // ====================
 
 float SafeNorm( float alpha, float beta )
-{ return ELEM_LAPACK(slapy2)( &alpha, &beta ); }
+{ return EL_LAPACK(slapy2)( &alpha, &beta ); }
 
 double SafeNorm( double alpha, double beta )
-{ return ELEM_LAPACK(dlapy2)( &alpha, &beta ); }
+{ return EL_LAPACK(dlapy2)( &alpha, &beta ); }
 
 float SafeNorm( float alpha, float beta, float gamma )
-{ return ELEM_LAPACK(slapy3)( &alpha, &beta, &gamma ); }
+{ return EL_LAPACK(slapy3)( &alpha, &beta, &gamma ); }
 
 double SafeNorm( double alpha, double beta, double gamma )
-{ return ELEM_LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
+{ return EL_LAPACK(dlapy3)( &alpha, &beta, &gamma ); }
 
 float SafeNorm( Complex<float> alpha, float beta )
 { return SafeNorm( alpha.real(), alpha.imag(), beta ); }
@@ -380,16 +380,16 @@ double SafeNorm( double alpha, Complex<double> beta )
 // ====================================================================
 
 float Givens( float phi, float gamma, float* c, float* s )
-{ float rho; ELEM_LAPACK(slartg)( &phi, &gamma, c, s, &rho ); return rho; }
+{ float rho; EL_LAPACK(slartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
 double Givens( double phi, double gamma, double* c, double* s )
-{ double rho; ELEM_LAPACK(dlartg)( &phi, &gamma, c, s, &rho ); return rho; }
+{ double rho; EL_LAPACK(dlartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
 scomplex Givens( scomplex phi, scomplex gamma, float* c, scomplex* s )
-{ scomplex rho; ELEM_LAPACK(clartg)( &phi, &gamma, c, s, &rho ); return rho; }
+{ scomplex rho; EL_LAPACK(clartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
 dcomplex Givens( dcomplex phi, dcomplex gamma, double* c, dcomplex* s )
-{ dcomplex rho; ELEM_LAPACK(zlartg)( &phi, &gamma, c, s, &rho ); return rho; }
+{ dcomplex rho; EL_LAPACK(zlartg)( &phi, &gamma, c, s, &rho ); return rho; }
 
 // Compute the EVD of a symmetric tridiagonal matrix
 // =================================================
@@ -407,7 +407,7 @@ int SymmetricTridiagEigWrapper
     int workSize=-1, iWorkSize=-1, m, info;
     int iWorkDummy;
     float workDummy;
-    ELEM_LAPACK(sstevr)
+    EL_LAPACK(sstevr)
     ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &iWorkDummy, &iWorkSize,
       &info );
@@ -416,7 +416,7 @@ int SymmetricTridiagEigWrapper
     iWorkSize = iWorkDummy;
     std::vector<float> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_LAPACK(sstevr)
+    EL_LAPACK(sstevr)
     ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
       iWork.data(), &iWorkSize, &info );
@@ -440,7 +440,7 @@ int SymmetricTridiagEigWrapper
     int workSize=-1, iWorkSize=-1, m, info;
     int iWorkDummy;
     double workDummy;
-    ELEM_LAPACK(dstevr)
+    EL_LAPACK(dstevr)
     ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &iWorkDummy, &iWorkSize,
       &info );
@@ -449,7 +449,7 @@ int SymmetricTridiagEigWrapper
     iWorkSize = iWorkDummy;
     std::vector<double> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_LAPACK(dstevr)
+    EL_LAPACK(dstevr)
     ( &job, &range, &n, d, e, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
       iWork.data(), &iWorkSize, &info );
@@ -589,7 +589,7 @@ int HermitianEigWrapper
     int workSize=-1, iWorkSize=-1, m, info;
     int iWorkDummy;
     float workDummy;
-    ELEM_LAPACK(ssyevr)
+    EL_LAPACK(ssyevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &iWorkDummy, &iWorkSize,
       &info );
@@ -598,7 +598,7 @@ int HermitianEigWrapper
     iWorkSize = iWorkDummy;
     std::vector<float> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_LAPACK(ssyevr)
+    EL_LAPACK(ssyevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
       iWork.data(), &iWorkSize, &info );
@@ -623,7 +623,7 @@ int HermitianEigWrapper
     int workSize=-1, iWorkSize=-1, m, info;
     int iWorkDummy;
     double workDummy;
-    ELEM_LAPACK(dsyevr)
+    EL_LAPACK(dsyevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, 
       &iWorkDummy, &iWorkSize, &info );
@@ -632,7 +632,7 @@ int HermitianEigWrapper
     iWorkSize = iWorkDummy;
     std::vector<double> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_LAPACK(dsyevr)
+    EL_LAPACK(dsyevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
       iWork.data(), &iWorkSize, &info );
@@ -658,7 +658,7 @@ int HermitianEigWrapper
     int iWorkDummy;
     float rWorkDummy;
     scomplex workDummy;
-    ELEM_LAPACK(cheevr)
+    EL_LAPACK(cheevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &rWorkDummy, &rWorkSize,
       &iWorkDummy, &iWorkSize, &info );
@@ -669,7 +669,7 @@ int HermitianEigWrapper
     std::vector<scomplex> work(workSize);
     std::vector<float> rWork(rWorkSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_LAPACK(cheevr)
+    EL_LAPACK(cheevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
       rWork.data(), &rWorkSize, iWork.data(), &iWorkSize, &info );
@@ -695,7 +695,7 @@ int HermitianEigWrapper
     int iWorkDummy;
     double rWorkDummy;
     dcomplex workDummy;
-    ELEM_LAPACK(zheevr)
+    EL_LAPACK(zheevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), &workDummy, &workSize, &rWorkDummy, &rWorkSize,
       &iWorkDummy, &iWorkSize, &info );
@@ -706,7 +706,7 @@ int HermitianEigWrapper
     std::vector<dcomplex> work(workSize);
     std::vector<double> rWork(rWorkSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_LAPACK(zheevr)
+    EL_LAPACK(zheevr)
     ( &job, &range, &uplo, &n, A, &ldA, &vl, &vu, &il, &iu, &absTol, &m,
       w, Z, &ldZ, isuppZ.data(), work.data(), &workSize, 
       rWork.data(), &rWorkSize, iWork.data(), &iWorkSize, &info );
@@ -937,7 +937,7 @@ void BidiagDQDS( int n, float* d, float* e )
     DEBUG_ONLY(CallStackEntry cse("lapack::BidiagDQDS"))
     int info;
     std::vector<float> work( 4*n );
-    ELEM_LAPACK(slasq1)( &n, d, e, work.data(), &info );
+    EL_LAPACK(slasq1)( &n, d, e, work.data(), &info );
     if( info != 0 )
     {
         std::ostringstream msg;
@@ -958,7 +958,7 @@ void BidiagDQDS( int n, double* d, double* e )
     DEBUG_ONLY(CallStackEntry cse("lapack::BidiagDQDS"))
     int info;
     std::vector<double> work( 4*n );
-    ELEM_LAPACK(dlasq1)( &n, d, e, work.data(), &info );
+    EL_LAPACK(dlasq1)( &n, d, e, work.data(), &info );
     if( info != 0 )
     {
         std::ostringstream msg;
@@ -989,7 +989,7 @@ void BidiagQRAlg
     float* C=0;
     const int numColsC=0, ldC=1;
     std::vector<float> work( 4*n );
-    ELEM_LAPACK(sbdsqr)
+    EL_LAPACK(sbdsqr)
     ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
@@ -1010,7 +1010,7 @@ void BidiagQRAlg
     double* C=0;
     const int numColsC=0, ldC=1;
     std::vector<double> work( 4*n );
-    ELEM_LAPACK(dbdsqr)
+    EL_LAPACK(dbdsqr)
     ( &uplo, &n, &numColsVT, &numRowsU, &numColsC, d, e, VTrans, &ldVT,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
@@ -1031,7 +1031,7 @@ void BidiagQRAlg
     scomplex* C=0;
     const int numColsC=0, ldC=1;
     std::vector<float> work( 4*n );
-    ELEM_LAPACK(cbdsqr)
+    EL_LAPACK(cbdsqr)
     ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
@@ -1052,7 +1052,7 @@ void BidiagQRAlg
     dcomplex* C=0;
     const int numColsC=0, ldC=1;
     std::vector<double> work( 4*n );
-    ELEM_LAPACK(zbdsqr)
+    EL_LAPACK(zbdsqr)
     ( &uplo, &n, &numColsVH, &numRowsU, &numColsC, d, e, VH, &ldVH,
       U, &ldU, C, &ldC, work.data(), &info );
     if( info < 0 )
@@ -1078,13 +1078,13 @@ void DivideAndConquerSVD
     const int k = std::min(m,n);
     std::vector<int> iWork(8*k);
 
-    ELEM_LAPACK(sgesdd)
+    EL_LAPACK(sgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, &workDummy, &workSize,
       iWork.data(), &info );
 
     workSize = workDummy;
     std::vector<float> work(workSize);
-    ELEM_LAPACK(sgesdd)
+    EL_LAPACK(sgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, work.data(), &workSize,
       iWork.data(), &info );
     if( info < 0 )
@@ -1107,13 +1107,13 @@ void DivideAndConquerSVD
     const int k = std::min(m,n);
     std::vector<int> iWork(8*k);
 
-    ELEM_LAPACK(dgesdd)
+    EL_LAPACK(dgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, &workDummy, &workSize,
       iWork.data(), &info );
 
     workSize = workDummy;
     std::vector<double> work(workSize);
-    ELEM_LAPACK(dgesdd)
+    EL_LAPACK(dgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, work.data(), &workSize,
       iWork.data(), &info );
     if( info < 0 )
@@ -1139,13 +1139,13 @@ void DivideAndConquerSVD
     std::vector<int> iWork(8*k);
 
     scomplex workDummy;
-    ELEM_LAPACK(cgesdd)
+    EL_LAPACK(cgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, &workDummy, &workSize,
       rWork.data(), iWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<scomplex> work(workSize);
-    ELEM_LAPACK(cgesdd)
+    EL_LAPACK(cgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, work.data(), &workSize,
       rWork.data(), iWork.data(), &info );
     if( info < 0 )
@@ -1171,13 +1171,13 @@ void DivideAndConquerSVD
     std::vector<double> rWork(rWorkSize);
     std::vector<int> iWork(8*k);
 
-    ELEM_LAPACK(zgesdd)
+    EL_LAPACK(zgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, &workDummy, &workSize,
       rWork.data(), iWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<dcomplex> work(workSize);
-    ELEM_LAPACK(zgesdd)
+    EL_LAPACK(zgesdd)
     ( &jobz, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, work.data(), &workSize,
       rWork.data(), iWork.data(), &info );
     if( info < 0 )
@@ -1201,13 +1201,13 @@ void QRSVD
     int workSize=-1, info;
     float workDummy;
 
-    ELEM_LAPACK(sgesvd)
+    EL_LAPACK(sgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<float> work(workSize);
-    ELEM_LAPACK(sgesvd)
+    EL_LAPACK(sgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1228,13 +1228,13 @@ void QRSVD
     int workSize=-1, info;
     double workDummy;
 
-    ELEM_LAPACK(dgesvd)
+    EL_LAPACK(dgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<double> work(workSize);
-    ELEM_LAPACK(dgesvd)
+    EL_LAPACK(dgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, U, &ldu, VTrans, &ldvt, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1257,13 +1257,13 @@ void QRSVD
     std::vector<float> rWork(5*k);
 
     scomplex workDummy;
-    ELEM_LAPACK(cgesvd)
+    EL_LAPACK(cgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
       &workDummy, &workSize, rWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<scomplex> work(workSize);
-    ELEM_LAPACK(cgesvd)
+    EL_LAPACK(cgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
       work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
@@ -1286,13 +1286,13 @@ void QRSVD
     const int k = std::min(m,n);
     std::vector<double> rWork(5*k);
 
-    ELEM_LAPACK(zgesvd)
+    EL_LAPACK(zgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
       &workDummy, &workSize, rWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<dcomplex> work(workSize);
-    ELEM_LAPACK(zgesvd)
+    EL_LAPACK(zgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, U, &ldu, VH, &ldva, 
       work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
@@ -1314,13 +1314,13 @@ void SVD( int m, int n, float* A, int ldA, float* s )
     int fakeLDim=1, workSize=-1, info;
     float workDummy;
 
-    ELEM_LAPACK(sgesvd)
+    EL_LAPACK(sgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<float> work(workSize);
-    ELEM_LAPACK(sgesvd)
+    EL_LAPACK(sgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1339,13 +1339,13 @@ void SVD( int m, int n, double* A, int ldA, double* s )
     int fakeLDim=1, workSize=-1, info;
     double workDummy;
 
-    ELEM_LAPACK(dgesvd)
+    EL_LAPACK(dgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<double> work(workSize);
-    ELEM_LAPACK(dgesvd)
+    EL_LAPACK(dgesvd)
     ( &jobU, &jobVT, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1366,13 +1366,13 @@ void SVD( int m, int n, scomplex* A, int ldA, float* s )
     const int k = std::min(m,n);
     std::vector<float> rWork(5*k);
 
-    ELEM_LAPACK(cgesvd)
+    EL_LAPACK(cgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       &workDummy, &workSize, rWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<scomplex> work(workSize);
-    ELEM_LAPACK(cgesvd)
+    EL_LAPACK(cgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
@@ -1393,13 +1393,13 @@ void SVD( int m, int n, dcomplex* A, int ldA, double* s )
     const int k = std::min(m,n);
     std::vector<double> rWork(5*k);
 
-    ELEM_LAPACK(zgesvd)
+    EL_LAPACK(zgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       &workDummy, &workSize, rWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<dcomplex> work(workSize);
-    ELEM_LAPACK(zgesvd)
+    EL_LAPACK(zgesvd)
     ( &jobU, &jobVH, &m, &n, A, &ldA, s, 0, &fakeLDim, 0, &fakeLDim, 
       work.data(), &workSize, rWork.data(), &info );
     if( info < 0 )
@@ -1422,13 +1422,13 @@ void HessenbergSchur( int n, float* H, int ldH, scomplex* w, bool fullTriangle )
     int fakeLDim=1, workSize=-1, info;
     float workDummy;
     std::vector<float> wr( n ), wi( n );
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<float> work(workSize);
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1437,7 +1437,7 @@ void HessenbergSchur( int n, float* H, int ldH, scomplex* w, bool fullTriangle )
         RuntimeError("shseqr's failed to compute all eigenvalues");
 
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<float>(wr[i],wi[i]);
+        w[i] = El::Complex<float>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -1452,13 +1452,13 @@ void HessenbergSchur
     int fakeLDim=1, workSize=-1, info;
     double workDummy;
     std::vector<double> wr( n ), wi( n );
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<double> work(workSize);
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1467,7 +1467,7 @@ void HessenbergSchur
         RuntimeError("dhseqr's failed to compute all eigenvalues");
     
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<double>(wr[i],wi[i]);
+        w[i] = El::Complex<double>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -1481,13 +1481,13 @@ void HessenbergSchur
     int ilo=1, ihi=n;
     int fakeLDim=1, workSize=-1, info;
     scomplex workDummy;
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy.real();
     std::vector<scomplex> work(workSize);
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1507,13 +1507,13 @@ void HessenbergSchur
     int ilo=1, ihi=n;
     int fakeLDim=1, workSize=-1, info;
     dcomplex workDummy;
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy.real();
     std::vector<dcomplex> work(workSize);
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, 0, &fakeLDim, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1535,13 +1535,13 @@ void HessenbergSchur
     int workSize=-1, info;
     float workDummy;
     std::vector<float> wr( n ), wi( n );
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<float> work(workSize);
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1550,7 +1550,7 @@ void HessenbergSchur
         RuntimeError("shseqr's failed to compute all eigenvalues");
 
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<float>(wr[i],wi[i]);
+        w[i] = El::Complex<float>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -1566,13 +1566,13 @@ void HessenbergSchur
     int workSize=-1, info;
     double workDummy;
     std::vector<double> wr( n ), wi( n );
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
       &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<double> work(workSize);
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, wr.data(), wi.data(), Q, &ldQ,
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1581,7 +1581,7 @@ void HessenbergSchur
         RuntimeError("dhseqr's failed to compute all eigenvalues");
     
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<double>(wr[i],wi[i]);
+        w[i] = El::Complex<double>(wr[i],wi[i]);
 }
 
 void HessenbergSchur
@@ -1596,13 +1596,13 @@ void HessenbergSchur
     int ilo=1, ihi=n;
     int workSize=-1, info;
     scomplex workDummy;
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy.real();
     std::vector<scomplex> work(workSize);
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1623,13 +1623,13 @@ void HessenbergSchur
     int ilo=1, ihi=n;
     int workSize=-1, info;
     dcomplex workDummy;
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
       &workDummy, &workSize, &info );
 
     workSize = workDummy.real();
     std::vector<dcomplex> work(workSize);
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, H, &ldH, w, Q, &ldQ, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1680,7 +1680,7 @@ void Schur( int n, float* A, int ldA, scomplex* w, bool fullTriangle )
     int ilo=1, ihi=n, workSize=-1, info;
     float workDummy;
     std::vector<float> tau( n );
-    ELEM_LAPACK(sgehrd)
+    EL_LAPACK(sgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy;
 
@@ -1688,20 +1688,20 @@ void Schur( int n, float* A, int ldA, scomplex* w, bool fullTriangle )
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
     std::vector<float> wr( n ), wi( n );
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
     std::vector<float> work( workSize );
-    ELEM_LAPACK(sgehrd)
+    EL_LAPACK(sgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1711,7 +1711,7 @@ void Schur( int n, float* A, int ldA, scomplex* w, bool fullTriangle )
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<float>(wr[i],wi[i]);
+        w[i] = El::Complex<float>(wr[i],wi[i]);
 }
 
 void Schur( int n, double* A, int ldA, dcomplex* w, bool fullTriangle )
@@ -1724,7 +1724,7 @@ void Schur( int n, double* A, int ldA, dcomplex* w, bool fullTriangle )
     int ilo=1, ihi=n, workSize=-1, info;
     double workDummy;
     std::vector<double> tau( n );
-    ELEM_LAPACK(dgehrd)
+    EL_LAPACK(dgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy;
 
@@ -1732,20 +1732,20 @@ void Schur( int n, double* A, int ldA, dcomplex* w, bool fullTriangle )
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
     std::vector<double> wr( n ), wi( n );
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
     std::vector<double> work( workSize );
-    ELEM_LAPACK(dgehrd)
+    EL_LAPACK(dgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), 0, &fakeLDim,
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1755,7 +1755,7 @@ void Schur( int n, double* A, int ldA, dcomplex* w, bool fullTriangle )
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<double>(wr[i],wi[i]);
+        w[i] = El::Complex<double>(wr[i],wi[i]);
 }
 
 void Schur( int n, scomplex* A, int ldA, scomplex* w, bool fullTriangle )
@@ -1768,27 +1768,27 @@ void Schur( int n, scomplex* A, int ldA, scomplex* w, bool fullTriangle )
     int ilo=1, ihi=n, workSize=-1, info;
     scomplex workDummy;
     std::vector<scomplex> tau( n );
-    ELEM_LAPACK(cgehrd)
+    EL_LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy.real();
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
     std::vector<scomplex> work( workSize );
-    ELEM_LAPACK(cgehrd)
+    EL_LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1807,27 +1807,27 @@ void Schur( int n, dcomplex* A, int ldA, dcomplex* w, bool fullTriangle )
     int ilo=1, ihi=n, workSize=-1, info;
     dcomplex workDummy;
     std::vector<dcomplex> tau( n );
-    ELEM_LAPACK(zgehrd)
+    EL_LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy.real();
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='N';
     int fakeLDim=1, negOne=-1;
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
     std::vector<dcomplex> work( workSize );
-    ELEM_LAPACK(zgehrd)
+    EL_LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
 
     // Compute the eigenvalues
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, 0, &fakeLDim, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1847,27 +1847,27 @@ void Schur
     int ilo=1, ihi=n, workSize=-1, info;
     float workDummy;
     std::vector<float> tau( n );
-    ELEM_LAPACK(sgehrd)
+    EL_LAPACK(sgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy;
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
-    ELEM_LAPACK(sorghr)
+    EL_LAPACK(sorghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy), workSize );
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
     std::vector<float> wr( n ), wi( n );
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
     std::vector<float> work( workSize );
-    ELEM_LAPACK(sgehrd)
+    EL_LAPACK(sgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
@@ -1877,13 +1877,13 @@ void Schur
         MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
-    ELEM_LAPACK(sorghr)
+    EL_LAPACK(sorghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
-    ELEM_LAPACK(shseqr)
+    EL_LAPACK(shseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1893,7 +1893,7 @@ void Schur
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<float>(wr[i],wi[i]);
+        w[i] = El::Complex<float>(wr[i],wi[i]);
 }
 
 void Schur
@@ -1908,27 +1908,27 @@ void Schur
     int ilo=1, ihi=n, workSize=-1, info;
     double workDummy;
     std::vector<double> tau( n );
-    ELEM_LAPACK(dgehrd)
+    EL_LAPACK(dgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy;
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
-    ELEM_LAPACK(dorghr)
+    EL_LAPACK(dorghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy), workSize );
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
     std::vector<double> wr( n ), wi( n );
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy), workSize );
 
     // Reduce to Hessenberg form
     std::vector<double> work( workSize );
-    ELEM_LAPACK(dgehrd)
+    EL_LAPACK(dgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
@@ -1938,13 +1938,13 @@ void Schur
         MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
-    ELEM_LAPACK(dorghr)
+    EL_LAPACK(dorghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
-    ELEM_LAPACK(dhseqr)
+    EL_LAPACK(dhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, wr.data(), wi.data(), Q, &ldQ, 
       work.data(), &workSize, &info );
     if( info < 0 )
@@ -1954,7 +1954,7 @@ void Schur
 
     // Return the complex eigenvalues
     for( int i=0; i<n; ++i )
-        w[i] = elem::Complex<double>(wr[i],wi[i]);
+        w[i] = El::Complex<double>(wr[i],wi[i]);
 }
 
 void Schur
@@ -1969,26 +1969,26 @@ void Schur
     int ilo=1, ihi=n, workSize=-1, info;
     scomplex workDummy;
     std::vector<scomplex> tau( n );
-    ELEM_LAPACK(cgehrd)
+    EL_LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy.real();
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
-    ELEM_LAPACK(cunghr)
+    EL_LAPACK(cunghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy.real()), workSize );
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, 
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
     std::vector<scomplex> work( workSize );
-    ELEM_LAPACK(cgehrd)
+    EL_LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
@@ -1998,13 +1998,13 @@ void Schur
         MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
-    ELEM_LAPACK(cunghr)
+    EL_LAPACK(cunghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
-    ELEM_LAPACK(chseqr)
+    EL_LAPACK(chseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, work.data(), &workSize, 
       &info );
     if( info < 0 )
@@ -2025,26 +2025,26 @@ void Schur
     int ilo=1, ihi=n, workSize=-1, info;
     dcomplex workDummy;
     std::vector<dcomplex> tau( n );
-    ELEM_LAPACK(zgehrd)
+    EL_LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), &workDummy, &workSize, &info );
     workSize = workDummy.real();
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
-    ELEM_LAPACK(zunghr)
+    EL_LAPACK(zunghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy.real()), workSize );
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compZ='V';
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, 
       &workDummy, &negOne, &info );
     workSize = std::max( int(workDummy.real()), workSize );
 
     // Reduce to Hessenberg form
     std::vector<dcomplex> work( workSize );
-    ELEM_LAPACK(zgehrd)
+    EL_LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &ldA, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of reduction had an illegal value");
@@ -2054,13 +2054,13 @@ void Schur
         MemCopy( &Q[j*ldQ], &A[j*ldA], n );
 
     // Form the orthogonal matrix in place
-    ELEM_LAPACK(zunghr)
+    EL_LAPACK(zunghr)
     ( &n, &ilo, &ihi, Q, &ldQ, tau.data(), work.data(), &workSize, &info );
     if( info < 0 )
         RuntimeError("Argument ",-info," of formation had an illegal value");
 
     // Compute the Schur decomposition
-    ELEM_LAPACK(zhseqr)
+    EL_LAPACK(zhseqr)
     ( &job, &compZ, &n, &ilo, &ihi, A, &ldA, w, Q, &ldQ, work.data(), &workSize, 
       &info );
     if( info < 0 )
@@ -2120,13 +2120,13 @@ void Eig( int n, float* A, int ldA, scomplex* w, float* XPacked, int ldX )
     std::vector<float> wReal(n), wImag(n);
     int workSize=-1, info;
     float workDummy;
-    ELEM_LAPACK(sgeev)
+    EL_LAPACK(sgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim, 
       XPacked, &ldX, &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<float> work( workSize );
-    ELEM_LAPACK(sgeev)
+    EL_LAPACK(sgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim, 
       XPacked, &ldX, work.data(), &workSize, &info );
 
@@ -2144,13 +2144,13 @@ void Eig( int n, double* A, int ldA, dcomplex* w, double* XPacked, int ldX )
     std::vector<double> wReal(n), wImag(n);
     int workSize=-1, info;
     double workDummy;
-    ELEM_LAPACK(dgeev)
+    EL_LAPACK(dgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim,
       XPacked, &ldX, &workDummy, &workSize, &info );
 
     workSize = workDummy;
     std::vector<double> work( workSize );
-    ELEM_LAPACK(dgeev)
+    EL_LAPACK(dgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, wReal.data(), wImag.data(), 0, &fakeLDim,
       XPacked, &ldX, work.data(), &workSize, &info );
 
@@ -2234,13 +2234,13 @@ void Eig( int n, scomplex* A, int ldA, scomplex* w, scomplex* X, int ldX )
 
     int workSize=-1, info;
     scomplex workDummy;
-    ELEM_LAPACK(cgeev)
+    EL_LAPACK(cgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX, 
       &workDummy, &workSize, rWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<scomplex> work( workSize );
-    ELEM_LAPACK(cgeev)
+    EL_LAPACK(cgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX, 
       work.data(), &workSize, rWork.data(), &info );
 }
@@ -2254,13 +2254,13 @@ void Eig( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* X, int ldX )
 
     int workSize=-1, info;
     dcomplex workDummy;
-    ELEM_LAPACK(zgeev)
+    EL_LAPACK(zgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX,
       &workDummy, &workSize, rWork.data(), &info );
 
     workSize = workDummy.real();
     std::vector<dcomplex> work( workSize );
-    ELEM_LAPACK(zgeev)
+    EL_LAPACK(zgeev)
     ( &jobVL, &jobVR, &n, A, &ldA, w, 0, &fakeLDim, X, &ldX,
       work.data(), &workSize, rWork.data(), &info );
 }
@@ -2268,4 +2268,4 @@ void Eig( int n, dcomplex* A, int ldA, dcomplex* w, dcomplex* X, int ldX )
 // TODO: Return the left eigenvectors?
 
 } // namespace lapack
-} // namespace elem
+} // namespace El

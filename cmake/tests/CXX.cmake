@@ -13,8 +13,8 @@ set(ALIAS_CODE
      {
          Complex<double> a;
      }")
-check_cxx_source_compiles("${ALIAS_CODE}" ELEM_HAVE_TEMPLATE_ALIAS)
-if(NOT ELEM_HAVE_TEMPLATE_ALIAS)
+check_cxx_source_compiles("${ALIAS_CODE}" EL_HAVE_TEMPLATE_ALIAS)
+if(NOT EL_HAVE_TEMPLATE_ALIAS)
   message(FATAL_ERROR "C++11 template aliasing not detected. You may want to make sure that your compiler is sufficiently up-to-date (e.g., g++ >= 4.7)")
 endif()
 
@@ -32,8 +32,8 @@ set(NOEXCEPT_CODE
      void Foo( const std::vector<int>& x ) noexcept { }
      int main()
      { return 0; }")
-check_cxx_source_compiles("${STEADYCLOCK_CODE}" ELEM_HAVE_STEADYCLOCK)
-check_cxx_source_compiles("${NOEXCEPT_CODE}" ELEM_HAVE_NOEXCEPT)
+check_cxx_source_compiles("${STEADYCLOCK_CODE}" EL_HAVE_STEADYCLOCK)
+check_cxx_source_compiles("${NOEXCEPT_CODE}" EL_HAVE_NOEXCEPT)
 
 # C++11 random number generation
 # ==============================
@@ -74,15 +74,15 @@ set(UNIFORM_REAL_CODE
          const double x = dist(mt);
          return 0;
      }")
-check_cxx_source_compiles("${NORMAL_CODE}" ELEM_HAVE_NORMAL_DIST)
-check_cxx_source_compiles("${UNIFORM_INT_CODE}" ELEM_HAVE_UNIFORM_INT_DIST)
-check_cxx_source_compiles("${UNIFORM_REAL_CODE}" ELEM_HAVE_UNIFORM_REAL_DIST)
-if(ELEM_HAVE_NORMAL_DIST AND 
-   ELEM_HAVE_UNIFORM_INT_DIST AND
-   ELEM_HAVE_UNIFORM_REAL_DIST)
-  set(ELEM_HAVE_CXX11RANDOM TRUE)
+check_cxx_source_compiles("${NORMAL_CODE}" EL_HAVE_NORMAL_DIST)
+check_cxx_source_compiles("${UNIFORM_INT_CODE}" EL_HAVE_UNIFORM_INT_DIST)
+check_cxx_source_compiles("${UNIFORM_REAL_CODE}" EL_HAVE_UNIFORM_REAL_DIST)
+if(EL_HAVE_NORMAL_DIST AND 
+   EL_HAVE_UNIFORM_INT_DIST AND
+   EL_HAVE_UNIFORM_REAL_DIST)
+  set(EL_HAVE_CXX11RANDOM TRUE)
 else()
-  set(ELEM_HAVE_CXX11RANDOM FALSE)
+  set(EL_HAVE_CXX11RANDOM FALSE)
 endif()
 
 # "restrict" support

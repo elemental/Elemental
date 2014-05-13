@@ -6,18 +6,18 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_TRRK_LOCAL_HPP
-#define ELEM_TRRK_LOCAL_HPP
+#ifndef EL_TRRK_LOCAL_HPP
+#define EL_TRRK_LOCAL_HPP
 
-#include ELEM_AXPYTRIANGLE_INC
-#include ELEM_SCALETRAPEZOID_INC
-#include ELEM_GEMM_INC
+#include EL_AXPYTRIANGLE_INC
+#include EL_SCALETRAPEZOID_INC
+#include EL_GEMM_INC
 
-namespace elem {
+namespace El {
 
 namespace trrk {
 
-#ifndef ELEM_RELEASE
+#ifndef EL_RELEASE
 
 void EnsureSame( const Grid& gA, const Grid& gB, const Grid& gC )
 {
@@ -127,7 +127,7 @@ void CheckInputTT
          DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
 }
 
-#endif // ifndef ELEM_RELEASE
+#endif // ifndef EL_RELEASE
 
 // Local C := alpha A B + beta C
 template<typename T>
@@ -837,6 +837,6 @@ void LocalTrrk
     }
 }
 
-} // namespace elem
+} // namespace El
 
-#endif // ifndef ELEM_TRRK_LOCAL_HPP
+#endif // ifndef EL_TRRK_LOCAL_HPP

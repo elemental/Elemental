@@ -6,23 +6,23 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
-#include ELEM_SCALE_INC
-#include ELEM_SCALETRAPEZOID_INC
+#include EL_SCALE_INC
+#include EL_SCALETRAPEZOID_INC
 
-#include ELEM_APPLYPACKEDREFLECTORS_INC
-#include ELEM_HERMITIANTRIDIAG_INC
-#include ELEM_HERMITIANTRIDIAGEIG_INC
-#include ELEM_HERMITIANEIG_INC
-#include ELEM_MAXNORM_INC
+#include EL_APPLYPACKEDREFLECTORS_INC
+#include EL_HERMITIANTRIDIAG_INC
+#include EL_HERMITIANTRIDIAGEIG_INC
+#include EL_HERMITIANEIG_INC
+#include EL_MAXNORM_INC
 
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
 // distribution needed for backtransformation.
 #define TARGET_CHUNKS 20
 
-namespace elem {
+namespace El {
 namespace herm_eig {
 
 // We create specialized redistribution routines for redistributing the 
@@ -56,7 +56,7 @@ void InPlaceRedist
     Real* recvBuffer = &buffer[r*portionSize];
 
     // Pack
-    ELEM_OUTER_PARALLEL_FOR
+    EL_OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         Real* data = &sendBuffer[k*portionSize];
@@ -64,7 +64,7 @@ void InPlaceRedist
         const Int thisColShift = Shift(k,colAlign,r);
         const Int thisLocalHeight = Length(height,thisColShift,r);
 
-        ELEM_INNER_PARALLEL_FOR_COLLAPSE2
+        EL_INNER_PARALLEL_FOR_COLLAPSE2
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
@@ -78,7 +78,7 @@ void InPlaceRedist
 
     // Unpack
     const Int localHeight = Length(height,row,colAlign,r);
-    ELEM_OUTER_PARALLEL_FOR
+    EL_OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         const Real* data = &recvBuffer[k*portionSize];
@@ -88,7 +88,7 @@ void InPlaceRedist
         const Int thisRowOffset = (thisRowShift-rowShift) / c;
         const Int thisLocalWidth = Length(width,thisRowShift,p);
 
-        ELEM_INNER_PARALLEL_FOR
+        EL_INNER_PARALLEL_FOR
         for( Int j=0; j<thisLocalWidth; ++j )
         {
             const Real* dataCol = &(data[j*localHeight]);
@@ -970,15 +970,15 @@ void HermitianEig<Complex<float>>
   FLOAT_EIGVAL(F);\
   FLOAT_EIGPAIR(F);
 
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 ALL_OPTS(float);
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 ALL_OPTS(Complex<float>);
-#endif // ifndef ELEM_DISABLE_COMPLEX
-#endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_FLOAT
 ALL_OPTS(double);
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 ALL_OPTS(Complex<double>);
-#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_COMPLEX
 
-} // namespace elem
+} // namespace El

@@ -6,10 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
 #include <float.h>
-using namespace elem;
+using namespace El;
 
 int 
 main( int argc, char* argv[] )

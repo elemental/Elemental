@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #define ColDist CIRC
 #define RowDist CIRC
 
 #include "./setup.hpp"
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -252,7 +252,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
     // Pack
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
-    ELEM_PARALLEL_FOR
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
         MemCopy( &sendBuf[jLoc*mLocalA], &ABuf[jLoc*ALDim], mLocalA );
 
@@ -264,7 +264,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
         // Unpack
         const Int colAlignA = A.ColAlign();
         const Int rowAlignA = A.RowAlign();
-        ELEM_OUTER_PARALLEL_FOR
+        EL_OUTER_PARALLEL_FOR
         for( Int l=0; l<rowStride; ++l )
         {
             const Int rowShift = Shift_( l, rowAlignA, rowStride );
@@ -276,7 +276,7 @@ BDM::CollectFrom( const BlockDistMatrix<T,U,V>& A )
                 const Int colShift = Shift_( k, colAlignA, colStride );
                 const Int mLocal = 
                     BlockedLength_( m, colShift, mb, colCut, colStride );
-                ELEM_INNER_PARALLEL_FOR
+                EL_INNER_PARALLEL_FOR
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Int jBefore = rowShift*nb - rowCut;
@@ -348,16 +348,16 @@ BDM::Scatter( BlockDistMatrix<T,U,V>& A ) const
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);
 #endif 
 
-} // namespace elem
+} // namespace El

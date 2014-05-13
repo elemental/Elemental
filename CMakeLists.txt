@@ -17,8 +17,8 @@ include(GetGitRevisionDescription)
 include(language_support_v2)
 
 project(Elemental)
-set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 84-dev)
+set(EL_VERSION_MAJOR 0)
+set(EL_VERSION_MINOR 85-dev)
 
 ################################################################################
 # Common build options                                                         #
@@ -26,25 +26,25 @@ set(Elemental_VERSION_MINOR 84-dev)
 
 # By default, Elemental builds static libraries, but shared libraries are 
 # also supported through this option.
-option(ELEM_SHARED_LIBRARIES "Switch to shared libraries" OFF)
+option(EL_SHARED_LIBRARIES "Switch to shared libraries" OFF)
 
 # Whether or not to build a collection of simple example drivers.
-option(ELEM_EXAMPLES "A collection of simple examples" OFF)
+option(EL_EXAMPLES "A collection of simple examples" OFF)
 
 # Whether or not to build a collection of performance and correctness tests
-option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
+option(EL_TESTS "A collection of performance and correctness tests" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
 # 1) prototype C and F90 interfaces
 # 2) Martin's 3D Gemm code
-option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
+option(EL_EXPERIMENTAL "Build experimental code" OFF)
 
 # Attempt to use 64-bit integers
-option(ELEM_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
+option(EL_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
 
 # Whether or not to use Qt5 for visualization if it is found (experimental)
 # NOTE: Setting Qt5Widgets_DIR, Qt5_DIR, or Qt5_LIBDIR overrides this variable
-option(ELEM_USE_QT5 "Attempt to use Qt5?" OFF)
+option(EL_USE_QT5 "Attempt to use Qt5?" OFF)
 
 ################################################################################
 # Advanced build options                                                       #
@@ -53,32 +53,32 @@ option(ELEM_USE_QT5 "Attempt to use Qt5?" OFF)
 # Since it is surprisingly common for MPI libraries to have bugs in their 
 # support for complex data, the following option forces Elemental to cast 
 # all possible MPI communications in terms of twice as many real units of data.
-option(ELEM_AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
-mark_as_advanced(ELEM_AVOID_COMPLEX_MPI)
+option(EL_AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
+mark_as_advanced(EL_AVOID_COMPLEX_MPI)
 
 # At one point, a bug was found in IBM's C++ compiler for Blue Gene/P, 
 # where OpenMP statements of the form a[i] += alpha b[i], with complex data,
 # would segfault and/or return incorrect results
-option(ELEM_AVOID_OMP_FMA "Avoid a bug in the IBM compilers." OFF)
-mark_as_advanced(ELEM_AVOID_OMP_FMA)
+option(EL_AVOID_OMP_FMA "Avoid a bug in the IBM compilers." OFF)
+mark_as_advanced(EL_AVOID_OMP_FMA)
 
 # Due to a subtle flaw in the Blue Gene/P extensions for MPICH2, treating 
 # floating-point data as a collection of byte-sized objects results in a 
 # better algorithm being chosen for MPI_Allgather. This should not effect
 # performance on most machines.
-option(ELEM_USE_BYTE_ALLGATHERS "Avoid BG/P allgather performance bug." ON)
-mark_as_advanced(ELEM_USE_BYTE_ALLGATHERS)
+option(EL_USE_BYTE_ALLGATHERS "Avoid BG/P allgather performance bug." ON)
+mark_as_advanced(EL_USE_BYTE_ALLGATHERS)
 
 # If MPI_Reduce_scatter_block doesn't exist, perform it by composing 
 # MPI_Allreduce and std::memcpy rather than MPI_Reduce and MPI_Scatter
-option(ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+option(EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
        "AllReduce based block MPI_Reduce_scatter" OFF)
-mark_as_advanced(ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
+mark_as_advanced(EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
 
 # This can easily be performed, but is likely not a good idea
-option(ELEM_POOL_MEMORY 
+option(EL_POOL_MEMORY 
        "Make Memory class accumulate memory until destruction" OFF)
-mark_as_advanced(ELEM_POOL_MEMORY)
+mark_as_advanced(EL_POOL_MEMORY)
 
 ################################################################################
 # Elemental-development build options                                          #
@@ -86,20 +86,20 @@ mark_as_advanced(ELEM_POOL_MEMORY)
 
 # Print a warning any time a redistribution is performed which unpacks a 
 # large amount of data with a non-unit stride
-option(ELEM_CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
-mark_as_advanced(ELEM_CACHE_WARNINGS)
+option(EL_CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
+mark_as_advanced(EL_CACHE_WARNINGS)
 
 # Print a warning when an improperly aligned redistribution is performed, 
 # i.e., if an unnecessary permutation communication stage must take place
-option(ELEM_UNALIGNED_WARNINGS 
+option(EL_UNALIGNED_WARNINGS 
        "Warn when performing unaligned redistributions" OFF)
-mark_as_advanced(ELEM_UNALIGNED_WARNINGS)
+mark_as_advanced(EL_UNALIGNED_WARNINGS)
 
 # Print a warning if an opportunity was missed to implement a redistribution
 # approach specifically for vectors (instead of matrices)
-option(ELEM_VECTOR_WARNINGS 
+option(EL_VECTOR_WARNINGS 
        "Warn when vector redistribution chances are missed" OFF)
-mark_as_advanced(ELEM_VECTOR_WARNINGS)
+mark_as_advanced(EL_VECTOR_WARNINGS)
 
 ################################################################################
 # Significant command-line variable definitions                                #
@@ -146,17 +146,17 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE PureRelease)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
-  set(ELEM_HYBRID TRUE)
-  set(ELEM_DEBUG TRUE)
+  set(EL_HYBRID TRUE)
+  set(EL_DEBUG TRUE)
 elseif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
-  set(ELEM_HYBRID TRUE)
-  set(ELEM_RELEASE TRUE)
+  set(EL_HYBRID TRUE)
+  set(EL_RELEASE TRUE)
 elseif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
-  set(ELEM_PURE TRUE)
-  set(ELEM_DEBUG TRUE)
+  set(EL_PURE TRUE)
+  set(EL_DEBUG TRUE)
 elseif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
-  set(ELEM_PURE TRUE)
-  set(ELEM_RELEASE TRUE)
+  set(EL_PURE TRUE)
+  set(EL_RELEASE TRUE)
 else()
   message(FATAL_ERROR "CMAKE_BUILD_TYPE must be [Hybrid,Pure][Debug,Release]")
 endif()
@@ -167,7 +167,7 @@ if(NOT WIN32) # I forget why we need this guard
   set(LANGUAGES CXX C Fortran)
   foreach(LANG ${LANGUAGES})
     if(NOT ${LANG}_FLAGS)
-      if(ELEM_DEBUG)
+      if(EL_DEBUG)
         # set(${LANG}_FLAGS "-O2 -g -Wunused-variable -Wunused-but-set-variable -Wunused-local-typedefs" CACHE STRING
         set(${LANG}_FLAGS "-O2 -g" CACHE STRING
           "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
@@ -186,10 +186,10 @@ include(tests/MPI)
 include(tests/OpenMP)
 
 include(tests/Qt5)
-if(ELEM_HAVE_QT5)
-  set(ELEM_HEADERS_PREMOC 
-      "include/elemental/io/DisplayWindow-premoc.hpp;include/elemental/io/ComplexDisplayWindow-premoc.hpp")
-  qt_wrap_cpp(elemental ELEM_MOC_SRC ${ELEM_HEADERS_PREMOC})
+if(EL_HAVE_QT5)
+  set(EL_HEADERS_PREMOC 
+      "include/El/io/DisplayWindow-premoc.hpp;include/El/io/ComplexDisplayWindow-premoc.hpp")
+  qt_wrap_cpp(El EL_MOC_SRC ${EL_HEADERS_PREMOC})
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
   set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
@@ -199,9 +199,9 @@ if(ELEM_HAVE_QT5)
   get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
 endif()
 
-# Set the library type from the 'ELEM_SHARED_LIBRARIES' option
+# Set the library type from the 'EL_SHARED_LIBRARIES' option
 # =======================================================
-if(ELEM_SHARED_LIBRARIES)
+if(EL_SHARED_LIBRARIES)
   set(LIBRARY_TYPE SHARED)
 else()
   set(LIBRARY_TYPE STATIC)
@@ -218,9 +218,9 @@ add_subdirectory(external/pmrrr)
 
 # Create the Elemental configuration header
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
-               ${PROJECT_BINARY_DIR}/include/elemental/config.h)
-install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 
-        DESTINATION include/elemental)
+               ${PROJECT_BINARY_DIR}/include/El/config.h)
+install(FILES ${PROJECT_BINARY_DIR}/include/El/config.h 
+        DESTINATION include/El)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -253,45 +253,45 @@ foreach(FLAG ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
   set(QT5_COMPILESTRING "${QT5_COMPILE_STRING} ${FLAG}")
 endforeach()
 set(QT5_LIBSTRING "-L${Qt5_LIBDIR} -lQt5Widgets -lQt5Gui -lQt5Core")
-configure_file(${PROJECT_SOURCE_DIR}/cmake/ElemVars.cmake
-               ${PROJECT_BINARY_DIR}/conf/ElemVars @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/conf/ElemVars DESTINATION conf)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
+               ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
-file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
-file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
+file(GLOB_RECURSE EL_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
+file(GLOB_RECURSE EL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
-if(ELEM_EXPERIMENTAL)
+if(EL_EXPERIMENTAL)
   if(NOT MPI_C_FOUND)
     message(FATAL_ERROR "Could not build C interface without C MPI")
   endif()
   include_directories(${MPI_C_INCLUDE_PATH})
   set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
-  set(ELEM_CPP "${ELEM_CPP};experimental/c/interface.cpp")
-  set(ELEM_HEADERS "${ELEM_HEADERS};experimental/c/elemental.h")
+  set(EL_CPP "${EL_CPP};experimental/c/interface.cpp")
+  set(EL_HEADERS "${EL_HEADERS};experimental/c/El.h")
 
-  if(ELEM_HAVE_F90_INTERFACE)
+  if(EL_HAVE_F90_INTERFACE)
     if(NOT MPI_Fortran_FOUND)
       message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
     endif()
-    if(NOT ELEM_HAVE_MPI_COMM_F2C)
+    if(NOT EL_HAVE_MPI_COMM_F2C)
       message(FATAL_ERROR
         "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
     endif()
     include_directories(${MPI_Fortran_INCLUDE_PATH})
     set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
-    set(ELEM_CPP "${ELEM_CPP};experimental/f90/interface.cpp")
+    set(EL_CPP "${EL_CPP};experimental/f90/interface.cpp")
   endif()
 endif()
-set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS};${ELEM_MOC_SRC}")
+set(EL_SRC "${EL_CPP};${EL_HEADERS};${EL_MOC_SRC}")
 
 # The main library
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
-if(ELEM_HAVE_QT5)
+if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
 endif()
-add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-target_link_libraries(elemental pmrrr ${LINK_LIBS})
+add_library(El ${LIBRARY_TYPE} ${EL_SRC})
+target_link_libraries(El pmrrr ${LINK_LIBS})
 if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
   set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
 elseif(MPI_CXX_LINK_FLAGS)
@@ -299,11 +299,11 @@ elseif(MPI_CXX_LINK_FLAGS)
 elseif(MPI_C_LINK_FLAGS)
   set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
 endif()
-install(TARGETS elemental DESTINATION lib)
+install(TARGETS El DESTINATION lib)
 
 # Define the header-file preparation rules
 set(PREPARED_HEADERS)
-foreach(HEADER ${ELEM_HEADERS})
+foreach(HEADER ${EL_HEADERS})
   add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
             ${PROJECT_BINARY_DIR}/${HEADER}
@@ -313,8 +313,8 @@ foreach(HEADER ${ELEM_HEADERS})
   get_filename_component(HEADER_PATH ${HEADER} PATH)
   install(FILES ${PROJECT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
 endforeach()
-add_custom_target(prepare_elemental_headers DEPENDS ${PREPARED_HEADERS})
-add_dependencies(elemental prepare_elemental_headers)
+add_custom_target(prepare_El_headers DEPENDS ${PREPARED_HEADERS})
+add_dependencies(El prepare_El_headers)
 
 # TODO: Ensure that source files depend on header files
 
@@ -322,7 +322,7 @@ add_dependencies(elemental prepare_elemental_headers)
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Build the test drivers if necessary
-if(ELEM_TESTS)
+if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas-like lapack-like convex)
   foreach(TYPE ${TEST_TYPES})
@@ -335,7 +335,7 @@ if(ELEM_TESTS)
       add_executable(tests-${TYPE}-${TESTNAME} ${DRIVER})
       set_source_files_properties(${DRIVER} PROPERTIES 
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
-      target_link_libraries(tests-${TYPE}-${TESTNAME} elemental)
+      target_link_libraries(tests-${TYPE}-${TESTNAME} El)
       set_target_properties(tests-${TYPE}-${TESTNAME} PROPERTIES
         OUTPUT_NAME ${TESTNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       if(MPI_LINK_FLAGS)
@@ -348,7 +348,7 @@ if(ELEM_TESTS)
 endif()
 
 # Build the example drivers if necessary
-if(ELEM_EXAMPLES)
+if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES convex core blas-like io lapack-like matrices)
   foreach(TYPE ${EXAMPLE_TYPES})
@@ -361,7 +361,7 @@ if(ELEM_EXAMPLES)
       add_executable(examples-${TYPE}-${EXNAME} ${DRIVER})
       set_source_files_properties(${DRIVER} PROPERTIES 
         OBJECT_DEPENDS "${PREPARED_HEADERS}")
-      target_link_libraries(examples-${TYPE}-${EXNAME} elemental)
+      target_link_libraries(examples-${TYPE}-${EXNAME} El)
       set_target_properties(examples-${TYPE}-${EXNAME} PROPERTIES 
         OUTPUT_NAME ${EXNAME} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
       if(MPI_LINK_FLAGS)
@@ -375,7 +375,7 @@ if(ELEM_EXAMPLES)
 endif()
 
 # Build experimental drivers
-if(ELEM_EXPERIMENTAL)
+if(EL_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
 
   # Build the G3D example(s)
@@ -386,7 +386,7 @@ if(ELEM_EXPERIMENTAL)
     add_executable(experimental-g3d-${EXPER} ${DRIVER})
     set_source_files_properties(${DRIVER} PROPERTIES 
       OBJECT_DEPENDS "${PREPARED_HEADERS}")
-    target_link_libraries(experimental-g3d-${EXPER} elemental)
+    target_link_libraries(experimental-g3d-${EXPER} El)
     set_target_properties(experimental-g3d-${EXPER} PROPERTIES 
       OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
@@ -402,7 +402,7 @@ if(ELEM_EXPERIMENTAL)
   add_executable(experimental-c-test ${DRIVER})
   set_source_files_properties(${DRIVER} PROPERTIES 
     OBJECT_DEPENDS "${PREPARED_HEADERS}")
-  target_link_libraries(experimental-c-test elemental)
+  target_link_libraries(experimental-c-test El)
   set_target_properties(experimental-c-test 
     PROPERTIES OUTPUT_NAME c_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   if(MPI_LINK_FLAGS)
@@ -411,14 +411,14 @@ if(ELEM_EXPERIMENTAL)
   endif()
   install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
 
-  if(ELEM_HAVE_F90_INTERFACE)
+  if(EL_HAVE_F90_INTERFACE)
     # Build the F90 drivers
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
     set(DRIVER ${EXPERIMENTAL_DIR}/f90/test.f90)
     add_executable(experimental-f90-test ${DRIVER}) 
     set_source_files_properties(${DRIVER} PROPERTIES 
       OBJECT_DEPENDS "${PREPARED_HEADERS}")
-    target_link_libraries(experimental-f90-test elemental)
+    target_link_libraries(experimental-f90-test El)
     set_target_properties(experimental-f90-test PROPERTIES
       LINKER_LANGUAGE Fortran
       OUTPUT_NAME f90_test 
@@ -433,5 +433,5 @@ endif()
 
 # If Elemental is a subproject, then pass some variables to the parent
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  include(./cmake/ElemSub.cmake)
+  include(./cmake/ElSub.cmake)
 endif()

@@ -6,25 +6,25 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_ENTRYWISEMAP_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_PSEUDOSPECTRUM_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_ENTRYWISEMAP_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_PSEUDOSPECTRUM_INC
 
-#include ELEM_BULLSHEAD_INC
-#include ELEM_GRCAR_INC
-#include ELEM_HATANONELSON_INC
-#include ELEM_FOXLI_INC
-#include ELEM_HELMHOLTZPML_INC
-#include ELEM_LOTKIN_INC
-#include ELEM_TREFETHEN_INC
-#include ELEM_TRIANGLE_INC
-#include ELEM_UNIFORM_INC
-#include ELEM_UNIFORMHELMHOLTZGREENS_INC
-#include ELEM_WHALE_INC
+#include EL_BULLSHEAD_INC
+#include EL_GRCAR_INC
+#include EL_HATANONELSON_INC
+#include EL_FOXLI_INC
+#include EL_HELMHOLTZPML_INC
+#include EL_LOTKIN_INC
+#include EL_TREFETHEN_INC
+#include EL_TRIANGLE_INC
+#include EL_UNIFORM_INC
+#include EL_UNIFORMHELMHOLTZGREENS_INC
+#include EL_WHALE_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 typedef double Real;
 typedef Complex<Real> C;
@@ -45,7 +45,7 @@ main( int argc, char* argv[] )
                               "11:UniformHelmholtzGreen's,12:HatanoNelson",4);
         const Int n = Input("--size","height of matrix",100);
         const Int nbAlg = Input("--nbAlg","algorithmic blocksize",96);
-#ifdef ELEM_HAVE_SCALAPACK
+#ifdef EL_HAVE_SCALAPACK
         // QR algorithm options
         const Int nbDist = Input("--nbDist","distribution blocksize",32);
 #else
@@ -124,7 +124,7 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
-#ifdef ELEM_HAVE_SCALAPACK
+#ifdef EL_HAVE_SCALAPACK
         SetDefaultBlockHeight( nbDist );
         SetDefaultBlockWidth( nbDist );
 #endif
@@ -236,7 +236,7 @@ main( int argc, char* argv[] )
         psCtrl.arnoldi = arnoldi;
         psCtrl.basisSize = basisSize;
         psCtrl.progress = progress;
-#ifndef ELEM_HAVE_SCALAPACK
+#ifndef EL_HAVE_SCALAPACK
         psCtrl.sdcCtrl.cutoff = cutoff;
         psCtrl.sdcCtrl.maxInnerIts = maxInnerIts;
         psCtrl.sdcCtrl.maxOuterIts = maxOuterIts;

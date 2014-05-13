@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_SCALE_INC
-#include ELEM_SCHUR_INC
-#include ELEM_IO_INC
-#include ELEM_ONES_INC
-#include ELEM_UNIFORM_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_SCALE_INC
+#include EL_SCHUR_INC
+#include EL_IO_INC
+#include EL_ONES_INC
+#include EL_UNIFORM_INC
+using namespace El;
 
 int 
 main( int argc, char* argv[] )
@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
         const Int mb = Input("--blockHeight","height of dist block",32);
         const Int nb = Input("--blockWidth","width of dist block",32);
         const bool print = Input("--print","print wrong matrices?",false);
-#ifdef ELEM_HAVE_SCALAPACK
+#ifdef EL_HAVE_SCALAPACK
         const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
 #endif
         ProcessInput();
@@ -55,7 +55,7 @@ main( int argc, char* argv[] )
         A = AElem;
         if( print )
             Print( A, "A" );
-#ifdef ELEM_HAVE_SCALAPACK        
+#ifdef EL_HAVE_SCALAPACK        
         if( m == n )
         {
             // NOTE: There appears to be a bug in the parallel eigenvalue

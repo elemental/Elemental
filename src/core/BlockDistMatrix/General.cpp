@@ -6,11 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-#include ELEM_TRANSPOSE_INC
-#include ELEM_ZEROS_INC
+#include "El-lite.hpp"
+#include EL_TRANSPOSE_INC
+#include EL_ZEROS_INC
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -20,19 +20,19 @@ namespace elem {
 
 template<typename T,Dist U,Dist V>
 GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
-( const elem::Grid& g, Int root )
+( const El::Grid& g, Int root )
 : AbstractBlockDistMatrix<T>(g,root)
 { }
 
 template<typename T,Dist U,Dist V>
 GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
-( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
+( const El::Grid& g, Int blockHeight, Int blockWidth, Int root )
 : AbstractBlockDistMatrix<T>(g,blockHeight,blockWidth,root)
 { }
 
 template<typename T,Dist U,Dist V>
 GeneralBlockDistMatrix<T,U,V>::GeneralBlockDistMatrix
-( GeneralBlockDistMatrix<T,U,V>&& A ) ELEM_NOEXCEPT
+( GeneralBlockDistMatrix<T,U,V>&& A ) EL_NOEXCEPT
 : AbstractBlockDistMatrix<T>(std::move(A))
 { }
 
@@ -50,7 +50,7 @@ GeneralBlockDistMatrix<T,U,V>::operator=( GeneralBlockDistMatrix<T,U,V>&& A )
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::AlignColsWith
-( const elem::BlockDistData& data, bool constrain )
+( const El::BlockDistData& data, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::AlignColsWith")) 
     this->SetGrid( *data.grid );
@@ -78,7 +78,7 @@ GeneralBlockDistMatrix<T,U,V>::AlignColsWith
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::AlignRowsWith
-( const elem::BlockDistData& data, bool constrain )
+( const El::BlockDistData& data, bool constrain )
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::AlignRowsWith")) 
     this->SetGrid( *data.grid );
@@ -793,8 +793,8 @@ GeneralBlockDistMatrix<T,U,V>::TransposeColSumScatterUpdate
     if( !this->RowConstrained() )
         this->AlignRowsWith( ASumFilt, false );
     // ALoc += alpha ASumFiltLoc'
-    elem::Matrix<T>& ALoc = this->Matrix();
-    const elem::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
+    El::Matrix<T>& ALoc = this->Matrix();
+    const El::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
     const Int localHeight = ALoc.Height();
     const Int localWidth = ALoc.Width();
     if( conjugate )
@@ -828,8 +828,8 @@ GeneralBlockDistMatrix<T,U,V>::TransposePartialColSumScatterUpdate
     if( !this->RowConstrained() )
         this->AlignRowsWith( ASumFilt, false );
     // ALoc += alpha ASumFiltLoc'
-    elem::Matrix<T>& ALoc = this->Matrix();
-    const elem::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
+    El::Matrix<T>& ALoc = this->Matrix();
+    const El::Matrix<T>& BLoc = ASumFilt.LockedMatrix();
     const Int localHeight = ALoc.Height();
     const Int localWidth = ALoc.Width();
     if( conjugate )
@@ -869,7 +869,7 @@ GeneralBlockDistMatrix<T,U,V>::AdjointPartialColSumScatterUpdate
 template<typename T,Dist U,Dist V>
 bool
 GeneralBlockDistMatrix<T,U,V>::DiagonalAlignedWith
-( const elem::BlockDistData& d, Int offset ) const
+( const El::BlockDistData& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GBDM::DiagonalAlignedWith"))
     // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
@@ -974,7 +974,7 @@ GeneralBlockDistMatrix<T,U,V>::SetRealPartOfDiagonal
     DEBUG_ONLY(CallStackEntry cse("GBDM::SetRealPartOfDiagonal"))
     this->SetDiagonalHelper
     ( d, offset, 
-      []( T& alpha, Base<T> beta ) { elem::SetRealPart(alpha,beta); } );
+      []( T& alpha, Base<T> beta ) { El::SetRealPart(alpha,beta); } );
 }
 
 template<typename T,Dist U,Dist V>
@@ -985,7 +985,7 @@ GeneralBlockDistMatrix<T,U,V>::SetImagPartOfDiagonal
     DEBUG_ONLY(CallStackEntry cse("GBDM::SetImagPartOfDiagonal"))
     this->SetDiagonalHelper
     ( d, offset, 
-      []( T& alpha, Base<T> beta ) { elem::SetImagPart(alpha,beta); } );
+      []( T& alpha, Base<T> beta ) { El::SetImagPart(alpha,beta); } );
 }
 
 template<typename T,Dist U,Dist V>
@@ -1007,7 +1007,7 @@ GeneralBlockDistMatrix<T,U,V>::UpdateRealPartOfDiagonal
     this->SetDiagonalHelper
     ( d, offset, 
       [gamma]( T& alpha, Base<T> beta ) 
-      { elem::UpdateRealPart(alpha,gamma*beta); } );
+      { El::UpdateRealPart(alpha,gamma*beta); } );
 }
 
 template<typename T,Dist U,Dist V>
@@ -1019,7 +1019,7 @@ GeneralBlockDistMatrix<T,U,V>::UpdateImagPartOfDiagonal
     this->SetDiagonalHelper
     ( d, offset, 
       [gamma]( T& alpha, Base<T> beta ) 
-      { elem::UpdateImagPart(alpha,gamma*beta); } );
+      { El::UpdateImagPart(alpha,gamma*beta); } );
 }
 
 // Private section
@@ -1072,27 +1072,27 @@ GeneralBlockDistMatrix<T,U,V>::SetDiagonalHelper
   DISTPROTO(T,VC,  STAR);\
   DISTPROTO(T,VR,  STAR);
 
-#ifndef ELEM_DISABLE_COMPLEX
- #ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+ #ifndef EL_DISABLE_FLOAT
   PROTO(Int);
   PROTO(float);
   PROTO(double);
   PROTO(Complex<float>);
   PROTO(Complex<double>);
- #else // ifndef ELEM_DISABLE_FLOAT
+ #else // ifndef EL_DISABLE_FLOAT
   PROTO(Int);
   PROTO(double);
   PROTO(Complex<double>);
- #endif // ifndef ELEM_DISABLE_FLOAT
-#else // ifndef ELEM_DISABLE_COMPLEX
- #ifndef ELEM_DISABLE_FLOAT
+ #endif // ifndef EL_DISABLE_FLOAT
+#else // ifndef EL_DISABLE_COMPLEX
+ #ifndef EL_DISABLE_FLOAT
   PROTO(Int);
   PROTO(float);
   PROTO(double);
- #else // ifndef ELEM_DISABLE_FLOAT
+ #else // ifndef EL_DISABLE_FLOAT
   PROTO(Int);
   PROTO(double);
- #endif // ifndef ELEM_DISABLE_FLOAT
-#endif // ifndef ELEM_DISABLE_COMPLEX
+ #endif // ifndef EL_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_COMPLEX
 
-} // namespace elem
+} // namespace El

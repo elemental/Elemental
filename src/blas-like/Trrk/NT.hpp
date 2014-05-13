@@ -6,10 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_TRRK_NT_HPP
-#define ELEM_TRRK_NT_HPP
+#ifndef EL_TRRK_NT_HPP
+#define EL_TRRK_NT_HPP
 
-namespace elem {
+namespace El {
 namespace internal {
 
 // Distributed C := alpha A B^{T/H} + beta C
@@ -73,6 +73,6 @@ void TrrkNT
 }
 
 } // namespace internal
-} // namespace elem
+} // namespace El
 
-#endif // ifndef ELEM_TRRK_NT_HPP
+#endif // ifndef EL_TRRK_NT_HPP

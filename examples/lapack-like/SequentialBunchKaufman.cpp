@@ -6,24 +6,24 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_AXPY_INC
-#include ELEM_DIAGONALSCALE_INC
-#include ELEM_MAKESYMMETRIC_INC
-#include ELEM_MAKETRIANGULAR_INC
-#include ELEM_SETDIAGONAL_INC
-#include ELEM_TRANSPOSE_INC
-#include ELEM_SYMM_INC
-#include ELEM_APPLYPACKEDREFLECTORS_INC
-#include ELEM_LDL_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_INERTIA_INC
-#include ELEM_UNIFORM_INC
-#include ELEM_WIGNER_INC
-#include ELEM_ZEROS_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_AXPY_INC
+#include EL_DIAGONALSCALE_INC
+#include EL_MAKESYMMETRIC_INC
+#include EL_MAKETRIANGULAR_INC
+#include EL_SETDIAGONAL_INC
+#include EL_TRANSPOSE_INC
+#include EL_SYMM_INC
+#include EL_APPLYPACKEDREFLECTORS_INC
+#include EL_LDL_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_INERTIA_INC
+#include EL_UNIFORM_INC
+#include EL_WIGNER_INC
+#include EL_ZEROS_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
 typedef double Real;

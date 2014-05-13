@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental.hpp"
-using namespace elem;
+#include "El.hpp"
+using namespace El;
 
 const Int m=300, n=300;  // run SVD on m x n matrix
 typedef double R;        // real datatype is `R'

@@ -6,14 +6,14 @@
 #       nontrivial to determine this value since the same Fortran compiler
 #       which compiled ScaLAPACK would need to be known in order to create
 #       a custom routine which sets the input to .true. or .false.
-if(NOT ELEM_FORT_LOGICAL)
-  set(ELEM_FORT_LOGICAL int)
+if(NOT EL_FORT_LOGICAL)
+  set(EL_FORT_LOGICAL int)
 endif()
-if(NOT ELEM_FORT_TRUE)
-  set(ELEM_FORT_TRUE 1)
+if(NOT EL_FORT_TRUE)
+  set(EL_FORT_TRUE 1)
 endif()
-if(NOT ELEM_FORT_FALSE)
-  set(ELEM_FORT_FALSE 0)
+if(NOT EL_FORT_FALSE)
+  set(EL_FORT_FALSE 0)
 endif()
 
 # Go ahead and check for Fortran, but keep in mind that CMake's 'OPTIONAL' 
@@ -21,17 +21,17 @@ endif()
 workaround_9220(Fortran FORTRAN_WORKS)
 if(FORTRAN_WORKS)
   enable_language(Fortran OPTIONAL)
-  set(ELEM_HAVE_F90_INTERFACE FALSE)
+  set(EL_HAVE_F90_INTERFACE FALSE)
   if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
     include(FortranCInterface)
     FortranCInterface_VERIFY(CXX)
     if(FortranCInterface_VERIFIED_CXX)
-      set(ELEM_HAVE_F90_INTERFACE TRUE)
+      set(EL_HAVE_F90_INTERFACE TRUE)
       FortranCInterface_HEADER(
-        ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
+        ${CMAKE_CURRENT_BINARY_DIR}/include/El/FCMangle.h 
         MACRO_NAMESPACE "FC_")
-      install(FILES ${PROJECT_BINARY_DIR}/include/elemental/FCMangle.h
-              DESTINATION include/elemental/)
+      install(FILES ${PROJECT_BINARY_DIR}/include/El/FCMangle.h
+              DESTINATION include/El/)
     endif()
   else()
     message(STATUS "${CMAKE_Fortran_COMPILER} does not appear to support F90")

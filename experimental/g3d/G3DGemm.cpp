@@ -9,8 +9,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <cstdio>
-#include "elemental.hpp"
-using namespace elem;
+#include "El.hpp"
+using namespace El;
 
 // Initialize auxiliary communicators for depth dimension
 void InitDepthComms( int meshSize, mpi::Comm& depthComm, mpi::Comm& meshComm )

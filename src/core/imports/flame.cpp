@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-#ifdef ELEM_HAVE_FLA_BSVD
+#include "El-lite.hpp"
+#ifdef EL_HAVE_FLA_BSVD
 
 extern "C" {
 
@@ -20,8 +20,8 @@ FLA_Error FLA_Bsvd_v_opd_var1
   int       nIterMax,
   double*   d, int dInc,
   double*   e, int eInc,
-  elem::dcomplex* G, int rsG, int csG,
-  elem::dcomplex* H, int rsH, int csH,
+  El::dcomplex* G, int rsG, int csG,
+  El::dcomplex* H, int rsH, int csH,
   double*   U, int rsU, int csU,
   double*   V, int rsV, int csV,
   int       nb );
@@ -34,15 +34,15 @@ FLA_Error FLA_Bsvd_v_opz_var1
   int       nIterMax,
   double*   d, int dInc,
   double*   e, int eInc,
-  elem::dcomplex* G, int rsG, int csG,
-  elem::dcomplex* H, int rsH, int csH,
-  elem::dcomplex* U, int rsU, int csU,
-  elem::dcomplex* V, int rsV, int csV,
+  El::dcomplex* G, int rsG, int csG,
+  El::dcomplex* H, int rsH, int csH,
+  El::dcomplex* U, int rsU, int csU,
+  El::dcomplex* V, int rsV, int csV,
   int       nb );
 
 } // extern "C"
 
-namespace elem {
+namespace El {
 
 void FlaBidiagSVD
 ( int k, int mU, int mV, double* d, double* e, 
@@ -66,6 +66,6 @@ void FlaBidiagSVD
       G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );
 }
 
-} // namespace elem
+} // namespace El
 
-#endif // ifdef ELEM_HAVE_FLA_BSVD
+#endif // ifdef EL_HAVE_FLA_BSVD

@@ -6,16 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_CONDITION_INC
-#include ELEM_DETERMINANT_INC
-#include ELEM_HILBERTSCHMIDT_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_NUCLEARNORM_INC
-#include ELEM_TWONORM_INC
-#include ELEM_HILBERT_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_CONDITION_INC
+#include EL_DETERMINANT_INC
+#include EL_HILBERTSCHMIDT_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_NUCLEARNORM_INC
+#include EL_TWONORM_INC
+#include EL_HILBERT_INC
+using namespace El;
 
 int 
 main( int argc, char* argv[] )

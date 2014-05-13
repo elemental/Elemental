@@ -6,20 +6,20 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_HERMITIANTRIDIAG_U_HPP
-#define ELEM_HERMITIANTRIDIAG_U_HPP
+#ifndef EL_HERMITIANTRIDIAG_U_HPP
+#define EL_HERMITIANTRIDIAG_U_HPP
 
-#include ELEM_AXPY_INC
-#include ELEM_DOT_INC
-#include ELEM_HEMV_INC
-#include ELEM_HER2_INC
-#include ELEM_SYMV_INC
-#include ELEM_SYR2_INC
-#include ELEM_REFLECTOR_INC
+#include EL_AXPY_INC
+#include EL_DOT_INC
+#include EL_HEMV_INC
+#include EL_HER2_INC
+#include EL_SYMV_INC
+#include EL_SYR2_INC
+#include EL_REFLECTOR_INC
 
 #include "./UPan.hpp"
 
-namespace elem {
+namespace El {
 namespace herm_tridiag {
 
 template<typename F>
@@ -143,6 +143,6 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 }
 
 } // namespace herm_tridiag
-} // namespace elem
+} // namespace El
 
-#endif // ifndef ELEM_HERMITIANTRIDIAG_U_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_U_HPP

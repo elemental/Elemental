@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
-#define ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
+#ifndef EL_HERMITIANTRIDIAG_LSQUARE_HPP
+#define EL_HERMITIANTRIDIAG_LSQUARE_HPP
 
 #include "./LPanSquare.hpp"
 
-namespace elem {
+namespace El {
 namespace herm_tridiag {
 
 template<typename F> 
@@ -100,6 +100,6 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 }
 
 } // namespace herm_tridiag
-} // namespace elem
+} // namespace El
 
-#endif // ifndef ELEM_HERMITIANTRIDIAG_LSQUARE_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_LSQUARE_HPP

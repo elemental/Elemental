@@ -6,17 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
-#include ELEM_MAKETRAPEZOIDAL_INC
-#include ELEM_HERMITIANTRIDIAG_INC
+#include EL_MAKETRAPEZOIDAL_INC
+#include EL_HERMITIANTRIDIAG_INC
 
 #include "./HermitianTridiag/L.hpp"
 #include "./HermitianTridiag/LSquare.hpp"
 #include "./HermitianTridiag/U.hpp"
 #include "./HermitianTridiag/USquare.hpp"
 
-namespace elem {
+namespace El {
 
 template<typename F>
 void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
@@ -147,16 +147,16 @@ HermitianTridiag
   ( UpperOrLower uplo, DistMatrix<T>& A, DistMatrix<T,STAR,STAR>& t, \
     const HermitianTridiagCtrl ctrl );
 
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 PROTO(float);
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 PROTO(Complex<float>);
-#endif // ifndef ELEM_DISABLE_COMPLEX
-#endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_FLOAT
 
 PROTO(double);
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 PROTO(Complex<double>);
-#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_COMPLEX
 
-} // namespace elem
+} // namespace El

@@ -6,15 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-#include "elemental/io.hpp"
+#include "El-lite.hpp"
+#include "El/io.hpp"
 
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
 
 #include <QBoxLayout>
 #include <QCheckBox>
 
-namespace elem {
+namespace El {
 
 ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
 : QWidget(parent)
@@ -127,6 +127,6 @@ ComplexDisplayWindow::SetScale( bool global )
     }
 }
 
-} // namespace elem
+} // namespace El
 
-#endif // ifdef ELEM_HAVE_QT5
+#endif // ifdef EL_HAVE_QT5

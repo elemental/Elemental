@@ -6,35 +6,35 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 namespace {
-elem::mpi::Datatype typeIntInt;
-elem::mpi::Datatype typeFloatInt;
-elem::mpi::Datatype typeDoubleInt;
+El::mpi::Datatype typeIntInt;
+El::mpi::Datatype typeFloatInt;
+El::mpi::Datatype typeDoubleInt;
 
-elem::mpi::Op maxLocIntOp;
-elem::mpi::Op maxLocFloatOp;
-elem::mpi::Op maxLocDoubleOp;
+El::mpi::Op maxLocIntOp;
+El::mpi::Op maxLocFloatOp;
+El::mpi::Op maxLocDoubleOp;
 
-elem::mpi::Op minLocIntOp;
-elem::mpi::Op minLocFloatOp;
-elem::mpi::Op minLocDoubleOp;
+El::mpi::Op minLocIntOp;
+El::mpi::Op minLocFloatOp;
+El::mpi::Op minLocDoubleOp;
 
-elem::mpi::Datatype typeIntIntPair;
-elem::mpi::Datatype typeFloatIntPair;
-elem::mpi::Datatype typeDoubleIntPair;
+El::mpi::Datatype typeIntIntPair;
+El::mpi::Datatype typeFloatIntPair;
+El::mpi::Datatype typeDoubleIntPair;
 
-elem::mpi::Op maxLocPairIntOp;
-elem::mpi::Op maxLocPairFloatOp;
-elem::mpi::Op maxLocPairDoubleOp;
+El::mpi::Op maxLocPairIntOp;
+El::mpi::Op maxLocPairFloatOp;
+El::mpi::Op maxLocPairDoubleOp;
 
-elem::mpi::Op minLocPairIntOp;
-elem::mpi::Op minLocPairFloatOp;
-elem::mpi::Op minLocPairDoubleOp;
+El::mpi::Op minLocPairIntOp;
+El::mpi::Op minLocPairFloatOp;
+El::mpi::Op minLocPairDoubleOp;
 } // anonymouse namespace   
 
-namespace elem {
+namespace El {
 namespace mpi {
 
 template<typename T>
@@ -489,4 +489,4 @@ template void
 MinLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
 
 } // namespace mpi
-} // namespace elem
+} // namespace El

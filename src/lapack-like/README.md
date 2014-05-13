@@ -1,7 +1,7 @@
 ### `src/lapack-like/`
 
 This folder contains Elemental's source-level implementations of LAPACK-like
-routines. Most such routines are implemented in `include/elemental/lapack-like`,
+routines. Most such routines are implemented in `include/El/lapack-like`,
 but the exceptions are `HermitianEig` and `HermitianTridiag`, which both involve
 a substantial amount of code.
 

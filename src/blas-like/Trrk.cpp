@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #include "./Trrk/Local.hpp"
 #include "./Trrk/NN.hpp"
@@ -14,7 +14,7 @@
 #include "./Trrk/TN.hpp"
 #include "./Trrk/TT.hpp"
 
-namespace elem {
+namespace El {
 
 template<typename T>
 void Trrk
@@ -53,7 +53,7 @@ void Trrk
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
 }
 
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
@@ -108,7 +108,7 @@ template void TrrkTT
   float alpha, const Matrix<float>& A, const Matrix<float>& B,
   float beta,        Matrix<float>& C );
 } // namespace internal
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
@@ -169,8 +169,8 @@ template void TrrkTT
                         const Matrix<Complex<float>>& B,
   Complex<float> beta,        Matrix<Complex<float>>& C );
 } // namespace internal
-#endif // ifndef ELEM_DISABLE_COMPLEX
-#endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_FLOAT
 
 template void Trrk
 ( UpperOrLower uplo, 
@@ -226,7 +226,7 @@ template void TrrkTT
   double alpha, const Matrix<double>& A, const Matrix<double>& B,
   double beta,        Matrix<double>& C );
 } // namespace internal
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
@@ -287,6 +287,6 @@ template void TrrkTT
                          const Matrix<Complex<double>>& B,
   Complex<double> beta,        Matrix<Complex<double>>& C );
 } // namespace internal
-#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_COMPLEX
 
-} // namespace elem
+} // namespace El

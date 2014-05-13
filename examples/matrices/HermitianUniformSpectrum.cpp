@@ -6,11 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_NORM_INC
-#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_NORM_INC
+#include EL_HERMITIANUNIFORMSPECTRUM_INC
+using namespace El;
 
 int 
 main( int argc, char* argv[] )

@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #define ColDist STAR
 #define RowDist MC
 
 #include "./setup.hpp"
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -78,7 +78,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
-    const elem::Grid& g = this->Grid();
+    const El::Grid& g = this->Grid();
     if( A.Height() == 1 )
     {
         this->Resize( 1, A.Width() );
@@ -118,7 +118,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
 
             const T* ABuf = A.LockedBuffer();
             const Int ALDim = A.LDim();
-            ELEM_PARALLEL_FOR
+            EL_PARALLEL_FOR
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 sendBuf[jLoc] = ABuf[(offset+jLoc*r)*ALDim];
         }
@@ -136,7 +136,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
         // Unpack
         T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
-        ELEM_PARALLEL_FOR
+        EL_PARALLEL_FOR
         for( Int k=0; k<c; ++k )
         {
             const T* data = &sendBuf[k*portionSize];
@@ -333,16 +333,16 @@ Int DM::RedundantSize() const { return this->grid_->MRSize(); }
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);
 #endif
 
-} // namespace elem
+} // namespace El

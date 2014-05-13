@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #include "./Trr2k/Local.hpp"
 #include "./Trr2k/NNNN.hpp"
@@ -26,7 +26,7 @@
 #include "./Trr2k/TTTN.hpp"
 #include "./Trr2k/TTTT.hpp"
 
-namespace elem {
+namespace El {
 
 // This will be enabled as soon as the underlying routines are written
 /*
@@ -211,7 +211,7 @@ void Trr2k
     }
 }
 
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 template void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
@@ -363,7 +363,7 @@ template void LocalTrr2k
                const DistMatrix<float,STAR,MC>& C, 
                const DistMatrix<float,MR,STAR>& D,
   float beta,        DistMatrix<float,MC,  MR>& E  );
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 template void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
@@ -517,8 +517,8 @@ template void LocalTrr2k
                         const DistMatrix<Complex<float>,STAR,MC>& C, 
                         const DistMatrix<Complex<float>,MR,STAR>& D,
   Complex<float> beta,        DistMatrix<Complex<float>,MC,  MR>& E  );
-#endif // ifndef ELEM_DISABLE_COMPLEX
-#endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_FLOAT
 
 template void Trr2k
 ( UpperOrLower uplo,
@@ -671,7 +671,7 @@ template void LocalTrr2k
                 const DistMatrix<double,STAR,MC>& C, 
                 const DistMatrix<double,MR,STAR>& D,
   double beta,        DistMatrix<double,MC,  MR>& E  );
-#ifndef ELEM_DISABLE_COMPLEX
+#ifndef EL_DISABLE_COMPLEX
 template void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
@@ -825,6 +825,6 @@ template void LocalTrr2k
                          const DistMatrix<Complex<double>,STAR,MC>& C, 
                          const DistMatrix<Complex<double>,MR,STAR>& D,
   Complex<double> beta,        DistMatrix<Complex<double>,MC,  MR>& E  );
-#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_COMPLEX
 
-} // namespace elem
+} // namespace El

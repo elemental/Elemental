@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #define ColDist CIRC
 #define RowDist CIRC
 
 #include "./setup.hpp"
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -69,7 +69,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
     const Int m = A.Height();
     const Int n = A.Width();
     this->Resize( m, n );
-    const elem::Grid& g = this->Grid();
+    const El::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
@@ -104,7 +104,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
         // Pack
         const Int ALDim = A.LDim();
         const T* ABuf = A.LockedBuffer();
-        ELEM_PARALLEL_FOR
+        EL_PARALLEL_FOR
         for( Int j=0; j<n; ++j )
             MemCopy( &sendBuf[j*mLocalA], &ABuf[j*ALDim], mLocalA );
     }
@@ -117,7 +117,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
         // Unpack
         T* buffer = this->Buffer();
         const Int ldim = this->LDim();
-        ELEM_OUTER_PARALLEL_FOR
+        EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<p; ++k )
         {
             if( g.DiagPath( k ) == ownerPath )
@@ -126,7 +126,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
                 const Int pathRank = g.DiagPathRank( k );
                 const Int colShift = Shift_( pathRank, ownerPathRank, lcm );
                 const Int mLocal = Length_( m, colShift, lcm );
-                ELEM_INNER_PARALLEL_FOR
+                EL_INNER_PARALLEL_FOR
                 for( Int j=0; j<n; ++j )
                 {
                     T* destCol = &buffer[colShift+j*ldim];
@@ -154,7 +154,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
     const Int m = A.Height();
     const Int n = A.Width();
     this->Resize( m, n );
-    const elem::Grid& g = this->Grid();
+    const El::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
@@ -189,7 +189,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
         // Pack
         const Int ALDim = A.LDim();
         const T* ABuf = A.LockedBuffer();
-        ELEM_PARALLEL_FOR
+        EL_PARALLEL_FOR
         for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
             MemCopy( &sendBuf[jLoc*m], &ABuf[jLoc*ALDim], m );
     }
@@ -202,7 +202,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
         // Unpack
         T* buffer = this->Buffer();
         const Int ldim = this->LDim();
-        ELEM_OUTER_PARALLEL_FOR
+        EL_OUTER_PARALLEL_FOR
         for( Int k=0; k<p; ++k )
         {
             if( g.DiagPath( k ) == ownerPath )
@@ -211,7 +211,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
                 const Int pathRank = g.DiagPathRank( k );
                 const Int rowShift = Shift_( pathRank, ownerPathRank, lcm );
                 const Int nLocal = Length_( n, rowShift, lcm );
-                ELEM_INNER_PARALLEL_FOR
+                EL_INNER_PARALLEL_FOR
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                     MemCopy
                     ( &buffer[(rowShift+jLoc*lcm)*ldim], &data[jLoc*m], m );
@@ -395,7 +395,7 @@ DM::CollectFrom( const DistMatrix<T,U,V>& A )
     // Pack
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
-    ELEM_PARALLEL_FOR
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
         MemCopy( &sendBuf[jLoc*mLocalA], &ABuf[jLoc*ALDim], mLocalA );
 
@@ -409,7 +409,7 @@ DM::CollectFrom( const DistMatrix<T,U,V>& A )
         const Int ldim = this->LDim();
         const Int colAlignA = A.ColAlign();
         const Int rowAlignA = A.RowAlign();
-        ELEM_OUTER_PARALLEL_FOR
+        EL_OUTER_PARALLEL_FOR
         for( Int l=0; l<rowStride; ++l )
         {
             const Int rowShift = Shift_( l, rowAlignA, rowStride );
@@ -419,7 +419,7 @@ DM::CollectFrom( const DistMatrix<T,U,V>& A )
                 const T* data = &recvBuf[(k+l*colStride)*pkgSize];
                 const Int colShift = Shift_( k, colAlignA, colStride );
                 const Int mLocal = Length_( m, colShift, colStride );
-                ELEM_INNER_PARALLEL_FOR
+                EL_INNER_PARALLEL_FOR
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     T* destCol =
@@ -479,16 +479,16 @@ DM::Scatter( DistMatrix<T,U,V>& A ) const
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);
 #endif
 
-} // namespace elem
+} // namespace El

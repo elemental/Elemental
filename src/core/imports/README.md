@@ -2,7 +2,7 @@
 
 This folder contains the directly-instantiated portions of Elemental's wrappers
 for external libraries, such as BLAS, LAPACK, and PMRRR. Please see 
-`include/elemental/core/imports` for the corresponding header-level prototypes
+`include/El/core/imports` for the corresponding header-level prototypes
 and implementations.
 
 In addition to this file, the folder contains:

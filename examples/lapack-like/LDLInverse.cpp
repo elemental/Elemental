@@ -6,20 +6,20 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_MAKESYMMETRIC_INC
-#include ELEM_HEMM_INC
-#include ELEM_SYMM_INC
-#include ELEM_TRDTRMM_INC
-#include ELEM_INVERSE_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_TRIANGULARINVERSE_INC
-#include ELEM_IDENTITY_INC
-#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
-#include ELEM_WIGNER_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_MAKESYMMETRIC_INC
+#include EL_HEMM_INC
+#include EL_SYMM_INC
+#include EL_TRDTRMM_INC
+#include EL_INVERSE_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_TRIANGULARINVERSE_INC
+#include EL_IDENTITY_INC
+#include EL_HERMITIANUNIFORMSPECTRUM_INC
+#include EL_WIGNER_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
 typedef double Real;

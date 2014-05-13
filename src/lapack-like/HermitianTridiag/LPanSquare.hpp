@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_HERMITIANTRIDIAG_LPANSQUARE_HPP
-#define ELEM_HERMITIANTRIDIAG_LPANSQUARE_HPP
+#ifndef EL_HERMITIANTRIDIAG_LPANSQUARE_HPP
+#define EL_HERMITIANTRIDIAG_LPANSQUARE_HPP
 
-#include ELEM_ZERO_INC
-#include ELEM_GEMV_INC
-#include ELEM_REFLECTOR_INC
+#include EL_ZERO_INC
+#include EL_GEMV_INC
+#include EL_REFLECTOR_INC
 
-namespace elem {
+namespace El {
 namespace herm_tridiag {
 
 template<typename F>
@@ -587,6 +587,6 @@ void LPanSquare
 }
 
 } // namespace herm_tridiag
-} // namespace elem
+} // namespace El
 
-#endif // ifndef ELEM_HERMITIANTRIDIAG_LPANSQUARE_HPP
+#endif // ifndef EL_HERMITIANTRIDIAG_LPANSQUARE_HPP

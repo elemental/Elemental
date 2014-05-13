@@ -6,11 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_HERMITIANTRIDIAGEIG_INC
-#include ELEM_LEGENDRE_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_HERMITIANTRIDIAGEIG_INC
+#include EL_LEGENDRE_INC
+using namespace El;
 
 int 
 main( int argc, char* argv[] )
@@ -30,7 +30,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( J, "Jacobi matrix for Legendre polynomials" );
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
             Spy( J, "Spy plot for Jacobi matrix" );
 #endif
         }

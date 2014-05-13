@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_TRR2K_TNNT_HPP
-#define ELEM_TRR2K_TNNT_HPP
+#ifndef EL_TRR2K_TNNT_HPP
+#define EL_TRR2K_TNNT_HPP
 
 #include "./NTTN.hpp"
 
-namespace elem {
+namespace El {
 namespace internal {
 
 // Distributed E := alpha (A^{T/H} B + C D^{T/H}) + beta E
@@ -29,6 +29,6 @@ void Trr2kTNNT
 }
 
 } // namespace internal
-} // namespace elem
+} // namespace El
 
-#endif // ifndef ELEM_TRR2K_TNNT_HPP
+#endif // ifndef EL_TRR2K_TNNT_HPP

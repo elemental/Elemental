@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 extern "C" {
 
@@ -32,7 +32,7 @@ int pmrrr
 
 } // extern "C"
 
-namespace elem {
+namespace El {
 namespace herm_tridiag_eig {
 
 // Return upper bounds on the number of (local) eigenvalues in the given range,
@@ -219,4 +219,4 @@ Info Eig
 }
 
 } // namespace herm_tridiag_eig
-} // namespace elem
+} // namespace El

@@ -1,12 +1,12 @@
 if(HYBRID)
   if(OpenMP_CXX_FLAGS)
-    set(ELEM_HAVE_OPENMP TRUE)
+    set(EL_HAVE_OPENMP TRUE)
     set(OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS})
     message(STATUS "Using OpenMP_CXX_FLAGS=${OpenMP_CXX_FLAGS}")
   else()
     find_package(OpenMP)
     if(OPENMP_FOUND)
-      set(ELEM_HAVE_OPENMP TRUE)
+      set(EL_HAVE_OPENMP TRUE)
     else()
       set(OpenMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
       message(FATAL_ERROR
@@ -29,4 +29,4 @@ set(OMP_COLLAPSE_CODE
                  k[i+j*10] = i+j; 
          return 0; 
      }")
-check_cxx_source_compiles("${OMP_COLLAPSE_CODE}" ELEM_HAVE_OMP_COLLAPSE)
+check_cxx_source_compiles("${OMP_COLLAPSE_CODE}" EL_HAVE_OMP_COLLAPSE)

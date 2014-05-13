@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_MAKEHERMITIAN_INC
-#include ELEM_PSEUDOINVERSE_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_MAKEHERMITIAN_INC
+#include EL_PSEUDOINVERSE_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 // Typedef our real and complex types to 'R' and 'C' for convenience
 typedef double R;

@@ -11,7 +11,7 @@
 // as a workaround for the fact that C++11 constructor inheritance is not 
 // yet widely supported.
 
-namespace elem {
+namespace El {
 
 #define DM DistMatrix<T,ColDist,RowDist>
 #define BDM BlockDistMatrix<T,ColDist,RowDist>
@@ -24,7 +24,7 @@ namespace elem {
 // ============================
 
 template<typename T>
-BDM::BlockDistMatrix( const elem::Grid& g, Int root )
+BDM::BlockDistMatrix( const El::Grid& g, Int root )
 : GBDM(g,root)
 { 
     if( ColDist == CIRC && RowDist == CIRC )
@@ -34,7 +34,7 @@ BDM::BlockDistMatrix( const elem::Grid& g, Int root )
 
 template<typename T>
 BDM::BlockDistMatrix
-( const elem::Grid& g, Int blockHeight, Int blockWidth, Int root )
+( const El::Grid& g, Int blockHeight, Int blockWidth, Int root )
 : GBDM(g,blockHeight,blockWidth,root)
 { 
     if( ColDist == CIRC && RowDist == CIRC )
@@ -44,7 +44,7 @@ BDM::BlockDistMatrix
 
 template<typename T>
 BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g, Int root )
+( Int height, Int width, const El::Grid& g, Int root )
 : GBDM(g,root)
 { 
     if( ColDist == CIRC && RowDist == CIRC )
@@ -54,7 +54,7 @@ BDM::BlockDistMatrix
 
 template<typename T>
 BDM::BlockDistMatrix
-( Int height, Int width, const elem::Grid& g,
+( Int height, Int width, const El::Grid& g,
   Int blockHeight, Int blockWidth, Int root )
 : GBDM(g,blockHeight,blockWidth,root)
 { 
@@ -107,7 +107,7 @@ BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-BDM::BlockDistMatrix( BDM&& A ) ELEM_NOEXCEPT : GBDM(std::move(A)) { } 
+BDM::BlockDistMatrix( BDM&& A ) EL_NOEXCEPT : GBDM(std::move(A)) { } 
 
 template<typename T> BDM::~BlockDistMatrix() { }
 
@@ -135,6 +135,6 @@ BDM::operator=( BDM&& A )
 }
 
 template<typename T>
-elem::BlockDistData BDM::DistData() const { return elem::BlockDistData(*this); }
+El::BlockDistData BDM::DistData() const { return El::BlockDistData(*this); }
 
-} // namespace elem
+} // namespace El

@@ -6,9 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
-namespace elem {
+namespace El {
 
 // Public routines
 // ###############
@@ -91,7 +91,7 @@ Matrix<T>::Matrix( const Matrix<T>& A )
 }
 
 template<typename T>
-Matrix<T>::Matrix( Matrix<T>&& A ) ELEM_NOEXCEPT
+Matrix<T>::Matrix( Matrix<T>&& A ) EL_NOEXCEPT
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), ldim_(A.ldim_),
   data_(nullptr), memory_(std::move(A.memory_))
@@ -123,7 +123,7 @@ Matrix<T>::operator=( const Matrix<T>& A )
     const Int ldimOfA = A.LDim();
     const T* src = A.LockedBuffer();
     T* dst = Buffer();
-    ELEM_PARALLEL_FOR
+    EL_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
         MemCopy( &dst[j*ldim], &src[j*ldimOfA], height );
     return *this;
@@ -247,7 +247,7 @@ Int Matrix<T>::MemorySize() const { return memory_.Size(); }
 
 template<typename T>
 Int Matrix<T>::DiagonalLength( Int offset ) const
-{ return elem::DiagonalLength(height_,width_,offset); }
+{ return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
 T*
@@ -319,7 +319,7 @@ Matrix<T>::GetRealPart( Int i, Int j ) const
         CallStackEntry cse("Matrix::GetRealPart");
         AssertValidEntry( i, j );
     )
-    return elem::RealPart( Get_( i, j ) );
+    return El::RealPart( Get_( i, j ) );
 }
 
 template<typename T>
@@ -330,7 +330,7 @@ Matrix<T>::GetImagPart( Int i, Int j ) const
         CallStackEntry cse("Matrix::GetImagPart");
         AssertValidEntry( i, j );
     )
-    return elem::ImagPart( Get_( i, j ) );
+    return El::ImagPart( Get_( i, j ) );
 }
 
 template<typename T>
@@ -356,7 +356,7 @@ Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
         if( Locked() )
             LogicError("Cannot modify data of locked matrices");
     )
-    elem::SetRealPart( Set_( i, j ), alpha );
+    El::SetRealPart( Set_( i, j ), alpha );
 }
 
 template<typename T>
@@ -370,7 +370,7 @@ Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
             LogicError("Cannot modify data of locked matrices");
     )
     ComplainIfReal();
-    elem::SetImagPart( Set_( i, j ), alpha );
+    El::SetImagPart( Set_( i, j ), alpha );
 }
 
 template<typename T>
@@ -396,7 +396,7 @@ Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
         if( Locked() )
             LogicError("Cannot modify data of locked matrices");
     )
-    elem::UpdateRealPart( Set_( i, j ), alpha );
+    El::UpdateRealPart( Set_( i, j ), alpha );
 }
 
 template<typename T>
@@ -410,7 +410,7 @@ Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
             LogicError("Cannot modify data of locked matrices");
     )
     ComplainIfReal();
-    elem::UpdateImagPart( Set_( i, j ), alpha );
+    El::UpdateImagPart( Set_( i, j ), alpha );
 }
 
 template<typename T>
@@ -436,7 +436,7 @@ Matrix<T>::Conjugate( Int i, Int j )
         if( Locked() )
             LogicError("Cannot modify data of locked matrices");
     )
-    Set( i, j, elem::Conj(Get(i,j)) );
+    Set( i, j, El::Conj(Get(i,j)) );
 }
 
 // Diagonal manipulation
@@ -473,7 +473,7 @@ Matrix<T>::GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        d.Set_( k, 0 ) = elem::RealPart( Get_(k+iOff,k+jOff) );
+        d.Set_( k, 0 ) = El::RealPart( Get_(k+iOff,k+jOff) );
 }
 
 template<typename T>
@@ -490,7 +490,7 @@ Matrix<T>::GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        d.Set_( k, 0 ) = elem::ImagPart( Get_(k+iOff,k+jOff) );
+        d.Set_( k, 0 ) = El::ImagPart( Get_(k+iOff,k+jOff) );
 }
 
 template<typename T>
@@ -549,7 +549,7 @@ Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        elem::SetRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+        El::SetRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>
@@ -566,7 +566,7 @@ Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        elem::SetImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+        El::SetImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>
@@ -598,7 +598,7 @@ Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        elem::UpdateRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+        El::UpdateRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>
@@ -615,7 +615,7 @@ Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
     const Int iOff = ( offset>=0 ? 0      : -offset );
     const Int jOff = ( offset>=0 ? offset : 0       );
     for( Int k=0; k<diagLength; ++k )
-        elem::UpdateImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+        El::UpdateImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>
@@ -793,7 +793,7 @@ Matrix<T>::SetRealPartOfSubmatrix
         for( Int i=0; i<m; ++i )
         {
             DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
-            elem::SetRealPart( buf[rowInd[i]+jSub*ld], bufSub[i+j*ldSub] );
+            El::SetRealPart( buf[rowInd[i]+jSub*ld], bufSub[i+j*ldSub] );
         }
     }
 }
@@ -817,7 +817,7 @@ Matrix<T>::SetImagPartOfSubmatrix
         for( Int i=0; i<m; ++i )
         {
             DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
-            elem::SetImagPart( buf[rowInd[i]+jSub*ld], bufSub[i+j*ldSub] );
+            El::SetImagPart( buf[rowInd[i]+jSub*ld], bufSub[i+j*ldSub] );
         }
     }
 }
@@ -865,7 +865,7 @@ Matrix<T>::UpdateRealPartOfSubmatrix
         for( Int i=0; i<m; ++i )
         {
             DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
-            elem::UpdateRealPart
+            El::UpdateRealPart
             ( buf[rowInd[i]+jSub*ld], alpha*bufSub[i+j*ldSub] );
         }
     }
@@ -890,7 +890,7 @@ Matrix<T>::UpdateImagPartOfSubmatrix
         for( Int i=0; i<m; ++i )
         {
             DEBUG_ONLY(AssertValidEntry(rowInd[i],colInd[j]))
-            elem:: UpdateImagPart
+            El:: UpdateImagPart
             ( buf[rowInd[i]+jSub*ld], alpha*bufSub[i+j*ldSub] );
         }
     }
@@ -1101,15 +1101,15 @@ Matrix<T>::Resize_( Int height, Int width, Int ldim )
 // Instantiate for {Int,Real,Complex<Real>} for each Real in {float,double}
 // ########################################################################
 template class Matrix<Int>;
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 template class Matrix<float>;
-#endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_FLOAT
 template class Matrix<double>;
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 template class Matrix<Complex<float>>;
-#endif // ifndef ELEM_DISABLE_FLOAT
+#endif // ifndef EL_DISABLE_FLOAT
 template class Matrix<Complex<double>>;
-#endif // ifndef ELEM_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_COMPLEX
 
-} // namespace elem
+} // namespace El

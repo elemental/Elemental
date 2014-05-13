@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-#include "elemental/io.hpp"
+#include "El-lite.hpp"
+#include "El/io.hpp"
 
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
 
 #include <QBoxLayout>
 
-namespace elem {
+namespace El {
 
 SpyWindow::SpyWindow( QWidget* parent )
 : QWidget(parent)
@@ -50,6 +50,6 @@ SpyWindow::Spy( const Matrix<Int>* matrix, QString title )
     spy_->Spy( matrix );
 }
 
-} // namespace elem
+} // namespace El
 
-#endif // ifdef ELEM_HAVE_QT5
+#endif // ifdef EL_HAVE_QT5

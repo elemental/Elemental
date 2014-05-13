@@ -6,19 +6,19 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_DIAGONALSCALE_INC
-#include ELEM_HEMM_INC
-#include ELEM_SYMM_INC
-#include ELEM_TRMM_INC
-#include ELEM_LDL_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_INFINITYNORM_INC
-#include ELEM_ONENORM_INC
-#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_DIAGONALSCALE_INC
+#include EL_HEMM_INC
+#include EL_SYMM_INC
+#include EL_TRMM_INC
+#include EL_LDL_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_INFINITYNORM_INC
+#include EL_ONENORM_INC
+#include EL_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 template<typename F,Dist UPerm> 
 void TestCorrectness

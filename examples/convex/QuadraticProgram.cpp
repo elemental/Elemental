@@ -6,13 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_HEMV_INC
-#include ELEM_QUADRATICPROGRAM_INC
-#include ELEM_HERMITIANUNIFORMSPECTRUM_INC
-#include ELEM_GAUSSIAN_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_HEMV_INC
+#include EL_QUADRATICPROGRAM_INC
+#include EL_HERMITIANUNIFORMSPECTRUM_INC
+#include EL_GAUSSIAN_INC
+using namespace El;
 
 // This driver is an adaptation of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/quadprog/quadprog.html

@@ -7,9 +7,9 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <limits>
-#include "elemental.hpp"
-// TODO: Switch to elemental-lite.hpp
-using namespace elem;
+#include "El.hpp"
+// TODO: Switch to El-lite.hpp
+using namespace El;
 
 extern "C" {
 #include "./elemental.h"

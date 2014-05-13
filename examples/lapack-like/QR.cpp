@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_QR_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_IDENTITY_INC
-#include ELEM_UNIFORM_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_QR_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_IDENTITY_INC
+#include EL_UNIFORM_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 typedef double Real;
 typedef Complex<Real> C;

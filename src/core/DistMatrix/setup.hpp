@@ -11,7 +11,7 @@
 // as a workaround for the fact that C++11 constructor inheritance is not 
 // yet widely supported.
 
-namespace elem {
+namespace El {
 
 #define DM DistMatrix<T,ColDist,RowDist>
 #define GDM GeneralDistMatrix<T,ColDist,RowDist>
@@ -23,7 +23,7 @@ namespace elem {
 // ============================
 
 template<typename T>
-DM::DistMatrix( const elem::Grid& grid, Int root )
+DM::DistMatrix( const El::Grid& grid, Int root )
 : GDM(grid,root)
 { 
     if( ColDist == CIRC && RowDist == CIRC )
@@ -32,7 +32,7 @@ DM::DistMatrix( const elem::Grid& grid, Int root )
 }
 
 template<typename T>
-DM::DistMatrix( Int height, Int width, const elem::Grid& grid, Int root )
+DM::DistMatrix( Int height, Int width, const El::Grid& grid, Int root )
 : GDM(grid,root)
 { 
     if( ColDist == CIRC && RowDist == CIRC )
@@ -84,7 +84,7 @@ DM::DistMatrix( const BlockDistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM::DistMatrix( DM&& A ) ELEM_NOEXCEPT : GDM(std::move(A)) { }
+DM::DistMatrix( DM&& A ) EL_NOEXCEPT : GDM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 
@@ -114,6 +114,6 @@ DM::operator=( DM&& A )
 }
 
 template<typename T>
-elem::DistData DM::DistData() const { return elem::DistData(*this); }
+El::DistData DM::DistData() const { return El::DistData(*this); }
 
-} // namespace elem
+} // namespace El

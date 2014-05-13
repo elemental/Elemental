@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-using namespace elem;
+#include "El-lite.hpp"
+using namespace El;
 
 int 
 main( int argc, char* argv[] )

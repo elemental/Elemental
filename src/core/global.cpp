@@ -7,13 +7,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-#ifdef ELEM_HAVE_QT5
+#include "El-lite.hpp"
+#ifdef EL_HAVE_QT5
  #include <QApplication>
 #endif
 
 namespace {
-using namespace elem;
+using namespace El;
 
 Int numElemInits = 0;
 bool elemInitializedMpi = false;
@@ -50,7 +50,7 @@ Int localTrrkComplexDoubleBlocksize = 64;
 // Qt5
 ColorMap colorMap=RED_BLACK_GREEN;
 Int numDiscreteColors = 15;
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
 bool guiDisabled;
 bool elemInitializedQt = false;
 bool elemOpenedWindow = false;
@@ -62,72 +62,72 @@ double minRealWindowVal, maxRealWindowVal,
 #endif
 }
 
-namespace elem {
+namespace El {
 
 void PrintVersion( std::ostream& os )
 {
     os << "Elemental version information:\n"
-       << "  Git revision: " << ELEM_GIT_SHA1 << "\n"
-       << "  Version:      " << Elemental_VERSION_MAJOR << "."
-                             << Elemental_VERSION_MINOR << "\n"
-       << "  Build type:   " << ELEM_CMAKE_BUILD_TYPE << "\n"
+       << "  Git revision: " << EL_GIT_SHA1 << "\n"
+       << "  Version:      " << EL_VERSION_MAJOR << "."
+                             << EL_VERSION_MINOR << "\n"
+       << "  Build type:   " << EL_CMAKE_BUILD_TYPE << "\n"
        << std::endl;
 }
 
 void PrintConfig( std::ostream& os )
 {
     os << "Elemental configuration:\n"
-       << "  Math libraries:               " << ELEM_MATH_LIBS << "\n"
+       << "  Math libraries:               " << EL_MATH_LIBS << "\n"
        << "  Have FLAME bidiagonal SVD:    " 
-#ifdef ELEM_HAVE_FLA_BSVD
+#ifdef EL_HAVE_FLA_BSVD
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Have OpenMP:                  "
-#ifdef ELEM_HAVE_OPENMP
+#ifdef EL_HAVE_OPENMP
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Have Qt5:                     "
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Have F90 interface:           "
-#ifdef ELEM_HAVE_F90_INTERFACE
+#ifdef EL_HAVE_F90_INTERFACE
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Avoiding complex MPI:         "
-#ifdef ELEM_AVOID_COMPLEX_MPI
+#ifdef EL_AVOID_COMPLEX_MPI
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Have MPI_Reducescatter_block: "
-#ifdef ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK
+#ifdef EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Have MPI_IN_PLACE:            "
-#ifdef ELEM_HAVE_MPI_IN_PLACE
+#ifdef EL_HAVE_MPI_IN_PLACE
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  AllReduce ReduceScatterBlock: "
-#ifdef ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#ifdef EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
        << "YES\n"
 #else
        << "NO\n"
 #endif
        << "  Use byte Allgathers:          "
-#ifdef ELEM_USE_BYTE_ALLGATHERS
+#ifdef EL_USE_BYTE_ALLGATHERS
        << "YES\n"
 #else
        << "NO\n"
@@ -138,25 +138,25 @@ void PrintConfig( std::ostream& os )
 void PrintCCompilerInfo( std::ostream& os )
 {
     os << "Elemental's C compiler info:\n"
-       << "  ELEM_CMAKE_C_COMPILER:    " << ELEM_CMAKE_C_COMPILER << "\n"
-       << "  ELEM_MPI_C_COMPILER:      " << ELEM_MPI_C_COMPILER << "\n"
-       << "  ELEM_MPI_C_INCLUDE_PATH:  " << ELEM_MPI_C_INCLUDE_PATH << "\n"
-       << "  ELEM_MPI_C_COMPILE_FLAGS: " << ELEM_MPI_C_COMPILE_FLAGS << "\n"
-       << "  ELEM_MPI_C_LINK_FLAGS:    " << ELEM_MPI_C_LINK_FLAGS << "\n"
-       << "  ELEM_MPI_C_LIBRARIES:     " << ELEM_MPI_C_LIBRARIES << "\n"
+       << "  EL_CMAKE_C_COMPILER:    " << EL_CMAKE_C_COMPILER << "\n"
+       << "  EL_MPI_C_COMPILER:      " << EL_MPI_C_COMPILER << "\n"
+       << "  EL_MPI_C_INCLUDE_PATH:  " << EL_MPI_C_INCLUDE_PATH << "\n"
+       << "  EL_MPI_C_COMPILE_FLAGS: " << EL_MPI_C_COMPILE_FLAGS << "\n"
+       << "  EL_MPI_C_LINK_FLAGS:    " << EL_MPI_C_LINK_FLAGS << "\n"
+       << "  EL_MPI_C_LIBRARIES:     " << EL_MPI_C_LIBRARIES << "\n"
        << std::endl;
 }
 
 void PrintCxxCompilerInfo( std::ostream& os )
 {
     os << "Elemental's C++ compiler info:\n"
-       << "  ELEM_CMAKE_CXX_COMPILER:    " << ELEM_CMAKE_CXX_COMPILER << "\n"
-       << "  ELEM_CXX_FLAGS:             " << ELEM_CXX_FLAGS << "\n"
-       << "  ELEM_MPI_CXX_COMPILER:      " << ELEM_MPI_CXX_COMPILER << "\n"
-       << "  ELEM_MPI_CXX_INCLUDE_PATH:  " << ELEM_MPI_CXX_INCLUDE_PATH << "\n"
-       << "  ELEM_MPI_CXX_COMPILE_FLAGS: " << ELEM_MPI_CXX_COMPILE_FLAGS << "\n"
-       << "  ELEM_MPI_CXX_LINK_FLAGS:    " << ELEM_MPI_CXX_LINK_FLAGS << "\n"
-       << "  ELEM_MPI_CXX_LIBRARIES:     " << ELEM_MPI_CXX_LIBRARIES << "\n"
+       << "  EL_CMAKE_CXX_COMPILER:    " << EL_CMAKE_CXX_COMPILER << "\n"
+       << "  EL_CXX_FLAGS:             " << EL_CXX_FLAGS << "\n"
+       << "  EL_MPI_CXX_COMPILER:      " << EL_MPI_CXX_COMPILER << "\n"
+       << "  EL_MPI_CXX_INCLUDE_PATH:  " << EL_MPI_CXX_INCLUDE_PATH << "\n"
+       << "  EL_MPI_CXX_COMPILE_FLAGS: " << EL_MPI_CXX_COMPILE_FLAGS << "\n"
+       << "  EL_MPI_CXX_LINK_FLAGS:    " << EL_MPI_CXX_LINK_FLAGS << "\n"
+       << "  EL_MPI_CXX_LIBRARIES:     " << EL_MPI_CXX_LIBRARIES << "\n"
        << std::endl;
 }
 
@@ -172,7 +172,7 @@ void SetNumDiscreteColors( Int numChunks )
 Int NumDiscreteColors()
 { return ::numDiscreteColors; }
 
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
 bool GuiDisabled()
 { return ::guiDisabled; }
 
@@ -246,7 +246,7 @@ void UpdateMaxImagWindowVal( double maxVal )
         ::maxImagWindowVal = maxVal;
     ::haveMaxImagWindowVal = true;
 }
-#endif // ifdef ELEM_HAVE_QT5
+#endif // ifdef EL_HAVE_QT5
 
 bool Initialized()
 { return ::numElemInits > 0; }
@@ -269,7 +269,7 @@ void Initialize( int& argc, char**& argv )
             LogicError
             ("Cannot initialize elemental after finalizing MPI");
         }
-#ifdef ELEM_HAVE_OPENMP
+#ifdef EL_HAVE_OPENMP
         const Int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
@@ -286,7 +286,7 @@ void Initialize( int& argc, char**& argv )
     }
     else
     {
-#ifdef ELEM_HAVE_OPENMP
+#ifdef EL_HAVE_OPENMP
         const Int provided = mpi::QueryThread();
         if( provided != mpi::THREAD_MULTIPLE )
         {
@@ -296,7 +296,7 @@ void Initialize( int& argc, char**& argv )
 #endif
     }
 
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
     ::coreApp = QCoreApplication::instance();
     if( ::coreApp == 0 )
     {
@@ -400,7 +400,7 @@ void Finalize()
             mpi::Finalize();
         }
 
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
         if( ::elemInitializedQt )
         {
             if( ::elemOpenedWindow )
@@ -469,19 +469,19 @@ DEBUG_ONLY(
 
     void PushCallStack( std::string s )
     { 
-#ifdef ELEM_HAVE_OPENMP
+#ifdef EL_HAVE_OPENMP
         if( omp_get_thread_num() != 0 )
             return;
-#endif // ELEM_HAVE_OPENMP
+#endif // EL_HAVE_OPENMP
         ::callStack.push(s); 
     }
 
     void PopCallStack()
     { 
-#ifdef ELEM_HAVE_OPENMP
+#ifdef EL_HAVE_OPENMP
         if( omp_get_thread_num() != 0 )
             return;
-#endif // ELEM_HAVE_OPENMP
+#endif // EL_HAVE_OPENMP
         ::callStack.pop(); 
     }
 
@@ -596,4 +596,4 @@ template<>
 Int LocalTrrkBlocksize<Complex<double>>()
 { return ::localTrrkComplexDoubleBlocksize; }
 
-} // namespace elem
+} // namespace El

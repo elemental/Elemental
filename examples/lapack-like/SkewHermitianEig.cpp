@@ -6,17 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_DIAGONALSCALE_INC
-#include ELEM_SCALE_INC
-#include ELEM_GEMM_INC
-#include ELEM_HERK_INC
-#include ELEM_SKEWHERMITIANEIG_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_IDENTITY_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_DIAGONALSCALE_INC
+#include EL_SCALE_INC
+#include EL_GEMM_INC
+#include EL_HERK_INC
+#include EL_SKEWHERMITIANEIG_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_IDENTITY_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
 typedef double Real;
@@ -26,7 +26,7 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is elem::Initialize.
+    // does so if necessary. The full routine is El::Initialize.
     Initialize( argc, argv );
 
     // Surround the Elemental calls with try/catch statements in order to 

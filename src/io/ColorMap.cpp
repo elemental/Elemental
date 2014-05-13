@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
-#include "elemental/io.hpp"
+#include "El-lite.hpp"
+#include "El/io.hpp"
 
-namespace elem {
+namespace El {
 
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
 QRgb SampleColorMap( double value, double minVal, double maxVal )
 {
     DEBUG_ONLY(CallStackEntry cse("SampleColorMap"))
@@ -53,6 +53,6 @@ QRgb SampleColorMap( double value, double minVal, double maxVal )
 
     return qRgba( red, green, blue, alpha );
 }
-#endif // ifdef ELEM_HAVE_QT5
+#endif // ifdef EL_HAVE_QT5
 
-} // namespace elem
+} // namespace El

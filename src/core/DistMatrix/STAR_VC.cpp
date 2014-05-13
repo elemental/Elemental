@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #define ColDist STAR
 #define RowDist VC
 
 #include "./setup.hpp"
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -180,7 +180,7 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
     // Pack
     const T* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
-    ELEM_PARALLEL_FOR
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
     {
         const T* ACol = &ABuf[jLoc*ALDim];
@@ -196,7 +196,7 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
     // Unpack
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
-    ELEM_PARALLEL_FOR
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const T* recvBufCol = &recvBuf[jLoc*height];
@@ -354,16 +354,16 @@ Int DM::RedundantSize() const { return 1; }
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);
 #endif
 
-} // namespace elem
+} // namespace El

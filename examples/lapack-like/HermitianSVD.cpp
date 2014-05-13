@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_SVD_INC
-#include ELEM_TRACE_INC
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_SVD_INC
+#include EL_TRACE_INC
 using namespace std;
-using namespace elem;
+using namespace El;
 
 // Typedef our real and complex types to 'R' and 'C' for convenience
 typedef double R;
@@ -21,7 +21,7 @@ int
 main( int argc, char* argv[] )
 {
     // This detects whether or not you have already initialized MPI and 
-    // does so if necessary. The full routine is elem::Initialize.
+    // does so if necessary. The full routine is El::Initialize.
     Initialize( argc, argv );
 
     // Extract our MPI rank

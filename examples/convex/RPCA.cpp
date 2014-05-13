@@ -6,18 +6,18 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_AXPY_INC
-#include ELEM_SCALE_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_ENTRYWISEONENORM_INC
-#include ELEM_MAXNORM_INC
-#include ELEM_TWONORM_INC
-#include ELEM_ZERONORM_INC
-#include ELEM_SVT_INC
-#include ELEM_UNIFORM_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_AXPY_INC
+#include EL_SCALE_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_ENTRYWISEONENORM_INC
+#include EL_MAXNORM_INC
+#include EL_TWONORM_INC
+#include EL_ZERONORM_INC
+#include EL_SVT_INC
+#include EL_UNIFORM_INC
+using namespace El;
 
 //
 // This driver generates a random low-rank matrix and then randomly corrupts
@@ -381,7 +381,7 @@ main( int argc, char* argv[] )
         if( display )
         {
             Display( STrue, "True sparse matrix" );
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
             Spy( STrue, "True sparse spy plot" );
 #endif
         }
@@ -415,7 +415,7 @@ main( int argc, char* argv[] )
         {
             Display( L, "Estimated low-rank matrix" );
             Display( S, "Estimated sparse matrix" );
-#ifdef ELEM_HAVE_QT5
+#ifdef EL_HAVE_QT5
             Spy( S, "Estimated sparse spy plot" );
 #endif
         }

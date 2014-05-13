@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
-#ifdef ELEM_HAVE_SCALAPACK
+#ifdef EL_HAVE_SCALAPACK
 
-using elem::scomplex;
-using elem::dcomplex;
+using El::scomplex;
+using El::dcomplex;
 
 extern "C" {
 
@@ -28,22 +28,22 @@ void Cblacs_exit( int notDone );
 
 // TRMM
 // ====
-void ELEM_SCALAPACK(pstrmm)
+void EL_SCALAPACK(pstrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const float* alpha, 
   const float* A, const int* iA, const int* jA, const int* descA,
         float* B, const int* iB, const int* jB, const int* descB );
-void ELEM_SCALAPACK(pdtrmm)
+void EL_SCALAPACK(pdtrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const double* alpha, 
   const double* A, const int* iA, const int* jA, const int* descA,
         double* B, const int* iB, const int* jB, const int* descB );
-void ELEM_SCALAPACK(pctrmm)
+void EL_SCALAPACK(pctrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const scomplex* alpha, 
   const scomplex* A, const int* iA, const int* jA, const int* descA,
         scomplex* B, const int* iB, const int* jB, const int* descB );
-void ELEM_SCALAPACK(pztrmm)
+void EL_SCALAPACK(pztrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const dcomplex* alpha, 
   const dcomplex* A, const int* iA, const int* jA, const int* descA,
@@ -51,22 +51,22 @@ void ELEM_SCALAPACK(pztrmm)
 
 // TRSM
 // ====
-void ELEM_SCALAPACK(pstrsm)
+void EL_SCALAPACK(pstrsm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const float* alpha, 
   const float* A, const int* iA, const int* jA, const int* descA,
         float* B, const int* iB, const int* jB, const int* descB );
-void ELEM_SCALAPACK(pdtrsm)
+void EL_SCALAPACK(pdtrsm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const double* alpha, 
   const double* A, const int* iA, const int* jA, const int* descA,
         double* B, const int* iB, const int* jB, const int* descB );
-void ELEM_SCALAPACK(pctrsm)
+void EL_SCALAPACK(pctrsm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const scomplex* alpha, 
   const scomplex* A, const int* iA, const int* jA, const int* descA,
         scomplex* B, const int* iB, const int* jB, const int* descB );
-void ELEM_SCALAPACK(pztrsm)
+void EL_SCALAPACK(pztrsm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n, const dcomplex* alpha, 
   const dcomplex* A, const int* iA, const int* jA, const int* descA,
@@ -74,37 +74,37 @@ void ELEM_SCALAPACK(pztrsm)
 
 // Cholesky factorization
 // ======================
-void ELEM_SCALAPACK(pspotrf)
+void EL_SCALAPACK(pspotrf)
 ( const char* uplo, const int* n, float* A, const int* iA, const int* jA,
   const int* descA, int* info );
-void ELEM_SCALAPACK(pdpotrf)
+void EL_SCALAPACK(pdpotrf)
 ( const char* uplo, const int* n, double* A, const int* iA, const int* jA,
   const int* descA, int* info );
-void ELEM_SCALAPACK(pcpotrf)
+void EL_SCALAPACK(pcpotrf)
 ( const char* uplo, const int* n, scomplex* A, const int* iA, const int* jA,
   const int* descA, int* info );
-void ELEM_SCALAPACK(pzpotrf)
+void EL_SCALAPACK(pzpotrf)
 ( const char* uplo, const int* n, dcomplex* A, const int* iA, const int* jA,
   const int* descA, int* info );
 
 // Two-sided TRSM/TRMM
 // ===================
-void ELEM_SCALAPACK(pssyngst)
+void EL_SCALAPACK(pssyngst)
 ( const int* typeB, const char* uplo, const int* n, 
         float* A, const int* iA, const int* jA, const int* descA,
   const float* B, const int* iB, const int* jB, const int* descB,
         float* scale, float* work, const int* workSize, int* info );
-void ELEM_SCALAPACK(pdsyngst)
+void EL_SCALAPACK(pdsyngst)
 ( const int* typeB, const char* uplo, const int* n, 
         double* A, const int* iA, const int* jA, const int* descA,
   const double* B, const int* iB, const int* jB, const int* descB,
         double* scale, double* work, const int* workSize, int* info );
-void ELEM_SCALAPACK(pchengst)
+void EL_SCALAPACK(pchengst)
 ( const int* typeB, const char* uplo, const int* n, 
         scomplex* A, const int* iA, const int* jA, const int* descA,
   const scomplex* B, const int* iB, const int* jB, const int* descB,
         float* scale, scomplex* work, const int* workSize, int* info );
-void ELEM_SCALAPACK(pzhengst)
+void EL_SCALAPACK(pzhengst)
 ( const int* typeB, const char* uplo, const int* n, 
         dcomplex* A, const int* iA, const int* jA, const int* descA,
   const dcomplex* B, const int* iB, const int* jB, const int* descB,
@@ -116,13 +116,13 @@ void ELEM_SCALAPACK(pzhengst)
 // Aggressive Early Deflation
 // --------------------------
 // NOTE: ScaLAPACK currently only supports AED for real matrices
-void ELEM_SCALAPACK(pshseqr)
+void EL_SCALAPACK(pshseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
   float* H, const int* descH, float* wr, float* wi, 
   float* Q, const int* descQ, float* work, const int* workSize, 
   int* iWork, const int* iWorkSize, int* info );
-void ELEM_SCALAPACK(pdhseqr)
+void EL_SCALAPACK(pdhseqr)
 ( const char* job, const char* compz, 
   const int* n, const int* ilo, const int* ihi, 
   double* H, const int* descH, double* wr, double* wi, 
@@ -131,28 +131,28 @@ void ELEM_SCALAPACK(pdhseqr)
 
 // Pipelined QR algorithm without AED
 // ----------------------------------
-void ELEM_SCALAPACK(pslahqr)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pslahqr)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* descH,
   float* wr, float* wi, const int* iloQ, const int* ihiQ, 
   float* Q, const int* descQ,
   float* work, const int* workSize, int* iWork, const int* iWorkSize, 
   int* info );
-void ELEM_SCALAPACK(pdlahqr)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pdlahqr)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* descH,
   double* wr, double* wi, const int* iloQ, const int* ihiQ, 
   double* Q, const int* descQ,
   double* work, const int* workSize, int* iWork, const int* iWorkSize, 
   int* info );
-void ELEM_SCALAPACK(pclahqr)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pclahqr)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, scomplex* H, const int* descH,
   scomplex* w, const int* iloQ, const int* ihiQ, scomplex* Q, const int* descQ,
   scomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
   int* info );
-void ELEM_SCALAPACK(pzlahqr)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pzlahqr)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, dcomplex* H, const int* descH,
   dcomplex* w, const int* iloQ, const int* ihiQ, dcomplex* Q, const int* descQ,
   dcomplex* work, const int* workSize, int* iWork, const int* iWorkSize, 
@@ -160,14 +160,14 @@ void ELEM_SCALAPACK(pzlahqr)
 
 // Pipelined QR algorithm with AED for big matrices
 // ------------------------------------------------
-void ELEM_SCALAPACK(pslaqr0)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pslaqr0)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* descH, 
   float* wr, float* wi, const int* iloQ, const int* ihiQ, 
   float* Q, const int* descQ, float* work, const int* workSize, 
   int* iWork, const int* iWorkSize, int* info, const int* reclevel );
-void ELEM_SCALAPACK(pdlaqr0)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pdlaqr0)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* descH, 
   double* wr, double* wi, const int* iloQ, const int* ihiQ,
   double* Q, const int* descQ, double* work, const int* workSize, 
@@ -175,14 +175,14 @@ void ELEM_SCALAPACK(pdlaqr0)
 
 // Pipelined QR algorithm with AED for small matrices
 // --------------------------------------------------
-void ELEM_SCALAPACK(pslaqr1)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pslaqr1)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, float* H, const int* descH, 
   float* wr, float* wi, const int* iloQ, const int* ihiQ, 
   float* Q, const int* descQ, float* work, const int* workSize, 
   int* iWork, const int* iWorkSize, int* info );
-void ELEM_SCALAPACK(pdlaqr1)
-( const ELEM_FORT_LOGICAL* wantt, const ELEM_FORT_LOGICAL* wantz, const int* n,
+void EL_SCALAPACK(pdlaqr1)
+( const EL_FORT_LOGICAL* wantt, const EL_FORT_LOGICAL* wantz, const int* n,
   const int* ilo, const int* ihi, double* H, const int* descH, 
   double* wr, double* wi, const int* iloQ, const int* ihiQ, 
   double* Q, const int* descQ, double* work, const int* workSize, 
@@ -190,7 +190,7 @@ void ELEM_SCALAPACK(pdlaqr1)
 
 } // extern "C"
 
-namespace elem {
+namespace El {
 
 namespace blacs {
 
@@ -258,7 +258,7 @@ void Trmm
                      float* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pstrmm)
+    EL_SCALAPACK(pstrmm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -269,7 +269,7 @@ void Trmm
                       double* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pdtrmm)
+    EL_SCALAPACK(pdtrmm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -280,7 +280,7 @@ void Trmm
                         scomplex* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pctrmm)
+    EL_SCALAPACK(pctrmm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -291,7 +291,7 @@ void Trmm
                         dcomplex* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pztrmm)
+    EL_SCALAPACK(pztrmm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -305,7 +305,7 @@ void Trsm
                      float* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pstrsm)
+    EL_SCALAPACK(pstrsm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -316,7 +316,7 @@ void Trsm
                       double* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pdtrsm)
+    EL_SCALAPACK(pdtrsm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -327,7 +327,7 @@ void Trsm
                         scomplex* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pctrsm)
+    EL_SCALAPACK(pctrsm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -338,7 +338,7 @@ void Trsm
                         dcomplex* B, const int* descB )
 { 
     int iA=1, jA=1, iB=1, jB=1;
-    ELEM_SCALAPACK(pztrsm)
+    EL_SCALAPACK(pztrsm)
     ( &side, &uplo, &trans, &diag, &m, &n, 
       &alpha, A, &iA, &jA, descA, B, &iB, &jB, descB );
 }
@@ -350,7 +350,7 @@ void Cholesky( char uplo, int n, float* A, const int* descA )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
-    ELEM_SCALAPACK(pspotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    EL_SCALAPACK(pspotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
         RuntimeError("pspotrf returned with info=",info);
 }
@@ -359,7 +359,7 @@ void Cholesky( char uplo, int n, double* A, const int* descA )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
-    ELEM_SCALAPACK(pdpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    EL_SCALAPACK(pdpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
         RuntimeError("pdpotrf returned with info=",info);
 }
@@ -368,7 +368,7 @@ void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
-    ELEM_SCALAPACK(pcpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    EL_SCALAPACK(pcpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
         RuntimeError("pcpotrf returned with info=",info);
 }
@@ -377,7 +377,7 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::Cholesky"))
     int iA=1,jA=1,info;
-    ELEM_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
+    EL_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
         RuntimeError("pzpotrf returned with info=",info);
 }
@@ -393,13 +393,13 @@ void TwoSidedTrsm
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
-    ELEM_SCALAPACK(pssyngst)
+    EL_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     std::vector<float> work( workSize );
-    ELEM_SCALAPACK(pssyngst)
+    EL_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -413,13 +413,13 @@ void TwoSidedTrsm
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrsm"))
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
-    ELEM_SCALAPACK(pdsyngst)
+    EL_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     std::vector<double> work( workSize );
-    ELEM_SCALAPACK(pdsyngst)
+    EL_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -434,13 +434,13 @@ void TwoSidedTrsm
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
-    ELEM_SCALAPACK(pchengst)
+    EL_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     std::vector<scomplex> work( workSize );
-    ELEM_SCALAPACK(pchengst)
+    EL_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -455,13 +455,13 @@ void TwoSidedTrsm
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
-    ELEM_SCALAPACK(pzhengst)
+    EL_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     std::vector<dcomplex> work( workSize );
-    ELEM_SCALAPACK(pzhengst)
+    EL_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -479,13 +479,13 @@ void TwoSidedTrmm
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
-    ELEM_SCALAPACK(pssyngst)
+    EL_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     std::vector<float> work( workSize );
-    ELEM_SCALAPACK(pssyngst)
+    EL_SCALAPACK(pssyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -499,13 +499,13 @@ void TwoSidedTrmm
     DEBUG_ONLY(CallStackEntry cse("scalapack::TwoSidedTrmm"))
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
-    ELEM_SCALAPACK(pdsyngst)
+    EL_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork;
     std::vector<double> work( workSize );
-    ELEM_SCALAPACK(pdsyngst)
+    EL_SCALAPACK(pdsyngst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -520,13 +520,13 @@ void TwoSidedTrmm
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
-    ELEM_SCALAPACK(pchengst)
+    EL_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     std::vector<scomplex> work( workSize );
-    ELEM_SCALAPACK(pchengst)
+    EL_SCALAPACK(pchengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -541,13 +541,13 @@ void TwoSidedTrmm
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
-    ELEM_SCALAPACK(pzhengst)
+    EL_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       &dummyWork, &workSize, &info );
 
     workSize = dummyWork.real();
     std::vector<dcomplex> work( workSize );
-    ELEM_SCALAPACK(pzhengst)
+    EL_SCALAPACK(pzhengst)
     ( &typeB, &uplo, &n, A, &iA, &jA, descA, B, &iB, &jB, descB, &scale, 
       work.data(), &workSize, &info );
     if( info != 0 )
@@ -577,7 +577,7 @@ void HessenbergSchur
         int workSize=-1, dummyIWork, iWorkSize=-1;
         float dummyWork;
 
-        ELEM_SCALAPACK(pshseqr)
+        EL_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           0, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -586,7 +586,7 @@ void HessenbergSchur
         iWorkSize = dummyIWork;
         std::vector<float> work(workSize);
         std::vector<int> iWork(iWorkSize);
-        ELEM_SCALAPACK(pshseqr)
+        EL_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           0, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
@@ -594,8 +594,8 @@ void HessenbergSchur
     }
     else
     {
-        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                          wantz=ELEM_FORT_FALSE;
+        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                          wantz=EL_FORT_FALSE;
 
         // PSLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -621,7 +621,7 @@ void HessenbergSchur
         std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        ELEM_SCALAPACK(pslahqr)
+        EL_SCALAPACK(pslahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           &ilo, &ihi, 0, descQ, work.data(), &workSize, 
           iWork.data(), &iWorkSize, &info );
@@ -652,7 +652,7 @@ void HessenbergSchur
         // Query the workspace sizes
         int workSize=-1, dummyIWork, iWorkSize=-1;
         double dummyWork;
-        ELEM_SCALAPACK(pdhseqr)
+        EL_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           0, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -661,7 +661,7 @@ void HessenbergSchur
         iWorkSize = dummyIWork;
         std::vector<double> work(workSize);
         std::vector<int> iWork(iWorkSize);
-        ELEM_SCALAPACK(pdhseqr)
+        EL_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           0, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
@@ -669,8 +669,8 @@ void HessenbergSchur
     }
     else
     {
-        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                          wantz=ELEM_FORT_FALSE;
+        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                          wantz=EL_FORT_FALSE;
 
         // PDLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -696,7 +696,7 @@ void HessenbergSchur
         std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        ELEM_SCALAPACK(pdlahqr)
+        EL_SCALAPACK(pdlahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           &ilo, &ihi, 0, descQ, work.data(), &workSize, 
           iWork.data(), &iWorkSize, &info );
@@ -713,8 +713,8 @@ void HessenbergSchur
   bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                      wantz=ELEM_FORT_FALSE;
+    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                      wantz=EL_FORT_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
@@ -726,7 +726,7 @@ void HessenbergSchur
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     scomplex dummyWork;
-    ELEM_SCALAPACK(pclahqr)
+    EL_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -735,7 +735,7 @@ void HessenbergSchur
     iWorkSize = dummyIWork;
     std::vector<scomplex> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_SCALAPACK(pclahqr)
+    EL_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
@@ -747,8 +747,8 @@ void HessenbergSchur
   bool aed ) 
 {
     DEBUG_ONLY(CallStackEntry cse("scalapack::HessenbergSchur"))
-    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                      wantz=ELEM_FORT_FALSE;
+    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                      wantz=EL_FORT_FALSE;
     if( aed )
         LogicError("AED is not supported for complex matrices");
     const int ilo=1, ihi=n;
@@ -760,7 +760,7 @@ void HessenbergSchur
     int descQ[9] = 
         { 1, descH[1], 0, 0, descH[4], descH[5], descH[6], descH[7], 1 };
     dcomplex dummyWork;
-    ELEM_SCALAPACK(pzlahqr)
+    EL_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -769,7 +769,7 @@ void HessenbergSchur
     iWorkSize = dummyIWork;
     std::vector<dcomplex> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_SCALAPACK(pzlahqr)
+    EL_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, 0, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
@@ -797,7 +797,7 @@ void HessenbergSchur
         // we must be a bit more careful.
         int workSize=-1, dummyIWork=3, iWorkSize=-1;
         float dummyWork;
-        ELEM_SCALAPACK(pshseqr)
+        EL_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           Q, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -806,7 +806,7 @@ void HessenbergSchur
         iWorkSize = dummyIWork;
         std::vector<float> work(workSize);
         std::vector<int> iWork(iWorkSize);
-        ELEM_SCALAPACK(pshseqr)
+        EL_SCALAPACK(pshseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           Q, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
@@ -816,8 +816,8 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                          wantz=ELEM_FORT_TRUE;
+        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                          wantz=EL_FORT_TRUE;
 
         // PSLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -843,7 +843,7 @@ void HessenbergSchur
         std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        ELEM_SCALAPACK(pslahqr)
+        EL_SCALAPACK(pslahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           &ilo, &ihi, Q, descQ, work.data(), &workSize, 
           iWork.data(), &iWorkSize, &info );
@@ -876,7 +876,7 @@ void HessenbergSchur
         // we must be a bit more careful.
         int workSize=-1, dummyIWork=3, iWorkSize=-1;
         double dummyWork;
-        ELEM_SCALAPACK(pdhseqr)
+        EL_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           Q, descQ, &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -885,7 +885,7 @@ void HessenbergSchur
         iWorkSize = dummyIWork;
         std::vector<double> work(workSize);
         std::vector<int> iWork(iWorkSize);
-        ELEM_SCALAPACK(pdhseqr)
+        EL_SCALAPACK(pdhseqr)
         ( &job, &compz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           Q, descQ, work.data(), &workSize, iWork.data(), &iWorkSize, &info );
         if( info != 0 )
@@ -895,8 +895,8 @@ void HessenbergSchur
     {
         if( multiplyQ == false )
             LogicError("Forcing the matrix to identity is not yet supported");
-        ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                          wantz=ELEM_FORT_TRUE;
+        EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                          wantz=EL_FORT_TRUE;
 
         // PDLAHQR does not support a workspace query and instead assumes
         // that the workspace is at least 
@@ -922,7 +922,7 @@ void HessenbergSchur
         std::vector<int> iWork(iWorkSize);
 
         // Compute the eigenvalues in parallel
-        ELEM_SCALAPACK(pdlahqr)
+        EL_SCALAPACK(pdlahqr)
         ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, wr.data(), wi.data(), 
           &ilo, &ihi, Q, descQ, work.data(), &workSize, 
           iWork.data(), &iWorkSize, &info );
@@ -943,8 +943,8 @@ void HessenbergSchur
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                      wantz=ELEM_FORT_TRUE;
+    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                      wantz=EL_FORT_TRUE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -952,7 +952,7 @@ void HessenbergSchur
     //       zero initialization)!
     int workSize=-1, dummyIWork=0, iWorkSize=-1, info;
     scomplex dummyWork;
-    ELEM_SCALAPACK(pclahqr)
+    EL_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -961,7 +961,7 @@ void HessenbergSchur
     iWorkSize = dummyIWork;
     std::vector<scomplex> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_SCALAPACK(pclahqr)
+    EL_SCALAPACK(pclahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
@@ -977,8 +977,8 @@ void HessenbergSchur
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
         LogicError("AED is not supported for complex matrices");
-    ELEM_FORT_LOGICAL wantt=(fullTriangle?ELEM_FORT_TRUE:ELEM_FORT_FALSE), 
-                      wantz=ELEM_FORT_TRUE;
+    EL_FORT_LOGICAL wantt=(fullTriangle?EL_FORT_TRUE:EL_FORT_FALSE), 
+                      wantz=EL_FORT_TRUE;
     const int ilo=1, ihi=n;
 
     // Query the workspace sizes
@@ -986,7 +986,7 @@ void HessenbergSchur
     //       zero initialization)!
     int workSize=-1, dummyIWork=0, iWorkSize=-1, info;
     dcomplex dummyWork;
-    ELEM_SCALAPACK(pzlahqr)
+    EL_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       &dummyWork, &workSize, &dummyIWork, &iWorkSize, &info );
 
@@ -995,7 +995,7 @@ void HessenbergSchur
     iWorkSize = dummyIWork;
     std::vector<dcomplex> work(workSize);
     std::vector<int> iWork(iWorkSize);
-    ELEM_SCALAPACK(pzlahqr)
+    EL_SCALAPACK(pzlahqr)
     ( &wantt, &wantz, &n, &ilo, &ihi, H, descH, w, &ilo, &ihi, Q, descQ,
       work.data(), &workSize, iWork.data(), &iWorkSize, &info );
     if( info != 0 )
@@ -1030,6 +1030,6 @@ void HessenbergEig( int n, dcomplex* H, const int* descH, dcomplex* w )
 }
 
 } // namespace scalapack
-} // namespace elem
+} // namespace El
 
-#endif // ifdef ELEM_HAVE_SCALAPACK
+#endif // ifdef EL_HAVE_SCALAPACK

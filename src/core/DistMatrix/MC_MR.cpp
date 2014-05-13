@@ -6,14 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental-lite.hpp"
+#include "El-lite.hpp"
 
 #define ColDist MC
 #define RowDist MR
 
 #include "./setup.hpp"
 
-namespace elem {
+namespace El {
 
 // Public section
 // ##############
@@ -82,7 +82,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
         this->AssertNotLocked();
         this->AssertSameGrid( A.Grid() );
     )
-    const elem::Grid& g = A.Grid();
+    const El::Grid& g = A.Grid();
     this->Resize( A.Height(), A.Width() );
     if( !this->Participating() )
         return *this;
@@ -121,7 +121,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
         {
             // Pack
             const T* ABuffer = A.LockedBuffer();
-            ELEM_PARALLEL_FOR
+            EL_PARALLEL_FOR
             for( Int k=0; k<r; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
@@ -152,7 +152,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
         {
             // Unpack
             T* thisBuffer = this->Buffer();
-            ELEM_PARALLEL_FOR
+            EL_PARALLEL_FOR
             for( Int k=0; k<c; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
@@ -202,7 +202,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
             // Pack
             const T* ABuffer = A.LockedBuffer();
             const Int ALDim = A.LDim();
-            ELEM_PARALLEL_FOR
+            EL_PARALLEL_FOR
             for( Int k=0; k<c; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
@@ -234,7 +234,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
             // Unpack
             T* thisBuffer = this->Buffer();
             const Int thisLDim = this->LDim();
-            ELEM_PARALLEL_FOR
+            EL_PARALLEL_FOR
             for( Int k=0; k<r; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
@@ -586,7 +586,7 @@ void DM::CopyFromDifferentGrid( const DM& A )
                 Int sendWidth = Length(A.LocalWidth(),rowSend,numRowSends);
                 const T* ABuffer = A.LockedBuffer();
                 const Int ALDim = A.LDim();
-                ELEM_PARALLEL_FOR
+                EL_PARALLEL_FOR
                 for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
                 {
                     const Int j = rowSend+jLoc*localRowStrideA;
@@ -646,7 +646,7 @@ void DM::CopyFromDifferentGrid( const DM& A )
                         // Unpack the data
                         T* buffer = this->Buffer();
                         const Int ldim = this->LDim();
-                        ELEM_PARALLEL_FOR
+                        EL_PARALLEL_FOR
                         for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
                         {
                             const Int j = localRowOffset+jLoc*localRowStride;
@@ -710,16 +710,16 @@ void DM::CopyFromDifferentGrid( const DM& A )
   BOTH( T,VR,  STAR);
 
 FULL(Int);
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_FLOAT
 FULL(float);
 #endif
 FULL(double);
 
-#ifndef ELEM_DISABLE_COMPLEX
-#ifndef ELEM_DISABLE_FLOAT
+#ifndef EL_DISABLE_COMPLEX
+#ifndef EL_DISABLE_FLOAT
 FULL(Complex<float>);
 #endif
 FULL(Complex<double>);
 #endif 
 
-} // namespace elem
+} // namespace El

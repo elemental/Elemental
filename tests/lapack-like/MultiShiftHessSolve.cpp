@@ -6,19 +6,19 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_CONJUGATE_INC
-#include ELEM_MAKETRAPEZOIDAL_INC
-#include ELEM_UPDATEDIAGONAL_INC
-#include ELEM_AXPY_INC
-#include ELEM_GEMM_INC
-#include ELEM_MULTISHIFTHESSSOLVE_INC
-#include ELEM_INFINITYNORM_INC
-#include ELEM_FROBENIUSNORM_INC
-#include ELEM_IDENTITY_INC
-#include ELEM_UNIFORM_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_CONJUGATE_INC
+#include EL_MAKETRAPEZOIDAL_INC
+#include EL_UPDATEDIAGONAL_INC
+#include EL_AXPY_INC
+#include EL_GEMM_INC
+#include EL_MULTISHIFTHESSSOLVE_INC
+#include EL_INFINITYNORM_INC
+#include EL_FROBENIUSNORM_INC
+#include EL_IDENTITY_INC
+#include EL_UNIFORM_INC
+using namespace El;
 
 // Test if (op(H) - mu_j I) x_j = y_j for each j.
 // This is checked by testing the norm of  op(H) X - X Mu - Y.

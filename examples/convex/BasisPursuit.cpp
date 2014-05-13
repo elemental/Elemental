@@ -6,12 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "elemental.hpp" instead
-#include "elemental-lite.hpp"
-#include ELEM_ZERONORM_INC
-#include ELEM_BASISPURSUIT_INC
-#include ELEM_UNIFORM_INC
-using namespace elem;
+// NOTE: It is possible to simply include "El.hpp" instead
+#include "El-lite.hpp"
+#include EL_ZERONORM_INC
+#include EL_BASISPURSUIT_INC
+#include EL_UNIFORM_INC
+using namespace El;
 
 // This driver is an adaptation of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html

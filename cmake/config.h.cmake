@@ -6,71 +6,71 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef ELEM_CONFIG_H
-#define ELEM_CONFIG_H
+#ifndef EL_CONFIG_H
+#define EL_CONFIG_H
 
 /* Build type and version information */
-#define ELEM_GIT_SHA1 "@GIT_SHA1@"
-#define Elemental_VERSION_MAJOR "@Elemental_VERSION_MAJOR@"
-#define Elemental_VERSION_MINOR "@Elemental_VERSION_MINOR@"
-#define ELEM_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
-#cmakedefine ELEM_RELEASE
+#define EL_GIT_SHA1 "@GIT_SHA1@"
+#define EL_VERSION_MAJOR "@EL_VERSION_MAJOR@"
+#define EL_VERSION_MINOR "@EL_VERSION_MINOR@"
+#define EL_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+#cmakedefine EL_RELEASE
 
 /* C compiler info */
-#define ELEM_CMAKE_C_COMPILER    "@CMAKE_C_COMPILER@"
-#define ELEM_MPI_C_COMPILER      "@MPI_C_COMPILER@"
-#define ELEM_MPI_C_INCLUDE_PATH  "@MPI_C_INCLUDE_PATH@"
-#define ELEM_MPI_C_COMPILE_FLAGS "@MPI_C_COMPILE_FLAGS@"
-#define ELEM_MPI_C_LINK_FLAGS    "@MPI_C_LINK_FLAGS@"
-#define ELEM_MPI_C_LIBRARIES     "@MPI_C_LIBRARIES@"
+#define EL_CMAKE_C_COMPILER    "@CMAKE_C_COMPILER@"
+#define EL_MPI_C_COMPILER      "@MPI_C_COMPILER@"
+#define EL_MPI_C_INCLUDE_PATH  "@MPI_C_INCLUDE_PATH@"
+#define EL_MPI_C_COMPILE_FLAGS "@MPI_C_COMPILE_FLAGS@"
+#define EL_MPI_C_LINK_FLAGS    "@MPI_C_LINK_FLAGS@"
+#define EL_MPI_C_LIBRARIES     "@MPI_C_LIBRARIES@"
 
 /* C++ compiler info */
-#define ELEM_CMAKE_CXX_COMPILER    "@CMAKE_CXX_COMPILER@"
-#define ELEM_CXX_FLAGS             "@CXX_FLAGS@"
-#define ELEM_MPI_CXX_COMPILER      "@MPI_CXX_COMPILER@"
-#define ELEM_MPI_CXX_INCLUDE_PATH  "@MPI_CXX_INCLUDE_PATH@"
-#define ELEM_MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
-#define ELEM_MPI_CXX_LINK_FLAGS    "@MPI_CXX_LINK_FLAGS@"
-#define ELEM_MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
+#define EL_CMAKE_CXX_COMPILER    "@CMAKE_CXX_COMPILER@"
+#define EL_CXX_FLAGS             "@CXX_FLAGS@"
+#define EL_MPI_CXX_COMPILER      "@MPI_CXX_COMPILER@"
+#define EL_MPI_CXX_INCLUDE_PATH  "@MPI_CXX_INCLUDE_PATH@"
+#define EL_MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
+#define EL_MPI_CXX_LINK_FLAGS    "@MPI_CXX_LINK_FLAGS@"
+#define EL_MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
 
 /* Math libraries */
-#define ELEM_MATH_LIBS "@MATH_LIBS@"
-#cmakedefine ELEM_BLAS_POST
-#cmakedefine ELEM_LAPACK_POST
-#cmakedefine ELEM_HAVE_SCALAPACK
-#cmakedefine ELEM_SCALAPACK_POST
-#cmakedefine ELEM_HAVE_FLA_BSVD
-#define ELEM_FORT_LOGICAL @ELEM_FORT_LOGICAL@
-#define ELEM_FORT_TRUE    @ELEM_FORT_TRUE@
-#define ELEM_FORT_FALSE   @ELEM_FORT_FALSE@
+#define EL_MATH_LIBS "@MATH_LIBS@"
+#cmakedefine EL_BLAS_POST
+#cmakedefine EL_LAPACK_POST
+#cmakedefine EL_HAVE_SCALAPACK
+#cmakedefine EL_SCALAPACK_POST
+#cmakedefine EL_HAVE_FLA_BSVD
+#define EL_FORT_LOGICAL @EL_FORT_LOGICAL@
+#define EL_FORT_TRUE    @EL_FORT_TRUE@
+#define EL_FORT_FALSE   @EL_FORT_FALSE@
 
 /* Basic configuration options */
-#define ELEM_RESTRICT @RESTRICT@
-#cmakedefine ELEM_HAVE_OPENMP
-#cmakedefine ELEM_HAVE_OMP_COLLAPSE
-#cmakedefine ELEM_HAVE_QT5
-#cmakedefine ELEM_HAVE_F90_INTERFACE
-#cmakedefine ELEM_AVOID_COMPLEX_MPI
-#cmakedefine ELEM_HAVE_CXX11RANDOM
-#cmakedefine ELEM_HAVE_STEADYCLOCK
-#cmakedefine ELEM_HAVE_NOEXCEPT
-#cmakedefine ELEM_HAVE_MPI_REDUCE_SCATTER_BLOCK
-#cmakedefine ELEM_HAVE_MPI_IN_PLACE
-#cmakedefine ELEM_HAVE_MPI_LONG_LONG
-#cmakedefine ELEM_HAVE_MPI_COMM_SET_ERRHANDLER
-#cmakedefine ELEM_HAVE_MPI_INIT_THREAD
-#cmakedefine ELEM_HAVE_MPI_QUERY_THREAD
-#cmakedefine ELEM_HAVE_MPI3_NONBLOCKING_COLLECTIVES
-#cmakedefine ELEM_HAVE_MPIX_NONBLOCKING_COLLECTIVES
-#cmakedefine ELEM_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-#cmakedefine ELEM_USE_BYTE_ALLGATHERS
-#cmakedefine ELEM_USE_64BIT_INTS
+#define EL_RESTRICT @RESTRICT@
+#cmakedefine EL_HAVE_OPENMP
+#cmakedefine EL_HAVE_OMP_COLLAPSE
+#cmakedefine EL_HAVE_QT5
+#cmakedefine EL_HAVE_F90_INTERFACE
+#cmakedefine EL_AVOID_COMPLEX_MPI
+#cmakedefine EL_HAVE_CXX11RANDOM
+#cmakedefine EL_HAVE_STEADYCLOCK
+#cmakedefine EL_HAVE_NOEXCEPT
+#cmakedefine EL_HAVE_MPI_REDUCE_SCATTER_BLOCK
+#cmakedefine EL_HAVE_MPI_IN_PLACE
+#cmakedefine EL_HAVE_MPI_LONG_LONG
+#cmakedefine EL_HAVE_MPI_COMM_SET_ERRHANDLER
+#cmakedefine EL_HAVE_MPI_INIT_THREAD
+#cmakedefine EL_HAVE_MPI_QUERY_THREAD
+#cmakedefine EL_HAVE_MPI3_NONBLOCKING_COLLECTIVES
+#cmakedefine EL_HAVE_MPIX_NONBLOCKING_COLLECTIVES
+#cmakedefine EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+#cmakedefine EL_USE_BYTE_ALLGATHERS
+#cmakedefine EL_USE_64BIT_INTS
 
 /* Advanced configuration options */
-#cmakedefine ELEM_CACHE_WARNINGS
-#cmakedefine ELEM_UNALIGNED_WARNINGS
-#cmakedefine ELEM_VECTOR_WARNINGS
-#cmakedefine ELEM_POOL_MEMORY
-#cmakedefine ELEM_AVOID_OMP_FMA
+#cmakedefine EL_CACHE_WARNINGS
+#cmakedefine EL_UNALIGNED_WARNINGS
+#cmakedefine EL_VECTOR_WARNINGS
+#cmakedefine EL_POOL_MEMORY
+#cmakedefine EL_AVOID_OMP_FMA
 
-#endif /* ELEM_CONFIG_H */
+#endif /* EL_CONFIG_H */
