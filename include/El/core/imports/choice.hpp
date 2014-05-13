@@ -55,6 +55,10 @@ inline bool Cast( const std::string& input )
     }
 }
 
+template<>
+inline const char* Cast( const std::string& input )
+{ return input.c_str(); }
+
 class Args
 {
 public:

@@ -39,6 +39,8 @@ option(EL_TESTS "A collection of performance and correctness tests" OFF)
 # 2) Martin's 3D Gemm code
 option(EL_EXPERIMENTAL "Build experimental code" OFF)
 
+option(EL_C_INTERFACE "Build work-in-progress C interface" ON)
+
 # Attempt to use 64-bit integers
 option(EL_USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
 
@@ -257,53 +259,27 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/ElVars.cmake
                ${PROJECT_BINARY_DIR}/conf/ElVars @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/conf/ElVars DESTINATION conf)
 
-# Grab all of the .c, .cpp, .h, and .hpp Elemental files
-file(GLOB_RECURSE EL_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
-file(GLOB_RECURSE EL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
-  "include/*.h" "include/*.hpp")
-if(EL_EXPERIMENTAL)
-  if(NOT MPI_C_FOUND)
-    message(FATAL_ERROR "Could not build C interface without C MPI")
-  endif()
-  include_directories(${MPI_C_INCLUDE_PATH})
-  set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
-  set(EL_CPP "${EL_CPP};experimental/c/interface.cpp")
-  set(EL_HEADERS "${EL_HEADERS};experimental/c/El.h")
-
-  if(EL_HAVE_F90_INTERFACE)
-    if(NOT MPI_Fortran_FOUND)
-      message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
-    endif()
-    if(NOT EL_HAVE_MPI_COMM_F2C)
-      message(FATAL_ERROR
-        "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
-    endif()
-    include_directories(${MPI_Fortran_INCLUDE_PATH})
-    set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
-    set(EL_CPP "${EL_CPP};experimental/f90/interface.cpp")
-  endif()
-endif()
-set(EL_SRC "${EL_CPP};${EL_HEADERS};${EL_MOC_SRC}")
-
 # The main library
+# ================
+
+# Grab the .cpp files
+file(GLOB_RECURSE EL_CPP_SOURCE RELATIVE ${PROJECT_SOURCE_DIR} "src/*.cpp")
+# Grab the C/C++ headers
+file(GLOB_RECURSE EL_CPP_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
+  "include/*.h" "include/*.hpp")
+set(EL_CPP_FILES "${EL_CPP_SOURCE};${EL_CPP_HEADERS};${EL_MOC_SRC}")
+
 set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
 endif()
-add_library(El ${LIBRARY_TYPE} ${EL_SRC})
+add_library(El ${LIBRARY_TYPE} ${EL_CPP_FILES})
 target_link_libraries(El pmrrr ${LINK_LIBS})
-if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
-  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
-elseif(MPI_CXX_LINK_FLAGS)
-  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
-elseif(MPI_C_LINK_FLAGS)
-  set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
-endif()
 install(TARGETS El DESTINATION lib)
 
 # Define the header-file preparation rules
 set(PREPARED_HEADERS)
-foreach(HEADER ${EL_HEADERS})
+foreach(HEADER ${EL_CPP_HEADERS})
   add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
             ${PROJECT_BINARY_DIR}/${HEADER}
@@ -352,8 +328,14 @@ if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
   set(EXAMPLE_TYPES convex core blas-like io lapack-like matrices)
   foreach(TYPE ${EXAMPLE_TYPES})
-    file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
-         ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp")
+    if(EL_C_INTERFACE)
+      file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
+           ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp"
+                                                   "examples/${TYPE}/*.c" )
+    else()
+      file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
+           ${PROJECT_SOURCE_DIR}/examples/${TYPE}/ "examples/${TYPE}/*.cpp")
+    endif()
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/${TYPE}")
     foreach(EXAMPLE ${${TYPE}_EXAMPLES})
       set(DRIVER ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE})

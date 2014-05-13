@@ -80,30 +80,30 @@ void ElMatrixCopy_d( const ElMatrix_d* A, ElMatrix_d* B );
 void ElMatrixCopy_c( const ElMatrix_c* A, ElMatrix_c* B );
 void ElMatrixCopy_z( const ElMatrix_z* A, ElMatrix_z* B );
 
-Int ElMatrixHeight_s( const ElMatrix_s* A );
-Int ElMatrixHeight_d( const ElMatrix_d* A );
-Int ElMatrixHeight_c( const ElMatrix_c* A );
-Int ElMatrixHeight_z( const ElMatrix_z* A );
+ElInt ElMatrixHeight_s( const ElMatrix_s* A );
+ElInt ElMatrixHeight_d( const ElMatrix_d* A );
+ElInt ElMatrixHeight_c( const ElMatrix_c* A );
+ElInt ElMatrixHeight_z( const ElMatrix_z* A );
 
-Int ElMatrixWidth_s( const ElMatrix_s* A );
-Int ElMatrixWidth_d( const ElMatrix_d* A );
-Int ElMatrixWidth_c( const ElMatrix_c* A );
-Int ElMatrixWidth_z( const ElMatrix_z* A );
+ElInt ElMatrixWidth_s( const ElMatrix_s* A );
+ElInt ElMatrixWidth_d( const ElMatrix_d* A );
+ElInt ElMatrixWidth_c( const ElMatrix_c* A );
+ElInt ElMatrixWidth_z( const ElMatrix_z* A );
 
-Int ElMatrixLDim_s( const ElMatrix_s* A );
-Int ElMatrixLDim_d( const ElMatrix_d* A );
-Int ElMatrixLDim_c( const ElMatrix_c* A );
-Int ElMatrixLDim_z( const ElMatrix_z* A );
+ElInt ElMatrixLDim_s( const ElMatrix_s* A );
+ElInt ElMatrixLDim_d( const ElMatrix_d* A );
+ElInt ElMatrixLDim_c( const ElMatrix_c* A );
+ElInt ElMatrixLDim_z( const ElMatrix_z* A );
 
-Int ElMatrixMemorySize_s( const ElMatrix_s* A );
-Int ElMatrixMemorySize_d( const ElMatrix_d* A );
-Int ElMatrixMemorySize_c( const ElMatrix_c* A );
-Int ElMatrixMemorySize_z( const ElMatrix_z* A );
+ElInt ElMatrixMemorySize_s( const ElMatrix_s* A );
+ElInt ElMatrixMemorySize_d( const ElMatrix_d* A );
+ElInt ElMatrixMemorySize_c( const ElMatrix_c* A );
+ElInt ElMatrixMemorySize_z( const ElMatrix_z* A );
 
-Int ElMatrixDiagonalLength_s( const ElMatrix_s* A, ElInt offset );
-Int ElMatrixDiagonalLength_d( const ElMatrix_d* A, ElInt offset );
-Int ElMatrixDiagonalLength_c( const ElMatrix_c* A, ElInt offset );
-Int ElMatrixDiagonalLength_z( const ElMatrix_z* A, ElInt offset );
+ElInt ElMatrixDiagonalLength_s( const ElMatrix_s* A, ElInt offset );
+ElInt ElMatrixDiagonalLength_d( const ElMatrix_d* A, ElInt offset );
+ElInt ElMatrixDiagonalLength_c( const ElMatrix_c* A, ElInt offset );
+ElInt ElMatrixDiagonalLength_z( const ElMatrix_z* A, ElInt offset );
 
 float*  ElMatrixBuffer_s( ElMatrix_s* A );
 double* ElMatrixBuffer_d( ElMatrix_d* A );
@@ -179,23 +179,23 @@ ElMatrix_s* ElMatrixGetRealPartOfDiagonal_c
 ElMatrix_d* ElMatrixGetImagPartOfDiagonal_z
 ( const ElMatrix_z* A, ElInt offset );
 
-void ElMatrixSetDiagonal
+void ElMatrixSetDiagonal_s
 ( ElMatrix_s* A, const ElMatrix_s* d, ElInt offset );
-void ElMatrixSetDiagonal
+void ElMatrixSetDiagonal_d
 ( ElMatrix_d* A, const ElMatrix_d* d, ElInt offset );
-void ElMatrixSetDiagonal
+void ElMatrixSetDiagonal_c
 ( ElMatrix_c* A, const ElMatrix_c* d, ElInt offset );
-void ElMatrixSetDiagonal
+void ElMatrixSetDiagonal_z
 ( ElMatrix_z* A, const ElMatrix_z* d, ElInt offset );
 
-void ElMatrixSetRealPartOfDiagonal
+void ElMatrixSetRealPartOfDiagonal_c
 ( ElMatrix_c* A, const ElMatrix_s* d, ElInt offset );
-void ElMatrixSetRealPartOfDiagonal
+void ElMatrixSetRealPartOfDiagonal_z
 ( ElMatrix_z* A, const ElMatrix_d* d, ElInt offset );
 
-void ElMatrixSetImagPartOfDiagonal
+void ElMatrixSetImagPartOfDiagonal_c
 ( ElMatrix_c* A, const ElMatrix_s* d, ElInt offset );
-void ElMatrixSetImagPartOfDiagonal
+void ElMatrixSetImagPartOfDiagonal_z
 ( ElMatrix_z* A, const ElMatrix_d* d, ElInt offset );
 
 void ElMatrixUpdateDiagonal_s

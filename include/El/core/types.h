@@ -11,7 +11,12 @@
 #define EL_TYPES_CINT_H
 
 #ifdef __cplusplus
+#include <cstdbool>
+#include <cstdio>
 extern "C" {
+#else
+#include <stdbool.h>
+#include <stdio.h>
 #endif
 
 typedef unsigned char ElByte;

@@ -24,7 +24,7 @@ void ElFinalize();
 bool ElInitialized();
 
 int    ElInput_i( const char* name, const char* desc, int defaultVal );
-ElInt  ElInput_I( const char* name, const char* desc, Int defaultVal );
+ElInt  ElInput_I( const char* name, const char* desc, ElInt defaultVal );
 float  ElInput_s( const char* name, const char* desc, float defaultVal );
 double ElInput_d( const char* name, const char* desc, double defaultVal );
 const char* ElInput_cstr
@@ -38,11 +38,6 @@ void ElSetBlocksize( ElInt blocksize );
 
 void ElPushBlocksizeStack( ElInt blocksize );
 void ElPopBlocksizeStack();
-
-ElInt ElDefaultBlockHeight();
-ElInt ElDefaultBlockWidth();
-void ElSetDefaultBlockHeight( ElInt blockHeight );
-void ElSetDefaultBlockWidth( ElInt blockWidth );
 
 #ifdef __cplusplus
 } // extern "C"
