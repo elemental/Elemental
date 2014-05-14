@@ -35,7 +35,7 @@ option(EL_EXAMPLES "A collection of simple examples" OFF)
 option(EL_TESTS "A collection of performance and correctness tests" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
-# 1) prototype C and F90 interfaces
+# 1) prototype F90 interfaces (soon to be deprecated)
 # 2) Martin's 3D Gemm code
 option(EL_EXPERIMENTAL "Build experimental code" OFF)
 
@@ -377,21 +377,6 @@ if(EL_EXPERIMENTAL)
     endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
-
-  # Build the C drivers
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c")
-  set(DRIVER ${EXPERIMENTAL_DIR}/c/test.c)
-  add_executable(experimental-c-test ${DRIVER})
-  set_source_files_properties(${DRIVER} PROPERTIES 
-    OBJECT_DEPENDS "${PREPARED_HEADERS}")
-  target_link_libraries(experimental-c-test El)
-  set_target_properties(experimental-c-test 
-    PROPERTIES OUTPUT_NAME c_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-  if(MPI_LINK_FLAGS)
-    set_target_properties(experimental-c-test 
-      PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
-  endif()
-  install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
 
   if(EL_HAVE_F90_INTERFACE)
     # Build the F90 drivers

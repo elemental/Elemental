@@ -14,6 +14,8 @@ main( int argc, char* argv[] )
     ElInitialize( &argc, &argv );
     const ElInt m = ElInput_I( "--m", "matrix height", 10 );
     const ElInt n = ElInput_I( "--n", "matrix width", 10 );
+    const bool print = ElInput_b( "--print", "print matrix?", false );
+    const bool display = ElInput_b( "--display", "display matrix?", true );
     ElProcessInput();
     ElPrintInputReport();
 
@@ -25,7 +27,10 @@ main( int argc, char* argv[] )
         for( i=0; i<m; ++i )
             ElMatrixSet_d( A, i, j, i+j );
 
-    ElPrintMatrix_d( A, "A" );
+    if( print )
+        ElPrintMatrix_d( A, "A" );
+    if( display )
+        ElDisplayMatrix_d( A, "A" );
 
     ElFinalize();
     return 0;

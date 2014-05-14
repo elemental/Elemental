@@ -21,27 +21,27 @@ using namespace El;
 
 extern "C" {
 
-void ElPrintMatrix_s( const ElMatrix_s* AHandle, const char* title )
+void ElDisplayMatrix_s( const ElMatrix_s* AHandle, const char* title )
 {
-    try { Print( *RCM_s_const(AHandle), std::string(title) ); }
+    try { Display( *RCM_s_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintMatrix_d( const ElMatrix_d* AHandle, const char* title )
+void ElDisplayMatrix_d( const ElMatrix_d* AHandle, const char* title )
 {
-    try { Print( *RCM_d_const(AHandle), std::string(title) ); }
+    try { Display( *RCM_d_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintMatrix_c( const ElMatrix_c* AHandle, const char* title )
+void ElDisplayMatrix_c( const ElMatrix_c* AHandle, const char* title )
 {
-    try { Print( *RCM_c_const(AHandle), std::string(title) ); }
+    try { Display( *RCM_c_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintMatrix_z( const ElMatrix_z* AHandle, const char* title )
+void ElDisplayMatrix_z( const ElMatrix_z* AHandle, const char* title )
 {
-    try { Print( *RCM_z_const(AHandle), std::string(title) ); }
+    try { Display( *RCM_z_const(AHandle), std::string(title) ); }
     CATCH
 }
 

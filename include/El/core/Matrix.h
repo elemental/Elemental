@@ -130,10 +130,10 @@ bool ElMatrixLocked_d( const ElMatrix_d* A );
 bool ElMatrixLocked_c( const ElMatrix_c* A );
 bool ElMatrixLocked_z( const ElMatrix_z* A );
 
-float ElMatrixGet_s( const ElMatrix_s* A, ElInt i, ElInt j );
+float  ElMatrixGet_s( const ElMatrix_s* A, ElInt i, ElInt j );
 double ElMatrixGet_d( const ElMatrix_d* A, ElInt i, ElInt j );
-void ElMatrixGet_c( const ElMatrix_c* A, ElInt i, ElInt j, void* alpha );
-void ElMatrixGet_z( const ElMatrix_z* A, ElInt i, ElInt j, void* alpha );
+void   ElMatrixGet_c( const ElMatrix_c* A, ElInt i, ElInt j, void* alpha );
+void   ElMatrixGet_z( const ElMatrix_z* A, ElInt i, ElInt j, void* alpha );
 
 float  ElMatrixGetRealPart_c( const ElMatrix_c* A, ElInt i, ElInt j );
 double ElMatrixGetRealPart_z( const ElMatrix_z* A, ElInt i, ElInt j );

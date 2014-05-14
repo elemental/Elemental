@@ -9,6 +9,8 @@
 #include "El-lite.hpp"
 #include "El-C.h"
 
+#define CATCH catch( std::exception& e ) { El::ReportException(e); }
+
 extern "C" {
 
 void ElPrintVersion( FILE* stream )
@@ -31,17 +33,20 @@ void ElPrintVersion( FILE* stream )
 void ElInitialize( int* argc, char*** argv )
 {
     try { El::Initialize( *argc, *argv ); }
-    catch( std::exception& e ) { El::ReportException(e); }
+    CATCH
 }
 
 void ElFinalize()
 {
     try { El::Finalize(); }
-    catch( std::exception& e ) { El::ReportException(e); }
+    CATCH
 }
 
 bool ElInitialized()
 { return El::Initialized(); }
+
+bool ElInput_b( const char* name, const char* desc, bool defaultVal )
+{ return El::Input(name,desc,defaultVal); }
 
 int ElInput_i( const char* name, const char* desc, int defaultVal )
 { return El::Input(name,desc,defaultVal); }
@@ -62,7 +67,7 @@ const char* ElInput_cstr
 void ElProcessInput()
 {
     try { El::ProcessInput(); }
-    catch( std::exception& e ) { El::ReportException(e); }
+    CATCH
 }
 
 void ElPrintInputReport()
@@ -74,19 +79,19 @@ ElInt ElBlocksize()
 void ElSetBlocksize( ElInt blocksize )
 {
     try { El::SetBlocksize(blocksize); }
-    catch( std::exception& e ) { El::ReportException(e); }
+    CATCH
 }
 
 void ElPushBlocksizeStack( ElInt blocksize )
 {
     try { El::PushBlocksizeStack(blocksize); }
-    catch( std::exception& e ) { El::ReportException(e); }
+    CATCH
 }
 
 void ElPopBlocksizeStack()
 {
     try { El::PopBlocksizeStack(); }
-    catch( std::exception& e ) { El::ReportException(e); }
+    CATCH
 }
 
 } // extern "C"

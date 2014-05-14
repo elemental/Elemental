@@ -23,6 +23,7 @@ void ElInitialize( int* argc, char*** argv );
 void ElFinalize();
 bool ElInitialized();
 
+bool   ElInput_b( const char* name, const char* desc, bool defaultVal );
 int    ElInput_i( const char* name, const char* desc, int defaultVal );
 ElInt  ElInput_I( const char* name, const char* desc, ElInt defaultVal );
 float  ElInput_s( const char* name, const char* desc, float defaultVal );

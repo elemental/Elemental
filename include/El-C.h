@@ -10,10 +10,15 @@
 #ifndef EL_C_H
 #define EL_C_H
 
+#include "mpi.h"
+
 /* TODO: A better include structure for the C interface */
+#include "El/config.h"
 #include "El/core/types.h"
 #include "El/core/environment.h"
 #include "El/core/Matrix.h"
+#include "El/core/Grid.h"
+#include "El/io/Display.h"
 #include "El/io/Print.h"
 
 #endif /* ifndef EL_C_H */

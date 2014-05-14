@@ -33,44 +33,44 @@ typedef unsigned ElUnsigned;
 
 /* product = rho * exp(kappa*n)
    where rho lies in (usually on) the unit circle and kappa is real-valued. */
-struct ElSafeProduct_s
+typedef struct
 {
     float rho;
     float kappa;
     ElInt n;
-};
-struct ElSafeProduct_d
+} ElSafeProduct_s; 
+typedef struct
 {
     double rho;
     double kappa;
     ElInt n;
-};
-struct ElSafeProduct_c
+} ElSafeProduct_d;
+typedef struct
 {
     float rhoReal, rhoImag;    
     float kappa;
     ElInt n;
-};
-struct ElSafeProduct_z
+} ElSafeProduct_c;
+typedef struct 
 {
     double rhoReal, rhoImag;    
     double kappa;
     ElInt n;
-};
+} ElSafeProduce_z;
 
 /* The basic eigenvalue structure of a Hermitian matrix */
-struct ElInertiaType
-{
-    ElInt numPositive, numNegative, numZero;
-};
+typedef struct 
+{ 
+    ElInt numPositive, numNegative, numZero; 
+} ElInertiaType;
 
-enum ElConjugation
+typedef enum 
 {
     EL_UNCONJUGATED,
     EL_CONJUGATED
-};
+} ElConjugation;
 
-enum ElDist
+typedef enum 
 {
     EL_MC,   /* Col of a matrix distribution */
     EL_MD,   /* Diagonal of a matrix distribution */
@@ -79,34 +79,34 @@ enum ElDist
     EL_VR,   /* Row-major vector distribution */
     EL_STAR, /* Give to every process */
     EL_CIRC  /* Give to a single process */
-};
+} ElDist;
 
-enum ElForwardOrBackward
+typedef enum 
 {
     EL_FORWARD,
     EL_BACKWARD
-};
+} ElForwardOrBackward;
 
-enum ElGridOrderType
+typedef enum
 {
     EL_ROW_MAJOR,
     EL_COLUMN_MAJOR
-};
+} ElGridOrderType;
 
-enum ElLeftOrRight
+typedef enum
 {
     EL_LEFT,
     EL_RIGHT
-};
+} ElLeftOrRight;
 
-enum ElSortType
+typedef enum
 {
     EL_UNSORTED,
     EL_DESCENDING,
     EL_ASCENDING
-};
+} ElSortType;
 
-enum ElNormType
+typedef enum
 {
     EL_ONE_NORM,           /* Operator one norm */
     EL_INFINITY_NORM,      /* Operator infinity norm */
@@ -115,32 +115,32 @@ enum ElNormType
     EL_NUCLEAR_NORM,       /* One-norm of the singular values */
     EL_FROBENIUS_NORM,     /* Two-norm of the singular values */
     EL_TWO_NORM            /* Infinity-norm of the singular values */
-};
+} ElNormType;
 
-enum ElOrientation
+typedef enum
 {
     EL_NORMAL,
     EL_TRANSPOSE,
     EL_ADJOINT
-};
+} ElOrientation;
 
-enum ElUnitOrNonUnit
+typedef enum
 {
     EL_NON_UNIT,
     EL_UNIT
-};
+} ElUnitOrNonUnit;
 
-enum ElUpperOrLower
+typedef enum
 {
     EL_LOWER,
     EL_UPPER
-};
+} ElUpperOrLower;
 
-enum ElVerticalOrHorizontal
+typedef enum
 {
     EL_VERTICAL,
     EL_HORIZONTAL
-};
+} ElVerticalOrHorizontal;
 
 #ifdef __cplusplus
 } // extern "C"
