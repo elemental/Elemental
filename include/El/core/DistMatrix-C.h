@@ -7,46 +7,48 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_MATRIX_CINT_H
-#define EL_MATRIX_CINT_H
+#ifndef EL_DISTMATRIX_C_H
+#define EL_DISTMATRIX_C_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct ElMatrix_s; typedef struct ElMatrix_s ElMatrix_s;
-struct ElMatrix_d; typedef struct ElMatrix_d ElMatrix_d;
-struct ElMatrix_c; typedef struct ElMatrix_c ElMatrix_c;
-struct ElMatrix_z; typedef struct ElMatrix_z ElMatrix_z;
+struct ElDistMatrix_s; typedef struct ElDistMatrix_s ElDistMatrix_s;
+struct ElDistMatrix_d; typedef struct ElDistMatrix_d ElDistMatrix_d;
+struct ElDistMatrix_c; typedef struct ElDistMatrix_c ElDistMatrix_c;
+struct ElDistMatrix_z; typedef struct ElDistMatrix_z ElDistMatrix_z;
 
-ElMatrix_s* ElMatrixCreate_s();
-ElMatrix_d* ElMatrixCreate_d();
-ElMatrix_c* ElMatrixCreate_c();
-ElMatrix_z* ElMatrixCreate_z();
+ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid* g );
+ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid* g );
+ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid* g );
+ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* g );
 
-void ElMatrixDestroy_s( const ElMatrix_s* A );
-void ElMatrixDestroy_d( const ElMatrix_d* A );
-void ElMatrixDestroy_c( const ElMatrix_c* A );
-void ElMatrixDestroy_z( const ElMatrix_z* A );
+void ElDistMatrixDestroy_s( const ElDistMatrix_s* A );
+void ElDistMatrixDestroy_d( const ElDistMatrix_d* A );
+void ElDistMatrixDestroy_c( const ElDistMatrix_c* A );
+void ElDistMatrixDestroy_z( const ElDistMatrix_z* A );
 
-void ElMatrixEmpty_s( ElMatrix_s* A );
-void ElMatrixEmpty_d( ElMatrix_d* A );
-void ElMatrixEmpty_c( ElMatrix_c* A );
-void ElMatrixEmpty_z( ElMatrix_z* A );
+void ElDistMatrixEmpty_s( ElDistMatrix_s* A );
+void ElDistMatrixEmpty_d( ElDistMatrix_d* A );
+void ElDistMatrixEmpty_c( ElDistMatrix_c* A );
+void ElDistMatrixEmpty_z( ElDistMatrix_z* A );
 
-void ElMatrixResize_s( ElMatrix_s* A, ElInt height, ElInt width );
-void ElMatrixResize_d( ElMatrix_d* A, ElInt height, ElInt width );
-void ElMatrixResize_c( ElMatrix_c* A, ElInt height, ElInt width );
-void ElMatrixResize_z( ElMatrix_z* A, ElInt height, ElInt width );
+void ElDistMatrixResize_s( ElDistMatrix_s* A, ElInt height, ElInt width );
+void ElDistMatrixResize_d( ElDistMatrix_d* A, ElInt height, ElInt width );
+void ElDistMatrixResize_c( ElDistMatrix_c* A, ElInt height, ElInt width );
+void ElDistMatrixResize_z( ElDistMatrix_z* A, ElInt height, ElInt width );
 
-void ElMatrixResizeWithLDim_s
-( ElMatrix_s* A, ElInt height, ElInt width, ElInt ldim );
-void ElMatrixResizeWithLDim_d
-( ElMatrix_d* A, ElInt height, ElInt width, ElInt ldim );
-void ElMatrixResizeWithLDim_c
-( ElMatrix_c* A, ElInt height, ElInt width, ElInt ldim );
-void ElMatrixResizeWithLDim_z
-( ElMatrix_z* A, ElInt height, ElInt width, ElInt ldim );
+void ElDistMatrixResizeWithLDim_s
+( ElDistMatrix_s* A, ElInt height, ElInt width, ElInt ldim );
+void ElDistMatrixResizeWithLDim_d
+( ElDistMatrix_d* A, ElInt height, ElInt width, ElInt ldim );
+void ElDistMatrixResizeWithLDim_c
+( ElDistMatrix_c* A, ElInt height, ElInt width, ElInt ldim );
+void ElDistMatrixResizeWithLDim_z
+( ElDistMatrix_z* A, ElInt height, ElInt width, ElInt ldim );
+
+/* LEFT OFF HERE */
 
 void ElMatrixAttach_s
 ( ElMatrix_s* A, ElInt height, ElInt width, float* buffer, ElInt ldim );
@@ -130,10 +132,10 @@ bool ElMatrixLocked_d( const ElMatrix_d* A );
 bool ElMatrixLocked_c( const ElMatrix_c* A );
 bool ElMatrixLocked_z( const ElMatrix_z* A );
 
-float  ElMatrixGet_s( const ElMatrix_s* A, ElInt i, ElInt j );
+float ElMatrixGet_s( const ElMatrix_s* A, ElInt i, ElInt j );
 double ElMatrixGet_d( const ElMatrix_d* A, ElInt i, ElInt j );
-void   ElMatrixGet_c( const ElMatrix_c* A, ElInt i, ElInt j, void* alpha );
-void   ElMatrixGet_z( const ElMatrix_z* A, ElInt i, ElInt j, void* alpha );
+void ElMatrixGet_c( const ElMatrix_c* A, ElInt i, ElInt j, void* alpha );
+void ElMatrixGet_z( const ElMatrix_z* A, ElInt i, ElInt j, void* alpha );
 
 float  ElMatrixGetRealPart_c( const ElMatrix_c* A, ElInt i, ElInt j );
 double ElMatrixGetRealPart_z( const ElMatrix_z* A, ElInt i, ElInt j );
@@ -314,4 +316,4 @@ void ElMatrixConjugateSubmatrix_z
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_MATRIX_CINT_H */
+#endif /* ifndef EL_DISTMATRIX_C_H */

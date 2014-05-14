@@ -7,8 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_TYPES_CINT_H
-#define EL_TYPES_CINT_H
+#ifndef EL_TYPES_C_H
+#define EL_TYPES_C_H
+
+#include "./Scalar-C.h"
 
 #ifdef __cplusplus
 #include <cstdbool>
@@ -146,4 +148,4 @@ typedef enum
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_TYPES_CINT_H */
+#endif /* ifndef EL_TYPES_C_H */

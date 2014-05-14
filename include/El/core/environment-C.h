@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_ENVIRONMENT_CINT_H
-#define EL_ENVIRONMENT_CINT_H
+#ifndef EL_ENVIRONMENT_C_H
+#define EL_ENVIRONMENT_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,4 +44,4 @@ void ElPopBlocksizeStack();
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_ENVIRONMENT_CINT_H */
+#endif /* ifndef EL_ENVIRONMENT_C_H */

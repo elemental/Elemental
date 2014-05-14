@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PRINT_CINT_H
-#define EL_PRINT_CINT_H
+#ifndef EL_PRINT_C_H
+#define EL_PRINT_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,4 +30,4 @@ void ElPrintMatrix_z( const ElMatrix_z* A, const char* title );
 } // extern "C"
 #endif
 
-#endif // ifndef EL_PRINT_CINT_H
+#endif // ifndef EL_PRINT_C_H

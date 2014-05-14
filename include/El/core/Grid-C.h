@@ -8,8 +8,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_GRID_CINT_H
-#define EL_GRID_CINT_H
+#ifndef EL_GRID_C_H
+#define EL_GRID_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,10 +17,9 @@ extern "C" {
 
 struct ElGrid; typedef struct ElGrid ElGrid;
 
-ElGrid* ElDefaultGrid();
+const ElGrid* ElDefaultGrid();
 
-ElGrid* ElGridCreate
-( MPI_Comm comm, ElGridOrderType order );
+ElGrid* ElGridCreate( MPI_Comm comm, ElGridOrderType order );
 ElGrid* ElGridCreateSpecific
 ( MPI_Comm comm, int height, ElGridOrderType order );
 void ElGridDestroy( const ElGrid* grid );
@@ -31,6 +30,7 @@ int ElGridRank( const ElGrid* grid );
 int ElGridHeight( const ElGrid* grid );
 int ElGridWidth( const ElGrid* grid );
 int ElGridSize( const ElGrid* grid );
+
 ElGridOrderType ElGridOrder( const ElGrid* grid );
 MPI_Comm ElGridColComm( const ElGrid* grid );
 MPI_Comm ElGridRowComm( const ElGrid* grid );
@@ -78,4 +78,4 @@ int ElGridFindFactor( int p );
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_GRID_CINT_H */
+#endif /* ifndef EL_GRID_C_H */

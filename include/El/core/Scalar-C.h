@@ -7,12 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SCALAR_CINT_H
-#define EL_SCALAR_CINT_H
+#ifndef EL_SCALAR_C_H
+#define EL_SCALAR_C_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* TODO: Better interface between C and C++ complex */
 
 float  ElRealPart_c( const void* alpha );
 double ElRealPart_z( const void* alpha );
@@ -136,4 +138,4 @@ void   ElLog_z( const void* alpha, void* alphaLog );
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_SCALAR_CINT_H */
+#endif /* ifndef EL_SCALAR_C_H */

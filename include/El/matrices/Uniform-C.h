@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_UNIFORM_CINT_H
-#define EL_UNIFORM_CINT_H
+#ifndef EL_UNIFORM_C_H
+#define EL_UNIFORM_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,4 +28,4 @@ void ElUniform_z( ElDistMatrix_z* A, Int m, Int n );
 } // extern "C"
 #endif
 
-#endif // ifndef EL_UNIFORM_CINT_H
+#endif // ifndef EL_UNIFORM_C_H

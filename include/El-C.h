@@ -14,11 +14,12 @@
 
 /* TODO: A better include structure for the C interface */
 #include "El/config.h"
-#include "El/core/types.h"
-#include "El/core/environment.h"
-#include "El/core/Matrix.h"
-#include "El/core/Grid.h"
-#include "El/io/Display.h"
-#include "El/io/Print.h"
+#include "El/core/types-C.h"
+#include "El/core/environment-C.h"
+#include "El/core/Grid-C.h"
+#include "El/core/Matrix-C.h"
+#include "El/core/DistMatrix-C.h"
+#include "El/io/Display-C.h"
+#include "El/io/Print-C.h"
 
 #endif /* ifndef EL_C_H */

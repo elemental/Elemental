@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DISPLAY_CINT_H
-#define EL_DISPLAY_CINT_H
+#ifndef EL_DISPLAY_C_H
+#define EL_DISPLAY_C_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,4 +25,4 @@ void ElDisplayMatrix_z( const ElMatrix_z* A, const char* title );
 } // extern "C"
 #endif
 
-#endif // ifndef EL_DISPLAY_CINT_H
+#endif // ifndef EL_DISPLAY_C_H
