@@ -10,16 +10,24 @@
 #include "El-C.h"
 using namespace El;
 
-#define RCM_s_const(AHandle) reinterpret_cast<const Matrix<float>*>(AHandle)
-#define RCM_d_const(AHandle) reinterpret_cast<const Matrix<double>*>(AHandle)
-#define RCM_c_const(AHandle) \
-    reinterpret_cast<const Matrix<Complex<float>>*>(AHandle)
-#define RCM_z_const(AHandle) \
-    reinterpret_cast<const Matrix<Complex<double>>*>(AHandle)
+#define RC(TYPE,INPUT) reinterpret_cast<TYPE>(INPUT)
+
+#define RCM_s_const(A) RC(const Matrix<float          >*,A)
+#define RCM_d_const(A) RC(const Matrix<double         >*,A)
+#define RCM_c_const(A) RC(const Matrix<Complex<float >>*,A)
+#define RCM_z_const(A) RC(const Matrix<Complex<double>>*,A)
+
+#define RCDDM_s_const(A) RC(const DynamicDistMatrix<float          >*,A)
+#define RCDDM_d_const(A) RC(const DynamicDistMatrix<double         >*,A)
+#define RCDDM_c_const(A) RC(const DynamicDistMatrix<Complex<float >>*,A)
+#define RCDDM_z_const(A) RC(const DynamicDistMatrix<Complex<double>>*,A)
 
 #define CATCH catch( std::exception& e ) { ReportException(e); }
 
 extern "C" {
+
+// Matrix
+// ======
 
 void ElPrintMatrix_s( const ElMatrix_s* AHandle, const char* title )
 {
@@ -42,6 +50,33 @@ void ElPrintMatrix_c( const ElMatrix_c* AHandle, const char* title )
 void ElPrintMatrix_z( const ElMatrix_z* AHandle, const char* title )
 {
     try { Print( *RCM_z_const(AHandle), std::string(title) ); }
+    CATCH
+}
+
+// DynamicDistMatrix
+// =================
+
+void ElPrintDistMatrix_s( const ElDistMatrix_s* AHandle, const char* title )
+{
+    try { Print( *RCDDM_s_const(AHandle), std::string(title) ); }
+    CATCH
+}
+
+void ElPrintDistMatrix_d( const ElDistMatrix_d* AHandle, const char* title )
+{
+    try { Print( *RCDDM_d_const(AHandle), std::string(title) ); }
+    CATCH
+}
+
+void ElPrintDistMatrix_c( const ElDistMatrix_c* AHandle, const char* title )
+{
+    try { Print( *RCDDM_c_const(AHandle), std::string(title) ); }
+    CATCH
+}
+
+void ElPrintDistMatrix_z( const ElDistMatrix_z* AHandle, const char* title )
+{
+    try { Print( *RCDDM_z_const(AHandle), std::string(title) ); }
     CATCH
 }
 

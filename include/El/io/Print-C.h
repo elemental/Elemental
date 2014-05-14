@@ -24,7 +24,10 @@ void ElPrintMatrix_d( const ElMatrix_d* A, const char* title );
 void ElPrintMatrix_c( const ElMatrix_c* A, const char* title );
 void ElPrintMatrix_z( const ElMatrix_z* A, const char* title );
 
-/* TODO: Extend to DynamicDistMatrix */
+void ElPrintDistMatrix_s( const ElDistMatrix_s* A, const char* title );
+void ElPrintDistMatrix_d( const ElDistMatrix_d* A, const char* title );
+void ElPrintDistMatrix_c( const ElDistMatrix_c* A, const char* title );
+void ElPrintDistMatrix_z( const ElDistMatrix_z* A, const char* title );
 
 #ifdef __cplusplus
 } // extern "C"

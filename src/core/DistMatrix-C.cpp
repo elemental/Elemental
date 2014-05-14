@@ -7,92 +7,151 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
+#include EL_COPY_INC 
+
 #include "El-C.h"
 using namespace El;
 
-#define RCDDM_s(AHandle) \
-  reinterpret_cast<DynamicDistMatrix<float>*>(AHandle)
-#define RCDDM_d(AHandle) \
-  reinterpret_cast<DynamicDistMatrix<double>*>(AHandle)
-#define RCDDM_c(AHandle) \
-  reinterpret_cast<DynamicDistMatrix<Complex<float>>*>(AHandle)
-#define RCDDM_z(AHandle) \
-  reinterpret_cast<DynamicDistMatrix<Complex<double>>*>(AHandle)
+#define RC(TYPE,INPUT) reinterpret_cast<TYPE>(INPUT)
+
+#define RCG(gridHandle) RC(Grid*,gridHandle)
+#define RCG_const(gridHandle) RC(const Grid*,gridHandle)
+
+#define RCDDM_s(AHandle) RC(DynamicDistMatrix<float          >*,AHandle)
+#define RCDDM_d(AHandle) RC(DynamicDistMatrix<double         >*,AHandle)
+#define RCDDM_c(AHandle) RC(DynamicDistMatrix<Complex<float >>*,AHandle)
+#define RCDDM_z(AHandle) RC(DynamicDistMatrix<Complex<double>>*,AHandle)
 
 #define RCDDM_s_const(AHandle) \
-  reinterpret_cast<const DynamicDistMatrix<float>*>(AHandle)
+  RC(const DynamicDistMatrix<float          >*,AHandle)
 #define RCDDM_d_const(AHandle) \
-  reinterpret_cast<const DynamicDistMatrix<double>*>(AHandle)
+  RC(const DynamicDistMatrix<double         >*,AHandle)
 #define RCDDM_c_const(AHandle) \
-  reinterpret_cast<const DynamicDistMatrix<Complex<float>>*>(AHandle)
+  RC(const DynamicDistMatrix<Complex<float >>*,AHandle)
 #define RCDDM_z_const(AHandle) \
-  reinterpret_cast<const DynamicDistMatrix<Complex<double>>*>(AHandle)
+  RC(const DynamicDistMatrix<Complex<double>>*,AHandle)
 
-#define RCADM_s(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<float>*>(AHandle)
-#define RCADM_d(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<double>*>(AHandle)
-#define RCADM_c(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<Complex<float>>*>(AHandle)
-#define RCADM_z(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<Complex<double>>*>(AHandle)
+#define RCB_c(buffer) RC(Complex<float>*,buffer)
+#define RCB_z(buffer) RC(Complex<double>*,buffer)
 
-#define RCADM_s_const(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<float>*>(AHandle)
-#define RCADM_d_const(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<double>*>(AHandle)
-#define RCADM_c_const(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<Complex<float>>*>(AHandle)
-#define RCADM_z_const(AHandle) \
-  reinterpret_cast<AbstractDistMatrix<Complex<double>>*>(AHandle)
-
-#define RCDM_s(AHandle,ColDist,RowDist) \
-  reinterpret_cast<DistMatrix<float,ColDist,RowDist>*>(AHandle)
-#define RCDM_d(AHandle,ColDist,RowDist) \
-  reinterpret_cast<DistMatrix<double,ColDist,RowDist>*>(AHandle)
-#define RCDM_c(AHandle,ColDist,RowDist) \
-  reinterpret_cast<DistMatrix<Complex<float>,ColDist,RowDist>*>(AHandle)
-#define RCDM_z(AHandle,ColDist,RowDist) \
-  reinterpret_cast<DistMatrix<Complex<double>,ColDist,RowDist>*>(AHandle)
-
-#define RCDM_s_const(AHandle,ColDist,RowDist) \
-  reinterpret_cast<const DistMatrix<float,ColDist,RowDist>*>(AHandle)
-#define RCDM_d_const(AHandle,ColDist,RowDist) \
-  reinterpret_cast<const DistMatrix<double,ColDist,RowDist>*>(AHandle)
-#define RCDM_c_const(AHandle,ColDist,RowDist) \
-  reinterpret_cast<const DistMatrix<Complex<float>,ColDist,RowDist>*>(AHandle)
-#define RCDM_z_const(AHandle,ColDist,RowDist) \
-  reinterpret_cast<const DistMatrix<Complex<double>,ColDist,RowDist>*>(AHandle)
-
-#define DCDM_s(AHandle,ColDist,RowDist) \
-  dynamic_cast<DistMatrix<float,ColDist,RowDist>*>(AHandle)
-#define DCDM_d(AHandle,ColDist,RowDist) \
-  dynamic_cast<DistMatrix<double,ColDist,RowDist>*>(AHandle)
-#define DCDM_c(AHandle,ColDist,RowDist) \
-  dynamic_cast<DistMatrix<Complex<float>,ColDist,RowDist>*>(AHandle)
-#define DCDM_z(AHandle,ColDist,RowDist) \
-  dynamic_cast<DistMatrix<Complex<double>,ColDist,RowDist>*>(AHandle)
-
-#define DCDM_s_const(AHandle,ColDist,RowDist) \
-  dynamic_cast<const DistMatrix<float,ColDist,RowDist>*>(AHandle)
-#define DCDM_d_const(AHandle,ColDist,RowDist) \
-  dynamic_cast<const DistMatrix<double,ColDist,RowDist>*>(AHandle)
-#define DCDM_c_const(AHandle,ColDist,RowDist) \
-  dynamic_cast<const DistMatrix<Complex<float>,ColDist,RowDist>*>(AHandle)
-#define DCDM_z_const(AHandle,ColDist,RowDist) \
-  dynamic_cast<const DistMatrix<Complex<double>,ColDist,RowDist>*>(AHandle)
-
-#define RCB_c(buffer) reinterpret_cast<Complex<float>*>(buffer)
-#define RCB_z(buffer) reinterpret_cast<Complex<double>*>(buffer)
-
-#define RCB_c_const(buffer) reinterpret_cast<const Complex<float>*>(buffer)
-#define RCB_z_const(buffer) reinterpret_cast<const Complex<double>*>(buffer)
-
-#define DC_CHECK(A) if( A == nullptr ) RuntimeError("Dynamic cast failed");
+#define RCB_c_const(buffer) RC(const Complex<float >*,buffer)
+#define RCB_z_const(buffer) RC(const Complex<double>*,buffer)
 
 #define CATCH catch( std::exception& e ) { ReportException(e); }
 
 extern "C" {
+
+// Simple contructor for [MC,MR] option for DynamicDistMatrix
+// ----------------------------------------------------------
+ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<float>;
+        A->ADM = new DistMatrix<float>(*RCG_const(gridHandle));
+        return RC(ElDistMatrix_s*,A);
+    }
+    CATCH
+}
+
+ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<double>;
+        A->ADM = new DistMatrix<double>(*RCG_const(gridHandle));
+        return RC(ElDistMatrix_d*,A);
+    }
+    CATCH
+}
+
+ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<Complex<float>>;
+        A->ADM = new DistMatrix<Complex<float>>(*RCG_const(gridHandle));
+        return RC(ElDistMatrix_c*,A);
+    }
+    CATCH
+}
+
+ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<Complex<double>>;
+        A->ADM = new DistMatrix<Complex<double>>(*RCG_const(gridHandle));
+        return RC(ElDistMatrix_z*,A);
+    }
+    CATCH
+}
+
+// DynamicDistMatrix::~DynamicDistMatrix()
+// ---------------------------------------
+void ElDistMatrixDestroy_s( const ElDistMatrix_s* AHandle )
+{ delete RCDDM_s_const(AHandle); }
+
+void ElDistMatrixDestroy_d( const ElDistMatrix_d* AHandle )
+{ delete RCDDM_d_const(AHandle); }
+
+void ElDistMatrixDestroy_c( const ElDistMatrix_c* AHandle )
+{ delete RCDDM_c_const(AHandle); }
+
+void ElDistMatrixDestroy_z( const ElDistMatrix_z* AHandle )
+{ delete RCDDM_z_const(AHandle); }
+
+// Empty the DynamicDistMatrix
+// ---------------------------
+void ElDistMatrixEmpty_s( ElDistMatrix_s* AHandle )
+{
+    try { RCDDM_s(AHandle)->ADM->Empty(); }
+    CATCH
+}
+
+void ElDistMatrixEmpty_d( ElDistMatrix_d* AHandle )
+{
+    try { RCDDM_d(AHandle)->ADM->Empty(); }
+    CATCH
+}
+
+void ElDistMatrixEmpty_c( ElDistMatrix_c* AHandle )
+{
+    try { RCDDM_c(AHandle)->ADM->Empty(); }
+    CATCH
+}
+
+void ElDistMatrixEmpty_z( ElDistMatrix_z* AHandle )
+{
+    try { RCDDM_z(AHandle)->ADM->Empty(); }
+    CATCH
+}
+
+// Resize the DynamicDistMatrix
+// ----------------------------
+void ElDistMatrixResize_s( ElDistMatrix_s* AHandle, ElInt height, ElInt width )
+{
+    try { RCDDM_s(AHandle)->ADM->Resize(height,width); }
+    CATCH
+}
+
+void ElDistMatrixResize_d( ElDistMatrix_d* AHandle, ElInt height, ElInt width )
+{
+    try { RCDDM_d(AHandle)->ADM->Resize(height,width); }
+    CATCH
+}
+
+void ElDistMatrixResize_c( ElDistMatrix_c* AHandle, ElInt height, ElInt width )
+{
+    try { RCDDM_c(AHandle)->ADM->Resize(height,width); }
+    CATCH
+}
+
+void ElDistMatrixResize_z( ElDistMatrix_z* AHandle, ElInt height, ElInt width )
+{
+    try { RCDDM_z(AHandle)->ADM->Resize(height,width); }
+    CATCH
+}
 
 // DistMatrix::Get( Int i, Int j ) const
 // -------------------------------------
@@ -127,64 +186,62 @@ void ElDistMatrixGet_z
     CATCH
 }
 
+// DistMatrix::Get( Int i, Int j ) const
+// -------------------------------------
+
+void ElDistMatrixSet_s( ElDistMatrix_s* AHandle, ElInt i, ElInt j, float alpha )
+{
+    try { RCDDM_s(AHandle)->ADM->Set(i,j,alpha); }
+    CATCH
+}
+
+void ElDistMatrixSet_d
+( ElDistMatrix_d* AHandle, ElInt i, ElInt j, double alpha )
+{
+    try { RCDDM_d(AHandle)->ADM->Set(i,j,alpha); }
+    CATCH
+}
+
+void ElDistMatrixSet_c( ElDistMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+{
+    try { RCDDM_c(AHandle)->ADM->Set(i,j,*RCB_c(alpha)); }
+    CATCH
+}
+
+void ElDistMatrixSet_z( ElDistMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+{
+    try { RCDDM_z(AHandle)->ADM->Set(i,j,*RCB_z(alpha)); }
+    CATCH
+}
+
 // B = A
 // -----
 
-#define INNER_IF_CONVERT_AND_COPY(A,BDyn,ColDist,RowDist) \
-  if( BDyn->U == ColDist && BDyn->V == RowDist ) \
-  { \
-      auto B = DCDM_s(BDyn->ADM,ColDist,RowDist); \
-      DC_CHECK(B); \
-      *B = *A; \
-  }
-#define INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,ColDist,RowDist) \
-  else INNER_IF_CONVERT_AND_COPY(A,BDyn,ColDist,RowDist)
-
-#define IF_CONVERT_AND_COPY(ADyn,BDyn,ColDist,RowDist) \
-  if( ADyn->U == ColDist && ADyn->V == RowDist ) \
-  { \
-      auto A = DCDM_s_const(ADyn->ADM,ColDist,RowDist); \
-      DC_CHECK(A); \
-      INNER_IF_CONVERT_AND_COPY(A,BDyn,CIRC,CIRC) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,MC,  MR  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,MC,  STAR) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,MD,  STAR) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,MR,  MC  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,MR,  STAR) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,STAR,MC  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,STAR,MD  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,STAR,MR  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,STAR,STAR) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,STAR,VC  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,STAR,VR  ) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,VC,  STAR) \
-      INNER_ELSEIF_CONVERT_AND_COPY(A,BDyn,VR,  STAR) \
-  }
-#define ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,ColDist,RowDist) \
-  else IF_CONVERT_AND_COPY(ADyn,BDyn,ColDist,RowDist)
-
 void ElDistMatrixCopy_s
 ( const ElDistMatrix_s* AHandle, ElDistMatrix_s* BHandle )
+{ 
+    try { Copy( *RCDDM_s_const(AHandle), *RCDDM_s(BHandle) ); }
+    CATCH
+}
+
+void ElDistMatrixCopy_d
+( const ElDistMatrix_d* AHandle, ElDistMatrix_d* BHandle )
 {
-    try
-    {
-        auto ADyn = RCDDM_s_const(AHandle);
-        auto BDyn = RCDDM_s(BHandle);
-        IF_CONVERT_AND_COPY(ADyn,BDyn,CIRC,CIRC)
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MC,  MR  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MC,  STAR) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MD,  STAR) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MR,  MC  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MR,  STAR) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,MC  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,MD  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,MR  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,STAR) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,VC  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,VR  ) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,VC,  STAR) 
-        ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,VR,  STAR) 
-    }
+    try { Copy( *RCDDM_d_const(AHandle), *RCDDM_d(BHandle) ); }
+    CATCH
+}
+
+void ElDistMatrixCopy_c
+( const ElDistMatrix_c* AHandle, ElDistMatrix_c* BHandle )
+{
+    try { Copy( *RCDDM_c_const(AHandle), *RCDDM_c(BHandle) ); }
+    CATCH
+}
+
+void ElDistMatrixCopy_z
+( const ElDistMatrix_z* AHandle, ElDistMatrix_z* BHandle )
+{
+    try { Copy( *RCDDM_z_const(AHandle), *RCDDM_z(BHandle) ); }
     CATCH
 }
 

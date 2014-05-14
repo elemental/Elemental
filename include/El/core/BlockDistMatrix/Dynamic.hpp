@@ -18,11 +18,12 @@ namespace El {
 // matrices. The idea is to use the U and V Dist member variables to branch
 // to various dynamic_cast's.
 template<typename T> 
-class DynamicBlockDistMatrix
+struct DynamicBlockDistMatrix
 {
-public:
-    Dist U, V;
-    AbstractBlockDistMatrix<T>* ABDM;
+    Dist U=MC, V=MR;
+    AbstractBlockDistMatrix<T>* ABDM=nullptr;
+
+    ~DynamicBlockDistMatrix() { delete ABDM; }
 };
 
 } // namespace El

@@ -70,6 +70,43 @@ Print
     }
 }
 
+template<typename T>
+inline void
+Print
+( const DynamicDistMatrix<T>& ADyn, std::string title="", 
+  std::ostream& os=std::cout )
+{
+    DEBUG_ONLY(CallStackEntry cse("Print"))
+    #define IF_CONVERT_AND_PRINT(ADYN,TITLE,OS,CDIST,RDIST) \
+      if( ADYN.U == CDIST && ADYN.V == RDIST ) \
+      { \
+          auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(ADYN.ADM); \
+          if( A == nullptr ) \
+              RuntimeError("Dynamic cast failed"); \
+          Print( *A, TITLE, OS ); \
+      }
+    #define ELSEIF_CONVERT_AND_PRINT(ADYN,TITLE,OS,CDIST,RDIST) \
+      else IF_CONVERT_AND_PRINT(ADYN,TITLE,OS,CDIST,RDIST)
+
+    IF_CONVERT_AND_PRINT(    ADyn,title,os,CIRC,CIRC)
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,MC,  MR  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,MC,  STAR)
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,MD,  STAR)
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,MR,  MC  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,MR,  STAR)
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,STAR,MC  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,STAR,MD  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,STAR,MR  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,STAR,STAR)
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,STAR,VC  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,STAR,VR  )
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,VC,  STAR)
+    ELSEIF_CONVERT_AND_PRINT(ADyn,title,os,VR,  STAR)
+
+    #undef ELSEIF_CONVERT_AND_PRINT
+    #undef IF_CONVERT_AND_PRINT
+}
+
 } // namespace El
 
 #endif // ifndef EL_PRINT_HPP

@@ -155,6 +155,41 @@ Display( const BlockDistMatrix<T,U,V>& A, std::string title="Default" )
 #endif
 }
 
+template<typename T>
+inline void
+Display( const DynamicDistMatrix<T>& ADyn, std::string title="" )
+{
+    DEBUG_ONLY(CallStackEntry cse("Display"))
+    #define IF_CONVERT_AND_DISPLAY(ADYN,TITLE,CDIST,RDIST) \
+      if( ADYN.U == CDIST && ADYN.V == RDIST ) \
+      { \
+          auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(ADYN.ADM); \
+          if( A == nullptr ) \
+              RuntimeError("Dynamic cast failed"); \
+          Display( *A, TITLE ); \
+      }
+    #define ELSEIF_CONVERT_AND_DISPLAY(ADYN,TITLE,CDIST,RDIST) \
+      else IF_CONVERT_AND_DISPLAY(ADYN,TITLE,CDIST,RDIST)
+
+    IF_CONVERT_AND_DISPLAY(    ADyn,title,CIRC,CIRC)
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MC,  MR  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MC,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MD,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MR,  MC  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MR,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,MC  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,MD  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,MR  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,VC  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,VR  )
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,VC,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,VR,  STAR)
+
+    #undef ELSEIF_CONVERT_AND_DISPLAY
+    #undef IF_CONVERT_AND_DISPLAY
+}
+
 } // namespace El
 
 #endif // ifndef EL_DISPLAY_HPP

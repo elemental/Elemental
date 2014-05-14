@@ -107,6 +107,64 @@ Copy
     Copy( BReal.LockedMatrix(), B.Matrix() );
 }
 
+template<typename T>
+inline void
+Copy( const DynamicDistMatrix<T>& ADyn, DynamicDistMatrix<T>& BDyn )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    #define INNER_IF_CONVERT_AND_COPY(A,BDYN,CDIST,RDIST) \
+      if( BDYN.U == CDIST && BDYN.V == RDIST ) \
+      { \
+          auto B = dynamic_cast<DistMatrix<T,CDIST,RDIST>*>(BDYN.ADM); \
+          if( B == nullptr ) \
+              RuntimeError("Dynamic cast failed"); \
+          *B = *A; \
+      }
+    #define INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,CDIST,RDIST) \
+      else INNER_IF_CONVERT_AND_COPY(A,BDYN,CDIST,RDIST)
+    #define IF_CONVERT_AND_COPY(ADYN,BDYN,CDIST,RDIST) \
+      if( ADYN.U == CDIST && ADYN.V == RDIST ) \
+      { \
+          auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(ADYN.ADM); \
+          if( A == nullptr ) \
+              RuntimeError("Dynamic cast failed"); \
+          INNER_IF_CONVERT_AND_COPY(    A,BDYN,CIRC,CIRC) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,MC,  MR  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,MD,  STAR) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,MR,  MC  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,MR,  STAR) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,STAR,MC  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,STAR,MD  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,STAR,MR  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,STAR,STAR) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,STAR,VC  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,STAR,VR  ) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,VC,  STAR) \
+          INNER_ELSEIF_CONVERT_AND_COPY(A,BDYN,VR,  STAR) \
+      }
+    #define ELSEIF_CONVERT_AND_COPY(ADYN,BDYN,CDIST,RDIST) \
+      else IF_CONVERT_AND_COPY(ADYN,BDYN,CDIST,RDIST)
+
+    IF_CONVERT_AND_COPY(    ADyn,BDyn,CIRC,CIRC)
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MC,  MR  )
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MC,  STAR)
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MD,  STAR)
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MR,  MC  )
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,MR,  STAR)
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,MD  )
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,MR  )
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,STAR)
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,VC  )
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,STAR,VR  )
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,VC,  STAR)
+    ELSEIF_CONVERT_AND_COPY(ADyn,BDyn,VR,  STAR)
+
+    #undef ELSEIF_CONVERT_AND_COPY
+    #undef IF_CONVERT_AND_COPY
+    #undef INNER_ELSEIF_CONVERT_AND_COPY
+    #undef INNER_IF_CONVERT_AND_COPY
+}
+
 } // namespace El
 
 #endif // ifndef EL_COPY_HPP
