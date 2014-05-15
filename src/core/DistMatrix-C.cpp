@@ -399,6 +399,334 @@ void ElDistMatrixMakeSizeConsistent_z
     CATCH
 }
 
+// void DistMatrix<T,U,V>::Align( Int colAlign, Int rowAlign, bool constrain )
+// ---------------------------------------------------------------------------
+void ElDistMatrixAlign_s
+( ElDistMatrix_s* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_s(AHandle)->ADM->Align(colAlign,rowAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlign_d
+( ElDistMatrix_d* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_d(AHandle)->ADM->Align(colAlign,rowAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlign_c
+( ElDistMatrix_c* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_c(AHandle)->ADM->Align(colAlign,rowAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlign_z
+( ElDistMatrix_z* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_z(AHandle)->ADM->Align(colAlign,rowAlign,constrain); }
+    CATCH
+}
+
+// void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain )
+// -----------------------------------------------------------------
+void ElDistMatrixAlignCols_s
+( ElDistMatrix_s* AHandle, ElInt colAlign, bool constrain )
+{
+    try { RCDDM_s(AHandle)->ADM->AlignCols(colAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlignCols_d
+( ElDistMatrix_d* AHandle, ElInt colAlign, bool constrain )
+{
+    try { RCDDM_d(AHandle)->ADM->AlignCols(colAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlignCols_c
+( ElDistMatrix_c* AHandle, ElInt colAlign, bool constrain )
+{
+    try { RCDDM_c(AHandle)->ADM->AlignCols(colAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlignCols_z
+( ElDistMatrix_z* AHandle, ElInt colAlign, bool constrain )
+{
+    try { RCDDM_z(AHandle)->ADM->AlignCols(colAlign,constrain); }
+    CATCH
+}
+
+// void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain )
+// -----------------------------------------------------------------
+void ElDistMatrixAlignRows_s
+( ElDistMatrix_s* AHandle, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_s(AHandle)->ADM->AlignRows(rowAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlignRows_d
+( ElDistMatrix_d* AHandle, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_d(AHandle)->ADM->AlignRows(rowAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlignRows_c
+( ElDistMatrix_c* AHandle, ElInt rowAlign, bool constrain )
+{
+    try { RCDDM_c(AHandle)->ADM->AlignRows(rowAlign,constrain); }
+    CATCH
+}
+
+void ElDistMatrixAlignRows_z
+( ElDistMatrix_z* AHandle, ElInt colAlign, bool constrain )
+{
+    try { RCDDM_z(AHandle)->ADM->AlignRows(rowAlign,constrain); }
+    CATCH
+}
+
+// void DistMatrix<T,U,V>::FreeAlignments()
+// ----------------------------------------
+void ElDistMatrixFreeAlignments_s( ElDistMatrix_s* AHandle )
+{ RCDDM_s(AHandle)->ADM->FreeAlignments(); }
+
+void ElDistMatrixFreeAlignments_d( ElDistMatrix_d* AHandle )
+{ RCDDM_d(AHandle)->ADM->FreeAlignments(); }
+
+void ElDistMatrixFreeAlignments_c( ElDistMatrix_c* AHandle )
+{ RCDDM_c(AHandle)->ADM->FreeAlignments(); }
+
+void ElDistMatrixFreeAlignments_z( ElDistMatrix_z* AHandle )
+{ RCDDM_z(AHandle)->ADM->FreeAlignments(); }
+
+// void DistMatrix<T,U,V>::SetRoot( Int root )
+// -------------------------------------------
+void ElDistMatrixSetRoot_s( ElDistMatrix_s* AHandle, ElInt root )
+{
+    try { RCDDM_s(AHandle)->ADM->SetRoot(root); }
+    CATCH
+}
+
+void ElDistMatrixSetRoot_d( ElDistMatrix_d* AHandle, ElInt root )
+{
+    try { RCDDM_d(AHandle)->ADM->SetRoot(root); }
+    CATCH
+}
+
+void ElDistMatrixSetRoot_c( ElDistMatrix_c* AHandle, ElInt root )
+{
+    try { RCDDM_c(AHandle)->ADM->SetRoot(root); }
+    CATCH
+}
+
+void ElDistMatrixSetRoot_z( ElDistMatrix_z* AHandle, ElInt root )
+{
+    try { RCDDM_z(AHandle)->ADM->SetRoot(root); }
+    CATCH
+}
+
+// TODO: Align[Cols,Rows]With. Need a C version of DistData
+
+// TODO: Align[Cols,Rows]AndResize
+
+// void DistMatrix<T,U,V>::Attach
+// ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
+//   T* buffer, Int ldim, Int root )
+// ----------------------------------------------------------------------
+void ElDistMatrixAttach_s
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, ElInt root )
+{
+    try { RCDDM_s(AHandle)->ADM->Attach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
+           ldim,root); }
+    CATCH
+}
+
+void ElDistMatrixAttach_d
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, ElInt root )
+{
+    try { RCDDM_d(AHandle)->ADM->Attach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
+           ldim,root); }
+    CATCH
+}
+
+void ElDistMatrixAttach_c
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root )
+{
+    try { RCDDM_c(AHandle)->ADM->Attach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,RCB_c(buffer),
+           ldim,root); }
+    CATCH
+}
+
+void ElDistMatrixAttach_z
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root )
+{
+    try { RCDDM_z(AHandle)->ADM->Attach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,RCB_z(buffer),
+           ldim,root); }
+    CATCH
+}
+
+// void DistMatrix<T,U,V>::LockedAttach
+// ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
+//   const T* buffer, Int ldim, Int root )
+// ----------------------------------------------------------------------
+void ElDistMatrixLockedAttach_s
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const float* buffer, 
+  ElInt ldim, ElInt root )
+{
+    try { RCDDM_s(AHandle)->ADM->LockedAttach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
+           ldim,root); }
+    CATCH
+}
+
+void ElDistMatrixLockedAttach_d
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const double* buffer, 
+  ElInt ldim, ElInt root )
+{
+    try { RCDDM_d(AHandle)->ADM->LockedAttach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
+           ldim,root); }
+    CATCH
+}
+
+void ElDistMatrixLockedAttach_c
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+  ElInt ldim, ElInt root )
+{
+    try { RCDDM_c(AHandle)->ADM->LockedAttach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,
+           RCB_z_const(buffer),ldim,root); }
+    CATCH
+}
+
+void ElDistMatrixLockedAttach_z
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+  ElInt ldim, ElInt root )
+{
+    try { RCDDM_z(AHandle)->ADM->LockedAttach
+          (height,width,*RCG_const(gridHandle),colAlign,rowAlign,
+           RCB_z_const(buffer),ldim,root); }
+    CATCH
+}
+
+// Int DistMatrix<T,U,V>::Height() const
+// -------------------------------------
+ElInt ElDistMatrixHeight_s( const ElDistMatrix_s* AHandle )
+{ return RCDDM_s_const(AHandle)->ADM->Height(); }
+
+ElInt ElDistMatrixHeight_d( const ElDistMatrix_d* AHandle )
+{ return RCDDM_d_const(AHandle)->ADM->Height(); }
+
+ElInt ElDistMatrixHeight_c( const ElDistMatrix_c* AHandle )
+{ return RCDDM_c_const(AHandle)->ADM->Height(); }
+
+ElInt ElDistMatrixHeight_z( const ElDistMatrix_z* AHandle )
+{ return RCDDM_z_const(AHandle)->ADM->Height(); }
+
+// Int DistMatrix<T,U,V>::Width() const
+// ------------------------------------
+ElInt ElDistMatrixWidth_s( const ElDistMatrix_s* AHandle )
+{ return RCDDM_s_const(AHandle)->ADM->Width(); }
+
+ElInt ElDistMatrixWidth_d( const ElDistMatrix_d* AHandle )
+{ return RCDDM_d_const(AHandle)->ADM->Width(); }
+
+ElInt ElDistMatrixWidth_c( const ElDistMatrix_c* AHandle )
+{ return RCDDM_c_const(AHandle)->ADM->Width(); }
+
+ElInt ElDistMatrixWidth_z( const ElDistMatrix_z* AHandle )
+{ return RCDDM_z_const(AHandle)->ADM->Width(); }
+
+// Int DistMatrix<T,U,V>::DiagonalLength( Int offset ) const
+// ---------------------------------------------------------
+ElInt ElDistMatrixDiagonalLength_s
+( const ElDistMatrix_s* AHandle, ElInt offset )
+{ return RCDDM_s_const(AHandle)->ADM->DiagonalLength(offset); }
+
+ElInt ElDistMatrixDiagonalLength_d
+( const ElDistMatrix_d* AHandle, ElInt offset )
+{ return RCDDM_d_const(AHandle)->ADM->DiagonalLength(offset); }
+
+ElInt ElDistMatrixDiagonalLength_c
+( const ElDistMatrix_c* AHandle, ElInt offset )
+{ return RCDDM_c_const(AHandle)->ADM->DiagonalLength(offset); }
+
+ElInt ElDistMatrixDiagonalLength_z
+( const ElDistMatrix_z* AHandle, ElInt offset )
+{ return RCDDM_z_const(AHandle)->ADM->DiagonalLength(offset); }
+
+// bool DistMatrix<T,U,V>::Viewing() const
+// ---------------------------------------
+bool ElDistMatrixViewing_s( const ElDistMatrix_s* AHandle )
+{ return RCDDM_s_const(AHandle)->ADM->Viewing(); }
+
+bool ElDistMatrixViewing_d( const ElDistMatrix_d* AHandle )
+{ return RCDDM_d_const(AHandle)->ADM->Viewing(); }
+
+bool ElDistMatrixViewing_c( const ElDistMatrix_c* AHandle )
+{ return RCDDM_c_const(AHandle)->ADM->Viewing(); }
+
+bool ElDistMatrixViewing_z( const ElDistMatrix_z* AHandle )
+{ return RCDDM_z_const(AHandle)->ADM->Viewing(); }
+
+// bool DistMatrix<T,U,V>::Locked() const
+// --------------------------------------
+bool ElDistMatrixLocked_s( const ElDistMatrix_s* AHandle )
+{ return RCDDM_s_const(AHandle)->ADM->Locked(); }
+
+bool ElDistMatrixLocked_d( const ElDistMatrix_d* AHandle )
+{ return RCDDM_d_const(AHandle)->ADM->Locked(); }
+
+bool ElDistMatrixLocked_c( const ElDistMatrix_c* AHandle )
+{ return RCDDM_c_const(AHandle)->ADM->Locked(); }
+
+bool ElDistMatrixLocked_z( const ElDistMatrix_z* AHandle )
+{ return RCDDM_z_const(AHandle)->ADM->Locked(); }
+
+// Int DistMatrix<T,U,V>::LocalHeight() const
+// ------------------------------------------
+ElInt ElDistMatrixLocalHeight_s( const ElDistMatrix_s* AHandle )
+{ return RCDDM_s_const(AHandle)->ADM->LocalHeight(); }
+
+ElInt ElDistMatrixLocalHeight_d( const ElDistMatrix_d* AHandle )
+{ return RCDDM_d_const(AHandle)->ADM->LocalHeight(); }
+
+ElInt ElDistMatrixLocalHeight_c( const ElDistMatrix_c* AHandle )
+{ return RCDDM_c_const(AHandle)->ADM->LocalHeight(); }
+
+ElInt ElDistMatrixLocalHeight_z( const ElDistMatrix_z* AHandle )
+{ return RCDDM_z_const(AHandle)->ADM->LocalHeight(); }
+
+// Int DistMatrix<T,U,V>::LocalWidth() const
+// -----------------------------------------
+ElInt ElDistMatrixLocalWidth_s( const ElDistMatrix_s* AHandle )
+{ return RCDDM_s_const(AHandle)->ADM->LocalWidth(); }
+
+ElInt ElDistMatrixLocalWidth_d( const ElDistMatrix_d* AHandle )
+{ return RCDDM_d_const(AHandle)->ADM->LocalWidth(); }
+
+ElInt ElDistMatrixLocalWidth_c( const ElDistMatrix_c* AHandle )
+{ return RCDDM_c_const(AHandle)->ADM->LocalWidth(); }
+
+ElInt ElDistMatrixLocalWidth_z( const ElDistMatrix_z* AHandle )
+{ return RCDDM_z_const(AHandle)->ADM->LocalWidth(); }
+
 // TODO: Fill in a large number of missing routines here
 // =====================================================
 

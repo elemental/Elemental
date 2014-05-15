@@ -118,6 +118,148 @@ void ElDistMatrixMakeSizeConsistent_c
 void ElDistMatrixMakeSizeConsistent_z
 ( ElDistMatrix_z* AHandle, bool includeViewers );
 
+// void DistMatrix<T,U,V>::Align( Int colAlign, Int rowAlign, bool constrain )
+// ---------------------------------------------------------------------------
+void ElDistMatrixAlign_s
+( ElDistMatrix_s* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain );
+void ElDistMatrixAlign_d
+( ElDistMatrix_d* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain );
+void ElDistMatrixAlign_c
+( ElDistMatrix_c* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain );
+void ElDistMatrixAlign_z
+( ElDistMatrix_z* AHandle, ElInt colAlign, ElInt rowAlign, bool constrain );
+
+// void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain )
+// -----------------------------------------------------------------
+void ElDistMatrixAlignCols_s
+( ElDistMatrix_s* AHandle, ElInt colAlign, bool constrain );
+void ElDistMatrixAlignCols_d
+( ElDistMatrix_d* AHandle, ElInt colAlign, bool constrain );
+void ElDistMatrixAlignCols_c
+( ElDistMatrix_c* AHandle, ElInt colAlign, bool constrain );
+void ElDistMatrixAlignCols_z
+( ElDistMatrix_z* AHandle, ElInt colAlign, bool constrain );
+
+// void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain )
+// -----------------------------------------------------------------
+void ElDistMatrixAlignRows_s
+( ElDistMatrix_s* AHandle, ElInt rowAlign, bool constrain );
+void ElDistMatrixAlignRows_d
+( ElDistMatrix_d* AHandle, ElInt rowAlign, bool constrain );
+void ElDistMatrixAlignRows_c
+( ElDistMatrix_c* AHandle, ElInt rowAlign, bool constrain );
+void ElDistMatrixAlignRows_z
+( ElDistMatrix_z* AHandle, ElInt rowAlign, bool constrain );
+
+// void DistMatrix<T,U,V>::FreeAlignments()
+// ----------------------------------------
+void ElDistMatrixFreeAlignments_s( ElDistMatrix_s* AHandle );
+void ElDistMatrixFreeAlignments_d( ElDistMatrix_d* AHandle );
+void ElDistMatrixFreeAlignments_c( ElDistMatrix_c* AHandle );
+void ElDistMatrixFreeAlignments_z( ElDistMatrix_z* AHandle );
+
+// void DistMatrix<T,U,V>::SetRoot( Int root )
+// -------------------------------------------
+void ElDistMatrixSetRoot_s( ElDistMatrix_s* AHandle, ElInt root );
+void ElDistMatrixSetRoot_d( ElDistMatrix_d* AHandle, ElInt root );
+void ElDistMatrixSetRoot_c( ElDistMatrix_c* AHandle, ElInt root );
+void ElDistMatrixSetRoot_z( ElDistMatrix_z* AHandle, ElInt root );
+
+// TODO: Align[Cols,Rows]With. Need a C version of DistData
+
+// TODO: Align[Cols,Rows]AndResize
+
+// void DistMatrix<T,U,V>::Attach
+// ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
+//   T* buffer, Int ldim, Int root )
+// ----------------------------------------------------------------------
+void ElDistMatrixAttach_s
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, ElInt root );
+void ElDistMatrixAttach_d
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, ElInt root );
+void ElDistMatrixAttach_c
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root );
+void ElDistMatrixAttach_z
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root );
+
+// void DistMatrix<T,U,V>::LockedAttach
+// ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
+//   const T* buffer, Int ldim, Int root )
+// ----------------------------------------------------------------------
+void ElDistMatrixLockedAttach_s
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const float* buffer, 
+  ElInt ldim, ElInt root );
+void ElDistMatrixLockedAttach_d
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const double* buffer, 
+  ElInt ldim, ElInt root );
+void ElDistMatrixLockedAttach_c
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+  ElInt ldim, ElInt root );
+void ElDistMatrixLockedAttach_z
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+  ElInt ldim, ElInt root );
+
+// Int DistMatrix<T,U,V>::Height() const
+// -------------------------------------
+ElInt ElDistMatrixHeight_s( const ElDistMatrix_s* AHandle );
+ElInt ElDistMatrixHeight_d( const ElDistMatrix_d* AHandle );
+ElInt ElDistMatrixHeight_c( const ElDistMatrix_c* AHandle );
+ElInt ElDistMatrixHeight_z( const ElDistMatrix_z* AHandle );
+
+// Int DistMatrix<T,U,V>::Width() const
+// ------------------------------------
+ElInt ElDistMatrixWidth_s( const ElDistMatrix_s* AHandle );
+ElInt ElDistMatrixWidth_d( const ElDistMatrix_d* AHandle );
+ElInt ElDistMatrixWidth_c( const ElDistMatrix_c* AHandle );
+ElInt ElDistMatrixWidth_z( const ElDistMatrix_z* AHandle );
+
+// Int DistMatrix<T,U,V>::DiagonalLength( Int offset ) const
+// ---------------------------------------------------------
+ElInt ElDistMatrixDiagonalLength_s
+( const ElDistMatrix_s* AHandle, ElInt offset );
+ElInt ElDistMatrixDiagonalLength_d
+( const ElDistMatrix_d* AHandle, ElInt offset );
+ElInt ElDistMatrixDiagonalLength_c
+( const ElDistMatrix_c* AHandle, ElInt offset );
+ElInt ElDistMatrixDiagonalLength_z
+( const ElDistMatrix_z* AHandle, ElInt offset );
+
+// bool DistMatrix<T,U,V>::Viewing() const
+// ---------------------------------------
+bool ElDistMatrixViewing_s( const ElDistMatrix_s* AHandle );
+bool ElDistMatrixViewing_d( const ElDistMatrix_d* AHandle );
+bool ElDistMatrixViewing_c( const ElDistMatrix_c* AHandle );
+bool ElDistMatrixViewing_z( const ElDistMatrix_z* AHandle );
+
+// bool DistMatrix<T,U,V>::Locked() const
+// ---------------------------------------
+bool ElDistMatrixLocked_s( const ElDistMatrix_s* AHandle );
+bool ElDistMatrixLocked_d( const ElDistMatrix_d* AHandle );
+bool ElDistMatrixLocked_c( const ElDistMatrix_c* AHandle );
+bool ElDistMatrixLocked_z( const ElDistMatrix_z* AHandle );
+
+// Int DistMatrix<T,U,V>::LocalHeight() const
+// ------------------------------------------
+ElInt ElDistMatrixLocalHeight_s( const ElDistMatrix_s* AHandle );
+ElInt ElDistMatrixLocalHeight_d( const ElDistMatrix_d* AHandle );
+ElInt ElDistMatrixLocalHeight_c( const ElDistMatrix_c* AHandle );
+ElInt ElDistMatrixLocalHeight_z( const ElDistMatrix_z* AHandle );
+
+// Int DistMatrix<T,U,V>::LocalWidth() const
+// -----------------------------------------
+ElInt ElDistMatrixLocalWidth_s( const ElDistMatrix_s* AHandle );
+ElInt ElDistMatrixLocalWidth_d( const ElDistMatrix_d* AHandle );
+ElInt ElDistMatrixLocalWidth_c( const ElDistMatrix_c* AHandle );
+ElInt ElDistMatrixLocalWidth_z( const ElDistMatrix_z* AHandle );
+
 // TODO: Fill in a large number of routines here
 // =============================================
 
