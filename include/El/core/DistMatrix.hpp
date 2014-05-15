@@ -45,6 +45,5 @@ struct DistData
 #include "./DistMatrix/STAR_VR.hpp"
 #include "./DistMatrix/VC_STAR.hpp"
 #include "./DistMatrix/VR_STAR.hpp"
-#include "./DistMatrix/Dynamic.hpp"
 
 #endif // ifndef EL_DISTMATRIX_HPP

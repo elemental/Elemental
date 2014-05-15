@@ -49,7 +49,6 @@ struct BlockDistData
 #include "./BlockDistMatrix/STAR_VR.hpp"
 #include "./BlockDistMatrix/VC_STAR.hpp"
 #include "./BlockDistMatrix/VR_STAR.hpp"
-#include "./BlockDistMatrix/Dynamic.hpp"
 
 namespace El {
 

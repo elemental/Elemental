@@ -17,10 +17,10 @@ using namespace El;
 #define RCM_c_const(A) RC(const Matrix<Complex<float >>*,A)
 #define RCM_z_const(A) RC(const Matrix<Complex<double>>*,A)
 
-#define RCDDM_s_const(A) RC(const DynamicDistMatrix<float          >*,A)
-#define RCDDM_d_const(A) RC(const DynamicDistMatrix<double         >*,A)
-#define RCDDM_c_const(A) RC(const DynamicDistMatrix<Complex<float >>*,A)
-#define RCDDM_z_const(A) RC(const DynamicDistMatrix<Complex<double>>*,A)
+#define RCADM_s_const(A) RC(const AbstractDistMatrix<float          >*,A)
+#define RCADM_d_const(A) RC(const AbstractDistMatrix<double         >*,A)
+#define RCADM_c_const(A) RC(const AbstractDistMatrix<Complex<float >>*,A)
+#define RCADM_z_const(A) RC(const AbstractDistMatrix<Complex<double>>*,A)
 
 #define CATCH catch( std::exception& e ) { ReportException(e); }
 
@@ -53,30 +53,30 @@ void ElDisplayMatrix_z( const ElMatrix_z* AHandle, const char* title )
     CATCH
 }
 
-// DynamicDistMatrix
-// =================
+// AbstractDistMatrix
+// ==================
 
 void ElDisplayDistMatrix_s( const ElDistMatrix_s* AHandle, const char* title )
 {
-    try { Display( *RCDDM_s_const(AHandle), std::string(title) ); }
+    try { Display( *RCADM_s_const(AHandle), std::string(title) ); }
     CATCH
 }
 
 void ElDisplayDistMatrix_d( const ElDistMatrix_d* AHandle, const char* title )
 {
-    try { Display( *RCDDM_d_const(AHandle), std::string(title) ); }
+    try { Display( *RCADM_d_const(AHandle), std::string(title) ); }
     CATCH
 }
 
 void ElDisplayDistMatrix_c( const ElDistMatrix_c* AHandle, const char* title )
 {
-    try { Display( *RCDDM_c_const(AHandle), std::string(title) ); }
+    try { Display( *RCADM_c_const(AHandle), std::string(title) ); }
     CATCH
 }
 
 void ElDisplayDistMatrix_z( const ElDistMatrix_z* AHandle, const char* title )
 {
-    try { Display( *RCDDM_z_const(AHandle), std::string(title) ); }
+    try { Display( *RCADM_z_const(AHandle), std::string(title) ); }
     CATCH
 }
 

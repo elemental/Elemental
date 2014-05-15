@@ -157,34 +157,34 @@ Display( const BlockDistMatrix<T,U,V>& A, std::string title="Default" )
 
 template<typename T>
 inline void
-Display( const DynamicDistMatrix<T>& ADyn, std::string title="" )
+Display( const AbstractDistMatrix<T>& AAbs, std::string title="" )
 {
     DEBUG_ONLY(CallStackEntry cse("Display"))
-    #define IF_CONVERT_AND_DISPLAY(ADYN,TITLE,CDIST,RDIST) \
-      if( ADYN.U == CDIST && ADYN.V == RDIST ) \
+    #define IF_CONVERT_AND_DISPLAY(AABS,TITLE,CDIST,RDIST) \
+      if( AABS.DistData().colDist == CDIST && \
+          AABS.DistData().rowDist == RDIST ) \
       { \
-          auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(ADYN.ADM); \
-          if( A == nullptr ) \
-              RuntimeError("Dynamic cast failed"); \
-          Display( *A, TITLE ); \
+          const auto& A = \
+            dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(AABS); \
+          Display( A, TITLE ); \
       }
-    #define ELSEIF_CONVERT_AND_DISPLAY(ADYN,TITLE,CDIST,RDIST) \
-      else IF_CONVERT_AND_DISPLAY(ADYN,TITLE,CDIST,RDIST)
+    #define ELSEIF_CONVERT_AND_DISPLAY(AABS,TITLE,CDIST,RDIST) \
+      else IF_CONVERT_AND_DISPLAY(AABS,TITLE,CDIST,RDIST)
 
-    IF_CONVERT_AND_DISPLAY(    ADyn,title,CIRC,CIRC)
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MC,  MR  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MC,  STAR)
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MD,  STAR)
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MR,  MC  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,MR,  STAR)
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,MC  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,MD  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,MR  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,STAR)
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,VC  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,STAR,VR  )
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,VC,  STAR)
-    ELSEIF_CONVERT_AND_DISPLAY(ADyn,title,VR,  STAR)
+    IF_CONVERT_AND_DISPLAY(    AAbs,title,CIRC,CIRC)
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,MC,  MR  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,MC,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,MD,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,MR,  MC  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,MR,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,STAR,MC  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,STAR,MD  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,STAR,MR  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,STAR,STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,STAR,VC  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,STAR,VR  )
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,VC,  STAR)
+    ELSEIF_CONVERT_AND_DISPLAY(AAbs,title,VR,  STAR)
 
     #undef ELSEIF_CONVERT_AND_DISPLAY
     #undef IF_CONVERT_AND_DISPLAY

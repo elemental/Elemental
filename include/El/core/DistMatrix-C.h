@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-// An anonymous struct meant as a placeholder for DynamicDistMatrix<T>
-// -------------------------------------------------------------------
+// An anonymous struct meant as a placeholder for AbstractDistMatrix<T>
+// --------------------------------------------------------------------
 struct ElDistMatrix_s; typedef struct ElDistMatrix_s ElDistMatrix_s;
 struct ElDistMatrix_d; typedef struct ElDistMatrix_d ElDistMatrix_d;
 struct ElDistMatrix_c; typedef struct ElDistMatrix_c ElDistMatrix_c;
@@ -260,8 +260,47 @@ ElInt ElDistMatrixLocalWidth_d( const ElDistMatrix_d* AHandle );
 ElInt ElDistMatrixLocalWidth_c( const ElDistMatrix_c* AHandle );
 ElInt ElDistMatrixLocalWidth_z( const ElDistMatrix_z* AHandle );
 
-// TODO: Fill in a large number of routines here
-// =============================================
+// Int DistMatrix<T,U,V>::LDim() const
+// -----------------------------------
+ElInt ElDistMatrixLDim_s( const ElDistMatrix_s* AHandle );
+ElInt ElDistMatrixLDim_d( const ElDistMatrix_d* AHandle );
+ElInt ElDistMatrixLDim_c( const ElDistMatrix_c* AHandle );
+ElInt ElDistMatrixLDim_z( const ElDistMatrix_z* AHandle );
+
+// Matrix<T>& DistMatrix<T,U,V>::Matrix() 
+// --------------------------------------
+ElMatrix_s* ElDistMatrixMatrix_s( ElDistMatrix_s* AHandle );
+ElMatrix_d* ElDistMatrixMatrix_d( ElDistMatrix_d* AHandle );
+ElMatrix_c* ElDistMatrixMatrix_c( ElDistMatrix_c* AHandle );
+ElMatrix_z* ElDistMatrixMatrix_z( ElDistMatrix_z* AHandle );
+
+// const Matrix<T>& DistMatrix<T,U,V>::LockedMatrix() const
+// --------------------------------------------------------
+const ElMatrix_s* ElDistMatrixLockedMatrix_s( const ElDistMatrix_s* AHandle );
+const ElMatrix_d* ElDistMatrixLockedMatrix_d( const ElDistMatrix_d* AHandle );
+const ElMatrix_c* ElDistMatrixLockedMatrix_c( const ElDistMatrix_c* AHandle );
+const ElMatrix_z* ElDistMatrixLockedMatrix_z( const ElDistMatrix_z* AHandle );
+
+// size_t DistMatrix<T,U,V>::AllocatedMemory() const
+// -------------------------------------------------
+size_t ElDistMatrixAllocatedMemory_s( const ElDistMatrix_s* AHandle );
+size_t ElDistMatrixAllocatedMemory_d( const ElDistMatrix_d* AHandle );
+size_t ElDistMatrixAllocatedMemory_c( const ElDistMatrix_c* AHandle );
+size_t ElDistMatrixAllocatedMemory_z( const ElDistMatrix_z* AHandle );
+
+// T* DistMatrix<T,U,V>::Buffer()
+// ------------------------------
+float*  ElDistMatrixBuffer_s( ElDistMatrix_s* AHandle );
+double* ElDistMatrixBuffer_d( ElDistMatrix_d* AHandle );
+void*   ElDistMatrixBuffer_c( ElDistMatrix_c* AHandle );
+void*   ElDistMatrixBuffer_z( ElDistMatrix_z* AHandle );
+
+// const T* DistMatrix<T,U,V>::LockedBuffer() const
+// ------------------------------------------------
+const float*  ElDistMatrixLockedBuffer_s( const ElDistMatrix_s* AHandle );
+const double* ElDistMatrixLockedBuffer_d( const ElDistMatrix_d* AHandle );
+const void*   ElDistMatrixLockedBuffer_c( const ElDistMatrix_c* AHandle );
+const void*   ElDistMatrixLockedBuffer_z( const ElDistMatrix_z* AHandle );
 
 // const Grid& DistMatrix<T,U,V>::Grid() const
 // -------------------------------------------

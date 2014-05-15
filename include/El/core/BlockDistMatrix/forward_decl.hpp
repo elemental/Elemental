@@ -21,9 +21,6 @@ class GeneralBlockDistMatrix;
 template<typename T,Dist U=MC,Dist V=MR>
 class BlockDistMatrix;
 
-template<typename T>
-class DynamicDistMatrix;
-
 } // namespace El
 
 #endif // ifndef EL_BLOCKDISTMATRIX_FORWARD_DECL_HPP
