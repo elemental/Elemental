@@ -176,6 +176,11 @@ ElMatrix_z* ElMatrixGetDiagonal_z( const ElMatrix_z* A, ElInt offset );
 
 ElMatrix_s* ElMatrixGetRealPartOfDiagonal_c
 ( const ElMatrix_c* A, ElInt offset );
+ElMatrix_d* ElMatrixGetRealPartOfDiagonal_z
+( const ElMatrix_z* A, ElInt offset );
+
+ElMatrix_s* ElMatrixGetImagPartOfDiagonal_c
+( const ElMatrix_c* A, ElInt offset );
 ElMatrix_d* ElMatrixGetImagPartOfDiagonal_z
 ( const ElMatrix_z* A, ElInt offset );
 

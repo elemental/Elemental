@@ -43,6 +43,11 @@ void ElDistMatrixEmpty_d( ElDistMatrix_d* A );
 void ElDistMatrixEmpty_c( ElDistMatrix_c* A );
 void ElDistMatrixEmpty_z( ElDistMatrix_z* A );
 
+void ElDistMatrixEmptyData_s( ElDistMatrix_s* A );
+void ElDistMatrixEmptyData_d( ElDistMatrix_d* A );
+void ElDistMatrixEmptyData_c( ElDistMatrix_c* A );
+void ElDistMatrixEmptyData_z( ElDistMatrix_z* A );
+
 void ElDistMatrixResize_s( ElDistMatrix_s* A, ElInt height, ElInt width );
 void ElDistMatrixResize_d( ElDistMatrix_d* A, ElInt height, ElInt width );
 void ElDistMatrixResize_c( ElDistMatrix_c* A, ElInt height, ElInt width );
@@ -57,8 +62,28 @@ void ElDistMatrixResizeWithLDim_c
 void ElDistMatrixResizeWithLDim_z
 ( ElDistMatrix_z* A, ElInt height, ElInt width, ElInt ldim );
 
-float  ElDistMatrixGet_s( const ElDistMatrix_s* A, ElInt i, ElInt j );
-double ElDistMatrixGet_d( const ElDistMatrix_d* A, ElInt i, ElInt j );
+void ElDistMatrixMakeConsistent_s
+( ElDistMatrix_s* AHandle, bool includeViewers );
+void ElDistMatrixMakeConsistent_d
+( ElDistMatrix_d* AHandle, bool includeViewers );
+void ElDistMatrixMakeConsistent_c
+( ElDistMatrix_c* AHandle, bool includeViewers );
+void ElDistMatrixMakeConsistent_z
+( ElDistMatrix_z* AHandle, bool includeViewers );
+
+void ElDistMatrixMakeSizeConsistent_s
+( ElDistMatrix_s* AHandle, bool includeViewers );
+void ElDistMatrixMakeSizeConsistent_d
+( ElDistMatrix_d* AHandle, bool includeViewers );
+void ElDistMatrixMakeSizeConsistent_c
+( ElDistMatrix_c* AHandle, bool includeViewers );
+void ElDistMatrixMakeSizeConsistent_z
+( ElDistMatrix_z* AHandle, bool includeViewers );
+
+float  ElDistMatrixGet_s
+( const ElDistMatrix_s* A, ElInt i, ElInt j );
+double ElDistMatrixGet_d
+( const ElDistMatrix_d* A, ElInt i, ElInt j );
 void   ElDistMatrixGet_c
 ( const ElDistMatrix_c* A, ElInt i, ElInt j, void* alpha );
 void   ElDistMatrixGet_z

@@ -24,7 +24,7 @@ const ElGrid* ElDefaultGrid()
 // --------------------------------------------
 ElGrid* ElGridCreate( MPI_Comm comm, ElGridOrderType orderC )
 {
-    ElGrid* gridHandle;
+    ElGrid* gridHandle = 0;
     GridOrder order = static_cast<GridOrder>(orderC);
     try { gridHandle = reinterpret_cast<ElGrid*>(new Grid(comm,order)); }
     CATCH
@@ -36,7 +36,7 @@ ElGrid* ElGridCreate( MPI_Comm comm, ElGridOrderType orderC )
 ElGrid* ElGridCreateSpecific
 ( MPI_Comm comm, int height, ElGridOrderType orderC )
 {
-    ElGrid* gridHandle;
+    ElGrid* gridHandle = 0;
     GridOrder order = static_cast<GridOrder>(orderC);
     try { gridHandle = reinterpret_cast<ElGrid*>(new Grid(comm,height,order)); }
     CATCH
@@ -193,7 +193,7 @@ MPI_Comm ElGridMDPerpComm( const ElGrid* gridHandle )
 ElGrid* ElGridCreateAdvanced
 ( MPI_Comm comm, MPI_Group owners, int height, ElGridOrderType orderC )
 {
-    ElGrid* gridHandle;
+    ElGrid* gridHandle = 0;
     GridOrder order = static_cast<GridOrder>(orderC);
     try { gridHandle = reinterpret_cast<ElGrid*>
                        (new Grid(comm,owners,height,order)); }
