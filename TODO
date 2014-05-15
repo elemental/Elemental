@@ -103,7 +103,6 @@ External Interfaces
 
 Build system
 ------------
-[o] Ensure that src/ is rebuilt when headers are modified
 [o] Support PMRRR when pthreads are not available (e.g., Windows)
 [o] Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
 [o] Support for BLIS

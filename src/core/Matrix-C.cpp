@@ -880,4 +880,83 @@ void ElMatrixConjugateDiagonal_c( ElMatrix_c* AHandle, ElInt offset )
 void ElMatrixConjugateDiagonal_z( ElMatrix_z* AHandle, ElInt offset )
 { RCM_z(AHandle)->ConjugateDiagonal(offset); }
 
+// Matrix<T> Matrix<T>::GetSubmatrix
+// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+// --------------------------------------------------------------------------
+ElMatrix_s* ElMatrixGetSubmatrix_s
+( const ElMatrix_s* AHandle,
+  ElInt numRowInds, const ElInt* rowInds, 
+  ElInt numColInds, const ElInt* colInds )
+{
+    ElMatrix_s* ASubHandle = 0;
+    try 
+    { 
+        std::vector<Int> rowIndVec( rowInds, rowInds+numRowInds ),
+                         colIndVec( colInds, colInds+numColInds );
+        ASubHandle = ElMatrixCreate_s(); 
+        RCM_s_const(AHandle)->GetSubmatrix
+        ( rowIndVec, colIndVec, 
+          *reinterpret_cast<Matrix<float>*>(ASubHandle) );
+    } 
+    CATCH
+    return ASubHandle;
+}
+
+ElMatrix_d* ElMatrixGetSubmatrix_d
+( const ElMatrix_d* AHandle,
+  ElInt numRowInds, const ElInt* rowInds, 
+  ElInt numColInds, const ElInt* colInds )
+{
+    ElMatrix_d* ASubHandle = 0;
+    try 
+    { 
+        std::vector<Int> rowIndVec( rowInds, rowInds+numRowInds ),
+                         colIndVec( colInds, colInds+numColInds );
+        ASubHandle = ElMatrixCreate_d(); 
+        RCM_d_const(AHandle)->GetSubmatrix
+        ( rowIndVec, colIndVec, 
+          *reinterpret_cast<Matrix<double>*>(ASubHandle) );
+    } 
+    CATCH
+    return ASubHandle;
+}
+
+ElMatrix_c* ElMatrixGetSubmatrix_c
+( const ElMatrix_c* AHandle,
+  ElInt numRowInds, const ElInt* rowInds, 
+  ElInt numColInds, const ElInt* colInds )
+{
+    ElMatrix_c* ASubHandle = 0;
+    try 
+    { 
+        std::vector<Int> rowIndVec( rowInds, rowInds+numRowInds ),
+                         colIndVec( colInds, colInds+numColInds );
+        ASubHandle = ElMatrixCreate_c(); 
+        RCM_c_const(AHandle)->GetSubmatrix
+        ( rowIndVec, colIndVec, 
+          *reinterpret_cast<Matrix<Complex<float>>*>(ASubHandle) );
+    } 
+    CATCH
+    return ASubHandle;
+}
+
+ElMatrix_z* ElMatrixGetSubmatrix_z
+( const ElMatrix_z* AHandle,
+  ElInt numRowInds, const ElInt* rowInds, 
+  ElInt numColInds, const ElInt* colInds )
+{
+    ElMatrix_z* ASubHandle = 0;
+    try 
+    { 
+        std::vector<Int> rowIndVec( rowInds, rowInds+numRowInds ),
+                         colIndVec( colInds, colInds+numColInds );
+        ASubHandle = ElMatrixCreate_z(); 
+        RCM_z_const(AHandle)->GetSubmatrix
+        ( rowIndVec, colIndVec, 
+          *reinterpret_cast<Matrix<Complex<double>>*>(ASubHandle) );
+    } 
+    CATCH
+    return ASubHandle;
+}
+
 } // extern "C"

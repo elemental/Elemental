@@ -173,6 +173,30 @@ template<> constexpr Dist DiagRowDist<MC,MR>() { return STAR; }
 template<> constexpr Dist DiagColDist<MR,MC>() { return MD; }
 template<> constexpr Dist DiagRowDist<MR,MC>() { return STAR; }
 
+inline Dist DiagColDist( Dist U, Dist V )
+{ 
+    if( U == MC && V == MR )
+        return MD;
+    else if( U == MR && V == MC )
+        return MD;
+    else if( U == STAR )
+        return V;
+    else
+        return U;
+}
+
+inline Dist DiagRowDist( Dist U, Dist V )
+{
+    if( U == MC && V == MR )
+        return STAR;
+    else if( U == MR && V == MC )
+        return STAR;
+    else if( U == STAR )
+        return U;
+    else
+        return V;
+}
+
 template<Dist U,Dist V>
 constexpr Dist DiagInvColDist() { return ( U==STAR ? V : U ); }
 template<Dist U,Dist V>

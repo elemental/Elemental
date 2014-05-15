@@ -12,6 +12,8 @@
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#include <stdlib.h>
 #endif
 
 void ElPrintVersion( FILE* stream );
