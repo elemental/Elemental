@@ -24,6 +24,48 @@ struct DynamicDistMatrix
     AbstractDistMatrix<T>* ADM=nullptr;
 
     ~DynamicDistMatrix() { delete ADM; }
+
+    void SetDistribution( Dist UNew, Dist VNew, const Grid& grid )
+    {
+        if( ADM != nullptr )
+        {
+            if( U == UNew && V == VNew && ADM->Grid() == grid )
+                return;
+            else
+                delete ADM;
+        }
+
+        U = UNew;
+        V = VNew;
+        if( UNew == CIRC && VNew == CIRC )
+            ADM = new DistMatrix<T,CIRC,CIRC>(grid);
+        else if( UNew == MC && VNew == MR )
+            ADM = new DistMatrix<T,MC,MR>(grid);
+        else if( UNew == MC && VNew == STAR )
+            ADM = new DistMatrix<T,MC,STAR>(grid);
+        else if( UNew == MD && VNew == STAR )
+            ADM = new DistMatrix<T,MD,STAR>(grid);
+        else if( UNew == MR && VNew == MC )
+            ADM = new DistMatrix<T,MR,MC>(grid);
+        else if( UNew == MR && VNew == STAR )
+            ADM = new DistMatrix<T,MR,STAR>(grid);
+        else if( UNew == STAR && VNew == MC )
+            ADM = new DistMatrix<T,STAR,MC>(grid);
+        else if( UNew == STAR && VNew == MD )
+            ADM = new DistMatrix<T,STAR,MD>(grid);
+        else if( UNew == STAR && VNew == MR )
+            ADM = new DistMatrix<T,STAR,MR>(grid);
+        else if( UNew == STAR && VNew == STAR )
+            ADM = new DistMatrix<T,STAR,STAR>(grid);
+        else if( UNew == STAR && VNew == VC )
+            ADM = new DistMatrix<T,STAR,VC>(grid);
+        else if( UNew == STAR && VNew == VR )
+            ADM = new DistMatrix<T,STAR,VR>(grid);
+        else if( UNew == VC && VNew == STAR )
+            ADM = new DistMatrix<T,VC,STAR>(grid);
+        else if( UNew == VR && VNew == STAR )
+            ADM = new DistMatrix<T,VR,STAR>(grid);
+    }
 };
 
 } // namespace El

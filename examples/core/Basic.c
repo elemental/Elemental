@@ -20,7 +20,7 @@ main( int argc, char* argv[] )
     ElPrintInputReport();
 
     const ElGrid* grid = ElGridCreate( MPI_COMM_WORLD, EL_COLUMN_MAJOR );
-    ElDistMatrix_d* A = ElDistMatrixCreate_d( grid );
+    ElDistMatrix_d* A = ElDistMatrixCreateSpecific_d( EL_MR, EL_MC, grid );
     ElDistMatrixResize_d( A, m, n );
     
     ElInt i, j;

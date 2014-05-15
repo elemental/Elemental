@@ -87,6 +87,64 @@ ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* gridHandle )
     CATCH
 }
 
+// Simple contructor for DynamicDistMatrix
+// ---------------------------------------
+ElDistMatrix_s* ElDistMatrixCreateSpecific_s
+( ElDist UC, ElDist VC, const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<float>;
+        Dist U = static_cast<Dist>(UC);
+        Dist V = static_cast<Dist>(VC);
+        A->SetDistribution( U, V, *RCG_const(gridHandle) );
+        return RC(ElDistMatrix_s*,A);
+    }
+    CATCH
+}
+
+ElDistMatrix_d* ElDistMatrixCreateSpecific_d
+( ElDist UC, ElDist VC, const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<double>;
+        Dist U = static_cast<Dist>(UC);
+        Dist V = static_cast<Dist>(VC);
+        A->SetDistribution( U, V, *RCG_const(gridHandle) );
+        return RC(ElDistMatrix_d*,A);
+    }
+    CATCH
+}
+
+ElDistMatrix_c* ElDistMatrixCreateSpecific_c
+( ElDist UC, ElDist VC, const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<Complex<float>>;
+        Dist U = static_cast<Dist>(UC);
+        Dist V = static_cast<Dist>(VC);
+        A->SetDistribution( U, V, *RCG_const(gridHandle) );
+        return RC(ElDistMatrix_c*,A);
+    }
+    CATCH
+}
+
+ElDistMatrix_z* ElDistMatrixCreateSpecific_z
+( ElDist UC, ElDist VC, const ElGrid* gridHandle )
+{
+    try 
+    {
+        auto A = new DynamicDistMatrix<Complex<double>>;
+        Dist U = static_cast<Dist>(UC);
+        Dist V = static_cast<Dist>(VC);
+        A->SetDistribution( U, V, *RCG_const(gridHandle) );
+        return RC(ElDistMatrix_z*,A);
+    }
+    CATCH
+}
+
 // DynamicDistMatrix::~DynamicDistMatrix()
 // ---------------------------------------
 void ElDistMatrixDestroy_s( const ElDistMatrix_s* AHandle )
@@ -153,9 +211,38 @@ void ElDistMatrixResize_z( ElDistMatrix_z* AHandle, ElInt height, ElInt width )
     CATCH
 }
 
+// Resize the DynamicDistMatrix, specifying the local leading dimension
+// --------------------------------------------------------------------
+void ElDistMatrixResizeWithLDim_s
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, ElInt ldim )
+{
+    try { RCDDM_s(AHandle)->ADM->Resize(height,width,ldim); }
+    CATCH
+}
+
+void ElDistMatrixResizeWithLDim_d
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, ElInt ldim )
+{
+    try { RCDDM_d(AHandle)->ADM->Resize(height,width,ldim); }
+    CATCH
+}
+
+void ElDistMatrixResizeWithLDim_c
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, ElInt ldim )
+{
+    try { RCDDM_c(AHandle)->ADM->Resize(height,width,ldim); }
+    CATCH
+}
+
+void ElDistMatrixResizeWithLDim_z
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, ElInt ldim )
+{
+    try { RCDDM_z(AHandle)->ADM->Resize(height,width,ldim); }
+    CATCH
+}
+
 // DistMatrix::Get( Int i, Int j ) const
 // -------------------------------------
-
 float ElDistMatrixGet_s( const ElDistMatrix_s* AHandle, ElInt i, ElInt j )
 {
     float alpha;
@@ -186,9 +273,8 @@ void ElDistMatrixGet_z
     CATCH
 }
 
-// DistMatrix::Get( Int i, Int j ) const
-// -------------------------------------
-
+// DistMatrix::Set( Int i, Int j, T alpha )
+// ----------------------------------------
 void ElDistMatrixSet_s( ElDistMatrix_s* AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCDDM_s(AHandle)->ADM->Set(i,j,alpha); }
@@ -216,7 +302,6 @@ void ElDistMatrixSet_z( ElDistMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
 
 // B = A
 // -----
-
 void ElDistMatrixCopy_s
 ( const ElDistMatrix_s* AHandle, ElDistMatrix_s* BHandle )
 { 

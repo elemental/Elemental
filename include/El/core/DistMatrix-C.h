@@ -24,6 +24,15 @@ ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid* g );
 ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid* g );
 ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* g );
 
+ElDistMatrix_s* ElDistMatrixCreateSpecific_s
+( ElDist U, ElDist V, const ElGrid* g );
+ElDistMatrix_d* ElDistMatrixCreateSpecific_d
+( ElDist U, ElDist V, const ElGrid* g );
+ElDistMatrix_c* ElDistMatrixCreateSpecific_c
+( ElDist U, ElDist V, const ElGrid* g );
+ElDistMatrix_z* ElDistMatrixCreateSpecific_z
+( ElDist U, ElDist V, const ElGrid* g );
+
 void ElDistMatrixDestroy_s( const ElDistMatrix_s* A );
 void ElDistMatrixDestroy_d( const ElDistMatrix_d* A );
 void ElDistMatrixDestroy_c( const ElDistMatrix_c* A );
