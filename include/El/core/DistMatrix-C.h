@@ -171,9 +171,89 @@ ElError ElDistMatrixSetRoot_d( ElDistMatrix_d A, ElInt root );
 ElError ElDistMatrixSetRoot_c( ElDistMatrix_c A, ElInt root );
 ElError ElDistMatrixSetRoot_z( ElDistMatrix_z A, ElInt root );
 
-// TODO: Align[Cols,Rows]With. Need a C version of DistData
+/* void DistMatrix<T,U,V>::AlignWith( const DistData& data, bool constrain )
+   ------------------------------------------------------------------------- */
+ElError ElDistMatrixAlignWith_s
+( ElDistMatrix_s A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignWith_d
+( ElDistMatrix_d A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignWith_c
+( ElDistMatrix_c A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignWith_z
+( ElDistMatrix_z A, ElDistData distData, bool constrain );
 
-// TODO: Align[Cols,Rows]AndResize
+/* void DistMatrix<T,U,V>::AlignColsWith( const DistData& data, bool constrain )
+   -----------------------------------------------------------------------------
+*/
+ElError ElDistMatrixAlignColsWith_s
+( ElDistMatrix_s A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignColsWith_d
+( ElDistMatrix_d A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignColsWith_c
+( ElDistMatrix_c A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignColsWith_z
+( ElDistMatrix_z A, ElDistData distData, bool constrain );
+
+/* void DistMatrix<T,U,V>::AlignRowsWith( const DistData& data, bool constrain )
+   -----------------------------------------------------------------------------
+*/
+ElError ElDistMatrixAlignRowsWith_s
+( ElDistMatrix_s A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignRowsWith_d
+( ElDistMatrix_d A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignRowsWith_c
+( ElDistMatrix_c A, ElDistData distData, bool constrain );
+ElError ElDistMatrixAlignRowsWith_z
+( ElDistMatrix_z A, ElDistData distData, bool constrain );
+
+/* void DistMatrix<T,U,V>::AlignAndResize
+  ( Int colAlign, Int rowAlign, Int height, Int width, 
+    bool force, bool constrain )
+   --------------------------------------------------- */
+ElError ElDistMatrixAlignAndResize_s
+( ElDistMatrix_s A, ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
+ElError ElDistMatrixAlignAndResize_d
+( ElDistMatrix_d A, ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
+ElError ElDistMatrixAlignAndResize_c
+( ElDistMatrix_c A, ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
+ElError ElDistMatrixAlignAndResize_z
+( ElDistMatrix_z A, ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
+
+/* void DistMatrix<T,U,V>::AlignColsAndResize
+   ( Int colAlign, Int height, Int width, bool force, bool constrain )
+   ------------------------------------------------------------------- */
+ElError ElDistMatrixAlignColsAndResize_s
+( ElDistMatrix_s A, ElInt colAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
+ElError ElDistMatrixAlignColsAndResize_d
+( ElDistMatrix_d A, ElInt colAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
+ElError ElDistMatrixAlignColsAndResize_c
+( ElDistMatrix_c A, ElInt colAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
+ElError ElDistMatrixAlignColsAndResize_z
+( ElDistMatrix_z A, ElInt colAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
+
+/* void DistMatrix<T,U,V>::AlignRowsAndResize
+  ( Int rowAlign, Int height, Int width, bool force, bool constrain )
+   ------------------------------------------------------------------ */
+ElError ElDistMatrixAlignRowsAndResize_s
+( ElDistMatrix_s A, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
+ElError ElDistMatrixAlignRowsAndResize_d
+( ElDistMatrix_d A, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
+ElError ElDistMatrixAlignRowsAndResize_c
+( ElDistMatrix_c A, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
+ElError ElDistMatrixAlignRowsAndResize_z
+( ElDistMatrix_z A, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
 
 /* void DistMatrix<T,U,V>::Attach
    ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 

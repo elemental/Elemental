@@ -19,6 +19,8 @@ struct DistData
     Int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
+    DistData() { }
+
     template<typename T,Dist U,Dist V>
     DistData( const GeneralDistMatrix<T,U,V>& A )
     : colDist(U), rowDist(V),

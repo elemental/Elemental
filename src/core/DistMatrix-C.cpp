@@ -45,6 +45,34 @@ using namespace El;
   catch( std::exception& e ) \
   { ReportException(e); return EL_ERROR; }
 
+namespace El {
+
+ElDistData Convert( const DistData& data )
+{
+    ElDistData distData;
+    distData.colDist = static_cast<ElDist>(data.colDist);
+    distData.rowDist = static_cast<ElDist>(data.rowDist);
+    distData.colAlign = data.colAlign;
+    distData.rowAlign = data.rowAlign;
+    distData.root = data.root;
+    distData.grid = (ElConstGrid)data.grid;
+    return distData;
+}
+
+DistData Convert( const ElDistData distData )
+{
+    DistData data;
+    data.colDist = static_cast<Dist>(distData.colDist);
+    data.rowDist = static_cast<Dist>(distData.rowDist);
+    data.colAlign = distData.colAlign;
+    data.rowAlign = distData.rowAlign;
+    data.root = distData.root;
+    data.grid = reinterpret_cast<const Grid*>(distData.grid);
+    return data;
+}
+
+} // namespace El
+
 extern "C" {
 
 // DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
@@ -739,9 +767,253 @@ ElError ElDistMatrixSetRoot_z( ElDistMatrix_z AHandle, ElInt root )
     return EL_SUCCESS;
 }
 
-// TODO: Align[Cols,Rows]With. Need a C version of DistData
+// void DistMatrix<T,U,V>::AlignWith( const DistData& data, bool constrain )
+// -------------------------------------------------------------------------
+ElError ElDistMatrixAlignWith_s
+( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_s(AHandle)->AlignWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-// TODO: Align[Cols,Rows]AndResize
+ElError ElDistMatrixAlignWith_d
+( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_d(AHandle)->AlignWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignWith_c
+( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_c(AHandle)->AlignWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignWith_z
+( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_z(AHandle)->AlignWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::AlignColsWith( const DistData& data, bool constrain )
+// -----------------------------------------------------------------------------
+ElError ElDistMatrixAlignColsWith_s
+( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_s(AHandle)->AlignColsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignColsWith_d
+( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_d(AHandle)->AlignColsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignColsWith_c
+( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_c(AHandle)->AlignColsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignColsWith_z
+( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_z(AHandle)->AlignColsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::AlignRowsWith( const DistData& data, bool constrain )
+// -----------------------------------------------------------------------------
+ElError ElDistMatrixAlignRowsWith_s
+( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_s(AHandle)->AlignRowsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignRowsWith_d
+( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_d(AHandle)->AlignRowsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignRowsWith_c
+( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_c(AHandle)->AlignRowsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignRowsWith_z
+( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
+{
+    try { RCADM_z(AHandle)->AlignRowsWith( Convert(distData), constrain ); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::AlignAndResize
+// ( Int colAlign, Int rowAlign, Int height, Int width, 
+//   bool force, bool constrain )
+// ----------------------------------------------------
+ElError ElDistMatrixAlignAndResize_s
+( ElDistMatrix_s AHandle, 
+  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
+  bool force, bool constrain )
+{
+    try 
+    { RCADM_s(AHandle)->AlignAndResize
+      (colAlign,rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignAndResize_d
+( ElDistMatrix_d AHandle, 
+  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
+  bool force, bool constrain )
+{
+    try 
+    { RCADM_d(AHandle)->AlignAndResize
+      (colAlign,rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignAndResize_c
+( ElDistMatrix_c AHandle, 
+  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
+  bool force, bool constrain )
+{
+    try 
+    { RCADM_c(AHandle)->AlignAndResize
+      (colAlign,rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignAndResize_z
+( ElDistMatrix_z AHandle, 
+  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
+  bool force, bool constrain )
+{
+    try 
+    { RCADM_z(AHandle)->AlignAndResize
+      (colAlign,rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::AlignColsAndResize
+// ( Int colAlign, Int height, Int width, bool force, bool constrain )
+// -------------------------------------------------------------------
+ElError ElDistMatrixAlignColsAndResize_s
+( ElDistMatrix_s AHandle, 
+  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_s(AHandle)->AlignColsAndResize
+      (colAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignColsAndResize_d
+( ElDistMatrix_d AHandle, 
+  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_d(AHandle)->AlignColsAndResize
+      (colAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignColsAndResize_c
+( ElDistMatrix_c AHandle, 
+  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_c(AHandle)->AlignColsAndResize
+      (colAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignColsAndResize_z
+( ElDistMatrix_z AHandle, 
+  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_z(AHandle)->AlignColsAndResize
+      (colAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::AlignRowsAndResize
+// ( Int rowAlign, Int height, Int width, bool force, bool constrain )
+// -------------------------------------------------------------------
+ElError ElDistMatrixAlignRowsAndResize_s
+( ElDistMatrix_s AHandle, 
+  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_s(AHandle)->AlignRowsAndResize
+      (rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignRowsAndResize_d
+( ElDistMatrix_d AHandle, 
+  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_d(AHandle)->AlignRowsAndResize
+      (rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignRowsAndResize_c
+( ElDistMatrix_c AHandle, 
+  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_c(AHandle)->AlignRowsAndResize
+      (rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixAlignRowsAndResize_z
+( ElDistMatrix_z AHandle, 
+  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
+{
+    try 
+    { RCADM_z(AHandle)->AlignRowsAndResize
+      (rowAlign,height,width,force,constrain); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // void DistMatrix<T,U,V>::Attach
 // ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
@@ -1325,12 +1597,7 @@ ElError ElDistMatrixDistData_s
     try 
     { 
         DistData data = RCADM_s_const(AHandle)->DistData(); 
-        distData->colDist = static_cast<ElDist>(data.colDist);
-        distData->rowDist = static_cast<ElDist>(data.rowDist);
-        distData->colAlign = data.colAlign;
-        distData->rowAlign = data.rowAlign;
-        distData->root = data.root;
-        distData->grid = (ElConstGrid)data.grid;
+        *distData = Convert( data );
     }
     CATCH
     return EL_SUCCESS; 
@@ -1342,12 +1609,7 @@ ElError ElDistMatrixDistData_d
     try 
     { 
         DistData data = RCADM_d_const(AHandle)->DistData(); 
-        distData->colDist = static_cast<ElDist>(data.colDist);
-        distData->rowDist = static_cast<ElDist>(data.rowDist);
-        distData->colAlign = data.colAlign;
-        distData->rowAlign = data.rowAlign;
-        distData->root = data.root;
-        distData->grid = (ElConstGrid)data.grid;
+        *distData = Convert( data );
     }
     CATCH
     return EL_SUCCESS; 
@@ -1359,12 +1621,7 @@ ElError ElDistMatrixDistData_c
     try 
     { 
         DistData data = RCADM_c_const(AHandle)->DistData(); 
-        distData->colDist = static_cast<ElDist>(data.colDist);
-        distData->rowDist = static_cast<ElDist>(data.rowDist);
-        distData->colAlign = data.colAlign;
-        distData->rowAlign = data.rowAlign;
-        distData->root = data.root;
-        distData->grid = (ElConstGrid)data.grid;
+        *distData = Convert( data );
     }
     CATCH
     return EL_SUCCESS; 
@@ -1376,12 +1633,7 @@ ElError ElDistMatrixDistData_z
     try 
     { 
         DistData data = RCADM_z_const(AHandle)->DistData(); 
-        distData->colDist = static_cast<ElDist>(data.colDist);
-        distData->rowDist = static_cast<ElDist>(data.rowDist);
-        distData->colAlign = data.colAlign;
-        distData->rowAlign = data.rowAlign;
-        distData->root = data.root;
-        distData->grid = (ElConstGrid)data.grid;
+        *distData = Convert( data );
     }
     CATCH
     return EL_SUCCESS; 

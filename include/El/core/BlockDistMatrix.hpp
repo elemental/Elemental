@@ -21,6 +21,8 @@ struct BlockDistData
     Int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
 
+    BlockDistData() { }
+
     template<typename T,Dist U,Dist V>
     BlockDistData( const GeneralBlockDistMatrix<T,U,V>& A )
     : colDist(U), rowDist(V), 
