@@ -79,6 +79,9 @@ int QueryThread()
     return provided;
 }
 
+void Abort( Comm comm, int errCode )
+{ MPI_Abort( comm.comm, errCode ); }
+
 double Time()
 { return MPI_Wtime(); }
 

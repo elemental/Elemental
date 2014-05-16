@@ -69,6 +69,7 @@ inline void ReportException( const std::exception& e, std::ostream& os )
            << e.what() << std::endl;
     }
     DEBUG_ONLY(DumpCallStack(os))
+    mpi::Abort( mpi::COMM_WORLD, 1 );
 }
 
 inline void ComplainIfDebug()

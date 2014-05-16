@@ -115,6 +115,7 @@ void Finalize();
 bool Initialized();
 bool Finalized();
 int QueryThread();
+void Abort( Comm comm, int errCode );
 double Time();
 void Create( UserFunction* func, bool commutes, Op& op );
 void Free( Op& op );
