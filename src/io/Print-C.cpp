@@ -29,25 +29,25 @@ extern "C" {
 // Matrix
 // ======
 
-void ElPrintMatrix_s( const ElMatrix_s* AHandle, const char* title )
+void ElPrintMatrix_s( const ElMatrix_s AHandle, const char* title )
 {
     try { Print( *RCM_s_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintMatrix_d( const ElMatrix_d* AHandle, const char* title )
+void ElPrintMatrix_d( const ElMatrix_d AHandle, const char* title )
 {
     try { Print( *RCM_d_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintMatrix_c( const ElMatrix_c* AHandle, const char* title )
+void ElPrintMatrix_c( const ElMatrix_c AHandle, const char* title )
 {
     try { Print( *RCM_c_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintMatrix_z( const ElMatrix_z* AHandle, const char* title )
+void ElPrintMatrix_z( const ElMatrix_z AHandle, const char* title )
 {
     try { Print( *RCM_z_const(AHandle), std::string(title) ); }
     CATCH
@@ -56,25 +56,25 @@ void ElPrintMatrix_z( const ElMatrix_z* AHandle, const char* title )
 // AbstractDistMatrix
 // ==================
 
-void ElPrintDistMatrix_s( const ElDistMatrix_s* AHandle, const char* title )
+void ElPrintDistMatrix_s( const ElDistMatrix_s AHandle, const char* title )
 {
     try { Print( *RCADM_s_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintDistMatrix_d( const ElDistMatrix_d* AHandle, const char* title )
+void ElPrintDistMatrix_d( const ElDistMatrix_d AHandle, const char* title )
 {
     try { Print( *RCADM_d_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintDistMatrix_c( const ElDistMatrix_c* AHandle, const char* title )
+void ElPrintDistMatrix_c( const ElDistMatrix_c AHandle, const char* title )
 {
     try { Print( *RCADM_c_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElPrintDistMatrix_z( const ElDistMatrix_z* AHandle, const char* title )
+void ElPrintDistMatrix_z( const ElDistMatrix_z AHandle, const char* title )
 {
     try { Print( *RCADM_z_const(AHandle), std::string(title) ); }
     CATCH

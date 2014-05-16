@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
     }
 
     const ElGrid grid = ElGridCreate( MPI_COMM_WORLD, EL_COLUMN_MAJOR );
-    ElDistMatrix_z* A = ElDistMatrixCreateSpecific_z( EL_MR, EL_MC, grid );
+    ElDistMatrix_z A = ElDistMatrixCreateSpecific_z( EL_MR, EL_MC, grid );
     ElDistMatrixResize_z( A, m, n );
     
     ElInt i, j;
@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
         rowInds[i] = rand() % m;
     for( j=0; j<nSub; ++j )
         colInds[j] = rand() % n;
-    ElDistMatrix_z* ASub = 
+    ElDistMatrix_z ASub = 
         ElDistMatrixGetSubmatrix_z( A, mSub, rowInds, nSub, colInds );
     if( print )
         ElPrintDistMatrix_z( ASub, "ASub" );
