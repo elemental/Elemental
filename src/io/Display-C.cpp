@@ -29,25 +29,25 @@ extern "C" {
 // Matrix
 // ======
 
-void ElDisplayMatrix_s( const ElMatrix_s AHandle, const char* title )
+void ElDisplayMatrix_s( ElConstMatrix_s AHandle, const char* title )
 {
     try { Display( *RCM_s_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElDisplayMatrix_d( const ElMatrix_d AHandle, const char* title )
+void ElDisplayMatrix_d( ElConstMatrix_d AHandle, const char* title )
 {
     try { Display( *RCM_d_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElDisplayMatrix_c( const ElMatrix_c AHandle, const char* title )
+void ElDisplayMatrix_c( ElConstMatrix_c AHandle, const char* title )
 {
     try { Display( *RCM_c_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElDisplayMatrix_z( const ElMatrix_z AHandle, const char* title )
+void ElDisplayMatrix_z( ElConstMatrix_z AHandle, const char* title )
 {
     try { Display( *RCM_z_const(AHandle), std::string(title) ); }
     CATCH
@@ -56,25 +56,25 @@ void ElDisplayMatrix_z( const ElMatrix_z AHandle, const char* title )
 // AbstractDistMatrix
 // ==================
 
-void ElDisplayDistMatrix_s( const ElDistMatrix_s AHandle, const char* title )
+void ElDisplayDistMatrix_s( ElConstDistMatrix_s AHandle, const char* title )
 {
     try { Display( *RCADM_s_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElDisplayDistMatrix_d( const ElDistMatrix_d AHandle, const char* title )
+void ElDisplayDistMatrix_d( ElConstDistMatrix_d AHandle, const char* title )
 {
     try { Display( *RCADM_d_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElDisplayDistMatrix_c( const ElDistMatrix_c AHandle, const char* title )
+void ElDisplayDistMatrix_c( ElConstDistMatrix_c AHandle, const char* title )
 {
     try { Display( *RCADM_c_const(AHandle), std::string(title) ); }
     CATCH
 }
 
-void ElDisplayDistMatrix_z( const ElDistMatrix_z AHandle, const char* title )
+void ElDisplayDistMatrix_z( ElConstDistMatrix_z AHandle, const char* title )
 {
     try { Display( *RCADM_z_const(AHandle), std::string(title) ); }
     CATCH

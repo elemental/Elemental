@@ -74,16 +74,16 @@ ElMatrix_z ElMatrixCreate_z()
 
 // Matrix<T>::~Matrix()
 // --------------------
-void ElMatrixDestroy_s( const ElMatrix_s AHandle )
+void ElMatrixDestroy_s( ElConstMatrix_s AHandle )
 { delete RCM_s_const(AHandle); }
 
-void ElMatrixDestroy_d( const ElMatrix_d AHandle )
+void ElMatrixDestroy_d( ElConstMatrix_d AHandle )
 { delete RCM_d_const(AHandle); }
 
-void ElMatrixDestroy_c( const ElMatrix_c AHandle )
+void ElMatrixDestroy_c( ElConstMatrix_c AHandle )
 { delete RCM_c_const(AHandle); }
 
-void ElMatrixDestroy_z( const ElMatrix_z AHandle )
+void ElMatrixDestroy_z( ElConstMatrix_z AHandle )
 { delete RCM_z_const(AHandle); }
 
 // void Matrix<T>::Empty()
@@ -257,25 +257,25 @@ void ElMatrixControl_z
 
 // B = A
 // -----
-void ElMatrixCopy_s( const ElMatrix_s AHandle, ElMatrix_s BHandle )
+void ElMatrixCopy_s( ElConstMatrix_s AHandle, ElMatrix_s BHandle )
 {
     try { *RCM_s(BHandle) = *RCM_s_const(AHandle); }
     CATCH
 }
 
-void ElMatrixCopy_d( const ElMatrix_d AHandle, ElMatrix_d BHandle )
+void ElMatrixCopy_d( ElConstMatrix_d AHandle, ElMatrix_d BHandle )
 {
     try { *RCM_d(BHandle) = *RCM_d_const(AHandle); }
     CATCH
 }
 
-void ElMatrixCopy_c( const ElMatrix_c AHandle, ElMatrix_c BHandle )
+void ElMatrixCopy_c( ElConstMatrix_c AHandle, ElMatrix_c BHandle )
 {
     try { *RCM_c(BHandle) = *RCM_c_const(AHandle); }
     CATCH
 }
 
-void ElMatrixCopy_z( const ElMatrix_z AHandle, ElMatrix_z BHandle )
+void ElMatrixCopy_z( ElConstMatrix_z AHandle, ElMatrix_z BHandle )
 {
     try { *RCM_z(BHandle) = *RCM_z_const(AHandle); }
     CATCH
@@ -283,72 +283,72 @@ void ElMatrixCopy_z( const ElMatrix_z AHandle, ElMatrix_z BHandle )
 
 // Int Matrix<T>::Height() const
 // -----------------------------
-ElInt ElMatrixHeight_s( const ElMatrix_s AHandle )
+ElInt ElMatrixHeight_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->Height(); }
 
-ElInt ElMatrixHeight_d( const ElMatrix_d AHandle )
+ElInt ElMatrixHeight_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->Height(); }
 
-ElInt ElMatrixHeight_c( const ElMatrix_c AHandle )
+ElInt ElMatrixHeight_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->Height(); }
 
-ElInt ElMatrixHeight_z( const ElMatrix_z AHandle )
+ElInt ElMatrixHeight_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->Height(); }
 
 // Int Matrix<T>::Width() const
 // ----------------------------
-ElInt ElMatrixWidth_s( const ElMatrix_s AHandle )
+ElInt ElMatrixWidth_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->Width(); }
 
-ElInt ElMatrixWidth_d( const ElMatrix_d AHandle )
+ElInt ElMatrixWidth_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->Width(); }
 
-ElInt ElMatrixWidth_c( const ElMatrix_c AHandle )
+ElInt ElMatrixWidth_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->Width(); }
 
-ElInt ElMatrixWidth_z( const ElMatrix_z AHandle )
+ElInt ElMatrixWidth_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->Width(); }
 
 // Int Matrix<T>::LDim() const
 // ---------------------------
-ElInt ElMatrixLDim_s( const ElMatrix_s AHandle )
+ElInt ElMatrixLDim_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->LDim(); }
 
-ElInt ElMatrixLDim_d( const ElMatrix_d AHandle )
+ElInt ElMatrixLDim_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->LDim(); }
 
-ElInt ElMatrixLDim_c( const ElMatrix_c AHandle )
+ElInt ElMatrixLDim_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->LDim(); }
 
-ElInt ElMatrixLDim_z( const ElMatrix_z AHandle )
+ElInt ElMatrixLDim_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->LDim(); }
 
 // Int Matrix<T>::MemorySize() const
 // ---------------------------------
-ElInt ElMatrixMemorySize_s( const ElMatrix_s AHandle )
+ElInt ElMatrixMemorySize_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->MemorySize(); }
 
-ElInt ElMatrixMemorySize_d( const ElMatrix_d AHandle )
+ElInt ElMatrixMemorySize_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->MemorySize(); }
 
-ElInt ElMatrixMemorySize_c( const ElMatrix_c AHandle )
+ElInt ElMatrixMemorySize_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->MemorySize(); }
 
-ElInt ElMatrixMemorySize_z( const ElMatrix_z AHandle )
+ElInt ElMatrixMemorySize_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->MemorySize(); }
 
 // Int Matrix<T>::DiagonalLength( Int offset ) const
 // -------------------------------------------------
-ElInt ElMatrixDiagonalLength_s( const ElMatrix_s AHandle, ElInt offset )
+ElInt ElMatrixDiagonalLength_s( ElConstMatrix_s AHandle, ElInt offset )
 { return RCM_s_const(AHandle)->DiagonalLength(offset); }
 
-ElInt ElMatrixDiagonalLength_d( const ElMatrix_d AHandle, ElInt offset )
+ElInt ElMatrixDiagonalLength_d( ElConstMatrix_d AHandle, ElInt offset )
 { return RCM_d_const(AHandle)->DiagonalLength(offset); }
 
-ElInt ElMatrixDiagonalLength_c( const ElMatrix_c AHandle, ElInt offset )
+ElInt ElMatrixDiagonalLength_c( ElConstMatrix_c AHandle, ElInt offset )
 { return RCM_c_const(AHandle)->DiagonalLength(offset); }
 
-ElInt ElMatrixDiagonalLength_z( const ElMatrix_z AHandle, ElInt offset )
+ElInt ElMatrixDiagonalLength_z( ElConstMatrix_z AHandle, ElInt offset )
 { return RCM_z_const(AHandle)->DiagonalLength(offset); }
 
 // T* Matrix<T>::Buffer()
@@ -367,63 +367,63 @@ complex_double* ElMatrixBuffer_z( ElMatrix_z AHandle )
 
 // const T* Matrix<T>::LockedBuffer() const
 // ----------------------------------------
-const float* ElMatrixLockedBuffer_s( const ElMatrix_s AHandle )
+const float* ElMatrixLockedBuffer_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->LockedBuffer(); }
 
-const double* ElMatrixLockedBuffer_d( const ElMatrix_d AHandle )
+const double* ElMatrixLockedBuffer_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->LockedBuffer(); }
 
-const complex_float* ElMatrixLockedBuffer_c( const ElMatrix_c AHandle )
+const complex_float* ElMatrixLockedBuffer_c( ElConstMatrix_c AHandle )
 { return (const complex_float*)RCM_c_const(AHandle)->LockedBuffer(); }
 
-const complex_double* ElMatrixLockedBuffer_z( const ElMatrix_z AHandle )
+const complex_double* ElMatrixLockedBuffer_z( ElConstMatrix_z AHandle )
 { return (const complex_double*)RCM_z_const(AHandle)->LockedBuffer(); }
 
 // bool Matrix<T>::Viewing() const
 // -------------------------------
-bool ElMatrixViewing_s( const ElMatrix_s AHandle )
+bool ElMatrixViewing_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->Viewing(); }
 
-bool ElMatrixViewing_d( const ElMatrix_d AHandle )
+bool ElMatrixViewing_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->Viewing(); }
 
-bool ElMatrixViewing_c( const ElMatrix_c AHandle )
+bool ElMatrixViewing_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->Viewing(); }
 
-bool ElMatrixViewing_z( const ElMatrix_z AHandle )
+bool ElMatrixViewing_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->Viewing(); }
 
 // bool Matrix<T>::FixedSize() const
 // ---------------------------------
-bool ElMatrixFixedSize_s( const ElMatrix_s AHandle )
+bool ElMatrixFixedSize_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->FixedSize(); }
 
-bool ElMatrixFixedSize_d( const ElMatrix_d AHandle )
+bool ElMatrixFixedSize_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->FixedSize(); }
 
-bool ElMatrixFixedSize_c( const ElMatrix_c AHandle )
+bool ElMatrixFixedSize_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->FixedSize(); }
 
-bool ElMatrixFixedSize_z( const ElMatrix_z AHandle )
+bool ElMatrixFixedSize_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->FixedSize(); }
 
 // bool Matrix<T>::Locked() const
 // ------------------------------
-bool ElMatrixLocked_s( const ElMatrix_s AHandle )
+bool ElMatrixLocked_s( ElConstMatrix_s AHandle )
 { return RCM_s_const(AHandle)->Locked(); }
 
-bool ElMatrixLocked_d( const ElMatrix_d AHandle )
+bool ElMatrixLocked_d( ElConstMatrix_d AHandle )
 { return RCM_d_const(AHandle)->Locked(); }
 
-bool ElMatrixLocked_c( const ElMatrix_c AHandle )
+bool ElMatrixLocked_c( ElConstMatrix_c AHandle )
 { return RCM_c_const(AHandle)->Locked(); }
 
-bool ElMatrixLocked_z( const ElMatrix_z AHandle )
+bool ElMatrixLocked_z( ElConstMatrix_z AHandle )
 { return RCM_z_const(AHandle)->Locked(); }
 
 // T Matrix<T>::Get( Int i, Int j ) const
 // --------------------------------------
-float ElMatrixGet_s( const ElMatrix_s AHandle, ElInt i, ElInt j )
+float ElMatrixGet_s( ElConstMatrix_s AHandle, ElInt i, ElInt j )
 {
     float alpha = -1;
     try { alpha = RCM_s_const(AHandle)->Get(i,j); }
@@ -431,7 +431,7 @@ float ElMatrixGet_s( const ElMatrix_s AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-double ElMatrixGet_d( const ElMatrix_d AHandle, ElInt i, ElInt j )
+double ElMatrixGet_d( ElConstMatrix_d AHandle, ElInt i, ElInt j )
 {
     double alpha = 01;
     try { alpha = RCM_s_const(AHandle)->Get(i,j); }
@@ -439,7 +439,7 @@ double ElMatrixGet_d( const ElMatrix_d AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-complex_float ElMatrixGet_c( const ElMatrix_c AHandle, ElInt i, ElInt j )
+complex_float ElMatrixGet_c( ElConstMatrix_c AHandle, ElInt i, ElInt j )
 {
     complex_float alpha;
     try 
@@ -452,7 +452,7 @@ complex_float ElMatrixGet_c( const ElMatrix_c AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-complex_double ElMatrixGet_z( const ElMatrix_z AHandle, ElInt i, ElInt j )
+complex_double ElMatrixGet_z( ElConstMatrix_z AHandle, ElInt i, ElInt j )
 {
     complex_double alpha;
     try 
@@ -467,7 +467,7 @@ complex_double ElMatrixGet_z( const ElMatrix_z AHandle, ElInt i, ElInt j )
 
 // Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
 // ----------------------------------------------------
-float ElMatrixGetRealPart_c( const ElMatrix_c AHandle, ElInt i, ElInt j )
+float ElMatrixGetRealPart_c( ElConstMatrix_c AHandle, ElInt i, ElInt j )
 {
     float alpha = -1;
     try { alpha = RCM_s_const(AHandle)->GetRealPart(i,j); }
@@ -475,7 +475,7 @@ float ElMatrixGetRealPart_c( const ElMatrix_c AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-double ElMatrixGetRealPart_z( const ElMatrix_z AHandle, ElInt i, ElInt j )
+double ElMatrixGetRealPart_z( ElConstMatrix_z AHandle, ElInt i, ElInt j )
 {
     double alpha = -1;
     try { alpha = RCM_d_const(AHandle)->GetRealPart(i,j); }
@@ -485,7 +485,7 @@ double ElMatrixGetRealPart_z( const ElMatrix_z AHandle, ElInt i, ElInt j )
 
 // Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
 // ----------------------------------------------------
-float ElMatrixGetImagPart_c( const ElMatrix_c AHandle, ElInt i, ElInt j )
+float ElMatrixGetImagPart_c( ElConstMatrix_c AHandle, ElInt i, ElInt j )
 {
     float alpha = -1;
     try { alpha = RCM_s_const(AHandle)->GetImagPart(i,j); }
@@ -493,7 +493,7 @@ float ElMatrixGetImagPart_c( const ElMatrix_c AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-double ElMatrixGetImagPart_z( const ElMatrix_z AHandle, ElInt i, ElInt j )
+double ElMatrixGetImagPart_z( ElConstMatrix_z AHandle, ElInt i, ElInt j )
 {
     double alpha = -1;
     try { alpha = RCM_d_const(AHandle)->GetImagPart(i,j); }
@@ -647,7 +647,7 @@ void ElMatrixConjugate_z( ElMatrix_z AHandle, ElInt i, ElInt j )
 
 // Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const
 // ----------------------------------------------------
-ElMatrix_s ElMatrixGetDiagonal_s( const ElMatrix_s AHandle, ElInt offset )
+ElMatrix_s ElMatrixGetDiagonal_s( ElConstMatrix_s AHandle, ElInt offset )
 {
     ElMatrix_s dHandle = 0;
     try 
@@ -659,7 +659,7 @@ ElMatrix_s ElMatrixGetDiagonal_s( const ElMatrix_s AHandle, ElInt offset )
     return dHandle;
 }
 
-ElMatrix_d ElMatrixGetDiagonal_d( const ElMatrix_d AHandle, ElInt offset )
+ElMatrix_d ElMatrixGetDiagonal_d( ElConstMatrix_d AHandle, ElInt offset )
 {
     ElMatrix_d dHandle = 0;
     try 
@@ -671,7 +671,7 @@ ElMatrix_d ElMatrixGetDiagonal_d( const ElMatrix_d AHandle, ElInt offset )
     return dHandle;
 }
 
-ElMatrix_c ElMatrixGetDiagonal_c( const ElMatrix_c AHandle, ElInt offset )
+ElMatrix_c ElMatrixGetDiagonal_c( ElConstMatrix_c AHandle, ElInt offset )
 {
     ElMatrix_c dHandle = 0;
     try 
@@ -683,7 +683,7 @@ ElMatrix_c ElMatrixGetDiagonal_c( const ElMatrix_c AHandle, ElInt offset )
     return dHandle;
 }
 
-ElMatrix_z ElMatrixGetDiagonal_z( const ElMatrix_z AHandle, ElInt offset )
+ElMatrix_z ElMatrixGetDiagonal_z( ElConstMatrix_z AHandle, ElInt offset )
 {
     ElMatrix_z dHandle = 0;
     try 
@@ -698,7 +698,7 @@ ElMatrix_z ElMatrixGetDiagonal_z( const ElMatrix_z AHandle, ElInt offset )
 // Matrix<Base<T>> Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
 // --------------------------------------------------------------------
 ElMatrix_s ElMatrixGetRealPartOfDiagonal_c
-( const ElMatrix_c AHandle, ElInt offset )
+( ElConstMatrix_c AHandle, ElInt offset )
 {
     ElMatrix_s dHandle = 0;
     try 
@@ -711,7 +711,7 @@ ElMatrix_s ElMatrixGetRealPartOfDiagonal_c
 }
 
 ElMatrix_d ElMatrixGetRealPartOfDiagonal_z
-( const ElMatrix_z AHandle, ElInt offset )
+( ElConstMatrix_z AHandle, ElInt offset )
 {
     ElMatrix_d dHandle = 0;
     try 
@@ -726,7 +726,7 @@ ElMatrix_d ElMatrixGetRealPartOfDiagonal_z
 // Matrix<Base<T>> Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
 // --------------------------------------------------------------------
 ElMatrix_s ElMatrixGetImagPartOfDiagonal_c
-( const ElMatrix_c AHandle, ElInt offset )
+( ElConstMatrix_c AHandle, ElInt offset )
 {
     ElMatrix_s dHandle = 0;
     try 
@@ -739,7 +739,7 @@ ElMatrix_s ElMatrixGetImagPartOfDiagonal_c
 }
 
 ElMatrix_d ElMatrixGetImagPartOfDiagonal_z
-( const ElMatrix_z AHandle, ElInt offset )
+( ElConstMatrix_z AHandle, ElInt offset )
 {
     ElMatrix_d dHandle = 0;
     try 
@@ -754,28 +754,28 @@ ElMatrix_d ElMatrixGetImagPartOfDiagonal_z
 // void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 // -------------------------------------------------------------
 void ElMatrixSetDiagonal_s
-( ElMatrix_s AHandle, const ElMatrix_s dHandle, ElInt offset )
+( ElMatrix_s AHandle, ElConstMatrix_s dHandle, ElInt offset )
 {
     try { RCM_s(AHandle)->SetDiagonal( RCM_s_const(dHandle), offset ); }
     CATCH
 }
 
 void ElMatrixSetDiagonal_d
-( ElMatrix_d AHandle, const ElMatrix_d dHandle, ElInt offset )
+( ElMatrix_d AHandle, ElConstMatrix_d dHandle, ElInt offset )
 {
     try { RCM_d(AHandle)->SetDiagonal( RCM_d_const(dHandle), offset ); }
     CATCH
 }
 
 void ElMatrixSetDiagonal_c
-( ElMatrix_c AHandle, const ElMatrix_c dHandle, ElInt offset )
+( ElMatrix_c AHandle, ElConstMatrix_c dHandle, ElInt offset )
 {
     try { RCM_c(AHandle)->SetDiagonal( RCM_c_const(dHandle), offset ); }
     CATCH
 }
 
 void ElMatrixSetDiagonal_z
-( ElMatrix_z AHandle, const ElMatrix_z dHandle, ElInt offset )
+( ElMatrix_z AHandle, ElConstMatrix_z dHandle, ElInt offset )
 {
     try { RCM_z(AHandle)->SetDiagonal( RCM_z_const(dHandle), offset ); }
     CATCH
@@ -784,7 +784,7 @@ void ElMatrixSetDiagonal_z
 // void Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 // -----------------------------------------------------------------------------
 void ElMatrixSetRealPartOfDiagonal_c
-( ElMatrix_c AHandle, const ElMatrix_s dHandle, ElInt offset )
+( ElMatrix_c AHandle, ElConstMatrix_s dHandle, ElInt offset )
 {
     try { RCM_c(AHandle)->SetRealPartOfDiagonal
           ( RCM_s_const(dHandle), offset ); }
@@ -792,7 +792,7 @@ void ElMatrixSetRealPartOfDiagonal_c
 }
 
 void ElMatrixSetRealPartOfDiagonal_z
-( ElMatrix_z AHandle, const ElMatrix_d dHandle, ElInt offset )
+( ElMatrix_z AHandle, ElConstMatrix_d dHandle, ElInt offset )
 {
     try { RCM_z(AHandle)->SetRealPartOfDiagonal
           ( RCM_d_const(dHandle), offset ); }
@@ -802,7 +802,7 @@ void ElMatrixSetRealPartOfDiagonal_z
 // void Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 // -----------------------------------------------------------------------------
 void ElMatrixSetImagPartOfDiagonal_c
-( ElMatrix_c AHandle, const ElMatrix_s dHandle, ElInt offset )
+( ElMatrix_c AHandle, ElConstMatrix_s dHandle, ElInt offset )
 {
     try { RCM_c(AHandle)->SetImagPartOfDiagonal
           ( RCM_s_const(dHandle), offset ); }
@@ -810,7 +810,7 @@ void ElMatrixSetImagPartOfDiagonal_c
 }
 
 void ElMatrixSetImagPartOfDiagonal_z
-( ElMatrix_z AHandle, const ElMatrix_d dHandle, ElInt offset )
+( ElMatrix_z AHandle, ElConstMatrix_d dHandle, ElInt offset )
 {
     try { RCM_z(AHandle)->SetImagPartOfDiagonal
           ( RCM_d_const(dHandle), offset ); }
@@ -820,28 +820,28 @@ void ElMatrixSetImagPartOfDiagonal_z
 // void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
 // ----------------------------------------------------------------
 void ElMatrixUpdateDiagonal_s
-( ElMatrix_s AHandle, const ElMatrix_s dHandle, ElInt offset )
+( ElMatrix_s AHandle, ElConstMatrix_s dHandle, ElInt offset )
 {
     try { RCM_s(AHandle)->UpdateDiagonal( RCM_s_const(dHandle), offset ); }
     CATCH
 }
 
 void ElMatrixUpdateDiagonal_d
-( ElMatrix_d AHandle, const ElMatrix_d dHandle, ElInt offset )
+( ElMatrix_d AHandle, ElConstMatrix_d dHandle, ElInt offset )
 {
     try { RCM_d(AHandle)->UpdateDiagonal( RCM_d_const(dHandle), offset ); }
     CATCH
 }
 
 void ElMatrixUpdateDiagonal_c
-( ElMatrix_c AHandle, const ElMatrix_c dHandle, ElInt offset )
+( ElMatrix_c AHandle, ElConstMatrix_c dHandle, ElInt offset )
 {
     try { RCM_c(AHandle)->UpdateDiagonal( RCM_c_const(dHandle), offset ); }
     CATCH
 }
 
 void ElMatrixUpdateDiagonal_z
-( ElMatrix_z AHandle, const ElMatrix_z dHandle, ElInt offset )
+( ElMatrix_z AHandle, ElConstMatrix_z dHandle, ElInt offset )
 {
     try { RCM_z(AHandle)->UpdateDiagonal( RCM_z_const(dHandle), offset ); }
     CATCH
@@ -851,7 +851,7 @@ void ElMatrixUpdateDiagonal_z
 // ( const Matrix<Base<T>>& d, Int offset )
 // ----------------------------------------
 void ElMatrixUpdateRealPartOfDiagonal_c
-( ElMatrix_c AHandle, const ElMatrix_s dHandle, ElInt offset )
+( ElMatrix_c AHandle, ElConstMatrix_s dHandle, ElInt offset )
 {
     try { RCM_c(AHandle)->UpdateRealPartOfDiagonal
           ( RCM_s_const(dHandle), offset ); }
@@ -859,7 +859,7 @@ void ElMatrixUpdateRealPartOfDiagonal_c
 }
 
 void ElMatrixUpdateRealPartOfDiagonal_z
-( ElMatrix_z AHandle, const ElMatrix_d dHandle, ElInt offset )
+( ElMatrix_z AHandle, ElConstMatrix_d dHandle, ElInt offset )
 {
     try { RCM_z(AHandle)->UpdateRealPartOfDiagonal
           ( RCM_d_const(dHandle), offset ); }
@@ -870,7 +870,7 @@ void ElMatrixUpdateRealPartOfDiagonal_z
 // ( const Matrix<Base<T>>& d, Int offset )
 // ----------------------------------------
 void ElMatrixUpdateImagPartOfDiagonal_c
-( ElMatrix_c AHandle, const ElMatrix_s dHandle, ElInt offset )
+( ElMatrix_c AHandle, ElConstMatrix_s dHandle, ElInt offset )
 {
     try { RCM_c(AHandle)->UpdateImagPartOfDiagonal
           ( RCM_s_const(dHandle), offset ); }
@@ -878,7 +878,7 @@ void ElMatrixUpdateImagPartOfDiagonal_c
 }
 
 void ElMatrixUpdateImagPartOfDiagonal_z
-( ElMatrix_z AHandle, const ElMatrix_d dHandle, ElInt offset )
+( ElMatrix_z AHandle, ElConstMatrix_d dHandle, ElInt offset )
 {
     try { RCM_z(AHandle)->UpdateImagPartOfDiagonal
           ( RCM_d_const(dHandle), offset ); }
@@ -905,7 +905,7 @@ void ElMatrixConjugateDiagonal_z( ElMatrix_z AHandle, ElInt offset )
 // ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
 // --------------------------------------------------------------------------
 ElMatrix_s ElMatrixGetSubmatrix_s
-( const ElMatrix_s AHandle,
+( ElConstMatrix_s AHandle,
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds )
 {
@@ -924,7 +924,7 @@ ElMatrix_s ElMatrixGetSubmatrix_s
 }
 
 ElMatrix_d ElMatrixGetSubmatrix_d
-( const ElMatrix_d AHandle,
+( ElConstMatrix_d AHandle,
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds )
 {
@@ -943,7 +943,7 @@ ElMatrix_d ElMatrixGetSubmatrix_d
 }
 
 ElMatrix_c ElMatrixGetSubmatrix_c
-( const ElMatrix_c AHandle,
+( ElConstMatrix_c AHandle,
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds )
 {
@@ -962,7 +962,7 @@ ElMatrix_c ElMatrixGetSubmatrix_c
 }
 
 ElMatrix_z ElMatrixGetSubmatrix_z
-( const ElMatrix_z AHandle,
+( ElConstMatrix_z AHandle,
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds )
 {

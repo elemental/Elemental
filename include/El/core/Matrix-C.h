@@ -21,6 +21,11 @@ typedef struct ElMatrix_dDummy* ElMatrix_d;
 typedef struct ElMatrix_cDummy* ElMatrix_c;
 typedef struct ElMatrix_zDummy* ElMatrix_z;
 
+typedef const struct ElMatrix_sDummy* ElConstMatrix_s;
+typedef const struct ElMatrix_dDummy* ElConstMatrix_d;
+typedef const struct ElMatrix_cDummy* ElConstMatrix_c;
+typedef const struct ElMatrix_zDummy* ElConstMatrix_z;
+
 /* Matrix<T>::Matrix()
    ------------------- */
 ElMatrix_s ElMatrixCreate_s();
@@ -30,10 +35,10 @@ ElMatrix_z ElMatrixCreate_z();
 
 /* Matrix<T>::~Matrix() 
    -------------------- */
-void ElMatrixDestroy_s( const ElMatrix_s A );
-void ElMatrixDestroy_d( const ElMatrix_d A );
-void ElMatrixDestroy_c( const ElMatrix_c A );
-void ElMatrixDestroy_z( const ElMatrix_z A );
+void ElMatrixDestroy_s( ElConstMatrix_s A );
+void ElMatrixDestroy_d( ElConstMatrix_d A );
+void ElMatrixDestroy_c( ElConstMatrix_c A );
+void ElMatrixDestroy_z( ElConstMatrix_z A );
 
 /* void Matrix<T>::Empty()
    ----------------------- */
@@ -102,45 +107,45 @@ void ElMatrixControl_z
 
 /* B := A
    ------ */
-void ElMatrixCopy_s( const ElMatrix_s A, ElMatrix_s B );
-void ElMatrixCopy_d( const ElMatrix_d A, ElMatrix_d B );
-void ElMatrixCopy_c( const ElMatrix_c A, ElMatrix_c B );
-void ElMatrixCopy_z( const ElMatrix_z A, ElMatrix_z B );
+void ElMatrixCopy_s( ElConstMatrix_s A, ElMatrix_s B );
+void ElMatrixCopy_d( ElConstMatrix_d A, ElMatrix_d B );
+void ElMatrixCopy_c( ElConstMatrix_c A, ElMatrix_c B );
+void ElMatrixCopy_z( ElConstMatrix_z A, ElMatrix_z B );
 
 /* Int Matrix<T>::Height() const
    ----------------------------- */
-ElInt ElMatrixHeight_s( const ElMatrix_s A );
-ElInt ElMatrixHeight_d( const ElMatrix_d A );
-ElInt ElMatrixHeight_c( const ElMatrix_c A );
-ElInt ElMatrixHeight_z( const ElMatrix_z A );
+ElInt ElMatrixHeight_s( ElConstMatrix_s A );
+ElInt ElMatrixHeight_d( ElConstMatrix_d A );
+ElInt ElMatrixHeight_c( ElConstMatrix_c A );
+ElInt ElMatrixHeight_z( ElConstMatrix_z A );
 
 /* Int Matrix<T>::Width() const
    ---------------------------- */
-ElInt ElMatrixWidth_s( const ElMatrix_s A );
-ElInt ElMatrixWidth_d( const ElMatrix_d A );
-ElInt ElMatrixWidth_c( const ElMatrix_c A );
-ElInt ElMatrixWidth_z( const ElMatrix_z A );
+ElInt ElMatrixWidth_s( ElConstMatrix_s A );
+ElInt ElMatrixWidth_d( ElConstMatrix_d A );
+ElInt ElMatrixWidth_c( ElConstMatrix_c A );
+ElInt ElMatrixWidth_z( ElConstMatrix_z A );
 
 /* Int Matrix<T>::LDim() const
    --------------------------- */
-ElInt ElMatrixLDim_s( const ElMatrix_s A );
-ElInt ElMatrixLDim_d( const ElMatrix_d A );
-ElInt ElMatrixLDim_c( const ElMatrix_c A );
-ElInt ElMatrixLDim_z( const ElMatrix_z A );
+ElInt ElMatrixLDim_s( ElConstMatrix_s A );
+ElInt ElMatrixLDim_d( ElConstMatrix_d A );
+ElInt ElMatrixLDim_c( ElConstMatrix_c A );
+ElInt ElMatrixLDim_z( ElConstMatrix_z A );
 
 /* Int Matrix<T>::MemorySize() const
    --------------------------------- */
-ElInt ElMatrixMemorySize_s( const ElMatrix_s A );
-ElInt ElMatrixMemorySize_d( const ElMatrix_d A );
-ElInt ElMatrixMemorySize_c( const ElMatrix_c A );
-ElInt ElMatrixMemorySize_z( const ElMatrix_z A );
+ElInt ElMatrixMemorySize_s( ElConstMatrix_s A );
+ElInt ElMatrixMemorySize_d( ElConstMatrix_d A );
+ElInt ElMatrixMemorySize_c( ElConstMatrix_c A );
+ElInt ElMatrixMemorySize_z( ElConstMatrix_z A );
 
 /* Int Matrix<T>::DiagonalLength( Int offset ) const
    ------------------------------------------------- */
-ElInt ElMatrixDiagonalLength_s( const ElMatrix_s A, ElInt offset );
-ElInt ElMatrixDiagonalLength_d( const ElMatrix_d A, ElInt offset );
-ElInt ElMatrixDiagonalLength_c( const ElMatrix_c A, ElInt offset );
-ElInt ElMatrixDiagonalLength_z( const ElMatrix_z A, ElInt offset );
+ElInt ElMatrixDiagonalLength_s( ElConstMatrix_s A, ElInt offset );
+ElInt ElMatrixDiagonalLength_d( ElConstMatrix_d A, ElInt offset );
+ElInt ElMatrixDiagonalLength_c( ElConstMatrix_c A, ElInt offset );
+ElInt ElMatrixDiagonalLength_z( ElConstMatrix_z A, ElInt offset );
 
 /* T* Matrix<T>::Buffer()
    ---------------------- */
@@ -151,48 +156,48 @@ complex_double* ElMatrixBuffer_z( ElMatrix_z A );
 
 /* const T* Matrix<T>::LockedBuffer() const
    ---------------------------------------- */
-const float*          ElMatrixLockedBuffer_s( const ElMatrix_s A );
-const double*         ElMatrixLockedBuffer_d( const ElMatrix_d A );
-const complex_float*  ElMatrixLockedBuffer_c( const ElMatrix_c A );
-const complex_double* ElMatrixLockedBuffer_z( const ElMatrix_z A );
+const float*          ElMatrixLockedBuffer_s( ElConstMatrix_s A );
+const double*         ElMatrixLockedBuffer_d( ElConstMatrix_d A );
+const complex_float*  ElMatrixLockedBuffer_c( ElConstMatrix_c A );
+const complex_double* ElMatrixLockedBuffer_z( ElConstMatrix_z A );
 
 /* bool Matrix<T>::Viewing() const
    ------------------------------- */
-bool ElMatrixViewing_s( const ElMatrix_s A );
-bool ElMatrixViewing_d( const ElMatrix_d A );
-bool ElMatrixViewing_c( const ElMatrix_c A );
-bool ElMatrixViewing_z( const ElMatrix_z A );
+bool ElMatrixViewing_s( ElConstMatrix_s A );
+bool ElMatrixViewing_d( ElConstMatrix_d A );
+bool ElMatrixViewing_c( ElConstMatrix_c A );
+bool ElMatrixViewing_z( ElConstMatrix_z A );
 
 /* bool Matrix<T>::FixedSize() const
    --------------------------------- */
-bool ElMatrixFixedSize_s( const ElMatrix_s A );
-bool ElMatrixFixedSize_d( const ElMatrix_d A );
-bool ElMatrixFixedSize_c( const ElMatrix_c A );
-bool ElMatrixFixedSize_z( const ElMatrix_z A );
+bool ElMatrixFixedSize_s( ElConstMatrix_s A );
+bool ElMatrixFixedSize_d( ElConstMatrix_d A );
+bool ElMatrixFixedSize_c( ElConstMatrix_c A );
+bool ElMatrixFixedSize_z( ElConstMatrix_z A );
 
 /* bool Matrix<T>::Locked() const
    ------------------------------ */
-bool ElMatrixLocked_s( const ElMatrix_s A );
-bool ElMatrixLocked_d( const ElMatrix_d A );
-bool ElMatrixLocked_c( const ElMatrix_c A );
-bool ElMatrixLocked_z( const ElMatrix_z A );
+bool ElMatrixLocked_s( ElConstMatrix_s A );
+bool ElMatrixLocked_d( ElConstMatrix_d A );
+bool ElMatrixLocked_c( ElConstMatrix_c A );
+bool ElMatrixLocked_z( ElConstMatrix_z A );
 
 /* T Matrix<T>::Get( Int i, Int j ) const
    -------------------------------------- */
-float          ElMatrixGet_s( const ElMatrix_s A, ElInt i, ElInt j );
-double         ElMatrixGet_d( const ElMatrix_d A, ElInt i, ElInt j );
-complex_float  ElMatrixGet_c( const ElMatrix_c A, ElInt i, ElInt j );
-complex_double ElMatrixGet_z( const ElMatrix_z A, ElInt i, ElInt j );
+float          ElMatrixGet_s( ElConstMatrix_s A, ElInt i, ElInt j );
+double         ElMatrixGet_d( ElConstMatrix_d A, ElInt i, ElInt j );
+complex_float  ElMatrixGet_c( ElConstMatrix_c A, ElInt i, ElInt j );
+complex_double ElMatrixGet_z( ElConstMatrix_z A, ElInt i, ElInt j );
 
 /* Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
    ---------------------------------------------------- */
-float  ElMatrixGetRealPart_c( const ElMatrix_c A, ElInt i, ElInt j );
-double ElMatrixGetRealPart_z( const ElMatrix_z A, ElInt i, ElInt j );
+float  ElMatrixGetRealPart_c( ElConstMatrix_c A, ElInt i, ElInt j );
+double ElMatrixGetRealPart_z( ElConstMatrix_z A, ElInt i, ElInt j );
 
 /* Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
    ---------------------------------------------------- */
-float  ElMatrixGetImagPart_c( const ElMatrix_c A, ElInt i, ElInt j );
-double ElMatrixGetImagPart_z( const ElMatrix_z A, ElInt i, ElInt j );
+float  ElMatrixGetImagPart_c( ElConstMatrix_c A, ElInt i, ElInt j );
+double ElMatrixGetImagPart_z( ElConstMatrix_z A, ElInt i, ElInt j );
 
 /* void Matrix<T>::Set( Int i, Int j, T alpha )
    -------------------------------------------- */
@@ -240,70 +245,70 @@ void ElMatrixConjugate_z( ElMatrix_z A, ElInt i, ElInt j );
 
 /* Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const
    ---------------------------------------------------- */
-ElMatrix_s ElMatrixGetDiagonal_s( const ElMatrix_s A, ElInt offset );
-ElMatrix_d ElMatrixGetDiagonal_d( const ElMatrix_d A, ElInt offset );
-ElMatrix_c ElMatrixGetDiagonal_c( const ElMatrix_c A, ElInt offset );
-ElMatrix_z ElMatrixGetDiagonal_z( const ElMatrix_z A, ElInt offset );
+ElMatrix_s ElMatrixGetDiagonal_s( ElConstMatrix_s A, ElInt offset );
+ElMatrix_d ElMatrixGetDiagonal_d( ElConstMatrix_d A, ElInt offset );
+ElMatrix_c ElMatrixGetDiagonal_c( ElConstMatrix_c A, ElInt offset );
+ElMatrix_z ElMatrixGetDiagonal_z( ElConstMatrix_z A, ElInt offset );
 
 /* Matrix<Base<T>> Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
    -------------------------------------------------------------------- */
-ElMatrix_s ElMatrixGetRealPartOfDiagonal_c( const ElMatrix_c A, ElInt offset );
-ElMatrix_d ElMatrixGetRealPartOfDiagonal_z( const ElMatrix_z A, ElInt offset );
+ElMatrix_s ElMatrixGetRealPartOfDiagonal_c( ElConstMatrix_c A, ElInt offset );
+ElMatrix_d ElMatrixGetRealPartOfDiagonal_z( ElConstMatrix_z A, ElInt offset );
 
 /* Matrix<Base<T>> Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
    -------------------------------------------------------------------- */
-ElMatrix_s ElMatrixGetImagPartOfDiagonal_c( const ElMatrix_c A, ElInt offset );
-ElMatrix_d ElMatrixGetImagPartOfDiagonal_z( const ElMatrix_z A, ElInt offset );
+ElMatrix_s ElMatrixGetImagPartOfDiagonal_c( ElConstMatrix_c A, ElInt offset );
+ElMatrix_d ElMatrixGetImagPartOfDiagonal_z( ElConstMatrix_z A, ElInt offset );
 
 /* void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
    ------------------------------------------------------------- */
 void ElMatrixSetDiagonal_s
-( ElMatrix_s A, const ElMatrix_s d, ElInt offset );
+( ElMatrix_s A, ElConstMatrix_s d, ElInt offset );
 void ElMatrixSetDiagonal_d
-( ElMatrix_d A, const ElMatrix_d d, ElInt offset );
+( ElMatrix_d A, ElConstMatrix_d d, ElInt offset );
 void ElMatrixSetDiagonal_c
-( ElMatrix_c A, const ElMatrix_c d, ElInt offset );
+( ElMatrix_c A, ElConstMatrix_c d, ElInt offset );
 void ElMatrixSetDiagonal_z
-( ElMatrix_z A, const ElMatrix_z d, ElInt offset );
+( ElMatrix_z A, ElConstMatrix_z d, ElInt offset );
 
 /* void Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
    -----------------------------------------------------------------------------
 */
 void ElMatrixSetRealPartOfDiagonal_c
-( ElMatrix_c A, const ElMatrix_s d, ElInt offset );
+( ElMatrix_c A, ElConstMatrix_s d, ElInt offset );
 void ElMatrixSetRealPartOfDiagonal_z
-( ElMatrix_z A, const ElMatrix_d d, ElInt offset );
+( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
 
 /* void Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
    -----------------------------------------------------------------------------
 */
 void ElMatrixSetImagPartOfDiagonal_c
-( ElMatrix_c A, const ElMatrix_s d, ElInt offset );
+( ElMatrix_c A, ElConstMatrix_s d, ElInt offset );
 void ElMatrixSetImagPartOfDiagonal_z
-( ElMatrix_z A, const ElMatrix_d d, ElInt offset );
+( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
 
 /* void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
    ---------------------------------------------------------------- */
-void ElMatrixUpdateDiagonal_s( ElMatrix_s A, const ElMatrix_s d, ElInt offset );
-void ElMatrixUpdateDiagonal_d( ElMatrix_d A, const ElMatrix_d d, ElInt offset );
-void ElMatrixUpdateDiagonal_c( ElMatrix_c A, const ElMatrix_c d, ElInt offset );
-void ElMatrixUpdateDiagonal_z( ElMatrix_z A, const ElMatrix_z d, ElInt offset );
+void ElMatrixUpdateDiagonal_s( ElMatrix_s A, ElConstMatrix_s d, ElInt offset );
+void ElMatrixUpdateDiagonal_d( ElMatrix_d A, ElConstMatrix_d d, ElInt offset );
+void ElMatrixUpdateDiagonal_c( ElMatrix_c A, ElConstMatrix_c d, ElInt offset );
+void ElMatrixUpdateDiagonal_z( ElMatrix_z A, ElConstMatrix_z d, ElInt offset );
 
 /* void Matrix<T>::UpdateRealPartOfDiagonal
    ( const Matrix<Base<T>>& d, Int offset )
    ---------------------------------------- */
 void ElMatrixUpdateRealPartOfDiagonal_c
-( ElMatrix_c A, const ElMatrix_s d, ElInt offset );
+( ElMatrix_c A, ElConstMatrix_s d, ElInt offset );
 void ElMatrixUpdateRealPartOfDiagonal_z
-( ElMatrix_z A, const ElMatrix_d d, ElInt offset );
+( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
 
 /* void Matrix<T>::UpdateImagPartOfDiagonal
    ( const Matrix<Base<T>>& d, Int offset )
    ---------------------------------------- */
 void ElMatrixUpdateImagPartOfDiagonal_c
-( ElMatrix_c A, const ElMatrix_s d, ElInt offset );
+( ElMatrix_c A, ElConstMatrix_s d, ElInt offset );
 void ElMatrixUpdateImagPartOfDiagonal_z
-( ElMatrix_z A, const ElMatrix_d d, ElInt offset );
+( ElMatrix_z A, ElConstMatrix_d d, ElInt offset );
 
 /* void Matrix<T>::MakeDiaogonalReal( Int offset )
    ----------------------------------------------- */
@@ -319,19 +324,19 @@ void ElMatrixConjugateDiagonal_z( ElMatrix_z A, ElInt offset );
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
    -------------------------------------------------------------------------- */
 ElMatrix_s ElMatrixGetSubmatrix_s
-( const ElMatrix_s A, 
+( ElConstMatrix_s A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 ElMatrix_d ElMatrixGetSubmatrix_d
-( const ElMatrix_d A, 
+( ElConstMatrix_d A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 ElMatrix_c ElMatrixGetSubmatrix_c
-( const ElMatrix_c A, 
+( ElConstMatrix_c A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 ElMatrix_z ElMatrixGetSubmatrix_z
-( const ElMatrix_z A, 
+( ElConstMatrix_z A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 
@@ -339,11 +344,11 @@ ElMatrix_z ElMatrixGetSubmatrix_z
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
    -------------------------------------------------------------------------- */
 ElMatrix_s ElMatrixGetRealPartOfSubmatrix_c
-( const ElMatrix_c A, 
+( ElConstMatrix_c A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 ElMatrix_d ElMatrixGetRealPartOfSubmatrix_z
-( const ElMatrix_z A, 
+( ElConstMatrix_z A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 
@@ -351,11 +356,11 @@ ElMatrix_d ElMatrixGetRealPartOfSubmatrix_z
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
    -------------------------------------------------------------------------- */
 ElMatrix_s ElMatrixGetImagPartOfSubmatrix_c
-( const ElMatrix_c A, 
+( ElConstMatrix_c A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 ElMatrix_d ElMatrixGetImagPartOfSubmatrix_z
-( const ElMatrix_z A, 
+( ElConstMatrix_z A, 
   ElInt numRowInds, const ElInt* rowInds, 
   ElInt numColInds, const ElInt* colInds );
 
@@ -365,16 +370,16 @@ ElMatrix_d ElMatrixGetImagPartOfSubmatrix_z
    ------------------------------------------------------------------- */
 void ElMatrixSetSubmatrix_s
 ( ElMatrix_s A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_s ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_s ASub );
 void ElMatrixSetSubmatrix_d
 ( ElMatrix_d A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_d ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_d ASub );
 void ElMatrixSetSubmatrix_c
 ( ElMatrix_c A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_c ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_c ASub );
 void ElMatrixSetSubmatrix_z
 ( ElMatrix_z A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_z ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_z ASub );
 
 /* void Matrix<T>::SetRealPartOfSubmatrix
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
@@ -382,10 +387,10 @@ void ElMatrixSetSubmatrix_z
    ------------------------------------------------------------------- */
 void ElMatrixSetRealPartOfSubmatrix_c
 ( ElMatrix_c A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_s ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_s ASub );
 void ElMatrixSetRealPartOfSubmatrix_z
 ( ElMatrix_z A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_d ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::SetImagPartOfSubmatrix
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
@@ -393,10 +398,10 @@ void ElMatrixSetRealPartOfSubmatrix_z
    ------------------------------------------------------------------- */
 void ElMatrixSetImagPartOfSubmatrix_c
 ( ElMatrix_c A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_s ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_s ASub );
 void ElMatrixSetImagPartOfSubmatrix_z
 ( ElMatrix_z A, 
-  const ElInt* rowInds, const ElInt* colInds, const ElMatrix_d ASub );
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::UpdateSubmatrix
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
@@ -404,16 +409,16 @@ void ElMatrixSetImagPartOfSubmatrix_z
    ------------------------------------------------------------------- */
 void ElMatrixUpdateSubmatrix_s
 ( ElMatrix_s A, const ElInt* rowInds, const ElInt* colInds, 
-  float alpha, const ElMatrix_s ASub );
+  float alpha, ElConstMatrix_s ASub );
 void ElMatrixUpdateSubmatrix_d
 ( ElMatrix_d A, const ElInt* rowInds, const ElInt* colInds, 
-  double alpha, const ElMatrix_d ASub );
+  double alpha, ElConstMatrix_d ASub );
 void ElMatrixUpdateSubmatrix_c
 ( ElMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
-  complex_float alpha, const ElMatrix_c ASub );
+  complex_float alpha, ElConstMatrix_c ASub );
 void ElMatrixUpdateSubmatrix_z
 ( ElMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
-  complex_double alpha, const ElMatrix_z ASub );
+  complex_double alpha, ElConstMatrix_z ASub );
 
 /* void Matrix<T>::UpdateRealPartOfSubmatrix
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
@@ -421,10 +426,10 @@ void ElMatrixUpdateSubmatrix_z
    ------------------------------------------------------------------- */
 void ElMatrixUpdateRealPartOfSubmatrix_c
 ( ElMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
-  complex_float alpha, const ElMatrix_s ASub );
+  complex_float alpha, ElConstMatrix_s ASub );
 void ElMatrixUpdateRealPartOfSubmatrix_z
 ( ElMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
-  complex_double alpha, const ElMatrix_d ASub );
+  complex_double alpha, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::UpdateImagPartOfSubmatrix
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
@@ -432,10 +437,10 @@ void ElMatrixUpdateRealPartOfSubmatrix_z
    ------------------------------------------------------------------- */
 void ElMatrixUpdateImagPartOfSubmatrix_c
 ( ElMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
-  complex_float alpha, const ElMatrix_s ASub );
+  complex_float alpha, ElConstMatrix_s ASub );
 void ElMatrixUpdateImagPartOfSubmatrix_z
 ( ElMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
-  complex_double alpha, const ElMatrix_d ASub );
+  complex_double alpha, ElConstMatrix_d ASub );
 
 /* void Matrix<T>::MakeSubmatrixReal
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds )

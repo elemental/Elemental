@@ -15,62 +15,63 @@
 extern "C" {
 #endif
 
-typedef struct ElGridDummy* ElGrid;
+typedef       struct ElGridDummy* ElGrid;
+typedef const struct ElGridDummy* ElConstGrid;
 
-const ElGrid ElDefaultGrid();
+ElConstGrid ElDefaultGrid();
 
 ElGrid ElGridCreate( MPI_Comm comm, ElGridOrderType order );
 ElGrid ElGridCreateSpecific
 ( MPI_Comm comm, int height, ElGridOrderType order );
-void ElGridDestroy( const ElGrid grid );
+void ElGridDestroy( ElConstGrid grid );
 
-int ElGridRow( const ElGrid grid );
-int ElGridCol( const ElGrid grid );
-int ElGridRank( const ElGrid grid );
-int ElGridHeight( const ElGrid grid );
-int ElGridWidth( const ElGrid grid );
-int ElGridSize( const ElGrid grid );
+int ElGridRow( ElConstGrid grid );
+int ElGridCol( ElConstGrid grid );
+int ElGridRank( ElConstGrid grid );
+int ElGridHeight( ElConstGrid grid );
+int ElGridWidth( ElConstGrid grid );
+int ElGridSize( ElConstGrid grid );
 
-ElGridOrderType ElGridOrder( const ElGrid grid );
-MPI_Comm ElGridColComm( const ElGrid grid );
-MPI_Comm ElGridRowComm( const ElGrid grid );
-MPI_Comm ElGridComm( const ElGrid grid );
+ElGridOrderType ElGridOrder( ElConstGrid grid );
+MPI_Comm ElGridColComm( ElConstGrid grid );
+MPI_Comm ElGridRowComm( ElConstGrid grid );
+MPI_Comm ElGridComm( ElConstGrid grid );
 
-int ElGridMCRank( const ElGrid grid );
-int ElGridMRRank( const ElGrid grid );
-int ElGridVCRank( const ElGrid grid );
-int ElGridVRRank( const ElGrid grid );
-int ElGridMCSize( const ElGrid grid );
-int ElGridMRSize( const ElGrid grid );
-int ElGridVCSize( const ElGrid grid );
-int ElGridVRSize( const ElGrid grid );
+int ElGridMCRank( ElConstGrid grid );
+int ElGridMRRank( ElConstGrid grid );
+int ElGridVCRank( ElConstGrid grid );
+int ElGridVRRank( ElConstGrid grid );
+int ElGridMCSize( ElConstGrid grid );
+int ElGridMRSize( ElConstGrid grid );
+int ElGridVCSize( ElConstGrid grid );
+int ElGridVRSize( ElConstGrid grid );
 
-MPI_Comm ElGridMCComm( const ElGrid grid );
-MPI_Comm ElGridMRComm( const ElGrid grid );
-MPI_Comm ElGridVCComm( const ElGrid grid );
-MPI_Comm ElGridVRComm( const ElGrid grid );
-MPI_Comm ElGridMDComm( const ElGrid grid );
-MPI_Comm ElGridMDPerpComm( const ElGrid grid );
+MPI_Comm ElGridMCComm( ElConstGrid grid );
+MPI_Comm ElGridMRComm( ElConstGrid grid );
+MPI_Comm ElGridVCComm( ElConstGrid grid );
+MPI_Comm ElGridVRComm( ElConstGrid grid );
+MPI_Comm ElGridMDComm( ElConstGrid grid );
+MPI_Comm ElGridMDPerpComm( ElConstGrid grid );
 
 ElGrid ElGridCreateAdvanced
 ( MPI_Comm comm, MPI_Group owners, int height, ElGridOrderType order );
 
-int  ElGridGCD( const ElGrid grid );
-int  ElGridLCM( const ElGrid grid );
-bool ElGridInGrid( const ElGrid grid );
-bool ElGridHaveViewers( const ElGrid grid );
+int  ElGridGCD( ElConstGrid grid );
+int  ElGridLCM( ElConstGrid grid );
+bool ElGridInGrid( ElConstGrid grid );
+bool ElGridHaveViewers( ElConstGrid grid );
 
-int ElGridOwningRank( const ElGrid grid );
-int ElGridViewingRank( const ElGrid grid );
-int ElGridVCToViewingMap( const ElGrid grid, int VCRank );
+int ElGridOwningRank( ElConstGrid grid );
+int ElGridViewingRank( ElConstGrid grid );
+int ElGridVCToViewingMap( ElConstGrid grid, int VCRank );
 
-MPI_Group ElGridOwningGroup( const ElGrid grid );
-MPI_Comm  ElGridOwningComm( const ElGrid grid );
-MPI_Comm  ElGridViewingComm( const ElGrid grid );
+MPI_Group ElGridOwningGroup( ElConstGrid grid );
+MPI_Comm  ElGridOwningComm( ElConstGrid grid );
+MPI_Comm  ElGridViewingComm( ElConstGrid grid );
 
-int ElGridDiagPath( const ElGrid grid, int VCRank );
-int ElGridDiagPathRank( const ElGrid grid, int VCRank );
-int ElGridFirstVCRank( const ElGrid grid, int diagPath );
+int ElGridDiagPath( ElConstGrid grid, int VCRank );
+int ElGridDiagPathRank( ElConstGrid grid, int VCRank );
+int ElGridFirstVCRank( ElConstGrid grid, int diagPath );
 
 int ElGridFindFactor( int p );
 
