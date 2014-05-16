@@ -170,14 +170,16 @@ void ElMatrixAttach_d
 }
 
 void ElMatrixAttach_c
-( ElMatrix_c* AHandle, ElInt height, ElInt width, void* buffer, ElInt ldim )
+( ElMatrix_c* AHandle, ElInt height, ElInt width, 
+  complex_float* buffer, ElInt ldim )
 {
     try { RCM_c(AHandle)->Attach(height,width,RCB_c(buffer),ldim); }
     CATCH
 }
 
 void ElMatrixAttach_z
-( ElMatrix_z* AHandle, ElInt height, ElInt width, void* buffer, ElInt ldim )
+( ElMatrix_z* AHandle, ElInt height, ElInt width, 
+  complex_double* buffer, ElInt ldim )
 {
     try { RCM_z(AHandle)->Attach(height,width,RCB_z(buffer),ldim); }
     CATCH
@@ -204,7 +206,7 @@ void ElMatrixLockedAttach_d
 
 void ElMatrixLockedAttach_c
 ( ElMatrix_c* AHandle, 
-  ElInt height, ElInt width, const void* buffer, ElInt ldim )
+  ElInt height, ElInt width, const complex_float* buffer, ElInt ldim )
 {
     try { RCM_c(AHandle)->LockedAttach(height,width,RCB_c_const(buffer),ldim); }
     CATCH
@@ -212,7 +214,7 @@ void ElMatrixLockedAttach_c
 
 void ElMatrixLockedAttach_z
 ( ElMatrix_z* AHandle, 
-  ElInt height, ElInt width, const void* buffer, ElInt ldim )
+  ElInt height, ElInt width, const complex_double* buffer, ElInt ldim )
 {
     try { RCM_z(AHandle)->LockedAttach(height,width,RCB_z_const(buffer),ldim); }
     CATCH
@@ -235,14 +237,16 @@ void ElMatrixControl_d
 }
 
 void ElMatrixControl_c
-( ElMatrix_c* AHandle, ElInt height, ElInt width, void* buffer, ElInt ldim )
+( ElMatrix_c* AHandle, ElInt height, ElInt width, 
+  complex_float* buffer, ElInt ldim )
 {
     try { RCM_c(AHandle)->Control(height,width,RCB_c(buffer),ldim); }
     CATCH
 }
 
 void ElMatrixControl_z
-( ElMatrix_z* AHandle, ElInt height, ElInt width, void* buffer, ElInt ldim )
+( ElMatrix_z* AHandle, ElInt height, ElInt width, 
+  complex_double* buffer, ElInt ldim )
 {
     try { RCM_z(AHandle)->Control(height,width,RCB_z(buffer),ldim); }
     CATCH
@@ -352,11 +356,11 @@ float* ElMatrixBuffer_s( ElMatrix_s* AHandle )
 double* ElMatrixBuffer_d( ElMatrix_d* AHandle )
 { return RCM_d(AHandle)->Buffer(); }
 
-void* ElMatrixBuffer_c( ElMatrix_c* AHandle )
-{ return RCM_c(AHandle)->Buffer(); }
+complex_float* ElMatrixBuffer_c( ElMatrix_c* AHandle )
+{ return (complex_float*)RCM_c(AHandle)->Buffer(); }
 
-void* ElMatrixBuffer_z( ElMatrix_z* AHandle )
-{ return RCM_z(AHandle)->Buffer(); }
+complex_double* ElMatrixBuffer_z( ElMatrix_z* AHandle )
+{ return (complex_double*)RCM_z(AHandle)->Buffer(); }
 
 // const T* Matrix<T>::LockedBuffer() const
 // ----------------------------------------
@@ -366,11 +370,11 @@ const float* ElMatrixLockedBuffer_s( const ElMatrix_s* AHandle )
 const double* ElMatrixLockedBuffer_d( const ElMatrix_d* AHandle )
 { return RCM_d_const(AHandle)->LockedBuffer(); }
 
-const void* ElMatrixLockedBuffer_c( const ElMatrix_c* AHandle )
-{ return RCM_c_const(AHandle)->LockedBuffer(); }
+const complex_float* ElMatrixLockedBuffer_c( const ElMatrix_c* AHandle )
+{ return (const complex_float*)RCM_c_const(AHandle)->LockedBuffer(); }
 
-const void* ElMatrixLockedBuffer_z( const ElMatrix_z* AHandle )
-{ return RCM_z_const(AHandle)->LockedBuffer(); }
+const complex_double* ElMatrixLockedBuffer_z( const ElMatrix_z* AHandle )
+{ return (const complex_double*)RCM_z_const(AHandle)->LockedBuffer(); }
 
 // bool Matrix<T>::Viewing() const
 // -------------------------------
@@ -432,16 +436,30 @@ double ElMatrixGet_d( const ElMatrix_d* AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-void ElMatrixGet_c( const ElMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+complex_float ElMatrixGet_c( const ElMatrix_c* AHandle, ElInt i, ElInt j )
 {
-    try { *RCB_c(alpha) = RCM_c_const(AHandle)->Get(i,j); }
+    complex_float alpha;
+    try 
+    { 
+        Complex<float> alphaC = RCM_c_const(AHandle)->Get(i,j); 
+        alpha.real = alphaC.real();
+        alpha.imag = alphaC.imag();
+    }
     CATCH
+    return alpha;
 }
 
-void ElMatrixGet_z( const ElMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+complex_double ElMatrixGet_z( const ElMatrix_z* AHandle, ElInt i, ElInt j )
 {
-    try { *RCB_z(alpha) = RCM_z_const(AHandle)->Get(i,j); }
+    complex_double alpha;
+    try 
+    { 
+        Complex<double> alphaC = RCM_z_const(AHandle)->Get(i,j); 
+        alpha.real = alphaC.real();
+        alpha.imag = alphaC.imag();
+    }
     CATCH
+    return alpha;
 }
 
 // Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
@@ -494,15 +512,17 @@ void ElMatrixSet_d( ElMatrix_d* AHandle, ElInt i, ElInt j, double alpha )
     CATCH
 }
 
-void ElMatrixSet_c( ElMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+void ElMatrixSet_c
+( ElMatrix_c* AHandle, ElInt i, ElInt j, complex_float alpha )
 {
-    try { RCM_c(AHandle)->Set(i,j,*RCB_c(alpha)); }
+    try { RCM_c(AHandle)->Set(i,j,Complex<float>(alpha.real,alpha.imag)); }
     CATCH
 }
 
-void ElMatrixSet_z( ElMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+void ElMatrixSet_z
+( ElMatrix_z* AHandle, ElInt i, ElInt j, complex_double alpha )
 {
-    try { RCM_z(AHandle)->Set(i,j,*RCB_z(alpha)); }
+    try { RCM_z(AHandle)->Set(i,j,Complex<double>(alpha.real,alpha.imag)); }
     CATCH
 }
 
@@ -552,15 +572,17 @@ void ElMatrixUpdate_d( ElMatrix_d* AHandle, ElInt i, ElInt j, double alpha )
     CATCH
 }
 
-void ElMatrixUpdate_c( ElMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+void ElMatrixUpdate_c
+( ElMatrix_c* AHandle, ElInt i, ElInt j, complex_float alpha )
 {
-    try { RCM_c(AHandle)->Update(i,j,*RCB_c(alpha)); }
+    try { RCM_c(AHandle)->Update(i,j,Complex<float>(alpha.real,alpha.imag)); }
     CATCH
 }
 
-void ElMatrixUpdate_z( ElMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+void ElMatrixUpdate_z
+( ElMatrix_z* AHandle, ElInt i, ElInt j, complex_double alpha )
 {
-    try { RCM_z(AHandle)->Update(i,j,*RCB_z(alpha)); }
+    try { RCM_z(AHandle)->Update(i,j,Complex<double>(alpha.real,alpha.imag)); }
     CATCH
 }
 

@@ -31,19 +31,19 @@ main( int argc, char* argv[] )
         return 0;
     }
 
-    const ElGrid* grid = ElGridCreate( MPI_COMM_WORLD, EL_COLUMN_MAJOR );
-    ElDistMatrix_d* A = ElDistMatrixCreateSpecific_d( EL_MR, EL_MC, grid );
-    ElDistMatrixResize_d( A, m, n );
+    const ElGrid grid = ElGridCreate( MPI_COMM_WORLD, EL_COLUMN_MAJOR );
+    ElDistMatrix_z* A = ElDistMatrixCreateSpecific_z( EL_MR, EL_MC, grid );
+    ElDistMatrixResize_z( A, m, n );
     
     ElInt i, j;
     for( j=0; j<n; ++j )
         for( i=0; i<m; ++i )
-            ElDistMatrixSet_d( A, i, j, i+j );
+            ElDistMatrixSet_z( A, i, j, i+j );
 
     if( print )
-        ElPrintDistMatrix_d( A, "A" );
+        ElPrintDistMatrix_z( A, "A" );
     if( display )
-        ElDisplayDistMatrix_d( A, "A" );
+        ElDisplayDistMatrix_z( A, "A" );
 
     /* Extract an mSub x nSub submatrix */
     ElInt* rowInds = malloc(mSub*sizeof(ElInt));
@@ -52,12 +52,12 @@ main( int argc, char* argv[] )
         rowInds[i] = rand() % m;
     for( j=0; j<nSub; ++j )
         colInds[j] = rand() % n;
-    ElDistMatrix_d* ASub = 
-        ElDistMatrixGetSubmatrix_d( A, mSub, rowInds, nSub, colInds );
+    ElDistMatrix_z* ASub = 
+        ElDistMatrixGetSubmatrix_z( A, mSub, rowInds, nSub, colInds );
     if( print )
-        ElPrintDistMatrix_d( ASub, "ASub" );
+        ElPrintDistMatrix_z( ASub, "ASub" );
     if( display )
-        ElDisplayDistMatrix_d( ASub, "ASub" );
+        ElDisplayDistMatrix_z( ASub, "ASub" );
 
     ElFinalize();
     return 0;

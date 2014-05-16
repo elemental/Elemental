@@ -23,21 +23,21 @@ struct ElDistMatrix_z; typedef struct ElDistMatrix_z ElDistMatrix_z;
 
 // DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
 // ------------------------------------------------
-ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid* g );
-ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid* g );
-ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid* g );
-ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* g );
+ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid g );
+ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid g );
+ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid g );
+ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid g );
 
 // DistMatrix<T,U,V>::DistMatrix( const Grid& g )
 // ----------------------------------------------
 ElDistMatrix_s* ElDistMatrixCreateSpecific_s
-( ElDist U, ElDist V, const ElGrid* g );
+( ElDist U, ElDist V, const ElGrid g );
 ElDistMatrix_d* ElDistMatrixCreateSpecific_d
-( ElDist U, ElDist V, const ElGrid* g );
+( ElDist U, ElDist V, const ElGrid g );
 ElDistMatrix_c* ElDistMatrixCreateSpecific_c
-( ElDist U, ElDist V, const ElGrid* g );
+( ElDist U, ElDist V, const ElGrid g );
 ElDistMatrix_z* ElDistMatrixCreateSpecific_z
-( ElDist U, ElDist V, const ElGrid* g );
+( ElDist U, ElDist V, const ElGrid g );
 
 // DistMatrix<T,U,V>::~DistMatrix()
 // --------------------------------
@@ -62,10 +62,10 @@ void ElDistMatrixEmptyData_z( ElDistMatrix_z* A );
 
 // void DistMatrix<T,U,V>::SetGrid( const Grid& g )
 // ------------------------------------------------
-void ElDistMatrixSetGrid_s( ElDistMatrix_s* AHandle, const ElGrid* gridHandle );
-void ElDistMatrixSetGrid_d( ElDistMatrix_d* AHandle, const ElGrid* gridHandle );
-void ElDistMatrixSetGrid_c( ElDistMatrix_c* AHandle, const ElGrid* gridHandle );
-void ElDistMatrixSetGrid_z( ElDistMatrix_z* AHandle, const ElGrid* gridHandle );
+void ElDistMatrixSetGrid_s( ElDistMatrix_s* AHandle, const ElGrid gridHandle );
+void ElDistMatrixSetGrid_d( ElDistMatrix_d* AHandle, const ElGrid gridHandle );
+void ElDistMatrixSetGrid_c( ElDistMatrix_c* AHandle, const ElGrid gridHandle );
+void ElDistMatrixSetGrid_z( ElDistMatrix_z* AHandle, const ElGrid gridHandle );
 
 // B = A
 // -----
@@ -174,37 +174,41 @@ void ElDistMatrixSetRoot_z( ElDistMatrix_z* AHandle, ElInt root );
 //   T* buffer, Int ldim, Int root )
 // ----------------------------------------------------------------------
 void ElDistMatrixAttach_s
-( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, ElInt root );
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, 
+  ElInt root );
 void ElDistMatrixAttach_d
-( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, ElInt root );
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, 
+  ElInt root );
 void ElDistMatrixAttach_c
-( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root );
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, complex_float* buffer, ElInt ldim, 
+  ElInt root );
 void ElDistMatrixAttach_z
-( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root );
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, complex_double* buffer, ElInt ldim, 
+  ElInt root );
 
 // void DistMatrix<T,U,V>::LockedAttach
 // ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
 //   const T* buffer, Int ldim, Int root )
 // ----------------------------------------------------------------------
 void ElDistMatrixLockedAttach_s
-( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const float* buffer, 
   ElInt ldim, ElInt root );
 void ElDistMatrixLockedAttach_d
-( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const double* buffer, 
   ElInt ldim, ElInt root );
 void ElDistMatrixLockedAttach_c
-( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, const complex_float* buffer, 
   ElInt ldim, ElInt root );
 void ElDistMatrixLockedAttach_z
-( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, const complex_double* buffer, 
   ElInt ldim, ElInt root );
 
 // Int DistMatrix<T,U,V>::Height() const
@@ -290,35 +294,39 @@ size_t ElDistMatrixAllocatedMemory_z( const ElDistMatrix_z* AHandle );
 
 // T* DistMatrix<T,U,V>::Buffer()
 // ------------------------------
-float*  ElDistMatrixBuffer_s( ElDistMatrix_s* AHandle );
-double* ElDistMatrixBuffer_d( ElDistMatrix_d* AHandle );
-void*   ElDistMatrixBuffer_c( ElDistMatrix_c* AHandle );
-void*   ElDistMatrixBuffer_z( ElDistMatrix_z* AHandle );
+float*          ElDistMatrixBuffer_s( ElDistMatrix_s* AHandle );
+double*         ElDistMatrixBuffer_d( ElDistMatrix_d* AHandle );
+complex_float*  ElDistMatrixBuffer_c( ElDistMatrix_c* AHandle );
+complex_double* ElDistMatrixBuffer_z( ElDistMatrix_z* AHandle );
 
 // const T* DistMatrix<T,U,V>::LockedBuffer() const
 // ------------------------------------------------
-const float*  ElDistMatrixLockedBuffer_s( const ElDistMatrix_s* AHandle );
-const double* ElDistMatrixLockedBuffer_d( const ElDistMatrix_d* AHandle );
-const void*   ElDistMatrixLockedBuffer_c( const ElDistMatrix_c* AHandle );
-const void*   ElDistMatrixLockedBuffer_z( const ElDistMatrix_z* AHandle );
+const float*          
+ElDistMatrixLockedBuffer_s( const ElDistMatrix_s* AHandle );
+const double*         
+ElDistMatrixLockedBuffer_d( const ElDistMatrix_d* AHandle );
+const complex_float*  
+ElDistMatrixLockedBuffer_c( const ElDistMatrix_c* AHandle );
+const complex_double* 
+ElDistMatrixLockedBuffer_z( const ElDistMatrix_z* AHandle );
 
 // const Grid& DistMatrix<T,U,V>::Grid() const
 // -------------------------------------------
-const ElGrid* ElDistMatrixGrid_s( const ElDistMatrix_s* AHandle );
-const ElGrid* ElDistMatrixGrid_d( const ElDistMatrix_d* AHandle );
-const ElGrid* ElDistMatrixGrid_c( const ElDistMatrix_c* AHandle );
-const ElGrid* ElDistMatrixGrid_z( const ElDistMatrix_z* AHandle );
+const ElGrid ElDistMatrixGrid_s( const ElDistMatrix_s* AHandle );
+const ElGrid ElDistMatrixGrid_d( const ElDistMatrix_d* AHandle );
+const ElGrid ElDistMatrixGrid_c( const ElDistMatrix_c* AHandle );
+const ElGrid ElDistMatrixGrid_z( const ElDistMatrix_z* AHandle );
 
 // T DistMatrix<T,U,V>::Get( Int i, Int j ) const
 // ----------------------------------------------
-float  ElDistMatrixGet_s
+float ElDistMatrixGet_s
 ( const ElDistMatrix_s* A, ElInt i, ElInt j );
 double ElDistMatrixGet_d
 ( const ElDistMatrix_d* A, ElInt i, ElInt j );
-void   ElDistMatrixGet_c
-( const ElDistMatrix_c* A, ElInt i, ElInt j, void* alpha );
-void   ElDistMatrixGet_z
-( const ElDistMatrix_z* A, ElInt i, ElInt j, void* alpha );
+complex_float ElDistMatrixGet_c
+( const ElDistMatrix_c* A, ElInt i, ElInt j );
+complex_double ElDistMatrixGet_z
+( const ElDistMatrix_z* A, ElInt i, ElInt j );
 
 // Base<T> DistMatrix<T,U,V>::GetRealPart( Int i, Int j ) const
 // ------------------------------------------------------------
@@ -332,10 +340,14 @@ double ElDistMatrixGetImagPart_z( const ElDistMatrix_z* A, ElInt i, ElInt j );
 
 // void DistMatrix<T,U,V>::Set( Int i, Int j, T alpha )
 // ----------------------------------------------------
-void ElDistMatrixSet_s( ElDistMatrix_s* A, ElInt i, ElInt j, float alpha );
-void ElDistMatrixSet_d( ElDistMatrix_d* A, ElInt i, ElInt j, double alpha );
-void ElDistMatrixSet_c( ElDistMatrix_c* A, ElInt i, ElInt j, void* alpha );
-void ElDistMatrixSet_z( ElDistMatrix_z* A, ElInt i, ElInt j, void* alpha );
+void ElDistMatrixSet_s
+( ElDistMatrix_s* A, ElInt i, ElInt j, float alpha );
+void ElDistMatrixSet_d
+( ElDistMatrix_d* A, ElInt i, ElInt j, double alpha );
+void ElDistMatrixSet_c
+( ElDistMatrix_c* A, ElInt i, ElInt j, complex_float alpha );
+void ElDistMatrixSet_z
+( ElDistMatrix_z* A, ElInt i, ElInt j, complex_double alpha );
 
 // void DistMatrix<T,U,V>::SetRealPart( Int i, Int j, Base<T> alpha )
 // ------------------------------------------------------------------
@@ -353,10 +365,14 @@ void ElDistMatrixSetImagPart_z
 
 // void DistMatrix<T,U,V>::Update( Int i, Int j, T alpha )
 // -------------------------------------------------------
-void ElDistMatrixUpdate_s( ElDistMatrix_s* A, ElInt i, ElInt j, float alpha );
-void ElDistMatrixUpdate_d( ElDistMatrix_d* A, ElInt i, ElInt j, double alpha );
-void ElDistMatrixUpdate_c( ElDistMatrix_c* A, ElInt i, ElInt j, void* alpha );
-void ElDistMatrixUpdate_z( ElDistMatrix_z* A, ElInt i, ElInt j, void* alpha );
+void ElDistMatrixUpdate_s
+( ElDistMatrix_s* A, ElInt i, ElInt j, float alpha );
+void ElDistMatrixUpdate_d
+( ElDistMatrix_d* A, ElInt i, ElInt j, double alpha );
+void ElDistMatrixUpdate_c
+( ElDistMatrix_c* A, ElInt i, ElInt j, complex_float alpha );
+void ElDistMatrixUpdate_z
+( ElDistMatrix_z* A, ElInt i, ElInt j, complex_double alpha );
 
 // void DistMatrix<T,U,V>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 // ---------------------------------------------------------------------

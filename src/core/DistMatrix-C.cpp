@@ -1,6 +1,8 @@
 /*
    Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
+   Copyright (c) 2014, Jed Brown
+   All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
@@ -39,7 +41,7 @@ extern "C" {
 
 // DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
 // ------------------------------------------------
-ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid* gridHandle )
+ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid gridHandle )
 {
     ElDistMatrix_s* AHandle = 0;
     try 
@@ -51,7 +53,7 @@ ElDistMatrix_s* ElDistMatrixCreate_s( const ElGrid* gridHandle )
     return AHandle;
 }
 
-ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid* gridHandle )
+ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid gridHandle )
 {
     ElDistMatrix_d* AHandle = 0;
     try 
@@ -63,7 +65,7 @@ ElDistMatrix_d* ElDistMatrixCreate_d( const ElGrid* gridHandle )
     return AHandle;
 }
 
-ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid* gridHandle )
+ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid gridHandle )
 {
     ElDistMatrix_c* AHandle = 0;
     try 
@@ -75,7 +77,7 @@ ElDistMatrix_c* ElDistMatrixCreate_c( const ElGrid* gridHandle )
     return AHandle;
 }
 
-ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* gridHandle )
+ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid gridHandle )
 {
     ElDistMatrix_z* AHandle = 0;
     try 
@@ -90,7 +92,7 @@ ElDistMatrix_z* ElDistMatrixCreate_z( const ElGrid* gridHandle )
 // DistMatrix<T,U,V>::DistMatrix( const Grid& g )
 // ----------------------------------------------
 ElDistMatrix_s* ElDistMatrixCreateSpecific_s
-( ElDist U_C, ElDist V_C, const ElGrid* gridHandle )
+( ElDist U_C, ElDist V_C, const ElGrid gridHandle )
 {
     ElDistMatrix_s* AHandle = 0;
     try 
@@ -138,7 +140,7 @@ ElDistMatrix_s* ElDistMatrixCreateSpecific_s
 }
 
 ElDistMatrix_d* ElDistMatrixCreateSpecific_d
-( ElDist U_C, ElDist V_C, const ElGrid* gridHandle )
+( ElDist U_C, ElDist V_C, const ElGrid gridHandle )
 {
     ElDistMatrix_d* AHandle = 0;
     try 
@@ -186,7 +188,7 @@ ElDistMatrix_d* ElDistMatrixCreateSpecific_d
 }
 
 ElDistMatrix_c* ElDistMatrixCreateSpecific_c
-( ElDist U_C, ElDist V_C, const ElGrid* gridHandle )
+( ElDist U_C, ElDist V_C, const ElGrid gridHandle )
 {
     ElDistMatrix_c* AHandle = 0;
     try 
@@ -234,7 +236,7 @@ ElDistMatrix_c* ElDistMatrixCreateSpecific_c
 }
 
 ElDistMatrix_z* ElDistMatrixCreateSpecific_z
-( ElDist U_C, ElDist V_C, const ElGrid* gridHandle )
+( ElDist U_C, ElDist V_C, const ElGrid gridHandle )
 {
     ElDistMatrix_z* AHandle = 0;
     try 
@@ -349,25 +351,25 @@ void ElDistMatrixEmptyData_z( ElDistMatrix_z* AHandle )
 
 // void DistMatrix<T,U,V>::SetGrid( const Grid& g )
 // ------------------------------------------------
-void ElDistMatrixSetGrid_s( ElDistMatrix_s* AHandle, const ElGrid* gridHandle )
+void ElDistMatrixSetGrid_s( ElDistMatrix_s* AHandle, const ElGrid gridHandle )
 {
     try { RCADM_s(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
 }
 
-void ElDistMatrixSetGrid_d( ElDistMatrix_d* AHandle, const ElGrid* gridHandle )
+void ElDistMatrixSetGrid_d( ElDistMatrix_d* AHandle, const ElGrid gridHandle )
 {
     try { RCADM_d(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
 }
 
-void ElDistMatrixSetGrid_c( ElDistMatrix_c* AHandle, const ElGrid* gridHandle )
+void ElDistMatrixSetGrid_c( ElDistMatrix_c* AHandle, const ElGrid gridHandle )
 {
     try { RCADM_c(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
 }
 
-void ElDistMatrixSetGrid_z( ElDistMatrix_z* AHandle, const ElGrid* gridHandle )
+void ElDistMatrixSetGrid_z( ElDistMatrix_z* AHandle, const ElGrid gridHandle )
 {
     try { RCADM_z(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
@@ -658,7 +660,7 @@ void ElDistMatrixSetRoot_z( ElDistMatrix_z* AHandle, ElInt root )
 //   T* buffer, Int ldim, Int root )
 // ----------------------------------------------------------------------
 void ElDistMatrixAttach_s
-( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, ElInt root )
 {
     try { RCADM_s(AHandle)->Attach
@@ -668,7 +670,7 @@ void ElDistMatrixAttach_s
 }
 
 void ElDistMatrixAttach_d
-( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, ElInt root )
 {
     try { RCADM_d(AHandle)->Attach
@@ -678,8 +680,9 @@ void ElDistMatrixAttach_d
 }
 
 void ElDistMatrixAttach_c
-( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root )
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, complex_float* buffer, ElInt ldim, 
+  ElInt root )
 {
     try { RCADM_c(AHandle)->Attach
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,RCB_c(buffer),
@@ -688,8 +691,9 @@ void ElDistMatrixAttach_c
 }
 
 void ElDistMatrixAttach_z
-( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, void* buffer, ElInt ldim, ElInt root )
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, complex_double* buffer, ElInt ldim, 
+  ElInt root )
 {
     try { RCADM_z(AHandle)->Attach
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,RCB_z(buffer),
@@ -702,7 +706,7 @@ void ElDistMatrixAttach_z
 //   const T* buffer, Int ldim, Int root )
 // ----------------------------------------------------------------------
 void ElDistMatrixLockedAttach_s
-( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+( ElDistMatrix_s* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const float* buffer, 
   ElInt ldim, ElInt root )
 {
@@ -713,7 +717,7 @@ void ElDistMatrixLockedAttach_s
 }
 
 void ElDistMatrixLockedAttach_d
-( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
+( ElDistMatrix_d* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const double* buffer, 
   ElInt ldim, ElInt root )
 {
@@ -724,8 +728,8 @@ void ElDistMatrixLockedAttach_d
 }
 
 void ElDistMatrixLockedAttach_c
-( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+( ElDistMatrix_c* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, const complex_float* buffer, 
   ElInt ldim, ElInt root )
 {
     try { RCADM_c(AHandle)->LockedAttach
@@ -735,8 +739,8 @@ void ElDistMatrixLockedAttach_c
 }
 
 void ElDistMatrixLockedAttach_z
-( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid* gridHandle,
-  ElInt colAlign, ElInt rowAlign, const void* buffer, 
+( ElDistMatrix_z* AHandle, ElInt height, ElInt width, const ElGrid gridHandle,
+  ElInt colAlign, ElInt rowAlign, const complex_double* buffer, 
   ElInt ldim, ElInt root )
 {
     try { RCADM_z(AHandle)->LockedAttach
@@ -959,39 +963,47 @@ float* ElDistMatrixBuffer_s( ElDistMatrix_s* AHandle )
 double* ElDistMatrixBuffer_d( ElDistMatrix_d* AHandle )
 { return RCADM_d(AHandle)->Buffer(); }
 
-void* ElDistMatrixBuffer_c( ElDistMatrix_c* AHandle )
-{ return RCADM_c(AHandle)->Buffer(); }
+complex_float* ElDistMatrixBuffer_c( ElDistMatrix_c* AHandle )
+{ return (complex_float*)RCADM_c(AHandle)->Buffer(); }
 
-void* ElDistMatrixBuffer_z( ElDistMatrix_z* AHandle )
-{ return RCADM_z(AHandle)->Buffer(); }
+complex_double* ElDistMatrixBuffer_z( ElDistMatrix_z* AHandle )
+{ return (complex_double*)RCADM_z(AHandle)->Buffer(); }
 
 // const T* DistMatrix<T,U,V>::LockedBuffer() const
 // ------------------------------------------------
-const float* ElDistMatrixLockedBuffer_s( const ElDistMatrix_s* AHandle )
+const float* 
+ElDistMatrixLockedBuffer_s( const ElDistMatrix_s* AHandle )
 { return RCADM_s_const(AHandle)->LockedBuffer(); }
 
-const double* ElDistMatrixLockedBuffer_d( const ElDistMatrix_d* AHandle )
+const double* 
+ElDistMatrixLockedBuffer_d( const ElDistMatrix_d* AHandle )
 { return RCADM_d_const(AHandle)->LockedBuffer(); }
 
-const void* ElDistMatrixLockedBuffer_c( const ElDistMatrix_c* AHandle )
-{ return RCADM_c_const(AHandle)->LockedBuffer(); }
+const complex_float* 
+ElDistMatrixLockedBuffer_c( const ElDistMatrix_c* AHandle )
+{ return (const complex_float*)RCADM_c_const(AHandle)->LockedBuffer(); }
 
-const void* ElDistMatrixLockedBuffer_z( const ElDistMatrix_z* AHandle )
-{ return RCADM_z_const(AHandle)->LockedBuffer(); }
+const complex_double* 
+ElDistMatrixLockedBuffer_z( const ElDistMatrix_z* AHandle )
+{ return (const complex_double*)RCADM_z_const(AHandle)->LockedBuffer(); }
 
 // const Grid& DistMatrix<T,U,V>::Grid() const
 // -------------------------------------------
-const ElGrid* ElDistMatrixGrid_s( const ElDistMatrix_s* AHandle )
-{ return reinterpret_cast<const ElGrid*>(&RCADM_s_const(AHandle)->Grid()); }
+const ElGrid ElDistMatrixGrid_s( const ElDistMatrix_s* AHandle )
+{ return (const ElGrid)reinterpret_cast<const struct ElGridDummy*>
+         (&RCADM_s_const(AHandle)->Grid()); }
 
-const ElGrid* ElDistMatrixGrid_d( const ElDistMatrix_d* AHandle )
-{ return reinterpret_cast<const ElGrid*>(&RCADM_d_const(AHandle)->Grid()); }
+const ElGrid ElDistMatrixGrid_d( const ElDistMatrix_d* AHandle )
+{ return (const ElGrid)reinterpret_cast<const struct ElGridDummy*>
+         (&RCADM_d_const(AHandle)->Grid()); }
 
-const ElGrid* ElDistMatrixGrid_c( const ElDistMatrix_c* AHandle )
-{ return reinterpret_cast<const ElGrid*>(&RCADM_c_const(AHandle)->Grid()); }
+const ElGrid ElDistMatrixGrid_c( const ElDistMatrix_c* AHandle )
+{ return (const ElGrid)reinterpret_cast<const struct ElGridDummy*>
+         (&RCADM_c_const(AHandle)->Grid()); }
 
-const ElGrid* ElDistMatrixGrid_z( const ElDistMatrix_z* AHandle )
-{ return reinterpret_cast<const ElGrid*>(&RCADM_z_const(AHandle)->Grid()); }
+const ElGrid ElDistMatrixGrid_z( const ElDistMatrix_z* AHandle )
+{ return (const ElGrid)reinterpret_cast<const struct ElGridDummy*>
+         (&RCADM_z_const(AHandle)->Grid()); }
 
 // void DistMatrix<T,U,V>::Get( Int i, Int j ) const
 // -------------------------------------------------
@@ -1011,18 +1023,32 @@ double ElDistMatrixGet_d( const ElDistMatrix_d* AHandle, ElInt i, ElInt j )
     return alpha;
 }
 
-void ElDistMatrixGet_c
-( const ElDistMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+complex_float ElDistMatrixGet_c
+( const ElDistMatrix_c* AHandle, ElInt i, ElInt j )
 {
-    try { *RCB_c(alpha) = RCADM_c_const(AHandle)->Get(i,j); }
+    complex_float alpha;
+    try 
+    { 
+        Complex<float> alphaC = RCADM_c_const(AHandle)->Get(i,j);
+        alpha.real = alphaC.real();
+        alpha.imag = alphaC.imag();
+    }
     CATCH
+    return alpha;
 }
 
-void ElDistMatrixGet_z
-( const ElDistMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+complex_double ElDistMatrixGet_z
+( const ElDistMatrix_z* AHandle, ElInt i, ElInt j )
 {
-    try { *RCB_z(alpha) = RCADM_z_const(AHandle)->Get(i,j); }
+    complex_double alpha;
+    try 
+    { 
+        Complex<double> alphaC = RCADM_z_const(AHandle)->Get(i,j); 
+        alpha.real = alphaC.real();
+        alpha.imag = alphaC.imag();
+    }
     CATCH
+    return alpha;
 }
 
 // void DistMatrix<T,U,V>::GetRealPart( Int i, Int j ) const
@@ -1080,15 +1106,17 @@ void ElDistMatrixSet_d
     CATCH
 }
 
-void ElDistMatrixSet_c( ElDistMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+void ElDistMatrixSet_c
+( ElDistMatrix_c* AHandle, ElInt i, ElInt j, complex_float alpha )
 {
-    try { RCADM_c(AHandle)->Set(i,j,*RCB_c(alpha)); }
+    try { RCADM_c(AHandle)->Set(i,j,Complex<float>(alpha.real,alpha.imag)); }
     CATCH
 }
 
-void ElDistMatrixSet_z( ElDistMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+void ElDistMatrixSet_z
+( ElDistMatrix_z* AHandle, ElInt i, ElInt j, complex_double alpha )
 {
-    try { RCADM_z(AHandle)->Set(i,j,*RCB_z(alpha)); }
+    try { RCADM_z(AHandle)->Set(i,j,Complex<double>(alpha.real,alpha.imag)); }
     CATCH
 }
 
@@ -1141,16 +1169,18 @@ void ElDistMatrixUpdate_d
 }
 
 void ElDistMatrixUpdate_c
-( ElDistMatrix_c* AHandle, ElInt i, ElInt j, void* alpha )
+( ElDistMatrix_c* AHandle, ElInt i, ElInt j, complex_float alpha )
 {
-    try { RCADM_c(AHandle)->Update(i,j,*RCB_c(alpha)); }
+    try { RCADM_c(AHandle)->Update
+          (i,j,Complex<float>(alpha.real,alpha.imag)); }
     CATCH
 }
 
 void ElDistMatrixUpdate_z
-( ElDistMatrix_z* AHandle, ElInt i, ElInt j, void* alpha )
+( ElDistMatrix_z* AHandle, ElInt i, ElInt j, complex_double alpha )
 {
-    try { RCADM_z(AHandle)->Update(i,j,*RCB_z(alpha)); }
+    try { RCADM_z(AHandle)->Update
+          (i,j,Complex<double>(alpha.real,alpha.imag)); }
     CATCH
 }
 
@@ -1694,7 +1724,7 @@ ElDistMatrix_s* ElDistMatrixGetSubmatrix_s
     ElDistMatrix_s* ASubHandle = 0;
     try
     {
-        const ElGrid* gridHandle = ElDistMatrixGrid_s( AHandle );
+        const ElGrid gridHandle = ElDistMatrixGrid_s( AHandle );
         ASubHandle = ElDistMatrixCreateSpecific_s
                      ( EL_STAR, EL_STAR, gridHandle );
 
@@ -1716,7 +1746,7 @@ ElDistMatrix_d* ElDistMatrixGetSubmatrix_d
     ElDistMatrix_d* ASubHandle = 0;
     try
     {
-        const ElGrid* gridHandle = ElDistMatrixGrid_d( AHandle );
+        const ElGrid gridHandle = ElDistMatrixGrid_d( AHandle );
         ASubHandle = ElDistMatrixCreateSpecific_d
                      ( EL_STAR, EL_STAR, gridHandle );
 
@@ -1738,7 +1768,7 @@ ElDistMatrix_c* ElDistMatrixGetSubmatrix_c
     ElDistMatrix_c* ASubHandle = 0;
     try
     {
-        const ElGrid* gridHandle = ElDistMatrixGrid_c( AHandle );
+        const ElGrid gridHandle = ElDistMatrixGrid_c( AHandle );
         ASubHandle = ElDistMatrixCreateSpecific_c
                      ( EL_STAR, EL_STAR, gridHandle );
 
@@ -1761,7 +1791,7 @@ ElDistMatrix_z* ElDistMatrixGetSubmatrix_z
     ElDistMatrix_z* ASubHandle = 0;
     try
     {
-        const ElGrid* gridHandle = ElDistMatrixGrid_z( AHandle );
+        const ElGrid gridHandle = ElDistMatrixGrid_z( AHandle );
         ASubHandle = ElDistMatrixCreateSpecific_z
                      ( EL_STAR, EL_STAR, gridHandle );
 
