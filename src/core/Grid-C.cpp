@@ -13,263 +13,371 @@ using namespace El;
 #define RCG(gridHandle) reinterpret_cast<Grid*>(gridHandle)
 #define RCG_const(gridHandle) reinterpret_cast<const Grid*>(gridHandle)
 
-#define CATCH catch( std::exception& e ) { ReportException(e); }
+#define CATCH \
+  catch( std::bad_alloc& e ) \
+  { ReportException(e); return EL_ALLOC_ERROR; } \
+  catch( ArgException& e ) \
+  { ReportException(e); return EL_ARG_ERROR; } \
+  catch( std::logic_error& e ) \
+  { ReportException(e); return EL_LOGIC_ERROR; } \
+  catch( std::runtime_error& e ) \
+  { ReportException(e); return EL_RUNTIME_ERROR; } \
+  catch( std::exception& e ) \
+  { ReportException(e); return EL_ERROR; }
 
 extern "C" {
 
-ElConstGrid ElDefaultGrid()
-{ return (ElConstGrid)
-         reinterpret_cast<const struct ElGridDummy*>(&DefaultGrid()); }
+ElError ElDefaultGrid
+( ElConstGrid* gridHandle )
+{ 
+    *gridHandle = (ElConstGrid)
+      reinterpret_cast<const struct ElGridDummy*>(&DefaultGrid()); 
+    return EL_SUCCESS;
+}
 
 // Grid::Grid( MPI_Comm comm, GridOrder order )
 // --------------------------------------------
-ElGrid ElGridCreate( MPI_Comm comm, ElGridOrderType orderC )
+ElError ElGridCreate
+( MPI_Comm comm, ElGridOrderType orderC, ElGrid* gridHandle )
 {
-    ElGrid gridHandle = 0;
     GridOrder order = static_cast<GridOrder>(orderC);
-    try { gridHandle = reinterpret_cast<ElGrid>(new Grid(comm,order)); }
+    try { *gridHandle = reinterpret_cast<ElGrid>(new Grid(comm,order)); }
     CATCH
-    return gridHandle;
+    return EL_SUCCESS;
 }
 
 // Grid::Grid( MPI_Comm comm, int height, GridOrder order )
 // --------------------------------------------------------
-ElGrid ElGridCreateSpecific
-( MPI_Comm comm, int height, ElGridOrderType orderC )
+ElError ElGridCreateSpecific
+( MPI_Comm comm, int height, ElGridOrderType orderC, ElGrid* gridHandle )
 {
-    ElGrid gridHandle = 0;
     GridOrder order = static_cast<GridOrder>(orderC);
-    try { gridHandle = reinterpret_cast<ElGrid>(new Grid(comm,height,order)); }
+    try { *gridHandle = reinterpret_cast<ElGrid>(new Grid(comm,height,order)); }
     CATCH
-    return gridHandle;
+    return EL_SUCCESS;
 }
 
 // Grid::~Grid()
 // -------------
-void ElGridDestroy( ElConstGrid gridHandle )
-{ delete RCG_const(gridHandle); }
+ElError ElGridDestroy( ElConstGrid gridHandle )
+{ 
+    delete RCG_const(gridHandle); 
+    return EL_SUCCESS;
+}
 
 // int Grid::Row() const
 // ---------------------
-int ElGridRow( ElConstGrid gridHandle )
-{ return ElGridMCRank(gridHandle); }
+ElError ElGridRow( ElConstGrid gridHandle, int* row )
+{ return ElGridMCRank(gridHandle,row); }
 
 // int Grid::Col() const
 // ---------------------
-int ElGridCol( ElConstGrid gridHandle )
-{ return ElGridMRRank(gridHandle); }
+ElError ElGridCol( ElConstGrid gridHandle, int* col )
+{ return ElGridMRRank(gridHandle,col); }
 
 // int Grid::Rank() const
 // ----------------------
-int ElGridRank( ElConstGrid gridHandle )
-{ return ElGridVCRank(gridHandle); }
+ElError ElGridRank( ElConstGrid gridHandle, int* rank )
+{ return ElGridVCRank(gridHandle,rank); }
 
 // int Grid::Height() const
 // ------------------------
-int ElGridHeight( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->Height(); }
+ElError ElGridHeight( ElConstGrid gridHandle, int* height )
+{ 
+    *height = RCG_const(gridHandle)->Height(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::Width() const
 // -----------------------
-int ElGridWidth( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->Width(); }
+ElError ElGridWidth( ElConstGrid gridHandle, int* width )
+{ 
+    *width = RCG_const(gridHandle)->Width(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::Size() const
 // ----------------------
-int ElGridSize( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->Size(); }
+ElError ElGridSize( ElConstGrid gridHandle, int* size )
+{ 
+    *size = RCG_const(gridHandle)->Size(); 
+    return EL_SUCCESS;
+}
 
 // GridOrder Grid::Order() const
 // -----------------------------
-ElGridOrderType ElGridOrder( ElConstGrid gridHandle )
-{ return static_cast<ElGridOrderType>(RCG_const(gridHandle)->Order()); }
+ElError ElGridOrder( ElConstGrid gridHandle, ElGridOrderType* order )
+{ 
+    *order = static_cast<ElGridOrderType>(RCG_const(gridHandle)->Order()); 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::ColComm() const
 // -------------------------------
-MPI_Comm ElGridColComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->ColComm().comm; }
+ElError ElGridColComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->ColComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::RowComm() const
 // -------------------------------
-MPI_Comm ElGridRowComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->RowComm().comm; }
+ElError ElGridRowComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->RowComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::Comm() const
 // ----------------------------
-MPI_Comm ElGridComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->Comm().comm; }
+ElError ElGridComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->Comm().comm; 
+    return EL_SUCCESS;
+}
 
 // int Grid::MCRank() const
 // ------------------------
-int ElGridMCRank( ElConstGrid gridHandle )
+ElError ElGridMCRank( ElConstGrid gridHandle, int* mcRank )
 {
-    int rank = -1;
-    try { rank = RCG_const(gridHandle)->MCRank(); }
+    try { *mcRank = RCG_const(gridHandle)->MCRank(); }
     CATCH
-    return rank;
+    return EL_SUCCESS;
 }
 
 // int Grid::MRRank() const
 // ------------------------
-int ElGridMRRank( ElConstGrid gridHandle )
+ElError ElGridMRRank( ElConstGrid gridHandle, int* mrRank )
 {
-    int rank = -1;
-    try { rank = RCG_const(gridHandle)->MRRank(); }
+    try { *mrRank = RCG_const(gridHandle)->MRRank(); }
     CATCH
-    return rank;
+    return EL_SUCCESS;
 }
 
 // int Grid::VCRank() const
 // ------------------------
-int ElGridVCRank( ElConstGrid gridHandle )
+ElError ElGridVCRank( ElConstGrid gridHandle, int* vcRank )
 { 
-    int rank = -1;
-    try { rank = RCG_const(gridHandle)->VCRank(); }
+    try { *vcRank = RCG_const(gridHandle)->VCRank(); }
     CATCH
-    return rank;
+    return EL_SUCCESS;
 }
 
 // int Grid::VRRank() const
 // ------------------------
-int ElGridVRRank( ElConstGrid gridHandle )
+ElError ElGridVRRank( ElConstGrid gridHandle, int* vrRank )
 { 
-    int rank = -1;
-    try { rank = RCG_const(gridHandle)->VRRank(); }
+    try { *vrRank = RCG_const(gridHandle)->VRRank(); }
     CATCH
-    return rank;
+    return EL_SUCCESS;
 }
 
 // int Grid::MCSize() const
 // ------------------------
-int ElGridMCSize( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->MCSize(); }
+ElError ElGridMCSize( ElConstGrid gridHandle, int* mcSize )
+{ 
+    *mcSize = RCG_const(gridHandle)->MCSize(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::MRSize() const
 // ------------------------
-int ElGridMRSize( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->MRSize(); }
+ElError ElGridMRSize( ElConstGrid gridHandle, int* mrSize )
+{ 
+    *mrSize = RCG_const(gridHandle)->MRSize(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::VCSize() const
 // ------------------------
-int ElGridVCSize( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->VCSize(); }
+ElError ElGridVCSize( ElConstGrid gridHandle, int* vcSize )
+{ 
+    *vcSize = RCG_const(gridHandle)->VCSize(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::VRSize() const
 // ------------------------
-int ElGridVRSize( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->VRSize(); }
+ElError ElGridVRSize( ElConstGrid gridHandle, int* vrSize )
+{ 
+    *vrSize = RCG_const(gridHandle)->VRSize(); 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::MCComm() const
 // ------------------------------
-MPI_Comm ElGridMCComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->MCComm().comm; }
+ElError ElGridMCComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->MCComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::MRComm() const
 // ------------------------------
-MPI_Comm ElGridMRComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->MRComm().comm; }
+ElError ElGridMRComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->MRComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::VCComm() const
 // ------------------------------
-MPI_Comm ElGridVCComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->VCComm().comm; }
+ElError ElGridVCComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->VCComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::VRComm() const
 // ------------------------------
-MPI_Comm ElGridVRComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->VRComm().comm; }
+ElError ElGridVRComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->VRComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::MDComm() const
 // ------------------------------
-MPI_Comm ElGridMDComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->MDComm().comm; }
+ElError ElGridMDComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->MDComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::MDPerpComm() const
 // ----------------------------------
-MPI_Comm ElGridMDPerpComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->MDPerpComm().comm; }
+ElError ElGridMDPerpComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->MDPerpComm().comm; 
+    return EL_SUCCESS;
+}
 
 // Grid::Grid( mpi::Comm comm, mpi::Group owners, int height, GridOrder order )
 // ----------------------------------------------------------------------------
-ElGrid ElGridCreateAdvanced
-( MPI_Comm comm, MPI_Group owners, int height, ElGridOrderType orderC )
+ElError ElGridCreateAdvanced
+( MPI_Comm comm, MPI_Group owners, int height, ElGridOrderType orderC,
+  ElGrid* gridHandle )
 {
-    ElGrid gridHandle = 0;
     GridOrder order = static_cast<GridOrder>(orderC);
-    try { gridHandle = reinterpret_cast<ElGrid>
-                       (new Grid(comm,owners,height,order)); }
+    try { *gridHandle = reinterpret_cast<ElGrid>
+                        (new Grid(comm,owners,height,order)); }
     CATCH
-    return gridHandle;
+    return EL_SUCCESS;
 }
 
 // int Grid::GCD() const
 // ---------------------
-int ElGridGCD( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->GCD(); }
+ElError ElGridGCD( ElConstGrid gridHandle, int* gcd )
+{ 
+    *gcd = RCG_const(gridHandle)->GCD(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::LCM() const
 // ---------------------
-int ElGridLCM( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->LCM(); }
+ElError ElGridLCM( ElConstGrid gridHandle, int* lcm )
+{ 
+    *lcm = RCG_const(gridHandle)->LCM(); 
+    return EL_SUCCESS;
+}
 
 // bool Grid::InGrid() const
 // -------------------------
-bool ElGridInGrid( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->InGrid(); }
+ElError ElGridInGrid( ElConstGrid gridHandle, bool* inGrid )
+{ 
+    *inGrid = RCG_const(gridHandle)->InGrid(); 
+    return EL_SUCCESS;
+}
 
 // bool Grid::HaveViewers() const
 // ------------------------------
-bool ElGridHaveViewers( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->HaveViewers(); }
+ElError ElGridHaveViewers( ElConstGrid gridHandle, bool* haveViewers )
+{ 
+    *haveViewers = RCG_const(gridHandle)->HaveViewers(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::OwningRank() const
 // ----------------------------
-int ElGridOwningRank( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->OwningRank(); }
+ElError ElGridOwningRank( ElConstGrid gridHandle, int* owningRank )
+{ 
+    *owningRank = RCG_const(gridHandle)->OwningRank(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::ViewingRank() const
 // -----------------------------
-int ElGridViewingRank( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->ViewingRank(); }
+ElError ElGridViewingRank( ElConstGrid gridHandle, int* viewingRank )
+{ 
+    *viewingRank = RCG_const(gridHandle)->ViewingRank(); 
+    return EL_SUCCESS;
+}
 
 // int Grid::VCToViewingMap( int vcRank ) const
 // --------------------------------------------
-int ElGridVCToViewingMap( ElConstGrid gridHandle, int vcRank )
-{ return RCG_const(gridHandle)->VCToViewingMap(vcRank); }
+ElError ElGridVCToViewingMap
+( ElConstGrid gridHandle, int vcRank, int* viewingRank )
+{ 
+    *viewingRank = RCG_const(gridHandle)->VCToViewingMap(vcRank); 
+    return EL_SUCCESS;
+}
 
 // mpi::Group Grid::OwningGroup() const
 // ------------------------------------
-MPI_Group ElGridOwningGroup( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->OwningGroup().group; }
+ElError ElGridOwningGroup( ElConstGrid gridHandle, MPI_Group* group )
+{ 
+    *group = RCG_const(gridHandle)->OwningGroup().group; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::OwningComm() const
 // ----------------------------------
-MPI_Comm ElGridOwningComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->OwningComm().comm; }
+ElError ElGridOwningComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->OwningComm().comm; 
+    return EL_SUCCESS;
+}
 
 // mpi::Comm Grid::ViewingComm() const
 // -----------------------------------
-MPI_Comm ElGridViewingComm( ElConstGrid gridHandle )
-{ return RCG_const(gridHandle)->ViewingComm().comm; }
+ElError ElGridViewingComm( ElConstGrid gridHandle, MPI_Comm* comm )
+{ 
+    *comm = RCG_const(gridHandle)->ViewingComm().comm; 
+    return EL_SUCCESS;
+}
 
 // int Grid::DiagPath( int vcRank ) const
 // --------------------------------------
-int ElGridDiagPath( ElConstGrid gridHandle, int vcRank )
-{ return RCG_const(gridHandle)->DiagPath(vcRank); }
+ElError ElGridDiagPath( ElConstGrid gridHandle, int vcRank, int* diagPath )
+{ 
+    *diagPath = RCG_const(gridHandle)->DiagPath(vcRank); 
+    return EL_SUCCESS;
+}
 
 // int Grid::DiagPathRank( int vcRank ) const
 // ------------------------------------------
-int ElGridDiagPathRank( ElConstGrid gridHandle, int vcRank )
-{ return RCG_const(gridHandle)->DiagPathRank(vcRank); }
+ElError ElGridDiagPathRank
+( ElConstGrid gridHandle, int vcRank, int* diagPathRank )
+{ 
+    *diagPathRank = RCG_const(gridHandle)->DiagPathRank(vcRank); 
+    return EL_SUCCESS;
+}
 
 // int Grid::FirstVCRank( int diagPath ) const
 // -------------------------------------------
-int ElGridFirstVCRank( ElConstGrid gridHandle, int vcRank )
-{ return RCG_const(gridHandle)->FirstVCRank(vcRank); }
+ElError ElGridFirstVCRank
+( ElConstGrid gridHandle, int vcRank, int* firstVCRank )
+{ 
+    *firstVCRank = RCG_const(gridHandle)->FirstVCRank(vcRank); 
+    return EL_SUCCESS;
+}
 
 // static int Grid::FindFactor( int p )
 // ------------------------------------
-int ElGridFindFactor( int p )
-{ return Grid::FindFactor(p); }
+ElError ElGridFindFactor( int p, int* factor )
+{ 
+    *factor = Grid::FindFactor(p); 
+    return EL_SUCCESS;
+}
 
 } // extern "C"

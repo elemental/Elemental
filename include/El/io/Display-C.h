@@ -14,18 +14,18 @@
 extern "C" {
 #endif
 
-void ElDisplayMatrix_s( ElConstMatrix_s A, const char* title );
-void ElDisplayMatrix_d( ElConstMatrix_d A, const char* title );
-void ElDisplayMatrix_c( ElConstMatrix_c A, const char* title );
-void ElDisplayMatrix_z( ElConstMatrix_z A, const char* title );
+ElError ElDisplayMatrix_s( ElConstMatrix_s A, const char* title );
+ElError ElDisplayMatrix_d( ElConstMatrix_d A, const char* title );
+ElError ElDisplayMatrix_c( ElConstMatrix_c A, const char* title );
+ElError ElDisplayMatrix_z( ElConstMatrix_z A, const char* title );
 
-void ElDisplayDistMatrix_s( ElConstDistMatrix_s A, const char* title );
-void ElDisplayDistMatrix_d( ElConstDistMatrix_d A, const char* title );
-void ElDisplayDistMatrix_c( ElConstDistMatrix_c A, const char* title );
-void ElDisplayDistMatrix_z( ElConstDistMatrix_z A, const char* title );
+ElError ElDisplayDistMatrix_s( ElConstDistMatrix_s A, const char* title );
+ElError ElDisplayDistMatrix_d( ElConstDistMatrix_d A, const char* title );
+ElError ElDisplayDistMatrix_c( ElConstDistMatrix_c A, const char* title );
+ElError ElDisplayDistMatrix_z( ElConstDistMatrix_z A, const char* title );
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#endif // ifndef EL_DISPLAY_C_H
+#endif /* ifndef EL_DISPLAY_C_H */

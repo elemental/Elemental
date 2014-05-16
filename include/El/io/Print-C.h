@@ -19,18 +19,18 @@ extern "C" {
         problematic due to difficulties in converting between FILE* and
         std::ostream 
 */
-void ElPrintMatrix_s( ElConstMatrix_s A, const char* title );
-void ElPrintMatrix_d( ElConstMatrix_d A, const char* title );
-void ElPrintMatrix_c( ElConstMatrix_c A, const char* title );
-void ElPrintMatrix_z( ElConstMatrix_z A, const char* title );
+ElError ElPrintMatrix_s( ElConstMatrix_s A, const char* title );
+ElError ElPrintMatrix_d( ElConstMatrix_d A, const char* title );
+ElError ElPrintMatrix_c( ElConstMatrix_c A, const char* title );
+ElError ElPrintMatrix_z( ElConstMatrix_z A, const char* title );
 
-void ElPrintDistMatrix_s( ElConstDistMatrix_s A, const char* title );
-void ElPrintDistMatrix_d( ElConstDistMatrix_d A, const char* title );
-void ElPrintDistMatrix_c( ElConstDistMatrix_c A, const char* title );
-void ElPrintDistMatrix_z( ElConstDistMatrix_z A, const char* title );
+ElError ElPrintDistMatrix_s( ElConstDistMatrix_s A, const char* title );
+ElError ElPrintDistMatrix_d( ElConstDistMatrix_d A, const char* title );
+ElError ElPrintDistMatrix_c( ElConstDistMatrix_c A, const char* title );
+ElError ElPrintDistMatrix_z( ElConstDistMatrix_z A, const char* title );
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#endif // ifndef EL_PRINT_C_H
+#endif /* ifndef EL_PRINT_C_H */

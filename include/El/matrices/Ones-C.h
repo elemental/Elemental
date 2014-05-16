@@ -14,18 +14,18 @@
 extern "C" {
 #endif
 
-void ElOnes_s( ElMatrix_s* A, Int m, Int n );
-void ElOnes_d( ElMatrix_d* A, Int m, Int n );
-void ElOnes_c( ElMatrix_c* A, Int m, Int n );
-void ElOnes_z( ElMatrix_z* A, Int m, Int n );
+ElError ElOnes_s( ElMatrix_s A, Int m, Int n );
+ElError ElOnes_d( ElMatrix_d A, Int m, Int n );
+ElError ElOnes_c( ElMatrix_c A, Int m, Int n );
+ElError ElOnes_z( ElMatrix_z A, Int m, Int n );
 
-void ElOnes_s( ElDistMatrix_s* A, Int m, Int n );
-void ElOnes_d( ElDistMatrix_d* A, Int m, Int n );
-void ElOnes_c( ElDistMatrix_c* A, Int m, Int n );
-void ElOnes_z( ElDistMatrix_z* A, Int m, Int n );
+ElError ElOnes_s( ElDistMatrix_s A, Int m, Int n );
+ElError ElOnes_d( ElDistMatrix_d A, Int m, Int n );
+ElError ElOnes_c( ElDistMatrix_c A, Int m, Int n );
+ElError ElOnes_z( ElDistMatrix_z A, Int m, Int n );
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#endif // ifndef EL_ONES_C_H
+#endif /* ifndef EL_ONES_C_H */

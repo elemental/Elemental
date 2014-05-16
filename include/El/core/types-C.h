@@ -33,6 +33,19 @@ typedef int ElInt;
 typedef unsigned ElUnsigned;
 #endif
 
+typedef enum
+{
+  EL_SUCCESS,
+  EL_ALLOC_ERROR,
+  EL_OUT_OF_BOUNDS_ERROR,
+  EL_ARG_ERROR,           /* input argument error */
+  EL_LOGIC_ERROR,         /* catch-all for logic errors */
+  EL_RUNTIME_ERROR,       /* catch-all for runtime errors */
+  EL_ERROR                /* catch-all if the cause is unspecified */
+} ElError;
+
+const char* ElErrorString( ElError error );
+
 /* product = rho * exp(kappa*n)
    where rho lies in (usually on) the unit circle and kappa is real-valued. */
 typedef struct

@@ -35,70 +35,73 @@ using namespace El;
 #define RCB_c_const(buffer) RC(const Complex<float >*,buffer)
 #define RCB_z_const(buffer) RC(const Complex<double>*,buffer)
 
-#define CATCH catch( std::exception& e ) { ReportException(e); }
+#define CATCH \
+  catch( std::bad_alloc& e ) \
+  { ReportException(e); return EL_ALLOC_ERROR; } \
+  catch( std::logic_error& e ) \
+  { ReportException(e); return EL_LOGIC_ERROR; } \
+  catch( std::runtime_error& e ) \
+  { ReportException(e); return EL_RUNTIME_ERROR; } \
+  catch( std::exception& e ) \
+  { ReportException(e); return EL_ERROR; }
 
 extern "C" {
 
 // DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
 // ------------------------------------------------
-ElDistMatrix_s ElDistMatrixCreate_s( ElConstGrid gridHandle )
+ElError ElDistMatrixCreate_s( ElConstGrid gridHandle, ElDistMatrix_s* AHandle )
 {
-    ElDistMatrix_s AHandle = 0;
     try 
     {
         const Grid* grid = RCG_const(gridHandle);
-        AHandle = (ElDistMatrix_s)RC(struct ElDistMatrix_sDummy*,
-                                     new DistMatrix<float>(*grid));
+        *AHandle = (ElDistMatrix_s)RC(struct ElDistMatrix_sDummy*,
+                                      new DistMatrix<float>(*grid));
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_d ElDistMatrixCreate_d( ElConstGrid gridHandle )
+ElError ElDistMatrixCreate_d( ElConstGrid gridHandle, ElDistMatrix_d* AHandle )
 {
-    ElDistMatrix_d AHandle = 0;
     try 
     {
         const Grid* grid = RCG_const(gridHandle);
-        AHandle = (ElDistMatrix_d)RC(struct ElDistMatrix_dDummy*,
-                                     new DistMatrix<double>(*grid));
+        *AHandle = (ElDistMatrix_d)RC(struct ElDistMatrix_dDummy*,
+                                      new DistMatrix<double>(*grid));
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_c ElDistMatrixCreate_c( ElConstGrid gridHandle )
+ElError ElDistMatrixCreate_c( ElConstGrid gridHandle, ElDistMatrix_c* AHandle )
 {
-    ElDistMatrix_c AHandle = 0;
     try 
     {
         const Grid* grid = RCG_const(gridHandle);
-        AHandle = (ElDistMatrix_c)RC(struct ElDistMatrix_cDummy*,
-                                     new DistMatrix<Complex<float>>(*grid));
+        *AHandle = (ElDistMatrix_c)RC(struct ElDistMatrix_cDummy*,
+                                      new DistMatrix<Complex<float>>(*grid));
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_z ElDistMatrixCreate_z( ElConstGrid gridHandle )
+ElError ElDistMatrixCreate_z( ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
 {
-    ElDistMatrix_z AHandle = 0;
     try 
     {
         const Grid* grid = RCG_const(gridHandle);
-        AHandle = (ElDistMatrix_z)RC(struct ElDistMatrix_zDummy*,
-                                     new DistMatrix<Complex<double>>(*grid));
+        *AHandle = (ElDistMatrix_z)RC(struct ElDistMatrix_zDummy*,
+                                      new DistMatrix<Complex<double>>(*grid));
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
 // DistMatrix<T,U,V>::DistMatrix( const Grid& g )
 // ----------------------------------------------
-ElDistMatrix_s ElDistMatrixCreateSpecific_s
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle )
+ElError ElDistMatrixCreateSpecific_s
+( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_s* AHandle )
 {
-    ElDistMatrix_s AHandle = 0;
     try 
     {
         Dist U = static_cast<Dist>(U_C);
@@ -137,16 +140,15 @@ ElDistMatrix_s ElDistMatrixCreateSpecific_s
         else
             RuntimeError("Invalid distribution pair");
 
-        AHandle = (ElDistMatrix_s)RC(struct ElDistMatrix_sDummy*,ADM);
+        *AHandle = (ElDistMatrix_s)RC(struct ElDistMatrix_sDummy*,ADM);
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_d ElDistMatrixCreateSpecific_d
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle )
+ElError ElDistMatrixCreateSpecific_d
+( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_d* AHandle )
 {
-    ElDistMatrix_d AHandle = 0;
     try 
     {
         Dist U = static_cast<Dist>(U_C);
@@ -185,16 +187,15 @@ ElDistMatrix_d ElDistMatrixCreateSpecific_d
         else
             RuntimeError("Invalid distribution pair");
 
-        AHandle = (ElDistMatrix_d)RC(struct ElDistMatrix_dDummy*,ADM);
+        *AHandle = (ElDistMatrix_d)RC(struct ElDistMatrix_dDummy*,ADM);
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_c ElDistMatrixCreateSpecific_c
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle )
+ElError ElDistMatrixCreateSpecific_c
+( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_c* AHandle )
 {
-    ElDistMatrix_c AHandle = 0;
     try 
     {
         Dist U = static_cast<Dist>(U_C);
@@ -233,16 +234,15 @@ ElDistMatrix_c ElDistMatrixCreateSpecific_c
         else
             RuntimeError("Invalid distribution pair");
 
-        AHandle = (ElDistMatrix_c)RC(struct ElDistMatrix_cDummy*,ADM);
+        *AHandle = (ElDistMatrix_c)RC(struct ElDistMatrix_cDummy*,ADM);
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_z ElDistMatrixCreateSpecific_z
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle )
+ElError ElDistMatrixCreateSpecific_z
+( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
 {
-    ElDistMatrix_z AHandle = 0;
     try 
     {
         Dist U = static_cast<Dist>(U_C);
@@ -281,374 +281,462 @@ ElDistMatrix_z ElDistMatrixCreateSpecific_z
         else
             RuntimeError("Invalid distribution pair");
 
-        AHandle = (ElDistMatrix_z)RC(struct ElDistMatrix_zDummy*,ADM);
+        *AHandle = (ElDistMatrix_z)RC(struct ElDistMatrix_zDummy*,ADM);
     }
     CATCH
-    return AHandle;
+    return EL_SUCCESS;
 }
 
 // DistMatrix<T,U,V>::~DistMatrix()
 // --------------------------------
-void ElDistMatrixDestroy_s( ElConstDistMatrix_s AHandle )
-{ delete RCADM_s_const(AHandle); }
+ElError ElDistMatrixDestroy_s( ElConstDistMatrix_s AHandle )
+{ 
+    try { delete RCADM_s_const(AHandle); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-void ElDistMatrixDestroy_d( ElConstDistMatrix_d AHandle )
-{ delete RCADM_d_const(AHandle); }
+ElError ElDistMatrixDestroy_d( ElConstDistMatrix_d AHandle )
+{ 
+    try { delete RCADM_d_const(AHandle); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-void ElDistMatrixDestroy_c( ElConstDistMatrix_c AHandle )
-{ delete RCADM_c_const(AHandle); }
+ElError ElDistMatrixDestroy_c( ElConstDistMatrix_c AHandle )
+{ 
+    try { delete RCADM_c_const(AHandle); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-void ElDistMatrixDestroy_z( ElConstDistMatrix_z AHandle )
-{ delete RCADM_z_const(AHandle); }
+ElError ElDistMatrixDestroy_z( ElConstDistMatrix_z AHandle )
+{ 
+    try { delete RCADM_z_const(AHandle); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // void DistMatrix<T,U,V>::Empty()
 // -------------------------------
-void ElDistMatrixEmpty_s( ElDistMatrix_s AHandle )
+ElError ElDistMatrixEmpty_s( ElDistMatrix_s AHandle )
 {
     try { RCADM_s(AHandle)->Empty(); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixEmpty_d( ElDistMatrix_d AHandle )
+ElError ElDistMatrixEmpty_d( ElDistMatrix_d AHandle )
 {
     try { RCADM_d(AHandle)->Empty(); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixEmpty_c( ElDistMatrix_c AHandle )
+ElError ElDistMatrixEmpty_c( ElDistMatrix_c AHandle )
 {
     try { RCADM_c(AHandle)->Empty(); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixEmpty_z( ElDistMatrix_z AHandle )
+ElError ElDistMatrixEmpty_z( ElDistMatrix_z AHandle )
 {
     try { RCADM_z(AHandle)->Empty(); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::EmptyData()
 // -----------------------------------
-void ElDistMatrixEmptyData_s( ElDistMatrix_s AHandle )
+ElError ElDistMatrixEmptyData_s( ElDistMatrix_s AHandle )
 {
     try { RCADM_s(AHandle)->EmptyData(); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixEmptyData_d( ElDistMatrix_d AHandle )
+ElError ElDistMatrixEmptyData_d( ElDistMatrix_d AHandle )
 {
     try { RCADM_d(AHandle)->EmptyData(); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixEmptyData_c( ElDistMatrix_c AHandle )
+ElError ElDistMatrixEmptyData_c( ElDistMatrix_c AHandle )
 {
     try { RCADM_c(AHandle)->EmptyData(); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixEmptyData_z( ElDistMatrix_z AHandle )
+ElError ElDistMatrixEmptyData_z( ElDistMatrix_z AHandle )
 {
     try { RCADM_z(AHandle)->EmptyData(); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::SetGrid( const Grid& g )
 // ------------------------------------------------
-void ElDistMatrixSetGrid_s( ElDistMatrix_s AHandle, ElConstGrid gridHandle )
+ElError ElDistMatrixSetGrid_s( ElDistMatrix_s AHandle, ElConstGrid gridHandle )
 {
     try { RCADM_s(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetGrid_d( ElDistMatrix_d AHandle, ElConstGrid gridHandle )
+ElError ElDistMatrixSetGrid_d( ElDistMatrix_d AHandle, ElConstGrid gridHandle )
 {
     try { RCADM_d(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetGrid_c( ElDistMatrix_c AHandle, ElConstGrid gridHandle )
+ElError ElDistMatrixSetGrid_c( ElDistMatrix_c AHandle, ElConstGrid gridHandle )
 {
     try { RCADM_c(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetGrid_z( ElDistMatrix_z AHandle, ElConstGrid gridHandle )
+ElError ElDistMatrixSetGrid_z( ElDistMatrix_z AHandle, ElConstGrid gridHandle )
 {
     try { RCADM_z(AHandle)->SetGrid(*RCG_const(gridHandle)); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // B = A
 // -----
-void ElDistMatrixCopy_s
+ElError ElDistMatrixCopy_s
 ( ElConstDistMatrix_s AHandle, ElDistMatrix_s BHandle )
 { 
     try { Copy( *RCADM_s_const(AHandle), *RCADM_s(BHandle) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixCopy_d
+ElError ElDistMatrixCopy_d
 ( ElConstDistMatrix_d AHandle, ElDistMatrix_d BHandle )
 {
     try { Copy( *RCADM_d_const(AHandle), *RCADM_d(BHandle) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixCopy_c
+ElError ElDistMatrixCopy_c
 ( ElConstDistMatrix_c AHandle, ElDistMatrix_c BHandle )
 {
     try { Copy( *RCADM_c_const(AHandle), *RCADM_c(BHandle) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixCopy_z
+ElError ElDistMatrixCopy_z
 ( ElConstDistMatrix_z AHandle, ElDistMatrix_z BHandle )
 {
     try { Copy( *RCADM_z_const(AHandle), *RCADM_z(BHandle) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::Resize( Int height, Int width )
 // -------------------------------------------------------
-void ElDistMatrixResize_s( ElDistMatrix_s AHandle, ElInt height, ElInt width )
+ElError ElDistMatrixResize_s
+( ElDistMatrix_s AHandle, ElInt height, ElInt width )
 {
     try { RCADM_s(AHandle)->Resize(height,width); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixResize_d( ElDistMatrix_d AHandle, ElInt height, ElInt width )
+ElError ElDistMatrixResize_d
+( ElDistMatrix_d AHandle, ElInt height, ElInt width )
 {
     try { RCADM_d(AHandle)->Resize(height,width); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixResize_c( ElDistMatrix_c AHandle, ElInt height, ElInt width )
+ElError ElDistMatrixResize_c
+( ElDistMatrix_c AHandle, ElInt height, ElInt width )
 {
     try { RCADM_c(AHandle)->Resize(height,width); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixResize_z( ElDistMatrix_z AHandle, ElInt height, ElInt width )
+ElError ElDistMatrixResize_z
+( ElDistMatrix_z AHandle, ElInt height, ElInt width )
 {
     try { RCADM_z(AHandle)->Resize(height,width); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::Resize( Int height, Int width, Int ldim )
 // -----------------------------------------------------------------
-void ElDistMatrixResizeWithLDim_s
+ElError ElDistMatrixResizeWithLDim_s
 ( ElDistMatrix_s AHandle, ElInt height, ElInt width, ElInt ldim )
 {
     try { RCADM_s(AHandle)->Resize(height,width,ldim); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixResizeWithLDim_d
+ElError ElDistMatrixResizeWithLDim_d
 ( ElDistMatrix_d AHandle, ElInt height, ElInt width, ElInt ldim )
 {
     try { RCADM_d(AHandle)->Resize(height,width,ldim); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixResizeWithLDim_c
+ElError ElDistMatrixResizeWithLDim_c
 ( ElDistMatrix_c AHandle, ElInt height, ElInt width, ElInt ldim )
 {
     try { RCADM_c(AHandle)->Resize(height,width,ldim); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixResizeWithLDim_z
+ElError ElDistMatrixResizeWithLDim_z
 ( ElDistMatrix_z AHandle, ElInt height, ElInt width, ElInt ldim )
 {
     try { RCADM_z(AHandle)->Resize(height,width,ldim); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::MakeConsistent()
 // ----------------------------------------
-void ElDistMatrixMakeConsistent_s( ElDistMatrix_s AHandle, bool includeViewers )
+ElError ElDistMatrixMakeConsistent_s
+( ElDistMatrix_s AHandle, bool includeViewers )
 {
     try { RCADM_s(AHandle)->MakeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeConsistent_d( ElDistMatrix_d AHandle, bool includeViewers )
+ElError ElDistMatrixMakeConsistent_d
+( ElDistMatrix_d AHandle, bool includeViewers )
 {
     try { RCADM_d(AHandle)->MakeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeConsistent_c( ElDistMatrix_c AHandle, bool includeViewers )
+ElError ElDistMatrixMakeConsistent_c
+( ElDistMatrix_c AHandle, bool includeViewers )
 {
     try { RCADM_c(AHandle)->MakeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeConsistent_z( ElDistMatrix_z AHandle, bool includeViewers )
+ElError ElDistMatrixMakeConsistent_z
+( ElDistMatrix_z AHandle, bool includeViewers )
 {
     try { RCADM_z(AHandle)->MakeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::MakeSizeConsistent()
 // --------------------------------------------
-void ElDistMatrixMakeSizeConsistent_s
+ElError ElDistMatrixMakeSizeConsistent_s
 ( ElDistMatrix_s AHandle, bool includeViewers )
 {
     try { RCADM_s(AHandle)->MakeSizeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeSizeConsistent_d
+ElError ElDistMatrixMakeSizeConsistent_d
 ( ElDistMatrix_d AHandle, bool includeViewers )
 {
     try { RCADM_d(AHandle)->MakeSizeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeSizeConsistent_c
+ElError ElDistMatrixMakeSizeConsistent_c
 ( ElDistMatrix_c AHandle, bool includeViewers )
 {
     try { RCADM_c(AHandle)->MakeSizeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeSizeConsistent_z
+ElError ElDistMatrixMakeSizeConsistent_z
 ( ElDistMatrix_z AHandle, bool includeViewers )
 {
     try { RCADM_z(AHandle)->MakeSizeConsistent(includeViewers); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::Align( Int colAlign, Int rowAlign, bool constrain )
 // ---------------------------------------------------------------------------
-void ElDistMatrixAlign_s
+ElError ElDistMatrixAlign_s
 ( ElDistMatrix_s AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
 {
     try { RCADM_s(AHandle)->Align(colAlign,rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlign_d
+ElError ElDistMatrixAlign_d
 ( ElDistMatrix_d AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
 {
     try { RCADM_d(AHandle)->Align(colAlign,rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlign_c
+ElError ElDistMatrixAlign_c
 ( ElDistMatrix_c AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
 {
     try { RCADM_c(AHandle)->Align(colAlign,rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlign_z
+ElError ElDistMatrixAlign_z
 ( ElDistMatrix_z AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
 {
     try { RCADM_z(AHandle)->Align(colAlign,rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain )
 // -----------------------------------------------------------------
-void ElDistMatrixAlignCols_s
+ElError ElDistMatrixAlignCols_s
 ( ElDistMatrix_s AHandle, ElInt colAlign, bool constrain )
 {
     try { RCADM_s(AHandle)->AlignCols(colAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlignCols_d
+ElError ElDistMatrixAlignCols_d
 ( ElDistMatrix_d AHandle, ElInt colAlign, bool constrain )
 {
     try { RCADM_d(AHandle)->AlignCols(colAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlignCols_c
+ElError ElDistMatrixAlignCols_c
 ( ElDistMatrix_c AHandle, ElInt colAlign, bool constrain )
 {
     try { RCADM_c(AHandle)->AlignCols(colAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlignCols_z
+ElError ElDistMatrixAlignCols_z
 ( ElDistMatrix_z AHandle, ElInt colAlign, bool constrain )
 {
     try { RCADM_z(AHandle)->AlignCols(colAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain )
 // -----------------------------------------------------------------
-void ElDistMatrixAlignRows_s
+ElError ElDistMatrixAlignRows_s
 ( ElDistMatrix_s AHandle, ElInt rowAlign, bool constrain )
 {
     try { RCADM_s(AHandle)->AlignRows(rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlignRows_d
+ElError ElDistMatrixAlignRows_d
 ( ElDistMatrix_d AHandle, ElInt rowAlign, bool constrain )
 {
     try { RCADM_d(AHandle)->AlignRows(rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlignRows_c
+ElError ElDistMatrixAlignRows_c
 ( ElDistMatrix_c AHandle, ElInt rowAlign, bool constrain )
 {
     try { RCADM_c(AHandle)->AlignRows(rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAlignRows_z
+ElError ElDistMatrixAlignRows_z
 ( ElDistMatrix_z AHandle, ElInt rowAlign, bool constrain )
 {
     try { RCADM_z(AHandle)->AlignRows(rowAlign,constrain); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::FreeAlignments()
 // ----------------------------------------
-void ElDistMatrixFreeAlignments_s( ElDistMatrix_s AHandle )
-{ RCADM_s(AHandle)->FreeAlignments(); }
+ElError ElDistMatrixFreeAlignments_s( ElDistMatrix_s AHandle )
+{ 
+    try { RCADM_s(AHandle)->FreeAlignments(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-void ElDistMatrixFreeAlignments_d( ElDistMatrix_d AHandle )
-{ RCADM_d(AHandle)->FreeAlignments(); }
+ElError ElDistMatrixFreeAlignments_d( ElDistMatrix_d AHandle )
+{ 
+    try { RCADM_d(AHandle)->FreeAlignments(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-void ElDistMatrixFreeAlignments_c( ElDistMatrix_c AHandle )
-{ RCADM_c(AHandle)->FreeAlignments(); }
+ElError ElDistMatrixFreeAlignments_c( ElDistMatrix_c AHandle )
+{ 
+    try { RCADM_c(AHandle)->FreeAlignments(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-void ElDistMatrixFreeAlignments_z( ElDistMatrix_z AHandle )
-{ RCADM_z(AHandle)->FreeAlignments(); }
+ElError ElDistMatrixFreeAlignments_z( ElDistMatrix_z AHandle )
+{ 
+    try { RCADM_z(AHandle)->FreeAlignments(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // void DistMatrix<T,U,V>::SetRoot( Int root )
 // -------------------------------------------
-void ElDistMatrixSetRoot_s( ElDistMatrix_s AHandle, ElInt root )
+ElError ElDistMatrixSetRoot_s( ElDistMatrix_s AHandle, ElInt root )
 {
     try { RCADM_s(AHandle)->SetRoot(root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetRoot_d( ElDistMatrix_d AHandle, ElInt root )
+ElError ElDistMatrixSetRoot_d( ElDistMatrix_d AHandle, ElInt root )
 {
     try { RCADM_d(AHandle)->SetRoot(root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetRoot_c( ElDistMatrix_c AHandle, ElInt root )
+ElError ElDistMatrixSetRoot_c( ElDistMatrix_c AHandle, ElInt root )
 {
     try { RCADM_c(AHandle)->SetRoot(root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetRoot_z( ElDistMatrix_z AHandle, ElInt root )
+ElError ElDistMatrixSetRoot_z( ElDistMatrix_z AHandle, ElInt root )
 {
     try { RCADM_z(AHandle)->SetRoot(root); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // TODO: Align[Cols,Rows]With. Need a C version of DistData
@@ -659,7 +747,7 @@ void ElDistMatrixSetRoot_z( ElDistMatrix_z AHandle, ElInt root )
 // ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
 //   T* buffer, Int ldim, Int root )
 // ----------------------------------------------------------------------
-void ElDistMatrixAttach_s
+ElError ElDistMatrixAttach_s
 ( ElDistMatrix_s AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, ElInt root )
 {
@@ -667,9 +755,10 @@ void ElDistMatrixAttach_s
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
            ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAttach_d
+ElError ElDistMatrixAttach_d
 ( ElDistMatrix_d AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, ElInt root )
 {
@@ -677,9 +766,10 @@ void ElDistMatrixAttach_d
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
            ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAttach_c
+ElError ElDistMatrixAttach_c
 ( ElDistMatrix_c AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, complex_float* buffer, ElInt ldim, 
   ElInt root )
@@ -688,9 +778,10 @@ void ElDistMatrixAttach_c
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,RCB_c(buffer),
            ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixAttach_z
+ElError ElDistMatrixAttach_z
 ( ElDistMatrix_z AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, complex_double* buffer, ElInt ldim, 
   ElInt root )
@@ -699,13 +790,14 @@ void ElDistMatrixAttach_z
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,RCB_z(buffer),
            ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::LockedAttach
 // ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
 //   const T* buffer, Int ldim, Int root )
 // ----------------------------------------------------------------------
-void ElDistMatrixLockedAttach_s
+ElError ElDistMatrixLockedAttach_s
 ( ElDistMatrix_s AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const float* buffer, 
   ElInt ldim, ElInt root )
@@ -714,9 +806,10 @@ void ElDistMatrixLockedAttach_s
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
            ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixLockedAttach_d
+ElError ElDistMatrixLockedAttach_d
 ( ElDistMatrix_d AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const double* buffer, 
   ElInt ldim, ElInt root )
@@ -725,9 +818,10 @@ void ElDistMatrixLockedAttach_d
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,buffer,
            ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixLockedAttach_c
+ElError ElDistMatrixLockedAttach_c
 ( ElDistMatrix_c AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const complex_float* buffer, 
   ElInt ldim, ElInt root )
@@ -736,9 +830,10 @@ void ElDistMatrixLockedAttach_c
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,
            RCB_c_const(buffer),ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixLockedAttach_z
+ElError ElDistMatrixLockedAttach_z
 ( ElDistMatrix_z AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
   ElInt colAlign, ElInt rowAlign, const complex_double* buffer, 
   ElInt ldim, ElInt root )
@@ -747,512 +842,738 @@ void ElDistMatrixLockedAttach_z
           (height,width,*RCG_const(gridHandle),colAlign,rowAlign,
            RCB_z_const(buffer),ldim,root); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // Int DistMatrix<T,U,V>::Height() const
 // -------------------------------------
-ElInt ElDistMatrixHeight_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->Height(); }
+ElError ElDistMatrixHeight_s( ElConstDistMatrix_s AHandle, ElInt* height )
+{ 
+    try { *height = RCADM_s_const(AHandle)->Height(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixHeight_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->Height(); }
+ElError ElDistMatrixHeight_d( ElConstDistMatrix_d AHandle, ElInt* height )
+{ 
+    try { *height = RCADM_d_const(AHandle)->Height(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixHeight_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->Height(); }
+ElError ElDistMatrixHeight_c( ElConstDistMatrix_c AHandle, ElInt* height )
+{ 
+    try { *height = RCADM_c_const(AHandle)->Height(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixHeight_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->Height(); }
+ElError ElDistMatrixHeight_z( ElConstDistMatrix_z AHandle, ElInt* height )
+{ 
+    try { *height = RCADM_z_const(AHandle)->Height(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // Int DistMatrix<T,U,V>::Width() const
 // ------------------------------------
-ElInt ElDistMatrixWidth_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->Width(); }
+ElError ElDistMatrixWidth_s( ElConstDistMatrix_s AHandle, ElInt* width )
+{ 
+    try { *width = RCADM_s_const(AHandle)->Width(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixWidth_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->Width(); }
+ElError ElDistMatrixWidth_d( ElConstDistMatrix_d AHandle, ElInt* width )
+{ 
+    try { *width = RCADM_d_const(AHandle)->Width(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixWidth_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->Width(); }
+ElError ElDistMatrixWidth_c( ElConstDistMatrix_c AHandle, ElInt* width )
+{ 
+    try { *width = RCADM_c_const(AHandle)->Width(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixWidth_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->Width(); }
+ElError ElDistMatrixWidth_z( ElConstDistMatrix_z AHandle, ElInt* width )
+{ 
+    try { *width = RCADM_z_const(AHandle)->Width(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // Int DistMatrix<T,U,V>::DiagonalLength( Int offset ) const
 // ---------------------------------------------------------
-ElInt ElDistMatrixDiagonalLength_s
-( ElConstDistMatrix_s AHandle, ElInt offset )
-{ return RCADM_s_const(AHandle)->DiagonalLength(offset); }
+ElError ElDistMatrixDiagonalLength_s
+( ElConstDistMatrix_s AHandle, ElInt offset, ElInt* length )
+{ 
+    try { *length = RCADM_s_const(AHandle)->DiagonalLength(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixDiagonalLength_d
-( ElConstDistMatrix_d AHandle, ElInt offset )
-{ return RCADM_d_const(AHandle)->DiagonalLength(offset); }
+ElError ElDistMatrixDiagonalLength_d
+( ElConstDistMatrix_d AHandle, ElInt offset, ElInt* length )
+{ 
+    try { *length = RCADM_d_const(AHandle)->DiagonalLength(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixDiagonalLength_c
-( ElConstDistMatrix_c AHandle, ElInt offset )
-{ return RCADM_c_const(AHandle)->DiagonalLength(offset); }
+ElError ElDistMatrixDiagonalLength_c
+( ElConstDistMatrix_c AHandle, ElInt offset, ElInt* length )
+{ 
+    try { *length = RCADM_c_const(AHandle)->DiagonalLength(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixDiagonalLength_z
-( ElConstDistMatrix_z AHandle, ElInt offset )
-{ return RCADM_z_const(AHandle)->DiagonalLength(offset); }
+ElError ElDistMatrixDiagonalLength_z
+( ElConstDistMatrix_z AHandle, ElInt offset, ElInt* length )
+{ 
+    try { *length = RCADM_z_const(AHandle)->DiagonalLength(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // bool DistMatrix<T,U,V>::Viewing() const
 // ---------------------------------------
-bool ElDistMatrixViewing_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->Viewing(); }
+ElError ElDistMatrixViewing_s( ElConstDistMatrix_s AHandle, bool* viewing )
+{ 
+    try { *viewing = RCADM_s_const(AHandle)->Viewing(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-bool ElDistMatrixViewing_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->Viewing(); }
+ElError ElDistMatrixViewing_d( ElConstDistMatrix_d AHandle, bool* viewing )
+{ 
+    try { *viewing = RCADM_d_const(AHandle)->Viewing(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-bool ElDistMatrixViewing_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->Viewing(); }
+ElError ElDistMatrixViewing_c( ElConstDistMatrix_c AHandle, bool* viewing )
+{ 
+    try { *viewing = RCADM_c_const(AHandle)->Viewing(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-bool ElDistMatrixViewing_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->Viewing(); }
+ElError ElDistMatrixViewing_z( ElConstDistMatrix_z AHandle, bool* viewing )
+{ 
+    try { *viewing = RCADM_z_const(AHandle)->Viewing(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // bool DistMatrix<T,U,V>::Locked() const
 // --------------------------------------
-bool ElDistMatrixLocked_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->Locked(); }
+ElError ElDistMatrixLocked_s( ElConstDistMatrix_s AHandle, bool* locked )
+{ 
+    try { *locked = RCADM_s_const(AHandle)->Locked(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-bool ElDistMatrixLocked_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->Locked(); }
+ElError ElDistMatrixLocked_d( ElConstDistMatrix_d AHandle, bool* locked )
+{ 
+    try { *locked = RCADM_d_const(AHandle)->Locked(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-bool ElDistMatrixLocked_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->Locked(); }
+ElError ElDistMatrixLocked_c( ElConstDistMatrix_c AHandle, bool* locked )
+{ 
+    try { *locked = RCADM_c_const(AHandle)->Locked(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-bool ElDistMatrixLocked_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->Locked(); }
+ElError ElDistMatrixLocked_z( ElConstDistMatrix_z AHandle, bool* locked )
+{ 
+    try { *locked = RCADM_z_const(AHandle)->Locked(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // Int DistMatrix<T,U,V>::LocalHeight() const
 // ------------------------------------------
-ElInt ElDistMatrixLocalHeight_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->LocalHeight(); }
+ElError ElDistMatrixLocalHeight_s
+( ElConstDistMatrix_s AHandle, ElInt* localHeight )
+{ 
+    try { *localHeight = RCADM_s_const(AHandle)->LocalHeight(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLocalHeight_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->LocalHeight(); }
+ElError ElDistMatrixLocalHeight_d
+( ElConstDistMatrix_d AHandle, ElInt* localHeight )
+{ 
+    try { *localHeight = RCADM_d_const(AHandle)->LocalHeight(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLocalHeight_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->LocalHeight(); }
+ElError ElDistMatrixLocalHeight_c
+( ElConstDistMatrix_c AHandle, ElInt* localHeight )
+{ 
+    try { *localHeight = RCADM_c_const(AHandle)->LocalHeight(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLocalHeight_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->LocalHeight(); }
+ElError ElDistMatrixLocalHeight_z
+( ElConstDistMatrix_z AHandle, ElInt* localHeight )
+{ 
+    try { *localHeight = RCADM_z_const(AHandle)->LocalHeight(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // Int DistMatrix<T,U,V>::LocalWidth() const
 // -----------------------------------------
-ElInt ElDistMatrixLocalWidth_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->LocalWidth(); }
+ElError ElDistMatrixLocalWidth_s
+( ElConstDistMatrix_s AHandle, ElInt* localWidth )
+{ 
+    try { *localWidth = RCADM_s_const(AHandle)->LocalWidth(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLocalWidth_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->LocalWidth(); }
+ElError ElDistMatrixLocalWidth_d
+( ElConstDistMatrix_d AHandle, ElInt* localWidth )
+{ 
+    try { *localWidth = RCADM_d_const(AHandle)->LocalWidth(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLocalWidth_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->LocalWidth(); }
+ElError ElDistMatrixLocalWidth_c
+( ElConstDistMatrix_c AHandle, ElInt* localWidth )
+{ 
+    try { *localWidth = RCADM_c_const(AHandle)->LocalWidth(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLocalWidth_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->LocalWidth(); }
+ElError ElDistMatrixLocalWidth_z
+( ElConstDistMatrix_z AHandle, ElInt* localWidth )
+{ 
+    try { *localWidth = RCADM_z_const(AHandle)->LocalWidth(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // Int DistMatrix<T,U,V>::LDim() const
 // -----------------------------------------
-ElInt ElDistMatrixLDim_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->LDim(); }
+ElError ElDistMatrixLDim_s( ElConstDistMatrix_s AHandle, ElInt* ldim )
+{ 
+    try { *ldim = RCADM_s_const(AHandle)->LDim(); }
+    CATCH
+    return EL_SUCCESS; 
+}
 
-ElInt ElDistMatrixLDim_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->LDim(); }
+ElError ElDistMatrixLDim_d( ElConstDistMatrix_d AHandle, ElInt* ldim )
+{ 
+    try { *ldim = RCADM_d_const(AHandle)->LDim(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLDim_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->LDim(); }
+ElError ElDistMatrixLDim_c( ElConstDistMatrix_c AHandle, ElInt* ldim )
+{ 
+    try { *ldim = RCADM_c_const(AHandle)->LDim(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElInt ElDistMatrixLDim_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->LDim(); }
+ElError ElDistMatrixLDim_z( ElConstDistMatrix_z AHandle, ElInt* ldim )
+{ 
+    try { *ldim = RCADM_z_const(AHandle)->LDim(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // Matrix<T>& DistMatrix<T,U,V>::Matrix()
 // --------------------------------------
-ElMatrix_s ElDistMatrixMatrix_s( ElDistMatrix_s AHandle )
+ElError ElDistMatrixMatrix_s( ElDistMatrix_s AHandle, ElMatrix_s* ALocHandle )
 {
-    ElMatrix_s ALocHandle = 0;
-    try { ALocHandle = (ElMatrix_s)reinterpret_cast<struct ElMatrix_sDummy*>
-                       (&RCADM_s(AHandle)->Matrix()); }
+    try { *ALocHandle = (ElMatrix_s)reinterpret_cast<struct ElMatrix_sDummy*>
+                        (&RCADM_s(AHandle)->Matrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
-ElMatrix_d ElDistMatrixMatrix_d( ElDistMatrix_d AHandle )
+ElError ElDistMatrixMatrix_d( ElDistMatrix_d AHandle, ElMatrix_d* ALocHandle )
 {
-    ElMatrix_d ALocHandle = 0;
-    try { ALocHandle = (ElMatrix_d)reinterpret_cast<struct ElMatrix_dDummy*>
-                       (&RCADM_d(AHandle)->Matrix()); }
+    try { *ALocHandle = (ElMatrix_d)reinterpret_cast<struct ElMatrix_dDummy*>
+                        (&RCADM_d(AHandle)->Matrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
-ElMatrix_c ElDistMatrixMatrix_c( ElDistMatrix_c AHandle )
+ElError ElDistMatrixMatrix_c( ElDistMatrix_c AHandle, ElMatrix_c* ALocHandle )
 {
-    ElMatrix_c ALocHandle = 0;
-    try { ALocHandle = (ElMatrix_c)reinterpret_cast<struct ElMatrix_cDummy*>
-                       (&RCADM_c(AHandle)->Matrix()); }
+    try { *ALocHandle = (ElMatrix_c)reinterpret_cast<struct ElMatrix_cDummy*>
+                        (&RCADM_c(AHandle)->Matrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
-ElMatrix_z ElDistMatrixMatrix_z( ElDistMatrix_z AHandle )
+ElError ElDistMatrixMatrix_z( ElDistMatrix_z AHandle, ElMatrix_z* ALocHandle )
 {
-    ElMatrix_z ALocHandle = 0;
-    try { ALocHandle = (ElMatrix_z)reinterpret_cast<struct ElMatrix_zDummy*>
-                       (&RCADM_z(AHandle)->Matrix()); }
+    try { *ALocHandle = (ElMatrix_z)reinterpret_cast<struct ElMatrix_zDummy*>
+                        (&RCADM_z(AHandle)->Matrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
 // const Matrix<T>& DistMatrix<T,U,V>::LockedMatrix() const
 // --------------------------------------------------------
-ElConstMatrix_s ElDistMatrixLockedMatrix_s( ElConstDistMatrix_s AHandle )
+ElError ElDistMatrixLockedMatrix_s
+( ElConstDistMatrix_s AHandle, ElConstMatrix_s* ALocHandle )
 {
-    ElConstMatrix_s ALocHandle = 0;
-    try { ALocHandle = (ElConstMatrix_s)
-                       reinterpret_cast<const struct ElMatrix_sDummy*>
-                       (&RCADM_s_const(AHandle)->LockedMatrix()); }
+    try { *ALocHandle = (ElConstMatrix_s)
+                        reinterpret_cast<const struct ElMatrix_sDummy*>
+                        (&RCADM_s_const(AHandle)->LockedMatrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
-ElConstMatrix_d ElDistMatrixLockedMatrix_d( ElConstDistMatrix_d AHandle )
+ElError ElDistMatrixLockedMatrix_d
+( ElConstDistMatrix_d AHandle, ElConstMatrix_d* ALocHandle )
 {
-    ElConstMatrix_d ALocHandle = 0;
-    try { ALocHandle = (ElConstMatrix_d)
-                       reinterpret_cast<const struct ElMatrix_dDummy*>
-                       (&RCADM_d_const(AHandle)->LockedMatrix()); }
+    try { *ALocHandle = (ElConstMatrix_d)
+                        reinterpret_cast<const struct ElMatrix_dDummy*>
+                        (&RCADM_d_const(AHandle)->LockedMatrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
-ElConstMatrix_c ElDistMatrixLockedMatrix_c( ElConstDistMatrix_c AHandle )
+ElError ElDistMatrixLockedMatrix_c
+( ElConstDistMatrix_c AHandle, ElConstMatrix_c* ALocHandle )
 {
-    ElConstMatrix_c ALocHandle = 0;
-    try { ALocHandle = (ElConstMatrix_c)
-                       reinterpret_cast<const struct ElMatrix_cDummy*>
-                       (&RCADM_c_const(AHandle)->LockedMatrix()); }
+    try { *ALocHandle = (ElConstMatrix_c)
+                        reinterpret_cast<const struct ElMatrix_cDummy*>
+                        (&RCADM_c_const(AHandle)->LockedMatrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
-ElConstMatrix_z ElDistMatrixLockedMatrix_z( ElConstDistMatrix_z AHandle )
+ElError ElDistMatrixLockedMatrix_z
+( ElConstDistMatrix_z AHandle, ElConstMatrix_z* ALocHandle )
 {
-    ElConstMatrix_z ALocHandle = 0;
-    try { ALocHandle = (ElConstMatrix_z)
-                       reinterpret_cast<const struct ElMatrix_zDummy*>
-                       (&RCADM_z_const(AHandle)->LockedMatrix()); }
+    try { *ALocHandle = (ElConstMatrix_z)
+                        reinterpret_cast<const struct ElMatrix_zDummy*>
+                        (&RCADM_z_const(AHandle)->LockedMatrix()); }
     CATCH
-    return ALocHandle;
+    return EL_SUCCESS;
 }
 
 // size_t DistMatrix<T,U,V>::AllocatedMemory() const
 // -------------------------------------------------
-size_t ElDistMatrixAllocatedMemory_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->AllocatedMemory(); }
+ElError ElDistMatrixAllocatedMemory_s
+( ElConstDistMatrix_s AHandle, size_t* mem )
+{ 
+    try { *mem = RCADM_s_const(AHandle)->AllocatedMemory(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-size_t ElDistMatrixAllocatedMemory_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->AllocatedMemory(); }
+ElError ElDistMatrixAllocatedMemory_d
+( ElConstDistMatrix_d AHandle, size_t* mem )
+{ 
+    try { *mem = RCADM_d_const(AHandle)->AllocatedMemory(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-size_t ElDistMatrixAllocatedMemory_c( ElConstDistMatrix_c AHandle )
-{ return RCADM_c_const(AHandle)->AllocatedMemory(); }
+ElError ElDistMatrixAllocatedMemory_c
+( ElConstDistMatrix_c AHandle, size_t* mem )
+{ 
+    try { *mem = RCADM_c_const(AHandle)->AllocatedMemory(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-size_t ElDistMatrixAllocatedMemory_z( ElConstDistMatrix_z AHandle )
-{ return RCADM_z_const(AHandle)->AllocatedMemory(); }
+ElError ElDistMatrixAllocatedMemory_z
+( ElConstDistMatrix_z AHandle, size_t* mem )
+{ 
+    try { *mem = RCADM_z_const(AHandle)->AllocatedMemory(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // T* DistMatrix<T,U,V>::Buffer()
 // ------------------------------
-float* ElDistMatrixBuffer_s( ElDistMatrix_s AHandle )
-{ return RCADM_s(AHandle)->Buffer(); }
+ElError ElDistMatrixBuffer_s( ElDistMatrix_s AHandle, float** buffer )
+{ 
+    try { *buffer = RCADM_s(AHandle)->Buffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-double* ElDistMatrixBuffer_d( ElDistMatrix_d AHandle )
-{ return RCADM_d(AHandle)->Buffer(); }
+ElError ElDistMatrixBuffer_d( ElDistMatrix_d AHandle, double** buffer )
+{ 
+    try { *buffer = RCADM_d(AHandle)->Buffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-complex_float* ElDistMatrixBuffer_c( ElDistMatrix_c AHandle )
-{ return (complex_float*)RCADM_c(AHandle)->Buffer(); }
+ElError ElDistMatrixBuffer_c( ElDistMatrix_c AHandle, complex_float** buffer )
+{ 
+    try { *buffer = (complex_float*)RCADM_c(AHandle)->Buffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-complex_double* ElDistMatrixBuffer_z( ElDistMatrix_z AHandle )
-{ return (complex_double*)RCADM_z(AHandle)->Buffer(); }
+ElError ElDistMatrixBuffer_z( ElDistMatrix_z AHandle, complex_double** buffer )
+{ 
+    try { *buffer = (complex_double*)RCADM_z(AHandle)->Buffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // const T* DistMatrix<T,U,V>::LockedBuffer() const
 // ------------------------------------------------
-const float* 
-ElDistMatrixLockedBuffer_s( ElConstDistMatrix_s AHandle )
-{ return RCADM_s_const(AHandle)->LockedBuffer(); }
+ElError ElDistMatrixLockedBuffer_s
+( ElConstDistMatrix_s AHandle, const float** buffer )
+{ 
+    try { *buffer = RCADM_s_const(AHandle)->LockedBuffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-const double* 
-ElDistMatrixLockedBuffer_d( ElConstDistMatrix_d AHandle )
-{ return RCADM_d_const(AHandle)->LockedBuffer(); }
+ElError ElDistMatrixLockedBuffer_d
+( ElConstDistMatrix_d AHandle, const double** buffer )
+{ 
+    try { *buffer = RCADM_d_const(AHandle)->LockedBuffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-const complex_float* 
-ElDistMatrixLockedBuffer_c( ElConstDistMatrix_c AHandle )
-{ return (const complex_float*)RCADM_c_const(AHandle)->LockedBuffer(); }
+ElError ElDistMatrixLockedBuffer_c
+( ElConstDistMatrix_c AHandle, const complex_float** buffer )
+{ 
+    try 
+    { *buffer = (const complex_float*)RCADM_c_const(AHandle)->LockedBuffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-const complex_double* 
-ElDistMatrixLockedBuffer_z( ElConstDistMatrix_z AHandle )
-{ return (const complex_double*)RCADM_z_const(AHandle)->LockedBuffer(); }
+ElError ElDistMatrixLockedBuffer_z
+( ElConstDistMatrix_z AHandle, const complex_double** buffer )
+{ 
+    try 
+    { *buffer = (const complex_double*)RCADM_z_const(AHandle)->LockedBuffer(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // const Grid& DistMatrix<T,U,V>::Grid() const
 // -------------------------------------------
-ElConstGrid ElDistMatrixGrid_s( ElConstDistMatrix_s AHandle )
-{ return (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
-         (&RCADM_s_const(AHandle)->Grid()); }
+ElError ElDistMatrixGrid_s
+( ElConstDistMatrix_s AHandle, ElConstGrid* gridHandle )
+{ 
+    try 
+    { *gridHandle = (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
+                    (&RCADM_s_const(AHandle)->Grid()); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElConstGrid ElDistMatrixGrid_d( ElConstDistMatrix_d AHandle )
-{ return (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
-         (&RCADM_d_const(AHandle)->Grid()); }
+ElError ElDistMatrixGrid_d
+( ElConstDistMatrix_d AHandle, ElConstGrid* gridHandle )
+{ 
+    try
+    { *gridHandle = (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
+                    (&RCADM_d_const(AHandle)->Grid()); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElConstGrid ElDistMatrixGrid_c( ElConstDistMatrix_c AHandle )
-{ return (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
-         (&RCADM_c_const(AHandle)->Grid()); }
+ElError ElDistMatrixGrid_c
+( ElConstDistMatrix_c AHandle, ElConstGrid* gridHandle )
+{ 
+    try
+    { *gridHandle = (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
+                    (&RCADM_c_const(AHandle)->Grid()); }
+    CATCH
+    return EL_SUCCESS;
+}
 
-ElConstGrid ElDistMatrixGrid_z( ElConstDistMatrix_z AHandle )
-{ return (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
-         (&RCADM_z_const(AHandle)->Grid()); }
+ElError ElDistMatrixGrid_z
+( ElConstDistMatrix_z AHandle, ElConstGrid* gridHandle )
+{ 
+    try
+    { *gridHandle = (ElConstGrid)reinterpret_cast<const struct ElGridDummy*>
+                    (&RCADM_z_const(AHandle)->Grid()); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // void DistMatrix<T,U,V>::Get( Int i, Int j ) const
 // -------------------------------------------------
-float ElDistMatrixGet_s( ElConstDistMatrix_s AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGet_s
+( ElConstDistMatrix_s AHandle, ElInt i, ElInt j, float* val )
 {
-    float alpha = -1;
-    try { alpha = RCADM_s_const(AHandle)->Get(i,j); }
+    try { *val = RCADM_s_const(AHandle)->Get(i,j); }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
-double ElDistMatrixGet_d( ElConstDistMatrix_d AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGet_d
+( ElConstDistMatrix_d AHandle, ElInt i, ElInt j, double* val )
 {
-    double alpha = -1;
-    try { alpha = RCADM_d_const(AHandle)->Get(i,j); }
+    try { *val = RCADM_d_const(AHandle)->Get(i,j); }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
-complex_float ElDistMatrixGet_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGet_c
+( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, complex_float* val )
 {
-    complex_float alpha;
     try 
     { 
-        Complex<float> alphaC = RCADM_c_const(AHandle)->Get(i,j);
-        alpha.real = alphaC.real();
-        alpha.imag = alphaC.imag();
+        Complex<float> alpha = RCADM_c_const(AHandle)->Get(i,j);
+        val->real = alpha.real();
+        val->imag = alpha.imag();
     }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
-complex_double ElDistMatrixGet_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGet_z
+( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, complex_double* val )
 {
-    complex_double alpha;
     try 
     { 
-        Complex<double> alphaC = RCADM_z_const(AHandle)->Get(i,j); 
-        alpha.real = alphaC.real();
-        alpha.imag = alphaC.imag();
+        Complex<double> alpha = RCADM_z_const(AHandle)->Get(i,j); 
+        val->real = alpha.real();
+        val->imag = alpha.imag();
     }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::GetRealPart( Int i, Int j ) const
 // ---------------------------------------------------------
-float ElDistMatrixGetRealPart_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGetRealPart_c
+( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, float* val )
 {
-    float alpha = -1;
-    try { alpha = RCADM_c_const(AHandle)->GetRealPart(i,j); }
+    try { *val = RCADM_c_const(AHandle)->GetRealPart(i,j); }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
-double ElDistMatrixGetRealPart_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGetRealPart_z
+( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, double* val )
 {
-    double alpha = -1;
-    try { alpha = RCADM_c_const(AHandle)->GetRealPart(i,j); }
+    try { *val = RCADM_c_const(AHandle)->GetRealPart(i,j); }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::GetImagPart( Int i, Int j ) const
 // ---------------------------------------------------------
-float ElDistMatrixGetImagPart_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGetImagPart_c
+( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, float* val )
 {
-    float alpha = -1;
-    try { alpha = RCADM_c_const(AHandle)->GetImagPart(i,j); }
+    try { *val = RCADM_c_const(AHandle)->GetImagPart(i,j); }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
-double ElDistMatrixGetImagPart_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixGetImagPart_z
+( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, double* val )
 {
-    double alpha = -1;
-    try { alpha = RCADM_c_const(AHandle)->GetImagPart(i,j); }
+    try { *val = RCADM_c_const(AHandle)->GetImagPart(i,j); }
     CATCH
-    return alpha;
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::Set( Int i, Int j, T alpha )
 // ----------------------------------------------------
-void ElDistMatrixSet_s( ElDistMatrix_s AHandle, ElInt i, ElInt j, float alpha )
+ElError ElDistMatrixSet_s
+( ElDistMatrix_s AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCADM_s(AHandle)->Set(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSet_d( ElDistMatrix_d AHandle, ElInt i, ElInt j, double alpha )
+ElError ElDistMatrixSet_d
+( ElDistMatrix_d AHandle, ElInt i, ElInt j, double alpha )
 {
     try { RCADM_d(AHandle)->Set(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSet_c
+ElError ElDistMatrixSet_c
 ( ElDistMatrix_c AHandle, ElInt i, ElInt j, complex_float alpha )
 {
     try { RCADM_c(AHandle)->Set(i,j,Complex<float>(alpha.real,alpha.imag)); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSet_z
+ElError ElDistMatrixSet_z
 ( ElDistMatrix_z AHandle, ElInt i, ElInt j, complex_double alpha )
 {
     try { RCADM_z(AHandle)->Set(i,j,Complex<double>(alpha.real,alpha.imag)); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::SetRealPart( Int i, Int j, Base<T> alpha )
 // ------------------------------------------------------------------
-void ElDistMatrixSetRealPart_c
+ElError ElDistMatrixSetRealPart_c
 ( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCADM_c(AHandle)->SetRealPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetRealPart_z
+ElError ElDistMatrixSetRealPart_z
 ( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
 {
     try { RCADM_z(AHandle)->SetRealPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::SetImagPart( Int i, Int j, Base<T> alpha )
 // ------------------------------------------------------------------
-void ElDistMatrixSetImagPart_c
+ElError ElDistMatrixSetImagPart_c
 ( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCADM_c(AHandle)->SetImagPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixSetImagPart_z
+ElError ElDistMatrixSetImagPart_z
 ( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
 {
     try { RCADM_z(AHandle)->SetImagPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::Update( Int i, Int j, T alpha )
 // -------------------------------------------------------
-void ElDistMatrixUpdate_s
+ElError ElDistMatrixUpdate_s
 ( ElDistMatrix_s AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCADM_s(AHandle)->Update(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixUpdate_d
+ElError ElDistMatrixUpdate_d
 ( ElDistMatrix_d AHandle, ElInt i, ElInt j, double alpha )
 {
     try { RCADM_d(AHandle)->Update(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixUpdate_c
+ElError ElDistMatrixUpdate_c
 ( ElDistMatrix_c AHandle, ElInt i, ElInt j, complex_float alpha )
 {
     try { RCADM_c(AHandle)->Update
           (i,j,Complex<float>(alpha.real,alpha.imag)); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixUpdate_z
+ElError ElDistMatrixUpdate_z
 ( ElDistMatrix_z AHandle, ElInt i, ElInt j, complex_double alpha )
 {
     try { RCADM_z(AHandle)->Update
           (i,j,Complex<double>(alpha.real,alpha.imag)); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 // ---------------------------------------------------------------------
-void ElDistMatrixUpdateRealPart_c
+ElError ElDistMatrixUpdateRealPart_c
 ( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCADM_c(AHandle)->UpdateRealPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixUpdateRealPart_z
+ElError ElDistMatrixUpdateRealPart_z
 ( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
 {
     try { RCADM_z(AHandle)->UpdateRealPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 // ---------------------------------------------------------------------
-void ElDistMatrixUpdateImagPart_c
+ElError ElDistMatrixUpdateImagPart_c
 ( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
 {
     try { RCADM_c(AHandle)->UpdateImagPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixUpdateImagPart_z
+ElError ElDistMatrixUpdateImagPart_z
 ( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
 {
     try { RCADM_z(AHandle)->UpdateImagPart(i,j,alpha); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::MakeReal( Int i, Int j )
 // ------------------------------------------------
-void ElDistMatrixMakeReal_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixMakeReal_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
 {
     try { RCADM_c(AHandle)->MakeReal(i,j); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixMakeReal_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixMakeReal_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
 {
     try { RCADM_z(AHandle)->MakeReal(i,j); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // void DistMatrix<T,U,V>::Conjugate( Int i, Int j )
 // -------------------------------------------------
-void ElDistMatrixConjugate_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixConjugate_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
 {
     try { RCADM_c(AHandle)->Conjugate(i,j); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDistMatrixConjugate_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
+ElError ElDistMatrixConjugate_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
 {
     try { RCADM_z(AHandle)->Conjugate(i,j); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // DistMatrix<T,UDiag,VDiag> DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
 // ----------------------------------------------------------------------------
-ElDistMatrix_s ElDistMatrixGetDiagonal_s
-( ElConstDistMatrix_s AHandle, ElInt offset )
+ElError ElDistMatrixGetDiagonal_s
+( ElConstDistMatrix_s AHandle, ElInt offset, ElDistMatrix_s* dHandle )
 {
-    ElDistMatrix_s dHandle = 0;
     try 
     {
         auto AAbs = RCADM_s_const(AHandle);
@@ -1268,8 +1589,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,CIRC,CIRC>*>(AAbs);
             auto* d = new DistMatrix<float,CIRC,CIRC>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == MC && V == MR )
         {
@@ -1277,8 +1598,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,MC,MR>*>(AAbs);
             auto* d = new DistMatrix<float,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == MC && V == STAR )
         {
@@ -1286,8 +1607,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,MC,STAR>*>(AAbs);
             auto* d = new DistMatrix<float,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == MD && V == STAR )
         {
@@ -1295,8 +1616,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,MD,STAR>*>(AAbs);
             auto* d = new DistMatrix<float,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == STAR && V == MC )
         {
@@ -1304,8 +1625,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,STAR,MC>*>(AAbs);
             auto* d = new DistMatrix<float,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == STAR && V == MD )
         {
@@ -1313,8 +1634,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,STAR,MD>*>(AAbs);
             auto* d = new DistMatrix<float,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == STAR && V == MR )
         {
@@ -1322,8 +1643,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,STAR,MR>*>(AAbs);
             auto* d = new DistMatrix<float,MR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == STAR && V == STAR )
         {
@@ -1331,8 +1652,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,STAR,STAR>*>(AAbs);
             auto* d = new DistMatrix<float,STAR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == STAR && V == VC )
         {
@@ -1340,8 +1661,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,STAR,VC>*>(AAbs);
             auto* d = new DistMatrix<float,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == STAR && V == VR )
         {
@@ -1349,8 +1670,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,STAR,VR>*>(AAbs);
             auto* d = new DistMatrix<float,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == VC && V == STAR )
         {
@@ -1358,8 +1679,8 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,VC,STAR>*>(AAbs);
             auto* d = new DistMatrix<float,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else if( U == VR && V == STAR )
         {
@@ -1367,20 +1688,19 @@ ElDistMatrix_s ElDistMatrixGetDiagonal_s
               dynamic_cast<const DistMatrix<float,VR,STAR>*>(AAbs);
             auto* d = new DistMatrix<float,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_s)
-                      reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
         }
         else
             RuntimeError("Invalid distribution pair");
     }
     CATCH
-    return dHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_d ElDistMatrixGetDiagonal_d
-( ElConstDistMatrix_d AHandle, ElInt offset )
+ElError ElDistMatrixGetDiagonal_d
+( ElConstDistMatrix_d AHandle, ElInt offset, ElDistMatrix_d* dHandle )
 {
-    ElDistMatrix_d dHandle = 0;
     try 
     {
         auto AAbs = RCADM_d_const(AHandle);
@@ -1396,8 +1716,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,CIRC,CIRC>*>(AAbs);
             auto* d = new DistMatrix<double,CIRC,CIRC>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == MC && V == MR )
         {
@@ -1405,8 +1725,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,MC,MR>*>(AAbs);
             auto* d = new DistMatrix<double,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == MC && V == STAR )
         {
@@ -1414,8 +1734,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,MC,STAR>*>(AAbs);
             auto* d = new DistMatrix<double,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == MD && V == STAR )
         {
@@ -1423,8 +1743,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,MD,STAR>*>(AAbs);
             auto* d = new DistMatrix<double,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == STAR && V == MC )
         {
@@ -1432,8 +1752,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,STAR,MC>*>(AAbs);
             auto* d = new DistMatrix<double,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == STAR && V == MD )
         {
@@ -1441,8 +1761,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,STAR,MD>*>(AAbs);
             auto* d = new DistMatrix<double,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == STAR && V == MR )
         {
@@ -1450,8 +1770,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,STAR,MR>*>(AAbs);
             auto* d = new DistMatrix<double,MR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == STAR && V == STAR )
         {
@@ -1459,8 +1779,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,STAR,STAR>*>(AAbs);
             auto* d = new DistMatrix<double,STAR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == STAR && V == VC )
         {
@@ -1468,8 +1788,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,STAR,VC>*>(AAbs);
             auto* d = new DistMatrix<double,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == STAR && V == VR )
         {
@@ -1477,8 +1797,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,STAR,VR>*>(AAbs);
             auto* d = new DistMatrix<double,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == VC && V == STAR )
         {
@@ -1486,8 +1806,8 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,VC,STAR>*>(AAbs);
             auto* d = new DistMatrix<double,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else if( U == VR && V == STAR )
         {
@@ -1495,20 +1815,19 @@ ElDistMatrix_d ElDistMatrixGetDiagonal_d
               dynamic_cast<const DistMatrix<double,VR,STAR>*>(AAbs);
             auto* d = new DistMatrix<double,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_d)
-                      reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else
             RuntimeError("Invalid distribution pair");
     }
     CATCH
-    return dHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_c ElDistMatrixGetDiagonal_c
-( ElConstDistMatrix_c AHandle, ElInt offset )
+ElError ElDistMatrixGetDiagonal_c
+( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_c* dHandle )
 {
-    ElDistMatrix_c dHandle = 0;
     try 
     {
         auto AAbs = RCADM_c_const(AHandle);
@@ -1524,8 +1843,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,CIRC,CIRC>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,CIRC,CIRC>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == MC && V == MR )
         {
@@ -1533,8 +1852,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,MC,MR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == MC && V == STAR )
         {
@@ -1542,8 +1861,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,MC,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == MD && V == STAR )
         {
@@ -1551,8 +1870,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,MD,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == STAR && V == MC )
         {
@@ -1560,8 +1879,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,STAR,MC>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == STAR && V == MD )
         {
@@ -1569,8 +1888,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,STAR,MD>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == STAR && V == MR )
         {
@@ -1578,8 +1897,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,STAR,MR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,MR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == STAR && V == STAR )
         {
@@ -1587,8 +1906,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,STAR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == STAR && V == VC )
         {
@@ -1596,8 +1915,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,STAR,VC>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == STAR && V == VR )
         {
@@ -1605,8 +1924,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,STAR,VR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == VC && V == STAR )
         {
@@ -1614,8 +1933,8 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,VC,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else if( U == VR && V == STAR )
         {
@@ -1623,20 +1942,19 @@ ElDistMatrix_c ElDistMatrixGetDiagonal_c
               dynamic_cast<const DistMatrix<Complex<float>,VR,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<float>,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_c)
-                      reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
+            *dHandle = (ElDistMatrix_c)
+                       reinterpret_cast<struct ElDistMatrix_cDummy*>(d);
         }
         else
             RuntimeError("Invalid distribution pair");
     }
     CATCH
-    return dHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_z ElDistMatrixGetDiagonal_z
-( ElConstDistMatrix_z AHandle, ElInt offset )
+ElError ElDistMatrixGetDiagonal_z
+( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_z* dHandle )
 {
-    ElDistMatrix_z dHandle = 0;
     try 
     {
         auto AAbs = RCADM_z_const(AHandle);
@@ -1652,8 +1970,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,CIRC,CIRC>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,CIRC,CIRC>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == MC && V == MR )
         {
@@ -1661,8 +1979,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,MC,MR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == MC && V == STAR )
         {
@@ -1670,8 +1988,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,MC,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == MD && V == STAR )
         {
@@ -1679,8 +1997,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,MD,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == STAR && V == MC )
         {
@@ -1688,8 +2006,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,STAR,MC>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,MC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == STAR && V == MD )
         {
@@ -1697,8 +2015,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,STAR,MD>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,MD,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == STAR && V == MR )
         {
@@ -1706,8 +2024,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,STAR,MR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,MR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == STAR && V == STAR )
         {
@@ -1715,8 +2033,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,STAR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == STAR && V == VC )
         {
@@ -1724,8 +2042,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,STAR,VC>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == STAR && V == VR )
         {
@@ -1733,8 +2051,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,STAR,VR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == VC && V == STAR )
         {
@@ -1742,8 +2060,8 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,VC,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,VC,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else if( U == VR && V == STAR )
         {
@@ -1751,14 +2069,14 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
               dynamic_cast<const DistMatrix<Complex<double>,VR,STAR>*>(AAbs);
             auto* d = new DistMatrix<Complex<double>,VR,STAR>(grid);
             A->GetDiagonal( *d, offset );
-            dHandle = (ElDistMatrix_z)
-                      reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+            *dHandle = (ElDistMatrix_z)
+                       reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
         }
         else
             RuntimeError("Invalid distribution pair");
     }
     CATCH
-    return dHandle;
+    return EL_SUCCESS;
 }
 
 // TODO: More diagonal manipulation
@@ -1767,94 +2085,80 @@ ElDistMatrix_z ElDistMatrixGetDiagonal_z
 // DistMatrix<T,STAR,STAR> DistMatrix<T,U,V>::GetSubmatrix
 // ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
 // --------------------------------------------------------------------------
-ElDistMatrix_s ElDistMatrixGetSubmatrix_s
+ElError ElDistMatrixGetSubmatrix_s
 ( ElConstDistMatrix_s AHandle,
   ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds )
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_s* ASubHandle )
 {
-    ElDistMatrix_s ASubHandle = 0;
     try
     {
-        ElConstGrid gridHandle = ElDistMatrixGrid_s( AHandle );
-        ASubHandle = ElDistMatrixCreateSpecific_s
-                     ( EL_STAR, EL_STAR, gridHandle );
+        auto A = RCADM_s_const(AHandle);
+        auto ASub = new DistMatrix<float,STAR,STAR>(A->Grid());
 
         std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
                          colIndVec(colInds,colInds+numColInds);
-        RCADM_s_const(AHandle)->GetSubmatrix
-        ( rowIndVec, colIndVec, 
-          *reinterpret_cast<DistMatrix<float,STAR,STAR>*>(ASubHandle) );
+        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElDistMatrix_s)ASub;
     }
     CATCH
-    return ASubHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_d ElDistMatrixGetSubmatrix_d
+ElError ElDistMatrixGetSubmatrix_d
 ( ElConstDistMatrix_d AHandle,
   ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds )
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_d* ASubHandle )
 {
-    ElDistMatrix_d ASubHandle = 0;
     try
     {
-        ElConstGrid gridHandle = ElDistMatrixGrid_d( AHandle );
-        ASubHandle = ElDistMatrixCreateSpecific_d
-                     ( EL_STAR, EL_STAR, gridHandle );
+        auto A = RCADM_d_const(AHandle);
+        auto ASub = new DistMatrix<double,STAR,STAR>(A->Grid());
 
         std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
                          colIndVec(colInds,colInds+numColInds);
-        RCADM_d_const(AHandle)->GetSubmatrix
-        ( rowIndVec, colIndVec,
-          *reinterpret_cast<DistMatrix<double,STAR,STAR>*>(ASubHandle) );
+        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElDistMatrix_d)ASub;
     }
     CATCH
-    return ASubHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_c ElDistMatrixGetSubmatrix_c
+ElError ElDistMatrixGetSubmatrix_c
 ( ElConstDistMatrix_c AHandle,
   ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds )
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_c* ASubHandle )
 {
-    ElDistMatrix_c ASubHandle = 0;
     try
     {
-        ElConstGrid gridHandle = ElDistMatrixGrid_c( AHandle );
-        ASubHandle = ElDistMatrixCreateSpecific_c
-                     ( EL_STAR, EL_STAR, gridHandle );
+        auto A = RCADM_c_const(AHandle);
+        auto ASub = new DistMatrix<Complex<float>,STAR,STAR>(A->Grid());
 
         std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
                          colIndVec(colInds,colInds+numColInds);
-        RCADM_c_const(AHandle)->GetSubmatrix
-        ( rowIndVec, colIndVec,
-          *reinterpret_cast<DistMatrix<Complex<float>,STAR,STAR>*>
-           (ASubHandle) );
+        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElDistMatrix_c)ASub;
     }
     CATCH
-    return ASubHandle;
+    return EL_SUCCESS;
 }
 
-ElDistMatrix_z ElDistMatrixGetSubmatrix_z
+ElError ElDistMatrixGetSubmatrix_z
 ( ElConstDistMatrix_z AHandle,
   ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds )
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_z* ASubHandle )
 {
-    ElDistMatrix_z ASubHandle = 0;
     try
     {
-        ElConstGrid gridHandle = ElDistMatrixGrid_z( AHandle );
-        ASubHandle = ElDistMatrixCreateSpecific_z
-                     ( EL_STAR, EL_STAR, gridHandle );
+        auto A = RCADM_z_const(AHandle);
+        auto ASub = new DistMatrix<Complex<double>,STAR,STAR>(A->Grid());
 
         std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
                          colIndVec(colInds,colInds+numColInds);
-        RCADM_z_const(AHandle)->GetSubmatrix
-        ( rowIndVec, colIndVec,
-          *reinterpret_cast<DistMatrix<Complex<double>,STAR,STAR>*>
-           (ASubHandle) );
+        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElDistMatrix_z)ASub;
     }
     CATCH
-    return ASubHandle;
+    return EL_SUCCESS;
 }
 
 /// TODO: Many more member functions

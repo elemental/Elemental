@@ -22,62 +22,78 @@ using namespace El;
 #define RCADM_c_const(A) RC(const AbstractDistMatrix<Complex<float >>*,A)
 #define RCADM_z_const(A) RC(const AbstractDistMatrix<Complex<double>>*,A)
 
-#define CATCH catch( std::exception& e ) { ReportException(e); }
+#define CATCH \
+  catch( std::bad_alloc& e ) \
+  { ReportException(e); return EL_ALLOC_ERROR; } \
+  catch( std::logic_error& e ) \
+  { ReportException(e); return EL_LOGIC_ERROR; } \
+  catch( std::runtime_error& e ) \
+  { ReportException(e); return EL_RUNTIME_ERROR; } \
+  catch( std::exception& e ) \
+  { ReportException(e); return EL_ERROR; }
 
 extern "C" {
 
 // Matrix
 // ======
 
-void ElDisplayMatrix_s( ElConstMatrix_s AHandle, const char* title )
+ElError ElDisplayMatrix_s( ElConstMatrix_s AHandle, const char* title )
 {
     try { Display( *RCM_s_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDisplayMatrix_d( ElConstMatrix_d AHandle, const char* title )
+ElError ElDisplayMatrix_d( ElConstMatrix_d AHandle, const char* title )
 {
     try { Display( *RCM_d_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDisplayMatrix_c( ElConstMatrix_c AHandle, const char* title )
+ElError ElDisplayMatrix_c( ElConstMatrix_c AHandle, const char* title )
 {
     try { Display( *RCM_c_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDisplayMatrix_z( ElConstMatrix_z AHandle, const char* title )
+ElError ElDisplayMatrix_z( ElConstMatrix_z AHandle, const char* title )
 {
     try { Display( *RCM_z_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
 // AbstractDistMatrix
 // ==================
 
-void ElDisplayDistMatrix_s( ElConstDistMatrix_s AHandle, const char* title )
+ElError ElDisplayDistMatrix_s( ElConstDistMatrix_s AHandle, const char* title )
 {
     try { Display( *RCADM_s_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDisplayDistMatrix_d( ElConstDistMatrix_d AHandle, const char* title )
+ElError ElDisplayDistMatrix_d( ElConstDistMatrix_d AHandle, const char* title )
 {
     try { Display( *RCADM_d_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDisplayDistMatrix_c( ElConstDistMatrix_c AHandle, const char* title )
+ElError ElDisplayDistMatrix_c( ElConstDistMatrix_c AHandle, const char* title )
 {
     try { Display( *RCADM_c_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
-void ElDisplayDistMatrix_z( ElConstDistMatrix_z AHandle, const char* title )
+ElError ElDisplayDistMatrix_z( ElConstDistMatrix_z AHandle, const char* title )
 {
     try { Display( *RCADM_z_const(AHandle), std::string(title) ); }
     CATCH
+    return EL_SUCCESS;
 }
 
 } // extern "C"

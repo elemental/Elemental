@@ -16,31 +16,37 @@ extern "C" {
 #include <stdlib.h>
 #endif
 
-void ElPrintVersion( FILE* stream );
-void ElPrintConfig( FILE* stream );
-void ElPrintCCompilerInfo( FILE* stream );
-void ElPrintCxxCompilerInfo( FILE* stream );
+ElError ElPrintVersion( FILE* stream );
+ElError ElPrintConfig( FILE* stream );
+ElError ElPrintCCompilerInfo( FILE* stream );
+ElError ElPrintCxxCompilerInfo( FILE* stream );
 
-void ElInitialize( int* argc, char*** argv );
-void ElFinalize();
-bool ElInitialized();
+ElError ElInitialize( int* argc, char*** argv );
+ElError ElFinalize();
+ElError ElInitialized( bool* initialized );
 
-bool   ElInput_b( const char* name, const char* desc, bool defaultVal );
-int    ElInput_i( const char* name, const char* desc, int defaultVal );
-ElInt  ElInput_I( const char* name, const char* desc, ElInt defaultVal );
-float  ElInput_s( const char* name, const char* desc, float defaultVal );
-double ElInput_d( const char* name, const char* desc, double defaultVal );
-const char* ElInput_cstr
-( const char* name, const char* desc, const char* defaultVal );
+ElError ElInput_b
+( const char* name, const char* desc, bool defaultVal, bool* val );
+ElError ElInput_i
+( const char* name, const char* desc, int defaultVal, int* val );
+ElError ElInput_I
+( const char* name, const char* desc, ElInt defaultVal, ElInt* val );
+ElError ElInput_s
+( const char* name, const char* desc, float defaultVal, float* val );
+ElError ElInput_d
+( const char* name, const char* desc, double defaultVal, double* val );
+ElError ElInput_cstr
+( const char* name, const char* desc, const char* defaultVal, 
+  const char** val );
 
-void ElProcessInput();
-void ElPrintInputReport();
+ElError ElProcessInput();
+ElError ElPrintInputReport();
 
-ElInt ElBlocksize();
-void ElSetBlocksize( ElInt blocksize );
+ElError ElBlocksize( ElInt* blocksize );
+ElError ElSetBlocksize( ElInt blocksize );
 
-void ElPushBlocksizeStack( ElInt blocksize );
-void ElPopBlocksizeStack();
+ElError ElPushBlocksizeStack( ElInt blocksize );
+ElError ElPopBlocksizeStack();
 
 #ifdef __cplusplus
 } // extern "C"
