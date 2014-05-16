@@ -48,6 +48,36 @@ ElError ElSetBlocksize( ElInt blocksize );
 ElError ElPushBlocksizeStack( ElInt blocksize );
 ElError ElPopBlocksizeStack();
 
+#define EL_EXIT_ON_ERROR(error) \
+  do \
+  { \
+      if( error != EL_SUCCESS ) \
+      { \
+          int commRank_; MPI_Comm_rank( MPI_COMM_WORLD, &commRank_ ); \
+          const char* errString = ElErrorString(error); \
+          fprintf( stderr, \
+            "Rank %d exiting: %s was returned from line %d of file %s\n", \
+            commRank_, errString, __LINE__, __FILE__ ); \
+          ElFinalize(); \
+          exit( 0 ); \
+      } \
+  } while( 0 );
+
+#define EL_RETURN_ON_ERROR(error) \
+  do \
+  { \
+      if( error != EL_SUCCESS ) \
+      { \
+          int commRank_; MPI_Comm_rank( MPI_COMM_WORLD, &commRank_ ); \
+          const char* errString = ElErrorString(error); \
+          fprintf( stderr, \
+            "Rank %d returning: %s was returned from line %d of file %s\n", \
+            commRank_, errString, __LINE__, __FILE__ ); \
+          ElFinalize(); \
+          return 0; \
+      } \
+  } while( 0 );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
