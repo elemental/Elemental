@@ -60,7 +60,7 @@ ElError ElPopBlocksizeStack();
             commRank_, errString, __LINE__, __FILE__ ); \
           MPI_Abort( MPI_COMM_WORLD, 1 ); \
       } \
-  } while( 0 );
+  } while( 0 )
 
 #ifdef __cplusplus
 } // extern "C"

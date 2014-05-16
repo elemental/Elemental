@@ -1315,6 +1315,80 @@ ElError ElDistMatrixGrid_z
     return EL_SUCCESS;
 }
 
+// TODO: A large number of routines here
+
+// DistData DistMatrix<T,U,V>::DistData() const
+// --------------------------------------------
+ElError ElDistMatrixDistData_s
+( ElConstDistMatrix_s AHandle, ElDistData* distData )
+{
+    try 
+    { 
+        DistData data = RCADM_s_const(AHandle)->DistData(); 
+        distData->colDist = static_cast<ElDist>(data.colDist);
+        distData->rowDist = static_cast<ElDist>(data.rowDist);
+        distData->colAlign = data.colAlign;
+        distData->rowAlign = data.rowAlign;
+        distData->root = data.root;
+        distData->grid = (ElConstGrid)data.grid;
+    }
+    CATCH
+    return EL_SUCCESS; 
+}
+
+ElError ElDistMatrixDistData_d
+( ElConstDistMatrix_d AHandle, ElDistData* distData )
+{
+    try 
+    { 
+        DistData data = RCADM_d_const(AHandle)->DistData(); 
+        distData->colDist = static_cast<ElDist>(data.colDist);
+        distData->rowDist = static_cast<ElDist>(data.rowDist);
+        distData->colAlign = data.colAlign;
+        distData->rowAlign = data.rowAlign;
+        distData->root = data.root;
+        distData->grid = (ElConstGrid)data.grid;
+    }
+    CATCH
+    return EL_SUCCESS; 
+}
+
+ElError ElDistMatrixDistData_c
+( ElConstDistMatrix_c AHandle, ElDistData* distData )
+{
+    try 
+    { 
+        DistData data = RCADM_c_const(AHandle)->DistData(); 
+        distData->colDist = static_cast<ElDist>(data.colDist);
+        distData->rowDist = static_cast<ElDist>(data.rowDist);
+        distData->colAlign = data.colAlign;
+        distData->rowAlign = data.rowAlign;
+        distData->root = data.root;
+        distData->grid = (ElConstGrid)data.grid;
+    }
+    CATCH
+    return EL_SUCCESS; 
+}
+
+ElError ElDistMatrixDistData_z
+( ElConstDistMatrix_z AHandle, ElDistData* distData )
+{
+    try 
+    { 
+        DistData data = RCADM_z_const(AHandle)->DistData(); 
+        distData->colDist = static_cast<ElDist>(data.colDist);
+        distData->rowDist = static_cast<ElDist>(data.rowDist);
+        distData->colAlign = data.colAlign;
+        distData->rowAlign = data.rowAlign;
+        distData->root = data.root;
+        distData->grid = (ElConstGrid)data.grid;
+    }
+    CATCH
+    return EL_SUCCESS; 
+}
+
+// TODO: A large number of routines here
+
 // void DistMatrix<T,U,V>::Get( Int i, Int j ) const
 // -------------------------------------------------
 ElError ElDistMatrixGet_s
