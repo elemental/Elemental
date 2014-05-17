@@ -2609,7 +2609,585 @@ ElError ElDistMatrixDistData_z
     return EL_SUCCESS; 
 }
 
-// TODO: A large number of routines here
+// mpi::Comm DistMatrix<T,U,V>::DistComm() const
+// ---------------------------------------------
+ElError ElDistMatrixDistComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->DistComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDistComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->DistComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDistComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->DistComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDistComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->DistComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::CrossComm() const
+// ----------------------------------------------
+ElError ElDistMatrixCrossComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->CrossComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixCrossComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->CrossComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixCrossComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->CrossComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixCrossComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->CrossComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::RedundantComm() const
+// --------------------------------------------------
+ElError ElDistMatrixRedundantComm_s
+( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->RedundantComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRedundantComm_d
+( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->RedundantComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRedundantComm_c
+( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->RedundantComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRedundantComm_z
+( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->RedundantComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::ColComm() const
+// --------------------------------------------
+ElError ElDistMatrixColComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->ColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixColComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->ColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixColComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->ColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixColComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->ColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::RowComm() const
+// --------------------------------------------
+ElError ElDistMatrixRowComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->RowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRowComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->RowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRowComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->RowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRowComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->RowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::PartialColComm() const
+// ---------------------------------------------------
+ElError ElDistMatrixPartialColComm_s
+( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->PartialColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialColComm_d
+( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->PartialColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialColComm_c
+( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->PartialColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialColComm_z
+( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->PartialColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::PartialRowComm() const
+// ---------------------------------------------------
+ElError ElDistMatrixPartialRowComm_s
+( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->PartialRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialRowComm_d
+( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->PartialRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialRowComm_c
+( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->PartialRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialRowComm_z
+( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->PartialRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::PartialUnionColComm() const
+// --------------------------------------------------------
+ElError ElDistMatrixPartialUnionColComm_s
+( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->PartialUnionColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionColComm_d
+( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->PartialUnionColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionColComm_c
+( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->PartialUnionColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionColComm_z
+( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->PartialUnionColComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// mpi::Comm DistMatrix<T,U,V>::PartialUnionRowComm() const
+// --------------------------------------------------------
+ElError ElDistMatrixPartialUnionRowComm_s
+( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_s_const(AHandle)->PartialUnionRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionRowComm_d
+( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_d_const(AHandle)->PartialUnionRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionRowComm_c
+( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_c_const(AHandle)->PartialUnionRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionRowComm_z
+( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
+{
+    try { *comm = RCADM_z_const(AHandle)->PartialUnionRowComm().comm; }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::ColStride() const
+// ----------------------------------------
+ElError ElDistMatrixColStride_s( ElConstDistMatrix_s AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_s_const(AHandle)->ColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixColStride_d( ElConstDistMatrix_d AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_d_const(AHandle)->ColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixColStride_c( ElConstDistMatrix_c AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_c_const(AHandle)->ColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixColStride_z( ElConstDistMatrix_z AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_z_const(AHandle)->ColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::RowStride() const
+// ----------------------------------------
+ElError ElDistMatrixRowStride_s( ElConstDistMatrix_s AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_s_const(AHandle)->RowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRowStride_d( ElConstDistMatrix_d AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_d_const(AHandle)->RowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRowStride_c( ElConstDistMatrix_c AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_c_const(AHandle)->RowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRowStride_z( ElConstDistMatrix_z AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_z_const(AHandle)->RowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::PartialColStride() const
+// -----------------------------------------------
+ElError ElDistMatrixPartialColStride_s
+( ElConstDistMatrix_s AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_s_const(AHandle)->PartialColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialColStride_d
+( ElConstDistMatrix_d AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_d_const(AHandle)->PartialColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialColStride_c
+( ElConstDistMatrix_c AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_c_const(AHandle)->PartialColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialColStride_z
+( ElConstDistMatrix_z AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_z_const(AHandle)->PartialColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::PartialRowStride() const
+// -----------------------------------------------
+ElError ElDistMatrixPartialRowStride_s
+( ElConstDistMatrix_s AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_s_const(AHandle)->PartialRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialRowStride_d
+( ElConstDistMatrix_d AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_d_const(AHandle)->PartialRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialRowStride_c
+( ElConstDistMatrix_c AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_c_const(AHandle)->PartialRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialRowStride_z
+( ElConstDistMatrix_z AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_z_const(AHandle)->PartialRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::PartialUnionColStride() const
+// ----------------------------------------------------
+ElError ElDistMatrixPartialUnionColStride_s
+( ElConstDistMatrix_s AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_s_const(AHandle)->PartialUnionColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionColStride_d
+( ElConstDistMatrix_d AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_d_const(AHandle)->PartialUnionColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionColStride_c
+( ElConstDistMatrix_c AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_c_const(AHandle)->PartialUnionColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionColStride_z
+( ElConstDistMatrix_z AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_z_const(AHandle)->PartialUnionColStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::PartialUnionRowStride() const
+// ----------------------------------------------------
+ElError ElDistMatrixPartialUnionRowStride_s
+( ElConstDistMatrix_s AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_s_const(AHandle)->PartialUnionRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionRowStride_d
+( ElConstDistMatrix_d AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_d_const(AHandle)->PartialUnionRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionRowStride_c
+( ElConstDistMatrix_c AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_c_const(AHandle)->PartialUnionRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixPartialUnionRowStride_z
+( ElConstDistMatrix_z AHandle, ElInt* stride )
+{
+    try { *stride = RCADM_z_const(AHandle)->PartialUnionRowStride(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::DistSize() const
+// ---------------------------------------
+ElError ElDistMatrixDistSize_s( ElConstDistMatrix_s AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_s_const(AHandle)->DistSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDistSize_d( ElConstDistMatrix_d AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_d_const(AHandle)->DistSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDistSize_c( ElConstDistMatrix_c AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_c_const(AHandle)->DistSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDistSize_z( ElConstDistMatrix_z AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_z_const(AHandle)->DistSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::CrossSize() const
+// ----------------------------------------
+ElError ElDistMatrixCrossSize_s( ElConstDistMatrix_s AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_s_const(AHandle)->CrossSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixCrossSize_d( ElConstDistMatrix_d AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_d_const(AHandle)->CrossSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixCrossSize_c( ElConstDistMatrix_c AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_c_const(AHandle)->CrossSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixCrossSize_z( ElConstDistMatrix_z AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_z_const(AHandle)->CrossSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::RedundantSize() const
+// --------------------------------------------
+ElError ElDistMatrixRedundantSize_s
+( ElConstDistMatrix_s AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_s_const(AHandle)->RedundantSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRedundantSize_d
+( ElConstDistMatrix_d AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_d_const(AHandle)->RedundantSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRedundantSize_c
+( ElConstDistMatrix_c AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_c_const(AHandle)->RedundantSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixRedundantSize_z
+( ElConstDistMatrix_z AHandle, ElInt* commSize )
+{
+    try { *commSize = RCADM_z_const(AHandle)->RedundantSize(); }
+    CATCH
+    return EL_SUCCESS;
+}
 
 // void DistMatrix<T,U,V>::Get( Int i, Int j ) const
 // -------------------------------------------------
@@ -2861,6 +3439,264 @@ ElError ElDistMatrixConjugate_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
 ElError ElDistMatrixConjugate_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
 {
     try { RCADM_z(AHandle)->Conjugate(i,j); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// T DistMatrix<T,U,V>::GetLocal( Int iLoc, Int jLoc ) const
+// ---------------------------------------------------------
+ElError ElDistMatrixGetLocal_s
+( ElConstDistMatrix_s AHandle, ElInt iLoc, ElInt jLoc, float* val )
+{
+    try { *val = RCADM_s_const(AHandle)->GetLocal(iLoc,jLoc); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocal_d
+( ElConstDistMatrix_d AHandle, ElInt iLoc, ElInt jLoc, double* val )
+{
+    try { *val = RCADM_d_const(AHandle)->GetLocal(iLoc,jLoc); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocal_c
+( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, complex_float* val )
+{
+    try 
+    { 
+        Complex<float> alpha = RCADM_c_const(AHandle)->GetLocal(iLoc,jLoc);
+        val->real = alpha.real();
+        val->imag = alpha.imag();
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocal_z
+( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, complex_double* val )
+{
+    try 
+    { 
+        Complex<double> alpha = RCADM_z_const(AHandle)->GetLocal(iLoc,jLoc);
+        val->real = alpha.real();
+        val->imag = alpha.imag();
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Base<T> DistMatrix<T,U,V>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+// -----------------------------------------------------------------------
+ElError ElDistMatrixGetLocalRealPart_c
+( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float* val )
+{
+    try { *val = RCADM_c_const(AHandle)->GetLocalRealPart(iLoc,jLoc); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocalRealPart_z
+( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double* val )
+{
+    try { *val = RCADM_z_const(AHandle)->GetLocalRealPart(iLoc,jLoc); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Base<T> DistMatrix<T,U,V>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+// -----------------------------------------------------------------------
+ElError ElDistMatrixGetLocalImagPart_c
+( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float* val )
+{
+    try { *val = RCADM_c_const(AHandle)->GetLocalImagPart(iLoc,jLoc); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocalImagPart_z
+( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double* val )
+{
+    try { *val = RCADM_z_const(AHandle)->GetLocalImagPart(iLoc,jLoc); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::SetLocal( Int iLoc, Int jLoc, T alpha )
+// ---------------------------------------------------------------
+ElError ElDistMatrixSetLocal_s
+( ElDistMatrix_s AHandle, ElInt iLoc, ElInt jLoc, float alpha )
+{
+    try { RCADM_s(AHandle)->SetLocal(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocal_d
+( ElDistMatrix_d AHandle, ElInt iLoc, ElInt jLoc, double alpha )
+{
+    try { RCADM_d(AHandle)->SetLocal(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocal_c
+( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, complex_float alpha )
+{
+    try { RCADM_c(AHandle)->SetLocal
+          (iLoc,jLoc,Complex<float>(alpha.real,alpha.imag)); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocal_z
+( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, complex_double alpha )
+{
+    try { RCADM_z(AHandle)->SetLocal
+          (iLoc,jLoc,Complex<double>(alpha.real,alpha.imag)); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
+// -----------------------------------------------------------------------------
+ElError ElDistMatrixSetLocalRealPart_c
+( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
+{
+    try { RCADM_c(AHandle)->SetLocalRealPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocalRealPart_z
+( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
+{
+    try { RCADM_z(AHandle)->SetLocalRealPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
+// -----------------------------------------------------------------------------
+ElError ElDistMatrixSetLocalImagPart_c
+( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
+{
+    try { RCADM_c(AHandle)->SetLocalImagPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocalImagPart_z
+( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
+{
+    try { RCADM_z(AHandle)->SetLocalImagPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
+// ------------------------------------------------------------------
+ElError ElDistMatrixUpdateLocal_s
+( ElDistMatrix_s AHandle, ElInt iLoc, ElInt jLoc, float alpha )
+{
+    try { RCADM_s(AHandle)->UpdateLocal(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocal_d
+( ElDistMatrix_d AHandle, ElInt iLoc, ElInt jLoc, double alpha )
+{
+    try { RCADM_d(AHandle)->UpdateLocal(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocal_c
+( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, complex_float alpha )
+{
+    try { RCADM_c(AHandle)->UpdateLocal
+          (iLoc,jLoc,Complex<float>(alpha.real,alpha.imag)); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocal_z
+( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, complex_double alpha )
+{
+    try { RCADM_z(AHandle)->UpdateLocal
+          (iLoc,jLoc,Complex<double>(alpha.real,alpha.imag)); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::UpdateLocalRealPart
+// ( Int iLoc, Int jLoc, Base<T> alpha )
+// -------------------------------------------
+ElError ElDistMatrixUpdateLocalRealPart_c
+( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
+{
+    try { RCADM_c(AHandle)->UpdateLocalRealPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocalRealPart_z
+( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
+{
+    try { RCADM_z(AHandle)->UpdateLocalRealPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::UpdateLocalImagPart
+// ( Int iLoc, Int jLoc, Base<T> alpha )
+// -------------------------------------------
+ElError ElDistMatrixUpdateLocalImagPart_c
+( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
+{
+    try { RCADM_c(AHandle)->UpdateLocalImagPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocalImagPart_z
+( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
+{
+    try { RCADM_z(AHandle)->UpdateLocalImagPart(iLoc,jLoc,alpha); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::MakeDiagonalReal( Int offset )
+// ------------------------------------------------------
+ElError ElDistMatrixMakeDiagonalReal_c( ElDistMatrix_c AHandle, ElInt offset )
+{
+    try { RCADM_c(AHandle)->MakeDiagonalReal(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixMakeDiagonalReal_z( ElDistMatrix_z AHandle, ElInt offset )
+{
+    try { RCADM_z(AHandle)->MakeDiagonalReal(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::ConjugateDiagonal( Int offset )
+// -------------------------------------------------------
+ElError ElDistMatrixConjugateDiagonal_c( ElDistMatrix_c AHandle, ElInt offset )
+{
+    try { RCADM_c(AHandle)->ConjugateDiagonal(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixConjugateDiagonal_z( ElDistMatrix_z AHandle, ElInt offset )
+{
+    try { RCADM_z(AHandle)->ConjugateDiagonal(offset); }
     CATCH
     return EL_SUCCESS;
 }

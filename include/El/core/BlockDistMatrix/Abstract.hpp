@@ -98,83 +98,81 @@ public:
 
     // Global matrix information
     // -------------------------
-    Int Height() const;
-    Int Width() const;
-    Int DiagonalLength( Int offset=0 ) const;
-    bool Viewing() const;
-    bool Locked()  const;
+    Int  Height()                       const;
+    Int  Width()                        const;
+    Int  DiagonalLength( Int offset=0 ) const;
+    bool Viewing()                      const;
+    bool Locked()                       const;
 
     // Local matrix information
     // ------------------------
-    Int LocalHeight() const;
-    Int LocalWidth() const;
-    Int LDim() const;
+          Int            LocalHeight()                      const;
+          Int            LocalWidth()                       const;
+          Int            LDim()                             const;
           El::Matrix<T>& Matrix();
-    const El::Matrix<T>& LockedMatrix() const;
-    size_t AllocatedMemory() const;
-          T* Buffer();
-          T* Buffer( Int iLoc, Int jLoc );
-    const T* LockedBuffer() const;
-    const T* LockedBuffer( Int iLoc, Int jLoc ) const;
+    const El::Matrix<T>& LockedMatrix()                     const;
+          size_t         AllocatedMemory()                  const;
+          T*             Buffer();
+          T*             Buffer( Int iLoc, Int jLoc );
+    const T*             LockedBuffer()                     const;
+    const T*             LockedBuffer( Int iLoc, Int jLoc ) const;
 
     // Distribution information
     // ------------------------
-    const El::Grid& Grid() const;
-    bool ColConstrained() const;
-    bool RowConstrained() const;
-    bool RootConstrained() const;
-    Int BlockHeight() const;
-    Int BlockWidth() const;
-    Int ColAlign() const;
-    Int RowAlign() const;
-    Int ColCut() const;
-    Int RowCut() const;
-    Int ColShift() const;
-    Int RowShift() const;
-    Int ColRank() const;
-    Int RowRank() const;
-    Int PartialColRank() const;
-    Int PartialRowRank() const;
-    Int PartialUnionColRank() const;
-    Int PartialUnionRowRank() const; 
-    Int DistRank() const;
-    Int CrossRank() const;
-    Int RedundantRank() const;
-    Int Root() const;
-    bool Participating() const;
-    Int RowOwner( Int i ) const;     // rank in ColComm
-    Int ColOwner( Int j ) const;     // rank in RowComm
-    Int Owner( Int i, Int j ) const; // rank in DistComm
-    Int LocalRow( Int i ) const; // debug throws if row i is not locally owned
-    Int LocalCol( Int j ) const; // debug throws if col j is not locally owned
-    Int LocalRowOffset( Int i ) const; // number of local rows before row i
-    Int LocalColOffset( Int j ) const; // number of local cols before col j
-    Int GlobalRow( Int iLoc ) const;
-    Int GlobalCol( Int jLoc ) const;
-    bool IsLocalRow( Int i ) const; 
-    bool IsLocalCol( Int j ) const;
-    bool IsLocal( Int i, Int j ) const;
-    // Must be overridden
-    // ^^^^^^^^^^^^^^^^^^
-    virtual El::BlockDistData DistData() const = 0;
-    virtual mpi::Comm DistComm() const = 0;
-    virtual mpi::Comm CrossComm() const = 0;
-    virtual mpi::Comm RedundantComm() const = 0;
-    virtual mpi::Comm ColComm() const = 0;
-    virtual mpi::Comm RowComm() const = 0;
-    virtual mpi::Comm PartialColComm() const;
-    virtual mpi::Comm PartialRowComm() const;
-    virtual mpi::Comm PartialUnionColComm() const;
-    virtual mpi::Comm PartialUnionRowComm() const;
-    virtual Int ColStride() const = 0;
-    virtual Int RowStride() const = 0;
-    virtual Int PartialColStride() const;
-    virtual Int PartialRowStride() const;
-    virtual Int PartialUnionColStride() const;
-    virtual Int PartialUnionRowStride() const;
-    virtual Int DistSize() const = 0;
-    virtual Int CrossSize() const = 0;
-    virtual Int RedundantSize() const = 0;
+            const El::Grid&         Grid()                  const;
+                  Int               BlockHeight()           const;
+                  Int               BlockWidth()            const;
+                  Int               ColAlign()              const;
+                  Int               RowAlign()              const;
+                  Int               ColCut()                const;
+                  Int               RowCut()                const;
+                  Int               ColShift()              const;
+                  Int               RowShift()              const;
+                  bool              ColConstrained()        const;
+                  bool              RowConstrained()        const;
+                  bool              RootConstrained()       const;
+                  bool              Participating()         const;
+                  Int               RowOwner( Int i )       const;     
+                  Int               ColOwner( Int j )       const;     
+                  Int               Owner( Int i, Int j )   const; 
+                  Int               LocalRow( Int i )       const; 
+                  Int               LocalCol( Int j )       const; 
+                  Int               LocalRowOffset( Int i ) const; 
+                  Int               LocalColOffset( Int j ) const; 
+                  Int               GlobalRow( Int iLoc )   const;
+                  Int               GlobalCol( Int jLoc )   const;
+                  bool              IsLocalRow( Int i )     const; 
+                  bool              IsLocalCol( Int j )     const;
+                  bool              IsLocal( Int i, Int j ) const;
+    virtual       mpi::Comm         ColComm()               const = 0;
+    virtual       mpi::Comm         RowComm()               const = 0;
+    virtual       mpi::Comm         PartialColComm()        const;
+    virtual       mpi::Comm         PartialRowComm()        const;
+    virtual       mpi::Comm         PartialUnionColComm()   const;
+    virtual       mpi::Comm         PartialUnionRowComm()   const;
+    virtual       mpi::Comm         DistComm()              const = 0;
+    virtual       mpi::Comm         CrossComm()             const = 0;
+    virtual       mpi::Comm         RedundantComm()         const = 0;
+    virtual       Int               ColStride()             const = 0;
+    virtual       Int               RowStride()             const = 0;
+    virtual       Int               PartialColStride()      const;
+    virtual       Int               PartialRowStride()      const;
+    virtual       Int               PartialUnionColStride() const;
+    virtual       Int               PartialUnionRowStride() const;
+    virtual       Int               DistSize()              const = 0;
+    virtual       Int               CrossSize()             const = 0;
+    virtual       Int               RedundantSize()         const = 0;
+                  Int               ColRank()               const;
+                  Int               RowRank()               const;
+                  Int               PartialColRank()        const;
+                  Int               PartialRowRank()        const;
+                  Int               PartialUnionColRank()   const;
+                  Int               PartialUnionRowRank()   const; 
+                  Int               DistRank()              const;
+                  Int               CrossRank()             const;
+                  Int               RedundantRank()         const;
+                  Int               Root()                  const;
+    virtual       El::BlockDistData DistData()              const = 0;
 
     // Single-entry manipulation
     // =========================

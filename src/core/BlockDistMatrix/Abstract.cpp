@@ -682,16 +682,6 @@ template<typename T>
 const El::Grid& AbstractBlockDistMatrix<T>::Grid() const { return *grid_; }
 
 template<typename T>
-bool AbstractBlockDistMatrix<T>::ColConstrained() const 
-{ return colConstrained_; }
-template<typename T>
-bool AbstractBlockDistMatrix<T>::RowConstrained() const 
-{ return rowConstrained_; }
-template<typename T>
-bool AbstractBlockDistMatrix<T>::RootConstrained() const
-{ return rootConstrained_; }
-
-template<typename T>
 Int AbstractBlockDistMatrix<T>::BlockHeight() const { return blockHeight_; }
 template<typename T>
 Int AbstractBlockDistMatrix<T>::BlockWidth() const { return blockWidth_; }
@@ -712,76 +702,31 @@ template<typename T>
 Int AbstractBlockDistMatrix<T>::RowShift() const { return rowShift_; }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::ColRank() const 
-{ return mpi::Rank(ColComm()); }
+bool AbstractBlockDistMatrix<T>::ColConstrained() const 
+{ return colConstrained_; }
+template<typename T>
+bool AbstractBlockDistMatrix<T>::RowConstrained() const 
+{ return rowConstrained_; }
+template<typename T>
+bool AbstractBlockDistMatrix<T>::RootConstrained() const
+{ return rootConstrained_; }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::RowRank() const 
-{ return mpi::Rank(RowComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialColRank() const
-{ return mpi::Rank(PartialColComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialUnionColRank() const
-{ return mpi::Rank(PartialUnionColComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialRowRank() const
-{ return mpi::Rank(PartialRowComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialUnionRowRank() const
-{ return mpi::Rank(PartialUnionRowComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::DistRank() const
-{ return mpi::Rank(DistComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::CrossRank() const
-{ return mpi::Rank(CrossComm()); }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::RedundantRank() const
-{ return mpi::Rank(RedundantComm()); }
-
-template<typename T>
-Int AbstractBlockDistMatrix<T>::Root() const { return root_; }
-
-template<typename T>
-bool
-AbstractBlockDistMatrix<T>::Participating() const
+bool AbstractBlockDistMatrix<T>::Participating() const
 { return grid_->InGrid() && (CrossRank()==root_); }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::RowOwner( Int i ) const
+Int AbstractBlockDistMatrix<T>::RowOwner( Int i ) const
 { return (((i+ColCut())/BlockHeight())+ColAlign()) % ColStride(); }
-
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::ColOwner( Int j ) const
+Int AbstractBlockDistMatrix<T>::ColOwner( Int j ) const
 { return (((j+RowCut())/BlockWidth())+RowAlign()) % RowStride(); }
-
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::Owner( Int i, Int j ) const
+Int AbstractBlockDistMatrix<T>::Owner( Int i, Int j ) const
 { return RowOwner(i)+ColOwner(j)*ColStride(); }
 
 template<typename T>
-Int 
-AbstractBlockDistMatrix<T>::LocalRow( Int i ) const
+Int AbstractBlockDistMatrix<T>::LocalRow( Int i ) const
 { 
     DEBUG_ONLY(
         CallStackEntry cse("ABDM::LocalRow");
@@ -792,8 +737,7 @@ AbstractBlockDistMatrix<T>::LocalRow( Int i ) const
 }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::LocalCol( Int j ) const
+Int AbstractBlockDistMatrix<T>::LocalCol( Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("ABDM::LocalCol");
@@ -804,86 +748,95 @@ AbstractBlockDistMatrix<T>::LocalCol( Int j ) const
 }
 
 template<typename T>
-Int 
-AbstractBlockDistMatrix<T>::LocalRowOffset( Int i ) const
+Int AbstractBlockDistMatrix<T>::LocalRowOffset( Int i ) const
 { return BlockedLength_
          ( i, ColShift(), BlockHeight(), ColCut(), ColStride() ); }
-
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::LocalColOffset( Int j ) const
+Int AbstractBlockDistMatrix<T>::LocalColOffset( Int j ) const
 { return BlockedLength_( j, RowShift(), BlockWidth(), RowCut(), RowStride() ); }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::GlobalRow( Int iLoc ) const
+Int AbstractBlockDistMatrix<T>::GlobalRow( Int iLoc ) const
 { 
     return GlobalBlockedIndex
            (iLoc,ColShift(),BlockHeight(),ColCut(),ColStride()); 
 }
-
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::GlobalCol( Int jLoc ) const
+Int AbstractBlockDistMatrix<T>::GlobalCol( Int jLoc ) const
 { 
     return GlobalBlockedIndex
            (jLoc,RowShift(),BlockWidth(),RowCut(),RowStride()); 
 }
 
 template<typename T>
-bool
-AbstractBlockDistMatrix<T>::IsLocalRow( Int i ) const
+bool AbstractBlockDistMatrix<T>::IsLocalRow( Int i ) const
 { return Participating() && RowOwner(i) == ColRank(); }
-
 template<typename T>
-bool
-AbstractBlockDistMatrix<T>::IsLocalCol( Int j ) const
+bool AbstractBlockDistMatrix<T>::IsLocalCol( Int j ) const
 { return Participating() && ColOwner(j) == RowRank(); }
-
 template<typename T>
-bool
-AbstractBlockDistMatrix<T>::IsLocal( Int i, Int j ) const
+bool AbstractBlockDistMatrix<T>::IsLocal( Int i, Int j ) const
 { return IsLocalRow(i) && IsLocalCol(j); }
 
 template<typename T>
-mpi::Comm
-AbstractBlockDistMatrix<T>::PartialColComm() const
+mpi::Comm AbstractBlockDistMatrix<T>::PartialColComm() const
 { return ColComm(); }
-
 template<typename T>
-mpi::Comm
-AbstractBlockDistMatrix<T>::PartialRowComm() const
+mpi::Comm AbstractBlockDistMatrix<T>::PartialRowComm() const
 { return RowComm(); }
 
 template<typename T>
-mpi::Comm
-AbstractBlockDistMatrix<T>::PartialUnionColComm() const
+mpi::Comm AbstractBlockDistMatrix<T>::PartialUnionColComm() const
+{ return mpi::COMM_SELF; }
+template<typename T>
+mpi::Comm AbstractBlockDistMatrix<T>::PartialUnionRowComm() const
 { return mpi::COMM_SELF; }
 
 template<typename T>
-mpi::Comm
-AbstractBlockDistMatrix<T>::PartialUnionRowComm() const
-{ return mpi::COMM_SELF; }
-
-template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialColStride() const
+Int AbstractBlockDistMatrix<T>::PartialColStride() const
 { return ColStride(); }
-
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialRowStride() const
+Int AbstractBlockDistMatrix<T>::PartialRowStride() const
 { return RowStride(); }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialUnionColStride() const
+Int AbstractBlockDistMatrix<T>::PartialUnionColStride() const
+{ return 1; }
+template<typename T>
+Int AbstractBlockDistMatrix<T>::PartialUnionRowStride() const
 { return 1; }
 
 template<typename T>
-Int
-AbstractBlockDistMatrix<T>::PartialUnionRowStride() const
-{ return 1; }
+Int AbstractBlockDistMatrix<T>::ColRank() const { return mpi::Rank(ColComm()); }
+template<typename T>
+Int AbstractBlockDistMatrix<T>::RowRank() const { return mpi::Rank(RowComm()); }
+
+template<typename T>
+Int AbstractBlockDistMatrix<T>::PartialColRank() const
+{ return mpi::Rank(PartialColComm()); }
+template<typename T>
+Int AbstractBlockDistMatrix<T>::PartialRowRank() const
+{ return mpi::Rank(PartialRowComm()); }
+
+template<typename T>
+Int AbstractBlockDistMatrix<T>::PartialUnionColRank() const
+{ return mpi::Rank(PartialUnionColComm()); }
+template<typename T>
+Int AbstractBlockDistMatrix<T>::PartialUnionRowRank() const
+{ return mpi::Rank(PartialUnionRowComm()); }
+
+template<typename T>
+Int AbstractBlockDistMatrix<T>::DistRank() const
+{ return mpi::Rank(DistComm()); }
+template<typename T>
+Int AbstractBlockDistMatrix<T>::CrossRank() const
+{ return mpi::Rank(CrossComm()); }
+template<typename T>
+Int AbstractBlockDistMatrix<T>::RedundantRank() const
+{ return mpi::Rank(RedundantComm()); }
+
+template<typename T>
+Int AbstractBlockDistMatrix<T>::Root() const { return root_; }
 
 // Single-entry manipulation
 // =========================
