@@ -1025,6 +1025,128 @@ ElError ElDistMatrixGetSubmatrix_z
   ElInt numRowInds, const ElInt* rowInds,
   ElInt numColInds, const ElInt* colInds, ElDistMatrix_z* ASub );
 
+/* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetRealPartOfSubmatrix
+   ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+   -------------------------------------------------------------------------- */
+ElError ElDistMatrixGetRealPartOfSubmatrix_c
+( ElConstDistMatrix_c A,
+  ElInt numRowInds, const ElInt* rowInds,
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_s* ASub );
+ElError ElDistMatrixGetRealPartOfSubmatrix_z
+( ElConstDistMatrix_z A,
+  ElInt numRowInds, const ElInt* rowInds,
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_d* ASub );
+
+/* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetImagPartOfSubmatrix
+   ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+   -------------------------------------------------------------------------- */
+ElError ElDistMatrixGetImagPartOfSubmatrix_c
+( ElConstDistMatrix_c A,
+  ElInt numRowInds, const ElInt* rowInds,
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_s* ASub );
+ElError ElDistMatrixGetImagPartOfSubmatrix_z
+( ElConstDistMatrix_z A,
+  ElInt numRowInds, const ElInt* rowInds,
+  ElInt numColInds, const ElInt* colInds, ElDistMatrix_d* ASub );
+
+/* void DistMatrix<T,U,V>::SetSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+     const DistMatrix<T,STAR,STAR>& ASub )
+   ----------------------------------------------------------------- */
+ElError ElDistMatrixSetSubmatrix_s
+( ElDistMatrix_s A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_s ASub );
+ElError ElDistMatrixSetSubmatrix_d
+( ElDistMatrix_d A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_d ASub );
+ElError ElDistMatrixSetSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_c ASub );
+ElError ElDistMatrixSetSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_z ASub );
+
+/* void DistMatrix<T,U,V>::SetRealPartOfSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+     const DistMatrix<Base<T>,STAR,STAR>& ASub )
+   ----------------------------------------------------------------- */
+ElError ElDistMatrixSetRealPartOfSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_s ASub );
+ElError ElDistMatrixSetRealPartOfSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::SetImagPartOfSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+     const DistMatrix<Base<T>,STAR,STAR>& ASub )
+   ----------------------------------------------------------------- */
+ElError ElDistMatrixSetImagPartOfSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_s ASub );
+ElError ElDistMatrixSetImagPartOfSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
+  ElConstDistMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::UpdateSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+     T alpha, const DistMatrix<T,STAR,STAR>& ASub )
+   ----------------------------------------------------------------- */
+ElError ElDistMatrixUpdateSubmatrix_s
+( ElDistMatrix_s A, const ElInt* rowInds, const ElInt* colInds, 
+  float alpha, ElConstDistMatrix_s ASub );
+ElError ElDistMatrixUpdateSubmatrix_d
+( ElDistMatrix_d A, const ElInt* rowInds, const ElInt* colInds, 
+  double alpha, ElConstDistMatrix_d ASub );
+ElError ElDistMatrixUpdateSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
+  complex_float alpha, ElConstDistMatrix_c ASub );
+ElError ElDistMatrixUpdateSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
+  complex_double alpha, ElConstDistMatrix_z ASub );
+
+/* void DistMatrix<T,U,V>::UpdateRealPartOfSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+     Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
+   ----------------------------------------------------------------- */
+ElError ElDistMatrixUpdateRealPartOfSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
+  float alpha, ElConstDistMatrix_s ASub );
+ElError ElDistMatrixUpdateRealPartOfSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
+  double alpha, ElConstDistMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::UpdateImagPartOfSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd, 
+     Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub )
+   ----------------------------------------------------------------- */
+ElError ElDistMatrixUpdateImagPartOfSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowInds, const ElInt* colInds, 
+  float alpha, ElConstDistMatrix_s ASub );
+ElError ElDistMatrixUpdateImagPartOfSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowInds, const ElInt* colInds, 
+  double alpha, ElConstDistMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::MakeSubmatrixReal
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+   ------------------------------------------------------------------ */
+ElError ElDistMatrixMakeSubmatrixReal_c
+( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowInds, 
+                    ElInt numColInds, const ElInt* colInds );
+ElError ElDistMatrixMakeSubmatrixReal_z
+( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowInds, 
+                    ElInt numColInds, const ElInt* colInds );
+
+/* void DistMatrix<T,U,V>::ConjugateSubmatrix
+   ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
+   ------------------------------------------------------------------ */
+ElError ElDistMatrixConjugateSubmatrix_c
+( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowInds, 
+                    ElInt numColInds, const ElInt* colInds );
+ElError ElDistMatrixConjugateSubmatrix_z
+( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowInds, 
+                    ElInt numColInds, const ElInt* colInds );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

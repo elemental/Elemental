@@ -33,10 +33,10 @@ main( int argc, char* argv[] )
     error = ElPrintInputReport();
     EL_ABORT_ON_ERROR( error );
 
+    int worldRank;
+    MPI_Comm_rank( MPI_COMM_WORLD, &worldRank );
     if( mSub > m || nSub > n )
     {
-        int worldRank;
-        MPI_Comm_rank( MPI_COMM_WORLD, &worldRank );
         if( worldRank == 0 )
             printf("Invalid submatrix dimensions\n");
         ElFinalize();
@@ -77,10 +77,17 @@ main( int argc, char* argv[] )
     /* Extract an mSub x nSub submatrix */
     ElInt* rowInds = malloc(mSub*sizeof(ElInt));
     ElInt* colInds = malloc(nSub*sizeof(ElInt));
-    for( i=0; i<mSub; ++i )
-        rowInds[i] = rand() % m;
-    for( j=0; j<nSub; ++j )
-        colInds[j] = rand() % n;
+    if( worldRank == 0 )
+    {
+        for( i=0; i<mSub; ++i )
+            rowInds[i] = rand() % m;
+        for( j=0; j<nSub; ++j )
+            colInds[j] = rand() % n;
+    }
+    /* Broadcast the random integers from the root */
+    /* NOTE: We will assume the usual case, ElInt == int, for now */
+    MPI_Bcast( rowInds, mSub, MPI_INT, 0, MPI_COMM_WORLD );
+    MPI_Bcast( colInds, nSub, MPI_INT, 0, MPI_COMM_WORLD );
     ElDistMatrix_z ASub;
     error = ElDistMatrixGetSubmatrix_z
             ( A, mSub, rowInds, nSub, colInds, &ASub );
