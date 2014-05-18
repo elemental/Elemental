@@ -209,6 +209,10 @@ public:
 
     // Diagonal manipulation
     // =====================
+    virtual bool DiagonalAlignedWith
+    ( const El::BlockDistData& d, Int offset=0 ) const = 0;
+    virtual Int DiagonalRoot( Int offset=0 ) const = 0;
+    virtual Int DiagonalAlign( Int offset=0 ) const = 0;
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
 

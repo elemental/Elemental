@@ -119,9 +119,9 @@ public:
     // Diagonal manipulation
     // =====================
     bool DiagonalAlignedWith
-    ( const El::BlockDistData& d, Int offset=0 ) const;
-    Int DiagonalRoot( Int offset=0 ) const;
-    Int DiagonalAlign( Int offset=0 ) const;
+    ( const El::BlockDistData& d, Int offset=0 ) const override;
+    Int DiagonalRoot( Int offset=0 ) const override;
+    Int DiagonalAlign( Int offset=0 ) const override;
 
     void GetDiagonal( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal

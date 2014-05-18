@@ -17,13 +17,13 @@ main( int argc, char* argv[] )
 
     ElInt m, n, mSub, nSub;
     bool print, display;
-    error = ElInput_I("--m","matrix height",10,&m);
+    error = ElInput_I("--m","matrix height",100,&m);
     EL_ABORT_ON_ERROR( error );
-    error = ElInput_I("--n","matrix width",10,&n);
+    error = ElInput_I("--n","matrix width",100,&n);
     EL_ABORT_ON_ERROR( error );
-    error = ElInput_I("--mSub","submatrix height",5,&mSub);
+    error = ElInput_I("--mSub","submatrix height",50,&mSub);
     EL_ABORT_ON_ERROR( error );
-    error = ElInput_I("--nSub","submatrix width",5,&nSub);
+    error = ElInput_I("--nSub","submatrix width",50,&nSub);
     EL_ABORT_ON_ERROR( error );
     error = ElInput_b("--print","print matrix?",false,&print);
     EL_ABORT_ON_ERROR( error );

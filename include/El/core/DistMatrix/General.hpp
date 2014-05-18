@@ -116,9 +116,10 @@ public:
 
     // Diagonal manipulation
     // =====================
-    bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) const;
-    Int DiagonalRoot( Int offset=0 ) const;
-    Int DiagonalAlign( Int offset=0 ) const;
+    bool DiagonalAlignedWith( const El::DistData& d, Int offset=0 ) 
+    const override;
+    Int DiagonalRoot( Int offset=0 ) const override;
+    Int DiagonalAlign( Int offset=0 ) const override;
 
     void GetDiagonal( DistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal

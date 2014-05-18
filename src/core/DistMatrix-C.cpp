@@ -19,6 +19,16 @@ using namespace El;
 #define RCG(grid) RC(Grid*,grid)
 #define RCG_const(grid) RC(const Grid*,grid)
 
+#define RCM_s(A) RC(Matrix<float          >*,A)
+#define RCM_d(A) RC(Matrix<double         >*,A)
+#define RCM_c(A) RC(Matrix<Complex<float >>*,A)
+#define RCM_z(A) RC(Matrix<Complex<double>>*,A)
+
+#define RCM_s_const(A) RC(const Matrix<float          >*,A)
+#define RCM_d_const(A) RC(const Matrix<double         >*,A)
+#define RCM_c_const(A) RC(const Matrix<Complex<float >>*,A)
+#define RCM_z_const(A) RC(const Matrix<Complex<double>>*,A)
+
 #define RCADM_s(A) RC(AbstractDistMatrix<float          >*,A)
 #define RCADM_d(A) RC(AbstractDistMatrix<double         >*,A)
 #define RCADM_c(A) RC(AbstractDistMatrix<Complex<float >>*,A)
@@ -3703,6 +3713,117 @@ ElError ElDistMatrixConjugateDiagonal_z( ElDistMatrix_z AHandle, ElInt offset )
     return EL_SUCCESS;
 }
 
+// bool DistMatrix<T,U,V>::DiagonalAlignedWith
+// ( const DistData& data, Int offset ) const
+// -------------------------------------------
+ElError ElDistMatrixDiagonalAlignedWith_s
+( ElConstDistMatrix_s AHandle, ElDistData distData, ElInt offset, 
+  bool* aligned )
+{
+    try { *aligned = RCADM_s_const(AHandle)->DiagonalAlignedWith
+                     (Convert(distData),offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalAlignedWith_d
+( ElConstDistMatrix_d AHandle, ElDistData distData, ElInt offset, 
+  bool* aligned )
+{
+    try { *aligned = RCADM_d_const(AHandle)->DiagonalAlignedWith
+                     (Convert(distData),offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalAlignedWith_c
+( ElConstDistMatrix_c AHandle, ElDistData distData, ElInt offset, 
+  bool* aligned )
+{
+    try { *aligned = RCADM_c_const(AHandle)->DiagonalAlignedWith
+                     (Convert(distData),offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalAlignedWith_z
+( ElConstDistMatrix_z AHandle, ElDistData distData, ElInt offset, 
+  bool* aligned )
+{
+    try { *aligned = RCADM_z_const(AHandle)->DiagonalAlignedWith
+                     (Convert(distData),offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::DiagonalRoot( Int offset ) const
+// -------------------------------------------------------
+ElError ElDistMatrixDiagonalRoot_s
+( ElConstDistMatrix_s AHandle, ElInt offset, ElInt* root )
+{
+    try { *root = RCADM_s_const(AHandle)->DiagonalRoot(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalRoot_d
+( ElConstDistMatrix_d AHandle, ElInt offset, ElInt* root )
+{
+    try { *root = RCADM_d_const(AHandle)->DiagonalRoot(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalRoot_c
+( ElConstDistMatrix_c AHandle, ElInt offset, ElInt* root )
+{
+    try { *root = RCADM_c_const(AHandle)->DiagonalRoot(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalRoot_z
+( ElConstDistMatrix_z AHandle, ElInt offset, ElInt* root )
+{
+    try { *root = RCADM_z_const(AHandle)->DiagonalRoot(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Int DistMatrix<T,U,V>::DiagonalAlign( Int offset ) const
+// --------------------------------------------------------
+ElError ElDistMatrixDiagonalAlign_s
+( ElConstDistMatrix_s AHandle, ElInt offset, ElInt* align )
+{
+    try { *align = RCADM_s_const(AHandle)->DiagonalAlign(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalAlign_d
+( ElConstDistMatrix_d AHandle, ElInt offset, ElInt* align )
+{
+    try { *align = RCADM_d_const(AHandle)->DiagonalAlign(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalAlign_c
+( ElConstDistMatrix_c AHandle, ElInt offset, ElInt* align )
+{
+    try { *align = RCADM_c_const(AHandle)->DiagonalAlign(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixDiagonalAlign_z
+( ElConstDistMatrix_z AHandle, ElInt offset, ElInt* align )
+{
+    try { *align = RCADM_z_const(AHandle)->DiagonalAlign(offset); }
+    CATCH
+    return EL_SUCCESS;
+}
+
 // DistMatrix<T,UDiag,VDiag> DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
 // ----------------------------------------------------------------------------
 ElError ElDistMatrixGetDiagonal_s
@@ -4253,6 +4374,568 @@ ElError ElDistMatrixGetDiagonal_z
             A->GetDiagonal( *d, offset );
             *dHandle = (ElDistMatrix_z)
                        reinterpret_cast<struct ElDistMatrix_zDummy*>(d);
+        }
+        else
+            RuntimeError("Invalid distribution pair");
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// DistMatrix<Base<T>,UDiag,VDiag> 
+// DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
+// ------------------------------------------------------------
+ElError ElDistMatrixGetRealPartOfDiagonal_c
+( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_s* dHandle )
+{
+    try 
+    {
+        auto AAbs = RCADM_c_const(AHandle);
+        const Grid& grid = AAbs->Grid();
+
+        const DistData distData = AAbs->DistData();
+        const Dist U = distData.colDist;
+        const Dist V = distData.rowDist;
+
+        if( U == CIRC && V == CIRC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,CIRC,CIRC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,CIRC,CIRC>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == MC && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,MC,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MD,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == MC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,MC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == MD && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,MD,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MD,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == MC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,MC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == MD )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,MD>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MD,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,STAR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == VC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,VC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == VR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,VR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == VC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,VC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == VR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,VR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else
+            RuntimeError("Invalid distribution pair");
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetRealPartOfDiagonal_z
+( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_d* dHandle )
+{
+    try 
+    {
+        auto AAbs = RCADM_z_const(AHandle);
+        const Grid& grid = AAbs->Grid();
+
+        const DistData distData = AAbs->DistData();
+        const Dist U = distData.colDist;
+        const Dist V = distData.rowDist;
+
+        if( U == CIRC && V == CIRC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,CIRC,CIRC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,CIRC,CIRC>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == MC && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,MC,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MD,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == MC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,MC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == MD && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,MD,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MD,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == MC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,MC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == MD )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,MD>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MD,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,STAR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == VC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,VC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == VR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,VR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == VC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,VC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VC,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == VR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,VR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VR,STAR>(grid);
+            A->GetRealPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else
+            RuntimeError("Invalid distribution pair");
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// DistMatrix<Base<T>,UDiag,VDiag> 
+// DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
+// ------------------------------------------------------------
+ElError ElDistMatrixGetImagPartOfDiagonal_c
+( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_s* dHandle )
+{
+    try 
+    {
+        auto AAbs = RCADM_c_const(AHandle);
+        const Grid& grid = AAbs->Grid();
+
+        const DistData distData = AAbs->DistData();
+        const Dist U = distData.colDist;
+        const Dist V = distData.rowDist;
+
+        if( U == CIRC && V == CIRC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,CIRC,CIRC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,CIRC,CIRC>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == MC && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,MC,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MD,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == MC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,MC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == MD && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,MD,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MD,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == MC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,MC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == MD )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,MD>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MD,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,MR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,STAR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == VC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,VC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == STAR && V == VR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,STAR,VR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == VC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,VC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else if( U == VR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<float>,VR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<float,VR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_s)
+                       reinterpret_cast<struct ElDistMatrix_sDummy*>(d);
+        }
+        else
+            RuntimeError("Invalid distribution pair");
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetImagPartOfDiagonal_z
+( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_d* dHandle )
+{
+    try 
+    {
+        auto AAbs = RCADM_z_const(AHandle);
+        const Grid& grid = AAbs->Grid();
+
+        const DistData distData = AAbs->DistData();
+        const Dist U = distData.colDist;
+        const Dist V = distData.rowDist;
+
+        if( U == CIRC && V == CIRC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,CIRC,CIRC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,CIRC,CIRC>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == MC && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,MC,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MD,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == MC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,MC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == MD && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,MD,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MD,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == MC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,MC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == MD )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,MD>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MD,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == MR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,MR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,MR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,STAR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == VC )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,VC>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == STAR && V == VR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,STAR,VR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == VC && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,VC,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VC,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
+        }
+        else if( U == VR && V == STAR )
+        {
+            auto A = 
+              dynamic_cast<const DistMatrix<Complex<double>,VR,STAR>*>(AAbs);
+            DC_CHECK(A)
+            auto* d = new DistMatrix<double,VR,STAR>(grid);
+            A->GetImagPartOfDiagonal( *d, offset );
+            *dHandle = (ElDistMatrix_d)
+                       reinterpret_cast<struct ElDistMatrix_dDummy*>(d);
         }
         else
             RuntimeError("Invalid distribution pair");
@@ -4853,6 +5536,558 @@ ElError ElDistMatrixConjugateSubmatrix_z
     return EL_SUCCESS;
 }
 
-// TODO: Many more member functions
+// Matrix<T> DistMatrix<T,U,V>::GetLocalSubmatrix
+// ( const std::vector<Int>& rowIndsLoc, 
+//   const std::vector<Int>& colIndsLoc ) const
+// ------------------------------------------------------------
+ElError ElDistMatrixGetLocalSubmatrix_s
+( ElConstDistMatrix_s AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_s_const(AHandle);
+        auto ASub = new Matrix<float>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_s)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocalSubmatrix_d
+( ElConstDistMatrix_d AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_d_const(AHandle);
+        auto ASub = new Matrix<double>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_d)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocalSubmatrix_c
+( ElConstDistMatrix_c AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_c* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c_const(AHandle);
+        auto ASub = new Matrix<Complex<float>>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_c)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetLocalSubmatrix_z
+( ElConstDistMatrix_z AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_z* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z_const(AHandle);
+        auto ASub = new Matrix<Complex<double>>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_z)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Matrix<Base<T>> DistMatrix<T,U,V>::GetRealPartOfLocalSubmatrix
+// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+// --------------------------------------------------------------------------
+ElError ElDistMatrixGetRealPartOfLocalSubmatrix_c
+( ElConstDistMatrix_c AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c_const(AHandle);
+        auto ASub = new Matrix<float>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_s)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetRealPartOfLocalSubmatrix_z
+( ElConstDistMatrix_z AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z_const(AHandle);
+        auto ASub = new Matrix<double>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_d)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
+// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+// --------------------------------------------------------------------------
+ElError ElDistMatrixGetImagPartOfLocalSubmatrix_c
+( ElConstDistMatrix_c AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c_const(AHandle);
+        auto ASub = new Matrix<float>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_s)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixGetImagPartOfLocalSubmatrix_z
+( ElConstDistMatrix_z AHandle,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z_const(AHandle);
+        auto ASub = new Matrix<double>;
+
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->GetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+        *ASubHandle = (ElMatrix_d)ASub;
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::SetLocalSubmatrix
+// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+//   const Matrix<T>& ASub );
+// -----------------------------------------------------------------------
+ElError ElDistMatrixSetLocalSubmatrix_s
+( ElDistMatrix_s AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_s ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_s(AHandle);    
+        auto ASub = RCM_s_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocalSubmatrix_d
+( ElDistMatrix_d AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_d ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_d(AHandle);    
+        auto ASub = RCM_d_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocalSubmatrix_c
+( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_c ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c(AHandle);    
+        auto ASub = RCM_c_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetLocalSubmatrix_z
+( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_z ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z(AHandle);    
+        auto ASub = RCM_z_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::SetRealPartOfLocalSubmatrix
+// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+//   const Matrix<Base<T>>& ASub );
+// -----------------------------------------------------------------------
+ElError ElDistMatrixSetRealPartOfLocalSubmatrix_c
+( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_s ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c(AHandle);    
+        auto ASub = RCM_s_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetRealPartOfLocalSubmatrix_z
+( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_d ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z(AHandle);    
+        auto ASub = RCM_d_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::SetImagPartOfLocalSubmatrix
+// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+//   const Matrix<Base<T>>& ASub );
+// -----------------------------------------------------------------------
+ElError ElDistMatrixSetImagPartOfLocalSubmatrix_c
+( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_s ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c(AHandle);    
+        auto ASub = RCM_s_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixSetImagPartOfLocalSubmatrix_z
+( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  ElConstMatrix_d ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z(AHandle);    
+        auto ASub = RCM_d_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->SetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::UpdateLocalSubmatrix
+// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+//   const Matrix<T>& ASub );
+// -----------------------------------------------------------------------
+ElError ElDistMatrixUpdateLocalSubmatrix_s
+( ElDistMatrix_s AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  float alpha, ElConstMatrix_s ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_s(AHandle);    
+        auto ASub = RCM_s_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocalSubmatrix_d
+( ElDistMatrix_d AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  double alpha, ElConstMatrix_d ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_d(AHandle);    
+        auto ASub = RCM_d_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocalSubmatrix_c
+( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  complex_float alpha, ElConstMatrix_c ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c(AHandle);    
+        auto ASub = RCM_c_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateLocalSubmatrix
+        ( rowIndVec, colIndVec, Complex<float>(alpha.real,alpha.imag), *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateLocalSubmatrix_z
+( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  complex_double alpha, ElConstMatrix_z ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z(AHandle);    
+        auto ASub = RCM_z_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateLocalSubmatrix
+        ( rowIndVec, colIndVec, Complex<double>(alpha.real,alpha.imag), *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::UpdateRealPartOfLocalSubmatrix
+// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+//   const Matrix<Base<T>>& ASub );
+// -----------------------------------------------------------------------
+ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_c
+( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  float alpha, ElConstMatrix_s ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c(AHandle);    
+        auto ASub = RCM_s_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateRealPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_z
+( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  double alpha, ElConstMatrix_d ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z(AHandle);    
+        auto ASub = RCM_d_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateRealPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::UpdateImagPartOfLocalSubmatrix
+// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+//   const Matrix<Base<T>>& ASub );
+// -----------------------------------------------------------------------
+ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_c
+( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  float alpha, ElConstMatrix_s ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_c(AHandle);    
+        auto ASub = RCM_s_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateImagPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_z
+( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
+  double alpha, ElConstMatrix_d ASubHandle )
+{
+    try
+    {
+        auto A = RCADM_z(AHandle);    
+        auto ASub = RCM_d_const(ASubHandle);
+
+        const Int numRowInds = ASub->Height();
+        const Int numColInds = ASub->Width();
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        A->UpdateImagPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::MakeLocalSubmatrixReal
+// ( const std::vector<Int>& rowIndsLoc, const std::vector<Int>& colIndsLoc )
+// --------------------------------------------------------------------------
+ElError ElDistMatrixMakeLocalSubmatrixReal_c
+( ElDistMatrix_c AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
+                          ElInt numColInds, const ElInt* colIndsLoc )
+{
+    try 
+    {
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        RCADM_c(AHandle)->MakeLocalSubmatrixReal( rowIndVec, colIndVec ); 
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixMakeLocalSubmatrixReal_z
+( ElDistMatrix_z AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
+                          ElInt numColInds, const ElInt* colIndsLoc )
+{
+    try 
+    {
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        RCADM_z(AHandle)->MakeLocalSubmatrixReal( rowIndVec, colIndVec ); 
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+// void DistMatrix<T,U,V>::ConjugateLocalSubmatrix
+// ( const std::vector<Int>& rowIndsLoc, const std::vector<Int>& colIndsLoc )
+// --------------------------------------------------------------------------
+ElError ElDistMatrixConjugateLocalSubmatrix_c
+( ElDistMatrix_c AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
+                          ElInt numColInds, const ElInt* colIndsLoc )
+{
+    try 
+    {
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        RCADM_c(AHandle)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); 
+    }
+    CATCH
+    return EL_SUCCESS;
+}
+
+ElError ElDistMatrixConjugateLocalSubmatrix_z
+( ElDistMatrix_z AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
+                          ElInt numColInds, const ElInt* colIndsLoc )
+{
+    try 
+    {
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
+        RCADM_z(AHandle)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); 
+    }
+    CATCH
+    return EL_SUCCESS;
+}
 
 } // extern "C"

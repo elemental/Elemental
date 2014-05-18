@@ -990,9 +990,43 @@ ElError ElDistMatrixMakeDiagonalReal_z( ElDistMatrix_z A, ElInt offset );
 ElError ElDistMatrixConjugateDiagonal_c( ElDistMatrix_c A, ElInt offset );
 ElError ElDistMatrixConjugateDiagonal_z( ElDistMatrix_z A, ElInt offset );
 
-/* DistMatrix<T,UDiag,VDiag> DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
-   ----------------------------------------------------------------------------
-*/
+/* bool DistMatrix<T,U,V>::DiagonalAlignedWith
+   ( const DistData& data, Int offset ) const
+   ------------------------------------------- */
+ElError ElDistMatrixAlignedWith_s
+( ElConstDistMatrix_s A, ElDistData distData, ElInt offset, bool* aligned );
+ElError ElDistMatrixAlignedWith_d
+( ElConstDistMatrix_d A, ElDistData distData, ElInt offset, bool* aligned );
+ElError ElDistMatrixAlignedWith_c
+( ElConstDistMatrix_c A, ElDistData distData, ElInt offset, bool* aligned );
+ElError ElDistMatrixAlignedWith_z
+( ElConstDistMatrix_z A, ElDistData distData, ElInt offset, bool* aligned );
+
+/* Int DistMatrix<T,U,V>::DiagonalRoot( Int offset ) const
+   ------------------------------------------------------- */
+ElError ElDistMatrixDiagonalRoot_s
+( ElConstDistMatrix_s A, ElInt offset, ElInt* root );
+ElError ElDistMatrixDiagonalRoot_d
+( ElConstDistMatrix_d A, ElInt offset, ElInt* root );
+ElError ElDistMatrixDiagonalRoot_c
+( ElConstDistMatrix_c A, ElInt offset, ElInt* root );
+ElError ElDistMatrixDiagonalRoot_z
+( ElConstDistMatrix_z A, ElInt offset, ElInt* root );
+
+/* Int DistMatrix<T,U,V>::DiagonalAlign( Int offset ) const
+   -------------------------------------------------------- */
+ElError ElDistMatrixDiagonalRoot_s
+( ElConstDistMatrix_s A, ElInt offset, ElInt* align );
+ElError ElDistMatrixDiagonalRoot_d
+( ElConstDistMatrix_d A, ElInt offset, ElInt* align );
+ElError ElDistMatrixDiagonalRoot_c
+( ElConstDistMatrix_c A, ElInt offset, ElInt* align );
+ElError ElDistMatrixDiagonalRoot_z
+( ElConstDistMatrix_z A, ElInt offset, ElInt* align );
+
+/* DistMatrix<T,UDiag,VDiag> 
+   DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
+   -------------------------------------------------- */
 ElError ElDistMatrixGetDiagonal_s
 ( ElConstDistMatrix_s A, ElInt offset, ElDistMatrix_s* d );
 ElError ElDistMatrixGetDiagonal_d
@@ -1001,6 +1035,22 @@ ElError ElDistMatrixGetDiagonal_c
 ( ElConstDistMatrix_c A, ElInt offset, ElDistMatrix_c* d );
 ElError ElDistMatrixGetDiagonal_z
 ( ElConstDistMatrix_z A, ElInt offset, ElDistMatrix_z* d );
+
+/* DistMatrix<Base<T>,UDiag,VDiag> 
+   DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
+   ------------------------------------------------------------ */
+ElError ElDistMatrixGetRealPartOfDiagonal_c
+( ElConstDistMatrix_c A, ElInt offset, ElDistMatrix_s* d );
+ElError ElDistMatrixGetRealPartOfDiagonal_z
+( ElConstDistMatrix_z A, ElInt offset, ElDistMatrix_d* d );
+
+/* DistMatrix<Base<T>,UDiag,VDiag> 
+   DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
+   ------------------------------------------------------------ */
+ElError ElDistMatrixGetImagPartOfDiagonal_c
+( ElConstDistMatrix_c A, ElInt offset, ElDistMatrix_s* d );
+ElError ElDistMatrixGetImagPartOfDiagonal_z
+( ElConstDistMatrix_z A, ElInt offset, ElDistMatrix_d* d );
 
 /* TODO: More diagonal manipulation
    ================================ */
@@ -1146,6 +1196,158 @@ ElError ElDistMatrixConjugateSubmatrix_c
 ElError ElDistMatrixConjugateSubmatrix_z
 ( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowInds, 
                     ElInt numColInds, const ElInt* colInds );
+
+/* Matrix<T> DistMatrix<T,U,V>::GetLocalSubmatrix
+   ( const std::vector<Int>& rowIndsLoc, 
+     const std::vector<Int>& colIndsLoc ) const
+   ---------------------------------------------- */
+ElError ElDistMatrixGetLocalSubmatrix_s
+( ElConstDistMatrix_s A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASub );
+ElError ElDistMatrixGetLocalSubmatrix_d
+( ElConstDistMatrix_d A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASub );
+ElError ElDistMatrixGetLocalSubmatrix_c
+( ElConstDistMatrix_c A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_c* ASub );
+ElError ElDistMatrixGetLocalSubmatrix_z
+( ElConstDistMatrix_z A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_z* ASub );
+
+/* Matrix<Base<T>> DistMatrix<T,U,V>::GetRealPartOfLocalSubmatrix
+   ( const std::vector<Int>& rowIndsLoc, 
+     const std::vector<Int>& colIndsLoc ) const
+   -------------------------------------------------------------- */
+ElError ElDistMatrixGetRealPartOfLocalSubmatrix_c
+( ElConstDistMatrix_c A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASub );
+ElError ElDistMatrixGetRealPartOfLocalSubmatrix_z
+( ElConstDistMatrix_z A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASub );
+
+/* Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
+   ( const std::vector<Int>& rowIndsLoc, 
+     const std::vector<Int>& colIndsLoc ) const
+   -------------------------------------------------------------- */
+ElError ElDistMatrixGetImagPartOfLocalSubmatrix_c
+( ElConstDistMatrix_c A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASub );
+ElError ElDistMatrixGetImagPartOfLocalSubmatrix_z
+( ElConstDistMatrix_z A,
+  ElInt numRowInds, const ElInt* rowIndsLoc,
+  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASub );
+
+/* void DistMatrix<T,U,V>::SetLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+     const Matrix<T>& ASub )
+   ---------------------------------------------------------------------- */
+ElError ElDistMatrixSetLocalSubmatrix_s
+( ElDistMatrix_s A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_s ASub );
+ElError ElDistMatrixSetLocalSubmatrix_d
+( ElDistMatrix_d A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_d ASub );
+ElError ElDistMatrixSetLocalSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_c ASub );
+ElError ElDistMatrixSetLocalSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_z ASub );
+
+/* void DistMatrix<T,U,V>::SetRealPartOfLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+     const Matrix<Base<T>>& ASub )
+   ---------------------------------------------------------------------- */
+ElError ElDistMatrixSetRealPartOfLocalSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_s ASub );
+ElError ElDistMatrixSetRealPartOfLocalSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::SetImagPartOfLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+     const Matrix<Base<T>>& ASub )
+   ---------------------------------------------------------------------- */
+ElError ElDistMatrixSetImagPartOfLocalSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_s ASub );
+ElError ElDistMatrixSetImagPartOfLocalSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  ElConstMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::UpdateLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+     T alpha, const Matrix<T>& ASub )
+   ----------------------------------------------------------------------- */
+ElError ElDistMatrixUpdateLocalSubmatrix_s
+( ElDistMatrix_s A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  float alpha, ElConstMatrix_s ASub );
+ElError ElDistMatrixUpdateLocalSubmatrix_d
+( ElDistMatrix_d A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  double alpha, ElConstMatrix_d ASub );
+ElError ElDistMatrixUpdateLocalSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  complex_float alpha, ElConstMatrix_c ASub );
+ElError ElDistMatrixUpdateLocalSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  complex_double alpha, ElConstMatrix_z ASub );
+
+/* void DistMatrix<T,U,V>::UpdateRealPartOfLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+     Base<T> alpha, const Matrix<Base<T>>& ASub )
+   ----------------------------------------------------------------------- */
+ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  float alpha, ElConstMatrix_s ASub );
+ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  double alpha, ElConstMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::UpdateImagPartOfLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc, 
+     Base<T> alpha, const Matrix<Base<T>>& ASub )
+   ----------------------------------------------------------------------- */
+ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_c
+( ElDistMatrix_c A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  float alpha, ElConstMatrix_s ASub );
+ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_z
+( ElDistMatrix_z A, const ElInt* rowIndsLoc, const ElInt* colIndsLoc, 
+  double alpha, ElConstMatrix_d ASub );
+
+/* void DistMatrix<T,U,V>::MakeLocalSubmatrixReal
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
+   ------------------------------------------------------------------------ */
+ElError ElDistMatrixMakeLocalSubmatrixReal_c
+( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowIndsLoc, 
+                    ElInt numColInds, const ElInt* colIndsLoc );
+ElError ElDistMatrixMakeLocalSubmatrixReal_z
+( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowIndsLoc, 
+                    ElInt numColInds, const ElInt* colIndsLoc );
+
+/* void DistMatrix<T,U,V>::ConjugateLocalSubmatrix
+   ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc )
+   ------------------------------------------------------------------------ */
+ElError ElDistMatrixConjugateLocalSubmatrix_c
+( ElDistMatrix_c A, ElInt numRowInds, const ElInt* rowIndsLoc, 
+                    ElInt numColInds, const ElInt* colIndsLoc );
+ElError ElDistMatrixConjugateLocalSubmatrix_z
+( ElDistMatrix_z A, ElInt numRowInds, const ElInt* rowIndsLoc, 
+                    ElInt numColInds, const ElInt* colIndsLoc );
+
+/* void DistMatrix<T,U,V>::SumOver( mpi::Comm comm )
+   ------------------------------------------------- */
+ElError ElDistMatrixSumOver_s( ElDistMatrix_s A, MPI_Comm comm );
+ElError ElDistMatrixSumOver_d( ElDistMatrix_d A, MPI_Comm comm );
+ElError ElDistMatrixSumOver_c( ElDistMatrix_c A, MPI_Comm comm );
+ElError ElDistMatrixSumOver_z( ElDistMatrix_z A, MPI_Comm comm );
 
 #ifdef __cplusplus
 } // extern "C"
