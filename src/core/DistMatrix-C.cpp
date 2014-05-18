@@ -72,10 +72,14 @@ ElError ElDistMatrixCreate_z( ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
     return EL_SUCCESS;
 }
 
+} // extern "C"
+
 // DistMatrix<T,U,V>::DistMatrix( const Grid& g )
 // ----------------------------------------------
-ElError ElDistMatrixCreateSpecific_s
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_s* AHandle )
+
+template<typename T>
+ElError ElDistMatrixCreateSpecific
+( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, AbstractDistMatrix<T>** A )
 {
     try 
     {
@@ -83,183 +87,75 @@ ElError ElDistMatrixCreateSpecific_s
         Dist V = Reinterpret(V_C);
         auto grid = Reinterpret(gridHandle);
 
-        AbstractDistMatrix<float>* ADM;
         if( U == CIRC && V == CIRC )
-            ADM = new DistMatrix<float,CIRC,CIRC>(*grid); 
+            *A = new DistMatrix<T,CIRC,CIRC>(*grid); 
         else if( U == MC && V == MR )
-            ADM = new DistMatrix<float,MC,MR>(*grid);
+            *A = new DistMatrix<T,MC,MR>(*grid);
         else if( U == MC && V == STAR )
-            ADM = new DistMatrix<float,MC,STAR>(*grid);
+            *A = new DistMatrix<T,MC,STAR>(*grid);
         else if( U == MD && V == STAR )
-            ADM = new DistMatrix<float,MD,STAR>(*grid);
+            *A = new DistMatrix<T,MD,STAR>(*grid);
         else if( U == MR && V == MC )
-            ADM = new DistMatrix<float,MR,MC>(*grid);
+            *A = new DistMatrix<T,MR,MC>(*grid);
         else if( U == MR && V == STAR )
-            ADM = new DistMatrix<float,MR,STAR>(*grid);
+            *A = new DistMatrix<T,MR,STAR>(*grid);
         else if( U == STAR && V == MC )
-            ADM = new DistMatrix<float,STAR,MC>(*grid);
+            *A = new DistMatrix<T,STAR,MC>(*grid);
         else if( U == STAR && V == MD )
-            ADM = new DistMatrix<float,STAR,MD>(*grid);
+            *A = new DistMatrix<T,STAR,MD>(*grid);
         else if( U == STAR && V == MR )
-            ADM = new DistMatrix<float,STAR,MR>(*grid);
+            *A = new DistMatrix<T,STAR,MR>(*grid);
         else if( U == STAR && V == STAR )
-            ADM = new DistMatrix<float,STAR,STAR>(*grid);
+            *A = new DistMatrix<T,STAR,STAR>(*grid);
         else if( U == STAR && V == VC )
-            ADM = new DistMatrix<float,STAR,VC>(*grid);
+            *A = new DistMatrix<T,STAR,VC>(*grid);
         else if( U == STAR && V == VR )
-            ADM = new DistMatrix<float,STAR,VR>(*grid);
+            *A = new DistMatrix<T,STAR,VR>(*grid);
         else if( U == VC && V == STAR )
-            ADM = new DistMatrix<float,VC,STAR>(*grid);
+            *A = new DistMatrix<T,VC,STAR>(*grid);
         else if( U == VR && V == STAR )
-            ADM = new DistMatrix<float,VR,STAR>(*grid);
-        else
-            RuntimeError("Invalid distribution pair");
-
-        *AHandle = Reinterpret(ADM);
+            *A = new DistMatrix<T,VR,STAR>(*grid);
     }
     CATCH
     return EL_SUCCESS;
+}
+
+extern "C" {
+
+ElError ElDistMatrixCreateSpecific_s
+( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_s* AHandle )
+{
+    AbstractDistMatrix<float>* ADM;
+    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
+    *AHandle = Reinterpret(ADM);
+    return error;
 }
 
 ElError ElDistMatrixCreateSpecific_d
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_d* AHandle )
+( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_d* AHandle )
 {
-    try 
-    {
-        Dist U = Reinterpret(U_C);
-        Dist V = Reinterpret(V_C);
-        auto grid = Reinterpret(gridHandle);
-
-        AbstractDistMatrix<double>* ADM;
-        if( U == CIRC && V == CIRC )
-            ADM = new DistMatrix<double,CIRC,CIRC>(*grid);
-        else if( U == MC && V == MR )
-            ADM = new DistMatrix<double,MC,MR>(*grid);
-        else if( U == MC && V == STAR )
-            ADM = new DistMatrix<double,MC,STAR>(*grid);
-        else if( U == MD && V == STAR )
-            ADM = new DistMatrix<double,MD,STAR>(*grid);
-        else if( U == MR && V == MC )
-            ADM = new DistMatrix<double,MR,MC>(*grid);
-        else if( U == MR && V == STAR )
-            ADM = new DistMatrix<double,MR,STAR>(*grid);
-        else if( U == STAR && V == MC )
-            ADM = new DistMatrix<double,STAR,MC>(*grid);
-        else if( U == STAR && V == MD )
-            ADM = new DistMatrix<double,STAR,MD>(*grid);
-        else if( U == STAR && V == MR )
-            ADM = new DistMatrix<double,STAR,MR>(*grid);
-        else if( U == STAR && V == STAR )
-            ADM = new DistMatrix<double,STAR,STAR>(*grid);
-        else if( U == STAR && V == VC )
-            ADM = new DistMatrix<double,STAR,VC>(*grid);
-        else if( U == STAR && V == VR )
-            ADM = new DistMatrix<double,STAR,VR>(*grid);
-        else if( U == VC && V == STAR )
-            ADM = new DistMatrix<double,VC,STAR>(*grid);
-        else if( U == VR && V == STAR )
-            ADM = new DistMatrix<double,VR,STAR>(*grid);
-        else
-            RuntimeError("Invalid distribution pair");
-
-        *AHandle = Reinterpret(ADM);
-    }
-    CATCH
-    return EL_SUCCESS;
+    AbstractDistMatrix<double>* ADM;
+    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
+    *AHandle = Reinterpret(ADM);
+    return error;
 }
 
 ElError ElDistMatrixCreateSpecific_c
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_c* AHandle )
+( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_c* AHandle )
 {
-    try 
-    {
-        Dist U = Reinterpret(U_C);
-        Dist V = Reinterpret(V_C);
-        auto grid = Reinterpret(gridHandle);
-
-        AbstractDistMatrix<Complex<float>>* ADM;
-        if( U == CIRC && V == CIRC )
-            ADM = new DistMatrix<Complex<float>,CIRC,CIRC>(*grid);
-        else if( U == MC && V == MR )
-            ADM = new DistMatrix<Complex<float>,MC,MR>(*grid);
-        else if( U == MC && V == STAR )
-            ADM = new DistMatrix<Complex<float>,MC,STAR>(*grid);
-        else if( U == MD && V == STAR )
-            ADM = new DistMatrix<Complex<float>,MD,STAR>(*grid);
-        else if( U == MR && V == MC )
-            ADM = new DistMatrix<Complex<float>,MR,MC>(*grid);
-        else if( U == MR && V == STAR )
-            ADM = new DistMatrix<Complex<float>,MR,STAR>(*grid);
-        else if( U == STAR && V == MC )
-            ADM = new DistMatrix<Complex<float>,STAR,MC>(*grid);
-        else if( U == STAR && V == MD )
-            ADM = new DistMatrix<Complex<float>,STAR,MD>(*grid);
-        else if( U == STAR && V == MR )
-            ADM = new DistMatrix<Complex<float>,STAR,MR>(*grid);
-        else if( U == STAR && V == STAR )
-            ADM = new DistMatrix<Complex<float>,STAR,STAR>(*grid);
-        else if( U == STAR && V == VC )
-            ADM = new DistMatrix<Complex<float>,STAR,VC>(*grid);
-        else if( U == STAR && V == VR )
-            ADM = new DistMatrix<Complex<float>,STAR,VR>(*grid);
-        else if( U == VC && V == STAR )
-            ADM = new DistMatrix<Complex<float>,VC,STAR>(*grid);
-        else if( U == VR && V == STAR )
-            ADM = new DistMatrix<Complex<float>,VR,STAR>(*grid);
-        else
-            RuntimeError("Invalid distribution pair");
-
-        *AHandle = Reinterpret(ADM);
-    }
-    CATCH
-    return EL_SUCCESS;
+    AbstractDistMatrix<Complex<float>>* ADM;
+    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
+    *AHandle = Reinterpret(ADM);
+    return error;
 }
 
 ElError ElDistMatrixCreateSpecific_z
-( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
+( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
 {
-    try 
-    {
-        Dist U = Reinterpret(U_C);
-        Dist V = Reinterpret(V_C);
-        auto grid = Reinterpret(gridHandle);
-
-        AbstractDistMatrix<Complex<double>>* ADM;
-        if( U == CIRC && V == CIRC )
-            ADM = new DistMatrix<Complex<double>,CIRC,CIRC>(*grid);
-        else if( U == MC && V == MR ) 
-            ADM = new DistMatrix<Complex<double>,MC,MR>(*grid);
-        else if( U == MC && V == STAR )
-            ADM = new DistMatrix<Complex<double>,MC,STAR>(*grid);
-        else if( U == MD && V == STAR )
-            ADM = new DistMatrix<Complex<double>,MD,STAR>(*grid);
-        else if( U == MR && V == MC )
-            ADM = new DistMatrix<Complex<double>,MR,MC>(*grid);
-        else if( U == MR && V == STAR )
-            ADM = new DistMatrix<Complex<double>,MR,STAR>(*grid);
-        else if( U == STAR && V == MC )
-            ADM = new DistMatrix<Complex<double>,STAR,MC>(*grid);
-        else if( U == STAR && V == MD )
-            ADM = new DistMatrix<Complex<double>,STAR,MD>(*grid);
-        else if( U == STAR && V == MR )
-            ADM = new DistMatrix<Complex<double>,STAR,MR>(*grid);
-        else if( U == STAR && V == STAR )
-            ADM = new DistMatrix<Complex<double>,STAR,STAR>(*grid);
-        else if( U == STAR && V == VC )
-            ADM = new DistMatrix<Complex<double>,STAR,VC>(*grid);
-        else if( U == STAR && V == VR )
-            ADM = new DistMatrix<Complex<double>,STAR,VR>(*grid);
-        else if( U == VC && V == STAR )
-            ADM = new DistMatrix<Complex<double>,VC,STAR>(*grid);
-        else if( U == VR && V == STAR )
-            ADM = new DistMatrix<Complex<double>,VR,STAR>(*grid);
-        else
-            RuntimeError("Invalid distribution pair");
-
-        *AHandle = Reinterpret(ADM);
-    }
-    CATCH
-    return EL_SUCCESS;
+    AbstractDistMatrix<Complex<double>>* ADM;
+    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
+    *AHandle = Reinterpret(ADM);
+    return error;
 }
 
 // DistMatrix<T,U,V>::~DistMatrix()
@@ -753,7 +649,8 @@ ElError ElDistMatrixAlignWith_z
 ElError ElDistMatrixAlignColsWith_s
 ( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -761,7 +658,8 @@ ElError ElDistMatrixAlignColsWith_s
 ElError ElDistMatrixAlignColsWith_d
 ( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -769,7 +667,8 @@ ElError ElDistMatrixAlignColsWith_d
 ElError ElDistMatrixAlignColsWith_c
 ( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -777,7 +676,8 @@ ElError ElDistMatrixAlignColsWith_c
 ElError ElDistMatrixAlignColsWith_z
 ( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -787,7 +687,8 @@ ElError ElDistMatrixAlignColsWith_z
 ElError ElDistMatrixAlignRowsWith_s
 ( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -795,7 +696,8 @@ ElError ElDistMatrixAlignRowsWith_s
 ElError ElDistMatrixAlignRowsWith_d
 ( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -803,7 +705,8 @@ ElError ElDistMatrixAlignRowsWith_d
 ElError ElDistMatrixAlignRowsWith_c
 ( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
@@ -811,7 +714,8 @@ ElError ElDistMatrixAlignRowsWith_c
 ElError ElDistMatrixAlignRowsWith_z
 ( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
 {
-    try { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
+    try 
+    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
     CATCH
     return EL_SUCCESS;
 }
