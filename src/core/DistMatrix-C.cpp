@@ -3739,1028 +3739,238 @@ ElError ElDistMatrixDiagonalAlign_z
     return EL_SUCCESS;
 }
 
+} // extern "C"
+
 // DistMatrix<T,UDiag,VDiag> DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
 // ----------------------------------------------------------------------------
-ElError ElDistMatrixGetDiagonal_s
-( ElConstDistMatrix_s AHandle, ElInt offset, ElDistMatrix_s* dHandle )
+template<typename T,Dist CDist,Dist RDist>
+void ElDistMatrixGetDiagonalKernel
+( const AbstractDistMatrix<T>* AAbs, Int offset, AbstractDistMatrix<T>** dAbs )
+{
+    const Grid& g = AAbs->Grid();
+    Dist U = AAbs->DistData().colDist;
+    Dist V = AAbs->DistData().rowDist;
+    if( U == CDist && V == RDist )
+    {
+        auto A = dynamic_cast<const DistMatrix<T,CDist,RDist>*>(AAbs);
+        DynamicCastCheck(A);
+        auto* d = new DistMatrix<T,DiagColDist<CDist,RDist>(),
+                                   DiagRowDist<CDist,RDist>()>(g);
+        A->GetDiagonal( *d, offset );
+        *dAbs = d;
+    }
+}
+
+template<typename T>
+ElError ElDistMatrixGetDiagonal
+( const AbstractDistMatrix<T>* AAbs, Int offset, 
+        AbstractDistMatrix<T>** dAbs )
 {
     try 
     {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,CIRC,CIRC>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,STAR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<float,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
+        ElDistMatrixGetDiagonalKernel<T,CIRC,CIRC>( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,MC,  MR  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,MC,  STAR>( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,MD,  STAR>( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,MR,  MC  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,MR,  STAR>( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,STAR,MC  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,STAR,MD  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,STAR,MR  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,STAR,STAR>( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,STAR,VC  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,STAR,VR  >( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,VC,  STAR>( AAbs, offset, dAbs );
+        ElDistMatrixGetDiagonalKernel<T,VR,  STAR>( AAbs, offset, dAbs );
     }
     CATCH
     return EL_SUCCESS;
+}
+
+extern "C" { 
+
+ElError ElDistMatrixGetDiagonal_s
+( ElConstDistMatrix_s AHandle, ElInt offset, ElDistMatrix_s* dHandle )
+{
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<float>* dAbs;
+    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
 }
 
 ElError ElDistMatrixGetDiagonal_d
 ( ElConstDistMatrix_d AHandle, ElInt offset, ElDistMatrix_d* dHandle )
 {
-    try 
-    {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,CIRC,CIRC>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,STAR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<double,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
-    }
-    CATCH
-    return EL_SUCCESS;
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<double>* dAbs;
+    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
 }
 
 ElError ElDistMatrixGetDiagonal_c
 ( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_c* dHandle )
 {
-    try 
-    {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,CIRC,CIRC>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,MR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,STAR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<float>,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
-    }
-    CATCH
-    return EL_SUCCESS;
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<Complex<float>>* dAbs;
+    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
 }
 
 ElError ElDistMatrixGetDiagonal_z
 ( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_z* dHandle )
 {
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<Complex<double>>* dAbs;
+    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
+}
+
+} // extern "C"
+
+// DistMatrix<Base<T>,UDiag,VDiag> 
+// DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
+// ------------------------------------------------------------
+template<typename T,Dist CDist,Dist RDist>
+void ElDistMatrixGetRealPartOfDiagonalKernel
+( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
+        AbstractDistMatrix<T>** dAbs )
+{
+    const Grid& g = AAbs->Grid();
+    Dist U = AAbs->DistData().colDist;
+    Dist V = AAbs->DistData().rowDist;
+    if( U == CDist && V == RDist )
+    {
+        auto A = dynamic_cast<const DistMatrix<Complex<T>,CDist,RDist>*>(AAbs);
+        DynamicCastCheck(A);
+        auto* d = new DistMatrix<T,DiagColDist<CDist,RDist>(),
+                                   DiagRowDist<CDist,RDist>()>(g);
+        A->GetRealPartOfDiagonal( *d, offset );
+        *dAbs = d;
+    }
+}
+
+template<typename T>
+ElError ElDistMatrixGetRealPartOfDiagonal
+( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
+        AbstractDistMatrix<T>** dAbs )
+{
     try 
     {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,CIRC,CIRC>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,MC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,MD,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,MR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,STAR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,VC,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<Complex<double>,VR,STAR>(grid);
-            A->GetDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,CIRC,CIRC>(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,MC,  MR  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,MC,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,MD,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,MR,  MC  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,MR,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,MC  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,MD  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,MR  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,VC  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,VR  >(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,VC,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetRealPartOfDiagonalKernel<T,VR,  STAR>(AAbs,offset,dAbs);
     }
     CATCH
     return EL_SUCCESS;
 }
 
-// DistMatrix<Base<T>,UDiag,VDiag> 
-// DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
-// ------------------------------------------------------------
+extern "C" {
+
 ElError ElDistMatrixGetRealPartOfDiagonal_c
 ( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_s* dHandle )
 {
-    try 
-    {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,CIRC,CIRC>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,STAR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
-    }
-    CATCH
-    return EL_SUCCESS;
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<float>* dAbs;
+    ElError error = ElDistMatrixGetRealPartOfDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
 }
 
 ElError ElDistMatrixGetRealPartOfDiagonal_z
 ( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_d* dHandle )
 {
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<double>* dAbs;
+    ElError error = ElDistMatrixGetRealPartOfDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
+}
+
+} // extern "C"
+
+// DistMatrix<Base<T>,UDiag,VDiag> 
+// DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
+// ------------------------------------------------------------
+template<typename T,Dist CDist,Dist RDist>
+void ElDistMatrixGetImagPartOfDiagonalKernel
+( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
+        AbstractDistMatrix<T>** dAbs )
+{
+    const Grid& g = AAbs->Grid();
+    Dist U = AAbs->DistData().colDist;
+    Dist V = AAbs->DistData().rowDist;
+    if( U == CDist && V == RDist )
+    {
+        auto A = dynamic_cast<const DistMatrix<Complex<T>,CDist,RDist>*>(AAbs);
+        DynamicCastCheck(A);
+        auto* d = new DistMatrix<T,DiagColDist<CDist,RDist>(),
+                                   DiagRowDist<CDist,RDist>()>(g);
+        A->GetImagPartOfDiagonal( *d, offset );
+        *dAbs = d;
+    }
+}
+
+template<typename T>
+ElError ElDistMatrixGetImagPartOfDiagonal
+( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
+        AbstractDistMatrix<T>** dAbs )
+{
     try 
     {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,CIRC,CIRC>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,STAR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VC,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VR,STAR>(grid);
-            A->GetRealPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,CIRC,CIRC>(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,MC,  MR  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,MC,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,MD,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,MR,  MC  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,MR,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,MC  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,MD  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,MR  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,VC  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,VR  >(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,VC,  STAR>(AAbs,offset,dAbs);
+        ElDistMatrixGetImagPartOfDiagonalKernel<T,VR,  STAR>(AAbs,offset,dAbs);
     }
     CATCH
     return EL_SUCCESS;
 }
 
-// DistMatrix<Base<T>,UDiag,VDiag> 
-// DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
-// ------------------------------------------------------------
+extern "C" {
+
 ElError ElDistMatrixGetImagPartOfDiagonal_c
 ( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_s* dHandle )
 {
-    try 
-    {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,CIRC,CIRC>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MD,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,MR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,STAR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<float>,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<float,VR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
-    }
-    CATCH
-    return EL_SUCCESS;
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<float>* dAbs;
+    ElError error = ElDistMatrixGetImagPartOfDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
 }
 
 ElError ElDistMatrixGetImagPartOfDiagonal_z
 ( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_d* dHandle )
 {
-    try 
-    {
-        auto AAbs = Reinterpret(AHandle);
-        const Grid& grid = AAbs->Grid();
-
-        const DistData distData = AAbs->DistData();
-        const Dist U = distData.colDist;
-        const Dist V = distData.rowDist;
-
-        if( U == CIRC && V == CIRC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,CIRC,CIRC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,CIRC,CIRC>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MC,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == MD && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,MD,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MD )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MD>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MD,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == MR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,MR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,MR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,STAR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VC )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,VC>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == STAR && V == VR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,STAR,VR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VC && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,VC,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VC,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else if( U == VR && V == STAR )
-        {
-            auto A = 
-              dynamic_cast<const DistMatrix<Complex<double>,VR,STAR>*>(AAbs);
-            DynamicCastCheck(A);
-            auto* d = new DistMatrix<double,VR,STAR>(grid);
-            A->GetImagPartOfDiagonal( *d, offset );
-            *dHandle = Reinterpret(d);
-        }
-        else
-            RuntimeError("Invalid distribution pair");
-    }
-    CATCH
-    return EL_SUCCESS;
+    auto AAbs = Reinterpret(AHandle);
+    AbstractDistMatrix<double>* dAbs;
+    ElError error = ElDistMatrixGetImagPartOfDiagonal( AAbs, offset, &dAbs );
+    *dHandle = Reinterpret(dAbs);
+    return error;
 }
 
 // TODO: More diagonal manipulation
