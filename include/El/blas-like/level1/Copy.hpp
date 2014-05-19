@@ -117,7 +117,7 @@ Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     #define INNER_GUARD(CDIST,RDIST) \
         B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A);
+        auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A);
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         BCast = ACast;
