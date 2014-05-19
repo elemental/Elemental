@@ -6,38 +6,36 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SPYWIDGET_IMPL_HPP
-#define EL_SPYWIDGET_IMPL_HPP
+#include "El-lite.hpp"
+#include "El/io.hpp"
+
+#include "El/io/SpyWidget.hpp"
+
 #ifdef EL_HAVE_QT5
 
 #include <QPainter>
 #include <QPixmap>
 #include <QStylePainter>
 
-#include "El/io/DisplayWidget/decl.hpp"
+#include "El/io/DisplayWidget.hpp"
 
 namespace El {
 
-inline
 SpyWidget::SpyWidget( QWidget* parent )
 : QWidget(parent)
 { }
 
-inline
 SpyWidget::~SpyWidget()
 { }
 
-inline void 
-SpyWidget::paintEvent( QPaintEvent* event )
+void SpyWidget::paintEvent( QPaintEvent* event )
 {
     DEBUG_ONLY(CallStackEntry cse("SpyWidget::paintEvent"))
     QStylePainter painter( this );
     painter.drawPixmap( 0, 0, pixmap_ );
 }
 
-inline void 
-SpyWidget::Spy( const Matrix<Int>* A )
+void SpyWidget::Spy( const Matrix<Int>* A )
 {
     DEBUG_ONLY(CallStackEntry cse("SpyWidget::Spy"))
     const Int m = A->Height();
@@ -76,4 +74,3 @@ SpyWidget::Spy( const Matrix<Int>* A )
 } // namespace El
 
 #endif // ifdef EL_HAVE_QT5
-#endif // ifndef EL_SPYWIDGET_IMPL_HPP

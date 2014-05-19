@@ -109,59 +109,19 @@ Copy
 
 template<typename T>
 inline void
-Copy( const AbstractDistMatrix<T>& AAbs, AbstractDistMatrix<T>& BAbs )
+Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define INNER_IF_CONVERT_AND_COPY(A,BABS,CDIST,RDIST) \
-      if( BABS.DistData().colDist == CDIST && \
-          BABS.DistData().rowDist == RDIST ) \
-      { \
-          auto& B = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(BABS); \
-          B = A; \
-      }
-    #define INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,CDIST,RDIST) \
-      else INNER_IF_CONVERT_AND_COPY(A,BABS,CDIST,RDIST)
-    #define IF_CONVERT_AND_COPY(AABS,BABS,CDIST,RDIST) \
-      if( AABS.DistData().colDist == CDIST && \
-          AABS.DistData().rowDist == RDIST ) \
-      { \
-          const auto& A = \
-            dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(AABS); \
-          INNER_IF_CONVERT_AND_COPY(    A,BABS,CIRC,CIRC) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,MC,  MR  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,MD,  STAR) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,MR,  MC  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,MR,  STAR) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,STAR,MC  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,STAR,MD  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,STAR,MR  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,STAR,STAR) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,STAR,VC  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,STAR,VR  ) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,VC,  STAR) \
-          INNER_ELSEIF_CONVERT_AND_COPY(A,BABS,VR,  STAR) \
-      }
-    #define ELSEIF_CONVERT_AND_COPY(AABS,BABS,CDIST,RDIST) \
-      else IF_CONVERT_AND_COPY(AABS,BABS,CDIST,RDIST)
-
-    IF_CONVERT_AND_COPY(    AAbs,BAbs,CIRC,CIRC)
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,MC,  MR  )
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,MC,  STAR)
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,MD,  STAR)
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,MR,  MC  )
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,MR,  STAR)
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,STAR,MD  )
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,STAR,MR  )
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,STAR,STAR)
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,STAR,VC  )
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,STAR,VR  )
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,VC,  STAR)
-    ELSEIF_CONVERT_AND_COPY(AAbs,BAbs,VR,  STAR)
-
-    #undef ELSEIF_CONVERT_AND_COPY
-    #undef IF_CONVERT_AND_COPY
-    #undef INNER_ELSEIF_CONVERT_AND_COPY
-    #undef INNER_IF_CONVERT_AND_COPY
+    #define GUARD(CDIST,RDIST) \
+        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define INNER_GUARD(CDIST,RDIST) \
+        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+        auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A);
+    #define INNER_PAYLOAD(CDIST,RDIST) \
+        auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
+        BCast = ACast;
+    #include "El/core/NestedGuardAndPayload.h"
 }
 
 } // namespace El

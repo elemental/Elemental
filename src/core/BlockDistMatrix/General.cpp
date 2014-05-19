@@ -1072,27 +1072,17 @@ GeneralBlockDistMatrix<T,U,V>::SetDiagonalHelper
   DISTPROTO(T,VC,  STAR);\
   DISTPROTO(T,VR,  STAR);
 
+PROTO(Int);
+#ifndef EL_DISABLE_FLOAT
+PROTO(float);
 #ifndef EL_DISABLE_COMPLEX
- #ifndef EL_DISABLE_FLOAT
-  PROTO(Int);
-  PROTO(float);
-  PROTO(double);
-  PROTO(Complex<float>);
-  PROTO(Complex<double>);
- #else // ifndef EL_DISABLE_FLOAT
-  PROTO(Int);
-  PROTO(double);
-  PROTO(Complex<double>);
- #endif // ifndef EL_DISABLE_FLOAT
-#else // ifndef EL_DISABLE_COMPLEX
- #ifndef EL_DISABLE_FLOAT
-  PROTO(Int);
-  PROTO(float);
-  PROTO(double);
- #else // ifndef EL_DISABLE_FLOAT
-  PROTO(Int);
-  PROTO(double);
- #endif // ifndef EL_DISABLE_FLOAT
+PROTO(Complex<float>);
+#endif // ifndef EL_DISABLE_COMPLEX
+#endif // ifndef EL_DISABLE_FLOAT
+
+PROTO(double);
+#ifndef EL_DISABLE_COMPLEX
+PROTO(Complex<double>);
 #endif // ifndef EL_DISABLE_COMPLEX
 
 } // namespace El

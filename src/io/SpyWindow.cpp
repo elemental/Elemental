@@ -9,6 +9,8 @@
 #include "El-lite.hpp"
 #include "El/io.hpp"
 
+#include "El/io/SpyWindow.hpp"
+
 #ifdef EL_HAVE_QT5
 
 #include <QBoxLayout>

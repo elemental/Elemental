@@ -14,15 +14,23 @@
 extern "C" {
 #endif
 
-ElError ElUniform_s( ElMatrix_s A, Int m, Int n );
-ElError ElUniform_d( ElMatrix_d A, Int m, Int n );
-ElError ElUniform_c( ElMatrix_c A, Int m, Int n );
-ElError ElUniform_z( ElMatrix_z A, Int m, Int n );
+ElError ElUniformMatrix_s
+( ElMatrix_s A, ElInt m, ElInt n, float center, float radius );
+ElError ElUniformMatrix_d
+( ElMatrix_d A, ElInt m, ElInt n, double center, double radius );
+ElError ElUniformMatrix_c
+( ElMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
+ElError ElUniformMatrix_z
+( ElMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
 
-ElError ElUniform_s( ElDistMatrix_s A, Int m, Int n );
-ElError ElUniform_d( ElDistMatrix_d A, Int m, Int n );
-ElError ElUniform_c( ElDistMatrix_c A, Int m, Int n );
-ElError ElUniform_z( ElDistMatrix_z A, Int m, Int n );
+ElError ElUniformDistMatrix_s
+( ElDistMatrix_s A, ElInt m, ElInt n, float center, float radius );
+ElError ElUniformDistMatrix_d
+( ElDistMatrix_d A, ElInt m, ElInt n, double center, double radius );
+ElError ElUniformDistMatrix_c
+( ElDistMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
+ElError ElUniformDistMatrix_z
+( ElDistMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
 
 #ifdef __cplusplus
 } // extern "C"

@@ -7,15 +7,15 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPYWINDOW_DECL_HPP
-#define EL_SPYWINDOW_DECL_HPP
+#ifndef EL_SPYWINDOW_HPP
+#define EL_SPYWINDOW_HPP
 #ifdef EL_HAVE_QT5
 
 #include <QScrollArea>
 #include <QWidget>
 
 #include "El-lite.hpp"
-#include "El/io/SpyWidget/decl.hpp"
+#include "El/io/SpyWidget.hpp"
 
 namespace El {
 
@@ -38,4 +38,4 @@ private:
 } // namespace El
 
 #endif // ifdef EL_HAVE_QT5
-#endif // ifndef EL_SPYWINDOW_DECL_HPP
+#endif // ifndef EL_SPYWINDOW_HPP

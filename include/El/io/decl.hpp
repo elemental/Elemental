@@ -76,7 +76,7 @@ void UpdateMaxImagWindowVal( double maxVal );
 } // namespace El
 
 #ifdef EL_HAVE_QT5
-# include "./DisplayWidget/decl.hpp"
+# include "./DisplayWidget.hpp"
 # include "./DisplayWindow-premoc.hpp"
 # include "./ComplexDisplayWindow-premoc.hpp"
 #endif // ifdef EL_HAVE_QT5

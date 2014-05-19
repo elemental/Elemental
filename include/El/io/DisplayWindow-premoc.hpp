@@ -26,7 +26,7 @@
 #include "El/blas-like/decl.hpp"
 #include "El/lapack-like/decl.hpp"
 #include "El/convex/decl.hpp"
-#include "El/io/DisplayWidget/decl.hpp"
+#include "El/io/DisplayWidget.hpp"
 
 namespace El {
 

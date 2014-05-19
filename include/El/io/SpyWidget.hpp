@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_SPYWIDGET_DECL_HPP
-#define EL_SPYWIDGET_DECL_HPP
+#ifndef EL_SPYWIDGET_HPP
+#define EL_SPYWIDGET_HPP
 #ifdef EL_HAVE_QT5
 
 #include <QWidget>
@@ -32,4 +32,4 @@ private:
 } // namespace El
 
 #endif // ifdef EL_HAVE_QT5
-#endif // ifndef EL_SPYWIDGET_DECL_HPP
+#endif // ifndef EL_SPYWIDGET_HPP
