@@ -90,9 +90,29 @@ void Print
     #include "El/core/GuardAndPayload.h"
 }
 
+#define DISTPROTO(T,U,V) \
+  template void Print \
+  ( const DistMatrix<T,U,V>& A, std::string title, std::ostream& os ); \
+  template void Print \
+  ( const BlockDistMatrix<T,U,V>& A, std::string title, std::ostream& os );
+
 #define PROTO(T) \
   template void Print \
   ( const Matrix<T>& A, std::string title, std::ostream& os ); \
+  DISTPROTO(T,CIRC,CIRC); \
+  DISTPROTO(T,MC,  MR  ); \
+  DISTPROTO(T,MC,  STAR); \
+  DISTPROTO(T,MD,  STAR); \
+  DISTPROTO(T,MR,  MC  ); \
+  DISTPROTO(T,MR,  STAR); \
+  DISTPROTO(T,STAR,MC  ); \
+  DISTPROTO(T,STAR,MD  ); \
+  DISTPROTO(T,STAR,MR  ); \
+  DISTPROTO(T,STAR,STAR); \
+  DISTPROTO(T,STAR,VC  ); \
+  DISTPROTO(T,STAR,VR  ); \
+  DISTPROTO(T,VC,  STAR); \
+  DISTPROTO(T,VR,  STAR); \
   template void Print \
   ( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os ); \
   template void Print \
