@@ -663,7 +663,6 @@ Pseudospectrum
         }
         else
         {
-            LogicError("Hessenberg one-norm pseudospectra not yet tested");
             Matrix<C> t;
             Hessenberg( UPPER, U, t );
             Identity( Q, A.Height(), A.Height() );
@@ -790,7 +789,6 @@ Pseudospectrum
         }
         else
         {
-            LogicError("Hessenberg one-norm pseudospectra not yet tested");
             DistMatrix<C,STAR,STAR> t(g);
             Hessenberg( UPPER, U, t );
             Identity( Q, U.Height(), U.Height() );
@@ -1904,7 +1902,6 @@ Pseudospectrum
         }
         else
         {
-            LogicError("Hessenberg one-norm pseudospectra not yet tested");
             Matrix<C> t;
             Hessenberg( UPPER, B, t );
             Identity( Q, B.Height(), B.Height() );
@@ -2025,7 +2022,6 @@ Pseudospectrum
         }
         else
         {
-            LogicError("Hessenberg one-norm pseudospectra not yet tested");
             DistMatrix<C,STAR,STAR> t(g);
             Hessenberg( UPPER, B, t );
             Identity( Q, B.Height(), B.Height() );
