@@ -249,7 +249,7 @@ Lanczos
     }
 
     // The Hessenberg case currently requires explicit access to the adjoint
-    Matrix<C> UAdj, activeShiftsConj;
+    Matrix<C> UAdj;
     if( !psCtrl.schur )
         Adjoint( U, UAdj );
 
@@ -314,9 +314,10 @@ Lanczos
         {
             if( progress )
                 subtimer.Start();
-            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U, activeShifts, activeXNew );
+            Matrix<C> activeShiftsConj;
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeXNew );
             if( progress )
@@ -441,8 +442,6 @@ Lanczos
 
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
-    DistMatrix<C,VR,STAR> activeShiftsConj(g);
-    DistMatrix<C,STAR,VR> activeXNew_STAR_VR(g);
     if( !psCtrl.schur )
     {
         U_VC_STAR = U;
@@ -529,11 +528,12 @@ Lanczos
                     subtimer.Start();
             }
             // NOTE: This redistribution sequence might not be necessary
-            activeXNew_STAR_VR = activeXNew;
-            Conjugate( activeShifts, activeShiftsConj );
+            DistMatrix<C,STAR,VR> activeXNew_STAR_VR( activeXNew );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
               activeXNew_STAR_VR );
+            DistMatrix<C,VR,STAR> activeShiftsConj(g);
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj,
               activeXNew_STAR_VR );

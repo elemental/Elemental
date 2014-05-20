@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_PSEUDOSPECTRUM_HAGER_HPP
-#define EL_PSEUDOSPECTRUM_HAGER_HPP
+#ifndef EL_PSEUDOSPECTRUM_HAGERHIGHAM_HPP
+#define EL_PSEUDOSPECTRUM_HAGERHIGHAM_HPP
 
 #include "./Power.hpp"
 
@@ -190,12 +190,12 @@ OneNormConvergenceTest
 
 template<typename Real>
 inline Matrix<Int>
-Hager
+HagerHigham
 ( const Matrix<Complex<Real>>& U,
   const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -222,7 +222,7 @@ Hager
     psCtrl.snapCtrl.ResetCounts();
 
     // The Hessenberg case currently requires explicit access to the adjoint
-    Matrix<C> UAdj, activeShiftsConj;
+    Matrix<C> UAdj;
     if( !psCtrl.schur )
         Adjoint( U, UAdj );
 
@@ -278,6 +278,7 @@ Hager
                        { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
 
             // Solve against (H - zI)^H
+            Matrix<C> activeShiftsConj;
             Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeZ );
@@ -315,23 +316,40 @@ Hager
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
     } 
-
     invNorms = estimates;
     if( deflate )
         RestoreOrdering( preimage, invNorms, itCounts );
-    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
 
+    // Solve one final linear system to attempt to counteract possible
+    // cancellation in large entries in inv(U - zI)
+    for( Int j=0; j<numShifts; ++j )
+        for( Int i=0; i<n; ++i )
+            X.Set( i, j, (i%2==0 ?  Real(i+n-1)/Real(n-1)  
+                                 : -Real(i+n-1)/Real(n-1) ) );
+    if( psCtrl.schur )
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, X );
+    else
+        MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, X );
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
+        const Real heurNorm = 2*oneNorm/(3*Real(n));
+        if( heurNorm > invNorms.Get(j,0) )
+            invNorms.Set( j, 0, heurNorm );
+    }
+
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
     return itCounts;
 }
 
 template<typename Real>
 inline Matrix<Int>
-Hager
+HagerHigham
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& Q, 
   const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -358,7 +376,7 @@ Hager
     psCtrl.snapCtrl.ResetCounts();
 
     // The Hessenberg case currently requires explicit access to the adjoint
-    Matrix<C> UAdj, activeShiftsConj;
+    Matrix<C> UAdj;
     if( !psCtrl.schur )
         Adjoint( U, UAdj );
 
@@ -419,6 +437,7 @@ Hager
 
             // Solve against Q (H - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            Matrix<C> activeShiftsConj;
             Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeV );
@@ -457,28 +476,50 @@ Hager
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
     } 
-
     invNorms = estimates;
     if( deflate )
         RestoreOrdering( preimage, invNorms, itCounts );
-    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
 
+    // Solve one final linear system to attempt to counteract possible
+    // cancellation in large entries in inv(U - zI)
+    for( Int j=0; j<numShifts; ++j )
+        for( Int i=0; i<n; ++i )
+            X.Set( i, j, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
+                                 : -Real(i+n-1)/Real(n-1) ) );
+    Matrix<C> Y;
+    Gemm( ADJOINT, NORMAL, C(1), Q, X, Y );
+    if( psCtrl.schur )
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, Y );
+    else
+        MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, Y );
+    Gemm( NORMAL, NORMAL, C(1), Q, Y, X );
+    for( Int j=0; j<numShifts; ++j )
+    {
+        const Real oneNorm = blas::Nrm1( n, X.LockedBuffer(0,j), 1 );
+        const Real heurNorm = 2*oneNorm/(3*Real(n));
+        if( heurNorm > invNorms.Get(j,0) )
+            invNorms.Set( j, 0, heurNorm );
+    }
+
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
     return itCounts;
 }
 
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
-Hager
+HagerHigham
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
+    const Int nLoc = U.LocalHeight();
     const Int numShifts = shifts.Height();
+    const Int numLocShifts = shifts.LocalHeight();
     const Grid& g = U.Grid();
 
     const Int maxIts = psCtrl.maxIts;
@@ -496,7 +537,6 @@ Hager
     {
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
-        const Int numLocShifts = preimage.LocalHeight();
         for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
             const Int i = preimage.GlobalRow(iLoc);
@@ -508,8 +548,6 @@ Hager
 
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
-    DistMatrix<C,VR,STAR> activeShiftsConj(g);
-    DistMatrix<C,STAR,VR> activeV_STAR_VR(g);
     if( !psCtrl.schur )
     {
         U_VC_STAR = U;
@@ -561,7 +599,7 @@ Hager
         else
         {
             // Solve against (H - zI)
-            activeV_STAR_VR = activeX;
+            DistMatrix<C,STAR,VR>  activeV_STAR_VR( activeX );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts, activeV_STAR_VR );
             activeY = activeV_STAR_VR;
@@ -573,6 +611,7 @@ Hager
 
             // Solve against (H - zI)^H 
             activeV_STAR_VR = activeZ;
+            DistMatrix<C,VR,STAR> activeShiftsConj(g);
             Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj, 
@@ -616,25 +655,62 @@ Hager
     invNorms = estimates;
     if( deflate )
         RestoreOrdering( preimage, invNorms, itCounts );
-    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
 
+    // Solve one final linear system to attempt to counteract possible
+    // cancellation in large entries in inv(U - zI)
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        for( Int iLoc=0; iLoc<nLoc; ++iLoc )
+        {
+            const Int i = X.GlobalRow(iLoc);
+            X.SetLocal
+            ( iLoc, jLoc, (i%2==0 ?  Real(i+n-1)/Real(n-1) : 
+                                    -Real(i+n-1)/Real(n-1) ) );
+        }
+    }
+    if( psCtrl.schur )
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, X );
+    else
+    {
+        DistMatrix<C,STAR,VR> X_STAR_VR(X);
+        MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, X_STAR_VR );
+        X = X_STAR_VR;
+    }
+    std::vector<Real> oneNorms(numLocShifts);
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        oneNorms[jLoc] = blas::Nrm1( nLoc, X.LockedBuffer(0,jLoc), 1 );
+    mpi::AllReduce( oneNorms.data(), numLocShifts, mpi::SUM, g.ColComm() );
+    DistMatrix<Real,MR,STAR> invNorms_MR_STAR(g);
+    invNorms_MR_STAR.AlignWith( X );
+    invNorms_MR_STAR = invNorms;
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Real heurNorm = 2*oneNorms[jLoc]/(3*Real(n));
+        if( heurNorm > invNorms_MR_STAR.GetLocal(jLoc,0) )
+            invNorms_MR_STAR.SetLocal( jLoc, 0, heurNorm );
+    }
+    invNorms = invNorms_MR_STAR;
+
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
     return itCounts;
 }
 
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
-Hager
+HagerHigham
 ( const DistMatrix<Complex<Real>        >& U, 
   const DistMatrix<Complex<Real>        >& Q,
   const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
         DistMatrix<Real,         VR,STAR>& invNorms, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
+    const Int nLoc = U.LocalHeight();
     const Int numShifts = shifts.Height();
+    const Int numLocShifts = shifts.LocalHeight();
     const Grid& g = U.Grid();
 
     const Int maxIts = psCtrl.maxIts;
@@ -652,7 +728,6 @@ Hager
     {
         preimage.AlignWith( shifts );
         preimage.Resize( numShifts, 1 );
-        const Int numLocShifts = preimage.LocalHeight();
         for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
         {
             const Int i = preimage.GlobalRow(iLoc);
@@ -664,8 +739,6 @@ Hager
 
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
-    DistMatrix<C,VR,STAR> activeShiftsConj(g);
-    DistMatrix<C,STAR,VR> activeV_STAR_VR(g);
     if( !psCtrl.schur )
     {
         U_VC_STAR = U;
@@ -722,7 +795,7 @@ Hager
         {
             // Solve against Q (H - zI) Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
-            activeV_STAR_VR = activeV;
+            DistMatrix<C,STAR,VR> activeV_STAR_VR( activeV );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts, activeV_STAR_VR );
             activeV = activeV_STAR_VR;
@@ -736,6 +809,7 @@ Hager
             // Solve against Q (H - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
             activeV_STAR_VR = activeV;
+            DistMatrix<C,VR,STAR> activeShiftsConj(g);
             Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj, 
@@ -776,16 +850,55 @@ Hager
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
     } 
-
     invNorms = estimates;
     if( deflate )
         RestoreOrdering( preimage, invNorms, itCounts );
-    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
 
+    // Solve one final linear system to attempt to counteract possible
+    // cancellation in large entries in inv(U - zI)
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        for( Int iLoc=0; iLoc<nLoc; ++iLoc )
+        {
+            const Int i = X.GlobalRow(iLoc);
+            X.SetLocal
+            ( iLoc, jLoc, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
+                                  : -Real(i+n-1)/Real(n-1) ) );
+        }
+    }
+    DistMatrix<C> Y(g);
+    Gemm( ADJOINT, NORMAL, C(1), Q, X, Y );
+    if( psCtrl.schur )
+    {
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, Y );
+    }
+    else
+    {
+        DistMatrix<C,STAR,VR> Y_STAR_VR( Y );
+        MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, Y_STAR_VR );
+        Y = Y_STAR_VR; 
+    }
+    Gemm( NORMAL, NORMAL, C(1), Q, Y, X );
+    std::vector<Real> oneNorms(numLocShifts);
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+        oneNorms[jLoc] = blas::Nrm1( nLoc, X.LockedBuffer(0,jLoc), 1 );
+    mpi::AllReduce( oneNorms.data(), numLocShifts, mpi::SUM, g.ColComm() );
+    DistMatrix<Real,MR,STAR> invNorms_MR_STAR(g);
+    invNorms_MR_STAR.AlignWith( X );
+    invNorms_MR_STAR = invNorms;
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Real heurNorm = 2*oneNorms[jLoc]/(3*Real(n));
+        if( heurNorm > invNorms_MR_STAR.GetLocal(jLoc,0) )
+            invNorms_MR_STAR.SetLocal( jLoc, 0, heurNorm );
+    }
+    invNorms = invNorms_MR_STAR;
+
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
     return itCounts;
 }
 
 } // namespace pspec
 } // namespace El
 
-#endif // ifndef EL_PSEUDOSPECTRUM_HAGER_HPP
+#endif // ifndef EL_PSEUDOSPECTRUM_HAGERHIGHAM_HPP

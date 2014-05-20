@@ -26,7 +26,7 @@
 
 // For one-norm pseudospectra. An adaptation of the more robust algorithm of
 // Higham and Tisseur will hopefully be implemented soon.
-#include "./Pseudospectrum/Hager.hpp"
+#include "./Pseudospectrum/HagerHigham.hpp"
 
 namespace El {
 
@@ -72,7 +72,8 @@ TriangularPseudospectrum
             return pspec::Power( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( U, shifts, invNorms, psCtrl ); // Q is assumed to be the identity
+        return pspec::HagerHigham( U, shifts, invNorms, psCtrl ); 
+        // Q is assumed to be the identity
 }
 
 template<typename Real>
@@ -118,7 +119,7 @@ TriangularPseudospectrum
             return pspec::Power( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( U, Q, shifts, invNorms, psCtrl );
+        return pspec::HagerHigham( U, Q, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -212,7 +213,8 @@ HessenbergPseudospectrum
             return pspec::Power( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( H, shifts, invNorms, psCtrl ); // Q is assumed to be the identity
+        return pspec::HagerHigham( H, shifts, invNorms, psCtrl ); 
+        // Q is assumed to be the identity
 }
 
 template<typename Real>
@@ -242,7 +244,7 @@ HessenbergPseudospectrum
             return pspec::Power( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( H, Q, shifts, invNorms, psCtrl );
+        return pspec::HagerHigham( H, Q, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -323,7 +325,7 @@ TriangularPseudospectrum
             return pspec::Power( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( U, shifts, invNorms, psCtrl );
+        return pspec::HagerHigham( U, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -372,7 +374,7 @@ TriangularPseudospectrum
             return pspec::Power( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( U, Q, shifts, invNorms, psCtrl );
+        return pspec::HagerHigham( U, Q, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -509,7 +511,7 @@ HessenbergPseudospectrum
             return pspec::Power( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( H, shifts, invNorms, psCtrl );
+        return pspec::HagerHigham( H, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -539,7 +541,7 @@ HessenbergPseudospectrum
             return pspec::Power( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Hager( H, Q, shifts, invNorms, psCtrl );
+        return pspec::HagerHigham( H, Q, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>

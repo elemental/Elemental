@@ -258,7 +258,6 @@ IRA
     Matrix<C> UAdj;
     if( !psCtrl.schur )
         Adjoint( U, UAdj );
-    Matrix<C> activeShiftsConj;
 
     // Simultaneously run IRA for different shifts
     std::vector<Matrix<C>> VList(basisSize+1), activeVList(basisSize+1);
@@ -330,10 +329,11 @@ IRA
             {
                 if( progress )
                     subtimer.Start();
-                Conjugate( activeShifts, activeShiftsConj );
                 MultiShiftHessSolve
                 ( UPPER, NORMAL, 
                   C(1), U, activeShifts, activeVList[j+1] );
+                Matrix<C> activeShiftsConj;
+                Conjugate( activeShifts, activeShiftsConj );
                 MultiShiftHessSolve
                 ( LOWER, NORMAL, 
                   C(1), UAdj, activeShiftsConj, activeVList[j+1] );
@@ -703,8 +703,6 @@ IRA
 
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
-    DistMatrix<C,VR,STAR> activeShiftsConj(g);
-    DistMatrix<C,STAR,VR> activeV_STAR_VR(g);
     if( !psCtrl.schur )
     {
         U_VC_STAR = U;
@@ -802,11 +800,12 @@ IRA
                         subtimer.Start();
                 }
                 // NOTE: This redistribution sequence might not be necessary
-                activeV_STAR_VR = activeVList[j+1];
-                Conjugate( activeShifts, activeShiftsConj );
+                DistMatrix<C,STAR,VR> activeV_STAR_VR( activeVList[j+1] );
                 MultiShiftHessSolve
                 ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
                   activeV_STAR_VR );
+                DistMatrix<C,VR,STAR> activeShiftsConj(g);
+                Conjugate( activeShifts, activeShiftsConj );
                 MultiShiftHessSolve
                 ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj,
                   activeV_STAR_VR );

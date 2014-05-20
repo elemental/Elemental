@@ -240,7 +240,7 @@ Power
     psCtrl.snapCtrl.ResetCounts();
 
     // The Hessenberg case currently requires explicit access to the adjoint
-    Matrix<C> UAdj, activeShiftsConj;
+    Matrix<C> UAdj;
     if( !psCtrl.schur )
         Adjoint( U, UAdj );
 
@@ -277,10 +277,11 @@ Power
         }
         else
         {
-            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U, activeShifts, activeX );
             FixColumns( activeX );
+            Matrix<C> activeShiftsConj;
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeX );
         }
@@ -373,8 +374,6 @@ Power
 
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
-    DistMatrix<C,VR,STAR> activeShiftsConj(g);
-    DistMatrix<C,STAR,VR> activeX_STAR_VR(g);
     if( !psCtrl.schur )
     {
         U_VC_STAR = U;
@@ -414,12 +413,13 @@ Power
         }
         else
         {
-            Conjugate( activeShifts, activeShiftsConj );
-            activeX_STAR_VR = activeX;
+            DistMatrix<C,STAR,VR> activeX_STAR_VR( activeX );
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
               activeX_STAR_VR );
             FixColumns( activeX_STAR_VR );
+            DistMatrix<C,VR,STAR> activeShiftsConj(g);
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj,
               activeX_STAR_VR );
