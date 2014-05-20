@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
         const Int matType =
             Input("--matType","0:uniform,1:Demmel,2:Lotkin,3:Grcar,4:FoxLi,"
                   "5:custom real,6:custom complex",1);
-        const Int normInt = Input("--norm","0:two norm,1:one norm",0);
+        //const Int normInt = Input("--norm","0:two norm,1:one norm",0);
         bool quasi = Input("--quasi","Quasi-triang. real matrix?",true);
         const std::string basename =
             Input("--basename","basename of distributed Schur factor",
@@ -88,8 +88,8 @@ main( int argc, char* argv[] )
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( mpi::COMM_WORLD, r, order );
         SetBlocksize( nbAlg );
-        if( normInt < 0 || normInt > 1 )
-            LogicError("Invalid pseudospec norm type");
+        //if( normInt < 0 || normInt > 1 )
+        //    LogicError("Invalid pseudospec norm type");
         if( numFormatInt < 1 || numFormatInt >= FileFormat_MAX )
             LogicError("Invalid numerical format integer, should be in [1,",
                        FileFormat_MAX,")");
@@ -97,7 +97,7 @@ main( int argc, char* argv[] )
             LogicError("Invalid image format integer, should be in [1,",
                        FileFormat_MAX,")");
 
-        const auto psNorm    = static_cast<PseudospecNorm>(normInt);
+        //const auto psNorm    = static_cast<PseudospecNorm>(normInt);
         const auto numFormat = static_cast<FileFormat>(numFormatInt);
         const auto imgFormat = static_cast<FileFormat>(imgFormatInt);
         const auto colorMap  = static_cast<ColorMap>(colorMapInt);
@@ -220,7 +220,7 @@ main( int argc, char* argv[] )
         }
 
         PseudospecCtrl<Real> psCtrl;
-        psCtrl.norm = psNorm;
+        psCtrl.norm = PS_TWO_NORM;
         psCtrl.schur = true;
         psCtrl.maxIts = maxIts;
         psCtrl.tol = psTol;

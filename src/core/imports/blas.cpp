@@ -641,9 +641,9 @@ float Nrm1( int n, const float* x, int incx )
 double Nrm1( int n, const double* x, int incx )
 { return EL_BLAS(dasum)( &n, x, &incx ); }
 float Nrm1( int n, const scomplex* x, int incx )
-{ return EL_BLAS(scsum1)( &n, x, &incx ); }
+{ return EL_LAPACK(scsum1)( &n, x, &incx ); }
 double Nrm1( int n, const dcomplex* x, int incx )
-{ return EL_BLAS(dzsum1)( &n, x, &incx ); }
+{ return EL_LAPACK(dzsum1)( &n, x, &incx ); }
 
 void Swap( int n, float* x, int incx, float* y, int incy )
 { EL_BLAS(sswap)( &n, x, &incx, y, &incy ); }

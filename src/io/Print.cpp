@@ -12,6 +12,19 @@
 namespace El {
 
 template<typename T>
+void Print( const std::vector<T>& x, std::string title, std::ostream& os )
+{
+    DEBUG_ONLY(CallStackEntry cse("Print"))
+    if( title != "" )
+        os << title << std::endl;
+    
+    const Int length = x.size();
+    for( Int i=0; i<length; ++i )
+        os << x[i] << " ";
+    os << std::endl;
+}
+
+template<typename T>
 void Print( const Matrix<T>& A, std::string title, std::ostream& os )
 {
     DEBUG_ONLY(CallStackEntry cse("Print"))
@@ -97,6 +110,8 @@ void Print
   ( const BlockDistMatrix<T,U,V>& A, std::string title, std::ostream& os );
 
 #define PROTO(T) \
+  template void Print \
+  ( const std::vector<T>& x, std::string title, std::ostream& os ); \
   template void Print \
   ( const Matrix<T>& A, std::string title, std::ostream& os ); \
   DISTPROTO(T,CIRC,CIRC); \

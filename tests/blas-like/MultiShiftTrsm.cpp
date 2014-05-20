@@ -8,77 +8,36 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_MAKETRAPEZOIDAL_INC
+#include EL_MAKETRIANGULAR_INC
 #include EL_GEMM_INC
-#include EL_MULTISHIFTQUASITRSM_INC
+#include EL_MULTISHIFTTRSM_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
 #include EL_UNIFORM_INC
 using namespace std;
 using namespace El;
 
-template<typename F>
-void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeQuasiTriangular"))
-    const Int n = A.Height();
-    if( n < 3 )
-        return;
-    if( uplo == LOWER )
-    {
-        MakeTrapezoidal( LOWER, A, 1 );
-        auto dSup = A.GetDiagonal(+1);
-        DistMatrix<F,STAR,STAR> dSup_STAR_STAR( dSup );
-        for( Int j=0; j<n-2; ++j )
-        {
-            const F thisSup = dSup_STAR_STAR.Get(j,  0);
-            const F nextSup = dSup_STAR_STAR.Get(j+1,0);
-            if( thisSup != F(0) && nextSup != F(0) )
-            {
-                A.Set(j+1,j+2,0);
-                dSup_STAR_STAR.Set(j+1,0,0);
-            }
-        }
-    }
-    else
-    {
-        MakeTrapezoidal( UPPER, A, -1 );
-        auto dSub = A.GetDiagonal(-1);
-        DistMatrix<F,STAR,STAR> dSub_STAR_STAR( dSub );
-        for( Int j=0; j<n-2; ++j )
-        {
-            const F thisSub = dSub_STAR_STAR.Get(j,  0);
-            const F nextSub = dSub_STAR_STAR.Get(j+1,0);
-            if( thisSub != F(0) && nextSub != F(0) )
-            {
-                A.Set(j+2,j+1,0);
-                dSub_STAR_STAR.Set(j+1,0,0);
-            }
-        }
-    }
-}
-
 template<typename F> 
-void TestMultiShiftQuasiTrsm
+void TestMultiShiftTrsm
 ( bool print,
   LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   Int m, Int n, F alpha, const Grid& g )
 {
     typedef Base<F> Real;
-    DistMatrix<F> H(g), X(g);
+    DistMatrix<F> U(g), X(g);
     DistMatrix<F,VR,STAR> shifts(g);
 
     if( side == LEFT )
     {
-        HermitianUniformSpectrum( H, m, 1, 10 );
+        HermitianUniformSpectrum( U, m, 1, 10 );
         Uniform( shifts, n, 1, F(0), Real(0.5) );
     }
     else
     {
-        HermitianUniformSpectrum( H, n, 1, 10 );
+        HermitianUniformSpectrum( U, n, 1, 10 );
         Uniform( shifts, m, 1, F(0), Real(0.5) );
     }
-    MakeQuasiTriangular( uplo, H );
+    MakeTriangular( uplo, U );
 
     auto modShifts(shifts);
     if( orientation == ADJOINT )
@@ -89,7 +48,7 @@ void TestMultiShiftQuasiTrsm
     Zeros( Y, m, n );
     if( side == LEFT )
     {
-        Gemm( orientation, NORMAL, F(1)/alpha, H, X, F(1), Y );
+        Gemm( orientation, NORMAL, F(1)/alpha, U, X, F(1), Y );
         for( Int j=0; j<n; ++j )
         {
             auto x = LockedView( X, 0, j, m, 1 );
@@ -99,7 +58,7 @@ void TestMultiShiftQuasiTrsm
     }
     else
     {
-        Gemm( NORMAL, orientation, F(1)/alpha, X, H, F(1), Y );
+        Gemm( NORMAL, orientation, F(1)/alpha, X, U, F(1), Y );
         for( Int i=0; i<m; ++i )
         {
             auto x = LockedView( X, i, 0, 1, n );
@@ -110,19 +69,19 @@ void TestMultiShiftQuasiTrsm
 
     if( print )
     {
-        Print( H, "H" );
+        Print( U, "U" );
         Print( shifts, "shifts" );
         Print( X, "X" );
         Print( Y, "Y" );
     }
     if( g.Rank() == 0 )
     {
-        cout << "  Starting MultiShiftQuasiTrsm...";
+        cout << "  Starting MultiShiftTrsm...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    MultiShiftQuasiTrsm( side, uplo, orientation, alpha, H, shifts, Y );
+    MultiShiftTrsm( side, uplo, orientation, alpha, U, shifts, Y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 
@@ -138,12 +97,12 @@ void TestMultiShiftQuasiTrsm
     if( print )
         Print( Y, "Y after solve" );
     Axpy( F(-1), X, Y );
-    const auto HFrob = FrobeniusNorm( H );
+    const auto UFrob = FrobeniusNorm( U );
     const auto XFrob = FrobeniusNorm( X );
     const auto EFrob = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
-        cout << "|| H ||_F = " << HFrob << "\n"
+        cout << "|| U ||_F = " << UFrob << "\n"
              << "|| X ||_F = " << XFrob << "\n"
              << "|| E ||_F = " << EFrob << "\n" << std::endl;
     }
@@ -184,17 +143,16 @@ main( int argc, char* argv[] )
 
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test MultiShiftQuasiTrsm" 
+            cout << "Will test MultiShiftTrsm" 
                  << sideChar << uploChar << transChar << endl;
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestMultiShiftQuasiTrsm<double>
-        ( print, side, uplo, orientation, m, n, 3., g );
+        TestMultiShiftTrsm<double>( print, side, uplo, orientation, m, n, 3., g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestMultiShiftQuasiTrsm<Complex<double>>
+        TestMultiShiftTrsm<Complex<double>>
         ( print, side, uplo, orientation, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }

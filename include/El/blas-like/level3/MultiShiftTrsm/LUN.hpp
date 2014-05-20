@@ -10,6 +10,8 @@
 #ifndef EL_MULTISHIFTTRSM_LUN_HPP
 #define EL_MULTISHIFTTRSM_LUN_HPP
 
+#include EL_UPDATEDIAGONAL_INC
+
 namespace El {
 namespace mstrsm {
 

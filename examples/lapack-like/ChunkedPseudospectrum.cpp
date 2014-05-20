@@ -227,14 +227,26 @@ main( int argc, char* argv[] )
         DistMatrix<C,VR,STAR> w(g);
         mpi::Barrier( mpi::COMM_WORLD );
         const bool formATR = true;
+        DistMatrix<Real> QReal(g);
+        DistMatrix<C> QCpx(g);
 #ifdef EL_HAVE_SCALAPACK
         SetDefaultBlockHeight( nbDist );
         SetDefaultBlockWidth( nbDist );
         timer.Start();
         if( isReal )
-            schur::QR( AReal, w, formATR );
+        {
+            if( psNorm == PS_TWO_NORM )
+                schur::QR( AReal, w, formATR );
+            else
+                schur::QR( AReal, w, QReal, formATR );
+        }
         else
-            schur::QR( ACpx, w, formATR );
+        {
+            if( psNorm == PS_TWO_NORM )
+                schur::QR( ACpx, w, formATR );
+            else
+                schur::QR( ACpx, w, QCpx, formATR );
+        }
         mpi::Barrier( mpi::COMM_WORLD );
         const double qrTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
@@ -253,15 +265,9 @@ main( int argc, char* argv[] )
         sdcCtrl.signCtrl.progress = progress;
         timer.Start();
         if( isReal )
-        {
-            DistMatrix<Real> XReal(g);
-            schur::SDC( AReal, w, XReal, formATR, sdcCtrl );
-        }
+            schur::SDC( AReal, w, QReal, formATR, sdcCtrl );
         else
-        {
-            DistMatrix<C> XCpx(g);
-            schur::SDC( ACpx, w, XCpx, formATR, sdcCtrl );
-        }
+            schur::SDC( ACpx, w, QCpx, formATR, sdcCtrl );
         mpi::Barrier( mpi::COMM_WORLD );
         const double sdcTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
@@ -277,19 +283,39 @@ main( int argc, char* argv[] )
             timer.Start();
             if( isReal )
             {
-                std::ostringstream os;
-                os << matName << "-" 
-                   << AReal.ColStride() << "x" << AReal.RowStride()
-                   << "-" << AReal.DistRank();
-                write::Binary( AReal.LockedMatrix(), os.str() );
+                {
+                    std::ostringstream os;
+                    os << matName << "-" 
+                       << AReal.ColStride() << "x" << AReal.RowStride()
+                       << "-" << AReal.DistRank();
+                    write::Binary( AReal.LockedMatrix(), os.str() );
+                }
+                if( psNorm == PS_ONE_NORM )
+                {
+                    std::ostringstream os;
+                    os << matName << "-Q-"
+                       << QReal.ColStride() << "x" << QReal.RowStride()
+                       << "-" << QReal.DistRank();
+                    write::Binary( QReal.LockedMatrix(), os.str() );
+                }
             } 
             else
             {
-                std::ostringstream os;
-                os << matName << "-" 
-                   << ACpx.ColStride() << "x" << ACpx.RowStride()
-                   << "-" << ACpx.DistRank();
-                write::Binary( ACpx.LockedMatrix(), os.str() );
+                {
+                    std::ostringstream os;
+                    os << matName << "-" 
+                       << ACpx.ColStride() << "x" << ACpx.RowStride()
+                       << "-" << ACpx.DistRank();
+                    write::Binary( ACpx.LockedMatrix(), os.str() );
+                }
+                if( psNorm == PS_ONE_NORM )
+                {
+                    std::ostringstream os;
+                    os << matName << "-Q-"
+                       << QCpx.ColStride() << "x" << QCpx.RowStride()
+                       << "-" << QCpx.DistRank();
+                    write::Binary( QCpx.LockedMatrix(), os.str() );
+                }
             }
             mpi::Barrier( mpi::COMM_WORLD );
             const double saveSchurTime = timer.Stop();
@@ -387,14 +413,14 @@ main( int argc, char* argv[] )
                 if( isReal )
                 {
                     itCountMap = QuasiTriangularPseudospectrum
-                    ( AReal, invNormMap, chunkCenter, 
+                    ( AReal, QReal, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );
                 }
                 else
                 {
                     itCountMap = TriangularPseudospectrum
-                    ( ACpx, invNormMap, chunkCenter, 
+                    ( ACpx, QCpx, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );
                 }

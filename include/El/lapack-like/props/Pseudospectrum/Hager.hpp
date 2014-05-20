@@ -13,6 +13,7 @@
 #include "./Power.hpp"
 
 #include EL_ENTRYWISEMAP_INC
+#include EL_GEMM_INC
 
 namespace El {
 namespace pspec {
@@ -97,6 +98,18 @@ OneNormConvergenceTest
 {
     DEBUG_ONLY(
         CallStackEntry cse("pspec::OneNormConvergenceTest");
+        if( activeX.Height() != activeY.Height() || 
+            activeY.Height() != activeZ.Height() )
+            LogicError("active{X,Y,Z} should be the same height");
+        if( activeX.Width() != activeY.Width() || 
+            activeY.Width() != activeZ.Width() )
+            LogicError("active{X,Y,Z} should be the same height");
+        if( activeX.ColAlign() != activeY.ColAlign() || 
+            activeY.ColAlign() != activeZ.ColAlign() )
+            LogicError("active{X,Y,Z} should be column aligned");
+        if( activeX.RowAlign() != activeY.RowAlign() || 
+            activeY.RowAlign() != activeZ.RowAlign() )
+            LogicError("active{X,Y,Z} should be row aligned");
         if( activeZ.RowAlign() != activeEsts.ColAlign() )
             LogicError("Invalid activeZ alignment");
         if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
@@ -178,7 +191,8 @@ OneNormConvergenceTest
 template<typename Real>
 inline Matrix<Int>
 Hager
-( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
+( const Matrix<Complex<Real>>& U,
+  const Matrix<Complex<Real>>& shifts, 
   Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
@@ -234,30 +248,181 @@ Hager
         if( progress )
             timer.Start(); 
 
-        auto activeY = activeX;
-        Matrix<C> activeZ;
+        Matrix<C> activeY, activeZ;
         if( psCtrl.schur )
         {
+            // Solve against (U - zI)
+            activeY = activeX;
             MultiShiftTrsm
             ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeY );
+
             activeZ = activeY;
             EntrywiseMap
             ( activeZ, []( C alpha ) 
                        { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against (U - zI)^H 
             MultiShiftTrsm
             ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeZ );
         }
         else
         {
-            Conjugate( activeShifts, activeShiftsConj );
+            // Solve against (H - zI)
+            activeY = activeX;
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U, activeShifts, activeY );
+
             activeZ = activeY;
             EntrywiseMap
             ( activeZ, []( C alpha ) 
                        { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against (H - zI)^H
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeZ );
+        }
+
+        auto activeConverged = 
+            OneNormConvergenceTest
+            ( activeX, activeY, activeZ, activeEsts, activeItCounts, numIts );
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        if( progress )
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime 
+                      << " seconds, " << numDone << " of " << numShifts 
+                      << " converged" << std::endl;
+        }
+
+        ++numIts;
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+            Deflate
+            ( activeShifts, activePreimage, activeX, activeEsts,
+              activeConverged, activeItCounts, progress );
+
+        // Save snapshots of the estimates at the requested rate
+        psCtrl.snapCtrl.Iterate();
+        Snapshot
+        ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
+    } 
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
+
+    return itCounts;
+}
+
+template<typename Real>
+inline Matrix<Int>
+Hager
+( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& Q, 
+  const Matrix<Complex<Real>>& shifts, 
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+    const Int numShifts = shifts.Height();
+
+    const Int maxIts = psCtrl.maxIts;
+    const bool deflate = psCtrl.deflate;
+    const bool progress = psCtrl.progress;
+
+    // Keep track of the number of iterations per shift
+    Matrix<Int> itCounts;
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    Matrix<Int> preimage;
+    Matrix<C> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.Resize( numShifts, 1 );
+        for( Int j=0; j<numShifts; ++j )
+            preimage.Set( j, 0, j );
+    }
+
+    psCtrl.snapCtrl.ResetCounts();
+
+    // The Hessenberg case currently requires explicit access to the adjoint
+    Matrix<C> UAdj, activeShiftsConj;
+    if( !psCtrl.schur )
+        Adjoint( U, UAdj );
+
+    // Simultaneously run inverse iteration for various shifts
+    Timer timer;
+    Matrix<C> X;
+    Ones( X, n, numShifts );
+    Scale( C(1)/C(n), X );
+    Int numIts=0, numDone=0;
+    Matrix<Real> estimates(numShifts,1);
+    Zeros( estimates, numShifts, 1 );
+    Matrix<Int> activePreimage;
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        auto activeX = View( X, 0, 0, n, numActive );
+        if( deflate )
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+
+        if( progress )
+            timer.Start(); 
+
+        Matrix<C> activeV, activeY, activeZ;
+        if( psCtrl.schur )
+        {
+            // Solve against Q (U - zI) Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            MultiShiftTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeV );
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+
+            activeZ = activeY;
+            EntrywiseMap
+            ( activeZ, []( C alpha ) 
+                       { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against Q (U - zI)^H Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            MultiShiftTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeV );
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
+        }
+        else
+        {
+            // Solve against Q (H - zI) Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), U, activeShifts, activeV );
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+
+            activeZ = activeY;
+            EntrywiseMap
+            ( activeZ, []( C alpha ) 
+                       { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against Q (H - zI)^H Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            Conjugate( activeShifts, activeShiftsConj );
+            MultiShiftHessSolve
+            ( LOWER, NORMAL, C(1), UAdj, activeShiftsConj, activeV );
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
         }
 
         auto activeConverged = 
@@ -344,7 +509,7 @@ Hager
     // The Hessenberg case currently requires explicit access to the adjoint
     DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
     DistMatrix<C,VR,STAR> activeShiftsConj(g);
-    DistMatrix<C,STAR,VR> activeY_STAR_VR(g);
+    DistMatrix<C,STAR,VR> activeV_STAR_VR(g);
     if( !psCtrl.schur )
     {
         U_VC_STAR = U;
@@ -379,32 +544,204 @@ Hager
         activeZ.AlignWith( activeX );
         if( psCtrl.schur )
         {
+            // Solve against (U - zI)
             activeY = activeX;
             MultiShiftTrsm
             ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeY );
+
             activeZ = activeY;
             EntrywiseMap
             ( activeZ, []( C alpha )
                        { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against (U - zI)^H
             MultiShiftTrsm
             ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeZ );
         }
         else
         {
-            activeY_STAR_VR = activeX;
+            // Solve against (H - zI)
+            activeV_STAR_VR = activeX;
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts, activeV_STAR_VR );
+            activeY = activeV_STAR_VR;
+
+            activeZ = activeY;
+            EntrywiseMap
+            ( activeZ, []( C alpha ) 
+                       { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against (H - zI)^H 
+            activeV_STAR_VR = activeZ;
             Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
-            ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts, activeY_STAR_VR );
-            activeY = activeY_STAR_VR;
-            auto activeZ_STAR_VR = activeY_STAR_VR;
+            ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj, 
+              activeV_STAR_VR );
+            activeZ = activeV_STAR_VR;
+        }
+
+        auto activeConverged =
+            OneNormConvergenceTest
+            ( activeX, activeY, activeZ, activeEsts, activeItCounts, numIts );
+        const Int numActiveDone = ZeroNorm( activeConverged );
+        if( deflate )
+            numDone += numActiveDone;
+        else
+            numDone = numActiveDone;
+        if( progress && g.Rank() == 0 )
+        {
+            const double iterTime = timer.Stop();
+            std::cout << "iteration " << numIts << ": " << iterTime 
+                      << " seconds, " << numDone << " of " << numShifts 
+                      << " converged" << std::endl;
+        }
+
+        ++numIts;
+        if( numIts >= maxIts )
+            break;
+
+        if( numDone == numShifts )
+            break;
+        else if( deflate && numActiveDone != 0 )
+            Deflate
+            ( activeShifts, activePreimage, activeX, activeEsts,
+              activeConverged, activeItCounts, progress );
+
+        // Save snapshots of the estimates at the requested rate
+        psCtrl.snapCtrl.Iterate();
+        Snapshot
+        ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
+    } 
+
+    invNorms = estimates;
+    if( deflate )
+        RestoreOrdering( preimage, invNorms, itCounts );
+    FinalSnapshot( invNorms, itCounts, psCtrl.snapCtrl );
+
+    return itCounts;
+}
+
+template<typename Real>
+inline DistMatrix<Int,VR,STAR>
+Hager
+( const DistMatrix<Complex<Real>        >& U, 
+  const DistMatrix<Complex<Real>        >& Q,
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
+        DistMatrix<Real,         VR,STAR>& invNorms, 
+  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+{
+    DEBUG_ONLY(CallStackEntry cse("pspec::Hager"))
+    using namespace pspec;
+    typedef Complex<Real> C;
+    const Int n = U.Height();
+    const Int numShifts = shifts.Height();
+    const Grid& g = U.Grid();
+
+    const Int maxIts = psCtrl.maxIts;
+    const bool deflate = psCtrl.deflate;
+    const bool progress = psCtrl.progress;
+
+    // Keep track of the number of iterations per shift
+    DistMatrix<Int,VR,STAR> itCounts(g);
+    Ones( itCounts, numShifts, 1 );
+
+    // Keep track of the pivoting history if deflation is requested
+    DistMatrix<Int,VR,STAR> preimage(g);
+    DistMatrix<C,  VR,STAR> pivShifts( shifts );
+    if( deflate )
+    {
+        preimage.AlignWith( shifts );
+        preimage.Resize( numShifts, 1 );
+        const Int numLocShifts = preimage.LocalHeight();
+        for( Int iLoc=0; iLoc<numLocShifts; ++iLoc )
+        {
+            const Int i = preimage.GlobalRow(iLoc);
+            preimage.SetLocal( iLoc, 0, i );
+        }
+    }
+
+    psCtrl.snapCtrl.ResetCounts();
+
+    // The Hessenberg case currently requires explicit access to the adjoint
+    DistMatrix<C,VC,STAR> U_VC_STAR(g), UAdj_VC_STAR(g);
+    DistMatrix<C,VR,STAR> activeShiftsConj(g);
+    DistMatrix<C,STAR,VR> activeV_STAR_VR(g);
+    if( !psCtrl.schur )
+    {
+        U_VC_STAR = U;
+        Adjoint( U, UAdj_VC_STAR );
+    }
+
+    // Simultaneously run inverse iteration for various shifts
+    Timer timer;
+    DistMatrix<C> X(g);
+    Ones( X, n, numShifts );
+    Scale( C(1)/C(n), X );
+    Int numIts=0, numDone=0;
+    DistMatrix<Real,MR,STAR> estimates(g);
+    estimates.AlignWith( shifts );
+    Zeros( estimates, numShifts, 1 );
+    DistMatrix<Int,VR,STAR> activePreimage(g);
+    while( true )
+    {
+        const Int numActive = ( deflate ? numShifts-numDone : numShifts );
+        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
+        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
+        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
+        auto activeX = View( X, 0, 0, n, numActive );
+        if( deflate )
+            activePreimage = View( preimage, 0, 0, numActive, 1 );
+
+        if( progress && g.Rank() == 0 )
+            timer.Start();
+
+        DistMatrix<C> activeV(g), activeY(g), activeZ(g);
+        activeV.AlignWith( activeX );
+        activeY.AlignWith( activeX );
+        activeZ.AlignWith( activeX );
+        if( psCtrl.schur )
+        {
+            // Solve against Q (U - zI) Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            MultiShiftTrsm
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeV );
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+
+            activeZ = activeY;
             EntrywiseMap
-            ( activeZ_STAR_VR, 
-              []( C alpha )
-              { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+            ( activeZ, []( C alpha )
+                       { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against Q (U - zI)^H Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            MultiShiftTrsm
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeV );
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
+        }
+        else
+        {
+            // Solve against Q (H - zI) Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
+            activeV_STAR_VR = activeV;
+            MultiShiftHessSolve
+            ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts, activeV_STAR_VR );
+            activeV = activeV_STAR_VR;
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
+
+            activeZ = activeY;
+            EntrywiseMap
+            ( activeZ, []( C alpha ) 
+                       { return alpha==C(0) ? C(1) : alpha/Abs(alpha); } );
+
+            // Solve against Q (H - zI)^H Q^H 
+            Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
+            activeV_STAR_VR = activeV;
+            Conjugate( activeShifts, activeShiftsConj );
             MultiShiftHessSolve
             ( LOWER, NORMAL, C(1), UAdj_VC_STAR, activeShiftsConj, 
-              activeZ_STAR_VR );
-            activeZ = activeZ_STAR_VR;
+              activeV_STAR_VR );
+            activeV = activeV_STAR_VR;
+            Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
         }
 
         auto activeConverged =

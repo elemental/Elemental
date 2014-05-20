@@ -36,6 +36,12 @@ void Print
 ( const AbstractBlockDistMatrix<T>& AAbs, std::string title="", 
   std::ostream& os=std::cout );
 
+// Utilities
+// =========
+template<typename T>
+void Print
+( const std::vector<T>& x, std::string title="", std::ostream& os=std::cout );
+
 } // namespace El
 
 #endif // ifndef EL_PRINT_HPP
