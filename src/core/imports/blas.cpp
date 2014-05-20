@@ -89,6 +89,13 @@ void EL_BLAS(cscal)
 void EL_BLAS(zscal)
 ( const int* n, const dcomplex* alpha, dcomplex* x, const int* incx );
 
+float  EL_BLAS(sasum) ( const int* n, const float   * x, const int* incx );
+double EL_BLAS(dasum) ( const int* n, const double  * x, const int* incx );
+float  EL_BLAS(scasum)( const int* n, const scomplex* x, const int* incx );
+double EL_BLAS(dzasum)( const int* n, const dcomplex* x, const int* incx );
+float  EL_LAPACK(scsum1)( const int* n, const scomplex* x, const int* incx );
+double EL_LAPACK(dzsum1)( const int* n, const dcomplex* x, const int* incx );
+
 void EL_BLAS(sswap)
 ( const int* n, float   * x, const int* incx, float   * y, const int* incy );
 void EL_BLAS(dswap)
@@ -627,6 +634,16 @@ void Scal( int n, scomplex alpha, scomplex* x, int incx )
 { EL_BLAS(cscal)( &n, &alpha, x, &incx ); }
 void Scal( int n, dcomplex alpha, dcomplex* x, int incx )
 { EL_BLAS(zscal)( &n, &alpha, x, &incx ); }
+
+// NOTE: 'nrm1' is not the official name but is consistent with 'nrm2'
+float Nrm1( int n, const float* x, int incx )
+{ return EL_BLAS(sasum)( &n, x, &incx ); }
+double Nrm1( int n, const double* x, int incx )
+{ return EL_BLAS(dasum)( &n, x, &incx ); }
+float Nrm1( int n, const scomplex* x, int incx )
+{ return EL_BLAS(scsum1)( &n, x, &incx ); }
+double Nrm1( int n, const dcomplex* x, int incx )
+{ return EL_BLAS(dzsum1)( &n, x, &incx ); }
 
 void Swap( int n, float* x, int incx, float* y, int incy )
 { EL_BLAS(sswap)( &n, x, &incx, y, &incy ); }

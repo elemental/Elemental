@@ -94,6 +94,13 @@ void Scal( int n, scomplex alpha, scomplex* x, int incx );
 void Scal( int n, dcomplex alpha, dcomplex* x, int incx );
 template<typename T> void Scal( int n, T alpha, T* x, int incx );
 
+// NOTE: Nrm1 is not the official name but is consistent with Nrm2
+float  Nrm1( int n, const float   * x, int incx );
+double Nrm1( int n, const double  * x, int incx );
+float  Nrm1( int n, const scomplex* x, int incx );
+double Nrm1( int n, const dcomplex* x, int incx );
+template<typename F> F Nrm1( int n, const F* x, int incx );
+
 void Swap( int n, float   * x, int incx, float   * y, int incy );
 void Swap( int n, double  * x, int incx, double  * y, int incy );
 void Swap( int n, scomplex* x, int incx, scomplex* y, int incy );
@@ -581,6 +588,7 @@ inline T Dotu( int n, const T* x, int incx, const T* y, int incy )
 }
 
 // TODO: templated Nrm2
+// TODO: templated Nrm1
 
 template<typename T>
 inline void Scal( int n, T alpha, T* x, int incx )

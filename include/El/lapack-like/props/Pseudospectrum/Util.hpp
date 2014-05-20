@@ -22,9 +22,18 @@
 
 namespace El {
 
+enum PseudospecNorm {
+  PS_TWO_NORM,
+  PS_ONE_NORM
+  /* For now, handle the infinity norm by using the adjoint matrix */
+};
+
 template<typename Real>
 struct PseudospecCtrl
 {
+    PseudospecNorm norm;
+    Int blockWidth; // block width for block 1-norm estimator
+
     // Preprocessing configuration
     bool schur; // begin with reduction to Schur form?
     bool forceComplexSchur;
@@ -48,7 +57,8 @@ struct PseudospecCtrl
     SnapshotCtrl snapCtrl;
 
     PseudospecCtrl()
-    : schur(true), forceComplexSchur(false), forceComplexPs(false), sdcCtrl(),
+    : norm(PS_TWO_NORM), blockWidth(10),
+      schur(true), forceComplexSchur(false), forceComplexPs(false), sdcCtrl(),
       maxIts(200), tol(1e-6), deflate(true),
       arnoldi(true), basisSize(10), reorthog(true),
       progress(false), snapCtrl()

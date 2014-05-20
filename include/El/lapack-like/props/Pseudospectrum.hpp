@@ -24,6 +24,10 @@
 #include "./Pseudospectrum/IRL.hpp"
 #include "./Pseudospectrum/Analytic.hpp"
 
+// For one-norm pseudospectra. An adaptation of the more robust algorithm of
+// Higham and Tisseur will hopefully be implemented soon.
+#include "./Pseudospectrum/Hager.hpp"
+
 namespace El {
 
 template<typename Real>
@@ -52,15 +56,20 @@ TriangularPseudospectrum
     }
 
     psCtrl.schur = true;
-    if( psCtrl.arnoldi )
+    if( psCtrl.norm == PS_TWO_NORM )
     {
-        if( psCtrl.basisSize > 1 )
-            return pspec::IRA( U, shifts, invNorms, psCtrl );
+        if( psCtrl.arnoldi )
+        {
+            if( psCtrl.basisSize > 1 )
+                return pspec::IRA( U, shifts, invNorms, psCtrl );
+            else
+                return pspec::Lanczos( U, shifts, invNorms, psCtrl );
+        }
         else
-            return pspec::Lanczos( U, shifts, invNorms, psCtrl );
+            return pspec::Power( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( U, shifts, invNorms, psCtrl );
+        return pspec::Hager( U, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -105,6 +114,8 @@ QuasiTriangularPseudospectrum
     }
 
     psCtrl.schur = true;
+    if( psCtrl.norm == PS_ONE_NORM )
+        LogicError("This option is not yet written");
     return pspec::IRA( U, shifts, invNorms, psCtrl );
 }
 
@@ -120,15 +131,20 @@ HessenbergPseudospectrum
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       triangular version of Pseudospectrum?
     psCtrl.schur = false;
-    if( psCtrl.arnoldi )
+    if( psCtrl.norm == PS_TWO_NORM )
     {
-        if( psCtrl.basisSize > 1 )
-            return pspec::IRA( H, shifts, invNorms, psCtrl );
+        if( psCtrl.arnoldi )
+        {
+            if( psCtrl.basisSize > 1 )
+                return pspec::IRA( H, shifts, invNorms, psCtrl );
+            else
+                return pspec::Lanczos( H, shifts, invNorms, psCtrl );
+        }
         else
-            return pspec::Lanczos( H, shifts, invNorms, psCtrl );
+            return pspec::Power( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( H, shifts, invNorms, psCtrl );
+        return pspec::Hager( H, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -175,15 +191,20 @@ TriangularPseudospectrum
     }
 
     psCtrl.schur = true;
-    if( psCtrl.arnoldi )
+    if( psCtrl.norm == PS_TWO_NORM )
     {
-        if( psCtrl.basisSize > 1 )
-            return pspec::IRA( U, shifts, invNorms, psCtrl );
+        if( psCtrl.arnoldi )
+        {
+            if( psCtrl.basisSize > 1 )
+                return pspec::IRA( U, shifts, invNorms, psCtrl );
+            else
+                return pspec::Lanczos( U, shifts, invNorms, psCtrl );
+        }
         else
-            return pspec::Lanczos( U, shifts, invNorms, psCtrl );
+            return pspec::Power( U, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( U, shifts, invNorms, psCtrl );
+        return pspec::Hager( U, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>
@@ -230,6 +251,8 @@ QuasiTriangularPseudospectrum
     }
 
     psCtrl.schur = true;
+    if( psCtrl.norm == PS_ONE_NORM )
+        LogicError("This option is not yet written");
     return pspec::IRA( U, shifts, invNorms, psCtrl );
 }
 
@@ -246,15 +269,20 @@ HessenbergPseudospectrum
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularPseudospectrum
     psCtrl.schur = false;
-    if( psCtrl.arnoldi )
+    if( psCtrl.norm == PS_TWO_NORM )
     {
-        if( psCtrl.basisSize > 1 )
-            return pspec::IRA( H, shifts, invNorms, psCtrl );
+        if( psCtrl.arnoldi )
+        {
+            if( psCtrl.basisSize > 1 )
+                return pspec::IRA( H, shifts, invNorms, psCtrl );
+            else
+                return pspec::Lanczos( H, shifts, invNorms, psCtrl );
+        }
         else
-            return pspec::Lanczos( H, shifts, invNorms, psCtrl );
+            return pspec::Power( H, shifts, invNorms, psCtrl );
     }
     else
-        return pspec::Power( H, shifts, invNorms, psCtrl );
+        return pspec::Hager( H, shifts, invNorms, psCtrl );
 }
 
 template<typename Real>

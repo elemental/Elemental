@@ -3,6 +3,9 @@ NOTE: This list is still missing a large number of important papers
 Pseudospectra
 =============
 
+Two-norm Pseudospectra
+----------------------
+
 Single-input single-pass algorithm for shifted Hessenberg system solves.
 Cited as the impetus for BischofDattaPurkayastha-1994
 @article{Datta-1989,
@@ -57,6 +60,63 @@ A comprehensive review paper on computing pseudospectra.
   volume=8,
   pages={247--295},
   year=1999
+}
+
+By far the most comprehensive overview of pseudospectra and their applications
+@book{TrefethenEmbree-2005,
+  author={Lloyd N. Trefethen and Mark Embree},
+  title={Spectra and {P}seudospectra: {T}he {B}ehavior of {N}onnormal
+         {M}atrices and {O}perators},
+  publisher={Princeton University Press},
+  year=2005
+}
+
+One-norm Pseudospectra
+----------------------
+
+A simple variant of the power method for computing 1-norm estimates
+@article{Hager-1984,
+  author={W. W. Hager},
+  title={Condition estimates},
+  journal={SIAM Journal on Scientific and Statistical Computing},
+  volume=5,
+  number=2,
+  pages={311--316},
+  year=1984
+}
+
+A practical version of the 1-norm estimation routine from Hager-1984
+@article{Higham-1988,
+  author={Nicholas J. Higham},
+  title={{FORTRAN} codes for estimating the one-norm of a real or complex 
+         matrix, with applications to condition estimation},
+  journal={ACM Transactions on Mathematical Software},
+  volume=14,
+  number=4,
+  pages={381--396},
+  year=1988
+}
+
+An efficient (and typically more accurate) blocked variant of the algorithm
+from Higham-1988
+@article{HighamTisseur-2000,
+  author={Nicholas J. Higham and Francoise Tisseur},
+  title={A block algorithm for matrix 1-norm estimation, with an application
+         to 1-norm pseudospectra},
+  journal={SIAM Journal on Matrix Analysis and Applications},
+  volume=21,
+  number=4,
+  pages={1185--1201},
+  year=2000
+}
+
+Multiple examples of the application of one-norm pseudospectra
+@book{TrefethenEmbree-2005,
+  author={Lloyd N. Trefethen and Mark Embree},
+  title={Spectra and {P}seudospectra: {T}he {B}ehavior of {N}onnormal
+         {M}atrices and {O}perators},
+  publisher={Princeton University Press},
+  year=2005
 }
 
 Spectral Divide and Conquer

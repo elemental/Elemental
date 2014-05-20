@@ -42,6 +42,7 @@ Deflate
                 RowSwap( activePreimage, swapFrom, swapTo );
                 RowSwap( activeEsts,     swapFrom, swapTo );
                 RowSwap( activeItCounts, swapFrom, swapTo );
+                // NOTE: We only need to move information one way
                 ColSwap( activeX,        swapFrom, swapTo );
             }
             --swapTo;
@@ -80,6 +81,7 @@ Deflate
                 RowSwap( activePreimage, swapFrom, swapTo );
                 RowSwap( activeEsts,     swapFrom, swapTo );
                 RowSwap( activeItCounts, swapFrom, swapTo );
+                // NOTE: We only need to move information one way
                 ColSwap( activeXReal,    swapFrom, swapTo );
                 ColSwap( activeXImag,    swapFrom, swapTo );
             }
@@ -126,6 +128,7 @@ Deflate
                 RowSwap( preimageCopy,  swapFrom, swapTo );
                 RowSwap( estimatesCopy, swapFrom, swapTo );
                 RowSwap( itCountsCopy,  swapFrom, swapTo );
+                // NOTE: We only need to move information one way
                 ColSwap( XCopy,         swapFrom, swapTo );
             }
             --swapTo;
@@ -180,6 +183,7 @@ Deflate
                 RowSwap( preimageCopy,  swapFrom, swapTo );
                 RowSwap( estimatesCopy, swapFrom, swapTo );
                 RowSwap( itCountsCopy,  swapFrom, swapTo );
+                // NOTE: We only need to move information one way
                 ColSwap( XRealCopy,     swapFrom, swapTo );
                 ColSwap( XImagCopy,     swapFrom, swapTo );
             }
@@ -335,7 +339,7 @@ Power
         DistMatrix<Real,         VR,STAR>& invNorms, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::Power"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -411,6 +415,7 @@ Power
         else
         {
             Conjugate( activeShifts, activeShiftsConj );
+            activeX_STAR_VR = activeX;
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
               activeX_STAR_VR );

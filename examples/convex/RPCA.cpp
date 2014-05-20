@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_AXPY_INC
+#include EL_ENTRYWISEMAP_INC
 #include EL_SCALE_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_ENTRYWISEONENORM_INC
@@ -58,17 +59,9 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
 
 template<typename F,Distribution U,Distribution V>
 void NormalizeEntries( DistMatrix<F,U,V>& A )
-{
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const F alpha = A.GetLocal( iLoc, jLoc );
-            A.SetLocal( iLoc, jLoc, alpha/Abs(alpha) );
-        }
-    }
+{ 
+    EntrywiseMap
+    ( A, []( F alpha ) { return alpha==F(0) ? F(1) : alpha/Abs(alpha); } ); 
 }
 
 // If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))
