@@ -513,6 +513,7 @@
 #define EL_PEI_INC              "El/matrices/Pei.hpp"
 #define EL_REDHEFFER_INC        "El/matrices/Redheffer.hpp"
 #define EL_RIEMANN_INC          "El/matrices/Riemann.hpp"
+#define EL_RIFFLE_INC           "El/matrices/Riffle.hpp"
 #define EL_RIS_INC              "El/matrices/Ris.hpp"
 #define EL_TOEPLITZ_INC         "El/matrices/Toeplitz.hpp"
 #define EL_TREFETHEN_INC        "El/matrices/Trefethen.hpp"

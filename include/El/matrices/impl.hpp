@@ -53,6 +53,7 @@
 #include "./Pei.hpp"
 #include "./Redheffer.hpp"
 #include "./Riemann.hpp"
+#include "./Riffle.hpp"
 #include "./Ris.hpp"
 #include "./Toeplitz.hpp"
 #include "./Trefethen.hpp"

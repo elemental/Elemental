@@ -18,6 +18,7 @@
 #include EL_HATANONELSON_INC
 #include EL_HELMHOLTZPML_INC
 #include EL_LOTKIN_INC
+#include EL_RIFFLE_INC
 #include EL_TREFETHEN_INC
 #include EL_TRIANGLE_INC
 #include EL_UNIFORM_INC
@@ -198,6 +199,15 @@ main( int argc, char* argv[] )
                  HatanoNelson
                  ( AReal, n, realCenter, uniformRadius, gHatano, periodic );
                  isReal = true;
+                 break;
+        case 13: matName="Riffle";
+                 // Force the complex matrix to allow for one-norm pseudospectra
+                 /*
+                 RiffleDecay( AReal, n );
+                 isReal = true;
+                 */
+                 RiffleDecay( ACpx, n );
+                 isReal = false;
                  break;
         default: LogicError("Invalid matrix type");
         }
