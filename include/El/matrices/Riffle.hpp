@@ -11,45 +11,13 @@
 #define EL_RIFFLE_HPP
 
 // This is an implementation of the riffle-shuffle matrix made famous by 
-// Diaconis et al. and analyzed by Trefethen et al. These routines are very
-// loosely based upon the script provided in "Spectra and Pseudospectra: The
-// Behavior of Nonnormal Matrices and Operators".
+// Diaconis et al. and analyzed by Trefethen et al. The binomial and Eulerian
+// routines are loosely based upon the script provided in 
+// "Spectra and Pseudospectra: The Behavior of Nonnormal Matrices and Operators"
 
 namespace El {
 
-// This is unfortunately quadratic time
-template<typename Real>
-inline std::vector<Real>
-LogBinomial( Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("LogBinomial"))
-    std::vector<Real> binom(n,0), binomTmp(n,0);
-    for( Int j=1; j<n; ++j )
-    {
-        for( Int k=1; k<j; ++k )
-            binomTmp[k] = Log(Exp(binom[k]-binom[k-1])+1) + binom[k-1];
-        binom = binomTmp;
-    }
-    return binom;
-}
-
-// This is unfortunately quadratic time
-template<typename Real>
-inline std::vector<Real>
-LogEulerian( Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("LogEulerian"))
-    std::vector<Real> euler(n,0), eulerTmp(n,0);
-    for( Int j=1; j<n; ++j )
-    {
-        for( Int k=1; k<j; ++k )
-            eulerTmp[k] = Log((k+1)*Exp(euler[k]-euler[k-1])+j-k+1) + 
-                          euler[k-1];
-        euler = eulerTmp;
-    }
-    return euler;
-}
-
+// P_{i,j} = 2^{-n} choose(n+1,2i-j+1) alpha_{j+1} / alpha_{i+1}
 template<typename F>
 inline void
 Riffle( Matrix<F>& P, Int n )
@@ -57,34 +25,19 @@ Riffle( Matrix<F>& P, Int n )
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     typedef Base<F> Real;
 
-    auto binom = LogBinomial<Real>( n+2 );
-    auto euler = LogEulerian<Real>( n );
+    auto logBinom = LogBinomial<Real>( n+1 );
+    auto logEuler = LogEulerian<Real>( n );
 
     const Real gamma = n*Log(Real(2));
 
     Zeros( P, n, n );
     for( Int j=0; j<n; ++j )
     {
-        const Int off = j/2;
-        if( j % 2 == 0 )
+        for( Int i=0; i<n; ++i )
         {
-            // March through the odd indices of 0:n+1
-            for( Int kOdd=0; kOdd<=(n+1)/2; ++kOdd )          
-            {
-                const Int k = 2*kOdd + 1; 
-                const Int i = off + kOdd;
-                P.Set( i, j, Exp(binom[k]-gamma+euler[j]-euler[i]) );
-            }
-        }
-        else
-        {
-            // March through the even indices of 0:n+1
-            for( Int kEven=0; kEven<(n+2)/2; ++kEven )
-            {
-                const Int k = 2*kEven;
-                const Int i = off + kEven;
-                P.Set( i, j, Exp(binom[k]-gamma+euler[j]-euler[i]) );
-            }
+            const Int k = 2*i - j + 1;
+            if( k >= 0 && k <= n+1 )
+                P.Set( i, j, Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]) );
         }
     }
 }
@@ -96,39 +49,24 @@ Riffle( DistMatrix<F,U,V>& P, Int n )
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     typedef Base<F> Real;
 
-    auto binom = LogBinomial<Real>( n+2 );
-    auto euler = LogEulerian<Real>( n );
+    auto logBinom = LogBinomial<Real>( n+1 );
+    auto logEuler = LogEulerian<Real>( n );
 
     const Real gamma = n*Log(Real(2));
 
     Zeros( P, n, n );
+    const Int mLoc = P.LocalHeight();
     const Int nLoc = P.LocalWidth();
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
         const Int j = P.GlobalCol(jLoc);
-        const Int off = j/2;
-        // NOTE: The following could be further accelerated, but the 
-        //       generation of the binomial and Eulerian coefficients is
-        //       currently quadratic, so there's not much point yet.
-        if( j % 2 == 0 )
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
-            // March through the odd indices of 0:n+1
-            for( Int kOdd=0; kOdd<=(n+1)/2; ++kOdd )          
-            {
-                const Int k = 2*kOdd + 1; 
-                const Int i = off + kOdd;
-                P.Set( i, j, Exp(binom[k]-gamma+euler[j]-euler[i]) );
-            }
-        }
-        else
-        {
-            // March through the even indices of 0:n+1
-            for( Int kEven=0; kEven<(n+2)/2; ++kEven )
-            {
-                const Int k = 2*kEven;
-                const Int i = off + kEven;
-                P.Set( i, j, Exp(binom[k]-gamma+euler[j]-euler[i]) );
-            }
+            const Int i = P.GlobalRow(iLoc);
+            const Int k = 2*i - j + 1;
+            if( k >= 0 && k <= n+1 )
+                P.SetLocal
+                ( iLoc, jLoc, Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]) );
         }
     }
 }
@@ -140,39 +78,24 @@ Riffle( BlockDistMatrix<F,U,V>& P, Int n )
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     typedef Base<F> Real;
 
-    auto binom = LogBinomial<Real>( n+2 );
-    auto euler = LogEulerian<Real>( n );
+    auto logBinom = LogBinomial<Real>( n+1 );
+    auto logEuler = LogEulerian<Real>( n );
 
     const Real gamma = n*Log(Real(2));
 
     Zeros( P, n, n );
+    const Int mLoc = P.LocalHeight();
     const Int nLoc = P.LocalWidth();
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
         const Int j = P.GlobalCol(jLoc);
-        const Int off = j/2;
-        // NOTE: The following could be further accelerated, but the 
-        //       generation of the binomial and Eulerian coefficients is
-        //       currently quadratic, so there's not much point yet.
-        if( j % 2 == 0 )
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
-            // March through the odd indices of 0:n+1
-            for( Int kOdd=0; kOdd<=(n+1)/2; ++kOdd )          
-            {
-                const Int k = 2*kOdd + 1; 
-                const Int i = off + kOdd;
-                P.Set( i, j, Exp(binom[k]-gamma+euler[j]-euler[i]) );
-            }
-        }
-        else
-        {
-            // March through the even indices of 0:n+1
-            for( Int kEven=0; kEven<(n+2)/2; ++kEven )
-            {
-                const Int k = 2*kEven;
-                const Int i = off + kEven;
-                P.Set( i, j, Exp(binom[k]-gamma+euler[j]-euler[i]) );
-            }
+            const Int i = P.GlobalRow(iLoc);
+            const Int k = 2*i - j + 1;
+            if( k >= 0 && k <= n+1 )
+                P.SetLocal
+                ( iLoc, jLoc, Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]) );
         }
     }
 }

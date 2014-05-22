@@ -20,6 +20,7 @@
 #include "./Demmel.hpp"
 #include "./Diagonal.hpp"
 #include "./Egorov.hpp"
+#include "./Ehrenfest.hpp"
 #include "./ExtendedKahan.hpp"
 #include "./Fiedler.hpp"
 #include "./Forsythe.hpp"

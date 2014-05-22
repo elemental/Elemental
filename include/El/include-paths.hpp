@@ -481,6 +481,7 @@
 #define EL_DEMMEL_INC           "El/matrices/Demmel.hpp"
 #define EL_DIAGONAL_INC         "El/matrices/Diagonal.hpp"
 #define EL_EGOROV_INC           "El/matrices/Egorov.hpp"
+#define EL_EHRENFEST_INC        "El/matrices/Ehrenfest.hpp"
 #define EL_EXTENDEDKAHAN_INC    "El/matrices/ExtendedKahan.hpp"
 #define EL_FIEDLER_INC          "El/matrices/Fiedler.hpp"
 #define EL_FORSYTHE_INC         "El/matrices/Forsythe.hpp"
