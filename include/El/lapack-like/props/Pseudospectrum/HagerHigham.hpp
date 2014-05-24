@@ -482,12 +482,20 @@ HagerHigham
 
     // Solve one final linear system to attempt to counteract possible
     // cancellation in large entries in inv(U - zI)
+    if( numShifts == 0 )
+        return itCounts;
+    auto x = View( X, 0, 0, n, 1 );
+    for( Int i=0; i<n; ++i )
+        x.Set( i, 0, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
+                             : -Real(i+n-1)/Real(n-1) ) );
+    Matrix<C> yRep;
+    Gemv( ADJOINT, C(1), Q, x, yRep );
+    Matrix<C> Y( n, numShifts );
     for( Int j=0; j<numShifts; ++j )
-        for( Int i=0; i<n; ++i )
-            X.Set( i, j, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
-                                 : -Real(i+n-1)/Real(n-1) ) );
-    Matrix<C> Y;
-    Gemm( ADJOINT, NORMAL, C(1), Q, X, Y );
+    {
+        auto y = View( Y, 0, j, n, 1 );    
+        y = yRep;
+    }
     if( psCtrl.schur )
         MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, Y );
     else
@@ -856,18 +864,31 @@ HagerHigham
 
     // Solve one final linear system to attempt to counteract possible
     // cancellation in large entries in inv(U - zI)
-    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    if( numShifts == 0 )
+        return itCounts;
+    auto x = View( X, 0, 0, n, 1 );
+    if( x.LocalWidth() == 1 )
     {
         for( Int iLoc=0; iLoc<nLoc; ++iLoc )
         {
-            const Int i = X.GlobalRow(iLoc);
-            X.SetLocal
-            ( iLoc, jLoc, (i%2==0 ?  Real(i+n-1)/Real(n-1) 
-                                  : -Real(i+n-1)/Real(n-1) ) );
+            const Int i = x.GlobalRow(iLoc);
+            x.SetLocal( i, 0, (i%2==0 ?  Real(i+n-1)/Real(n-1)
+                                      : -Real(i+n-1)/Real(n-1) ) );
         }
     }
-    DistMatrix<C> Y(g);
-    Gemm( ADJOINT, NORMAL, C(1), Q, X, Y );
+    DistMatrix<C> yRep(g);
+    Gemv( ADJOINT, C(1), Q, x, yRep );
+    DistMatrix<C> Y(n,numShifts,g);
+    Y.AlignWith( X );
+    DistMatrix<C,MC,STAR> yRep_MC_STAR(g);
+    yRep_MC_STAR.AlignWith( X );
+    yRep_MC_STAR = yRep;
+    for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
+    {
+        const Int j = Y.GlobalCol(jLoc);
+        auto y = View( Y, 0, j, n, 1 );
+        y = yRep_MC_STAR;
+    }
     if( psCtrl.schur )
     {
         MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, Y );
