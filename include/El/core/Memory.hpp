@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_MEMORY_DECL_HPP
-#define EL_MEMORY_DECL_HPP
+#ifndef EL_MEMORY_HPP
+#define EL_MEMORY_HPP
 
 namespace El {
 
@@ -38,4 +38,4 @@ public:
 
 } // namespace El
 
-#endif // ifndef EL_MEMORY_DECL_HPP
+#endif // ifndef EL_MEMORY_HPP

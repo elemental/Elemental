@@ -8,8 +8,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_GRID_DECL_HPP
-#define EL_GRID_DECL_HPP
+#ifndef EL_GRID_HPP
+#define EL_GRID_HPP
 
 namespace El {
 
@@ -108,4 +108,4 @@ const Grid& DefaultGrid();
 
 } // namespace El
 
-#endif // ifndef EL_GRID_DECL_HPP
+#endif // ifndef EL_GRID_HPP

@@ -99,8 +99,8 @@
 // TODO: Think of how to better decouple the following components
 
 // Declare the intertwined core parts of our library
-#include "El/core/Timer/decl.hpp"
-#include "El/core/Memory/decl.hpp"
+#include "El/core/Timer.hpp"
+#include "El/core/Memory.hpp"
 #include "El/core/Scalar/decl.hpp"
 #include "El/core/types/decl.hpp"
 #include "El/core/imports/mpi.hpp"
@@ -114,20 +114,29 @@
 #include "El/core/imports/pmrrr.hpp"
 #include "El/core/imports/scalapack.hpp"
 
-#include "El/core/Matrix/forward_decl.hpp"
-#include "El/core/DistMatrix/forward_decl.hpp"
-#include "El/core/BlockDistMatrix/forward_decl.hpp"
+namespace El {
+
+template<typename T> class Matrix;
+
+template<typename T> class AbstractDistMatrix;
+template<typename T> class AbstractBlockDistMatrix;
+
+template<typename T,Dist U=MC,Dist V=MR> class GeneralDistMatrix;
+template<typename T,Dist U=MC,Dist V=MR> class GeneralBlockDistMatrix;
+
+template<typename T,Dist U=MC,Dist V=MR> class DistMatrix;
+template<typename T,Dist U=MC,Dist V=MR> class BlockDistMatrix;
+
+} // namespace El
+
 #include "El/core/Matrix.hpp"
-#include "El/core/Grid/decl.hpp"
+#include "El/core/Grid.hpp"
 #include "El/core/DistMatrix.hpp"
 #include "El/core/BlockDistMatrix.hpp"
 
 // Implement the intertwined parts of the library
-#include "El/core/Timer/impl.hpp"
-#include "El/core/Memory/impl.hpp"
 #include "El/core/Scalar/impl.hpp"
 #include "El/core/types/impl.hpp"
-#include "El/core/Grid/impl.hpp"
 #include "El/core/environment/impl.hpp"
 #include "El/core/indexing/impl.hpp"
 

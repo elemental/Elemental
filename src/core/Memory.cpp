@@ -6,61 +6,47 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_MEMORY_IMPL_HPP
-#define EL_MEMORY_IMPL_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename G>
-inline 
 Memory<G>::Memory()
 : size_(0), buffer_(nullptr)
 { }
 
 template<typename G>
-inline 
 Memory<G>::Memory( std::size_t size )
 : size_(0), buffer_(nullptr)
 { Require( size ); }
 
 template<typename G>
-inline
 Memory<G>::Memory( Memory<G>&& mem )
 : size_(mem.size_), buffer_(nullptr)
 { ShallowSwap(mem); }
 
 template<typename G>
-inline Memory<G>&
-Memory<G>::operator=( Memory<G>&& mem )
+Memory<G>& Memory<G>::operator=( Memory<G>&& mem )
 { ShallowSwap( mem ); return *this; }
 
 template<typename G>
-inline void
-Memory<G>::ShallowSwap( Memory<G>& mem )
+void Memory<G>::ShallowSwap( Memory<G>& mem )
 {
     std::swap(size_,mem.size_);
     std::swap(buffer_,mem.buffer_);
 }
 
 template<typename G>
-inline 
-Memory<G>::~Memory()
-{ delete[] buffer_; }
+Memory<G>::~Memory() { delete[] buffer_; }
 
 template<typename G>
-inline G* 
-Memory<G>::Buffer() const
-{ return buffer_; }
+G* Memory<G>::Buffer() const { return buffer_; }
 
 template<typename G>
-inline std::size_t 
-Memory<G>::Size() const
-{ return size_; }
+std::size_t  Memory<G>::Size() const { return size_; }
 
 template<typename G>
-inline G*
-Memory<G>::Require( std::size_t size )
+G* Memory<G>::Require( std::size_t size )
 {
     if( size > size_ )
     {
@@ -86,8 +72,7 @@ Memory<G>::Require( std::size_t size )
 }
 
 template<typename G>
-inline void 
-Memory<G>::Release()
+void Memory<G>::Release()
 {
 #ifndef EL_POOL_MEMORY
     this->Empty();
@@ -95,14 +80,17 @@ Memory<G>::Release()
 }
 
 template<typename G>
-inline void 
-Memory<G>::Empty()
+void Memory<G>::Empty()
 {
     delete[] buffer_;
     size_ = 0;
     buffer_ = nullptr;
 }
 
-} // namespace El
+template class Memory<Int>;
+template class Memory<float>;
+template class Memory<double>;
+template class Memory<Complex<float>>;
+template class Memory<Complex<double>>;
 
-#endif // ifndef EL_MEMORY_IMPL_HPP
+} // namespace El

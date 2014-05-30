@@ -6,18 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TIMER_IMPL_HPP
-#define EL_TIMER_IMPL_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-inline Timer::Timer( const std::string& name )
+Timer::Timer( const std::string& name )
 : name_(name)
 { }
 
-inline void
-Timer::Start()
+void Timer::Start()
 {
     DEBUG_ONLY(
         if( running_ )
@@ -31,8 +28,7 @@ Timer::Start()
     running_ = true;
 }
 
-inline double
-Timer::Stop()
+double Timer::Stop()
 {
     DEBUG_ONLY(
         if( !running_ )
@@ -44,8 +40,7 @@ Timer::Stop()
     return lastPartialTime_;
 }
 
-inline void
-Timer::Reset( const std::string& name )
+void Timer::Reset( const std::string& name )
 { 
     name_ = name;
     running_ = false;
@@ -53,12 +48,9 @@ Timer::Reset( const std::string& name )
     lastPartialTime_ = 0;
 }
 
-inline const std::string&
-Timer::Name() const
-{ return name_; }
+const std::string& Timer::Name() const { return name_; }
 
-inline double
-Timer::Partial() const
+double Timer::Partial() const
 { 
     if( running_ )
     {
@@ -74,8 +66,7 @@ Timer::Partial() const
         return lastPartialTime_; 
 }
 
-inline double
-Timer::Total() const
+double Timer::Total() const
 {
     if( running_ )
         return totalTime_ + Partial();
@@ -84,5 +75,3 @@ Timer::Total() const
 }
 
 } // namespace El
-
-#endif // ifndef EL_TIMER_IMPL_HPP
