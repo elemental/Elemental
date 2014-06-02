@@ -27,9 +27,9 @@ Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i-j+(n-1)] );
 }
 
-template<typename S,typename T,Dist U,Dist V>
+template<typename S,typename T>
 inline void
-Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
+Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;
@@ -50,9 +50,9 @@ Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
     }
 }
 
-template<typename S,typename T,Dist U,Dist V>
+template<typename S,typename T>
 inline void
-Toeplitz( BlockDistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
+Toeplitz( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;

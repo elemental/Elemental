@@ -36,9 +36,9 @@ MakeFourier( Matrix<Complex<Real>>& A )
     }
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-MakeFourier( DistMatrix<Complex<Real>,U,V>& A )
+MakeFourier( AbstractDistMatrix<Complex<Real>>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
     const Int m = A.Height();
@@ -64,9 +64,9 @@ MakeFourier( DistMatrix<Complex<Real>,U,V>& A )
     }
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-MakeFourier( BlockDistMatrix<Complex<Real>,U,V>& A )
+MakeFourier( AbstractBlockDistMatrix<Complex<Real>>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeFourier"))
     const Int m = A.Height();
@@ -101,18 +101,18 @@ Fourier( Matrix<Complex<Real>>& A, Int n )
     MakeFourier( A );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-Fourier( DistMatrix<Complex<Real>,U,V>& A, Int n )
+Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.Resize( n, n );
     MakeFourier( A );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-Fourier( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
+Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Fourier"))
     A.Resize( n, n );

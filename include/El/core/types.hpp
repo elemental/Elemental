@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_TYPES_DECL_HPP
-#define EL_TYPES_DECL_HPP
+#ifndef EL_TYPES_HPP
+#define EL_TYPES_HPP
 
 namespace El {
 
@@ -340,4 +340,4 @@ using namespace VerticalOrHorizontalNS;
 
 } // namespace El
 
-#endif // ifndef EL_TYPES_DECL_HPP
+#endif // ifndef EL_TYPES_HPP

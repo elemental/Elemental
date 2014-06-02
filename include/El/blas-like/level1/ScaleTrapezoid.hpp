@@ -44,9 +44,10 @@ ScaleTrapezoid( T alpha, UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-ScaleTrapezoid( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
+ScaleTrapezoid
+( T alpha, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();

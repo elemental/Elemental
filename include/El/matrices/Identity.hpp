@@ -26,9 +26,9 @@ MakeIdentity( Matrix<T>& I )
         I.Set( j, j, T(1) );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeIdentity( DistMatrix<T,U,V>& I )
+MakeIdentity( AbstractDistMatrix<T>& I )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I.Matrix() );
@@ -47,9 +47,9 @@ MakeIdentity( DistMatrix<T,U,V>& I )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeIdentity( BlockDistMatrix<T,U,V>& I )
+MakeIdentity( AbstractBlockDistMatrix<T>& I )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeIdentity"))
     Zero( I.Matrix() );
@@ -77,18 +77,18 @@ Identity( Matrix<T>& I, Int m, Int n )
     MakeIdentity( I );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Identity( DistMatrix<T,U,V>& I, Int m, Int n )
+Identity( AbstractDistMatrix<T>& I, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Identity"))
     I.Resize( m, n );
     MakeIdentity( I );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Identity( BlockDistMatrix<T,U,V>& I, Int m, Int n )
+Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Identity"))
     I.Resize( m, n );

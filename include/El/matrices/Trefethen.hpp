@@ -37,9 +37,9 @@ Trefethen( Matrix<Complex<Real>>& A, Int n )
     SetDiagonal( A, C(0,-2), -3 );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-Trefethen( DistMatrix<Complex<Real>,U,V>& A, Int n )
+Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Trefethen"))
     if( n < 4 )
@@ -53,9 +53,9 @@ Trefethen( DistMatrix<Complex<Real>,U,V>& A, Int n )
     SetDiagonal( A, C(0,-2), -3 );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-Trefethen( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
+Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Trefethen"))
     if( n < 4 )

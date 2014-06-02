@@ -16,10 +16,11 @@ namespace El {
 
 using std::chrono::duration;
 using std::chrono::duration_cast;
+
 #ifdef EL_HAVE_STEADYCLOCK
-using std::chrono::steady_clock;
+typedef std::chrono::steady_clock Clock;
 #else
-using std::chrono::high_resolution_clock;
+typedef std::chrono::high_resolution_clock Clock;
 #endif
 
 class Timer
@@ -39,11 +40,7 @@ private:
     bool running_ = false;
     std::string name_ = "[blank]";
     double totalTime_=0, lastPartialTime_=0;
-#ifdef EL_HAVE_STEADYCLOCK
-    steady_clock::time_point lastTime_;
-#else
-    high_resolution_clock::time_point lastTime_;
-#endif
+    Clock::time_point lastTime_;
 };
 
 } // namespace El

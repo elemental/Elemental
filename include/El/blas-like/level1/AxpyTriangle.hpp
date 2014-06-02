@@ -13,96 +13,34 @@
 namespace El {
 
 template<typename T>
-inline void
-AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("AxpyTriangle");
-        if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
-            X.Height() != Y.Height() )
-            LogicError("Nonconformal AxpyTriangle");
-    )
-    if( uplo == UPPER )
-    {
-        for( Int j=0; j<X.Width(); ++j )
-            blas::Axpy( j+1, alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
-    }
-    else
-    {
-        const Int n = X.Height();
-        for( Int j=0; j<X.Width(); ++j )
-            blas::Axpy( n-j, alpha, X.LockedBuffer(j,j), 1, Y.Buffer(j,j), 1 );
-    }
-}
+void AxpyTriangle
+( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y );
+
+template<typename T,Dist U,Dist V>
+void AxpyTriangle
+( UpperOrLower uplo, T alpha, 
+  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
 
 template<typename T>
-inline void
-AxpyTriangle
-( UpperOrLower uplo, Base<T> alpha, 
-  const Matrix<T>& X, Matrix<T>& Y )
+void AxpyTriangle
+( UpperOrLower uplo, T alpha, 
+  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
+
+template<typename T>
+inline void AxpyTriangle
+( UpperOrLower uplo, Base<T> alpha, const Matrix<T>& X, Matrix<T>& Y )
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
 
 template<typename T,Dist U,Dist V>
-inline void
-AxpyTriangle
-( UpperOrLower uplo, T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
-{
-    DEBUG_ONLY(
-        CallStackEntry cse("AxpyTriangle");
-        if( X.Grid() != Y.Grid() )
-            LogicError
-            ("X and Y must be distributed over the same grid");
-        if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
-            X.Height() != Y.Height() )
-            LogicError("Nonconformal AxpyTriangle");
-    )
-    if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
-    {
-        const Int localHeight = X.LocalHeight();
-        const Int localWidth = X.LocalWidth();
-        const T* XBuffer = X.LockedBuffer();
-        T* YBuffer = Y.Buffer();
-        const Int XLDim = X.LDim();
-        const Int YLDim = Y.LDim();
-        if( uplo == UPPER )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const Int j = X.GlobalCol(jLoc);
-                const Int localHeightAbove = X.LocalRowOffset(j+1);
-                blas::Axpy
-                ( localHeightAbove, alpha, 
-                  &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
-            }
-        }
-        else
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            {
-                const Int j = X.GlobalCol(jLoc);
-                const Int localHeightAbove = X.LocalRowOffset(j);
-                const Int localHeightBelow = localHeight - localHeightAbove;
-                blas::Axpy
-                ( localHeightBelow, alpha, 
-                  &XBuffer[localHeightAbove+jLoc*XLDim], 1,
-                  &YBuffer[localHeightAbove+jLoc*YLDim], 1 );
-            }
-        }
-    }
-    else
-    {
-        DistMatrix<T,U,V> XCopy( X.Grid() );
-        XCopy.AlignWith( Y );
-        XCopy = X;
-        AxpyTriangle( uplo, alpha, XCopy, Y );
-    }
-}
-
-template<typename T,Dist U,Dist V>
-inline void
-AxpyTriangle
-( UpperOrLower uplo, Base<T> alpha,
+inline void AxpyTriangle
+( UpperOrLower uplo, Base<T> alpha, 
   const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+{ AxpyTriangle( uplo, T(alpha), X, Y ); }
+
+template<typename T>
+inline void AxpyTriangle
+( UpperOrLower uplo, Base<T> alpha, 
+  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
 
 } // namespace El

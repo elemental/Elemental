@@ -18,21 +18,13 @@ template<typename T>
 void MakeUniform( Matrix<T>& A, T center=0, Base<T> radius=1 );
 
 template<typename T>
+void MakeUniform( AbstractDistMatrix<T>& A, T center=0, Base<T> radius=1 );
+
+template<typename T>
+void MakeUniform( AbstractBlockDistMatrix<T>& A, T center=0, Base<T> radius=1 );
+
+template<typename T>
 void Uniform( Matrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
-
-template<typename T,Dist U,Dist V>
-void MakeUniform( DistMatrix<T,U,V>& A, T center=0, Base<T> radius=1 );
-
-template<typename T,Dist U,Dist V>
-void MakeUniform( BlockDistMatrix<T,U,V>& A, T center=0, Base<T> radius=1 );
-
-template<typename T,Dist U,Dist V>
-void Uniform
-( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, Base<T> radius=1 );
-
-template<typename T,Dist U,Dist V>
-void Uniform
-( BlockDistMatrix<T,U,V>& A, Int m, Int n, T center=0, Base<T> radius=1 );
 
 template<typename T>
 void Uniform

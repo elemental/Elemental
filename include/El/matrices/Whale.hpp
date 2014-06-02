@@ -40,9 +40,9 @@ Whale( Matrix<Complex<Real>>& A, Int n )
     SetDiagonal( A, C( 0, 1), -4 );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-Whale( DistMatrix<Complex<Real>,U,V>& A, Int n )
+Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Whale"))
     if( n < 5 )
@@ -59,9 +59,9 @@ Whale( DistMatrix<Complex<Real>,U,V>& A, Int n )
     SetDiagonal( A, C( 0, 1), -4 );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-Whale( BlockDistMatrix<Complex<Real>,U,V>& A, Int n )
+Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Whale"))
     if( n < 5 )

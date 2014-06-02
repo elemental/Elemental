@@ -278,40 +278,6 @@ ElError ElDistMatrixSetGrid_z( ElDistMatrix_z AHandle, ElConstGrid gridHandle )
     return EL_SUCCESS;
 }
 
-// B = A
-// -----
-ElError ElDistMatrixCopy_s
-( ElConstDistMatrix_s AHandle, ElDistMatrix_s BHandle )
-{ 
-    try { Copy( *Reinterpret(AHandle), *Reinterpret(BHandle) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCopy_d
-( ElConstDistMatrix_d AHandle, ElDistMatrix_d BHandle )
-{
-    try { Copy( *Reinterpret(AHandle), *Reinterpret(BHandle) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCopy_c
-( ElConstDistMatrix_c AHandle, ElDistMatrix_c BHandle )
-{
-    try { Copy( *Reinterpret(AHandle), *Reinterpret(BHandle) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCopy_z
-( ElConstDistMatrix_z AHandle, ElDistMatrix_z BHandle )
-{
-    try { Copy( *Reinterpret(AHandle), *Reinterpret(BHandle) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
 // void DistMatrix<T,U,V>::Resize( Int height, Int width )
 // -------------------------------------------------------
 ElError ElDistMatrixResize_s

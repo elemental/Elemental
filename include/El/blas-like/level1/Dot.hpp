@@ -10,25 +10,13 @@
 #ifndef EL_DOT_HPP
 #define EL_DOT_HPP
 
-#include "./HilbertSchmidt.hpp"
-
 namespace El {
 
 template<typename F> 
-inline F
-Dot( const Matrix<F>& A, const Matrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Dot"))
-    return HilbertSchmidt( A, B );
-}
+F Dot( const Matrix<F>& A, const Matrix<F>& B );
 
-template<typename F,Dist U,Dist V> 
-inline F
-Dot( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Dot"))
-    return HilbertSchmidt( A, B );
-}
+template<typename F>
+F Dot( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
 } // namespace El
 

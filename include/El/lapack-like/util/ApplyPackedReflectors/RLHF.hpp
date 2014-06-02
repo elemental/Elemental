@@ -74,7 +74,7 @@ RLHF
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
-        SetDiagonal( HPanConj, F(1), 0, RIGHT );
+        SetDiagonal( HPanConj, F(1), HPanConj.Width()-HPanConj.Height() );
 
         Herk( UPPER, NORMAL, F(1), HPanConj, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -131,7 +131,7 @@ RLHF
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
-        SetDiagonal( HPanConj, F(1), 0, RIGHT );
+        SetDiagonal( HPanConj, F(1), HPanConj.Width()-HPanConj.Height() );
 
         HPan_STAR_VR = HPanConj;
         Zeros( SInv_STAR_STAR, nb, nb );

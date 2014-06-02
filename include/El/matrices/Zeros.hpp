@@ -22,17 +22,17 @@ MakeZeros( Matrix<T>& A )
     Zero( A );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeZeros( DistMatrix<T,U,V>& A )
+MakeZeros( AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeZeros"))
     Zero( A.Matrix() );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeZeros( BlockDistMatrix<T,U,V>& A )
+MakeZeros( AbstractBlockDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeZeros"))
     Zero( A.Matrix() );
@@ -47,18 +47,18 @@ Zeros( Matrix<T>& A, Int m, Int n )
     MakeZeros( A );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
+Zeros( AbstractDistMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Zeros"))
     A.Resize( m, n );
     MakeZeros( A );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Zeros( BlockDistMatrix<T,U,V>& A, Int m, Int n )
+Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Zeros"))
     A.Resize( m, n );

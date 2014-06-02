@@ -25,9 +25,9 @@ Pei( Matrix<T>& P, Int n, T alpha )
         P.Update( j, j, alpha );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
+Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     P.Resize( n, n );
@@ -46,9 +46,9 @@ Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Pei( BlockDistMatrix<T,U,V>& P, Int n, T alpha )
+Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     P.Resize( n, n );

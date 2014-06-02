@@ -49,9 +49,9 @@ SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
     return HermitianInfinityNorm( uplo, A );
 }
 
-template<typename F,Dist U,Dist V> 
+template<typename F> 
 inline Base<F>
-InfinityNorm( const DistMatrix<F,U,V>& A )
+InfinityNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityNorm"))
     // Compute the partial row sums defined by our local matrix, A[U,V]
@@ -86,18 +86,17 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-HermitianInfinityNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+HermitianInfinityNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInfinityNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+SymmetricInfinityNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInfinityNorm"))
     return HermitianInfinityNorm( uplo, A );

@@ -30,9 +30,9 @@ MakeJordan( Matrix<T>& J, T lambda )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeJordan( DistMatrix<T,U,V>& J, T lambda )
+MakeJordan( AbstractDistMatrix<T>& J, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeJordan"))
     Zero( J.Matrix() );
@@ -53,9 +53,9 @@ MakeJordan( DistMatrix<T,U,V>& J, T lambda )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeJordan( BlockDistMatrix<T,U,V>& J, T lambda )
+MakeJordan( AbstractBlockDistMatrix<T>& J, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeJordan"))
     Zero( J.Matrix() );
@@ -85,18 +85,18 @@ Jordan( Matrix<T>& J, Int n, T lambda )
     MakeJordan( J, lambda );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
+Jordan( AbstractDistMatrix<T>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
     J.Resize( n, n );
     MakeJordan( J, lambda );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Jordan( BlockDistMatrix<T,U,V>& J, Int n, T lambda )
+Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Jordan"))
     J.Resize( n, n );

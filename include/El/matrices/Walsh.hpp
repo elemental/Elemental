@@ -57,9 +57,9 @@ MakeWalsh( Matrix<T>& A, Int k, bool binary=false )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeWalsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
+MakeWalsh( AbstractDistMatrix<T>& A, Int k, bool binary=false )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeWalsh"))
     if( k < 1 )
@@ -115,9 +115,9 @@ Walsh( Matrix<T>& A, Int k, bool binary=false )
     MakeWalsh( A, k, binary );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
+Walsh( AbstractDistMatrix<T>& A, Int k, bool binary=false )
 {
     DEBUG_ONLY(CallStackEntry cse("Walsh"))
     if( k < 1 )

@@ -12,6 +12,7 @@
 
 #include EL_DIAGONALSCALE_INC
 #include EL_HERMITIANTRIDIAGEIG_INC
+#include EL_TRANSPOSE_INC
 #include EL_ZEROS_INC
 
 namespace El {

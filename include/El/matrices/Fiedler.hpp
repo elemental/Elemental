@@ -24,9 +24,9 @@ Fiedler( Matrix<F>& A, const std::vector<F>& c )
             A.Set( i, j, Abs(c[i]-c[j]) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
+Fiedler( AbstractDistMatrix<F>& A, const std::vector<F>& c )
 {
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
@@ -44,9 +44,9 @@ Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Fiedler( BlockDistMatrix<F,U,V>& A, const std::vector<F>& c )
+Fiedler( AbstractBlockDistMatrix<F>& A, const std::vector<F>& c )
 {
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();

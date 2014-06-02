@@ -12,51 +12,11 @@
 
 namespace El {
 
-// TODO: Think about using a more stable accumulation algorithm?
-
 template<typename F> 
-inline F
-Dotu( const Matrix<F>& A, const Matrix<F>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Dotu"))
-    if( A.Height() != B.Height() || A.Width() != B.Width() )
-        LogicError("Matrices must be the same size");
-    F sum(0);
-    const Int width = A.Width();
-    const Int height = A.Height();
-    for( Int j=0; j<width; ++j )
-        for( Int i=0; i<height; ++i )
-            sum += A.Get(i,j)*B.Get(i,j);
-    return sum;
-}
+F Dotu( const Matrix<F>& A, const Matrix<F>& B );
 
-template<typename F,Dist U,Dist V> 
-inline F
-Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Dotu"))
-    if( A.Height() != B.Height() || A.Width() != B.Width() )
-        LogicError("Matrices must be the same size");
-    if( A.Grid() != B.Grid() )
-        LogicError("Grids must match");
-    if( A.ColAlign() != B.ColAlign() || 
-        A.RowAlign() != B.RowAlign() )
-        LogicError("Matrices must be aligned");
-
-    F innerProd;
-    if( A.Participating() )
-    {
-        F localInnerProd(0);
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                localInnerProd += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
-        innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
-    }
-    mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
-    return innerProd;
-}
+template<typename F>
+F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
 } // namespace El
 

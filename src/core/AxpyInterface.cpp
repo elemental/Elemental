@@ -11,15 +11,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_AXPYINTERFACE_IMPL_HPP
-#define EL_AXPYINTERFACE_IMPL_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline bool
-AxpyInterface<T>::Finished()
+bool AxpyInterface<T>::Finished()
 {
     DEBUG_ONLY(
         CallStackEntry cse("AxpyInterface::Finished");
@@ -44,8 +41,7 @@ AxpyInterface<T>::Finished()
 }
 
 template<typename T>
-inline void
-AxpyInterface<T>::HandleEoms()
+void AxpyInterface<T>::HandleEoms()
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::HandleEoms"))
     const Grid& g = ( attachedForLocalToGlobal_ ? 
@@ -108,11 +104,10 @@ AxpyInterface<T>::HandleEoms()
 }
 
 template<typename T>
-inline void
-AxpyInterface<T>::HandleLocalToGlobalData()
+void AxpyInterface<T>::HandleLocalToGlobalData()
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::HandleLocalToGlobalData"))
-    DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
+    DistMatrix<T>& Y = *localToGlobalMat_;
     const Grid& g = Y.Grid();
     const Int r = g.Height();
     const Int c = g.Width();
@@ -198,11 +193,10 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 }
     
 template<typename T>
-inline void
-AxpyInterface<T>::HandleGlobalToLocalRequest()
+void AxpyInterface<T>::HandleGlobalToLocalRequest()
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::HandleGlobalToLocalRequest"))
-    const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
+    const DistMatrix<T>& X = *globalToLocalMat_;
     const Grid& g = X.Grid();
     const Int r = g.Height();
     const Int c = g.Width();
@@ -271,15 +265,13 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
 }
 
 template<typename T>
-inline
 AxpyInterface<T>::AxpyInterface()
 : attachedForLocalToGlobal_(false), attachedForGlobalToLocal_(false), 
   localToGlobalMat_(0), globalToLocalMat_(0)
 { }
 
 template<typename T>
-inline
-AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyInterface"))
     if( type == LOCAL_TO_GLOBAL )
@@ -317,9 +309,7 @@ AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 }
 
 template<typename T>
-inline
-AxpyInterface<T>::AxpyInterface
-( AxpyType type, const DistMatrix<T,MC,MR>& X )
+AxpyInterface<T>::AxpyInterface( AxpyType type, const DistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyInterface"))
     if( type == LOCAL_TO_GLOBAL )
@@ -354,7 +344,6 @@ AxpyInterface<T>::AxpyInterface
 }
 
 template<typename T>
-inline
 AxpyInterface<T>::~AxpyInterface()
 { 
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
@@ -383,8 +372,7 @@ AxpyInterface<T>::~AxpyInterface()
 }
 
 template<typename T>
-inline void
-AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
+void AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T>& Z )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Attach"))
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
@@ -421,8 +409,7 @@ AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 }
 
 template<typename T>
-inline void
-AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
+void AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Attach"))
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
@@ -458,8 +445,7 @@ AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 }
 
 template<typename T>
-inline void 
-AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
+void AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Axpy"))
     if( attachedForLocalToGlobal_ )
@@ -471,8 +457,7 @@ AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 }
 
 template<typename T>
-inline void 
-AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
+void AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Axpy"))
     if( attachedForLocalToGlobal_ )
@@ -485,12 +470,11 @@ AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 
 // Update Y(i:i+height-1,j:j+width-1) += alpha X, where X is height x width
 template<typename T>
-inline void
-AxpyInterface<T>::AxpyLocalToGlobal
+void AxpyInterface<T>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyLocalToGlobal"))
-    DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
+    DistMatrix<T>& Y = *localToGlobalMat_;
     if( i < 0 || j < 0 )
         LogicError("Submatrix offsets must be non-negative");
     if( i+X.Height() > Y.Height() || j+X.Width() > Y.Width() )
@@ -567,12 +551,10 @@ AxpyInterface<T>::AxpyLocalToGlobal
 
 // Update Y += alpha X(i:i+height-1,j:j+width-1), where X is the dist-matrix
 template<typename T>
-inline void
-AxpyInterface<T>::AxpyGlobalToLocal
-( T alpha, Matrix<T>& Y, Int i, Int j )
+void AxpyInterface<T>::AxpyGlobalToLocal( T alpha, Matrix<T>& Y, Int i, Int j )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyGlobalToLocal"))
-    const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
+    const DistMatrix<T>& X = *globalToLocalMat_;
 
     const Int height = Y.Height();
     const Int width = Y.Width();
@@ -658,8 +640,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
 }
 
 template<typename T>
-inline Int
-AxpyInterface<T>::ReadyForSend
+Int AxpyInterface<T>::ReadyForSend
 ( Int sendSize,
   std::deque<std::vector<byte>>& sendVectors,
   std::deque<mpi::Request>& requests, 
@@ -698,8 +679,7 @@ AxpyInterface<T>::ReadyForSend
 }
 
 template<typename T>
-inline void
-AxpyInterface<T>::UpdateRequestStatuses()
+void AxpyInterface<T>::UpdateRequestStatuses()
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::UpdateRequestStatuses"))
     const Grid& g = ( attachedForLocalToGlobal_ ? 
@@ -728,8 +708,7 @@ AxpyInterface<T>::UpdateRequestStatuses()
 }
 
 template<typename T>
-inline void
-AxpyInterface<T>::Detach()
+void AxpyInterface<T>::Detach()
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::Detach"))
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
@@ -771,6 +750,10 @@ AxpyInterface<T>::Detach()
     eomSendRequests_.clear();
 }
 
-} // namespace El
+template class AxpyInterface<Int>;
+template class AxpyInterface<float>;
+template class AxpyInterface<double>;
+template class AxpyInterface<Complex<float>>;
+template class AxpyInterface<Complex<double>>;
 
-#endif // ifndef EL_AXPYINTERFACE_IMPL_HPP
+} // namespace El

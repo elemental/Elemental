@@ -28,9 +28,9 @@ TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
         SetDiagonal( A, alpha, j+1 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
+TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -41,9 +41,9 @@ TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
         SetDiagonal( A, alpha, j+1 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-TriW( BlockDistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
+TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )

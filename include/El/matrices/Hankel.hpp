@@ -27,9 +27,9 @@ Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i+j] );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
+Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -50,9 +50,9 @@ Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Hankel( BlockDistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
+Hankel( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;

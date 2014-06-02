@@ -34,9 +34,9 @@ Ehrenfest( Matrix<F>& P, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Ehrenfest( DistMatrix<F,U,V>& P, Int n )
+Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     typedef Base<F> Real;
@@ -53,9 +53,9 @@ Ehrenfest( DistMatrix<F,U,V>& P, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Ehrenfest( BlockDistMatrix<F,U,V>& P, Int n )
+Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     typedef Base<F> Real;
@@ -88,9 +88,9 @@ EhrenfestStationary( Matrix<F>& PInf, Int n )
             PInf.Set( i, j, Exp(logBinom[j]-gamma) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-EhrenfestStationary( DistMatrix<F,U,V>& PInf, Int n )
+EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
     typedef Base<F> Real;
@@ -107,9 +107,9 @@ EhrenfestStationary( DistMatrix<F,U,V>& PInf, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-EhrenfestStationary( BlockDistMatrix<F,U,V>& PInf, Int n )
+EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
     typedef Base<F> Real;
@@ -135,9 +135,9 @@ Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
     EhrenfestStationary( PInf, n );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Ehrenfest( DistMatrix<F,U,V>& P, DistMatrix<F,U,V>& PInf, Int n )
+Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     Ehrenfest( P, n );
@@ -146,9 +146,10 @@ Ehrenfest( DistMatrix<F,U,V>& P, DistMatrix<F,U,V>& PInf, Int n )
     EhrenfestStationary( PInf, n );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Ehrenfest( BlockDistMatrix<F,U,V>& P, BlockDistMatrix<F,U,V>& PInf, Int n )
+Ehrenfest
+( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     Ehrenfest( P, n );

@@ -15,47 +15,19 @@
 namespace El {
 
 template<typename T> 
-inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
-{
-    DEBUG_ONLY(CallStackEntry cse("Hadamard"))
-    if( A.Height() != B.Height() || A.Width() != B.Width() )
-        LogicError("Hadamard product requires equal dimensions");
-    C.Resize( A.Height(), A.Width() );
-
-    const Int height = A.Height();
-    const Int width = A.Width();
-    for( Int j=0; j<width; ++j )
-        for( Int i=0; i<height; ++i )
-            C.Set( i, j, A.Get(i,j)*B.Get(i,j) );
-}
+void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 
 template<typename T,Dist U,Dist V> 
-inline void Hadamard
-( const DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B, DistMatrix<T,U,V>& C )
-{
-    DEBUG_ONLY(CallStackEntry cse("Hadamard"))
-    if( A.Height() != B.Height() || A.Width() != B.Width() )
-        LogicError("Hadamard product requires equal dimensions");
-    if( A.Grid() != B.Grid() )
-        LogicError("A and B must have the same grids");
-    if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
-        LogicError("A and B must be aligned");
-    const Grid& g = A.Grid();
-    C.AlignWith( A );
-    C.Resize( A.Height(), A.Width() );
+void Hadamard
+( const DistMatrix<T,U,V>& A, 
+  const DistMatrix<T,U,V>& B, 
+        DistMatrix<T,U,V>& C );
 
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const T alpha = A.GetLocal(iLoc,jLoc); 
-            const T beta = B.GetLocal(iLoc,jLoc);
-            C.SetLocal( iLoc, jLoc, alpha*beta );
-        }
-    }
-}
+template<typename T>
+void Hadamard
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C );
 
 } // namespace El
 

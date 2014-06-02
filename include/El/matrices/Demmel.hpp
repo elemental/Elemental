@@ -44,9 +44,9 @@ Demmel( Matrix<F>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Demmel( DistMatrix<F,U,V>& A, Int n )
+Demmel( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
@@ -74,9 +74,9 @@ Demmel( DistMatrix<F,U,V>& A, Int n )
     Toeplitz( A, n, n, a );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Demmel( BlockDistMatrix<F,U,V>& A, Int n )
+Demmel( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;

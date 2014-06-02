@@ -64,9 +64,9 @@ VectorMaxAbs( const Matrix<F>& x )
     return pivot;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline ValueInt<Base<F>>
-VectorMaxAbs( const DistMatrix<F,U,V>& x )
+VectorMaxAbs( const AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
     typedef Base<F> Real;
@@ -168,9 +168,9 @@ MaxAbs( const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline ValueIntPair<Base<F>>
-MaxAbs( const DistMatrix<F,U,V>& A )
+MaxAbs( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("MaxAbs");
@@ -280,9 +280,9 @@ SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline ValueIntPair<Base<F>>
-SymmetricMaxAbs( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMaxAbs");

@@ -27,9 +27,9 @@ Lehmer( Matrix<F>& L, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Lehmer( DistMatrix<F,U,V>& L, Int n )
+Lehmer( AbstractDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
@@ -49,9 +49,9 @@ Lehmer( DistMatrix<F,U,V>& L, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Lehmer( BlockDistMatrix<F,U,V>& L, Int n )
+Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );

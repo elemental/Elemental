@@ -25,17 +25,17 @@ Laplacian( Matrix<F>& L, Int n )
     Helmholtz( L, n, F(0) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Laplacian( DistMatrix<F,U,V>& L, Int n )
+Laplacian( AbstractDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Laplacian( BlockDistMatrix<F,U,V>& L, Int n )
+Laplacian( AbstractBlockDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
@@ -52,17 +52,17 @@ Laplacian( Matrix<F>& L, Int nx, Int ny )
     Helmholtz( L, nx, ny, F(0) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
+Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Laplacian( BlockDistMatrix<F,U,V>& L, Int nx, Int ny )
+Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
@@ -79,17 +79,17 @@ Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
+Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Laplacian( BlockDistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
+Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );

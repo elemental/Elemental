@@ -63,9 +63,9 @@ VectorMinAbs( const Matrix<F>& x )
     return pivot;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline ValueInt<Base<F>>
-VectorMinAbs( const DistMatrix<F,U,V>& x )
+VectorMinAbs( const AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
     typedef Base<F> Real;
@@ -167,9 +167,9 @@ MinAbs( const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline ValueIntPair<Base<F>>
-MinAbs( const DistMatrix<F,U,V>& A )
+MinAbs( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("MinAbs");
@@ -278,9 +278,9 @@ SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline ValueIntPair<Base<F>>
-SymmetricMinAbs( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMinAbs");

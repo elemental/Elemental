@@ -26,9 +26,9 @@ Diagonal( Matrix<S>& D, const std::vector<T>& d )
         D.Set( j, j, d[j] );
 }
 
-template<typename S,typename T,Dist U,Dist V>
+template<typename S,typename T>
 inline void
-Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
+Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -42,9 +42,9 @@ Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
     }
 }
 
-template<typename S,typename T,Dist U,Dist V>
+template<typename S,typename T>
 inline void
-Diagonal( BlockDistMatrix<S,U,V>& D, const std::vector<T>& d )
+Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();

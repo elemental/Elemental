@@ -24,9 +24,9 @@ MakeGCDMatrix( Matrix<T>& G )
             G.Set( i, j, T(GCD(i+1,j+1)) );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeGCDMatrix( DistMatrix<T,U,V>& G )
+MakeGCDMatrix( AbstractDistMatrix<T>& G )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
     const Int localHeight = G.LocalHeight();
@@ -42,9 +42,9 @@ MakeGCDMatrix( DistMatrix<T,U,V>& G )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeGCDMatrix( BlockDistMatrix<T,U,V>& G )
+MakeGCDMatrix( AbstractBlockDistMatrix<T>& G )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
     const Int localHeight = G.LocalHeight();
@@ -69,18 +69,18 @@ GCDMatrix( Matrix<T>& G, Int m, Int n )
     MakeGCDMatrix( G );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
+GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
     MakeGCDMatrix( G );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-GCDMatrix( BlockDistMatrix<T,U,V>& G, Int m, Int n )
+GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );

@@ -19,6 +19,7 @@
 #include "El/core/Grid-C.h"
 #include "El/core/Matrix-C.h"
 #include "El/core/DistMatrix-C.h"
+#include "El/blas-like/level1-C.h"
 #include "El/io/Display-C.h"
 #include "El/io/Print-C.h"
 #include "El/io/Spy-C.h"

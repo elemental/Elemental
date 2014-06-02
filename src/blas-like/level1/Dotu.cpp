@@ -1,0 +1,70 @@
+/*
+   Copyright (c) 2009-2014, Jack Poulson
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
+*/
+#include "El-lite.hpp"
+
+namespace El {
+
+// TODO: Think about using a more stable accumulation algorithm?
+
+template<typename F> 
+F Dotu( const Matrix<F>& A, const Matrix<F>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Dotu"))
+    if( A.Height() != B.Height() || A.Width() != B.Width() )
+        LogicError("Matrices must be the same size");
+    F sum(0);
+    const Int width = A.Width();
+    const Int height = A.Height();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
+            sum += A.Get(i,j)*B.Get(i,j);
+    return sum;
+}
+
+template<typename F> 
+F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Dotu"))
+    if( A.Height() != B.Height() || A.Width() != B.Width() )
+        LogicError("Matrices must be the same size");
+    if( A.Grid() != B.Grid() )
+        LogicError("Grids must match");
+    if( A.DistData().colDist != B.DistData().colDist ||
+        A.DistData().rowDist != B.DistData().rowDist )
+        LogicError("Matrices must have the same distribution");
+    if( A.ColAlign() != B.ColAlign() || 
+        A.RowAlign() != B.RowAlign() )
+        LogicError("Matrices must be aligned");
+
+    F innerProd;
+    if( A.Participating() )
+    {
+        F localInnerProd(0);
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                localInnerProd += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
+        innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
+    }
+    mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
+    return innerProd;
+}
+
+#define PROTO(F) \
+  template F Dotu( const Matrix<F>& A, const Matrix<F>& B ); \
+  template F Dotu \
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
+
+} // namespace El

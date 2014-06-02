@@ -77,9 +77,9 @@ SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
     return HermitianMaxNorm( uplo, A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-MaxNorm( const DistMatrix<F,U,V>& A )
+MaxNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
     typedef Base<F> Real;
@@ -103,9 +103,9 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
@@ -150,9 +150,9 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );

@@ -29,6 +29,13 @@ struct DistData
     { }
 };
 
+template<typename DistTypeA,typename DistTypeB>
+inline void AssertSameDist( const DistTypeA& distA, const DistTypeB& distB )
+{
+    if( distA.colDist != distB.colDist || distA.rowDist != distB.rowDist )
+        RuntimeError("Matrices must have the same distribution");
+}
+
 } // namespace El
 
 #include "./DistMatrix/Abstract.hpp"

@@ -60,9 +60,9 @@ VectorMax( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline ValueInt<Real>
-VectorMax( const DistMatrix<Real,U,V>& x )
+VectorMax( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMax"))
     const Int m = x.Height();
@@ -162,9 +162,9 @@ Max( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline ValueIntPair<Real>
-Max( const DistMatrix<Real,U,V>& A )
+Max( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Max");
@@ -271,9 +271,9 @@ SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline ValueIntPair<Real>
-SymmetricMax( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
+SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMax");

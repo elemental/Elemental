@@ -15,8 +15,9 @@
 namespace El {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M  Matrix<T>
-#define DM DistMatrix<T,U,V>
+#define M   Matrix<T>
+#define ADM AbstractDistMatrix<T>
+#define DM  DistMatrix<T,U,V>
 
 // Slide a partition upward
 // ========================
@@ -33,12 +34,12 @@ SlidePartitionUp
     View2x1( AB, A1, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlidePartitionUp
-( DM& AT, DM& A0,
-          DM& A1,
-  DM& AB, DM& A2 )
+( ADM& AT, ADM& A0,
+           ADM& A1,
+  ADM& AB, ADM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionUp"))
     View( AT, A0 );
@@ -57,12 +58,12 @@ SlideLockedPartitionUp
     LockedView2x1( AB, A1, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlideLockedPartitionUp
-( DM& AT, const DM& A0,
-          const DM& A1,
-  DM& AB, const DM& A2 )
+( ADM& AT, const ADM& A0,
+           const ADM& A1,
+  ADM& AB, const ADM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionUp"))
     LockedView( AT, A0 );
@@ -84,12 +85,12 @@ SlidePartitionDown
     View( AB, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlidePartitionDown
-( DM& AT, DM& A0,
-          DM& A1,
-  DM& AB, DM& A2 )
+( ADM& AT, ADM& A0,
+           ADM& A1,
+  ADM& AB, ADM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlidePartitionDown"))
     View2x1( AT, A0, A1 );
@@ -108,17 +109,19 @@ SlideLockedPartitionDown
     LockedView( AB, A2 );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
 SlideLockedPartitionDown
-( DM& AT, const DM& A0,
-          const DM& A1,
-  DM& AB, const DM& A2 )
+( ADM& AT, const ADM& A0,
+           const ADM& A1,
+  ADM& AB, const ADM& A2 )
 {
     DEBUG_ONLY(CallStackEntry cse("SlideLockedPartitionDown"))
     LockedView2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
+
+// HERE
 
 // Slide a partition leftward
 // ==========================
@@ -341,6 +344,7 @@ SlideLockedPartitionDownDiagonal
 }
 
 #undef DM
+#undef ADM
 #undef M
 
 } // namespace El

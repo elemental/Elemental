@@ -24,9 +24,9 @@ Parter( Matrix<F>& P, Int n )
             P.Set( i, j, F(1)/(F(i)-F(j)+oneHalf) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Parter( DistMatrix<F,U,V>& P, Int n )
+Parter( AbstractDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     const F oneHalf = F(1)/F(2);
@@ -44,9 +44,9 @@ Parter( DistMatrix<F,U,V>& P, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Parter( BlockDistMatrix<F,U,V>& P, Int n )
+Parter( AbstractBlockDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     const F oneHalf = F(1)/F(2);

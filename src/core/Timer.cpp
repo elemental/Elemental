@@ -20,11 +20,7 @@ void Timer::Start()
         if( running_ )
             LogicError("Forgot to stop timer before restarting.");
     )
-#ifdef EL_HAVE_STEADYCLOCK
-    lastTime_ = steady_clock::now();
-#else
-    lastTime_ = high_resolution_clock::now();
-#endif
+    lastTime_ = Clock::now();
     running_ = true;
 }
 
@@ -54,11 +50,7 @@ double Timer::Partial() const
 { 
     if( running_ )
     {
-#ifdef EL_HAVE_STEADYCLOCK
-        auto now = steady_clock::now();
-#else
-        auto now = high_resolution_clock::now();
-#endif
+        auto now = Clock::now();
         auto timeSpan = duration_cast<duration<double>>(now-lastTime_);
         return timeSpan.count();
     }

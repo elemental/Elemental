@@ -42,9 +42,9 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
+MakeTriangular( UpperOrLower uplo, AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();
@@ -86,9 +86,9 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeTriangular( UpperOrLower uplo, BlockDistMatrix<T,U,V>& A )
+MakeTriangular( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();

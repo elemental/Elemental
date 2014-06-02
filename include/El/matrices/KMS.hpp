@@ -26,9 +26,9 @@ KMS( Matrix<T>& K, Int n, T rho )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-KMS( DistMatrix<T,U,V>& K, Int n, T rho )
+KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     const Int localHeight = K.LocalHeight();
@@ -47,9 +47,9 @@ KMS( DistMatrix<T,U,V>& K, Int n, T rho )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-KMS( BlockDistMatrix<T,U,V>& K, Int n, T rho )
+KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     const Int localHeight = K.LocalHeight();

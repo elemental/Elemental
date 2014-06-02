@@ -76,9 +76,9 @@ SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     return HermitianOneNorm( uplo, A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-OneNorm( const DistMatrix<F,U,V>& A )
+OneNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneNorm"))
     typedef Base<F> Real;
@@ -113,9 +113,9 @@ OneNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
     typedef Base<F> R;
@@ -226,9 +226,9 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     return maxColSum;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );

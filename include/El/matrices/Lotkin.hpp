@@ -25,9 +25,9 @@ Lotkin( Matrix<F>& A, Int n )
         A.Set( 0, j, F(1) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Lotkin( DistMatrix<F,U,V>& A, Int n )
+Lotkin( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );
@@ -40,9 +40,9 @@ Lotkin( DistMatrix<F,U,V>& A, Int n )
     } 
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Lotkin( BlockDistMatrix<F,U,V>& A, Int n )
+Lotkin( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );

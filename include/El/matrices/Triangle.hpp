@@ -33,9 +33,9 @@ Triangle( Matrix<F>& A, Int n )
     SetDiagonal( A, F(1)/F(4), -2 );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Triangle( DistMatrix<F,U,V>& A, Int n )
+Triangle( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
@@ -45,9 +45,9 @@ Triangle( DistMatrix<F,U,V>& A, Int n )
     SetDiagonal( A, F(1)/F(4), -2 );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Triangle( BlockDistMatrix<F,U,V>& A, Int n )
+Triangle( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )

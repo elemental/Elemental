@@ -38,10 +38,11 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
     }
 }
 
-template<typename F1,typename F2,Dist U,Dist V>
+template<typename F1,typename F2>
 inline void
 Cauchy
-( DistMatrix<F1,U,V>& A, const std::vector<F2>& x, const std::vector<F2>& y )
+( AbstractDistMatrix<F1>& A, 
+  const std::vector<F2>& x, const std::vector<F2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();
@@ -69,10 +70,11 @@ Cauchy
     }
 }
 
-template<typename F1,typename F2,Dist U,Dist V>
+template<typename F1,typename F2>
 inline void
 Cauchy
-( BlockDistMatrix<F1,U,V>& A, const std::vector<F2>& x, const std::vector<F2>& y )
+( AbstractBlockDistMatrix<F1>& A, 
+  const std::vector<F2>& x, const std::vector<F2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();

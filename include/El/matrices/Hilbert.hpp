@@ -28,9 +28,9 @@ MakeHilbert( Matrix<F>& A )
             A.Set( i, j, one/F(i+j+1) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeHilbert( DistMatrix<F,U,V>& A )
+MakeHilbert( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeHilbert"))
     const Int m = A.Height();
@@ -52,9 +52,9 @@ MakeHilbert( DistMatrix<F,U,V>& A )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeHilbert( BlockDistMatrix<F,U,V>& A )
+MakeHilbert( AbstractBlockDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeHilbert"))
     const Int m = A.Height();
@@ -85,18 +85,18 @@ Hilbert( Matrix<F>& A, Int n )
     MakeHilbert( A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Hilbert( DistMatrix<F,U,V>& A, Int n )
+Hilbert( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.Resize( n, n );
     MakeHilbert( A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Hilbert( BlockDistMatrix<F,U,V>& A, Int n )
+Hilbert( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.Resize( n, n );

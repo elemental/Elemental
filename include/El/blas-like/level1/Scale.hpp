@@ -67,38 +67,38 @@ inline void
 Scale( Base<T> alpha, Matrix<T>& A )
 { Scale( T(alpha), A ); }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Scale( T alpha, DistMatrix<T,U,V>& A )
+Scale( T alpha, AbstractDistMatrix<T>& A )
 { Scale( alpha, A.Matrix() ); }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
 Scale
 ( Complex<Real> alpha, 
-  DistMatrix<Real,U,V>& AReal, DistMatrix<Real,U,V>& AImag )
+  AbstractDistMatrix<Real>& AReal, AbstractDistMatrix<Real>& AImag )
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Scale( T alpha, BlockDistMatrix<T,U,V>& A )
+Scale( T alpha, AbstractBlockDistMatrix<T>& A )
 { Scale( alpha, A.Matrix() ); }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
 Scale
 ( Complex<Real> alpha, 
-  BlockDistMatrix<Real,U,V>& AReal, BlockDistMatrix<Real,U,V>& AImag )
+  AbstractBlockDistMatrix<Real>& AReal, AbstractBlockDistMatrix<Real>& AImag )
 { Scale( alpha, AReal.Matrix(), AImag.Matrix() ); }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Scale( Base<T> alpha, DistMatrix<T,U,V>& A )
+Scale( Base<T> alpha, AbstractDistMatrix<T>& A )
 { Scale( T(alpha), A.Matrix() ); }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Scale( Base<T> alpha, BlockDistMatrix<T,U,V>& A )
+Scale( Base<T> alpha, AbstractBlockDistMatrix<T>& A )
 { Scale( T(alpha), A.Matrix() ); }
 
 } // namespace El

@@ -24,9 +24,9 @@ Circulant( Matrix<T>& A, const std::vector<T>& a )
             A.Set( i, j, a[Mod(i-j,n)] );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
+Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
@@ -45,9 +45,9 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Circulant( BlockDistMatrix<T,U,V>& A, const std::vector<T>& a )
+Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();

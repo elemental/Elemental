@@ -38,9 +38,9 @@ Helmholtz( Matrix<F>& H, Int n, F shift )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
+Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -97,9 +97,9 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
+Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -172,9 +172,9 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
+Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;

@@ -33,7 +33,7 @@ Nrm2( const Matrix<F>& x )
 
 template<typename F>
 inline Base<F>
-Nrm2( const DistMatrix<F>& x )
+Nrm2( const AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Nrm2");

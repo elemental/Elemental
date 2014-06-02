@@ -23,9 +23,9 @@ MinIJ( Matrix<T>& M, Int n )
             M.Set( i, j, std::min(i+1,j+1) );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MinIJ( DistMatrix<T,U,V>& M, Int n )
+MinIJ( AbstractDistMatrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
@@ -42,9 +42,9 @@ MinIJ( DistMatrix<T,U,V>& M, Int n )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MinIJ( BlockDistMatrix<T,U,V>& M, Int n )
+MinIJ( AbstractBlockDistMatrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );

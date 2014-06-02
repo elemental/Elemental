@@ -44,10 +44,10 @@ CauchyLike
     }
 }
 
-template<typename F1,typename F2,Dist U,Dist V>
+template<typename F1,typename F2>
 inline void
 CauchyLike
-( DistMatrix<F1,U,V>& A,
+( AbstractDistMatrix<F1>& A,
   const std::vector<F2>& r, const std::vector<F2>& s, 
   const std::vector<F2>& x, const std::vector<F2>& y )
 {
@@ -80,10 +80,10 @@ CauchyLike
     }
 }
 
-template<typename F1,typename F2,Dist U,Dist V>
+template<typename F1,typename F2>
 inline void
 CauchyLike
-( BlockDistMatrix<F1,U,V>& A,
+( AbstractBlockDistMatrix<F1>& A,
   const std::vector<F2>& r, const std::vector<F2>& s, 
   const std::vector<F2>& x, const std::vector<F2>& y )
 {

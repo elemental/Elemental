@@ -27,6 +27,82 @@ MakeGaussian( Matrix<T>& A, T mean=0, Base<T> stddev=1 )
 
 template<typename T>
 inline void
+MakeGaussian( AbstractDistMatrix<T>& A, T mean=0, Base<T> stddev=1 )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    if( A.RedundantSize() == 1 )
+    {
+        MakeGaussian( A.Matrix(), mean, stddev );
+    }
+    else if( A.Participating() && A.LocalHeight() == A.LDim() )
+    {
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        if( A.RedundantRank() == 0 )
+            MakeGaussian( A.Matrix(), mean, stddev );
+        mpi::Broadcast
+        ( A.Buffer(), localHeight*localWidth, 0, A.RedundantComm() );
+    }
+    else if( A.Participating() )
+    {
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        const Int bufSize = localHeight*localWidth;
+        std::vector<T> buffer( bufSize );
+        if( A.RedundantRank() == 0 )
+        {
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    buffer[iLoc+jLoc*localHeight] =
+                        SampleNormal( mean, stddev );
+        }
+        mpi::Broadcast( buffer.data(), bufSize, 0, A.RedundantComm() );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( A.Buffer(0,jLoc), &buffer[jLoc*localHeight], localHeight );
+    }
+}
+
+template<typename T>
+inline void
+MakeGaussian( AbstractBlockDistMatrix<T>& A, T mean=0, Base<T> stddev=1 )
+{
+    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
+    if( A.RedundantSize() == 1 )
+    {
+        MakeGaussian( A.Matrix(), mean, stddev );
+    }
+    else if( A.Participating() && A.LocalHeight() == A.LDim() )
+    {
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        if( A.RedundantRank() == 0 )
+            MakeGaussian( A.Matrix(), mean, stddev );
+        mpi::Broadcast
+        ( A.Buffer(), localHeight*localWidth, 0, A.RedundantComm() );
+    }
+    else if( A.Participating() )
+    {
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        const Int bufSize = localHeight*localWidth;
+        std::vector<T> buffer( bufSize );
+        if( A.RedundantRank() == 0 )
+        {
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                    buffer[iLoc+jLoc*localHeight] =
+                        SampleNormal( mean, stddev );
+        }
+        mpi::Broadcast( buffer.data(), bufSize, 0, A.RedundantComm() );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( A.Buffer(0,jLoc), &buffer[jLoc*localHeight], localHeight );
+    }
+}
+
+template<typename T>
+inline void
 Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
@@ -34,94 +110,19 @@ Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
     MakeGaussian( A, mean, stddev );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, Base<T> stddev=1 )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
-    if( A.RedundantSize() == 1 )
-    {
-        MakeGaussian( A.Matrix(), mean, stddev );
-    }
-    else if( A.Participating() && A.LocalHeight() == A.LDim() )
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        if( A.RedundantRank() == 0 )
-            MakeGaussian( A.Matrix(), mean, stddev );
-        mpi::Broadcast
-        ( A.Buffer(), localHeight*localWidth, 0, A.RedundantComm() );
-    }
-    else if( A.Participating() )
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        const Int bufSize = localHeight*localWidth;
-        std::vector<T> buffer( bufSize );
-        if( A.RedundantRank() == 0 )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    buffer[iLoc+jLoc*localHeight] =
-                        SampleNormal( mean, stddev );
-        }
-        mpi::Broadcast( buffer.data(), bufSize, 0, A.RedundantComm() );
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( A.Buffer(0,jLoc), &buffer[jLoc*localHeight], localHeight );
-    }
-}
-
-template<typename T,Dist U,Dist V>
-inline void
-MakeGaussian( BlockDistMatrix<T,U,V>& A, T mean=0, Base<T> stddev=1 )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
-    if( A.RedundantSize() == 1 )
-    {
-        MakeGaussian( A.Matrix(), mean, stddev );
-    }
-    else if( A.Participating() && A.LocalHeight() == A.LDim() )
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        if( A.RedundantRank() == 0 )
-            MakeGaussian( A.Matrix(), mean, stddev );
-        mpi::Broadcast
-        ( A.Buffer(), localHeight*localWidth, 0, A.RedundantComm() );
-    }
-    else if( A.Participating() )
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        const Int bufSize = localHeight*localWidth;
-        std::vector<T> buffer( bufSize );
-        if( A.RedundantRank() == 0 )
-        {
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    buffer[iLoc+jLoc*localHeight] =
-                        SampleNormal( mean, stddev );
-        }
-        mpi::Broadcast( buffer.data(), bufSize, 0, A.RedundantComm() );
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( A.Buffer(0,jLoc), &buffer[jLoc*localHeight], localHeight );
-    }
-}
-
-template<typename T,Dist U,Dist V>
-inline void
-Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
+Gaussian( AbstractDistMatrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.Resize( m, n );
     MakeGaussian( A, mean, stddev );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Gaussian( BlockDistMatrix<T,U,V>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
+Gaussian
+( AbstractBlockDistMatrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Gaussian"))
     A.Resize( m, n );

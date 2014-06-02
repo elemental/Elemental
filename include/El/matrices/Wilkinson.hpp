@@ -37,9 +37,9 @@ Wilkinson( Matrix<T>& A, Int k )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Wilkinson( DistMatrix<T,U,V>& A, Int k )
+Wilkinson( AbstractDistMatrix<T>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;

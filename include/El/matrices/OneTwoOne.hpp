@@ -35,9 +35,9 @@ MakeOneTwoOne( Matrix<T>& A )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeOneTwoOne( DistMatrix<T,U,V>& A )
+MakeOneTwoOne( AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
@@ -60,9 +60,9 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeOneTwoOne( BlockDistMatrix<T,U,V>& A )
+MakeOneTwoOne( AbstractBlockDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
@@ -94,18 +94,18 @@ OneTwoOne( Matrix<T>& A, Int n )
     MakeOneTwoOne( A );
 }
 
-template<typename T,Dist U,Dist V> 
+template<typename T> 
 inline void
-OneTwoOne( DistMatrix<T,U,V>& A, Int n )
+OneTwoOne( AbstractDistMatrix<T>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     A.Resize( n, n );
     MakeOneTwoOne( A );
 }
 
-template<typename T,Dist U,Dist V> 
+template<typename T> 
 inline void
-OneTwoOne( BlockDistMatrix<T,U,V>& A, Int n )
+OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("OneTwoOne"))
     A.Resize( n, n );

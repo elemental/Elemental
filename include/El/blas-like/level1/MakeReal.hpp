@@ -13,26 +13,13 @@
 namespace El {
 
 template<typename T>
-inline void
-MakeReal( Matrix<T>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeReal"))
-    T* ABuffer = A.Buffer();
-    const Int height = A.Height();
-    const Int width = A.Width();
-    const Int ldim = A.LDim();
-    for( Int j=0; j<width; ++j )
-        for( Int i=0; i<height; ++i )
-            ABuffer[i+j*ldim] = RealPart(ABuffer[i+j*ldim]);
-}
+inline void MakeReal( Matrix<T>& A ) { }
 
-template<typename T,Dist U,Dist V>
-inline void
-MakeReal( DistMatrix<T,U,V>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeReal"))
-    MakeReal( A.Matrix() );
-}
+template<typename T>
+void MakeReal( Matrix<Complex<T>>& A );
+
+template<typename T>
+void MakeReal( AbstractDistMatrix<T>& A );
 
 } // namespace El
 

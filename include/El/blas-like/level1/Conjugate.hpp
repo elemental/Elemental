@@ -12,55 +12,22 @@
 
 namespace El {
 
-// Default case is for real datatypes
-template<typename Z>
-inline void
-Conjugate( Matrix<Z>& A )
-{ }
-
-// Specialization is to complex datatypes
-template<typename Z>
-inline void
-Conjugate( Matrix<Complex<Z>>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            A.Set(i,j,Conj(A.Get(i,j)));
-}
+template<typename T>
+inline void Conjugate( Matrix<T>& A ) { }
 
 template<typename T>
-inline void
-Conjugate( const Matrix<T>& A, Matrix<T>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Conjugate"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    B.Resize( m, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            B.Set(i,j,Conj(A.Get(i,j)));
-}
+void Conjugate( Matrix<Complex<T>>& A );
 
-template<typename T,Dist U,Dist V>
-inline void
-Conjugate( DistMatrix<T,U,V>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
-    Conjugate( A.Matrix() );
-}
+template<typename T>
+void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 
-template<typename T,Dist U,Dist V,
-                    Dist W,Dist Z>
-inline void
-Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Conjugate"))
-    B = A;
-    Conjugate( B );
-}
+template<typename T>
+void Conjugate( AbstractDistMatrix<T>& A );
+
+template<typename T,Dist U,Dist V,Dist W,Dist Z>
+void Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+template<typename T>
+void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 } // namespace El
 

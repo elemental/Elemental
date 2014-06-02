@@ -60,9 +60,9 @@ VectorMin( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline ValueInt<Real>
-VectorMin( const DistMatrix<Real,U,V>& x )
+VectorMin( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMin"))
     const Int m = x.Height();
@@ -162,9 +162,9 @@ Min( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline ValueIntPair<Real>
-Min( const DistMatrix<Real,U,V>& A )
+Min( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Min");
@@ -271,9 +271,9 @@ SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline ValueIntPair<Real>
-SymmetricMin( UpperOrLower uplo, const DistMatrix<Real,U,V>& A )
+SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMin");

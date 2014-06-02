@@ -42,9 +42,9 @@ Riffle( Matrix<F>& P, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Riffle( DistMatrix<F,U,V>& P, Int n )
+Riffle( AbstractDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     typedef Base<F> Real;
@@ -71,9 +71,9 @@ Riffle( DistMatrix<F,U,V>& P, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Riffle( BlockDistMatrix<F,U,V>& P, Int n )
+Riffle( AbstractBlockDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     typedef Base<F> Real;
@@ -125,9 +125,9 @@ RiffleStationary( Matrix<F>& PInf, Int n )
             PInf.Set( i, j, sigma[j] );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-RiffleStationary( DistMatrix<F,U,V>& PInf, Int n )
+RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("RiffleStationary"))    
     typedef Base<F> Real;
@@ -153,9 +153,9 @@ RiffleStationary( DistMatrix<F,U,V>& PInf, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-RiffleStationary( BlockDistMatrix<F,U,V>& PInf, Int n )
+RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("RiffleStationary"))    
     typedef Base<F> Real;
@@ -190,9 +190,9 @@ Riffle( Matrix<F>& P, Matrix<F>& PInf, Int n )
     RiffleStationary( PInf, n );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Riffle( DistMatrix<F,U,V>& P, DistMatrix<F,U,V>& PInf, Int n )
+Riffle( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     Riffle( P, n );
@@ -201,9 +201,9 @@ Riffle( DistMatrix<F,U,V>& P, DistMatrix<F,U,V>& PInf, Int n )
     RiffleStationary( PInf, n );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Riffle( BlockDistMatrix<F,U,V>& P, BlockDistMatrix<F,U,V>& PInf, Int n )
+Riffle( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riffle"))
     Riffle( P, n );

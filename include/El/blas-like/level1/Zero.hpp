@@ -24,9 +24,9 @@ Zero( Matrix<T>& A )
         MemZero( A.Buffer(0,j), height );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Zero( DistMatrix<T,U,V>& A )
+Zero( AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Zero"))
     Zero( A.Matrix() );

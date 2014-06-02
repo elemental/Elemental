@@ -44,9 +44,9 @@ MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
+MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();
@@ -88,9 +88,10 @@ MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int offset=0 )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeTrapezoidal( UpperOrLower uplo, BlockDistMatrix<T,U,V>& A, Int offset=0 )
+MakeTrapezoidal
+( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
     const Int height = A.Height();

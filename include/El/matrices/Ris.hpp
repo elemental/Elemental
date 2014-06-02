@@ -24,9 +24,9 @@ Ris( Matrix<F>& R, Int n )
             R.Set( i, j, oneHalf/(F(n-i-j)-oneHalf) );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Ris( DistMatrix<F,U,V>& R, Int n )
+Ris( AbstractDistMatrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
     const F oneHalf = F(1)/F(2);
@@ -44,9 +44,9 @@ Ris( DistMatrix<F,U,V>& R, Int n )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Ris( BlockDistMatrix<F,U,V>& R, Int n )
+Ris( AbstractBlockDistMatrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
     const F oneHalf = F(1)/F(2);

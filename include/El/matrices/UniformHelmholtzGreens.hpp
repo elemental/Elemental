@@ -75,9 +75,10 @@ UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
     }
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
-UniformHelmholtzGreens( DistMatrix<Complex<Real>,U,V>& A, Int n, Real lambda )
+UniformHelmholtzGreens
+( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
@@ -134,10 +135,10 @@ UniformHelmholtzGreens( DistMatrix<Complex<Real>,U,V>& A, Int n, Real lambda )
     }
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 inline void
 UniformHelmholtzGreens
-( BlockDistMatrix<Complex<Real>,U,V>& A, Int n, Real lambda )
+( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;

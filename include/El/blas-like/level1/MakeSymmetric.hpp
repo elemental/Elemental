@@ -10,64 +10,18 @@
 #ifndef EL_MAKESYMMETRIC_HPP
 #define EL_MAKESYMMETRIC_HPP
 
-#include "./Axpy.hpp"
-#include "./MakeReal.hpp"
-#include "./MakeTriangular.hpp"
-#include "./SetDiagonal.hpp"
-#include "./Transpose.hpp"
-
 namespace El {
 
 template<typename T>
-inline void
-MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
-    if( A.Height() != A.Width() )
-        LogicError("Cannot make non-square matrix symmetric");
+void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
 
-    Matrix<T> d;
-    A.GetDiagonal( d );
-    if( conjugate )
-        MakeReal( d );
+template<typename T,Dist U,Dist V>
+void MakeSymmetric
+( UpperOrLower uplo, DistMatrix<T,U,V>& A, bool conjugate=false );
 
-    if( uplo == LOWER )
-        MakeTriangular( LOWER, A );
-    else
-        MakeTriangular( UPPER, A );
-    SetDiagonal( A, T(0) );
-    Matrix<T> ATrans;
-    Transpose( A, ATrans, conjugate );
-    Axpy( T(1), ATrans, A );
-
-    A.SetDiagonal( d );
-}
-
-template<typename T>
-inline void
-MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeSymmetric"))
-    if( A.Height() != A.Width() )
-        LogicError("Cannot make non-square matrix symmetric");
-
-    const Grid& g = A.Grid();
-    DistMatrix<T,MD,STAR> d(g);
-    A.GetDiagonal( d );
-    if( conjugate )
-        MakeReal( d );
-
-    if( uplo == LOWER )
-        MakeTriangular( LOWER, A );
-    else
-        MakeTriangular( UPPER, A );
-    SetDiagonal( A, T(0) );
-    DistMatrix<T> ATrans(g);
-    Transpose( A, ATrans, conjugate );
-    Axpy( T(1), ATrans, A );
-
-    A.SetDiagonal( d );
-}
+template<typename F>
+void MakeSymmetric
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false );
 
 } // namespace El
 

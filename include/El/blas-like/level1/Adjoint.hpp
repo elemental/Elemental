@@ -10,35 +10,17 @@
 #ifndef EL_ADJOINT_HPP
 #define EL_ADJOINT_HPP
 
-#include "./Transpose.hpp"
-
 namespace El {
 
 template<typename T>
-inline void
-Adjoint( const Matrix<T>& A, Matrix<T>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
-    Transpose( A, B, true );
-}
+void Adjoint( const Matrix<T>& A, Matrix<T>& B );
 
-template<typename T,Dist U,Dist V,
-                    Dist W,Dist Z>
-inline void
-Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
-    Transpose( A, B, true );
-}
+template<typename T>
+void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
-template<typename T,Dist U,Dist V,
-                    Dist W,Dist Z>
-inline void
-Adjoint( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Adjoint"))
-    Transpose( A, B, true );
-}
+template<typename T>
+void Adjoint
+( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
 } // namespace El
 

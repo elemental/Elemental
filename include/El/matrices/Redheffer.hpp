@@ -30,9 +30,9 @@ Redheffer( Matrix<T>& R, Int n )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Redheffer( DistMatrix<T,U,V>& R, Int n )
+Redheffer( AbstractDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Redheffer"))
     R.Resize( n, n );
@@ -52,9 +52,9 @@ Redheffer( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Redheffer( BlockDistMatrix<T,U,V>& R, Int n )
+Redheffer( AbstractBlockDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Redheffer"))
     R.Resize( n, n );

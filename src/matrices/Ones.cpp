@@ -7,7 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-#include "El/matrices/Ones.hpp"
+
+#include EL_ONES_INC
 
 namespace El {
 
@@ -22,15 +23,15 @@ void MakeOnes( Matrix<T>& A )
             A.Set( i, j, T(1) );
 }
 
-template<typename T,Dist U,Dist V>
-void MakeOnes( DistMatrix<T,U,V>& A )
+template<typename T>
+void MakeOnes( AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeOnes"))
     MakeOnes( A.Matrix() );
 }
 
-template<typename T,Dist U,Dist V>
-void MakeOnes( BlockDistMatrix<T,U,V>& A )
+template<typename T>
+void MakeOnes( AbstractBlockDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeOnes"))
     MakeOnes( A.Matrix() );
@@ -44,66 +45,24 @@ void Ones( Matrix<T>& A, Int m, Int n )
     MakeOnes( A );
 }
 
-template<typename T,Dist U,Dist V>
-void Ones( DistMatrix<T,U,V>& A, Int m, Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("Ones"))
-    A.Resize( m, n );
-    MakeOnes( A );
-}
-
-template<typename T,Dist U,Dist V>
-void Ones( BlockDistMatrix<T,U,V>& A, Int m, Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("Ones"))
-    A.Resize( m, n );
-    MakeOnes( A );
-}
-
 template<typename T>
 void Ones( AbstractDistMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ones"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST 
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
-      Ones( ACast, m, n ); 
-    #include "El/core/GuardAndPayload.h"
+    A.Resize( m, n );
+    MakeOnes( A );
 }
 
 template<typename T>
 void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ones"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST 
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(A); \
-      Ones( ACast, m, n ); 
-    #include "El/core/GuardAndPayload.h"
+    A.Resize( m, n );
+    MakeOnes( A );
 }
-
-#define DISTPROTO(T,U,V) \
-  template void Ones( DistMatrix<T,U,V>& A, Int m, Int n ); \
-  template void Ones( BlockDistMatrix<T,U,V>& A, Int m, Int n );
 
 #define PROTO(T) \
   template void Ones( Matrix<T>& A, Int m, Int n ); \
-  DISTPROTO(T,CIRC,CIRC); \
-  DISTPROTO(T,MC,  MR  ); \
-  DISTPROTO(T,MC,  STAR); \
-  DISTPROTO(T,MD,  STAR); \
-  DISTPROTO(T,MR,  MC  ); \
-  DISTPROTO(T,MR,  STAR); \
-  DISTPROTO(T,STAR,MC  ); \
-  DISTPROTO(T,STAR,MD  ); \
-  DISTPROTO(T,STAR,MR  ); \
-  DISTPROTO(T,STAR,STAR); \
-  DISTPROTO(T,STAR,VC  ); \
-  DISTPROTO(T,STAR,VR  ); \
-  DISTPROTO(T,VC,  STAR); \
-  DISTPROTO(T,VR,  STAR); \
   template void Ones( AbstractDistMatrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 

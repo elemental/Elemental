@@ -148,9 +148,9 @@ SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
     return HermitianFrobeniusNorm( uplo, A );
 }
 
-template<typename F,Dist U,Dist V> 
+template<typename F> 
 inline Base<F>
-FrobeniusNorm( const DistMatrix<F,U,V>& A )
+FrobeniusNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
     typedef Base<F> Real;
@@ -202,9 +202,9 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+HermitianFrobeniusNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
@@ -309,9 +309,9 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
-SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+SymmetricFrobeniusNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );

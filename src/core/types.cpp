@@ -6,22 +6,18 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TYPES_IMPL_HPP
-#define EL_TYPES_IMPL_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline
 SafeProduct<F>::SafeProduct( Int numEntries )
 : rho(1), kappa(0), n(numEntries)
 { }
 
 namespace DistNS {
 
-inline std::string 
-DistToString( Dist dist )
+std::string DistToString( Dist dist )
 {
     std::string distString;
     switch( dist )
@@ -36,8 +32,7 @@ DistToString( Dist dist )
     return distString;
 }
 
-inline Dist 
-StringToDist( std::string s )
+Dist StringToDist( std::string s )
 {
     // Most compilers' logic for detecting potentially uninitialized variables
     // is horrendously bad.
@@ -65,8 +60,7 @@ StringToDist( std::string s )
 
 namespace LeftOrRightNS {
 
-inline char 
-LeftOrRightToChar( LeftOrRight side )
+char LeftOrRightToChar( LeftOrRight side )
 {
     char sideChar;
     switch( side )
@@ -77,8 +71,7 @@ LeftOrRightToChar( LeftOrRight side )
     return sideChar;
 }
     
-inline LeftOrRight 
-CharToLeftOrRight( char c )
+LeftOrRight CharToLeftOrRight( char c )
 {
     // Most compilers' logic for detecting potentially uninitialized variables
     // is horrendously bad.
@@ -97,8 +90,7 @@ CharToLeftOrRight( char c )
 
 namespace OrientationNS {
 
-inline char 
-OrientationToChar( Orientation orientation )
+char OrientationToChar( Orientation orientation )
 {
     char orientationChar;
     switch( orientation )
@@ -110,8 +102,7 @@ OrientationToChar( Orientation orientation )
     return orientationChar;
 }
 
-inline Orientation 
-CharToOrientation( char c )
+Orientation CharToOrientation( char c )
 {
     // Most compilers' logic for detecting potentially uninitialized variables
     // is horrendously bad.
@@ -132,8 +123,7 @@ CharToOrientation( char c )
 
 namespace UnitOrNonUnitNS {
 
-inline char 
-UnitOrNonUnitToChar( UnitOrNonUnit diag )
+char UnitOrNonUnitToChar( UnitOrNonUnit diag )
 {
     char diagChar;
     switch( diag )
@@ -144,8 +134,7 @@ UnitOrNonUnitToChar( UnitOrNonUnit diag )
     return diagChar;
 }
 
-inline UnitOrNonUnit 
-CharToUnitOrNonUnit( char c )
+UnitOrNonUnit CharToUnitOrNonUnit( char c )
 {
     // Most compilers' logic for detecting potentially uninitialized variables
     // is horrendously bad.
@@ -164,8 +153,7 @@ CharToUnitOrNonUnit( char c )
 
 namespace UpperOrLowerNS {
 
-inline char 
-UpperOrLowerToChar( UpperOrLower uplo )
+char UpperOrLowerToChar( UpperOrLower uplo )
 {
     char uploChar;
     switch( uplo )
@@ -176,8 +164,7 @@ UpperOrLowerToChar( UpperOrLower uplo )
     return uploChar;
 }
 
-inline UpperOrLower 
-CharToUpperOrLower( char c )
+UpperOrLower CharToUpperOrLower( char c )
 {
     // Most compilers' logic for detecting potentially uninitialized variables
     // is horrendously bad.
@@ -194,6 +181,9 @@ CharToUpperOrLower( char c )
 
 } // namespace UpperOrLowerNS
 
-} // namespace El
+template class SafeProduct<float>;
+template class SafeProduct<double>;
+template class SafeProduct<Complex<float>>;
+template class SafeProduct<Complex<double>>;
 
-#endif // ifndef EL_TYPES_IMPL_HPP
+} // namespace El

@@ -81,9 +81,9 @@ SymmetricEntrywiseNorm
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
-template<typename F,Dist U,Dist V> 
+template<typename F> 
 inline Base<F>
-EntrywiseNorm( const DistMatrix<F,U,V>& A, Base<F> p )
+EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
     typedef Base<F> Real;
@@ -103,10 +103,10 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, Base<F> p )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
 HermitianEntrywiseNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
@@ -159,10 +159,10 @@ HermitianEntrywiseNorm
     return Pow( sum, 1/p );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Base<F>
 SymmetricEntrywiseNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p )
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
     return HermitianEntrywiseNorm( uplo, A, p );

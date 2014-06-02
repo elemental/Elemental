@@ -29,9 +29,9 @@ Grcar( Matrix<T>& A, Int n, Int k=3 )
         SetDiagonal( A, 1, j );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
+Grcar( AbstractDistMatrix<T>& A, Int n, Int k=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Grcar"))
     if( k < 0 )
@@ -43,9 +43,9 @@ Grcar( DistMatrix<T,U,V>& A, Int n, Int k=3 )
         SetDiagonal( A, 1, j );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Grcar( BlockDistMatrix<T,U,V>& A, Int n, Int k=3 )
+Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k=3 )
 {
     DEBUG_ONLY(CallStackEntry cse("Grcar"))
     if( k < 0 )

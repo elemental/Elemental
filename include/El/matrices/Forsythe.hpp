@@ -26,9 +26,9 @@ MakeForsythe( Matrix<T>& J, T alpha, T lambda )
         J.Set( m-1, 0, alpha );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
+MakeForsythe( AbstractDistMatrix<T>& J, T alpha, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeForsythe"))
     MakeJordan( J, lambda );
@@ -38,9 +38,9 @@ MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
         J.Set( m-1, 0, alpha );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-MakeForsythe( BlockDistMatrix<T,U,V>& J, T alpha, T lambda )
+MakeForsythe( AbstractBlockDistMatrix<T>& J, T alpha, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeForsythe"))
     MakeJordan( J, lambda );
@@ -59,18 +59,18 @@ Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
     MakeForsythe( J, alpha, lambda );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
+Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Forsythe"))
     J.Resize( n, n );
     MakeForsythe( J, alpha, lambda );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Forsythe( BlockDistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
+Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("Forsythe"))
     J.Resize( n, n );

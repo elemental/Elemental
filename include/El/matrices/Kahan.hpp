@@ -42,9 +42,9 @@ MakeKahan( Matrix<F>& A, F phi )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeKahan( DistMatrix<F,U,V>& A, F phi )
+MakeKahan( AbstractDistMatrix<F>& A, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
     typedef Base<F> Real;
@@ -77,9 +77,9 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeKahan( BlockDistMatrix<F,U,V>& A, F phi )
+MakeKahan( AbstractBlockDistMatrix<F>& A, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeKahan"))
     typedef Base<F> Real;
@@ -121,18 +121,18 @@ Kahan( Matrix<F>& A, Int n, F phi )
     MakeKahan( A, phi );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
+Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("Kahan"))
     A.Resize( n, n );
     MakeKahan( A, phi );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-Kahan( BlockDistMatrix<F,U,V>& A, Int n, F phi )
+Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
 {
     DEBUG_ONLY(CallStackEntry cse("Kahan"))
     A.Resize( n, n );

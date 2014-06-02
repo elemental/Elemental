@@ -10,25 +10,13 @@
 #ifndef EL_MAKEHERMITIAN_HPP
 #define EL_MAKEHERMITIAN_HPP
 
-#include EL_MAKESYMMETRIC_INC
-
 namespace El {
 
 template<typename T>
-inline void
-MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
-    MakeSymmetric( uplo, A, true );
-}
+void MakeHermitian( UpperOrLower uplo, Matrix<T>& A );
 
 template<typename T>
-inline void
-MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeHermitian"))
-    MakeSymmetric( uplo, A, true );
-}
+void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A );
 
 } // namespace El
 

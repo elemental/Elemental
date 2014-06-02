@@ -24,9 +24,9 @@ Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
     MakeHermitian( LOWER, A );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Wigner( DistMatrix<T,U,V>& A, Int n, T mean=0, Base<T> stddev=1 )
+Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );

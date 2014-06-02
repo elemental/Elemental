@@ -37,9 +37,9 @@ MakeGKS( Matrix<F>& A )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeGKS( DistMatrix<F,U,V>& A )
+MakeGKS( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGKS"))
     const Int m = A.Height();
@@ -66,9 +66,9 @@ MakeGKS( DistMatrix<F,U,V>& A )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeGKS( BlockDistMatrix<F,U,V>& A )
+MakeGKS( AbstractBlockDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGKS"))
     const Int m = A.Height();
@@ -104,18 +104,18 @@ GKS( Matrix<F>& A, Int n )
     MakeGKS( A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-GKS( DistMatrix<F,U,V>& A, Int n )
+GKS( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
     MakeGKS( A );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-GKS( BlockDistMatrix<F,U,V>& A, Int n )
+GKS( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );

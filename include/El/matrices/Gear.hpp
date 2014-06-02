@@ -42,9 +42,9 @@ Gear( Matrix<T>& G, Int n, Int s, Int t )
         G.Set( n-1, n+t, T(-1) );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
+Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t )
 {
     DEBUG_ONLY(CallStackEntry cse("Gear"))
     if( s == 0 || s > n || s < -n )
@@ -70,9 +70,9 @@ Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
         G.Set( n-1, n+t, T(-1) );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Gear( BlockDistMatrix<T,U,V>& G, Int n, Int s, Int t )
+Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t )
 {
     DEBUG_ONLY(CallStackEntry cse("Gear"))
     if( s == 0 || s > n || s < -n )

@@ -29,9 +29,9 @@ ZeroNorm( const Matrix<F>& A )
     return numNonzeros;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline Int
-ZeroNorm( const DistMatrix<F,U,V>& A )
+ZeroNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros;

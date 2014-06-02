@@ -27,10 +27,13 @@ inline Matrix<T> View( Matrix<T>& B )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
+template<typename T>
+inline void View( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("View"))
+    DEBUG_ONLY(
+        CallStackEntry cse("View");
+        AssertSameDist( A.DistData(), B.DistData() );
+    )
     A.Attach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.Buffer(), B.LDim(), B.Root() );
@@ -44,19 +47,25 @@ inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-inline void View( BlockDistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
+template<typename T>
+inline void View( AbstractBlockDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("View"))
+    DEBUG_ONLY(
+        CallStackEntry cse("View");
+        AssertSameDist( A.DistData(), B.DistData() );
+    )
     A.Attach
     ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
       B.Buffer(), B.LDim(), B.Root() );
 }
 
-template<typename T,Dist U,Dist V>
-inline void View( DistMatrix<T,U,V>& A, BlockDistMatrix<T,U,V>& B )
+template<typename T>
+inline void View( AbstractDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("View"))
+    DEBUG_ONLY(
+        CallStackEntry cse("View");
+        AssertSameDist( A.DistData(), B.DistData() );
+    )
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
                     "instead of 1x1");
@@ -80,10 +89,14 @@ inline Matrix<T> LockedView( const Matrix<T>& B )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
+template<typename T>
+inline void LockedView
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedView"))
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView");
+        AssertSameDist( A.DistData(), B.DistData() );
+    )
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), B.ColAlign(), B.RowAlign(), 
       B.LockedBuffer(), B.LDim(), B.Root() );
@@ -97,19 +110,27 @@ inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
-inline void LockedView( BlockDistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
+template<typename T>
+inline void LockedView
+( AbstractBlockDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedView"))
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView");
+        AssertSameDist( A.DistData(), B.DistData() );
+    )
     A.LockedAttach
     ( B.Height(), B.Width(), B.Grid(), 1, 1, B.ColAlign(), B.RowAlign(), 0, 0,
       B.LockedBuffer(), B.LDim(), B.Root() );
 }
 
-template<typename T,Dist U,Dist V>
-inline void LockedView( DistMatrix<T,U,V>& A, const BlockDistMatrix<T,U,V>& B )
+template<typename T>
+inline void LockedView
+( AbstractDistMatrix<T>& A, const AbstractBlockDistMatrix<T>& B )
 {
-    DEBUG_ONLY(CallStackEntry cse("LockedView"))
+    DEBUG_ONLY(
+        CallStackEntry cse("LockedView");
+        AssertSameDist( A.DistData(), B.DistData() );
+    )
     if( B.BlockHeight() != 1 || B.BlockWidth() != 1 )
         LogicError("Block size was ",B.BlockHeight()," x ",B.BlockWidth(),
                     "instead of 1x1");
@@ -146,13 +167,14 @@ inline Matrix<T> View( Matrix<T>& B, Int i, Int j, Int height, Int width )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void View
-( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
+( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
         CallStackEntry cse("View");
+        AssertSameDist( A.DistData(), B.DistData() );
         B.AssertValidSubmatrix( i, j, height, width );
     )
     const Int colAlign = (B.ColAlign()+i) % B.ColStride();
@@ -210,13 +232,14 @@ inline Matrix<T> LockedView
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void LockedView
-( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedView");
+        AssertSameDist( A.DistData(), B.DistData() );
         B.AssertValidSubmatrix( i, j, height, width );
     )
     const Int colAlign = (B.ColAlign()+i) % B.ColStride();
@@ -261,9 +284,9 @@ Matrix<T> ViewRange
     return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void ViewRange
-( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
+( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("ViewRange"))
@@ -294,9 +317,9 @@ Matrix<T> LockedViewRange
     return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void LockedViewRange
-( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
@@ -336,12 +359,15 @@ inline Matrix<T> View1x2( Matrix<T>& BL, Matrix<T>& BR )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void View1x2
-( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& BL, AbstractDistMatrix<T>& BR )
 {
     DEBUG_ONLY(
         CallStackEntry cse("View1x2");
+        AssertSameDist( A.DistData(), BL.DistData() );
+        AssertSameDist( BL.DistData(), BR.DistData() );
         AssertConforming1x2( BL, BR );
         BL.AssertSameGrid( BR.Grid() );
     )
@@ -383,14 +409,15 @@ inline Matrix<T> LockedView1x2( const Matrix<T>& BL, const Matrix<T>& BR )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void LockedView1x2
-(       DistMatrix<T,U,V>& A,
-  const DistMatrix<T,U,V>& BL,
-  const DistMatrix<T,U,V>& BR )
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& BL, const AbstractDistMatrix<T>& BR )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedView1x2");
+        AssertSameDist( A.DistData(), BL.DistData() );
+        AssertSameDist( BL.DistData(), BR.DistData() );
         AssertConforming1x2( BL, BR );
         BL.AssertSameGrid( BR.Grid() );
     )
@@ -433,12 +460,15 @@ inline Matrix<T> View2x1( Matrix<T>& BT, Matrix<T>& BB )
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void View2x1
-( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB )
+( AbstractDistMatrix<T>& A, 
+  AbstractDistMatrix<T>& BT, AbstractDistMatrix<T>& BB )
 {
     DEBUG_ONLY(
         CallStackEntry cse("View2x1");
+        AssertSameDist( A.DistData(), BT.DistData() );
+        AssertSameDist( BT.DistData(), BB.DistData() );
         AssertConforming2x1( BT, BB );
         BT.AssertSameGrid( BB.Grid() );
     )
@@ -473,22 +503,23 @@ inline void LockedView2x1
 }
 
 template<typename T>
-inline Matrix<T> LockedView2x1
-( const Matrix<T>& BT, const Matrix<T>& BB )
+inline Matrix<T> LockedView2x1( const Matrix<T>& BT, const Matrix<T>& BB )
 {
     Matrix<T> A;
     LockedView2x1( A, BT, BB );
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void LockedView2x1
-(       DistMatrix<T,U,V>& A,
-  const DistMatrix<T,U,V>& BT,
-  const DistMatrix<T,U,V>& BB )
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& BT,
+  const AbstractDistMatrix<T>& BB )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedView2x1");
+        AssertSameDist( A.DistData(), BT.DistData() );
+        AssertSameDist( BT.DistData(), BB.DistData() );
         AssertConforming2x1( BT, BB );
         BT.AssertSameGrid( BB.Grid() );
     )
@@ -545,14 +576,18 @@ inline Matrix<T> View2x2
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void View2x2
-( DistMatrix<T,U,V>& A,
-  DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
-  DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR )
+( AbstractDistMatrix<T>& A,
+  AbstractDistMatrix<T>& BTL, AbstractDistMatrix<T>& BTR,
+  AbstractDistMatrix<T>& BBL, AbstractDistMatrix<T>& BBR )
 {
     DEBUG_ONLY(
         CallStackEntry cse("View2x2");
+        AssertSameDist( A.DistData(), BTL.DistData() );
+        AssertSameDist( BTL.DistData(), BTR.DistData() );
+        AssertSameDist( BTR.DistData(), BBL.DistData() );
+        AssertSameDist( BBL.DistData(), BBR.DistData() );
         AssertConforming2x2( BTL, BTR, BBL, BBR );
         BTL.AssertSameGrid( BTR.Grid() );
         BTL.AssertSameGrid( BBL.Grid() );
@@ -576,10 +611,8 @@ inline DistMatrix<T,U,V> View2x2
 template<typename T>
 inline void LockedView2x2
 (       Matrix<T>& A,
-  const Matrix<T>& BTL,
-  const Matrix<T>& BTR,
-  const Matrix<T>& BBL,
-  const Matrix<T>& BBR )
+  const Matrix<T>& BTL, const Matrix<T>& BTR,
+  const Matrix<T>& BBL, const Matrix<T>& BBR )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedView2x2");
@@ -612,14 +645,18 @@ inline Matrix<T> LockedView2x2
     return A;
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void LockedView2x2
-(       DistMatrix<T,U,V>& A,
-  const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
-  const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR )
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& BTL, const AbstractDistMatrix<T>& BTR,
+  const AbstractDistMatrix<T>& BBL, const AbstractDistMatrix<T>& BBR )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LockedView2x2");
+        AssertSameDist( A.DistData(), BTL.DistData() );
+        AssertSameDist( BTL.DistData(), BTR.DistData() );
+        AssertSameDist( BTR.DistData(), BBL.DistData() );
+        AssertSameDist( BBL.DistData(), BBR.DistData() );
         AssertConforming2x2( BTL, BTR, BBL, BBR );
         BTL.AssertSameGrid( BTR.Grid() );
         BTL.AssertSameGrid( BBL.Grid() );

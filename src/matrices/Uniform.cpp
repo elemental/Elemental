@@ -32,8 +32,8 @@ void Uniform( Matrix<T>& A, Int m, Int n, T center, Base<T> radius )
     MakeUniform( A, center, radius );
 }
 
-template<typename T,Dist U,Dist V>
-void MakeUniform( DistMatrix<T,U,V>& A, T center, Base<T> radius )
+template<typename T>
+void MakeUniform( AbstractDistMatrix<T>& A, T center, Base<T> radius )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     if( A.RedundantSize() == 1 )
@@ -69,8 +69,8 @@ void MakeUniform( DistMatrix<T,U,V>& A, T center, Base<T> radius )
     }
 }
 
-template<typename T,Dist U,Dist V>
-void MakeUniform( BlockDistMatrix<T,U,V>& A, T center, Base<T> radius )
+template<typename T>
+void MakeUniform( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
     if( A.RedundantSize() == 1 )
@@ -104,35 +104,14 @@ void MakeUniform( BlockDistMatrix<T,U,V>& A, T center, Base<T> radius )
             MemCopy
             ( A.Buffer(0,jLoc), &buffer[jLoc*localHeight], localHeight );
     }
-}
-
-template<typename T,Dist U,Dist V>
-void Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center, Base<T> radius )
-{
-    DEBUG_ONLY(CallStackEntry cse("Uniform"))
-    A.Resize( m, n );
-    MakeUniform( A, center, radius );
-}
-
-template<typename T,Dist U,Dist V>
-void Uniform
-( BlockDistMatrix<T,U,V>& A, Int m, Int n, T center, Base<T> radius )
-{
-    DEBUG_ONLY(CallStackEntry cse("Uniform"))
-    A.Resize( m, n );
-    MakeUniform( A, center, radius );
 }
 
 template<typename T>
 void Uniform( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST 
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
-      Uniform( ACast, m, n, center, radius ); 
-    #include "El/core/GuardAndPayload.h"
+    A.Resize( m, n );
+    MakeUniform( A, center, radius );
 }
 
 template<typename T>
@@ -140,37 +119,13 @@ void Uniform
 ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
 {
     DEBUG_ONLY(CallStackEntry cse("Uniform"))
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST 
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(A); \
-      Uniform( ACast, m, n, center, radius );
-    #include "El/core/GuardAndPayload.h"
+    A.Resize( m, n );
+    MakeUniform( A, center, radius );
 }
-
-#define DISTPROTO(T,U,V) \
-  template void Uniform \
-  ( DistMatrix<T,U,V>& A, Int m, Int n, T center, Base<T> radius ); \
-  template void Uniform \
-  ( BlockDistMatrix<T,U,V>& A, Int m, Int n, T center, Base<T> radius );
 
 #define PROTO(T) \
   template void Uniform \
   ( Matrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
-  DISTPROTO(T,CIRC,CIRC); \
-  DISTPROTO(T,MC,  MR  ); \
-  DISTPROTO(T,MC,  STAR); \
-  DISTPROTO(T,MD,  STAR); \
-  DISTPROTO(T,MR,  MC  ); \
-  DISTPROTO(T,MR,  STAR); \
-  DISTPROTO(T,STAR,MC  ); \
-  DISTPROTO(T,STAR,MD  ); \
-  DISTPROTO(T,STAR,MR  ); \
-  DISTPROTO(T,STAR,STAR); \
-  DISTPROTO(T,STAR,VC  ); \
-  DISTPROTO(T,STAR,VR  ); \
-  DISTPROTO(T,VC,  STAR); \
-  DISTPROTO(T,VR,  STAR); \
   template void Uniform \
   ( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
   template void Uniform \

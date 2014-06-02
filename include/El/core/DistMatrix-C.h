@@ -80,13 +80,6 @@ ElError ElDistMatrixSetGrid_d( ElDistMatrix_d A, ElConstGrid grid );
 ElError ElDistMatrixSetGrid_c( ElDistMatrix_c A, ElConstGrid grid );
 ElError ElDistMatrixSetGrid_z( ElDistMatrix_z A, ElConstGrid grid );
 
-/* B = A
-   ----- */
-ElError ElDistMatrixCopy_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElDistMatrixCopy_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElDistMatrixCopy_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElDistMatrixCopy_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
-
 /* void DistMatrix<T,U,V>::Resize( Int height, Int width )
    ------------------------------------------------------- */
 ElError ElDistMatrixResize_s( ElDistMatrix_s A, ElInt height, ElInt width );

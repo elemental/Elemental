@@ -15,20 +15,14 @@ namespace El {
 template<typename T> 
 void MakeOnes( Matrix<T>& A );
 
-template<typename T,Dist U,Dist V>
-void MakeOnes( DistMatrix<T,U,V>& A );
+template<typename T>
+void MakeOnes( AbstractDistMatrix<T>& A );
 
-template<typename T,Dist U,Dist V>
-void MakeOnes( BlockDistMatrix<T,U,V>& A );
+template<typename T>
+void MakeOnes( AbstractBlockDistMatrix<T>& A );
 
 template<typename T>
 void Ones( Matrix<T>& A, Int m, Int n );
-
-template<typename T,Dist U,Dist V>
-void Ones( DistMatrix<T,U,V>& A, Int m, Int n );
-
-template<typename T,Dist U,Dist V>
-void Ones( BlockDistMatrix<T,U,V>& A, Int m, Int n );
 
 template<typename T>
 void Ones( AbstractDistMatrix<T>& A, Int m, Int n );

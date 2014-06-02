@@ -31,9 +31,9 @@ MakeEgorov( Matrix<Complex<Real>>& A, const RealFunctor& phase )
     }
 }
 
-template<typename Real,Dist U,Dist V,class RealFunctor>
+template<typename Real,class RealFunctor>
 inline void
-MakeEgorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
+MakeEgorov( AbstractDistMatrix<Complex<Real>>& A, const RealFunctor& phase )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int localHeight = A.LocalHeight();
@@ -52,9 +52,10 @@ MakeEgorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
     }
 }
 
-template<typename Real,Dist U,Dist V,class RealFunctor>
+template<typename Real,class RealFunctor>
 inline void
-MakeEgorov( BlockDistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase )
+MakeEgorov
+( AbstractBlockDistMatrix<Complex<Real>>& A, const RealFunctor& phase )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeEgorov"))
     const Int localHeight = A.LocalHeight();
@@ -82,18 +83,19 @@ Egorov( Matrix<Complex<Real>>& A, const RealFunctor& phase, Int n )
     MakeEgorov( A, phase );
 }
 
-template<typename Real,Dist U,Dist V,class RealFunctor>
+template<typename Real,class RealFunctor>
 inline void
-Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
+Egorov( AbstractDistMatrix<Complex<Real>>& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.Resize( n, n );
     MakeEgorov( A, phase );
 }
 
-template<typename Real,Dist U,Dist V,class RealFunctor>
+template<typename Real,class RealFunctor>
 inline void
-Egorov( BlockDistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, Int n )
+Egorov
+( AbstractBlockDistMatrix<Complex<Real>>& A, const RealFunctor& phase, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Egorov"))
     A.Resize( n, n );

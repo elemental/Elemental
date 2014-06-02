@@ -33,9 +33,9 @@ MakeLegendre( Matrix<F>& A )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeLegendre( DistMatrix<F,U,V>& A )
+MakeLegendre( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
@@ -61,9 +61,9 @@ MakeLegendre( DistMatrix<F,U,V>& A )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void
-MakeLegendre( BlockDistMatrix<F,U,V>& A )
+MakeLegendre( AbstractBlockDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
@@ -98,18 +98,18 @@ Legendre( Matrix<F>& A, Int n )
     MakeLegendre( A );
 }
 
-template<typename F,Dist U,Dist V> 
+template<typename F> 
 inline void
-Legendre( DistMatrix<F,U,V>& A, Int n )
+Legendre( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.Resize( n, n );
     MakeLegendre( A );
 }
 
-template<typename F,Dist U,Dist V> 
+template<typename F> 
 inline void
-Legendre( BlockDistMatrix<F,U,V>& A, Int n )
+Legendre( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.Resize( n, n );

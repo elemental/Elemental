@@ -30,9 +30,9 @@ Riemann( Matrix<T>& R, Int n )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Riemann( DistMatrix<T,U,V>& R, Int n )
+Riemann( AbstractDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
@@ -52,9 +52,9 @@ Riemann( DistMatrix<T,U,V>& R, Int n )
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 inline void
-Riemann( BlockDistMatrix<T,U,V>& R, Int n )
+Riemann( AbstractBlockDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
