@@ -35,8 +35,7 @@ option(ELEM_EXAMPLES "A collection of simple examples" OFF)
 option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
-# 1) prototype C and F90 interfaces
-# 2) Martin's 3D Gemm code
+# Martin's 3D Gemm code
 option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
 
 # Attempt to use 64-bit integers
@@ -261,28 +260,6 @@ install(FILES ${PROJECT_BINARY_DIR}/conf/ElemVars DESTINATION conf)
 file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
-if(ELEM_EXPERIMENTAL)
-  if(NOT MPI_C_FOUND)
-    message(FATAL_ERROR "Could not build C interface without C MPI")
-  endif()
-  include_directories(${MPI_C_INCLUDE_PATH})
-  set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
-  set(ELEM_CPP "${ELEM_CPP};experimental/c/interface.cpp")
-  set(ELEM_HEADERS "${ELEM_HEADERS};experimental/c/elemental.h")
-
-  if(ELEM_HAVE_F90_INTERFACE)
-    if(NOT MPI_Fortran_FOUND)
-      message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
-    endif()
-    if(NOT ELEM_HAVE_MPI_COMM_F2C)
-      message(FATAL_ERROR
-        "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
-    endif()
-    include_directories(${MPI_Fortran_INCLUDE_PATH})
-    set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
-    set(ELEM_CPP "${ELEM_CPP};experimental/f90/interface.cpp")
-  endif()
-endif()
 set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS};${ELEM_MOC_SRC}")
 
 # The main library
@@ -395,40 +372,6 @@ if(ELEM_EXPERIMENTAL)
     endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
-
-  # Build the C drivers
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c")
-  set(DRIVER ${EXPERIMENTAL_DIR}/c/test.c)
-  add_executable(experimental-c-test ${DRIVER})
-  set_source_files_properties(${DRIVER} PROPERTIES 
-    OBJECT_DEPENDS "${PREPARED_HEADERS}")
-  target_link_libraries(experimental-c-test elemental)
-  set_target_properties(experimental-c-test 
-    PROPERTIES OUTPUT_NAME c_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-  if(MPI_LINK_FLAGS)
-    set_target_properties(experimental-c-test 
-      PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
-  endif()
-  install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
-
-  if(ELEM_HAVE_F90_INTERFACE)
-    # Build the F90 drivers
-    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
-    set(DRIVER ${EXPERIMENTAL_DIR}/f90/test.f90)
-    add_executable(experimental-f90-test ${DRIVER}) 
-    set_source_files_properties(${DRIVER} PROPERTIES 
-      OBJECT_DEPENDS "${PREPARED_HEADERS}")
-    target_link_libraries(experimental-f90-test elemental)
-    set_target_properties(experimental-f90-test PROPERTIES
-      LINKER_LANGUAGE Fortran
-      OUTPUT_NAME f90_test 
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(experimental-f90-test 
-        PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS experimental-f90-test DESTINATION bin/experimental/f90)  
-  endif()
 endif()
 
 # If Elemental is a subproject, then pass some variables to the parent

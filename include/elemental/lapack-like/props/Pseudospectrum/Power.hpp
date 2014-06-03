@@ -335,7 +335,7 @@ Power
         DistMatrix<Real,         VR,STAR>& invNorms, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("pspec::TriangularPower"))
+    DEBUG_ONLY(CallStackEntry cse("pspec::Power"))
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -411,6 +411,7 @@ Power
         else
         {
             Conjugate( activeShifts, activeShiftsConj );
+            activeX_STAR_VR = activeX;
             MultiShiftHessSolve
             ( UPPER, NORMAL, C(1), U_VC_STAR, activeShifts,
               activeX_STAR_VR );
