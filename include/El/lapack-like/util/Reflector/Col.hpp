@@ -15,9 +15,6 @@
 #ifndef EL_REFLECTOR_COL_HPP
 #define EL_REFLECTOR_COL_HPP
 
-#include EL_NRM2_INC
-#include EL_SCALE_INC
-
 namespace El {
 namespace reflector {
 

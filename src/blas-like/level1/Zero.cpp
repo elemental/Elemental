@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_ZERO_HPP
-#define EL_ZERO_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Zero( Matrix<T>& A )
+void Zero( Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Zero"))
     const Int height = A.Height();
@@ -25,13 +22,20 @@ Zero( Matrix<T>& A )
 }
 
 template<typename T>
-inline void
-Zero( AbstractDistMatrix<T>& A )
+void Zero( AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Zero"))
     Zero( A.Matrix() );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Zero( Matrix<T>& A ); \
+  template void Zero( AbstractDistMatrix<T>& A );
 
-#endif // ifndef EL_ZERO_HPP
+PROTO(Int);
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
+
+} // namespace El

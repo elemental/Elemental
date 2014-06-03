@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_MIN_HPP
-#define EL_MIN_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename Real>
-inline ValueInt<Real>
-VectorMin( const Matrix<Real>& x )
+ValueInt<Real> VectorMin( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMin"))
     const Int m = x.Height();
@@ -61,8 +58,7 @@ VectorMin( const Matrix<Real>& x )
 }
 
 template<typename Real>
-inline ValueInt<Real>
-VectorMin( const AbstractDistMatrix<Real>& x )
+ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("VectorMin"))
     const Int m = x.Height();
@@ -127,8 +123,7 @@ VectorMin( const AbstractDistMatrix<Real>& x )
 }
 
 template<typename Real>
-inline ValueIntPair<Real>
-Min( const Matrix<Real>& A )
+ValueIntPair<Real> Min( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Min"))
     const Int m = A.Height();
@@ -163,8 +158,7 @@ Min( const Matrix<Real>& A )
 }
 
 template<typename Real>
-inline ValueIntPair<Real>
-Min( const AbstractDistMatrix<Real>& A )
+ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Min");
@@ -215,8 +209,7 @@ Min( const AbstractDistMatrix<Real>& A )
 }
 
 template<typename Real>
-inline ValueIntPair<Real>
-SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
+ValueIntPair<Real> SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricMin");
@@ -272,7 +265,7 @@ SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 }
 
 template<typename Real>
-inline ValueIntPair<Real>
+ValueIntPair<Real>
 SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
     DEBUG_ONLY(
@@ -349,21 +342,49 @@ SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 }
 
 template<typename Real>
-inline ValueInt<Real>
-DiagonalMin( const Matrix<Real>& A )
+ValueInt<Real> DiagonalMin( const Matrix<Real>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMin"))
     return VectorMin( A.GetDiagonal() );
 }
 
 template<typename Real,Dist U,Dist V>
-inline ValueInt<Real>
-DiagonalMin( const DistMatrix<Real,U,V>& A )
+ValueInt<Real> DiagonalMin( const DistMatrix<Real,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalMin"))
     return VectorMin( A.GetDiagonal() );
 }
 
-} // namespace El
+#define DIST_PROTO(Real,U,V) \
+  template ValueInt<Real> DiagonalMin( const DistMatrix<Real,U,V>& A );
 
-#endif // ifndef EL_MIN_HPP
+#define PROTO(Real) \
+  template ValueInt<Real> VectorMin( const Matrix<Real>& x ); \
+  template ValueInt<Real> VectorMin( const AbstractDistMatrix<Real>& x ); \
+  template ValueIntPair<Real> Min( const Matrix<Real>& x ); \
+  template ValueIntPair<Real> Min( const AbstractDistMatrix<Real>& x ); \
+  template ValueIntPair<Real> SymmetricMin \
+  ( UpperOrLower uplo, const Matrix<Real>& A ); \
+  template ValueIntPair<Real> SymmetricMin \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Real>& A ); \
+  template ValueInt<Real> DiagonalMin( const Matrix<Real>& A ); \
+  DIST_PROTO(Real,CIRC,CIRC); \
+  DIST_PROTO(Real,MC,  MR  ); \
+  DIST_PROTO(Real,MC,  STAR); \
+  DIST_PROTO(Real,MD,  STAR); \
+  DIST_PROTO(Real,MR,  MC  ); \
+  DIST_PROTO(Real,MR,  STAR); \
+  DIST_PROTO(Real,STAR,MC  ); \
+  DIST_PROTO(Real,STAR,MD  ); \
+  DIST_PROTO(Real,STAR,MR  ); \
+  DIST_PROTO(Real,STAR,STAR); \
+  DIST_PROTO(Real,STAR,VC  ); \
+  DIST_PROTO(Real,STAR,VR  ); \
+  DIST_PROTO(Real,VC,  STAR); \
+  DIST_PROTO(Real,VR,  STAR); 
+
+PROTO(Int);
+PROTO(float);
+PROTO(double);
+
+} // namespace El

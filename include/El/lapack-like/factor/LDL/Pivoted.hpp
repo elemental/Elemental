@@ -10,11 +10,6 @@
 #ifndef EL_LDL_PIVOTED_HPP
 #define EL_LDL_PIVOTED_HPP
 
-#include EL_CONJUGATE_INC
-#include EL_MAXABS_INC
-#include EL_SCALE_INC
-#include EL_SWAP_INC
-#include EL_SYMMETRIC2X2SOLVE_INC
 #include EL_SYR_INC
 #include EL_TRR_INC
 #include EL_TRR2_INC

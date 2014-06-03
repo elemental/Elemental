@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_MAKESYMMETRIC_INC
 #include EL_HEMM_INC
 #include EL_SYMM_INC
 #include EL_TRDTRMM_INC

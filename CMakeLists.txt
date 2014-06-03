@@ -377,25 +377,6 @@ if(EL_EXPERIMENTAL)
     endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
-
-  if(EL_HAVE_F90_INTERFACE)
-    # Build the F90 drivers
-    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
-    set(DRIVER ${EXPERIMENTAL_DIR}/f90/test.f90)
-    add_executable(experimental-f90-test ${DRIVER}) 
-    set_source_files_properties(${DRIVER} PROPERTIES 
-      OBJECT_DEPENDS "${PREPARED_HEADERS}")
-    target_link_libraries(experimental-f90-test El)
-    set_target_properties(experimental-f90-test PROPERTIES
-      LINKER_LANGUAGE Fortran
-      OUTPUT_NAME f90_test 
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(experimental-f90-test 
-        PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS experimental-f90-test DESTINATION bin/experimental/f90)  
-  endif()
 endif()
 
 # If Elemental is a subproject, then pass some variables to the parent

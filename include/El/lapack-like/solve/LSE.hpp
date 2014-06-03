@@ -10,7 +10,6 @@
 #ifndef EL_LSE_HPP
 #define EL_LSE_HPP
 
-#include EL_AXPY_INC
 #include EL_GEMM_INC
 #include EL_TRMM_INC
 #include EL_GRQ_INC

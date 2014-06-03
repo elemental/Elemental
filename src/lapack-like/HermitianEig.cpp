@@ -8,9 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_SCALE_INC
-#include EL_SCALETRAPEZOID_INC
-
 #include EL_APPLYPACKEDREFLECTORS_INC
 #include EL_HERMITIANTRIDIAG_INC
 #include EL_HERMITIANTRIDIAGEIG_INC

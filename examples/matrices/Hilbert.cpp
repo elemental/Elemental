@@ -10,7 +10,6 @@
 #include "El-lite.hpp"
 #include EL_CONDITION_INC
 #include EL_DETERMINANT_INC
-#include EL_HILBERTSCHMIDT_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_NUCLEARNORM_INC
 #include EL_TWONORM_INC

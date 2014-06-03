@@ -10,7 +10,6 @@
 #ifndef EL_LYAPUNOV_HPP
 #define EL_LYAPUNOV_HPP
 
-#include EL_ADJOINT_INC
 #include "./Sylvester.hpp"
 
 namespace El {

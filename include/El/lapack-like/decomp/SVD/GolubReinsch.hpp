@@ -10,9 +10,6 @@
 #ifndef EL_SVD_GOLUBREINSCH_HPP
 #define EL_SVD_GOLUBREINSCH_HPP
 
-#include EL_ADJOINT_INC
-#include EL_TRANSPOSE_INC
-
 #include EL_BIDIAG_INC
 
 #include EL_IDENTITY_INC

@@ -8,8 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_MAKETRIANGULAR_INC
-#include EL_SETDIAGONAL_INC
 #include EL_LDL_INC
 #include EL_WALSH_INC
 using namespace El;

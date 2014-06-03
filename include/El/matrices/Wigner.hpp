@@ -10,7 +10,6 @@
 #ifndef EL_WIGNER_HPP
 #define EL_WIGNER_HPP
 
-#include EL_MAKEHERMITIAN_INC
 #include EL_GAUSSIAN_INC
 
 namespace El {

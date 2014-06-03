@@ -6,19 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_MINABS_HPP
-#define EL_MINABS_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
+// TODO: Switch from F to T
 // TODO: Add options for FastAbs instead of Abs
 
 template<typename F>
-inline ValueInt<Base<F>>
-VectorMinAbs( const Matrix<F>& x )
+ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
+    DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -26,22 +24,23 @@ VectorMinAbs( const Matrix<F>& x )
         if( m != 1 && n != 1 )
             LogicError("Input should have been a vector");
     )
+
     ValueInt<Real> pivot;
     if( Min(m,n) == 0 )
     {
         pivot.value = 0;
-        pivot.index = -1;    
+        pivot.index = -1;
         return pivot;
     }
 
-    pivot.value = Abs(x.Get(0,0));
+    pivot.value = 0;
     pivot.index = 0;
     if( n == 1 )
     {
-        for( Int i=1; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const Real abs = Abs(x.Get(i,0));
-            if( abs < pivot.value )
+            if( abs > pivot.value )
             {
                 pivot.index = i;
                 pivot.value = abs;
@@ -50,10 +49,10 @@ VectorMinAbs( const Matrix<F>& x )
     }
     else
     {
-        for( Int j=1; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
             const Real abs = Abs(x.Get(0,j));
-            if( abs < pivot.value )
+            if( abs > pivot.value )
             {
                 pivot.index = j;
                 pivot.value = abs;
@@ -64,10 +63,9 @@ VectorMinAbs( const Matrix<F>& x )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-VectorMinAbs( const AbstractDistMatrix<F>& x )
+ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x )
 {
-    DEBUG_ONLY(CallStackEntry cse("VectorMinAbs"))
+    DEBUG_ONLY(CallStackEntry cse("VectorMaxAbs"))
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
@@ -75,21 +73,21 @@ VectorMinAbs( const AbstractDistMatrix<F>& x )
         if( m != 1 && n != 1 )
             LogicError("Input should have been a vector");
         if( !x.Grid().InGrid() )
-            LogicError("viewing processes are not allowed");
+            LogicError("Viewing processes are not allowed");
     )
     ValueInt<Real> pivot;
     if( Min(m,n) == 0 )
     {
-        pivot.value = 0;
         pivot.index = -1;
+        pivot.value = 0;
         return pivot;
     }
- 
-    ValueInt<Real> localPivot;
-    localPivot.value = Abs(x.Get(0,0));
-    localPivot.index = 0;
+
     if( x.Participating() )
     {
+        ValueInt<Real> localPivot;
+        localPivot.index = 0;
+        localPivot.value = 0;
         if( n == 1 )
         {
             if( x.RowRank() == x.RowAlign() )
@@ -98,7 +96,7 @@ VectorMinAbs( const AbstractDistMatrix<F>& x )
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
                     const Real abs = Abs(x.GetLocal(iLoc,0));
-                    if( abs < localPivot.value )
+                    if( abs > localPivot.value )
                     {
                         localPivot.index = x.GlobalRow(iLoc);
                         localPivot.value = abs;
@@ -114,7 +112,7 @@ VectorMinAbs( const AbstractDistMatrix<F>& x )
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
                     const Real abs = Abs(x.GetLocal(0,jLoc));
-                    if( abs < localPivot.value )
+                    if( abs > localPivot.value )
                     {
                         localPivot.index = x.GlobalCol(jLoc);
                         localPivot.value = abs;
@@ -123,7 +121,7 @@ VectorMinAbs( const AbstractDistMatrix<F>& x )
             }
         }
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MinLocOp<Real>(), x.DistComm() );
+                ( localPivot, mpi::MaxLocOp<Real>(), x.DistComm() );
     }
     mpi::Broadcast( pivot.index, x.Root(), x.CrossComm() );
     mpi::Broadcast( pivot.value, x.Root(), x.CrossComm() );
@@ -131,10 +129,9 @@ VectorMinAbs( const AbstractDistMatrix<F>& x )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
-MinAbs( const Matrix<F>& A )
+ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MinAbs"))
+    DEBUG_ONLY(CallStackEntry cse("MaxAbs"))
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -148,7 +145,7 @@ MinAbs( const Matrix<F>& A )
         return pivot;
     }
 
-    pivot.value = Abs(A.Get(0,0));
+    pivot.value = 0;
     pivot.indices[0] = 0;
     pivot.indices[1] = 0;
     for( Int j=0; j<n; ++j )
@@ -156,7 +153,7 @@ MinAbs( const Matrix<F>& A )
         for( Int i=0; i<m; ++i )
         {
             const Real abs = Abs(A.Get(i,j));
-            if( abs < pivot.value )
+            if( abs > pivot.value )
             {
                 pivot.value = abs;
                 pivot.indices[0] = i;
@@ -168,17 +165,16 @@ MinAbs( const Matrix<F>& A )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
-MinAbs( const AbstractDistMatrix<F>& A )
+ValueIntPair<Base<F>> MaxAbs( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("MinAbs");
+        CallStackEntry cse("MaxAbs");
         if( !A.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
     typedef Base<F> Real;
     ValueIntPair<Real> pivot;
-    if( Min(A.Height(),A.Width()) == 0 )
+    if( A.Height() == 0 )
     {
         pivot.value = 0;
         pivot.indices[0] = -1;
@@ -186,13 +182,13 @@ MinAbs( const AbstractDistMatrix<F>& A )
         return pivot;
     }
 
-    ValueIntPair<Real> localPivot;
-    localPivot.value = Abs(A.Get(0,0));
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
+        ValueIntPair<Real> localPivot;
+        localPivot.value = 0;
+        localPivot.indices[0] = 0;
+        localPivot.indices[1] = 0;
         const Int mLocal = A.LocalHeight();
         const Int nLocal = A.LocalWidth();
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -201,7 +197,7 @@ MinAbs( const AbstractDistMatrix<F>& A )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
                 const Real value = Abs(A.GetLocal(iLoc,jLoc));
-                if( value < localPivot.value )
+                if( value > localPivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
                     localPivot.value = value;
@@ -213,7 +209,7 @@ MinAbs( const AbstractDistMatrix<F>& A )
 
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
+                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
     }
     mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
     mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
@@ -221,16 +217,16 @@ MinAbs( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
-SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
+ValueIntPair<Base<F>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMinAbs");
+        CallStackEntry cse("SymmetricMaxAbs");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
     typedef Base<F> Real;
     const Int n = A.Width();
+
     ValueIntPair<Real> pivot;
     if( n == 0 )
     {
@@ -240,7 +236,7 @@ SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
         return pivot;
     }
 
-    pivot.value = Abs(A.Get(0,0));
+    pivot.value = 0;
     pivot.indices[0] = 0;
     pivot.indices[1] = 0;
     if( uplo == LOWER )
@@ -250,7 +246,7 @@ SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
             for( Int i=j; i<n; ++i )
             {
                 const Real abs = Abs(A.Get(i,j));
-                if( abs < pivot.value )
+                if( abs > pivot.value )
                 {
                     pivot.value = abs;
                     pivot.indices[0] = i;
@@ -266,7 +262,7 @@ SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
             for( Int i=0; i<=j; ++i )
             {
                 const Real abs = Abs(A.Get(i,j));
-                if( abs < pivot.value )
+                if( abs > pivot.value )
                 {
                     pivot.value = abs;
                     pivot.indices[0] = i;
@@ -279,11 +275,11 @@ SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline ValueIntPair<Base<F>>
-SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+ValueIntPair<Base<F>> SymmetricMaxAbs
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("SymmetricMinAbs");
+        CallStackEntry cse("SymmetricMaxAbs");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( !A.Grid().InGrid() )
@@ -302,12 +298,13 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
         return pivot;
     }
 
-    ValueIntPair<Real> localPivot;
-    localPivot.value = Abs(A.Get(0,0));
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
     if( A.Participating() )
     {
+        ValueIntPair<Real> localPivot;
+        localPivot.value = 0;
+        localPivot.indices[0] = 0;
+        localPivot.indices[1] = 0;
+
         if( uplo == LOWER )
         {
             for( Int jLoc=0; jLoc<nLocal; ++jLoc )
@@ -317,7 +314,7 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
                     const Real abs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( abs < localPivot.value )
+                    if( abs > localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
                         localPivot.value = abs;
@@ -336,7 +333,7 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
                     const Real abs = Abs(A.GetLocal(iLoc,jLoc));
-                    if( abs < localPivot.value )
+                    if( abs > localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
                         localPivot.value = abs;
@@ -349,7 +346,7 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MinLocPairOp<Real>(), A.DistComm() );
+                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
     }
     mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
     mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
@@ -357,21 +354,51 @@ SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline ValueInt<Base<F>>
-DiagonalMinAbs( const Matrix<F>& A )
+ValueInt<Base<F>> DiagonalMaxAbs( const Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMinAbs"))
-    return VectorMinAbs( A.GetDiagonal() );
+    DEBUG_ONLY(CallStackEntry cse("DiagonalMaxAbs"))
+    return VectorMaxAbs( A.GetDiagonal() );
 }
 
 template<typename F,Dist U,Dist V>
-inline ValueInt<Base<F>>
-DiagonalMinAbs( const DistMatrix<F,U,V>& A )
+ValueInt<Base<F>> DiagonalMaxAbs( const DistMatrix<F,U,V>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMinAbs"))
-    return VectorMinAbs( A.GetDiagonal() );
+    DEBUG_ONLY(CallStackEntry cse("DiagonalMaxAbs"))
+    return VectorMaxAbs( A.GetDiagonal() );
 }
 
-} // namespace El
+#define DIST_PROTO(F,U,V) \
+  template ValueInt<Base<F>> DiagonalMaxAbs( const DistMatrix<F,U,V>& A );
 
-#endif // ifndef EL_MIN_HPP
+#define PROTO(F) \
+  template ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x ); \
+  template ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x ); \
+  template ValueIntPair<Base<F>> MaxAbs( const Matrix<F>& x ); \
+  template ValueIntPair<Base<F>> MaxAbs( const AbstractDistMatrix<F>& x ); \
+  template ValueIntPair<Base<F>> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template ValueIntPair<Base<F>> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template ValueInt<Base<F>> DiagonalMaxAbs( const Matrix<F>& A ); \
+  DIST_PROTO(F,CIRC,CIRC); \
+  DIST_PROTO(F,MC,  MR  ); \
+  DIST_PROTO(F,MC,  STAR); \
+  DIST_PROTO(F,MD,  STAR); \
+  DIST_PROTO(F,MR,  MC  ); \
+  DIST_PROTO(F,MR,  STAR); \
+  DIST_PROTO(F,STAR,MC  ); \
+  DIST_PROTO(F,STAR,MD  ); \
+  DIST_PROTO(F,STAR,MR  ); \
+  DIST_PROTO(F,STAR,STAR); \
+  DIST_PROTO(F,STAR,VC  ); \
+  DIST_PROTO(F,STAR,VR  ); \
+  DIST_PROTO(F,VC,  STAR); \
+  DIST_PROTO(F,VR,  STAR); 
+
+PROTO(Int);
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
+
+} // namespace El

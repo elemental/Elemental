@@ -10,8 +10,6 @@
 #ifndef EL_TRSTRM_LLN_HPP
 #define EL_TRSTRM_LLN_HPP
 
-#include EL_MAKETRIANGULAR_INC
-#include EL_SCALETRAPEZOID_INC
 #include EL_GEMM_INC
 #include EL_TRSM_INC
 

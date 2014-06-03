@@ -10,7 +10,6 @@
 #ifndef EL_RQ_APPLYQ_HPP
 #define EL_RQ_APPLYQ_HPP
 
-#include EL_DIAGONALSCALE_INC
 #include EL_APPLYPACKEDREFLECTORS_INC
 
 namespace El {

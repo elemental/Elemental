@@ -10,7 +10,6 @@
 #ifndef EL_SVD_HPP
 #define EL_SVD_HPP
 
-#include EL_MAKEHERMITIAN_INC
 #include EL_HERMITIANEIG_INC
 
 #include "./SVD/Chan.hpp"

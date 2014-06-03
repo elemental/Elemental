@@ -10,7 +10,6 @@
 #ifndef EL_LOGDETDIV_HPP
 #define EL_LOGDETDIV_HPP
 
-#include EL_MAKETRIANGULAR_INC
 #include EL_TRSM_INC
 #include EL_TRSTRM_INC
 

@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAKESYMMETRIC_INC
-
 namespace El {
 
 template<typename T>

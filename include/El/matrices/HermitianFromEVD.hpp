@@ -10,9 +10,6 @@
 #ifndef EL_HERMITIANFROMEVD_HPP
 #define EL_HERMITIANFROMEVD_HPP
 
-#include EL_DIAGONALSCALE_INC
-#include EL_MAKETRAPEZOIDAL_INC
-
 namespace El {
 
 // A :=  Z Omega Z^T, where Omega is diagonal and real-valued

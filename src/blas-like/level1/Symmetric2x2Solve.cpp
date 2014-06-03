@@ -6,17 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMMETRIC2X2SOLVE_HPP
-#define EL_SYMMETRIC2X2SOLVE_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline void
+void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& A, bool conjugate=false )
+  const Matrix<F>& D, Matrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Solve"))
     typedef Base<F> Real;
@@ -117,10 +115,10 @@ Symmetric2x2Solve
 }
 
 template<typename F>
-inline void
+void
 FirstHalfOfSymmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate=false )
+  const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("FirstHalfOfSymmetric2x2Solve");
@@ -221,10 +219,10 @@ FirstHalfOfSymmetric2x2Solve
 }
 
 template<typename F>
-inline void
+void
 SecondHalfOfSymmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate=false )
+  const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SecondHalfOfSymmetric2x2Solve");
@@ -324,11 +322,11 @@ SecondHalfOfSymmetric2x2Solve
         LogicError("This option not yet supported");
 }
 
-template<typename F,Dist U,Dist V>
-inline void
+template<typename F>
+void
 Symmetric2x2Solve
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,STAR,STAR>& D, DistMatrix<F,U,V>& A, bool conjugate=false )
+  const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Solve"))
     typedef Base<F> Real;
@@ -427,6 +425,24 @@ Symmetric2x2Solve
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Symmetric2x2Solve \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<F>& D, Matrix<F>& A, bool conjugate ); \
+  template void FirstHalfOfSymmetric2x2Solve \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate ); \
+  template void SecondHalfOfSymmetric2x2Solve \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate ); \
+  template void Symmetric2x2Solve \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A, \
+    bool conjugate );
 
-#endif // ifndef EL_SYMMETRIC2X2SOLVE_HPP
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
+
+} // namespace El

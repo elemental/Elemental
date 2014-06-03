@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NRM2_HPP
-#define EL_NRM2_HPP
+#include "El-lite.hpp"
 
 #include EL_FROBENIUSNORM_INC
 
 namespace El {
 
 template<typename F>
-inline Base<F>
-Nrm2( const Matrix<F>& x )
+Base<F> Nrm2( const Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Nrm2");
@@ -32,8 +29,7 @@ Nrm2( const Matrix<F>& x )
 }
 
 template<typename F>
-inline Base<F>
-Nrm2( const AbstractDistMatrix<F>& x )
+Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Nrm2");
@@ -43,6 +39,13 @@ Nrm2( const AbstractDistMatrix<F>& x )
     return FrobeniusNorm( x );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> Nrm2( const Matrix<F>& x ); \
+  template Base<F> Nrm2( const AbstractDistMatrix<F>& x ); 
 
-#endif // ifndef EL_NRM2_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

@@ -9,8 +9,6 @@
 #ifndef EL_HERMITIANTRIDIAG_L_HPP
 #define EL_HERMITIANTRIDIAG_L_HPP
 
-#include EL_AXPY_INC
-#include EL_DOT_INC
 #include EL_HEMV_INC
 #include EL_HER2_INC
 #include EL_SYMV_INC

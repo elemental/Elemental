@@ -10,8 +10,6 @@
 #ifndef EL_SYR2K_UT_HPP
 #define EL_SYR2K_UT_HPP
 
-#include EL_SCALETRAPEZOID_INC
-
 namespace El {
 namespace internal {
 

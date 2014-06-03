@@ -10,7 +10,6 @@
 #ifndef EL_TRIW_HPP
 #define EL_TRIW_HPP
 
-#include EL_SETDIAGONAL_INC
 #include EL_ZEROS_INC
 
 namespace El {

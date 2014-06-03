@@ -10,7 +10,6 @@
 #ifndef EL_PSEUDOINVERSE_HPP
 #define EL_PSEUDOINVERSE_HPP
 
-#include EL_DIAGONALSCALE_INC
 #include EL_GEMM_INC
 #include EL_SVD_INC
 #include EL_MAXNORM_INC

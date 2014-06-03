@@ -13,7 +13,6 @@
 #ifndef EL_TWOSIDEDTRMM_LVAR4_HPP
 #define EL_TWOSIDEDTRMM_LVAR4_HPP
 
-#include EL_AXPY_INC
 #include EL_GEMM_INC
 #include EL_HEMM_INC
 #include EL_HER2K_INC

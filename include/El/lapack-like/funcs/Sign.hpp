@@ -10,8 +10,6 @@
 #ifndef EL_SIGN_HPP
 #define EL_SIGN_HPP
 
-#include EL_AXPY_INC
-#include EL_SCALE_INC
 #include EL_GEMM_INC
 
 #include EL_INVERSE_INC

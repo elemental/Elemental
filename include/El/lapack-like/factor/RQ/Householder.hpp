@@ -10,8 +10,6 @@
 #ifndef EL_RQ_HOUSEHOLDER_HPP
 #define EL_RQ_HOUSEHOLDER_HPP
 
-#include EL_MAKETRAPEZOIDAL_INC
-
 #include "./ApplyQ.hpp"
 #include "./PanelHouseholder.hpp"
 

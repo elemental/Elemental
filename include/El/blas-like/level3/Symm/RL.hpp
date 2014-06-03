@@ -10,13 +10,6 @@
 #ifndef EL_SYMM_RL_HPP
 #define EL_SYMM_RL_HPP
 
-#include EL_AXPY_INC
-#include EL_MAKETRAPEZOIDAL_INC
-#include EL_MAKETRIANGULAR_INC
-#include EL_SCALE_INC
-#include EL_SETDIAGONAL_INC
-#include EL_TRANSPOSE_INC
-
 #include EL_GEMM_INC
 
 #include EL_ZEROS_INC

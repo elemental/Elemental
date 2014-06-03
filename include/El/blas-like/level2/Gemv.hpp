@@ -10,7 +10,6 @@
 #ifndef EL_GEMV_HPP
 #define EL_GEMV_HPP
 
-#include EL_SCALE_INC
 #include EL_ZEROS_INC
 
 #include "./Gemv/N.hpp"

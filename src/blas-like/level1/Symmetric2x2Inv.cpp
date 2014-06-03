@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMMETRIC2X2INV_HPP
-#define EL_SYMMETRIC2X2INV_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline void
-Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate=false )
+void Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Inv"))
     typedef Base<F> Real;
@@ -53,6 +50,13 @@ Symmetric2x2Inv( UpperOrLower uplo, Matrix<F>& D, bool conjugate=false )
         LogicError("This option not yet supported");
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Symmetric2x2Inv \
+  ( UpperOrLower uplo, Matrix<F>& A, bool conjugate );
 
-#endif // ifndef EL_SYMMETRIC2X2INV_HPP
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
+
+} // namespace El

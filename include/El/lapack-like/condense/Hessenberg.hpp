@@ -10,9 +10,6 @@
 #ifndef EL_HESSENBERG_HPP
 #define EL_HESSENBERG_HPP
 
-#include EL_MAKETRAPEZOIDAL_INC
-#include EL_MAKETRIANGULAR_INC
-
 #include "./Hessenberg/L.hpp"
 #include "./Hessenberg/U.hpp"
 #include "./Hessenberg/ApplyQ.hpp"

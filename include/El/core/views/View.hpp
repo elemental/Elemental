@@ -269,7 +269,7 @@ inline DistMatrix<T,U,V> LockedView
 }
 
 template<typename T>
-void ViewRange
+inline void ViewRange
 ( Matrix<T>& A, Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 { 
     DEBUG_ONLY(CallStackEntry cse("ViewRange"))
@@ -277,7 +277,7 @@ void ViewRange
 }
 
 template<typename T>
-Matrix<T> ViewRange
+inline Matrix<T> ViewRange
 ( Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("ViewRange"))
@@ -285,7 +285,7 @@ Matrix<T> ViewRange
 }
 
 template<typename T>
-void ViewRange
+inline void ViewRange
 ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
@@ -294,7 +294,7 @@ void ViewRange
 }
 
 template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> ViewRange
+inline DistMatrix<T,U,V> ViewRange
 ( DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("ViewRange"))
@@ -302,7 +302,7 @@ DistMatrix<T,U,V> ViewRange
 } 
 
 template<typename T>
-void LockedViewRange
+inline void LockedViewRange
 ( Matrix<T>& A, const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
@@ -310,7 +310,7 @@ void LockedViewRange
 }
 
 template<typename T>
-Matrix<T> LockedViewRange
+inline Matrix<T> LockedViewRange
 ( const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))
@@ -318,7 +318,7 @@ Matrix<T> LockedViewRange
 }
 
 template<typename T>
-void LockedViewRange
+inline void LockedViewRange
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
@@ -327,7 +327,7 @@ void LockedViewRange
 }
 
 template<typename T,Dist U,Dist V>
-DistMatrix<T,U,V> LockedViewRange
+inline DistMatrix<T,U,V> LockedViewRange
 ( const DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
 {
     DEBUG_ONLY(CallStackEntry cse("LockedViewRange"))

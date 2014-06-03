@@ -10,7 +10,6 @@
 #ifndef EL_SVT_PIVOTEDQR_HPP
 #define EL_SVT_PIVOTEDQR_HPP
 
-#include EL_DIAGONALSCALE_INC
 #include EL_ZERONORM_INC
 #include EL_QR_INC
 #include EL_SVD_INC

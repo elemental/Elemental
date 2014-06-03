@@ -10,8 +10,6 @@
 #ifndef EL_JORDAN_HPP
 #define EL_JORDAN_HPP
 
-#include EL_ZERO_INC
-
 namespace El {
 
 template<typename T> 

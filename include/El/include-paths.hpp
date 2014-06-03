@@ -16,81 +16,6 @@
 #define EL_BLAS_DECL_INC "El/blas-like/decl.hpp"
 #define EL_BLAS_IMPL_INC "El/blas-like/impl.hpp"
 
-// Level 1 routines
-// ----------------
-#define EL_BLAS1_INC "El/blas-like/level1.hpp"
-
-#define EL_ADJOINT_INC \
-  "El/blas-like/level1/Adjoint.hpp"
-#define EL_AXPY_INC \
-  "El/blas-like/level1/Axpy.hpp"
-#define EL_AXPYTRIANGLE_INC \
-  "El/blas-like/level1/AxpyTriangle.hpp"
-#define EL_CONJUGATE_INC \
-  "El/blas-like/level1/Conjugate.hpp"
-#define EL_COPY_INC \
-  "El/blas-like/level1/Copy.hpp"
-#define EL_DIAGONALSCALE_INC \
-  "El/blas-like/level1/DiagonalScale.hpp"
-#define EL_DIAGONALSCALETRAPEZOID_INC \
-  "El/blas-like/level1/DiagonalScaleTrapezoid.hpp"
-#define EL_DIAGONALSOLVE_INC \
-  "El/blas-like/level1/DiagonalSolve.hpp"
-#define EL_DOT_INC \
-  "El/blas-like/level1/Dot.hpp"
-#define EL_DOTU_INC \
-  "El/blas-like/level1/Dotu.hpp"
-#define EL_ENTRYWISEMAP_INC \
-  "El/blas-like/level1/EntrywiseMap.hpp"
-#define EL_HADAMARD_INC \
-  "El/blas-like/level1/Hadamard.hpp"
-#define EL_HILBERTSCHMIDT_INC \
-  "El/blas-like/level1/HilbertSchmidt.hpp"
-#define EL_MAKEHERMITIAN_INC \
-  "El/blas-like/level1/MakeHermitian.hpp"
-#define EL_MAKEREAL_INC \
-  "El/blas-like/level1/MakeReal.hpp"
-#define EL_MAKESYMMETRIC_INC \
-  "El/blas-like/level1/MakeSymmetric.hpp"
-#define EL_MAKETRAPEZOIDAL_INC \
-  "El/blas-like/level1/MakeTrapezoidal.hpp"
-#define EL_MAKETRIANGULAR_INC \
-  "El/blas-like/level1/MakeTriangular.hpp"
-#define EL_MAX_INC \
-  "El/blas-like/level1/Max.hpp"
-#define EL_MAXABS_INC \
-  "El/blas-like/level1/MaxAbs.hpp"
-#define EL_MIN_INC \
-  "El/blas-like/level1/Min.hpp"
-#define EL_MINABS_INC \
-  "El/blas-like/level1/MinAbs.hpp"
-#define EL_NRM2_INC \
-  "El/blas-like/level1/Nrm2.hpp"
-#define EL_QUASIDIAGONALSCALE_INC \
-  "El/blas-like/level1/QuasiDiagonalScale.hpp"
-#define EL_QUASIDIAGONALSOLVE_INC \
-  "El/blas-like/level1/QuasiDiagonalSolve.hpp"
-#define EL_SCALE_INC \
-  "El/blas-like/level1/Scale.hpp"
-#define EL_SCALETRAPEZOID_INC \
-  "El/blas-like/level1/ScaleTrapezoid.hpp"
-#define EL_SETDIAGONAL_INC \
-  "El/blas-like/level1/SetDiagonal.hpp"
-#define EL_SWAP_INC \
-  "El/blas-like/level1/Swap.hpp"
-#define EL_SYMMETRIC2X2INV_INC \
-  "El/blas-like/level1/Symmetric2x2Inv.hpp"
-#define EL_SYMMETRIC2X2SCALE_INC \
-  "El/blas-like/level1/Symmetric2x2Scale.hpp"
-#define EL_SYMMETRIC2X2SOLVE_INC \
-  "El/blas-like/level1/Symmetric2x2Solve.hpp"
-#define EL_TRANSPOSE_INC \
-  "El/blas-like/level1/Transpose.hpp"
-#define EL_UPDATEDIAGONAL_INC \
-  "El/blas-like/level1/UpdateDiagonal.hpp"
-#define EL_ZERO_INC \
-  "El/blas-like/level1/Zero.hpp"
-
 // Level 2 routines
 // ----------------
 #define EL_BLAS2_INC "El/blas-like/level2.hpp"
@@ -543,18 +468,6 @@
   "El/matrices/UniformHelmholtzGreens.hpp"
 #define EL_WIGNER_INC \
   "El/matrices/Wigner.hpp"
-
-// Input/output
-// ============
-#define EL_IO_INC      "El/io.hpp"
-#define EL_IO_DECL_INC "El/io/decl.hpp"
-#define EL_IO_IMPL_INC "El/io/impl.hpp"
-
-#define EL_DISPLAY_INC "El/io/Display.hpp"
-#define EL_PRINT_INC   "El/io/Print.hpp"
-#define EL_READ_INC    "El/io/Read.hpp"
-#define EL_SPY_INC     "El/io/Spy.hpp"
-#define EL_WRITE_INC   "El/io/Write.hpp"
 
 // Convex optimization
 // ===================

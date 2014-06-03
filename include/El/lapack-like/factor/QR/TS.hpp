@@ -10,7 +10,6 @@
 #ifndef EL_QR_TS_HPP
 #define EL_QR_TS_HPP
 
-#include EL_MAKETRIANGULAR_INC
 #include EL_EXPANDPACKEDREFLECTORS_INC
 #include EL_QR_INC
 

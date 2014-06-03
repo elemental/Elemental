@@ -10,7 +10,6 @@
 #ifndef EL_GEMM_HPP
 #define EL_GEMM_HPP
 
-#include EL_SCALE_INC
 #include EL_ZEROS_INC
 
 namespace El {

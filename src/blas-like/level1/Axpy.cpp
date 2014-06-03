@@ -10,10 +10,11 @@
 
 namespace El {
 
-template<typename T>
-void Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
+template<typename T,typename S>
+void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("Axpy"))
+    const T alpha = T(alphaS);
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
     if( X.Height()==1 || X.Width()==1 )
@@ -55,14 +56,15 @@ void Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
     }
 }
 
-template<typename T,Dist U,Dist V,Dist W,Dist Z>
-void Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y )
+template<typename T,typename S,Dist U,Dist V,Dist W,Dist Z>
+void Axpy( S alphaS, const DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Axpy");
         if( X.Grid() != Y.Grid() )
             LogicError("X and Y must be distributed over the same grid");
     )
+    const T alpha = T(alphaS);
     if( U == V && W == Z && 
         X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {
@@ -77,8 +79,8 @@ void Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y )
     }
 }
 
-template<typename T>
-void Axpy( T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
+template<typename T,typename S>
+void Axpy( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Axpy"))
     #define GUARD(CDIST,RDIST) \
@@ -93,48 +95,59 @@ void Axpy( T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     #include "El/core/NestedGuardAndPayload.h"
 }
 
-#define DIST_PROTO_INNER(T,U,V,W,Z) \
+#define DIST_PROTO_INNER(T,S,U,V,W,Z) \
   template void Axpy \
-  ( T alpha, const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B ); \
+  ( S alpha, const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
-#define DIST_PROTO(T,U,V) \
-  DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,VR,  STAR); \
+#define DIST_PROTO(T,S,U,V) \
+  DIST_PROTO_INNER(T,S,U,V,CIRC,CIRC) \
+  DIST_PROTO_INNER(T,S,U,V,MC,  MR  ) \
+  DIST_PROTO_INNER(T,S,U,V,MC,  STAR) \
+  DIST_PROTO_INNER(T,S,U,V,MD,  STAR) \
+  DIST_PROTO_INNER(T,S,U,V,MR,  MC  ) \
+  DIST_PROTO_INNER(T,S,U,V,MR,  STAR) \
+  DIST_PROTO_INNER(T,S,U,V,STAR,MD  ) \
+  DIST_PROTO_INNER(T,S,U,V,STAR,MR  ) \
+  DIST_PROTO_INNER(T,S,U,V,STAR,STAR) \
+  DIST_PROTO_INNER(T,S,U,V,STAR,VC  ) \
+  DIST_PROTO_INNER(T,S,U,V,STAR,VR  ) \
+  DIST_PROTO_INNER(T,S,U,V,VC,  STAR) \
+  DIST_PROTO_INNER(T,S,U,V,VR,  STAR)
 
-#define PROTO(T) \
-  template void Axpy( T alpha, const Matrix<T>& A, Matrix<T>& B ); \
+#define PROTO_TYPES(T,S) \
+  template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
-  ( T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
-  DIST_PROTO(T,CIRC,CIRC); \
-  DIST_PROTO(T,MC,  MR  ); \
-  DIST_PROTO(T,MC,  STAR); \
-  DIST_PROTO(T,MD,  STAR); \
-  DIST_PROTO(T,MR,  MC  ); \
-  DIST_PROTO(T,MR,  STAR); \
-  DIST_PROTO(T,STAR,MC  ); \
-  DIST_PROTO(T,STAR,MD  ); \
-  DIST_PROTO(T,STAR,MR  ); \
-  DIST_PROTO(T,STAR,STAR); \
-  DIST_PROTO(T,STAR,VC  ); \
-  DIST_PROTO(T,STAR,VR  ); \
-  DIST_PROTO(T,VC  ,STAR); \
-  DIST_PROTO(T,VR  ,STAR);
+  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  DIST_PROTO(T,S,CIRC,CIRC) \
+  DIST_PROTO(T,S,MC,  MR  ) \
+  DIST_PROTO(T,S,MC,  STAR) \
+  DIST_PROTO(T,S,MD,  STAR) \
+  DIST_PROTO(T,S,MR,  MC  ) \
+  DIST_PROTO(T,S,MR,  STAR) \
+  DIST_PROTO(T,S,STAR,MC  ) \
+  DIST_PROTO(T,S,STAR,MD  ) \
+  DIST_PROTO(T,S,STAR,MR  ) \
+  DIST_PROTO(T,S,STAR,STAR) \
+  DIST_PROTO(T,S,STAR,VC  ) \
+  DIST_PROTO(T,S,STAR,VR  ) \
+  DIST_PROTO(T,S,VC  ,STAR) \
+  DIST_PROTO(T,S,VR  ,STAR)
 
-PROTO(Int);
-PROTO(float);
-PROTO(double);
-PROTO(Complex<float>);
-PROTO(Complex<double>);
+#define PROTO_INT(T) PROTO_TYPES(T,T)
+
+#define PROTO_REAL(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,T)
+
+#define PROTO_CPX(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,Base<T>) \
+  PROTO_TYPES(T,T)
+
+PROTO_INT(Int)
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
 
 } // namespace El

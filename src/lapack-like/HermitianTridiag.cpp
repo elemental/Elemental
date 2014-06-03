@@ -8,7 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAKETRAPEZOIDAL_INC
 #include EL_HERMITIANTRIDIAG_INC
 
 #include "./HermitianTridiag/L.hpp"

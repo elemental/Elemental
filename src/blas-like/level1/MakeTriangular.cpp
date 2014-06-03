@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_MAKETRAPEZOIDAL_HPP
-#define EL_MAKETRAPEZOIDAL_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
+void MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -25,30 +22,27 @@ MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
     if( uplo == LOWER )
     {
         EL_PARALLEL_FOR
-        for( Int j=Max(0,offset+1); j<width; ++j )
+        for( Int j=1; j<width; ++j )
         {
-            const Int lastZeroRow = j-offset-1;
-            const Int numZeroRows = Min( lastZeroRow+1, height );
+            const Int numZeroRows = Min( j, height );
             MemZero( &buffer[j*ldim], numZeroRows );
         }
     }
     else
     {
         EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j )
+        for( Int j=0; j<Min(width,height); ++j )
         {
-            const Int firstZeroRow = Max(j-offset+1,0);
-            if( firstZeroRow < height )
-                MemZero( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
+            const Int firstZeroRow = j+1;
+            MemZero( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
         }
     }
 }
 
 template<typename T>
-inline void
-MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
+void MakeTriangular( UpperOrLower uplo, AbstractDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -62,7 +56,7 @@ MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
-            const Int lastZeroRow = j-offset-1;
+            const Int lastZeroRow = j-1;
             if( lastZeroRow >= 0 )
             {
                 const Int boundary = Min( lastZeroRow+1, height );
@@ -77,7 +71,7 @@ MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
-            const Int firstZeroRow = Max(j-offset+1,0);
+            const Int firstZeroRow = j+1;
             const Int numNonzeroRows = A.LocalRowOffset(firstZeroRow);
             if( numNonzeroRows < localHeight )
             {
@@ -89,11 +83,9 @@ MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
 }
 
 template<typename T>
-inline void
-MakeTrapezoidal
-( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A, Int offset=0 )
+void MakeTriangular( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeTrapezoidal"))
+    DEBUG_ONLY(CallStackEntry cse("MakeTriangular"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -107,7 +99,7 @@ MakeTrapezoidal
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
-            const Int lastZeroRow = j-offset-1;
+            const Int lastZeroRow = j-1;
             if( lastZeroRow >= 0 )
             {
                 const Int boundary = Min( lastZeroRow+1, height );
@@ -122,7 +114,7 @@ MakeTrapezoidal
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
-            const Int firstZeroRow = Max(j-offset+1,0);
+            const Int firstZeroRow = j+1;
             const Int numNonzeroRows = A.LocalRowOffset(firstZeroRow);
             if( numNonzeroRows < localHeight )
             {
@@ -132,7 +124,19 @@ MakeTrapezoidal
         }
     }
 }
+
+#define PROTO(T) \
+  template void MakeTriangular \
+  ( UpperOrLower uplo, Matrix<T>& A ); \
+  template void MakeTriangular \
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A ); \
+  template void MakeTriangular \
+  ( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A );
+
+PROTO(Int);
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
 
 } // namespace El
-
-#endif // ifndef EL_MAKETRAPEZOIDAL_HPP

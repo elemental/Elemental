@@ -10,7 +10,6 @@
 #ifndef EL_SVT_CROSS_HPP
 #define EL_SVT_CROSS_HPP
 
-#include EL_DIAGONALSCALE_INC
 #include EL_ZERONORM_INC
 #include EL_SVD_INC
 #include EL_SOFTTHRESHOLD_INC

@@ -10,8 +10,6 @@
 #ifndef EL_PSEUDOSPECTRUM_UTIL_SNAPSHOT_HPP
 #define EL_PSEUDOSPECTRUM_UTIL_SNAPSHOT_HPP
 
-#include EL_ENTRYWISEMAP_INC
-
 namespace El {
 
 // Configurations for how often and what format numerical (num) and image (img)

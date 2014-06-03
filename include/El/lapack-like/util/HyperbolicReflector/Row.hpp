@@ -10,10 +10,6 @@
 #ifndef EL_HYPERBOLICREFLECTOR_ROW_HPP
 #define EL_HYPERBOLICREFLECTOR_ROW_HPP
 
-#include EL_NRM2_INC
-#include EL_SCALE_INC
-#include EL_ZERO_INC
-
 namespace El {
 namespace hyp_reflector {
 

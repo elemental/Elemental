@@ -10,8 +10,6 @@
 #ifndef EL_SYMV_U_HPP
 #define EL_SYMV_U_HPP
 
-#include EL_MAKETRIANGULAR_INC
-#include EL_SETDIAGONAL_INC
 #include EL_GEMV_INC
 
 namespace El {

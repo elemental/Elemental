@@ -10,9 +10,6 @@
 #ifndef EL_SVD_CHAN_HPP
 #define EL_SVD_CHAN_HPP
 
-#include EL_ADJOINT_INC
-#include EL_MAKETRIANGULAR_INC
-#include EL_SCALE_INC
 #include EL_TRMM_INC
 
 #include EL_QR_INC

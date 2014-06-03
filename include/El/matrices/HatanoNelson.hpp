@@ -10,7 +10,6 @@
 #ifndef EL_HATANONELSON_HPP
 #define EL_HATANONELSON_HPP
 
-#include EL_SETDIAGONAL_INC
 #include EL_UNIFORM_INC
 #include EL_ZEROS_INC
 

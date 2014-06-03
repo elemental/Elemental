@@ -8,15 +8,17 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAKEREAL_INC
-
 namespace El {
 
-template<typename T>
-void MakeReal( Matrix<Complex<T>>& A )
+template<typename Real>
+void MakeReal( Matrix<Real>& A )
+{ }
+
+template<typename Real>
+void MakeReal( Matrix<Complex<Real>>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeReal"))
-    Complex<T>* ABuffer = A.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -32,16 +34,14 @@ void MakeReal( AbstractDistMatrix<T>& A )
     MakeReal( A.Matrix() );
 }
 
-#define PROTO_REAL(T) \
-  template void MakeReal( AbstractDistMatrix<T>& A );
-
-#define PROTO_CPX(T) \
+#define PROTO(T) \
   template void MakeReal( Matrix<T>& A ); \
-  template void MakeReal( AbstractDistMatrix<T>& A );
+  template void MakeReal( AbstractDistMatrix<T>& A ); 
 
-PROTO_REAL(float);
-PROTO_REAL(double);
-PROTO_CPX(Complex<float>);
-PROTO_CPX(Complex<double>);
+PROTO(Int);
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
 
 } // namespace El

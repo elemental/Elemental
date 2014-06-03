@@ -10,7 +10,6 @@
 #ifndef EL_QUASITRSV_UN_HPP
 #define EL_QUASITRSV_UN_HPP
 
-#include EL_AXPY_INC
 #include EL_ZEROS_INC
 #include EL_GEMV_INC
 

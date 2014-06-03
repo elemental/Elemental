@@ -8,8 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_DIAGONALSCALE_INC
-#include EL_SCALE_INC
 #include EL_GEMM_INC
 #include EL_HERK_INC
 #include EL_SKEWHERMITIANEIG_INC

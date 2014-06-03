@@ -10,9 +10,9 @@
 
 namespace El {
 
-template<typename T>
+template<typename T,typename S>
 void AxpyTriangle
-( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
+( UpperOrLower uplo, S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
     DEBUG_ONLY(
         CallStackEntry cse("AxpyTriangle");
@@ -20,6 +20,7 @@ void AxpyTriangle
             X.Height() != Y.Height() )
             LogicError("Nonconformal AxpyTriangle");
     )
+    const T alpha = T(alphaS);
     if( uplo == UPPER )
     {
         for( Int j=0; j<X.Width(); ++j )
@@ -33,9 +34,10 @@ void AxpyTriangle
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,typename S,Dist U,Dist V>
 void AxpyTriangle
-( UpperOrLower uplo, T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+( UpperOrLower uplo, S alphaS, 
+  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
     DEBUG_ONLY(
         CallStackEntry cse("AxpyTriangle");
@@ -46,6 +48,7 @@ void AxpyTriangle
             X.Height() != Y.Height() )
             LogicError("Nonconformal AxpyTriangle");
     )
+    const T alpha = T(alphaS);
     if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {
         const Int localHeight = X.LocalHeight();
@@ -88,9 +91,9 @@ void AxpyTriangle
     }
 }
 
-template<typename T>
+template<typename T,typename S>
 void AxpyTriangle
-( UpperOrLower uplo, T alpha, 
+( UpperOrLower uplo, S alpha, 
   const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyTriangle"))
@@ -106,36 +109,47 @@ void AxpyTriangle
     #include "El/core/GuardAndPayload.h"
 }
 
-#define DIST_PROTO(T,U,V) \
+#define DIST_PROTO(T,S,U,V) \
   template void AxpyTriangle \
-  ( UpperOrLower uplo, T       alpha, \
+  ( UpperOrLower uplo, S alpha, \
     const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ); 
 
-#define PROTO(T) \
+#define PROTO_TYPES(T,S) \
   template void AxpyTriangle \
-  ( UpperOrLower uplo, T alpha, const Matrix<T>& A, Matrix<T>& B ); \
+  ( UpperOrLower uplo, S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void AxpyTriangle \
-  ( UpperOrLower uplo, T alpha, \
+  ( UpperOrLower uplo, S alpha, \
     const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
-  DIST_PROTO(T,CIRC,CIRC); \
-  DIST_PROTO(T,MC,  MR  ); \
-  DIST_PROTO(T,MC,  STAR); \
-  DIST_PROTO(T,MD,  STAR); \
-  DIST_PROTO(T,MR,  MC  ); \
-  DIST_PROTO(T,MR,  STAR); \
-  DIST_PROTO(T,STAR,MC  ); \
-  DIST_PROTO(T,STAR,MD  ); \
-  DIST_PROTO(T,STAR,MR  ); \
-  DIST_PROTO(T,STAR,STAR); \
-  DIST_PROTO(T,STAR,VC  ); \
-  DIST_PROTO(T,STAR,VR  ); \
-  DIST_PROTO(T,VC  ,STAR); \
-  DIST_PROTO(T,VR  ,STAR);
+  DIST_PROTO(T,S,CIRC,CIRC) \
+  DIST_PROTO(T,S,MC,  MR  ) \
+  DIST_PROTO(T,S,MC,  STAR) \
+  DIST_PROTO(T,S,MD,  STAR) \
+  DIST_PROTO(T,S,MR,  MC  ) \
+  DIST_PROTO(T,S,MR,  STAR) \
+  DIST_PROTO(T,S,STAR,MC  ) \
+  DIST_PROTO(T,S,STAR,MD  ) \
+  DIST_PROTO(T,S,STAR,MR  ) \
+  DIST_PROTO(T,S,STAR,STAR) \
+  DIST_PROTO(T,S,STAR,VC  ) \
+  DIST_PROTO(T,S,STAR,VR  ) \
+  DIST_PROTO(T,S,VC  ,STAR) \
+  DIST_PROTO(T,S,VR  ,STAR)
 
-PROTO(Int);
-PROTO(float);
-PROTO(double);
-PROTO(Complex<float>);
-PROTO(Complex<double>);
+#define PROTO_INT(T) PROTO_TYPES(T,T)
+
+#define PROTO_REAL(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,T)
+
+#define PROTO_CPX(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,Base<T>) \
+  PROTO_TYPES(T,T)
+
+PROTO_INT(Int)
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
 
 } // namespace El

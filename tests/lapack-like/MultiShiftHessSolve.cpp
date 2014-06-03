@@ -8,10 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_CONJUGATE_INC
-#include EL_MAKETRAPEZOIDAL_INC
-#include EL_UPDATEDIAGONAL_INC
-#include EL_AXPY_INC
 #include EL_GEMM_INC
 #include EL_MULTISHIFTHESSSOLVE_INC
 #include EL_INFINITYNORM_INC

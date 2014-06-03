@@ -13,12 +13,6 @@
 #ifndef EL_TRMM_RLT_HPP
 #define EL_TRMM_RLT_HPP
 
-#include EL_AXPY_INC
-#include EL_MAKETRIANGULAR_INC
-#include EL_SCALE_INC
-#include EL_SETDIAGONAL_INC
-#include EL_TRANSPOSE_INC
-
 #include EL_GEMM_INC
 
 #include EL_ZEROS_INC

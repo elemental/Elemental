@@ -8,10 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_ADJOINT_INC
-#include EL_COPY_INC 
-#include EL_TRANSPOSE_INC
-
 #include "El-C.h"
 using namespace El;
 

@@ -12,7 +12,6 @@
 
 #include "./Power.hpp"
 
-#include EL_ENTRYWISEMAP_INC
 #include EL_GEMM_INC
 
 namespace El {

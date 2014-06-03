@@ -10,7 +10,6 @@
 #ifndef EL_LQ_EXPLICIT_HPP
 #define EL_LQ_EXPLICIT_HPP
 
-#include EL_MAKETRIANGULAR_INC
 #include EL_LQ_INC
 #include EL_IDENTITY_INC
 

@@ -10,10 +10,6 @@
 #ifndef EL_HERMITIANEIG_SDC_HPP
 #define EL_HERMITIANEIG_SDC_HPP
 
-#include EL_AXPY_INC
-#include EL_SCALE_INC
-#include EL_UPDATEDIAGONAL_INC
-
 #include EL_QR_INC
 #include EL_POLAR_QDWH_INC
 #include EL_SCHUR_INC

@@ -10,8 +10,6 @@
 #ifndef EL_NORM_KYFAN_HPP
 #define EL_NORM_KYFAN_HPP
 
-#include EL_MAKESYMMETRIC_INC
-#include EL_MAKEHERMITIAN_INC
 #include EL_SVD_INC
 
 namespace El {

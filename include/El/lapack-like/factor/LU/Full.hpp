@@ -10,9 +10,6 @@
 #ifndef EL_LU_FULL_HPP
 #define EL_LU_FULL_HPP
 
-#include EL_MAXABS_INC
-#include EL_SCALE_INC
-#include EL_SWAP_INC
 #include EL_GERU_INC
 
 namespace El {

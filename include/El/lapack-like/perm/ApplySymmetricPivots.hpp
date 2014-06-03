@@ -10,8 +10,6 @@
 #ifndef EL_LAPACK_APPLYSYMMETRICPIVOTS_HPP
 #define EL_LAPACK_APPLYSYMMETRICPIVOTS_HPP
 
-#include EL_SWAP_INC
-
 namespace El {
 
 template<typename F>

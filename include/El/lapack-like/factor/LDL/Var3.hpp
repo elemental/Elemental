@@ -10,7 +10,6 @@
 #ifndef EL_LDL_VAR3_HPP
 #define EL_LDL_VAR3_HPP
 
-#include EL_DIAGONALSOLVE_INC
 #include EL_TRSM_INC
 
 namespace El {

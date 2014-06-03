@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_MAKEHERMITIAN_INC
 #include EL_HERMITIANFUNCTION_INC
 using namespace std;
 using namespace El;

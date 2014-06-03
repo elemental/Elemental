@@ -10,10 +10,6 @@
 #ifndef EL_SYMV_HPP
 #define EL_SYMV_HPP
 
-#include EL_AXPY_INC
-#include EL_SCALE_INC
-#include EL_TRANSPOSE_INC
-
 #include EL_ZEROS_INC
 
 #include "./Symv/L.hpp"

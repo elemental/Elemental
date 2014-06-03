@@ -10,8 +10,6 @@
 #ifndef EL_SKEWHERMITIANEIG_HPP
 #define EL_SKEWHERMITIANEIG_HPP
 
-#include EL_SCALETRAPEZOID_INC
-
 namespace El {
 
 // Return the full set of eigenvalues

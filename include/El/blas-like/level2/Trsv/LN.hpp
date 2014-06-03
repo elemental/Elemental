@@ -10,7 +10,6 @@
 #ifndef EL_TRSV_LN_HPP
 #define EL_TRSV_LN_HPP
 
-#include EL_AXPY_INC
 #include EL_ZEROS_INC
 #include EL_GEMV_INC
 

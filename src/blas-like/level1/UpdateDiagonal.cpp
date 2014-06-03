@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_UPDATEDIAGONAL_HPP
-#define EL_UPDATEDIAGONAL_HPP
+#include "El-lite.hpp"
 
 // This is essentially equivalent to SetDiagonal, but with s/Set/Update/g.
 
 namespace El {
 
 template<typename T,typename S>
-inline void
-UpdateDiagonal( Matrix<T>& A, S alpha, Int offset=0 )
+void UpdateDiagonal( Matrix<T>& A, S alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
     const Int height = A.Height();
@@ -30,8 +27,7 @@ UpdateDiagonal( Matrix<T>& A, S alpha, Int offset=0 )
 }
 
 template<typename T,typename S>
-inline void
-UpdateDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 )
+void UpdateDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateDiagonal"))
     const Int height = A.Height();
@@ -49,6 +45,26 @@ UpdateDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 )
     }
 }
 
-} // namespace El
+#define PROTO_TYPES(T,S) \
+  template void UpdateDiagonal( Matrix<T>& A, S alpha, Int offset ); \
+  template void UpdateDiagonal \
+  ( AbstractDistMatrix<T>& A, S alpha, Int offset ); \
 
-#endif // ifndef EL_UPDATEDIAGONAL_HPP
+#define PROTO_INT(T) PROTO_TYPES(T,T)
+
+#define PROTO_REAL(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,T) 
+
+#define PROTO_CPX(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,T) \
+  PROTO_TYPES(T,Base<T>) 
+
+PROTO_INT(Int);
+PROTO_REAL(float);
+PROTO_REAL(double);
+PROTO_CPX(Complex<float>);
+PROTO_CPX(Complex<double>);
+
+} // namespace El

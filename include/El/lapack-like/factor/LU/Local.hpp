@@ -10,7 +10,6 @@
 #ifndef EL_LU_LOCAL_HPP
 #define EL_LU_LOCAL_HPP
 
-#include EL_SCALE_INC
 #include EL_GERU_INC
 
 namespace El {

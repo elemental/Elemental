@@ -189,9 +189,6 @@ CholeskyMod
 
 } // namespace El
 
-#include EL_MAKEHERMITIAN_INC
-#include EL_MAKETRIANGULAR_INC
-
 #include EL_LQ_INC
 #include EL_QR_INC
 

@@ -10,7 +10,6 @@
 #ifndef EL_TREFETHEN_HPP
 #define EL_TREFETHEN_HPP
 
-#include EL_SETDIAGONAL_INC
 #include EL_ZEROS_INC
 
 namespace El {

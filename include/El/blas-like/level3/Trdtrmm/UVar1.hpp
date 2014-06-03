@@ -10,7 +10,6 @@
 #ifndef EL_TRDTRMM_UVAR1_HPP
 #define EL_TRDTRMM_UVAR1_HPP
 
-#include EL_DIAGONALSOLVE_INC
 #include EL_TRMM_INC
 
 namespace El {

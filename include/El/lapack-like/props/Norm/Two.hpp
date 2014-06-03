@@ -10,8 +10,6 @@
 #ifndef EL_NORM_TWO_HPP
 #define EL_NORM_TWO_HPP
 
-#include EL_MAKESYMMETRIC_INC
-
 #include EL_INFINITYNORM_INC
 #include EL_MAXNORM_INC
 

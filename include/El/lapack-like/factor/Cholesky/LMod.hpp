@@ -10,7 +10,6 @@
 #ifndef EL_CHOLESKY_LMOD_HPP
 #define EL_CHOLESKY_LMOD_HPP
 
-#include EL_AXPY_INC
 #include EL_GEMV_INC
 #include EL_GER_INC
 #include EL_REFLECTOR_INC

@@ -10,7 +10,6 @@
 #ifndef EL_WHALE_HPP
 #define EL_WHALE_HPP
 
-#include EL_SETDIAGONAL_INC
 #include EL_ZEROS_INC
 
 namespace El {

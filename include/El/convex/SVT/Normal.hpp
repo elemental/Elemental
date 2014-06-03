@@ -10,7 +10,6 @@
 #ifndef EL_SVT_NORMAL_HPP
 #define EL_SVT_NORMAL_HPP
 
-#include EL_DIAGONALSCALE_INC
 #include EL_MAXNORM_INC
 #include EL_ZERONORM_INC
 #include EL_SVD_INC

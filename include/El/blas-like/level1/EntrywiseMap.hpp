@@ -24,14 +24,14 @@ EntrywiseMap( Matrix<T>& A, Function func )
             A.Set( i, j, func(A.Get(i,j)) );
 }
 
-template<typename T,Dist U,Dist V,class Function>
+template<typename T,class Function>
 inline void
-EntrywiseMap( DistMatrix<T,U,V>& A, Function func )
+EntrywiseMap( AbstractDistMatrix<T>& A, Function func )
 { EntrywiseMap( A.Matrix(), func ); }
 
-template<typename T,Dist U,Dist V,class Function>
+template<typename T,class Function>
 inline void
-EntrywiseMap( BlockDistMatrix<T,U,V>& A, Function func )
+EntrywiseMap( AbstractBlockDistMatrix<T>& A, Function func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 } // namespace El

@@ -10,8 +10,6 @@
 #ifndef EL_IDENTITY_HPP
 #define EL_IDENTITY_HPP
 
-#include EL_ZERO_INC
-
 namespace El {
 
 template<typename T> 

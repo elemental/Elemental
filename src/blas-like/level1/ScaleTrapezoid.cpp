@@ -6,20 +6,18 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SCALETRAPEZOID_HPP
-#define EL_SCALETRAPEZOID_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-template<typename T>
-inline void
-ScaleTrapezoid( T alpha, UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
+template<typename T,typename S>
+void ScaleTrapezoid( S alphaS, UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
+    const T alpha = T(alphaS);
     T* buffer = A.Buffer();
 
     if( uplo == UPPER )
@@ -44,15 +42,16 @@ ScaleTrapezoid( T alpha, UpperOrLower uplo, Matrix<T>& A, Int offset=0 )
     }
 }
 
-template<typename T>
-inline void
+template<typename T,typename S>
+void
 ScaleTrapezoid
-( T alpha, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset=0 )
+( S alphaS, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ScaleTrapezoid"))
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
+    const T alpha = T(alphaS);
 
     if( uplo == UPPER )
     {
@@ -87,6 +86,27 @@ ScaleTrapezoid
     }
 }
 
-} // namespace El
+#define PROTO_TYPES(T,S) \
+  template void ScaleTrapezoid \
+  ( S alpha, UpperOrLower uplo, Matrix<T>& A, Int offset ); \
+  template void ScaleTrapezoid \
+  ( S alpha, UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset );
 
-#endif // ifndef EL_SCALETRAPEZOID_HPP
+#define PROTO_INT(T) PROTO_TYPES(T,T)
+
+#define PROTO_REAL(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,T) 
+
+#define PROTO_CPX(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,Base<T>) \
+  PROTO_TYPES(T,T)
+
+PROTO_INT(Int);
+PROTO_REAL(float);
+PROTO_REAL(double);
+PROTO_CPX(Complex<float>);
+PROTO_CPX(Complex<double>);
+
+} // namespace El

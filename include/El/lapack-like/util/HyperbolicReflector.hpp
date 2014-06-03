@@ -10,11 +10,6 @@
 #ifndef EL_HYPERBOLICREFLECTOR_HPP
 #define EL_HYPERBOLICREFLECTOR_HPP
 
-#include EL_CONJUGATE_INC
-#include EL_NRM2_INC
-#include EL_SCALE_INC
-#include EL_ZERO_INC
-
 #include "./HyperbolicReflector/Col.hpp"
 #include "./HyperbolicReflector/Row.hpp"
 

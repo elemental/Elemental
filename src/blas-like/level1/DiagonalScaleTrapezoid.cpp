@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_SCALE_INC
-
 namespace El {
 
 template<typename TDiag,typename T>

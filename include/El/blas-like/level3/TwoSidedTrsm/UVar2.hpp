@@ -10,8 +10,6 @@
 #ifndef EL_TWOSIDEDTRSM_UVAR2_HPP
 #define EL_TWOSIDEDTRSM_UVAR2_HPP
 
-#include EL_AXPY_INC
-#include EL_MAKEHERMITIAN_INC
 #include EL_GEMM_INC
 #include EL_HEMM_INC
 #include EL_HER2K_INC

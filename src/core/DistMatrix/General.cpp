@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-#include EL_TRANSPOSE_INC
 #include EL_ZEROS_INC
 
 namespace El {

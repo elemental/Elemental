@@ -6,17 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMMETRIC2X2SCALE_HPP
-#define EL_SYMMETRIC2X2SCALE_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline void
+void
 Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& A, bool conjugate=false )
+  const Matrix<F>& D, Matrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Scale"))
     const Int m = A.Height();
@@ -60,10 +58,10 @@ Symmetric2x2Scale
 }
 
 template<typename F>
-inline void
+void
 FirstHalfOfSymmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate=false )
+  const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("FirstHalfOfSymmetric2x2Scale");
@@ -114,10 +112,10 @@ FirstHalfOfSymmetric2x2Scale
 }
 
 template<typename F>
-inline void
+void
 SecondHalfOfSymmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate=false )
+  const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SecondHalfOfSymmetric2x2Scale");
@@ -167,11 +165,11 @@ SecondHalfOfSymmetric2x2Scale
         LogicError("This option not yet supported");
 }
 
-template<typename F,Dist U,Dist V>
-inline void
+template<typename F>
+void
 Symmetric2x2Scale
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,STAR,STAR>& D, DistMatrix<F,U,V>& A, bool conjugate=false )
+  const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symmetric2x2Scale"))
     const Int m = A.Height();
@@ -227,9 +225,9 @@ Symmetric2x2Scale
         if( uplo == LOWER )
         {
             const F delta11 = 
-                ( conjugate ? D.GetRealLocalPart(0,0) : D.GetLocal(0,0) );
+                ( conjugate ? D.GetLocalRealPart(0,0) : D.GetLocal(0,0) );
             const F delta22 = 
-                ( conjugate ? D.GetRealLocalPart(1,1) : D.GetLocal(1,1) );
+                ( conjugate ? D.GetLocalRealPart(1,1) : D.GetLocal(1,1) );
             const F delta21 = D.GetLocal(1,0);
             const F delta12 = ( conjugate ? Conj(delta21) : delta21 );
 
@@ -246,6 +244,24 @@ Symmetric2x2Scale
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Symmetric2x2Scale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<F>& D, Matrix<F>& A, bool conjugate ); \
+  template void FirstHalfOfSymmetric2x2Scale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<F>& D, Matrix<F>& a1, const Matrix<F>& a2, bool conjugate ); \
+  template void SecondHalfOfSymmetric2x2Scale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<F>& D, const Matrix<F>& a1, Matrix<F>& a2, bool conjugate ); \
+  template void Symmetric2x2Scale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const DistMatrix<F,STAR,STAR>& D, AbstractDistMatrix<F>& A, \
+    bool conjugate );
 
-#endif // ifndef EL_SYMMETRIC2X2SCALE_HPP
+PROTO(float);
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
+
+} // namespace El

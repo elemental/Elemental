@@ -8,12 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_AXPY_INC
-#include EL_MAKEREAL_INC
-#include EL_MAKETRIANGULAR_INC
-#include EL_SETDIAGONAL_INC
-#include EL_TRANSPOSE_INC
-
 namespace El {
 
 template<typename T>

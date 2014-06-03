@@ -9,8 +9,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-#include EL_COPY_INC 
-
 #include "El-C.h"
 using namespace El;
 

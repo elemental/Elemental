@@ -11,9 +11,6 @@
 #define EL_QUADRATICPROGRAM_HPP
 
 #include EL_CLIP_INC
-#include EL_DOT_INC
-#include EL_MAKETRIANGULAR_INC
-#include EL_UPDATEDIAGONAL_INC
 #include EL_GEMV_INC
 #include EL_HEMV_INC
 #include EL_TRSV_INC

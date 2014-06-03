@@ -10,9 +10,6 @@
 #ifndef EL_BIDIAG_HPP
 #define EL_BIDIAG_HPP
 
-#include EL_MAKETRAPEZOIDAL_INC
-#include EL_MAKETRIANGULAR_INC
-
 #include "./Bidiag/Apply.hpp"
 #include "./Bidiag/L.hpp"
 #include "./Bidiag/U.hpp"

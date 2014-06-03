@@ -10,9 +10,6 @@
 #ifndef EL_GEMM_TN_HPP
 #define EL_GEMM_TN_HPP
 
-#include EL_AXPY_INC
-#include EL_SCALE_INC
-
 namespace El {
 namespace gemm {
 

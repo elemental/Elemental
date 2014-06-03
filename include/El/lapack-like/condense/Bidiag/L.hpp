@@ -10,7 +10,6 @@
 #ifndef EL_BIDIAG_L_HPP
 #define EL_BIDIAG_L_HPP
 
-#include EL_CONJUGATE_INC
 #include EL_GEMV_INC
 #include EL_GER_INC
 #include EL_GEMM_INC

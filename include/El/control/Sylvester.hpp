@@ -10,10 +10,6 @@
 #ifndef EL_SYLVESTER_HPP
 #define EL_SYLVESTER_HPP
 
-#include EL_AXPY_INC
-#include EL_SCALE_INC
-#include EL_UPDATEDIAGONAL_INC
-
 #include EL_FROBENIUSNORM_INC
 #include EL_SIGN_INC
 

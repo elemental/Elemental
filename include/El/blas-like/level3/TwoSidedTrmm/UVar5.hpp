@@ -10,7 +10,6 @@
 #ifndef EL_TWOSIDEDTRMM_UVAR5_HPP
 #define EL_TWOSIDEDTRMM_UVAR5_HPP
 
-#include EL_AXPY_INC
 #include EL_HEMM_INC
 #include EL_HER2K_INC
 #include EL_TRMM_INC

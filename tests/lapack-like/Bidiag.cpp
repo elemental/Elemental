@@ -8,8 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_MAKETRAPEZOIDAL_INC
-#include EL_MAKETRIANGULAR_INC
 #include EL_BIDIAG_INC
 #include EL_INFINITYNORM_INC
 #include EL_FROBENIUSNORM_INC

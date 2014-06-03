@@ -10,7 +10,6 @@
 #ifndef EL_LAUCHLI_HPP
 #define EL_LAUCHLI_HPP
 
-#include EL_DIAGONAL_INC
 #include EL_ONES_INC
 
 namespace El {

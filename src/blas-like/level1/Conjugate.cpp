@@ -10,12 +10,12 @@
 
 namespace El {
 
-template<typename T>
-void Conjugate( Matrix<T>& A )
+template<typename Real>
+void Conjugate( Matrix<Real>& A )
 { }
 
-template<typename T>
-void Conjugate( Matrix<Complex<T>>& A )
+template<typename Real>
+void Conjugate( Matrix<Complex<Real>>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Conjugate (in-place)"))
     const Int m = A.Height();
@@ -107,9 +107,10 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
   DIST_PROTO(T,VC  ,STAR); \
   DIST_PROTO(T,VR  ,STAR);
 
-PROTO(float);
-PROTO(double);
-PROTO(Complex<float>);
-PROTO(Complex<double>);
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El

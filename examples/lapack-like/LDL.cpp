@@ -8,12 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_AXPY_INC
-#include EL_DIAGONALSCALE_INC
-#include EL_MAKESYMMETRIC_INC
-#include EL_MAKETRIANGULAR_INC
-#include EL_SETDIAGONAL_INC
-#include EL_TRANSPOSE_INC
 #include EL_APPLYPACKEDREFLECTORS_INC
 #include EL_LDL_INC
 #include EL_FROBENIUSNORM_INC

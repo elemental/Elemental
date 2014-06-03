@@ -8,9 +8,7 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_SCALE_INC
 #include EL_SCHUR_INC
-#include EL_IO_INC
 #include EL_ONES_INC
 #include EL_UNIFORM_INC
 using namespace El;

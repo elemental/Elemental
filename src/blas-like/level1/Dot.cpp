@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_HILBERTSCHMIDT_INC
-
 namespace El {
 
 template<typename F> 

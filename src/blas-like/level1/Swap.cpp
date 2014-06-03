@@ -6,14 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_BLAS_SWAP_HPP
-#define EL_BLAS_SWAP_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-template<typename F>
-inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
+template<typename T>
+void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("Swap"))
     const Int mX = X.Height();
@@ -52,7 +50,7 @@ inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
             {
                 for( Int i=0; i<mX; ++i )
                 {
-                    const F alpha = X.Get(i,j);
+                    const T alpha = X.Get(i,j);
                     X.Set( i, j, Conj(Y.Get(j,i)) );
                     Y.Set( j, i, Conj(alpha)      );
                 }
@@ -65,10 +63,9 @@ inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
     }
 }
 
-template<typename F,Dist U1,Dist V1,
-                    Dist U2,Dist V2>
-inline void Swap
-( Orientation orientation, DistMatrix<F,U1,V1>& X, DistMatrix<F,U2,V2>& Y )
+template<typename T,Dist U1,Dist V1,Dist U2,Dist V2>
+void Swap
+( Orientation orientation, DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("Swap"))
     const Grid& g = X.Grid();
@@ -80,11 +77,11 @@ inline void Swap
         )
         // TODO: Optimize communication
 
-        DistMatrix<F,U1,V1> YLikeX(g);
+        DistMatrix<T,U1,V1> YLikeX(g);
         YLikeX.AlignWith( X );
         YLikeX = Y;
 
-        DistMatrix<F,U2,V2> XLikeY(g);
+        DistMatrix<T,U2,V2> XLikeY(g);
         XLikeY.AlignWith( Y );
         XLikeY = X; 
 
@@ -101,11 +98,11 @@ inline void Swap
 
         // TODO: Optimize communication
 
-        DistMatrix<F,U1,V1> YTransLikeX(g);
+        DistMatrix<T,U1,V1> YTransLikeX(g);
         YTransLikeX.AlignWith( X );
         Transpose( Y, YTransLikeX, conjugate );
 
-        DistMatrix<F,U2,V2> XTransLikeY(g);
+        DistMatrix<T,U2,V2> XTransLikeY(g);
         XTransLikeY.AlignWith( Y );
         Transpose( X, XTransLikeY, conjugate );
 
@@ -114,8 +111,8 @@ inline void Swap
     }
 }
 
-template<typename F>
-inline void RowSwap( Matrix<F>& A, Int to, Int from )
+template<typename T>
+void RowSwap( Matrix<T>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("RowSwap"))
     if( to == from )
@@ -126,8 +123,8 @@ inline void RowSwap( Matrix<F>& A, Int to, Int from )
     Swap( NORMAL, aToRow, aFromRow );
 }
 
-template<typename F,Dist U,Dist V>
-inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
+template<typename T,Dist U,Dist V>
+void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("RowSwap"))
     if( to == from )
@@ -145,7 +142,7 @@ inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
     }
     else if( aToRow.ColShift() == 0 )
     {
-        std::vector<F> buf( nLocal );
+        std::vector<T> buf( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = aToRow.GetLocal(0,jLoc);
         mpi::SendRecv
@@ -156,7 +153,7 @@ inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
     }
     else if( aFromRow.ColShift() == 0 )
     {
-        std::vector<F> buf( nLocal );
+        std::vector<T> buf( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             buf[jLoc] = aFromRow.GetLocal(0,jLoc);
         mpi::SendRecv
@@ -167,8 +164,8 @@ inline void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from )
     }
 }
 
-template<typename F>
-inline void ColSwap( Matrix<F>& A, Int to, Int from )
+template<typename T>
+void ColSwap( Matrix<T>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("ColSwap"))
     if( to == from )
@@ -179,8 +176,8 @@ inline void ColSwap( Matrix<F>& A, Int to, Int from )
     Swap( NORMAL, aToCol, aFromCol );
 }
 
-template<typename F,Dist U,Dist V>
-inline void ColSwap( DistMatrix<F,U,V>& A, Int to, Int from )
+template<typename T,Dist U,Dist V>
+void ColSwap( DistMatrix<T,U,V>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("ColSwap"))
     if( to == from )
@@ -210,9 +207,9 @@ inline void ColSwap( DistMatrix<F,U,V>& A, Int to, Int from )
     }
 }
 
-template<typename F>
-inline void SymmetricSwap
-( UpperOrLower uplo, Matrix<F>& A, int to, int from, bool conjugate=false )
+template<typename T>
+void SymmetricSwap
+( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricSwap");
@@ -249,7 +246,7 @@ inline void SymmetricSwap
             A.Conjugate( from, to );
         // Diagonal swap
         {
-            const F value = A.Get(from,from);
+            const T value = A.Get(from,from);
             A.Set( from, from, A.Get(to,to) );
             A.Set( to,   to,   value        );
             if( conjugate )
@@ -285,7 +282,7 @@ inline void SymmetricSwap
             A.Conjugate( to, from );
         // Diagonal swap
         {
-            const F value = A.Get(from,from);
+            const T value = A.Get(from,from);
             A.Set( from, from, A.Get(to,to) );
             A.Set( to,   to,   value        );
             if( conjugate )
@@ -303,10 +300,9 @@ inline void SymmetricSwap
     }
 }
 
-template<typename F,Dist U,Dist V>
-inline void SymmetricSwap
-( UpperOrLower uplo, DistMatrix<F,U,V>& A, 
-  int to, int from, bool conjugate=false )
+template<typename T,Dist U,Dist V>
+void SymmetricSwap
+( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricSwap");
@@ -343,7 +339,7 @@ inline void SymmetricSwap
             A.Conjugate( from, to );
         // Diagonal swap
         {
-            const F value = A.Get(from,from);
+            const T value = A.Get(from,from);
             A.Set( from, from, A.Get(to,to) );
             A.Set( to,   to,   value        );
             if( conjugate )
@@ -379,7 +375,7 @@ inline void SymmetricSwap
             A.Conjugate( to, from );
         // Diagonal swap
         {
-            const F value = A.Get(from,from);
+            const T value = A.Get(from,from);
             A.Set( from, from, A.Get(to,to) );
             A.Set( to,   to,   value        );
             if( conjugate )
@@ -397,21 +393,74 @@ inline void SymmetricSwap
     }
 }
 
-template<typename F>
-inline void HermitianSwap( UpperOrLower uplo, Matrix<F>& A, int to, int from )
+template<typename T>
+void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSwap"))
     SymmetricSwap( uplo, A, to, from, true );
 }
 
-template<typename F,Dist U,Dist V>
-inline void HermitianSwap
-( UpperOrLower uplo, DistMatrix<F,U,V>& A, int to, int from )
+template<typename T,Dist U,Dist V>
+void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSwap"))
     SymmetricSwap( uplo, A, to, from, true );
 }
+
+#define DIST_PROTO_INNER(T,U,V,W,Z) \
+  template void Swap \
+  ( Orientation orientation, DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y );
+
+#define DIST_PROTO(T,U,V) \
+  template void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from ); \
+  template void ColSwap( DistMatrix<T,U,V>& A, Int to, Int from ); \
+  template void SymmetricSwap \
+  ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from, \
+    bool conjugate ); \
+  template void HermitianSwap \
+  ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from ); \
+  DIST_PROTO_INNER(T,U,V,CIRC,CIRC) \
+  DIST_PROTO_INNER(T,U,V,MC  ,MR  ) \
+  DIST_PROTO_INNER(T,U,V,MC  ,STAR) \
+  DIST_PROTO_INNER(T,U,V,MD  ,STAR) \
+  DIST_PROTO_INNER(T,U,V,MR  ,MC  ) \
+  DIST_PROTO_INNER(T,U,V,MR  ,STAR) \
+  DIST_PROTO_INNER(T,U,V,STAR,MC  ) \
+  DIST_PROTO_INNER(T,U,V,STAR,MD  ) \
+  DIST_PROTO_INNER(T,U,V,STAR,MR  ) \
+  DIST_PROTO_INNER(T,U,V,STAR,STAR) \
+  DIST_PROTO_INNER(T,U,V,STAR,VC  ) \
+  DIST_PROTO_INNER(T,U,V,STAR,VR  ) \
+  DIST_PROTO_INNER(T,U,V,VC,  STAR) \
+  DIST_PROTO_INNER(T,U,V,VR,  STAR)
+
+#define PROTO(T) \
+  template void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y ); \
+  template void RowSwap( Matrix<T>& A, Int to, Int from ); \
+  template void ColSwap( Matrix<T>& A, Int to, Int from ); \
+  template void SymmetricSwap \
+  ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate ); \
+  template void HermitianSwap \
+  ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from ); \
+  DIST_PROTO(T,CIRC,CIRC) \
+  DIST_PROTO(T,MC,  MR  ) \
+  DIST_PROTO(T,MC,  STAR) \
+  DIST_PROTO(T,MD,  STAR) \
+  DIST_PROTO(T,MR,  MC  ) \
+  DIST_PROTO(T,MR,  STAR) \
+  DIST_PROTO(T,STAR,MC  ) \
+  DIST_PROTO(T,STAR,MD  ) \
+  DIST_PROTO(T,STAR,MR  ) \
+  DIST_PROTO(T,STAR,STAR) \
+  DIST_PROTO(T,STAR,VC  ) \
+  DIST_PROTO(T,STAR,VR  ) \
+  DIST_PROTO(T,VC,  STAR) \
+  DIST_PROTO(T,VR,  STAR)
+
+PROTO(Int);
+PROTO(float); 
+PROTO(double);
+PROTO(Complex<float>);
+PROTO(Complex<double>);
 
 } // namespace El
-
-#endif // ifndef EL_BLAS_SWAP_HPP

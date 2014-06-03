@@ -10,7 +10,6 @@
 #ifndef EL_RQ_PANEL_HPP
 #define EL_RQ_PANEL_HPP
 
-#include EL_DIAGONALSCALETRAPEZOID_INC
 #include EL_GEMV_INC
 #include EL_GER_INC
 #include EL_REFLECTOR_INC

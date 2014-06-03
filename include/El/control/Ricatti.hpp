@@ -10,11 +10,6 @@
 #ifndef EL_RICATTI_HPP
 #define EL_RICATTI_HPP
 
-#include EL_AXPY_INC
-#include EL_MAKEHERMITIAN_INC
-#include EL_SCALE_INC
-#include EL_UPDATEDIAGONAL_INC
-
 #include EL_LEASTSQUARES_INC
 #include EL_SIGN_INC
 

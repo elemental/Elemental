@@ -10,7 +10,6 @@
 #ifndef EL_LQ_SOLVEAFTER_HPP
 #define EL_LQ_SOLVEAFTER_HPP
 
-#include EL_ZERO_INC
 #include EL_TRSM_INC
 #include EL_LQ_INC
 

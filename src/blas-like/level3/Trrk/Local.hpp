@@ -9,8 +9,6 @@
 #ifndef EL_TRRK_LOCAL_HPP
 #define EL_TRRK_LOCAL_HPP
 
-#include EL_AXPYTRIANGLE_INC
-#include EL_SCALETRAPEZOID_INC
 #include EL_GEMM_INC
 
 namespace El {

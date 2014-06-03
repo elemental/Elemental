@@ -10,10 +10,6 @@
 #ifndef EL_BIDIAG_LPAN_HPP
 #define EL_BIDIAG_LPAN_HPP
 
-#include EL_ADJOINT_INC
-#include EL_AXPY_INC
-#include EL_CONJUGATE_INC
-#include EL_SCALE_INC
 #include EL_GEMV_INC
 
 #include EL_REFLECTOR_INC

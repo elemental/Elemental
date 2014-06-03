@@ -6,20 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_QUASIDIAGONALSCALE_HPP
-#define EL_QUASIDIAGONALSCALE_HPP
-
-#include "./Symmetric2x2Scale.hpp"
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F,typename FMain>
-inline void
-QuasiDiagonalScale
+void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo, 
   const Matrix<FMain>& d, const Matrix<F>& dSub, 
-  Matrix<F>& X, bool conjugated=false )
+  Matrix<F>& X, bool conjugated )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalScale"))
     const Int m = X.Height();
@@ -86,19 +81,18 @@ QuasiDiagonalScale
 }
 
 template<typename F,typename FMain,Dist U,Dist V>
-inline void
-LeftQuasiDiagonalScale
+void LeftQuasiDiagonalScale
 ( UpperOrLower uplo,
-  const DistMatrix<FMain,U,STAR> d,
-  const DistMatrix<FMain,U,STAR> dPrev,
-  const DistMatrix<FMain,U,STAR> dNext,
-  const DistMatrix<FMain,U,STAR> dSub,
-  const DistMatrix<FMain,U,STAR> dSubPrev,
-  const DistMatrix<FMain,U,STAR> dSubNext,
+  const DistMatrix<FMain,U,STAR>& d,
+  const DistMatrix<FMain,U,STAR>& dPrev,
+  const DistMatrix<FMain,U,STAR>& dNext,
+  const DistMatrix<F,    U,STAR>& dSub,
+  const DistMatrix<F,    U,STAR>& dSubPrev,
+  const DistMatrix<F,    U,STAR>& dSubNext,
         DistMatrix<F,U,V>& X,
   const DistMatrix<F,U,V>& XPrev,
   const DistMatrix<F,U,V>& XNext,
-  bool conjugated=false )
+  bool conjugated )
 {
     DEBUG_ONLY(CallStackEntry cse("LeftQuasiDiagonalScale"))
     if( uplo == UPPER )
@@ -177,19 +171,18 @@ LeftQuasiDiagonalScale
 }
 
 template<typename F,typename FMain,Dist U,Dist V>
-inline void
-RightQuasiDiagonalScale
+void RightQuasiDiagonalScale
 ( UpperOrLower uplo,
-  const DistMatrix<FMain,V,STAR> d,
-  const DistMatrix<FMain,V,STAR> dPrev,
-  const DistMatrix<FMain,V,STAR> dNext,
-  const DistMatrix<FMain,V,STAR> dSub,
-  const DistMatrix<FMain,V,STAR> dSubPrev,
-  const DistMatrix<FMain,V,STAR> dSubNext,
+  const DistMatrix<FMain,V,STAR>& d,
+  const DistMatrix<FMain,V,STAR>& dPrev,
+  const DistMatrix<FMain,V,STAR>& dNext,
+  const DistMatrix<F,    V,STAR>& dSub,
+  const DistMatrix<F,    V,STAR>& dSubPrev,
+  const DistMatrix<F,    V,STAR>& dSubNext,
         DistMatrix<F,U,V>& X,
   const DistMatrix<F,U,V>& XPrev,
   const DistMatrix<F,U,V>& XNext,
-  bool conjugated=false )
+  bool conjugated )
 {
     DEBUG_ONLY(CallStackEntry cse("LeftQuasiDiagonalScale"))
     if( uplo == UPPER )
@@ -267,13 +260,12 @@ RightQuasiDiagonalScale
     }
 }
 
-template<typename F,typename FMain,Dist U1,Dist V1,
-                                   Dist U2,Dist V2>
-inline void
+template<typename F,typename FMain,Dist U1,Dist V1,Dist U2,Dist V2>
+void
 QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo, 
   const DistMatrix<FMain,U1,V1>& d, const DistMatrix<F,U1,V1>& dSub, 
-  DistMatrix<F,U2,V2>& X, bool conjugated=false )
+  DistMatrix<F,U2,V2>& X, bool conjugated )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalScale"))
     const Grid& g = X.Grid();
@@ -361,6 +353,79 @@ QuasiDiagonalScale
     }
 }
 
-} // namespace El
+#define DIST_PROTO_INNER(F,FMain,U,V,W,Z) \
+  template void QuasiDiagonalScale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const DistMatrix<FMain,U,V>& d, const DistMatrix<F,U,V>& dSub, \
+          DistMatrix<F,    W,Z>& X, bool conjugated );
 
-#endif // ifndef EL_QUASIDIAGONALSCALE_HPP
+#define PROTO_TYPES_DIST(F,FMain,U,V) \
+  template void LeftQuasiDiagonalScale \
+  ( UpperOrLower uplo, \
+    const DistMatrix<FMain,U,STAR>& d, \
+    const DistMatrix<FMain,U,STAR>& dPrev, \
+    const DistMatrix<FMain,U,STAR>& dNext, \
+    const DistMatrix<F,    U,STAR>& dSub, \
+    const DistMatrix<F,    U,STAR>& dSubPrev, \
+    const DistMatrix<F,    U,STAR>& dSubNext, \
+          DistMatrix<F,U,V>& X, \
+    const DistMatrix<F,U,V>& XPrev, \
+    const DistMatrix<F,U,V>& XNext, \
+          bool conjugated ); \
+  template void RightQuasiDiagonalScale \
+  ( UpperOrLower uplo, \
+    const DistMatrix<FMain,V,STAR>& d, \
+    const DistMatrix<FMain,V,STAR>& dPrev, \
+    const DistMatrix<FMain,V,STAR>& dNext, \
+    const DistMatrix<F,    V,STAR>& dSub, \
+    const DistMatrix<F,    V,STAR>& dSubPrev, \
+    const DistMatrix<F,    V,STAR>& dSubNext, \
+          DistMatrix<F,U,V>& X, \
+    const DistMatrix<F,U,V>& XPrev, \
+    const DistMatrix<F,U,V>& XNext, \
+          bool conjugated ); \
+  DIST_PROTO_INNER(F,FMain,U,V,MC,  MR  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,MC,  STAR) \
+  DIST_PROTO_INNER(F,FMain,U,V,MD,  STAR) \
+  DIST_PROTO_INNER(F,FMain,U,V,MR,  MC  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,MR,  STAR) \
+  DIST_PROTO_INNER(F,FMain,U,V,STAR,MC  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,STAR,MD  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,STAR,MR  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,STAR,STAR) \
+  DIST_PROTO_INNER(F,FMain,U,V,STAR,VC  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,STAR,VR  ) \
+  DIST_PROTO_INNER(F,FMain,U,V,VC,  STAR) \
+  DIST_PROTO_INNER(F,FMain,U,V,VR,  STAR)
+
+#define PROTO_TYPES(F,FMain) \
+  template void QuasiDiagonalScale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const Matrix<FMain>& d, const Matrix<F>& dSub, \
+          Matrix<F>& X, bool conjugated ); \
+  PROTO_TYPES_DIST(F,FMain,MC,  MR  ) \
+  PROTO_TYPES_DIST(F,FMain,MC,  STAR) \
+  PROTO_TYPES_DIST(F,FMain,MD,  STAR) \
+  PROTO_TYPES_DIST(F,FMain,MR,  MC  ) \
+  PROTO_TYPES_DIST(F,FMain,MR,  STAR) \
+  PROTO_TYPES_DIST(F,FMain,STAR,MC  ) \
+  PROTO_TYPES_DIST(F,FMain,STAR,MD  ) \
+  PROTO_TYPES_DIST(F,FMain,STAR,MR  ) \
+  PROTO_TYPES_DIST(F,FMain,STAR,STAR) \
+  PROTO_TYPES_DIST(F,FMain,STAR,VC  ) \
+  PROTO_TYPES_DIST(F,FMain,STAR,VR  ) \
+  PROTO_TYPES_DIST(F,FMain,VC,  STAR) \
+  PROTO_TYPES_DIST(F,FMain,VR,  STAR) 
+
+#define PROTO_REAL(F) PROTO_TYPES(F,F) 
+
+#define PROTO_CPX(F) \
+  PROTO_TYPES(F,F) \
+  PROTO_TYPES(F,Base<F>)
+
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
+
+} // namespace El

@@ -10,9 +10,6 @@
 #ifndef EL_POLAR_QDWH_HPP
 #define EL_POLAR_QDWH_HPP
 
-#include EL_AXPY_INC
-#include EL_MAKEHERMITIAN_INC
-#include EL_SCALE_INC
 #include EL_GEMM_INC
 #include EL_HERK_INC
 #include EL_TRSM_INC

@@ -15,9 +15,6 @@
 #ifndef EL_REFLECTOR_HPP
 #define EL_REFLECTOR_HPP
 
-#include EL_NRM2_INC
-#include EL_SCALE_INC
-
 #include "./Reflector/Col.hpp"
 #include "./Reflector/Row.hpp"
 
