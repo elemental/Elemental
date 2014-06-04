@@ -1157,11 +1157,8 @@ inline void PullSubproblems
     ATL = ATLSub;
     ABR = ABRSub;
 
-    // This section is a hack for two reasons:
-    // 1) only wT's owning team will call this routine, so, if wTSub shares
-    //    the same grid, then wTSub.MakeConsistent() will hang since the 
-    //    processes which only view will not enter the collective
-    // 2) no intergrid redistributions exist for [VR,* ] distributions yet
+    // This section is a hack since no inter-grid redistributions exist for 
+    // [VR,* ] distributions yet
     if( progress && grid.Rank() == 0 )
         std::cout << "Pulling wT and wB" << std::endl;
     if( sameGrid )
@@ -1314,11 +1311,8 @@ inline void PullSubproblems
     ATL = ATLSub;
     ABR = ABRSub;
 
-    // This section is a hack for two reasons:
-    // 1) only wT's owning team will call this routine, so, if wTSub shares
-    //    the same grid, then wTSub.MakeConsistent() will hang since the 
-    //    processes which only view will not enter the collective
-    // 2) no intergrid redistributions exist for [VR,* ] distributions yet
+    // This section is a hack for since no intergrid redistributions exist for 
+    // [VR,* ] distributions yet
     if( progress && grid.Rank() == 0 )
         std::cout << "Pulling wT and wB" << std::endl;
     if( sameGrid )

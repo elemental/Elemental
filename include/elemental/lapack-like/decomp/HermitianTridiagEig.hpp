@@ -305,7 +305,7 @@ HermitianTridiagEig
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
     }
-    w.MakeConsistent();
+    w.MakeConsistent( true );
     Sort( w, sort );
 }
 
@@ -349,7 +349,7 @@ HermitianTridiagEig
         for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
             w.SetLocal( iLoc, 0, wVector[iLoc] );
     }
-    w.MakeConsistent();
+    w.MakeConsistent( true );
     Sort( w, sort );
 }
 
@@ -741,8 +741,8 @@ HermitianTridiagEig
             w.SetLocal( iLoc, 0, wVector[iLoc] );
         Z.Resize( n, k );
     }
-    w.MakeConsistent();
-    Z.MakeConsistent();
+    w.MakeConsistent( true );
+    Z.MakeConsistent( true );
     herm_eig::Sort( w, Z, sort );
 }
 
@@ -805,9 +805,9 @@ HermitianTridiagEig
         ZReal.Resize( n, k );
         Z.Resize( n, k );
     }
-    w.MakeConsistent();
-    Z.MakeConsistent();
-    ZReal.MakeConsistent();
+    w.MakeConsistent( true );
+    Z.MakeConsistent( true );
+    ZReal.MakeConsistent( true );
     herm_eig::Sort( w, ZReal, sort );
     for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc ) 
         for( Int i=0; i<n; ++i )
@@ -896,8 +896,8 @@ HermitianTridiagEigPostEstimate
             w.SetLocal( iLoc, 0, wVector[iLoc] );
         Z.Resize( n, k );
     }
-    w.MakeConsistent();
-    Z.MakeConsistent();
+    w.MakeConsistent( true );
+    Z.MakeConsistent( true );
     herm_eig::Sort( w, Z, sort );
 }
 
