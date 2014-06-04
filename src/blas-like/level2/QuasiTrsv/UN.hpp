@@ -6,12 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_QUASITRSV_UN_HPP
-#define EL_QUASITRSV_UN_HPP
 
 #include EL_ZEROS_INC
-#include EL_GEMV_INC
 
 namespace El {
 namespace internal {
@@ -274,5 +270,3 @@ QuasiTrsvUN
 
 } // namespace internal
 } // namespace El
-
-#endif // ifndef EL_QUASITRSV_UN_HPP

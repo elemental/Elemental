@@ -6,28 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_GER_HPP
-#define EL_GER_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-template<typename T,Dist xColDist,Dist xRowDist,
-                    Dist yColDist,Dist yRowDist,
-                    Dist AColDist,Dist ARowDist>
-inline void LocalGer
-( T alpha, const DistMatrix<T,xColDist,xRowDist>& x,
-           const DistMatrix<T,yColDist,yRowDist>& y,
-                 DistMatrix<T,AColDist,ARowDist>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("LocalGer"))
-    // TODO: Add error checking here
-    Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
-}
-
 template<typename T>
-inline void
-Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+void Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Ger");
@@ -51,13 +35,7 @@ Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 }
 
 template<typename T>
-inline void
-Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
-{ Ger( alpha, x, y, A ); }
-
-template<typename T>
-inline void
-Ger
+void Ger
 ( T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
                  DistMatrix<T>& A )
@@ -79,86 +57,78 @@ Ger
     const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> y_MR_STAR(g);
-
-        // Begin the algoritm
         x_MC_STAR.AlignWith( A );
-        y_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
+        y_MR_STAR.AlignWith( A );
         y_MR_STAR = y;
+
         Ger
         ( alpha, x_MC_STAR.LockedMatrix(),
                  y_MR_STAR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
     else if( x.Width() == 1 )
     {
-        // Temporary distributions
-        DistMatrix<T,MC,  STAR> x_MC_STAR(g);
-        DistMatrix<T,STAR,MR  > y_STAR_MR(g);
-
-        // Begin the algorithm
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
         x_MC_STAR.AlignWith( A );
-        y_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
+        y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+
         Ger
         ( alpha, x_MC_STAR.LockedMatrix(),
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
     else if( y.Width() == 1 )
     {
-        // Temporary distributions
-        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
-        DistMatrix<T,MR,  STAR> y_MR_STAR(g);
-
-        // Begin the algorithm
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         x_STAR_MC.AlignWith( A );
-        y_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MC = x;
+
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
+        y_MR_STAR.AlignWith( A );
         y_MR_STAR = y;
+
         Ger
         ( alpha, x_STAR_MC.LockedMatrix(),
                  y_MR_STAR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
     else
     {
-        // Temporary distributions
         DistMatrix<T,STAR,MC> x_STAR_MC(g);
-        DistMatrix<T,STAR,MR> y_STAR_MR(g);
-
-        // Begin the algorithm
         x_STAR_MC.AlignWith( A );
-        y_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MC = x;
+
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
+        y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+
         Ger
         ( alpha, x_STAR_MC.LockedMatrix(),
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
 }
 
-template<typename T>
-inline void
-Gerc
-( T alpha, const DistMatrix<T>& x,
-           const DistMatrix<T>& y,
-                 DistMatrix<T>& A )
-{ Ger( alpha, x, y, A ); }
+#define PROTO(T) \
+  template void Ger \
+  ( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
+  template void Ger \
+  ( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, \
+                   DistMatrix<T>& A );
+
+// blas::Ger not yet supported
+//PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_GER_HPP

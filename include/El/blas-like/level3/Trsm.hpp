@@ -10,8 +10,6 @@
 #ifndef EL_TRSM_HPP
 #define EL_TRSM_HPP
 
-#include EL_TRSV_INC
-
 namespace El {
 
 template<typename F,Dist XColDist,Dist XRowDist>

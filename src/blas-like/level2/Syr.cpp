@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYR_HPP
-#define EL_SYR_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Syr
+void Syr
 ( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A, 
-  bool conjugate=false )
+  bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr");
@@ -44,12 +41,10 @@ Syr
 }
 
 template<typename T>
-inline void
-Syr
+void Syr
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,
-                 DistMatrix<T>& A,
-  bool conjugate=false )
+                 DistMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr");
@@ -72,10 +67,10 @@ Syr
     if( x.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> x_MR_STAR(g);
-
         x_MC_STAR.AlignWith( A );
         x_MC_STAR = x;
+
+        DistMatrix<T,MR,STAR> x_MR_STAR(g);
         x_MR_STAR.AlignWith( A );
         x_MR_STAR = x_MC_STAR;
 
@@ -111,11 +106,11 @@ Syr
     }
     else
     {
-        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         DistMatrix<T,STAR,MR> x_STAR_MR(g);
-
         x_STAR_MR.AlignWith( A );
         x_STAR_MR = x;
+
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         x_STAR_MC.AlignWith( A );
         x_STAR_MC = x_STAR_MR;
 
@@ -152,6 +147,19 @@ Syr
     }
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Syr \
+  ( UpperOrLower uplo, T alpha, \
+    const Matrix<T>& x, Matrix<T>& A, bool conjugate ); \
+  template void Syr \
+  ( UpperOrLower uplo, T alpha, \
+    const DistMatrix<T>& x, DistMatrix<T>& A, bool conjugate );
 
-#endif // ifndef EL_SYR_HPP
+// blas::Syr not yet supported
+//PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

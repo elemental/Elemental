@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_TRSV_INC
 #include EL_TRMM_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC

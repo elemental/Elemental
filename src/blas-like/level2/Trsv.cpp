@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRSV_HPP
-#define EL_TRSV_HPP
+#include "El-lite.hpp"
 
 #include "./Trsv/LN.hpp"
 #include "./Trsv/LT.hpp"
@@ -18,8 +16,7 @@
 namespace El {
 
 template<typename F>
-inline void
-Trsv
+void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const Matrix<F>& A, Matrix<F>& x )
 {
@@ -44,13 +41,9 @@ Trsv
 }
 
 template<typename F>
-inline void
-Trsv
-( UpperOrLower uplo,
-  Orientation orientation,
-  UnitOrNonUnit diag,
-  const DistMatrix<F>& A,
-        DistMatrix<F>& x )
+void Trsv
+( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
+  const DistMatrix<F>& A, DistMatrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("Trsv"))
     if( uplo == LOWER )
@@ -69,6 +62,17 @@ Trsv
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Trsv \
+  ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
+    const Matrix<F>& A, Matrix<F>& x ); \
+  template void Trsv \
+  ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
+    const DistMatrix<F>& A, DistMatrix<F>& x );
 
-#endif // ifndef EL_TRSV_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

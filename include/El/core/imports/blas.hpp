@@ -147,11 +147,6 @@ void Ger
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
-template<typename T>
-void Ger
-( char trans, int m, int n,
-  T alpha, const T* x, int incx, const T* y, int incy,
-                 T* A, int lda );
 
 void Gerc
 ( int m, int n,
@@ -169,11 +164,6 @@ void Gerc
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
-template<typename T>
-void Gerc
-( char trans, int m, int n,
-  T alpha, const T* x, int incx, const T* y, int incy,
-                 T* A, int lda );
 
 void Geru
 ( int m, int n,
@@ -191,11 +181,6 @@ void Geru
 ( int m, int n,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
-template<typename T>
-void Geru
-( char trans, int m, int n,
-  T alpha, const T* x, int incx, const T* y, int incy,
-                 T* A, int lda );
 
 void Hemv
 ( char uplo, int m,
@@ -213,11 +198,6 @@ void Hemv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
-template<typename T>
-void Hemv
-( char uplo, int m,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,        T* y, int incy );
 
 void Her
 ( char uplo, int m,
@@ -231,8 +211,6 @@ void Her
 void Her
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
-template<typename T>
-void Hemv( char uplo, int m, T alpha, const T* x, int incx, T* A, int lda );
 
 void Her2
 ( char uplo, int m,
@@ -250,11 +228,6 @@ void Her2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
-template<typename T>
-void Her2
-( char uplo, int m,
-  T alpha, const T* x, int incx, const T* y, int incy, 
-                 T* A, int lda );
 
 void Symv
 ( char uplo, int m,
@@ -272,11 +245,6 @@ void Symv
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* x, int incx,
   dcomplex beta,        dcomplex* y, int incy );
-template<typename T>
-void Symv
-( char uplo, int m,
-  T alpha, const T* A, int lda, const T* x, int incx,
-  T beta,        T* y, int incy );
 
 void Syr
 ( char uplo, int m,
@@ -290,8 +258,6 @@ void Syr
 void Syr
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, dcomplex* A, int lda );
-template<typename T>
-void Syr( char uplo, int m, T alpha, const T* x, int incx, T* A, int lda );
 
 void Syr2
 ( char uplo, int m,
@@ -309,11 +275,6 @@ void Syr2
 ( char uplo, int m,
   dcomplex alpha, const dcomplex* x, int incx, const dcomplex* y, int incy,
                         dcomplex* A, int lda );
-template<typename T>
-void Syr2
-( char uplo, int m,
-  T alpha, const T* x, int incx, const T* y, int incy,
-                 T* A, int lda );
 
 void Trmv
 ( char uplo, char trans, char diag, int m,
@@ -327,10 +288,6 @@ void Trmv
 void Trmv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx );
-template<typename T>
-void Trmv
-( char uplo, char trans, char diag, int m,
-  const T* A, int lda, T* x, int incx );
 
 void Trsv
 ( char uplo, char trans, char diag, int m,
@@ -344,10 +301,6 @@ void Trsv
 void Trsv
 ( char uplo, char trans, char diag, int m,
   const dcomplex* A, int lda, dcomplex* x, int incx );
-template<typename T>
-void Trsv
-( char uplo, char trans, char diag, int m,
-  const T* A, int lda, T* x, int incx );
 
 // Level 3 BLAS
 // ============
@@ -389,11 +342,6 @@ void Hemm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
-template<typename T>
-void Hemm
-( char side, char uplo, int m, int n,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
 
 void Her2k
 ( char uplo, char trans, int n, int k,
@@ -411,11 +359,6 @@ void Her2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
-template<typename T>
-void Her2k
-( char uplo, char trans, int n, int k,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
 
 void Herk
 ( char uplo, char trans, int n, int k,
@@ -431,11 +374,6 @@ void Herk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc );
-template<typename T>
-void Herk
-( char uplo, char trans, int n, int k,
-  T alpha, const T* A, int lda,
-  T beta,        T* C, int ldc );
 
 void Symm
 ( char side, char uplo, int m, int n,
@@ -453,11 +391,6 @@ void Symm
 ( char side, char uplo, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
-template<typename T>
-void Symm
-( char side, char uplo, int m, int n,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
 
 void Syr2k
 ( char uplo, char trans, int n, int k,
@@ -475,11 +408,6 @@ void Syr2k
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda, const dcomplex* B, int ldb,
   dcomplex beta,        dcomplex* C, int ldc );
-template<typename T>
-void Syr2k
-( char uplo, char trans, int n, int k,
-  T alpha, const T* A, int lda, const T* B, int ldb,
-  T beta,        T* C, int ldc );
 
 void Syrk
 ( char uplo, char trans, int n, int k,
@@ -497,11 +425,6 @@ void Syrk
 ( char uplo, char trans, int n, int k,
   dcomplex alpha, const dcomplex* A, int lda,
   dcomplex beta,        dcomplex* C, int ldc );
-template<typename T>
-void Syrk
-( char uplo, char trans, int n, int k,
-  T alpha, const T* A, int lda,
-  T beta,        T* C, int ldc );
 
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
@@ -515,10 +438,6 @@ void Trmm
 void Trmm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
-template<typename T>
-void Trmm
-( char side, char uplo, char trans, char unit, int m, int n,
-  T alpha, const T* A, int lda, T* B, int ldb );
 
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
@@ -532,10 +451,6 @@ void Trsm
 void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
-template<typename T>
-void Trsm
-( char side, char uplo, char trans, char unit, int m, int n,
-  T alpha, const T* A, int lda, T* B, int ldb );
 
 } // namespace blas
 } // namespace El

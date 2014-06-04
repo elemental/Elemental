@@ -10,8 +10,6 @@
 #ifndef EL_BIDIAG_UPAN_HPP
 #define EL_BIDIAG_UPAN_HPP
 
-#include EL_GEMV_INC
-
 #include EL_REFLECTOR_INC
 
 namespace El {

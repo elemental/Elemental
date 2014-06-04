@@ -10,8 +10,6 @@
 #ifndef EL_QUASITRSM_HPP
 #define EL_QUASITRSM_HPP
 
-#include EL_QUASITRSV_INC
-
 namespace El {
 
 template<typename F,Dist XColDist,Dist XRowDist>

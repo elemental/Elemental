@@ -16,39 +16,6 @@
 #define EL_BLAS_DECL_INC "El/blas-like/decl.hpp"
 #define EL_BLAS_IMPL_INC "El/blas-like/impl.hpp"
 
-// Level 2 routines
-// ----------------
-#define EL_BLAS2_INC "El/blas-like/level2.hpp"
-
-#define EL_GEMV_INC \
-  "El/blas-like/level2/Gemv.hpp"
-#define EL_GER_INC \
-  "El/blas-like/level2/Ger.hpp"
-#define EL_GERU_INC \
-  "El/blas-like/level2/Geru.hpp"
-#define EL_HEMV_INC \
-  "El/blas-like/level2/Hemv.hpp"
-#define EL_HER2_INC \
-  "El/blas-like/level2/Her2.hpp"
-#define EL_HER_INC \
-  "El/blas-like/level2/Her.hpp"
-#define EL_QUASITRSV_INC \
-  "El/blas-like/level2/QuasiTrsv.hpp"
-#define EL_SYMV_INC \
-  "El/blas-like/level2/Symv.hpp"
-#define EL_SYR2_INC \
-  "El/blas-like/level2/Syr2.hpp"
-#define EL_SYR_INC \
-  "El/blas-like/level2/Syr.hpp"
-#define EL_TRMV_INC \
-  "El/blas-like/level2/Trmv.hpp"
-#define EL_TRR2_INC \
-  "El/blas-like/level2/Trr2.hpp"
-#define EL_TRR_INC \
-  "El/blas-like/level2/Trr.hpp"
-#define EL_TRSV_INC \
-  "El/blas-like/level2/Trsv.hpp"
-
 // Level 3 routines
 // ----------------
 #define EL_BLAS3_INC "El/blas-like/level3.hpp"

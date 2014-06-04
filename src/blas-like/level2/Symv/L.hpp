@@ -6,18 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMV_L_HPP
-#define EL_SYMV_L_HPP
-
-#include EL_GEMV_INC
 
 namespace El {
-namespace internal {
+namespace symv {
 
 template<typename T>
-inline void
-LocalSymvColAccumulateL
+inline void LocalColAccumulateL
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -27,7 +21,7 @@ LocalSymvColAccumulateL
   bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalSymvColAccumulateL");
+        CallStackEntry cse("symv::LocalColAccumulateL");
         if( A.Grid() != x_MC_STAR.Grid() ||
             x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
             x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
@@ -42,7 +36,7 @@ LocalSymvColAccumulateL
             A.Height() != z_MC_STAR.Height() ||
             A.Height() != z_MR_STAR.Height() )
             LogicError
-            ("Nonconformal LocalSymvColAccumulateL: \n",
+            ("Nonconformal: \n",
              "  A ~ ",A.Height()," x ",A.Width(),"\n",
              "  x[MC,* ] ~ ",x_MC_STAR.Height()," x ",x_MC_STAR.Width(),"\n", 
              "  x[MR,* ] ~ ",x_MR_STAR.Height()," x ",x_MR_STAR.Width(),"\n", 
@@ -97,7 +91,6 @@ LocalSymvColAccumulateL
         View( z1_MR_STAR, z_MR_STAR, n0,    0, n1, 1 );
  
         D11.AlignWith( A11 );
-        //--------------------------------------------------------------------//
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTriangular( LOWER, D11 );
@@ -107,7 +100,6 @@ LocalSymvColAccumulateL
 
         LocalGemv( NORMAL, alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
         LocalGemv( orientation, alpha, A21, x2_MC_STAR, T(1), z1_MR_STAR );
-        //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown
         ( xT_MC_STAR,  x0_MC_STAR,
@@ -119,8 +111,7 @@ LocalSymvColAccumulateL
 }
 
 template<typename T>
-inline void
-LocalSymvRowAccumulateL
+inline void LocalRowAccumulateL
 ( T alpha, 
   const DistMatrix<T>& A,
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
@@ -130,7 +121,7 @@ LocalSymvRowAccumulateL
   bool conjugate=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::LocalSymvRowAccumulateL");
+        CallStackEntry cse("symv::LocalRowAccumulateL");
         if( A.Grid() != x_STAR_MC.Grid() ||
             x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
             x_STAR_MR.Grid() != z_STAR_MC.Grid() ||
@@ -145,7 +136,7 @@ LocalSymvRowAccumulateL
             A.Height() != z_STAR_MC.Width() ||
             A.Height() != z_STAR_MR.Width()   )
             LogicError
-            ("Nonconformal LocalSymvRowAccumulateL: \n"
+            ("Nonconformal: \n"
              "  A ~ ",A.Height()," x ",A.Width(),"\n",
              "  x[* ,MC] ~ ",x_STAR_MC.Height()," x ",x_STAR_MC.Width(),"\n", 
              "  x[* ,MR] ~ ",x_STAR_MR.Height()," x ",x_STAR_MR.Width(),"\n", 
@@ -195,7 +186,6 @@ LocalSymvRowAccumulateL
         View( z1_STAR_MR, z_STAR_MR, 0, n0,    1, n1 );
 
         D11.AlignWith( A11 );
-        //--------------------------------------------------------------------//
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTriangular( LOWER, D11 );
@@ -205,7 +195,6 @@ LocalSymvRowAccumulateL
 
         LocalGemv( NORMAL, alpha, A21, x1_STAR_MR, T(1), z2_STAR_MC );
         LocalGemv( orientation, alpha, A21, x2_STAR_MC, T(1), z1_STAR_MR );
-        //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight
         ( xL_STAR_MC,             /**/ xR_STAR_MC,
@@ -214,7 +203,5 @@ LocalSymvRowAccumulateL
     PopBlocksizeStack();
 }
 
-} // namespace internal
+} // namespace symv
 } // namespace El
-
-#endif // ifndef EL_SYMV_L_HPP

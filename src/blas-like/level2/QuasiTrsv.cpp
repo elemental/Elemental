@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_QUASITRSV_HPP
-#define EL_QUASITRSV_HPP
+#include "El-lite.hpp"
 
 #include "./QuasiTrsv/LN.hpp"
 #include "./QuasiTrsv/LT.hpp"
@@ -18,10 +16,9 @@
 namespace El {
 
 template<typename F>
-inline void
-QuasiTrsv
+void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& x, 
-  bool checkIfSingular=false )
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
     if( uplo == LOWER )
@@ -41,10 +38,9 @@ QuasiTrsv
 }
 
 template<typename F>
-inline void
-QuasiTrsv
+void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular=false )
+  const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
     if( uplo == LOWER )
@@ -63,6 +59,17 @@ QuasiTrsv
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void QuasiTrsv \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const Matrix<F>& A, Matrix<F>& x, bool checkIfSingular ); \
+  template void QuasiTrsv \
+  ( UpperOrLower uplo, Orientation orientation, \
+    const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular );
 
-#endif // ifndef EL_QUASITRSV_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

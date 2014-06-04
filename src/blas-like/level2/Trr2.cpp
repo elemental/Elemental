@@ -6,21 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRR2_HPP
-#define EL_TRR2_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-// TODO: Generalize to both left and right diagonals
-
 // A := A + alpha X Y'
 template<typename T>
-inline void
-Trr2
+void Trr2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& X, const Matrix<T>& Y, Matrix<T>& A, 
-  bool conjugate=false )
+  bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trr2");
@@ -66,11 +61,10 @@ Trr2
 }
 
 template<typename T>
-inline void
-Trr2
+void Trr2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& X, const DistMatrix<T>& Y, DistMatrix<T>& A, 
-  bool conjugate=false )
+  bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trr2");
@@ -133,6 +127,20 @@ Trr2
     }
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Trr2 \
+  ( UpperOrLower uplo, \
+    T alpha, const Matrix<T>& X, const Matrix<T>& Y, \
+    Matrix<T>& A, bool conjugate ); \
+  template void Trr2 \
+  ( UpperOrLower uplo, \
+    T alpha, const DistMatrix<T>& X, const DistMatrix<T>& Y, \
+    DistMatrix<T>& A, bool conjugate );
 
-#endif // ifndef EL_TRR2_HPP
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

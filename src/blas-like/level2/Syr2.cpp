@@ -6,18 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYR2_HPP
-#define EL_SYR2_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Syr2
+void Syr2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
-  bool conjugate=false )
+  bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr2");
@@ -52,13 +49,11 @@ Syr2
 }
 
 template<typename T>
-inline void
-Syr2
+void Syr2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
-                 DistMatrix<T>& A,
-  bool conjugate=false )
+                 DistMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr2");
@@ -83,15 +78,15 @@ Syr2
     if( x.Width() == 1 && y.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g), y_MC_STAR(g);
-        DistMatrix<T,MR,STAR> x_MR_STAR(g), y_MR_STAR(g);
-
         x_MC_STAR.AlignWith( A );
-        x_MC_STAR = x;
-        x_MR_STAR.AlignWith( A );
-        x_MR_STAR = x_MC_STAR;
         y_MC_STAR.AlignWith( A );
+        x_MC_STAR = x;
         y_MC_STAR = y;
+
+        DistMatrix<T,MR,STAR> x_MR_STAR(g), y_MR_STAR(g);
+        x_MR_STAR.AlignWith( A );
         y_MR_STAR.AlignWith( A );
+        x_MR_STAR = x_MC_STAR;
         y_MR_STAR = y_MC_STAR;
 
         const T* xBuffer = x_MC_STAR.LockedBuffer();
@@ -132,16 +127,18 @@ Syr2
     else if( x.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> x_MR_STAR(g);
-        DistMatrix<T,STAR,MC> y_STAR_MC(g);
-        DistMatrix<T,STAR,MR> y_STAR_MR(g);
-
         x_MC_STAR.AlignWith( A );
         x_MC_STAR = x;
+
+        DistMatrix<T,MR,STAR> x_MR_STAR(g);
         x_MR_STAR.AlignWith( A );
         x_MR_STAR = x_MC_STAR;
+
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
         y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+
+        DistMatrix<T,STAR,MC> y_STAR_MC(g);
         y_STAR_MC.AlignWith( A );
         y_STAR_MC = y_STAR_MR;
 
@@ -185,17 +182,19 @@ Syr2
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         DistMatrix<T,STAR,MR> x_STAR_MR(g);
-        DistMatrix<T,MC,STAR> y_MC_STAR(g);
-        DistMatrix<T,MR,STAR> y_MR_STAR(g);
-
         x_STAR_MR.AlignWith( A );
         x_STAR_MR = x;
+
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         x_STAR_MC.AlignWith( A );
         x_STAR_MC = x_STAR_MR;
+
+        DistMatrix<T,MC,STAR> y_MC_STAR(g);
         y_MC_STAR.AlignWith( A );
         y_MC_STAR = y;
+
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
         y_MR_STAR.AlignWith( A );
         y_MR_STAR = y_MC_STAR;
 
@@ -239,16 +238,16 @@ Syr2
     }
     else
     {
-        DistMatrix<T,STAR,MC> x_STAR_MC(g), y_STAR_MC(g);
         DistMatrix<T,STAR,MR> x_STAR_MR(g), y_STAR_MR(g);
-
         x_STAR_MR.AlignWith( A );
-        x_STAR_MR = x;
-        x_STAR_MC.AlignWith( A );
-        x_STAR_MC = x_STAR_MR;
         y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+        x_STAR_MR = x;
+
+        DistMatrix<T,STAR,MC> x_STAR_MC(g), y_STAR_MC(g);
+        x_STAR_MC.AlignWith( A );
         y_STAR_MC.AlignWith( A );
+        x_STAR_MC = x_STAR_MR;
         y_STAR_MC = y_STAR_MR;
 
         const T* xBuffer = x_STAR_MC.LockedBuffer();
@@ -292,6 +291,20 @@ Syr2
     }
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Syr2 \
+  ( UpperOrLower uplo, T alpha, \
+    const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, bool conjugate ); \
+  template void Syr2 \
+  ( UpperOrLower uplo, T alpha, \
+    const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A, \
+    bool conjugate );
 
-#endif // ifndef EL_SYR2_HPP
+// blas::Syr2 not yet supported
+//PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

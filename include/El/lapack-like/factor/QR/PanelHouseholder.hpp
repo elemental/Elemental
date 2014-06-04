@@ -10,8 +10,6 @@
 #ifndef EL_QR_PANEL_HPP
 #define EL_QR_PANEL_HPP
 
-#include EL_GEMV_INC
-#include EL_GER_INC
 #include EL_REFLECTOR_INC
 #include EL_ZEROS_INC
 

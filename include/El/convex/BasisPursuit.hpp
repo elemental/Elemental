@@ -10,8 +10,6 @@
 #ifndef EL_BASISPURSUIT_HPP
 #define EL_BASISPURSUIT_HPP
 
-#include EL_GEMV_INC
-#include EL_TRSV_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_ONENORM_INC
 #include EL_LQ_INC

@@ -9,10 +9,6 @@
 #ifndef EL_HERMITIANTRIDIAG_U_HPP
 #define EL_HERMITIANTRIDIAG_U_HPP
 
-#include EL_HEMV_INC
-#include EL_HER2_INC
-#include EL_SYMV_INC
-#include EL_SYR2_INC
 #include EL_REFLECTOR_INC
 
 #include "./UPan.hpp"

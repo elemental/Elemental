@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_GERU_HPP
-#define EL_GERU_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Geru");
@@ -36,8 +33,7 @@ Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 }
 
 template<typename T>
-inline void
-Geru
+void Geru
 ( T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
                  DistMatrix<T>& A )
@@ -61,78 +57,78 @@ Geru
     const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> y_MR_STAR(g);
-
-        // Begin the algoritm
         x_MC_STAR.AlignWith( A );
-        y_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
+        y_MR_STAR.AlignWith( A );
         y_MR_STAR = y;
+
         Geru
         ( alpha, x_MC_STAR.LockedMatrix(),
                  y_MR_STAR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
     else if( x.Width() == 1 )
     {
-        // Temporary distributions
-        DistMatrix<T,MC,  STAR> x_MC_STAR(g);
-        DistMatrix<T,STAR,MR  > y_STAR_MR(g);
-
-        // Begin the algorithm
+        DistMatrix<T,MC,STAR> x_MC_STAR(g);
         x_MC_STAR.AlignWith( A );
-        y_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
+        y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+
         Geru
         ( alpha, x_MC_STAR.LockedMatrix(),
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
     else if( y.Width() == 1 )
     {
-        // Temporary distributions
-        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
-        DistMatrix<T,MR,  STAR> y_MR_STAR(g);
-
-        // Begin the algorithm
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         x_STAR_MC.AlignWith( A );
-        y_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MC = x;
+
+        DistMatrix<T,MR,STAR> y_MR_STAR(g);
+        y_MR_STAR.AlignWith( A );
         y_MR_STAR = y;
+
         Geru
         ( alpha, x_STAR_MC.LockedMatrix(),
                  y_MR_STAR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
     else
     {
-        // Temporary distributions
         DistMatrix<T,STAR,MC> x_STAR_MC(g);
-        DistMatrix<T,STAR,MR> y_STAR_MR(g);
-
-        // Begin the algorithm
         x_STAR_MC.AlignWith( A );
-        y_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MC = x;
+
+        DistMatrix<T,STAR,MR> y_STAR_MR(g);
+        y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+
         Geru
         ( alpha, x_STAR_MC.LockedMatrix(),
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
-        //--------------------------------------------------------------------//
     }
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Geru \
+  ( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
+  template void Geru \
+  ( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, \
+                   DistMatrix<T>& A );
 
-#endif // ifndef EL_GERU_HPP
+// blas::Geru not yet supported
+//PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

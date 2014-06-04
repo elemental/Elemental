@@ -10,10 +10,6 @@
 #ifndef EL_LDL_PIVOTED_HPP
 #define EL_LDL_PIVOTED_HPP
 
-#include EL_SYR_INC
-#include EL_TRR_INC
-#include EL_TRR2_INC
-
 #include EL_PERMUTEROWS_INC
 
 #include EL_ZEROS_INC

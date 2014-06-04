@@ -10,10 +10,6 @@
 #ifndef EL_NORM_TWOESTIMATE_HPP
 #define EL_NORM_TWOESTIMATE_HPP
 
-#include EL_GEMV_INC
-#include EL_SYMV_INC
-#include EL_HEMV_INC
-
 #include EL_FROBENIUSNORM_INC
 
 #include EL_GAUSSIAN_INC

@@ -14,8 +14,6 @@
 #include "El/matrices/Identity.hpp"
 #include "El/matrices/Zeros.hpp"
 
-#include "./level1.hpp"
-#include "./level2.hpp"
 #include "./level3.hpp"
 
 #endif // ifndef EL_BLAS_IMPL_HPP

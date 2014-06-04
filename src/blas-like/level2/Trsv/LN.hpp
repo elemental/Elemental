@@ -6,12 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRSV_LN_HPP
-#define EL_TRSV_LN_HPP
 
 #include EL_ZEROS_INC
-#include EL_GEMV_INC
 
 namespace El {
 namespace internal {
@@ -126,5 +122,3 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
 
 } // namespace internal
 } // namespace El
-
-#endif // ifndef EL_TRSV_LN_HPP

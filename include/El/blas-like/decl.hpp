@@ -10,7 +10,8 @@
 #ifndef EL_BLAS_DECL_HPP
 #define EL_BLAS_DECL_HPP
 
-#include EL_GEMV_INC
+#include "./level1.hpp"
+#include "./level2.hpp"
 
 namespace El {
 

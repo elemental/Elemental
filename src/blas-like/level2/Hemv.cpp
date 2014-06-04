@@ -6,17 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HEMV_HPP
-#define EL_HEMV_HPP
-
-#include "./Symv.hpp"
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Hemv
+void Hemv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
@@ -25,8 +20,7 @@ Hemv
 }
 
 template<typename T>
-inline void
-Hemv
+void Hemv
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& x,
@@ -36,6 +30,19 @@ Hemv
     Symv( uplo, alpha, A, x, beta, y, true );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Hemv \
+  ( UpperOrLower uplo, T alpha, \
+    const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y ); \
+  template void Hemv \
+  ( UpperOrLower uplo, T alpha, \
+    const DistMatrix<T>& A, const DistMatrix<T>& x, T beta, DistMatrix<T>& y );
 
-#endif // ifndef EL_HEMV_HPP
+// blas::Hemv not yet supported
+//PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

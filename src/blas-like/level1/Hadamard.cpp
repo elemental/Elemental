@@ -38,7 +38,6 @@ void Hadamard
         LogicError("A and B must have the same grids");
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("A and B must be aligned");
-    const Grid& g = A.Grid();
     C.AlignWith( A );
     C.Resize( A.Height(), A.Width() );
 

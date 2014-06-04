@@ -11,9 +11,6 @@
 #define EL_QUADRATICPROGRAM_HPP
 
 #include EL_CLIP_INC
-#include EL_GEMV_INC
-#include EL_HEMV_INC
-#include EL_TRSV_INC
 #include EL_CHOLESKY_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_TRIANGULARINVERSE_INC

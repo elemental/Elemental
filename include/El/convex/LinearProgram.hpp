@@ -10,8 +10,6 @@
 #ifndef EL_LINEARPROGRAM_HPP
 #define EL_LINEARPROGRAM_HPP
 
-#include EL_GEMV_INC
-#include EL_TRSV_INC
 #include EL_HERK_INC
 #include EL_TRSM_INC
 #include EL_FROBENIUSNORM_INC

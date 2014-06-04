@@ -9,8 +9,6 @@
 #ifndef EL_HERMITIANTRIDIAG_UPAN_HPP
 #define EL_HERMITIANTRIDIAG_UPAN_HPP
 
-#include EL_GEMV_INC
-#include EL_SYMV_INC
 #include EL_REFLECTOR_INC
 
 namespace El {
@@ -334,8 +332,9 @@ void UPan
         Zero( p01_MC_STAR );
         q01_MR_STAR.AlignWith( A00 );
         Zeros( q01_MR_STAR, a01.Height(), 1 );
-        internal::LocalSymvColAccumulateU
-        ( F(1), A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true );
+        symv::LocalColAccumulate
+        ( UPPER, F(1), 
+          A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true );
 
         x21_MR_STAR.AlignWith( A02T );
         y21_MR_STAR.AlignWith( A02T );

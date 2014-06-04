@@ -6,17 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRMV_HPP
-#define EL_TRMV_HPP
-
-// TODO: Implement distributed version
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Trmv
+void Trmv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const Matrix<T>& A, Matrix<T>& x )
 {
@@ -40,6 +35,16 @@ Trmv
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
 }
 
-} // namespace El
+// TODO: Implement distributed version
 
-#endif // ifndef EL_TRMV_HPP
+#define PROTO(T) \
+  template void Trmv \
+  ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
+    const Matrix<T>& A, Matrix<T>& x );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

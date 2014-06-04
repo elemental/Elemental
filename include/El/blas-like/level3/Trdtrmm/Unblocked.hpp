@@ -10,8 +10,6 @@
 #ifndef EL_TRDTRMM_UNBLOCKED_HPP
 #define EL_TRDTRMM_UNBLOCKED_HPP
 
-#include EL_TRR_INC
-
 namespace El {
 namespace internal {
 

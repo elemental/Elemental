@@ -6,17 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HER2_HPP
-#define EL_HER2_HPP
-
-#include "./Syr2.hpp"
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Her2
+void Her2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
@@ -25,8 +20,7 @@ Her2
 }
 
 template<typename T>
-inline void
-Her2
+void Her2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
@@ -36,6 +30,19 @@ Her2
     Syr2( uplo, alpha, x, y, A, true );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Her2 \
+  ( UpperOrLower uplo, T alpha, \
+    const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
+  template void Her2 \
+  ( UpperOrLower uplo, T alpha, \
+    const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A );
 
-#endif // ifndef EL_HER2_HPP
+// blas::Her2 not yet supported
+//PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

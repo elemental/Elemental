@@ -10,8 +10,6 @@
 #ifndef EL_LU_PANEL_HPP
 #define EL_LU_PANEL_HPP
 
-#include EL_GERU_INC
-
 namespace El {
 namespace lu {
 

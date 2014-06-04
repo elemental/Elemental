@@ -10,8 +10,6 @@
 #ifndef EL_LU_MOD_HPP
 #define EL_LU_MOD_HPP
 
-#include EL_TRSV_INC
-
 #include EL_PERMUTEROWS_INC
 
 #include EL_ZEROS_INC
