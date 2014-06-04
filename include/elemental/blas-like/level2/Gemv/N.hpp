@@ -147,7 +147,7 @@ GemvN
     x_MR_STAR = x;
     Zeros( z_MC_STAR, A.Height(), 1 );
     LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
-    y.RowSumScatterUpdate( T(1), z_MC_STAR );
+    y.PartialColSumScatterUpdate( T(1), z_MC_STAR );
     //--------------------------------------------------------------------//
 }
 

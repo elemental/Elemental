@@ -49,20 +49,17 @@ GemvT
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
         DistMatrix<T,MR,STAR> z_MR_STAR(g);
         DistMatrix<T,MR,MC  > z_MR_MC(g);
-        DistMatrix<T> z(g);
 
         Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z_MR_MC.AlignWith( y );
-        z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
         z_MR_MC.RowSumScatterFrom( z_MR_STAR );
-        z = z_MR_MC;
-        Axpy( T(1), z, y );
+        Axpy( T(1), z_MR_MC, y );
         //--------------------------------------------------------------------//
     }
     else if( x.Width() == 1 )
@@ -91,20 +88,17 @@ GemvT
         DistMatrix<T,STAR,MC  > x_STAR_MC(g);
         DistMatrix<T,MR,  STAR> z_MR_STAR(g);
         DistMatrix<T,MR,  MC  > z_MR_MC(g);
-        DistMatrix<T> z(g);
 
         Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z_MR_MC.AlignWith( y );
-        z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_STAR_MC = x;
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
         z_MR_MC.RowSumScatterFrom( z_MR_STAR );
-        z = z_MR_MC;
-        Axpy( T(1), z, y );
+        Axpy( T(1), z_MR_MC, y );
         //--------------------------------------------------------------------//
     }
     else
@@ -156,20 +150,17 @@ GemvT
     DistMatrix<T,MC,STAR> x_MC_STAR(g);
     DistMatrix<T,MR,STAR> z_MR_STAR(g);
     DistMatrix<T,VR,STAR> z_VR_STAR(g);
-    DistMatrix<T,VC,STAR> z(g);
 
     Scale( beta, y );
     x_MC_STAR.AlignWith( A );
     z_MR_STAR.AlignWith( A );
     z_VR_STAR.AlignWith( A );
-    z.AlignWith( y );
     //--------------------------------------------------------------------//
     x_MC_STAR = x;
     Zeros( z_MR_STAR, A.Width(), 1 );
     LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
-    z_VR_STAR.RowSumScatterFrom( z_MR_STAR );
-    z = z_VR_STAR;
-    Axpy( T(1), z, y );
+    z_VR_STAR.PartialColSumScatterFrom( z_MR_STAR );
+    Axpy( T(1), z_VR_STAR, y );
     //--------------------------------------------------------------------//
 }
 
