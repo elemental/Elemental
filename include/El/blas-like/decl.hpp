@@ -10,6 +10,8 @@
 #ifndef EL_BLAS_DECL_HPP
 #define EL_BLAS_DECL_HPP
 
+#include EL_GEMV_INC
+
 namespace El {
 
 template<typename T>

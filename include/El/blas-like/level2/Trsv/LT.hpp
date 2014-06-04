@@ -50,7 +50,6 @@ TrsvLT
     if( x.Width() == 1 )
     {
         DistMatrix<F,MC,STAR> x1_MC_STAR(g);
-        DistMatrix<F,MC,MR  > z1(g);
         DistMatrix<F,MR,MC  > z1_MR_MC(g);
         DistMatrix<F,MR,STAR> z_MR_STAR(g);
 
@@ -75,9 +74,7 @@ TrsvLT
             if( k+nb != m )
             {
                 z1_MR_MC.RowSumScatterFrom( z1_MR_STAR );
-                z1.AlignWith( x1 );
-                z1 = z1_MR_MC;
-                Axpy( F(1), z1, x1 );
+                Axpy( F(1), z1_MR_MC, x1 );
             }
 
             x1_STAR_STAR = x1;

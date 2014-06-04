@@ -223,10 +223,9 @@ QuasiTrsvLN
     }
     else
     {
-        DistMatrix<F,STAR,MR  > x1_STAR_MR(g);
-        DistMatrix<F,MC,  MR  > z1(g);
-        DistMatrix<F,MR,  MC  > z1_MR_MC(g);
-        DistMatrix<F,STAR,MC  > z_STAR_MC(g);
+        DistMatrix<F,STAR,MR> x1_STAR_MR(g);
+        DistMatrix<F,MR,  MC> z1_MR_MC(g);
+        DistMatrix<F,STAR,MC> z_STAR_MC(g);
 
         // Views of z[* ,MC]
         DistMatrix<F,STAR,MC> z1_STAR_MC(g), z2_STAR_MC(g);
@@ -253,9 +252,7 @@ QuasiTrsvLN
             if( k != 0 )
             {
                 z1_MR_MC.ColSumScatterFrom( z1_STAR_MC );
-                z1.AlignWith( x1 );
-                z1 = z1_MR_MC;
-                Axpy( F(1), z1, x1 );
+                Axpy( F(1), z1_MR_MC, x1 );
             }
 
             x1_STAR_STAR = x1;

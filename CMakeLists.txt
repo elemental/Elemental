@@ -35,8 +35,7 @@ option(EL_EXAMPLES "A collection of simple examples" OFF)
 option(EL_TESTS "A collection of performance and correctness tests" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
-# 1) prototype F90 interfaces (soon to be deprecated)
-# 2) Martin's 3D Gemm code
+# Martin's 3D Gemm code
 option(EL_EXPERIMENTAL "Build experimental code" OFF)
 
 option(EL_C_INTERFACE "Build work-in-progress C interface" ON)

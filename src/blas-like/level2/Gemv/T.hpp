@@ -6,11 +6,6 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_GEMV_T_HPP
-#define EL_GEMV_T_HPP
-
-#include EL_ZEROS_INC
 
 namespace El {
 namespace internal {
@@ -40,89 +35,78 @@ GemvT
              "  y ~ ",y.Height()," x ",y.Width(),"\n");
     )
     const Grid& g = A.Grid();
+    Scale( beta, y );
     if( x.Width() == 1 && y.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> z_MR_STAR(g);
-        DistMatrix<T,MR,MC  > z_MR_MC(g);
-        DistMatrix<T> z(g);
-
-        Scale( beta, y );
         x_MC_STAR.AlignWith( A );
-        z_MR_STAR.AlignWith( A );
-        z_MR_MC.AlignWith( y );
-        z.AlignWith( y );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+
+        DistMatrix<T,MR,STAR> z_MR_STAR(g);
+        z_MR_STAR.AlignWith( A );
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
+
+        DistMatrix<T,MR,MC> z_MR_MC(g);
+        z_MR_MC.AlignWith( y );
         z_MR_MC.RowSumScatterFrom( z_MR_STAR );
-        z = z_MR_MC;
-        Axpy( T(1), z, y );
-        //--------------------------------------------------------------------//
+        Axpy( T(1), z_MR_MC, y );
     }
     else if( x.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> z_MR_STAR(g);
-        DistMatrix<T,MR,MC  > z_MR_MC(g);
-        DistMatrix<T> zTrans(g);
-
-        Scale( beta, y );
         x_MC_STAR.AlignWith( A );
-        z_MR_STAR.AlignWith( A );
-        z_MR_MC.AlignWith( y );
-        zTrans.AlignWith( y );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+
+        DistMatrix<T,MR,STAR> z_MR_STAR(g);
+        z_MR_STAR.AlignWith( A );
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
+
+        DistMatrix<T,MR,MC> z_MR_MC(g);
+        z_MR_MC.AlignWith( y );
         z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+
+        DistMatrix<T> zTrans(g);
+        zTrans.AlignWith( y );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
-        //--------------------------------------------------------------------//
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
-        DistMatrix<T,MR,  STAR> z_MR_STAR(g);
-        DistMatrix<T,MR,  MC  > z_MR_MC(g);
-        DistMatrix<T> z(g);
-
-        Scale( beta, y );
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         x_STAR_MC.AlignWith( A );
-        z_MR_STAR.AlignWith( A );
-        z_MR_MC.AlignWith( y );
-        z.AlignWith( y );
-        //--------------------------------------------------------------------//
         x_STAR_MC = x;
+
+        DistMatrix<T,MR,STAR> z_MR_STAR(g);
+        z_MR_STAR.AlignWith( A );
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
+
+        DistMatrix<T,MR,MC> z_MR_MC(g);
+        z_MR_MC.AlignWith( y );
         z_MR_MC.RowSumScatterFrom( z_MR_STAR );
-        z = z_MR_MC;
-        Axpy( T(1), z, y );
-        //--------------------------------------------------------------------//
+        Axpy( T(1), z_MR_MC, y );
     }
     else
     {
-        DistMatrix<T,STAR,MC  > x_STAR_MC(g);
-        DistMatrix<T,MR,  STAR> z_MR_STAR(g);
-        DistMatrix<T,MR,  MC  > z_MR_MC(g);
-        DistMatrix<T> zTrans(g);
-
-        Scale( beta, y );
+        DistMatrix<T,STAR,MC> x_STAR_MC(g);
         x_STAR_MC.AlignWith( A );
-        z_MR_STAR.AlignWith( A );
-        z_MR_MC.AlignWith( y );
-        zTrans.AlignWith( y );
-        //--------------------------------------------------------------------//
         x_STAR_MC = x;
+
+        DistMatrix<T,MR,STAR> z_MR_STAR(g);
+        z_MR_STAR.AlignWith( A );
         Zeros( z_MR_STAR, A.Width(), 1 );
         LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
+
+        DistMatrix<T,MR,MC> z_MR_MC(g);
+        z_MR_MC.AlignWith( y );
         z_MR_MC.RowSumScatterFrom( z_MR_STAR );
+
+        DistMatrix<T> zTrans(g);
+        zTrans.AlignWith( y );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
-        //--------------------------------------------------------------------//
     }
 }
 
@@ -148,28 +132,22 @@ GemvT
              "  y ~ ",y.Height()," x ",y.Width(),"\n");
     )
     const Grid& g = A.Grid();
+    Scale( beta, y );
 
     DistMatrix<T,MC,STAR> x_MC_STAR(g);
-    DistMatrix<T,MR,STAR> z_MR_STAR(g);
-    DistMatrix<T,VR,STAR> z_VR_STAR(g);
-    DistMatrix<T,VC,STAR> z(g);
-
-    Scale( beta, y );
     x_MC_STAR.AlignWith( A );
-    z_MR_STAR.AlignWith( A );
-    z_VR_STAR.AlignWith( A );
-    z.AlignWith( y );
-    //--------------------------------------------------------------------//
     x_MC_STAR = x;
+
+    DistMatrix<T,MR,STAR> z_MR_STAR(g);
+    z_MR_STAR.AlignWith( A );
     Zeros( z_MR_STAR, A.Width(), 1 );
     LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
-    z_VR_STAR.RowSumScatterFrom( z_MR_STAR );
-    z = z_VR_STAR;
-    Axpy( T(1), z, y );
-    //--------------------------------------------------------------------//
+
+    DistMatrix<T,VR,STAR> z_VR_STAR(g);
+    z_VR_STAR.AlignWith( A );
+    z_VR_STAR.PartialColSumScatterFrom( z_MR_STAR );
+    Axpy( T(1), z_VR_STAR, y );
 }
 
 } // namespace internal
 } // namespace El
-
-#endif // ifndef EL_GEMV_T_HPP
