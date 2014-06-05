@@ -10,23 +10,23 @@
 #include EL_ZEROS_INC
 
 namespace El {
-namespace internal {
+namespace quasitrsv {
 
 template<typename F>
 inline void
-QuasiTrsvLTUnb
+LTUnb
 ( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::QuasiTrsvLTUnb");
+        CallStackEntry cse("quasitrsv::LTUnb");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
         if( x.Width() != 1 && x.Height() != 1 )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( L.Width() != xLength )
-            LogicError("Nonconformal QuasiTrsvLT");
+            LogicError("Nonconformal");
         if( orientation == NORMAL )
             LogicError("Invalid orientation");
     )
@@ -103,19 +103,19 @@ QuasiTrsvLTUnb
 
 template<typename F>
 inline void
-QuasiTrsvLT
+LT
 ( Orientation orientation, const Matrix<F>& L, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::QuasiTrsvLT");
+        CallStackEntry cse("quasitrsv::LT");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
         if( x.Width() != 1 && x.Height() != 1 )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( L.Width() != xLength )
-            LogicError("Nonconformal QuasiTrsvLT");
+            LogicError("Nonconformal");
         if( orientation == NORMAL )
             LogicError("Invalid orientation");
     )
@@ -149,7 +149,7 @@ QuasiTrsvLT
             x1 = ViewRange( x, 0, k, 1, kOld );
         }
 
-        QuasiTrsvLTUnb( TRANSPOSE, L11, x1, checkIfSingular );
+        quasitrsv::LTUnb( TRANSPOSE, L11, x1, checkIfSingular );
         Gemv( TRANSPOSE, F(-1), L10, x1, F(1), x0 );
 
         if( k == 0 )
@@ -163,12 +163,12 @@ QuasiTrsvLT
 
 template<typename F>
 inline void
-QuasiTrsvLT
+LT
 ( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::QuasiTrsvLT");
+        CallStackEntry cse("quasitrsv::LT");
         if( L.Grid() != x.Grid() )
             LogicError("{L,x} must be distributed over the same grid");
         if( L.Height() != L.Width() )
@@ -177,7 +177,7 @@ QuasiTrsvLT
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( L.Width() != xLength )
-            LogicError("Nonconformal QuasiTrsvLT");
+            LogicError("Nonconformal");
         if( orientation == NORMAL )
             LogicError("Invalid orientation");
     )
@@ -226,7 +226,7 @@ QuasiTrsvLT
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
-            QuasiTrsvLT
+            quasitrsv::LT
             ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(),
               checkIfSingular );
             x1 = x1_STAR_STAR;
@@ -274,7 +274,7 @@ QuasiTrsvLT
 
             x1_STAR_STAR = x1;
             L11_STAR_STAR = L11;
-            QuasiTrsvLT
+            quasitrsv::LT
             ( TRANSPOSE, L11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(),
               checkIfSingular );
             x1 = x1_STAR_STAR;
@@ -293,5 +293,5 @@ QuasiTrsvLT
         Conjugate( x );
 }
 
-} // namespace internal
+} // namespace quasitrsv
 } // namespace El

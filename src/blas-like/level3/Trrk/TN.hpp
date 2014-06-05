@@ -10,7 +10,7 @@
 #define EL_TRRK_TN_HPP
 
 namespace El {
-namespace internal {
+namespace trrk {
 
 // Distributed C := alpha A^{T/H} B + beta C
 template<typename T>
@@ -22,7 +22,7 @@ void TrrkTN
   T beta,        DistMatrix<T>& C )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrrkTN");
+        CallStackEntry cse("trrk::TrrkTN");
         if( C.Height() != C.Width() || A.Width() != C.Height() || 
             B.Width() != C.Width() || A.Height() != B.Height() )
             LogicError("Nonconformal TrrkTN");
@@ -84,7 +84,7 @@ void TrrkTN
     }
 }
 
-} // namespace internal
+} // namespace trrk
 } // namespace El
 
 #endif // ifndef EL_TRRK_TN_HPP

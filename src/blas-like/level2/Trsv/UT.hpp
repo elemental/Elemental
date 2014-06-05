@@ -10,27 +10,27 @@
 #include EL_ZEROS_INC
 
 namespace El {
-namespace internal {
+namespace trsv {
 
 template<typename F>
 inline void
-TrsvUT
+UT
 ( Orientation orientation, UnitOrNonUnit diag, 
   const DistMatrix<F>& U, DistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrsvUT");
+        CallStackEntry cse("trsv::UT");
         if( U.Grid() != x.Grid() )
             LogicError("{U,x} must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrsvUT expects a (conjugate-)transpose option");
+            LogicError("Expected a (conjugate-)transpose option");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
         if( x.Width() != 1 && x.Height() != 1 )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( U.Width() != xLength )
-            LogicError("Nonconformal TrsvUT");
+            LogicError("Nonconformal");
     )
     const Int m = U.Height();
     const Int bsize = Blocksize();
@@ -124,5 +124,5 @@ TrsvUT
     }
 }
 
-} // namespace internal
+} // namespace trsv
 } // namespace El

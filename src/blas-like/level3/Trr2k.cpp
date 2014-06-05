@@ -48,70 +48,70 @@ void Trr2k
     switch( subcase )
     {
     case 0: 
-        internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        trr2k::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
         break;
     case 1:
-        internal::Trr2kNNNT
+        trr2k::Trr2kNNNT
         ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 2:
-        internal::Trr2kNNTN
+        trr2k::Trr2kNNTN
         ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 3:
-        internal::Trr2kNNTT
+        trr2k::Trr2kNNTT
         ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 4:
-        internal::Trr2kNTNN
+        trr2k::Trr2kNTNN
         ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 5:
-        internal::Trr2kNTNT
+        trr2k::Trr2kNTNT
         ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 6:
-        internal::Trr2kNTTN
+        trr2k::Trr2kNTTN
         ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 7:
-        internal::Trr2kNTTT
+        trr2k::Trr2kNTTT
         ( uplo, orientationOfB, orientationOfC, orientationOfD, 
           alpha, A, B, C, D, beta, E );
         break;
     case 8:
-        internal::Trr2kTNNN
+        trr2k::Trr2kTNNN
         ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
         break;
     case 9:
-        internal::Trr2kTNNT
+        trr2k::Trr2kTNNT
         ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 10:
-        internal::Trr2kTNTN
+        trr2k::Trr2kTNTN
         ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 11:
-        internal::Trr2kTNTT
+        trr2k::Trr2kTNTT
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 12:
-        internal::Trr2kTTNN
+        trr2k::Trr2kTTNN
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 13:
-        internal::Trr2kTTNT
+        trr2k::Trr2kTTNT
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 14:
-        internal::Trr2kTTTN
+        trr2k::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, A, B, C, D, beta, E );
         break;
     case 15:
-        internal::Trr2kTTTN
+        trr2k::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
@@ -139,70 +139,70 @@ void Trr2k
     switch( subcase )
     {
     case 0: 
-        internal::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
+        trr2k::Trr2kNNNN( uplo, alpha, A, B, C, D, beta, E );
         break;
     case 1:
-        internal::Trr2kNNNT
+        trr2k::Trr2kNNNT
         ( uplo, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 2:
-        internal::Trr2kNNTN
+        trr2k::Trr2kNNTN
         ( uplo, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 3:
-        internal::Trr2kNNTT
+        trr2k::Trr2kNNTT
         ( uplo, orientationOfC, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 4:
-        internal::Trr2kNTNN
+        trr2k::Trr2kNTNN
         ( uplo, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 5:
-        internal::Trr2kNTNT
+        trr2k::Trr2kNTNT
         ( uplo, orientationOfB, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 6:
-        internal::Trr2kNTTN
+        trr2k::Trr2kNTTN
         ( uplo, orientationOfB, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 7:
-        internal::Trr2kNTTT
+        trr2k::Trr2kNTTT
         ( uplo, orientationOfB, orientationOfC, orientationOfD, 
           alpha, A, B, C, D, beta, E );
         break;
     case 8:
-        internal::Trr2kTNNN
+        trr2k::Trr2kTNNN
         ( uplo, orientationOfA, alpha, A, B, C, D, beta, E );
         break;
     case 9:
-        internal::Trr2kTNNT
+        trr2k::Trr2kTNNT
         ( uplo, orientationOfA, orientationOfD, alpha, A, B, C, D, beta, E );
         break;
     case 10:
-        internal::Trr2kTNTN
+        trr2k::Trr2kTNTN
         ( uplo, orientationOfA, orientationOfC, alpha, A, B, C, D, beta, E );
         break;
     case 11:
-        internal::Trr2kTNTT
+        trr2k::Trr2kTNTT
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 12:
-        internal::Trr2kTTNN
+        trr2k::Trr2kTTNN
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, C, D, beta, E );
         break;
     case 13:
-        internal::Trr2kTTNT
+        trr2k::Trr2kTTNT
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;
     case 14:
-        internal::Trr2kTTTN
+        trr2k::Trr2kTTTN
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, A, B, C, D, beta, E );
         break;
     case 15:
-        internal::Trr2kTTTT
+        trr2k::Trr2kTTTT
         ( uplo, orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, A, B, C, D, beta, E );
         break;

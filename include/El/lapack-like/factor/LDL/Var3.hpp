@@ -10,8 +10,6 @@
 #ifndef EL_LDL_VAR3_HPP
 #define EL_LDL_VAR3_HPP
 
-#include EL_TRSM_INC
-
 namespace El {
 namespace ldl {
 
@@ -94,7 +92,7 @@ Var3( Matrix<F>& A, bool conjugate=false )
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
-        internal::TrrkNT( LOWER, orientation, F(-1), S21, A21, F(1), A22 );
+        Trrk( LOWER, NORMAL, orientation, F(-1), S21, A21, F(1), A22 );
     }
 }
 

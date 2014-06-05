@@ -10,7 +10,6 @@
 #ifndef EL_RQ_SOLVEAFTER_HPP
 #define EL_RQ_SOLVEAFTER_HPP
 
-#include EL_TRSM_INC
 #include EL_RQ_INC
 
 // TODO: Extend for BusingerGolub support

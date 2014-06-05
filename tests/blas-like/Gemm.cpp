@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_GEMM_INC
 #include EL_UNIFORM_INC
 using namespace std;
 using namespace El;
@@ -50,14 +49,7 @@ void TestGemm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    if( orientA == NORMAL && orientB == NORMAL )
-        gemm::SUMMA_NNA( alpha, A, B, beta, C );
-    else if( orientA == NORMAL )
-        gemm::SUMMA_NTA( orientB, alpha, A, B, beta, C );
-    else if( orientB == NORMAL )
-        gemm::SUMMA_TNA( orientA, alpha, A, B, beta, C );
-    else
-        gemm::SUMMA_TTA( orientA, orientB, alpha, A, B, beta, C );
+    Gemm( orientA, orientB, alpha, A, B, beta, C, GEMM_SUMMA_A );
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
@@ -94,14 +86,7 @@ void TestGemm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    if( orientA == NORMAL && orientB == NORMAL )
-        gemm::SUMMA_NNB( alpha, A, B, beta, C );
-    else if( orientA == NORMAL )
-        gemm::SUMMA_NTB( orientB, alpha, A, B, beta, C );
-    else if( orientB == NORMAL )
-        gemm::SUMMA_TNB( orientA, alpha, A, B, beta, C );
-    else
-        gemm::SUMMA_TTB( orientA, orientB, alpha, A, B, beta, C );
+    Gemm( orientA, orientB, alpha, A, B, beta, C, GEMM_SUMMA_B );
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
@@ -138,14 +123,7 @@ void TestGemm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    if( orientA == NORMAL && orientB == NORMAL )
-        gemm::SUMMA_NNC( alpha, A, B, beta, C );
-    else if( orientA == NORMAL )
-        gemm::SUMMA_NTC( orientB, alpha, A, B, beta, C );
-    else if( orientB == NORMAL )
-        gemm::SUMMA_TNC( orientA, alpha, A, B, beta, C );
-    else
-        gemm::SUMMA_TTC( orientA, orientB, alpha, A, B, beta, C );
+    Gemm( orientA, orientB, alpha, A, B, beta, C, GEMM_SUMMA_C );
     mpi::Barrier( g.Comm() );
     runTime = mpi::Time() - startTime;
     realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
@@ -184,7 +162,7 @@ void TestGemm
         }
         mpi::Barrier( g.Comm() );
         startTime = mpi::Time();
-        gemm::SUMMA_NNDot( alpha, A, B, beta, C );
+        Gemm( NORMAL, NORMAL, alpha, A, B, beta, C, GEMM_SUMMA_DOT );
         mpi::Barrier( g.Comm() );
         runTime = mpi::Time() - startTime;
         realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);

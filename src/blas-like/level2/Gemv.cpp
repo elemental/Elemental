@@ -10,8 +10,8 @@
 
 #include EL_ZEROS_INC
 
-#include "./Gemv/N.hpp"
-#include "./Gemv/T.hpp"
+#include "./Gemv/Normal.hpp"
+#include "./Gemv/Transpose.hpp"
 
 namespace El {
 
@@ -90,9 +90,9 @@ void Gemv
 {
     DEBUG_ONLY(CallStackEntry cse("Gemv"))
     if( orientation == NORMAL )
-        internal::GemvN( alpha, A, x, beta, y );
+        gemv::Normal( alpha, A, x, beta, y );
     else
-        internal::GemvT( orientation, alpha, A, x, beta, y );
+        gemv::Transpose( orientation, alpha, A, x, beta, y );
 }
 
 template<typename T>
@@ -120,9 +120,9 @@ void Gemv
 {
     DEBUG_ONLY(CallStackEntry cse("Gemv"))
     if( orientation == NORMAL )
-        internal::GemvN( alpha, A, x, beta, y );
+        gemv::Normal( alpha, A, x, beta, y );
     else
-        internal::GemvT( orientation, alpha, A, x, beta, y );
+        gemv::Transpose( orientation, alpha, A, x, beta, y );
 }
 
 template<typename T>

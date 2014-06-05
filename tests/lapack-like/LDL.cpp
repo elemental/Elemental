@@ -8,9 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_HEMM_INC
-#include EL_SYMM_INC
-#include EL_TRMM_INC
 #include EL_LDL_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC

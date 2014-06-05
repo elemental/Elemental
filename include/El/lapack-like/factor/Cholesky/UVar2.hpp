@@ -10,10 +10,6 @@
 #ifndef EL_CHOLESKY_UVAR2_HPP
 #define EL_CHOLESKY_UVAR2_HPP
 
-#include EL_GEMM_INC
-#include EL_HERK_INC
-#include EL_TRSM_INC
-
 #include "./UVar3.hpp"
 
 // TODO: Reverse variants

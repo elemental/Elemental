@@ -10,9 +10,6 @@
 #ifndef EL_LU_HPP
 #define EL_LU_HPP
 
-#include EL_GEMM_INC
-#include EL_TRSM_INC
-
 #include EL_APPLYROWPIVOTS_INC
 #include EL_PIVOTSTOPARTIALPERMUTATION_INC
 

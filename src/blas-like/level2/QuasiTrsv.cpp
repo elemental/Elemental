@@ -24,16 +24,16 @@ void QuasiTrsv
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvLN( A, x, checkIfSingular );
+            quasitrsv::LN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvLT( orientation, A, x, checkIfSingular );
+            quasitrsv::LT( orientation, A, x, checkIfSingular );
     }
     else
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvUN( A, x, checkIfSingular );
+            quasitrsv::UN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvUT( orientation, A, x, checkIfSingular );
+            quasitrsv::UT( orientation, A, x, checkIfSingular );
     }
 }
 
@@ -46,16 +46,16 @@ void QuasiTrsv
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvLN( A, x, checkIfSingular );
+            quasitrsv::LN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvLT( orientation, A, x, checkIfSingular );
+            quasitrsv::LT( orientation, A, x, checkIfSingular );
     }
     else
     {
         if( orientation == NORMAL )
-            internal::QuasiTrsvUN( A, x, checkIfSingular );
+            quasitrsv::UN( A, x, checkIfSingular );
         else
-            internal::QuasiTrsvUT( orientation, A, x, checkIfSingular );
+            quasitrsv::UT( orientation, A, x, checkIfSingular );
     }
 }
 

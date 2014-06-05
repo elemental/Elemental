@@ -94,7 +94,7 @@ HermitianTridiag
             else
                 herm_tridiag::USquare( ASquare, tSquare ); 
         }
-        tSquare.MakeConsistent();
+        tSquare.MakeConsistent( true );
         A = ASquare;
         t = tSquare;
 

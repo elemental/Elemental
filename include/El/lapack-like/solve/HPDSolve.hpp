@@ -10,7 +10,6 @@
 #ifndef EL_HPDSOLVE_HPP
 #define EL_HPDSOLVE_HPP
 
-#include EL_TRSM_INC
 #include EL_CHOLESKY_INC
 
 namespace El {

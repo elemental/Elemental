@@ -10,9 +10,6 @@
 #ifndef EL_LOGDETDIV_HPP
 #define EL_LOGDETDIV_HPP
 
-#include EL_TRSM_INC
-#include EL_TRSTRM_INC
-
 #include EL_CHOLESKY_INC
 #include EL_FROBENIUSNORM_INC
 

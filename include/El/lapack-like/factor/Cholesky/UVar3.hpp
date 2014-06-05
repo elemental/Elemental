@@ -10,9 +10,6 @@
 #ifndef EL_CHOLESKY_UVAR3_HPP
 #define EL_CHOLESKY_UVAR3_HPP
 
-#include EL_HERK_INC
-#include EL_TRSM_INC
-
 namespace El {
 namespace cholesky {
 

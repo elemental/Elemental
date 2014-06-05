@@ -10,7 +10,6 @@
 #ifndef EL_QR_SOLVEAFTER_HPP
 #define EL_QR_SOLVEAFTER_HPP
 
-#include EL_TRSM_INC
 #include EL_QR_INC
 
 // TODO: Extend for BusingerGolub support

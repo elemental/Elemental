@@ -10,27 +10,27 @@
 #include EL_ZEROS_INC
 
 namespace El {
-namespace internal {
+namespace trsv {
 
 template<typename F>
 inline void
-TrsvLT
+LT
 ( Orientation orientation, UnitOrNonUnit diag, 
   const DistMatrix<F>& L, DistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrsvLT");
+        CallStackEntry cse("trsv::LT");
         if( L.Grid() != x.Grid() )
             LogicError("{L,x} must be distributed over the same grid");
         if( orientation == NORMAL )
-            LogicError("TrsvLT expects a (conjugate-)transpose option");
+            LogicError("Expected a (conjugate-)transpose option");
         if( L.Height() != L.Width() )
             LogicError("L must be square");
         if( x.Width() != 1 && x.Height() != 1 )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( L.Width() != xLength )
-            LogicError("Nonconformal TrsvLT");
+            LogicError("Nonconformal");
     )
     const Int m = L.Height();
     const Int bsize = Blocksize();
@@ -125,5 +125,5 @@ TrsvLT
     }
 }
 
-} // namespace internal
+} // namespace trsv
 } // namespace El

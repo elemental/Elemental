@@ -10,21 +10,21 @@
 #include EL_ZEROS_INC
 
 namespace El {
-namespace internal {
+namespace quasitrsv {
 
 template<typename F>
 inline void
-QuasiTrsvUNUnb( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
+UNUnb( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::QuasiTrsvUNUnb");
+        CallStackEntry cse("quasitrsv::UNUnb");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
         if( x.Width() != 1 && x.Height() != 1 )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( U.Width() != xLength )
-            LogicError("Nonconformal QuasiTrsvUN");
+            LogicError("Nonconformal");
     )
     typedef Base<F> Real;
 
@@ -95,17 +95,17 @@ QuasiTrsvUNUnb( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 
 template<typename F>
 inline void
-QuasiTrsvUN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
+UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::QuasiTrsvUN");
+        CallStackEntry cse("quasitrsv::UN");
         if( U.Height() != U.Width() )
             LogicError("U must be square");
         if( x.Width() != 1 && x.Height() != 1 )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( U.Width() != xLength )
-            LogicError("Nonconformal QuasiTrsvUN");
+            LogicError("Nonconformal");
     )
     const bool vert = ( x.Width()==1 );
 
@@ -134,7 +134,7 @@ QuasiTrsvUN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
             x1 = ViewRange( x, 0, k, 1, kOld );
         }
 
-        QuasiTrsvUNUnb( U11, x1, checkIfSingular );
+        quasitrsv::UNUnb( U11, x1, checkIfSingular );
         Gemv( NORMAL, F(-1), U01, x1, F(1), x0 );
 
         if( k == 0 )
@@ -146,11 +146,10 @@ QuasiTrsvUN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 
 template<typename F>
 inline void
-QuasiTrsvUN
-( const DistMatrix<F>& U, DistMatrix<F>& x, bool checkIfSingular=false )
+UN( const DistMatrix<F>& U, DistMatrix<F>& x, bool checkIfSingular=false )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::QuasiTrsvUN");
+        CallStackEntry cse("quasitrsv::UN");
         if( U.Grid() != x.Grid() )
             LogicError("{U,x} must be distributed over the same grid");
         if( U.Height() != U.Width() )
@@ -159,7 +158,7 @@ QuasiTrsvUN
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( U.Width() != xLength )
-            LogicError("Nonconformal QuasiTrsvUN");
+            LogicError("Nonconformal");
     )
     const Int m = U.Height();
     const Int bsize = Blocksize();
@@ -203,7 +202,7 @@ QuasiTrsvUN
 
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
-            QuasiTrsvUN
+            quasitrsv::UN
             ( U11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(), 
               checkIfSingular );
             x1 = x1_STAR_STAR;
@@ -251,7 +250,7 @@ QuasiTrsvUN
 
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
-            QuasiTrsvUN
+            quasitrsv::UN
             ( U11_STAR_STAR.LockedMatrix(), x1_STAR_STAR.Matrix(),
               checkIfSingular );
             x1 = x1_STAR_STAR;
@@ -268,5 +267,5 @@ QuasiTrsvUN
     }
 }
 
-} // namespace internal
+} // namespace quasitrsv
 } // namespace El

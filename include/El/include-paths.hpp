@@ -10,36 +10,6 @@
 #ifndef EL_INCLUDEPATHS_HPP
 #define EL_INCLUDEPATHS_HPP
 
-// BLAS-like routines
-// ==================
-#define EL_BLAS_INC      "El/blas-like.hpp"
-#define EL_BLAS_DECL_INC "El/blas-like/decl.hpp"
-#define EL_BLAS_IMPL_INC "El/blas-like/impl.hpp"
-
-// Level 3 routines
-// ----------------
-#define EL_BLAS3_INC "El/blas-like/level3.hpp"
-
-#define EL_GEMM_INC         "El/blas-like/level3/Gemm.hpp"
-#define EL_HEMM_INC         "El/blas-like/level3/Hemm.hpp"
-#define EL_HER2K_INC        "El/blas-like/level3/Her2k.hpp"
-#define EL_HERK_INC         "El/blas-like/level3/Herk.hpp"
-#define EL_MULTISHIFTQUASITRSM_INC \
-                            "El/blas-like/level3/MultiShiftQuasiTrsm.hpp"
-#define EL_MULTISHIFTTRSM_INC \
-                            "El/blas-like/level3/MultiShiftTrsm.hpp"
-#define EL_QUASITRSM_INC    "El/blas-like/level3/QuasiTrsm.hpp"
-#define EL_SYMM_INC         "El/blas-like/level3/Symm.hpp"
-#define EL_SYR2K_INC        "El/blas-like/level3/Syr2k.hpp"
-#define EL_SYRK_INC         "El/blas-like/level3/Syrk.hpp"
-#define EL_TRDTRMM_INC      "El/blas-like/level3/Trdtrmm.hpp"
-#define EL_TRMM_INC         "El/blas-like/level3/Trmm.hpp"
-#define EL_TRSM_INC         "El/blas-like/level3/Trsm.hpp"
-#define EL_TRSTRM_INC       "El/blas-like/level3/Trstrm.hpp"
-#define EL_TRTRMM_INC       "El/blas-like/level3/Trtrmm.hpp"
-#define EL_TWOSIDEDTRMM_INC "El/blas-like/level3/TwoSidedTrmm.hpp"
-#define EL_TWOSIDEDTRSM_INC "El/blas-like/level3/TwoSidedTrsm.hpp"
-
 // LAPACK-like routines
 // ====================
 #define EL_LAPACK_INC      "El/lapack-like.hpp"

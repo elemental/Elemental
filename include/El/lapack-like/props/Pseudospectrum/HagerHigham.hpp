@@ -12,8 +12,6 @@
 
 #include "./Power.hpp"
 
-#include EL_GEMM_INC
-
 namespace El {
 namespace pspec {
 

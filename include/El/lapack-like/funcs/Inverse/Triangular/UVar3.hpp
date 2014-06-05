@@ -10,9 +10,6 @@
 #ifndef EL_INVERSE_TRIANGULAR_UVAR3_HPP
 #define EL_INVERSE_TRIANGULAR_UVAR3_HPP
 
-#include EL_GEMM_INC
-#include EL_TRSM_INC
-
 namespace El {
 namespace triang_inv {
 

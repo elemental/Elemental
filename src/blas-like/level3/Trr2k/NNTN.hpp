@@ -10,7 +10,7 @@
 #define EL_TRR2K_NNTN_HPP
 
 namespace El {
-namespace internal {
+namespace trr2k {
 
 // Distributed E := alpha (A B + C^{T/H} D) + beta E
 template<typename T>
@@ -22,7 +22,7 @@ void Trr2kNNTN
   T beta,        DistMatrix<T>& E )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::Trr2kNNTN");
+        CallStackEntry cse("trr2k::Trr2kNNTN");
         if( E.Height() != E.Width()  || A.Width()  != C.Height() ||
             A.Height() != E.Height() || C.Width()  != E.Height() ||
             B.Width()  != E.Width()  || D.Width()  != E.Width()  ||
@@ -118,7 +118,7 @@ void Trr2kNNTN
     }
 }
 
-} // namespace internal
+} // namespace trr2k
 } // namespace El
 
 #endif // ifndef EL_TRR2K_NNTN_HPP

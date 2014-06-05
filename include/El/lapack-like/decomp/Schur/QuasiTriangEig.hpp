@@ -10,8 +10,6 @@
 #ifndef EL_SCHUR_QUASITRIANGEIG_HPP
 #define EL_SCHUR_QUASITRIANGEIG_HPP
 
-#include EL_GEMM_INC
-
 namespace El {
 namespace schur {
 

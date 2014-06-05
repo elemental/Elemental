@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_GEMM_INC
 #include EL_UNIFORM_INC
 using namespace std;
 using namespace El;
@@ -46,7 +45,7 @@ main( int argc, char* argv[] )
 
         Timer timer;
         timer.Start();
-        gemm::Cannon_NN( alpha, A, B, beta, C );
+        Gemm( NORMAL, NORMAL, alpha, A, B, beta, C, GEMM_CANNON );
         const double gemmTime = timer.Stop();
         if( g.Rank() == 0 )
         {

@@ -18,11 +18,7 @@
 #endif
 
 #include "El/core.hpp"
-
-#include "El/blas-like/decl.hpp"
-
-// This is a temporary until level2 and level3 are pulled into src/
-#include "El/blas-like/level1.hpp"
+#include "El/blas-like.hpp"
 
 #include "El/lapack-like/decl.hpp"
 #include "El/convex/decl.hpp"

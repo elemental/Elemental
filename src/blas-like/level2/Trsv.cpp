@@ -49,16 +49,16 @@ void Trsv
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrsvLN( diag, A, x );
+            trsv::LN( diag, A, x );
         else
-            internal::TrsvLT( orientation, diag, A, x );
+            trsv::LT( orientation, diag, A, x );
     }
     else
     {
         if( orientation == NORMAL )
-            internal::TrsvUN( diag, A, x );
+            trsv::UN( diag, A, x );
         else
-            internal::TrsvUT( orientation, diag, A, x );
+            trsv::UT( orientation, diag, A, x );
     }
 }
 

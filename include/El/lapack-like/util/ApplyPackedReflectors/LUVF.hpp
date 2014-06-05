@@ -10,11 +10,6 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_LUVF_HPP
 #define EL_APPLYPACKEDREFLECTORS_LUVF_HPP
 
-#include EL_GEMM_INC
-#include EL_SYRK_INC
-#include EL_HERK_INC
-#include EL_TRSM_INC
-
 #include EL_ZEROS_INC
 
 namespace El {

@@ -9,8 +9,6 @@
 #ifndef EL_TRR2K_LOCAL_HPP
 #define EL_TRR2K_LOCAL_HPP
 
-#include EL_GEMM_INC
-
 namespace El {
 
 namespace trr2k {

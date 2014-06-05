@@ -10,7 +10,6 @@
 #ifndef EL_COVARIANCE_HPP
 #define EL_COVARIANCE_HPP
 
-#include EL_HERK_INC
 #include EL_ONES_INC
 #include EL_ZEROS_INC
 

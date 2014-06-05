@@ -25,13 +25,13 @@ void Trrk
 {
     DEBUG_ONLY(CallStackEntry cse("Trrk"))
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        internal::TrrkNN( uplo, alpha, A, B, beta, C );
+        trrk::TrrkNN( uplo, alpha, A, B, beta, C );
     else if( orientationOfA==NORMAL )
-        internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
+        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
     else if( orientationOfB==NORMAL )
-        internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
     else
-        internal::TrrkTT
+        trrk::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
 }
 
@@ -43,13 +43,13 @@ void Trrk
 {
     DEBUG_ONLY(CallStackEntry cse("Trrk"))
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
-        internal::TrrkNN( uplo, alpha, A, B, beta, C );
+        trrk::TrrkNN( uplo, alpha, A, B, beta, C );
     else if( orientationOfA==NORMAL )
-        internal::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
+        trrk::TrrkNT( uplo, orientationOfB, alpha, A, B, beta, C );
     else if( orientationOfB==NORMAL )
-        internal::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        trrk::TrrkTN( uplo, orientationOfA, alpha, A, B, beta, C );
     else
-        internal::TrrkTT
+        trrk::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
 }
 
@@ -85,25 +85,23 @@ void Trrk
     T alpha, const DistMatrix<T,STAR,MC  >& A, \
              const DistMatrix<T,MR,  STAR>& B, \
     T beta,        DistMatrix<T>& C ); \
-  namespace internal { \
-  template void TrrkNN \
+  template void trrk::TrrkNN \
   ( UpperOrLower uplo, \
     T alpha, const Matrix<T>& A, const Matrix<T>& B, \
     T beta,        Matrix<T>& C ); \
-  template void TrrkNT \
+  template void trrk::TrrkNT \
   ( UpperOrLower uplo, Orientation orientationOfB, \
     T alpha, const Matrix<T>& A, const Matrix<T>& B, \
     T beta,        Matrix<T>& C ); \
-  template void TrrkTN \
+  template void trrk::TrrkTN \
   ( UpperOrLower uplo, Orientation orientationOfA, \
     T alpha, const Matrix<T>& A, const Matrix<T>& B, \
     T beta,        Matrix<T>& C ); \
-  template void TrrkTT \
+  template void trrk::TrrkTT \
   ( UpperOrLower uplo, \
     Orientation orientationOfA, Orientation orientationOfB, \
     T alpha, const Matrix<T>& A, const Matrix<T>& B, \
-    T beta,        Matrix<T>& C ); \
-  } // namespace internal
+    T beta,        Matrix<T>& C );
 
 #ifndef EL_DISABLE_FLOAT
 PROTO(float);

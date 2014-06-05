@@ -12,7 +12,7 @@
 #include "./NNTT.hpp"
 
 namespace El {
-namespace internal {
+namespace trr2k {
 
 // Distributed E := alpha (A^{T/H} B^{T/H} + C D) + beta E
 template<typename T>
@@ -23,12 +23,12 @@ void Trr2kTTNN
            const DistMatrix<T>& C, const DistMatrix<T>& D,
   T beta,        DistMatrix<T>& E )
 {
-    DEBUG_ONLY(CallStackEntry cse("internal::Trr2kTTNN"))
+    DEBUG_ONLY(CallStackEntry cse("trr2k::Trr2kTTNN"))
     Trr2kNNTT
     ( uplo, orientationOfA, orientationOfB, alpha, C, D, A, B, beta, E );
 }
 
-} // namespace internal
+} // namespace trr2k
 } // namespace El
 
 #endif // ifndef EL_TRR2K_TTNN_HPP

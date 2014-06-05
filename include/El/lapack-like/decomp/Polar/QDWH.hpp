@@ -10,10 +10,6 @@
 #ifndef EL_POLAR_QDWH_HPP
 #define EL_POLAR_QDWH_HPP
 
-#include EL_GEMM_INC
-#include EL_HERK_INC
-#include EL_TRSM_INC
-
 #include EL_CHOLESKY_INC
 #include EL_QR_INC
 #include EL_TRIANGULARINVERSE_INC

@@ -10,14 +10,14 @@
 #include EL_ZEROS_INC
 
 namespace El {
-namespace internal {
+namespace trsv {
 
 template<typename F>
 inline void
-TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
+LN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("internal::TrsvLN");
+        CallStackEntry cse("trsv::LN");
         if( L.Grid() != x.Grid() )
             LogicError("{L,x} must be distributed over the same grid");
         if( L.Height() != L.Width() )
@@ -26,7 +26,7 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
             LogicError("x must be a vector");
         const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
         if( L.Width() != xLength )
-            LogicError("Nonconformal TrsvLN");
+            LogicError("Nonconformal");
     )
     const Int m = L.Height();
     const Int bsize = Blocksize();
@@ -120,5 +120,5 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
     }
 }
 
-} // namespace internal
+} // namespace trsv
 } // namespace El

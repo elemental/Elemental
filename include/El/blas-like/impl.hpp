@@ -10,10 +10,6 @@
 #ifndef EL_BLAS_IMPL_HPP
 #define EL_BLAS_IMPL_HPP
 
-#include "El/matrices/decl.hpp"
-#include "El/matrices/Identity.hpp"
-#include "El/matrices/Zeros.hpp"
-
 #include "./level3.hpp"
 
 #endif // ifndef EL_BLAS_IMPL_HPP

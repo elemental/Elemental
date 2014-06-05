@@ -10,9 +10,6 @@
 #ifndef EL_CHOLESKY_QR_HPP
 #define EL_CHOLESKY_QR_HPP
 
-#include EL_HERK_INC
-#include EL_TRSM_INC
-
 #include EL_CHOLESKY_INC
 
 #include EL_ZEROS_INC

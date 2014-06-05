@@ -10,8 +10,6 @@
 #ifndef EL_BIDIAG_U_HPP
 #define EL_BIDIAG_U_HPP
 
-#include EL_GEMM_INC
-
 #include EL_REFLECTOR_INC
 
 #include "./UUnb.hpp"
