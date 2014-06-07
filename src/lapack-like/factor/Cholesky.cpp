@@ -19,8 +19,6 @@
 #include "./Cholesky/LMod.hpp"
 #include "./Cholesky/UMod.hpp"
 
-#include EL_SQUAREROOT_INC
-
 namespace El {
 
 // TODO: Pivoted Reverse Cholesky?

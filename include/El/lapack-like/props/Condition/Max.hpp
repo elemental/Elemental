@@ -10,7 +10,6 @@
 #ifndef EL_CONDITION_MAX_HPP
 #define EL_CONDITION_MAX_HPP
 
-#include EL_INVERSE_INC
 #include EL_MAXNORM_INC
 
 namespace El {

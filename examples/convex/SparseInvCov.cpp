@@ -9,7 +9,6 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_HERMITIANEIG_INC
-#include EL_HERMITIANINVERSE_INC
 #include EL_GAUSSIAN_INC
 #include EL_UNIFORM_INC
 #include EL_COVARIANCE_INC

@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SQUAREROOT_HPP
-#define EL_SQUAREROOT_HPP
+#include "El-lite.hpp"
 
 #include EL_MAXNORM_INC
 #include EL_ONENORM_INC
@@ -22,18 +20,6 @@
 //       Sign
 
 namespace El {
-
-template<typename Real>
-struct SquareRootCtrl {
-    Int maxIts;
-    Real tol;
-    Real power;
-    bool progress;
-
-    SquareRootCtrl()
-    : maxIts(100), tol(0), power(1), progress(false)
-    { }
-};
 
 namespace square_root {
 
@@ -76,19 +62,19 @@ NewtonStep
 
 template<typename F>
 inline int
-Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
+Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
     Matrix<F> B(A), C, XTmp;
     Matrix<F> *X=&B, *XNew=&C;
 
-    Real tol = sqrtCtrl.tol;
+    Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
-    while( numIts < sqrtCtrl.maxIts )
+    while( numIts < ctrl.maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( A, *X, *XNew, XTmp );
@@ -101,12 +87,12 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( sqrtCtrl.progress )
+        if( ctrl.progress )
             std::cout << "after " << numIts << " Newton iter's: "
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
                       << tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*tol )
+        if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
     if( X != &A )
@@ -116,7 +102,7 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
 
 template<typename F>
 inline int
-Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
+Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
     typedef Base<F> Real;
@@ -124,12 +110,12 @@ Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
     DistMatrix<F> B(A), C(g), XTmp(g);
     DistMatrix<F> *X=&B, *XNew=&C;
 
-    Real tol = sqrtCtrl.tol;
+    Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
-    while( numIts < sqrtCtrl.maxIts )
+    while( numIts < ctrl.maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( A, *X, *XNew, XTmp );
@@ -142,12 +128,12 @@ Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( sqrtCtrl.progress && g.Rank() == 0 )
+        if( ctrl.progress && g.Rank() == 0 )
             std::cout << "after " << numIts << " Newton iter's: "
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
                       << tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,sqrtCtrl.power)*tol )
+        if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
     if( X != &A )
@@ -158,34 +144,25 @@ Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& sqrtCtrl )
 } // namespace square_root
 
 template<typename F>
-inline void
-SquareRoot
-( Matrix<F>& A, 
-  const SquareRootCtrl<Base<F>> sqrtCtrl=SquareRootCtrl<Base<F>>() )
+void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
-    square_root::Newton( A, sqrtCtrl );
+    square_root::Newton( A, ctrl );
 }
 
 template<typename F>
-inline void
-SquareRoot
-( DistMatrix<F>& A, 
-  const SquareRootCtrl<Base<F>> sqrtCtrl=SquareRootCtrl<Base<F>>() )
+void SquareRoot( DistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
-    square_root::Newton( A, sqrtCtrl );
+    square_root::Newton( A, ctrl );
 }
 
-//
 // Square-root the eigenvalues of A
-//
+// --------------------------------
 
 template<typename F>
-inline void
-HPSDSquareRoot
-( UpperOrLower uplo, Matrix<F>& A, 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+void HPSDSquareRoot
+( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;
@@ -230,10 +207,8 @@ HPSDSquareRoot
 }
 
 template<typename F>
-inline void
-HPSDSquareRoot
-( UpperOrLower uplo, DistMatrix<F>& A,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+void HPSDSquareRoot
+( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
     typedef Base<F> Real;
@@ -280,6 +255,19 @@ HPSDSquareRoot
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void SquareRoot \
+  ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  template void SquareRoot \
+  ( DistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  template void HPSDSquareRoot \
+  ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl ); \
+  template void HPSDSquareRoot \
+  ( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl );
 
-#endif // ifndef EL_SQUAREROOT_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

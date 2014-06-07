@@ -10,8 +10,6 @@
 #ifndef EL_POLAR_HPP
 #define EL_POLAR_HPP
 
-#include EL_SIGN_INC
-
 #include "./Polar/QDWH.hpp"
 #include "./Polar/SVD.hpp"
 

@@ -6,11 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SIGN_HPP
-#define EL_SIGN_HPP
+#include "El-lite.hpp"
 
-#include EL_INVERSE_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_ONENORM_INC
 #include EL_DETERMINANT_INC
@@ -22,19 +19,6 @@
 // http://www.siam.org/books/ot104/OT104HighamChapter5.pdf
 
 namespace El {
-
-template<typename Real>
-struct SignCtrl {
-    Int maxIts;
-    Real tol;
-    Real power;
-    SignScaling scaling;
-    bool progress;
-
-    SignCtrl()
-    : maxIts(100), tol(0), power(1), scaling(SIGN_SCALE_FROB), progress(false)
-    { }
-};
 
 namespace sign {
 
@@ -135,21 +119,21 @@ NewtonSchulzStep
 // the different choices of p, which are usually in {0,1,2}
 template<typename F>
 inline Int
-Newton( Matrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
+Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
-    Real tol = signCtrl.tol;
+    Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
     Matrix<F> B;
     Matrix<F> *X=&A, *XNew=&B;
-    while( numIts < signCtrl.maxIts )
+    while( numIts < ctrl.maxIts )
     {
         // Overwrite XNew with the new iterate
-        NewtonStep( *X, *XNew, signCtrl.scaling );
+        NewtonStep( *X, *XNew, ctrl.scaling );
 
         // Use the difference in the iterates to test for convergence
         Axpy( Real(-1), *XNew, *X );
@@ -159,12 +143,12 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( signCtrl.progress )
+        if( ctrl.progress )
             std::cout << "after " << numIts << " Newton iter's: " 
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
                       << tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,signCtrl.power)*tol )
+        if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
     if( X != &A )
@@ -174,21 +158,21 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
 
 template<typename F>
 inline Int
-Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
+Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("sign::Newton"))
     typedef Base<F> Real;
-    Real tol = signCtrl.tol;
+    Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     Int numIts=0;
     DistMatrix<F> B( A.Grid() );
     DistMatrix<F> *X=&A, *XNew=&B;
-    while( numIts < signCtrl.maxIts )
+    while( numIts < ctrl.maxIts )
     {
         // Overwrite XNew with the new iterate
-        NewtonStep( *X, *XNew, signCtrl.scaling );
+        NewtonStep( *X, *XNew, ctrl.scaling );
 
         // Use the difference in the iterates to test for convergence
         Axpy( Real(-1), *XNew, *X );
@@ -198,12 +182,12 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( signCtrl.progress && A.Grid().Rank() == 0 )
+        if( ctrl.progress && A.Grid().Rank() == 0 )
             std::cout << "after " << numIts << " Newton iter's: "
                       << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
                       << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
                       << tol << std::endl;
-        if( oneDiff/oneNew <= Pow(oneNew,signCtrl.power)*tol )
+        if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
     }
     if( X != &A )
@@ -216,42 +200,35 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& signCtrl )
 } // namespace sign
 
 template<typename F>
-inline void
-Sign( Matrix<F>& A, const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Sign( Matrix<F>& A, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
-    sign::Newton( A, signCtrl );
+    sign::Newton( A, ctrl );
 }
 
 template<typename F>
-inline void
-Sign
-( Matrix<F>& A, Matrix<F>& N, 
-  const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     Matrix<F> ACopy( A );
-    sign::Newton( A, signCtrl );
+    sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
 }
 
 template<typename F>
-inline void
-Sign( DistMatrix<F>& A, const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Sign( DistMatrix<F>& A, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
-    sign::Newton( A, signCtrl );
+    sign::Newton( A, ctrl );
 }
 
 template<typename F>
-inline void
-Sign
-( DistMatrix<F>& A, DistMatrix<F>& N, 
-  const SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Sign
+( DistMatrix<F>& A, DistMatrix<F>& N, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
     DistMatrix<F> ACopy( A );
-    sign::Newton( A, signCtrl );
+    sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
 }
 
@@ -265,10 +242,8 @@ Sign
 
 // TODO: Add HermitianEigCtrl structure
 template<typename F>
-inline void
-HermitianSign
-( UpperOrLower uplo, Matrix<F>& A, 
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+void HermitianSign
+( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -293,10 +268,9 @@ HermitianSign
 }
 
 template<typename F>
-inline void
-HermitianSign
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+void HermitianSign
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, 
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -329,10 +303,8 @@ HermitianSign
 }
 
 template<typename F>
-inline void
-HermitianSign
-( UpperOrLower uplo, DistMatrix<F>& A,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+void HermitianSign
+( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -358,10 +330,9 @@ HermitianSign
 }
 
 template<typename F>
-inline void
-HermitianSign
+void HermitianSign
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
     typedef Base<F> Real;
@@ -399,6 +370,31 @@ HermitianSign
     HermitianFromEVD( uplo, N, wAbs, Z );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Sign \
+  ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
+  template void Sign \
+  ( DistMatrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
+  template void Sign \
+  ( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
+  template void Sign \
+  ( DistMatrix<F>& A, DistMatrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
+  template void HermitianSign \
+  ( UpperOrLower uplo, Matrix<F>& A, \
+    const HermitianEigCtrl<Base<F>> ctrl ); \
+  template void HermitianSign \
+  ( UpperOrLower uplo, DistMatrix<F>& A, \
+    const HermitianEigCtrl<Base<F>> ctrl ); \
+  template void HermitianSign \
+  ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, \
+    const HermitianEigCtrl<Base<F>> ctrl ); \
+  template void HermitianSign \
+  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N, \
+    const HermitianEigCtrl<Base<F>> ctrl );
 
-#endif // ifndef EL_SIGN_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

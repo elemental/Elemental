@@ -6,24 +6,17 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_INVERSE_SYMMETRIC_HPP
-#define EL_INVERSE_SYMMETRIC_HPP
+#include "El-lite.hpp"
 
-#include EL_INVERTPERMUTATION_INC
-#include EL_PERMUTECOLS_INC
 #include EL_PERMUTEROWS_INC
-
-#include "./Triangular.hpp"
+#include EL_PERMUTECOLS_INC
 
 namespace El {
 
 // NOTE: This overwrites both triangles of the inverse.
 template<typename F>
-inline void
-SymmetricInverse
-( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+void SymmetricInverse
+( UpperOrLower uplo, Matrix<F>& A, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
@@ -46,10 +39,8 @@ SymmetricInverse
 }
 
 template<typename F>
-inline void
-SymmetricInverse
-( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+void SymmetricInverse
+( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
@@ -72,15 +63,28 @@ SymmetricInverse
 }
 
 template<typename F>
-inline void
-LocalSymmetricInverse
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+void LocalSymmetricInverse
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, 
+  LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalSymmetricInverse"))
     SymmetricInverse( uplo, A.Matrix(), conjugate, pivotType );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void SymmetricInverse \
+  ( UpperOrLower uplo, Matrix<F>& A, bool conjugate, \
+    LDLPivotType pivotType ); \
+  template void SymmetricInverse \
+  ( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate, \
+    LDLPivotType pivotType ); \
+  template void LocalSymmetricInverse \
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, \
+    LDLPivotType pivotType );
 
-#endif // ifndef EL_INVERSE_SYMMETRIC_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

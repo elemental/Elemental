@@ -6,16 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_INVERSE_TRIANGULAR_HPP
-#define EL_INVERSE_TRIANGULAR_HPP
-
-namespace El {
-template<typename F>
-inline void
-LocalTriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
-} // namespace El
+#include "El-lite.hpp"
 
 #include "./Triangular/LVar3.hpp"
 #include "./Triangular/UVar3.hpp"
@@ -48,30 +39,39 @@ Var3( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
 } // namespace triang_inv
 
 template<typename F>
-inline void
-TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
+void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularInverse"))
     triang_inv::Var3( uplo, diag, A );
 }
 
 template<typename F>
-inline void
-TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
+void TriangularInverse
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularInverse"))
     triang_inv::Var3( uplo, diag, A );
 }
 
 template<typename F>
-inline void
-LocalTriangularInverse
+void LocalTriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalTriangularInverse"))
     TriangularInverse( uplo, diag, A.Matrix() );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void TriangularInverse \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A ); \
+  template void TriangularInverse \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A ); \
+  template void LocalTriangularInverse \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
 
-#endif // ifndef EL_INVERSE_TRIANGULAR_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

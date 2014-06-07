@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_INVERSE_HPD_HPP
-#define EL_INVERSE_HPD_HPP
+#include "El-lite.hpp"
 
 #include "./HPD/CholeskyLVar2.hpp"
 #include "./HPD/CholeskyUVar2.hpp"
@@ -16,8 +14,7 @@
 namespace El {
 
 template<typename F>
-inline void
-HPDInverse( UpperOrLower uplo, Matrix<F>& A )
+void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDInverse"))
     if( uplo == LOWER )
@@ -27,8 +24,7 @@ HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-inline void
-HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
+void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDInverse"))
     if( uplo == LOWER )
@@ -38,13 +34,21 @@ HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
 }
 
 template<typename F>
-inline void
-LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LocalHPDInverse"))
     HPDInverse( uplo, A.Matrix() );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void HPDInverse( UpperOrLower uplo, Matrix<F>& A ); \
+  template void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A ); \
+  template void LocalHPDInverse \
+  ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
-#endif // ifndef EL_INVERSE_HPD_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

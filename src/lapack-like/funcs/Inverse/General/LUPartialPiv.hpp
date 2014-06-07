@@ -11,7 +11,6 @@
 #define EL_INVERSE_LUPARTIALPIV_HPP
 
 #include EL_PERMUTECOLS_INC
-#include EL_TRIANGULARINVERSE_INC
 
 #include EL_ZEROS_INC
 
@@ -26,8 +25,7 @@ namespace inverse {
 //     inv(A) = inv(U) inv(L) P.
 
 template<typename F> 
-inline void
-AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& pPerm )
+void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
@@ -100,8 +98,7 @@ LUPartialPiv( Matrix<F>& A )
 }
 
 template<typename F> 
-inline void
-AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
+void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )

@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_PSEUDOINVERSE_HPP
-#define EL_PSEUDOINVERSE_HPP
+#include "El-lite.hpp"
 
 #include EL_SVD_INC
 #include EL_MAXNORM_INC
@@ -19,8 +17,7 @@ namespace El {
 // Replace A with its pseudoinverse
 
 template<typename F>
-inline void
-Pseudoinverse( Matrix<F>& A, Base<F> tolerance=0 )
+void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
     typedef Base<F> R;
@@ -61,8 +58,8 @@ Pseudoinverse( Matrix<F>& A, Base<F> tolerance=0 )
 }
 
 template<typename F>
-inline void
-HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance=0 )
+void HermitianPseudoinverse
+( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
     typedef Base<F> R;
@@ -95,8 +92,7 @@ HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance=0 )
 }
 
 template<typename F>
-inline void
-Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance=0 )
+void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
     typedef Base<F> R;
@@ -138,9 +134,8 @@ Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance=0 )
 }
 
 template<typename F>
-inline void
-HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance=0 )
+void HermitianPseudoinverse
+( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
     typedef Base<F> R;
@@ -174,6 +169,17 @@ HermitianPseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Pseudoinverse( Matrix<F>& A, Base<F> tolerance ); \
+  template void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance ); \
+  template void HermitianPseudoinverse \
+  ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance ); \
+  template void HermitianPseudoinverse \
+  ( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance );
 
-#endif // ifndef EL_PSEUDOINVERSE_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

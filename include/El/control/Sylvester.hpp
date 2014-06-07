@@ -11,7 +11,6 @@
 #define EL_SYLVESTER_HPP
 
 #include EL_FROBENIUSNORM_INC
-#include EL_SIGN_INC
 
 #include EL_ZEROS_INC
 

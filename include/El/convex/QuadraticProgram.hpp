@@ -12,7 +12,6 @@
 
 #include EL_CLIP_INC
 #include EL_FROBENIUSNORM_INC
-#include EL_TRIANGULARINVERSE_INC
 #include EL_ZEROS_INC
 
 // These implementations are adaptations of the solver described at

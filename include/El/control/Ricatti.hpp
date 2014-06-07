@@ -11,7 +11,6 @@
 #define EL_RICATTI_HPP
 
 #include EL_LEASTSQUARES_INC
-#include EL_SIGN_INC
 
 #include EL_ZEROS_INC
 

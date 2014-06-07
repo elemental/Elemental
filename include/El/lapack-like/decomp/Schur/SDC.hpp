@@ -15,7 +15,6 @@
 #include EL_MEDIAN_INC
 #include EL_INFINITYNORM_INC
 #include EL_ONENORM_INC
-#include EL_SIGN_INC
 
 #include EL_HAAR_INC
 
@@ -30,7 +29,6 @@
 
 namespace El {
 
-// TODO: Create SignCtrl and use as a member
 template<typename Real>
 struct SdcCtrl {
     Int cutoff;

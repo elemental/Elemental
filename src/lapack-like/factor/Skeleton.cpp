@@ -9,7 +9,6 @@
 #include "El-lite.hpp"
 
 #include EL_PERMUTECOLS_INC
-#include EL_PSEUDOINVERSE_INC
 
 // NOTE: There are *many* algorithms for (pseudo-)skeleton/CUR decompositions,
 //       and, for now, we will simply implement one.

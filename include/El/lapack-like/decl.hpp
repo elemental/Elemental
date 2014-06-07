@@ -14,10 +14,11 @@
 
 #include "./factor.hpp"
 #include "./condense.hpp"
+#include "./funcs.hpp"
 
 #include "./decomp/decl.hpp"
 #include "./solve/decl.hpp"
-#include "./funcs/decl.hpp"
+
 #include "./perm/decl.hpp"
 #include "./props/decl.hpp"
 

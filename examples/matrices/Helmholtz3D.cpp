@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_INVERSE_INC
 #include EL_HELMHOLTZ_INC
 using namespace El;
 

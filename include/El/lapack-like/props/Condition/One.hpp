@@ -10,7 +10,6 @@
 #ifndef EL_CONDITION_ONE_HPP
 #define EL_CONDITION_ONE_HPP
 
-#include EL_INVERSE_INC
 #include EL_ONENORM_INC
 
 namespace El {

@@ -10,7 +10,6 @@
 #ifndef EL_CONDITION_INFINITY_HPP
 #define EL_CONDITION_INFINITY_HPP
 
-#include EL_INVERSE_INC
 #include EL_INFINITYNORM_INC
 
 namespace El {

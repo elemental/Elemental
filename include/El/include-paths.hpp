@@ -63,35 +63,6 @@
 #define EL_SCHUR_SDC_INC \
   "El/lapack-like/decomp/Schur/SDC.hpp"
 
-// Matrix functions
-// ----------------
-#define EL_FUNCS_INC      "El/lapack-like/funcs.hpp"
-#define EL_FUNCS_DECL_INC "El/lapack-like/funcs/decl.hpp"
-#define EL_FUNCS_IMPL_INC "El/lapack-like/funcs/impl.hpp"
-
-#define EL_HERMITIANFUNCTION_INC \
-  "El/lapack-like/funcs/HermitianFunction.hpp"
-#define EL_INVERSE_INC \
-  "El/lapack-like/funcs/Inverse.hpp"
-#define EL_PSEUDOINVERSE_INC \
-  "El/lapack-like/funcs/Pseudoinverse.hpp"
-#define EL_SIGN_INC \
-  "El/lapack-like/funcs/Sign.hpp"
-#define EL_SQUAREROOT_INC \
-  "El/lapack-like/funcs/SquareRoot.hpp"
-// Specific inversion routines
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#define EL_TRIANGULARINVERSE_INC \
-  "El/lapack-like/funcs/Inverse/Triangular.hpp"
-#define EL_GENERALINVERSE_INC \
-  "El/lapack-like/funcs/Inverse/General.hpp"
-#define EL_HPDINVERSE_INC \
-  "El/lapack-like/funcs/Inverse/HPD.hpp"
-#define EL_SYMMETRICINVERSE_INC \
-  "El/lapack-like/funcs/Inverse/Symmetric.hpp"
-#define EL_HERMITIANINVERSE_INC \
-  "El/lapack-like/funcs/Inverse/Hermitian.hpp"
-
 // Permutations
 // ------------
 #define EL_APPLYCOLPIVOTS_INC \

@@ -11,7 +11,6 @@
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC
 #include EL_ONENORM_INC
-#include EL_TRIANGULARINVERSE_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
 using namespace std;
 using namespace El;
