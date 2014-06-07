@@ -9,7 +9,6 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_APPLYPACKEDREFLECTORS_INC
-#include EL_LDL_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_WIGNER_INC
 using namespace std;
@@ -50,10 +49,7 @@ main( int argc, char* argv[] )
         // Make a copy of A and then overwrite it with its LDL factorization
         // WARNING: There is no pivoting here!
         DistMatrix<C> factA( A );
-        if( conjugate )
-            LDLH( factA );
-        else
-            LDLT( factA );
+        LDL( factA, conjugate );
         auto d = factA.GetDiagonal();
 
         DistMatrix<C> L( factA );

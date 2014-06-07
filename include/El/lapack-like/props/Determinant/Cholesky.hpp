@@ -10,8 +10,6 @@
 #ifndef EL_DETERMINANT_CHOLESKY_HPP
 #define EL_DETERMINANT_CHOLESKY_HPP
 
-#include EL_CHOLESKY_INC
-
 namespace El {
 namespace hpd_det {
 

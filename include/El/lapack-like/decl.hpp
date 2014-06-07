@@ -11,8 +11,10 @@
 #define EL_LAPACK_DECL_HPP
 
 #include "./util/decl.hpp"
-#include "./factor/decl.hpp"
-#include "./condense/decl.hpp"
+
+#include "./factor.hpp"
+#include "./condense.hpp"
+
 #include "./decomp/decl.hpp"
 #include "./solve/decl.hpp"
 #include "./funcs/decl.hpp"

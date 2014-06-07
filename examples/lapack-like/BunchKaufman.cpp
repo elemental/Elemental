@@ -10,7 +10,6 @@
 #include "El-lite.hpp"
 
 #include EL_APPLYPACKEDREFLECTORS_INC
-#include EL_LDL_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INERTIA_INC
 
@@ -63,10 +62,7 @@ main( int argc, char* argv[] )
         DistMatrix<C,MD,STAR> dSub;
         DistMatrix<C> factA( A );
         MakeTriangular( LOWER, factA );
-        if( conjugate )
-            LDLH( factA, dSub, p, pivotType );
-        else
-            LDLT( factA, dSub, p, pivotType );
+        LDL( factA, dSub, p, conjugate, pivotType );
         if( print )
         {
             Print( A,     "A"     );

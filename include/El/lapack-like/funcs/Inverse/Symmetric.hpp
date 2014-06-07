@@ -10,8 +10,6 @@
 #ifndef EL_INVERSE_SYMMETRIC_HPP
 #define EL_INVERSE_SYMMETRIC_HPP
 
-#include EL_LDL_INC
-
 #include EL_INVERTPERMUTATION_INC
 #include EL_PERMUTECOLS_INC
 #include EL_PERMUTEROWS_INC
@@ -32,7 +30,7 @@ SymmetricInverse
     {
         Matrix<Int> pPerm;
         Matrix<F> dSub;
-        ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
+        LDL( A, dSub, pPerm, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
@@ -58,7 +56,7 @@ SymmetricInverse
     {
         DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
         DistMatrix<F,MD,STAR> dSub( A.Grid() );
-        ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
+        LDL( A, dSub, pPerm, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 

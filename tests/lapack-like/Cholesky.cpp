@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_CHOLESKY_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC
+#include EL_MAXNORM_INC
 #include EL_ONENORM_INC
 using namespace std;
 using namespace El;
@@ -67,7 +67,7 @@ void TestCorrectness
 
 template<typename F,Dist UPerm> 
 void TestCholesky
-( bool testCorrectness, bool pivot, bool unblocked, bool print, bool printDiag,
+( bool testCorrectness, bool pivot, bool print, bool printDiag,
   UpperOrLower uplo, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
@@ -96,17 +96,7 @@ void TestCholesky
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( pivot )
-    {
-        if( unblocked )
-        {
-            if( uplo == LOWER )
-                cholesky::LUnblockedPivoted( A, pPerm );
-            else
-                cholesky::UUnblockedPivoted( A, pPerm );
-        }
-        else
-            Cholesky( uplo, A, pPerm );
-    }
+        Cholesky( uplo, A, pPerm );
     else
         Cholesky( uplo, A );
     mpi::Barrier( g.Comm() );
@@ -148,7 +138,6 @@ main( int argc, char* argv[] )
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool pivot = Input("--pivot","use pivoting?",false);
-        const bool unblocked = Input("--unblocked","unblocked pivoting?",false);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -171,12 +160,12 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
         TestCholesky<double,VC>
-        ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
         TestCholesky<Complex<double>,VC>
-        ( testCorrectness, pivot, unblocked, print, printDiag, uplo, m, g );
+        ( testCorrectness, pivot, print, printDiag, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

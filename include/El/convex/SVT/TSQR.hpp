@@ -11,7 +11,6 @@
 #define EL_SVT_TSQR_HPP
 
 #include EL_ZERONORM_INC
-#include EL_QR_INC
 
 namespace El {
 namespace svt {

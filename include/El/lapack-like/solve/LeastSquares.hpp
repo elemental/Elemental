@@ -10,9 +10,6 @@
 #ifndef EL_LEASTSQUARES_HPP
 #define EL_LEASTSQUARES_HPP
 
-#include EL_LQ_INC
-#include EL_QR_INC
-
 namespace El {
 
 template<typename F> 

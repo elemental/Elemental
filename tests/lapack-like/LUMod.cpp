@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_LU_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC
 #include EL_ONENORM_INC
@@ -184,11 +183,11 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             cout << "Testing with doubles:" << endl;
-        TestLUMod<double,MC>( conjugate, tau, testCorrectness, print, m, g );
+        TestLUMod<double,VC>( conjugate, tau, testCorrectness, print, m, g );
 
         if( commRank == 0 )
             cout << "Testing with double-precision complex:" << endl;
-        TestLUMod<Complex<double>,MC>
+        TestLUMod<Complex<double>,VC>
         ( conjugate, tau, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }

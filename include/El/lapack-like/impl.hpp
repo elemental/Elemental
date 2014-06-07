@@ -11,8 +11,6 @@
 #define EL_LAPACK_IMPL_HPP
 
 #include "./util.hpp"
-#include "./factor.hpp"
-#include "./condense.hpp"
 #include "./decomp.hpp"
 #include "./solve.hpp"
 #include "./funcs.hpp"

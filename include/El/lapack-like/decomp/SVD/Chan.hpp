@@ -10,8 +10,6 @@
 #ifndef EL_SVD_CHAN_HPP
 #define EL_SVD_CHAN_HPP
 
-#include EL_QR_INC
-
 #include "./GolubReinsch.hpp"
 
 namespace El {

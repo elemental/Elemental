@@ -11,8 +11,10 @@
 #define EL_LINEARPROGRAM_HPP
 
 #include EL_FROBENIUSNORM_INC
-#include EL_LU_INC
 #include EL_TRIANGULARINVERSE_INC
+
+#include EL_PERMUTEROWS_INC
+
 #include EL_CLIP_INC
 #include EL_ZEROS_INC
 

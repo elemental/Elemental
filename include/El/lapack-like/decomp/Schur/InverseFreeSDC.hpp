@@ -13,8 +13,6 @@
 #include EL_TRACE_INC
 
 #include EL_ONENORM_INC
-#include EL_QR_INC
-#include EL_RQ_INC
 
 #include EL_IDENTITY_INC
 #include EL_ZEROS_INC

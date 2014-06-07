@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_CHOLESKY_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC
+#include EL_MAXNORM_INC
 #include EL_ONENORM_INC
 using namespace std;
 using namespace El;

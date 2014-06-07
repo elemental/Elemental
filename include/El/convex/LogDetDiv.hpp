@@ -10,7 +10,6 @@
 #ifndef EL_LOGDETDIV_HPP
 #define EL_LOGDETDIV_HPP
 
-#include EL_CHOLESKY_INC
 #include EL_FROBENIUSNORM_INC
 
 namespace El {

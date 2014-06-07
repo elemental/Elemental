@@ -10,7 +10,6 @@
 #ifndef EL_SCHUR_QR_HPP
 #define EL_SCHUR_QR_HPP
 
-#include EL_HESSENBERG_INC
 #include EL_IDENTITY_INC
 
 namespace El {

@@ -16,19 +16,6 @@
 #define EL_LAPACK_DECL_INC "El/lapack-like/decl.hpp"
 #define EL_LAPACK_IMPL_INC "El/lapack-like/impl.hpp"
 
-// Reduction to condensed form
-// ---------------------------
-#define EL_CONDENSE_INC      "El/lapack-like/condense.hpp"
-#define EL_CONDENSE_DECL_INC "El/lapack-like/condense/decl.hpp"
-#define EL_CONDENSE_IMPL_INC "El/lapack-like/condense/impl.hpp"
-
-#define EL_BIDIAG_INC \
-  "El/lapack-like/condense/Bidiag.hpp"
-#define EL_HERMITIANTRIDIAG_INC \
-  "El/lapack-like/condense/HermitianTridiag.hpp"
-#define EL_HESSENBERG_INC \
-  "El/lapack-like/condense/Hessenberg.hpp"
-
 // Decompositions
 // --------------
 #define EL_DECOMP_INC      "El/lapack-like/decomp.hpp"
@@ -75,99 +62,6 @@
   "El/lapack-like/decomp/Schur/QR.hpp"
 #define EL_SCHUR_SDC_INC \
   "El/lapack-like/decomp/Schur/SDC.hpp"
-
-// Factorizations
-// --------------
-#define EL_FACTOR_INC      "El/lapack-like/factor.hpp"
-#define EL_FACTOR_DECL_INC "El/lapack-like/factor/decl.hpp"
-#define EL_FACTOR_IMPL_INC "El/lapack-like/factor/impl.hpp"
-
-#define EL_CHOLESKY_INC \
-  "El/lapack-like/factor/Cholesky.hpp"
-#define EL_LDL_INC \
-  "El/lapack-like/factor/LDL.hpp"
-#define EL_LU_INC \
-  "El/lapack-like/factor/LU.hpp"
-
-#define EL_LQ_INC \
-  "El/lapack-like/factor/LQ.hpp"
-#define EL_QR_INC \
-  "El/lapack-like/factor/QR.hpp"
-#define EL_RQ_INC \
-  "El/lapack-like/factor/RQ.hpp"
-
-#define EL_GQR_INC \
-  "El/lapack-like/factor/GQR.hpp"
-#define EL_GRQ_INC \
-  "El/lapack-like/factor/GRQ.hpp"
-
-#define EL_ID_INC \
-  "El/lapack-like/factor/ID.hpp"
-#define EL_SKELETON_INC \
-  "El/lapack-like/factor/Skeleton.hpp"
-
-// Specific LDL routines
-// ^^^^^^^^^^^^^^^^^^^^^
-#define EL_LDL_INERTIA_INC \
-  "El/lapack-like/factor/LDL/Inertia.hpp"
-#define EL_LDL_MULTIPLYAFTER_INC \
-  "El/lapack-like/factor/LDL/MultiplyAfter.hpp"
-#define EL_LDL_PIVOTED_INC \
-  "El/lapack-like/factor/LDL/Pivoted.hpp"
-#define EL_LDL_SOLVEAFTER_INC \
-  "El/lapack-like/factor/LDL/SolveAfter.hpp"
-#define EL_LDL_VAR3_INC \
-  "El/lapack-like/factor/LDL/Var3.hpp"
-
-// Specific LQ routines
-// ^^^^^^^^^^^^^^^^^^^^
-#define EL_LQ_APPLYQ_INC \
-  "El/lapack-like/factor/LQ/ApplyQ.hpp"
-#define EL_LQ_EXPLICIT_INC \
-  "El/lapack-like/factor/LQ/Explicit.hpp"
-#define EL_LQ_HOUSEHOLDER_INC \
-  "El/lapack-like/factor/LQ/Householder.hpp"
-#define EL_LQ_PANELHOUSEHOLDER_INC \
-  "El/lapack-like/factor/LQ/PanelHouseholder.hpp"
-
-// Specific LU routines
-// ^^^^^^^^^^^^^^^^^^^^
-#define EL_LU_FULL_INC \
-  "El/lapack-like/factor/LU/Full.hpp"
-#define EL_LU_LOCAL_INC \
-  "El/lapack-like/factor/LU/Local.hpp"
-#define EL_LU_PANEL_INC \
-  "El/lapack-like/factor/LU/Panel.hpp"
-#define EL_LU_SOLVEAFTER_INC \
-  "El/lapack-like/factor/LU/SolveAfter.hpp"
-
-// Specific QR routines
-// ^^^^^^^^^^^^^^^^^^^^
-#define EL_QR_APPLYQ_INC \
-  "El/lapack-like/factor/QR/ApplyQ.hpp"
-#define EL_QR_BUSINGERGOLUB_INC \
-  "El/lapack-like/factor/QR/BusingerGolub.hpp"
-#define EL_QR_CHOLESKY_INC \
-  "El/lapack-like/factor/QR/Cholesky.hpp"
-#define EL_QR_EXPLICIT_INC \
-  "El/lapack-like/factor/QR/Explicit.hpp"
-#define EL_QR_HOUSEHOLDER_INC \
-  "El/lapack-like/factor/QR/Householder.hpp"
-#define EL_QR_PANELHOUSEHOLDER_INC \
-  "El/lapack-like/factor/QR/PanelHouseholder.hpp"
-#define EL_QR_TS_INC \
-  "El/lapack-like/factor/QR/TS.hpp"
-
-// Specific RQ routines
-// ^^^^^^^^^^^^^^^^^^^^
-#define EL_RQ_APPLYQ_INC \
-  "El/lapack-like/factor/RQ/ApplyQ.hpp"
-#define EL_RQ_CHOLESKY_INC \
-  "El/lapack-like/factor/RQ/Cholesky.hpp"
-#define EL_RQ_HOUSEHOLDER_INC \
-  "El/lapack-like/factor/RQ/Householder.hpp"
-#define EL_RQ_PANELHOUSEHOLDER_INC \
-  "El/lapack-like/factor/RQ/PanelHouseholder.hpp"
 
 // Matrix functions
 // ----------------

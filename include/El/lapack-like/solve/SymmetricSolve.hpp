@@ -10,8 +10,6 @@
 #ifndef EL_SYMMETRICSOLVE_HPP
 #define EL_SYMMETRICSOLVE_HPP
 
-#include EL_LDL_INC
-
 namespace El {
 
 template<typename F>
@@ -25,7 +23,7 @@ SymmetricSolve
         LogicError("Upper Bunch-Kaufman is not yet supported");
     Matrix<Int> pPerm; 
     Matrix<F> dSub;
-    ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
+    LDL( A, dSub, pPerm, conjugate, pivotType );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
                             (orientation == TRANSPOSE && conjugate == true) );
     if( conjFlip )
@@ -47,7 +45,7 @@ SymmetricSolve
         LogicError("Upper Bunch-Kaufman is not yet supported");
     DistMatrix<Int,VC,STAR> pPerm(A.Grid()); 
     DistMatrix<F,MD,STAR> dSub(A.Grid());
-    ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
+    LDL( A, dSub, pPerm, conjugate, pivotType );
     const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
                             (orientation == TRANSPOSE && conjugate == true) );
     if( conjFlip )

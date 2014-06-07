@@ -11,7 +11,6 @@
 #define EL_SVT_PIVOTEDQR_HPP
 
 #include EL_ZERONORM_INC
-#include EL_QR_INC
 #include EL_SVD_INC
 #include EL_SOFTTHRESHOLD_INC
 
@@ -35,7 +34,10 @@ PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
     Matrix<F> ACopy( A ), t;
     Matrix<Real> d;
     Matrix<Int> pPerm;
-    qr::BusingerGolub( ACopy, t, d, pPerm, numSteps );
+    QRCtrl<Base<F>> ctrl;
+    ctrl.boundRank = true;
+    ctrl.maxRank = numSteps;
+    QR( ACopy, t, d, pPerm, ctrl );
     Matrix<F> ACopyUpper;
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
 
@@ -75,7 +77,10 @@ PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Real,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> pPerm(g);
-    qr::BusingerGolub( ACopy, t, d, pPerm, numSteps );
+    QRCtrl<Base<F>> ctrl;
+    ctrl.boundRank = true;
+    ctrl.maxRank = numSteps;
+    QR( ACopy, t, d, pPerm, ctrl );
     DistMatrix<F> ACopyUpper(g);
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
 

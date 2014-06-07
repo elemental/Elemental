@@ -10,8 +10,6 @@
 #ifndef EL_PROPS_DECL_HPP
 #define EL_PROPS_DECL_HPP
 
-#include EL_FACTOR_DECL_INC
-#include EL_CONDENSE_DECL_INC
 #include EL_DECOMP_DECL_INC
 
 #endif // ifndef EL_PROPS_DECL_HPP

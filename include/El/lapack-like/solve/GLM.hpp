@@ -10,8 +10,6 @@
 #ifndef EL_GLM_HPP
 #define EL_GLM_HPP
 
-#include EL_GQR_INC
-
 // This driver solves a sequence of General (Gauss-Markov) Linear Model (GLM)
 // problems using a Generalized QR factorization. 
 //

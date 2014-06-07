@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_LDL_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC
 #include EL_ONENORM_INC
@@ -96,10 +95,7 @@ void TestLDL
     const double startTime = mpi::Time();
     DistMatrix<F,MD,STAR> dSub(g);
     DistMatrix<Int,UPerm,STAR> pPerm(g);
-    if( conjugated )
-        LDLH( A, dSub, pPerm );
-    else
-        LDLT( A, dSub, pPerm );
+    LDL( A, dSub, pPerm, conjugated );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);

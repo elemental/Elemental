@@ -10,8 +10,6 @@
 #ifndef EL_INERTIA_HPP
 #define EL_INERTIA_HPP
 
-#include EL_LDL_INC
-
 namespace El {
 
 template<typename F>
@@ -23,7 +21,7 @@ Inertia( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
         LogicError("This option not yet supported");
     Matrix<Int> pPerm;
     Matrix<F> dSub;
-    ldl::Pivoted( A, dSub, pPerm, true, pivotType );
+    LDL( A, dSub, pPerm, true, pivotType );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
@@ -37,7 +35,7 @@ Inertia
         LogicError("This option not yet supported");
     DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
-    ldl::Pivoted( A, dSub, pPerm, true, pivotType );
+    LDL( A, dSub, pPerm, true, pivotType );
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 

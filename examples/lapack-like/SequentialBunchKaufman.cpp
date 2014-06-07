@@ -9,7 +9,6 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_APPLYPACKEDREFLECTORS_INC
-#include EL_LDL_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_INERTIA_INC
 #include EL_UNIFORM_INC
@@ -60,10 +59,7 @@ main( int argc, char* argv[] )
         Matrix<Int> perm;
         Matrix<C> dSub, factA( A );
         MakeTriangular( LOWER, factA );
-        if( conjugate )
-            LDLH( factA, dSub, perm, pivotType );
-        else
-            LDLT( factA, dSub, perm, pivotType );
+        LDL( factA, dSub, perm, conjugate, pivotType );
         if( print && mpi::WorldRank()==0 )
         {
             Print( A,     "A"     );

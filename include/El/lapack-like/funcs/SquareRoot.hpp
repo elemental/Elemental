@@ -10,7 +10,6 @@
 #ifndef EL_SQUAREROOT_HPP
 #define EL_SQUAREROOT_HPP
 
-#include EL_LU_INC
 #include EL_MAXNORM_INC
 #include EL_ONENORM_INC
 #include EL_HERMITIANFROMEVD_INC

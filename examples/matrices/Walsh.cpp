@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_LDL_INC
 #include EL_WALSH_INC
 using namespace El;
 
@@ -36,7 +35,7 @@ main( int argc, char* argv[] )
 
         if( !binary )
         {
-            LDLH( W );
+            LDL( W, true );
             auto d = W.GetDiagonal();
             MakeTriangular( LOWER, W );
             SetDiagonal( W, 1. );

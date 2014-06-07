@@ -10,8 +10,6 @@
 #ifndef EL_DECOMP_DECL_HPP
 #define EL_DECOMP_DECL_HPP
 
-#include EL_CONDENSE_DECL_INC
-
 namespace El {
 
 namespace HermitianGenDefiniteEigTypeNS {

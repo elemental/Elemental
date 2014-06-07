@@ -10,6 +10,4 @@
 #ifndef EL_SOLVE_DECL_HPP
 #define EL_SOLVE_DECL_HPP
 
-#include EL_FACTOR_DECL_INC
-
 #endif // ifndef EL_SOLVE_DECL_HPP

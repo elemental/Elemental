@@ -13,7 +13,6 @@
 #include EL_MAXNORM_INC
 #include EL_ONENORM_INC
 #include EL_TWONORMESTIMATE_INC
-#include EL_HESSENBERG_INC
 #include EL_SCHUR_INC
 
 #include "./Pseudospectrum/Util.hpp"

@@ -10,6 +10,4 @@
 #ifndef EL_INVERSE_DECL_HPP
 #define EL_INVERSE_DECL_HPP
 
-#include EL_FACTOR_DECL_INC
-
 #endif // ifndef EL_INVERSE_DECL_HPP

@@ -11,7 +11,6 @@
 #include EL_FROBENIUSNORM_INC
 #include EL_INFINITYNORM_INC
 #include EL_ONENORM_INC
-#include EL_QR_INC
 #include EL_IDENTITY_INC
 #include EL_UNIFORM_INC
 using namespace std;

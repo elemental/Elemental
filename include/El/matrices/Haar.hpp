@@ -10,7 +10,6 @@
 #ifndef EL_HAAR_HPP
 #define EL_HAAR_HPP
 
-#include EL_QR_INC
 #include EL_GAUSSIAN_INC
 
 namespace El {

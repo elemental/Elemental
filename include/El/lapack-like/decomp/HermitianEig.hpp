@@ -10,7 +10,6 @@
 #ifndef EL_HERMITIANEIG_HPP
 #define EL_HERMITIANEIG_HPP
 
-#include EL_HERMITIANTRIDIAG_INC
 #include EL_HERMITIANTRIDIAGEIG_INC
 
 // NOTE: HermitianEig declarations are in lapack-like/decomp/decl.hpp

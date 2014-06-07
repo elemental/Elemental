@@ -12,8 +12,6 @@
 
 #include EL_FROBENIUSNORM_INC
 #include EL_ONENORM_INC
-#include EL_LQ_INC
-#include EL_QR_INC
 #include EL_PSEUDOINVERSE_INC
 #include EL_SOFTTHRESHOLD_INC
 #include EL_ZEROS_INC
