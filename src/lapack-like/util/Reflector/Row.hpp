@@ -19,8 +19,7 @@ namespace El {
 namespace reflector {
 
 template<typename F,Dist U,Dist V>
-inline F
-Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reflector::Row");    
@@ -105,8 +104,7 @@ Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-Row( F& chi, DistMatrix<F,U,V>& x )
+F Row( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reflector::Row");    

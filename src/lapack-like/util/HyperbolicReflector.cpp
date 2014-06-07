@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HYPERBOLICREFLECTOR_HPP
-#define EL_HYPERBOLICREFLECTOR_HPP
+#include "El-lite.hpp"
 
 #include "./HyperbolicReflector/Col.hpp"
 #include "./HyperbolicReflector/Row.hpp"
@@ -21,8 +19,7 @@ namespace El {
 // where Sigma is diag(+1,-1,...,-1)
 
 template<typename F>
-inline F
-LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
+F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
@@ -69,8 +66,7 @@ LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 }
 
 template<typename F>
-inline F
-LeftHyperbolicReflector( F& chi, Matrix<F>& x )
+F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
@@ -115,8 +111,7 @@ LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
@@ -135,8 +130,7 @@ LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-LeftHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
+F LeftHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
@@ -156,8 +150,7 @@ LeftHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
 // where Sigma is diag(+1,-1,...,-1)
 
 template<typename F>
-inline F
-RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
+F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("RightHyperbolicReflector"))
     const F tau = LeftHyperbolicReflector( chi, x );
@@ -166,8 +159,7 @@ RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 }
 
 template<typename F>
-inline F
-RightHyperbolicReflector( F& chi, Matrix<F>& x )
+F RightHyperbolicReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("RightHyperbolicReflector"))
     const F tau = LeftHyperbolicReflector( chi, x );
@@ -176,8 +168,7 @@ RightHyperbolicReflector( F& chi, Matrix<F>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightHyperbolicReflector");
@@ -196,8 +187,7 @@ RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-RightHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
+F RightHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightHyperbolicReflector");
@@ -211,6 +201,23 @@ RightHyperbolicReflector( F& chi, DistMatrix<F,U,V>& x )
     return tau;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template F LeftHyperbolicReflector( F& chi, Matrix<F>& x ); \
+  template F LeftHyperbolicReflector( F& chi, DistMatrix<F>& x ); \
+  template F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
+  template F LeftHyperbolicReflector( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F RightHyperbolicReflector( F& chi, Matrix<F>& x ); \
+  template F RightHyperbolicReflector( F& chi, DistMatrix<F>& x ); \
+  template F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
+  template F RightHyperbolicReflector( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F hyp_reflector::Col( F& chi, DistMatrix<F>& x ); \
+  template F hyp_reflector::Col( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F hyp_reflector::Row( F& chi, DistMatrix<F>& x ); \
+  template F hyp_reflector::Row( DistMatrix<F>& chi, DistMatrix<F>& x );
 
-#endif // ifndef EL_HYPERBOLICREFLECTOR_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

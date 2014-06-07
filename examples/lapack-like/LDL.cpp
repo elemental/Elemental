@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_APPLYPACKEDREFLECTORS_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_WIGNER_INC
 using namespace std;

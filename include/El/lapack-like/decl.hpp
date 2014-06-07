@@ -10,7 +10,8 @@
 #ifndef EL_LAPACK_DECL_HPP
 #define EL_LAPACK_DECL_HPP
 
-#include "./util/decl.hpp"
+#include "./util.hpp"
+#include "./perm/decl.hpp"
 
 #include "./factor.hpp"
 #include "./condense.hpp"
@@ -19,7 +20,6 @@
 #include "./decomp/decl.hpp"
 #include "./solve/decl.hpp"
 
-#include "./perm/decl.hpp"
 #include "./props/decl.hpp"
 
 #endif // ifndef EL_LAPACK_DECL_HPP

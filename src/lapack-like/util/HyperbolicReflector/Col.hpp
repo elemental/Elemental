@@ -16,8 +16,7 @@ namespace hyp_reflector {
 // Please see the comments in the sequential implementation for details.
 
 template<typename F,Dist U,Dist V> 
-inline F
-Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hyp_reflector::Col");
@@ -70,8 +69,7 @@ Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V> 
-inline F
-Col( F& chi, DistMatrix<F,U,V>& x )
+F Col( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hyp_reflector::Col");

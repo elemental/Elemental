@@ -10,7 +10,6 @@
 #ifndef EL_LQ_PANELHOUSEHOLDER_HPP
 #define EL_LQ_PANELHOUSEHOLDER_HPP
 
-#include EL_REFLECTOR_INC
 #include EL_ZEROS_INC
 
 namespace El {

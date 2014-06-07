@@ -10,8 +10,6 @@
 #ifndef EL_HERMITIANTRIDIAG_APPLYQ_HPP
 #define EL_HERMITIANTRIDIAG_APPLYQ_HPP
 
-#include EL_APPLYPACKEDREFLECTORS_INC
-
 namespace El {
 namespace herm_tridiag {
 

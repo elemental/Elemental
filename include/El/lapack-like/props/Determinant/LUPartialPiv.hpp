@@ -10,8 +10,6 @@
 #ifndef EL_DETERMINANT_LUPARTIALPIV_HPP
 #define EL_DETERMINANT_LUPARTIALPIV_HPP
 
-#include EL_PERMUTATIONPARITY_INC
-
 namespace El {
 namespace det {
 

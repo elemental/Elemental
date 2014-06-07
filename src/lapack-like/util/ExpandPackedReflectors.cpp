@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_EXPANDPACKEDREFLECTORS_HPP
-#define EL_EXPANDPACKEDREFLECTORS_HPP
+#include "El-lite.hpp"
 
 #include "./ApplyPackedReflectors/Util.hpp"
 #include "./ExpandPackedReflectors/LV.hpp"
@@ -16,8 +14,7 @@
 namespace El {
 
 template<typename F> 
-inline void
-ExpandPackedReflectors
+void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
@@ -29,8 +26,7 @@ ExpandPackedReflectors
 }
 
 template<typename F> 
-inline void
-ExpandPackedReflectors
+void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
@@ -42,8 +38,7 @@ ExpandPackedReflectors
 }
 
 template<typename F> 
-inline void
-ExpandPackedReflectors
+void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t )
 {
@@ -55,6 +50,20 @@ ExpandPackedReflectors
     ExpandPackedReflectors( uplo, dir, conjugation, offset, H, tDiag );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void ExpandPackedReflectors \
+  ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
+    Int offset, Matrix<F>& H, const Matrix<F>& t ); \
+  template void ExpandPackedReflectors \
+  ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
+    Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t ); \
+  template void ExpandPackedReflectors \
+  ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
+    Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t ); 
 
-#endif // ifndef EL_EXPANDPACKEDREFLECTORS_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

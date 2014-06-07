@@ -8,7 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_APPLYPACKEDREFLECTORS_INC
 #include EL_HERMITIANTRIDIAGEIG_INC
 #include EL_HERMITIANEIG_INC
 #include EL_MAXNORM_INC

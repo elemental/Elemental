@@ -10,8 +10,6 @@
 #ifndef EL_HERMITIANTRIDIAGEIG_SORT_HPP
 #define EL_HERMITIANTRIDIAGEIG_SORT_HPP
 
-#include EL_SORT_INC
-
 namespace El {
 
 // This routine is slightly more general than necessary (complex support) so
@@ -43,8 +41,7 @@ Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING )
     Z = ZPerm;
 }
 
-template<typename F,Dist U1,Dist V1,
-                    Dist U2,Dist V2>
+template<typename F,Dist U1,Dist V1,Dist U2,Dist V2>
 inline void
 Sort
 ( DistMatrix<Base<F>,U1,V1>& w, DistMatrix<F,U2,V2>& Z, 

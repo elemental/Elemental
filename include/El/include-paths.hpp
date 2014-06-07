@@ -170,29 +170,6 @@
 #define EL_MULTISHIFTHESSSOLVE_INC \
   "El/lapack-like/solve/MultiShiftHessSolve.hpp"
 
-// Utilities
-// ---------
-#define EL_LAPACKUTIL_INC      "El/lapack-like/util.hpp"
-#define EL_LAPACKUTIL_DECL_INC "El/lapack-like/util/decl.hpp"
-#define EL_LAPACKUTIL_IMPL_INC "El/lapack-like/util/impl.hpp"
-
-#define EL_APPLYPACKEDREFLECTORS_INC \
-  "El/lapack-like/util/ApplyPackedReflectors.hpp"
-#define EL_EXPANDPACKEDREFLECTORS_INC \
-  "El/lapack-like/util/ExpandPackedReflectors.hpp"
-#define EL_HYPERBOLICREFLECTOR_INC \
-  "El/lapack-like/util/HyperbolicReflector.hpp"
-#define EL_MEDIAN_INC \
-  "El/lapack-like/util/Median.hpp"
-#define EL_PERMUTATIONPARITY_INC \
-  "El/lapack-like/util/PermutationParity.hpp"
-#define EL_PIVOTPARITY_INC \
-  "El/lapack-like/util/PivotParity.hpp"
-#define EL_REFLECTOR_INC \
-  "El/lapack-like/util/Reflector.hpp"
-#define EL_SORT_INC \
-  "El/lapack-like/util/Sort.hpp"
-
 // Special matrices
 // ================
 #define EL_MATRICES_INC      "El/matrices.hpp"

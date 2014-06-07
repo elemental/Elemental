@@ -10,8 +10,6 @@
 #ifndef EL_BIDIAG_APPLY_HPP
 #define EL_BIDIAG_APPLY_HPP
 
-#include EL_APPLYPACKEDREFLECTORS_INC
-
 namespace El {
 namespace bidiag {
 

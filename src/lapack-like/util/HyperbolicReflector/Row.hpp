@@ -14,8 +14,7 @@ namespace El {
 namespace hyp_reflector {
 
 template<typename F,Dist U,Dist V>
-inline F
-Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hyp_reflector::Row");
@@ -69,8 +68,7 @@ Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-Row( F& chi, DistMatrix<F,U,V>& x )
+F Row( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hyp_reflector::Row");

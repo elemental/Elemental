@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_PIVOTPARITY_HPP
-#define EL_PIVOTPARITY_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
@@ -16,8 +14,7 @@ namespace El {
 // of transpositions, so we can decide this by simply checking how many 
 // nontrivial pivots were performed.
 
-inline bool
-PivotParity( const Matrix<Int>& p, Int pivotOffset=0 )
+bool PivotParity( const Matrix<Int>& p, Int pivotOffset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotParity");
@@ -34,8 +31,7 @@ PivotParity( const Matrix<Int>& p, Int pivotOffset=0 )
     return isOdd;
 }
 
-inline bool
-PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset=0 ) 
+bool PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotParity");
@@ -61,5 +57,3 @@ PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset=0 )
 }
 
 } // namespace El
-
-#endif // ifndef EL_PIVOTPARITY_HPP

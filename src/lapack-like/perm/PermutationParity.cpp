@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_PERMUTATIONPARITY_HPP
-#define EL_PERMUTATIONPARITY_HPP
+#include "El-lite.hpp"
 
 #include EL_INVERTPERMUTATION_INC
 
@@ -21,8 +19,7 @@ namespace El {
 // requires access to the inverse permutation, which can be formed in linear 
 // time.
 
-inline bool
-PermutationParity( const Matrix<Int>& origPerm )
+bool PermutationParity( const Matrix<Int>& origPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermutationParity");
@@ -56,8 +53,7 @@ PermutationParity( const Matrix<Int>& origPerm )
 }
 
 template<Dist UPerm>
-inline bool
-PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm ) 
+bool PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermutationParity");
@@ -90,6 +86,11 @@ PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm )
     return isOdd;
 }
 
-} // namespace El
+template bool PermutationParity( const DistMatrix<Int,MC,STAR>& origPerm );
+template bool PermutationParity( const DistMatrix<Int,MD,STAR>& origPerm );
+template bool PermutationParity( const DistMatrix<Int,MR,STAR>& origPerm );
+template bool PermutationParity( const DistMatrix<Int,VC,STAR>& origPerm );
+template bool PermutationParity( const DistMatrix<Int,VR,STAR>& origPerm );
+template bool PermutationParity( const DistMatrix<Int,STAR,STAR>& origPerm );
 
-#endif // ifndef EL_PERMUTATIONPARITY_HPP
+} // namespace El

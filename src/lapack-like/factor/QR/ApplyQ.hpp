@@ -10,8 +10,6 @@
 #ifndef EL_QR_APPLYQ_HPP
 #define EL_QR_APPLYQ_HPP
 
-#include EL_APPLYPACKEDREFLECTORS_INC
-
 namespace El {
 namespace qr {
 

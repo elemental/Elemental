@@ -10,8 +10,6 @@
 #ifndef EL_QR_TS_HPP
 #define EL_QR_TS_HPP
 
-#include EL_EXPANDPACKEDREFLECTORS_INC
-
 namespace El {
 namespace qr {
 namespace ts {

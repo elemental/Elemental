@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SORT_HPP
-#define EL_SORT_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 // Sort each column of the real matrix X
 
 template<typename Real>
-inline void
-Sort( Matrix<Real>& X, SortType sort=ASCENDING )
+void Sort( Matrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("Sort"))
     if( IsComplex<Real>::val )
@@ -36,8 +33,7 @@ Sort( Matrix<Real>& X, SortType sort=ASCENDING )
 }
 
 template<typename Real,Dist U,Dist V>
-inline void
-Sort( DistMatrix<Real,U,V>& X, SortType sort=ASCENDING )
+void Sort( DistMatrix<Real,U,V>& X, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("Sort"))
     if( sort == UNSORTED )
@@ -63,8 +59,8 @@ Sort( DistMatrix<Real,U,V>& X, SortType sort=ASCENDING )
 // Tagged sort
 
 template<typename Real>
-inline std::vector<ValueInt<Real>>
-TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING )
+std::vector<ValueInt<Real>> TaggedSort
+( const Matrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
     if( IsComplex<Real>::val )
@@ -94,8 +90,8 @@ TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING )
 }
 
 template<typename Real,Dist U,Dist V>
-inline std::vector<ValueInt<Real>>
-TaggedSort( const DistMatrix<Real,U,V>& x, SortType sort=ASCENDING )
+std::vector<ValueInt<Real>> TaggedSort
+( const DistMatrix<Real,U,V>& x, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
     if( U==STAR && V==STAR )
@@ -109,6 +105,22 @@ TaggedSort( const DistMatrix<Real,U,V>& x, SortType sort=ASCENDING )
     }
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template void Sort( Matrix<Real>& x, SortType sort ); \
+  template void Sort( DistMatrix<Real>& x, SortType sort ); \
+  template void Sort( DistMatrix<Real,VR,STAR>& x, SortType sort ); \
+  template void Sort( DistMatrix<Real,STAR,STAR>& x, SortType sort ); \
+  template std::vector<ValueInt<Real>> TaggedSort \
+  ( const Matrix<Real>& x, SortType sort ); \
+  template std::vector<ValueInt<Real>> TaggedSort \
+  ( const DistMatrix<Real>& x, SortType sort ); \
+  template std::vector<ValueInt<Real>> TaggedSort \
+  ( const DistMatrix<Real,VR,STAR>& x, SortType sort ); \
+  template std::vector<ValueInt<Real>> TaggedSort \
+  ( const DistMatrix<Real,STAR,STAR>& x, SortType sort );
 
-#endif // ifndef EL_SORT_HPP
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+
+} // namespace El

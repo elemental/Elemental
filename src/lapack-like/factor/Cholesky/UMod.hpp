@@ -10,9 +10,6 @@
 #ifndef EL_CHOLESKY_UMOD_HPP
 #define EL_CHOLESKY_UMOD_HPP
 
-#include EL_REFLECTOR_INC
-#include EL_HYPERBOLICREFLECTOR_INC
-
 // TODO: Blocked algorithms
 
 namespace El {

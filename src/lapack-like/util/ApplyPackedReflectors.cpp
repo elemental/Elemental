@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_APPLYPACKEDREFLECTORS_HPP
-#define EL_APPLYPACKEDREFLECTORS_HPP
+#include "El-lite.hpp"
 
 #include "./ApplyPackedReflectors/Util.hpp"
 #include "./ApplyPackedReflectors/LLHB.hpp"
@@ -31,8 +29,7 @@
 namespace El {
 
 template<typename F> 
-inline void
-ApplyPackedReflectors
+void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
@@ -92,8 +89,7 @@ ApplyPackedReflectors
 }
 
 template<typename F> 
-inline void
-ApplyPackedReflectors
+void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
@@ -154,8 +150,7 @@ ApplyPackedReflectors
 }
 
 template<typename F> 
-inline void
-ApplyPackedReflectors
+void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation,
@@ -171,6 +166,29 @@ ApplyPackedReflectors
     ( side, uplo, dir, order, conjugation, offset, H, tDiag, A );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void ApplyPackedReflectors \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    VerticalOrHorizontal dir, ForwardOrBackward order, \
+    Conjugation conjugation, Int offset, \
+    const Matrix<F>& H, const Matrix<F>& t, \
+          Matrix<F>& A ); \
+  template void ApplyPackedReflectors \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    VerticalOrHorizontal dir, ForwardOrBackward order, \
+    Conjugation conjugation, Int offset, \
+    const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, \
+          DistMatrix<F>& A ); \
+  template void ApplyPackedReflectors \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    VerticalOrHorizontal dir, ForwardOrBackward order, \
+    Conjugation conjugation, Int offset, \
+    const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, \
+          DistMatrix<F>& A ); 
 
-#endif // ifndef EL_APPLYPACKEDREFLECTORS_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

@@ -9,8 +9,6 @@
 #ifndef EL_HERMITIANTRIDIAG_L_HPP
 #define EL_HERMITIANTRIDIAG_L_HPP
 
-#include EL_REFLECTOR_INC
-
 #include "./LPan.hpp"
 
 namespace El {

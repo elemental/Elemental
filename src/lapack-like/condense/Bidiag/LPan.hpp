@@ -10,8 +10,6 @@
 #ifndef EL_BIDIAG_LPAN_HPP
 #define EL_BIDIAG_LPAN_HPP
 
-#include EL_REFLECTOR_INC
-
 namespace El {
 namespace bidiag {
 

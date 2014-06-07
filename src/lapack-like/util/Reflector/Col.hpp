@@ -19,8 +19,7 @@ namespace El {
 namespace reflector {
 
 template<typename F,Dist U,Dist V> 
-inline F
-Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reflector::Col");
@@ -101,8 +100,7 @@ Col( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V> 
-inline F
-Col( F& chi, DistMatrix<F,U,V>& x )
+F Col( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("reflector::Col");

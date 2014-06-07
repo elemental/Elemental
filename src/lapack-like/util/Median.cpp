@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_MEDIAN_HPP
-#define EL_MEDIAN_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename Real>
-inline ValueInt<Real>
-Median( const Matrix<Real>& x )
+ValueInt<Real> Median( const Matrix<Real>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("Median"))
     if( IsComplex<Real>::val )
@@ -40,8 +37,7 @@ Median( const Matrix<Real>& x )
 }
 
 template<typename Real,Dist U,Dist V>
-inline ValueInt<Real>
-Median( const DistMatrix<Real,U,V>& x )
+ValueInt<Real> Median( const DistMatrix<Real,U,V>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("Median"))
     if( U==STAR && V==STAR )
@@ -55,6 +51,23 @@ Median( const DistMatrix<Real,U,V>& x )
     }
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template ValueInt<Real> Median( const Matrix<Real>& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,CIRC,CIRC>& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,MC,  MR  >& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,MC,  STAR>& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,MD,  STAR>& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,STAR,MC  >& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,STAR,MD  >& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,STAR,MR  >& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,STAR,STAR>& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,STAR,VC  >& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,STAR,VR  >& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,VC,  STAR>& x ); \
+  template ValueInt<Real> Median( const DistMatrix<Real,VR,  STAR>& x );
 
-#endif // ifndef EL_MEDIAN_HPP
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+
+} // namespace El

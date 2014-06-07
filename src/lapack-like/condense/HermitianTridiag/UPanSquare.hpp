@@ -9,8 +9,6 @@
 #ifndef EL_HERMITIANTRIDIAG_UPANSQUARE_HPP
 #define EL_HERMITIANTRIDIAG_UPANSQUARE_HPP
 
-#include EL_REFLECTOR_INC
-
 namespace El {
 namespace herm_tridiag {
 

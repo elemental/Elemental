@@ -11,9 +11,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_REFLECTOR_HPP
-#define EL_REFLECTOR_HPP
+#include "El-lite.hpp"
 
 #include "./Reflector/Col.hpp"
 #include "./Reflector/Row.hpp"
@@ -41,8 +39,7 @@ namespace El {
 // TODO: Switch to 1/tau to be simplify discussions of UT transforms
 
 template<typename F>
-inline F
-LeftReflector( Matrix<F>& chi, Matrix<F>& x )
+F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftReflector");
@@ -103,8 +100,7 @@ LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 }
 
 template<typename F>
-inline F
-LeftReflector( F& chi, Matrix<F>& x )
+F LeftReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftReflector");
@@ -162,10 +158,8 @@ LeftReflector( F& chi, Matrix<F>& x )
     return tau;
 }
 
-
 template<typename F,Dist U,Dist V>
-inline F
-LeftReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F LeftReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftReflector");
@@ -184,8 +178,7 @@ LeftReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-LeftReflector( F& chi, DistMatrix<F,U,V>& x )
+F LeftReflector( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftReflector");
@@ -208,8 +201,7 @@ LeftReflector( F& chi, DistMatrix<F,U,V>& x )
 //
 
 template<typename F>
-inline F
-RightReflector( Matrix<F>& chi, Matrix<F>& x )
+F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightReflector");
@@ -225,8 +217,7 @@ RightReflector( Matrix<F>& chi, Matrix<F>& x )
 }
 
 template<typename F>
-inline F
-RightReflector( F& chi, Matrix<F>& x )
+F RightReflector( F& chi, Matrix<F>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightReflector");
@@ -240,8 +231,7 @@ RightReflector( F& chi, Matrix<F>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-RightReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
+F RightReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightReflector");
@@ -260,8 +250,7 @@ RightReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 }
 
 template<typename F,Dist U,Dist V>
-inline F
-RightReflector( F& chi, DistMatrix<F,U,V>& x )
+F RightReflector( F& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightReflector");
@@ -275,6 +264,23 @@ RightReflector( F& chi, DistMatrix<F,U,V>& x )
     return tau;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template F LeftReflector( F& chi, Matrix<F>& x ); \
+  template F LeftReflector( F& chi, DistMatrix<F>& x ); \
+  template F LeftReflector( Matrix<F>& chi, Matrix<F>& x ); \
+  template F LeftReflector( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F RightReflector( F& chi, Matrix<F>& x ); \
+  template F RightReflector( F& chi, DistMatrix<F>& x ); \
+  template F RightReflector( Matrix<F>& chi, Matrix<F>& x ); \
+  template F RightReflector( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F reflector::Col( F& chi, DistMatrix<F>& x ); \
+  template F reflector::Col( DistMatrix<F>& chi, DistMatrix<F>& x ); \
+  template F reflector::Row( F& chi, DistMatrix<F>& x ); \
+  template F reflector::Row( DistMatrix<F>& chi, DistMatrix<F>& x );
 
-#endif // ifndef EL_REFLECTOR_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El
