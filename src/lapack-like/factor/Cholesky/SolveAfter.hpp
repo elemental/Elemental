@@ -10,9 +10,6 @@
 #ifndef EL_CHOLESKY_SOLVEAFTER_HPP
 #define EL_CHOLESKY_SOLVEAFTER_HPP
 
-#include EL_INVERTPERMUTATION_INC
-#include EL_PERMUTEROWS_INC
-
 namespace El {
 namespace cholesky {
 

@@ -10,9 +10,6 @@
 #ifndef EL_GAUSSIANELIMINATION_HPP
 #define EL_GAUSSIANELIMINATION_HPP
 
-#include EL_PERMUTEROWS_INC
-#include EL_PIVOTSTOPARTIALPERMUTATION_INC
-
 namespace El {
 
 // Short-circuited form of LU factorization with partial pivoting

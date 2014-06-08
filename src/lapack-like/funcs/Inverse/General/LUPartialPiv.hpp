@@ -10,8 +10,6 @@
 #ifndef EL_INVERSE_LUPARTIALPIV_HPP
 #define EL_INVERSE_LUPARTIALPIV_HPP
 
-#include EL_PERMUTECOLS_INC
-
 #include EL_ZEROS_INC
 
 namespace El {

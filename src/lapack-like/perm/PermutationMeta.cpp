@@ -6,60 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_PERMUTATIONMETA_HPP
-#define EL_LAPACK_PERMUTATIONMETA_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-struct PermutationMeta
-{
-    Int align;
-    mpi::Comm comm;
-    
-    // Will treat vector lengths as one
-    std::vector<int> sendCounts, sendDispls,
-                     recvCounts, recvDispls;
-
-    std::vector<int> sendIdx, sendRanks,
-                     recvIdx, recvRanks;
-
-    int TotalSend() const { return sendCounts.back()+sendDispls.back(); }
-    int TotalRecv() const { return recvCounts.back()+recvDispls.back(); }
-
-    void ScaleUp( Int length )
-    {
-        const int p = sendCounts.size();
-        for( int q=0; q<p; ++q )
-        {
-            sendCounts[q] *= length;
-            sendDispls[q] *= length;
-            recvCounts[q] *= length;
-            recvDispls[q] *= length;
-        }
-    }
-    void ScaleDown( Int length )
-    {
-        const int p = sendCounts.size();
-        for( int q=0; q<p; ++q )
-        {
-            sendCounts[q] /= length;
-            sendDispls[q] /= length;
-            recvCounts[q] /= length;
-            recvDispls[q] /= length;
-        }
-    }
-
-    template<Dist U> 
-    PermutationMeta
-    ( const DistMatrix<Int,U,STAR>& perm,
-      const DistMatrix<Int,U,STAR>& invPerm );
-};
-
 template<Dist U>
-inline PermutationMeta::PermutationMeta
-( const DistMatrix<Int,U,STAR>& perm,
-  const DistMatrix<Int,U,STAR>& invPerm )
+PermutationMeta::PermutationMeta
+( const DistMatrix<Int,U,GatheredDist<U>()>& perm,
+  const DistMatrix<Int,U,GatheredDist<U>()>& invPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermutationMeta::PermutationMeta");
@@ -148,6 +102,17 @@ inline PermutationMeta::PermutationMeta
     )
 }
 
-} // namespace El
+#define PROTO_DIST(U) \
+  template PermutationMeta::PermutationMeta \
+  ( const DistMatrix<Int,U,GatheredDist<U>()>& perm, \
+    const DistMatrix<Int,U,GatheredDist<U>()>& invPerm );
 
-#endif // ifndef EL_LAPACK_PERMUTATIONMETA_HPP
+PROTO_DIST(CIRC)
+PROTO_DIST(MC  )
+PROTO_DIST(MD  )
+PROTO_DIST(MR  )
+PROTO_DIST(STAR)
+PROTO_DIST(VC  )
+PROTO_DIST(VR  )
+
+} // namespace El

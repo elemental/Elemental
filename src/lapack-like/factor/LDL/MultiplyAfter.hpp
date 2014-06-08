@@ -10,9 +10,6 @@
 #ifndef EL_LDL_MULTIPLYAFTER_HPP
 #define EL_LDL_MULTIPLYAFTER_HPP
 
-#include EL_INVERTPERMUTATION_INC
-#include EL_PERMUTEROWS_INC
-
 namespace El {
 namespace ldl {
 

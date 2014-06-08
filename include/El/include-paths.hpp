@@ -63,29 +63,6 @@
 #define EL_SCHUR_SDC_INC \
   "El/lapack-like/decomp/Schur/SDC.hpp"
 
-// Permutations
-// ------------
-#define EL_APPLYCOLPIVOTS_INC \
-  "El/lapack-like/perm/ApplyColPivots.hpp"
-#define EL_APPLYROWPIVOTS_INC \
-  "El/lapack-like/perm/ApplyRowPivots.hpp"
-#define EL_APPLYSYMMETRICPIVOTS_INC \
-  "El/lapack-like/perm/ApplySymmetricPivots.hpp"
-#define EL_EXPLICITPERMUTATION_INC \
-  "El/lapack-like/perm/ExplicitPermutation.hpp"
-#define EL_INVERTPERMUTATION_INC \
-  "El/lapack-like/perm/InvertPermutation.hpp"
-#define EL_PERMUTATIONMETA_INC \
-  "El/lapack-like/perm/PermutationMeta.hpp"
-#define EL_PERMUTECOLS_INC \
-  "El/lapack-like/perm/PermuteCols.hpp"
-#define EL_PERMUTEROWS_INC \
-  "El/lapack-like/perm/PermuteRows.hpp"
-#define EL_PIVOTSTOPARTIALPERMUTATION_INC \
-  "El/lapack-like/perm/PivotsToPartialPermutation.hpp"
-#define EL_PIVOTSTOPERMUTATION_INC \
-  "El/lapack-like/perm/PivotsToPermutation.hpp"
-
 // Matrix properties
 // -----------------
 #define EL_PROPS_INC      "El/lapack-like/props.hpp"

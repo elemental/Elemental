@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_INVERTPERMUTATION_INC
-
 namespace El {
 
 // Walking through the process of LU factorization with partial pivoting
@@ -86,11 +84,14 @@ bool PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm )
     return isOdd;
 }
 
-template bool PermutationParity( const DistMatrix<Int,MC,STAR>& origPerm );
-template bool PermutationParity( const DistMatrix<Int,MD,STAR>& origPerm );
-template bool PermutationParity( const DistMatrix<Int,MR,STAR>& origPerm );
-template bool PermutationParity( const DistMatrix<Int,VC,STAR>& origPerm );
-template bool PermutationParity( const DistMatrix<Int,VR,STAR>& origPerm );
-template bool PermutationParity( const DistMatrix<Int,STAR,STAR>& origPerm );
+#define PROTO_DIST(U) \
+  template bool PermutationParity( const DistMatrix<Int,U,STAR>& origPerm );
+
+PROTO_DIST(MC  )
+PROTO_DIST(MD  )
+PROTO_DIST(MR  )
+PROTO_DIST(STAR)
+PROTO_DIST(VC  )
+PROTO_DIST(VR  )
 
 } // namespace El

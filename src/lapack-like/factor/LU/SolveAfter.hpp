@@ -10,8 +10,6 @@
 #ifndef EL_LU_SOLVEAFTER_HPP
 #define EL_LU_SOLVEAFTER_HPP
 
-#include EL_APPLYROWPIVOTS_INC
-
 namespace El {
 namespace lu {
 

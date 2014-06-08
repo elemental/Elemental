@@ -6,19 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_APPLYROWPIVOTS_HPP
-#define EL_LAPACK_APPLYROWPIVOTS_HPP
-
-#include "./InvertPermutation.hpp"
-#include "./PivotsToPermutation.hpp"
-#include "./PermuteRows.hpp"
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-ApplyRowPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
+void ApplyRowPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyRowPivots");
@@ -49,8 +42,8 @@ ApplyRowPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
 }
 
 template<typename T>
-inline void
-ApplyInverseRowPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
+void ApplyInverseRowPivots
+( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyInverseRowPivots");
@@ -81,9 +74,8 @@ ApplyInverseRowPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-ApplyRowPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset=0 )
+void ApplyRowPivots
+( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyRowPivots"))
     DistMatrix<Int,UPerm,STAR> perm(pivots.Grid()),
@@ -101,9 +93,8 @@ ApplyRowPivots
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-ApplyInverseRowPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset=0 )
+void ApplyInverseRowPivots
+( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyInverseRowPivots"))
     DistMatrix<Int,UPerm,STAR> perm(pivots.Grid()),
@@ -120,6 +111,58 @@ ApplyInverseRowPivots
     PermuteRows( A, invPerm, perm );
 }
 
-} // namespace El
+#define PROTO_DIST(T,U,V) \
+  template void ApplyRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MC,STAR>& pivots, Int offset ); \
+  template void ApplyRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MD,STAR>& pivots, Int offset ); \
+  template void ApplyRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MR,STAR>& pivots, Int offset ); \
+  template void ApplyRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VC,STAR>& pivots, Int offset ); \
+  template void ApplyRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VR,STAR>& pivots, Int offset ); \
+  template void ApplyRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,STAR,STAR>& pivots, \
+    Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MC,STAR>& pivots, Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MD,STAR>& pivots, Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MR,STAR>& pivots, Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VC,STAR>& pivots, Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VR,STAR>& pivots, Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,STAR,STAR>& pivots, \
+    Int offset );
 
-#endif // ifndef EL_LAPACK_APPLYROWPIVOTS_HPP
+#define PROTO(T) \
+  template void ApplyRowPivots \
+  ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
+  template void ApplyInverseRowPivots \
+  ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
+  PROTO_DIST(T,CIRC,CIRC) \
+  PROTO_DIST(T,MC,  MR  ) \
+  PROTO_DIST(T,MC,  STAR) \
+  PROTO_DIST(T,MD,  STAR) \
+  PROTO_DIST(T,MR,  MC  ) \
+  PROTO_DIST(T,MR,  STAR) \
+  PROTO_DIST(T,STAR,MC  ) \
+  PROTO_DIST(T,STAR,MD  ) \
+  PROTO_DIST(T,STAR,MR  ) \
+  PROTO_DIST(T,STAR,STAR) \
+  PROTO_DIST(T,STAR,VC  ) \
+  PROTO_DIST(T,STAR,VR  ) \
+  PROTO_DIST(T,VC,  STAR) \
+  PROTO_DIST(T,VR,  STAR)
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

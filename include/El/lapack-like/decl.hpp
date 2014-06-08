@@ -11,7 +11,7 @@
 #define EL_LAPACK_DECL_HPP
 
 #include "./util.hpp"
-#include "./perm/decl.hpp"
+#include "./perm.hpp"
 
 #include "./factor.hpp"
 #include "./condense.hpp"

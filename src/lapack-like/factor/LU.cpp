@@ -8,9 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_APPLYROWPIVOTS_INC
-#include EL_PIVOTSTOPARTIALPERMUTATION_INC
-
 #include "./LU/Local.hpp"
 #include "./LU/Panel.hpp"
 #include "./LU/Full.hpp"

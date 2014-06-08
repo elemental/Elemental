@@ -11,8 +11,6 @@
 
 #include EL_FROBENIUSNORM_INC
 
-#include EL_PERMUTECOLS_INC
-
 #include EL_IDENTITY_INC
 #include EL_UNIFORM_INC
 using namespace std;

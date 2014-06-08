@@ -8,9 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_PERMUTEROWS_INC
-#include EL_PERMUTECOLS_INC
-
 namespace El {
 
 // NOTE: This overwrites both triangles of the inverse.

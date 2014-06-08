@@ -6,19 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_APPLYCOLPIVOTS_HPP
-#define EL_LAPACK_APPLYCOLPIVOTS_HPP
-
-#include "./InvertPermutation.hpp"
-#include "./PivotsToPermutation.hpp"
-#include "./PermuteCols.hpp"
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
+void ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyColPivots");
@@ -48,8 +41,8 @@ ApplyColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
 }
 
 template<typename T>
-inline void
-ApplyInverseColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
+void ApplyInverseColPivots
+( Matrix<T>& A, const Matrix<Int>& pivots, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyInverseColPivots");
@@ -79,9 +72,8 @@ ApplyInverseColPivots( Matrix<T>& A, const Matrix<Int>& pivots, Int offset=0 )
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-ApplyColPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset=0 )
+void ApplyColPivots
+( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyColPivots"))
     DistMatrix<Int,UPerm,STAR> perm(pivots.Grid()),
@@ -99,8 +91,7 @@ ApplyColPivots
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-ApplyInverseColPivots
+void ApplyInverseColPivots
 ( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyInverseColPivots"))
@@ -118,6 +109,58 @@ ApplyInverseColPivots
     PermuteCols( A, invPerm, perm );
 }
 
-} // namespace El
+#define PROTO_DIST(T,U,V) \
+  template void ApplyColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MC,STAR>& pivots, Int offset ); \
+  template void ApplyColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MD,STAR>& pivots, Int offset ); \
+  template void ApplyColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MR,STAR>& pivots, Int offset ); \
+  template void ApplyColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VC,STAR>& pivots, Int offset ); \
+  template void ApplyColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VR,STAR>& pivots, Int offset ); \
+  template void ApplyColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,STAR,STAR>& pivots, \
+    Int offset ); \
+  template void ApplyInverseColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MC,STAR>& pivots, Int offset ); \
+  template void ApplyInverseColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MD,STAR>& pivots, Int offset ); \
+  template void ApplyInverseColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,MR,STAR>& pivots, Int offset ); \
+  template void ApplyInverseColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VC,STAR>& pivots, Int offset ); \
+  template void ApplyInverseColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,VR,STAR>& pivots, Int offset ); \
+  template void ApplyInverseColPivots \
+  ( DistMatrix<T,U,V>& A, const DistMatrix<Int,STAR,STAR>& pivots, \
+    Int offset );
 
-#endif // ifndef EL_LAPACK_APPLYCOLPIVOTS_HPP
+#define PROTO(T) \
+  template void ApplyColPivots \
+  ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
+  template void ApplyInverseColPivots \
+  ( Matrix<T>& A, const Matrix<Int>& pivots, Int offset ); \
+  PROTO_DIST(T,CIRC,CIRC) \
+  PROTO_DIST(T,MC,  MR  ) \
+  PROTO_DIST(T,MC,  STAR) \
+  PROTO_DIST(T,MD,  STAR) \
+  PROTO_DIST(T,MR,  MC  ) \
+  PROTO_DIST(T,MR,  STAR) \
+  PROTO_DIST(T,STAR,MC  ) \
+  PROTO_DIST(T,STAR,MD  ) \
+  PROTO_DIST(T,STAR,MR  ) \
+  PROTO_DIST(T,STAR,STAR) \
+  PROTO_DIST(T,STAR,VC  ) \
+  PROTO_DIST(T,STAR,VR  ) \
+  PROTO_DIST(T,VC,  STAR) \
+  PROTO_DIST(T,VR,  STAR)
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

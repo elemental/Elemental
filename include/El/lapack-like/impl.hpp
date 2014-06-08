@@ -10,10 +10,8 @@
 #ifndef EL_LAPACK_IMPL_HPP
 #define EL_LAPACK_IMPL_HPP
 
-#include "./util.hpp"
 #include "./decomp.hpp"
 #include "./solve.hpp"
-#include "./perm.hpp"
 #include "./props.hpp"
 
 #endif // ifndef EL_LAPACK_IMPL_HPP

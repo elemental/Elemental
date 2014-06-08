@@ -6,16 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_PIVOTSTOPARTIALPERMUTATION_HPP
-#define EL_LAPACK_PIVOTSTOPARTIALPERMUTATION_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-inline void
-PivotsToPartialPermutation
+void PivotsToPartialPermutation
 ( const Matrix<Int>& pivots, Matrix<Int>& perm, Matrix<Int>& invPerm, 
-  Int offset=0 )
+  Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToPartialPermutation");
@@ -61,11 +58,10 @@ PivotsToPartialPermutation
 }
 
 template<Dist U,Dist UPerm>
-inline void
-PivotsToPartialPermutation
+void PivotsToPartialPermutation
 ( const DistMatrix<Int,U,    STAR>& pivots, 
         DistMatrix<Int,UPerm,STAR>& perm, 
-        DistMatrix<Int,UPerm,STAR>& invPerm, Int offset=0 )
+        DistMatrix<Int,UPerm,STAR>& invPerm, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToPartialPermutation");
@@ -114,6 +110,25 @@ PivotsToPartialPermutation
     }
 }
 
-} // namespace El
+#define PROTO_DIST_INTERNAL(U,UPERM) \
+  template void PivotsToPartialPermutation \
+  ( const DistMatrix<Int,U,    STAR>& pivots, \
+          DistMatrix<Int,UPERM,STAR>& perm, \
+          DistMatrix<Int,UPERM,STAR>& invPerm, Int offset );
 
-#endif // ifndef EL_LAPACK_PIVOTSTOPARTIALPERMUTATION_HPP
+#define PROTO_DIST(U) \
+  PROTO_DIST_INTERNAL(U,MC  ) \
+  PROTO_DIST_INTERNAL(U,MD  ) \
+  PROTO_DIST_INTERNAL(U,MR  ) \
+  PROTO_DIST_INTERNAL(U,STAR) \
+  PROTO_DIST_INTERNAL(U,VC  ) \
+  PROTO_DIST_INTERNAL(U,VR  ) \
+
+PROTO_DIST(MC  )
+PROTO_DIST(MD  )
+PROTO_DIST(MR  )
+PROTO_DIST(STAR)
+PROTO_DIST(VC  )
+PROTO_DIST(VR  )
+
+} // namespace El

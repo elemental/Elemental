@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_PIVOTSTOPERMUTATION_HPP
-#define EL_LAPACK_PIVOTSTOPERMUTATION_HPP
+#include "El-lite.hpp"
 
 #include EL_MAXNORM_INC
 
 namespace El {
 
-inline void
-PivotsToPermutation
-( const Matrix<Int>& pivots, Matrix<Int>& perm, Int offset=0 )
+void PivotsToPermutation
+( const Matrix<Int>& pivots, Matrix<Int>& perm, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToPermutation");
@@ -48,10 +45,9 @@ PivotsToPermutation
 }
 
 template<Dist U,Dist UPerm>
-inline void
-PivotsToPermutation
+void PivotsToPermutation
 ( const DistMatrix<Int,U,STAR>& pivots, DistMatrix<Int,UPerm,STAR>& perm, 
-  Int offset=0 )
+  Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToInversePermutation");
@@ -84,9 +80,8 @@ PivotsToPermutation
     }
 }
 
-inline void
-PivotsToInversePermutation
-( const Matrix<Int>& pivots, Matrix<Int>& invPerm, Int offset=0 )
+void PivotsToInversePermutation
+( const Matrix<Int>& pivots, Matrix<Int>& invPerm, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToInversePermutation");
@@ -118,10 +113,9 @@ PivotsToInversePermutation
 }
 
 template<Dist U,Dist UPerm>
-inline void
-PivotsToInversePermutation
+void PivotsToInversePermutation
 ( const DistMatrix<Int,U,STAR>& pivots, DistMatrix<Int,UPerm,STAR>& invPerm, 
-  Int offset=0 )
+  Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PivotsToInversePermutation");
@@ -154,6 +148,27 @@ PivotsToInversePermutation
     }
 }
 
-} // namespace El
+#define PROTO_DIST_INTERNAL(U,UPERM) \
+  template void PivotsToPermutation \
+  ( const DistMatrix<Int,U,    STAR>& pivots, \
+          DistMatrix<Int,UPERM,STAR>& perm, Int offset ); \
+  template void PivotsToInversePermutation \
+  ( const DistMatrix<Int,U,    STAR>& pivots, \
+          DistMatrix<Int,UPERM,STAR>& invPerm, Int offset );
 
-#endif // ifndef EL_LAPACK_PIVOTSTOPERMUTATION_HPP
+#define PROTO_DIST(U) \
+  PROTO_DIST_INTERNAL(U,MC  ) \
+  PROTO_DIST_INTERNAL(U,MD  ) \
+  PROTO_DIST_INTERNAL(U,MR  ) \
+  PROTO_DIST_INTERNAL(U,STAR) \
+  PROTO_DIST_INTERNAL(U,VC  ) \
+  PROTO_DIST_INTERNAL(U,VR  ) \
+
+PROTO_DIST(MC  )
+PROTO_DIST(MD  )
+PROTO_DIST(MR  )
+PROTO_DIST(STAR)
+PROTO_DIST(VC  )
+PROTO_DIST(VR  )
+
+} // namespace El

@@ -6,16 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_INVERTPERMUTATION_HPP
-#define EL_LAPACK_INVERTPERMUTATION_HPP
+#include "El-lite.hpp"
 
 #include EL_MAXNORM_INC
 
 namespace El {
 
-inline void
-InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
+void InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("InvertPermutation");
@@ -40,9 +37,9 @@ InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
 }
 
 template<Dist U>
-inline void
-InvertPermutation
-( const DistMatrix<Int,U,STAR>& perm, DistMatrix<Int,U,STAR>& invPerm )
+void InvertPermutation
+( const DistMatrix<Int,U,GatheredDist<U>()>& perm, 
+        DistMatrix<Int,U,GatheredDist<U>()>& invPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("InvertPermutation");
@@ -121,6 +118,17 @@ InvertPermutation
     }
 }
 
-} // namespace El
+#define PROTO_DIST(U) \
+  template void InvertPermutation \
+  ( const DistMatrix<Int,U,GatheredDist<U>()>& perm, \
+          DistMatrix<Int,U,GatheredDist<U>()>& invPerm );
 
-#endif // ifndef EL_LAPACK_INVERTPERMUTATION_HPP
+PROTO_DIST(CIRC)
+PROTO_DIST(MC  )
+PROTO_DIST(MD  )
+PROTO_DIST(MR  )
+PROTO_DIST(STAR)
+PROTO_DIST(VC  )
+PROTO_DIST(VR  )
+
+} // namespace El

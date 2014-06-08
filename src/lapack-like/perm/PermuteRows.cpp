@@ -6,18 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_PERMUTEROWS_HPP
-#define EL_LAPACK_PERMUTEROWS_HPP
-
-#include "./PermutationMeta.hpp"
-#include "./InvertPermutation.hpp"
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-PermuteRows
+void PermuteRows
 ( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm )
 {
     const Int b = perm.Height();
@@ -67,8 +61,7 @@ PermuteRows
 }
 
 template<typename T> 
-inline void
-PermuteRows( Matrix<T>& A, const Matrix<Int>& perm )
+void PermuteRows( Matrix<T>& A, const Matrix<Int>& perm )
 {
     DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
     Matrix<Int> invPerm;
@@ -77,8 +70,7 @@ PermuteRows( Matrix<T>& A, const Matrix<Int>& perm )
 }
 
 template<typename T> 
-inline void
-InversePermuteRows( Matrix<T>& A, const Matrix<Int>& invPerm )
+void InversePermuteRows( Matrix<T>& A, const Matrix<Int>& invPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("InversePermuteRows"))
     Matrix<Int> perm;
@@ -87,8 +79,7 @@ InversePermuteRows( Matrix<T>& A, const Matrix<Int>& invPerm )
 }
 
 template<typename T,Dist U,Dist V>
-inline void
-PermuteRows( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta )
+void PermuteRows( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermuteRows");
@@ -144,11 +135,10 @@ PermuteRows( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta )
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-PermuteRows
+void PermuteRows
 ( DistMatrix<T,U,V>& A,
-  const DistMatrix<Int,UPerm,STAR>& perm,
-  const DistMatrix<Int,UPerm,STAR>& invPerm )
+  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm,
+  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& invPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermuteRows");
@@ -156,54 +146,105 @@ PermuteRows
             LogicError("misaligned perm and invPerm");
     )
     const Grid& g = A.Grid();
-    DistMatrix<Int,U,STAR> perm_U_STAR(g), invPerm_U_STAR(g);
+    const Dist VGath = GatheredDist<V>();
+    DistMatrix<Int,U,VGath> perm_U_VGath(g), invPerm_U_VGath(g);
     if( U == UPerm && A.ColAlign() == perm.ColAlign() )
     {
-        perm_U_STAR = LockedView( perm );
-        invPerm_U_STAR = LockedView( invPerm );
+        perm_U_VGath = LockedView( perm );
+        invPerm_U_VGath = LockedView( invPerm );
     }
     else
     {
-        perm_U_STAR.AlignWith( A );
-        perm_U_STAR = perm;
-        invPerm_U_STAR.AlignWith( A );
-        invPerm_U_STAR = invPerm;
+        perm_U_VGath.AlignWith( A );
+        perm_U_VGath = perm;
+        invPerm_U_VGath.AlignWith( A );
+        invPerm_U_VGath = invPerm;
     }
         
     if( A.Participating() )
     {
-        PermutationMeta meta( perm_U_STAR, invPerm_U_STAR );
+        PermutationMeta meta( perm_U_VGath, invPerm_U_VGath );
         PermuteRows( A, meta );
     }
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-PermuteRows( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& perm )
+void PermuteRows
+(       DistMatrix<T,U,V>& A, 
+  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm )
 {
     DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,U,STAR> perm_U_STAR(g), invPerm_U_STAR(g);
-    perm_U_STAR.AlignWith( A );
-    perm_U_STAR = perm;
-    InvertPermutation( perm_U_STAR, invPerm_U_STAR );
-    PermuteRows( A, perm_U_STAR, invPerm_U_STAR );
+    const Dist VGath = GatheredDist<V>();
+    DistMatrix<Int,U,VGath> perm_U_VGath(g), invPerm_U_VGath(g);
+    perm_U_VGath.AlignWith( A );
+    perm_U_VGath = perm;
+    InvertPermutation( perm_U_VGath, invPerm_U_VGath );
+    PermuteRows( A, perm_U_VGath, invPerm_U_VGath );
 }
 
 template<typename T,Dist U,Dist V,Dist UPerm>
-inline void
-InversePermuteRows
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& invPerm )
+void InversePermuteRows
+(       DistMatrix<T,U,V>& A, 
+  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& invPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("InversePermuteRows"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,U,STAR> perm_U_STAR(g), invPerm_U_STAR(g);
-    invPerm_U_STAR.AlignWith( A );
-    invPerm_U_STAR = invPerm;
-    InvertPermutation( invPerm_U_STAR, perm_U_STAR );
-    PermuteRows( A, perm_U_STAR, invPerm_U_STAR );
+    const Dist VGath = GatheredDist<V>();
+    DistMatrix<Int,U,VGath> perm_U_VGath(g), invPerm_U_VGath(g);
+    invPerm_U_VGath.AlignWith( A );
+    invPerm_U_VGath = invPerm;
+    InvertPermutation( invPerm_U_VGath, perm_U_VGath );
+    PermuteRows( A, perm_U_VGath, invPerm_U_VGath );
 }
 
-} // namespace El
+#define PROTO_DIST_INTERNAL(T,U,V,UPERM) \
+  template void PermuteRows \
+  (       DistMatrix<T,U,V>& A, \
+    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& perm ); \
+  template void InversePermuteRows \
+  (       DistMatrix<T,U,V>& A, \
+    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& perm ); \
+  template void PermuteRows \
+  ( DistMatrix<T,U,V>& A, \
+    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& perm, \
+    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& invPerm );
 
-#endif // ifndef EL_LAPACK_PERMUTEROWS_HPP
+#define PROTO_DIST(T,U,V) \
+  PROTO_DIST_INTERNAL(T,U,V,CIRC) \
+  PROTO_DIST_INTERNAL(T,U,V,MC  ) \
+  PROTO_DIST_INTERNAL(T,U,V,MD  ) \
+  PROTO_DIST_INTERNAL(T,U,V,MR  ) \
+  PROTO_DIST_INTERNAL(T,U,V,STAR) \
+  PROTO_DIST_INTERNAL(T,U,V,VC  ) \
+  PROTO_DIST_INTERNAL(T,U,V,VR  ) \
+  template void PermuteRows \
+  ( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta );
+
+#define PROTO(T) \
+  template void PermuteRows( Matrix<T>& A, const Matrix<Int>& perm ); \
+  template void InversePermuteRows( Matrix<T>& A, const Matrix<Int>& perm ); \
+  template void PermuteRows \
+  ( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm ); \
+  PROTO_DIST(T,CIRC,CIRC) \
+  PROTO_DIST(T,MC,  MR  ) \
+  PROTO_DIST(T,MC,  STAR) \
+  PROTO_DIST(T,MD,  STAR) \
+  PROTO_DIST(T,MR,  MC  ) \
+  PROTO_DIST(T,MR,  STAR) \
+  PROTO_DIST(T,STAR,MC  ) \
+  PROTO_DIST(T,STAR,MD  ) \
+  PROTO_DIST(T,STAR,MR  ) \
+  PROTO_DIST(T,STAR,STAR) \
+  PROTO_DIST(T,STAR,VC  ) \
+  PROTO_DIST(T,STAR,VR  ) \
+  PROTO_DIST(T,VC,  STAR) \
+  PROTO_DIST(T,VR,  STAR)
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

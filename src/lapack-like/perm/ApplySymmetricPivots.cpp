@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPACK_APPLYSYMMETRICPIVOTS_HPP
-#define EL_LAPACK_APPLYSYMMETRICPIVOTS_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
-template<typename F>
-inline void
-ApplySymmetricPivots
-( UpperOrLower uplo, Matrix<F>& A, const Matrix<Int>& p, bool conjugate=false,
-  Int offset=0 )
+template<typename T>
+void ApplySymmetricPivots
+( UpperOrLower uplo, Matrix<T>& A, 
+  const Matrix<Int>& p, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplySymmetricPivots");
@@ -33,12 +30,10 @@ ApplySymmetricPivots
         SymmetricSwap( uplo, A, k, p.Get(k,0)-offset, conjugate );
 }
 
-template<typename F,Dist UPerm>
-inline void
-ApplySymmetricPivots
-( UpperOrLower uplo, DistMatrix<F>& A, 
-  const DistMatrix<Int,UPerm,STAR>& pivots, 
-  bool conjugate=false, Int offset=0 )
+template<typename T,Dist UPerm>
+void ApplySymmetricPivots
+( UpperOrLower uplo, DistMatrix<T>& A, 
+  const DistMatrix<Int,UPerm,STAR>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplySymmetricPivots");
@@ -55,11 +50,10 @@ ApplySymmetricPivots
         SymmetricSwap( uplo, A, k, pivots.Get(k,0)-offset, conjugate );
 }
 
-template<typename F>
-inline void
-ApplyInverseSymmetricPivots
-( UpperOrLower uplo, Matrix<F>& A, const Matrix<Int>& p, bool conjugate=false,
-  Int offset=0 )
+template<typename T>
+void ApplyInverseSymmetricPivots
+( UpperOrLower uplo, Matrix<T>& A, 
+  const Matrix<Int>& p, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyInverseSymmetricPivots");
@@ -76,12 +70,10 @@ ApplyInverseSymmetricPivots
         SymmetricSwap( uplo, A, k, p.Get(k,0)-offset, conjugate );
 }
 
-template<typename F,Dist UPerm>
-inline void
-ApplyInverseSymmetricPivots
-( UpperOrLower uplo, DistMatrix<F>& A, 
-  const DistMatrix<Int,UPerm,STAR>& pivots, 
-  bool conjugate=false, Int offset=0 )
+template<typename T,Dist UPerm>
+void ApplyInverseSymmetricPivots
+( UpperOrLower uplo, DistMatrix<T>& A, 
+  const DistMatrix<Int,UPerm,STAR>& pivots, bool conjugate, Int offset )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ApplyInverseSymmetricPivots");
@@ -97,7 +89,33 @@ ApplyInverseSymmetricPivots
     for( Int k=n-1; k>=0; --k )
         SymmetricSwap( uplo, A, k, pivots.Get(k,0)-offset, conjugate );
 }
+
+#define PROTO_DIST(T,U) \
+  template void ApplySymmetricPivots \
+  ( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<Int,U,STAR>& p, \
+    bool conjugate, Int offset ); \
+  template void ApplyInverseSymmetricPivots \
+  ( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<Int,U,STAR>& p, \
+    bool conjugate, Int offset );
+
+#define PROTO(T) \
+  template void ApplySymmetricPivots \
+  ( UpperOrLower uplo, Matrix<T>& A, const Matrix<Int>& p, \
+    bool conjugate, Int offset ); \
+  template void ApplyInverseSymmetricPivots \
+  ( UpperOrLower uplo, Matrix<T>& A, const Matrix<Int>& p, \
+    bool conjugate, Int offset ); \
+  PROTO_DIST(T,MC  ) \
+  PROTO_DIST(T,MD  ) \
+  PROTO_DIST(T,MR  ) \
+  PROTO_DIST(T,STAR) \
+  PROTO_DIST(T,VC  ) \
+  PROTO_DIST(T,VR  )
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_LAPACK_APPLYSYMMETRICPIVOTS_HPP

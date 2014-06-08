@@ -12,8 +12,6 @@
 
 #include EL_FROBENIUSNORM_INC
 
-#include EL_PERMUTEROWS_INC
-
 #include EL_CLIP_INC
 #include EL_ZEROS_INC
 
