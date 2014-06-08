@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYMMETRICSOLVE_HPP
-#define EL_SYMMETRICSOLVE_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline void
-SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, Matrix<F>& B, 
-  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+void SymmetricSolve
+( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, 
+  Matrix<F>& B, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     if( uplo == UPPER )
@@ -34,11 +31,9 @@ SymmetricSolve
 }
 
 template<typename F>
-inline void
-SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, 
-  DistMatrix<F>& A, DistMatrix<F>& B, bool conjugate=false, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+void SymmetricSolve
+( UpperOrLower uplo, Orientation orientation, DistMatrix<F>& A, 
+  DistMatrix<F>& B, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricSolve"))
     if( uplo == UPPER )
@@ -55,6 +50,19 @@ SymmetricSolve
         Conjugate( B );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void SymmetricSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    Matrix<F>& A, Matrix<F>& B, bool conjugate, \
+    LDLPivotType pivotType ); \
+  template void SymmetricSolve \
+  ( UpperOrLower uplo, Orientation orientation, \
+    DistMatrix<F>& A, DistMatrix<F>& B, bool conjugate, \
+    LDLPivotType pivotType );
 
-#endif // ifndef EL_SYMMETRICSOLVE_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

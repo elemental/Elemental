@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_GLM_HPP
-#define EL_GLM_HPP
+#include "El-lite.hpp"
 
 // This driver solves a sequence of General (Gauss-Markov) Linear Model (GLM)
 // problems using a Generalized QR factorization. 
@@ -43,8 +41,7 @@
 namespace El {
 
 template<typename F> 
-inline void
-GLM( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
+void GLM( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("GLM"))
     const Int m = A.Height();
@@ -97,8 +94,8 @@ GLM( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 }
 
 template<typename F> 
-inline void
-GLM( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y )
+void GLM
+( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("GLM"))
     const Int m = A.Height();
@@ -154,6 +151,15 @@ GLM( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y )
     rq::ApplyQ( LEFT, ADJOINT, B, tB, dB, Y );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void GLM \
+  ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y ); \
+  template void GLM \
+  ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& D, DistMatrix<F>& Y );
 
-#endif // ifndef EL_GLM_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

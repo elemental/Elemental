@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_GAUSSIANELIMINATION_HPP
-#define EL_GAUSSIANELIMINATION_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
@@ -142,8 +140,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 }
 
 template<typename F> 
-inline void
-GaussianElimination( Matrix<F>& A, Matrix<F>& B )
+void GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GaussianElimination");
@@ -157,8 +154,7 @@ GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 }
 
 template<typename F> 
-inline void
-GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
+void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("GaussianElimination");
@@ -173,6 +169,13 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void GaussianElimination( Matrix<F>& A, Matrix<F>& B ); \
+  template void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B );
 
-#endif // ifndef EL_GAUSSIANELIMINATION_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

@@ -6,16 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LEASTSQUARES_HPP
-#define EL_LEASTSQUARES_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F> 
-inline void
-LeastSquares
-( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, Matrix<F>& X )
+void LeastSquares
+( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, 
+  Matrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
 
@@ -37,10 +35,9 @@ LeastSquares
 }
 
 template<typename F> 
-inline void
-LeastSquares
-( Orientation orientation, 
-  DistMatrix<F>& A, const DistMatrix<F>& B, DistMatrix<F>& X )
+void LeastSquares
+( Orientation orientation, DistMatrix<F>& A, const DistMatrix<F>& B, 
+  DistMatrix<F>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("LeastSquares"))
 
@@ -61,6 +58,17 @@ LeastSquares
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void LeastSquares \
+  ( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, \
+    Matrix<F>& X ); \
+  template void LeastSquares \
+  ( Orientation orientation, DistMatrix<F>& A, const DistMatrix<F>& B, \
+    DistMatrix<F>& X );
 
-#endif // ifndef EL_LEASTSQUARES_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

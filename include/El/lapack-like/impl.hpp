@@ -11,7 +11,6 @@
 #define EL_LAPACK_IMPL_HPP
 
 #include "./decomp.hpp"
-#include "./solve.hpp"
 #include "./props.hpp"
 
 #endif // ifndef EL_LAPACK_IMPL_HPP

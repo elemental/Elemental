@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_MULTISHIFTHESSSOLVE_HPP
-#define EL_MULTISHIFTHESSSOLVE_HPP
+#include "El-lite.hpp"
 
 // NOTE: These algorithms are adaptations and/or extensions of Alg. 2 from
 //       Greg Henry's "The shifted Hessenberg system solve computation".
@@ -426,8 +424,7 @@ UN
 } // namespace mshs
 
 template<typename F>
-inline void
-MultiShiftHessSolve
+void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
   F alpha, const Matrix<F>& H, const Matrix<F>& shifts, Matrix<F>& X )
 {
@@ -449,8 +446,7 @@ MultiShiftHessSolve
 }
 
 template<typename F,Dist UH,Dist VH,Dist VX>
-inline void
-MultiShiftHessSolve
+void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
   F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts, 
   DistMatrix<F,STAR,VX>& X )
@@ -472,6 +468,43 @@ MultiShiftHessSolve
     }
 }
 
-} // namespace El
+#define PROTO_DIST_INNER(F,UH,VH,VX) \
+  template void MultiShiftHessSolve \
+  ( UpperOrLower uplo, Orientation orientation, F alpha, \
+    const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts, \
+          DistMatrix<F,STAR,VX>& X );
 
-#endif // ifndef EL_MULTISHIFTHESSSOLVE_HPP
+#define PROTO_DIST(F,UH,VH) \
+  PROTO_DIST_INNER(F,UH,VH,MC  ) \
+  PROTO_DIST_INNER(F,UH,VH,MD  ) \
+  PROTO_DIST_INNER(F,UH,VH,MR  ) \
+  PROTO_DIST_INNER(F,UH,VH,STAR) \
+  PROTO_DIST_INNER(F,UH,VH,VC  ) \
+  PROTO_DIST_INNER(F,UH,VH,VR  )
+
+#define PROTO(F) \
+  template void MultiShiftHessSolve \
+  ( UpperOrLower uplo, Orientation orientation, F alpha, \
+    const Matrix<F>& H, const Matrix<F>& shifts, \
+          Matrix<F>& X ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

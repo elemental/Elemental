@@ -120,33 +120,6 @@
 #define EL_ZERONORM_INC \
   "El/lapack-like/props/Norm/Zero.hpp"
 
-// Solvers
-// -------
-#define EL_SOLVE_INC      "El/lapack-like/solve.hpp"
-#define EL_SOLVE_DECL_INC "El/lapack-like/solve/decl.hpp"
-#define EL_SOLVE_IMPL_INC "El/lapack-like/solve/impl.hpp"
-
-#define EL_GAUSSIANELIMINATION_INC \
-  "El/lapack-like/solve/GaussianElimination.hpp"
-#define EL_HPDSOLVE_INC \
-  "El/lapack-like/solve/HPDSolve.hpp"
-
-#define EL_HERMITIANSOLVE_INC \
-  "El/lapack-like/solve/HermitianSolve.hpp"
-#define EL_SYMMETRICSOLVE_INC \
-  "El/lapack-like/solve/SymmetricSolve.hpp"
-
-#define EL_LEASTSQUARES_INC \
-  "El/lapack-like/solve/LeastSquares.hpp"
-
-#define EL_GLM_INC \
-  "El/lapack-like/solve/GLM.hpp"
-#define EL_LSE_INC \
-  "El/lapack-like/solve/LSE.hpp"
-
-#define EL_MULTISHIFTHESSSOLVE_INC \
-  "El/lapack-like/solve/MultiShiftHessSolve.hpp"
-
 // Special matrices
 // ================
 #define EL_MATRICES_INC      "El/matrices.hpp"

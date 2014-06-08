@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LSE_HPP
-#define EL_LSE_HPP
+#include "El-lite.hpp"
 
 // This driver solves a sequence of Equality-constrained Least Squares (LSE)
 // problems using a Generalized RQ factorization. 
@@ -55,10 +53,9 @@
 namespace El {
 
 template<typename F> 
-inline void
-LSE
+void LSE
 ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, Matrix<F>& X, 
-  bool computeResidual=false )
+  bool computeResidual )
 {
     DEBUG_ONLY(CallStackEntry cse("LSE"))
     const Int m = A.Height();
@@ -142,10 +139,9 @@ LSE
 }
 
 template<typename F> 
-inline void
-LSE
+void LSE
 ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, 
-  DistMatrix<F>& X, bool computeResidual=false )
+  DistMatrix<F>& X, bool computeResidual )
 {
     DEBUG_ONLY(CallStackEntry cse("LSE"))
     const Int m = A.Height();
@@ -232,6 +228,17 @@ LSE
     rq::ApplyQ( LEFT, ADJOINT, B, tB, dB, X );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void LSE \
+  ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& C, Matrix<F>& D, \
+    Matrix<F>& X, bool computeResidual ); \
+  template void LSE \
+  ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, \
+    DistMatrix<F>& X, bool computeResidual ); \
 
-#endif // ifndef EL_LSE_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El
