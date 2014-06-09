@@ -12,9 +12,6 @@
 
 #include "El-lite.hpp"
 
-#include "El/core.hpp"
-#include "El/blas-like.hpp"
-#include "El/lapack-like.hpp"
 #include "El/convex.hpp"
 #include "El/control.hpp"
 #include "El/matrices.hpp"

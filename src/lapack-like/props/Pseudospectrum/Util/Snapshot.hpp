@@ -12,40 +12,6 @@
 
 namespace El {
 
-// Configurations for how often and what format numerical (num) and image (img)
-// snapshots of the pseudospectral estimates should be saved
-struct SnapshotCtrl
-{
-    Int realSize, imagSize;
-
-    Int imgSaveFreq, numSaveFreq, imgDispFreq;
-    Int imgSaveCount, numSaveCount, imgDispCount;
-    std::string imgBase, numBase;
-    FileFormat imgFormat, numFormat;
-    bool itCounts;
-
-    SnapshotCtrl()
-    : realSize(0), imagSize(0),
-      imgSaveFreq(-1), numSaveFreq(-1), imgDispFreq(-1), 
-      imgSaveCount(0), numSaveCount(0), imgDispCount(0),
-      imgBase("ps"), numBase("ps"), imgFormat(PNG), numFormat(ASCII_MATLAB),
-      itCounts(true)
-    { }
-
-    void ResetCounts()
-    {
-        imgSaveCount = 0;
-        numSaveCount = 0;
-        imgDispCount = 0;
-    }
-    void Iterate()
-    {
-        ++imgSaveCount;
-        ++numSaveCount;
-        ++imgDispCount;
-    }
-};
-
 namespace pspec {
 
 template<typename Real>

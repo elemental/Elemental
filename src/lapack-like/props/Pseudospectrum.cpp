@@ -6,14 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_PSEUDOSPECTRUM_HPP
-#define EL_PSEUDOSPECTRUM_HPP
-
-#include EL_INFINITYNORM_INC
-#include EL_MAXNORM_INC
-#include EL_ONENORM_INC
-#include EL_TWONORMESTIMATE_INC
+#include "El-lite.hpp"
 
 #include EL_IDENTITY_INC
 
@@ -31,11 +24,9 @@
 namespace El {
 
 template<typename Real>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -77,12 +68,10 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& Q, 
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -123,11 +112,9 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     Matrix<Complex<Real>> UCpx;
@@ -138,11 +125,10 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-TriangularPseudospectrum
-( const Matrix<Real>& U, const Matrix<Real>& Q, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+Matrix<Int> TriangularPseudospectrum
+( const Matrix<Real>& U, const Matrix<Real>& Q, 
+  const Matrix<Complex<Real>>& shifts, Matrix<Real>& invNorms, 
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     Matrix<Complex<Real>> UCpx, QCpx;
@@ -154,12 +140,10 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-QuasiTriangularPseudospectrum
+Matrix<Int> QuasiTriangularPseudospectrum
 ( const Matrix<Real>& U, 
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
@@ -189,11 +173,42 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> QuasiTriangularPseudospectrum
+( const Matrix<Real>& U,  const Matrix<Real>& Q,
+  const Matrix<Complex<Real>>& shifts,
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
+{
+    DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
+
+    // Check if the off-diagonal is sufficiently small; if so, compute the 
+    // pseudospectrum analytically from the eigenvalues. This also takes care
+    // of the case where the matrix is a constant multiple of the identity 
+    // matrix, which, after shifting, can lead to the zero matrix, which would 
+    // cause problems for the Lanczos convergence criteria.
+    if( pspec::QuasiTriangIsNormal( U, psCtrl.tol ) )
+    {
+        Matrix<Int> itCounts;
+        if( psCtrl.progress )
+            std::cout << "Matrix was numerically normal" << std::endl;
+        auto w = schur::QuasiTriangEig( U );
+        if( psCtrl.norm == PS_TWO_NORM )
+            pspec::Analytic( w, shifts, invNorms, psCtrl.snapCtrl );
+        else
+            LogicError("Analytic one-norm pseudospectra not yet supported");
+        Zeros( itCounts, shifts.Height(), 1 );
+        return itCounts;
+    }
+
+    psCtrl.schur = true;
+    if( psCtrl.norm == PS_ONE_NORM )
+        LogicError("This option is not yet written");
+    return pspec::IRA( U, shifts, invNorms, psCtrl );
+}
+
+template<typename Real>
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<Complex<Real>>& H, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -218,13 +233,11 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<Complex<Real>>& H, 
   const Matrix<Complex<Real>>& Q, 
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -248,11 +261,9 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<Real>& H, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     Matrix<Complex<Real>> HCpx;
@@ -263,13 +274,11 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<Real>& H, 
   const Matrix<Real>& Q, 
   const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     Matrix<Complex<Real>> HCpx, QCpx;
@@ -281,12 +290,10 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-TriangularPseudospectrum
+DistMatrix<Int,VR,STAR> TriangularPseudospectrum
 ( const DistMatrix<Complex<Real>>& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     const Grid& g = U.Grid();
@@ -329,13 +336,11 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-TriangularPseudospectrum
+DistMatrix<Int,VR,STAR> TriangularPseudospectrum
 ( const DistMatrix<Complex<Real>>& U, 
   const DistMatrix<Complex<Real>>& Q, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     const Grid& g = U.Grid();
@@ -378,11 +383,9 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-TriangularPseudospectrum
+DistMatrix<Int,VR,STAR> TriangularPseudospectrum
 ( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     DistMatrix<Complex<Real>> UCpx(U.Grid());
@@ -393,13 +396,11 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-TriangularPseudospectrum
+DistMatrix<Int,VR,STAR> TriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   const DistMatrix<Real>& Q,
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     DistMatrix<Complex<Real>> UCpx(U.Grid()), QCpx(U.Grid());
@@ -411,12 +412,10 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-QuasiTriangularPseudospectrum
+DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     const Grid& g = U.Grid();
@@ -448,13 +447,11 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-QuasiTriangularPseudospectrum
+DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   const DistMatrix<Real>& Q,
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     const Grid& g = U.Grid();
@@ -486,12 +483,10 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-HessenbergPseudospectrum
+DistMatrix<Int,VR,STAR> HessenbergPseudospectrum
 ( const DistMatrix<Complex<Real>>& H, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -515,13 +510,11 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-HessenbergPseudospectrum
+DistMatrix<Int,VR,STAR> HessenbergPseudospectrum
 ( const DistMatrix<Complex<Real>>& H, 
   const DistMatrix<Complex<Real>>& Q,
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -545,11 +538,9 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-HessenbergPseudospectrum
+DistMatrix<Int,VR,STAR> HessenbergPseudospectrum
 ( const DistMatrix<Real>& H, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     DistMatrix<Complex<Real>> HCpx(H.Grid());
@@ -559,13 +550,11 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-HessenbergPseudospectrum
+DistMatrix<Int,VR,STAR> HessenbergPseudospectrum
 ( const DistMatrix<Real>& H, 
   const DistMatrix<Real>& Q,
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     DistMatrix<Complex<Real>> HCpx(H.Grid()), QCpx(H.Grid());
@@ -576,11 +565,9 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-Pseudospectrum
+Matrix<Int> Pseudospectrum
 ( const Matrix<Real>& A, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -627,10 +614,9 @@ Pseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-Pseudospectrum
+Matrix<Int> Pseudospectrum
 ( const Matrix<Complex<Real>>& A, const Matrix<Complex<Real>>& shifts, 
-  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -673,11 +659,9 @@ Pseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-Pseudospectrum
+DistMatrix<Int,VR,STAR> Pseudospectrum
 ( const DistMatrix<Real>& A, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -725,12 +709,10 @@ Pseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int,VR,STAR>
-Pseudospectrum
+DistMatrix<Int,VR,STAR> Pseudospectrum
 ( const DistMatrix<Complex<Real>>& A, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-  DistMatrix<Real,VR,STAR>& invNorms, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -777,12 +759,10 @@ Pseudospectrum
 // Treat each pixel as being located a cell center and tesselate a box with
 // said square cells
 template<typename F>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -794,7 +774,7 @@ TriangularPseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, U.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -815,12 +795,10 @@ TriangularPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -832,7 +810,7 @@ TriangularPseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, U.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -853,13 +831,11 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-QuasiTriangularPseudospectrum
+Matrix<Int> QuasiTriangularPseudospectrum
 ( const Matrix<Real>& U, 
   Matrix<Real>& invNormMap, 
   Complex<Real> center, Real realWidth, Real imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     typedef Complex<Real> C;
@@ -870,7 +846,7 @@ QuasiTriangularPseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, U.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -891,14 +867,12 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-QuasiTriangularPseudospectrum
+Matrix<Int> QuasiTriangularPseudospectrum
 ( const Matrix<Real>& U, 
   const Matrix<Real>& Q,
   Matrix<Real>& invNormMap, 
   Complex<Real> center, Real realWidth, Real imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     typedef Complex<Real> C;
@@ -909,7 +883,7 @@ QuasiTriangularPseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, U.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -930,12 +904,10 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
@@ -947,7 +919,7 @@ HessenbergPseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, H.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -967,12 +939,10 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
@@ -984,7 +954,7 @@ HessenbergPseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, H.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -1004,12 +974,10 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-TriangularPseudospectrum
+DistMatrix<Int> TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -1045,13 +1013,11 @@ TriangularPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-TriangularPseudospectrum
+DistMatrix<Int> TriangularPseudospectrum
 ( const DistMatrix<F>& U, const DistMatrix<F>& Q, 
   DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
     typedef Base<F> Real;
@@ -1087,13 +1053,11 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int>
-QuasiTriangularPseudospectrum
+DistMatrix<Int> QuasiTriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Real realWidth, Real imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     typedef Complex<Real> C;
@@ -1129,14 +1093,12 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int>
-QuasiTriangularPseudospectrum
+DistMatrix<Int> QuasiTriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   const DistMatrix<Real>& Q,
   DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Real realWidth, Real imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
     typedef Complex<Real> C;
@@ -1172,12 +1134,10 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-HessenbergPseudospectrum
+DistMatrix<Int> HessenbergPseudospectrum
 ( const DistMatrix<F>& H, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
@@ -1213,14 +1173,12 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-HessenbergPseudospectrum
+DistMatrix<Int> HessenbergPseudospectrum
 ( const DistMatrix<F>& H, 
   const DistMatrix<F>& Q,
   DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
     typedef Base<F> Real;
@@ -1256,12 +1214,10 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-Pseudospectrum
+Matrix<Int> Pseudospectrum
 ( const Matrix<F>& A, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -1273,7 +1229,7 @@ Pseudospectrum
     const Real realStep = realWidth/realSize;
     const Real imagStep = imagWidth/imagSize;
     const C corner = center + C(-realWidth/2,imagWidth/2);
-    Matrix<C> shifts( realSize*imagSize, 1, A.Grid() );
+    Matrix<C> shifts( realSize*imagSize, 1 );
     for( Int j=0; j<realSize*imagSize; ++j )
     {
         const Int x = j / imagSize;
@@ -1293,12 +1249,10 @@ Pseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-Pseudospectrum
+DistMatrix<Int> Pseudospectrum
 ( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, 
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Base<F> Real;
@@ -1334,11 +1288,10 @@ Pseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -1379,11 +1332,10 @@ TriangularPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-TriangularPseudospectrum
+Matrix<Int> TriangularPseudospectrum
 ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -1425,13 +1377,11 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-QuasiTriangularPseudospectrum
+Matrix<Int> QuasiTriangularPseudospectrum
 ( const Matrix<Real>& U, 
   Matrix<Real>& invNormMap, 
-  Complex<Real> center,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Complex<Real> center, Int realSize, Int imagSize, 
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
@@ -1472,14 +1422,12 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-QuasiTriangularPseudospectrum
+Matrix<Int> QuasiTriangularPseudospectrum
 ( const Matrix<Real>& U, 
   const Matrix<Real>& Q,
   Matrix<Real>& invNormMap, 
-  Complex<Real> center,
-  Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  Complex<Real> center, Int realSize, Int imagSize, 
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
@@ -1521,11 +1469,10 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -1553,11 +1500,10 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline Matrix<Int>
-HessenbergPseudospectrum
+Matrix<Int> HessenbergPseudospectrum
 ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize, 
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -1586,11 +1532,10 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-TriangularPseudospectrum
+DistMatrix<Int> TriangularPseudospectrum
 ( const DistMatrix<F>& U, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -1631,12 +1576,11 @@ TriangularPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-TriangularPseudospectrum
+DistMatrix<Int> TriangularPseudospectrum
 ( const DistMatrix<F>& U, 
   const DistMatrix<F>& Q, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularPseudospectrum"))
 
@@ -1678,12 +1622,11 @@ TriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int>
-QuasiTriangularPseudospectrum
+DistMatrix<Int> QuasiTriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
@@ -1724,13 +1667,12 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int>
-QuasiTriangularPseudospectrum
+DistMatrix<Int> QuasiTriangularPseudospectrum
 ( const DistMatrix<Real>& U, 
   const DistMatrix<Real>& Q,
   DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTriangularPseudospectrum"))
 
@@ -1772,11 +1714,10 @@ QuasiTriangularPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-HessenbergPseudospectrum
+DistMatrix<Int> HessenbergPseudospectrum
 ( const DistMatrix<F>& H, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -1804,12 +1745,11 @@ HessenbergPseudospectrum
 }
 
 template<typename F>
-inline DistMatrix<Int>
-HessenbergPseudospectrum
+DistMatrix<Int> HessenbergPseudospectrum
 ( const DistMatrix<F>& H, 
   const DistMatrix<F>& Q, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() )
+  PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HessenbergPseudospectrum"))
 
@@ -1838,11 +1778,10 @@ HessenbergPseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-Pseudospectrum
+Matrix<Int> Pseudospectrum
 ( const Matrix<Complex<Real>>& A, Matrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -1889,11 +1828,10 @@ Pseudospectrum
 }
 
 template<typename Real>
-inline Matrix<Int>
-Pseudospectrum
+Matrix<Int> Pseudospectrum
 ( const Matrix<Real>& A, Matrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize, 
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -1944,11 +1882,10 @@ Pseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int>
-Pseudospectrum
+DistMatrix<Int> Pseudospectrum
 ( const DistMatrix<Complex<Real>>& A, DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -1997,11 +1934,10 @@ Pseudospectrum
 }
 
 template<typename Real>
-inline DistMatrix<Int>
-Pseudospectrum
+DistMatrix<Int> Pseudospectrum
 ( const DistMatrix<Real>& A, DistMatrix<Real>& invNormMap, 
   Complex<Real> center, Int realSize, Int imagSize,
-  PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
+  PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectrum"))
     typedef Complex<Real> C;
@@ -2054,6 +1990,285 @@ Pseudospectrum
     }
 }
 
-} // namespace El
+#define PROTO_REAL(Real) \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> TriangularPseudospectrum \
+  ( const DistMatrix<Complex<Real>>& U, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<Complex<Real>>& U, const Matrix<Complex<Real>>& Q, \
+    const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> TriangularPseudospectrum \
+  ( const DistMatrix<Complex<Real>>& U, \
+    const DistMatrix<Complex<Real>>& Q, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> TriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<Real>& U, const Matrix<Real>& Q, \
+    const Matrix<Complex<Real>>& shifts, Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> TriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    const DistMatrix<Real>& Q, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> QuasiTriangularPseudospectrum \
+  ( const Matrix<Real>& U, \
+    const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> QuasiTriangularPseudospectrum \
+  ( const Matrix<Real>& U, const Matrix<Real>& Q, \
+    const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    const DistMatrix<Real>& Q, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<Complex<Real>>& H, const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> HessenbergPseudospectrum \
+  ( const DistMatrix<Complex<Real>>& H, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<Complex<Real>>& H, \
+    const Matrix<Complex<Real>>& Q, \
+    const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> HessenbergPseudospectrum \
+  ( const DistMatrix<Complex<Real>>& H, \
+    const DistMatrix<Complex<Real>>& Q, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<Real>& H, const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> HessenbergPseudospectrum \
+  ( const DistMatrix<Real>& H, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<Real>& H, \
+    const Matrix<Real>& Q, \
+    const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> HessenbergPseudospectrum \
+  ( const DistMatrix<Real>& H, \
+    const DistMatrix<Real>& Q, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> Pseudospectrum \
+  ( const Matrix<Real>& A, const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> Pseudospectrum \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> Pseudospectrum \
+  ( const Matrix<Complex<Real>>& A, const Matrix<Complex<Real>>& shifts, \
+    Matrix<Real>& invNorms, PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int,VR,STAR> Pseudospectrum \
+  ( const DistMatrix<Complex<Real>>& A, \
+    const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
+    DistMatrix<Real,VR,STAR>& invNorms, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> QuasiTriangularPseudospectrum \
+  ( const Matrix<Real>& U, \
+    Matrix<Real>& invNormMap, \
+    Complex<Real> center, Real realWidth, Real imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int> QuasiTriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    DistMatrix<Real>& invNormMap, \
+    Complex<Real> center, Real realWidth, Real imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> QuasiTriangularPseudospectrum \
+  ( const Matrix<Real>& U, \
+    const Matrix<Real>& Q, \
+    Matrix<Real>& invNormMap, \
+    Complex<Real> center, Real realWidth, Real imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int> QuasiTriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    const DistMatrix<Real>& Q, \
+    DistMatrix<Real>& invNormMap, \
+    Complex<Real> center, Real realWidth, Real imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> QuasiTriangularPseudospectrum \
+  ( const Matrix<Real>& U, \
+    Matrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int> QuasiTriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    DistMatrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> QuasiTriangularPseudospectrum \
+  ( const Matrix<Real>& U, const Matrix<Real>& Q, \
+    Matrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int> QuasiTriangularPseudospectrum \
+  ( const DistMatrix<Real>& U, \
+    const DistMatrix<Real>& Q, \
+    DistMatrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> Pseudospectrum \
+  ( const Matrix<Complex<Real>>& A, Matrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int> Pseudospectrum \
+  ( const DistMatrix<Complex<Real>>& A, DistMatrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template Matrix<Int> Pseudospectrum \
+  ( const Matrix<Real>& A, Matrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl ); \
+  template DistMatrix<Int> Pseudospectrum \
+  ( const DistMatrix<Real>& A, DistMatrix<Real>& invNormMap, \
+    Complex<Real> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Real> psCtrl );
 
-#endif // ifndef EL_PSEUDOSPECTRUM_HPP
+#define PROTO(F) \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> TriangularPseudospectrum \
+  ( const DistMatrix<F>& U, DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> TriangularPseudospectrum \
+  ( const DistMatrix<F>& U, const DistMatrix<F>& Q, \
+    DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> HessenbergPseudospectrum \
+  ( const DistMatrix<F>& H, DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> HessenbergPseudospectrum \
+  ( const DistMatrix<F>& H, \
+    const DistMatrix<F>& Q, \
+    DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> Pseudospectrum \
+  ( const Matrix<F>& A, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> Pseudospectrum \
+  ( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
+    Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> TriangularPseudospectrum \
+  ( const DistMatrix<F>& U, DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> TriangularPseudospectrum \
+  ( const Matrix<F>& U, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> TriangularPseudospectrum \
+  ( const DistMatrix<F>& U, const DistMatrix<F>& Q, \
+    DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<F>& H, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> HessenbergPseudospectrum \
+  ( const DistMatrix<F>& H, DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template Matrix<Int> HessenbergPseudospectrum \
+  ( const Matrix<F>& H, const Matrix<F>& Q, Matrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() ); \
+  template DistMatrix<Int> HessenbergPseudospectrum \
+  ( const DistMatrix<F>& H, \
+    const DistMatrix<F>& Q, DistMatrix<Base<F>>& invNormMap, \
+    Complex<Base<F>> center, Int realSize, Int imagSize, \
+    PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
+
+PROTO_REAL(float)
+PROTO_REAL(double)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

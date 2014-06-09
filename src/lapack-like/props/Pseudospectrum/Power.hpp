@@ -239,6 +239,9 @@ Power
 
     psCtrl.snapCtrl.ResetCounts();
 
+    // MultiShiftTrsm currently requires write access
+    Matrix<C> UCopy( U );
+
     // The Hessenberg case currently requires explicit access to the adjoint
     Matrix<C> UAdj;
     if( !psCtrl.schur )
@@ -270,10 +273,10 @@ Power
         if( psCtrl.schur )
         {
             MultiShiftTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeX );
+            ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeX );
             FixColumns( activeX );
             MultiShiftTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeX );
+            ( LEFT, UPPER, ADJOINT, C(1), UCopy, activeShifts, activeX );
         }
         else
         {

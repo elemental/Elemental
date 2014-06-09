@@ -13,15 +13,12 @@
 // LAPACK-like routines
 // ====================
 #define EL_LAPACK_INC      "El/lapack-like.hpp"
-#define EL_LAPACK_DECL_INC "El/lapack-like/decl.hpp"
-#define EL_LAPACK_IMPL_INC "El/lapack-like/impl.hpp"
 
 // Matrix properties
 // -----------------
 #define EL_PROPS_INC      "El/lapack-like/props.hpp"
-#define EL_PROPS_DECL_INC "El/lapack-like/props/decl.hpp"
-#define EL_PROPS_IMPL_INC "El/lapack-like/props/impl.hpp"
 
+// TODO: Remove the following
 #define EL_CONDITION_INC \
   "El/lapack-like/props/Condition.hpp"
 #define EL_DETERMINANT_INC \

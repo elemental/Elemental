@@ -12,6 +12,8 @@
 
 #include "./Lanczos.hpp"
 
+#include EL_GAUSSIAN_INC
+
 namespace El {
 namespace pspec {
 
@@ -254,6 +256,9 @@ IRA
             preimage.Set( j, 0, j );
     }
 
+    // MultiShiftTrm requires write access for now...
+    Matrix<C> UCopy( U );
+
     // The Hessenberg variant currently requires explicit access to the adjoint
     Matrix<C> UAdj;
     if( !psCtrl.schur )
@@ -311,10 +316,10 @@ IRA
                     subtimer.Start();
                 MultiShiftTrsm
                 ( LEFT, UPPER, NORMAL, 
-                  C(1), U, activeShifts, activeVList[j+1] );
+                  C(1), UCopy, activeShifts, activeVList[j+1] );
                 MultiShiftTrsm
                 ( LEFT, UPPER, ADJOINT, 
-                  C(1), U, activeShifts, activeVList[j+1] );
+                  C(1), UCopy, activeShifts, activeVList[j+1] );
                 if( progress )
                 {
                     const double msTime = subtimer.Stop();
@@ -402,7 +407,7 @@ IRA
         }
         if( progress )
             subtimer.Start();
-        Restart( HList, activeVList, activeConverged, activeEsts );
+        Restart( HList, activeConverged, activeVList );
         if( progress )
             std::cout << "IRA restart: " << subtimer.Stop()
                       << " seconds" << std::endl;
@@ -615,9 +620,7 @@ IRA
         }
         if( progress )
             subtimer.Start();
-        Restart
-        ( HList, 
-          activeVRealList, activeVImagList, activeConverged, activeEsts );
+        Restart( HList, activeConverged, activeVRealList, activeVImagList );
         if( progress )
             std::cout << "IRA restart: " << subtimer.Stop()
                       << " seconds" << std::endl;

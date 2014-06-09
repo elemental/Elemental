@@ -247,6 +247,9 @@ Lanczos
         for( Int j=0; j<numShifts; ++j )
             preimage.Set( j, 0, j );
     }
+ 
+    // MultiShiftTrsm requires write access for now
+    Matrix<C> UCopy( U );
 
     // The Hessenberg case currently requires explicit access to the adjoint
     Matrix<C> UAdj;
@@ -298,9 +301,9 @@ Lanczos
             if( progress )
                 subtimer.Start();
             MultiShiftTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeXNew );
+            ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeXNew );
             MultiShiftTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeXNew );
+            ( LEFT, UPPER, ADJOINT, C(1), UCopy, activeShifts, activeXNew );
             if( progress )
             {
                 const double msTime = subtimer.Stop();

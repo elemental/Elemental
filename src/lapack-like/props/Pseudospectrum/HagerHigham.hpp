@@ -218,6 +218,9 @@ HagerHigham
 
     psCtrl.snapCtrl.ResetCounts();
 
+    // MultiShiftTrsm currently requires write access
+    Matrix<C> UCopy( U );
+
     // The Hessenberg case currently requires explicit access to the adjoint
     Matrix<C> UAdj;
     if( !psCtrl.schur )
@@ -251,7 +254,7 @@ HagerHigham
             // Solve against (U - zI)
             activeY = activeX;
             MultiShiftTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeY );
+            ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeY );
 
             activeZ = activeY;
             EntrywiseMap
@@ -260,7 +263,7 @@ HagerHigham
 
             // Solve against (U - zI)^H 
             MultiShiftTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeZ );
+            ( LEFT, UPPER, ADJOINT, C(1), UCopy, activeShifts, activeZ );
         }
         else
         {
@@ -324,7 +327,7 @@ HagerHigham
             X.Set( i, j, (i%2==0 ?  Real(i+n-1)/Real(n-1)  
                                  : -Real(i+n-1)/Real(n-1) ) );
     if( psCtrl.schur )
-        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, X );
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), UCopy, shifts, X );
     else
         MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, X );
     for( Int j=0; j<numShifts; ++j )
@@ -372,6 +375,8 @@ HagerHigham
 
     psCtrl.snapCtrl.ResetCounts();
 
+    Matrix<C> UCopy( U );
+
     // The Hessenberg case currently requires explicit access to the adjoint
     Matrix<C> UAdj;
     if( !psCtrl.schur )
@@ -405,7 +410,7 @@ HagerHigham
             // Solve against Q (U - zI) Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeX, activeV );
             MultiShiftTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeV );
+            ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeV );
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
@@ -416,7 +421,7 @@ HagerHigham
             // Solve against Q (U - zI)^H Q^H 
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
             MultiShiftTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, activeV );
+            ( LEFT, UPPER, ADJOINT, C(1), UCopy, activeShifts, activeV );
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeZ );
         }
         else
@@ -494,7 +499,7 @@ HagerHigham
         y = yRep;
     }
     if( psCtrl.schur )
-        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), U, shifts, Y );
+        MultiShiftTrsm( LEFT, UPPER, NORMAL, C(1), UCopy, shifts, Y );
     else
         MultiShiftHessSolve( UPPER, NORMAL, C(1), U, shifts, Y );
     Gemm( NORMAL, NORMAL, C(1), Q, Y, X );

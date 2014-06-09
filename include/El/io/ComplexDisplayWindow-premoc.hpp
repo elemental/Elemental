@@ -24,7 +24,7 @@
 #endif
 #include "El/core.hpp"
 #include "El/blas-like.hpp"
-#include "El/lapack-like/decl.hpp"
+#include "El/lapack-like.hpp"
 #include "El/convex/decl.hpp"
 #include "El/io/DisplayWidget.hpp"
 

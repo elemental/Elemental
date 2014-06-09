@@ -158,6 +158,9 @@ IRL
             preimage.Set( j, 0, j );
     }
 
+    // MultiShiftTrsm currently requires write access
+    Matrix<C> UCopy( U );
+
     // The Hessenberg algorithm currently needs explicit access to the adjoint
     Matrix<C> UAdj;
     if( !psCtrl.schur )
@@ -222,10 +225,10 @@ IRL
                     subtimer.Start();
                 MultiShiftTrsm
                 ( LEFT, UPPER, NORMAL, 
-                  C(1), U, activeShifts, activeVList[j+1] );
+                  C(1), UCopy, activeShifts, activeVList[j+1] );
                 MultiShiftTrsm
                 ( LEFT, UPPER, ADJOINT, 
-                  C(1), U, activeShifts, activeVList[j+1] );
+                  C(1), UCopy, activeShifts, activeVList[j+1] );
                 if( progress )
                 {
                     const double msTime = subtimer.Stop();

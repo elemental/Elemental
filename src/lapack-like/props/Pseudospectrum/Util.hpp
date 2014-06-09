@@ -7,9 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_LAPACK_IMPL_HPP
-#define EL_LAPACK_IMPL_HPP
+#ifndef EL_PSEUDOSPECTRUM_UTIL_HPP
+#define EL_PSEUDOSPECTRUM_UTIL_HPP
 
-#include "./props.hpp"
+#include EL_ZERONORM_INC
+#include EL_ONES_INC
 
-#endif // ifndef EL_LAPACK_IMPL_HPP
+#include "./Util/Rearrange.hpp"
+#include "./Util/BasicMath.hpp"
+#include "./Util/Snapshot.hpp"
+
+#endif // ifndef EL_PSEUDOSPECTRUM_UTIL_HPP

@@ -10,7 +10,16 @@
 #ifndef EL_LAPACK_HPP
 #define EL_LAPACK_HPP
 
-#include "./lapack-like/decl.hpp"
-#include "./lapack-like/impl.hpp"
+#include "./lapack-like/util.hpp"
+#include "./lapack-like/perm.hpp"
+
+#include "./lapack-like/factor.hpp"
+#include "./lapack-like/condense.hpp"
+#include "./lapack-like/funcs.hpp"
+
+#include "./lapack-like/decomp.hpp"
+#include "./lapack-like/solve.hpp"
+
+#include "./lapack-like/props.hpp"
 
 #endif // ifndef EL_LAPACK_HPP
