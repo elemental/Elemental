@@ -17,7 +17,7 @@
 #include "./condense.hpp"
 #include "./funcs.hpp"
 
-#include "./decomp/decl.hpp"
+#include "./decomp.hpp"
 #include "./solve.hpp"
 
 #include "./props/decl.hpp"

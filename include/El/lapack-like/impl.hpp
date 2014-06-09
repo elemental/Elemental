@@ -10,7 +10,6 @@
 #ifndef EL_LAPACK_IMPL_HPP
 #define EL_LAPACK_IMPL_HPP
 
-#include "./decomp.hpp"
 #include "./props.hpp"
 
 #endif // ifndef EL_LAPACK_IMPL_HPP

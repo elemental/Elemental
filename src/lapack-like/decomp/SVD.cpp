@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SVD_HPP
-#define EL_SVD_HPP
-
-#include EL_HERMITIANEIG_INC
+#include "El-lite.hpp"
 
 #include "./SVD/Chan.hpp"
 #include "./SVD/Thresholded.hpp"
@@ -22,8 +18,7 @@ namespace El {
 // NOTE: On exit, A is overwritten with U
 
 template<typename F>
-inline void
-SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR=false )
+void SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     if( useQR )
@@ -33,7 +28,7 @@ SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR=false )
 }
 
 template<typename F>
-inline void HermitianSVD
+void HermitianSVD
 ( UpperOrLower uplo,
   Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V )
 {
@@ -72,10 +67,9 @@ inline void HermitianSVD
 }
 
 template<typename F>
-inline void
-SVD
+void SVD
 ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  double heightRatio=1.5 )
+  double heightRatio )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
@@ -83,7 +77,7 @@ SVD
 }
 
 template<typename F>
-inline void HermitianSVD
+void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, 
   DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
@@ -131,8 +125,7 @@ inline void HermitianSVD
 // ==========================
 
 template<typename F>
-inline void
-SVD( Matrix<F>& A, Matrix<Base<F>>& s )
+void SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     const Int m = A.Height();
@@ -142,8 +135,7 @@ SVD( Matrix<F>& A, Matrix<Base<F>>& s )
 }
 
 template<typename F>
-inline void HermitianSVD
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
+void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #if 1
@@ -162,8 +154,7 @@ inline void HermitianSVD
 }
 
 template<typename F>
-inline void
-SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
+void SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
@@ -171,7 +162,7 @@ SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
 }
 
 template<typename F>
-inline void HermitianSVD
+void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
@@ -189,6 +180,40 @@ inline void HermitianSVD
     Sort( s, DESCENDING );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void SVD \
+  ( Matrix<F>& A, Matrix<Base<F>>& s ); \
+  template void SVD \
+  ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio ); \
+  template void SVD \
+  ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR ); \
+  template void SVD \
+  ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V, \
+    double heightRatio ); \
+  template void HermitianSVD \
+  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s ); \
+  template void HermitianSVD \
+  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s ); \
+  template void HermitianSVD \
+  ( UpperOrLower uplo, Matrix<F>& A, \
+    Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V ); \
+  template void HermitianSVD \
+  ( UpperOrLower uplo, DistMatrix<F>& A, \
+    DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V ); \
+  template void svd::Thresholded \
+  ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, \
+    Base<F> tol, bool relative ); \
+  template void svd::Thresholded \
+  ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V, \
+    Base<F> tol, bool relative ); \
+  template void svd::TallThresholded \
+  ( DistMatrix<F,VC,STAR>& A, \
+    DistMatrix<Base<F>,STAR,STAR>& s, \
+    DistMatrix<F,STAR,STAR>& V, Base<F> tol, bool relative );
 
-#endif // ifndef EL_SVD_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

@@ -16,53 +16,6 @@
 #define EL_LAPACK_DECL_INC "El/lapack-like/decl.hpp"
 #define EL_LAPACK_IMPL_INC "El/lapack-like/impl.hpp"
 
-// Decompositions
-// --------------
-#define EL_DECOMP_INC      "El/lapack-like/decomp.hpp"
-#define EL_DECOMP_DECL_INC "El/lapack-like/decomp/decl.hpp"
-#define EL_DECOMP_IMPL_INC "El/lapack-like/decomp/impl.hpp"
-
-#define EL_HERMITIANEIG_INC \
-  "El/lapack-like/decomp/HermitianEig.hpp"
-#define EL_HERMITIANGENDEFINITEEIG_INC \
-  "El/lapack-like/decomp/HermitianGenDefiniteEig.hpp"
-#define EL_HERMITIANTRIDIAGEIG_INC \
-  "El/lapack-like/decomp/HermitianTridiagEig.hpp"
-#define EL_POLAR_INC \
-  "El/lapack-like/decomp/Polar.hpp"
-#define EL_SCHUR_INC \
-  "El/lapack-like/decomp/Schur.hpp"
-#define EL_SKEWHERMITIANEIG_INC \
-  "El/lapack-like/decomp/SkewHermitianEig.hpp"
-#define EL_SVD_INC \
-  "El/lapack-like/decomp/SVD.hpp"
-
-// Specific HermitianEig routines
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#define EL_HERMITIANEIG_SDC_INC \
-  "El/lapack-like/decomp/HermitianEig/SDC.hpp"
-
-// Specific HermitianTridiagEig routines
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#define EL_HERMITIANTRIDIAGEIG_SORT_INC \
-  "El/lapack-like/decomp/HermitianTridiagEig/Sort.hpp"
-
-// Specific Polar routines
-// ^^^^^^^^^^^^^^^^^^^^^^^
-#define EL_POLAR_QDWH_INC \
-  "El/lapack-like/decomp/Polar/QDWH.hpp"
-#define EL_POLAR_SVD_INC \
-  "El/lapack-like/decomp/Polar/SVD.hpp"
-
-// Specific Schur routines
-// ^^^^^^^^^^^^^^^^^^^^^^^
-#define EL_SCHUR_INVERSEFREESDC_INC \
-  "El/lapack-like/decomp/Schur/InverseFreeSDC.hpp"
-#define EL_SCHUR_QR_INC \
-  "El/lapack-like/decomp/Schur/QR.hpp"
-#define EL_SCHUR_SDC_INC \
-  "El/lapack-like/decomp/Schur/SDC.hpp"
-
 // Matrix properties
 // -----------------
 #define EL_PROPS_INC      "El/lapack-like/props.hpp"

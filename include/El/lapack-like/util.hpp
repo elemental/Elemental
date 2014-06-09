@@ -141,14 +141,12 @@ F Row( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x );
 // ====
 template<typename Real>
 void Sort( Matrix<Real>& X, SortType sort=ASCENDING );
-// NOTE: Only instantiated for (U,V) in {(MC,MR),(VR,STAR),(STAR,STAR)}
 template<typename Real,Dist U,Dist V>
 void Sort( DistMatrix<Real,U,V>& X, SortType sort=ASCENDING );
 
 template<typename Real>
 std::vector<ValueInt<Real>> TaggedSort
 ( const Matrix<Real>& x, SortType sort=ASCENDING );
-// NOTE: Only instantiated for (U,V) in {(MC,MR),(VR,STAR),(STAR,STAR)}
 template<typename Real,Dist U,Dist V>
 std::vector<ValueInt<Real>> TaggedSort
 ( const DistMatrix<Real,U,V>& x, SortType sort=ASCENDING );

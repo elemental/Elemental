@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_HERMITIANTRIDIAGEIG_INC
 #include EL_ZEROS_INC
 using namespace El;
 
@@ -81,7 +80,7 @@ main( int argc, char* argv[] )
         }
 
         DistMatrix<double,VR,  STAR> wEven, wOdd;
-        DistMatrix<double> XEven, XOdd;
+        DistMatrix<double,STAR,VR> XEven, XOdd;
         HermitianTridiagEig
         ( AEven.GetDiagonal(), AEven.GetDiagonal(-1), wEven, XEven, ASCENDING );
         HermitianTridiagEig

@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_SVD_INC
 #include EL_FOURIER_INC
 using namespace El;
 

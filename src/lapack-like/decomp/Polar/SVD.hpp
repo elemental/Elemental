@@ -10,8 +10,6 @@
 #ifndef EL_POLAR_SVD_HPP
 #define EL_POLAR_SVD_HPP
 
-#include EL_SVD_INC
-
 #include EL_HERMITIANFROMEVD_INC
 #include EL_ZEROS_INC
 

@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_SCHUR_INC
 #include EL_FROBENIUSNORM_INC
+#include EL_HAAR_INC
 #include EL_IDENTITY_INC
 #include EL_UNIFORM_INC
 using namespace std;
@@ -26,9 +26,9 @@ main( int argc, char* argv[] )
     {
         const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
+        const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
 #ifdef EL_HAVE_SCALAPACK
         // QR algorithm options
-        const bool fullTriangle = Input("--fullTriangle","full Schur?",true);
         const bool aed = Input("--aed","use Agg. Early Deflat.?",false);
 #else
         // Spectral Divide and Conquer options
@@ -55,21 +55,23 @@ main( int argc, char* argv[] )
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<Real> T( A ), Q;
         DistMatrix<Complex<Real>,VR,STAR> w;
+        SchurCtrl<Real> ctrl;
 #ifdef EL_HAVE_SCALAPACK
-        schur::QR( T, w, Q, fullTriangle, aed );
+        ctrl.qrCtrl.aed = aed;
+        // TODO: distribution block size
 #else
-        SdcCtrl<Real> sdcCtrl;
-        sdcCtrl.cutoff = cutoff;
-        sdcCtrl.maxInnerIts = maxInnerIts;
-        sdcCtrl.maxOuterIts = maxOuterIts;
-        sdcCtrl.tol = sdcTol;
-        sdcCtrl.spreadFactor = spreadFactor;
-        sdcCtrl.random = random;
-        sdcCtrl.progress = progress;
-        sdcCtrl.signCtrl.tol = signTol;
-        sdcCtrl.signCtrl.progress = progress;
-        schur::SDC( T, w, Q, true, sdcCtrl );
+        ctrl.useSdc = true;
+        ctrl.sdcCtrl.cutoff = cutoff;
+        ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
+        ctrl.sdcCtrl.maxOuterIts = maxOuterIts;
+        ctrl.sdcCtrl.tol = sdcTol;
+        ctrl.sdcCtrl.spreadFactor = spreadFactor;
+        ctrl.sdcCtrl.random = random;
+        ctrl.sdcCtrl.progress = progress;
+        ctrl.sdcCtrl.signCtrl.tol = signTol;
+        ctrl.sdcCtrl.signCtrl.progress = progress;
 #endif
+        Schur( T, w, Q, fullTriangle, ctrl );
         MakeTrapezoidal( UPPER, T, -1 );
         if( display )
         {

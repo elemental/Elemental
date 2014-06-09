@@ -13,7 +13,6 @@
 #include EL_MAXNORM_INC
 #include EL_ONENORM_INC
 #include EL_TWONORMESTIMATE_INC
-#include EL_SVD_INC
 #include EL_MATRICES_INC
 using namespace std;
 using namespace El;

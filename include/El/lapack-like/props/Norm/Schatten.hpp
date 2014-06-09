@@ -10,8 +10,6 @@
 #ifndef EL_NORM_SCHATTEN_HPP
 #define EL_NORM_SCHATTEN_HPP
 
-#include EL_SVD_INC
-
 namespace El {
 
 template<typename F> 

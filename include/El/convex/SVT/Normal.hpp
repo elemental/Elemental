@@ -12,7 +12,6 @@
 
 #include EL_MAXNORM_INC
 #include EL_ZERONORM_INC
-#include EL_SVD_INC
 #include EL_SOFTTHRESHOLD_INC
 
 namespace El {

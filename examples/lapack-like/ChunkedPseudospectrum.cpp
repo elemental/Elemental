@@ -15,6 +15,7 @@
 #include EL_EHRENFEST_INC
 #include EL_FOXLI_INC
 #include EL_GRCAR_INC
+#include EL_HAAR_INC
 #include EL_HATANONELSON_INC
 #include EL_HELMHOLTZPML_INC
 #include EL_LOTKIN_INC
@@ -241,50 +242,44 @@ main( int argc, char* argv[] )
         const bool formATR = true;
         DistMatrix<Real> QReal(g);
         DistMatrix<C> QCpx(g);
+        SchurCtrl<Real> ctrl;
 #ifdef EL_HAVE_SCALAPACK
-        SetDefaultBlockHeight( nbDist );
-        SetDefaultBlockWidth( nbDist );
-        timer.Start();
-        if( isReal )
-        {
-            if( psNorm == PS_TWO_NORM )
-                schur::QR( AReal, w, formATR );
-            else
-                schur::QR( AReal, w, QReal, formATR );
-        }
-        else
-        {
-            if( psNorm == PS_TWO_NORM )
-                schur::QR( ACpx, w, formATR );
-            else
-                schur::QR( ACpx, w, QCpx, formATR );
-        }
-        mpi::Barrier( mpi::COMM_WORLD );
-        const double qrTime = timer.Stop();
-        if( mpi::WorldRank() == 0 )
-            std::cout << "QR algorithm took " << qrTime << " seconds" 
-                      << std::endl; 
+        ctrl.qrCtrl.blockHeight = nbDist;
+        ctrl.qrCtrl.blockWidth = nbDist;
+        ctrl.qrCtrl.aed = false;
 #else
-        SdcCtrl<Real> sdcCtrl;
-        sdcCtrl.cutoff = cutoff;
-        sdcCtrl.maxInnerIts = maxInnerIts;
-        sdcCtrl.maxOuterIts = maxOuterIts;
-        sdcCtrl.tol = sdcTol;
-        sdcCtrl.spreadFactor = spreadFactor;
-        sdcCtrl.random = random;
-        sdcCtrl.progress = progress;
-        sdcCtrl.signCtrl.tol = signTol;
-        sdcCtrl.signCtrl.progress = progress;
+        ctrl.useSdc = true;
+        ctrl.sdcCtrl.cutoff = cutoff;
+        ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
+        ctrl.sdcCtrl.maxOuterIts = maxOuterIts;
+        ctrl.sdcCtrl.tol = sdcTol;
+        ctrl.sdcCtrl.spreadFactor = spreadFactor;
+        ctrl.sdcCtrl.random = random;
+        ctrl.sdcCtrl.progress = progress;
+        ctrl.sdcCtrl.signCtrl.tol = signTol;
+        ctrl.sdcCtrl.signCtrl.progress = progress;
+#endif
         timer.Start();
         if( isReal )
-            schur::SDC( AReal, w, QReal, formATR, sdcCtrl );
+        {
+            if( psNorm == PS_TWO_NORM )
+                Schur( AReal, w, formATR, ctrl );
+            else
+                Schur( AReal, w, QReal, formATR, ctrl );
+        }
         else
-            schur::SDC( ACpx, w, QCpx, formATR, sdcCtrl );
+        {
+            if( psNorm == PS_TWO_NORM )
+                Schur( ACpx, w, formATR, ctrl );
+            else
+                Schur( ACpx, w, QCpx, formATR, ctrl );
+        }
         mpi::Barrier( mpi::COMM_WORLD );
-        const double sdcTime = timer.Stop();
+        const double schurTime = timer.Stop();
         if( mpi::WorldRank() == 0 )
-            std::cout << "SDC took " << sdcTime << " seconds" << std::endl; 
-#endif
+            std::cout << "Schur decomposition took " << schurTime << " seconds" 
+                      << std::endl; 
+
         if( saveSchur )
         {
             if( mpi::WorldRank() == 0 )

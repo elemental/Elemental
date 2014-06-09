@@ -8,9 +8,9 @@
 */
 #include "El-lite.hpp"
 
-#include EL_HERMITIANTRIDIAGEIG_INC
-#include EL_HERMITIANEIG_INC
 #include EL_MAXNORM_INC
+
+#include "./HermitianEig/SDC.hpp"
 
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
@@ -956,24 +956,40 @@ void HermitianEig<Complex<float>>
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,\
     DistMatrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort, \
     const HermitianEigCtrl<Base<F>> sdcCtrl ); \
-// All options
-#define ALL_OPTS(F) \
-  FULL_EIGVAL(F);\
-  FULL_EIGPAIR(F);\
-  INT_EIGVAL(F);\
-  INT_EIGPAIR(F);\
-  FLOAT_EIGVAL(F);\
-  FLOAT_EIGPAIR(F);
+
+// Spectral Divide and Conquer
+#define SDC_PROTO(F) \
+  template void herm_eig::SDC \
+  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
+    const HermitianSdcCtrl<Base<F>> ctrl ); \
+  template void herm_eig::SDC \
+  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, \
+    const HermitianSdcCtrl<Base<F>> ctrl ); \
+  template void herm_eig::SDC \
+  ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
+    Matrix<F>& Q, const HermitianSdcCtrl<Base<F>> ctrl ); \
+  template void herm_eig::SDC \
+  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, \
+    DistMatrix<F>& Q, const HermitianSdcCtrl<Base<F>> ctrl );
+
+#define PROTO(F) \
+  FULL_EIGVAL(F) \
+  FULL_EIGPAIR(F) \
+  INT_EIGVAL(F) \
+  INT_EIGPAIR(F) \
+  FLOAT_EIGVAL(F) \
+  FLOAT_EIGPAIR(F) \
+  SDC_PROTO(F)
 
 #ifndef EL_DISABLE_FLOAT
-ALL_OPTS(float);
+PROTO(float);
 #ifndef EL_DISABLE_COMPLEX
-ALL_OPTS(Complex<float>);
+PROTO(Complex<float>);
 #endif // ifndef EL_DISABLE_COMPLEX
 #endif // ifndef EL_DISABLE_FLOAT
-ALL_OPTS(double);
+PROTO(double);
 #ifndef EL_DISABLE_COMPLEX
-ALL_OPTS(Complex<double>);
+PROTO(Complex<double>);
 #endif // ifndef EL_DISABLE_COMPLEX
 
 } // namespace El

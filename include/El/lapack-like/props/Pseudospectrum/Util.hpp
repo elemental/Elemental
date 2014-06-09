@@ -35,7 +35,7 @@ struct PseudospecCtrl
     bool schur; // begin with reduction to Schur form?
     bool forceComplexSchur;
     bool forceComplexPs;
-    SdcCtrl<Real> sdcCtrl;
+    SchurCtrl<Real> schurCtrl;
 
     // Convergence and deflation criteria
     Int maxIts;
@@ -55,7 +55,7 @@ struct PseudospecCtrl
 
     PseudospecCtrl()
     : norm(PS_TWO_NORM), blockWidth(10),
-      schur(true), forceComplexSchur(false), forceComplexPs(false), sdcCtrl(),
+      schur(true), forceComplexSchur(false), forceComplexPs(false), schurCtrl(),
       maxIts(200), tol(1e-6), deflate(true),
       arnoldi(true), basisSize(10), reorthog(true),
       progress(false), snapCtrl()

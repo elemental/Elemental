@@ -10,8 +10,6 @@
 #ifndef EL_CONDITION_TWO_HPP
 #define EL_CONDITION_TWO_HPP
 
-#include EL_SVD_INC
-
 namespace El {
 
 template<typename F> 

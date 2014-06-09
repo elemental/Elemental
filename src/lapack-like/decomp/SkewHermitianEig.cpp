@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SKEWHERMITIANEIG_HPP
-#define EL_SKEWHERMITIANEIG_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
@@ -16,11 +14,9 @@ namespace El {
 // ==================================
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, Matrix<Real>& wImag, 
-  SortType sort=UNSORTED, 
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Real>> A;
@@ -30,11 +26,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real>>& G, 
-  Matrix<Real>& wImag, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Matrix<Real>& wImag, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -42,11 +37,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& wImag, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Real>> A(G.Grid());
@@ -56,11 +50,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& wImag, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -71,12 +64,10 @@ SkewHermitianEig
 // =================================
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
   Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Real>> A;
@@ -86,12 +77,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real>>& G, 
   Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -99,12 +88,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Real>> A(G.Grid());
@@ -114,12 +101,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -130,11 +115,10 @@ SkewHermitianEig
 // ========================================================
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
-  Matrix<Real>& wImag, Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Matrix<Real>& wImag, Int a, Int b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Real>> A;
@@ -144,11 +128,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real>>& G, 
-  Matrix<Real>& wImag, Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Matrix<Real>& wImag, Int a, Int b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -156,11 +139,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Real>> A(G.Grid());
@@ -170,11 +152,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -185,12 +166,10 @@ SkewHermitianEig
 // =======================================================
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
   Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Int a, Int b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Real>> A;
@@ -200,12 +179,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real>>& G, 
   Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Int a, Int b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -213,12 +190,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Int a, Int b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Real>> A(G.Grid());
@@ -228,12 +203,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Int a, Int b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -244,11 +217,10 @@ SkewHermitianEig
 // =============================================
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
-  Matrix<Real>& wImag, Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Matrix<Real>& wImag, Real a, Real b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Real>> A;
@@ -258,11 +230,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real>>& G, 
-  Matrix<Real>& wImag, Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Matrix<Real>& wImag, Real a, Real b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -270,11 +241,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  DistMatrix<Real,VR,STAR>& wImag, Real a, Real b, SortType sort,
+  const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Real>> A(G.Grid());
@@ -284,12 +254,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
   DistMatrix<Real,VR,STAR>& wImag,
-  Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Real a, Real b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -300,12 +268,10 @@ SkewHermitianEig
 // =============================================================
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Real>& G, 
   Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Real a, Real b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     Matrix<Complex<Real>> A;
@@ -315,12 +281,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<Real>>& G, 
   Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Real a, Real b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
@@ -328,12 +292,10 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Real>& G,
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Real a, Real b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     DistMatrix<Complex<Real>> A(G.Grid());
@@ -343,18 +305,71 @@ SkewHermitianEig
 }
 
 template<typename Real>
-inline void
-SkewHermitianEig
+void SkewHermitianEig
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
   DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() )
+  Real a, Real b, SortType sort, const HermitianEigCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SkewHermitianEig"))
     ScaleTrapezoid( Complex<Real>(0,-1), uplo, G );
     HermitianEig( uplo, G, wImag, Z, a, b, sort, ctrl );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, Matrix<F>& G, \
+    Matrix<Base<F>>& wImag, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, DistMatrix<F>& G, \
+    DistMatrix<Base<F>,VR,STAR>& wImag, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, Matrix<F>& G, \
+    Matrix<Base<F>>& wImag, Int a, Int b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, DistMatrix<F>& G, \
+    DistMatrix<Base<F>,VR,STAR>& wImag, Int a, Int b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, Matrix<F>& G, \
+    Matrix<Base<F>>& wImag, Base<F> a, Base<F> b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, DistMatrix<F>& G, \
+    DistMatrix<Base<F>,VR,STAR>& wImag, Base<F> a, Base<F> b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, Matrix<F>& G, \
+    Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, DistMatrix<F>& G, \
+    DistMatrix<Base<F>,VR,STAR>& wImag, DistMatrix<Complex<Base<F>>>& Z, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, Matrix<F>& G, \
+    Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z, Int a, Int b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, DistMatrix<F>& G, \
+    DistMatrix<Base<F>,VR,STAR>& wImag, DistMatrix<Complex<Base<F>>>& Z, \
+    Int a, Int b, SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, Matrix<F>& G, \
+    Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z, \
+    Base<F> a, Base<F> b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl ); \
+  template void SkewHermitianEig \
+  ( UpperOrLower uplo, DistMatrix<F>& G, \
+    DistMatrix<Base<F>,VR,STAR>& wImag, DistMatrix<Complex<Base<F>>>& Z, \
+    Base<F> a, Base<F> b, \
+    SortType sort, const HermitianEigCtrl<Base<F>>& ctrl );
 
-#endif // ifndef EL_SKEWHERMITIANEIG_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

@@ -17,7 +17,7 @@ namespace schur {
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle=false )
+QR( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
@@ -36,7 +36,7 @@ template<typename F>
 inline void
 QR
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
-  bool fullTriangle=true )
+  bool fullTriangle )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     const Int n = A.Height();
@@ -57,7 +57,7 @@ template<typename F>
 inline void
 QR
 ( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
-  bool fullTriangle=false, bool aed=false )
+  bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef EL_HAVE_SCALAPACK
@@ -95,7 +95,8 @@ QR
     // Run the QR algorithm in block form
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
-    ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, aed );
+    ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, 
+      ctrl.aed );
     w = w_STAR_STAR;
 
     blacs::FreeGrid( context );
@@ -117,7 +118,7 @@ template<typename F>
 inline void
 QR
 ( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
-  BlockDistMatrix<F>& Q, bool fullTriangle=true, bool aed=false )
+  BlockDistMatrix<F>& Q, bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef EL_HAVE_SCALAPACK
@@ -174,7 +175,7 @@ QR
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, aed );
+      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.aed );
     w = w_STAR_STAR;
 
     blacs::FreeGrid( context );
@@ -196,7 +197,7 @@ template<typename F>
 inline void
 QR
 ( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, 
-  bool fullTriangle=false, bool aed=false )
+  bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef EL_HAVE_SCALAPACK
@@ -208,8 +209,9 @@ QR
     // Run the QR algorithm in block form
     // TODO: Create schur::HessenbergQR
     const Int n = A.Height(); 
-    const Int nb = DefaultBlockHeight();
-    BlockDistMatrix<F> ABlock( n, n, A.Grid(), nb, nb );
+    const Int mb = ctrl.blockHeight;
+    const Int nb = ctrl.blockWidth;
+    BlockDistMatrix<F> ABlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );
     const int context =
@@ -228,7 +230,7 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      fullTriangle, aed );
+      fullTriangle, ctrl.aed );
     A = ABlock;
     w = w_STAR_STAR;
 
@@ -251,7 +253,7 @@ template<typename F>
 inline void
 QR
 ( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q,
-  bool fullTriangle=true, bool aed=false )
+  bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef EL_HAVE_SCALAPACK
@@ -266,9 +268,10 @@ QR
     MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form
-    const Int nb = DefaultBlockHeight();
-    BlockDistMatrix<F> ABlock( n, n, A.Grid(), nb, nb ), 
-                       QBlock( n, n, A.Grid(), nb, nb );
+    const Int mb = ctrl.blockHeight;
+    const Int nb = ctrl.blockWidth;
+    BlockDistMatrix<F> ABlock( n, n, A.Grid(), mb, nb ), 
+                       QBlock( n, n, A.Grid(), mb, nb );
     ABlock = A;
     QBlock = Q;
     const int bhandle = blacs::Handle( ABlock.DistComm().comm );
@@ -297,7 +300,7 @@ QR
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, aed );
+      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.aed );
     A = ABlock;
     w = w_STAR_STAR;
     Q = QBlock;

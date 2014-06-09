@@ -8,9 +8,9 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_POLAR_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
+#include EL_IDENTITY_INC
 using namespace std;
 using namespace El;
 
@@ -37,7 +37,10 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const Int numItsQDWH = herm_polar::QDWH( LOWER, Q, colPiv );
+        PolarCtrl ctrl;
+        ctrl.qdwh = true;
+        ctrl.colPiv = colPiv;
+        HermitianPolar( LOWER, Q, ctrl );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
@@ -50,7 +53,7 @@ main( int argc, char* argv[] )
         const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << numItsQDWH << " iterations of QDWH\n"
+            std::cout << ctrl.numIts << " iterations of QDWH\n"
                       << "||A - QP||_F / ||A||_F = " 
                       << frobQDWH/frobA << "\n"
                       << "||I - QQ^H||_F / ||A||_F = " 

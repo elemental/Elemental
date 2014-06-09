@@ -12,7 +12,6 @@
 #include EL_INFINITYNORM_INC
 #include EL_MAXNORM_INC
 #include EL_ONENORM_INC
-#include EL_SVD_INC
 #include EL_UNIFORM_INC
 using namespace std;
 using namespace El;

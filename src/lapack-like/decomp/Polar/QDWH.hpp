@@ -11,6 +11,7 @@
 #define EL_POLAR_QDWH_HPP
 
 #include EL_FROBENIUSNORM_INC
+#include EL_ONENORM_INC
 #include EL_TWONORMESTIMATE_INC
 
 #include EL_IDENTITY_INC
@@ -32,7 +33,7 @@ namespace polar {
 
 template<typename F>
 inline Int 
-QDWHInner( Matrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
+QDWHInner( Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
     typedef Base<F> Real;
@@ -54,7 +55,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
     Matrix<F> QT, QB;
     PartitionDown( Q, QT, QB, m );
     Int numIts=0;
-    while( numIts < maxIts )
+    while( numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -89,7 +90,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, colPiv );
+            qr::Explicit( Q, ctrl.colPiv );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -118,7 +119,7 @@ QDWHInner( Matrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
 
 template<typename F>
 inline Int 
-QDWH( Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
+QDWH( Matrix<F>& A, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
     typedef Base<F> Real;
@@ -151,16 +152,16 @@ QDWH( Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
         } catch( SingularMatrixException& e ) { sMinUpper = 0; }
     } 
 
-    return QDWHInner( A, sMinUpper, colPiv, maxIts );
+    return QDWHInner( A, sMinUpper, ctrl );
 }
 
 template<typename F>
 inline Int 
-QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, Int maxIts=20 )
+QDWH( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
     Matrix<F> ACopy( A );
-    const Int numIts = QDWH( A, colPiv, maxIts );
+    const Int numIts = QDWH( A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( LOWER, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     MakeHermitian( LOWER, P );
@@ -170,7 +171,7 @@ QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, Int maxIts=20 )
 template<typename F>
 inline Int 
 QDWHInner
-( DistMatrix<F>& A, Base<F> sMinUpper, bool colPiv=false, Int maxIts=20 )
+( DistMatrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWHInner"))
     typedef Base<F> Real;
@@ -193,7 +194,7 @@ QDWHInner
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT, QB, m );
     Int numIts=0;
-    while( numIts < maxIts )
+    while( numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -228,7 +229,7 @@ QDWHInner
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, colPiv );
+            qr::Explicit( Q, ctrl.colPiv );
             Gemm( NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -257,7 +258,7 @@ QDWHInner
 
 template<typename F>
 inline Int 
-QDWH( DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
+QDWH( DistMatrix<F>& A, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
     typedef Base<F> Real;
@@ -290,16 +291,16 @@ QDWH( DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
         } catch( SingularMatrixException& e ) { sMinUpper = 0; }
     }
 
-    return QDWHInner( A, sMinUpper, colPiv, maxIts );
+    return QDWHInner( A, sMinUpper, ctrl );
 }
 
 template<typename F>
 inline Int 
-QDWH( DistMatrix<F>& A, DistMatrix<F>& P, bool colPiv=false, Int maxIts=20 )
+QDWH( DistMatrix<F>& A, DistMatrix<F>& P, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::QDWH"))
     DistMatrix<F> ACopy( A );
-    const Int numIts = QDWH( A, colPiv, maxIts );
+    const Int numIts = QDWH( A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( LOWER, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     MakeHermitian( LOWER, P );
@@ -313,8 +314,7 @@ namespace herm_polar {
 template<typename F>
 inline int
 QDWHInner
-( UpperOrLower uplo, Matrix<F>& A, Base<F> sMinUpper, 
-  bool colPiv=false, Int maxIts=20 )
+( UpperOrLower uplo, Matrix<F>& A, Base<F> sMinUpper, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
     if( A.Height() != A.Width() )
@@ -336,7 +336,7 @@ QDWHInner
     Matrix<F> QT, QB;
     PartitionDown( Q, QT, QB, n );
     Int numIts=0;
-    while( numIts < maxIts )
+    while( numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -372,7 +372,7 @@ QDWHInner
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, colPiv );
+            qr::Explicit( Q, ctrl.colPiv );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -408,7 +408,7 @@ QDWHInner
 
 template<typename F>
 inline Int 
-QDWH( UpperOrLower uplo, Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
+QDWH( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
     typedef Base<F> Real;
@@ -428,20 +428,19 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
         sMinUpper = Real(1) / OneNorm( Y );
     } catch( SingularMatrixException& e ) { sMinUpper = 0; }
 
-    return QDWHInner( uplo, A, sMinUpper, colPiv, maxIts );
+    return QDWHInner( uplo, A, sMinUpper, ctrl );
 }
 
 template<typename F>
 inline Int
 QDWH
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P,
-  bool colPiv=false, Int maxIts=20 )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
     Matrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
-    const Int numIts = QDWH( uplo, A, colPiv, maxIts );
+    const Int numIts = QDWH( uplo, A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( uplo, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     return numIts;
@@ -451,7 +450,7 @@ template<typename F>
 inline int
 QDWHInner
 ( UpperOrLower uplo, DistMatrix<F>& A, Base<F> sMinUpper, 
-  bool colPiv=false, Int maxIts=20 )
+  const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
     if( A.Height() != A.Width() )
@@ -474,7 +473,7 @@ QDWHInner
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT, QB, n );
     Int numIts=0;
-    while( numIts < maxIts )
+    while( numIts < ctrl.maxIts )
     {
         ALast = A;
 
@@ -510,7 +509,7 @@ QDWHInner
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q, colPiv );
+            qr::Explicit( Q, ctrl.colPiv );
             Trrk( uplo, NORMAL, ADJOINT, F(alpha/Sqrt(c)), QT, QB, F(beta), A );
         }
         else
@@ -544,7 +543,7 @@ QDWHInner
 
 template<typename F>
 inline Int 
-QDWH( UpperOrLower uplo, DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
+QDWH( UpperOrLower uplo, DistMatrix<F>& A, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
     typedef Base<F> Real;
@@ -564,20 +563,19 @@ QDWH( UpperOrLower uplo, DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
         sMinUpper = Real(1) / OneNorm( Y );
     } catch( SingularMatrixException& e ) { sMinUpper = 0; }
 
-    return QDWHInner( uplo, A, sMinUpper, colPiv, maxIts );
+    return QDWHInner( uplo, A, sMinUpper, ctrl );
 }
 
 template<typename F>
 inline Int
 QDWH
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P, 
-  bool colPiv=false, Int maxIts=20 )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P, const PolarCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_polar::QDWH"))
     DistMatrix<F> ACopy( A );
     // NOTE: This might be avoidable
     MakeHermitian( uplo, ACopy );
-    const Int numIts = QDWH( uplo, A, colPiv, maxIts );
+    const Int numIts = QDWH( uplo, A, ctrl );
     Zeros( P, A.Height(), A.Height() );
     Trrk( uplo, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     return numIts;

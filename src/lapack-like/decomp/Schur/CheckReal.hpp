@@ -14,8 +14,7 @@ namespace El {
 namespace schur {
 
 template<typename Real>
-inline void
-CheckRealSchur( const Matrix<Real>& U, bool standardForm=false )
+void CheckRealSchur( const Matrix<Real>& U, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     const Int n = U.Height();
@@ -54,16 +53,14 @@ CheckRealSchur( const Matrix<Real>& U, bool standardForm=false )
 }
 
 template<typename Real>
-inline void
-CheckRealSchur( const Matrix<Complex<Real>>& U, bool standardForm=false )
+void CheckRealSchur( const Matrix<Complex<Real>>& U, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     LogicError("ChceckRealSchur called for complex matrix");
 }
 
 template<typename Real>
-inline void
-CheckRealSchur( const DistMatrix<Real>& U, bool standardForm=false )
+void CheckRealSchur( const DistMatrix<Real>& U, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     const Int n = U.Height();
@@ -105,8 +102,7 @@ CheckRealSchur( const DistMatrix<Real>& U, bool standardForm=false )
 }
 
 template<typename Real>
-inline void
-CheckRealSchur( const DistMatrix<Complex<Real>>& U, bool standardForm=false )
+void CheckRealSchur( const DistMatrix<Complex<Real>>& U, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     LogicError("ChceckRealSchur called for complex matrix");

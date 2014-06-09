@@ -10,10 +10,12 @@
 #ifndef EL_PSEUDOSPECTRUM_HPP
 #define EL_PSEUDOSPECTRUM_HPP
 
+#include EL_INFINITYNORM_INC
 #include EL_MAXNORM_INC
 #include EL_ONENORM_INC
 #include EL_TWONORMESTIMATE_INC
-#include EL_SCHUR_INC
+
+#include EL_IDENTITY_INC
 
 #include "./Pseudospectrum/Util.hpp"
 #include "./Pseudospectrum/Power.hpp"
@@ -597,7 +599,7 @@ Pseudospectrum
     const bool fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-        schur::QR( U, w, fullTriangle );
+        Schur( U, w, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             Matrix<C> UCpx;
@@ -609,7 +611,7 @@ Pseudospectrum
     else
     {
         Matrix<Real> Q;
-        schur::QR( U, w, Q, fullTriangle );
+        Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             LogicError("Real to complex full Schur not yet supported");
@@ -640,7 +642,7 @@ Pseudospectrum
         {
             Matrix<C> w;
             const bool fullTriangle = true;
-            schur::QR( U, w, fullTriangle );
+            Schur( U, w, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum( U, shifts, invNorms, psCtrl );
         }
         else
@@ -656,7 +658,7 @@ Pseudospectrum
         {
             Matrix<C> w;
             const bool fullTriangle = true;
-            schur::QR( U, w, Q, fullTriangle );
+            Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum( U, Q, shifts, invNorms, psCtrl );
         }
         else
@@ -695,15 +697,7 @@ Pseudospectrum
     const bool fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-#ifdef EL_HAVE_SCALAPACK
-        schur::QR( U, w, fullTriangle );
-#else
-        // We don't actually need the Schur vectors, but SDC requires their 
-        // computation in order to form the full triangular factor
-        DistMatrix<Real> Q(g);
-        schur::SDC( U, w, Q, fullTriangle, psCtrl.sdcCtrl );
-        Q.Empty();
-#endif
+        Schur( U, w, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             DistMatrix<C> UCpx(g);
@@ -715,11 +709,7 @@ Pseudospectrum
     else
     {
         DistMatrix<Real> Q(g);
-#ifdef EL_HAVE_SCALAPACK
-        schur::QR( U, w, Q, fullTriangle );
-#else
-        schur::SDC( U, w, Q, fullTriangle, psCtrl.sdcCtrl );
-#endif
+        Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             LogicError("Real to complex full Schur not yet supported");
@@ -754,15 +744,7 @@ Pseudospectrum
         {
             DistMatrix<C,VR,STAR> w(g);
             const bool fullTriangle = true;
-#ifdef EL_HAVE_SCALAPACK
-            schur::QR( U, w, fullTriangle );
-#else
-            // We don't actually need the Schur vectors, but SDC requires their 
-            // computation in order to form the full triangular factor
-            DistMatrix<C> Q(g);
-            schur::SDC( U, w, Q, fullTriangle, psCtrl.sdcCtrl );
-            Q.Empty();
-#endif
+            Schur( U, w, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum( U, shifts, invNorms, psCtrl );
         }
         else
@@ -778,11 +760,7 @@ Pseudospectrum
         {
             DistMatrix<C,VR,STAR> w(g);
             const bool fullTriangle = true;
-#ifdef EL_HAVE_SCALAPACK
-            schur::QR( U, w, Q, fullTriangle );
-#else
-            schur::SDC( U, w, Q, fullTriangle, psCtrl.sdcCtrl );
-#endif
+            Schur( U, w, Q, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum( U, Q, shifts, invNorms, psCtrl );
         }
         else
@@ -1876,7 +1854,7 @@ Pseudospectrum
         {
             Matrix<C> w;
             const bool fullTriangle = true;
-            schur::QR( B, w, fullTriangle );
+            Schur( B, w, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum
                    ( B, invNormMap, center, realSize, imagSize, psCtrl );
         }
@@ -1894,7 +1872,7 @@ Pseudospectrum
         {
             Matrix<C> w;
             const bool fullTriangle = true;
-            schur::QR( B, w, Q, fullTriangle );
+            Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum
                    ( B, Q, invNormMap, center, realSize, imagSize, psCtrl );
         }
@@ -1935,7 +1913,7 @@ Pseudospectrum
     const bool fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-        schur::QR( B, w, fullTriangle );
+        Schur( B, w, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             Matrix<C> BCpx;
@@ -1949,7 +1927,7 @@ Pseudospectrum
     else
     {
         Matrix<Real> Q;
-        schur::QR( B, w, Q, fullTriangle );
+        Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs )
         {
             LogicError("Real to complex full Schur not yet supported");
@@ -1984,15 +1962,7 @@ Pseudospectrum
         {
             DistMatrix<C,VR,STAR> w(g);
             const bool fullTriangle = true;
-#ifdef EL_HAVE_SCALAPACK
-            schur::QR( B, w, fullTriangle );
-#else
-            // We don't actually need the Schur vectors, but SDC requires their
-            // computation in order to form the full triangular factor
-            DistMatrix<C> Q(g);
-            schur::SDC( B, w, Q, fullTriangle, psCtrl.sdcCtrl );
-            Q.Empty();
-#endif
+            Schur( B, w, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum
                    ( B, invNormMap, center, realSize, imagSize, psCtrl );
         }
@@ -2010,11 +1980,7 @@ Pseudospectrum
         {
             DistMatrix<C,VR,STAR> w(g);
             const bool fullTriangle = true;
-#ifdef EL_HAVE_SCALAPACK
-            schur::QR( B, w, Q, fullTriangle );
-#else
-            schur::SDC( B, w, Q, fullTriangle, psCtrl.sdcCtrl );
-#endif
+            Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
             return TriangularPseudospectrum
                    ( B, Q, invNormMap, center, realSize, imagSize, psCtrl );
         }
@@ -2057,15 +2023,7 @@ Pseudospectrum
     const bool fullTriangle = true;
     if( psCtrl.norm == PS_TWO_NORM )
     {
-#ifdef EL_HAVE_SCALAPACK
-        schur::QR( B, w, fullTriangle );
-#else
-        // We don't actually need the Schur vectors, but SDC requires their
-        // computation in order to form the full triangular factor
-        DistMatrix<Real> Q(g);
-        schur::SDC( B, w, Q, fullTriangle, psCtrl.sdcCtrl );
-        Q.Empty();
-#endif
+        Schur( B, w, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs ) 
         {
             DistMatrix<C> BCpx(g);
@@ -2079,11 +2037,7 @@ Pseudospectrum
     else
     {
         DistMatrix<Real> Q(g); 
-#ifdef EL_HAVE_SCALAPACK
-        schur::QR( B, w, Q, fullTriangle );
-#else
-        schur::SDC( B, w, Q, fullTriangle, psCtrl.sdcCtrl );
-#endif
+        Schur( B, w, Q, fullTriangle, psCtrl.schurCtrl );
         if( psCtrl.forceComplexPs ) 
         {
             LogicError("Real to complex full Schur not yet supported");

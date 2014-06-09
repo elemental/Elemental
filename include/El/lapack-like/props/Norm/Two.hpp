@@ -13,8 +13,6 @@
 #include EL_INFINITYNORM_INC
 #include EL_MAXNORM_INC
 
-#include EL_SVD_INC
-
 namespace El {
 
 template<typename F> 

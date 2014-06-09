@@ -14,8 +14,7 @@ namespace El {
 namespace schur {
 
 template<typename Real>
-inline void
-RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
+void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RealToComplex"))
     DEBUG_ONLY(CheckRealSchur(UQuasi))
@@ -53,8 +52,8 @@ RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 }
 
 template<typename Real>
-inline void
-RealToComplex( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real>>& U )
+void RealToComplex
+( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real>>& U )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RealToComplex"))
     DEBUG_ONLY(CheckRealSchur(UQuasi))

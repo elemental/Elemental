@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_SCHUR_INC
 #include EL_ONES_INC
 #include EL_UNIFORM_INC
 using namespace El;
@@ -61,7 +60,7 @@ main( int argc, char* argv[] )
             //       This driver was therefore switched to complex arithmetic.
             DistMatrix<Complex<double>,VR,STAR> w( m, 1, g );
             BlockDistMatrix<Complex<double>> Q(m,m,g,mb,nb);
-            schur::QR( A, w, Q, fullTriangle );
+            Schur( A, w, Q, fullTriangle );
             if( print )
             {
                 Print( A, "Schur(A)" );

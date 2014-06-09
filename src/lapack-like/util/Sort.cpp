@@ -105,19 +105,29 @@ std::vector<ValueInt<Real>> TaggedSort
     }
 }
 
+#define PROTO_DIST(Real,U,V) \
+  template void Sort( DistMatrix<Real,U,V>& x, SortType sort ); \
+  template std::vector<ValueInt<Real>> TaggedSort \
+  ( const DistMatrix<Real,U,V>& x, SortType sort );
+
 #define PROTO(Real) \
   template void Sort( Matrix<Real>& x, SortType sort ); \
-  template void Sort( DistMatrix<Real>& x, SortType sort ); \
-  template void Sort( DistMatrix<Real,VR,STAR>& x, SortType sort ); \
-  template void Sort( DistMatrix<Real,STAR,STAR>& x, SortType sort ); \
   template std::vector<ValueInt<Real>> TaggedSort \
   ( const Matrix<Real>& x, SortType sort ); \
-  template std::vector<ValueInt<Real>> TaggedSort \
-  ( const DistMatrix<Real>& x, SortType sort ); \
-  template std::vector<ValueInt<Real>> TaggedSort \
-  ( const DistMatrix<Real,VR,STAR>& x, SortType sort ); \
-  template std::vector<ValueInt<Real>> TaggedSort \
-  ( const DistMatrix<Real,STAR,STAR>& x, SortType sort );
+  PROTO_DIST(Real,CIRC,CIRC) \
+  PROTO_DIST(Real,MC,  MR  ) \
+  PROTO_DIST(Real,MC,  STAR) \
+  PROTO_DIST(Real,MD,  STAR) \
+  PROTO_DIST(Real,MR,  MC  ) \
+  PROTO_DIST(Real,MR,  STAR) \
+  PROTO_DIST(Real,STAR,MC  ) \
+  PROTO_DIST(Real,STAR,MD  ) \
+  PROTO_DIST(Real,STAR,MR  ) \
+  PROTO_DIST(Real,STAR,STAR) \
+  PROTO_DIST(Real,STAR,VC  ) \
+  PROTO_DIST(Real,STAR,VR  ) \
+  PROTO_DIST(Real,VC,  STAR) \
+  PROTO_DIST(Real,VR,  STAR)
 
 PROTO(Int)
 PROTO(float)

@@ -10,7 +10,6 @@
 #ifndef EL_SVD_THRESHOLDED_HPP
 #define EL_SVD_THRESHOLDED_HPP
 
-#include EL_HERMITIANEIG_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_MAXNORM_INC
 
@@ -20,9 +19,8 @@ namespace El {
 namespace svd {
 
 template<typename F>
-inline void
-TallAbsoluteThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
+inline void TallAbsoluteThresholded
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
@@ -78,8 +76,7 @@ TallAbsoluteThresholded
 }
 
 template<typename F>
-inline void
-TallRelativeThresholded
+inline void TallRelativeThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> relTol )
 {
     DEBUG_ONLY(
@@ -134,10 +131,9 @@ TallRelativeThresholded
 }
 
 template<typename F>
-inline void
-TallThresholded
+inline void TallThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -150,7 +146,7 @@ template<typename F>
 inline void
 TallAbsoluteThresholded
 ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0 )
+  Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
@@ -281,10 +277,9 @@ TallRelativeThresholded
 }
 
 template<typename F>
-inline void
-TallThresholded
+inline void TallThresholded
 ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -299,7 +294,7 @@ TallAbsoluteThresholded
 ( DistMatrix<F,VC,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol=0 )
+  Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
@@ -430,12 +425,11 @@ TallRelativeThresholded
 }
 
 template<typename F>
-inline void
-TallThresholded
+void TallThresholded
 ( DistMatrix<F,VC,STAR>& A, 
   DistMatrix<Base<F>,STAR,STAR>& s, 
   DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -447,7 +441,7 @@ TallThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol=0 )
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideAbsoluteThresholded");
@@ -559,10 +553,9 @@ WideRelativeThresholded
 }
 
 template<typename F>
-inline void
-WideThresholded
+inline void WideThresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
@@ -575,7 +568,7 @@ template<typename F>
 inline void
 WideAbsoluteThresholded
 ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0 )
+  Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideAbsoluteThresholded");
@@ -706,10 +699,9 @@ WideRelativeThresholded
 }
 
 template<typename F>
-inline void
-WideThresholded
+inline void WideThresholded
 ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
@@ -722,10 +714,9 @@ WideThresholded
 //       than A. It makes more sense to overwrite A with V'.
 
 template<typename F>
-inline void
-Thresholded
+void Thresholded
 ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )
@@ -735,10 +726,9 @@ Thresholded
 }
 
 template<typename F>
-inline void
-Thresholded
+void Thresholded
 ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0, bool relative=false )
+  Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )

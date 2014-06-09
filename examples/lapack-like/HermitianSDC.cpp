@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_HERMITIANEIG_INC
 #include EL_FROBENIUSNORM_INC
 #include EL_IDENTITY_INC
 #include EL_WIGNER_INC
@@ -38,17 +37,18 @@ main( int argc, char* argv[] )
         Wigner( A, n );
         const Real frobA = FrobeniusNorm( A );
 
-        HermitianSdcCtrl<Real> sdcCtrl;
-        sdcCtrl.cutoff = cutoff;
-        sdcCtrl.maxInnerIts = maxInnerIts;
-        sdcCtrl.maxOuterIts = maxOuterIts;
-        sdcCtrl.tol = tol;
+        HermitianEigCtrl<Real> ctrl;
+        ctrl.useSdc = true;
+        ctrl.sdcCtrl.cutoff = cutoff;
+        ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
+        ctrl.sdcCtrl.maxOuterIts = maxOuterIts;
+        ctrl.sdcCtrl.tol = tol;
 
         // Attempt to compute the spectral decomposition of A, 
         // but do not overwrite A
         DistMatrix<C> ACopy( A ), Q;
         DistMatrix<Real,VR,STAR>  w;
-        herm_eig::SDC( LOWER, ACopy, w, Q, sdcCtrl );
+        HermitianEig( LOWER, ACopy, w, Q, ASCENDING, ctrl );
 
         if( display )
         {
