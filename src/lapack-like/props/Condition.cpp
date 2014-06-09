@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_CONDITION_HPP
-#define EL_CONDITION_HPP
+#include "El-lite.hpp"
 
 #include "./Condition/Frobenius.hpp"
 #include "./Condition/Infinity.hpp"
@@ -19,8 +17,7 @@
 namespace El {
 
 template<typename F> 
-inline Base<F>
-Condition( const Matrix<F>& A, NormType type=TWO_NORM )
+Base<F> Condition( const Matrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CallStackEntry cse("Condition"))
     Base<F> norm = 0;
@@ -48,8 +45,7 @@ Condition( const Matrix<F>& A, NormType type=TWO_NORM )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM )
+Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type )
 {
     DEBUG_ONLY(CallStackEntry cse("Condition"))
     Base<F> norm = 0;
@@ -76,6 +72,29 @@ Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM )
     return norm;
 }
 
-} // namespace El
+#define PROTO_DIST(F,U,V) \
+  template Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type );
 
-#endif // ifndef EL_CONDITION_HPP
+#define PROTO(F) \
+  template Base<F> Condition( const Matrix<F>& A, NormType type ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

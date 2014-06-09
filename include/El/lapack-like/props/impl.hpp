@@ -10,11 +10,6 @@
 #ifndef EL_PROPS_IMPL_HPP
 #define EL_PROPS_IMPL_HPP
 
-#include "./Condition.hpp"
-#include "./Determinant.hpp"
-#include "./Inertia.hpp"
-#include "./Norm.hpp"
 #include "./Pseudospectrum.hpp"
-#include "./Trace.hpp"
 
 #endif // ifndef EL_PROPS_IMPL_HPP

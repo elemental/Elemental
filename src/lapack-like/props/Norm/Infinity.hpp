@@ -15,8 +15,7 @@
 namespace El {
 
 template<typename F> 
-inline Base<F>
-InfinityNorm( const Matrix<F>& A )
+Base<F> InfinityNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityNorm"))
     typedef Base<F> R;
@@ -34,24 +33,21 @@ InfinityNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInfinityNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
-inline Base<F>
-SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInfinityNorm"))
     return HermitianInfinityNorm( uplo, A );
 }
 
 template<typename F> 
-inline Base<F>
-InfinityNorm( const AbstractDistMatrix<F>& A )
+Base<F> InfinityNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityNorm"))
     // Compute the partial row sums defined by our local matrix, A[U,V]
@@ -87,16 +83,16 @@ InfinityNorm( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianInfinityNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HermitianInfinityNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInfinityNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
-inline Base<F>
-SymmetricInfinityNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> SymmetricInfinityNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInfinityNorm"))
     return HermitianInfinityNorm( uplo, A );

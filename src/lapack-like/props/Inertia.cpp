@@ -6,15 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_INERTIA_HPP
-#define EL_INERTIA_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline InertiaType
-Inertia( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
+InertiaType Inertia
+( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
@@ -26,9 +24,8 @@ Inertia( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
 }
 
 template<typename F>
-inline InertiaType
-Inertia
-( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_PARLETT )
+InertiaType Inertia
+( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
@@ -39,6 +36,15 @@ Inertia
     return ldl::Inertia( A.GetRealPartOfDiagonal(), dSub );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template InertiaType Inertia \
+  ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType ); \
+  template InertiaType Inertia \
+  ( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType );
 
-#endif // ifndef EL_INERTIA_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

@@ -15,8 +15,7 @@
 namespace El {
 
 template<typename F>
-inline Int
-ZeroNorm( const Matrix<F>& A )
+Int ZeroNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros = 0;
@@ -30,8 +29,7 @@ ZeroNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Int
-ZeroNorm( const AbstractDistMatrix<F>& A )
+Int ZeroNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros;

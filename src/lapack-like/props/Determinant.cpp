@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_DETERMINANT_HPP
-#define EL_DETERMINANT_HPP
+#include "El-lite.hpp"
 
 #include "./Determinant/Cholesky.hpp"
 #include "./Determinant/LUPartialPiv.hpp"
@@ -16,8 +14,7 @@
 namespace El {
 
 template<typename F>
-inline SafeProduct<F> 
-SafeDeterminant( const Matrix<F>& A )
+SafeProduct<F>  SafeDeterminant( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeDeterminant"))
     Matrix<F> B( A );
@@ -25,8 +22,7 @@ SafeDeterminant( const Matrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<F> 
-SafeDeterminant( const DistMatrix<F>& A )
+SafeProduct<F> SafeDeterminant( const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeDeterminant"))
     DistMatrix<F> B( A );
@@ -34,8 +30,8 @@ SafeDeterminant( const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<Base<F>> 
-SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
+SafeProduct<Base<F>> SafeHPDDeterminant
+( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
     Matrix<F> B( A );
@@ -43,8 +39,8 @@ SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<Base<F>> 
-SafeHPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
+SafeProduct<Base<F>> SafeHPDDeterminant
+( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
     DistMatrix<F> B( A );
@@ -52,8 +48,7 @@ SafeHPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline SafeProduct<F> 
-SafeDeterminant( Matrix<F>& A, bool canOverwrite=false )
+SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeDeterminant"))
     Matrix<F> B;
@@ -65,8 +60,7 @@ SafeDeterminant( Matrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline SafeProduct<F> 
-SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
+SafeProduct<F> SafeDeterminant( DistMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeDeterminant"))
     DistMatrix<F> B( A.Grid() );
@@ -78,8 +72,8 @@ SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline SafeProduct<Base<F>> 
-SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
+SafeProduct<Base<F>> SafeHPDDeterminant
+( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
     Matrix<F> B;
@@ -91,85 +85,118 @@ SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline SafeProduct<Base<F>> 
-SafeHPDDeterminant
+SafeProduct<Base<F>> SafeHPDDeterminant
+( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
+{
+    DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
+    DistMatrix<F> B( A.Grid() );
+    if( canOverwrite )
+        View( B, A );
+    else
+        B = A;
+    return hpd_det::Cholesky( uplo, B ); 
+}
+
+template<typename F>
+F Determinant( const Matrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("Determinant"))
+    SafeProduct<F> safeDet = SafeDeterminant( A );
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+F Determinant( const DistMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("Determinant"))
+    SafeProduct<F> safeDet = SafeDeterminant( A );
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
+    return Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+Base<F> HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
+    return Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+F Determinant( Matrix<F>& A, bool canOverwrite=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("Determinant"))
+    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("Determinant"))
+    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+Base<F> HPDDeterminant
+( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
+{
+    DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
+    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    return Exp(safeDet.kappa*safeDet.n);
+}
+
+template<typename F>
+Base<F> HPDDeterminant
 ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
-    DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
-    DistMatrix<F> B( A.Grid() );
-    if( canOverwrite )
-        View( B, A );
-    else
-        B = A;
-    return hpd_det::Cholesky( uplo, B ); 
-}
-
-template<typename F>
-inline F Determinant( const Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("Determinant"))
-    SafeProduct<F> safeDet = SafeDeterminant( A );
-    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-}
-
-template<typename F>
-inline F Determinant( const DistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("Determinant"))
-    SafeProduct<F> safeDet = SafeDeterminant( A );
-    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-}
-
-template<typename F>
-inline Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
-    return Exp(safeDet.kappa*safeDet.n);
-}
-
-template<typename F>
-inline Base<F> HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
-    return Exp(safeDet.kappa*safeDet.n);
-}
-
-template<typename F>
-inline F Determinant( Matrix<F>& A, bool canOverwrite=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("Determinant"))
-    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
-    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-}
-
-template<typename F>
-inline F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("Determinant"))
-    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
-    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-}
-
-template<typename F>
-inline Base<F> 
-HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
-{
     DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-inline Base<F> 
-HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
-{
-    DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
-    return Exp(safeDet.kappa*safeDet.n);
-}
+#define PROTO(F) \
+  template SafeProduct<F> SafeDeterminant( const Matrix<F>& A ); \
+  template SafeProduct<F> SafeDeterminant( const DistMatrix<F>& A ); \
+  template SafeProduct<F> SafeDeterminant \
+  ( Matrix<F>& A, bool canOverwrite ); \
+  template SafeProduct<F> SafeDeterminant \
+  ( DistMatrix<F>& A, bool canOverwrite ); \
+  \
+  template SafeProduct<Base<F>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template SafeProduct<Base<F>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, const DistMatrix<F>& A ); \
+  template SafeProduct<Base<F>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
+  template SafeProduct<Base<F>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite ); \
+  \
+  template F Determinant( const Matrix<F>& A ); \
+  template F Determinant( const DistMatrix<F>& A ); \
+  template F Determinant( Matrix<F>& A, bool canOverwrite ); \
+  template F Determinant( DistMatrix<F>& A, bool canOverwrite ); \
+  \
+  template Base<F> HPDDeterminant \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> HPDDeterminant \
+  ( UpperOrLower uplo, const DistMatrix<F>& A ); \
+  template Base<F> HPDDeterminant \
+  ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
+  template Base<F> HPDDeterminant \
+  ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_DETERMINANT_HPP

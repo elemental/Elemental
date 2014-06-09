@@ -13,8 +13,7 @@
 namespace El {
 
 template<typename F> 
-inline Base<F>
-FrobeniusNorm( const Matrix<F>& A )
+Base<F> FrobeniusNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
     typedef Base<F> R;
@@ -47,8 +46,7 @@ FrobeniusNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
@@ -141,16 +139,14 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );
 }
 
 template<typename F> 
-inline Base<F>
-FrobeniusNorm( const AbstractDistMatrix<F>& A )
+Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusNorm"))
     typedef Base<F> Real;
@@ -203,8 +199,8 @@ FrobeniusNorm( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianFrobeniusNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HermitianFrobeniusNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFrobeniusNorm"))
     if( A.Height() != A.Width() )
@@ -310,8 +306,8 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricFrobeniusNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> SymmetricFrobeniusNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricFrobeniusNorm"))
     return HermitianFrobeniusNorm( uplo, A );

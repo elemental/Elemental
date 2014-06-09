@@ -17,8 +17,7 @@
 namespace El {
 
 template<typename F>
-inline Base<F>
-TwoNormEstimate( const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
     typedef Base<F> Real;
@@ -52,8 +51,7 @@ TwoNormEstimate( const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
 }
 
 template<typename F>
-inline Base<F>
-TwoNormEstimate( const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+Base<F> TwoNormEstimate( const DistMatrix<F>& A, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
     typedef Base<F> Real;
@@ -88,9 +86,8 @@ TwoNormEstimate( const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
 }
 
 template<typename F>
-inline Base<F>
-HermitianTwoNormEstimate
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+Base<F> HermitianTwoNormEstimate
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
@@ -124,9 +121,8 @@ HermitianTwoNormEstimate
 }
 
 template<typename F>
-inline Base<F>
-HermitianTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+Base<F> HermitianTwoNormEstimate
+( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
@@ -161,9 +157,8 @@ HermitianTwoNormEstimate
 }
 
 template<typename F>
-inline Base<F>
-SymmetricTwoNormEstimate
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+Base<F> SymmetricTwoNormEstimate
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
@@ -199,9 +194,8 @@ SymmetricTwoNormEstimate
 }
 
 template<typename F>
-inline Base<F>
-SymmetricTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 )
+Base<F> SymmetricTwoNormEstimate
+( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;

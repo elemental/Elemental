@@ -13,8 +13,7 @@
 namespace El {
 
 template<typename F>
-inline Base<F>
-OneNorm( const Matrix<F>& A )
+Base<F> OneNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneNorm"))
     typedef Base<F> R;
@@ -32,8 +31,7 @@ OneNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
     typedef Base<F> R;
@@ -69,16 +67,14 @@ HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
-inline Base<F>
-OneNorm( const AbstractDistMatrix<F>& A )
+Base<F> OneNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneNorm"))
     typedef Base<F> Real;
@@ -114,8 +110,7 @@ OneNorm( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianOneNorm"))
     typedef Base<F> R;
@@ -227,8 +222,7 @@ HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricOneNorm"))
     return HermitianOneNorm( uplo, A );

@@ -7,36 +7,37 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_NORM_ENTRYWISEONE_HPP
-#define EL_NORM_ENTRYWISEONE_HPP
+#ifndef EL_NORM_ENTRYWISE_HPP
+#define EL_NORM_ENTRYWISE_HPP
 
 namespace El {
 
 template<typename F> 
-inline Base<F>
-EntrywiseOneNorm( const Matrix<F>& A )
+Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseOneNorm"))
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
+    // TODO: Make this more numerically stable
     typedef Base<F> R;
-    R norm = 0;
+    R sum = 0;
     const Int width = A.Width();
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            norm += Abs(A.Get(i,j));
-    return norm;
+            sum += Pow( Abs(A.Get(i,j)), p );
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
-inline Base<F>
-HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> HermitianEntrywiseNorm
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseOneNorm"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
+    // TODO: make this more numerically stable
     typedef Base<F> R;
-    R norm = 0;
+    R sum = 0;
     const Int height = A.Height();
     const Int width = A.Width();
     if( uplo == UPPER )
@@ -45,11 +46,11 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             for( Int i=0; i<j; ++i )
             {
-                const R alpha = Abs(A.Get(i,j));
+                const R term = Pow( Abs(A.Get(i,j)), p );
                 if( i ==j )
-                    norm += alpha;
+                    sum += term;
                 else
-                    norm += 2*alpha;
+                    sum += 2*term;
             }
         }
     }
@@ -59,30 +60,29 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
         {
             for( Int i=j+1; i<height; ++i )
             {
-                const R alpha = Abs(A.Get(i,j));
+                const R term = Pow( Abs(A.Get(i,j)), p );
                 if( i ==j )
-                    norm += alpha;
+                    sum += term;
                 else
-                    norm += 2*alpha;
+                    sum += 2*term;
             }
         }
     }
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
-inline Base<F>
-SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> SymmetricEntrywiseNorm
+( UpperOrLower uplo, const Matrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseOneNorm"))
-    return HermitianEntrywiseOneNorm( uplo, A );
+    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 template<typename F> 
-inline Base<F>
-EntrywiseOneNorm( const AbstractDistMatrix<F>& A )
+Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("EntrywiseOneNorm"))
+    DEBUG_ONLY(CallStackEntry cse("EntrywiseNorm"))
     typedef Base<F> Real;
     Real norm;
     if( A.Participating() )
@@ -92,25 +92,27 @@ EntrywiseOneNorm( const AbstractDistMatrix<F>& A )
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                localSum += Abs(A.GetLocal(iLoc,jLoc)); 
-        norm = mpi::AllReduce( localSum, A.DistComm() );
+                localSum += Pow( Abs(A.GetLocal(iLoc,jLoc)), p ); 
+        const Real sum = mpi::AllReduce( localSum, A.DistComm() );
+        norm = Pow( sum, 1/p );
     }
     mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
 }
 
 template<typename F>
-inline Base<F>
-HermitianEntrywiseOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HermitianEntrywiseNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseOneNorm"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianEntrywiseNorm"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
+
     typedef Base<F> Real;
-    Real localSum = 0;
-    Real norm;
+    Real sum;
     if( A.Participating() )
     {
+        Real localSum = 0;
         const Int localWidth = A.LocalWidth();
         if( uplo == UPPER )
         {
@@ -121,11 +123,11 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                 for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    const Real alpha = Abs(A.GetLocal(iLoc,jLoc));
+                    const Real term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
                     if( i ==j )
-                        localSum += alpha;
+                        localSum += term;
                     else
-                        localSum += 2*alpha;
+                        localSum += 2*term;
                 }
             }
         }
@@ -139,28 +141,28 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
                      iLoc<A.LocalHeight(); ++iLoc )
                 {
                     const Int i = A.GlobalRow(iLoc);
-                    const Real alpha = Abs(A.GetLocal(iLoc,jLoc));
+                    const Real term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
                     if( i ==j )
-                        localSum += alpha;
+                        localSum += term;
                     else
-                        localSum += 2*alpha;
+                        localSum += 2*term;
                 }
             }
         }
-        norm = mpi::AllReduce( localSum, A.DistComm() );
+        sum = mpi::AllReduce( localSum, A.DistComm() );
     }
-    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
-    return norm;
+    mpi::Broadcast( sum, A.Root(), A.CrossComm() );
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
-inline Base<F>
-SymmetricEntrywiseOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> SymmetricEntrywiseNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p )
 {
-    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseOneNorm"))
-    return HermitianEntrywiseOneNorm( uplo, A );
+    DEBUG_ONLY(CallStackEntry cse("SymmetricEntrywiseNorm"))
+    return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 } // namespace El
 
-#endif // ifndef EL_NORM_ENTRYWISEONE_HPP
+#endif // ifndef EL_NORM_ENTRYWISE_HPP

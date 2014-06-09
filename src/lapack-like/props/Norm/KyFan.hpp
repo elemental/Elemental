@@ -13,8 +13,7 @@
 namespace El {
 
 template<typename F> 
-inline Base<F>
-KyFanNorm( const Matrix<F>& A, Int k )
+Base<F> KyFanNorm( const Matrix<F>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("KyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -32,8 +31,7 @@ KyFanNorm( const Matrix<F>& A, Int k )
 }
 
 template<typename F>
-inline Base<F>
-HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
+Base<F> HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -51,8 +49,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
+Base<F> SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -71,8 +68,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
+Base<F> KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("KyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -93,8 +89,8 @@ KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
 }
 
 template<typename F,Dist U,Dist V>
-inline Base<F>
-HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
+Base<F> HermitianKyFanNorm
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )
@@ -115,8 +111,8 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 }
 
 template<typename F,Dist U,Dist V>
-inline Base<F>
-SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
+Base<F> SymmetricKyFanNorm
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricKyFanNorm"))
     if( k < 1 || k > Min(A.Height(),A.Width()) )

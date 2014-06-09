@@ -13,8 +13,7 @@
 namespace El {
 
 template<typename F> 
-inline Base<F>
-MaxNorm( const Matrix<F>& A )
+Base<F> MaxNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
     typedef Base<F> Real;
@@ -33,8 +32,7 @@ MaxNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
@@ -70,16 +68,14 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+Base<F> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );
 }
 
 template<typename F>
-inline Base<F>
-MaxNorm( const AbstractDistMatrix<F>& A )
+Base<F> MaxNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxNorm"))
     typedef Base<F> Real;
@@ -104,8 +100,7 @@ MaxNorm( const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianMaxNorm"))
     if( A.Height() != A.Width() )
@@ -151,8 +146,7 @@ HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 }
 
 template<typename F>
-inline Base<F>
-SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+Base<F> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricMaxNorm"))
     return HermitianMaxNorm( uplo, A );

@@ -6,14 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRACE_HPP
-#define EL_TRACE_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline F Trace( const Matrix<F>& A )
+F Trace( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
@@ -29,7 +27,7 @@ inline F Trace( const Matrix<F>& A )
 }
 
 template<typename F> 
-inline F Trace( const DistMatrix<F>& A )
+F Trace( const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
@@ -48,6 +46,13 @@ inline F Trace( const DistMatrix<F>& A )
     return mpi::AllReduce( localTrace, g.VCComm() );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template F Trace( const Matrix<F>& A ); \
+  template F Trace( const DistMatrix<F>& A );
 
-#endif // ifndef EL_TRACE_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El
