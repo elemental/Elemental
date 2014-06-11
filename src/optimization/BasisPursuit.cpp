@@ -6,11 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_BASISPURSUIT_HPP
-#define EL_BASISPURSUIT_HPP
+#include "El-lite.hpp"
 
-#include EL_SOFTTHRESHOLD_INC
 #include EL_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
@@ -22,12 +19,11 @@
 namespace El {
 
 template<typename F>
-inline Int
-BasisPursuit
+Int BasisPursuit
 ( const Matrix<F>& A, const Matrix<F>& b,
-  Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, Base<F> rho=1., Base<F> alpha=1.2, 
-  Int maxIter=500, Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool usePinv=false,
-  Base<F> pinvTol=0, bool progress=true )
+  Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, Base<F> rho=1., Base<F> alpha, 
+  Int maxIter, Base<F> absTol, Base<F> relTol, bool usePinv, Base<F> pinvTol, 
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -154,13 +150,12 @@ BasisPursuit
 }
 
 template<typename F>
-inline Int
-BasisPursuit
+Int BasisPursuit
 ( const DistMatrix<F>& A, const DistMatrix<F>& b, 
   DistMatrix<F>& x, DistMatrix<F>& z, DistMatrix<F>& u, 
-  Base<F> rho=1., Base<F> alpha=1.2, 
-  Int maxIter=500, Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool usePinv=false,
-  Base<F> pinvTol=0, bool progress=true )
+  Base<F> rho, Base<F> alpha, 
+  Int maxIter, Base<F> absTol, Base<F> relTol, bool usePinv, Base<F> pinvTol, 
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -289,6 +284,21 @@ BasisPursuit
     return numIter;
 }
 
-} // namepace elem
+#define PROTO(F) \
+  template Int BasisPursuit \
+  ( const Matrix<F>& A, const Matrix<F>& b, \
+    Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, \
+    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
+    bool usePinv, Base<F> pinvTol, bool progress ); \
+  template Int BasisPursuit \
+  ( const DistMatrix<F>& A, const DistMatrix<F>& b, \
+    DistMatrix<F>& x, DistMatrix<F>& z, DistMatrix<F>& u, \
+    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
+    bool usePinv, Base<F> pinvTol, bool progress );
 
-#endif // ifndef EL_BASISPURSUIT_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namepace elem

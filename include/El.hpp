@@ -12,7 +12,6 @@
 
 #include "El-lite.hpp"
 
-#include "El/convex.hpp"
 #include "El/control.hpp"
 #include "El/matrices.hpp"
 

@@ -23,6 +23,6 @@
 #include "El/io.hpp"
 
 #include "El/lapack-like.hpp"
-#include "El/convex/decl.hpp"
+#include "El/optimization.hpp"
 
 #endif // ifndef EL_LITE_HPP

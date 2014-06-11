@@ -10,15 +10,12 @@
 #ifndef EL_SVT_CROSS_HPP
 #define EL_SVT_CROSS_HPP
 
-#include EL_SOFTTHRESHOLD_INC
-
 namespace El {
 
 namespace svt {
 
 template<typename F>
-inline Int
-Cross( Matrix<F>& A, Base<F> tau, bool relative=false )
+Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
@@ -35,8 +32,7 @@ Cross( Matrix<F>& A, Base<F> tau, bool relative=false )
 }
 
 template<typename F>
-inline Int
-Cross( DistMatrix<F>& A, Base<F> tau, bool relative=false )
+Int Cross( DistMatrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
@@ -53,8 +49,7 @@ Cross( DistMatrix<F>& A, Base<F> tau, bool relative=false )
 }
 
 template<typename F>
-inline Int
-TallCross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative=false )
+Int TallCross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::TallCross"))
     typedef Base<F> Real;

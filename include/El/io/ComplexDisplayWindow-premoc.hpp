@@ -26,7 +26,7 @@
 #include "El/blas-like.hpp"
 #include "El/io.hpp"
 #include "El/lapack-like.hpp"
-#include "El/convex/decl.hpp"
+#include "El/optimization.hpp"
 
 namespace El {
 

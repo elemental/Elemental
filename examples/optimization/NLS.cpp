@@ -8,9 +8,8 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_QUADRATICPROGRAM_INC
-#include EL_HERMITIANUNIFORMSPECTRUM_INC
 #include EL_GAUSSIAN_INC
+#include EL_UNIFORM_INC
 using namespace El;
 
 // This driver is an adaptation of the solver described at
@@ -51,7 +50,7 @@ main( int argc, char* argv[] )
         Uniform( A, m, n );
         Herk( LOWER, ADJOINT, 1., A, P );
         Uniform( y, m, 1 );
-        Gemv( ADJOINT, 1., A, y, q );
+        Gemv( ADJOINT, -1., A, y, q );
         if( print )
         {
             Print( A, "A" );
@@ -78,10 +77,16 @@ main( int argc, char* argv[] )
         }
 
         const double yNorm = FrobeniusNorm( y );
-        Gemv( NORMAL, -1., A, x, 1., y );
-        const double eNorm = FrobeniusNorm( y );
+        auto w( y );
+        Gemv( NORMAL, -1., A, x, 1., w );
+        const double xeNorm = FrobeniusNorm( w );
+        w = y;
+        Gemv( NORMAL, -1., A, z, 1., w );
+        const double zeNorm = FrobeniusNorm( w );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| y - A x ||_2 / || y ||_2 = " << eNorm/yNorm
+            std::cout << "|| y - A x ||_2 / || y ||_2 = " << xeNorm/yNorm 
+                      << "\n"
+                      << "|| y - A z ||_2 / || y ||_2 = " << zeNorm/yNorm
                       << std::endl;
     }
     catch( std::exception& e ) { ReportException(e); }

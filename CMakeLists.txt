@@ -299,7 +299,7 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # Build the test drivers if necessary
 if(EL_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
-  set(TEST_TYPES core blas-like lapack-like convex)
+  set(TEST_TYPES core blas-like lapack-like optimization)
   foreach(TYPE ${TEST_TYPES})
     file(GLOB_RECURSE ${TYPE}_TESTS RELATIVE ${PROJECT_SOURCE_DIR}/tests/${TYPE}/ 
          "tests/${TYPE}/*.cpp")
@@ -325,7 +325,7 @@ endif()
 # Build the example drivers if necessary
 if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
-  set(EXAMPLE_TYPES convex core blas-like io lapack-like matrices)
+  set(EXAMPLE_TYPES optimization core blas-like io lapack-like matrices)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 

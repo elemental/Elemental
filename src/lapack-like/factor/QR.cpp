@@ -88,6 +88,19 @@ Int QR
     return qr::BusingerGolub( A, t, d, pPerm, ctrl );
 }
 
+#define PROTO_DIST(F,U) \
+   template qr::TreeData<F> qr::TS( const DistMatrix<F,U,STAR>& A ); \
+  template void qr::ExplicitTS \
+  ( DistMatrix<F,U,STAR>& A, DistMatrix<F,STAR,STAR>& R ); \
+  template Matrix<F>& qr::ts::RootQR \
+  ( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData ); \
+  template const Matrix<F>& qr::ts::RootQR \
+  ( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData ); \
+  template void qr::ts::Reduce \
+  ( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData ); \
+  template void qr::ts::Scatter \
+  ( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData ); 
+
 #define PROTO(F) \
   template void QR( Matrix<F>& A ); \
   template void QR( DistMatrix<F>& A ); \
@@ -140,17 +153,12 @@ Int QR
     const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
     const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B, \
           DistMatrix<F>& X ); \
-  template qr::TreeData<F> qr::TS( const DistMatrix<F,VC,STAR>& A ); \
-  template void qr::ExplicitTS \
-  ( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R ); \
-  template Matrix<F>& qr::ts::RootQR \
-  ( const DistMatrix<F,VC,STAR>& A, TreeData<F>& treeData ); \
-  template const Matrix<F>& qr::ts::RootQR \
-  ( const DistMatrix<F,VC,STAR>& A, const TreeData<F>& treeData ); \
-  template void qr::ts::Reduce \
-  ( const DistMatrix<F,VC,STAR>& A, TreeData<F>& treeData ); \
-  template void qr::ts::Scatter \
-  ( DistMatrix<F,VC,STAR>& A, const TreeData<F>& treeData );
+  PROTO_DIST(F,MC  ) \
+  PROTO_DIST(F,MD  ) \
+  PROTO_DIST(F,MR  ) \
+  PROTO_DIST(F,STAR) \
+  PROTO_DIST(F,VC  ) \
+  PROTO_DIST(F,VR  )
 
 PROTO(float)
 PROTO(double)

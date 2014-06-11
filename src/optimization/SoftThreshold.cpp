@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SOFTTHRESHOLD_HPP
-#define EL_SOFTTHRESHOLD_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline F
-SoftThreshold( F alpha, Base<F> tau )
+F SoftThreshold( F alpha, Base<F> tau )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SoftThreshold");
@@ -26,8 +23,7 @@ SoftThreshold( F alpha, Base<F> tau )
 }
 
 template<typename F>
-inline void
-SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative=false )
+void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
@@ -40,8 +36,7 @@ SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative=false )
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-SoftThreshold( DistMatrix<F,U,V>& A, Base<F> tau, bool relative=false )
+void SoftThreshold( DistMatrix<F,U,V>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
@@ -49,6 +44,31 @@ SoftThreshold( DistMatrix<F,U,V>& A, Base<F> tau, bool relative=false )
     SoftThreshold( A.Matrix(), tau, false );
 }
 
-} // namespace El
+#define PROTO_DIST(F,U,V) \
+  template void SoftThreshold \
+  ( DistMatrix<F,U,V>& A, Base<F> tau, bool relative );
 
-#endif // ifndef EL_SOFTTHRESHOLD_HPP
+#define PROTO(F) \
+  template F SoftThreshold( F alpha, Base<F> tau ); \
+  template void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

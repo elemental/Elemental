@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LOGDETDIV_HPP
-#define EL_LOGDETDIV_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F>
-inline Base<F> 
-LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
+Base<F> LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LogDetDiv"))
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
@@ -51,8 +48,8 @@ LogDetDiv( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 }
 
 template<typename F>
-inline Base<F> 
-LogDetDiv( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
+Base<F> LogDetDiv
+( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LogDetDiv"))
     if( A.Grid() != B.Grid() )
@@ -98,6 +95,15 @@ LogDetDiv( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
     return frobNorm*frobNorm - logDet - Real(n);
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Base<F> LogDetDiv \
+  ( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B ); \
+  template Base<F> LogDetDiv \
+  ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
 
-#endif // ifndef EL_LOGDETDIV_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

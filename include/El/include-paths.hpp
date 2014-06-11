@@ -92,32 +92,4 @@
 #define EL_WIGNER_INC \
   "El/matrices/Wigner.hpp"
 
-// Convex optimization
-// ===================
-#define EL_CONVEX_INC      "El/convex.hpp"
-#define EL_CONVEX_DECL_INC "El/convex/decl.hpp"
-#define EL_CONVEX_IMPL_INC "El/convex/impl.hpp"
-
-// Utilities
-// ---------
-#define EL_CLIP_INC          "El/convex/Clip.hpp"
-#define EL_COVARIANCE_INC    "El/convex/Covariance.hpp"
-#define EL_LOGBARRIER_INC    "El/convex/LogBarrier.hpp"
-#define EL_LOGDETDIV_INC     "El/convex/LogDetDiv.hpp"
-#define EL_SOFTTHRESHOLD_INC "El/convex/SoftThreshold.hpp"
-#define EL_SVT_INC           "El/convex/SVT.hpp"
-// Specific SVT routines
-// ^^^^^^^^^^^^^^^^^^^^^
-#define EL_SVT_CROSS_INC     "El/convex/SVT/Cross.hpp"
-#define EL_SVT_NORMAL_INC    "El/convex/SVT/Normal.hpp"
-#define EL_SVT_PIVOTEDQR_INC "El/convex/SVT/PivotedQR.hpp"
-#define EL_SVT_TSQR_INC      "El/convex/SVT/TSQR.hpp"
-
-// ADMM
-// ----
-#define EL_BASISPURSUIT_INC     "El/convex/BasisPursuit.hpp"
-#define EL_LINEARPROGRAM_INC    "El/convex/LinearProgram.hpp"
-#define EL_QUADRATICPROGRAM_INC "El/convex/QuadraticProgram.hpp"
-#define EL_SPARSEINVCOV_INC     "El/convex/SparseInvCov.hpp"
-
 #endif // ifndef EL_INCLUDEPATHS_HPP

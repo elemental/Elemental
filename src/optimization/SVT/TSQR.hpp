@@ -16,8 +16,7 @@ namespace svt {
 // Singular-value soft-thresholding based on TSQR
 
 template<typename F,Dist U>
-inline Int
-TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false )
+Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SVT"))
     const Int p = mpi::Size( A.ColComm() );

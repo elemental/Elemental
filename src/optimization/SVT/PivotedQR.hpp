@@ -10,16 +10,13 @@
 #ifndef EL_SVT_PIVOTEDQR_HPP
 #define EL_SVT_PIVOTEDQR_HPP
 
-#include EL_SOFTTHRESHOLD_INC
-
 namespace El {
 namespace svt {
 
 // Preprocess with numSteps iterations of pivoted QR factorization
 
 template<typename F>
-inline Int
-PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
+Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");
@@ -57,10 +54,8 @@ PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
     return ZeroNorm( s );
 }
 
-
 template<typename F>
-inline Int
-PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative=false )
+Int PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svt::PivotedQR");

@@ -6,11 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_QUADRATICPROGRAM_HPP
-#define EL_QUADRATICPROGRAM_HPP
+#include "El-lite.hpp"
 
-#include EL_CLIP_INC
 #include EL_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
@@ -25,12 +22,11 @@
 namespace El {
 
 template<typename Real>
-inline Int
-QuadraticProgram
+Int QuadraticProgram
 ( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub,
   Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
-  Real rho=1., Real alpha=1.2, Int maxIter=500, 
-  Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true )
+  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
+  bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("QuadraticProgram"))
     if( IsComplex<Real>::val ) 
@@ -65,13 +61,13 @@ QuadraticProgram
         if( inv )
         {
             // TODO: Trmv
-            Gemv( ADJOINT, Real(1), LMod, x, t );
-            Gemv( NORMAL, Real(1), LMod, t, x );
+            Gemv( NORMAL, Real(1), LMod, x, t );
+            Gemv( ADJOINT, Real(1), LMod, t, x );
         }
         else
         {
-            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
             Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
+            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
         }
 
         // xHat := alpha*x + (1-alpha)*zOld
@@ -131,12 +127,11 @@ QuadraticProgram
 }
 
 template<typename Real>
-inline Int
-QuadraticProgram
+Int QuadraticProgram
 ( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub,
   DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u,
-  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
-  Real relTol=1e-4, bool inv=true, bool progress=true )
+  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
+  bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("QuadraticProgram"))
     if( IsComplex<Real>::val ) 
@@ -172,13 +167,13 @@ QuadraticProgram
         if( inv )
         {
             // TODO: Trmv
-            Gemv( ADJOINT, Real(1), LMod, x, t );
-            Gemv( NORMAL, Real(1), LMod, t, x );
+            Gemv( NORMAL, Real(1), LMod, x, t );
+            Gemv( ADJOINT, Real(1), LMod, t, x );
         }
         else
         {
-            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
             Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
+            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
         }
 
         // xHat := alpha*x + (1-alpha)*zOld
@@ -238,6 +233,19 @@ QuadraticProgram
     return numIter;
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template Int QuadraticProgram \
+  ( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub, \
+    Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u, \
+    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
+    bool inv, bool progress ); \
+  template Int QuadraticProgram \
+  ( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub, \
+    DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u, \
+    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
+    bool inv, bool progress );
 
-#endif // ifndef EL_QUADRATICPROGRAM_HPP
+PROTO(float)
+PROTO(double)
+
+} // namespace El

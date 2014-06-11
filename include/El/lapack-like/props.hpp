@@ -133,7 +133,7 @@ template<typename F>
 SafeProduct<F> SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false );
 
 template<typename F>
-SafeProduct<Base<F>> SafeHPDDeterminanti
+SafeProduct<Base<F>> SafeHPDDeterminant
 ( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant

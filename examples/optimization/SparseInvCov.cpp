@@ -10,8 +10,6 @@
 #include "El-lite.hpp"
 #include EL_GAUSSIAN_INC
 #include EL_UNIFORM_INC
-#include EL_COVARIANCE_INC
-#include EL_SPARSEINVCOV_INC
 using namespace El;
 
 // This driver is an adaptation of the solver described at

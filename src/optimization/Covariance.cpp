@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_COVARIANCE_HPP
-#define EL_COVARIANCE_HPP
+#include "El-lite.hpp"
 
 #include EL_ONES_INC
 #include EL_ZEROS_INC
@@ -16,8 +14,7 @@
 namespace El {
 
 template<typename F>
-inline void
-Covariance( const Matrix<F>& D, Matrix<F>& S )
+void Covariance( const Matrix<F>& D, Matrix<F>& S )
 {
     DEBUG_ONLY(CallStackEntry cse("Covariance"))
     const Int numObs = D.Height();
@@ -31,7 +28,8 @@ Covariance( const Matrix<F>& D, Matrix<F>& S )
     // Subtract the mean from each column of D
     Matrix<F> DDev( D );
     for( Int i=0; i<numObs; ++i )
-        blas::Axpy( n, F(-1), xMean.LockedBuffer(), 1, DDev.Buffer(i,0), DDev.LDim() );
+        blas::Axpy
+        ( n, F(-1), xMean.LockedBuffer(), 1, DDev.Buffer(i,0), DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
     Herk( LOWER, ADJOINT, F(1)/F(numObs-1), DDev, S );
@@ -40,8 +38,7 @@ Covariance( const Matrix<F>& D, Matrix<F>& S )
 }
 
 template<typename F>
-inline void
-Covariance( const DistMatrix<F>& D, DistMatrix<F>& S )
+void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S )
 {
     DEBUG_ONLY(CallStackEntry cse("Covariance"))
     const Grid& g = D.Grid();
@@ -69,6 +66,13 @@ Covariance( const DistMatrix<F>& D, DistMatrix<F>& S )
     MakeHermitian( LOWER, S );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Covariance( const Matrix<F>& D, Matrix<F>& S ); \
+  template void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
 
-#endif // ifndef EL_COVARIANCE_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

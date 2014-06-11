@@ -10,15 +10,12 @@
 #ifndef EL_SVT_NORMAL_HPP
 #define EL_SVT_NORMAL_HPP
 
-#include EL_SOFTTHRESHOLD_INC
-
 namespace El {
 
 namespace svt {
 
 template<typename F>
-inline Int
-Normal( Matrix<F>& A, Base<F> tau, bool relative=false )
+Int Normal( Matrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
     typedef Base<F> Real;
@@ -35,8 +32,7 @@ Normal( Matrix<F>& A, Base<F> tau, bool relative=false )
 }
 
 template<typename F>
-inline Int
-Normal( DistMatrix<F>& A, Base<F> tau, bool relative=false )
+Int Normal( DistMatrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svt::Normal"))
     typedef Base<F> Real;

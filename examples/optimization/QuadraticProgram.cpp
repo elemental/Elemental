@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_QUADRATICPROGRAM_INC
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
 #include EL_GAUSSIAN_INC
 using namespace El;

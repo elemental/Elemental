@@ -63,13 +63,22 @@ PrintInputReport()
 
 inline void ReportException( const std::exception& e, std::ostream& os )
 {
-    if( std::string(e.what()) != "" )
-    {
-        os << "Process " << mpi::WorldRank() << " caught error message:\n"
-           << e.what() << std::endl;
+    try {
+        const ArgException& argExcept = dynamic_cast<const ArgException&>(e);
+        if( std::string(e.what()) != "" ) 
+            os << e.what() << std::endl;
+        DEBUG_ONLY(DumpCallStack(os))
+    } 
+    catch( std::exception& castExcept ) 
+    { 
+        if( std::string(e.what()) != "" )
+        {
+            os << "Process " << mpi::WorldRank() << " caught error message:\n"
+               << e.what() << std::endl;
+        }
+        DEBUG_ONLY(DumpCallStack(os))
+        mpi::Abort( mpi::COMM_WORLD, 1 );
     }
-    DEBUG_ONLY(DumpCallStack(os))
-    mpi::Abort( mpi::COMM_WORLD, 1 );
 }
 
 inline void ComplainIfDebug()

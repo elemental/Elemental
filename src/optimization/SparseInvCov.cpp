@@ -6,12 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SPARSEINVCOV_HPP
-#define EL_SPARSEINVCOV_HPP
+#include "El-lite.hpp"
 
-#include EL_COVARIANCE_INC
-#include EL_SOFTTHRESHOLD_INC
 #include EL_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
@@ -26,11 +22,10 @@
 namespace El {
 
 template<typename F>
-inline Int
-SparseInvCov
+Int SparseInvCov
 ( const Matrix<F>& D, Matrix<F>& X, Matrix<F>& Z, Matrix<F>& U,
-  Base<F> lambda, Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, 
-  Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true )
+  Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, 
+  Base<F> absTol, Base<F> relTol, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
     typedef Base<F> Real;
@@ -115,11 +110,10 @@ SparseInvCov
 }
 
 template<typename F>
-inline Int
-SparseInvCov
+Int SparseInvCov
 ( const DistMatrix<F>& D, DistMatrix<F>& X, DistMatrix<F>& Z, DistMatrix<F>& U,
-  Base<F> lambda, Base<F> rho=1., Base<F> alpha=1.2, Int maxIter=500, 
-  Base<F> absTol=1e-6, Base<F> relTol=1e-4, bool progress=true )
+  Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, 
+  Base<F> absTol, Base<F> relTol, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
     typedef Base<F> Real;
@@ -205,6 +199,20 @@ SparseInvCov
     return numIter;
 }
 
-} // namespace El
+#define PROTO(F) \
+  template Int SparseInvCov \
+  ( const Matrix<F>& D, Matrix<F>& X, Matrix<F>& Z, Matrix<F>& U, \
+    Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, \
+    Base<F> absTol, Base<F> relTol, bool progress ); \
+  template Int SparseInvCov \
+  ( const DistMatrix<F>& D, DistMatrix<F>& X, DistMatrix<F>& Z, \
+    DistMatrix<F>& U, \
+    Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, \
+    Base<F> absTol, Base<F> relTol, bool progress );
 
-#endif // ifndef EL_SPARSEINVCOV_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

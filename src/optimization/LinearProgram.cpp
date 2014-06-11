@@ -6,11 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LINEARPROGRAM_HPP
-#define EL_LINEARPROGRAM_HPP
+#include "El-lite.hpp"
 
-#include EL_CLIP_INC
 #include EL_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
@@ -25,12 +22,11 @@
 namespace El {
 
 template<typename Real>
-inline Int
-LinearProgram
+Int LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
   Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
-  Real rho=1., Real alpha=1.2, Int maxIter=500, 
-  Real absTol=1e-6, Real relTol=1e-4, bool inv=false, bool progress=true )
+  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
+  bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( IsComplex<Real>::val ) 
@@ -74,9 +70,9 @@ LinearProgram
     {
         X22 = B22;
         MakeTriangular( LOWER, X22 );
-        SetDiagonal( X22, 1. );
+        SetDiagonal( X22, Real(1) );
         TriangularInverse( LOWER, UNIT, X22 );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B22, X22 );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Real(1), B22, X22 );
     }
 
     Int numIter=0;
@@ -112,7 +108,7 @@ LinearProgram
         Gemv( NORMAL, Real(-1), L21, xTmp, Real(1), y );
         if( inv )
         {
-            Gemv( NORMAL, Real(1.), X22, y, t );
+            Gemv( NORMAL, Real(1), X22, y, t );
             y = t;
         }
         else
@@ -178,13 +174,12 @@ LinearProgram
 }
 
 template<typename Real>
-inline Int
-LinearProgram
+Int LinearProgram
 ( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
   const DistMatrix<Real>& c, DistMatrix<Real>& x, DistMatrix<Real>& z, 
   DistMatrix<Real>& u,
-  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
-  Real relTol=1e-4, bool inv=true, bool progress=true )
+  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
+  bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("LinearProgram"))
     if( IsComplex<Real>::val ) 
@@ -234,9 +229,9 @@ LinearProgram
     {
         X22 = B22;
         MakeTriangular( LOWER, X22 );
-        SetDiagonal( X22, 1. );
+        SetDiagonal( X22, Real(1) );
         TriangularInverse( LOWER, UNIT, X22 );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B22, X22 );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Real(1), B22, X22 );
     }
 
     Int numIter=0;
@@ -270,7 +265,7 @@ LinearProgram
         Gemv( NORMAL, Real(-1), L21, xTmp, Real(1), y );
         if( inv )
         {
-            Gemv( NORMAL, Real(1.), X22, y, t );
+            Gemv( NORMAL, Real(1), X22, y, t );
             y = t;
         }
         else
@@ -336,6 +331,20 @@ LinearProgram
     return numIter;
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template Int LinearProgram \
+  ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
+    Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u, \
+    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
+    bool inv, bool progress ); \
+  template Int LinearProgram \
+  ( const DistMatrix<Real>& A, const DistMatrix<Real>& b, \
+    const DistMatrix<Real>& c, \
+    DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u, \
+    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
+    bool inv, bool progress );
 
-#endif // ifndef EL_LINEARPROGRAM_HPP
+PROTO(float)
+PROTO(double)
+
+} // namespace El
