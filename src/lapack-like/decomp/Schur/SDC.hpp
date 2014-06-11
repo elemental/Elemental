@@ -10,9 +10,6 @@
 #ifndef EL_SCHUR_SDC_HPP
 #define EL_SCHUR_SDC_HPP
 
-#include EL_INFINITYNORM_INC
-#include EL_ONENORM_INC
-
 #include EL_HAAR_INC
 
 // See Z. Bai, J. Demmel, J. Dongarra, A. Petitet, H. Robinson, and K. Stanley's

@@ -10,10 +10,6 @@
 #ifndef EL_POLAR_QDWH_HPP
 #define EL_POLAR_QDWH_HPP
 
-#include EL_FROBENIUSNORM_INC
-#include EL_ONENORM_INC
-#include EL_TWONORMESTIMATE_INC
-
 #include EL_IDENTITY_INC
 
 namespace El {

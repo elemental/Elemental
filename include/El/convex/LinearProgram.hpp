@@ -10,8 +10,6 @@
 #ifndef EL_LINEARPROGRAM_HPP
 #define EL_LINEARPROGRAM_HPP
 
-#include EL_FROBENIUSNORM_INC
-
 #include EL_CLIP_INC
 #include EL_ZEROS_INC
 

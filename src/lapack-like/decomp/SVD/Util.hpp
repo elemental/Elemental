@@ -10,8 +10,6 @@
 #ifndef EL_SVD_UTIL_HPP
 #define EL_SVD_UTIL_HPP
 
-#include EL_ONENORM_INC
-
 namespace El {
 namespace svd {
 

@@ -10,13 +10,10 @@
 #ifndef EL_CONDITION_ONE_HPP
 #define EL_CONDITION_ONE_HPP
 
-#include EL_ONENORM_INC
-
 namespace El {
 
 template<typename F> 
-inline Base<F>
-OneCondition( const Matrix<F>& A )
+Base<F> OneCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneCondition"))
     typedef Base<F> Real;
@@ -30,8 +27,7 @@ OneCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-OneCondition( const DistMatrix<F,U,V>& A )
+Base<F> OneCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneCondition"))
     typedef Base<F> Real;

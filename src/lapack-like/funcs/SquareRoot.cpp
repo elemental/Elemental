@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAXNORM_INC
-#include EL_ONENORM_INC
 #include EL_HERMITIANFROMEVD_INC
 
 // See Eq. 6.3 of Nicholas J. Higham and Awad H. Al-Mohy's "Computing Matrix

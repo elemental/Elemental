@@ -14,8 +14,8 @@ namespace El {
 namespace hpd_det {
 
 template<typename F>
-inline SafeProduct<Base<F>> 
-AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
+SafeProduct<Base<F>> AfterCholesky
+( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
     typedef Base<F> Real;
@@ -56,8 +56,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-inline SafeProduct<Base<F>> 
-AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
+SafeProduct<Base<F>> AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
     typedef Base<F> Real;

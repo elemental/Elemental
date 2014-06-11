@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAXNORM_INC
-
 namespace El {
 
 void InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )

@@ -10,9 +10,6 @@
 #ifndef EL_HERMITIANEIG_SDC_HPP
 #define EL_HERMITIANEIG_SDC_HPP
 
-#include EL_INFINITYNORM_INC
-#include EL_ONENORM_INC
-
 #include EL_HAAR_INC
 
 #include "../Schur/SDC.hpp"

@@ -10,8 +10,6 @@
 #ifndef EL_SOFTTHRESHOLD_HPP
 #define EL_SOFTTHRESHOLD_HPP
 
-#include EL_MAXNORM_INC
-
 namespace El {
 
 template<typename F>

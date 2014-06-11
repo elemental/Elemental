@@ -8,11 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_FROBENIUSNORM_INC
-#include EL_ENTRYWISEONENORM_INC
-#include EL_MAXNORM_INC
-#include EL_TWONORM_INC
-#include EL_ZERONORM_INC
 #include EL_SVT_INC
 #include EL_UNIFORM_INC
 using namespace El;

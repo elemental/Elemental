@@ -10,8 +10,6 @@
 #ifndef EL_SVT_TSQR_HPP
 #define EL_SVT_TSQR_HPP
 
-#include EL_ZERONORM_INC
-
 namespace El {
 namespace svt {
 

@@ -10,8 +10,6 @@
 #ifndef EL_NORM_INFINITY_HPP
 #define EL_NORM_INFINITY_HPP
 
-#include EL_ONENORM_INC
-
 namespace El {
 
 template<typename F> 

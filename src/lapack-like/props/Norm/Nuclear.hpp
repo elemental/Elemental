@@ -10,8 +10,6 @@
 #ifndef EL_NORM_NUCLEAR_HPP
 #define EL_NORM_NUCLEAR_HPP
 
-#include EL_SCHATTENNORM_INC
-
 namespace El {
 
 template<typename F> 

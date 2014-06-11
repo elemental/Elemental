@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAXNORM_INC
-
 namespace El {
 
 void PivotsToPermutation

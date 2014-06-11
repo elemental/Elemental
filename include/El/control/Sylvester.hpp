@@ -10,8 +10,6 @@
 #ifndef EL_SYLVESTER_HPP
 #define EL_SYLVESTER_HPP
 
-#include EL_FROBENIUSNORM_INC
-
 #include EL_ZEROS_INC
 
 namespace El {

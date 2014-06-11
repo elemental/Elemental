@@ -96,6 +96,31 @@ Base<F> Condition( const Matrix<F>& A, NormType type=TWO_NORM );
 template<typename F,Dist U,Dist V>
 Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM );
 
+template<typename F>
+Base<F> FrobeniusCondition( const Matrix<F>& A );
+template<typename F,Dist U,Dist V>
+Base<F> FrobeniusCondition( const DistMatrix<F,U,V>& A );
+
+template<typename F>
+Base<F> InfinityCondition( const Matrix<F>& A );
+template<typename F,Dist U,Dist V>
+Base<F> InfinityCondition( const DistMatrix<F,U,V>& A );
+
+template<typename F>
+Base<F> MaxCondition( const Matrix<F>& A );
+template<typename F,Dist U,Dist V>
+Base<F> MaxCondition( const DistMatrix<F,U,V>& A );
+
+template<typename F>
+Base<F> OneCondition( const Matrix<F>& A );
+template<typename F,Dist U,Dist V>
+Base<F> OneCondition( const DistMatrix<F,U,V>& A );
+
+template<typename F>
+Base<F> TwoCondition( const Matrix<F>& A );
+template<typename F,Dist U,Dist V>
+Base<F> TwoCondition( const DistMatrix<F,U,V>& A );
+
 // Determinant
 // ===========
 template<typename F>
@@ -139,6 +164,26 @@ Base<F> HPDDeterminant
 template<typename F>
 Base<F> HPDDeterminant
 ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false );
+
+namespace hpd_det {
+
+template<typename F>
+SafeProduct<Base<F>> AfterCholesky( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+SafeProduct<Base<F>> AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A );
+
+} // namespace hpd_det
+
+namespace det {
+
+template<typename F>
+SafeProduct<F> AfterLUPartialPiv
+( const Matrix<F>& A, const Matrix<Int>& pPerm );
+template<typename F,Dist UPerm>
+SafeProduct<F> AfterLUPartialPiv
+( const DistMatrix<F>& A, const DistMatrix<Int,UPerm,STAR>& pPerm );
+
+} // namespace det
 
 // Inertia
 // =======
@@ -384,9 +429,9 @@ template<typename F,Dist U,Dist V>
 Base<F> TwoNorm( const DistMatrix<F,U,V>& A );
 
 template<typename F>
-Base<F> HermitianTworNorm( UpperOrLower uplo, const Matrix<F>& A );
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F,Dist U,Dist V>
-Base<F> HermitianTworNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
 
 template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A );

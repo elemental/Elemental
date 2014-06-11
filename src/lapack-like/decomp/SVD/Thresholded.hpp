@@ -10,9 +10,6 @@
 #ifndef EL_SVD_THRESHOLDED_HPP
 #define EL_SVD_THRESHOLDED_HPP
 
-#include EL_FROBENIUSNORM_INC
-#include EL_MAXNORM_INC
-
 // TODO: Use a relative-truncated HermitianEig for relative thresholding
 
 namespace El {

@@ -14,62 +14,6 @@
 // ====================
 #define EL_LAPACK_INC      "El/lapack-like.hpp"
 
-// Matrix properties
-// -----------------
-#define EL_PROPS_INC      "El/lapack-like/props.hpp"
-
-// TODO: Remove the following
-#define EL_CONDITION_INC \
-  "El/lapack-like/props/Condition.hpp"
-#define EL_DETERMINANT_INC \
-  "El/lapack-like/props/Determinant.hpp"
-#define EL_INERTIA_INC \
-  "El/lapack-like/props/Inertia.hpp"
-#define EL_NORM_INC \
-  "El/lapack-like/props/Norm.hpp"
-#define EL_PSEUDOSPECTRUM_INC \
-  "El/lapack-like/props/Pseudospectrum.hpp"
-#define EL_TRACE_INC \
-  "El/lapack-like/props/Trace.hpp"
-// Specific condition-number routines
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#define EL_FROBENIUSCONDITION_INC \
-  "El/lapack-like/props/Condition/Frobenius.hpp"
-#define EL_INFINITYCONDITION_INC \
-  "El/lapack-like/props/Condition/Infinity.hpp"
-#define EL_MAXCONDITION_INC \
-  "El/lapack-like/props/Condition/Max.hpp"
-#define EL_ONECONDITION_INC \
-  "El/lapack-like/props/Condition/One.hpp"
-#define EL_TWOCONDITION_INC \
-  "El/lapack-like/props/Condition/Two.hpp"
-// Specific norm routines
-// ^^^^^^^^^^^^^^^^^^^^^^
-#define EL_ENTRYWISENORM_INC \
-  "El/lapack-like/props/Norm/Entrywise.hpp"
-#define EL_ENTRYWISEONENORM_INC \
-  "El/lapack-like/props/Norm/EntrywiseOne.hpp"
-#define EL_FROBENIUSNORM_INC \
-  "El/lapack-like/props/Norm/Frobenius.hpp"
-#define EL_INFINITYNORM_INC \
-  "El/lapack-like/props/Norm/Infinity.hpp"
-#define EL_KYFANNORM_INC \
-  "El/lapack-like/props/Norm/KyFan.hpp"
-#define EL_MAXNORM_INC \
-  "El/lapack-like/props/Norm/Max.hpp"
-#define EL_NUCLEARNORM_INC \
-  "El/lapack-like/props/Norm/Nuclear.hpp"
-#define EL_ONENORM_INC \
-  "El/lapack-like/props/Norm/One.hpp"
-#define EL_SCHATTENNORM_INC \
-  "El/lapack-like/props/Norm/Schatten.hpp"
-#define EL_TWONORMESTIMATE_INC \
-  "El/lapack-like/props/Norm/TwoEstimate.hpp"
-#define EL_TWONORM_INC \
-  "El/lapack-like/props/Norm/Two.hpp"
-#define EL_ZERONORM_INC \
-  "El/lapack-like/props/Norm/Zero.hpp"
-
 // Special matrices
 // ================
 #define EL_MATRICES_INC      "El/matrices.hpp"

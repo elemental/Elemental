@@ -10,8 +10,6 @@
 #ifndef EL_PSEUDOSPECTRUM_UTIL_BASICMATH_HPP
 #define EL_PSEUDOSPECTRUM_UTIL_BASICMATH_HPP
 
-#include EL_FROBENIUSNORM_INC
-
 namespace El {
 namespace pspec {
 

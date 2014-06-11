@@ -10,8 +10,6 @@
 #ifndef EL_LOGBARRIER_HPP
 #define EL_LOGBARRIER_HPP
 
-#include EL_DETERMINANT_INC
-
 namespace El {
 
 template<typename F>

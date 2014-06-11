@@ -10,13 +10,10 @@
 #ifndef EL_CONDITION_FROBENIUS_HPP
 #define EL_CONDITION_FROBENIUS_HPP
 
-#include EL_FROBENIUSNORM_INC
-
 namespace El {
 
 template<typename F> 
-inline Base<F>
-FrobeniusCondition( const Matrix<F>& A )
+Base<F> FrobeniusCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))
     typedef Base<F> Real;
@@ -30,8 +27,7 @@ FrobeniusCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-FrobeniusCondition( const DistMatrix<F,U,V>& A )
+Base<F> FrobeniusCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))
     typedef Base<F> Real;

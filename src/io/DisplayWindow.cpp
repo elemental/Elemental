@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-#include "El/io.hpp"
 
 #ifdef EL_HAVE_QT5
 

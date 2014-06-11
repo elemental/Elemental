@@ -17,6 +17,7 @@
 #include "./Norm/One.hpp"
 
 #include "./Norm/Nuclear.hpp"
+#include "./Norm/Schatten.hpp"
 #include "./Norm/Two.hpp"
 
 #include "./Norm/TwoEstimate.hpp"
@@ -250,7 +251,7 @@ Base<F> HermitianNorm
   template Base<F> SchattenNorm( const DistMatrix<F,U,V>& A, Base<F> p ); \
   template Base<F> HermitianSchattenNorm \
   ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p ); \
-  template Base<F> SymmetricSchattennNorm \
+  template Base<F> SymmetricSchattenNorm \
   ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p ); \
   template Base<F> TwoNorm( const DistMatrix<F,U,V>& A ); \
   template Base<F> HermitianTwoNorm \
@@ -354,15 +355,38 @@ Base<F> HermitianNorm
   template Base<F> SymmetricTwoNormEstimate \
   ( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts ); \
   template Int ZeroNorm( const Matrix<F>& A ); \
-  template Int ZeroNorm( const AbstractDistMatrix<F>& A );
+  template Int ZeroNorm( const AbstractDistMatrix<F>& A ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
 
 PROTO(float)
 PROTO(double)
 PROTO(Complex<float>)
 PROTO(Complex<double>)
 
-// Additionally instantiate ZeroNorm for Int
 template Int ZeroNorm( const Matrix<Int>& A );
 template Int ZeroNorm( const AbstractDistMatrix<Int>& A );
- 
+template Int MaxNorm( const Matrix<Int>& A );
+template Int MaxNorm ( const AbstractDistMatrix<Int>& A );
+template Int HermitianMaxNorm
+( UpperOrLower uplo, const Matrix<Int>& A );
+template Int HermitianMaxNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Int>& A );
+template Int SymmetricMaxNorm
+( UpperOrLower uplo, const Matrix<Int>& A );
+template Int SymmetricMaxNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Int>& A );
+
 } // namespace El

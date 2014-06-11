@@ -10,7 +10,6 @@
 #ifndef EL_SVT_PIVOTEDQR_HPP
 #define EL_SVT_PIVOTEDQR_HPP
 
-#include EL_ZERONORM_INC
 #include EL_SOFTTHRESHOLD_INC
 
 namespace El {

@@ -10,13 +10,10 @@
 #ifndef EL_CONDITION_INFINITY_HPP
 #define EL_CONDITION_INFINITY_HPP
 
-#include EL_INFINITYNORM_INC
-
 namespace El {
 
 template<typename F> 
-inline Base<F>
-InfinityCondition( const Matrix<F>& A )
+Base<F> InfinityCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityCondition"))
     typedef Base<F> Real;
@@ -30,8 +27,7 @@ InfinityCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-InfinityCondition( const DistMatrix<F,U,V>& A )
+Base<F> InfinityCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityCondition"))
     typedef Base<F> Real;

@@ -13,8 +13,7 @@
 namespace El {
 
 template<typename F> 
-inline Base<F>
-TwoCondition( const Matrix<F>& A )
+Base<F> TwoCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
     typedef Base<F> R;
@@ -30,8 +29,7 @@ TwoCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-TwoCondition( const DistMatrix<F,U,V>& A )
+Base<F> TwoCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
     typedef Base<F> R;

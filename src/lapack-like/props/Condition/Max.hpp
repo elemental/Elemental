@@ -10,13 +10,10 @@
 #ifndef EL_CONDITION_MAX_HPP
 #define EL_CONDITION_MAX_HPP
 
-#include EL_MAXNORM_INC
-
 namespace El {
 
 template<typename F> 
-inline Base<F>
-MaxCondition( const Matrix<F>& A )
+Base<F> MaxCondition( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxCondition"))
     typedef Base<F> Real;
@@ -30,8 +27,7 @@ MaxCondition( const Matrix<F>& A )
 }
 
 template<typename F,Dist U,Dist V> 
-inline Base<F>
-MaxCondition( const DistMatrix<F,U,V>& A )
+Base<F> MaxCondition( const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxCondition"))
     typedef Base<F> Real;

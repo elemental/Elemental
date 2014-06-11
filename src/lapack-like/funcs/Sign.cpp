@@ -7,11 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-
-#include EL_FROBENIUSNORM_INC
-#include EL_ONENORM_INC
-#include EL_DETERMINANT_INC
-
 #include EL_HERMITIANFROMEVD_INC
 
 // See Chapter 5 of Nicholas J. Higham's "Functions of Matrices: Theory and

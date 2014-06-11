@@ -10,9 +10,6 @@
 #ifndef EL_NORM_TWO_HPP
 #define EL_NORM_TWO_HPP
 
-#include EL_INFINITYNORM_INC
-#include EL_MAXNORM_INC
-
 namespace El {
 
 template<typename F> 
@@ -65,7 +62,7 @@ Base<F> HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
     typedef Base<F> R;
-    DistMatrix<F,U,V> B( A );
+    DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
     return InfinityNorm( s );
@@ -76,7 +73,7 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
     typedef Base<F> R;
-    DistMatrix<F,U,V> B( A );
+    DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
     SVD( B, s );

@@ -10,8 +10,6 @@
 #ifndef EL_LOGDETDIV_HPP
 #define EL_LOGDETDIV_HPP
 
-#include EL_FROBENIUSNORM_INC
-
 namespace El {
 
 template<typename F>

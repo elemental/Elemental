@@ -73,10 +73,20 @@ Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type )
 }
 
 #define PROTO_DIST(F,U,V) \
-  template Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type );
+  template Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type ); \
+  template Base<F> FrobeniusCondition( const DistMatrix<F,U,V>& A ); \
+  template Base<F> InfinityCondition( const DistMatrix<F,U,V>& A ); \
+  template Base<F> MaxCondition( const DistMatrix<F,U,V>& A ); \
+  template Base<F> OneCondition( const DistMatrix<F,U,V>& A ); \
+  template Base<F> TwoCondition( const DistMatrix<F,U,V>& A );
 
 #define PROTO(F) \
   template Base<F> Condition( const Matrix<F>& A, NormType type ); \
+  template Base<F> FrobeniusCondition( const Matrix<F>& A ); \
+  template Base<F> InfinityCondition( const Matrix<F>& A ); \
+  template Base<F> MaxCondition( const Matrix<F>& A ); \
+  template Base<F> OneCondition( const Matrix<F>& A ); \
+  template Base<F> TwoCondition( const Matrix<F>& A ); \
   PROTO_DIST(F,CIRC,CIRC) \
   PROTO_DIST(F,MC,  MR  ) \
   PROTO_DIST(F,MC,  STAR) \

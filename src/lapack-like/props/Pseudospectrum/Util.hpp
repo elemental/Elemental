@@ -10,7 +10,6 @@
 #ifndef EL_PSEUDOSPECTRUM_UTIL_HPP
 #define EL_PSEUDOSPECTRUM_UTIL_HPP
 
-#include EL_ZERONORM_INC
 #include EL_ONES_INC
 
 #include "./Util/Rearrange.hpp"

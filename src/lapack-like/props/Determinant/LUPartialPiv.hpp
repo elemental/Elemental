@@ -14,8 +14,8 @@ namespace El {
 namespace det {
 
 template<typename F>
-inline SafeProduct<F> 
-AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& pPerm )
+SafeProduct<F> AfterLUPartialPiv
+( const Matrix<F>& A, const Matrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
@@ -45,8 +45,7 @@ AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& pPerm )
 }
 
 template<typename F>
-inline SafeProduct<F> 
-LUPartialPiv( Matrix<F>& A )
+inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("det::LUPartialPiv"))
     if( A.Height() != A.Width() )
@@ -67,8 +66,7 @@ LUPartialPiv( Matrix<F>& A )
 }
 
 template<typename F,Dist UPerm> 
-inline SafeProduct<F> 
-AfterLUPartialPiv
+SafeProduct<F> AfterLUPartialPiv
 ( const DistMatrix<F>& A, const DistMatrix<Int,UPerm,STAR>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))

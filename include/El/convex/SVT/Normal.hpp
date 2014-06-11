@@ -10,8 +10,6 @@
 #ifndef EL_SVT_NORMAL_HPP
 #define EL_SVT_NORMAL_HPP
 
-#include EL_MAXNORM_INC
-#include EL_ZERONORM_INC
 #include EL_SOFTTHRESHOLD_INC
 
 namespace El {

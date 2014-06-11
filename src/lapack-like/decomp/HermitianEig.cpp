@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAXNORM_INC
-
 #include "./HermitianEig/SDC.hpp"
 
 // The targeted number of pieces to break the eigenvectors into during the

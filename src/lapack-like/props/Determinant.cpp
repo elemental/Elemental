@@ -192,7 +192,26 @@ Base<F> HPDDeterminant
   template Base<F> HPDDeterminant \
   ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
   template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite );
+  ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite ); \
+  \
+  template SafeProduct<Base<F>> hpd_det::AfterCholesky \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template SafeProduct<Base<F>> hpd_det::AfterCholesky \
+  ( UpperOrLower uplo, const DistMatrix<F>& A ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const Matrix<F>& A, const Matrix<Int>& pPerm ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const DistMatrix<F>& A, const DistMatrix<Int,MC,STAR>& pPerm ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const DistMatrix<F>& A, const DistMatrix<Int,MD,STAR>& pPerm ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const DistMatrix<F>& A, const DistMatrix<Int,MR,STAR>& pPerm ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& pPerm ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm ); \
+  template SafeProduct<F> det::AfterLUPartialPiv \
+  ( const DistMatrix<F>& A, const DistMatrix<Int,VR,STAR>& pPerm );
 
 PROTO(float)
 PROTO(double)

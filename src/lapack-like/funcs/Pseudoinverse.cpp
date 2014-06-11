@@ -8,7 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_MAXNORM_INC
 #include EL_HERMITIANFROMEVD_INC
 
 namespace El {
