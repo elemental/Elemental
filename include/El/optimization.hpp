@@ -92,8 +92,23 @@ template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
 
+// Non-negative least squares
+// ==========================
+// TODO: Generalize to complex
+template<typename Real>
+Int NonNegativeLeastSquares
+( const Matrix<Real>& A, const Matrix<Real>& y, Matrix<Real>& z,
+  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
+  Real relTol=1e-4, bool inv=true, bool progress=true );
+template<typename Real>
+Int NonNegativeLeastSquares
+( const DistMatrix<Real>& A, const DistMatrix<Real>& y, DistMatrix<Real>& z, 
+  Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
+  Real relTol=1e-4, bool inv=true, bool progress=true );
+
 // Quadratic program
 // =================
+// TODO: Generalize to complex
 template<typename Real>
 Int QuadraticProgram
 ( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub,

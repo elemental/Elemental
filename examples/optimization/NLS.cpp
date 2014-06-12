@@ -8,17 +8,20 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_GAUSSIAN_INC
 #include EL_UNIFORM_INC
 using namespace El;
 
-// This driver is an adaptation of the solver described at
-//    http://www.stanford.edu/~boyd/papers/admm/quadprog/quadprog.html
-// which is derived from the distributed ADMM article of Boyd et al.
+// Solve
 //
-// This example attempts to solve the following convex optimization problem:
+//     minimize || A z - y ||_2 such that z >= 0
+//        z 
+//
+// via the Quadratic Program
+//
 //     minimize    (1/2) x' P x + q' x 
-//     subject to  lb <= x <= ub
+//     subject to  x >= 0
+//
+// with P = A^T A and q = -A^H y.
 //
 
 typedef double Real;
@@ -33,8 +36,6 @@ main( int argc, char* argv[] )
         const Int m = Input("--m","matrix height",200);
         const Int n = Input("--n","problem size",100);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real lb = Input("--lb","lower bound for x",0.5);
-        const Real ub = Input("--ub","upper bound for x",1.0);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
         const Real absTol = Input("--absTol","absolute tolerance",1e-6);
@@ -46,47 +47,29 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Real> A, P, q, y;
+        DistMatrix<Real> A, y;
         Uniform( A, m, n );
-        Herk( LOWER, ADJOINT, 1., A, P );
         Uniform( y, m, 1 );
-        Gemv( ADJOINT, -1., A, y, q );
         if( print )
         {
             Print( A, "A" );
-            Print( P, "P" );
             Print( y, "y" );
-            Print( q, "q" );
         }
         if( display )
-        {
             Display( A, "A" );
-            Display( P, "P" );
-        }
 
-        DistMatrix<Real> x, z, u;
-        QuadraticProgram
-        ( P, q, 0., 1e6, x, z, u, rho, alpha, maxIter, absTol, relTol, inv, 
-          progress );
+        DistMatrix<Real> z;
+        NonNegativeLeastSquares
+        ( A, y, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
 
         if( print )
-        {
-            Print( x, "x" );
             Print( z, "z" );
-            Print( u, "u" );
-        }
 
         const double yNorm = FrobeniusNorm( y );
-        auto w( y );
-        Gemv( NORMAL, -1., A, x, 1., w );
-        const double xeNorm = FrobeniusNorm( w );
-        w = y;
-        Gemv( NORMAL, -1., A, z, 1., w );
-        const double zeNorm = FrobeniusNorm( w );
+        Gemv( NORMAL, Real(-1), A, z, Real(1), y );
+        const double eNorm = FrobeniusNorm( y );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| y - A x ||_2 / || y ||_2 = " << xeNorm/yNorm 
-                      << "\n"
-                      << "|| y - A z ||_2 / || y ||_2 = " << zeNorm/yNorm
+            std::cout << "|| y - A z ||_2 / || y ||_2 = " << eNorm/yNorm
                       << std::endl;
     }
     catch( std::exception& e ) { ReportException(e); }

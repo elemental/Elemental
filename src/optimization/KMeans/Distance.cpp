@@ -10,7 +10,7 @@
 
 // For pspec::ColumnNorms
 // TODO: Lift function into a better namespace
-#include "../../lapack-like/props/Util/BasicMath.hpp"
+#include "../../lapack-like/props/Pseudospectrum/Util/BasicMath.hpp"
 
 namespace El {
 namespace kmeans {

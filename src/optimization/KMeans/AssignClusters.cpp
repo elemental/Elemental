@@ -19,8 +19,8 @@ void AssignClusters
     typedef Base<F> Real;
     const Int numPoints = D.Height();
     const Int numClusters = D.Width();
-    assign.ResizeTo( numPoints, 1 );
-    cluster.ResizeTo( numPoints, 1 );
+    cluster.Resize( numPoints, 1 );
+    dist.Resize( numPoints, 1 );
 
     const Base<F> maxNorm = MaxNorm( D );
     std::vector<ValueInt<Real>> choices(numPoints);
@@ -55,10 +55,10 @@ void AssignClusters
     const Int numPoints = D.Height();
     const Int numClusters = D.Width();
 
-    assign.AlignWith( D );
     cluster.AlignWith( D );
-    assign.ResizeTo( numPoints, 1 );
-    cluster.ResizeTo( numPoints, 1 );
+    dist.AlignWith( D );
+    cluster.Resize( numPoints, 1 );
+    dist.Resize( numPoints, 1 );
 
     const Int numLocalPoints = D.LocalHeight();
     const Int numLocalClusters = D.LocalWidth();
