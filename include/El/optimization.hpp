@@ -92,17 +92,25 @@ template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
 
+// Non-negative matrix factorization
+// =================================
+// TODO: Generalize to complex
+template<typename Real>
+void NMF( const Matrix<Real>& A, Matrix<Real>& X, Matrix<Real>& Y );
+template<typename Real>
+void NMF( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y );
+
 // Non-negative least squares
 // ==========================
 // TODO: Generalize to complex
 template<typename Real>
 Int NonNegativeLeastSquares
-( const Matrix<Real>& A, const Matrix<Real>& y, Matrix<Real>& z,
+( const Matrix<Real>& A, const Matrix<Real>& Y, Matrix<Real>& Z,
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 template<typename Real>
 Int NonNegativeLeastSquares
-( const DistMatrix<Real>& A, const DistMatrix<Real>& y, DistMatrix<Real>& z, 
+( const DistMatrix<Real>& A, const DistMatrix<Real>& Y, DistMatrix<Real>& Z, 
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 
@@ -111,14 +119,14 @@ Int NonNegativeLeastSquares
 // TODO: Generalize to complex
 template<typename Real>
 Int QuadraticProgram
-( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub,
-  Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
+( const Matrix<Real>& P, const Matrix<Real>& S, Real lb, Real ub,
+  Matrix<Real>& X, Matrix<Real>& Z, Matrix<Real>& U,
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 template<typename Real>
 Int QuadraticProgram
-( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub,
-  DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u,
+( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub,
+  DistMatrix<Real>& X, DistMatrix<Real>& Z, DistMatrix<Real>& U,
   Real rho=1., Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 

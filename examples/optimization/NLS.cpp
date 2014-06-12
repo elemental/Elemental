@@ -34,7 +34,8 @@ main( int argc, char* argv[] )
     try
     {
         const Int m = Input("--m","matrix height",200);
-        const Int n = Input("--n","problem size",100);
+        const Int n = Input("--n","matrix width",100);
+        const Int k = Input("--k","number of right-hand sides",10);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const Real alpha = Input("--alpha","over-relaxation",1.2);
@@ -47,29 +48,29 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Real> A, y;
+        DistMatrix<Real> A, Y;
         Uniform( A, m, n );
-        Uniform( y, m, 1 );
+        Uniform( Y, m, k );
         if( print )
         {
             Print( A, "A" );
-            Print( y, "y" );
+            Print( Y, "Y" );
         }
         if( display )
             Display( A, "A" );
 
-        DistMatrix<Real> z;
+        DistMatrix<Real> Z;
         NonNegativeLeastSquares
-        ( A, y, z, rho, alpha, maxIter, absTol, relTol, inv, progress );
+        ( A, Y, Z, rho, alpha, maxIter, absTol, relTol, inv, progress );
 
         if( print )
-            Print( z, "z" );
+            Print( Z, "Z" );
 
-        const double yNorm = FrobeniusNorm( y );
-        Gemv( NORMAL, Real(-1), A, z, Real(1), y );
-        const double eNorm = FrobeniusNorm( y );
+        const double YNorm = FrobeniusNorm( Y );
+        Gemm( NORMAL, NORMAL, Real(-1), A, Z, Real(1), Y );
+        const double ENorm = FrobeniusNorm( Y );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| y - A z ||_2 / || y ||_2 = " << eNorm/yNorm
+            std::cout << "|| Y - A Z ||_2 / || Y ||_2 = " << ENorm/YNorm
                       << std::endl;
     }
     catch( std::exception& e ) { ReportException(e); }

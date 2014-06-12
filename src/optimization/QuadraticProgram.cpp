@@ -14,17 +14,19 @@
 //    http://www.stanford.edu/~boyd/papers/admm/quadprog/quadprog.html
 // which is derived from the distributed ADMM article of Boyd et al.
 //
-// This ADMM attempts to solve the following quadratic program:
-//     minimize    (1/2) x' P x + q' x
-//     subject to  lb <= x <= ub
+// This ADMM attempts to solve the quadratic programs:
+//     minimize    (1/2) x_j' P x_j + s_j' x_j
+//     subject to  lb <= x_j <= ub
+// where s_j is the j'th column of S and x_j is the corresponding solution 
+// vector.
 //
 
 namespace El {
 
 template<typename Real>
 Int QuadraticProgram
-( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub,
-  Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
+( const Matrix<Real>& P, const Matrix<Real>& S, Real lb, Real ub,
+  Matrix<Real>& X, Matrix<Real>& Z, Matrix<Real>& U,
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -32,6 +34,7 @@ Int QuadraticProgram
     if( IsComplex<Real>::val ) 
         LogicError("The datatype was assumed to be real");
     const Int n = P.Height();
+    const Int k = S.Width();
 
     // Cache the factorization of P + rho*I
     Matrix<Real> LMod( P );
@@ -45,77 +48,77 @@ Int QuadraticProgram
 
     // Start the ADMM
     Int numIter=0;
-    Matrix<Real> t, zOld, xHat;
-    Zeros( z, n, 1 );
-    Zeros( u, n, 1 );
-    Zeros( t, n, 1 );
+    Matrix<Real> T, ZOld, XHat;
+    Zeros( Z, n, k );
+    Zeros( U, n, k );
+    Zeros( T, n, k );
     while( numIter < maxIter )
     {
-        zOld = z;
+        ZOld = Z;
 
         // x := (P+rho*I)^{-1} (rho(z-u)-q)
-        x = z;
-        Axpy( Real(-1), u, x );
-        Scale( rho, x );
-        Axpy( Real(-1), q, x );
+        X = Z;
+        Axpy( Real(-1), U, X );
+        Scale( rho, X );
+        Axpy( Real(-1), S, X );
         if( inv )
         {
             // TODO: Trmv
-            Gemv( NORMAL, Real(1), LMod, x, t );
-            Gemv( ADJOINT, Real(1), LMod, t, x );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Real(1), LMod, X );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Real(1), LMod, X );
         }
         else
         {
-            Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
-            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, Real(1), LMod, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Real(1), LMod, X );
         }
 
         // xHat := alpha*x + (1-alpha)*zOld
-        xHat = x;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        XHat = X;
+        Scale( alpha, XHat );
+        Axpy( 1-alpha, ZOld, XHat );
 
         // z := Clip(xHat+u,lb,ub)
-        z = xHat;
-        Axpy( Real(1), u, z );
-        Clip( z, lb, ub );
+        Z = XHat;
+        Axpy( Real(1), U, Z );
+        Clip( Z, lb, ub );
 
         // u := u + (xHat-z)
-        Axpy( Real(1),  xHat, u );
-        Axpy( Real(-1), z,    u );
+        Axpy( Real(1),  XHat, U );
+        Axpy( Real(-1), Z,    U );
 
-        // Form (1/2) x' P x + q' x
-        Zeros( t, n, 1 );
-        Hemv( LOWER, Real(1), P, x, Real(0), t );
-        const Real objective = Dot(x,t)/2 + Dot(q,x);
+        // Form (1/2) x' P x + s' x
+        Zeros( T, n, k );
+        Hemm( LEFT, LOWER, Real(1), P, X, Real(0), T );
+        const Real objective = HilbertSchmidt(X,T)/2 + HilbertSchmidt(S,X);
 
         // rNorm := || x - z ||_2
-        t = x;
-        Axpy( Real(-1), z, t );
-        const Real rNorm = FrobeniusNorm( t );
+        T = X;
+        Axpy( Real(-1), Z, T );
+        const Real rNorm = FrobeniusNorm( T );
         // sNorm := |rho| || z - zOld ||_2
-        t = z;
-        Axpy( Real(-1), zOld, t );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( t );
+        T = Z;
+        Axpy( Real(-1), ZOld, T );
+        const Real sNorm = Abs(rho)*FrobeniusNorm( T );
 
         const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
+            relTol*Max(FrobeniusNorm(X),FrobeniusNorm(Z));
         const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+            relTol*Abs(rho)*FrobeniusNorm(U);
 
         if( progress )
         {
-            t = x;
-            Clip( t, lb, ub );
-            Axpy( Real(-1), x, t );
-            const Real clipDist = FrobeniusNorm( t );
+            T = X;
+            Clip( T, lb, ub );
+            Axpy( Real(-1), X, T );
+            const Real clipDist = FrobeniusNorm( T );
             std::cout << numIter << ": "
-              << "||x-z||_2=" << rNorm << ", "
+              << "||X-Z||_F=" << rNorm << ", "
               << "epsPri=" << epsPri << ", "
-              << "|rho| ||z-zOld||_2=" << sNorm << ", "
+              << "|rho| ||Z-ZOld||_F=" << sNorm << ", "
               << "epsDual=" << epsDual << ", "
-              << "||x-Clip(x,lb,ub)||_2=" << clipDist << ", "
-              << "(1/2) x' P x + q' x=" << objective << std::endl;
+              << "||X-Clip(X,lb,ub)||_F=" << clipDist << ", "
+              << "(1/2) <X,P X> + <C,X>=" << objective << std::endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
             break;
@@ -128,8 +131,8 @@ Int QuadraticProgram
 
 template<typename Real>
 Int QuadraticProgram
-( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub,
-  DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u,
+( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub,
+  DistMatrix<Real>& X, DistMatrix<Real>& Z, DistMatrix<Real>& U,
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -138,6 +141,7 @@ Int QuadraticProgram
         LogicError("The datatype was assumed to be real");
     const Grid& grid = P.Grid();
     const Int n = P.Height();
+    const Int k = S.Width();
 
     // Cache the factorization of P + rho*I
     DistMatrix<Real> LMod( P );
@@ -151,78 +155,78 @@ Int QuadraticProgram
 
     // Start the ADMM
     Int numIter=0;
-    DistMatrix<Real> t(grid), zOld(grid), xHat(grid);
-    Zeros( z, n, 1 );
-    Zeros( u, n, 1 );
-    Zeros( t, n, 1 );
+    DistMatrix<Real> T(grid), ZOld(grid), XHat(grid);
+    Zeros( Z, n, k );
+    Zeros( U, n, k );
+    Zeros( T, n, k );
     while( numIter < maxIter )
     {
-        zOld = z;
+        ZOld = Z;
 
         // x := (P+rho*I)^{-1} (rho(z-u)-q)
-        x = z;
-        Axpy( Real(-1), u, x );
-        Scale( rho, x );
-        Axpy( Real(-1), q, x );
+        X = Z;
+        Axpy( Real(-1), U, X );
+        Scale( rho, X );
+        Axpy( Real(-1), S, X );
         if( inv )
         {
             // TODO: Trmv
-            Gemv( NORMAL, Real(1), LMod, x, t );
-            Gemv( ADJOINT, Real(1), LMod, t, x );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Real(1), LMod, X );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Real(1), LMod, X );
         }
         else
         {
-            Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
-            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, Real(1), LMod, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Real(1), LMod, X );
         }
 
         // xHat := alpha*x + (1-alpha)*zOld
-        xHat = x;
-        Scale( alpha, xHat );
-        Axpy( 1-alpha, zOld, xHat );
+        XHat = X;
+        Scale( alpha, XHat );
+        Axpy( 1-alpha, ZOld, XHat );
 
         // z := Clip(xHat+u,lb,ub)
-        z = xHat;
-        Axpy( Real(1), u, z );
-        Clip( z, lb, ub );
+        Z = XHat;
+        Axpy( Real(1), U, Z );
+        Clip( Z, lb, ub );
 
         // u := u + (xHat-z)
-        Axpy( Real(1),  xHat, u );
-        Axpy( Real(-1), z,    u );
+        Axpy( Real(1),  XHat, U );
+        Axpy( Real(-1), Z,    U );
 
-        // Form (1/2) x' P x + q' x
-        Zeros( t, n, 1 );
-        Hemv( LOWER, Real(1), P, x, Real(0), t );
-        const Real objective = Dot(x,t)/2 + Dot(q,x);
+        // Form (1/2) x' P x + s' x
+        Zeros( T, n, k );
+        Hemm( LEFT, LOWER, Real(1), P, X, Real(0), T );
+        const Real objective = HilbertSchmidt(X,T)/2 + HilbertSchmidt(S,X);
 
         // rNorm := || x - z ||_2
-        t = x;
-        Axpy( Real(-1), z, t );
-        const Real rNorm = FrobeniusNorm( t );
+        T = X;
+        Axpy( Real(-1), Z, T );
+        const Real rNorm = FrobeniusNorm( T );
         // sNorm := |rho| || z - zOld ||_2
-        t = z;
-        Axpy( Real(-1), zOld, t );
-        const Real sNorm = Abs(rho)*FrobeniusNorm( t );
+        T = Z;
+        Axpy( Real(-1), ZOld, T );
+        const Real sNorm = Abs(rho)*FrobeniusNorm( T );
 
         const Real epsPri = Sqrt(Real(n))*absTol +
-            relTol*Max(FrobeniusNorm(x),FrobeniusNorm(z));
+            relTol*Max(FrobeniusNorm(X),FrobeniusNorm(Z));
         const Real epsDual = Sqrt(Real(n))*absTol +
-            relTol*Abs(rho)*FrobeniusNorm(u);
+            relTol*Abs(rho)*FrobeniusNorm(U);
 
         if( progress )
         {
-            t = x;
-            Clip( t, lb, ub );
-            Axpy( Real(-1), x, t );
-            const Real clipDist = FrobeniusNorm( t );
+            T = X;
+            Clip( T, lb, ub );
+            Axpy( Real(-1), X, T );
+            const Real clipDist = FrobeniusNorm( T );
             if( grid.Rank() == 0 )
                 std::cout << numIter << ": "
-                  << "||x-z||_2=" << rNorm << ", "
+                  << "||X-Z||_F=" << rNorm << ", "
                   << "epsPri=" << epsPri << ", "
-                  << "|rho| ||z-zOld||_2=" << sNorm << ", "
+                  << "|rho| ||Z-ZOld||_F=" << sNorm << ", "
                   << "epsDual=" << epsDual << ", "
-                  << "||x-Clip(x,lb,ub)||_2=" << clipDist << ", "
-                  << "(1/2) x' P x + q' x=" << objective << std::endl;
+                  << "||X-Clip(X,lb,ub)||_2=" << clipDist << ", "
+                  << "(1/2) <X,P X> + <S,X>=" << objective << std::endl;
         }
         if( rNorm < epsPri && sNorm < epsDual )
             break;
@@ -235,13 +239,13 @@ Int QuadraticProgram
 
 #define PROTO(Real) \
   template Int QuadraticProgram \
-  ( const Matrix<Real>& P, const Matrix<Real>& q, Real lb, Real ub, \
-    Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u, \
+  ( const Matrix<Real>& P, const Matrix<Real>& S, Real lb, Real ub, \
+    Matrix<Real>& X, Matrix<Real>& Z, Matrix<Real>& U, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int QuadraticProgram \
-  ( const DistMatrix<Real>& P, const DistMatrix<Real>& q, Real lb, Real ub, \
-    DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u, \
+  ( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub, \
+    DistMatrix<Real>& X, DistMatrix<Real>& Z, DistMatrix<Real>& U, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 

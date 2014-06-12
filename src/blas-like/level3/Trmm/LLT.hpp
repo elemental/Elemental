@@ -106,7 +106,7 @@ LLTA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = LockedViewRange( X, 0, k, m, k+nb );
+        auto X1 = ViewRange( X, 0, k, m, k+nb );
 
         X1_MC_STAR = X1;
         Zeros( Z1_MR_STAR, m, nb );

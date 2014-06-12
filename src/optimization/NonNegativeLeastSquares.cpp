@@ -14,7 +14,7 @@ namespace El {
 
 template<typename Real>
 Int NonNegativeLeastSquares
-( const Matrix<Real>& A, const Matrix<Real>& y, Matrix<Real>& z, 
+( const Matrix<Real>& A, const Matrix<Real>& Y, Matrix<Real>& Z, 
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -23,19 +23,19 @@ Int NonNegativeLeastSquares
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
 
-    Matrix<Real> P, q;
+    Matrix<Real> P, S;
     Herk( LOWER, ADJOINT, Real(1), A, P );
-    Gemv( ADJOINT, Real(-1), A, y, q );
+    Gemm( ADJOINT, NORMAL, Real(-1), A, Y, S );
     
-    Matrix<Real> x, u;
+    Matrix<Real> X, U;
     return QuadraticProgram
-    ( P, q, Real(0), maxReal, x, z, u, rho, alpha, maxIter, absTol, relTol, inv,
+    ( P, S, Real(0), maxReal, X, Z, U, rho, alpha, maxIter, absTol, relTol, inv,
      progress );
 }
 
 template<typename Real>
 Int NonNegativeLeastSquares
-( const DistMatrix<Real>& A, const DistMatrix<Real>& y, DistMatrix<Real>& z,
+( const DistMatrix<Real>& A, const DistMatrix<Real>& Y, DistMatrix<Real>& Z,
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -44,23 +44,23 @@ Int NonNegativeLeastSquares
         LogicError("The datatype was assumed to be real");
     const Real maxReal = std::numeric_limits<Real>::max();
 
-    DistMatrix<Real> P(A.Grid()), q(A.Grid());
+    DistMatrix<Real> P(A.Grid()), S(A.Grid());
     Herk( LOWER, ADJOINT, Real(1), A, P );
-    Gemv( ADJOINT, Real(-1), A, y, q );
+    Gemm( ADJOINT, NORMAL, Real(-1), A, Y, S );
     
-    DistMatrix<Real> x(A.Grid()), u(A.Grid());
+    DistMatrix<Real> X(A.Grid()), U(A.Grid());
     return QuadraticProgram
-    ( P, q, Real(0), maxReal, x, z, u, rho, alpha, maxIter, absTol, relTol, inv,
+    ( P, S, Real(0), maxReal, X, Z, U, rho, alpha, maxIter, absTol, relTol, inv,
      progress );
 }
 
 #define PROTO(Real) \
   template Int NonNegativeLeastSquares \
-  ( const Matrix<Real>& A, const Matrix<Real>& y, Matrix<Real>& z, \
+  ( const Matrix<Real>& A, const Matrix<Real>& Y, Matrix<Real>& Z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int NonNegativeLeastSquares \
-  ( const DistMatrix<Real>& P, const DistMatrix<Real>& q, DistMatrix<Real>& z, \
+  ( const DistMatrix<Real>& A, const DistMatrix<Real>& Y, DistMatrix<Real>& Z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 
