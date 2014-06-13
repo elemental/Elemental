@@ -267,11 +267,13 @@ void AxpyInterface<T>::HandleGlobalToLocalRequest()
 template<typename T>
 AxpyInterface<T>::AxpyInterface()
 : attachedForLocalToGlobal_(false), attachedForGlobalToLocal_(false), 
-  localToGlobalMat_(0), globalToLocalMat_(0)
+  localToGlobalMat_(0), globalToLocalMat_(0),
+  sendDummy_(0), recvDummy_(0)
 { }
 
 template<typename T>
 AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T>& Z )
+: sendDummy_(0), recvDummy_(0)
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyInterface"))
     if( type == LOCAL_TO_GLOBAL )
@@ -310,6 +312,7 @@ AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T>& Z )
 
 template<typename T>
 AxpyInterface<T>::AxpyInterface( AxpyType type, const DistMatrix<T>& X )
+: sendDummy_(0), recvDummy_(0)
 {
     DEBUG_ONLY(CallStackEntry cse("AxpyInterface::AxpyInterface"))
     if( type == LOCAL_TO_GLOBAL )

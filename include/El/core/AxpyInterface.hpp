@@ -48,7 +48,6 @@ private:
         DATA_REPLY_TAG  =4;
 
     bool attachedForLocalToGlobal_, attachedForGlobalToLocal_;
-    byte sendDummy_, recvDummy_;
     DistMatrix<T,MC,MR>* localToGlobalMat_;
     const DistMatrix<T,MC,MR>* globalToLocalMat_;
 
@@ -62,6 +61,8 @@ private:
         sendingData_, sendingRequest_, sendingReply_;
     std::vector<std::deque<mpi::Request>> 
         dataSendRequests_, requestSendRequests_, replySendRequests_;
+
+    byte sendDummy_, recvDummy_;
 
     // Check if we are done with this attachment's work
     bool Finished();

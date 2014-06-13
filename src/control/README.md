@@ -1,7 +1,4 @@
-### `include/El/control/`
-
-- `decl.hpp`: include all declarations of control-related routines
-- `impl.hpp`: include all implementations of control-related routines
+### `src/control/`
 
 A few matrix sign function based solvers for control theory:
 

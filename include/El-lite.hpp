@@ -24,5 +24,6 @@
 
 #include "El/lapack-like.hpp"
 #include "El/optimization.hpp"
+#include "El/control.hpp"
 
 #endif // ifndef EL_LITE_HPP

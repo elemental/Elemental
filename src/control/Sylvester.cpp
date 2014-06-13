@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_SYLVESTER_HPP
-#define EL_SYLVESTER_HPP
+#include "El-lite.hpp"
 
 #include EL_ZEROS_INC
 
@@ -24,13 +22,10 @@ namespace El {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-inline void
-Sylvester
-( Int m, Matrix<F>& W, Matrix<F>& X, 
-  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Sylvester( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sylvester"))
-    Sign( W, signCtrl );
+    Sign( W, ctrl );
     Matrix<F> WTL, WTR,
               WBL, WBR;
     PartitionDownDiagonal
@@ -54,14 +49,12 @@ Sylvester
 }
 
 template<typename F>
-inline void
-Sylvester
-( Int m, DistMatrix<F>& W, DistMatrix<F>& X, 
-  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Sylvester
+( Int m, DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sylvester"))
     const Grid& g = W.Grid();
-    Sign( W, signCtrl );
+    Sign( W, ctrl );
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
     PartitionDownDiagonal
@@ -86,10 +79,9 @@ Sylvester
 }
 
 template<typename F>
-inline void
-Sylvester
+void Sylvester
 ( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, Matrix<F>& X,
-  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -111,14 +103,13 @@ Sylvester
     WTL = A;
     WBR = B; Scale( F(-1), WBR );
     WTR = C; Scale( F(-1), WTR );
-    Sylvester( m, W, X, signCtrl );
+    Sylvester( m, W, X, ctrl );
 }
 
 template<typename F>
-inline void
-Sylvester
+void Sylvester
 ( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C, 
-  DistMatrix<F>& X, SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+  DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -143,9 +134,24 @@ Sylvester
     WTL = A;
     WBR = B; Scale( F(-1), WBR );
     WTR = C; Scale( F(-1), WTR );
-    Sylvester( m, W, X, signCtrl );
+    Sylvester( m, W, X, ctrl );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Sylvester \
+  ( Int m, Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  template void Sylvester \
+  ( Int m, DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  template void Sylvester \
+  ( const Matrix<F>& A, const Matrix<F>& B, const Matrix<F>& C, \
+    Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  template void Sylvester \
+  ( const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& C, \
+    DistMatrix<F>& X, SignCtrl<Base<F>> ctrl );
 
-#endif // ifndef EL_SYLVESTER_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

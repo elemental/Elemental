@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_RICATTI_HPP
-#define EL_RICATTI_HPP
+#include "El-lite.hpp"
 
 #include EL_ZEROS_INC
 
@@ -24,12 +22,10 @@ namespace El {
 // See Chapter 2 of Nicholas J. Higham's "Functions of Matrices"
 
 template<typename F>
-inline void
-Ricatti
-( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Ricatti( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
-    Sign( W, signCtrl );
+    Sign( W, ctrl );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
               WBL, WBR;
@@ -48,14 +44,11 @@ Ricatti
 }
 
 template<typename F>
-inline void
-Ricatti
-( DistMatrix<F>& W, DistMatrix<F>& X, 
-  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+void Ricatti( DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Ricatti"))
     const Grid& g = W.Grid();
-    Sign( W, signCtrl );
+    Sign( W, ctrl );
     const Int n = W.Height()/2;
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
@@ -74,11 +67,10 @@ Ricatti
 }
 
 template<typename F>
-inline void
-Ricatti
+void Ricatti
 ( UpperOrLower uplo, 
   const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, Matrix<F>& X,
-  SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+  SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -104,15 +96,14 @@ Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    Ricatti( W, X, signCtrl );
+    Ricatti( W, X, ctrl );
 }
 
 template<typename F>
-inline void
-Ricatti
+void Ricatti
 ( UpperOrLower uplo, 
   const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, 
-  DistMatrix<F>& X, SignCtrl<Base<F>> signCtrl=SignCtrl<Base<F>>() )
+  DistMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Sylvester");
@@ -141,9 +132,26 @@ Ricatti
     WBL = K; MakeHermitian( uplo, WBL );
     WTR = L; MakeHermitian( uplo, WTR );
 
-    Ricatti( W, X, signCtrl );
+    Ricatti( W, X, ctrl );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Ricatti \
+  ( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  template void Ricatti \
+  ( DistMatrix<F>& W, DistMatrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  template void Ricatti \
+  ( UpperOrLower uplo, \
+    const Matrix<F>& A, const Matrix<F>& K, const Matrix<F>& L, \
+          Matrix<F>& X, SignCtrl<Base<F>> ctrl ); \
+  template void Ricatti \
+  ( UpperOrLower uplo, \
+    const DistMatrix<F>& A, const DistMatrix<F>& K, const DistMatrix<F>& L, \
+          DistMatrix<F>& X, SignCtrl<Base<F>> ctrl );
 
-#endif // ifndef EL_RICATTI_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El
