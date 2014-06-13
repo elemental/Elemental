@@ -48,9 +48,10 @@ private:
         DATA_REPLY_TAG  =4;
 
     bool attachedForLocalToGlobal_, attachedForGlobalToLocal_;
-    byte sendDummy_, recvDummy_;
     DistMatrix<T,MC,MR>* localToGlobalMat_;
     const DistMatrix<T,MC,MR>* globalToLocalMat_;
+
+    byte sendDummy_, recvDummy_;
 
     std::vector<bool> sentEomTo_, haveEomFrom_;
     std::vector<byte> recvVector_;

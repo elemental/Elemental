@@ -74,13 +74,13 @@ QuadraticProgram
         if( inv )
         {
             // TODO: Trmv
-            Gemv( ADJOINT, Real(1), LMod, x, t );
-            Gemv( NORMAL, Real(1), LMod, t, x );
+            Gemv( NORMAL, Real(1), LMod, x, t );
+            Gemv( ADJOINT, Real(1), LMod, t, x );
         }
         else
         {
-            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
             Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
+            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
         }
 
         // xHat := alpha*x + (1-alpha)*zOld
@@ -181,13 +181,13 @@ QuadraticProgram
         if( inv )
         {
             // TODO: Trmv
-            Gemv( ADJOINT, Real(1), LMod, x, t );
-            Gemv( NORMAL, Real(1), LMod, t, x );
+            Gemv( NORMAL, Real(1), LMod, x, t );
+            Gemv( ADJOINT, Real(1), LMod, t, x );
         }
         else
         {
-            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
             Trsv( LOWER, NORMAL, NON_UNIT, LMod, x );
+            Trsv( LOWER, ADJOINT, NON_UNIT, LMod, x );
         }
 
         // xHat := alpha*x + (1-alpha)*zOld
