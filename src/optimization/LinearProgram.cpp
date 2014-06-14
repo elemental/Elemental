@@ -24,7 +24,7 @@ namespace El {
 template<typename Real>
 Int LinearProgram
 ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, 
-  Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u,
+  Matrix<Real>& z,
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -81,7 +81,7 @@ Int LinearProgram
     Matrix<Real> g, xTmp, y, t;
     Zeros( g, m+n, 1 );
     PartitionDown( g, xTmp, y, n );
-    Matrix<Real> zOld, xHat;
+    Matrix<Real> x, u, zOld, xHat;
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
     Zeros( t, n, 1 );
@@ -176,8 +176,7 @@ Int LinearProgram
 template<typename Real>
 Int LinearProgram
 ( const DistMatrix<Real>& A, const DistMatrix<Real>& b,
-  const DistMatrix<Real>& c, DistMatrix<Real>& x, DistMatrix<Real>& z, 
-  DistMatrix<Real>& u,
+  const DistMatrix<Real>& c, DistMatrix<Real>& z, 
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -238,7 +237,7 @@ Int LinearProgram
     DistMatrix<Real> g(grid), xTmp(grid), y(grid), t(grid);
     Zeros( g, m+n, 1 );
     PartitionDown( g, xTmp, y, n );
-    DistMatrix<Real> zOld(grid), xHat(grid);
+    DistMatrix<Real> x(grid), u(grid), zOld(grid), xHat(grid);
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
     Zeros( t, n, 1 );
@@ -334,13 +333,12 @@ Int LinearProgram
 #define PROTO(Real) \
   template Int LinearProgram \
   ( const Matrix<Real>& A, const Matrix<Real>& b, const Matrix<Real>& c, \
-    Matrix<Real>& x, Matrix<Real>& z, Matrix<Real>& u, \
+    Matrix<Real>& z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int LinearProgram \
   ( const DistMatrix<Real>& A, const DistMatrix<Real>& b, \
-    const DistMatrix<Real>& c, \
-    DistMatrix<Real>& x, DistMatrix<Real>& z, DistMatrix<Real>& u, \
+    const DistMatrix<Real>& c, DistMatrix<Real>& z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 

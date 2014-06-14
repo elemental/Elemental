@@ -142,17 +142,27 @@ Int SparseInvCov
 
 // Support Vector Machine
 // ======================
-// TODO: Versions which construct A from the points and labels
-template<typename F>
+template<typename Real>
 Int SVM
-( const Matrix<F>& A, Base<F> gamma, Matrix<F>& z,
-  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
-template<typename F>
+( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, Matrix<Real>& z,
+  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
+  Real relTol=1e-4, bool inv=true, bool progress=true );
+template<typename Real>
 Int SVM
-( const DistMatrix<F>& A, Base<F> gamma, DistMatrix<F>& z,
-  Base<F> rho=1, Base<F> alpha=1.2, Int maxIter=500, Base<F> absTol=1e-6, 
-  Base<F> relTol=1e-4, bool inv=true, bool progress=true );
+( const Matrix<Real>& A, Real gamma, Matrix<Real>& z,
+  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
+  Real relTol=1e-4, bool inv=true, bool progress=true );
+template<typename Real>
+Int SVM
+( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, 
+  DistMatrix<Real>& z,
+  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
+  Real relTol=1e-4, bool inv=true, bool progress=true );
+template<typename Real>
+Int SVM
+( const DistMatrix<Real>& A, Real gamma, DistMatrix<Real>& z,
+  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
+  Real relTol=1e-4, bool inv=true, bool progress=true );
 
 // Utilities
 // =========
