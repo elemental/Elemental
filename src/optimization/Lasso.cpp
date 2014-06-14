@@ -268,11 +268,14 @@ Int Lasso
             Gemv( NORMAL, F(-1), A, x, F(1), s );
             const Real resid = FrobeniusNorm( s );
             const Real obj = Real(1)/Real(2)*resid*resid + lambda*OneNorm(z);
-            std::cout << numIter << ": ||x-z||_2=" << rNorm
-                      << ", epsPri=" << epsPri
-                      << ", |rho| ||z-zOld||_2=" << sNorm
-                      << ", and epsDual=" << epsDual << ", objective="
-                      << obj << std::endl;
+            if( g.Rank() == 0 )
+            {
+                std::cout << numIter << ": ||x-z||_2=" << rNorm
+                          << ", epsPri=" << epsPri
+                          << ", |rho| ||z-zOld||_2=" << sNorm
+                          << ", and epsDual=" << epsDual << ", objective="
+                          << obj << std::endl;
+            }
         }
 
         if( rNorm < epsPri && sNorm < epsDual )
