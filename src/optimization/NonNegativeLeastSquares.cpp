@@ -27,9 +27,8 @@ Int NonNegativeLeastSquares
     Herk( LOWER, ADJOINT, Real(1), A, P );
     Gemm( ADJOINT, NORMAL, Real(-1), A, Y, S );
     
-    Matrix<Real> X, U;
     return QuadraticProgram
-    ( P, S, Real(0), maxReal, X, Z, U, rho, alpha, maxIter, absTol, relTol, inv,
+    ( P, S, Real(0), maxReal, Z, rho, alpha, maxIter, absTol, relTol, inv,
      progress );
 }
 
@@ -48,9 +47,8 @@ Int NonNegativeLeastSquares
     Herk( LOWER, ADJOINT, Real(1), A, P );
     Gemm( ADJOINT, NORMAL, Real(-1), A, Y, S );
     
-    DistMatrix<Real> X(A.Grid()), U(A.Grid());
     return QuadraticProgram
-    ( P, S, Real(0), maxReal, X, Z, U, rho, alpha, maxIter, absTol, relTol, inv,
+    ( P, S, Real(0), maxReal, Z, rho, alpha, maxIter, absTol, relTol, inv,
      progress );
 }
 

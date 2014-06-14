@@ -78,6 +78,7 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
   DIST_PROTO_INNER(T,U,V,MD,  STAR); \
   DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
   DIST_PROTO_INNER(T,U,V,MR,  STAR); \
+  DIST_PROTO_INNER(T,U,V,STAR,MC  ); \
   DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
   DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
   DIST_PROTO_INNER(T,U,V,STAR,STAR); \

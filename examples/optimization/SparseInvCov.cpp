@@ -136,28 +136,19 @@ main( int argc, char* argv[] )
                       << covErrNorm/SNorm << "\n"
                       << std::endl;
 
-        DistMatrix<F> X, Z, U;
+        DistMatrix<F> Z;
         SparseInvCov
-        ( D, X, Z, U, lambda, rho, alpha, maxIter, absTol, relTol, progress );
+        ( D, lambda, Z, rho, alpha, maxIter, absTol, relTol, progress );
 
         const Real SInvNorm = FrobeniusNorm( SInv );
-        G = X;
-        Axpy( F(-1), SInv, G );
-        const Real XErrNorm = FrobeniusNorm( G );
         G = Z;
         Axpy( F(-1), SInv, G );
         const Real ZErrNorm = FrobeniusNorm( G );
         if( print )
-        {
-            Print( X, "X" );
             Print( Z, "Z" );
-            Print( U, "U" );
-        }
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
             std::cout << "|| SInv     ||_F                = " 
                       << SInvNorm << "\n"
-                      << "|| X - SInv ||_F / || SInv ||_F = " 
-                      << XErrNorm/SInvNorm << "\n"
                       << "|| Z - SInv ||_F / || SInv ||_F = "
                       << ZErrNorm/SInvNorm << "\n"
                       << std::endl;

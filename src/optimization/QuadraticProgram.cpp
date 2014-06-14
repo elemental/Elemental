@@ -26,7 +26,7 @@ namespace El {
 template<typename Real>
 Int QuadraticProgram
 ( const Matrix<Real>& P, const Matrix<Real>& S, Real lb, Real ub,
-  Matrix<Real>& X, Matrix<Real>& Z, Matrix<Real>& U,
+  Matrix<Real>& Z, 
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -39,16 +39,19 @@ Int QuadraticProgram
     // Cache the factorization of P + rho*I
     Matrix<Real> LMod( P );
     UpdateDiagonal( LMod, rho );
-    Cholesky( LOWER, LMod );
-    MakeTriangular( LOWER, LMod );
-
-    // Optionally invert the factor in place
     if( inv )
-        TriangularInverse( LOWER, NON_UNIT, LMod );
+    {
+        HPDInverse( LOWER, LMod );
+    }
+    else
+    {
+        Cholesky( LOWER, LMod );
+        MakeTriangular( LOWER, LMod );
+    }
 
     // Start the ADMM
     Int numIter=0;
-    Matrix<Real> T, ZOld, XHat;
+    Matrix<Real> X, U, T, ZOld, XHat;
     Zeros( Z, n, k );
     Zeros( U, n, k );
     Zeros( T, n, k );
@@ -63,9 +66,8 @@ Int QuadraticProgram
         Axpy( Real(-1), S, X );
         if( inv )
         {
-            // TODO: Trmv
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Real(1), LMod, X );
-            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Real(1), LMod, X );
+            auto Y( X );
+            Hemm( LEFT, LOWER, Real(1), LMod, Y, Real(0), X );
         }
         else
         {
@@ -132,7 +134,7 @@ Int QuadraticProgram
 template<typename Real>
 Int QuadraticProgram
 ( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub,
-  DistMatrix<Real>& X, DistMatrix<Real>& Z, DistMatrix<Real>& U,
+  DistMatrix<Real>& Z, 
   Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
   bool inv, bool progress )
 {
@@ -146,16 +148,19 @@ Int QuadraticProgram
     // Cache the factorization of P + rho*I
     DistMatrix<Real> LMod( P );
     UpdateDiagonal( LMod, rho );
-    Cholesky( LOWER, LMod );
-    MakeTriangular( LOWER, LMod );
-
-    // Optionally invert the factor in place
     if( inv )
-        TriangularInverse( LOWER, NON_UNIT, LMod );
+    {
+        HPDInverse( LOWER, LMod );
+    }
+    else
+    {
+        Cholesky( LOWER, LMod );
+        MakeTriangular( LOWER, LMod );
+    }
 
     // Start the ADMM
     Int numIter=0;
-    DistMatrix<Real> T(grid), ZOld(grid), XHat(grid);
+    DistMatrix<Real> X(grid), U(grid), T(grid), ZOld(grid), XHat(grid);
     Zeros( Z, n, k );
     Zeros( U, n, k );
     Zeros( T, n, k );
@@ -170,9 +175,8 @@ Int QuadraticProgram
         Axpy( Real(-1), S, X );
         if( inv )
         {
-            // TODO: Trmv
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Real(1), LMod, X );
-            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Real(1), LMod, X );
+            auto Y( X );
+            Hemm( LEFT, LOWER, Real(1), LMod, Y, Real(0), X );
         }
         else
         {
@@ -240,12 +244,12 @@ Int QuadraticProgram
 #define PROTO(Real) \
   template Int QuadraticProgram \
   ( const Matrix<Real>& P, const Matrix<Real>& S, Real lb, Real ub, \
-    Matrix<Real>& X, Matrix<Real>& Z, Matrix<Real>& U, \
+    Matrix<Real>& Z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress ); \
   template Int QuadraticProgram \
   ( const DistMatrix<Real>& P, const DistMatrix<Real>& S, Real lb, Real ub, \
-    DistMatrix<Real>& X, DistMatrix<Real>& Z, DistMatrix<Real>& U, \
+    DistMatrix<Real>& Z, \
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 

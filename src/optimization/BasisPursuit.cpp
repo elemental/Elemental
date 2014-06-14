@@ -20,10 +20,9 @@ namespace El {
 
 template<typename F>
 Int BasisPursuit
-( const Matrix<F>& A, const Matrix<F>& b,
-  Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, Base<F> rho=1., Base<F> alpha, 
-  Int maxIter, Base<F> absTol, Base<F> relTol, bool usePinv, Base<F> pinvTol, 
-  bool progress )
+( const Matrix<F>& A, const Matrix<F>& b, Matrix<F>& z, 
+  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
+  bool usePinv, Base<F> pinvTol, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -69,7 +68,7 @@ Int BasisPursuit
 
     // Start the basis pursuit
     Int numIter=0;
-    Matrix<F> t, zOld, xHat;
+    Matrix<F> x, u, t, zOld, xHat;
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
@@ -151,11 +150,9 @@ Int BasisPursuit
 
 template<typename F>
 Int BasisPursuit
-( const DistMatrix<F>& A, const DistMatrix<F>& b, 
-  DistMatrix<F>& x, DistMatrix<F>& z, DistMatrix<F>& u, 
-  Base<F> rho, Base<F> alpha, 
-  Int maxIter, Base<F> absTol, Base<F> relTol, bool usePinv, Base<F> pinvTol, 
-  bool progress )
+( const DistMatrix<F>& A, const DistMatrix<F>& b, DistMatrix<F>& z,
+  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
+  bool usePinv, Base<F> pinvTol, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("BasisPursuit"))
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
@@ -203,7 +200,7 @@ Int BasisPursuit
 
     // Start the basis pursuit
     Int numIter=0;
-    DistMatrix<F> t(grid), zOld(grid), xHat(grid);
+    DistMatrix<F> x(grid), u(grid), t(grid), zOld(grid), xHat(grid);
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
@@ -286,13 +283,11 @@ Int BasisPursuit
 
 #define PROTO(F) \
   template Int BasisPursuit \
-  ( const Matrix<F>& A, const Matrix<F>& b, \
-    Matrix<F>& x, Matrix<F>& z, Matrix<F>& u, \
+  ( const Matrix<F>& A, const Matrix<F>& b, Matrix<F>& z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool usePinv, Base<F> pinvTol, bool progress ); \
   template Int BasisPursuit \
-  ( const DistMatrix<F>& A, const DistMatrix<F>& b, \
-    DistMatrix<F>& x, DistMatrix<F>& z, DistMatrix<F>& u, \
+  ( const DistMatrix<F>& A, const DistMatrix<F>& b, DistMatrix<F>& z, \
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool usePinv, Base<F> pinvTol, bool progress );
 

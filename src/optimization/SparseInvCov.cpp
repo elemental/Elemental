@@ -23,9 +23,9 @@ namespace El {
 
 template<typename F>
 Int SparseInvCov
-( const Matrix<F>& D, Matrix<F>& X, Matrix<F>& Z, Matrix<F>& U,
-  Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, 
-  Base<F> absTol, Base<F> relTol, bool progress )
+( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z,
+  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
     typedef Base<F> Real;
@@ -34,13 +34,12 @@ Int SparseInvCov
     Matrix<F> S;
     Covariance( D, S );
     MakeHermitian( LOWER, S );
-
+   
+    Int numIter=0;
+    Matrix<F> X, U, ZOld, XHat, T;
     Zeros( X, n, n );
     Zeros( Z, n, n );
     Zeros( U, n, n );
-    
-    Int numIter=0;
-    Matrix<F> ZOld, XHat, T;
     while( numIter < maxIter )
     {
         ZOld = Z;
@@ -111,9 +110,9 @@ Int SparseInvCov
 
 template<typename F>
 Int SparseInvCov
-( const DistMatrix<F>& D, DistMatrix<F>& X, DistMatrix<F>& Z, DistMatrix<F>& U,
-  Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, 
-  Base<F> absTol, Base<F> relTol, bool progress )
+( const DistMatrix<F>& D, Base<F> lambda, DistMatrix<F>& Z,
+  Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, 
+  bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SparseInvCov"))
     typedef Base<F> Real;
@@ -124,12 +123,12 @@ Int SparseInvCov
     Covariance( D, S );
     MakeHermitian( LOWER, S );
 
+   
+    Int numIter=0;
+    DistMatrix<F> X(g), U(g), ZOld(g), XHat(g), T(g);
     Zeros( X, n, n );
     Zeros( Z, n, n );
     Zeros( U, n, n );
-    
-    Int numIter=0;
-    DistMatrix<F> ZOld(g), XHat(g), T(g);
     while( numIter < maxIter )
     {
         ZOld = Z;
@@ -201,14 +200,13 @@ Int SparseInvCov
 
 #define PROTO(F) \
   template Int SparseInvCov \
-  ( const Matrix<F>& D, Matrix<F>& X, Matrix<F>& Z, Matrix<F>& U, \
-    Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, \
-    Base<F> absTol, Base<F> relTol, bool progress ); \
+  ( const Matrix<F>& D, Base<F> lambda, Matrix<F>& Z, \
+    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
+    bool progress ); \
   template Int SparseInvCov \
-  ( const DistMatrix<F>& D, DistMatrix<F>& X, DistMatrix<F>& Z, \
-    DistMatrix<F>& U, \
-    Base<F> lambda, Base<F> rho, Base<F> alpha, Int maxIter, \
-    Base<F> absTol, Base<F> relTol, bool progress );
+  ( const DistMatrix<F>& D, Base<F> lambda, DistMatrix<F>& Z, \
+    Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
+    bool progress );
 
 PROTO(float)
 PROTO(double)
