@@ -62,6 +62,9 @@ void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n )
 }
 
 #define PROTO(T) \
+  template void MakeOnes( Matrix<T>& A ); \
+  template void MakeOnes( AbstractDistMatrix<T>& A ); \
+  template void MakeOnes( AbstractBlockDistMatrix<T>& A ); \
   template void Ones( Matrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractDistMatrix<T>& A, Int m, Int n ); \
   template void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n );

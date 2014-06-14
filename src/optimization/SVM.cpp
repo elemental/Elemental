@@ -9,6 +9,7 @@
 #include "El-lite.hpp"
 
 #include EL_IDENTITY_INC
+#include EL_ONES_INC
 #include EL_ZEROS_INC
 
 // NOTE: This is adapted from a MATLAB script written by AJ Friend.
@@ -107,7 +108,7 @@ Int SVM
         EntrywiseMap
         ( v2, [=]( Real alpha ) 
               { if(      alpha <= 1-1/(m*rho) ) return alpha + 1/(m*rho);
-                else if( alpha <= 1           ) return 1;
+                else if( alpha <= Real(1)     ) return Real(1);
                 else                            return alpha; } );
 
         // Update dual variables
@@ -224,7 +225,7 @@ Int SVM
         EntrywiseMap
         ( v2, [=]( Real alpha ) 
               { if(      alpha <= 1-1/(m*rho) ) return alpha + 1/(m*rho);
-                else if( alpha <= 1           ) return 1;
+                else if( alpha <= Real(1)     ) return Real(1);
                 else                            return alpha; } );
 
         // Update dual variables
