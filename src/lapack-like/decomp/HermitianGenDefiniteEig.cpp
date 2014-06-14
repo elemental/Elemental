@@ -117,8 +117,7 @@ template<typename F>
 void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w,
-  Int a, Int b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+  Int a, Int b, SortType sort, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -218,8 +217,8 @@ template<typename F>
 void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w,
-  Base<F> a, Base<F> b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+  Base<F> a, Base<F> b, SortType sort,
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
@@ -237,8 +236,7 @@ template<typename F>
 void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<Base<F>,VR,STAR>& w,
-  Base<F> a, Base<F> b, SortType sort=UNSORTED,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() )
+  Base<F> a, Base<F> b, SortType sort, const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
