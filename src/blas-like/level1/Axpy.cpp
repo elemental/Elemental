@@ -106,6 +106,7 @@ void Axpy( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
   DIST_PROTO_INNER(T,S,U,V,MD,  STAR) \
   DIST_PROTO_INNER(T,S,U,V,MR,  MC  ) \
   DIST_PROTO_INNER(T,S,U,V,MR,  STAR) \
+  DIST_PROTO_INNER(T,S,U,V,STAR,MC  ) \
   DIST_PROTO_INNER(T,S,U,V,STAR,MD  ) \
   DIST_PROTO_INNER(T,S,U,V,STAR,MR  ) \
   DIST_PROTO_INNER(T,S,U,V,STAR,STAR) \

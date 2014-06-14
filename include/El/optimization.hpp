@@ -99,7 +99,33 @@ Int QuadraticProgram
 
 // Robust Principal Component Analysis (RPCA)
 // ==========================================
-// TODO: Move implementation from examples/ into src/
+
+template<typename Real>
+struct RpcaCtrl
+{
+    bool useALM;
+    bool usePivQR;
+    bool progress;
+
+    Int numPivSteps;
+    Int maxIts;
+
+    Real tau;
+    Real beta;
+    Real rho;
+    Real tol;
+
+    RpcaCtrl() 
+    : useALM(true), usePivQR(false), progress(true), 
+      numPivSteps(75), maxIts(1000),
+      tau(0), beta(1), rho(6), tol(1e-5)
+    { }
+};
+
+template<typename F>
+void RPCA
+( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S,
+  const RpcaCtrl<Base<F>>& ctrl=RpcaCtrl<Base<F>>() );
 
 // Sparse inverse covariance selection
 // ===================================
