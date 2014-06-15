@@ -19,7 +19,7 @@ Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
+Base<F> LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
@@ -36,7 +36,7 @@ Base<F> LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 
 template<typename F> 
 Base<F> LogBarrier
-( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
+( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("LogBarrier"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );

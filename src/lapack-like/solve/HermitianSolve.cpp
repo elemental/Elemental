@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, Matrix<F>& A, Matrix<F>& B, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+  LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
     SymmetricSolve( uplo, orientation, A, B, true, pivotType );
@@ -22,7 +22,7 @@ void HermitianSolve
 template<typename F>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation, 
-  DistMatrix<F>& A, DistMatrix<F>& B, LDLPivotType pivotType=BUNCH_KAUFMAN_A )
+  DistMatrix<F>& A, DistMatrix<F>& B, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSolve"))
     SymmetricSolve( uplo, orientation, A, B, true, pivotType );
