@@ -49,8 +49,8 @@ main( int argc, char* argv[] )
         Uniform( b, m, 1 );
         if( print )
         {
-            Print( A,     "A"     );
-            Print( b,     "b"     );
+            Print( A, "A" );
+            Print( b, "b" );
         }
         if( display )
             Display( A, "A" );

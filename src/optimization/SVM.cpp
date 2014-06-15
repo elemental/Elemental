@@ -72,7 +72,8 @@ Int SVM
     Zeros( w2, n, 1 );
     Zeros( uv, m, 1 );
     Zeros( uw, n, 1 );
-    while( numIter < maxIter )
+    for( ; numIter<maxIter-1; ++numIter )
+    //while( numIter < maxIter )
     {
         // Project onto A w1 = v1 
         v1 = v2;
@@ -189,7 +190,8 @@ Int SVM
     Zeros( w2, n, 1 );
     Zeros( uv, m, 1 );
     Zeros( uw, n, 1 );
-    while( numIter < maxIter )
+    for( ; numIter<maxIter-1; ++numIter )
+    //while( numIter < maxIter )
     {
         // Project onto A w1 = v1 
         v1 = v2;
@@ -236,6 +238,7 @@ Int SVM
     }
     if( maxIter == numIter )
         std::cout << "SVM failed to converge" << std::endl;
+    // Why only w2?
     w = w2;
     return numIter;
 }
