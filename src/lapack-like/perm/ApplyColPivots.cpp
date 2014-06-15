@@ -92,7 +92,7 @@ void ApplyColPivots
 
 template<typename T,Dist U,Dist V,Dist UPerm>
 void ApplyInverseColPivots
-( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset=0 )
+( DistMatrix<T,U,V>& A, const DistMatrix<Int,UPerm,STAR>& pivots, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("ApplyInverseColPivots"))
     DistMatrix<Int,UPerm,STAR> perm(pivots.Grid()),
