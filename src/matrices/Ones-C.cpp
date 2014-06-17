@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-#include "El/matrices/Ones.hpp"
 #include "El-C.h"
 using namespace El;
 
