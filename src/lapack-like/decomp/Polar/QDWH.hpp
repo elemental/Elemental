@@ -10,8 +10,6 @@
 #ifndef EL_POLAR_QDWH_HPP
 #define EL_POLAR_QDWH_HPP
 
-#include EL_IDENTITY_INC
-
 namespace El {
 
 // Based on Yuji Nakatsukasa's implementation of a QR-based dynamically 

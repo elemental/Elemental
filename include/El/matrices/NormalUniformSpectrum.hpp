@@ -10,7 +10,6 @@
 #ifndef EL_NORMALUNIFORMSPECTRUM_HPP
 #define EL_NORMALUNIFORMSPECTRUM_HPP
 
-#include EL_DIAGONAL_INC
 #include EL_HAAR_INC
 
 namespace El {

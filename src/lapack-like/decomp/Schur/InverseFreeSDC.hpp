@@ -10,8 +10,6 @@
 #ifndef EL_SCHUR_INVERSEFREESDC_HPP
 #define EL_SCHUR_INVERSEFREESDC_HPP
 
-#include EL_IDENTITY_INC
-
 // See Z. Bai, J. Demmel, J. Dongarra, A. Petitet, H. Robinson, and K. Stanley's
 // "The spectral decomposition of nonsymmetric matrices on distributed memory
 // parallel computers". Currently available at:

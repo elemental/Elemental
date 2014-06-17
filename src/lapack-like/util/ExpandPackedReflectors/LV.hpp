@@ -10,9 +10,6 @@
 #ifndef EL_EXPANDPACKEDREFLECTORS_LV_HPP
 #define EL_EXPANDPACKEDREFLECTORS_LV_HPP
 
-#include EL_IDENTITY_INC
-
-
 namespace El {
 namespace expand_packed_reflectors {
 

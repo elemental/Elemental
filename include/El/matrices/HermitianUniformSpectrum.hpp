@@ -10,7 +10,6 @@
 #ifndef EL_HERMITIANUNIFORMSPECTRUM_HPP
 #define EL_HERMITIANUNIFORMSPECTRUM_HPP
 
-#include "./Diagonal.hpp"
 #include "./Haar.hpp"
 
 namespace El {

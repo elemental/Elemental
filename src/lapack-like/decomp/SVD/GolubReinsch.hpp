@@ -10,9 +10,6 @@
 #ifndef EL_SVD_GOLUBREINSCH_HPP
 #define EL_SVD_GOLUBREINSCH_HPP
 
-#include EL_IDENTITY_INC
-
-
 #include "./Util.hpp"
 
 namespace El {

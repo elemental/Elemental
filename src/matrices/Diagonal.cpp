@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_DIAGONAL_HPP
-#define EL_DIAGONAL_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename S,typename T> 
-inline void
-Diagonal( Matrix<S>& D, const std::vector<T>& d )
+void Diagonal( Matrix<S>& D, const std::vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -25,8 +22,7 @@ Diagonal( Matrix<S>& D, const std::vector<T>& d )
 }
 
 template<typename S,typename T>
-inline void
-Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d )
+void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -41,8 +37,7 @@ Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d )
 }
 
 template<typename S,typename T>
-inline void
-Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
+void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("Diagonal"))
     const Int n = d.size();
@@ -56,6 +51,27 @@ Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
     }
 }
 
-} // namespace El
+#define PROTO_TYPES(S,T) \
+  template void Diagonal( Matrix<S>& D, const std::vector<T>& d ); \
+  template void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d ); \
+  template void Diagonal \
+  ( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
 
-#endif // ifndef EL_DIAGONAL_HPP
+#define PROTO_INT(S) PROTO_TYPES(S,S)
+
+#define PROTO_REAL(S) \
+  PROTO_TYPES(S,Int) \
+  PROTO_TYPES(S,S)
+
+#define PROTO_CPX(S) \
+  PROTO_TYPES(S,Int) \
+  PROTO_TYPES(S,Base<S>) \
+  PROTO_TYPES(S,S)
+
+PROTO_INT(Int)
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
+
+} // namespace El

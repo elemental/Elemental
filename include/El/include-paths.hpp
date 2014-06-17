@@ -22,7 +22,6 @@
 
 // Deterministic matrices
 // ----------------------
-#define EL_DIAGONAL_INC         "El/matrices/Diagonal.hpp"
 #define EL_EGOROV_INC           "El/matrices/Egorov.hpp"
 #define EL_EHRENFEST_INC        "El/matrices/Ehrenfest.hpp"
 #define EL_EXTENDEDKAHAN_INC    "El/matrices/ExtendedKahan.hpp"
@@ -40,7 +39,6 @@
 #define EL_HELMHOLTZPML_INC     "El/matrices/HelmholtzPML.hpp"
 #define EL_HERMITIANFROMEVD_INC "El/matrices/HermitianFromEVD.hpp"
 #define EL_HILBERT_INC          "El/matrices/Hilbert.hpp"
-#define EL_IDENTITY_INC         "El/matrices/Identity.hpp"
 #define EL_JORDAN_INC           "El/matrices/Jordan.hpp"
 #define EL_KAHAN_INC            "El/matrices/Kahan.hpp"
 #define EL_KMS_INC              "El/matrices/KMS.hpp"

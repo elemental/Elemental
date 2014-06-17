@@ -14,7 +14,8 @@
 #include <QScrollArea>
 #include <QWidget>
 
-#include "El-lite.hpp"
+#include "El.hpp"
+
 #include "El/io/SpyWidget.hpp"
 
 namespace El {

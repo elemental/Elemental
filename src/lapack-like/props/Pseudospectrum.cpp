@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_IDENTITY_INC
-
 #include "./Pseudospectrum/Util.hpp"
 #include "./Pseudospectrum/Power.hpp"
 #include "./Pseudospectrum/Lanczos.hpp"

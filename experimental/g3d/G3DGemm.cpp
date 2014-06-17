@@ -77,7 +77,7 @@ void InitC( DistMatrix<double>& C, bool print )
     const int depthRank = rank / meshSize;
 
     if( depthRank == 0 )
-        MakeZeros( C );
+        Zero( C );
 }
 
 // Create a new set of distributed matrices, so that, 

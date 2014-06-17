@@ -10,8 +10,6 @@
 #ifndef EL_LQ_EXPLICIT_HPP
 #define EL_LQ_EXPLICIT_HPP
 
-#include EL_IDENTITY_INC
-
 namespace El {
 namespace lq {
 

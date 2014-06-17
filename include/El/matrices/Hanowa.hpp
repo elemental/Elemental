@@ -10,8 +10,6 @@
 #ifndef EL_HANOWA_HPP
 #define EL_HANOWA_HPP
 
-#include "./Diagonal.hpp"
-
 namespace El {
 
 template<typename T>

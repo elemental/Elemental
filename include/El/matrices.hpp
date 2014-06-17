@@ -74,6 +74,31 @@ void Demmel( AbstractDistMatrix<F>& A, Int n );
 template<typename F>
 void Demmel( AbstractBlockDistMatrix<F>& A, Int n );
 
+// Diagonal
+// ========
+template<typename S,typename T>
+void Diagonal( Matrix<S>& D, const std::vector<T>& d );
+template<typename S,typename T>
+void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d );
+template<typename S,typename T>
+void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
+
+// Identity
+// ========
+template<typename T>
+void MakeIdentity( Matrix<T>& I );
+template<typename T> 
+void MakeIdentity( AbstractDistMatrix<T>& I );
+template<typename T> 
+void MakeIdentity( AbstractBlockDistMatrix<T>& I );
+
+template<typename T> 
+void Identity( Matrix<T>& I, Int m, Int n );
+template<typename T> 
+void Identity( AbstractDistMatrix<T>& I, Int m, Int n );
+template<typename T> 
+void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n );
+
 // Ones
 // ====
 template<typename T>
@@ -116,7 +141,6 @@ void Uniform
 
 } // namespace El
 
-#include "./matrices/Diagonal.hpp"
 #include "./matrices/Egorov.hpp"
 #include "./matrices/Ehrenfest.hpp"
 #include "./matrices/ExtendedKahan.hpp"
@@ -135,7 +159,6 @@ void Uniform
 #include "./matrices/HelmholtzPML.hpp"
 #include "./matrices/HermitianFromEVD.hpp"
 #include "./matrices/Hilbert.hpp"
-#include "./matrices/Identity.hpp"
 #include "./matrices/Jordan.hpp"
 #include "./matrices/Kahan.hpp"
 #include "./matrices/KMS.hpp"

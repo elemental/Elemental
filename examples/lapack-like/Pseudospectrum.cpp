@@ -6,21 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "El.hpp" instead
-#include "El-lite.hpp"
-#include EL_EHRENFEST_INC
-#include EL_FOXLI_INC
-#include EL_GRCAR_INC
-#include EL_HAAR_INC
-#include EL_HATANONELSON_INC
-#include EL_HELMHOLTZPML_INC
-#include EL_LOTKIN_INC
-#include EL_RIFFLE_INC
-#include EL_TREFETHEN_INC
-#include EL_TRIANGLE_INC
-
-#include EL_UNIFORMHELMHOLTZGREENS_INC
-#include EL_WHALE_INC
+#include "El.hpp"
 using namespace std;
 using namespace El;
 
