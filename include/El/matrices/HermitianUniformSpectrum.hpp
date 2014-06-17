@@ -12,7 +12,6 @@
 
 #include "./Diagonal.hpp"
 #include "./Haar.hpp"
-#include "./Uniform.hpp"
 
 namespace El {
 
