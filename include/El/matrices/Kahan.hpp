@@ -32,7 +32,7 @@ MakeKahan( Matrix<F>& A, F phi )
 
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
 
-    MakeZeros( A );
+    Zero( A );
     for( Int i=0; i<n; ++i )
     {
         const F zetaPow = Pow( zeta, Real(i) );

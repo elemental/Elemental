@@ -11,34 +11,34 @@
 namespace El {
 
 template<typename T>
-void Zero( Matrix<T>& A )
+void Fill( Matrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
+    DEBUG_ONLY(CallStackEntry cse("Fill"))
     const Int height = A.Height();
     const Int width = A.Width();
-    EL_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
-        MemZero( A.Buffer(0,j), height );
+        for( Int i=0; i<height; ++i )
+            A.Set( i, j, alpha );
 }
 
 template<typename T>
-void Zero( AbstractDistMatrix<T>& A )
+void Fill( AbstractDistMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
-    Zero( A.Matrix() );
+    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
-void Zero( AbstractBlockDistMatrix<T>& A )
+void Fill( AbstractBlockDistMatrix<T>& A, T alpha )
 {
-    DEBUG_ONLY(CallStackEntry cse("Zero"))
-    Zero( A.Matrix() );
+    DEBUG_ONLY(CallStackEntry cse("Fill"))
+    Fill( A.Matrix(), alpha );
 }
 
 #define PROTO(T) \
-  template void Zero( Matrix<T>& A ); \
-  template void Zero( AbstractDistMatrix<T>& A ); \
-  template void Zero( AbstractBlockDistMatrix<T>& A );
+  template void Fill( Matrix<T>& A, T alpha ); \
+  template void Fill( AbstractDistMatrix<T>& A, T alpha ); \
+  template void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
 
 PROTO(Int);
 PROTO(float);

@@ -10,7 +10,7 @@
 #ifndef EL_CHOLESKY_LVAR3PIVOTED_HPP
 #define EL_CHOLESKY_LVAR3PIVOTED_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace cholesky {

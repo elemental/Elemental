@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_CIRCULANT_HPP
-#define EL_CIRCULANT_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-Circulant( Matrix<T>& A, const std::vector<T>& a )
+void Circulant( Matrix<T>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
@@ -25,8 +22,7 @@ Circulant( Matrix<T>& A, const std::vector<T>& a )
 }
 
 template<typename T>
-inline void
-Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
+void Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
@@ -46,8 +42,7 @@ Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
 }
 
 template<typename T>
-inline void
-Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
+void Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
@@ -66,6 +61,18 @@ Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
     }
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Circulant \
+  ( Matrix<T>& A, const std::vector<T>& a ); \
+  template void Circulant \
+  ( AbstractDistMatrix<T>& A, const std::vector<T>& a ); \
+  template void Circulant \
+  ( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a ); 
 
-#endif // ifndef EL_CIRCULANT_HPP
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

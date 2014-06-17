@@ -11,7 +11,7 @@
 #define EL_EXPANDPACKEDREFLECTORS_LV_HPP
 
 #include EL_IDENTITY_INC
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace expand_packed_reflectors {
@@ -121,7 +121,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
         Adjoint( HPanT, ZNew );
-        MakeZeros( ZOld );
+        Zero( ZOld );
         Gemm( ADJOINT, NORMAL, F(1), HPanB, HEffectedOldB, F(0), ZOld );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
         HPanCopy = HPan;
@@ -149,7 +149,7 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     if( oldEffectedWidth < n )
     {
         View( HEffectedNew, H, 0, 0, m, n-oldEffectedWidth );
-        MakeZeros( HEffectedNew );
+        Zero( HEffectedNew );
         SetDiagonal( HEffectedNew, F(1) );
     }
 }
@@ -274,7 +274,7 @@ LV
         // with the newly effected portion to lower latency and increase 
         // performance
         Adjoint( HPanT_MC_STAR, ZNew_STAR_VR );
-        MakeZeros( ZOld_STAR_MR );
+        Zero( ZOld_STAR_MR );
         LocalGemm
         ( ADJOINT, NORMAL, 
           F(1), HPanB_MC_STAR, HEffectedOldB, F(0), ZOld_STAR_MR );
@@ -307,7 +307,7 @@ LV
     if( oldEffectedWidth < n )
     {
         View( HEffectedNew, H, 0, 0, m, n-oldEffectedWidth );
-        MakeZeros( HEffectedNew );
+        Zero( HEffectedNew );
         SetDiagonal( HEffectedNew, F(1) );
     }
 }

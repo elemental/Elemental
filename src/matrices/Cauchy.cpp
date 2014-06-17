@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_CAUCHY_HPP
-#define EL_CAUCHY_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F1,typename F2> 
-inline void
-Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
+void Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("Cauchy"))
     const Int m = x.size();
@@ -33,14 +30,13 @@ Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
                     ( "x[", i, "] = y[", j, "] (", x[i], 
                       ") is not allowed for Cauchy matrices" );
             ) 
-            A.Set( i, j, one/(x[i]-y[j]) );
+            A.Set( i, j, one/F1(x[i]-y[j]) );
         }
     }
 }
 
 template<typename F1,typename F2>
-inline void
-Cauchy
+void Cauchy
 ( AbstractDistMatrix<F1>& A, 
   const std::vector<F2>& x, const std::vector<F2>& y )
 {
@@ -65,14 +61,13 @@ Cauchy
                     ( "x[", i, "] = y[", j, "] (", x[i], 
                       ") is not allowed for Cauchy matrices" );
             )
-            A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
+            A.SetLocal( iLoc, jLoc, one/F1(x[i]-y[j]) );
         }
     }
 }
 
 template<typename F1,typename F2>
-inline void
-Cauchy
+void Cauchy
 ( AbstractBlockDistMatrix<F1>& A, 
   const std::vector<F2>& x, const std::vector<F2>& y )
 {
@@ -97,11 +92,33 @@ Cauchy
                     ( "x[", i, "] = y[", j, "] (", x[i], 
                       ") is not allowed for Cauchy matrices" );
             )
-            A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
+            A.SetLocal( iLoc, jLoc, one/F1(x[i]-y[j]) );
         }
     }
 }
 
-} // namespace El
+#define PROTO_TYPES(F1,F2) \
+  template void Cauchy \
+  ( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y ); \
+  template void Cauchy \
+  ( AbstractDistMatrix<F1>& A, \
+    const std::vector<F2>& x, const std::vector<F2>& y ); \
+  template void Cauchy \
+  ( AbstractBlockDistMatrix<F1>& A, \
+    const std::vector<F2>& x, const std::vector<F2>& y );
 
-#endif // ifndef EL_CAUCHY_HPP
+#define PROTO_REAL(F) \
+  PROTO_TYPES(F,Int) \
+  PROTO_TYPES(F,F)
+
+#define PROTO_CPX(F) \
+  PROTO_TYPES(F,Int) \
+  PROTO_TYPES(F,Base<F>) \
+  PROTO_TYPES(F,F)
+
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
+
+} // namespace El

@@ -10,7 +10,7 @@
 #ifndef EL_GRCAR_HPP
 #define EL_GRCAR_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 

@@ -8,7 +8,7 @@
 */
 #include "El-lite.hpp"
 
-#include EL_ZEROS_INC
+
 
 #include "./Gemm/NN.hpp"
 #include "./Gemm/NT.hpp"

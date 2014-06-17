@@ -71,7 +71,6 @@
 #define EL_WALSH_INC            "El/matrices/Walsh.hpp"
 #define EL_WHALE_INC            "El/matrices/Whale.hpp"
 #define EL_WILKINSON_INC        "El/matrices/Wilkinson.hpp"
-#define EL_ZEROS_INC            "El/matrices/Zeros.hpp"
 
 // Random matrices
 // ---------------

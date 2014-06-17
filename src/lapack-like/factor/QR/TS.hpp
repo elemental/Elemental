@@ -201,7 +201,7 @@ void Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
             {
                 // Multiply by the current Q
                 ZTop = ZHalf;        
-                MakeZeros( ZBot );
+                Zero( ZBot );
                 // TODO: Exploit sparsity?
                 ApplyQ
                 ( LEFT, NORMAL, 
@@ -221,7 +221,7 @@ void Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
     }
 
     // Apply the initial Q
-    MakeZeros( A.Matrix() );
+    Zero( A.Matrix() );
     auto ATop = View( A.Matrix(), 0, 0, n, n );
     ATop = ZHalf;
     // TODO: Exploit sparsity

@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_DEMMEL_HPP
-#define EL_DEMMEL_HPP
+#include "El-lite.hpp"
 
-#include "./Toeplitz.hpp"
+#include EL_TOEPLITZ_INC
 
 namespace El {
 
 template<typename F> 
-inline void
-Demmel( Matrix<F>& A, Int n )
+void Demmel( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
@@ -45,8 +42,7 @@ Demmel( Matrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-Demmel( AbstractDistMatrix<F>& A, Int n )
+void Demmel( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
@@ -75,8 +71,7 @@ Demmel( AbstractDistMatrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-Demmel( AbstractBlockDistMatrix<F>& A, Int n )
+void Demmel( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Demmel"))
     typedef Base<F> Real;
@@ -103,7 +98,15 @@ Demmel( AbstractBlockDistMatrix<F>& A, Int n )
         a[j] = 0;
     Toeplitz( A, n, n, a );
 }
+
+#define PROTO(F) \
+  template void Demmel( Matrix<F>& A, Int n ); \
+  template void Demmel( AbstractDistMatrix<F>& A, Int n ); \
+  template void Demmel( AbstractBlockDistMatrix<F>& A, Int n );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_DEMMEL_HPP

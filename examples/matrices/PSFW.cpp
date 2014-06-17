@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_ZEROS_INC
+
 using namespace El;
 
 /*

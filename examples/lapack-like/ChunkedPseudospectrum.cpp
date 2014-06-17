@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_BULLSHEAD_INC
 #include EL_EHRENFEST_INC
 #include EL_FOXLI_INC
 #include EL_GRCAR_INC

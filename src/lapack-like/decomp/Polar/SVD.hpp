@@ -11,7 +11,6 @@
 #define EL_POLAR_SVD_HPP
 
 #include EL_HERMITIANFROMEVD_INC
-#include EL_ZEROS_INC
 
 namespace El {
 namespace polar {

@@ -10,8 +10,6 @@
 #ifndef EL_HESSENBERG_LPAN_HPP
 #define EL_HESSENBERG_LPAN_HPP
 
-#include EL_ZEROS_INC
-
 namespace El {
 namespace hessenberg {
 

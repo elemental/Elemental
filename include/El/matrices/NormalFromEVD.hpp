@@ -10,7 +10,7 @@
 #ifndef EL_NORMALFROMEVD_HPP
 #define EL_NORMALFROMEVD_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 

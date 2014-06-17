@@ -9,17 +9,9 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_GAUSSIAN_INC
-#include EL_ONES_INC
+
 #include EL_UNIFORM_INC
 using namespace El;
-
-// This driver calls an adaptation of the solver described at
-//    http://www.stanford.edu/~boyd/papers/admm/lasso/lasso.html
-//
-// The Least Absolute Shrinkage and Selection Operator (LASSO)
-//   minimizes || A x - b ||_2^2 + lambda || x ||_1,
-// which is equivalent to minimizing || A x - b ||_2 subject to 
-// || x ||_1 <= t for some t >= 0.
 
 typedef double Real;
 

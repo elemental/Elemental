@@ -10,7 +10,7 @@
 #ifndef EL_LU_MOD_HPP
 #define EL_LU_MOD_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 

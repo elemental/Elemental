@@ -10,7 +10,7 @@
 #ifndef EL_LAUCHLI_HPP
 #define EL_LAUCHLI_HPP
 
-#include EL_ONES_INC
+
 
 namespace El {
 
@@ -22,7 +22,7 @@ Lauchli( Matrix<T>& A, Int n, T mu )
     A.Resize( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );
-    MakeOnes( ABlock );
+    Fill( ABlock, T(1) );
 
     std::vector<T> d(n,mu);
     ABlock = View( A, 1, 0, n, n );
@@ -37,7 +37,7 @@ Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
     A.Resize( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );
-    MakeOnes( ABlock );
+    Fill( ABlock, T(1) );
 
     std::vector<T> d(n,mu);
     ABlock = View( A, 1, 0, n, n );
@@ -52,7 +52,7 @@ Lauchli( BlockDistMatrix<T,U,V>& A, Int n, T mu )
     A.Resize( n+1, n );
 
     auto ABlock = View( A, 0, 0, 1, n );
-    MakeOnes( ABlock );
+    Fill( ABlock, T(1) );
 
     std::vector<T> d(n,mu);
     ABlock = View( A, 1, 0, n, n );

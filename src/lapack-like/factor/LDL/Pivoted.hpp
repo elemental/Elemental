@@ -10,7 +10,7 @@
 #ifndef EL_LDL_PIVOTED_HPP
 #define EL_LDL_PIVOTED_HPP
 
-#include EL_ZEROS_INC
+
 
 // TODO: Reference LAPACK's dsytf2 and zhetf2
 

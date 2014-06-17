@@ -10,7 +10,7 @@
 #ifndef EL_ONETWOONE_HPP
 #define EL_ONETWOONE_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 
@@ -21,7 +21,7 @@ MakeOneTwoOne( Matrix<T>& A )
     DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
-    MakeZeros( A );
+    Zero( A );
 
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -42,7 +42,7 @@ MakeOneTwoOne( AbstractDistMatrix<T>& A )
     DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
-    MakeZeros( A );
+    Zero( A );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -67,7 +67,7 @@ MakeOneTwoOne( AbstractBlockDistMatrix<T>& A )
     DEBUG_ONLY(CallStackEntry cse("MakeOneTwoOne"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
-    MakeZeros( A );
+    Zero( A );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

@@ -10,8 +10,6 @@
 #ifndef EL_DIAGONAL_HPP
 #define EL_DIAGONAL_HPP
 
-#include "./Zeros.hpp"
-
 namespace El {
 
 template<typename S,typename T> 

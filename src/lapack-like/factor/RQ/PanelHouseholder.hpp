@@ -10,7 +10,7 @@
 #ifndef EL_RQ_PANEL_HPP
 #define EL_RQ_PANEL_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace rq {

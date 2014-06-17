@@ -10,8 +10,6 @@
 #ifndef EL_READ_MATRIXMARKET_HPP
 #define EL_READ_MATRIXMARKET_HPP
 
-#include EL_ZEROS_INC
-
 namespace El {
 namespace read {
 

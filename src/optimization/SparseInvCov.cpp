@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_ZEROS_INC
-
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/covsel/covsel.html
 // which is derived from the distributed ADMM article of Boyd et al.

@@ -10,8 +10,6 @@
 #ifndef EL_HELMHOLTZPML_HPP
 #define EL_HELMHOLTZPML_HPP
 
-#include "./Zeros.hpp"
-
 namespace El {
 
 namespace pml {

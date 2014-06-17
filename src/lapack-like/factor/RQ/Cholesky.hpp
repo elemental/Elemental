@@ -10,7 +10,7 @@
 #ifndef EL_CHOLESKY_RQ_HPP
 #define EL_CHOLESKY_RQ_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace rq {

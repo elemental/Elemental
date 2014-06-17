@@ -13,7 +13,7 @@
 #ifndef EL_TRMM_RUN_HPP
 #define EL_TRMM_RUN_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace trmm {

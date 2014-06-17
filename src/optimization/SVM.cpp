@@ -9,8 +9,6 @@
 #include "El-lite.hpp"
 
 #include EL_IDENTITY_INC
-#include EL_ONES_INC
-#include EL_ZEROS_INC
 
 // NOTE: This is adapted from a MATLAB script written by AJ Friend.
 
@@ -67,60 +65,66 @@ Int SVM
 
     // Start the SVM
     Int numIter=0;
-    Matrix<Real> s, v1, v2, w1, w2, uw, uv;
-    Ones( v2, m, 1 );
-    Zeros( w2, n, 1 );
-    Zeros( uv, m, 1 );
-    Zeros( uw, n, 1 );
+    Matrix<Real> s, x0, x1, x2, y0, y1, y2, ux, uy;
+
+    Zeros( x1, n, 1 );
+    Zeros( x2, n, 1 );
+    Zeros( ux, n, 1 );
+
+    Zeros( y1, m, 1 );
+    Ones( y2, m, 1 );
+    Zeros( uy, m, 1 );
+
     for( ; numIter<maxIter-1; ++numIter )
     //while( numIter < maxIter )
     {
-        // Project onto A w1 = v1 
-        v1 = v2;
-        w1 = w2;
-        Axpy( Real(-1), uv, v1 );
-        Axpy( Real(-1), uw, w1 );
-        Gemv( ADJOINT, Real(1), A, v1, Real(1), w1 );
+        // Project onto A x1 + b = y1
+        x0 = x2; 
+        y0 = y2;
+        Axpy( Real(-1), ux, x0 );
+        Axpy( Real(-1), uy, y0 );
+        x1 = x0;
+        // TODO: Subtract A' b
+        Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
         if( inv )
         {
-            s = w1;
-            Hemv( LOWER, Real(1), P, s, Real(0), w1 );
+            s = x1;
+            Hemv( LOWER, Real(1), P, s, Real(0), x1 );
         }
         else
         {
-            Trsv( LOWER, NORMAL, NON_UNIT, P, w1 );
-            Trsv( LOWER, ADJOINT, NON_UNIT, P, w1 );
+            Trsv( LOWER, NORMAL, NON_UNIT, P, x1 );
+            Trsv( LOWER, ADJOINT, NON_UNIT, P, x1 );
         }
-        Gemv( NORMAL, Real(1), A, w1, Real(0), v1 );
+        Gemv( NORMAL, Real(1), A, x1, Real(0), y1 );
 
-        // Two-norm prox
-        w2 = w1;
-        Axpy( Real(1), uw, w2 );
-        auto w2T = View( w2, 0, 0, n-1, 1 );
-        const Real w2TNorm = FrobeniusNorm( w2T );
-        if( w2TNorm > gamma/rho )
-            Scale( 1-gamma/(rho*w2TNorm), w2T );
-        else
-            Zero( w2T );
-  
         // Hinge-loss prox
-        v2 = v1;
-        Axpy( Real(1), uv, v2 );
+        y2 = y1;
+        Axpy( Real(1), uy, y2 );
         EntrywiseMap
-        ( v2, [=]( Real alpha ) 
-              { if(      alpha <= 1-1/(m*rho) ) return alpha + 1/(m*rho);
-                else if( alpha <= Real(1)     ) return Real(1);
-                else                            return alpha; } );
+        ( y2, [=]( Real alpha ) 
+              { if( alpha < 1 ) { return Min(alpha+1/(m*rho),Real(1)); } 
+                else              return alpha;                          } );
+
+        x2 = x1; 
+        Axpy( Real(1), ux, x2 );
+        // TODO: Turn this two-norm prox into a subroutine
+        auto x2T = View( x2, 0, 0, n-1, 1 );
+        const Real x2TNorm = FrobeniusNorm( x2T );
+        if( x2TNorm > gamma/rho )
+            Scale( 1-gamma/(rho*x2TNorm), x2T );
+        else
+            Zero( x2T );
 
         // Update dual variables
-        Axpy( Real(1), v1, uv );
-        Axpy( Real(1), w1, uw );
-        Axpy( Real(-1), v2, uv );
-        Axpy( Real(-1), w2, uw );
+        Axpy( Real(1), x1, ux );
+        Axpy( Real(1), y1, uy );
+        Axpy( Real(-1), x2, ux );
+        Axpy( Real(-1), y2, uy );
     }
     if( maxIter == numIter )
         std::cout << "SVM failed to converge" << std::endl;
-    w = w2;
+    w = x2;
     return numIter;
 }
 
@@ -185,61 +189,67 @@ Int SVM
 
     // Start the SVM
     Int numIter=0;
-    DistMatrix<Real> s(g), v1(g), v2(g), w1(g), w2(g), uw(g), uv(g);
-    Ones( v2, m, 1 );
-    Zeros( w2, n, 1 );
-    Zeros( uv, m, 1 );
-    Zeros( uw, n, 1 );
+    DistMatrix<Real> s(g), x0(g), x1(g), x2(g), y0(g), y1(g), y2(g), 
+                     ux(g), uy(g);
+
+    Zeros( x1, n, 1 );
+    Zeros( x2, n, 1 );
+    Zeros( ux, n, 1 );
+
+    Zeros( y1, m, 1 );
+    Ones( y2, m, 1 );
+    Zeros( uy, m, 1 );
+
     for( ; numIter<maxIter-1; ++numIter )
     //while( numIter < maxIter )
     {
-        // Project onto A w1 = v1 
-        v1 = v2;
-        w1 = w2;
-        Axpy( Real(-1), uv, v1 );
-        Axpy( Real(-1), uw, w1 );
-        Gemv( ADJOINT, Real(1), A, v1, Real(1), w1 );
+        // Project onto A x1 + b = y1
+        x0 = x2; 
+        y0 = y2;
+        Axpy( Real(-1), ux, x0 );
+        Axpy( Real(-1), uy, y0 );
+        x1 = x0;
+        // TODO: Subtract A' b
+        Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
         if( inv )
         {
-            s = w1;
-            Hemv( LOWER, Real(1), P, s, Real(0), w1 );
+            s = x1;
+            Hemv( LOWER, Real(1), P, s, Real(0), x1 );
         }
         else
         {
-            Trsv( LOWER, NORMAL, NON_UNIT, P, w1 );
-            Trsv( LOWER, ADJOINT, NON_UNIT, P, w1 );
+            Trsv( LOWER, NORMAL, NON_UNIT, P, x1 );
+            Trsv( LOWER, ADJOINT, NON_UNIT, P, x1 );
         }
-        Gemv( NORMAL, Real(1), A, w1, Real(0), v1 );
+        Gemv( NORMAL, Real(1), A, x1, Real(0), y1 );
 
-        // Two-norm prox
-        w2 = w1;
-        Axpy( Real(1), uw, w2 );
-        auto w2T = View( w2, 0, 0, n-1, 1 );
-        const Real w2TNorm = FrobeniusNorm( w2T );
-        if( w2TNorm > gamma/rho )
-            Scale( 1-gamma/(rho*w2TNorm), w2T );
-        else
-            Zero( w2T );
-  
         // Hinge-loss prox
-        v2 = v1;
-        Axpy( Real(1), uv, v2 );
+        y2 = y1;
+        Axpy( Real(1), uy, y2 );
         EntrywiseMap
-        ( v2, [=]( Real alpha ) 
-              { if(      alpha <= 1-1/(m*rho) ) return alpha + 1/(m*rho);
-                else if( alpha <= Real(1)     ) return Real(1);
-                else                            return alpha; } );
+        ( y2, [=]( Real alpha ) 
+              { if( alpha < 1 ) { return Min(alpha+1/(m*rho),Real(1)); } 
+                else              return alpha;                          } );
+
+        x2 = x1; 
+        Axpy( Real(1), ux, x2 );
+        // TODO: Turn this two-norm prox into a subroutine
+        auto x2T = View( x2, 0, 0, n-1, 1 );
+        const Real x2TNorm = FrobeniusNorm( x2T );
+        if( x2TNorm > gamma/rho )
+            Scale( 1-gamma/(rho*x2TNorm), x2T );
+        else
+            Zero( x2T );
 
         // Update dual variables
-        Axpy( Real(1), v1, uv );
-        Axpy( Real(1), w1, uw );
-        Axpy( Real(-1), v2, uv );
-        Axpy( Real(-1), w2, uw );
+        Axpy( Real(1), x1, ux );
+        Axpy( Real(1), y1, uy );
+        Axpy( Real(-1), x2, ux );
+        Axpy( Real(-1), y2, uy );
     }
     if( maxIter == numIter )
         std::cout << "SVM failed to converge" << std::endl;
-    // Why only w2?
-    w = w2;
+    w = x2;
     return numIter;
 }
 

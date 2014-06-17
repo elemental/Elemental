@@ -10,7 +10,7 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_RUVF_HPP
 #define EL_APPLYPACKEDREFLECTORS_RUVF_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace apply_packed_reflectors {

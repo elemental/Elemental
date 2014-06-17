@@ -10,7 +10,7 @@
 #ifndef EL_INVERSE_LUPARTIALPIV_HPP
 #define EL_INVERSE_LUPARTIALPIV_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace inverse {

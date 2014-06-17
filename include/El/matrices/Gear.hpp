@@ -10,8 +10,6 @@
 #ifndef EL_GEAR_HPP
 #define EL_GEAR_HPP
 
-#include "./Zeros.hpp"
-
 namespace El {
 
 template<typename T> 

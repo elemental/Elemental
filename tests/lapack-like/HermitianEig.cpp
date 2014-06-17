@@ -11,7 +11,7 @@
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
 #include EL_IDENTITY_INC
 #include EL_WILKINSON_INC
-#include EL_ZEROS_INC
+
 using namespace std;
 using namespace El;
 

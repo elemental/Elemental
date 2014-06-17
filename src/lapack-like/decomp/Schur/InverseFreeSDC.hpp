@@ -11,7 +11,6 @@
 #define EL_SCHUR_INVERSEFREESDC_HPP
 
 #include EL_IDENTITY_INC
-#include EL_ZEROS_INC
 
 // See Z. Bai, J. Demmel, J. Dongarra, A. Petitet, H. Robinson, and K. Stanley's
 // "The spectral decomposition of nonsymmetric matrices on distributed memory
@@ -62,7 +61,7 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
         QR( XAlt, t, d );
  
         // Form the left half of Q
-        MakeZeros( Q12 );
+        Zero( Q12 );
         MakeIdentity( Q22 );
         qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
 
@@ -131,7 +130,7 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, Base<F> tau=0 )
         QR( XAlt, t, d );
  
         // Form the left half of Q
-        MakeZeros( Q12 );
+        Zero( Q12 );
         MakeIdentity( Q22 );
         qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
 

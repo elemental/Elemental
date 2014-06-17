@@ -10,8 +10,6 @@
 #ifndef EL_HELMHOLTZ_HPP
 #define EL_HELMHOLTZ_HPP
 
-#include "./Zeros.hpp"
-
 namespace El {
 
 // 1D Helmholtz

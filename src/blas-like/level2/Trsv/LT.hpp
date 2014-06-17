@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace trsv {

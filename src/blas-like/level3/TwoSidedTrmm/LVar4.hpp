@@ -13,7 +13,7 @@
 #ifndef EL_TWOSIDEDTRMM_LVAR4_HPP
 #define EL_TWOSIDEDTRMM_LVAR4_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace twotrmm {

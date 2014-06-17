@@ -10,7 +10,7 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_LUHF_HPP
 #define EL_APPLYPACKEDREFLECTORS_LUHF_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace apply_packed_reflectors {

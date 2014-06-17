@@ -10,20 +10,8 @@
 #ifndef EL_LITE_HPP
 #define EL_LITE_HPP
 
-#include "El/include-paths.hpp"
+// TODO: Get rid of this (now) unnecessary file
 
-#include "El/config.h"
-#ifdef EL_HAVE_F90_INTERFACE
-# include "El/FCMangle.h"
-#endif
-
-#include "El/core.hpp"
-#include "El/blas-like.hpp"
-
-#include "El/io.hpp"
-
-#include "El/lapack-like.hpp"
-#include "El/optimization.hpp"
-#include "El/control.hpp"
+#include "El.hpp"
 
 #endif // ifndef EL_LITE_HPP

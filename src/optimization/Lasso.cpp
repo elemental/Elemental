@@ -9,7 +9,6 @@
 #include "El-lite.hpp"
 
 #include EL_IDENTITY_INC
-#include EL_ZEROS_INC
 
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/lasso/lasso.html

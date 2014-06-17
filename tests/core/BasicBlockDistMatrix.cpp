@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_ONES_INC
+
 #include EL_UNIFORM_INC
 using namespace El;
 
@@ -41,7 +41,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, order );
 
         BlockDistMatrix<Complex<double>> A(m,n,g,mb,nb);
-        MakeOnes( A );
+        Fill( A, Complex<double>(1) );
         Scale( double(commRank), A.Matrix() );
         if( print )
             Print( A, "A" );

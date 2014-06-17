@@ -43,10 +43,31 @@ void SetDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
     }
 }
 
+template<typename T,typename S>
+void SetDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset )
+{
+    DEBUG_ONLY(CallStackEntry cse("SetDiagonal"))
+    const Int height = A.Height();
+    const Int width = A.Width();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const Int j = A.GlobalCol(jLoc);
+        const Int i = j-offset;
+        if( i >= 0 && i < height && A.IsLocalRow(i) )
+        {
+            const Int iLoc = A.LocalRow(i);
+            A.SetLocal( iLoc, jLoc, alpha );
+        }
+    }
+}
+
 #define PROTO_TYPES(T,S) \
   template void SetDiagonal( Matrix<T>& A, S alpha, Int offset ); \
   template void SetDiagonal \
   ( AbstractDistMatrix<T>& A, S alpha, Int offset ); \
+  template void SetDiagonal \
+  ( AbstractBlockDistMatrix<T>& A, S alpha, Int offset );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

@@ -10,7 +10,7 @@
 #ifndef EL_CHOLESKY_QR_HPP
 #define EL_CHOLESKY_QR_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace qr {

@@ -10,7 +10,7 @@
 #include "El-lite.hpp"
 #include EL_UNIFORM_INC
 #include EL_WIGNER_INC
-#include EL_ZEROS_INC
+
 using namespace std;
 using namespace El;
 

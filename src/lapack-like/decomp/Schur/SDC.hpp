@@ -952,7 +952,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    MakeZeros( ABL );
+    Zero( ABL );
     Matrix<Complex<Base<F>>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
 
@@ -995,7 +995,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    MakeZeros( ABL );
+    Zero( ABL );
     Matrix<Complex<Base<F>>> wT, wB;
     PartitionDown( w, wT, wB, part.index );
     Matrix<F> QL, QR;
@@ -1208,7 +1208,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    MakeZeros( ABL );
+    Zero( ABL );
     DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
 
@@ -1380,7 +1380,7 @@ SDC
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    MakeZeros( ABL );
+    Zero( ABL );
     DistMatrix<Complex<Base<F>>,VR,STAR> wT(g), wB(g);
     PartitionDown( w, wT, wB, part.index );
     DistMatrix<F> QL(g), QR(g);

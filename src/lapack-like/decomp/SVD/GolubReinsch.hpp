@@ -11,7 +11,7 @@
 #define EL_SVD_GOLUBREINSCH_HPP
 
 #include EL_IDENTITY_INC
-#include EL_ZEROS_INC
+
 
 #include "./Util.hpp"
 
@@ -74,7 +74,7 @@ GolubReinsch
         PartitionDown( A, AT, AB, n );
         PartitionDown( U_VC_STAR, UT_VC_STAR, UB_VC_STAR, n );
         AT = UT_VC_STAR;
-        MakeZeros( AB );
+        Zero( AB );
         Adjoint( VAdj_STAR_VC, V );
     }
     else
@@ -83,7 +83,7 @@ GolubReinsch
         DistMatrix<F> VT(g), VB(g);
         PartitionDown( V, VT, VB, m );
         Adjoint( VAdjL_STAR_VC, VT );
-        MakeZeros( VB );
+        Zero( VB );
     }
 
     // Backtransform U and V
@@ -157,7 +157,7 @@ GolubReinschFlame
         DistMatrix<F> AT(g), AB(g);
         PartitionDown( A, AT, AB, n );
         AT = UT_VC_STAR;
-        MakeZeros( AB );
+        Zero( AB );
         V = V_VC_STAR;
     }
     else
@@ -166,7 +166,7 @@ GolubReinschFlame
         DistMatrix<F> VT(g), VB(g);
         PartitionDown( V, VT, VB, m );
         VT = VT_VC_STAR;
-        MakeZeros( VB );
+        Zero( VB );
     }
 
     // Backtransform U and V

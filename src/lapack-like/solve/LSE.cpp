@@ -131,7 +131,7 @@ void LSE
             PartitionUp( G2, G2T, G2B, m-n );
             Axpy( F(-1), D, G2T );
         }
-        MakeZeros( G1 );
+        Zero( G1 );
     }
 
     // X := Q^H Y
@@ -221,7 +221,7 @@ void LSE
             PartitionUp( G2, G2T, G2B, m-n );
             Axpy( F(-1), D, G2T );
         }
-        MakeZeros( G1 );
+        Zero( G1 );
     }
 
     // X := Q^H Y

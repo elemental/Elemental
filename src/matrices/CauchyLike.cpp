@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_CAUCHYLIKE_HPP
-#define EL_CAUCHYLIKE_HPP
+#include "El-lite.hpp"
 
 namespace El {
 
 template<typename F1,typename F2> 
-inline void
-CauchyLike
+void CauchyLike
 ( Matrix<F1>& A,
   const std::vector<F2>& r, const std::vector<F2>& s,
   const std::vector<F2>& x, const std::vector<F2>& y )
@@ -45,8 +42,7 @@ CauchyLike
 }
 
 template<typename F1,typename F2>
-inline void
-CauchyLike
+void CauchyLike
 ( AbstractDistMatrix<F1>& A,
   const std::vector<F2>& r, const std::vector<F2>& s, 
   const std::vector<F2>& x, const std::vector<F2>& y )
@@ -81,8 +77,7 @@ CauchyLike
 }
 
 template<typename F1,typename F2>
-inline void
-CauchyLike
+void CauchyLike
 ( AbstractBlockDistMatrix<F1>& A,
   const std::vector<F2>& r, const std::vector<F2>& s, 
   const std::vector<F2>& x, const std::vector<F2>& y )
@@ -116,6 +111,32 @@ CauchyLike
     }
 }
 
-} // namespace El
+#define PROTO_TYPES(F1,F2) \
+  template void CauchyLike \
+  ( Matrix<F1>& A, \
+    const std::vector<F2>& r, const std::vector<F2>& s, \
+    const std::vector<F2>& x, const std::vector<F2>& y ); \
+  template void CauchyLike \
+  ( AbstractDistMatrix<F1>& A, \
+    const std::vector<F2>& r, const std::vector<F2>& s, \
+    const std::vector<F2>& x, const std::vector<F2>& y ); \
+  template void CauchyLike \
+  ( AbstractBlockDistMatrix<F1>& A, \
+    const std::vector<F2>& r, const std::vector<F2>& s, \
+    const std::vector<F2>& x, const std::vector<F2>& y );
 
-#endif // ifndef EL_CAUCHYLIKE_HPP
+#define PROTO_REAL(F) \
+  PROTO_TYPES(F,Int) \
+  PROTO_TYPES(F,F)
+
+#define PROTO_CPX(F) \
+  PROTO_TYPES(F,Int) \
+  PROTO_TYPES(F,Base<F>) \
+  PROTO_TYPES(F,F)
+
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
+
+} // namespace El

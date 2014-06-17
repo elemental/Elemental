@@ -27,7 +27,7 @@ MakeGKS( Matrix<F>& A )
     if( m != n )
         LogicError("Cannot make a non-square matrix GKS");
 
-    MakeZeros( A );
+    Zero( A );
     for( Int j=0; j<n; ++j )
     {
         const F jDiag = F(1)/Sqrt(F(j));

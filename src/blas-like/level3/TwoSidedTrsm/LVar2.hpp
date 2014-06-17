@@ -10,7 +10,7 @@
 #ifndef EL_TWOSIDEDTRSM_LVAR2_HPP
 #define EL_TWOSIDEDTRSM_LVAR2_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 namespace twotrsm {

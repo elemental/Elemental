@@ -8,9 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_ONES_INC
-#include EL_ZEROS_INC
-
 namespace El {
 
 template<typename F>

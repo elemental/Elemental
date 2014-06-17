@@ -8,7 +8,7 @@
 */
 #include "El-lite.hpp"
 
-#include EL_ZEROS_INC
+
 
 #include "./Gemv/Normal.hpp"
 #include "./Gemv/Transpose.hpp"

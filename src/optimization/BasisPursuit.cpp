@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_ZEROS_INC
-
 // These implementations are adaptations of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/basis_pursuit/basis_pursuit.html
 // which is derived from the distributed ADMM article of Boyd et al.
@@ -32,6 +30,8 @@ Int BasisPursuit
     //       then the QR factorization is not enough.
     //       For the same reason, the LQ factorization will fail if A does
     //       not have full row rank.
+    //
+    // TODO: Instead form a basis for the null-space of A
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -162,6 +162,8 @@ Int BasisPursuit
     //       then the QR factorization is not enough.
     //       For the same reason, the LQ factorization will fail if A does
     //       not have full row rank.
+    //
+    // TODO: Instead form a basis for the null-space of A
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();

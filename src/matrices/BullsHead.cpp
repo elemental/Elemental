@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_BULLSHEAD_HPP
-#define EL_BULLSHEAD_HPP
-
-#include EL_ZEROS_INC
+#include "El-lite.hpp"
 
 namespace El {
 
@@ -21,8 +17,7 @@ namespace El {
 //   "Toeplitz matrices", Linear Algebra Appl., 1992.
 
 template<typename Real> 
-inline void
-BullsHead( Matrix<Complex<Real>>& A, Int n )
+void BullsHead( Matrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("BullsHead"))
     if( n < 4 )
@@ -35,8 +30,7 @@ BullsHead( Matrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-inline void
-BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
+void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("BullsHead"))
     if( n < 4 )
@@ -49,8 +43,7 @@ BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-inline void
-BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
+void BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("BullsHead"))
     if( n < 4 )
@@ -61,7 +54,13 @@ BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
     SetDiagonal( A, 1,                -2 );
     SetDiagonal( A, Real(7)/Real(10), -3 );
 }
+
+#define PROTO(Real) \
+   template void BullsHead( Matrix<Complex<Real>>& A, Int n ); \
+   template void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+   template void BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+
+PROTO(float)
+PROTO(double)
 
 } // namespace El
-
-#endif // ifndef EL_BULLSHEAD_HPP

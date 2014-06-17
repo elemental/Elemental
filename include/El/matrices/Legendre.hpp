@@ -10,7 +10,7 @@
 #ifndef EL_LEGENDRE_HPP
 #define EL_LEGENDRE_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 
@@ -21,7 +21,7 @@ MakeLegendre( Matrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
-    MakeZeros( A );
+    Zero( A );
 
     const Int n = A.Width();
     for( Int j=0; j<n-1; ++j )
@@ -40,7 +40,7 @@ MakeLegendre( AbstractDistMatrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
-    MakeZeros( A );
+    Zero( A );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -68,7 +68,7 @@ MakeLegendre( AbstractBlockDistMatrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("MakeLegendre"))
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
-    MakeZeros( A );
+    Zero( A );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();

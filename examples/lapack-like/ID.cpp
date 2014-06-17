@@ -9,7 +9,7 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_UNIFORM_INC
-#include EL_ZEROS_INC
+
 using namespace std;
 using namespace El;
 
@@ -72,7 +72,7 @@ main( int argc, char* argv[] )
         // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
         DistMatrix<C> AL(g), AR(g);
         PartitionRight( A, AL, AR, rank );
-        MakeZeros( AL );
+        Zero( AL );
         {
             DistMatrix<C,MC,STAR> hatA_MC_STAR(g);
             DistMatrix<C,STAR,MR> Z_STAR_MR(g);

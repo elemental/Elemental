@@ -10,7 +10,7 @@
 #ifndef EL_TRIANGLE_HPP
 #define EL_TRIANGLE_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 

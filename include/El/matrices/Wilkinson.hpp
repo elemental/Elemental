@@ -10,7 +10,7 @@
 #ifndef EL_WILKINSON_HPP
 #define EL_WILKINSON_HPP
 
-#include EL_ZEROS_INC
+
 
 namespace El {
 
@@ -21,7 +21,7 @@ Wilkinson( Matrix<T>& A, Int k )
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
     A.Resize( n, n );
-    MakeZeros( A );
+    Zero( A );
 
     for( Int j=0; j<n; ++j )
     {
@@ -44,7 +44,7 @@ Wilkinson( AbstractDistMatrix<T>& A, Int k )
     DEBUG_ONLY(CallStackEntry cse("Wilkinson"))
     const Int n = 2*k+1;
     A.Resize( n, n );
-    MakeZeros( A );
+    Zero( A );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
