@@ -12,7 +12,6 @@
 
 #include EL_DIAGONAL_INC
 #include EL_HAAR_INC
-#include EL_UNIFORM_INC
 
 namespace El {
 

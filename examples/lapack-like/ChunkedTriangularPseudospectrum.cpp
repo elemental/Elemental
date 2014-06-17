@@ -9,10 +9,9 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_FOXLI_INC
-#include EL_DEMMEL_INC
 #include EL_GRCAR_INC
 #include EL_LOTKIN_INC
-#include EL_UNIFORM_INC
+
 using namespace std;
 using namespace El;
 

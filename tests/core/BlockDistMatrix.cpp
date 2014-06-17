@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
-#include EL_UNIFORM_INC
+
 using namespace El;
 
 template<typename T,Dist AColDist,Dist ARowDist,Dist BColDist,Dist BRowDist>

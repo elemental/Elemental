@@ -10,7 +10,7 @@
 #include "El-lite.hpp"
 #include EL_HAAR_INC
 #include EL_IDENTITY_INC
-#include EL_UNIFORM_INC
+
 using namespace std;
 using namespace El;
 

@@ -22,11 +22,6 @@
 
 // Deterministic matrices
 // ----------------------
-#define EL_BULLSHEAD_INC        "El/matrices/BullsHead.hpp"
-#define EL_CAUCHY_INC           "El/matrices/Cauchy.hpp"
-#define EL_CAUCHYLIKE_INC       "El/matrices/CauchyLike.hpp"
-#define EL_CIRCULANT_INC        "El/matrices/Circulant.hpp"
-#define EL_DEMMEL_INC           "El/matrices/Demmel.hpp"
 #define EL_DIAGONAL_INC         "El/matrices/Diagonal.hpp"
 #define EL_EGOROV_INC           "El/matrices/Egorov.hpp"
 #define EL_EHRENFEST_INC        "El/matrices/Ehrenfest.hpp"
@@ -56,7 +51,6 @@
 #define EL_LOTKIN_INC           "El/matrices/Lotkin.hpp"
 #define EL_MINIJ_INC            "El/matrices/MinIJ.hpp"
 #define EL_NORMALFROMEVD_INC    "El/matrices/NormalFromEVD.hpp"
-#define EL_ONES_INC             "El/matrices/Ones.hpp"
 #define EL_ONETWOONE_INC        "El/matrices/OneTwoOne.hpp"
 #define EL_PARTER_INC           "El/matrices/Parter.hpp"
 #define EL_PEI_INC              "El/matrices/Pei.hpp"
@@ -84,8 +78,6 @@
   "El/matrices/HermitianUniformSpectrum.hpp"
 #define EL_NORMALUNIFORMSPECTRUM_INC \
   "El/matrices/NormalUniformSpectrum.hpp"
-#define EL_UNIFORM_INC \
-  "El/matrices/Uniform.hpp"
 #define EL_UNIFORMHELMHOLTZGREENS_INC \
   "El/matrices/UniformHelmholtzGreens.hpp"
 #define EL_WIGNER_INC \

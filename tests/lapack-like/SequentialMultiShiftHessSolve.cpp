@@ -9,7 +9,7 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_IDENTITY_INC
-#include EL_UNIFORM_INC
+
 using namespace El;
 
 // Test if (op(H) - mu_j I) x_j = y_j for each j.

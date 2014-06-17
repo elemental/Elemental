@@ -10,7 +10,7 @@
 #include "El-lite.hpp"
 #include EL_GAUSSIAN_INC
 
-#include EL_UNIFORM_INC
+
 using namespace El;
 
 typedef double Real;

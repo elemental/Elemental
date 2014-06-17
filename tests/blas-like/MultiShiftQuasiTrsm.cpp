@@ -9,7 +9,7 @@
 // NOTE: It is possible to simply include "El.hpp" instead
 #include "El-lite.hpp"
 #include EL_HERMITIANUNIFORMSPECTRUM_INC
-#include EL_UNIFORM_INC
+
 using namespace std;
 using namespace El;
 

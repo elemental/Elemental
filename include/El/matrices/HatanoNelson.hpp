@@ -10,9 +10,6 @@
 #ifndef EL_HATANONELSON_HPP
 #define EL_HATANONELSON_HPP
 
-#include EL_UNIFORM_INC
-
-
 namespace El {
 
 // Please see Section 36 of Trefethen and Embree's "Spectra and Pseudospectra"
