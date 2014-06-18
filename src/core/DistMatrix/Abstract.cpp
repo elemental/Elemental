@@ -1557,13 +1557,53 @@ AbstractDistMatrix<T>::ConjugateLocalSubmatrix
     Matrix().ConjugateSubmatrix( rowIndLoc, colIndLoc );
 }
 
+// Broadcast the local matrix over a particular communicator
+// =========================================================
+// NOTE: The matrix dimensions *must* be uniform over the communicator.
+
+template<typename T>
+void AbstractDistMatrix<T>::BroadcastOver( mpi::Comm comm, Int rank )
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::BroadcastOver"))
+    if( !Participating() )
+        return;
+
+    const Int localHeight = LocalHeight();
+    const Int localWidth = LocalWidth();
+    const Int localSize = localHeight*localWidth;
+    const Int ldim = LDim();
+    if( localHeight == ldim )
+    {
+        mpi::Broadcast( Buffer(), localSize, rank, comm );
+    }
+    else
+    {
+        T* buf = auxMemory_.Require( localSize );   
+
+        // Pack
+        EL_PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( &buf[jLoc*localHeight], LockedBuffer(0,jLoc), localHeight );
+
+        mpi::Broadcast( buf, localSize, rank, comm );
+
+        // Unpack
+        EL_PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
+
+        auxMemory_.Release();
+    }
+}
+
 // Sum the local matrix over a particular communicator
 // ===================================================
 // NOTE: The matrix dimensions *must* be uniform over the communicator.
 
 template<typename T>
-void
-AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
+void AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
 {
     DEBUG_ONLY(CallStackEntry cse("ADM::SumOver"))
     if( !Participating() )
@@ -1571,32 +1611,32 @@ AbstractDistMatrix<T>::SumOver( mpi::Comm comm )
 
     const Int localHeight = LocalHeight();
     const Int localWidth = LocalWidth();
-    const Int localSize = mpi::Pad( localHeight*localWidth );
-    T* sumBuf = auxMemory_.Require( localSize );   
-
-    // Pack
-    T* buf = Buffer();
-    const Int ldim = LDim(); 
-    EL_PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localSize = localHeight*localWidth;
+    const Int ldim = LDim();
+    if( localHeight == ldim )
     {
-        const T* thisCol = &buf[jLoc*ldim];
-        T* sumCol = &sumBuf[jLoc*localHeight];
-        MemCopy( sumCol, thisCol, localHeight );
+        mpi::AllReduce( Buffer(), localSize, comm );
     }
-
-    // AllReduce sum
-    mpi::AllReduce( sumBuf, localSize, comm );
-
-    // Unpack
-    EL_PARALLEL_FOR
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    else
     {
-        const T* sumCol = &sumBuf[jLoc*localHeight];
-        T* thisCol = &buf[jLoc*ldim];
-        MemCopy( thisCol, sumCol, localHeight );
-    } 
-    auxMemory_.Release();
+        T* buf = auxMemory_.Require( localSize );   
+    
+        // Pack
+        EL_PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( &buf[jLoc*localHeight], LockedBuffer(0,jLoc), localHeight );
+    
+        mpi::AllReduce( buf, localSize, comm );
+    
+        // Unpack
+        EL_PARALLEL_FOR
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            MemCopy
+            ( Buffer(0,jLoc), &buf[jLoc*localHeight], localHeight );
+
+        auxMemory_.Release();
+    }
 }
 
 // Assertions

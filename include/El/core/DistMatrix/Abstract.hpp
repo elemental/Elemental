@@ -291,8 +291,9 @@ public:
     void ConjugateLocalSubmatrix
     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc );
 
-    // Sum over a specified communicator
-    // =================================
+    // Interact over a specified communicator
+    // ======================================
+    void BroadcastOver( mpi::Comm comm, Int rank=0 );
     void SumOver( mpi::Comm comm );
 
     // Assertions

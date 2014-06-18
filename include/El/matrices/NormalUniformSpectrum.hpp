@@ -10,8 +10,6 @@
 #ifndef EL_NORMALUNIFORMSPECTRUM_HPP
 #define EL_NORMALUNIFORMSPECTRUM_HPP
 
-#include EL_HAAR_INC
-
 namespace El {
 
 // Draw the spectrum from the specified half-open interval on the real line,

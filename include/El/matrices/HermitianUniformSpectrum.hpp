@@ -10,8 +10,6 @@
 #ifndef EL_HERMITIANUNIFORMSPECTRUM_HPP
 #define EL_HERMITIANUNIFORMSPECTRUM_HPP
 
-#include "./Haar.hpp"
-
 namespace El {
 
 // Draw the spectrum from the specified half-open interval on the real line,

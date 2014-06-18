@@ -6,17 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HAAR_HPP
-#define EL_HAAR_HPP
-
-#include EL_GAUSSIAN_INC
+#include "El.hpp"
 
 namespace El {
 
 template<typename F>
-inline void
-Haar( Matrix<F>& A, Int n )
+void Haar( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
@@ -26,8 +21,7 @@ Haar( Matrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
+void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("ImplicitHaar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
@@ -37,8 +31,7 @@ ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n )
 }
 
 template<typename F>
-inline void
-Haar( DistMatrix<F>& A, Int n )
+void Haar( DistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Haar"))
     // TODO: Replace this with a quadratic scheme similar to Stewart's, which
@@ -48,8 +41,7 @@ Haar( DistMatrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-ImplicitHaar
+void ImplicitHaar
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, 
   Int n )
 {
@@ -60,6 +52,18 @@ ImplicitHaar
     QR( A, t, d );
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Haar( Matrix<F>& A, Int n ); \
+  template void Haar( DistMatrix<F>& A, Int n ); \
+  template void ImplicitHaar \
+  ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n ); \
+  template void ImplicitHaar \
+  ( DistMatrix<F>& A, \
+    DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, Int n );
 
-#endif // ifndef EL_HAAR_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

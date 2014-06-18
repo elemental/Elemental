@@ -204,6 +204,38 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 // Random
 // ######
 
+// Gaussian
+// ========
+template<typename T>
+void MakeGaussian( Matrix<T>& A, T mean=0, Base<T> stddev=1 );
+template<typename T>
+void MakeGaussian( AbstractDistMatrix<T>& A, T mean=0, Base<T> stddev=1 );
+template<typename T>
+void MakeGaussian( AbstractBlockDistMatrix<T>& A, T mean=0, Base<T> stddev=1 );
+
+template<typename T>
+void Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 );
+template<typename T>
+void Gaussian
+( AbstractDistMatrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 );
+template<typename T>
+void Gaussian
+( AbstractBlockDistMatrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 );
+
+// Haar
+// ====
+template<typename F> 
+void Haar( Matrix<F>& A, Int n );
+template<typename F> 
+void Haar( DistMatrix<F>& A, Int n );
+
+template<typename F> 
+void ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Int n );
+template<typename F> 
+void ImplicitHaar
+( DistMatrix<F>& A,
+  DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, Int n );
+
 // Uniform
 // =======
 // Draw each entry from a uniform PDF over a closed ball.
@@ -222,6 +254,13 @@ void Uniform
 template<typename T>
 void Uniform
 ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
+
+// Wigner
+// ======
+template<typename T>
+void Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
+template<typename T>
+void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
 
 } // namespace El
 
@@ -268,10 +307,5 @@ void Uniform
 #include "./matrices/HermitianUniformSpectrum.hpp"
 #include "./matrices/NormalUniformSpectrum.hpp"
 #include "./matrices/UniformHelmholtzGreens.hpp"
-
-// Gaussian
-#include "./matrices/Gaussian.hpp"
-#include "./matrices/Wigner.hpp"
-#include "./matrices/Haar.hpp"
 
 #endif // ifndef EL_MATRICES_HPP

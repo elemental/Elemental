@@ -12,8 +12,6 @@
 
 #include "./Lanczos.hpp"
 
-#include EL_GAUSSIAN_INC
-
 namespace El {
 namespace pspec {
 

@@ -10,8 +10,6 @@
 #ifndef EL_NORM_TWOESTIMATE_HPP
 #define EL_NORM_TWOESTIMATE_HPP
 
-#include EL_GAUSSIAN_INC
-
 namespace El {
 
 template<typename F>

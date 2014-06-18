@@ -10,8 +10,6 @@
 #ifndef EL_LOTKIN_HPP
 #define EL_LOTKIN_HPP
 
-#include EL_HILBERT_INC
-
 namespace El {
 
 template<typename F>

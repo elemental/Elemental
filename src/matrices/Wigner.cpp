@@ -6,17 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_WIGNER_HPP
-#define EL_WIGNER_HPP
-
-#include EL_GAUSSIAN_INC
+#include "El.hpp"
 
 namespace El {
 
 template<typename T>
-inline void
-Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
+void Wigner( Matrix<T>& A, Int n, T mean, Base<T> stddev )
 {
     DEBUG_ONLY(CallStackEntry cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
@@ -24,14 +19,21 @@ Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
 }
 
 template<typename T>
-inline void
-Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 )
+void Wigner( AbstractDistMatrix<T>& A, Int n, T mean, Base<T> stddev )
 {
     DEBUG_ONLY(CallStackEntry cse("Wigner"))
     Gaussian( A, n, n, mean, stddev );
     MakeHermitian( LOWER, A );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void Wigner( Matrix<T>& A, Int n, T mean, Base<T> stddev ); \
+  template void Wigner \
+  ( AbstractDistMatrix<T>& A, Int n, T mean, Base<T> stddev );
 
-#endif // ifndef EL_WIGNER_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

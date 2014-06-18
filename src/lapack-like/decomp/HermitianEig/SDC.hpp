@@ -10,8 +10,6 @@
 #ifndef EL_HERMITIANEIG_SDC_HPP
 #define EL_HERMITIANEIG_SDC_HPP
 
-#include EL_HAAR_INC
-
 #include "../Schur/SDC.hpp"
 
 // TODO: Reference to Yuji's work
