@@ -18,11 +18,7 @@ inline void
 MakeGaussian( Matrix<T>& A, T mean=0, Base<T> stddev=1 )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            A.Set( i, j, SampleNormal( mean, stddev ) );
+    EntrywiseFill( A, [=]() { return SampleNormal(mean,stddev); } );
 }
 
 template<typename T>

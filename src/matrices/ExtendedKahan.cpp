@@ -6,11 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_EXTENDEDKAHAN_HPP
-#define EL_EXTENDEDKAHAN_HPP
+#include "El.hpp"
 
-#include "./Walsh.hpp"
+#include EL_WALSH_INC
 
 // Generate a 3(2^k) x 3(2^k) Extended Kahan matrix, which has the form
 // A = S R, where S = diag(1,zeta,...,zeta^(3 2^k - 1)), 
@@ -25,11 +23,11 @@
 namespace El {
 
 template<typename F> 
-inline void
-MakeExtendedKahan( Matrix<F>& A, Base<F> phi, Base<F> mu )
+inline void MakeExtendedKahan
+( Matrix<F>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
         LogicError("Extended Kahan matrices must be square");
@@ -43,9 +41,9 @@ MakeExtendedKahan( Matrix<F>& A, Base<F> phi, Base<F> mu )
     while( Int(1u<<k) < l )
         ++k;
 
-    if( phi <= R(0) || phi >= R(1) )
+    if( phi <= Real(0) || phi >= Real(1) )
         LogicError("phi must be in (0,1)");
-    if( mu <= R(0) || mu >= R(1) )
+    if( mu <= Real(0) || mu >= Real(1) )
         LogicError("mu must be in (0,1)");
 
     // Start by setting A to the identity, and then modify the necessary 
@@ -60,20 +58,22 @@ MakeExtendedKahan( Matrix<F>& A, Base<F> phi, Base<F> mu )
     MakeWalsh( ABlock, k );
     Scale( phi, ABlock );
 
-    // Now scale R by S
-    const R zeta = Sqrt(R(1)-phi*phi);
-    Matrix<R> d( n, 1 );
+    // Now scale A by S
+    const Real zeta = Sqrt(Real(1)-phi*phi);
     for( Int i=0; i<n; ++i )
-        d.Set( i, 0, Pow(zeta,R(i)) );
-    DiagonalScale( LEFT, NORMAL, d, A );
+    {
+        const Real gamma = Pow(zeta,Real(i));
+        for( Int j=0; j<n; ++j )
+            A.Set( i, j, gamma*A.Get(i,j) );
+    }
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-MakeExtendedKahan( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
+inline void MakeExtendedKahan
+( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
 
     if( A.Height() != A.Width() )
         LogicError("Extended Kahan matrices must be square");
@@ -87,9 +87,9 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
     while( Int(1u<<k) < l )
         ++k;
 
-    if( phi <= R(0) || phi >= R(1) )
+    if( phi <= Real(0) || phi >= Real(1) )
         LogicError("phi must be in (0,1)");
-    if( mu <= R(0) || mu >= R(1) )
+    if( mu <= Real(0) || mu >= Real(1) )
         LogicError("mu must be in (0,1)");
 
     // Start by setting A to the identity, and then modify the necessary 
@@ -104,67 +104,19 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
     MakeWalsh( ABlock, k );
     Scale( phi, ABlock );
 
-    // Now scale R by S
-    const R zeta = Sqrt(R(1)-phi*phi);
-    DistMatrix<R,U,STAR> d( n, 1, A.Grid() );
-    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    // Now scale A by S
+    const Real zeta = Sqrt(Real(1)-phi*phi);
+    for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
     {
-        const Int i = d.GlobalRow(iLoc);
-        d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
+        const Int i = A.GlobalRow(iLoc);
+        const Real gamma = Pow(zeta,Real(i));
+        for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
+            A.SetLocal( iLoc, jLoc, gamma*A.GetLocal(iLoc,jLoc) );
     }
-    DiagonalScale( LEFT, NORMAL, d, A );
-}
-
-template<typename F,Dist U,Dist V>
-inline void
-MakeExtendedKahan( BlockDistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
-    typedef Base<F> R;
-
-    if( A.Height() != A.Width() )
-        LogicError("Extended Kahan matrices must be square");
-    const Int n = A.Height();
-    if( n % 3 != 0 )
-        LogicError("Dimension must be an integer multiple of 3");
-    const Int l = n / 3;
-    if( !l || (l & (l-1)) )
-        LogicError("n/3 is not a power of two");
-    Int k=0;
-    while( Int(1u<<k) < l )
-        ++k;
-
-    if( phi <= R(0) || phi >= R(1) )
-        LogicError("phi must be in (0,1)");
-    if( mu <= R(0) || mu >= R(1) )
-        LogicError("mu must be in (0,1)");
-
-    // Start by setting A to the identity, and then modify the necessary 
-    // l x l blocks of its 3 x 3 partitioning.
-    MakeIdentity( A );
-    auto ABlock = View( A, 2*l, 2*l, l, l );
-    Scale( mu, ABlock );
-    ABlock = View( A, 0, l, l, l );
-    MakeWalsh( ABlock, k );
-    Scale( -phi, ABlock );
-    ABlock = View( A, l, 2*l, l, l );
-    MakeWalsh( ABlock, k );
-    Scale( phi, ABlock );
-
-    // Now scale R by S
-    const R zeta = Sqrt(R(1)-phi*phi);
-    BlockDistMatrix<R,U,STAR> d( n, 1, A.Grid() );
-    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
-    {
-        const Int i = d.GlobalRow(iLoc);
-        d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
-    }
-    DiagonalScale( LEFT, NORMAL, d, A );
 }
 
 template<typename F>
-inline void
-ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
+void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -173,8 +125,7 @@ ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
+void ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -182,16 +133,30 @@ ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
     MakeExtendedKahan( A, phi, mu );
 }
 
-template<typename F,Dist U,Dist V>
-inline void
-ExtendedKahan( BlockDistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
-{
-    DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
-    const Int n = 3*(1u<<k);
-    A.Resize( n, n );
-    MakeExtendedKahan( A, phi, mu );
-}
+#define PROTO_DIST(F,U,V) \
+  template void ExtendedKahan \
+  ( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu );
+
+#define PROTO(F) \
+  template void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_EXTENDEDKAHAN_HPP

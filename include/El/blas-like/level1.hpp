@@ -603,6 +603,9 @@ void Zero( AbstractBlockDistMatrix<T>& A );
 
 } // namespace El
 
+#include "./level1/EntrywiseFill.hpp"
 #include "./level1/EntrywiseMap.hpp"
+#include "./level1/IndexDependentFill.hpp"
+#include "./level1/IndexDependentMap.hpp"
 
 #endif // ifndef EL_BLAS1_HPP

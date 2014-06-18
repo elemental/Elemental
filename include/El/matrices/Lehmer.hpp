@@ -18,13 +18,10 @@ Lehmer( Matrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
-    for( Int j=0; j<n; ++j )
-    {
-        for( Int i=0; i<j; ++i )
-            L.Set( i, j, F(i+1)/F(j+1) );
-        for( Int i=j; i<n; ++i )
-            L.Set( i, j, F(j+1)/F(i+1) );
-    }
+    IndexDependentFill
+    ( L, []( Int i, Int j ) 
+         { if( i < j ) { return F(i+1)/F(j+1); }
+           else        { return F(j+1)/F(i+1); } } );
 }
 
 template<typename F>
@@ -33,20 +30,10 @@ Lehmer( AbstractDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
-    const Int localHeight = L.LocalHeight();
-    const Int localWidth = L.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = L.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = L.GlobalRow(iLoc);
-            if( i < j )
-                L.SetLocal( iLoc, jLoc, F(i+1)/F(j+1) );
-            else
-                L.SetLocal( iLoc, jLoc, F(j+1)/F(i+1) );
-        }
-    }
+    IndexDependentFill
+    ( L, []( Int i, Int j ) 
+         { if( i < j ) { return F(i+1)/F(j+1); }
+           else        { return F(j+1)/F(i+1); } } );
 }
 
 template<typename F>
@@ -55,20 +42,10 @@ Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
-    const Int localHeight = L.LocalHeight();
-    const Int localWidth = L.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = L.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = L.GlobalRow(iLoc);
-            if( i < j )
-                L.SetLocal( iLoc, jLoc, F(i+1)/F(j+1) );
-            else
-                L.SetLocal( iLoc, jLoc, F(j+1)/F(i+1) );
-        }
-    }
+    IndexDependentFill
+    ( L, []( Int i, Int j ) 
+         { if( i < j ) { return F(i+1)/F(j+1); }
+           else        { return F(j+1)/F(i+1); } } );
 }
 
 } // namespace El

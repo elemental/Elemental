@@ -17,12 +17,9 @@ void Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
-
-    const F1 one = F1(1);
-    for( Int j=0; j<n; ++j )
-    {
-        for( Int i=0; i<m; ++i )
-        {
+    IndexDependentFill
+    ( A, [&]( Int i, Int j )
+         {
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
@@ -30,9 +27,8 @@ void Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
                     ( "x[", i, "] = y[", j, "] (", x[i], 
                       ") is not allowed for Cauchy matrices" );
             ) 
-            A.Set( i, j, one/F1(x[i]-y[j]) );
-        }
-    }
+            return F1(1)/F1(x[i]-y[j]);
+         } );
 }
 
 template<typename F1,typename F2>
@@ -44,26 +40,18 @@ void Cauchy
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
-
-    const F1 one = F1(1);
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
+    IndexDependentFill
+    ( A, [&]( Int i, Int j )
+         {
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
                     LogicError
                     ( "x[", i, "] = y[", j, "] (", x[i], 
                       ") is not allowed for Cauchy matrices" );
-            )
-            A.SetLocal( iLoc, jLoc, one/F1(x[i]-y[j]) );
-        }
-    }
+            ) 
+            return F1(1)/F1(x[i]-y[j]);
+         } );
 }
 
 template<typename F1,typename F2>
@@ -75,26 +63,18 @@ void Cauchy
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
-
-    const F1 one = F1(1);
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
+    IndexDependentFill
+    ( A, [&]( Int i, Int j )
+         {
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
                     LogicError
                     ( "x[", i, "] = y[", j, "] (", x[i], 
                       ") is not allowed for Cauchy matrices" );
-            )
-            A.SetLocal( iLoc, jLoc, one/F1(x[i]-y[j]) );
-        }
-    }
+            ) 
+            return F1(1)/F1(x[i]-y[j]);
+         } );
 }
 
 #define PROTO_TYPES(F1,F2) \

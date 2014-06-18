@@ -18,9 +18,7 @@ MinIJ( Matrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            M.Set( i, j, std::min(i+1,j+1) );
+    IndexDependentFill( M, []( Int i, Int j ) { return T(Min(i+1,j+1)); } );
 }
 
 template<typename T>
@@ -29,17 +27,7 @@ MinIJ( AbstractDistMatrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
-    const Int localHeight = M.LocalHeight();
-    const Int localWidth = M.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = M.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = M.GlobalRow(iLoc);
-            M.SetLocal( iLoc, jLoc, std::min(i+1,j+1) );
-        }
-    }
+    IndexDependentFill( M, []( Int i, Int j ) { return T(Min(i+1,j+1)); } );
 }
 
 template<typename T>
@@ -48,17 +36,7 @@ MinIJ( AbstractBlockDistMatrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
-    const Int localHeight = M.LocalHeight();
-    const Int localWidth = M.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = M.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = M.GlobalRow(iLoc);
-            M.SetLocal( iLoc, jLoc, std::min(i+1,j+1) );
-        }
-    }
+    IndexDependentFill( M, []( Int i, Int j ) { return T(Min(i+1,j+1)); } );
 }
 
 } // namespace El

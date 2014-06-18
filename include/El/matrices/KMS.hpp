@@ -17,13 +17,11 @@ inline void
 KMS( Matrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
-    for( Int j=0; j<n; ++j )
-    {
-        for( Int i=0; i<j; ++i )
-            K.Set( i, j, Pow(rho,T(j-i)) );
-        for( Int i=j; i<n; ++i )
-            K.Set( i, j, Conj(Pow(rho,T(i-j))) );
-    }
+    K.Resize( n, n );
+    IndexDependentFill
+    ( K, [=]( Int i, Int j ) 
+         { if( i < j ) { return Pow(rho,T(j-i));       } 
+           else        { return Conj(Pow(rho,T(i-j))); } } );
 }
 
 template<typename T>
@@ -31,20 +29,11 @@ inline void
 KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
-    const Int localHeight = K.LocalHeight();
-    const Int localWidth = K.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = K.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = K.GlobalRow(iLoc);
-            if( i < j )
-                K.SetLocal( iLoc, jLoc, Pow(rho,T(j-i)) );
-            else
-                K.SetLocal( iLoc, jLoc, Conj(Pow(rho,T(i-j))) );
-        }
-    }
+    K.Resize( n, n );
+    IndexDependentFill
+    ( K, [=]( Int i, Int j ) 
+         { if( i < j ) { return Pow(rho,T(j-i));       } 
+           else        { return Conj(Pow(rho,T(i-j))); } } );
 }
 
 template<typename T>
@@ -52,20 +41,11 @@ inline void
 KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
-    const Int localHeight = K.LocalHeight();
-    const Int localWidth = K.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = K.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = K.GlobalRow(iLoc);
-            if( i < j )
-                K.SetLocal( iLoc, jLoc, Pow(rho,T(j-i)) );
-            else
-                K.SetLocal( iLoc, jLoc, Conj(Pow(rho,T(i-j))) );
-        }
-    }
+    K.Resize( n, n );
+    IndexDependentFill
+    ( K, [=]( Int i, Int j ) 
+         { if( i < j ) { return Pow(rho,T(j-i));       } 
+           else        { return Conj(Pow(rho,T(i-j))); } } );
 }
 
 } // namespace El

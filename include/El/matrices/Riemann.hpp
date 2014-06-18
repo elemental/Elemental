@@ -18,16 +18,10 @@ Riemann( Matrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
-    for( Int j=0; j<n; ++j )
-    {
-        for( Int i=0; i<n; ++i )
-        {
-            if( ((j+2)%(i+2))==0 )
-                R.Set( i, j, T(i+1) );
-            else
-                R.Set( i, j, T(-1) );
-        }
-    }
+    IndexDependentFill
+    ( R, []( Int i, Int j ) 
+         { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
+           else                   { return T(-1);  } } );
 }
 
 template<typename T>
@@ -36,20 +30,10 @@ Riemann( AbstractDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
-    const Int localHeight = R.LocalHeight();
-    const Int localWidth = R.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = R.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = R.GlobalRow(iLoc);
-            if( ((j+2)%(i+2))==0 )
-                R.SetLocal( iLoc, jLoc, T(i+1) );
-            else
-                R.SetLocal( iLoc, jLoc, T(-1) );
-        }
-    }
+    IndexDependentFill
+    ( R, []( Int i, Int j ) 
+         { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
+           else                   { return T(-1);  } } );
 }
 
 template<typename T>
@@ -58,20 +42,10 @@ Riemann( AbstractBlockDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
-    const Int localHeight = R.LocalHeight();
-    const Int localWidth = R.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = R.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = R.GlobalRow(iLoc);
-            if( ((j+2)%(i+2))==0 )
-                R.SetLocal( iLoc, jLoc, T(i+1) );
-            else
-                R.SetLocal( iLoc, jLoc, T(-1) );
-        }
-    }
+    IndexDependentFill
+    ( R, []( Int i, Int j ) 
+         { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
+           else                   { return T(-1);  } } );
 }
 
 } // namespace El

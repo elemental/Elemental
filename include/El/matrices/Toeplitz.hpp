@@ -21,10 +21,7 @@ Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            A.Set( i, j, a[i-j+(n-1)] );
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i-j+(n-1)]; } );
 }
 
 template<typename S,typename T>
@@ -36,18 +33,7 @@ Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, a[i-j+(n-1)] );
-        }
-    }
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i-j+(n-1)]; } );
 }
 
 template<typename S,typename T>
@@ -59,18 +45,7 @@ Toeplitz( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != Unsigned(length) )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, a[i-j+(n-1)] );
-        }
-    }
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i-j+(n-1)]; } );
 }
 
 } // namespace El

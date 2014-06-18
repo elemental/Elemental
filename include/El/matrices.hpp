@@ -83,6 +83,81 @@ void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
 
+// Ehrenfest
+// =========
+template<typename F>
+void Ehrenfest( Matrix<F>& P, Int n );
+template<typename F>
+void Ehrenfest( AbstractDistMatrix<F>& P, Int n );
+template<typename F>
+void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n );
+
+template<typename F>
+void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n );
+template<typename F>
+void Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n );
+template<typename F>
+void Ehrenfest
+( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n );
+
+template<typename F>
+void EhrenfestStationary( Matrix<F>& PInf, Int n );
+template<typename F>
+void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n );
+template<typename F>
+void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n );
+
+template<typename F>
+void EhrenfestDecay( Matrix<F>& A, Int n );
+template<typename F,Dist U,Dist V>
+void EhrenfestDecay( DistMatrix<F,U,V>& A, Int n );
+/*
+template<typename F,Dist U,Dist V>
+void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n );
+*/
+
+// Extended Kahan
+// ==============
+template<typename F>
+void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu );
+template<typename F,Dist U,Dist V>
+void ExtendedKahan
+( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu );
+
+// Fiedler
+// =======
+template<typename F>
+void Fiedler( Matrix<F>& A, const std::vector<F>& c );
+template<typename F>
+void Fiedler( AbstractDistMatrix<F>& A, const std::vector<F>& c );
+template<typename F>
+void Fiedler( AbstractBlockDistMatrix<F>& A, const std::vector<F>& c );
+
+// Forsythe
+// ========
+template<typename T>
+void Forsythe( Matrix<T>& J, Int n, T alpha, T lambda );
+template<typename T>
+void Forsythe( AbstractDistMatrix<T>& J, Int n, T alpha, T lambda );
+template<typename T>
+void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda );
+
+// Fox-Li (aka the Landau matrix)
+// ==============================
+template<typename Real>
+void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega );
+template<typename Real,Dist U,Dist V>
+void FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega );
+
+// Fourier
+// =======
+template<typename Real>
+void Fourier( Matrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+
 // Identity
 // ========
 template<typename T>
@@ -98,6 +173,15 @@ template<typename T>
 void Identity( AbstractDistMatrix<T>& I, Int m, Int n );
 template<typename T> 
 void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n );
+
+// Jordan
+// ======
+template<typename T>
+void Jordan( Matrix<T>& J, Int n, T lambda );
+template<typename T>
+void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda );
+template<typename T>
+void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda );
 
 // Ones
 // ====
@@ -142,12 +226,6 @@ void Uniform
 } // namespace El
 
 #include "./matrices/Egorov.hpp"
-#include "./matrices/Ehrenfest.hpp"
-#include "./matrices/ExtendedKahan.hpp"
-#include "./matrices/Fiedler.hpp"
-#include "./matrices/Forsythe.hpp"
-#include "./matrices/FoxLi.hpp"
-#include "./matrices/Fourier.hpp"
 #include "./matrices/GCDMatrix.hpp"
 #include "./matrices/Gear.hpp"
 #include "./matrices/GKS.hpp"
@@ -159,7 +237,6 @@ void Uniform
 #include "./matrices/HelmholtzPML.hpp"
 #include "./matrices/HermitianFromEVD.hpp"
 #include "./matrices/Hilbert.hpp"
-#include "./matrices/Jordan.hpp"
 #include "./matrices/Kahan.hpp"
 #include "./matrices/KMS.hpp"
 #include "./matrices/Laplacian.hpp"

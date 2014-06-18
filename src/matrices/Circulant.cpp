@@ -16,9 +16,7 @@ void Circulant( Matrix<T>& A, const std::vector<T>& a )
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            A.Set( i, j, a[Mod(i-j,n)] );
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[Mod(i-j,n)]; } );
 }
 
 template<typename T>
@@ -27,18 +25,7 @@ void Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, a[Mod(i-j,n)] );
-        }
-    }
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[Mod(i-j,n)]; } );
 }
 
 template<typename T>
@@ -47,18 +34,7 @@ void Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, a[Mod(i-j,n)] );
-        }
-    }
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[Mod(i-j,n)]; } );
 }
 
 #define PROTO(T) \

@@ -17,11 +17,10 @@ inline void
 Ris( Matrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
-    const F oneHalf = F(1)/F(2);
     R.Resize( n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            R.Set( i, j, oneHalf/(F(n-i-j)-oneHalf) );
+    const F oneHalf = F(1)/F(2);
+    IndexDependentFill
+    ( R, [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); } );
 }
 
 template<typename F>
@@ -29,19 +28,10 @@ inline void
 Ris( AbstractDistMatrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
-    const F oneHalf = F(1)/F(2);
     R.Resize( n, n );
-    const Int localHeight = R.LocalHeight();
-    const Int localWidth = R.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = R.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = R.GlobalRow(iLoc);
-            R.SetLocal( iLoc, jLoc, oneHalf/(F(n-i-j)-oneHalf) );
-        }
-    }
+    const F oneHalf = F(1)/F(2);
+    IndexDependentFill
+    ( R, [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); } );
 }
 
 template<typename F>
@@ -49,19 +39,10 @@ inline void
 Ris( AbstractBlockDistMatrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
-    const F oneHalf = F(1)/F(2);
     R.Resize( n, n );
-    const Int localHeight = R.LocalHeight();
-    const Int localWidth = R.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = R.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = R.GlobalRow(iLoc);
-            R.SetLocal( iLoc, jLoc, oneHalf/(F(n-i-j)-oneHalf) );
-        }
-    }
+    const F oneHalf = F(1)/F(2);
+    IndexDependentFill
+    ( R, [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); } );
 }
 
 } // namespace El

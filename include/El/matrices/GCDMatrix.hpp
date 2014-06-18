@@ -14,59 +14,11 @@ namespace El {
 
 template<typename T>
 inline void
-MakeGCDMatrix( Matrix<T>& G )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
-    const Int m = G.Height();
-    const Int n = G.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            G.Set( i, j, T(GCD(i+1,j+1)) );
-}
-
-template<typename T>
-inline void
-MakeGCDMatrix( AbstractDistMatrix<T>& G )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
-    const Int localHeight = G.LocalHeight();
-    const Int localWidth = G.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = G.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = G.GlobalRow(iLoc);
-            G.SetLocal( iLoc, jLoc, T(GCD(i+1,j+1)) );
-        }
-    }
-}
-
-template<typename T>
-inline void
-MakeGCDMatrix( AbstractBlockDistMatrix<T>& G )
-{
-    DEBUG_ONLY(CallStackEntry cse("MakeGCDMatrix"))
-    const Int localHeight = G.LocalHeight();
-    const Int localWidth = G.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = G.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = G.GlobalRow(iLoc);
-            G.SetLocal( iLoc, jLoc, T(GCD(i+1,j+1)) );
-        }
-    }
-}
-
-template<typename T>
-inline void
 GCDMatrix( Matrix<T>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
-    MakeGCDMatrix( G );
+    IndexDependentFill( G, []( Int i, Int j ) { return T(GCD(i+1,j+1)); } );
 }
 
 template<typename T>
@@ -75,7 +27,7 @@ GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
-    MakeGCDMatrix( G );
+    IndexDependentFill( G, []( Int i, Int j ) { return T(GCD(i+1,j+1)); } );
 }
 
 template<typename T>
@@ -84,7 +36,7 @@ GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GCDMatrix"))
     G.Resize( m, n );
-    MakeGCDMatrix( G );
+    IndexDependentFill( G, []( Int i, Int j ) { return T(GCD(i+1,j+1)); } );
 }
 
 } // namespace El

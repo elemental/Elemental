@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_EHRENFEST_HPP
-#define EL_EHRENFEST_HPP
+#include "El.hpp"
 
 // This is an implementation of the compressed hypercube/Ehrenfest matrix. 
 // The details are taken from Trefethen and Embree's
@@ -17,8 +15,7 @@
 namespace El {
 
 template<typename F>
-inline void
-Ehrenfest( Matrix<F>& P, Int n )
+void Ehrenfest( Matrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     typedef Base<F> Real;
@@ -35,8 +32,7 @@ Ehrenfest( Matrix<F>& P, Int n )
 }
 
 template<typename F>
-inline void
-Ehrenfest( AbstractDistMatrix<F>& P, Int n )
+void Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     typedef Base<F> Real;
@@ -54,8 +50,7 @@ Ehrenfest( AbstractDistMatrix<F>& P, Int n )
 }
 
 template<typename F>
-inline void
-Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
+void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     typedef Base<F> Real;
@@ -73,8 +68,7 @@ Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n )
 }
 
 template<typename F>
-inline void
-EhrenfestStationary( Matrix<F>& PInf, Int n )
+void EhrenfestStationary( Matrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
     typedef Base<F> Real;
@@ -89,8 +83,7 @@ EhrenfestStationary( Matrix<F>& PInf, Int n )
 }
 
 template<typename F>
-inline void
-EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
+void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
     typedef Base<F> Real;
@@ -108,8 +101,7 @@ EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
 }
 
 template<typename F>
-inline void
-EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
+void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestStationary"))    
     typedef Base<F> Real;
@@ -127,8 +119,7 @@ EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
 }
 
 template<typename F>
-inline void
-Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
+void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     Ehrenfest( P, n );
@@ -136,31 +127,28 @@ Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n )
 }
 
 template<typename F>
-inline void
-Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
+void Ehrenfest( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     Ehrenfest( P, n );
     PInf.SetGrid( P.Grid() );
-    PInf.AlignWith( P );
+    PInf.AlignWith( P.DistData() );
     EhrenfestStationary( PInf, n );
 }
 
 template<typename F>
-inline void
-Ehrenfest
+void Ehrenfest
 ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ehrenfest"))
     Ehrenfest( P, n );
     PInf.SetGrid( P.Grid() );
-    PInf.AlignWith( P );
+    PInf.AlignWith( P.DistData() );
     EhrenfestStationary( PInf, n );
 }
 
 template<typename F>
-inline void
-EhrenfestDecay( Matrix<F>& A, Int n )
+void EhrenfestDecay( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
@@ -170,8 +158,7 @@ EhrenfestDecay( Matrix<F>& A, Int n )
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-EhrenfestDecay( DistMatrix<F,U,V>& A, Int n )
+void EhrenfestDecay( DistMatrix<F,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
@@ -181,9 +168,10 @@ EhrenfestDecay( DistMatrix<F,U,V>& A, Int n )
     Axpy( F(-1), PInf, A );
 }
 
+// NOTE: Axpy not yet supported for BlockDistMatrix
+/*
 template<typename F,Dist U,Dist V>
-inline void
-EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n )
+void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
@@ -192,7 +180,44 @@ EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n )
     EhrenfestStationary( PInf, n );
     Axpy( F(-1), PInf, A );
 }
+*/
+
+#define PROTO_DIST(F,U,V) \
+  template void EhrenfestDecay( DistMatrix<F,U,V>& A, Int n ); 
+  //template void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n );
+
+#define PROTO(F) \
+  template void Ehrenfest( Matrix<F>& P, Int n ); \
+  template void Ehrenfest( AbstractDistMatrix<F>& P, Int n ); \
+  template void Ehrenfest( AbstractBlockDistMatrix<F>& P, Int n ); \
+  template void Ehrenfest( Matrix<F>& P, Matrix<F>& PInf, Int n ); \
+  template void Ehrenfest \
+  ( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n ); \
+  template void Ehrenfest \
+  ( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n ); \
+  template void EhrenfestStationary( Matrix<F>& PInf, Int n ); \
+  template void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n ); \
+  template void EhrenfestStationary \
+  ( AbstractBlockDistMatrix<F>& PInf, Int n ); \
+  template void EhrenfestDecay( Matrix<F>& A, Int n ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_EHRENFEST_HPP

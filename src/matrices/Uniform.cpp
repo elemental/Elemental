@@ -16,11 +16,7 @@ template<typename T>
 void MakeUniform( Matrix<T>& A, T center, Base<T> radius )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeUniform"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            A.Set( i, j, SampleBall( center, radius ) );
+    EntrywiseFill( A, [=]() { return SampleBall( center, radius ); } );
 }
 
 template<typename T>

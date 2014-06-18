@@ -21,10 +21,7 @@ Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            A.Set( i, j, a[i+j] );
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
 }
 
 template<typename T>
@@ -36,18 +33,7 @@ Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, a[i+j] );
-        }
-    }
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
 }
 
 template<typename T>
@@ -59,18 +45,7 @@ Hankel( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
-            A.SetLocal( iLoc, jLoc, a[i+j] );
-        }
-    }
+    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
 }
 
 } // namespace El
