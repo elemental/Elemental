@@ -6,18 +6,15 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HATANONELSON_HPP
-#define EL_HATANONELSON_HPP
+#include "El.hpp"
 
 namespace El {
 
 // Please see Section 36 of Trefethen and Embree's "Spectra and Pseudospectra"
 
 template<typename F> 
-inline void
-HatanoNelson
-( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic=true )
+void HatanoNelson
+( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
@@ -36,10 +33,8 @@ HatanoNelson
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-HatanoNelson
-( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, 
-  bool periodic=true )
+void HatanoNelson
+( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, bool periodic )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
@@ -58,10 +53,9 @@ HatanoNelson
 }
 
 template<typename F,Dist U,Dist V>
-inline void
-HatanoNelson
+void HatanoNelson
 ( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, 
-  bool periodic=true )
+  bool periodic )
 {
     DEBUG_ONLY(CallStackEntry cse("HatanoNelson"))
     if( n < 3 )
@@ -78,7 +72,36 @@ HatanoNelson
         A.Set( n-1, 0,   Exp( g) );
     }
 }
+
+#define PROTO_DIST(F,U,V) \
+  template void HatanoNelson \
+  ( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, \
+    bool periodic ); \
+  template void HatanoNelson \
+  ( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g, \
+    bool periodic ); 
+
+#define PROTO(F) \
+  template void HatanoNelson \
+  ( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic ); \
+  PROTO_DIST(F,CIRC,CIRC) \
+  PROTO_DIST(F,MC,  MR  ) \
+  PROTO_DIST(F,MC,  STAR) \
+  PROTO_DIST(F,MD,  STAR) \
+  PROTO_DIST(F,MR,  MC  ) \
+  PROTO_DIST(F,MR,  STAR) \
+  PROTO_DIST(F,STAR,MC  ) \
+  PROTO_DIST(F,STAR,MD  ) \
+  PROTO_DIST(F,STAR,MR  ) \
+  PROTO_DIST(F,STAR,STAR) \
+  PROTO_DIST(F,STAR,VC  ) \
+  PROTO_DIST(F,STAR,VR  ) \
+  PROTO_DIST(F,VC,  STAR) \
+  PROTO_DIST(F,VR,  STAR)
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_HATANONELSON_HPP

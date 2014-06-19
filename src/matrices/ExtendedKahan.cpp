@@ -8,8 +8,6 @@
 */
 #include "El.hpp"
 
-#include EL_WALSH_INC
-
 // Generate a 3(2^k) x 3(2^k) Extended Kahan matrix, which has the form
 // A = S R, where S = diag(1,zeta,...,zeta^(3 2^k - 1)), 
 // 

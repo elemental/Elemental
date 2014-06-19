@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LAPLACIAN_HPP
-#define EL_LAPLACIAN_HPP
-
-#include EL_HELMHOLTZ_INC
+#include "El.hpp"
 
 namespace El {
 
@@ -18,24 +14,21 @@ namespace El {
 // ============
 
 template<typename F> 
-inline void
-Laplacian( Matrix<F>& L, Int n )
+void Laplacian( Matrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
 }
 
 template<typename F>
-inline void
-Laplacian( AbstractDistMatrix<F>& L, Int n )
+void Laplacian( AbstractDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
 }
 
 template<typename F>
-inline void
-Laplacian( AbstractBlockDistMatrix<F>& L, Int n )
+void Laplacian( AbstractBlockDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, n, F(0) );
@@ -45,24 +38,21 @@ Laplacian( AbstractBlockDistMatrix<F>& L, Int n )
 // ============
 
 template<typename F> 
-inline void
-Laplacian( Matrix<F>& L, Int nx, Int ny )
+void Laplacian( Matrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
 }
 
 template<typename F>
-inline void
-Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
+void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
 }
 
 template<typename F>
-inline void
-Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny )
+void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
@@ -72,29 +62,38 @@ Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny )
 // ============
 
 template<typename F> 
-inline void
-Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
+void Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
 template<typename F>
-inline void
-Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
+void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
 template<typename F>
-inline void
-Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz )
+void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, nz, F(0) );
 }
+
+#define PROTO(F) \
+  template void Laplacian( Matrix<F>& L, Int nx ); \
+  template void Laplacian( AbstractDistMatrix<F>& L, Int nx ); \
+  template void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx ); \
+  template void Laplacian( Matrix<F>& L, Int nx, Int ny ); \
+  template void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny ); \
+  template void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny ); \
+  template void Laplacian \
+  ( Matrix<F>& L, Int nx, Int ny, Int nz ); \
+  template void Laplacian \
+  ( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz ); \
+  template void Laplacian \
+  ( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz );
 
 } // namespace El
-
-#endif // ifndef EL_LAPLACIAN_HPP

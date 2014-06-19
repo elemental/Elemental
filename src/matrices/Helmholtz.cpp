@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HELMHOLTZ_HPP
-#define EL_HELMHOLTZ_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -16,8 +14,7 @@ namespace El {
 // ============
 
 template<typename F> 
-inline void
-Helmholtz( Matrix<F>& H, Int n, F shift )
+void Helmholtz( Matrix<F>& H, Int n, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -37,8 +34,7 @@ Helmholtz( Matrix<F>& H, Int n, F shift )
 }
 
 template<typename F>
-inline void
-Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
+void Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -65,8 +61,7 @@ Helmholtz( AbstractDistMatrix<F>& H, Int n, F shift )
 // ============
 
 template<typename F> 
-inline void
-Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
+void Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -96,8 +91,7 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 }
 
 template<typename F>
-inline void
-Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
+void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -133,8 +127,7 @@ Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift )
 // ============
 
 template<typename F> 
-inline void
-Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
+void Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -171,8 +164,7 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 }
 
 template<typename F>
-inline void
-Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
+void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     typedef Base<F> R;
@@ -211,6 +203,23 @@ Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Helmholtz \
+  ( Matrix<F>& H, Int nx, F shift ); \
+  template void Helmholtz \
+  ( AbstractDistMatrix<F>& H, Int nx, F shift ); \
+  template void Helmholtz \
+  ( Matrix<F>& H, Int nx, Int ny, F shift ); \
+  template void Helmholtz \
+  ( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift ); \
+  template void Helmholtz \
+  ( Matrix<F>& H, Int nx, Int ny, Int nz, F shift ); \
+  template void Helmholtz \
+  ( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift );
 
-#endif // ifndef EL_HELMHOLTZ_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

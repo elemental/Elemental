@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HANKEL_HPP
-#define EL_HANKEL_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
+void Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -25,8 +22,7 @@ Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
 }
 
 template<typename T>
-inline void
-Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
+void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -37,8 +33,8 @@ Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
 }
 
 template<typename T>
-inline void
-Hankel( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
+void Hankel
+( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Hankel"))
     const Int length = m+n-1;
@@ -47,7 +43,19 @@ Hankel( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
     A.Resize( m, n );
     IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
 }
+
+#define PROTO(T) \
+  template void Hankel \
+  ( Matrix<T>& A, Int m, Int n, const std::vector<T>& a ); \
+  template void Hankel \
+  ( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a ); \
+  template void Hankel \
+  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a );
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_HANKEL_HPP

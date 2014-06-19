@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LOTKIN_HPP
-#define EL_LOTKIN_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename F>
-inline void
-Lotkin( Matrix<F>& A, Int n )
+void Lotkin( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );
@@ -24,8 +21,7 @@ Lotkin( Matrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-Lotkin( AbstractDistMatrix<F>& A, Int n )
+void Lotkin( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );
@@ -39,8 +35,7 @@ Lotkin( AbstractDistMatrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-Lotkin( AbstractBlockDistMatrix<F>& A, Int n )
+void Lotkin( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lotkin"))
     Hilbert( A, n );
@@ -53,6 +48,14 @@ Lotkin( AbstractBlockDistMatrix<F>& A, Int n )
     } 
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void Lotkin( Matrix<F>& A, Int n ); \
+  template void Lotkin( AbstractDistMatrix<F>& A, Int n ); \
+  template void Lotkin( AbstractBlockDistMatrix<F>& A, Int n );
 
-#endif // ifndef EL_LOTKIN_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

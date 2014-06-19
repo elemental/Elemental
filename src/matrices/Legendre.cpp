@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LEGENDRE_HPP
-#define EL_LEGENDRE_HPP
-
-
+#include "El.hpp"
 
 namespace El {
 
@@ -90,8 +86,7 @@ MakeLegendre( AbstractBlockDistMatrix<F>& A )
 }
 
 template<typename F> 
-inline void
-Legendre( Matrix<F>& A, Int n )
+void Legendre( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.Resize( n, n );
@@ -99,8 +94,7 @@ Legendre( Matrix<F>& A, Int n )
 }
 
 template<typename F> 
-inline void
-Legendre( AbstractDistMatrix<F>& A, Int n )
+void Legendre( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.Resize( n, n );
@@ -108,14 +102,21 @@ Legendre( AbstractDistMatrix<F>& A, Int n )
 }
 
 template<typename F> 
-inline void
-Legendre( AbstractBlockDistMatrix<F>& A, Int n )
+void Legendre( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Legendre"))
     A.Resize( n, n );
     MakeLegendre( A );
 }
+
+#define PROTO(F) \
+  template void Legendre( Matrix<F>& A, Int n ); \
+  template void Legendre( AbstractDistMatrix<F>& A, Int n ); \
+  template void Legendre( AbstractBlockDistMatrix<F>& A, Int n );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_LEGENDRE_HPP

@@ -6,16 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HELMHOLTZPML_HPP
-#define EL_HELMHOLTZPML_HPP
+#include "El.hpp"
 
 namespace El {
 
 namespace pml {
 
 template<typename Real>
-Complex<Real> 
+inline Complex<Real> 
 Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 {
     DEBUG_ONLY(
@@ -30,7 +28,7 @@ Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 }
 
 template<typename Real>
-Complex<Real>
+inline Complex<Real>
 sInv( Int j, Int n, Int numPmlPoints, Real h, Real pmlExp, Real sigma, Real k )
 {
     if( j < numPmlPoints-1 )
@@ -47,10 +45,9 @@ sInv( Int j, Int n, Int numPmlPoints, Real h, Real pmlExp, Real sigma, Real k )
 
 // 1D Helmholtz with PML
 template<typename Real> 
-inline void
-HelmholtzPML
+void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int n, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
+  Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -88,10 +85,9 @@ HelmholtzPML
 
 // 1D Helmholtz with PML
 template<typename Real> 
-inline void
-HelmholtzPML
+void HelmholtzPML
 ( DistMatrix<Complex<Real>>& H, Int n, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
+  Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -132,10 +128,9 @@ HelmholtzPML
 
 // 2D Helmholtz with PML
 template<typename Real> 
-inline void
-HelmholtzPML
+void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
+  Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -192,10 +187,9 @@ HelmholtzPML
 
 // 2D Helmholtz with PML
 template<typename Real> 
-inline void
-HelmholtzPML
+void HelmholtzPML
 ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
+  Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -255,10 +249,9 @@ HelmholtzPML
 
 // 3D Helmholtz with PML
 template<typename Real> 
-inline void
-HelmholtzPML
+void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
+  Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -333,10 +326,9 @@ HelmholtzPML
 
 // 3D Helmholtz with PML
 template<typename Real> 
-inline void
-HelmholtzPML
+void HelmholtzPML
 ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 )
+  Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -412,6 +404,27 @@ HelmholtzPML
     }
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template void HelmholtzPML \
+  ( Matrix<Complex<Real>>& H, Int nx, Complex<Real> omega, \
+    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  template void HelmholtzPML \
+  ( DistMatrix<Complex<Real>>& H, Int nx, Complex<Real> omega, \
+    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  template void HelmholtzPML \
+  ( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, \
+    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  template void HelmholtzPML \
+  ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, \
+    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  template void HelmholtzPML \
+  ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, \
+    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  template void HelmholtzPML \
+  ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, \
+    Int numPmlPoints, Real sigma, Real pmlExp );
 
-#endif // ifndef EL_HELMHOLTZPML_HPP
+PROTO(float)
+PROTO(double)
+
+} // namespace El

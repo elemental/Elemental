@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -25,20 +25,18 @@ void CauchyLike
         LogicError("y vector was the wrong length");
     A.Resize( m, n );
 
-    for( Int j=0; j<n; ++j )
-    {
-        for( Int i=0; i<m; ++i )
-        {
+    IndexDependentFill
+    ( A, [&]( Int i, Int j )
+         {
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
                     LogicError
                     ( "x[", i, "] = y[", j, "] (", x[i],
-                      ") is not allowed for Cauchy-like matrices" );
+                      ") is not allowed for Cauchy matrices" );
             )
-            A.Set( i, j, r[i]*s[j]/(x[i]-y[j]) );
-        }
-    }
+            return F1(r[i]*s[j]/x[i]-y[j]);
+         } );
 }
 
 template<typename F1,typename F2>
@@ -56,24 +54,18 @@ void CauchyLike
         LogicError("y vector was the wrong length");
     A.Resize( m, n );
 
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
+    IndexDependentFill
+    ( A, [&]( Int i, Int j )
+         {
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
                     LogicError
                     ( "x[", i, "] = y[", j, "] (", x[i],
-                      ") is not allowed for Cauchy-like matrices" );
+                      ") is not allowed for Cauchy matrices" );
             )
-            A.SetLocal( iLoc, jLoc, r[i]*s[j]/(x[i]-y[j]) );
-        }
-    }
+            return F1(r[i]*s[j]/x[i]-y[j]);
+         } );
 }
 
 template<typename F1,typename F2>
@@ -91,24 +83,18 @@ void CauchyLike
         LogicError("y vector was the wrong length");
     A.Resize( m, n );
 
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Int j = A.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = A.GlobalRow(iLoc);
+    IndexDependentFill
+    ( A, [&]( Int i, Int j )
+         {
             DEBUG_ONLY(
                 // TODO: Use tolerance instead?
                 if( x[i] == y[j] )
                     LogicError
                     ( "x[", i, "] = y[", j, "] (", x[i],
-                      ") is not allowed for Cauchy-like matrices" );
+                      ") is not allowed for Cauchy matrices" );
             )
-            A.SetLocal( iLoc, jLoc, r[i]*s[j]/(x[i]-y[j]) );
-        }
-    }
+            return F1(r[i]*s[j]/x[i]-y[j]);
+         } );
 }
 
 #define PROTO_TYPES(F1,F2) \

@@ -158,6 +158,130 @@ void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n );
 template<typename Real>
 void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 
+// Greatest Common Denominator matrix
+// ==================================
+template<typename T>
+void GCDMatrix( Matrix<T>& G, Int m, Int n );
+template<typename T>
+void GCDMatrix( AbstractDistMatrix<T>& G, Int m, Int n );
+template<typename T>
+void GCDMatrix( AbstractBlockDistMatrix<T>& G, Int m, Int n );
+
+// Gear matrix
+// ===========
+template<typename T>
+void Gear( Matrix<T>& G, Int n, Int s, Int t );
+template<typename T>
+void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t );
+template<typename T>
+void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t );
+
+// Golub Klema Stewart matrix
+// ==========================
+template<typename F>
+void GKS( Matrix<F>& A, Int n );
+template<typename F>
+void GKS( AbstractDistMatrix<F>& A, Int n );
+template<typename F>
+void GKS( AbstractBlockDistMatrix<F>& A, Int n );
+
+// Grcar matrix
+// ============
+template<typename T>
+void Grcar( Matrix<T>& A, Int n, Int k=3 );
+template<typename T>
+void Grcar( AbstractDistMatrix<T>& A, Int n, Int k=3 );
+template<typename T>
+void Grcar( AbstractBlockDistMatrix<T>& A, Int n, Int k=3 );
+
+// Hankel
+// ======
+template<typename T>
+void Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a );
+template<typename T>
+void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a );
+template<typename T>
+void Hankel
+( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a );
+
+// Hanowa
+// ======
+template<typename T>
+void Hanowa( Matrix<T>& A, Int n, T mu );
+template<typename T,Dist U,Dist V>
+void Hanowa( DistMatrix<T,U,V>& A, Int n, T mu );
+/*
+template<typename T,Dist U,Dist V>
+void Hanowa( BlockDistMatrix<T,U,V>& A, Int n, T mu );
+*/
+
+// Hatano-Nelson
+// =============
+template<typename F>
+void HatanoNelson
+( Matrix<F>& A, Int n, F center, Base<F> radius, F g, bool periodic=true );
+template<typename F,Dist U,Dist V>
+void HatanoNelson
+( DistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g,
+  bool periodic=true );
+template<typename F,Dist U,Dist V>
+void HatanoNelson
+( BlockDistMatrix<F,U,V>& A, Int n, F center, Base<F> radius, F g,
+  bool periodic=true );
+
+// Helmholtz
+// =========
+template<typename F>
+void Helmholtz( Matrix<F>& H, Int nx, F shift );
+template<typename F>
+void Helmholtz( AbstractDistMatrix<F>& H, Int nx, F shift );
+template<typename F>
+void Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift );
+template<typename F>
+void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, F shift );
+template<typename F>
+void Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift );
+template<typename F>
+void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift );
+
+// Helmholtz PML
+// =============
+template<typename Real>
+void HelmholtzPML
+( Matrix<Complex<Real>>& H, Int nx, Complex<Real> omega,
+  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+template<typename Real>
+void HelmholtzPML
+( DistMatrix<Complex<Real>>& H, Int nx, Complex<Real> omega,
+  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+
+template<typename Real>
+void HelmholtzPML
+( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega,
+  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+template<typename Real>
+void HelmholtzPML
+( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega,
+  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+
+template<typename Real>
+void HelmholtzPML
+( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega,
+  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+template<typename Real>
+void HelmholtzPML
+( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega,
+  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+
+// Hilbert
+// =======
+template<typename F>
+void Hilbert( Matrix<F>& A, Int n );
+template<typename F>
+void Hilbert( AbstractDistMatrix<F>& A, Int n );
+template<typename F>
+void Hilbert( AbstractBlockDistMatrix<F>& A, Int n );
+
 // Identity
 // ========
 template<typename T>
@@ -182,6 +306,85 @@ template<typename T>
 void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda );
 template<typename T>
 void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda );
+
+// Kahan
+// =====
+template<typename F>
+void Kahan( Matrix<F>& A, Int n, F phi );
+template<typename F>
+void Kahan( AbstractDistMatrix<F>& A, Int n, F phi );
+template<typename F>
+void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi );
+
+// KMS
+// ===
+template<typename T>
+void KMS( Matrix<T>& K, Int n, T rho );
+template<typename T>
+void KMS( AbstractDistMatrix<T>& K, Int n, T rho );
+template<typename T>
+void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho );
+
+// Lehmer
+// ======
+template<typename F>
+void Lehmer( Matrix<F>& L, Int n );
+template<typename F>
+void Lehmer( AbstractDistMatrix<F>& L, Int n );
+template<typename F>
+void Lehmer( AbstractBlockDistMatrix<F>& L, Int n );
+
+// Laplacian
+// =========
+template<typename F>
+void Laplacian( Matrix<F>& L, Int nx );
+template<typename F>
+void Laplacian( AbstractDistMatrix<F>& L, Int nx );
+template<typename F>
+void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx );
+
+template<typename F>
+void Laplacian( Matrix<F>& L, Int nx, Int ny );
+template<typename F>
+void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny );
+template<typename F>
+void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny );
+
+template<typename F>
+void Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz );
+template<typename F>
+void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz );
+template<typename F>
+void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz );
+
+// Lauchli
+// =======
+template<typename T>
+void Lauchli( Matrix<T>& A, Int n, T mu );
+template<typename T,Dist U,Dist V>
+void Lauchli( DistMatrix<T,U,V>& A, Int n, T mu );
+/*
+template<typename T,Dist U,Dist V>
+void Lauchli( BlockDistMatrix<T,U,V>& A, Int n, T mu );
+*/
+
+// Legendre
+// ========
+template<typename F>
+void Legendre( Matrix<F>& A, Int n );
+template<typename F>
+void Legendre( AbstractDistMatrix<F>& A, Int n );
+template<typename F>
+void Legendre( AbstractBlockDistMatrix<F>& A, Int n );
+
+// Lotkin
+// ======
+template<typename F>
+void Lotkin( Matrix<F>& A, Int n );
+template<typename F>
+void Lotkin( AbstractDistMatrix<F>& A, Int n );
+template<typename F>
+void Lotkin( AbstractBlockDistMatrix<F>& A, Int n );
 
 // Ones
 // ====
@@ -265,24 +468,7 @@ void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
 } // namespace El
 
 #include "./matrices/Egorov.hpp"
-#include "./matrices/GCDMatrix.hpp"
-#include "./matrices/Gear.hpp"
-#include "./matrices/GKS.hpp"
-#include "./matrices/Grcar.hpp"
-#include "./matrices/Hankel.hpp"
-#include "./matrices/Hanowa.hpp"
-#include "./matrices/HatanoNelson.hpp"
-#include "./matrices/Helmholtz.hpp"
-#include "./matrices/HelmholtzPML.hpp"
 #include "./matrices/HermitianFromEVD.hpp"
-#include "./matrices/Hilbert.hpp"
-#include "./matrices/Kahan.hpp"
-#include "./matrices/KMS.hpp"
-#include "./matrices/Laplacian.hpp"
-#include "./matrices/Lauchli.hpp"
-#include "./matrices/Legendre.hpp"
-#include "./matrices/Lehmer.hpp"
-#include "./matrices/Lotkin.hpp"
 #include "./matrices/MinIJ.hpp"
 #include "./matrices/NormalFromEVD.hpp"
 #include "./matrices/OneTwoOne.hpp"

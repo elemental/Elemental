@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_LEHMER_HPP
-#define EL_LEHMER_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename F> 
-inline void
-Lehmer( Matrix<F>& L, Int n )
+void Lehmer( Matrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
@@ -25,8 +22,7 @@ Lehmer( Matrix<F>& L, Int n )
 }
 
 template<typename F>
-inline void
-Lehmer( AbstractDistMatrix<F>& L, Int n )
+void Lehmer( AbstractDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
@@ -37,8 +33,7 @@ Lehmer( AbstractDistMatrix<F>& L, Int n )
 }
 
 template<typename F>
-inline void
-Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
+void Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Lehmer"))
     L.Resize( n, n );
@@ -47,7 +42,15 @@ Lehmer( AbstractBlockDistMatrix<F>& L, Int n )
          { if( i < j ) { return F(i+1)/F(j+1); }
            else        { return F(j+1)/F(i+1); } } );
 }
+
+#define PROTO(F) \
+  template void Lehmer( Matrix<F>& L, Int n ); \
+  template void Lehmer( AbstractDistMatrix<F>& L, Int n ); \
+  template void Lehmer( AbstractBlockDistMatrix<F>& L, Int n );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_LEHMER_HPP

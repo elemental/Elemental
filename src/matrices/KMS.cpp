@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_KMS_HPP
-#define EL_KMS_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-KMS( Matrix<T>& K, Int n, T rho )
+void KMS( Matrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     K.Resize( n, n );
@@ -25,8 +22,7 @@ KMS( Matrix<T>& K, Int n, T rho )
 }
 
 template<typename T>
-inline void
-KMS( AbstractDistMatrix<T>& K, Int n, T rho )
+void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     K.Resize( n, n );
@@ -37,8 +33,7 @@ KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 }
 
 template<typename T>
-inline void
-KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
+void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
 {
     DEBUG_ONLY(CallStackEntry cse("KMS"))
     K.Resize( n, n );
@@ -47,7 +42,16 @@ KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
          { if( i < j ) { return Pow(rho,T(j-i));       } 
            else        { return Conj(Pow(rho,T(i-j))); } } );
 }
+
+#define PROTO(T) \
+  template void KMS( Matrix<T>& K, Int n, T rho ); \
+  template void KMS( AbstractDistMatrix<T>& K, Int n, T rho ); \
+  template void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho );
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_KMS_HPP
