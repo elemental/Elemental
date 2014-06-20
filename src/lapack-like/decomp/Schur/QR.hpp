@@ -108,7 +108,8 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckRealSchur(A))
+        // NOTE: This routine is not yet implemented
+        //DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -187,7 +188,8 @@ QR
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckRealSchur(A))
+        // NOTE: This routine is not yet implemented
+        //DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
