@@ -273,6 +273,17 @@ void HelmholtzPML
 ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega,
   Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 
+// Hermitian from EVD
+// ==================
+template<typename F>
+void HermitianFromEVD
+( UpperOrLower uplo, Matrix<F>& A,
+  const Matrix<Base<F>>& w, const Matrix<F>& Z );
+template<typename F>
+void HermitianFromEVD
+( UpperOrLower uplo, DistMatrix<F>& A,
+  const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& Z );
+
 // Hilbert
 // =======
 template<typename F>
@@ -386,6 +397,28 @@ void Lotkin( AbstractDistMatrix<F>& A, Int n );
 template<typename F>
 void Lotkin( AbstractBlockDistMatrix<F>& A, Int n );
 
+// MinIJ
+// =====
+template<typename T>
+void MinIJ( Matrix<T>& M, Int n );
+template<typename T>
+void MinIJ( AbstractDistMatrix<T>& M, Int n );
+template<typename T>
+void MinIJ( AbstractBlockDistMatrix<T>& M, Int n );
+
+// Normal from EVD
+// ===============
+template<typename Real>
+void NormalFromEVD
+(       Matrix<Complex<Real>>& A,
+  const Matrix<Complex<Real>>& w,
+  const Matrix<Complex<Real>>& Z );
+template<typename Real>
+void NormalFromEVD
+(       DistMatrix<Complex<Real>>& A,
+  const DistMatrix<Complex<Real>,VR,STAR>& w,
+  const DistMatrix<Complex<Real>>& Z );
+
 // Ones
 // ====
 template<typename T>
@@ -439,6 +472,18 @@ void ImplicitHaar
 ( DistMatrix<F>& A,
   DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, Int n );
 
+// Hermitian uniform spectrum
+// ==========================
+template<typename F>
+void HermitianUniformSpectrum
+( Matrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
+template<typename F>
+void HermitianUniformSpectrum
+( DistMatrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
+template<typename F,Dist U,Dist V>
+void HermitianUniformSpectrum
+( DistMatrix<F,U,V>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
+
 // Uniform
 // =======
 // Draw each entry from a uniform PDF over a closed ball.
@@ -468,9 +513,6 @@ void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
 } // namespace El
 
 #include "./matrices/Egorov.hpp"
-#include "./matrices/HermitianFromEVD.hpp"
-#include "./matrices/MinIJ.hpp"
-#include "./matrices/NormalFromEVD.hpp"
 #include "./matrices/OneTwoOne.hpp"
 #include "./matrices/Parter.hpp"
 #include "./matrices/Pei.hpp"
@@ -490,7 +532,6 @@ void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
 // ===============
 
 // Uniform
-#include "./matrices/HermitianUniformSpectrum.hpp"
 #include "./matrices/NormalUniformSpectrum.hpp"
 #include "./matrices/UniformHelmholtzGreens.hpp"
 

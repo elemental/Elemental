@@ -43,20 +43,11 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> A, b, xTrue;
         Uniform( A, m, n );
-        Zeros( xTrue, n, 1 );
-        if( xTrue.LocalWidth() == 1 )
-        {
-            for( Int iLoc=0; iLoc<xTrue.LocalHeight(); ++iLoc )
-                if( SampleUniform<Real>() <= probNnz )
-                    xTrue.SetLocal( iLoc, 0, SampleBall<C>() );
-        }
-        const Int trueZeroNorm = ZeroNorm( xTrue );
-        Gemv( NORMAL, C(1), A, xTrue, b ); 
+        Uniform( b, n, 1 );
         if( print )
         {
-            Print( A,     "A"     );
-            Print( xTrue, "xTrue" );
-            Print( b,     "b"     );
+            Print( A, "A" );
+            Print( b, "b" );
         }
         if( display )
             Display( A, "A" );
@@ -69,10 +60,7 @@ main( int argc, char* argv[] )
             Print( z, "z" );
         const Int zZeroNorm = ZeroNorm( z );
         if( mpi::Rank(mpi::COMM_WORLD) == 0 )
-        {
-            std::cout << "|| xTrue ||_0 = " << trueZeroNorm << "\n"
-                      << "|| z     ||_0 = " << zZeroNorm << "\n" << std::endl;
-        }
+            std::cout << "|| z     ||_0 = " << zZeroNorm << "\n" << std::endl;
     }
     catch( std::exception& e ) { ReportException(e); }
 

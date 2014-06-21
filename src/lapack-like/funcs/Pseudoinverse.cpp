@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_HERMITIANFROMEVD_INC
-
 namespace El {
 
 // Replace A with its pseudoinverse

@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
-#include EL_HERMITIANFROMEVD_INC
 
 // See Chapter 5 of Nicholas J. Higham's "Functions of Matrices: Theory and
 // Computation", which is currently available at:

@@ -10,10 +10,6 @@
 #ifndef EL_INCLUDEPATHS_HPP
 #define EL_INCLUDEPATHS_HPP
 
-// LAPACK-like routines
-// ====================
-#define EL_LAPACK_INC      "El/lapack-like.hpp"
-
 // Special matrices
 // ================
 #define EL_MATRICES_INC      "El/matrices.hpp"
@@ -23,23 +19,6 @@
 // Deterministic matrices
 // ----------------------
 #define EL_EGOROV_INC           "El/matrices/Egorov.hpp"
-#define EL_GEAR_INC             "El/matrices/Gear.hpp"
-#define EL_GKS_INC              "El/matrices/GKS.hpp"
-#define EL_GRCAR_INC            "El/matrices/Grcar.hpp"
-#define EL_HANKEL_INC           "El/matrices/Hankel.hpp"
-#define EL_HANOWA_INC           "El/matrices/Hanowa.hpp"
-#define EL_HELMHOLTZ_INC        "El/matrices/Helmholtz.hpp"
-#define EL_HELMHOLTZPML_INC     "El/matrices/HelmholtzPML.hpp"
-#define EL_HERMITIANFROMEVD_INC "El/matrices/HermitianFromEVD.hpp"
-#define EL_KAHAN_INC            "El/matrices/Kahan.hpp"
-#define EL_KMS_INC              "El/matrices/KMS.hpp"
-#define EL_LAPLACIAN_INC        "El/matrices/Laplacian.hpp"
-#define EL_LAUCHLI_INC          "El/matrices/Lauchli.hpp"
-#define EL_LEGENDRE_INC         "El/matrices/Legendre.hpp"
-#define EL_LEHMER_INC           "El/matrices/Lehmer.hpp"
-#define EL_LOTKIN_INC           "El/matrices/Lotkin.hpp"
-#define EL_MINIJ_INC            "El/matrices/MinIJ.hpp"
-#define EL_NORMALFROMEVD_INC    "El/matrices/NormalFromEVD.hpp"
 #define EL_ONETWOONE_INC        "El/matrices/OneTwoOne.hpp"
 #define EL_PARTER_INC           "El/matrices/Parter.hpp"
 #define EL_PEI_INC              "El/matrices/Pei.hpp"
@@ -57,10 +36,6 @@
 
 // Random matrices
 // ---------------
-#define EL_HATANONELSON_INC \
-  "El/matrices/HatanoNelson.hpp"
-#define EL_HERMITIANUNIFORMSPECTRUM_INC \
-  "El/matrices/HermitianUniformSpectrum.hpp"
 #define EL_NORMALUNIFORMSPECTRUM_INC \
   "El/matrices/NormalUniformSpectrum.hpp"
 #define EL_UNIFORMHELMHOLTZGREENS_INC \

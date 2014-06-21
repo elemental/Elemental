@@ -63,6 +63,12 @@ void Uniform
 }
 
 #define PROTO(T) \
+  template void MakeUniform \
+  ( Matrix<T>& A, T center, Base<T> radius ); \
+  template void MakeUniform \
+  ( AbstractDistMatrix<T>& A, T center, Base<T> radius ); \
+  template void MakeUniform \
+  ( AbstractBlockDistMatrix<T>& A, T center, Base<T> radius ); \
   template void Uniform \
   ( Matrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
   template void Uniform \

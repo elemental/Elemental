@@ -10,9 +10,6 @@
 #ifndef EL_HERMITIANFUNCTION_HPP
 #define EL_HERMITIANFUNCTION_HPP
 
-#include EL_HERMITIANFROMEVD_INC
-#include EL_NORMALFROMEVD_INC
-
 namespace El {
 
 // Modify the eigenvalues of A with the real-valued function f, which will 

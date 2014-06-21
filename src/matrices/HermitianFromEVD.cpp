@@ -6,17 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HERMITIANFROMEVD_HPP
-#define EL_HERMITIANFROMEVD_HPP
+#include "El.hpp"
 
 namespace El {
 
 // A :=  Z Omega Z^T, where Omega is diagonal and real-valued
 
 template<typename F>
-inline void
-HermitianFromEVD
+void HermitianFromEVD
 ( UpperOrLower uplo,
         Matrix<F>& A,
   const Matrix<Base<F>>& w,
@@ -46,8 +43,7 @@ HermitianFromEVD
 }
 
 template<typename F>
-inline void
-HermitianFromEVD
+void HermitianFromEVD
 ( UpperOrLower uplo,
         DistMatrix<F>& A,
   const DistMatrix<Base<F>,VR,STAR>& w,
@@ -90,6 +86,17 @@ HermitianFromEVD
     }
 }
 
-} // namespace El
+#define PROTO(F) \
+  template void HermitianFromEVD \
+  ( UpperOrLower uplo, Matrix<F>& A, \
+    const Matrix<Base<F>>& w, const Matrix<F>& Z ); \
+  template void HermitianFromEVD \
+  ( UpperOrLower uplo, DistMatrix<F>& A, \
+    const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& Z );
 
-#endif // ifndef EL_HERMITIANFROMEVD_HPP
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

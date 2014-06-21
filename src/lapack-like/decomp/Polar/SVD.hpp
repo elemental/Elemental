@@ -10,8 +10,6 @@
 #ifndef EL_POLAR_SVD_HPP
 #define EL_POLAR_SVD_HPP
 
-#include EL_HERMITIANFROMEVD_INC
-
 namespace El {
 namespace polar {
 

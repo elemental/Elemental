@@ -8,8 +8,6 @@
 */
 #include "El-lite.hpp"
 
-#include EL_HERMITIANFROMEVD_INC
-
 // See Eq. 6.3 of Nicholas J. Higham and Awad H. Al-Mohy's "Computing Matrix
 // Functions", which is currently available at:
 // http://eprints.ma.man.ac.uk/1451/01/covered/MIMS_ep2010_18.pdf

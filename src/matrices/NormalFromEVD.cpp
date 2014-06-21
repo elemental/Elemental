@@ -6,19 +6,14 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_NORMALFROMEVD_HPP
-#define EL_NORMALFROMEVD_HPP
-
-
+#include "El.hpp"
 
 namespace El {
 
 // A :=  Z Omega Z^T, where Omega is complex-valued and diagonal
 
 template<typename Real>
-inline void
-NormalFromEVD
+void NormalFromEVD
 (       Matrix<Complex<Real>>& A,
   const Matrix<Complex<Real>>& w,
   const Matrix<Complex<Real>>& Z )
@@ -45,8 +40,7 @@ NormalFromEVD
 }
 
 template<typename Real>
-inline void
-NormalFromEVD
+void NormalFromEVD
 (       DistMatrix<Complex<Real>>& A,
   const DistMatrix<Complex<Real>,VR,STAR>& w,
   const DistMatrix<Complex<Real>>& Z )
@@ -83,6 +77,17 @@ NormalFromEVD
     }
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template void NormalFromEVD \
+  (       Matrix<Complex<Real>>& A, \
+    const Matrix<Complex<Real>>& w, \
+    const Matrix<Complex<Real>>& Z ); \
+  template void NormalFromEVD \
+  (       DistMatrix<Complex<Real>>& A, \
+    const DistMatrix<Complex<Real>,VR,STAR>& w, \
+    const DistMatrix<Complex<Real>>& Z );
 
-#endif // ifndef EL_NORMALFROMEVD_HPP
+PROTO(float)
+PROTO(double)
+
+} // namespace El
