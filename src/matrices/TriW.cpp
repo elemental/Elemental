@@ -6,17 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRIW_HPP
-#define EL_TRIW_HPP
-
-
+#include "El.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
+void TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -28,8 +23,7 @@ TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 }
 
 template<typename T>
-inline void
-TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
+void TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -41,8 +35,7 @@ TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 }
 
 template<typename T>
-inline void
-TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
+void TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
 {
     DEBUG_ONLY(CallStackEntry cse("TriW"))
     if( k < 0 )
@@ -53,6 +46,18 @@ TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
         SetDiagonal( A, alpha, j+1 );
 }
 
-} // namespace El
+#define PROTO(T) \
+  template void TriW \
+  ( Matrix<T>& A, Int m, Int n, T alpha, Int k ); \
+  template void TriW \
+  ( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k ); \
+  template void TriW \
+  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
 
-#endif // ifndef EL_TRIW_HPP
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

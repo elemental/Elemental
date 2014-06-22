@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_PARTER_HPP
-#define EL_PARTER_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename F> 
-inline void
-Parter( Matrix<F>& P, Int n )
+void Parter( Matrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     P.Resize( n, n );
@@ -24,8 +21,7 @@ Parter( Matrix<F>& P, Int n )
 }
 
 template<typename F>
-inline void
-Parter( AbstractDistMatrix<F>& P, Int n )
+void Parter( AbstractDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     P.Resize( n, n );
@@ -35,8 +31,7 @@ Parter( AbstractDistMatrix<F>& P, Int n )
 }
 
 template<typename F>
-inline void
-Parter( AbstractBlockDistMatrix<F>& P, Int n )
+void Parter( AbstractBlockDistMatrix<F>& P, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Parter"))
     P.Resize( n, n );
@@ -44,7 +39,15 @@ Parter( AbstractBlockDistMatrix<F>& P, Int n )
     IndexDependentFill
     ( P, [=]( Int i, Int j ) { return F(1)/(F(i)-F(j)+oneHalf); } );
 }
+
+#define PROTO(F) \
+  template void Parter( Matrix<F>& P, Int n ); \
+  template void Parter( AbstractDistMatrix<F>& P, Int n ); \
+  template void Parter( AbstractBlockDistMatrix<F>& P, Int n );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_PARTER_HPP

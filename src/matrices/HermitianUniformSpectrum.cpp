@@ -14,7 +14,8 @@ namespace El {
 // then rotate with a Haar matrix
 
 template<typename F>
-void HermitianUniformSpectrum( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper )
+void HermitianUniformSpectrum
+( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
     A.Resize( n, n );

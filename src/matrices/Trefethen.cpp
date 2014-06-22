@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TREFETHEN_HPP
-#define EL_TREFETHEN_HPP
-
-
+#include "El.hpp"
 
 namespace El {
 
@@ -21,8 +17,7 @@ namespace El {
 // Trefethen matrix.
 
 template<typename Real> 
-inline void
-Trefethen( Matrix<Complex<Real>>& A, Int n )
+void Trefethen( Matrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Trefethen"))
     if( n < 4 )
@@ -37,8 +32,7 @@ Trefethen( Matrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-inline void
-Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n )
+void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Trefethen"))
     if( n < 4 )
@@ -53,8 +47,7 @@ Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-inline void
-Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
+void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Trefethen"))
     if( n < 4 )
@@ -67,7 +60,13 @@ Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
     SetDiagonal( A, -4,      -2 );
     SetDiagonal( A, C(0,-2), -3 );
 }
+
+#define PROTO(Real) \
+  template void Trefethen( Matrix<Complex<Real>>& A, Int n ); \
+  template void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+  template void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+
+PROTO(float)
+PROTO(double)
 
 } // namespace El
-
-#endif // ifndef EL_TREFETHEN_HPP

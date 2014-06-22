@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_UNIFORMHELMHOLTZGREENS_HPP
-#define EL_UNIFORMHELMHOLTZGREENS_HPP
+#include "El.hpp"
 
 namespace El {
 
@@ -21,8 +19,7 @@ namespace El {
 // wavelength-cubed.
 
 template<typename Real>
-inline void
-UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
+void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
     typedef Complex<Real> C;
@@ -76,8 +73,7 @@ UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 }
 
 template<typename Real>
-inline void
-UniformHelmholtzGreens
+void UniformHelmholtzGreens
 ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
@@ -136,8 +132,7 @@ UniformHelmholtzGreens
 }
 
 template<typename Real>
-inline void
-UniformHelmholtzGreens
+void UniformHelmholtzGreens
 ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
     DEBUG_ONLY(CallStackEntry cse("UniformHelmholtzGreens"))
@@ -195,6 +190,15 @@ UniformHelmholtzGreens
     }
 }
 
-} // namespace El
+#define PROTO(Real) \
+  template void UniformHelmholtzGreens \
+  ( Matrix<Complex<Real>>& A, Int n, Real lambda ); \
+  template void UniformHelmholtzGreens \
+  ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda ); \
+  template void UniformHelmholtzGreens \
+  ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda );
 
-#endif // ifndef EL_UNIFORMHELMHOLTZGREENS_HPP
+PROTO(float)
+PROTO(double)
+
+} // namespace El

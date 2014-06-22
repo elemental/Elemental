@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_RIEMANN_HPP
-#define EL_RIEMANN_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-Riemann( Matrix<T>& R, Int n )
+void Riemann( Matrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
@@ -25,8 +22,7 @@ Riemann( Matrix<T>& R, Int n )
 }
 
 template<typename T>
-inline void
-Riemann( AbstractDistMatrix<T>& R, Int n )
+void Riemann( AbstractDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
@@ -37,8 +33,7 @@ Riemann( AbstractDistMatrix<T>& R, Int n )
 }
 
 template<typename T>
-inline void
-Riemann( AbstractBlockDistMatrix<T>& R, Int n )
+void Riemann( AbstractBlockDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
@@ -47,7 +42,16 @@ Riemann( AbstractBlockDistMatrix<T>& R, Int n )
          { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
            else                   { return T(-1);  } } );
 }
+
+#define PROTO(T) \
+  template void Riemann( Matrix<T>& R, Int n ); \
+  template void Riemann( AbstractDistMatrix<T>& R, Int n ); \
+  template void Riemann( AbstractBlockDistMatrix<T>& R, Int n );
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_RIEMANN_HPP

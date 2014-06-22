@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TRIANGLE_HPP
-#define EL_TRIANGLE_HPP
-
-
+#include "El.hpp"
 
 namespace El {
 
@@ -21,8 +17,7 @@ namespace El {
 //   "Toeplitz matrices", Linear Algebra Appl., 1992.
 
 template<typename F> 
-inline void
-Triangle( Matrix<F>& A, Int n )
+void Triangle( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
@@ -33,8 +28,7 @@ Triangle( Matrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-Triangle( AbstractDistMatrix<F>& A, Int n )
+void Triangle( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
@@ -45,8 +39,7 @@ Triangle( AbstractDistMatrix<F>& A, Int n )
 }
 
 template<typename F>
-inline void
-Triangle( AbstractBlockDistMatrix<F>& A, Int n )
+void Triangle( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Triangle"))
     if( n < 3 )
@@ -55,7 +48,15 @@ Triangle( AbstractBlockDistMatrix<F>& A, Int n )
     SetDiagonal( A, 1,          1 );
     SetDiagonal( A, F(1)/F(4), -2 );
 }
+
+#define PROTO(F) \
+  template void Triangle( Matrix<F>& A, Int n ); \
+  template void Triangle( AbstractDistMatrix<F>& A, Int n ); \
+  template void Triangle( AbstractBlockDistMatrix<F>& A, Int n );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_TRIANGLE_HPP

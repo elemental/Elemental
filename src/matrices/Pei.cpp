@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_PEI_HPP
-#define EL_PEI_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename T> 
-inline void
-Pei( Matrix<T>& P, Int n, T alpha )
+void Pei( Matrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     Ones( P, n, n );
@@ -22,8 +19,7 @@ Pei( Matrix<T>& P, Int n, T alpha )
 }
 
 template<typename T>
-inline void
-Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
+void Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     Ones( P, n, n );
@@ -31,14 +27,22 @@ Pei( AbstractDistMatrix<T>& P, Int n, T alpha )
 }
 
 template<typename T>
-inline void
-Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
+void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
 {
     DEBUG_ONLY(CallStackEntry cse("Pei"))
     Ones( P, n, n );
     UpdateDiagonal( P, alpha );
 }
+
+#define PROTO(T) \
+  template void Pei( Matrix<T>& P, Int n, T alpha ); \
+  template void Pei( AbstractDistMatrix<T>& P, Int n, T alpha ); \
+  template void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha );
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_PEI_HPP

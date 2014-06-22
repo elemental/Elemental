@@ -50,10 +50,10 @@ inline void MakeExtendedKahan
     auto ABlock = View( A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
     ABlock = View( A, 0, l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( -phi, ABlock );
     ABlock = View( A, l, 2*l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( phi, ABlock );
 
     // Now scale A by S
@@ -96,10 +96,10 @@ inline void MakeExtendedKahan
     auto ABlock = View( A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
     ABlock = View( A, 0, l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( -phi, ABlock );
     ABlock = View( A, l, 2*l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( phi, ABlock );
 
     // Now scale A by S

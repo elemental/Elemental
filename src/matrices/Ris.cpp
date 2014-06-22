@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_RIS_HPP
-#define EL_RIS_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename F> 
-inline void
-Ris( Matrix<F>& R, Int n )
+void Ris( Matrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
     R.Resize( n, n );
@@ -24,8 +21,7 @@ Ris( Matrix<F>& R, Int n )
 }
 
 template<typename F>
-inline void
-Ris( AbstractDistMatrix<F>& R, Int n )
+void Ris( AbstractDistMatrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
     R.Resize( n, n );
@@ -35,8 +31,7 @@ Ris( AbstractDistMatrix<F>& R, Int n )
 }
 
 template<typename F>
-inline void
-Ris( AbstractBlockDistMatrix<F>& R, Int n )
+void Ris( AbstractBlockDistMatrix<F>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Ris"))
     R.Resize( n, n );
@@ -44,7 +39,15 @@ Ris( AbstractBlockDistMatrix<F>& R, Int n )
     IndexDependentFill
     ( R, [=]( Int i, Int j ) { return oneHalf/(F(n-i-j)-oneHalf); } );
 }
+
+#define PROTO(F) \
+  template void Ris( Matrix<F>& R, Int n ); \
+  template void Ris( AbstractDistMatrix<F>& R, Int n ); \
+  template void Ris( AbstractBlockDistMatrix<F>& R, Int n );
+
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_RIS_HPP

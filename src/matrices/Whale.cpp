@@ -6,11 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_WHALE_HPP
-#define EL_WHALE_HPP
-
-
+#include "El.hpp"
 
 namespace El {
 
@@ -21,8 +17,7 @@ namespace El {
 //   A. Bottcher, "Infinite matrices and projection methods", 1996.
 
 template<typename Real> 
-inline void
-Whale( Matrix<Complex<Real>>& A, Int n )
+void Whale( Matrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Whale"))
     if( n < 5 )
@@ -40,8 +35,7 @@ Whale( Matrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-inline void
-Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
+void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Whale"))
     if( n < 5 )
@@ -59,8 +53,7 @@ Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
 }
 
 template<typename Real>
-inline void
-Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
+void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Whale"))
     if( n < 5 )
@@ -76,7 +69,13 @@ Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
     SetDiagonal( A,  4,       -3 );
     SetDiagonal( A, C( 0, 1), -4 );
 }
+
+#define PROTO(Real) \
+  template void Whale( Matrix<Complex<Real>>& A, Int n ); \
+  template void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
+  template void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+
+PROTO(float)
+PROTO(double)
 
 } // namespace El
-
-#endif // ifndef EL_WHALE_HPP

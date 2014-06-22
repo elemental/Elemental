@@ -428,6 +428,157 @@ void Ones( AbstractDistMatrix<T>& A, Int m, Int n );
 template<typename T>
 void Ones( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 
+// 1-2-1 matrix
+// ============
+template<typename T>
+void OneTwoOne( Matrix<T>& A, Int n );
+template<typename T>
+void OneTwoOne( AbstractDistMatrix<T>& A, Int n );
+template<typename T>
+void OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n );
+
+// Parter
+// ======
+template<typename F>
+void Parter( Matrix<F>& P, Int n );
+template<typename F>
+void Parter( AbstractDistMatrix<F>& P, Int n );
+template<typename F>
+void Parter( AbstractBlockDistMatrix<F>& P, Int n );
+
+// Pei
+// ===
+template<typename T>
+void Pei( Matrix<T>& P, Int n, T alpha );
+template<typename T>
+void Pei( AbstractDistMatrix<T>& P, Int n, T alpha );
+template<typename T>
+void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha );
+
+// Redheffer
+// =========
+template<typename T>
+void Redheffer( Matrix<T>& R, Int n );
+template<typename T>
+void Redheffer( AbstractDistMatrix<T>& R, Int n );
+template<typename T>
+void Redheffer( AbstractBlockDistMatrix<T>& R, Int n );
+
+// Riemann
+// =======
+template<typename T>
+void Riemann( Matrix<T>& R, Int n );
+template<typename T>
+void Riemann( AbstractDistMatrix<T>& R, Int n );
+template<typename T>
+void Riemann( AbstractBlockDistMatrix<T>& R, Int n );
+
+// Riffle
+// ======
+template<typename F>
+void Riffle( Matrix<F>& P, Int n );
+template<typename F>
+void Riffle( AbstractDistMatrix<F>& P, Int n );
+template<typename F>
+void Riffle( AbstractBlockDistMatrix<F>& P, Int n );
+
+template<typename F>
+void Riffle
+( Matrix<F>& P, Matrix<F>& PInf, Int n );
+template<typename F>
+void Riffle
+( AbstractDistMatrix<F>& P, AbstractDistMatrix<F>& PInf, Int n );
+template<typename F>
+void Riffle
+( AbstractBlockDistMatrix<F>& P, AbstractBlockDistMatrix<F>& PInf, Int n );
+
+template<typename F>
+void RiffleStationary( Matrix<F>& PInf, Int n );
+template<typename F>
+void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n );
+template<typename F>
+void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n );
+
+template<typename F>
+void RiffleDecay( Matrix<F>& A, Int n );
+template<typename F,Dist U,Dist V>
+void RiffleDecay( DistMatrix<F,U,V>& A, Int n );
+/*
+template<typename F,Dist U,Dist V>
+void RiffleDecay( BlockDistMatrix<F,U,V>& A, Int n );
+*/
+
+// Ris
+// ===
+template<typename F>
+void Ris( Matrix<F>& R, Int n );
+template<typename F>
+void Ris( AbstractDistMatrix<F>& R, Int n );
+template<typename F>
+void Ris( AbstractBlockDistMatrix<F>& R, Int n );
+
+// Toeplitz
+// ========
+template<typename S,typename T>
+void Toeplitz
+( Matrix<S>& A, Int m, Int n, const std::vector<T>& a );
+template<typename S,typename T>
+void Toeplitz
+( AbstractDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a );
+template<typename S,typename T>
+void Toeplitz
+( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a );
+
+// Trefethen
+// =========
+template<typename Real>
+void Trefethen( Matrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void Trefethen( AbstractDistMatrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void Trefethen( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+
+// Triangle
+// ========
+template<typename F>
+void Triangle( Matrix<F>& A, Int n );
+template<typename F>
+void Triangle( AbstractDistMatrix<F>& A, Int n );
+template<typename F>
+void Triangle( AbstractBlockDistMatrix<F>& A, Int n );
+
+// TriW
+// ====
+template<typename T>
+void TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k );
+template<typename T>
+void TriW( AbstractDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
+template<typename T>
+void TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
+
+// Walsh
+// =====
+template<typename T>
+void Walsh( Matrix<T>& A, Int k, bool binary=false );
+template<typename T>
+void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary=false );
+
+// Whale
+// =====
+template<typename Real>
+void Whale( Matrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n );
+template<typename Real>
+void Whale( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
+
+// Wilkinson
+// =========
+template<typename T>
+void Wilkinson( Matrix<T>& A, Int k );
+template<typename T>
+void Wilkinson( AbstractDistMatrix<T>& A, Int k );
+
 // Zeros
 // =====
 template<typename T>
@@ -484,6 +635,21 @@ template<typename F,Dist U,Dist V>
 void HermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
 
+// Normal uniform spectrum
+// =======================
+template<typename Real>
+void NormalUniformSpectrum
+( Matrix<Complex<Real>>& A, Int n,
+  Complex<Real> center=0, Real radius=1 );
+template<typename Real>
+void NormalUniformSpectrum
+( DistMatrix<Complex<Real>>& A, Int n,
+  Complex<Real> center=0, Real radius=1 );
+template<typename Real,Dist U,Dist V>
+void NormalUniformSpectrum
+( DistMatrix<Complex<Real>,U,V>& A, Int n,
+  Complex<Real> center=0, Real radius=1 );
+
 // Uniform
 // =======
 // Draw each entry from a uniform PDF over a closed ball.
@@ -503,6 +669,18 @@ template<typename T>
 void Uniform
 ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center=0, Base<T> radius=1 );
 
+// Uniform Helmholtz Green's
+// =========================
+template<typename Real>
+void UniformHelmholtzGreens
+( Matrix<Complex<Real>>& A, Int n, Real lambda );
+template<typename Real>
+void UniformHelmholtzGreens
+( AbstractDistMatrix<Complex<Real>>& A, Int n, Real lambda );
+template<typename Real>
+void UniformHelmholtzGreens
+( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda );
+
 // Wigner
 // ======
 template<typename T>
@@ -513,26 +691,5 @@ void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
 } // namespace El
 
 #include "./matrices/Egorov.hpp"
-#include "./matrices/OneTwoOne.hpp"
-#include "./matrices/Parter.hpp"
-#include "./matrices/Pei.hpp"
-#include "./matrices/Redheffer.hpp"
-#include "./matrices/Riemann.hpp"
-#include "./matrices/Riffle.hpp"
-#include "./matrices/Ris.hpp"
-#include "./matrices/Toeplitz.hpp"
-#include "./matrices/Trefethen.hpp"
-#include "./matrices/Triangle.hpp"
-#include "./matrices/TriW.hpp"
-#include "./matrices/Walsh.hpp"
-#include "./matrices/Whale.hpp"
-#include "./matrices/Wilkinson.hpp"
-
-// Random matrices
-// ===============
-
-// Uniform
-#include "./matrices/NormalUniformSpectrum.hpp"
-#include "./matrices/UniformHelmholtzGreens.hpp"
 
 #endif // ifndef EL_MATRICES_HPP

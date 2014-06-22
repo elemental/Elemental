@@ -591,6 +591,8 @@ template<typename T,typename S>
 void UpdateDiagonal( Matrix<T>& A, S alpha, Int offset=0 );
 template<typename T,typename S>
 void UpdateDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset=0 );
+template<typename T,typename S>
+void UpdateDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
 
 // Zero
 // ====

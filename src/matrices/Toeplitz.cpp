@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_TOEPLITZ_HPP
-#define EL_TOEPLITZ_HPP
+#include "El.hpp"
 
 namespace El {
 
 template<typename S,typename T> 
-inline void
-Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
+void Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;
@@ -25,8 +22,7 @@ Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
 }
 
 template<typename S,typename T>
-inline void
-Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
+void Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;
@@ -37,8 +33,8 @@ Toeplitz( AbstractDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
 }
 
 template<typename S,typename T>
-inline void
-Toeplitz( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
+void Toeplitz
+( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
     DEBUG_ONLY(CallStackEntry cse("Toeplitz"))
     const Int length = m+n-1;
@@ -47,7 +43,33 @@ Toeplitz( AbstractBlockDistMatrix<S>& A, Int m, Int n, const std::vector<T>& a )
     A.Resize( m, n );
     IndexDependentFill( A, [&]( Int i, Int j ) { return a[i-j+(n-1)]; } );
 }
+
+#define PROTO_TYPES(T1,T2) \
+  template void Toeplitz \
+  ( Matrix<T1>& A, \
+    const Int m, const Int n, const std::vector<T2>& a ); \
+  template void Toeplitz \
+  ( AbstractDistMatrix<T1>& A, \
+    const Int m, const Int n, const std::vector<T2>& a ); \
+  template void Toeplitz \
+  ( AbstractBlockDistMatrix<T1>& A, \
+    const Int m, const Int n, const std::vector<T2>& a );
+
+#define PROTO_INT(T) PROTO_TYPES(T,T)
+
+#define PROTO_REAL(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,T)
+
+#define PROTO_CPX(T) \
+  PROTO_TYPES(T,Int) \
+  PROTO_TYPES(T,Base<T>) \
+  PROTO_TYPES(T,T)
+
+PROTO_INT(Int)
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_TOEPLITZ_HPP
