@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_WRITE_HPP
-#define EL_WRITE_HPP
+#include "El.hpp"
 
 #include "./Write/Ascii.hpp"
 #include "./Write/AsciiMatlab.hpp"
@@ -20,10 +18,9 @@
 namespace El {
 
 template<typename T>
-inline void
-Write
-( const Matrix<T>& A, std::string basename="matrix", FileFormat format=BINARY, 
-  std::string title="" )
+void Write
+( const Matrix<T>& A, 
+  std::string basename, FileFormat format, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     switch( format )
@@ -47,10 +44,9 @@ Write
 }
 
 template<typename T,Dist U,Dist V>
-inline void
-Write
-( const DistMatrix<T,U,V>& A, std::string basename="matrix", 
-  FileFormat format=BINARY, std::string title="" )
+void Write
+( const DistMatrix<T,U,V>& A, 
+  std::string basename, FileFormat format, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( U == A.UGath && V == A.VGath )
@@ -67,10 +63,9 @@ Write
 }
 
 template<typename T,Dist U,Dist V>
-inline void
-Write
-( const BlockDistMatrix<T,U,V>& A, std::string basename="matrix", 
-  FileFormat format=BINARY, std::string title="" )
+void Write
+( const BlockDistMatrix<T,U,V>& A, 
+  std::string basename, FileFormat format, std::string title )
 {
     DEBUG_ONLY(CallStackEntry cse("Write"))
     if( U == A.UGath && V == A.VGath )
@@ -86,6 +81,37 @@ Write
     }
 }
 
-} // namespace El
+#define PROTO_DIST(T,U,V) \
+  template void Write \
+  ( const DistMatrix<T,U,V>& A, \
+    std::string basename, FileFormat format, std::string title ); \
+  template void Write \
+  ( const BlockDistMatrix<T,U,V>& A, \
+    std::string basename, FileFormat format, std::string title );
 
-#endif // ifndef EL_WRITE_HPP
+#define PROTO(T) \
+  template void Write \
+  ( const Matrix<T>& A, \
+    std::string basename, FileFormat format, std::string title ); \
+  PROTO_DIST(T,CIRC,CIRC) \
+  PROTO_DIST(T,MC,  MR  ) \
+  PROTO_DIST(T,MC,  STAR) \
+  PROTO_DIST(T,MD,  STAR) \
+  PROTO_DIST(T,MR,  MC  ) \
+  PROTO_DIST(T,MR,  STAR) \
+  PROTO_DIST(T,STAR,MC  ) \
+  PROTO_DIST(T,STAR,MD  ) \
+  PROTO_DIST(T,STAR,MR  ) \
+  PROTO_DIST(T,STAR,STAR) \
+  PROTO_DIST(T,STAR,VC  ) \
+  PROTO_DIST(T,STAR,VR  ) \
+  PROTO_DIST(T,VC,  STAR) \
+  PROTO_DIST(T,VR,  STAR)
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

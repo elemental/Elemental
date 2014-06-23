@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_READ_HPP
-#define EL_READ_HPP
+#include "El.hpp"
 
 #include "./Read/Ascii.hpp"
 #include "./Read/AsciiMatlab.hpp"
@@ -19,8 +17,7 @@
 namespace El {
 
 template<typename T>
-inline void
-Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO )
+void Read( Matrix<T>& A, const std::string filename, FileFormat format )
 {
     DEBUG_ONLY(CallStackEntry cse("Read"))
     if( format == AUTO )
@@ -49,10 +46,9 @@ Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO )
 }
 
 template<typename T,Dist U,Dist V>
-inline void
-Read
-( DistMatrix<T,U,V>& A, const std::string filename, FileFormat format=AUTO,
-  bool sequential=false )
+void Read
+( DistMatrix<T,U,V>& A, const std::string filename, FileFormat format,
+  bool sequential )
 {
     DEBUG_ONLY(CallStackEntry cse("Read"))
     if( format == AUTO )
@@ -107,10 +103,9 @@ Read
 }
 
 template<typename T,Dist U,Dist V>
-inline void
-Read
-( BlockDistMatrix<T,U,V>& A, const std::string filename, FileFormat format=AUTO,
-  bool sequential=false )
+void Read
+( BlockDistMatrix<T,U,V>& A, const std::string filename, FileFormat format,
+  bool sequential )
 {
     DEBUG_ONLY(CallStackEntry cse("Read"))
     if( format == AUTO )
@@ -164,6 +159,36 @@ Read
     }
 }
 
-} // namespace El
+#define PROTO_DIST(T,U,V) \
+  template void Read \
+  ( DistMatrix<T,U,V>& A, const std::string filename, FileFormat format, \
+    bool sequential ); \
+  template void Read \
+  ( BlockDistMatrix<T,U,V>& A, const std::string filename, FileFormat format, \
+    bool sequential );
 
-#endif // ifndef EL_READ_HPP
+#define PROTO(T) \
+  template void Read \
+  ( Matrix<T>& A, const std::string filename, FileFormat format ); \
+  PROTO_DIST(T,CIRC,CIRC) \
+  PROTO_DIST(T,MC,  MR  ) \
+  PROTO_DIST(T,MC,  STAR) \
+  PROTO_DIST(T,MD,  STAR) \
+  PROTO_DIST(T,MR,  MC  ) \
+  PROTO_DIST(T,MR,  STAR) \
+  PROTO_DIST(T,STAR,MC  ) \
+  PROTO_DIST(T,STAR,MD  ) \
+  PROTO_DIST(T,STAR,MR  ) \
+  PROTO_DIST(T,STAR,STAR) \
+  PROTO_DIST(T,STAR,VC  ) \
+  PROTO_DIST(T,STAR,VR  ) \
+  PROTO_DIST(T,VC,  STAR) \
+  PROTO_DIST(T,VR,  STAR)
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
+
+} // namespace El

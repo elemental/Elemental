@@ -277,7 +277,7 @@ main( int argc, char* argv[] )
                     os << matName << "-" 
                        << AReal.ColStride() << "x" << AReal.RowStride()
                        << "-" << AReal.DistRank();
-                    write::Binary( AReal.LockedMatrix(), os.str() );
+                    Write( AReal.LockedMatrix(), os.str(), BINARY );
                 }
                 if( psNorm == PS_ONE_NORM )
                 {
@@ -285,7 +285,7 @@ main( int argc, char* argv[] )
                     os << matName << "-Q-"
                        << QReal.ColStride() << "x" << QReal.RowStride()
                        << "-" << QReal.DistRank();
-                    write::Binary( QReal.LockedMatrix(), os.str() );
+                    Write( QReal.LockedMatrix(), os.str(), BINARY );
                 }
             } 
             else
@@ -295,7 +295,7 @@ main( int argc, char* argv[] )
                     os << matName << "-" 
                        << ACpx.ColStride() << "x" << ACpx.RowStride()
                        << "-" << ACpx.DistRank();
-                    write::Binary( ACpx.LockedMatrix(), os.str() );
+                    Write( ACpx.LockedMatrix(), os.str(), BINARY );
                 }
                 if( psNorm == PS_ONE_NORM )
                 {
@@ -303,7 +303,7 @@ main( int argc, char* argv[] )
                     os << matName << "-Q-"
                        << QCpx.ColStride() << "x" << QCpx.RowStride()
                        << "-" << QCpx.DistRank();
-                    write::Binary( QCpx.LockedMatrix(), os.str() );
+                    Write( QCpx.LockedMatrix(), os.str(), BINARY );
                 }
             }
             mpi::Barrier( mpi::COMM_WORLD );

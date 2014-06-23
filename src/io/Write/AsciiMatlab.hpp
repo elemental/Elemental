@@ -10,8 +10,6 @@
 #ifndef EL_WRITE_ASCIIMATLAB_HPP
 #define EL_WRITE_ASCIIMATLAB_HPP
 
-#include "../Print.hpp"
-
 namespace El {
 namespace write {
 

@@ -10,8 +10,6 @@
 #ifndef EL_HPP
 #define EL_HPP
 
-#include "El/include-paths.hpp"
-
 #include "El/config.h"
 #ifdef EL_HAVE_F90_INTERFACE
 # include "El/FCMangle.h"

@@ -130,7 +130,7 @@ main( int argc, char* argv[] )
                << AReal.ColStride() << "x" << AReal.RowStride() << "-"
                << AReal.DistRank() << ".bin";
             AReal.Resize( n, n );
-            read::Binary( AReal.Matrix(), os.str() ); 
+            Read( AReal.Matrix(), os.str(), BINARY ); 
             isReal = true;
             break;
         case 6: matName=basename;
@@ -138,7 +138,7 @@ main( int argc, char* argv[] )
                << ACpx.ColStride() << "x" << ACpx.RowStride() << "-"
                << ACpx.DistRank() << ".bin";
             ACpx.Resize( n, n );
-            read::Binary( ACpx.Matrix(), os.str() ); 
+            Read( ACpx.Matrix(), os.str(), BINARY ); 
             isReal = false;
             break;
         default:

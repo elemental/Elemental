@@ -28,9 +28,10 @@ void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A )
   template void MakeHermitian( UpperOrLower uplo, Matrix<F>& A ); \
   template void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 
-PROTO(float);
-PROTO(double);
-PROTO(Complex<float>);
-PROTO(Complex<double>);
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El

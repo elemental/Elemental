@@ -97,9 +97,10 @@ void MakeSymmetric
   DIST_PROTO(F,VC,  STAR) \
   DIST_PROTO(F,VR,  STAR)
 
-PROTO(float);
-PROTO(double);
-PROTO(Complex<float>);
-PROTO(Complex<double>);
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El

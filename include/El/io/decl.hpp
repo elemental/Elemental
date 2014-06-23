@@ -83,6 +83,8 @@ void UpdateMaxImagWindowVal( double maxVal );
 
 namespace El {
 
+// Color maps
+// ==========
 void SetColorMap( ColorMap colorMap );
 ColorMap GetColorMap();
 void SetNumDiscreteColors( Int numChunks );
@@ -90,6 +92,34 @@ Int NumDiscreteColors();
 #ifdef EL_HAVE_QT5
 QRgb SampleColorMap( double value, double minVal, double maxVal );
 #endif 
+
+// Read
+// ====
+template<typename T>
+void Read( Matrix<T>& A, const std::string filename, FileFormat format=AUTO );
+template<typename T,Dist U,Dist V>
+void Read
+( DistMatrix<T,U,V>& A, 
+  const std::string filename, FileFormat format=AUTO, bool sequential=false );
+template<typename T,Dist U,Dist V>
+void Read
+( BlockDistMatrix<T,U,V>& A, 
+  const std::string filename, FileFormat format=AUTO, bool sequential=false );
+
+// Write
+// =====
+template<typename T>
+void Write
+( const Matrix<T>& A, std::string basename="matrix", FileFormat format=BINARY,
+  std::string title="" );
+template<typename T,Dist U,Dist V>
+void Write
+( const DistMatrix<T,U,V>& A, std::string basename="matrix",
+  FileFormat format=BINARY, std::string title="" );
+template<typename T,Dist U,Dist V>
+void Write
+( const BlockDistMatrix<T,U,V>& A, std::string basename="matrix",
+  FileFormat format=BINARY, std::string title="" );
 
 } // namespace El
 
