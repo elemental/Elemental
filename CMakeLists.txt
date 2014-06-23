@@ -26,7 +26,7 @@ set(EL_VERSION_MINOR 85-dev)
 
 # By default, Elemental builds static libraries, but shared libraries are 
 # also supported through this option.
-option(EL_SHARED_LIBRARIES "Switch to shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Switch to shared libraries" OFF)
 
 # Whether or not to build a collection of simple example drivers.
 option(EL_EXAMPLES "A collection of simple examples" OFF)
@@ -200,13 +200,6 @@ if(EL_HAVE_QT5)
   get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
 endif()
 
-# Set the library type from the 'EL_SHARED_LIBRARIES' option
-# =======================================================
-if(EL_SHARED_LIBRARIES)
-  set(LIBRARY_TYPE SHARED)
-else()
-  set(LIBRARY_TYPE STATIC)
-endif()
 
 include(tests/Math)
 
@@ -272,7 +265,7 @@ set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 if(EL_HAVE_QT5)
   set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
 endif()
-add_library(El ${LIBRARY_TYPE} ${EL_CPP_FILES})
+add_library(El ${EL_CPP_FILES})
 target_link_libraries(El pmrrr ${LINK_LIBS})
 install(TARGETS El DESTINATION lib)
 
