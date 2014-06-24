@@ -54,7 +54,7 @@ G* Memory<G>::Require( std::size_t size )
 #ifndef EL_RELEASE
         try {
 #endif
-        buffer_ = new G[size];
+            buffer_ = new G[size];
 #ifndef EL_RELEASE
         } 
         catch( std::bad_alloc& e )
@@ -67,6 +67,9 @@ G* Memory<G>::Require( std::size_t size )
         }
 #endif
         size_ = size;
+#ifdef EL_ZERO_INIT
+        MemZero( buffer_, size_ );
+#endif
     }
     return buffer_;
 }

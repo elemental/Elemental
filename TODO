@@ -71,7 +71,6 @@ Maintenance priorities
 
 Bug avoidance
 -------------
-[-] Have matrix data zeroed by default? (to prevent NaN initialization bugs)
 
 Instrumentation/visualization/testing
 -------------------------------------

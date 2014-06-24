@@ -67,6 +67,7 @@
 #cmakedefine EL_USE_64BIT_INTS
 
 /* Advanced configuration options */
+#cmakedefine EL_ZERO_INIT
 #cmakedefine EL_CACHE_WARNINGS
 #cmakedefine EL_UNALIGNED_WARNINGS
 #cmakedefine EL_VECTOR_WARNINGS
