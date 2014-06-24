@@ -67,6 +67,7 @@
 #cmakedefine ELEM_USE_64BIT_INTS
 
 /* Advanced configuration options */
+#cmakedefine ELEM_ZERO_INIT
 #cmakedefine ELEM_CACHE_WARNINGS
 #cmakedefine ELEM_UNALIGNED_WARNINGS
 #cmakedefine ELEM_VECTOR_WARNINGS

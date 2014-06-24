@@ -68,7 +68,7 @@ Memory<G>::Require( std::size_t size )
 #ifndef ELEM_RELEASE
         try {
 #endif
-        buffer_ = new G[size];
+            buffer_ = new G[size];
 #ifndef ELEM_RELEASE
         } 
         catch( std::bad_alloc& e )
@@ -81,6 +81,9 @@ Memory<G>::Require( std::size_t size )
         }
 #endif
         size_ = size;
+#ifdef ELEM_ZERO_INIT
+        MemZero( buffer_, size_ );
+#endif
     }
     return buffer_;
 }

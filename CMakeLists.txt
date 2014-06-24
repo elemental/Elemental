@@ -34,6 +34,9 @@ option(ELEM_EXAMPLES "A collection of simple examples" OFF)
 # Whether or not to build a collection of performance and correctness tests
 option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
 
+# Whether or not to have the Memory class zero initialize what it allocates
+option(ELEM_ZERO_INIT "Initialize buffers to zero by default?" OFF)
+
 # Whether or not to build current 'experimental' code, such as:
 # Martin's 3D Gemm code
 option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
