@@ -34,7 +34,8 @@ option(EL_EXAMPLES "A collection of simple examples" OFF)
 # Whether or not to build a collection of performance and correctness tests
 option(EL_TESTS "A collection of performance and correctness tests" OFF)
 
-# Whether or not to have the Memory class zero initialize what it allocates
+# Whether or not to have the Memory class zero initialize what it allocates.
+# If valgrind was detected and is running, this will be forced anyway.
 option(EL_ZERO_INIT "Initialize buffers to zero by default?" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
@@ -203,6 +204,11 @@ if(EL_HAVE_QT5)
   get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
 endif()
 
+include(FindValgrind)
+if(VALGRIND_FOUND)
+  include_directories(${VALGRIND_INCLUDE_DIR})
+  set(EL_HAVE_VALGRIND TRUE)
+endif()
 
 include(tests/Math)
 

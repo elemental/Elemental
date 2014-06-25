@@ -69,6 +69,9 @@ G* Memory<G>::Require( std::size_t size )
         size_ = size;
 #ifdef EL_ZERO_INIT
         MemZero( buffer_, size_ );
+#elif defined(EL_HAVE_VALGRIND)
+        if( EL_RUNNING_ON_VALGRIND )
+            MemZero( buffer_, size_ );
 #endif
     }
     return buffer_;
