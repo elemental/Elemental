@@ -74,4 +74,12 @@
 #cmakedefine ELEM_POOL_MEMORY
 #cmakedefine ELEM_AVOID_OMP_FMA
 
+#cmakedefine ELEM_HAVE_VALGRIND
+#if defined(ELEM_HAVE_VALGRIND)
+# include <valgrind/valgrind.h>
+# define ELEM_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
+#else
+# define ELEM_RUNNING_ON_VALGRIND 0
+#endif
+
 #endif /* ELEM_CONFIG_H */

@@ -26,7 +26,7 @@ set(Elemental_VERSION_MINOR 84-dev)
 
 # By default, Elemental builds static libraries, but shared libraries are 
 # also supported through this option.
-option(ELEM_SHARED_LIBRARIES "Switch to shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Switch to shared libraries" OFF)
 
 # Whether or not to build a collection of simple example drivers.
 option(ELEM_EXAMPLES "A collection of simple examples" OFF)
@@ -34,7 +34,8 @@ option(ELEM_EXAMPLES "A collection of simple examples" OFF)
 # Whether or not to build a collection of performance and correctness tests
 option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
 
-# Whether or not to have the Memory class zero initialize what it allocates
+# Whether or not to force the Memory class zero initialize what it allocates.
+# If valgrind was detected and is running, this will be forced anyway.
 option(ELEM_ZERO_INIT "Initialize buffers to zero by default?" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
@@ -201,12 +202,10 @@ if(ELEM_HAVE_QT5)
   get_filename_component(Qt5_LIBDIR ${Qt5_CMAKEDIR} PATH)
 endif()
 
-# Set the library type from the 'ELEM_SHARED_LIBRARIES' option
-# =======================================================
-if(ELEM_SHARED_LIBRARIES)
-  set(LIBRARY_TYPE SHARED)
-else()
-  set(LIBRARY_TYPE STATIC)
+include(FindValgrind)
+if(VALGRIND_FOUND)
+  include_directories(${VALGRIND_INCLUDE_DIR})
+  set(ELEM_HAVE_VALGRIND TRUE)
 endif()
 
 include(tests/Math)
