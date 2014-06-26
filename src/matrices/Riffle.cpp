@@ -27,16 +27,14 @@ void Riffle( Matrix<F>& P, Int n )
 
     const Real gamma = n*Log(Real(2));
 
-    Zeros( P, n, n );
-    for( Int j=0; j<n; ++j )
-    {
-        for( Int i=0; i<n; ++i )
-        {
-            const Int k = 2*i - j + 1;
-            if( k >= 0 && k <= n+1 )
-                P.Set( i, j, Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]) );
-        }
-    }
+    P.Resize( n, n );
+    IndexDependentFill
+    ( P, [&]( Int i, Int j )
+         { const Int k = 2*i - j + 1;
+           if( k >= 0 && k <= n+1 )
+               return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
+           else
+               return Base<F>(0); } );
 }
 
 template<typename F>
@@ -50,21 +48,14 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
 
     const Real gamma = n*Log(Real(2));
 
-    Zeros( P, n, n );
-    const Int mLoc = P.LocalHeight();
-    const Int nLoc = P.LocalWidth();
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-    {
-        const Int j = P.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-        {
-            const Int i = P.GlobalRow(iLoc);
-            const Int k = 2*i - j + 1;
-            if( k >= 0 && k <= n+1 )
-                P.SetLocal
-                ( iLoc, jLoc, Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]) );
-        }
-    }
+    P.Resize( n, n );
+    IndexDependentFill
+    ( P, [&]( Int i, Int j )
+         { const Int k = 2*i - j + 1;
+           if( k >= 0 && k <= n+1 )
+               return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
+           else
+               return Base<F>(0); } );
 }
 
 template<typename F>
@@ -78,21 +69,14 @@ void Riffle( AbstractBlockDistMatrix<F>& P, Int n )
 
     const Real gamma = n*Log(Real(2));
 
-    Zeros( P, n, n );
-    const Int mLoc = P.LocalHeight();
-    const Int nLoc = P.LocalWidth();
-    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
-    {
-        const Int j = P.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
-        {
-            const Int i = P.GlobalRow(iLoc);
-            const Int k = 2*i - j + 1;
-            if( k >= 0 && k <= n+1 )
-                P.SetLocal
-                ( iLoc, jLoc, Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]) );
-        }
-    }
+    P.Resize( n, n );
+    IndexDependentFill
+    ( P, [&]( Int i, Int j )
+         { const Int k = 2*i - j + 1;
+           if( k >= 0 && k <= n+1 )
+               return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
+           else
+               return Base<F>(0); } );
 }
 
 template<typename F>
@@ -114,9 +98,7 @@ void RiffleStationary( Matrix<F>& PInf, Int n )
     SwapClear( sigmaTmp );
     
     PInf.Resize( n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            PInf.Set( i, j, sigma[j] );
+    IndexDependentFill( PInf, [&]( Int i, Int j ) { return sigma[j]; } );
 }
 
 template<typename F>
@@ -138,12 +120,7 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
     SwapClear( sigmaTmp );
 
     PInf.Resize( n, n );
-    for( Int jLoc=0; jLoc<PInf.LocalWidth(); ++jLoc )
-    {
-        const Int j = PInf.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<PInf.LocalHeight(); ++iLoc )
-            PInf.SetLocal( iLoc, jLoc, sigma[j] );
-    }
+    IndexDependentFill( PInf, [&]( Int i, Int j ) { return sigma[j]; } );
 }
 
 template<typename F>
@@ -165,12 +142,7 @@ void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
     SwapClear( sigmaTmp );
     
     PInf.Resize( n, n );
-    for( Int jLoc=0; jLoc<PInf.LocalWidth(); ++jLoc )
-    {
-        const Int j = PInf.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<PInf.LocalHeight(); ++iLoc )
-            PInf.SetLocal( iLoc, jLoc, sigma[j] );
-    }
+    IndexDependentFill( PInf, [&]( Int i, Int j ) { return sigma[j]; } );
 }
 
 template<typename F>

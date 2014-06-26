@@ -76,10 +76,9 @@ void EhrenfestStationary( Matrix<F>& PInf, Int n )
     auto logBinom = LogBinomial<Real>( n-1 );
     const Real gamma = (n-1)*Log(Real(2));
 
-    Zeros( PInf, n, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i )
-            PInf.Set( i, j, Exp(logBinom[j]-gamma) );
+    PInf.Resize( n, n );
+    IndexDependentFill
+    ( PInf, [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); } );
 }
 
 template<typename F>
@@ -91,13 +90,9 @@ void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
     auto logBinom = LogBinomial<Real>( n-1 );
     const Real gamma = (n-1)*Log(Real(2));
 
-    Zeros( PInf, n, n );
-    for( Int jLoc=0; jLoc<PInf.LocalWidth(); ++jLoc )
-    {
-        const Int j = PInf.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<PInf.LocalHeight(); ++iLoc )
-            PInf.SetLocal( iLoc, jLoc, Exp(logBinom[j]-gamma) );
-    }
+    PInf.Resize( n, n );
+    IndexDependentFill
+    ( PInf, [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); } );
 }
 
 template<typename F>
@@ -109,13 +104,9 @@ void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
     auto logBinom = LogBinomial<Real>( n-1 );
     const Real gamma = (n-1)*Log(Real(2));
 
-    Zeros( PInf, n, n );
-    for( Int jLoc=0; jLoc<PInf.LocalWidth(); ++jLoc )
-    {
-        const Int j = PInf.GlobalCol(jLoc);
-        for( Int iLoc=0; iLoc<PInf.LocalHeight(); ++iLoc )
-            PInf.SetLocal( iLoc, jLoc, Exp(logBinom[j]-gamma) );
-    }
+    PInf.Resize( n, n );
+    IndexDependentFill
+    ( PInf, [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); } );
 }
 
 template<typename F>
