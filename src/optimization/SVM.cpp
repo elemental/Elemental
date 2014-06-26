@@ -96,23 +96,14 @@ Int SVM
         }
         Gemv( NORMAL, Real(1), A, x1, Real(0), y1 );
 
-        // Hinge-loss prox
         y2 = y1;
         Axpy( Real(1), uy, y2 );
-        EntrywiseMap
-        ( y2, [=]( Real alpha ) 
-              { if( alpha < 1 ) { return Min(alpha+1/(m*rho),Real(1)); } 
-                else              return alpha;                          } );
+        HingeLossProx( y2, m*rho );
 
         x2 = x1; 
         Axpy( Real(1), ux, x2 );
-        // TODO: Turn this two-norm prox into a subroutine
         auto x2T = View( x2, 0, 0, n-1, 1 );
-        const Real x2TNorm = FrobeniusNorm( x2T );
-        if( x2TNorm > gamma/rho )
-            Scale( 1-gamma/(rho*x2TNorm), x2T );
-        else
-            Zero( x2T );
+        FrobeniusProx( x2T, gamma/rho );
 
         // Update dual variables
         Axpy( Real(1), x1, ux );
@@ -221,23 +212,14 @@ Int SVM
         }
         Gemv( NORMAL, Real(1), A, x1, Real(0), y1 );
 
-        // Hinge-loss prox
         y2 = y1;
         Axpy( Real(1), uy, y2 );
-        EntrywiseMap
-        ( y2, [=]( Real alpha ) 
-              { if( alpha < 1 ) { return Min(alpha+1/(m*rho),Real(1)); } 
-                else              return alpha;                          } );
+        HingeLossProx( y2, m*rho );
 
         x2 = x1; 
         Axpy( Real(1), ux, x2 );
-        // TODO: Turn this two-norm prox into a subroutine
         auto x2T = View( x2, 0, 0, n-1, 1 );
-        const Real x2TNorm = FrobeniusNorm( x2T );
-        if( x2TNorm > gamma/rho )
-            Scale( 1-gamma/(rho*x2TNorm), x2T );
-        else
-            Zero( x2T );
+        FrobeniusProx( x2T, gamma/rho );
 
         // Update dual variables
         Axpy( Real(1), x1, ux );

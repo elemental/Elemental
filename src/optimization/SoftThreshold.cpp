@@ -28,43 +28,24 @@ void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative )
     DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
         tau *= MaxNorm(A);
-    const Int height = A.Height();
-    const Int width = A.Width();
-    for( Int j=0; j<width; ++j )
-        for( Int i=0; i<height; ++i )
-            A.Set( i, j, SoftThreshold(A.Get(i,j),tau) );
+    EntrywiseMap( A, [=]( F alpha ) { return SoftThreshold(alpha,tau); } );
 }
 
-template<typename F,Dist U,Dist V>
-void SoftThreshold( DistMatrix<F,U,V>& A, Base<F> tau, bool relative )
+template<typename F>
+void SoftThreshold( AbstractDistMatrix<F>& A, Base<F> tau, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
     if( relative )
         tau *= MaxNorm(A);
-    SoftThreshold( A.Matrix(), tau, false );
+    EntrywiseMap( A, [=]( F alpha ) { return SoftThreshold(alpha,tau); } );
 }
-
-#define PROTO_DIST(F,U,V) \
-  template void SoftThreshold \
-  ( DistMatrix<F,U,V>& A, Base<F> tau, bool relative );
 
 #define PROTO(F) \
   template F SoftThreshold( F alpha, Base<F> tau ); \
-  template void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void SoftThreshold \
+  ( Matrix<F>& A, Base<F> tau, bool relative ); \
+  template void SoftThreshold \
+  ( AbstractDistMatrix<F>& A, Base<F> tau, bool relative );
 
 PROTO(float)
 PROTO(double)

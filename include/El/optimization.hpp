@@ -191,6 +191,20 @@ void Covariance( const Matrix<F>& D, Matrix<F>& S );
 template<typename F>
 void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
 
+// Euclidean-norm proximal map
+// ---------------------------
+template<typename F>
+void FrobeniusProx( Matrix<F>& A, Base<F> tau );
+template<typename F>
+void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau );
+
+// Hinge-loss proximal map
+// -----------------------
+template<typename Real>
+void HingeLossProx( Matrix<Real>& A, Real tau );
+template<typename Real>
+void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau );
+
 // Log barrier
 // -----------
 template<typename F>
@@ -257,10 +271,13 @@ Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false );
 // -----------------
 template<typename F>
 F SoftThreshold( F alpha, Base<F> tau );
+
 template<typename F>
-void SoftThreshold( Matrix<F>& A, Base<F> tau, bool relative=false );
-template<typename F,Dist U,Dist V>
-void SoftThreshold( DistMatrix<F,U,V>& A, Base<F> tau, bool relative=false );
+void SoftThreshold
+( Matrix<F>& A, Base<F> tau, bool relative=false );
+template<typename F>
+void SoftThreshold
+( AbstractDistMatrix<F>& A, Base<F> tau, bool relative=false );
 
 } // namespace El
 
