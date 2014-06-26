@@ -98,6 +98,55 @@ void SymmetricSolve
   DistMatrix<F>& A, DistMatrix<F>& B, bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 
+// Tikhonov regularization
+// =======================
+// Solve arg min_X || op(A) X - B ||_2^2 + || Gamma X ||_2^2
+// where op(A) is A, A^T, or A^H.
+
+namespace TikhonovAlgNS {
+enum TikhonovAlg {
+    TIKHONOV_CHOLESKY,
+    TIKHONOV_QR
+};
+}
+using namespace TikhonovAlgNS;
+
+template<typename F>
+void Tikhonov
+( const Matrix<F>& A, const Matrix<F>& B, 
+  const Matrix<F>& Gamma, Matrix<F>& X, 
+  TikhonovAlg alg=TIKHONOV_CHOLESKY );
+template<typename F>
+void Tikhonov
+( const DistMatrix<F>& A, const DistMatrix<F>& B, 
+  const DistMatrix<F>& Gamma, DistMatrix<F>& X, 
+  TikhonovAlg alg=TIKHONOV_CHOLESKY );
+
+// Ridge regression
+// ================
+// NOTE: This is simply Tikhonov regularization for cases where 
+//       Gamma = alpha I
+
+namespace RidgeAlgNS {
+enum RidgeAlg {
+    RIDGE_CHOLESKY,
+    RIDGE_QR,
+    RIDGE_SVD
+};
+}
+using namespace RidgeAlgNS;
+
+template<typename F>
+void Ridge
+( const Matrix<F>& A, const Matrix<F>& B, 
+  Base<F> alpha, Matrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
+template<typename F>
+void Ridge
+( const DistMatrix<F>& A, const DistMatrix<F>& B, 
+  Base<F> alpha, DistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
+
+// TODO: Generalized Tikhonov regularization
+
 } // namespace El
 
 #endif // ifndef EL_SOLVE_HPP

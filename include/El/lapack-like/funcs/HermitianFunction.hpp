@@ -30,12 +30,7 @@ RealHermitianFunction( UpperOrLower uplo, Matrix<F>& A, RealFunction func )
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
-    const Int n = w.Height();
-    for( Int i=0; i<n; ++i )
-    {
-        const Real omega = w.Get(i,0);
-        w.Set(i,0,func(omega));
-    }
+    EntrywiseMap( w, func );
 
     // A := Z f(Omega) Z^H
     HermitianFromEVD( uplo, A, w, Z );
@@ -57,12 +52,7 @@ RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
-    const Int numLocalEigs = w.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
-    {
-        const Real omega = w.GetLocal(iLoc,0);
-        w.SetLocal(iLoc,0,func(omega));
-    }
+    EntrywiseMap( w, func );
 
     // A := Z f(Omega) Z^H
     HermitianFromEVD( uplo, A, w, Z ); 

@@ -12,39 +12,36 @@ namespace El {
 
 // Replace A with its pseudoinverse
 
+// TODO: Avoid unnecessary work for backtransformation with zero singular
+//       values
+
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Max( m, n );
 
     // Get the SVD of A
-    Matrix<R> s;
+    Matrix<Real> s;
     Matrix<F> U, V;
     U = A;
     SVD( U, s, V );
 
-    if( tolerance == R(0) )
+    if( tolerance == Real(0) )
     {
         // Set the tolerance equal to k ||A||_2 eps
-        const R eps = lapack::MachineEpsilon<R>();
-        const R twoNorm = MaxNorm( s );
+        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
     }
     // Invert above the tolerance
-    const Int numVals = s.Height();
-    for( Int i=0; i<numVals; ++i )
-    {
-        const R sigma = s.Get(i,0);
-        if( sigma < tolerance )
-            s.Set(i,0,0);
-        else
-            s.Set(i,0,1/sigma);
-    }
+    EntrywiseMap
+    ( s, [=]( Real sigma ) 
+         { return ( sigma < tolerance ? Real(0) : 1/sigma ); } );
 
     // Scale U with the singular values, U := U Sigma
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -58,30 +55,25 @@ void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     // Get the EVD of A
-    Matrix<R> w;
+    Matrix<Real> w;
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
 
-    if( tolerance == R(0) )
+    if( tolerance == Real(0) )
     {
         // Set the tolerance equal to n ||A||_2 eps
-        const R eps = lapack::MachineEpsilon<R>();
-        const R twoNorm = MaxNorm( w );
+        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    for( Int i=0; i<n; ++i )
-    {
-        const R omega = w.Get(i,0);
-        if( Abs(omega) < tolerance )
-            w.Set(i,0,0);
-        else
-            w.Set(i,0,1/omega);
-    }
+    EntrywiseMap
+    ( w, [=]( Real omega ) 
+         { return ( omega < tolerance ? Real(0) : 1/omega ); } );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
@@ -91,7 +83,7 @@ template<typename F>
 void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
 
     const Grid& g = A.Grid();
     const Int m = A.Height();
@@ -99,28 +91,22 @@ void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
     const Int k = Max( m, n );
 
     // Get the SVD of A
-    DistMatrix<R,VR,STAR> s(g);
+    DistMatrix<Real,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
     U = A;
     SVD( U, s, V );
 
-    if( tolerance == R(0) )
+    if( tolerance == Real(0) )
     {
         // Set the tolerance equal to k ||A||_2 eps
-        const R eps = lapack::MachineEpsilon<R>();
-        const R twoNorm = MaxNorm( s );
+        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
     }
     // Invert above the tolerance
-    const Int numLocalVals = s.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
-    {
-        const R sigma = s.GetLocal(iLoc,0);
-        if( sigma < tolerance )
-            s.SetLocal(iLoc,0,0);
-        else
-            s.SetLocal(iLoc,0,1/sigma);
-    }
+    EntrywiseMap
+    ( s, [=]( Real sigma ) 
+         { return ( sigma < tolerance ? Real(0) : 1/sigma ); } );
 
     // Scale U with the singular values, U := U Sigma
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -134,32 +120,26 @@ void HermitianPseudoinverse
 ( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
-    typedef Base<F> R;
+    typedef Base<F> Real;
     const Int n = A.Height();
 
     // Get the EVD of A
     const Grid& g = A.Grid();
-    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    if( tolerance == R(0) )
+    if( tolerance == Real(0) )
     {
         // Set the tolerance equal to n ||A||_2 eps
-        const R eps = lapack::MachineEpsilon<R>();
-        const R twoNorm = MaxNorm( w );
+        const Real eps = lapack::MachineEpsilon<Real>();
+        const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    const Int numLocalEigs = w.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
-    {
-        const R omega = w.GetLocal(iLoc,0);
-        if( Abs(omega) < tolerance )
-            w.SetLocal(iLoc,0,0);
-        else
-            w.SetLocal(iLoc,0,1/omega);
-    }
+    EntrywiseMap
+    ( w, [=]( Real omega ) 
+         { return ( omega < tolerance ? Real(0) : 1/omega ); } );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
