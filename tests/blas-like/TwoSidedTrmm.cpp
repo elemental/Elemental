@@ -101,11 +101,8 @@ void TestTwoSidedTrmm
   Int m, const Grid& g )
 {
     DistMatrix<F> A(g), B(g), AOrig(g);
-
-    Zeros( A, m, m );
-    Zeros( B, m, m );
-    MakeHermitianUniformSpectrum( A, 1, 10 );
-    MakeHermitianUniformSpectrum( B, 1, 10 );
+    HermitianUniformSpectrum( A, m, 1, 10 );
+    HermitianUniformSpectrum( B, m, 1, 10 );
     MakeTriangular( uplo, B );
     if( testCorrectness )
     {
