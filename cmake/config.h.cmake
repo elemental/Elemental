@@ -76,7 +76,7 @@
 
 #cmakedefine ELEM_HAVE_VALGRIND
 #if defined(ELEM_HAVE_VALGRIND)
-# include <valgrind/valgrind.h>
+# include "valgrind.h"
 # define ELEM_RUNNING_ON_VALGRIND RUNNING_ON_VALGRIND
 #else
 # define ELEM_RUNNING_ON_VALGRIND 0
