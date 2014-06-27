@@ -6,8 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-// NOTE: It is possible to simply include "El.hpp" instead
-#include "El-lite.hpp"
+#include "El.hpp"
 
 //
 // Please see <http://perception.csl.illinois.edu/matrix-rank/sample_code.html>

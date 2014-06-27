@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 // For pspec::ColumnNorms
 // TODO: Lift function into a better namespace

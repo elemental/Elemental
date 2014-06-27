@@ -6,14 +6,18 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
+
+// The Frobenius norm prox returns the solution to
+//     arg min || A ||_F + tau/2 || A - A0 ||_F^2
+//        A
 
 namespace El {
 
 template<typename F>
 void FrobeniusProx( Matrix<F>& A, Base<F> tau )
 {
-    DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusProx"))
     const Base<F> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         Scale( 1-1/(tau*frobNorm), A );
@@ -24,7 +28,7 @@ void FrobeniusProx( Matrix<F>& A, Base<F> tau )
 template<typename F>
 void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau )
 {
-    DEBUG_ONLY(CallStackEntry cse("SoftThreshold"))
+    DEBUG_ONLY(CallStackEntry cse("FrobeniusProx"))
     const Base<F> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         Scale( 1-1/(tau*frobNorm), A );

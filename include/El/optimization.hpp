@@ -191,8 +191,12 @@ void Covariance( const Matrix<F>& D, Matrix<F>& S );
 template<typename F>
 void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
 
-// Euclidean-norm proximal map
+// Frobenius-norm proximal map
 // ---------------------------
+// The Frobenius norm prox returns the solution to
+//     arg min || A ||_F + tau/2 || A - A0 ||_F^2
+//        A
+// where A0 in the input matrix.
 template<typename F>
 void FrobeniusProx( Matrix<F>& A, Base<F> tau );
 template<typename F>
@@ -200,6 +204,7 @@ void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau );
 
 // Hinge-loss proximal map
 // -----------------------
+// TODO: Description
 template<typename Real>
 void HingeLossProx( Matrix<Real>& A, Real tau );
 template<typename Real>
@@ -227,6 +232,17 @@ Base<F> LogDetDiv
 template<typename F>
 Base<F> LogDetDiv
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
+
+// Logistic proximal map
+// ---------------------
+// The logistic proximal map returns the solution to
+//    arg min sum_{i,j}[ log(1+exp(-A_{i,j})) ] + tau/2 || A - A0 ||_F^2
+//       A
+// where A0 is the input matrix.
+template<typename Real>
+void LogisticProx( Matrix<Real>& A, Real tau, Int numIts=5 );
+template<typename Real>
+void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts=5 );
 
 // Singular-value soft thresholding
 // --------------------------------
@@ -269,6 +285,10 @@ Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false );
 
 // Soft-thresholding
 // -----------------
+// Returns the solution to
+//     arg min || vec(A) ||_1 + tau/2 || A - A0 ||_F^2
+//        A 
+// where A0 is the input matrix.
 template<typename F>
 F SoftThreshold( F alpha, Base<F> tau );
 
