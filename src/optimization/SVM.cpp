@@ -15,8 +15,7 @@ namespace El {
 template<typename Real>
 Int SVM
 ( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, Matrix<Real>& w,
-  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
-  bool inv, bool progress )
+  Real rho, Int maxIter, bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SVM"))
     const Int numExamples = G.Height();
@@ -31,98 +30,27 @@ Int SVM
             AL.Set( i, j, AL.Get(i,j)*q.Get(i,0) );
     for( Int i=0; i<numExamples; ++i )
         A.Set( i, numFeatures, q.Get(i,0) );
-    return SVM
-    ( A, gamma, w, rho, alpha, maxIter, absTol, relTol, inv, progress );
-}
 
-template<typename Real>
-Int SVM
-( const Matrix<Real>& A, Real gamma, Matrix<Real>& w,
-  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
-  bool inv, bool progress )
-{
-    DEBUG_ONLY(CallStackEntry cse("SVM"))
-    const Int m = A.Height();
-    const Int n = A.Width();
+    auto hingeProx = [=]( Matrix<Real>& y, Real rho )
+                     { HingeLossProx( y, y.Height()*rho ); };
+    auto frobProx = 
+        [=]( Matrix<Real>& x, Real rho ) 
+        { auto xT = View( x, 0, 0, x.Height()-1, 1 );
+          FrobeniusProx( xT, gamma/rho ); };
 
-    Matrix<Real> P;
-    if( m >= n )
-    {
-        Identity( P, n, n );        
-        Herk( LOWER, ADJOINT, Real(1), A, Real(1), P );
-    }
-    else
-    {
-        Identity( P, m, m );
-        Herk( LOWER, NORMAL, Real(1), A, Real(1), P );
-    }
-    if( inv )
-        HPDInverse( LOWER, P );
-    else
-        Cholesky( LOWER, P ); 
+    Matrix<Real> b;
+    Zeros( b, numExamples, 1 );
 
-    // Start the SVM
-    Int numIter=0;
-    Matrix<Real> s, x0, x1, x2, y0, y1, y2, ux, uy;
-
-    Zeros( x1, n, 1 );
-    Zeros( x2, n, 1 );
-    Zeros( ux, n, 1 );
-
-    Zeros( y1, m, 1 );
-    Ones( y2, m, 1 );
-    Zeros( uy, m, 1 );
-
-    for( ; numIter<maxIter-1; ++numIter )
-    //while( numIter < maxIter )
-    {
-        // Project onto A x1 + b = y1
-        x0 = x2; 
-        y0 = y2;
-        Axpy( Real(-1), ux, x0 );
-        Axpy( Real(-1), uy, y0 );
-        x1 = x0;
-        // TODO: Subtract A' b
-        Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
-        if( inv )
-        {
-            s = x1;
-            Hemv( LOWER, Real(1), P, s, Real(0), x1 );
-        }
-        else
-        {
-            Trsv( LOWER, NORMAL, NON_UNIT, P, x1 );
-            Trsv( LOWER, ADJOINT, NON_UNIT, P, x1 );
-        }
-        Gemv( NORMAL, Real(1), A, x1, Real(0), y1 );
-
-        y2 = y1;
-        Axpy( Real(1), uy, y2 );
-        HingeLossProx( y2, m*rho );
-
-        x2 = x1; 
-        Axpy( Real(1), ux, x2 );
-        auto x2T = View( x2, 0, 0, n-1, 1 );
-        FrobeniusProx( x2T, gamma/rho );
-
-        // Update dual variables
-        Axpy( Real(1), x1, ux );
-        Axpy( Real(1), y1, uy );
-        Axpy( Real(-1), x2, ux );
-        Axpy( Real(-1), y2, uy );
-    }
-    if( maxIter == numIter )
-        std::cout << "SVM failed to converge" << std::endl;
-    w = x2;
-    return numIter;
+    return ModelFit
+    ( std::function<void(Matrix<Real>&,Real)>(hingeProx),
+      std::function<void(Matrix<Real>&,Real)>(frobProx),
+      A, b, w, rho, maxIter, inv, progress );
 }
 
 template<typename Real>
 Int SVM
 ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, 
-  DistMatrix<Real>& w,
-  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
-  bool inv, bool progress )
+  DistMatrix<Real>& w, Real rho, Int maxIter, bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SVM"))
     const Int numExamples = G.Height();
@@ -145,115 +73,30 @@ Int SVM
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
             A.SetLocal( iLoc, jLoc, q_MC_STAR.GetLocal(iLoc,0) );
     }
-    return SVM
-    ( A, gamma, w, rho, alpha, maxIter, absTol, relTol, inv, progress );
-}
 
-template<typename Real>
-Int SVM
-( const DistMatrix<Real>& A, Real gamma, DistMatrix<Real>& w,
-  Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, 
-  bool inv, bool progress )
-{
-    DEBUG_ONLY(CallStackEntry cse("SVM"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Grid& g = A.Grid();
+    auto hingeProx = [=]( DistMatrix<Real>& y, Real rho )
+                     { HingeLossProx( y, y.Height()*rho ); };
+    auto frobProx =
+        [=]( DistMatrix<Real>& x, Real rho )
+        { auto xT = View( x, 0, 0, x.Height()-1, 1 );
+          FrobeniusProx( xT, gamma/rho ); };
 
-    DistMatrix<Real> P(g);
-    if( m >= n )
-    {
-        Identity( P, n, n );        
-        Herk( LOWER, ADJOINT, Real(1), A, Real(1), P );
-    }
-    else
-    {
-        Identity( P, m, m );
-        Herk( LOWER, NORMAL, Real(1), A, Real(1), P );
-    }
-    if( inv )
-        HPDInverse( LOWER, P );
-    else
-        Cholesky( LOWER, P ); 
+    DistMatrix<Real> b(G.Grid());
+    Zeros( b, numExamples, 1 );
 
-    // Start the SVM
-    Int numIter=0;
-    DistMatrix<Real> s(g), x0(g), x1(g), x2(g), y0(g), y1(g), y2(g), 
-                     ux(g), uy(g);
-
-    Zeros( x1, n, 1 );
-    Zeros( x2, n, 1 );
-    Zeros( ux, n, 1 );
-
-    Zeros( y1, m, 1 );
-    Ones( y2, m, 1 );
-    Zeros( uy, m, 1 );
-
-    for( ; numIter<maxIter-1; ++numIter )
-    //while( numIter < maxIter )
-    {
-        // Project onto A x1 + b = y1
-        x0 = x2; 
-        y0 = y2;
-        Axpy( Real(-1), ux, x0 );
-        Axpy( Real(-1), uy, y0 );
-        x1 = x0;
-        // TODO: Subtract A' b
-        Gemv( ADJOINT, Real(1), A, y0, Real(1), x1 );
-        if( inv )
-        {
-            s = x1;
-            Hemv( LOWER, Real(1), P, s, Real(0), x1 );
-        }
-        else
-        {
-            Trsv( LOWER, NORMAL, NON_UNIT, P, x1 );
-            Trsv( LOWER, ADJOINT, NON_UNIT, P, x1 );
-        }
-        Gemv( NORMAL, Real(1), A, x1, Real(0), y1 );
-
-        y2 = y1;
-        Axpy( Real(1), uy, y2 );
-        HingeLossProx( y2, m*rho );
-
-        x2 = x1; 
-        Axpy( Real(1), ux, x2 );
-        auto x2T = View( x2, 0, 0, n-1, 1 );
-        FrobeniusProx( x2T, gamma/rho );
-
-        // Update dual variables
-        Axpy( Real(1), x1, ux );
-        Axpy( Real(1), y1, uy );
-        Axpy( Real(-1), x2, ux );
-        Axpy( Real(-1), y2, uy );
-    }
-    if( maxIter == numIter )
-        std::cout << "SVM failed to converge" << std::endl;
-    w = x2;
-    return numIter;
+    return ModelFit
+    ( std::function<void(DistMatrix<Real>&,Real)>(hingeProx),
+      std::function<void(DistMatrix<Real>&,Real)>(frobProx),
+      A, b, w, rho, maxIter, inv, progress );
 }
 
 #define PROTO(Real) \
   template Int SVM \
   ( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, \
-    Matrix<Real>& w, \
-    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
-    bool inv, bool progress ); \
-  template Int SVM \
-  ( const Matrix<Real>& A, Real gamma, \
-    Matrix<Real>& w, \
-    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
-    bool inv, bool progress ); \
+    Matrix<Real>& w, Real rho, Int maxIter, bool inv, bool progress ); \
   template Int SVM \
   ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, \
-    DistMatrix<Real>& w, \
-    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
-    bool inv, bool progress ); \
-  template Int SVM \
-  ( const DistMatrix<Real>& A, Real gamma, \
-    DistMatrix<Real>& w, \
-    Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
-    bool inv, bool progress );
+    DistMatrix<Real>& w, Real rho, Int maxIter, bool inv, bool progress );
 
 PROTO(float)
 PROTO(double)

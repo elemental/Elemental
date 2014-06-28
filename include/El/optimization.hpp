@@ -161,24 +161,12 @@ Int SparseInvCov
 template<typename Real>
 Int SVM
 ( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, Matrix<Real>& z,
-  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
-  Real relTol=1e-4, bool inv=true, bool progress=true );
-template<typename Real>
-Int SVM
-( const Matrix<Real>& A, Real gamma, Matrix<Real>& z,
-  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
-  Real relTol=1e-4, bool inv=true, bool progress=true );
+  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 template<typename Real>
 Int SVM
 ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, 
   DistMatrix<Real>& z,
-  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
-  Real relTol=1e-4, bool inv=true, bool progress=true );
-template<typename Real>
-Int SVM
-( const DistMatrix<Real>& A, Real gamma, DistMatrix<Real>& z,
-  Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6, 
-  Real relTol=1e-4, bool inv=true, bool progress=true );
+  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
 // Utilities
 // =========

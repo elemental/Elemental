@@ -21,11 +21,8 @@ main( int argc, char* argv[] )
         const Int m = Input("--numExamples","number of examples",200);
         const Int n = Input("--numFeatures","number of features",100);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real gamma = Input("--gamma","two-norm coefficient",0.01);
+        const Real gamma = Input("--gamma","two-norm coefficient",1.);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
-        const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1e-6);
-        const Real relTol = Input("--relTol","relative tolerance",1e-4);
         const bool inv = Input("--inv","use explicit inverse",true);
         const bool progress = Input("--progress","print progress?",true);
         const bool display = Input("--display","display matrices?",false);
@@ -74,9 +71,7 @@ main( int argc, char* argv[] )
             Display( G, "G" );
 
         DistMatrix<Real> wHatSVM;
-        SVM
-        ( G, q, gamma, wHatSVM, rho, alpha, maxIter, absTol, relTol, inv, 
-          progress );
+        SVM( G, q, gamma, wHatSVM, rho, maxIter, inv, progress );
         auto wSVM = View( wHatSVM, 0, 0, n, 1 );
         const Real offsetSVM = -wHatSVM.Get(n,0);
         const Real wSVMNorm = FrobeniusNorm( wSVM );
