@@ -10,6 +10,9 @@
 #ifndef EL_FUNCS_HPP
 #define EL_FUNCS_HPP
 
+#include "El/lapack-like/factor.hpp"
+#include "El/lapack-like/decomp.hpp"
+
 namespace El {
 
 namespace SignScalingNS {
@@ -46,14 +49,23 @@ struct SquareRootCtrl {
     { }
 };
 
-} // namespace El
+// Hermitian function
+// ==================
+template<typename F>
+void RealHermitianFunction
+( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func );
+template<typename F>
+void RealHermitianFunction
+( UpperOrLower uplo, DistMatrix<F>& A, std::function<Base<F>(Base<F>)> func );
 
-#include "El/lapack-like/factor.hpp"
-#include "El/lapack-like/decomp.hpp"
-
-#include "./funcs/HermitianFunction.hpp"
-
-namespace El {
+template<typename Real>
+void ComplexHermitianFunction
+( UpperOrLower uplo, Matrix<Complex<Real>>& A,
+  std::function<Complex<Real>(Real)> func );
+template<typename Real>
+void ComplexHermitianFunction
+( UpperOrLower uplo, DistMatrix<Complex<Real>>& A,
+  std::function<Complex<Real>(Real)> func );
 
 // Inverse
 // =======

@@ -14,20 +14,22 @@ template<typename Real>
 void HingeLossProx( Matrix<Real>& A, Real tau )
 {
     DEBUG_ONLY(CallStackEntry cse("HingeLossProx"))
-    EntrywiseMap
-    ( A, [=]( Real alpha )
-         { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
-           else            { return alpha;                    } } );
+    auto hingeProx = 
+      [=]( Real alpha )
+      { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
+        else            { return alpha;                    } };
+    EntrywiseMap( A, std::function<Real(Real)>(hingeProx) );
 }
 
 template<typename Real>
 void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau )
 {
     DEBUG_ONLY(CallStackEntry cse("HingeLossProx"))
-    EntrywiseMap
-    ( A, [=]( Real alpha )
-         { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
-           else            { return alpha;                    } } );
+    auto hingeProx = 
+      [=]( Real alpha )
+      { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
+        else            { return alpha;                    } };
+    EntrywiseMap( A, std::function<Real(Real)>(hingeProx) );
 }
 
 #define PROTO(Real) \

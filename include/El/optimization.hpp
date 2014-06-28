@@ -59,6 +59,22 @@ Int LinearProgram
   Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
 
+// Fit a model with using a loss function plus regularization
+// ==========================================================
+// TODO: Implement these functions
+template<typename Real>
+Int ModelFit
+( std::function<void(Matrix<Real>&,Real)> lossProx,
+  std::function<void(Matrix<Real>&,Real)> regProx,
+  const Matrix<Real>& A, const Matrix<Real>& b, Matrix<Real>& w,
+  Real rho, Int maxIter=1000, bool inv=true, bool progress=true );
+template<typename Real>
+Int ModelFit
+( std::function<void(DistMatrix<Real>&,Real)> lossProx,
+  std::function<void(DistMatrix<Real>&,Real)> regProx,
+  const DistMatrix<Real>& A, const DistMatrix<Real>& b, DistMatrix<Real>& w,
+  Real rho, Int maxIter=1000, bool inv=true, bool progress=true );
+
 // Non-negative matrix factorization
 // =================================
 // TODO: Generalize to complex
@@ -194,21 +210,21 @@ void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
 // Frobenius-norm proximal map
 // ---------------------------
 // The Frobenius norm prox returns the solution to
-//     arg min || A ||_F + tau/2 || A - A0 ||_F^2
+//     arg min || A ||_F + rho/2 || A - A0 ||_F^2
 //        A
 // where A0 in the input matrix.
 template<typename F>
-void FrobeniusProx( Matrix<F>& A, Base<F> tau );
+void FrobeniusProx( Matrix<F>& A, Base<F> rho );
 template<typename F>
-void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau );
+void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> rho );
 
 // Hinge-loss proximal map
 // -----------------------
 // TODO: Description
 template<typename Real>
-void HingeLossProx( Matrix<Real>& A, Real tau );
+void HingeLossProx( Matrix<Real>& A, Real rho );
 template<typename Real>
-void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau );
+void HingeLossProx( AbstractDistMatrix<Real>& A, Real rho );
 
 // Log barrier
 // -----------
@@ -236,68 +252,68 @@ Base<F> LogDetDiv
 // Logistic proximal map
 // ---------------------
 // The logistic proximal map returns the solution to
-//    arg min sum_{i,j}[ log(1+exp(-A_{i,j})) ] + tau/2 || A - A0 ||_F^2
+//    arg min sum_{i,j}[ log(1+exp(-A_{i,j})) ] + rho/2 || A - A0 ||_F^2
 //       A
 // where A0 is the input matrix.
 template<typename Real>
-void LogisticProx( Matrix<Real>& A, Real tau, Int numIts=5 );
+void LogisticProx( Matrix<Real>& A, Real rho, Int numIts=5 );
 template<typename Real>
-void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts=5 );
+void LogisticProx( AbstractDistMatrix<Real>& A, Real rho, Int numIts=5 );
 
 // Singular-value soft thresholding
 // --------------------------------
 template<typename F>
-Int SVT( Matrix<F>& A, Base<F> tau, bool relative=false );
+Int SVT( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int SVT( DistMatrix<F>& A, Base<F> tau, bool relative=false );
+Int SVT( DistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int SVT( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative=false );
+Int SVT( Matrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F>
-Int SVT( DistMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative=false );
+Int SVT( DistMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
 template<typename F,Dist U>
-Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false );
+Int SVT( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
 
 namespace svt {
 
 template<typename F>
-Int Cross( Matrix<F>& A, Base<F> tau, bool relative=false );
+Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Cross( DistMatrix<F>& A, Base<F> tau, bool relative=false );
+Int Cross( DistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int TallCross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative=false );
+Int TallCross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
-Int Normal( Matrix<F>& A, Base<F> tau, bool relative=false );
+Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int Normal( DistMatrix<F>& A, Base<F> tau, bool relative=false );
+Int Normal( DistMatrix<F>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int PivotedQR
-( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative=false );
+( Matrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 template<typename F>
 Int PivotedQR
-( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative=false );
+( DistMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
 
 template<typename F,Dist U>
-Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative=false );
+Int TSQR( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
 
 } // namespace svt
 
 // Soft-thresholding
 // -----------------
 // Returns the solution to
-//     arg min || vec(A) ||_1 + tau/2 || A - A0 ||_F^2
+//     arg min || vec(A) ||_1 + rho/2 || A - A0 ||_F^2
 //        A 
 // where A0 is the input matrix.
 template<typename F>
-F SoftThreshold( F alpha, Base<F> tau );
+F SoftThreshold( F alpha, Base<F> rho );
 
 template<typename F>
 void SoftThreshold
-( Matrix<F>& A, Base<F> tau, bool relative=false );
+( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 void SoftThreshold
-( AbstractDistMatrix<F>& A, Base<F> tau, bool relative=false );
+( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
 
 } // namespace El
 

@@ -17,12 +17,11 @@ void Fourier( Matrix<Complex<Real>>& A, Int n )
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
-    IndexDependentFill
-    ( A, [=]( Int i, Int j ) 
-         { 
-             const Real theta = -2*pi*i*j/n;
-             return Complex<Real>(Cos(theta),Sin(theta))/nSqrt;
-         } );
+    auto fourierFill = 
+      [=]( Int i, Int j )
+      { const Real theta = -2*pi*i*j/n;
+        return Complex<Real>(Cos(theta),Sin(theta))/nSqrt; };
+    IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(fourierFill) );
 }
 
 template<typename Real>
@@ -32,12 +31,11 @@ void Fourier( AbstractDistMatrix<Complex<Real>>& A, Int n )
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
-    IndexDependentFill
-    ( A, [=]( Int i, Int j ) 
-         { 
-             const Real theta = -2*pi*i*j/n;
-             return Complex<Real>(Cos(theta),Sin(theta))/nSqrt;
-         } );
+    auto fourierFill = 
+      [=]( Int i, Int j )
+      { const Real theta = -2*pi*i*j/n;
+        return Complex<Real>(Cos(theta),Sin(theta))/nSqrt; };
+    IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(fourierFill) );
 }
 
 template<typename Real>
@@ -47,12 +45,11 @@ void Fourier( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
     A.Resize( n, n );
     const Real pi = 4*Atan( Real(1) );
     const Real nSqrt = Sqrt( Real(n) );
-    IndexDependentFill
-    ( A, [=]( Int i, Int j ) 
-         { 
-             const Real theta = -2*pi*i*j/n;
-             return Complex<Real>(Cos(theta),Sin(theta))/nSqrt;
-         } );
+    auto fourierFill = 
+      [=]( Int i, Int j )
+      { const Real theta = -2*pi*i*j/n;
+        return Complex<Real>(Cos(theta),Sin(theta))/nSqrt; };
+    IndexDependentFill( A, std::function<Complex<Real>(Int,Int)>(fourierFill) );
 }
 
 #define PROTO(Real) \

@@ -77,8 +77,8 @@ void EhrenfestStationary( Matrix<F>& PInf, Int n )
     const Real gamma = (n-1)*Log(Real(2));
 
     PInf.Resize( n, n );
-    IndexDependentFill
-    ( PInf, [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); } );
+    auto ehrenfestFill = [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); };
+    IndexDependentFill( PInf, std::function<F(Int,Int)>(ehrenfestFill) );
 }
 
 template<typename F>
@@ -91,8 +91,8 @@ void EhrenfestStationary( AbstractDistMatrix<F>& PInf, Int n )
     const Real gamma = (n-1)*Log(Real(2));
 
     PInf.Resize( n, n );
-    IndexDependentFill
-    ( PInf, [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); } );
+    auto ehrenfestFill = [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); };
+    IndexDependentFill( PInf, std::function<F(Int,Int)>(ehrenfestFill) );
 }
 
 template<typename F>
@@ -105,8 +105,8 @@ void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
     const Real gamma = (n-1)*Log(Real(2));
 
     PInf.Resize( n, n );
-    IndexDependentFill
-    ( PInf, [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); } );
+    auto ehrenfestFill = [&]( Int i, Int j ) { return Exp(logBinom[j]-gamma); };
+    IndexDependentFill( PInf, std::function<F(Int,Int)>(ehrenfestFill) );
 }
 
 template<typename F>

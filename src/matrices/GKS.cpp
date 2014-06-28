@@ -20,11 +20,12 @@ void GKS( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
-    IndexDependentFill
-    ( A, []( Int i, Int j ) 
-         { if( i < j )       { return -F(1)/Sqrt(F(j)); }
-           else if( i == j ) { return  F(1)/Sqrt(F(j)); }
-           else              { return  F(0);            } } );
+    auto gksFill = 
+      []( Int i, Int j ) 
+      { if( i < j )       { return -F(1)/Sqrt(F(j)); }
+        else if( i == j ) { return  F(1)/Sqrt(F(j)); }
+        else              { return  F(0);            } };
+    IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
 }
 
 template<typename F>
@@ -32,11 +33,12 @@ void GKS( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
-    IndexDependentFill
-    ( A, []( Int i, Int j )
-         { if( i < j )       { return -F(1)/Sqrt(F(j)); }
-           else if( i == j ) { return  F(1)/Sqrt(F(j)); }
-           else              { return  F(0);            } } );
+    auto gksFill = 
+      []( Int i, Int j ) 
+      { if( i < j )       { return -F(1)/Sqrt(F(j)); }
+        else if( i == j ) { return  F(1)/Sqrt(F(j)); }
+        else              { return  F(0);            } };
+    IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
 }
 
 template<typename F>
@@ -44,11 +46,12 @@ void GKS( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("GKS"))
     A.Resize( n, n );
-    IndexDependentFill
-    ( A, []( Int i, Int j )
-         { if( i < j )       { return -F(1)/Sqrt(F(j)); }
-           else if( i == j ) { return  F(1)/Sqrt(F(j)); }
-           else              { return  F(0);            } } );
+    auto gksFill = 
+      []( Int i, Int j ) 
+      { if( i < j )       { return -F(1)/Sqrt(F(j)); }
+        else if( i == j ) { return  F(1)/Sqrt(F(j)); }
+        else              { return  F(0);            } };
+    IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
 }
 
 #define PROTO(F) \

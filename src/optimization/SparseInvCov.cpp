@@ -49,9 +49,9 @@ Int SparseInvCov
         Axpy( F(-1), S, X );
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
-        RealHermitianFunction
-        ( LOWER, X, 
-          [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);} );
+        auto eigMap = 
+          [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);};
+        RealHermitianFunction( LOWER, X, std::function<Real(Real)>(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
         // Hermitian.
@@ -138,9 +138,9 @@ Int SparseInvCov
         Axpy( F(-1), S, X );
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
-        RealHermitianFunction
-        ( LOWER, X, 
-          [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);} );
+        auto eigMap = 
+          [rho](Real gamma){return (gamma+Sqrt(gamma*gamma+4*rho))/(2*rho);};
+        RealHermitianFunction( LOWER, X, std::function<Real(Real)>(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
         // Hermitian.

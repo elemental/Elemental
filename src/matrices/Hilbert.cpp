@@ -15,7 +15,8 @@ void Hilbert( Matrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.Resize( n, n );
-    IndexDependentFill( A, []( Int i, Int j ) { return F(1)/F(i+j+1); } );
+    auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
+    IndexDependentFill( A, std::function<F(Int,Int)>(hilbertFill) );
 }
 
 template<typename F>
@@ -23,7 +24,8 @@ void Hilbert( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.Resize( n, n );
-    IndexDependentFill( A, []( Int i, Int j ) { return F(1)/F(i+j+1); } );
+    auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
+    IndexDependentFill( A, std::function<F(Int,Int)>(hilbertFill) );
 }
 
 template<typename F>
@@ -31,7 +33,8 @@ void Hilbert( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Hilbert"))
     A.Resize( n, n );
-    IndexDependentFill( A, []( Int i, Int j ) { return F(1)/F(i+j+1); } );
+    auto hilbertFill = []( Int i, Int j ) { return F(1)/F(i+j+1); };
+    IndexDependentFill( A, std::function<F(Int,Int)>(hilbertFill) );
 }
 
 #define PROTO(F) \

@@ -49,9 +49,10 @@ void Ridge
             Matrix<Base<F>> s; 
             U = A;
             SVD( U, s, V );
-            EntrywiseMap
-            ( s, [=]( Base<F> sigma ) 
-                 { return sigma / (sigma*sigma + alpha*alpha); } );
+            auto sigmaMap = 
+              [=]( Base<F> sigma ) 
+              { return sigma / (sigma*sigma + alpha*alpha); };
+            EntrywiseMap( s, std::function<Base<F>(Base<F>)>(sigmaMap) );
             Gemm( ADJOINT, NORMAL, F(1), U, B, X );
             DiagonalScale( LEFT, NORMAL, s, X );
             U = X;
@@ -103,9 +104,10 @@ void Ridge
             DistMatrix<Base<F>,VR,STAR> s(A.Grid());
             U = A;
             SVD( U, s, V );
-            EntrywiseMap
-            ( s, [=]( Base<F> sigma )
-                 { return sigma / (sigma*sigma + alpha*alpha); } );
+            auto sigmaMap = 
+              [=]( Base<F> sigma ) 
+              { return sigma / (sigma*sigma + alpha*alpha); };
+            EntrywiseMap( s, std::function<Base<F>(Base<F>)>(sigmaMap) );
             Gemm( ADJOINT, NORMAL, F(1), U, B, X );
             DiagonalScale( LEFT, NORMAL, s, X );
             U = X;

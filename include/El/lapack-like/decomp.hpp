@@ -69,6 +69,9 @@ struct HessQrCtrl {
     { }
 };
 
+// Forward declaration
+template<typename Real> struct SignCtrl;
+
 template<typename Real>
 struct SdcCtrl {
     Int cutoff;

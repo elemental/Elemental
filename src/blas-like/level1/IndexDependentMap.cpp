@@ -6,15 +6,12 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_INDEXDEPENDENTMAP_HPP
-#define EL_INDEXDEPENDENTMAP_HPP
+#include "El.hpp"
 
 namespace El {
 
-template<typename T,class Function>
-inline void
-IndexDependentMap( Matrix<T>& A, Function func )
+template<typename T>
+void IndexDependentMap( Matrix<T>& A, std::function<T(Int,Int,T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int m = A.Height();
@@ -24,9 +21,9 @@ IndexDependentMap( Matrix<T>& A, Function func )
             A.Set( i, j, func(i,j,A.Get(i,j)) );
 }
 
-template<typename T,class Function>
-inline void
-IndexDependentMap( AbstractDistMatrix<T>& A, Function func )
+template<typename T>
+void IndexDependentMap
+( AbstractDistMatrix<T>& A, std::function<T(Int,Int,T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int mLoc = A.LocalHeight();
@@ -42,9 +39,9 @@ IndexDependentMap( AbstractDistMatrix<T>& A, Function func )
     }
 }
 
-template<typename T,class Function>
-inline void
-IndexDependentMap( AbstractBlockDistMatrix<T>& A, Function func )
+template<typename T>
+void IndexDependentMap
+( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("IndexDependentMap"))
     const Int mLoc = A.LocalHeight();
@@ -59,7 +56,19 @@ IndexDependentMap( AbstractBlockDistMatrix<T>& A, Function func )
         }
     }
 }
+
+#define PROTO(T) \
+  template void IndexDependentMap \
+  ( Matrix<T>& A, std::function<T(Int,Int,T)> func ); \
+  template void IndexDependentMap \
+  ( AbstractDistMatrix<T>& A, std::function<T(Int,Int,T)> func ); \
+  template void IndexDependentMap \
+  ( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
+
+PROTO(Int)
+PROTO(float)
+PROTO(double)
+PROTO(Complex<float>)
+PROTO(Complex<double>)
 
 } // namespace El
-
-#endif // ifndef EL_INDEXDEPENDENTMAP_HPP

@@ -28,13 +28,15 @@ void Riffle( Matrix<F>& P, Int n )
     const Real gamma = n*Log(Real(2));
 
     P.Resize( n, n );
-    IndexDependentFill
-    ( P, [&]( Int i, Int j )
-         { const Int k = 2*i - j + 1;
-           if( k >= 0 && k <= n+1 )
-               return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
-           else
-               return Base<F>(0); } );
+    auto riffleFill = 
+      [&]( Int i, Int j )
+      { const Int k = 2*i - j + 1;
+        if( k >= 0 && k <= n+1 )
+            return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
+        else
+            return Base<F>(0); 
+      };
+    IndexDependentFill( P, std::function<F(Int,Int)>(riffleFill) );
 }
 
 template<typename F>
@@ -49,13 +51,15 @@ void Riffle( AbstractDistMatrix<F>& P, Int n )
     const Real gamma = n*Log(Real(2));
 
     P.Resize( n, n );
-    IndexDependentFill
-    ( P, [&]( Int i, Int j )
-         { const Int k = 2*i - j + 1;
-           if( k >= 0 && k <= n+1 )
-               return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
-           else
-               return Base<F>(0); } );
+    auto riffleFill = 
+      [&]( Int i, Int j )
+      { const Int k = 2*i - j + 1;
+        if( k >= 0 && k <= n+1 )
+            return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
+        else
+            return Base<F>(0); 
+      };
+    IndexDependentFill( P, std::function<F(Int,Int)>(riffleFill) );
 }
 
 template<typename F>
@@ -70,13 +74,15 @@ void Riffle( AbstractBlockDistMatrix<F>& P, Int n )
     const Real gamma = n*Log(Real(2));
 
     P.Resize( n, n );
-    IndexDependentFill
-    ( P, [&]( Int i, Int j )
-         { const Int k = 2*i - j + 1;
-           if( k >= 0 && k <= n+1 )
-               return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
-           else
-               return Base<F>(0); } );
+    auto riffleFill = 
+      [&]( Int i, Int j )
+      { const Int k = 2*i - j + 1;
+        if( k >= 0 && k <= n+1 )
+            return Exp(logBinom[k]-gamma+logEuler[j]-logEuler[i]);
+        else
+            return Base<F>(0); 
+      };
+    IndexDependentFill( P, std::function<F(Int,Int)>(riffleFill) );
 }
 
 template<typename F>
@@ -98,7 +104,8 @@ void RiffleStationary( Matrix<F>& PInf, Int n )
     SwapClear( sigmaTmp );
     
     PInf.Resize( n, n );
-    IndexDependentFill( PInf, [&]( Int i, Int j ) { return sigma[j]; } );
+    auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
+    IndexDependentFill( PInf, std::function<F(Int,Int)>(riffleStatFill) );
 }
 
 template<typename F>
@@ -120,7 +127,8 @@ void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n )
     SwapClear( sigmaTmp );
 
     PInf.Resize( n, n );
-    IndexDependentFill( PInf, [&]( Int i, Int j ) { return sigma[j]; } );
+    auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
+    IndexDependentFill( PInf, std::function<F(Int,Int)>(riffleStatFill) );
 }
 
 template<typename F>
@@ -142,7 +150,8 @@ void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n )
     SwapClear( sigmaTmp );
     
     PInf.Resize( n, n );
-    IndexDependentFill( PInf, [&]( Int i, Int j ) { return sigma[j]; } );
+    auto riffleStatFill = [&]( Int i, Int j ) { return sigma[j]; };
+    IndexDependentFill( PInf, std::function<F(Int,Int)>(riffleStatFill) );
 }
 
 template<typename F>

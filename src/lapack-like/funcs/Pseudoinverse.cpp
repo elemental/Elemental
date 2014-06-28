@@ -39,9 +39,9 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
         tolerance = k*twoNorm*eps;
     }
     // Invert above the tolerance
-    EntrywiseMap
-    ( s, [=]( Real sigma ) 
-         { return ( sigma < tolerance ? Real(0) : 1/sigma ); } );
+    auto sigmaMap = 
+      [=]( Real sigma ) { return ( sigma < tolerance ? Real(0) : 1/sigma ); };
+    EntrywiseMap( s, std::function<Real(Real)>(sigmaMap) );
 
     // Scale U with the singular values, U := U Sigma
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -71,9 +71,9 @@ void HermitianPseudoinverse
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    EntrywiseMap
-    ( w, [=]( Real omega ) 
-         { return ( omega < tolerance ? Real(0) : 1/omega ); } );
+    auto omegaMap = 
+      [=]( Real omega ) { return ( omega < tolerance ? Real(0) : 1/omega ); };
+    EntrywiseMap( w, std::function<Real(Real)>(omegaMap) );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
@@ -104,9 +104,9 @@ void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
         tolerance = k*twoNorm*eps;
     }
     // Invert above the tolerance
-    EntrywiseMap
-    ( s, [=]( Real sigma ) 
-         { return ( sigma < tolerance ? Real(0) : 1/sigma ); } );
+    auto sigmaMap = 
+      [=]( Real sigma ) { return ( sigma < tolerance ? Real(0) : 1/sigma ); };
+    EntrywiseMap( s, std::function<Real(Real)>(sigmaMap) );
 
     // Scale U with the singular values, U := U Sigma
     DiagonalScale( RIGHT, NORMAL, s, U );
@@ -137,9 +137,9 @@ void HermitianPseudoinverse
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    EntrywiseMap
-    ( w, [=]( Real omega ) 
-         { return ( omega < tolerance ? Real(0) : 1/omega ); } );
+    auto omegaMap = 
+      [=]( Real omega ) { return ( omega < tolerance ? Real(0) : 1/omega ); };
+    EntrywiseMap( w, std::function<Real(Real)>(omegaMap) );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );

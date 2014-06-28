@@ -32,8 +32,10 @@ void Distance( const Matrix<F>& X, const Matrix<F>& C, Matrix<F>& D )
     Matrix<Base<F>> xNorms, cNorms;
     pspec::ColumnNorms( X, xNorms );
     pspec::ColumnNorms( C, cNorms );
-    EntrywiseMap( xNorms, []( Base<F> alpha ) { return alpha*alpha; } );
-    EntrywiseMap( cNorms, []( Base<F> alpha ) { return alpha*alpha; } );
+
+    auto squareMap = []( Base<F> alpha ) { return alpha*alpha; };
+    EntrywiseMap( xNorms, std::function<Base<F>(Base<F>)>(squareMap) );
+    EntrywiseMap( cNorms, std::function<Base<F>(Base<F>)>(squareMap) );
 
     for( Int j=0; j<numClusters; ++j )
         for( Int i=0; i<numPoints; ++i )
@@ -58,8 +60,11 @@ void Distance
     cNorms_MR_STAR.AlignWith( D ); 
     pspec::ColumnNorms( X, xNorms_MR_STAR );
     pspec::ColumnNorms( C, cNorms_MR_STAR );
-    EntrywiseMap( xNorms_MR_STAR, []( Base<F> alpha ) { return alpha*alpha; } );
-    EntrywiseMap( cNorms_MR_STAR, []( Base<F> alpha ) { return alpha*alpha; } );
+
+    auto squareMap = []( Base<F> alpha ) { return alpha*alpha; };
+    EntrywiseMap( xNorms_MR_STAR, std::function<Base<F>(Base<F>)>(squareMap) );
+    EntrywiseMap( cNorms_MR_STAR, std::function<Base<F>(Base<F>)>(squareMap) );
+
     DistMatrix<Base<F>,MC,STAR> xNorms_MC_STAR(X.Grid());
     xNorms_MC_STAR.AlignWith( D );
     xNorms_MC_STAR = xNorms_MR_STAR;

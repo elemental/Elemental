@@ -15,7 +15,8 @@ template<typename T>
 void MakeGaussian( Matrix<T>& A, T mean, Base<T> stddev )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeGaussian"))
-    EntrywiseFill( A, [=]() { return SampleNormal(mean,stddev); } );
+    auto sampleNormal = [=]() { return SampleNormal(mean,stddev); };
+    EntrywiseFill( A, std::function<T()>(sampleNormal) );
 }
 
 template<typename T>

@@ -171,6 +171,25 @@ F Dotu( const Matrix<F>& A, const Matrix<F>& B );
 template<typename F>
 F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
+// EntrywiseFill
+// =============
+template<typename T>
+void EntrywiseFill( Matrix<T>& A, std::function<T(void)> func );
+template<typename T>
+void EntrywiseFill( AbstractDistMatrix<T>& A, std::function<T(void)> func );
+template<typename T>
+void EntrywiseFill
+( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func );
+
+// EntrywiseMap
+// ============
+template<typename T>
+void EntrywiseMap( Matrix<T>& A, std::function<T(T)> func );
+template<typename T>
+void EntrywiseMap( AbstractDistMatrix<T>& A, std::function<T(T)> func );
+template<typename T>
+void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func );
+
 // Fill
 // ====
 template<typename T>
@@ -202,6 +221,28 @@ F HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B );
 template<typename F>
 F HilbertSchmidt
 ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C );
+
+// IndexDependentFill
+// ==================
+template<typename T>
+void IndexDependentFill( Matrix<T>& A, std::function<T(Int,Int)> func );
+template<typename T>
+void IndexDependentFill
+( AbstractDistMatrix<T>& A, std::function<T(Int,Int)> func );
+template<typename T>
+void IndexDependentFill
+( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int)> func );
+
+// IndexDependentMap
+// =================
+template<typename T>
+void IndexDependentMap( Matrix<T>& A, std::function<T(Int,Int,T)> func );
+template<typename T>
+void IndexDependentMap
+( AbstractDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
+template<typename T>
+void IndexDependentMap
+( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
 
 // MakeHermitian
 // =============
@@ -604,10 +645,5 @@ template<typename T>
 void Zero( AbstractBlockDistMatrix<T>& A );
 
 } // namespace El
-
-#include "./level1/EntrywiseFill.hpp"
-#include "./level1/EntrywiseMap.hpp"
-#include "./level1/IndexDependentFill.hpp"
-#include "./level1/IndexDependentMap.hpp"
 
 #endif // ifndef EL_BLAS1_HPP

@@ -16,7 +16,8 @@ void Fiedler( Matrix<F>& A, const std::vector<F>& c )
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
     A.Resize( n, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return Abs(c[i]-c[j]); } );
+    auto fiedlerFill = [&]( Int i, Int j ) { return Abs(c[i]-c[j]); };
+    IndexDependentFill( A, std::function<F(Int,Int)>(fiedlerFill) );
 }
 
 template<typename F>
@@ -25,7 +26,8 @@ void Fiedler( AbstractDistMatrix<F>& A, const std::vector<F>& c )
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
     A.Resize( n, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return Abs(c[i]-c[j]); } );
+    auto fiedlerFill = [&]( Int i, Int j ) { return Abs(c[i]-c[j]); };
+    IndexDependentFill( A, std::function<F(Int,Int)>(fiedlerFill) );
 }
 
 template<typename F>
@@ -34,7 +36,8 @@ void Fiedler( AbstractBlockDistMatrix<F>& A, const std::vector<F>& c )
     DEBUG_ONLY(CallStackEntry cse("Fiedler"))
     const Int n = c.size();
     A.Resize( n, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return Abs(c[i]-c[j]); } );
+    auto fiedlerFill = [&]( Int i, Int j ) { return Abs(c[i]-c[j]); };
+    IndexDependentFill( A, std::function<F(Int,Int)>(fiedlerFill) );
 }
 
 #define PROTO(F) \

@@ -21,8 +21,9 @@ namespace rpca {
 template<typename F,Distribution U,Distribution V>
 inline void NormalizeEntries( DistMatrix<F,U,V>& A )
 { 
-    EntrywiseMap
-    ( A, []( F alpha ) { return alpha==F(0) ? F(1) : alpha/Abs(alpha); } ); 
+    auto unitMap = []( F alpha ) 
+                   { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
+    EntrywiseMap( A, std::function<F(F)>(unitMap) );
 }
 
 // If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))

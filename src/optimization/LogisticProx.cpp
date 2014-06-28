@@ -19,70 +19,72 @@ template<typename Real>
 void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
 {
     DEBUG_ONLY(CallStackEntry cse("LogisticProx"))
-    EntrywiseMap  
-    ( A, [=]( Real alpha ) 
-         {
-             // Use an initial guess based upon the rough normal vector to
-             // the logistic curve
-             Real beta;
-             if( alpha < -Real(5) ) 
-                 beta = alpha + 1/tau;
-             else if( alpha < Real(5) )
-                 beta = (Real(1)/Real(2) + tau*alpha)/(tau+Real(1)/Real(10));
-             else
-                 beta = alpha;
+    auto logisticProx = 
+      [=]( Real alpha )
+      {
+        // Use an initial guess based upon the rough normal vector to
+        // the logistic curve
+        Real beta;
+        if( alpha < -Real(5) ) 
+            beta = alpha + 1/tau;
+        else if( alpha < Real(5) )
+            beta = (Real(1)/Real(2) + tau*alpha)/(tau+Real(1)/Real(10));
+        else
+            beta = alpha;
 
-             // Run a fixed number of Newton steps based upon the entrywise 
-             // derivative of the prox objective,
-             //    f(x) = -1/(exp(x)+1) + tau(x-x0),
-             // as well as its derivative,
-             //    f'(x) = exp(x)/(exp(x)+1)^2 + tau
-             for( Int j=0; j<numIts; ++j )
-             {
-                 // TODO: Use a faster and/or more stable algorithm
-                 const Real gamma = Exp(beta);
-                 const Real gammaP1 = gamma+1;
-                 const Real gammaP1Sq = gammaP1*gammaP1;
-                 beta += (gammaP1 + tau*(alpha-beta)*gammaP1Sq) / 
-                         (gamma + tau*gammaP1Sq);
-             }
-             return beta;
-         } );
+        // Run a fixed number of Newton steps based upon the entrywise 
+        // derivative of the prox objective,
+        //    f(x) = -1/(exp(x)+1) + tau(x-x0),
+        // as well as its derivative,
+        //    f'(x) = exp(x)/(exp(x)+1)^2 + tau
+        for( Int j=0; j<numIts; ++j )
+        {
+            // TODO: Use a faster and/or more stable algorithm
+            const Real gamma = Exp(beta);
+            const Real gammaP1 = gamma+1;
+            const Real gammaP1Sq = gammaP1*gammaP1;
+            beta += (gammaP1 + tau*(alpha-beta)*gammaP1Sq) / 
+                    (gamma + tau*gammaP1Sq);
+        }
+        return beta;
+      };
+    EntrywiseMap( A, std::function<Real(Real)>(logisticProx) );
 }
 
 template<typename Real>
 void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
 {
     DEBUG_ONLY(CallStackEntry cse("LogisticProx"))
-    EntrywiseMap  
-    ( A, [=]( Real alpha ) 
-         {
-             // Use an initial guess based upon the rough normal vector to
-             // the logistic curve
-             Real beta;
-             if( alpha < -Real(5) ) 
-                 beta = alpha + 1/tau;
-             else if( alpha < Real(5) )
-                 beta = (Real(1)/Real(2) + tau*alpha)/(tau+Real(1)/Real(10));
-             else
-                 beta = alpha;
+    auto logisticProx = 
+      [=]( Real alpha )
+      {
+        // Use an initial guess based upon the rough normal vector to
+        // the logistic curve
+        Real beta;
+        if( alpha < -Real(5) ) 
+            beta = alpha + 1/tau;
+        else if( alpha < Real(5) )
+            beta = (Real(1)/Real(2) + tau*alpha)/(tau+Real(1)/Real(10));
+        else
+            beta = alpha;
 
-             // Run a fixed number of Newton steps based upon the entrywise 
-             // derivative of the prox objective,
-             //    f(x) = -1/(exp(x)+1) + tau(x-x0),
-             // as well as its derivative,
-             //    f'(x) = exp(x)/(exp(x)+1)^2 + tau
-             for( Int j=0; j<numIts; ++j )
-             {
-                 // TODO: Use a faster and/or more stable algorithm
-                 const Real gamma = Exp(beta);
-                 const Real gammaP1 = gamma+1;
-                 const Real gammaP1Sq = gammaP1*gammaP1;
-                 beta += (gammaP1 + tau*(alpha-beta)*gammaP1Sq) / 
-                         (gamma + tau*gammaP1Sq);
-             }
-             return beta;
-         } );
+        // Run a fixed number of Newton steps based upon the entrywise 
+        // derivative of the prox objective,
+        //    f(x) = -1/(exp(x)+1) + tau(x-x0),
+        // as well as its derivative,
+        //    f'(x) = exp(x)/(exp(x)+1)^2 + tau
+        for( Int j=0; j<numIts; ++j )
+        {
+            // TODO: Use a faster and/or more stable algorithm
+            const Real gamma = Exp(beta);
+            const Real gammaP1 = gamma+1;
+            const Real gammaP1Sq = gammaP1*gammaP1;
+            beta += (gammaP1 + tau*(alpha-beta)*gammaP1Sq) / 
+                    (gamma + tau*gammaP1Sq);
+        }
+        return beta;
+      };
+    EntrywiseMap( A, std::function<Real(Real)>(logisticProx) );
 }
 
 #define PROTO(Real) \

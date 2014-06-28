@@ -48,8 +48,8 @@ main( int argc, char* argv[] )
         Phase<double> phase( n );
 
         DistMatrix<Complex<double>> F, G;
-        Egorov( F, fourier, n );
-        Egorov( G, phase,   n );
+        Egorov( F, std::function<double(Int,Int)>(fourier), n );
+        Egorov( G, std::function<double(Int,Int)>(phase),   n );
 
         if( display )
         {

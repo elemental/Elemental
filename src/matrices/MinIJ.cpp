@@ -15,7 +15,8 @@ void MinIJ( Matrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
-    IndexDependentFill( M, []( Int i, Int j ) { return T(Min(i+1,j+1)); } );
+    auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
+    IndexDependentFill( M, std::function<T(Int,Int)>(minIJFill) );
 }
 
 template<typename T>
@@ -23,7 +24,8 @@ void MinIJ( AbstractDistMatrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
-    IndexDependentFill( M, []( Int i, Int j ) { return T(Min(i+1,j+1)); } );
+    auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
+    IndexDependentFill( M, std::function<T(Int,Int)>(minIJFill) );
 }
 
 template<typename T>
@@ -31,7 +33,8 @@ void MinIJ( AbstractBlockDistMatrix<T>& M, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("MinIJ"))
     M.Resize( n, n );
-    IndexDependentFill( M, []( Int i, Int j ) { return T(Min(i+1,j+1)); } );
+    auto minIJFill = []( Int i, Int j ) { return T(Min(i+1,j+1)); };
+    IndexDependentFill( M, std::function<T(Int,Int)>(minIJFill) );
 }
 
 #define PROTO(T) \

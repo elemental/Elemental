@@ -6,18 +6,16 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_HERMITIANFUNCTION_HPP
-#define EL_HERMITIANFUNCTION_HPP
+#include "El.hpp"
 
 namespace El {
 
 // Modify the eigenvalues of A with the real-valued function f, which will 
 // therefore result in a Hermitian matrix, which we store in-place.
 
-template<typename F,class RealFunction>
-inline void
-RealHermitianFunction( UpperOrLower uplo, Matrix<F>& A, RealFunction func )
+template<typename F>
+void RealHermitianFunction
+( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("RealHermitianFunction"))
     if( A.Height() != A.Width() )
@@ -36,9 +34,9 @@ RealHermitianFunction( UpperOrLower uplo, Matrix<F>& A, RealFunction func )
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-template<typename F,class RealFunction>
-inline void
-RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
+template<typename F>
+void RealHermitianFunction
+( UpperOrLower uplo, DistMatrix<F>& A, std::function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("RealHermitianFunction"))
     if( A.Height() != A.Width() )
@@ -63,10 +61,10 @@ RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
 // store in-place. At some point a version will be written which takes a real
 // symmetric matrix as input and produces a complex normal matrix.
 
-template<typename Real,class Function>
-inline void
-ComplexHermitianFunction
-( UpperOrLower uplo, Matrix<Complex<Real>>& A, Function func )
+template<typename Real>
+void ComplexHermitianFunction
+( UpperOrLower uplo, Matrix<Complex<Real>>& A, 
+  std::function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
     if( A.Height() != A.Width() )
@@ -91,10 +89,10 @@ ComplexHermitianFunction
     NormalFromEVD( A, fw, Z );
 }
 
-template<typename Real,class Function>
-inline void
-ComplexHermitianFunction
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, Function func )
+template<typename Real>
+void ComplexHermitianFunction
+( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, 
+  std::function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
     if( A.Height() != A.Width() )
@@ -122,6 +120,26 @@ ComplexHermitianFunction
     NormalFromEVD( A, fw, Z );
 }
 
-} // namespace El
+#define PROTO_CPX(F) \
+  template void RealHermitianFunction \
+  ( UpperOrLower uplo, Matrix<F>& A, \
+    std::function<Base<F>(Base<F>)> func ); \
+  template void RealHermitianFunction \
+  ( UpperOrLower uplo, DistMatrix<F>& A, \
+    std::function<Base<F>(Base<F>)> func );
 
-#endif // ifndef EL_HERMITIANFUNCTION_HPP
+#define PROTO_REAL(Real) \
+  PROTO_CPX(Real) \
+  template void ComplexHermitianFunction \
+  ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
+    std::function<Complex<Real>(Real)> func ); \
+  template void ComplexHermitianFunction \
+  ( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, \
+    std::function<Complex<Real>(Real)> func );
+
+PROTO_REAL(float)
+PROTO_REAL(double)
+PROTO_CPX(Complex<float>)
+PROTO_CPX(Complex<double>)
+
+} // namespace El

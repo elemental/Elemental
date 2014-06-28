@@ -83,6 +83,20 @@ void Diagonal( AbstractDistMatrix<S>& D, const std::vector<T>& d );
 template<typename S,typename T>
 void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d );
 
+// Egorov
+// ======
+template<typename Real>
+void Egorov
+( Matrix<Complex<Real>>& A, std::function<Real(Int,Int)> phase, Int n );
+template<typename Real>
+void Egorov
+( AbstractDistMatrix<Complex<Real>>& A, 
+  std::function<Real(Int,Int)> phase, Int n );
+template<typename Real>
+void Egorov
+( AbstractBlockDistMatrix<Complex<Real>>& A, 
+  std::function<Real(Int,Int)> phase, Int n );
+
 // Ehrenfest
 // =========
 template<typename F>
@@ -689,7 +703,5 @@ template<typename T>
 void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
 
 } // namespace El
-
-#include "./matrices/Egorov.hpp"
 
 #endif // ifndef EL_MATRICES_HPP

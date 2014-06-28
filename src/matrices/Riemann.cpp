@@ -15,10 +15,11 @@ void Riemann( Matrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
-    IndexDependentFill
-    ( R, []( Int i, Int j ) 
-         { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
-           else                   { return T(-1);  } } );
+    auto riemannFill = 
+      []( Int i, Int j )
+      { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
+        else                   { return T(-1);  } };
+    IndexDependentFill( R, std::function<T(Int,Int)>(riemannFill) );
 }
 
 template<typename T>
@@ -26,10 +27,11 @@ void Riemann( AbstractDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
-    IndexDependentFill
-    ( R, []( Int i, Int j ) 
-         { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
-           else                   { return T(-1);  } } );
+    auto riemannFill = 
+      []( Int i, Int j )
+      { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
+        else                   { return T(-1);  } };
+    IndexDependentFill( R, std::function<T(Int,Int)>(riemannFill) );
 }
 
 template<typename T>
@@ -37,10 +39,11 @@ void Riemann( AbstractBlockDistMatrix<T>& R, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("Riemann"))
     R.Resize( n, n );
-    IndexDependentFill
-    ( R, []( Int i, Int j ) 
-         { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
-           else                   { return T(-1);  } } );
+    auto riemannFill = 
+      []( Int i, Int j )
+      { if( ((j+2)%(i+2))==0 ) { return T(i+1); }
+        else                   { return T(-1);  } };
+    IndexDependentFill( R, std::function<T(Int,Int)>(riemannFill) );
 }
 
 #define PROTO(T) \

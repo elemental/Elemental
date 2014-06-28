@@ -16,7 +16,8 @@ void Circulant( Matrix<T>& A, const std::vector<T>& a )
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return a[Mod(i-j,n)]; } );
+    auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
+    IndexDependentFill( A, std::function<T(Int,Int)>(circFill) );
 }
 
 template<typename T>
@@ -25,7 +26,8 @@ void Circulant( AbstractDistMatrix<T>& A, const std::vector<T>& a )
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return a[Mod(i-j,n)]; } );
+    auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
+    IndexDependentFill( A, std::function<T(Int,Int)>(circFill) );
 }
 
 template<typename T>
@@ -34,7 +36,8 @@ void Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
     DEBUG_ONLY(CallStackEntry cse("Circulant"))
     const Int n = a.size();
     A.Resize( n, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return a[Mod(i-j,n)]; } );
+    auto circFill = [&]( Int i, Int j ) { return a[Mod(i-j,n)]; };
+    IndexDependentFill( A, std::function<T(Int,Int)>(circFill) );
 }
 
 #define PROTO(T) \

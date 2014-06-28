@@ -22,6 +22,7 @@ Snapshot
   Int numIts, bool deflate, SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Snapshot"));
+    auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = 
@@ -62,7 +63,7 @@ Snapshot
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
+            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
         if( imgSave )
         {
             std::ostringstream os;
@@ -99,6 +100,7 @@ FinalSnapshot
   SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::FinalSnapshot"));
+    auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = ( snapCtrl.numSaveFreq >= 0 );
@@ -122,7 +124,7 @@ FinalSnapshot
                 Write( itCountMap, base+"-counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
+            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
         if( imgSave )
         {
             std::string base = snapCtrl.imgBase;
@@ -157,6 +159,7 @@ Snapshot
   Int numIts, bool deflate, SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Snapshot"));
+    auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = 
@@ -199,7 +202,7 @@ Snapshot
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
+            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
         if( imgSave )
         {
             std::ostringstream os;
@@ -237,6 +240,7 @@ FinalSnapshot
   SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::FinalSnapshot"));
+    auto logMap = []( Real alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = ( snapCtrl.numSaveFreq >= 0 );
@@ -260,7 +264,7 @@ FinalSnapshot
                 Write( itCountMap, base+"-counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, []( Real alpha ) { return Log(alpha); } );
+            EntrywiseMap( estMap, std::function<Real(Real)>(logMap) );
         if( imgSave )
         {
             std::string base = snapCtrl.imgBase;

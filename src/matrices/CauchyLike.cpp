@@ -25,18 +25,19 @@ void CauchyLike
         LogicError("y vector was the wrong length");
     A.Resize( m, n );
 
-    IndexDependentFill
-    ( A, [&]( Int i, Int j )
-         {
-            DEBUG_ONLY(
-                // TODO: Use tolerance instead?
-                if( x[i] == y[j] )
-                    LogicError
-                    ( "x[", i, "] = y[", j, "] (", x[i],
-                      ") is not allowed for Cauchy matrices" );
-            )
-            return F1(r[i]*s[j]/x[i]-y[j]);
-         } );
+    auto cauchyFill = 
+      [&]( Int i, Int j )
+      {
+        DEBUG_ONLY(
+          // TODO: Use tolerance instead?
+          if( x[i] == y[j] )
+              LogicError
+              ( "x[", i, "] = y[", j, "] (", x[i],
+                ") is not allowed for Cauchy matrices" );
+        )
+        return F1(r[i]*s[j]/x[i]-y[j]);
+      };
+    IndexDependentFill( A, std::function<F1(Int,Int)>(cauchyFill) );
 }
 
 template<typename F1,typename F2>
@@ -54,18 +55,19 @@ void CauchyLike
         LogicError("y vector was the wrong length");
     A.Resize( m, n );
 
-    IndexDependentFill
-    ( A, [&]( Int i, Int j )
-         {
-            DEBUG_ONLY(
-                // TODO: Use tolerance instead?
-                if( x[i] == y[j] )
-                    LogicError
-                    ( "x[", i, "] = y[", j, "] (", x[i],
-                      ") is not allowed for Cauchy matrices" );
-            )
-            return F1(r[i]*s[j]/x[i]-y[j]);
-         } );
+    auto cauchyFill =
+      [&]( Int i, Int j )
+      {
+        DEBUG_ONLY(
+          // TODO: Use tolerance instead?
+          if( x[i] == y[j] )
+              LogicError
+              ( "x[", i, "] = y[", j, "] (", x[i],
+                ") is not allowed for Cauchy matrices" );
+        )
+        return F1(r[i]*s[j]/x[i]-y[j]);
+      };
+    IndexDependentFill( A, std::function<F1(Int,Int)>(cauchyFill) );
 }
 
 template<typename F1,typename F2>
@@ -83,18 +85,19 @@ void CauchyLike
         LogicError("y vector was the wrong length");
     A.Resize( m, n );
 
-    IndexDependentFill
-    ( A, [&]( Int i, Int j )
-         {
-            DEBUG_ONLY(
-                // TODO: Use tolerance instead?
-                if( x[i] == y[j] )
-                    LogicError
-                    ( "x[", i, "] = y[", j, "] (", x[i],
-                      ") is not allowed for Cauchy matrices" );
-            )
-            return F1(r[i]*s[j]/x[i]-y[j]);
-         } );
+    auto cauchyFill =
+      [&]( Int i, Int j )
+      {
+        DEBUG_ONLY(
+          // TODO: Use tolerance instead?
+          if( x[i] == y[j] )
+              LogicError
+              ( "x[", i, "] = y[", j, "] (", x[i],
+                ") is not allowed for Cauchy matrices" );
+        )
+        return F1(r[i]*s[j]/x[i]-y[j]);
+      };
+    IndexDependentFill( A, std::function<F1(Int,Int)>(cauchyFill) );
 }
 
 #define PROTO_TYPES(F1,F2) \

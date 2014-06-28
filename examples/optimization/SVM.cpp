@@ -58,9 +58,9 @@ main( int argc, char* argv[] )
         DistMatrix<Real> q;
         Ones( q, m, 1 );
         Gemv( NORMAL, Real(1), G, w, -offset, q );
-        EntrywiseMap
-        ( q, []( Real alpha ) 
-             { return ( alpha >=0 ? Real(1) : Real(-1) ); } );
+        auto sgnMap = []( Real alpha ) 
+                      { return alpha >= 0 ? Real(1) : Real(-1); }; 
+        EntrywiseMap( q, std::function<Real(Real)>(sgnMap) );
 
         if( mpi::WorldRank() == 0 )
             std::cout << "offset=" << offset << std::endl;
@@ -93,9 +93,7 @@ main( int argc, char* argv[] )
         DistMatrix<Real> qSVM;
         Ones( qSVM, m, 1 );
         Gemv( NORMAL, Real(1), G, wSVM, -offsetSVM, qSVM );
-        EntrywiseMap
-        ( qSVM, []( Real alpha ) 
-                { return ( alpha >=0 ? Real(1) : Real(-1) ); } );
+        EntrywiseMap( qSVM, std::function<Real(Real)>(sgnMap) );
         if( print )
             Print( qSVM, "qSVM" );
         Axpy( Real(-1), q, qSVM );

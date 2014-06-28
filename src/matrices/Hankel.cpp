@@ -18,7 +18,8 @@ void Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
+    auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
+    IndexDependentFill( A, std::function<T(Int,Int)>(hankelFill) );
 }
 
 template<typename T>
@@ -29,7 +30,8 @@ void Hankel( AbstractDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a )
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
+    auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
+    IndexDependentFill( A, std::function<T(Int,Int)>(hankelFill) );
 }
 
 template<typename T>
@@ -41,7 +43,8 @@ void Hankel
     if( a.size() != (Unsigned)length )
         LogicError("a was the wrong size");
     A.Resize( m, n );
-    IndexDependentFill( A, [&]( Int i, Int j ) { return a[i+j]; } );
+    auto hankelFill = [&]( Int i, Int j ) { return a[i+j]; };
+    IndexDependentFill( A, std::function<T(Int,Int)>(hankelFill) );
 }
 
 #define PROTO(T) \

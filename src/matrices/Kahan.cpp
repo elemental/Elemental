@@ -21,11 +21,12 @@ void Kahan( Matrix<F>& A, Int n, F phi )
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
-    IndexDependentFill
-    ( A, [=]( Int i, Int j ) 
-         { if( i == j )      { return      Pow(zeta,Real(i)); }
-           else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
-           else              { return F(0);                   } } );
+    auto kahanFill = 
+      [=]( Int i, Int j )
+      { if( i == j )      { return      Pow(zeta,Real(i)); }
+        else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
+        else              { return F(0);                   } };
+    IndexDependentFill( A, std::function<F(Int,Int)>(kahanFill) );
 }
 
 template<typename F>
@@ -35,11 +36,12 @@ void Kahan( AbstractDistMatrix<F>& A, Int n, F phi )
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
-    IndexDependentFill
-    ( A, [=]( Int i, Int j ) 
-         { if( i == j )      { return      Pow(zeta,Real(i)); }
-           else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
-           else              { return F(0);                   } } );
+    auto kahanFill = 
+      [=]( Int i, Int j )
+      { if( i == j )      { return      Pow(zeta,Real(i)); }
+        else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
+        else              { return F(0);                   } };
+    IndexDependentFill( A, std::function<F(Int,Int)>(kahanFill) );
 }
 
 template<typename F>
@@ -49,11 +51,12 @@ void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
     A.Resize( n, n );
     const F zeta = Sqrt(F(1)-phi*Conj(phi));
     typedef Base<F> Real;
-    IndexDependentFill
-    ( A, [=]( Int i, Int j ) 
-         { if( i == j )      { return      Pow(zeta,Real(i)); }
-           else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
-           else              { return F(0);                   } } );
+    auto kahanFill = 
+      [=]( Int i, Int j )
+      { if( i == j )      { return      Pow(zeta,Real(i)); }
+        else if(  i < j ) { return -phi*Pow(zeta,Real(i)); }
+        else              { return F(0);                   } };
+    IndexDependentFill( A, std::function<F(Int,Int)>(kahanFill) );
 }
 
 #define PROTO(F) \
