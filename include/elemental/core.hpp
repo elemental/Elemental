@@ -100,7 +100,7 @@
 
 // Declare the intertwined core parts of our library
 #include "elemental/core/Timer/decl.hpp"
-#include "elemental/core/Memory/decl.hpp"
+#include "elemental/core/Memory.hpp"
 #include "elemental/core/Complex/decl.hpp"
 #include "elemental/core/types/decl.hpp"
 #include "elemental/core/imports/mpi.hpp"
@@ -124,7 +124,6 @@
 
 // Implement the intertwined parts of the library
 #include "elemental/core/Timer/impl.hpp"
-#include "elemental/core/Memory/impl.hpp"
 #include "elemental/core/Complex/impl.hpp"
 #include "elemental/core/types/impl.hpp"
 #include "elemental/core/Grid/impl.hpp"
