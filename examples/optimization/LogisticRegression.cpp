@@ -22,6 +22,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--numFeatures","number of features",100);
         const Int maxIter = Input("--maxIter","maximum # of iter's",500);
         const Real gamma = Input("--gamma","two-norm coefficient",1.);
+        const Int penaltyInt = Input("--penalty","0: none, 1: l1, 2: l2",1);
         const Real rho = Input("--rho","augmented Lagrangian param.",1.);
         const bool inv = Input("--inv","use explicit inverse",true);
         const bool progress = Input("--progress","print progress?",true);
@@ -29,6 +30,8 @@ main( int argc, char* argv[] )
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
         PrintInputReport();
+
+        Regularization penalty = static_cast<Regularization>(penaltyInt);
 
         // Define a random (affine) hyperplane 
         DistMatrix<Real> w;
@@ -70,29 +73,33 @@ main( int argc, char* argv[] )
         if( display )
             Display( G, "G" );
 
-        DistMatrix<Real> wHatSVM;
-        SVM( G, q, wHatSVM, gamma, rho, maxIter, inv, progress );
-        auto wSVM = View( wHatSVM, 0, 0, n, 1 );
-        const Real offsetSVM = -wHatSVM.Get(n,0);
-        const Real wSVMNorm = FrobeniusNorm( wSVM );
+        DistMatrix<Real> wHatLog;
+        LogisticRegression
+        ( G, q, wHatLog, gamma, penalty, rho, maxIter, inv, progress );
+        auto wLog = View( wHatLog, 0, 0, n, 1 );
+        const Real offsetLog = -wHatLog.Get(n,0);
+        const Real wLogOneNorm = OneNorm( wLog );
+        const Real wLogFrobNorm = FrobeniusNorm( wLog );
         if( mpi::WorldRank() == 0 )
-            std::cout << "|| wSVM ||_2=" << wSVMNorm << "\n"
-                      << "margin      =" << Real(2)/wSVMNorm << "\n"
-                      << "offsetSVM=" << offsetSVM << "\n"
-                      << "offsetSVM / || wSVM ||_2=" << offsetSVM/wSVMNorm 
+            std::cout << "|| wLog ||_1=" << wLogOneNorm << "\n"
+                      << "|| wLog ||_2=" << wLogFrobNorm << "\n"
+                      << "margin      =" << Real(2)/wLogFrobNorm << "\n"
+                      << "offsetLog=" << offsetLog << "\n"
+                      << "offsetLog / || wLog ||_2=" << offsetLog/wLogFrobNorm 
                       << std::endl;
         if( print )
-            Print( wSVM, "wSVM" );
+            Print( wLog, "wLog" );
 
         // Report the classification percentage using the returned hyperplane
-        DistMatrix<Real> qSVM;
-        Ones( qSVM, m, 1 );
-        Gemv( NORMAL, Real(1), G, wSVM, -offsetSVM, qSVM );
-        EntrywiseMap( qSVM, std::function<Real(Real)>(sgnMap) );
+        // TODO: Evaluate probabilities implied by logistic function
+        DistMatrix<Real> qLog;
+        Ones( qLog, m, 1 );
+        Gemv( NORMAL, Real(1), G, wLog, -offsetLog, qLog );
+        EntrywiseMap( qLog, std::function<Real(Real)>(sgnMap) );
         if( print )
-            Print( qSVM, "qSVM" );
-        Axpy( Real(-1), q, qSVM );
-        const Real numWrong = OneNorm(qSVM) / Real(2);
+            Print( qLog, "qLog" );
+        Axpy( Real(-1), q, qLog );
+        const Real numWrong = OneNorm(qLog) / Real(2);
         if( mpi::WorldRank() == 0 )
             std::cout << "ratio misclassified: " << numWrong << "/" << m 
                       << std::endl;

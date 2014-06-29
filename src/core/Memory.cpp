@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El-lite.hpp"
+#include "El/config-internal.h"
 
 namespace El {
 

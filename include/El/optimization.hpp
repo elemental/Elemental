@@ -12,6 +12,15 @@
 
 namespace El {
 
+namespace RegularizationNS {
+enum Regularization {
+  NO_PENALTY,
+  L1_PENALTY,
+  L2_PENALTY
+};
+}
+using namespace RegularizationNS;
+
 // Basis pursuit: min || z ||_1 such that A z = b
 // ==============================================
 template<typename F>
@@ -58,6 +67,19 @@ Int LinearProgram
   const DistMatrix<Real>& c, DistMatrix<Real>& z,
   Real rho=1, Real alpha=1.2, Int maxIter=500, Real absTol=1e-6,
   Real relTol=1e-4, bool inv=true, bool progress=true );
+
+// Logistic Regression
+// ===================
+template<typename Real>
+Int LogisticRegression
+( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& z,
+  Real gamma, Regularization penalty=L1_PENALTY,
+  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+template<typename Real>
+Int LogisticRegression
+( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& z,
+  Real gamma, Regularization penalty=L1_PENALTY,
+  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
 // Fit a model with using a loss function plus regularization
 // ==========================================================
@@ -160,13 +182,12 @@ Int SparseInvCov
 // ======================
 template<typename Real>
 Int SVM
-( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, Matrix<Real>& z,
-  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& z,
+  Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 template<typename Real>
 Int SVM
-( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, 
-  DistMatrix<Real>& z,
-  Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
+( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& z,
+  Real gamma, Real rho=1, Int maxIter=500, bool inv=true, bool progress=true );
 
 // Utilities
 // =========

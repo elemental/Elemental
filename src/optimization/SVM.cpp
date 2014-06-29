@@ -14,8 +14,8 @@ namespace El {
 
 template<typename Real>
 Int SVM
-( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, Matrix<Real>& w,
-  Real rho, Int maxIter, bool inv, bool progress )
+( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w,
+  Real gamma, Real rho, Int maxIter, bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SVM"))
     const Int numExamples = G.Height();
@@ -49,8 +49,8 @@ Int SVM
 
 template<typename Real>
 Int SVM
-( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, 
-  DistMatrix<Real>& w, Real rho, Int maxIter, bool inv, bool progress )
+( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& w, 
+  Real gamma, Real rho, Int maxIter, bool inv, bool progress )
 {
     DEBUG_ONLY(CallStackEntry cse("SVM"))
     const Int numExamples = G.Height();
@@ -92,11 +92,11 @@ Int SVM
 
 #define PROTO(Real) \
   template Int SVM \
-  ( const Matrix<Real>& G, const Matrix<Real>& q, Real gamma, \
-    Matrix<Real>& w, Real rho, Int maxIter, bool inv, bool progress ); \
+  ( const Matrix<Real>& G, const Matrix<Real>& q, Matrix<Real>& w, \
+    Real gamma, Real rho, Int maxIter, bool inv, bool progress ); \
   template Int SVM \
-  ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, Real gamma, \
-    DistMatrix<Real>& w, Real rho, Int maxIter, bool inv, bool progress );
+  ( const DistMatrix<Real>& G, const DistMatrix<Real>& q, DistMatrix<Real>& w, \
+    Real gamma, Real rho, Int maxIter, bool inv, bool progress );
 
 PROTO(float)
 PROTO(double)
