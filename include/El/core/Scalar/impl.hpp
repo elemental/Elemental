@@ -20,195 +20,146 @@ std::ostream& operator<<( std::ostream& os, Complex<Real> alpha )
 }
 
 template<typename Real>
-inline Real
-RealPart( const Real& alpha )
-{ return alpha; }
+inline Real RealPart( const Real&          alpha ) { return alpha; }
+template<typename Real>
+inline Real RealPart( const Complex<Real>& alpha ) { return alpha.real(); }
 
 template<typename Real>
-inline Real
-RealPart( const Complex<Real>& alpha )
-{ return alpha.real(); }
+inline Real ImagPart( const Real&          alpha ) { return 0; }
+template<typename Real>
+inline Real ImagPart( const Complex<Real>& alpha ) { return alpha.imag(); }
 
 template<typename Real>
-inline Real
-ImagPart( const Real& alpha )
-{ return 0; }
-
+inline void SetRealPart( Real& alpha, const Real& beta ) { alpha = beta; }
 template<typename Real>
-inline Real
-ImagPart( const Complex<Real>& alpha )
-{ return alpha.imag(); }
-
-template<typename Real>
-inline void
-SetRealPart( Real& alpha, const Real& beta )
-{ alpha = beta; }
-
-template<typename Real>
-inline void
-SetRealPart( Complex<Real>& alpha, const Real& beta )
+inline void SetRealPart( Complex<Real>& alpha, const Real& beta )
 { alpha.real(beta); }
 
 template<typename Real>
-inline void
-SetImagPart( Real& alpha, const Real& beta )
+inline void SetImagPart( Real& alpha, const Real& beta )
 {
     DEBUG_ONLY(CallStackEntry cse("SetImagPart"))
     LogicError("Nonsensical assignment");
 }
-
 template<typename Real>
-inline void
-SetImagPart( Complex<Real>& alpha, const Real& beta )
+inline void SetImagPart( Complex<Real>& alpha, const Real& beta )
 { alpha.imag(beta); }
 
 template<typename Real>
-inline void
-UpdateRealPart( Real& alpha, const Real& beta )
+inline void UpdateRealPart( Real& alpha, const Real& beta )
 { alpha += beta; }
-
 template<typename Real>
-inline void
-UpdateRealPart( Complex<Real>& alpha, const Real& beta )
+inline void UpdateRealPart( Complex<Real>& alpha, const Real& beta )
 { alpha.real( alpha.real()+beta ); }
 
 template<typename Real>
-inline void
-UpdateImagPart( Real& alpha, const Real& beta )
+inline void UpdateImagPart( Real& alpha, const Real& beta )
 {
     DEBUG_ONLY(CallStackEntry cse("UpdateImagPart"))
     LogicError("Nonsensical update");
 }
-
 template<typename Real>
-inline void
-UpdateImagPart( Complex<Real>& alpha, const Real& beta )
+inline void UpdateImagPart( Complex<Real>& alpha, const Real& beta )
 { alpha.imag( alpha.imag()+beta ); }
 
 template<typename F>
-inline Base<F>
-Abs( const F& alpha )
-{ return std::abs(alpha); }
+inline Base<F> Abs( const F& alpha ) { return std::abs(alpha); }
 
 template<typename Real>
-inline Real
-SafeAbs( const Real& alpha )
-{ return Abs(alpha); }
-
+inline Real SafeAbs( const Real& alpha ) { return Abs(alpha); }
 template<typename Real>
-inline Real
-SafeAbs( const Complex<Real>& alpha )
+inline Real SafeAbs( const Complex<Real>& alpha )
 { return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
 
 template<typename F>
-inline Base<F>
-FastAbs( const F& alpha )
+inline Base<F> FastAbs( const F& alpha )
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
 template<typename Real>
-inline Real
-Conj( const Real& alpha )
-{ return alpha; }
+inline Real Conj( const Real& alpha ) { return alpha; }
 
 template<typename Real>
-inline Complex<Real>
-Conj( const Complex<Real>& alpha )
+inline Complex<Real> Conj( const Complex<Real>& alpha )
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
 template<typename F>
-inline F
-Sqrt( const F& alpha )
-{ return std::sqrt(alpha); }
+inline F      Sqrt( const F&   alpha ) { return std::sqrt(alpha); }
+inline double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
 
 template<typename F>
-inline F
-Cos( const F& alpha )
-{ return std::cos(alpha); }
+inline F      Cos( const F&   alpha ) { return std::cos(alpha); }
+inline double Cos( const Int& alpha ) { return std::cos(alpha); }
 
 template<typename F>
-inline F
-Sin( const F& alpha )
-{ return std::sin(alpha); }
+inline F      Sin( const F&   alpha ) { return std::sin(alpha); }
+inline double Sin( const Int& alpha ) { return std::sin(alpha); }
 
 template<typename F>
-inline F
-Tan( const F& alpha )
-{ return std::tan(alpha); }
+inline F      Tan( const F&   alpha ) { return std::tan(alpha); }
+inline double Tan( const Int& alpha ) { return std::tan(alpha); }
 
 template<typename F>
-inline F
-Cosh( const F& alpha )
-{ return std::cosh(alpha); }
+inline F      Cosh( const F&   alpha ) { return std::cosh(alpha); }
+inline double Cosh( const Int& alpha ) { return std::cosh(alpha); }
 
 template<typename F>
-inline F
-Sinh( const F& alpha )
-{ return std::sinh(alpha); }
+inline F      Sinh( const F&   alpha ) { return std::sinh(alpha); }
+inline double Sinh( const Int& alpha ) { return std::sinh(alpha); }
 
 template<typename F>
-inline F
-Tanh( const F& alpha )
-{ return std::tanh(alpha); }
+inline F      Tanh( const F&   alpha ) { return std::tanh(alpha); }
+inline double Tanh( const Int& alpha ) { return std::tanh(alpha); }
 
 template<typename F>
-inline F
-Acos( const F& alpha )
-{ return std::acos(alpha); }
+inline F      Acos( const F&   alpha ) { return std::acos(alpha); }
+inline double Acos( const Int& alpha ) { return std::acos(alpha); }
 
 template<typename F>
-inline F
-Asin( const F& alpha )
-{ return std::asin(alpha); }
+inline F      Asin( const F&   alpha ) { return std::asin(alpha); }
+inline double Asin( const Int& alpha ) { return std::asin(alpha); }
 
 template<typename F>
-inline F
-Atan( const F& alpha )
-{ return std::atan(alpha); }
+inline F      Atan( const F&   alpha ) { return std::atan(alpha); }
+inline double Atan( const Int& alpha ) { return std::atan(alpha); }
 
 template<typename Real>
-inline Real
-Atan2( const Real& y, const Real& x )
+inline Real Atan2( const Real& y, const Real& x ) 
+{ return std::atan2( y, x ); }
+inline double Atan2( const Int& y, const Int& x )
 { return std::atan2( y, x ); }
 
 template<typename F>
-inline F
-Acosh( const F& alpha )
-{ return std::acosh(alpha); }
+inline F      Acosh( const F&   alpha ) { return std::acosh(alpha); }
+inline double Acosh( const Int& alpha ) { return std::acosh(alpha); }
 
 template<typename F>
-inline F
-Asinh( const F& alpha )
-{ return std::asinh(alpha); }
+inline F      Asinh( const F&   alpha ) { return std::asinh(alpha); }
+inline double Asinh( const Int& alpha ) { return std::asinh(alpha); }
 
 template<typename F>
-inline F
-Atanh( const F& alpha )
-{ return std::atanh(alpha); }
+inline F      Atanh( const F&   alpha ) { return std::atanh(alpha); }
+inline double Atanh( const Int& alpha ) { return std::atanh(alpha); }
 
 template<typename F>
-inline Base<F>
-Arg( const F& alpha )
+inline Base<F> Arg( const F& alpha )
 { return Atan2( ImagPart(alpha), RealPart(alpha) ); }
 
 template<typename Real>
-inline Complex<Real>
-Polar( const Real& r, const Real& theta )
+inline Complex<Real> Polar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
 template<typename F>
-inline F
-Exp( const F& alpha )
-{ return std::exp(alpha); }
+inline F      Exp( const F&   alpha ) { return std::exp(alpha); }
+inline double Exp( const Int& alpha ) { return std::exp(alpha); }
 
 template<typename F,typename T>
-inline F
-Pow( const F& alpha, const T& beta )
-{ return std::pow(alpha,beta); }
+inline F Pow( const F& alpha, const T& beta ) { return std::pow(alpha,beta); }
+// NOTE: What about integer to a floating-point power? Switch to auto 
+//       return type inherited from std::pow?
 
 template<typename F>
-inline F
-Log( const F& alpha )
-{ return std::log(alpha); }
+inline F      Log( const F&   alpha ) { return std::log(alpha); }
+inline double Log( const Int& alpha ) { return std::log(alpha); }
 
 } // namespace El
 
