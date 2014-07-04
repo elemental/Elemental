@@ -8,6 +8,8 @@
 */
 #include "El.hpp"
 
+// The inverse of a scaled Jordan block
+
 namespace El {
 
 template<typename F> 
@@ -102,9 +104,7 @@ void Demmel( AbstractBlockDistMatrix<F>& A, Int n )
   template void Demmel( AbstractDistMatrix<F>& A, Int n ); \
   template void Demmel( AbstractBlockDistMatrix<F>& A, Int n );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #define ColDist CIRC
 #define RowDist CIRC
@@ -22,8 +22,7 @@ namespace El {
 // ==============================
 
 template<typename T>
-DM&
-DM::operator=( const DM& A )
+DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM[U,V] = DM[U,V]"))
     A.Translate( *this );
@@ -31,8 +30,7 @@ DM::operator=( const DM& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MC,MR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MC,MR]"))
     this->CollectFrom( A );
@@ -40,8 +38,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MC,STAR]"))
     this->CollectFrom( A );
@@ -49,8 +46,7 @@ DM::operator=( const DistMatrix<T,MC,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,MR]"))
     this->CollectFrom( A );
@@ -58,8 +54,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MD,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("[CIRC,CIRC] = [MD,STAR]");
@@ -143,8 +138,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MD>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("[CIRC,CIRC] = [STAR,MD]");
@@ -224,8 +218,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MR,MC>& A )
+DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MR,MC]"))
     this->CollectFrom( A );
@@ -233,8 +226,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [MR,STAR]"))
     this->CollectFrom( A );
@@ -242,8 +234,7 @@ DM::operator=( const DistMatrix<T,MR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MC>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,MC]"))
     this->CollectFrom( A );
@@ -251,8 +242,7 @@ DM::operator=( const DistMatrix<T,STAR,MC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,VC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [VC,STAR]"))
     this->CollectFrom( A );
@@ -260,8 +250,7 @@ DM::operator=( const DistMatrix<T,VC,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,VC>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,VC]"))
     this->CollectFrom( A );
@@ -269,8 +258,7 @@ DM::operator=( const DistMatrix<T,STAR,VC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,VR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [VR,STAR]"))
     this->CollectFrom( A );
@@ -278,8 +266,7 @@ DM::operator=( const DistMatrix<T,VR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,VR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,VR]"))
     this->CollectFrom( A );
@@ -287,8 +274,7 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC] = [STAR,STAR]"))
     this->Resize( A.Height(), A.Width() );
@@ -298,8 +284,7 @@ DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 }
 
 template<typename T>
-void
-DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
+void DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromRoot"))
     if( this->CrossRank() != this->Root() )
@@ -312,8 +297,7 @@ DM::CopyFromRoot( const Matrix<T>& A, bool includingViewers )
 }
 
 template<typename T>
-void
-DM::CopyFromNonRoot( bool includingViewers )
+void DM::CopyFromNonRoot( bool includingViewers )
 {
     DEBUG_ONLY(CallStackEntry cse("[CIRC,CIRC]::CopyFromNonRoot"))
     if( this->CrossRank() == this->Root() )
@@ -448,7 +432,6 @@ DM::Scatter( DistMatrix<T,U,V>& A ) const
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
 #define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const DistMatrix<T,U,V>& A );
@@ -461,8 +444,8 @@ DM::Scatter( DistMatrix<T,U,V>& A ) const
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
-#define FULL(T) \
-  PROTO(T); \
+#define PROTO(T) \
+  template class DistMatrix<T,ColDist,RowDist>; \
   OTHER(T,CIRC,CIRC); \
   BOTH( T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \
@@ -478,17 +461,6 @@ DM::Scatter( DistMatrix<T,U,V>& A ) const
   BOTH( T,VC,  STAR); \
   BOTH( T,VR,  STAR);
 
-FULL(Int);
-#ifndef EL_DISABLE_FLOAT
-FULL(float);
-#endif
-FULL(double);
-
-#ifndef EL_DISABLE_COMPLEX
-#ifndef EL_DISABLE_FLOAT
-FULL(Complex<float>);
-#endif
-FULL(Complex<double>);
-#endif
+#include "El/macros/Instantiate.h"
 
 } // namespace El

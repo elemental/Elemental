@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -38,10 +38,6 @@ void MakeReal( AbstractDistMatrix<T>& A )
   template void MakeReal( Matrix<T>& A ); \
   template void MakeReal( AbstractDistMatrix<T>& A ); 
 
-PROTO(Int);
-PROTO(float);
-PROTO(double);
-PROTO(Complex<float>);
-PROTO(Complex<double>);
+#include "El/macros/Instantiate.h"
 
 } // namespace El

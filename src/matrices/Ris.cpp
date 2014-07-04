@@ -45,9 +45,7 @@ void Ris( AbstractBlockDistMatrix<F>& R, Int n )
   template void Ris( AbstractDistMatrix<F>& R, Int n ); \
   template void Ris( AbstractBlockDistMatrix<F>& R, Int n );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

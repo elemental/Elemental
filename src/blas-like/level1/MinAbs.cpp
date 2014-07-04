@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -362,5 +362,35 @@ ValueInt<Base<F>> DiagonalMinAbs( const DistMatrix<F,U,V>& A )
     DEBUG_ONLY(CallStackEntry cse("DiagonalMinAbs"))
     return VectorMinAbs( A.GetDiagonal() );
 }
+
+#define DIST_PROTO(F,U,V) \
+  template ValueInt<Base<F>> DiagonalMinAbs( const DistMatrix<F,U,V>& A );
+
+#define PROTO(F) \
+  template ValueInt<Base<F>> VectorMinAbs( const Matrix<F>& x ); \
+  template ValueInt<Base<F>> VectorMinAbs( const AbstractDistMatrix<F>& x ); \
+  template ValueIntPair<Base<F>> MinAbs( const Matrix<F>& x ); \
+  template ValueIntPair<Base<F>> MinAbs( const AbstractDistMatrix<F>& x ); \
+  template ValueIntPair<Base<F>> SymmetricMinAbs \
+  ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template ValueIntPair<Base<F>> SymmetricMinAbs \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template ValueInt<Base<F>> DiagonalMinAbs( const Matrix<F>& A ); \
+  DIST_PROTO(F,CIRC,CIRC); \
+  DIST_PROTO(F,MC,  MR  ); \
+  DIST_PROTO(F,MC,  STAR); \
+  DIST_PROTO(F,MD,  STAR); \
+  DIST_PROTO(F,MR,  MC  ); \
+  DIST_PROTO(F,MR,  STAR); \
+  DIST_PROTO(F,STAR,MC  ); \
+  DIST_PROTO(F,STAR,MD  ); \
+  DIST_PROTO(F,STAR,MR  ); \
+  DIST_PROTO(F,STAR,STAR); \
+  DIST_PROTO(F,STAR,VC  ); \
+  DIST_PROTO(F,STAR,VR  ); \
+  DIST_PROTO(F,VC,  STAR); \
+  DIST_PROTO(F,VR,  STAR); 
+
+#include "El/macros/Instantiate.h"
 
 } // namespace El

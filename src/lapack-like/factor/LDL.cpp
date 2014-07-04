@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./LDL/Var3.hpp"
 #include "./LDL/Pivoted.hpp"
@@ -84,9 +84,7 @@ void LDL
   ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, \
     const DistMatrix<Int,VC,STAR>& pPerm, DistMatrix<F>& B, bool conjugated );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

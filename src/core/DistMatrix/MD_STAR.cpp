@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #define ColDist MD
 #define RowDist STAR
@@ -22,8 +22,7 @@ namespace El {
 // ==============================
 
 template<typename T>
-DM&
-DM::operator=( const DM& A )
+DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM[U,V] = DM[U,V]"))
     A.Translate( *this );
@@ -31,8 +30,7 @@ DM::operator=( const DM& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MC,MR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MC,MR]"))
     // TODO: More efficient implementation?
@@ -42,8 +40,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MC,STAR]"))
     // TODO: More efficient implementation?
@@ -53,8 +50,7 @@ DM::operator=( const DistMatrix<T,MC,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,MR]"))
     // TODO: More efficient implementation?
@@ -64,8 +60,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MD>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,MD]"))
     // TODO: More efficient implementation?
@@ -75,8 +70,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MR,MC>& A )
+DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MR,MC]"))
     // TODO: More efficient implementation?
@@ -86,8 +80,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [MR,STAR]"))
     // TODO: More efficient implementation?
@@ -97,8 +90,7 @@ DM::operator=( const DistMatrix<T,MR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MC>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,MC]"))
     // TODO: More efficient implementation?
@@ -108,8 +100,7 @@ DM::operator=( const DistMatrix<T,STAR,MC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,VC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [VC,STAR]"))
     // TODO: More efficient implementation?
@@ -119,8 +110,7 @@ DM::operator=( const DistMatrix<T,VC,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,VC>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,VC]"))
     // TODO: More efficient implementation?
@@ -130,8 +120,7 @@ DM::operator=( const DistMatrix<T,STAR,VC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,VR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [VR,STAR]"))
     // TODO: More efficient implementation?
@@ -141,8 +130,7 @@ DM::operator=( const DistMatrix<T,VR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,VR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,VR]"))
     // TODO: More efficient implementation?
@@ -152,8 +140,7 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [STAR,STAR]"))
     this->ColFilterFrom( A );
@@ -161,8 +148,7 @@ DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
+DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MD,STAR] = [CIRC,CIRC]"))
     DistMatrix<T,MC,MR> A_MC_MR( this->Grid() );
@@ -200,7 +186,6 @@ Int DM::RedundantSize() const { return 1; }
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
 #define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const DistMatrix<T,U,V>& A );
@@ -213,8 +198,8 @@ Int DM::RedundantSize() const { return 1; }
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
-#define FULL(T) \
-  PROTO(T); \
+#define PROTO(T) \
+  template class DistMatrix<T,ColDist,RowDist>; \
   BOTH( T,CIRC,CIRC); \
   BOTH( T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \
@@ -230,17 +215,6 @@ Int DM::RedundantSize() const { return 1; }
   BOTH( T,VC,  STAR); \
   BOTH( T,VR,  STAR);
 
-FULL(Int);
-#ifndef EL_DISABLE_FLOAT
-FULL(float);
-#endif
-FULL(double);
-
-#ifndef EL_DISABLE_COMPLEX
-#ifndef EL_DISABLE_FLOAT
-FULL(Complex<float>);
-#endif
-FULL(Complex<double>);
-#endif
+#include "El/macros/Instantiate.h"
 
 } // namespace El

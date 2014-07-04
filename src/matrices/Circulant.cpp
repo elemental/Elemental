@@ -48,10 +48,6 @@ void Circulant( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a )
   template void Circulant \
   ( AbstractBlockDistMatrix<T>& A, const std::vector<T>& a ); 
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

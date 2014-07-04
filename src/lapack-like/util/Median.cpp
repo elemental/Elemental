@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -66,8 +66,7 @@ ValueInt<Real> Median( const DistMatrix<Real,U,V>& x )
   template ValueInt<Real> Median( const DistMatrix<Real,VC,  STAR>& x ); \
   template ValueInt<Real> Median( const DistMatrix<Real,VR,  STAR>& x );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

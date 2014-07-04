@@ -60,7 +60,8 @@ void BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n )
    template void BullsHead( AbstractDistMatrix<Complex<Real>>& A, Int n ); \
    template void BullsHead( AbstractBlockDistMatrix<Complex<Real>>& A, Int n );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -40,9 +40,7 @@ void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau )
   template void FrobeniusProx( Matrix<F>& A, Base<F> tau ); \
   template void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

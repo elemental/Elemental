@@ -282,9 +282,7 @@ void RPCA
   ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, \
     const RpcaCtrl<Base<F>>& ctrl );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

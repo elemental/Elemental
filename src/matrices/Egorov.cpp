@@ -61,7 +61,8 @@ void Egorov
   ( AbstractBlockDistMatrix<Complex<Real>>& A, \
     std::function<Real(Int,Int)> phase, Int n );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

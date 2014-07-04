@@ -66,10 +66,6 @@ void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n )
   template void Identity( AbstractDistMatrix<T>& I, Int m, Int n ); \
   template void Identity( AbstractBlockDistMatrix<T>& I, Int m, Int n );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

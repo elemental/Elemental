@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -385,8 +385,7 @@ ValueInt<Real> DiagonalMax( const DistMatrix<Real,U,V>& A )
   DIST_PROTO(Real,VC,  STAR); \
   DIST_PROTO(Real,VR,  STAR); 
 
-PROTO(Int);
-PROTO(float);
-PROTO(double);
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

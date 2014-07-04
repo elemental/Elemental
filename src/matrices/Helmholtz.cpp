@@ -217,9 +217,7 @@ void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift )
   template void Helmholtz \
   ( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

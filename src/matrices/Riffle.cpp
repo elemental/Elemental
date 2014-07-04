@@ -250,9 +250,7 @@ void RiffleDecay( BlockDistMatrix<F,U,V>& A, Int n )
   PROTO_DIST(F,VC,  STAR) \
   PROTO_DIST(F,VR,  STAR)
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

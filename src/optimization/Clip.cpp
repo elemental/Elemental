@@ -100,7 +100,8 @@ void Clip( BlockDistMatrix<Real,U,V>& X, Real lowerBound, Real upperBound )
   PROTO_DIST(Real,VC,  STAR) \
   PROTO_DIST(Real,VR,  STAR)
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

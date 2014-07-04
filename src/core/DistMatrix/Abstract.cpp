@@ -6,8 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
-
+#include "El.hpp"
 
 namespace El {
 
@@ -1832,22 +1831,11 @@ AssertConforming2x2
   ( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );\
   template void AssertConforming2x2\
   ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,\
-    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR )
+    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
 #else
- #define PROTO(T) template class AbstractDistMatrix<T>
+ #define PROTO(T) template class AbstractDistMatrix<T>;
 #endif
- 
-PROTO(Int);
-#ifndef EL_DISABLE_FLOAT
-PROTO(float);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<float>);
-#endif // ifndef EL_DISABLE_COMPLEX
-#endif // ifndef EL_DISABLE_FLOAT
 
-PROTO(double);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<double>);
-#endif // ifndef EL_DISABLE_COMPLEX
+#include "El/macros/Instantiate.h"
 
 } // namespace El

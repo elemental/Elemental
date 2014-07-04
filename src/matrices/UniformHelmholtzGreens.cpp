@@ -198,7 +198,8 @@ void UniformHelmholtzGreens
   template void UniformHelmholtzGreens \
   ( AbstractBlockDistMatrix<Complex<Real>>& A, Int n, Real lambda );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

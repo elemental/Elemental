@@ -44,10 +44,6 @@ void Wilkinson( AbstractDistMatrix<T>& A, Int k )
   template void Wilkinson( Matrix<T>& A, Int k ); \
   template void Wilkinson( AbstractDistMatrix<T>& A, Int k );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

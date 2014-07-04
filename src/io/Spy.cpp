@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
-#include "El/io.hpp"
-
+#include "El.hpp"
 #include "El/io/SpyWindow.hpp"
 
 #ifdef EL_HAVE_QT5
@@ -101,7 +99,7 @@ void Spy
     #define PAYLOAD(CDIST,RDIST) \
       auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       Spy( ACast, title, tol );
-    #include "El/core/GuardAndPayload.h"
+    #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
@@ -114,7 +112,7 @@ void Spy
     #define PAYLOAD(CDIST,RDIST) \
       auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
       Spy( ACast, title, tol );
-    #include "El/core/GuardAndPayload.h"
+    #include "El/macros/GuardAndPayload.h"
 }
 
 #define PROTO(T) \
@@ -124,17 +122,6 @@ void Spy
   template void Spy \
   ( const AbstractBlockDistMatrix<T>& A, std::string title, Base<T> tol ); 
 
-PROTO(Int);
-#ifndef EL_DISABLE_FLOAT
-PROTO(float);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<float>);
-#endif // ifndef EL_DISABLE_COMPLEX
-#endif // ifndef EL_DISABLE_FLOAT
-
-PROTO(double);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<double>);
-#endif // ifndef EL_DISABLE_COMPLEX
+#include "El/macros/Instantiate.h"
 
 } // namespace El

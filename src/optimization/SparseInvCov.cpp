@@ -206,9 +206,7 @@ Int SparseInvCov
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool progress );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -11,7 +11,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./Reflector/Col.hpp"
 #include "./Reflector/Row.hpp"
@@ -278,9 +278,7 @@ F RightReflector( F& chi, DistMatrix<F,U,V>& x )
   template F reflector::Row( F& chi, DistMatrix<F>& x ); \
   template F reflector::Row( DistMatrix<F>& chi, DistMatrix<F>& x );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

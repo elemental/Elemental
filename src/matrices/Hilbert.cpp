@@ -42,9 +42,7 @@ void Hilbert( AbstractBlockDistMatrix<F>& A, Int n )
   template void Hilbert( AbstractDistMatrix<F>& A, Int n ); \
   template void Hilbert( AbstractBlockDistMatrix<F>& A, Int n );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

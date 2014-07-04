@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./Hessenberg/L.hpp"
 #include "./Hessenberg/U.hpp"
@@ -70,14 +70,14 @@ void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A )
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& H ); \
   template void hessenberg::ApplyQ \
   ( UpperOrLower uplo, LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& H ); \
+    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
+    DistMatrix<F>& H ); \
   template void hessenberg::ApplyQ \
   ( UpperOrLower uplo, LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& H );
+    const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
+    DistMatrix<F>& H );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

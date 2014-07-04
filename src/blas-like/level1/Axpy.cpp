@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -92,7 +92,7 @@ void Axpy( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Axpy( alpha, ACast, BCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 #define DIST_PROTO_INNER(T,S,U,V,W,Z) \
@@ -140,15 +140,11 @@ void Axpy( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
   PROTO_TYPES(T,Int) \
   PROTO_TYPES(T,T)
 
-#define PROTO_CPX(T) \
+#define PROTO_COMPLEX(T) \
   PROTO_TYPES(T,Int) \
   PROTO_TYPES(T,Base<T>) \
   PROTO_TYPES(T,T)
 
-PROTO_INT(Int)
-PROTO_REAL(float)
-PROTO_REAL(double)
-PROTO_CPX(Complex<float>)
-PROTO_CPX(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

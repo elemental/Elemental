@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -129,8 +129,7 @@ std::vector<ValueInt<Real>> TaggedSort
   PROTO_DIST(Real,VC,  STAR) \
   PROTO_DIST(Real,VR,  STAR)
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

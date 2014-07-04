@@ -118,14 +118,12 @@ void CauchyLike
   PROTO_TYPES(F,Int) \
   PROTO_TYPES(F,F)
 
-#define PROTO_CPX(F) \
+#define PROTO_COMPLEX(F) \
   PROTO_TYPES(F,Int) \
   PROTO_TYPES(F,Base<F>) \
   PROTO_TYPES(F,F)
 
-PROTO_REAL(float)
-PROTO_REAL(double)
-PROTO_CPX(Complex<float>)
-PROTO_CPX(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -64,9 +64,7 @@ void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi )
   template void Kahan( AbstractDistMatrix<F>& A, Int n, F phi ); \
   template void Kahan( AbstractBlockDistMatrix<F>& A, Int n, F phi ); 
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

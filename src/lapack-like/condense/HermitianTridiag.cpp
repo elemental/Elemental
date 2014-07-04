@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./HermitianTridiag/L.hpp"
 #include "./HermitianTridiag/LSquare.hpp"
@@ -40,8 +40,7 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void
-HermitianTridiag
+void HermitianTridiag
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t,
   const HermitianTridiagCtrl ctrl )
 {
@@ -122,8 +121,7 @@ HermitianTridiag
 }
 
 template<typename F>
-void
-HermitianTridiag
+void HermitianTridiag
 ( UpperOrLower uplo, DistMatrix<F>& A, const HermitianTridiagCtrl ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiag"))
@@ -157,16 +155,7 @@ HermitianTridiag
     const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
           DistMatrix<F>& B );
 
-#ifndef EL_DISABLE_FLOAT
-PROTO(float);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<float>);
-#endif // ifndef EL_DISABLE_COMPLEX
-#endif // ifndef EL_DISABLE_FLOAT
-
-PROTO(double);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<double>);
-#endif // ifndef EL_DISABLE_COMPLEX
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -42,10 +42,6 @@ void MinIJ( AbstractBlockDistMatrix<T>& M, Int n )
   template void MinIJ( AbstractDistMatrix<T>& M, Int n ); \
   template void MinIJ( AbstractBlockDistMatrix<T>& M, Int n );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

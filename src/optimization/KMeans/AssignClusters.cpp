@@ -98,10 +98,8 @@ void AssignClusters
           DistMatrix<Int,    MC,STAR>& cluster, \
           DistMatrix<Base<F>,MC,STAR>& dist );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace kmeans
 } // namespace El

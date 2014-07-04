@@ -75,10 +75,6 @@ void Lauchli( BlockDistMatrix<T,U,V>& A, Int n, T mu )
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR)
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

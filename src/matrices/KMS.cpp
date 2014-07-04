@@ -51,10 +51,6 @@ void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho )
   template void KMS( AbstractDistMatrix<T>& K, Int n, T rho ); \
   template void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

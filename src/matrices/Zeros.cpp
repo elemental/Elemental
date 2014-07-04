@@ -39,10 +39,6 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n )
   template void Zeros( AbstractDistMatrix<T>& A, Int m, Int n ); \
   template void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

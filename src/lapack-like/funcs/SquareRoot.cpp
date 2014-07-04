@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 // See Eq. 6.3 of Nicholas J. Higham and Awad H. Al-Mohy's "Computing Matrix
 // Functions", which is currently available at:
@@ -261,9 +261,7 @@ void HPSDSquareRoot
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

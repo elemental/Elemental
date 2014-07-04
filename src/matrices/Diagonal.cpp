@@ -63,15 +63,11 @@ void Diagonal( AbstractBlockDistMatrix<S>& D, const std::vector<T>& d )
   PROTO_TYPES(S,Int) \
   PROTO_TYPES(S,S)
 
-#define PROTO_CPX(S) \
+#define PROTO_COMPLEX(S) \
   PROTO_TYPES(S,Int) \
   PROTO_TYPES(S,Base<S>) \
   PROTO_TYPES(S,S)
 
-PROTO_INT(Int)
-PROTO_REAL(float)
-PROTO_REAL(double)
-PROTO_CPX(Complex<float>)
-PROTO_CPX(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

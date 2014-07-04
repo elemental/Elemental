@@ -67,9 +67,7 @@ void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S )
   template void Covariance( const Matrix<F>& D, Matrix<F>& S ); \
   template void Covariance( const DistMatrix<F>& D, DistMatrix<F>& S );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -75,19 +75,8 @@ void Uniform
   template void Uniform \
   ( AbstractDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius ); \
   template void Uniform \
-  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius )
+  ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T center, Base<T> radius );
 
-PROTO(Int);
-#ifndef EL_DISABLE_FLOAT
-PROTO(float);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<float>);
-#endif // ifndef EL_DISABLE_COMPLEX
-#endif // ifndef EL_DISABLE_FLOAT
-
-PROTO(double);
-#ifndef EL_DISABLE_COMPLEX
-PROTO(Complex<double>);
-#endif // ifndef EL_DISABLE_COMPLEX
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -114,9 +114,7 @@ void Legendre( AbstractBlockDistMatrix<F>& A, Int n )
   template void Legendre( AbstractDistMatrix<F>& A, Int n ); \
   template void Legendre( AbstractBlockDistMatrix<F>& A, Int n );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -56,7 +56,8 @@ void NMF( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y )
   template void NMF \
   ( const DistMatrix<Real>& A, DistMatrix<Real>& X, DistMatrix<Real>& Y );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #define ColDist MR
 #define RowDist STAR
@@ -22,8 +22,7 @@ namespace El {
 // ==============================
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MC,MR]"))
     std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
@@ -40,8 +39,7 @@ BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MC,STAR]"))
     LogicError("This routine is not yet written");
@@ -49,8 +47,7 @@ BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,MR]"))
     std::unique_ptr<BlockDistMatrix<T,MC,MR>> 
@@ -71,8 +68,7 @@ BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MD,STAR]"))
     // TODO: More efficient implementation?
@@ -82,8 +78,7 @@ BDM::operator=( const BlockDistMatrix<T,MD,STAR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,MD]"))
     // TODO: More efficient implementation?
@@ -93,8 +88,7 @@ BDM::operator=( const BlockDistMatrix<T,STAR,MD>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MR,MC]"))
     A.RowAllGather( *this );
@@ -102,8 +96,7 @@ BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BDM& A )
+BDM& BDM::operator=( const BDM& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MR,STAR]"))
     A.Translate( *this );
@@ -111,8 +104,7 @@ BDM::operator=( const BDM& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,MC]"))
     BlockDistMatrix<T,MR,MC> A_MR_MC( A );
@@ -121,8 +113,7 @@ BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [VC,STAR]"))
     BlockDistMatrix<T,VR,STAR> A_VR_STAR(this->Grid());
@@ -133,8 +124,7 @@ BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,VC]"))
     BlockDistMatrix<T,MR,MC> A_MR_MC( A );
@@ -143,8 +133,7 @@ BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [VR,STAR]"))
     A.PartialColAllGather(*this);
@@ -152,8 +141,7 @@ BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,VR]"))
     std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
@@ -170,8 +158,7 @@ BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,STAR]"))
     this->ColFilterFrom( A );
@@ -179,8 +166,7 @@ BDM::operator=( const BlockDistMatrix<T,STAR,STAR>& A )
 }
 
 template<typename T>
-BDM&
-BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
+BDM& BDM::operator=( const BlockDistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [CIRC,CIRC]"))
     BlockDistMatrix<T,MR,MC> A_MR_MC( this->Grid() );
@@ -218,7 +204,6 @@ Int BDM::RedundantSize() const { return this->grid_->MCSize(); }
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class BlockDistMatrix<T,ColDist,RowDist>
 #define SELF(T,U,V) \
   template BlockDistMatrix<T,ColDist,RowDist>::BlockDistMatrix \
   ( const BlockDistMatrix<T,U,V>& A );
@@ -231,8 +216,8 @@ Int BDM::RedundantSize() const { return this->grid_->MCSize(); }
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
-#define FULL(T) \
-  PROTO(T); \
+#define PROTO(T) \
+  template class BlockDistMatrix<T,ColDist,RowDist>; \
   BOTH( T,CIRC,CIRC); \
   BOTH( T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \
@@ -248,17 +233,6 @@ Int BDM::RedundantSize() const { return this->grid_->MCSize(); }
   BOTH( T,VC,  STAR); \
   BOTH( T,VR,  STAR);
 
-FULL(Int);
-#ifndef EL_DISABLE_FLOAT
-FULL(float);
-#endif
-FULL(double);
-
-#ifndef EL_DISABLE_COMPLEX
-#ifndef EL_DISABLE_FLOAT
-FULL(Complex<float>);
-#endif
-FULL(Complex<double>);
-#endif 
+#include "El/macros/Instantiate.h"
 
 } // namespace El

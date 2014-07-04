@@ -293,9 +293,7 @@ Int BasisPursuit
     Base<F> rho, Base<F> alpha, Int maxIter, Base<F> absTol, Base<F> relTol, \
     bool usePinv, Base<F> pinvTol, bool progress );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namepace elem

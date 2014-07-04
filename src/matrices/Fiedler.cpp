@@ -46,9 +46,7 @@ void Fiedler( AbstractBlockDistMatrix<F>& A, const std::vector<F>& c )
   template void Fiedler \
   ( AbstractBlockDistMatrix<F>& A, const std::vector<F>& c );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

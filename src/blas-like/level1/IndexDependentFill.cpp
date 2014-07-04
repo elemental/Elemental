@@ -65,10 +65,6 @@ void IndexDependentFill
   template void IndexDependentFill \
   ( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int)> func );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

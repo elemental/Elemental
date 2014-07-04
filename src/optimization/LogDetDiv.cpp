@@ -101,9 +101,7 @@ Base<F> LogDetDiv
   template Base<F> LogDetDiv \
   ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

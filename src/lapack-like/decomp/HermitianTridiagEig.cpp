@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./HermitianTridiagEig/Sort.hpp"
 
@@ -1108,9 +1108,11 @@ void HermitianTridiagEigPostEstimate
   PROTO_DIST_REAL(Real,VC,  STAR) \
   PROTO_DIST_REAL(Real,VR,  STAR)
 
-PROTO_SORT(float)
-PROTO_REAL(double)
-PROTO_SORT(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#define PROTO_FLOAT          PROTO_SORT(float)
+#define PROTO_DOUBLE         PROTO_REAL(double)
+#define PROTO_COMPLEX_FLOAT  PROTO_SORT(Complex<float>)
+#define PROTO_COMPLEX_DOUBLE PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

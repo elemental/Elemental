@@ -108,10 +108,6 @@ void Write
   PROTO_DIST(T,VC,  STAR) \
   PROTO_DIST(T,VR,  STAR)
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

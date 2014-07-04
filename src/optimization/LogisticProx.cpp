@@ -93,7 +93,8 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
   template void LogisticProx \
   ( AbstractDistMatrix<Real>& A, Real tau, Int numIts );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

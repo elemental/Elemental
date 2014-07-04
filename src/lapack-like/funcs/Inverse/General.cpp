@@ -42,9 +42,7 @@ void LocalInverse( DistMatrix<F,STAR,STAR>& A )
   template void inverse::AfterLUPartialPiv \
   ( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm ); 
 
-PROTO(float) 
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./MultiShiftQuasiTrsm/LLN.hpp"
 #include "./MultiShiftQuasiTrsm/LLT.hpp"
@@ -349,9 +349,7 @@ void MultiShiftQuasiTrsm
       const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
       DistMatrix<Real>& BReal, DistMatrix<Real>& BImag );
 
-PROTO_REAL(float)
-PROTO_REAL(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

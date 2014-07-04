@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -28,10 +28,6 @@ void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<T>& A )
   template void MakeHermitian( UpperOrLower uplo, Matrix<F>& A ); \
   template void MakeHermitian( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -54,10 +54,6 @@ void TriW( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k )
   template void TriW \
   ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T alpha, Int k );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

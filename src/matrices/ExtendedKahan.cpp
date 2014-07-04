@@ -152,9 +152,7 @@ void ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
   PROTO_DIST(F,VC,  STAR) \
   PROTO_DIST(F,VR,  STAR)
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

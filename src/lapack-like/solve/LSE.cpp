@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 // This driver solves a sequence of Equality-constrained Least Squares (LSE)
 // problems using a Generalized RQ factorization. 
@@ -234,11 +234,9 @@ void LSE
     Matrix<F>& X, bool computeResidual ); \
   template void LSE \
   ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, \
-    DistMatrix<F>& X, bool computeResidual ); \
+    DistMatrix<F>& X, bool computeResidual );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

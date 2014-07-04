@@ -44,10 +44,6 @@ void Forsythe( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda )
   template void Forsythe \
   ( AbstractBlockDistMatrix<T>& J, Int n, T alpha, T lambda );
 
-PROTO(Int)
-PROTO(float) 
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

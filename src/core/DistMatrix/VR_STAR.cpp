@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #define ColDist VR
 #define RowDist STAR
@@ -22,8 +22,7 @@ namespace El {
 // ==============================
 
 template<typename T>
-DM&
-DM::operator=( const DM& A )
+DM& DM::operator=( const DM& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM[U,V] = DM[U,V]"))
     A.Translate( *this );
@@ -31,8 +30,7 @@ DM::operator=( const DM& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MC,MR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [MC,MR]"))
     DistMatrix<T,VC,STAR> A_VC_STAR( A );
@@ -41,8 +39,7 @@ DM::operator=( const DistMatrix<T,MC,MR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [MC,STAR]"))
     DistMatrix<T,VC,STAR> A_VC_STAR( A );
@@ -51,8 +48,7 @@ DM::operator=( const DistMatrix<T,MC,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,MR]"))
     std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
@@ -64,8 +60,7 @@ DM::operator=( const DistMatrix<T,STAR,MR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MD,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [MD,STAR]"))
     // TODO: Optimize this later if important
@@ -75,8 +70,7 @@ DM::operator=( const DistMatrix<T,MD,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MD>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,MD]"))
     // TODO: Optimize this later if important
@@ -86,8 +80,7 @@ DM::operator=( const DistMatrix<T,STAR,MD>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MR,MC>& A )
+DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [MR,MC]"))
     this->PartialColAllToAllFrom( A );
@@ -95,8 +88,7 @@ DM::operator=( const DistMatrix<T,MR,MC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,MR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [MR,STAR]"))
     this->PartialColFilterFrom( A );
@@ -104,8 +96,7 @@ DM::operator=( const DistMatrix<T,MR,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,MC>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,MC]"))
     DistMatrix<T,MR,MC> A_MR_MC( A );
@@ -114,8 +105,7 @@ DM::operator=( const DistMatrix<T,STAR,MC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,VC,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("[VR,STAR] = [VC,STAR]");
@@ -186,8 +176,7 @@ DM::operator=( const DistMatrix<T,VC,STAR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,VC>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,VC]"))
     DistMatrix<T,MR,MC> A_MR_MC( A );
@@ -196,8 +185,7 @@ DM::operator=( const DistMatrix<T,STAR,VC>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,VR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,VR]"))
     std::unique_ptr<DistMatrix<T,MC,MR>> 
@@ -210,8 +198,7 @@ DM::operator=( const DistMatrix<T,STAR,VR>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,STAR,STAR>& A )
+DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,STAR]"))
     this->ColFilterFrom( A );
@@ -220,8 +207,7 @@ DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 
 // NOTE: This is a small modification of [MC,MR] <- [CIRC,CIRC]
 template<typename T>
-DM&
-DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
+DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("[VR,STAR] = [CIRC,CIRC]");
@@ -333,7 +319,6 @@ Int DM::RedundantSize() const { return 1; }
 // Instantiate {Int,Real,Complex<Real>} for each Real in {float,double}
 // ####################################################################
 
-#define PROTO(T) template class DistMatrix<T,ColDist,RowDist>
 #define SELF(T,U,V) \
   template DistMatrix<T,ColDist,RowDist>::DistMatrix \
   ( const DistMatrix<T,U,V>& A );
@@ -346,8 +331,8 @@ Int DM::RedundantSize() const { return 1; }
 #define BOTH(T,U,V) \
   SELF(T,U,V); \
   OTHER(T,U,V)
-#define FULL(T) \
-  PROTO(T); \
+#define PROTO(T) \
+  template class DistMatrix<T,ColDist,RowDist>; \
   BOTH( T,CIRC,CIRC); \
   BOTH( T,MC,  MR  ); \
   BOTH( T,MC,  STAR); \
@@ -363,17 +348,6 @@ Int DM::RedundantSize() const { return 1; }
   BOTH( T,VC,  STAR); \
   OTHER(T,VR,  STAR);
 
-FULL(Int);
-#ifndef EL_DISABLE_FLOAT
-FULL(float);
-#endif
-FULL(double);
-
-#ifndef EL_DISABLE_COMPLEX
-#ifndef EL_DISABLE_FLOAT
-FULL(Complex<float>);
-#endif
-FULL(Complex<double>);
-#endif
+#include "El/macros/Instantiate.h"
 
 } // namespace El

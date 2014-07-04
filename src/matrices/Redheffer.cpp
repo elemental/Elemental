@@ -51,10 +51,6 @@ void Redheffer( AbstractBlockDistMatrix<T>& R, Int n )
   template void Redheffer( AbstractDistMatrix<T>& R, Int n ); \
   template void Redheffer( AbstractBlockDistMatrix<T>& R, Int n );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

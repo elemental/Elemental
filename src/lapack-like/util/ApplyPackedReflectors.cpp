@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./ApplyPackedReflectors/Util.hpp"
 #include "./ApplyPackedReflectors/LLHB.hpp"
@@ -186,9 +186,7 @@ void ApplyPackedReflectors
     const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, \
           DistMatrix<F>& A ); 
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -125,31 +125,31 @@ void DiagonalScale
     #include "El/core/NestedGuardAndPayload.h"
 }
 
-#define DIST_PROTO_INNER_BASE(T,U,V,W,Z) \
+#define DIST_PROTO_INNER(T,U,V,W,Z) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X );
 
 #define DIST_PROTO_INNER_REAL(T,U,V,W,Z) \
-  DIST_PROTO_INNER_BASE(T,U,V,W,Z) \
+  DIST_PROTO_INNER(T,U,V,W,Z) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const DistMatrix<T,U,V>& d, DistMatrix<Complex<T>,W,Z>& X );
 
-#define DIST_PROTO_BASE(T,U,V) \
-  DIST_PROTO_INNER_BASE(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER_BASE(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,VR,  STAR);
+#define DIST_PROTO(T,U,V) \
+  DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
+  DIST_PROTO_INNER(T,U,V,MC,  MR  ); \
+  DIST_PROTO_INNER(T,U,V,MC,  STAR); \
+  DIST_PROTO_INNER(T,U,V,MD,  STAR); \
+  DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
+  DIST_PROTO_INNER(T,U,V,MR,  STAR); \
+  DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
+  DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
+  DIST_PROTO_INNER(T,U,V,STAR,STAR); \
+  DIST_PROTO_INNER(T,U,V,STAR,VC  ); \
+  DIST_PROTO_INNER(T,U,V,STAR,VR  ); \
+  DIST_PROTO_INNER(T,U,V,VC,  STAR); \
+  DIST_PROTO_INNER(T,U,V,VR,  STAR);
 
 #define DIST_PROTO_REAL(T,U,V) \
   DIST_PROTO_INNER_REAL(T,U,V,CIRC,CIRC); \
@@ -166,27 +166,27 @@ void DiagonalScale
   DIST_PROTO_INNER_REAL(T,U,V,VC,  STAR); \
   DIST_PROTO_INNER_REAL(T,U,V,VR,  STAR);
 
-#define PROTO_BASE(T) \
+#define PROTO(T) \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<T>& d, Matrix<T>& X ); \
   template void DiagonalScale \
   ( LeftOrRight side, Orientation orientation, \
     const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X ); \
-  DIST_PROTO_BASE(T,CIRC,CIRC); \
-  DIST_PROTO_BASE(T,MC,  MR  ); \
-  DIST_PROTO_BASE(T,MC,  STAR); \
-  DIST_PROTO_BASE(T,MD,  STAR); \
-  DIST_PROTO_BASE(T,MR,  MC  ); \
-  DIST_PROTO_BASE(T,MR,  STAR); \
-  DIST_PROTO_BASE(T,STAR,MC  ); \
-  DIST_PROTO_BASE(T,STAR,MD  ); \
-  DIST_PROTO_BASE(T,STAR,MR  ); \
-  DIST_PROTO_BASE(T,STAR,STAR); \
-  DIST_PROTO_BASE(T,STAR,VC  ); \
-  DIST_PROTO_BASE(T,STAR,VR  ); \
-  DIST_PROTO_BASE(T,VC  ,STAR); \
-  DIST_PROTO_BASE(T,VR  ,STAR);
+  DIST_PROTO(T,CIRC,CIRC); \
+  DIST_PROTO(T,MC,  MR  ); \
+  DIST_PROTO(T,MC,  STAR); \
+  DIST_PROTO(T,MD,  STAR); \
+  DIST_PROTO(T,MR,  MC  ); \
+  DIST_PROTO(T,MR,  STAR); \
+  DIST_PROTO(T,STAR,MC  ); \
+  DIST_PROTO(T,STAR,MD  ); \
+  DIST_PROTO(T,STAR,MR  ); \
+  DIST_PROTO(T,STAR,STAR); \
+  DIST_PROTO(T,STAR,VC  ); \
+  DIST_PROTO(T,STAR,VR  ); \
+  DIST_PROTO(T,VC  ,STAR); \
+  DIST_PROTO(T,VR  ,STAR);
 
 #define PROTO_REAL(T) \
   template void DiagonalScale \
@@ -216,10 +216,6 @@ void DiagonalScale
   DIST_PROTO_REAL(T,VC  ,STAR); \
   DIST_PROTO_REAL(T,VR  ,STAR);
 
-PROTO_BASE(Int);
-PROTO_REAL(float);
-PROTO_REAL(double);
-PROTO_BASE(Complex<float>);
-PROTO_BASE(Complex<double>);
+#include "El/macros/Instantiate.h"
 
 } // namespace El

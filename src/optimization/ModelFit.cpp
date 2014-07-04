@@ -198,7 +198,8 @@ Int ModelFit
     const DistMatrix<Real>& A, const DistMatrix<Real>& b, DistMatrix<Real>& w, \
     Real rho, Int maxIter, bool inv, bool progress );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namepace elem

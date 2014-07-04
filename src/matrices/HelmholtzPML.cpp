@@ -424,7 +424,8 @@ void HelmholtzPML
   ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, \
     Int numPmlPoints, Real sigma, Real pmlExp );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

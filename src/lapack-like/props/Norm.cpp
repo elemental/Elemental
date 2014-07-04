@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./Norm/Entrywise.hpp"
 #include "./Norm/EntrywiseOne.hpp"
@@ -371,22 +371,20 @@ Base<F> HermitianNorm
   PROTO_DIST(F,VC,  STAR) \
   PROTO_DIST(F,VR,  STAR)
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define PROTO_INT(T) \
+  template Int ZeroNorm( const Matrix<Int>& A ); \
+  template Int ZeroNorm( const AbstractDistMatrix<Int>& A ); \
+  template Int MaxNorm( const Matrix<Int>& A ); \
+  template Int MaxNorm ( const AbstractDistMatrix<Int>& A ); \
+  template Int HermitianMaxNorm \
+  ( UpperOrLower uplo, const Matrix<Int>& A ); \
+  template Int HermitianMaxNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Int>& A ); \
+  template Int SymmetricMaxNorm \
+  ( UpperOrLower uplo, const Matrix<Int>& A ); \
+  template Int SymmetricMaxNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Int>& A );
 
-template Int ZeroNorm( const Matrix<Int>& A );
-template Int ZeroNorm( const AbstractDistMatrix<Int>& A );
-template Int MaxNorm( const Matrix<Int>& A );
-template Int MaxNorm ( const AbstractDistMatrix<Int>& A );
-template Int HermitianMaxNorm
-( UpperOrLower uplo, const Matrix<Int>& A );
-template Int HermitianMaxNorm
-( UpperOrLower uplo, const AbstractDistMatrix<Int>& A );
-template Int SymmetricMaxNorm
-( UpperOrLower uplo, const Matrix<Int>& A );
-template Int SymmetricMaxNorm
-( UpperOrLower uplo, const AbstractDistMatrix<Int>& A );
+#include "El/macros/Instantiate.h"
 
 } // namespace El

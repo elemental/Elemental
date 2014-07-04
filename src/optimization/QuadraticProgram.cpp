@@ -253,7 +253,8 @@ Int QuadraticProgram
     Real rho, Real alpha, Int maxIter, Real absTol, Real relTol, \
     bool inv, bool progress );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

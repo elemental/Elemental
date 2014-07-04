@@ -42,10 +42,6 @@ void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda )
   template void Jordan( AbstractDistMatrix<T>& J, Int n, T lambda ); \
   template void Jordan( AbstractBlockDistMatrix<T>& J, Int n, T lambda );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

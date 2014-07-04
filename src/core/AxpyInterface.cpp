@@ -11,7 +11,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -753,10 +753,7 @@ void AxpyInterface<T>::Detach()
     eomSendRequests_.clear();
 }
 
-template class AxpyInterface<Int>;
-template class AxpyInterface<float>;
-template class AxpyInterface<double>;
-template class AxpyInterface<Complex<float>>;
-template class AxpyInterface<Complex<double>>;
+#define PROTO(T) template class AxpyInterface<T>;
+#include "El/macros/Instantiate.h"
 
 } // namespace El

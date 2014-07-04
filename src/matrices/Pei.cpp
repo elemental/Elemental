@@ -39,10 +39,6 @@ void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha )
   template void Pei( AbstractDistMatrix<T>& P, Int n, T alpha ); \
   template void Pei( AbstractBlockDistMatrix<T>& P, Int n, T alpha );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

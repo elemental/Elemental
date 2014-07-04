@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 // TODO: Add detailed references to Tygert et al.'s ID package and the papers
 //       "Randomized algorithms for the low-rank approximation of matrices", 
@@ -184,9 +184,7 @@ void ID
   ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& perm, \
     DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); 
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

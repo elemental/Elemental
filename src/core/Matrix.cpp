@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -104,8 +104,7 @@ Matrix<T>::~Matrix() { }
 // ==============================
 
 template<typename T>
-Matrix<T>&
-Matrix<T>::operator=( const Matrix<T>& A )
+Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::operator=");
@@ -130,8 +129,7 @@ Matrix<T>::operator=( const Matrix<T>& A )
 }
 
 template<typename T>
-Matrix<T>&
-Matrix<T>::operator=( Matrix<T>&& A )
+Matrix<T>& Matrix<T>::operator=( Matrix<T>&& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::operator=( Matrix&& )"))
     if( Viewing() && !A.Viewing() )
@@ -151,8 +149,7 @@ Matrix<T>::operator=( Matrix<T>&& A )
 }
 
 template<typename T>
-void
-Matrix<T>::Empty()
+void Matrix<T>::Empty()
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Empty()");
@@ -163,8 +160,7 @@ Matrix<T>::Empty()
 }
 
 template<typename T>
-void
-Matrix<T>::Resize( Int height, Int width )
+void Matrix<T>::Resize( Int height, Int width )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Resize(height,width)");
@@ -178,8 +174,7 @@ Matrix<T>::Resize( Int height, Int width )
 }
 
 template<typename T>
-void
-Matrix<T>::Resize( Int height, Int width, Int ldim )
+void Matrix<T>::Resize( Int height, Int width, Int ldim )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Resize(height,width,ldim)");
@@ -194,8 +189,7 @@ Matrix<T>::Resize( Int height, Int width, Int ldim )
 }
 
 template<typename T>
-void
-Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
+void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Attach");
@@ -206,9 +200,7 @@ Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
 }
 
 template<typename T>
-void
-Matrix<T>::LockedAttach
-( Int height, Int width, const T* buffer, Int ldim )
+void Matrix<T>::LockedAttach( Int height, Int width, const T* buffer, Int ldim )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::LockedAttach");
@@ -219,8 +211,7 @@ Matrix<T>::LockedAttach
 }
 
 template<typename T>
-void
-Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
+void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Control");
@@ -250,8 +241,7 @@ Int Matrix<T>::DiagonalLength( Int offset ) const
 { return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
-T*
-Matrix<T>::Buffer()
+T* Matrix<T>::Buffer()
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Buffer");
@@ -264,8 +254,7 @@ Matrix<T>::Buffer()
 }
 
 template<typename T>
-T*
-Matrix<T>::Buffer( Int i, Int j )
+T* Matrix<T>::Buffer( Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Buffer");
@@ -281,8 +270,7 @@ template<typename T>
 const T* Matrix<T>::LockedBuffer() const { return data_; }
 
 template<typename T>
-const T*
-Matrix<T>::LockedBuffer( Int i, Int j ) const
+const T* Matrix<T>::LockedBuffer( Int i, Int j ) const
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::LockedBuffer"))
     return &data_[i+j*ldim_];
@@ -301,8 +289,7 @@ bool Matrix<T>::Locked() const { return IsLocked( viewType_ ); }
 // =========================
 
 template<typename T>
-T
-Matrix<T>::Get( Int i, Int j ) const
+T Matrix<T>::Get( Int i, Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Get");
@@ -312,8 +299,7 @@ Matrix<T>::Get( Int i, Int j ) const
 }
 
 template<typename T>
-Base<T>
-Matrix<T>::GetRealPart( Int i, Int j ) const
+Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::GetRealPart");
@@ -323,8 +309,7 @@ Matrix<T>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T>
-Base<T>
-Matrix<T>::GetImagPart( Int i, Int j ) const
+Base<T> Matrix<T>::GetImagPart( Int i, Int j ) const
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::GetImagPart");
@@ -334,8 +319,7 @@ Matrix<T>::GetImagPart( Int i, Int j ) const
 }
 
 template<typename T>
-void
-Matrix<T>::Set( Int i, Int j, T alpha ) 
+void Matrix<T>::Set( Int i, Int j, T alpha ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Set");
@@ -347,8 +331,7 @@ Matrix<T>::Set( Int i, Int j, T alpha )
 }
 
 template<typename T>
-void 
-Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
+void Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::SetRealPart");
@@ -360,8 +343,7 @@ Matrix<T>::SetRealPart( Int i, Int j, Base<T> alpha )
 }
 
 template<typename T>
-void 
-Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
+void Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::SetImagPart");
@@ -374,8 +356,7 @@ Matrix<T>::SetImagPart( Int i, Int j, Base<T> alpha )
 }
 
 template<typename T>
-void
-Matrix<T>::Update( Int i, Int j, T alpha ) 
+void Matrix<T>::Update( Int i, Int j, T alpha ) 
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Update");
@@ -387,8 +368,7 @@ Matrix<T>::Update( Int i, Int j, T alpha )
 }
 
 template<typename T>
-void 
-Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
+void Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateRealPart");
@@ -400,8 +380,7 @@ Matrix<T>::UpdateRealPart( Int i, Int j, Base<T> alpha )
 }
 
 template<typename T>
-void 
-Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
+void Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateImagPart");
@@ -414,8 +393,7 @@ Matrix<T>::UpdateImagPart( Int i, Int j, Base<T> alpha )
 }
 
 template<typename T>
-void
-Matrix<T>::MakeReal( Int i, Int j )
+void Matrix<T>::MakeReal( Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::MakeReal");
@@ -427,8 +405,7 @@ Matrix<T>::MakeReal( Int i, Int j )
 }
 
 template<typename T>
-void
-Matrix<T>::Conjugate( Int i, Int j )
+void Matrix<T>::Conjugate( Int i, Int j )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::Conjugate");
@@ -443,8 +420,7 @@ Matrix<T>::Conjugate( Int i, Int j )
 // =====================
 
 template<typename T>
-void
-Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
+void Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::GetDiagonal");
@@ -460,8 +436,7 @@ Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 }
 
 template<typename T>
-void
-Matrix<T>::GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
+void Matrix<T>::GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::GetRealPartOfDiagonal");
@@ -477,8 +452,7 @@ Matrix<T>::GetRealPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
 }
 
 template<typename T>
-void
-Matrix<T>::GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
+void Matrix<T>::GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::GetImagPartOfDiagonal");
@@ -494,8 +468,7 @@ Matrix<T>::GetImagPartOfDiagonal( Matrix<Base<T>>& d, Int offset ) const
 }
 
 template<typename T>
-Matrix<T>
-Matrix<T>::GetDiagonal( Int offset ) const
+Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const
 { 
     Matrix<T> d;
     GetDiagonal( d, offset );
@@ -503,8 +476,7 @@ Matrix<T>::GetDiagonal( Int offset ) const
 }
 
 template<typename T>
-Matrix<Base<T>>
-Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
+Matrix<Base<T>> Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
 { 
     Matrix<Base<T>> d;
     GetRealPartOfDiagonal( d, offset );
@@ -512,8 +484,7 @@ Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
 }
 
 template<typename T>
-Matrix<Base<T>>
-Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
+Matrix<Base<T>> Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
 { 
     Matrix<Base<T>> d;
     GetImagPartOfDiagonal( d, offset );
@@ -521,8 +492,7 @@ Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
 }
 
 template<typename T>
-void
-Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
+void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::SetDiagonal");
@@ -537,8 +507,7 @@ Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
+void Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::SetRealPartOfDiagonal");
@@ -553,8 +522,7 @@ Matrix<T>::SetRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
+void Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::SetImagPartOfDiagonal");
@@ -570,8 +538,7 @@ Matrix<T>::SetImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
+void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateDiagonal");
@@ -586,8 +553,7 @@ Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
+void Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateRealPartOfDiagonal");
@@ -602,8 +568,7 @@ Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
+void Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 { 
     DEBUG_ONLY(
         CallStackEntry cse("Matrix::UpdateImagPartOfDiagonal");
@@ -619,8 +584,7 @@ Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<Base<T>>& d, Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::MakeDiagonalReal( Int offset )
+void Matrix<T>::MakeDiagonalReal( Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::MakeDiagonalReal"))
     const Int diagLength = DiagonalLength(offset);
@@ -631,8 +595,7 @@ Matrix<T>::MakeDiagonalReal( Int offset )
 }
 
 template<typename T>
-void
-Matrix<T>::ConjugateDiagonal( Int offset )
+void Matrix<T>::ConjugateDiagonal( Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::ConjugateDiagonal"))
     const Int diagLength = DiagonalLength(offset);
@@ -646,8 +609,7 @@ Matrix<T>::ConjugateDiagonal( Int offset )
 // ================================
 
 template<typename T>
-void
-Matrix<T>::GetSubmatrix
+void Matrix<T>::GetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Matrix<T>& ASub ) const
 {
@@ -671,8 +633,7 @@ Matrix<T>::GetSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::GetRealPartOfSubmatrix
+void Matrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Matrix<Base<T>>& ASub ) const
 {
@@ -696,8 +657,7 @@ Matrix<T>::GetRealPartOfSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::GetImagPartOfSubmatrix
+void Matrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Matrix<Base<T>>& ASub ) const
 {
@@ -721,8 +681,7 @@ Matrix<T>::GetImagPartOfSubmatrix
 }
 
 template<typename T>
-Matrix<T>
-Matrix<T>::GetSubmatrix
+Matrix<T> Matrix<T>::GetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     Matrix<T> ASub;
@@ -731,8 +690,7 @@ Matrix<T>::GetSubmatrix
 }
 
 template<typename T>
-Matrix<Base<T>>
-Matrix<T>::GetRealPartOfSubmatrix
+Matrix<Base<T>> Matrix<T>::GetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     Matrix<Base<T>> ASub;
@@ -741,8 +699,7 @@ Matrix<T>::GetRealPartOfSubmatrix
 }
 
 template<typename T>
-Matrix<Base<T>>
-Matrix<T>::GetImagPartOfSubmatrix
+Matrix<Base<T>> Matrix<T>::GetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd ) const
 {
     Matrix<Base<T>> ASub;
@@ -751,8 +708,7 @@ Matrix<T>::GetImagPartOfSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::SetSubmatrix
+void Matrix<T>::SetSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const Matrix<T>& ASub )
 {
@@ -775,8 +731,7 @@ Matrix<T>::SetSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::SetRealPartOfSubmatrix
+void Matrix<T>::SetRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const Matrix<Base<T>>& ASub )
 {
@@ -799,8 +754,7 @@ Matrix<T>::SetRealPartOfSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::SetImagPartOfSubmatrix
+void Matrix<T>::SetImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   const Matrix<Base<T>>& ASub )
 {
@@ -823,8 +777,7 @@ Matrix<T>::SetImagPartOfSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::UpdateSubmatrix
+void Matrix<T>::UpdateSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   T alpha, const Matrix<T>& ASub )
 {
@@ -847,8 +800,7 @@ Matrix<T>::UpdateSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::UpdateRealPartOfSubmatrix
+void Matrix<T>::UpdateRealPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
@@ -872,8 +824,7 @@ Matrix<T>::UpdateRealPartOfSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::UpdateImagPartOfSubmatrix
+void Matrix<T>::UpdateImagPartOfSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
   Base<T> alpha, const Matrix<Base<T>>& ASub )
 {
@@ -897,8 +848,7 @@ Matrix<T>::UpdateImagPartOfSubmatrix
 }
 
 template<typename T>
-void
-Matrix<T>::MakeSubmatrixReal
+void Matrix<T>::MakeSubmatrixReal
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::MakeSubmatrixReal"))
@@ -918,8 +868,7 @@ Matrix<T>::MakeSubmatrixReal
 }
 
 template<typename T>
-void
-Matrix<T>::ConjugateSubmatrix
+void Matrix<T>::ConjugateSubmatrix
 ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd )
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::ConjugateSubmatrix"))
@@ -944,8 +893,7 @@ Matrix<T>::ConjugateSubmatrix
 // Exchange metadata with another matrix
 // =====================================
 template<typename T>
-void
-Matrix<T>::ShallowSwap( Matrix<T>& A )
+void Matrix<T>::ShallowSwap( Matrix<T>& A )
 {
     memory_.ShallowSwap( A.memory_ );
     std::swap( data_, A.data_ );
@@ -959,8 +907,7 @@ Matrix<T>::ShallowSwap( Matrix<T>& A )
 // ==================================
 
 template<typename T>
-void
-Matrix<T>::Empty_()
+void Matrix<T>::Empty_()
 {
     memory_.Empty();
     height_ = 0;
@@ -971,8 +918,7 @@ Matrix<T>::Empty_()
 }
 
 template<typename T>
-void
-Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
+void Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -983,8 +929,8 @@ Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
 }
 
 template<typename T>
-void
-Matrix<T>::LockedAttach_( Int height, Int width, const T* buffer, Int ldim )
+void Matrix<T>::LockedAttach_
+( Int height, Int width, const T* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -995,8 +941,7 @@ Matrix<T>::LockedAttach_( Int height, Int width, const T* buffer, Int ldim )
 }
 
 template<typename T>
-void
-Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
+void Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -1009,13 +954,10 @@ Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 // Return a reference to a single entry without error-checking
 // ===========================================================
 template<typename T>
-const T&
-Matrix<T>::Get_( Int i, Int j ) const
-{ return data_[i+j*ldim_]; }
+const T& Matrix<T>::Get_( Int i, Int j ) const { return data_[i+j*ldim_]; }
 
 template<typename T>
-T&
-Matrix<T>::Set_( Int i, Int j ) 
+T& Matrix<T>::Set_( Int i, Int j ) 
 {
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
@@ -1026,16 +968,14 @@ Matrix<T>::Set_( Int i, Int j )
 // ==========
 
 template<typename T>
-void
-Matrix<T>::ComplainIfReal() const
+void Matrix<T>::ComplainIfReal() const
 { 
     if( !IsComplex<T>::val )
         LogicError("Called complex-only routine with real data");
 }
 
 template<typename T>
-void
-Matrix<T>::AssertValidDimensions( Int height, Int width ) const
+void Matrix<T>::AssertValidDimensions( Int height, Int width ) const
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::AssertValidDimensions"))
     if( height < 0 || width < 0 )
@@ -1043,8 +983,7 @@ Matrix<T>::AssertValidDimensions( Int height, Int width ) const
 }
 
 template<typename T>
-void
-Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
+void Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::AssertValidDimensions"))
     AssertValidDimensions( height, width );
@@ -1055,8 +994,7 @@ Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 }
 
 template<typename T>
-void
-Matrix<T>::AssertValidEntry( Int i, Int j ) const
+void Matrix<T>::AssertValidEntry( Int i, Int j ) const
 {
     DEBUG_ONLY(CallStackEntry cse("Matrix::AssertValidEntry"))
     if( i < 0 || j < 0 )
@@ -1067,8 +1005,7 @@ Matrix<T>::AssertValidEntry( Int i, Int j ) const
 }
 
 template<typename T>
-void
-Matrix<T>::Resize_( Int height, Int width )
+void Matrix<T>::Resize_( Int height, Int width )
 {
     bool reallocate = height > ldim_ || width > width_;
     height_ = height;
@@ -1084,8 +1021,7 @@ Matrix<T>::Resize_( Int height, Int width )
 }
 
 template<typename T>
-void
-Matrix<T>::Resize_( Int height, Int width, Int ldim )
+void Matrix<T>::Resize_( Int height, Int width, Int ldim )
 {
     bool reallocate = height > ldim_ || width > width_ || ldim != ldim_;
     height_ = height;
@@ -1098,18 +1034,7 @@ Matrix<T>::Resize_( Int height, Int width, Int ldim )
     }
 }
 
-// Instantiate for {Int,Real,Complex<Real>} for each Real in {float,double}
-// ########################################################################
-template class Matrix<Int>;
-#ifndef EL_DISABLE_FLOAT
-template class Matrix<float>;
-#endif // ifndef EL_DISABLE_FLOAT
-template class Matrix<double>;
-#ifndef EL_DISABLE_COMPLEX
-#ifndef EL_DISABLE_FLOAT
-template class Matrix<Complex<float>>;
-#endif // ifndef EL_DISABLE_FLOAT
-template class Matrix<Complex<double>>;
-#endif // ifndef EL_DISABLE_COMPLEX
+#define PROTO(T) template class Matrix<T>;
+#include "El/macros/Instantiate.h"
 
 } // namespace El

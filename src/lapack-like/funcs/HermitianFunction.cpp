@@ -120,7 +120,7 @@ void ComplexHermitianFunction
     NormalFromEVD( A, fw, Z );
 }
 
-#define PROTO_CPX(F) \
+#define PROTO_COMPLEX(F) \
   template void RealHermitianFunction \
   ( UpperOrLower uplo, Matrix<F>& A, \
     std::function<Base<F>(Base<F>)> func ); \
@@ -129,7 +129,7 @@ void ComplexHermitianFunction
     std::function<Base<F>(Base<F>)> func );
 
 #define PROTO_REAL(Real) \
-  PROTO_CPX(Real) \
+  PROTO_COMPLEX(Real) \
   template void ComplexHermitianFunction \
   ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
     std::function<Complex<Real>(Real)> func ); \
@@ -137,9 +137,7 @@ void ComplexHermitianFunction
   ( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, \
     std::function<Complex<Real>(Real)> func );
 
-PROTO_REAL(float)
-PROTO_REAL(double)
-PROTO_CPX(Complex<float>)
-PROTO_CPX(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

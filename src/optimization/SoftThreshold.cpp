@@ -49,9 +49,7 @@ void SoftThreshold( AbstractDistMatrix<F>& A, Base<F> tau, bool relative )
   template void SoftThreshold \
   ( AbstractDistMatrix<F>& A, Base<F> tau, bool relative );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -37,10 +37,6 @@ void EntrywiseFill( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func )
   template void EntrywiseFill \
   ( AbstractBlockDistMatrix<T>& A, std::function<T(void)> func );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

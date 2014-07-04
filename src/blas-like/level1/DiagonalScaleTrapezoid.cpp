@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -224,7 +224,7 @@ void DiagonalScaleTrapezoid
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
         DiagonalScaleTrapezoid( side, uplo, orientation, dCast, XCast, offset );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 template<typename T>
@@ -244,34 +244,34 @@ void DiagonalScaleTrapezoid
         auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
         DiagonalScaleTrapezoid \
         ( side, uplo, orientation, dCast, XCast, offset );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
-#define DIST_PROTO_INNER_BASE(T,U,V,W,Z) \
+#define DIST_PROTO_INNER(T,U,V,W,Z) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X, Int offset );
 
 #define DIST_PROTO_INNER_REAL(T,U,V,W,Z) \
-  DIST_PROTO_INNER_BASE(T,U,V,W,Z) \
+  DIST_PROTO_INNER(T,U,V,W,Z) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const DistMatrix<T,U,V>& d, DistMatrix<Complex<T>,W,Z>& X, Int offset );
 
-#define DIST_PROTO_BASE(T,U,V) \
-  DIST_PROTO_INNER_BASE(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER_BASE(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER_BASE(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER_BASE(T,U,V,VR,  STAR);
+#define DIST_PROTO(T,U,V) \
+  DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
+  DIST_PROTO_INNER(T,U,V,MC,  MR  ); \
+  DIST_PROTO_INNER(T,U,V,MC,  STAR); \
+  DIST_PROTO_INNER(T,U,V,MD,  STAR); \
+  DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
+  DIST_PROTO_INNER(T,U,V,MR,  STAR); \
+  DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
+  DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
+  DIST_PROTO_INNER(T,U,V,STAR,STAR); \
+  DIST_PROTO_INNER(T,U,V,STAR,VC  ); \
+  DIST_PROTO_INNER(T,U,V,STAR,VR  ); \
+  DIST_PROTO_INNER(T,U,V,VC,  STAR); \
+  DIST_PROTO_INNER(T,U,V,VR,  STAR);
 
 #define DIST_PROTO_REAL(T,U,V) \
   DIST_PROTO_INNER_REAL(T,U,V,CIRC,CIRC); \
@@ -288,27 +288,27 @@ void DiagonalScaleTrapezoid
   DIST_PROTO_INNER_REAL(T,U,V,VC,  STAR); \
   DIST_PROTO_INNER_REAL(T,U,V,VR,  STAR);
 
-#define PROTO_BASE(T) \
+#define PROTO(T) \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<T>& d, Matrix<T>& X, Int offset ); \
   template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, Int offset ); \
-  DIST_PROTO_BASE(T,CIRC,CIRC); \
-  DIST_PROTO_BASE(T,MC,  MR  ); \
-  DIST_PROTO_BASE(T,MC,  STAR); \
-  DIST_PROTO_BASE(T,MD,  STAR); \
-  DIST_PROTO_BASE(T,MR,  MC  ); \
-  DIST_PROTO_BASE(T,MR,  STAR); \
-  DIST_PROTO_BASE(T,STAR,MC  ); \
-  DIST_PROTO_BASE(T,STAR,MD  ); \
-  DIST_PROTO_BASE(T,STAR,MR  ); \
-  DIST_PROTO_BASE(T,STAR,STAR); \
-  DIST_PROTO_BASE(T,STAR,VC  ); \
-  DIST_PROTO_BASE(T,STAR,VR  ); \
-  DIST_PROTO_BASE(T,VC  ,STAR); \
-  DIST_PROTO_BASE(T,VR  ,STAR);
+  DIST_PROTO(T,CIRC,CIRC); \
+  DIST_PROTO(T,MC,  MR  ); \
+  DIST_PROTO(T,MC,  STAR); \
+  DIST_PROTO(T,MD,  STAR); \
+  DIST_PROTO(T,MR,  MC  ); \
+  DIST_PROTO(T,MR,  STAR); \
+  DIST_PROTO(T,STAR,MC  ); \
+  DIST_PROTO(T,STAR,MD  ); \
+  DIST_PROTO(T,STAR,MR  ); \
+  DIST_PROTO(T,STAR,STAR); \
+  DIST_PROTO(T,STAR,VC  ); \
+  DIST_PROTO(T,STAR,VR  ); \
+  DIST_PROTO(T,VC  ,STAR); \
+  DIST_PROTO(T,VR  ,STAR);
 
 #define PROTO_REAL(T) \
   template void DiagonalScaleTrapezoid \
@@ -339,10 +339,6 @@ void DiagonalScaleTrapezoid
   DIST_PROTO_REAL(T,VC  ,STAR); \
   DIST_PROTO_REAL(T,VR  ,STAR);
 
-PROTO_BASE(Int);
-PROTO_REAL(float);
-PROTO_REAL(double);
-PROTO_BASE(Complex<float>);
-PROTO_BASE(Complex<double>);
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./Symm/LL.hpp"
 #include "./Symm/LU.hpp"
@@ -97,9 +97,7 @@ void Symm
           DistMatrix<T,MC,  STAR>& ZTrans_MC_STAR, \
           DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

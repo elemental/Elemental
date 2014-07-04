@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./Trsv/LN.hpp"
 #include "./Trsv/LT.hpp"
@@ -70,9 +70,7 @@ void Trsv
   ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
     const DistMatrix<F>& A, DistMatrix<F>& x );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

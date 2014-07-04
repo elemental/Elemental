@@ -94,9 +94,7 @@ void HermitianFromEVD
   ( UpperOrLower uplo, DistMatrix<F>& A, \
     const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& Z );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

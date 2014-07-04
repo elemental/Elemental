@@ -36,7 +36,8 @@ void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau )
   template void HingeLossProx( Matrix<Real>& A, Real tau ); \
   template void HingeLossProx( AbstractDistMatrix<Real>& A, Real tau );
 
-PROTO(float)
-PROTO(double)
+#define EL_NO_INT_PROTO
+#define EL_NO_COMPLEX_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

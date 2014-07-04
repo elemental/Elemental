@@ -82,9 +82,7 @@ Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
   PROTO_DIST(F,VC  ) \
   PROTO_DIST(F,VR  )
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

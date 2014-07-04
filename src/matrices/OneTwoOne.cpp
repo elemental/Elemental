@@ -45,10 +45,6 @@ void OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n )
   template void OneTwoOne( AbstractDistMatrix<T>& A, Int n ); \
   template void OneTwoOne( AbstractBlockDistMatrix<T>& A, Int n ); 
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

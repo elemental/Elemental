@@ -96,10 +96,6 @@ void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t )
   template void Gear( AbstractDistMatrix<T>& G, Int n, Int s, Int t ); \
   template void Gear( AbstractBlockDistMatrix<T>& G, Int n, Int s, Int t );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

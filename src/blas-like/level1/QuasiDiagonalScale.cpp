@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 namespace El {
 
@@ -419,13 +419,11 @@ QuasiDiagonalScale
 
 #define PROTO_REAL(F) PROTO_TYPES(F,F) 
 
-#define PROTO_CPX(F) \
+#define PROTO_COMPLEX(F) \
   PROTO_TYPES(F,F) \
   PROTO_TYPES(F,Base<F>)
 
-PROTO_REAL(float)
-PROTO_REAL(double)
-PROTO_CPX(Complex<float>)
-PROTO_CPX(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

@@ -6,7 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "El-lite.hpp"
+#include "El.hpp"
 
 #include "./Determinant/Cholesky.hpp"
 #include "./Determinant/LUPartialPiv.hpp"
@@ -213,9 +213,7 @@ Base<F> HPDDeterminant
   template SafeProduct<F> det::AfterLUPartialPiv \
   ( const DistMatrix<F>& A, const DistMatrix<Int,VR,STAR>& pPerm );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

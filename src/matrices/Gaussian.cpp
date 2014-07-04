@@ -77,9 +77,7 @@ void Gaussian
   template void Gaussian \
   ( AbstractBlockDistMatrix<T>& A, Int m, Int n, T mean, Base<T> stddev );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

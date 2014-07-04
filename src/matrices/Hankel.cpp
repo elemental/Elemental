@@ -55,10 +55,6 @@ void Hankel
   template void Hankel \
   ( AbstractBlockDistMatrix<T>& A, Int m, Int n, const std::vector<T>& a );
 
-PROTO(Int)
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#include "El/macros/Instantiate.h"
 
 } // namespace El

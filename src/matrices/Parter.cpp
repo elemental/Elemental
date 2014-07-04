@@ -45,9 +45,7 @@ void Parter( AbstractBlockDistMatrix<F>& P, Int n )
   template void Parter( AbstractDistMatrix<F>& P, Int n ); \
   template void Parter( AbstractBlockDistMatrix<F>& P, Int n );
 
-PROTO(float)
-PROTO(double)
-PROTO(Complex<float>)
-PROTO(Complex<double>)
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El
