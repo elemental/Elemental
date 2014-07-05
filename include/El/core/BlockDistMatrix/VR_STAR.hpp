@@ -54,6 +54,13 @@ public:
     // Destructor
     ~BlockDistMatrix();
 
+    BlockDistMatrix<T,VR,STAR>* Construct
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
+    BlockDistMatrix<T,STAR,VR>* ConstructTranspose
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
+    BlockDistMatrix<T,VR,STAR>* ConstructDiagonal
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
+
     // Assignment and reconfiguration
     // ==============================
     template<Dist U,Dist V> type& operator=( const DistMatrix<T,U,V>& A );

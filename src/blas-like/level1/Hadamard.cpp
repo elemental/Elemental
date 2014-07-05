@@ -27,18 +27,27 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
             C.Set( i, j, A.Get(i,j)*B.Get(i,j) );
 }
 
-template<typename T,Dist U,Dist V> 
+template<typename T> 
 void Hadamard
-( const DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B, DistMatrix<T,U,V>& C )
+( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
+        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Hadamard"))
+    const DistData ADistData = A.DistData();
+    const DistData BDistData = B.DistData();
+    DistData CDistData = C.DistData();
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
     if( A.Grid() != B.Grid() )
         LogicError("A and B must have the same grids");
+    if( ADistData.colDist != BDistData.colDist ||
+        ADistData.rowDist != BDistData.rowDist ||
+        BDistData.colDist != CDistData.colDist ||
+        BDistData.rowDist != CDistData.rowDist )
+        LogicError("A, B, and C must share the same distribution");
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("A and B must be aligned");
-    C.AlignWith( A );
+    C.AlignWith( A.DistData() );
     C.Resize( A.Height(), A.Width() );
 
     const Int localHeight = A.LocalHeight();
@@ -54,55 +63,13 @@ void Hadamard
     }
 }
 
-template<typename T>
-void Hadamard
-( const AbstractDistMatrix<T>& A, 
-  const AbstractDistMatrix<T>& B,
-        AbstractDistMatrix<T>& C )
-{
-    DEBUG_ONLY(CallStackEntry cse("Dot"))
-    if( A.DistData().colDist != B.DistData().colDist ||
-        B.DistData().colDist != C.DistData().colDist ||
-        A.DistData().rowDist != B.DistData().rowDist || 
-        B.DistData().rowDist != C.DistData().rowDist )
-        RuntimeError("{A,B,C} must have the same distribution");
-    #define GUARD(CDIST,RDIST) \
-        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-        auto& BCast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(B); \
-        auto& CCast = dynamic_cast<      DistMatrix<T,CDIST,RDIST>&>(C); \
-        Hadamard( ACast, BCast, CCast );
-    #include "El/core/GuardAndPayload.h"
-}
-
-#define DIST_PROTO(T,U,V) \
-  template void Hadamard \
-  ( const DistMatrix<T,U,V>& A, \
-    const DistMatrix<T,U,V>& B, \
-          DistMatrix<T,U,V>& C );
-
 #define PROTO(T) \
   template void Hadamard \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
   template void Hadamard \
   ( const AbstractDistMatrix<T>& A, \
     const AbstractDistMatrix<T>& B, \
-          AbstractDistMatrix<T>& C ); \
-  DIST_PROTO(T,CIRC,CIRC) \
-  DIST_PROTO(T,MC,  MR  ) \
-  DIST_PROTO(T,MC,  STAR) \
-  DIST_PROTO(T,MD,  STAR) \
-  DIST_PROTO(T,MR,  MC  ) \
-  DIST_PROTO(T,MR,  STAR) \
-  DIST_PROTO(T,STAR,MC  ) \
-  DIST_PROTO(T,STAR,MD  ) \
-  DIST_PROTO(T,STAR,MR  ) \
-  DIST_PROTO(T,STAR,STAR) \
-  DIST_PROTO(T,STAR,VC  ) \
-  DIST_PROTO(T,STAR,VR  ) \
-  DIST_PROTO(T,VC,  STAR) \
-  DIST_PROTO(T,VR,  STAR)
+          AbstractDistMatrix<T>& C );
 
 #include "El/macros/Instantiate.h"
 

@@ -56,8 +56,8 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
     }
 }
 
-template<typename T,typename S,Dist U,Dist V,Dist W,Dist Z>
-void Axpy( S alphaS, const DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y )
+template<typename T,typename S>
+void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Axpy");
@@ -65,74 +65,27 @@ void Axpy( S alphaS, const DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y )
             LogicError("X and Y must be distributed over the same grid");
     )
     const T alpha = T(alphaS);
-    if( U == V && W == Z && 
-        X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
+
+    const DistData XDistData = X.DistData();
+    const DistData YDistData = Y.DistData();
+
+    if( XDistData == YDistData )
     {
         Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
     }
     else
     {
-        DistMatrix<T,W,Z> XCopy( X.Grid() );
-        XCopy.AlignWith( Y );
-        XCopy = X;
-        Axpy( alpha, XCopy.LockedMatrix(), Y.Matrix() );
+        std::unique_ptr<AbstractDistMatrix<T>> XCopy( Y.Construct(X.Grid()) );
+        XCopy->AlignWith( YDistData );
+        Copy( X, *XCopy );
+        Axpy( alpha, XCopy->LockedMatrix(), Y.Matrix() );
     }
 }
-
-template<typename T,typename S>
-void Axpy( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("Axpy"))
-    #define GUARD(CDIST,RDIST) \
-        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
-        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
-        auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
-        Axpy( alpha, ACast, BCast );
-    #include "El/macros/NestedGuardAndPayload.h"
-}
-
-#define DIST_PROTO_INNER(T,S,U,V,W,Z) \
-  template void Axpy \
-  ( S alpha, const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
-
-#define DIST_PROTO(T,S,U,V) \
-  DIST_PROTO_INNER(T,S,U,V,CIRC,CIRC) \
-  DIST_PROTO_INNER(T,S,U,V,MC,  MR  ) \
-  DIST_PROTO_INNER(T,S,U,V,MC,  STAR) \
-  DIST_PROTO_INNER(T,S,U,V,MD,  STAR) \
-  DIST_PROTO_INNER(T,S,U,V,MR,  MC  ) \
-  DIST_PROTO_INNER(T,S,U,V,MR,  STAR) \
-  DIST_PROTO_INNER(T,S,U,V,STAR,MC  ) \
-  DIST_PROTO_INNER(T,S,U,V,STAR,MD  ) \
-  DIST_PROTO_INNER(T,S,U,V,STAR,MR  ) \
-  DIST_PROTO_INNER(T,S,U,V,STAR,STAR) \
-  DIST_PROTO_INNER(T,S,U,V,STAR,VC  ) \
-  DIST_PROTO_INNER(T,S,U,V,STAR,VR  ) \
-  DIST_PROTO_INNER(T,S,U,V,VC,  STAR) \
-  DIST_PROTO_INNER(T,S,U,V,VR,  STAR)
 
 #define PROTO_TYPES(T,S) \
   template void Axpy( S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void Axpy \
-  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
-  DIST_PROTO(T,S,CIRC,CIRC) \
-  DIST_PROTO(T,S,MC,  MR  ) \
-  DIST_PROTO(T,S,MC,  STAR) \
-  DIST_PROTO(T,S,MD,  STAR) \
-  DIST_PROTO(T,S,MR,  MC  ) \
-  DIST_PROTO(T,S,MR,  STAR) \
-  DIST_PROTO(T,S,STAR,MC  ) \
-  DIST_PROTO(T,S,STAR,MD  ) \
-  DIST_PROTO(T,S,STAR,MR  ) \
-  DIST_PROTO(T,S,STAR,STAR) \
-  DIST_PROTO(T,S,STAR,VC  ) \
-  DIST_PROTO(T,S,STAR,VR  ) \
-  DIST_PROTO(T,S,VC  ,STAR) \
-  DIST_PROTO(T,S,VR  ,STAR)
+  ( S alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

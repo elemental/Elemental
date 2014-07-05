@@ -88,10 +88,25 @@ DM::DistMatrix( DM&& A ) EL_NOEXCEPT : GDM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 
+template<typename T> 
+DistMatrix<T,ColDist,RowDist>* DM::Construct
+( const El::Grid& g, Int root ) const
+{ return new DistMatrix<T,ColDist,RowDist>(g,root); }
+
+template<typename T> 
+DistMatrix<T,RowDist,ColDist>* DM::ConstructTranspose
+( const El::Grid& g, Int root ) const
+{ return new DistMatrix<T,RowDist,ColDist>(g,root); }
+
+template<typename T>
+DistMatrix<T,DiagColDist<ColDist,RowDist>(),
+             DiagRowDist<ColDist,RowDist>()>* DM::ConstructDiagonal
+( const El::Grid& g, Int root ) const
+{ return new DistMatrix<T,this->UDiag,this->VDiag>(g,root); }
+
 template<typename T>
 template<Dist U,Dist V>
-DM&
-DM::operator=( const BlockDistMatrix<T,U,V>& A )
+DM& DM::operator=( const BlockDistMatrix<T,U,V>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("DM = BDM[U,V]"))
     BlockDistMatrix<T,ColDist,RowDist> AElem(A.Grid(),1,1);
@@ -103,8 +118,7 @@ DM::operator=( const BlockDistMatrix<T,U,V>& A )
 }
 
 template<typename T>
-DM&
-DM::operator=( DM&& A )
+DM& DM::operator=( DM&& A )
 {
     if( this->Viewing() && !A.Viewing() )
         this->operator=( (const DM&)A );

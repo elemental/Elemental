@@ -78,9 +78,9 @@ void Copy
     if( U == W && V == Z )
     {
         if( !B.ColConstrained() )
-            B.AlignCols( A.ColAlign() );
+            B.AlignColsWith( A.DistData() );
         if( !B.RowConstrained() )
-            B.AlignRows( A.RowAlign() );
+            B.AlignRowsWith( A.DistData() );
         if( A.ColAlign() == B.ColAlign() && 
             A.RowAlign() == B.RowAlign() && 
             A.ColCut() == B.ColCut() &&
@@ -115,6 +115,22 @@ void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     #include "El/core/NestedGuardAndPayload.h"
 }
 
+template<typename T>
+void Copy( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    #define GUARD(CDIST,RDIST) \
+        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define INNER_GUARD(CDIST,RDIST) \
+        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+        auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A);
+    #define INNER_PAYLOAD(CDIST,RDIST) \
+        auto& BCast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(B); \
+        Copy( ACast, BCast );
+    #include "El/core/NestedGuardAndPayload.h"
+}
+
 template<typename Real>
 void Copy
 ( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Complex<Real>>& B )
@@ -132,13 +148,36 @@ void Copy
     #include "El/core/NestedGuardAndPayload.h"
 }
 
+template<typename Real>
+void Copy
+( const AbstractBlockDistMatrix<Real>& A, 
+        AbstractBlockDistMatrix<Complex<Real>>& B )
+{
+    DEBUG_ONLY(CallStackEntry cse("Copy"))
+    #define GUARD(CDIST,RDIST) \
+        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define INNER_GUARD(CDIST,RDIST) \
+        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+        auto& ACast = dynamic_cast<const BlockDistMatrix<Real,CDIST,RDIST>&>(A);
+    #define INNER_PAYLOAD(CDIST,RDIST) \
+        auto& BCast = \
+            dynamic_cast<BlockDistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
+        Copy( ACast, BCast );
+    #include "El/core/NestedGuardAndPayload.h"
+}
+
 #define DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+  template void Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B ); \
+  template void Copy \
+  ( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B );
 
 #define DIST_PROTO_INNER_REAL(T,U,V,W,Z) \
   DIST_PROTO_INNER(T,U,V,W,Z) \
   template void Copy \
-  ( const DistMatrix<T,U,V>& A, DistMatrix<Complex<T>,W,Z>& B );
+  ( const DistMatrix<T,U,V>& A, DistMatrix<Complex<T>,W,Z>& B ); \
+  template void Copy \
+  ( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<Complex<T>,W,Z>& B );
 
 #define DIST_PROTO(T,U,V) \
   DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
@@ -174,6 +213,8 @@ void Copy
   template void Copy( const Matrix<T>& A, Matrix<T>& B ); \
   template void Copy \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
+  template void Copy \
+  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B ); \
   DIST_PROTO(T,CIRC,CIRC); \
   DIST_PROTO(T,MC,  MR  ); \
   DIST_PROTO(T,MC,  STAR); \
@@ -195,7 +236,12 @@ void Copy
   template void Copy \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
   template void Copy \
+  ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B ); \
+  template void Copy \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Complex<T>>& B ); \
+  template void Copy \
+  ( const AbstractBlockDistMatrix<T>& A, \
+          AbstractBlockDistMatrix<Complex<T>>& B ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \
   DIST_PROTO_REAL(T,MC,  STAR); \
@@ -211,7 +257,6 @@ void Copy
   DIST_PROTO_REAL(T,VC  ,STAR); \
   DIST_PROTO_REAL(T,VR  ,STAR);
 
-#define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace El

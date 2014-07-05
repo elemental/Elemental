@@ -14,6 +14,21 @@
 
 namespace El {
 
+// Reflect datatypes to and from C
+// -------------------------------
+template<typename T>
+struct CReflect { typedef T type; };
+
+template<>
+struct CReflect<complex_float> { typedef Complex<float> type; };
+template<>
+struct CReflect<complex_double> { typedef Complex<double> type; };
+
+template<>
+struct CReflect<Complex<float>> { typedef complex_float type; };
+template<>
+struct CReflect<Complex<double>> { typedef complex_double type; };
+
 template<typename T>
 inline void DynamicCastCheck( T* A )
 { if( A == nullptr ) RuntimeError("Dynamic cast failed"); }
@@ -60,6 +75,25 @@ inline const Complex<float>* Reinterpret( const complex_float* buffer )
 
 inline const Complex<double>* Reinterpret( const complex_double* buffer )
 { return EL_RC(const Complex<double>*,buffer); }
+
+inline Complex<float> Reinterpret( complex_float alpha )
+{ return Complex<float>(alpha.real,alpha.imag); }
+
+inline Complex<double> Reinterpret( complex_double alpha )
+{ return Complex<double>(alpha.real,alpha.imag); }
+
+inline complex_float Reinterpret( Complex<float> alpha )
+{ complex_float beta; beta.real = alpha.real(); beta.imag = alpha.imag();
+  return beta; }
+
+inline complex_double Reinterpret( Complex<double> alpha )
+{ complex_double beta; beta.real = alpha.real(); beta.imag = alpha.imag();
+  return beta; }
+
+// Analogues for real variables
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+inline float Reinterpret( float alpha) { return alpha; }
+inline double Reinterpret( double alpha ) { return alpha; }
 
 // Matrix
 // ------

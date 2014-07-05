@@ -63,12 +63,14 @@ void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
     }
 }
 
-template<typename T,Dist U1,Dist V1,Dist U2,Dist V2>
+template<typename T>
 void Swap
-( Orientation orientation, DistMatrix<T,U1,V1>& X, DistMatrix<T,U2,V2>& Y )
+( Orientation orientation, AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(CallStackEntry cse("Swap"))
     const Grid& g = X.Grid();
+    const DistData XDistData = X.DistData();
+    const DistData YDistData = Y.DistData();
     if( orientation == NORMAL )
     {
         DEBUG_ONLY(
@@ -77,16 +79,16 @@ void Swap
         )
         // TODO: Optimize communication
 
-        DistMatrix<T,U1,V1> YLikeX(g);
-        YLikeX.AlignWith( X );
-        YLikeX = Y;
+        std::unique_ptr<AbstractDistMatrix<T>> YLikeX( X.Construct(g) );
+        YLikeX->AlignWith( X.DistData() );
+        Copy( Y, *YLikeX );
 
-        DistMatrix<T,U2,V2> XLikeY(g);
-        XLikeY.AlignWith( Y );
-        XLikeY = X; 
+        std::unique_ptr<AbstractDistMatrix<T>> XLikeY( Y.Construct(g) );
+        XLikeY->AlignWith( Y.DistData() );
+        Copy( X, *XLikeY );
 
-        Y = XLikeY;
-        X = YLikeX; 
+        Copy( XLikeY->Matrix(), Y.Matrix() );
+        Copy( YLikeX->Matrix(), X.Matrix() );
     }
     else
     {
@@ -97,17 +99,16 @@ void Swap
         )
 
         // TODO: Optimize communication
+        std::unique_ptr<AbstractDistMatrix<T>> YTransLikeX( X.Construct(g) );
+        YTransLikeX->AlignWith( X.DistData() );
+        Transpose( Y, *YTransLikeX, conjugate );
 
-        DistMatrix<T,U1,V1> YTransLikeX(g);
-        YTransLikeX.AlignWith( X );
-        Transpose( Y, YTransLikeX, conjugate );
+        std::unique_ptr<AbstractDistMatrix<T>> XTransLikeY( Y.Construct(g) );
+        XTransLikeY->AlignWith( Y.DistData() );
+        Transpose( X, *XTransLikeY, conjugate );
 
-        DistMatrix<T,U2,V2> XTransLikeY(g);
-        XTransLikeY.AlignWith( Y );
-        Transpose( X, XTransLikeY, conjugate );
-
-        Y = XTransLikeY;
-        X = YTransLikeX;
+        Copy( XTransLikeY->Matrix(), Y.Matrix() );
+        Copy( YTransLikeX->Matrix(), X.Matrix() );
     }
 }
 
@@ -133,6 +134,7 @@ void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from )
         return;
     const Int n = A.Width();
     const Int nLocal = A.LocalWidth();
+    // TODO: Make use of new Construct routine
     auto aToRow   = ViewRange( A, to,   0, to+1,   n );
     auto aFromRow = ViewRange( A, from, 0, from+1, n );
     if( aToRow.ColAlign() == aFromRow.ColAlign() )
@@ -407,10 +409,6 @@ void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
     SymmetricSwap( uplo, A, to, from, true );
 }
 
-#define DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void Swap \
-  ( Orientation orientation, DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y );
-
 #define DIST_PROTO(T,U,V) \
   template void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from ); \
   template void ColSwap( DistMatrix<T,U,V>& A, Int to, Int from ); \
@@ -418,24 +416,13 @@ void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
   ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from, \
     bool conjugate ); \
   template void HermitianSwap \
-  ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from ); \
-  DIST_PROTO_INNER(T,U,V,CIRC,CIRC) \
-  DIST_PROTO_INNER(T,U,V,MC  ,MR  ) \
-  DIST_PROTO_INNER(T,U,V,MC  ,STAR) \
-  DIST_PROTO_INNER(T,U,V,MD  ,STAR) \
-  DIST_PROTO_INNER(T,U,V,MR  ,MC  ) \
-  DIST_PROTO_INNER(T,U,V,MR  ,STAR) \
-  DIST_PROTO_INNER(T,U,V,STAR,MC  ) \
-  DIST_PROTO_INNER(T,U,V,STAR,MD  ) \
-  DIST_PROTO_INNER(T,U,V,STAR,MR  ) \
-  DIST_PROTO_INNER(T,U,V,STAR,STAR) \
-  DIST_PROTO_INNER(T,U,V,STAR,VC  ) \
-  DIST_PROTO_INNER(T,U,V,STAR,VR  ) \
-  DIST_PROTO_INNER(T,U,V,VC,  STAR) \
-  DIST_PROTO_INNER(T,U,V,VR,  STAR)
+  ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from );
 
 #define PROTO(T) \
   template void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y ); \
+  template void Swap \
+  ( Orientation orientation, \
+    AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y ); \
   template void RowSwap( Matrix<T>& A, Int to, Int from ); \
   template void ColSwap( Matrix<T>& A, Int to, Int from ); \
   template void SymmetricSwap \

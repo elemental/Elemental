@@ -34,10 +34,10 @@ void AxpyTriangle
     }
 }
 
-template<typename T,typename S,Dist U,Dist V>
+template<typename T,typename S>
 void AxpyTriangle
 ( UpperOrLower uplo, S alphaS, 
-  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+  const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(
         CallStackEntry cse("AxpyTriangle");
@@ -49,7 +49,11 @@ void AxpyTriangle
             LogicError("Nonconformal AxpyTriangle");
     )
     const T alpha = T(alphaS);
-    if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
+
+    const DistData XDistData = X.DistData();
+    const DistData YDistData = Y.DistData();
+
+    if( XDistData == YDistData )
     {
         const Int localHeight = X.LocalHeight();
         const Int localWidth = X.LocalWidth();
@@ -84,56 +88,19 @@ void AxpyTriangle
     }
     else
     {
-        DistMatrix<T,U,V> XCopy( X.Grid() );
-        XCopy.AlignWith( Y );
-        XCopy = X;
-        AxpyTriangle( uplo, alpha, XCopy, Y );
+        std::unique_ptr<AbstractDistMatrix<T>> XCopy( Y.Construct(X.Grid()) );
+        XCopy->AlignWith( YDistData );
+        Copy( X, *XCopy );
+        AxpyTriangle( uplo, alpha, *XCopy, Y );
     }
 }
-
-template<typename T,typename S>
-void AxpyTriangle
-( UpperOrLower uplo, S alpha, 
-  const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
-{
-    DEBUG_ONLY(CallStackEntry cse("AxpyTriangle"))
-    if( A.DistData().colDist != B.DistData().colDist || 
-        A.DistData().rowDist != B.DistData().rowDist )
-        RuntimeError("Distributions of A and B must match");
-    #define GUARD(CDIST,RDIST) \
-        A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-        auto& BCast = dynamic_cast<      DistMatrix<T,CDIST,RDIST>&>(B); \
-        AxpyTriangle( uplo, alpha, ACast, BCast );
-    #include "El/macros/GuardAndPayload.h"
-}
-
-#define DIST_PROTO(T,S,U,V) \
-  template void AxpyTriangle \
-  ( UpperOrLower uplo, S alpha, \
-    const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B ); 
 
 #define PROTO_TYPES(T,S) \
   template void AxpyTriangle \
   ( UpperOrLower uplo, S alpha, const Matrix<T>& A, Matrix<T>& B ); \
   template void AxpyTriangle \
   ( UpperOrLower uplo, S alpha, \
-    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B ); \
-  DIST_PROTO(T,S,CIRC,CIRC) \
-  DIST_PROTO(T,S,MC,  MR  ) \
-  DIST_PROTO(T,S,MC,  STAR) \
-  DIST_PROTO(T,S,MD,  STAR) \
-  DIST_PROTO(T,S,MR,  MC  ) \
-  DIST_PROTO(T,S,MR,  STAR) \
-  DIST_PROTO(T,S,STAR,MC  ) \
-  DIST_PROTO(T,S,STAR,MD  ) \
-  DIST_PROTO(T,S,STAR,MR  ) \
-  DIST_PROTO(T,S,STAR,STAR) \
-  DIST_PROTO(T,S,STAR,VC  ) \
-  DIST_PROTO(T,S,STAR,VR  ) \
-  DIST_PROTO(T,S,VC  ,STAR) \
-  DIST_PROTO(T,S,VR  ,STAR)
+    const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 #define PROTO_INT(T) PROTO_TYPES(T,T)
 

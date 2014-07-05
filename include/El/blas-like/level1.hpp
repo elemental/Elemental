@@ -26,8 +26,6 @@ void Adjoint
 // ====
 template<typename T,typename S>
 void Axpy( S alpha, const Matrix<T>& X, Matrix<T>& Y );
-template<typename T,typename S,Dist U,Dist V,Dist W,Dist Z>
-void Axpy( S alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,W,Z>& Y );
 template<typename T,typename S>
 void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 
@@ -36,10 +34,6 @@ void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 template<typename T,typename S>
 void AxpyTriangle
 ( UpperOrLower uplo, S alpha, const Matrix<T>& X, Matrix<T>& Y );
-template<typename T,typename S,Dist U,Dist V>
-void AxpyTriangle
-( UpperOrLower uplo, S alpha,
-  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
 template<typename T,typename S>
 void AxpyTriangle
 ( UpperOrLower uplo, S alpha,
@@ -57,9 +51,6 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A );
-
-template<typename T,Dist U,Dist V,Dist W,Dist Z>
-void Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 template<typename T>
 void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
@@ -73,19 +64,19 @@ void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B );
 
 template<typename T,Dist U,Dist V,Dist W,Dist Z>
 void Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
-
-template<typename Real,Dist U,Dist V,Dist W,Dist Z>
-void Copy( const DistMatrix<Real,U,V>& A, DistMatrix<Complex<Real>,W,Z>& B );
-
 template<typename T,Dist U,Dist V,Dist W,Dist Z>
 void Copy( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B );
 
+template<typename Real,Dist U,Dist V,Dist W,Dist Z>
+void Copy( const DistMatrix<Real,U,V>& A, DistMatrix<Complex<Real>,W,Z>& B );
 template<typename Real,Dist U,Dist V,Dist W,Dist Z>
 void Copy
 ( const BlockDistMatrix<Real,U,V>& A, BlockDistMatrix<Complex<Real>,W,Z>& B );
 
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
+template<typename T>
+void Copy( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
 
 // DiagonalScale
 // =============
@@ -203,11 +194,6 @@ void Fill( AbstractBlockDistMatrix<T>& A, T alpha );
 // ========
 template<typename T>
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
-template<typename T,Dist U,Dist V>
-void Hadamard
-( const DistMatrix<T,U,V>& A,
-  const DistMatrix<T,U,V>& B,
-        DistMatrix<T,U,V>& C );
 template<typename T>
 void Hadamard
 ( const AbstractDistMatrix<T>& A,
@@ -264,9 +250,6 @@ void MakeReal( AbstractDistMatrix<T>& A );
 // =============
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
-template<typename T,Dist U,Dist V>
-void MakeSymmetric
-( UpperOrLower uplo, DistMatrix<T,U,V>& A, bool conjugate=false );
 template<typename F>
 void MakeSymmetric
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false );
@@ -514,11 +497,11 @@ void SetDiagonal( AbstractBlockDistMatrix<T>& A, S alpha, Int offset=0 );
 
 // Swap
 // ====
-template<typename F>
-void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y );
-template<typename F,Dist U1,Dist V1,Dist U2,Dist V2>
+template<typename T>
+void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y );
+template<typename T>
 void Swap
-( Orientation orientation, DistMatrix<F,U1,V1>& X, DistMatrix<F,U2,V2>& Y );
+( Orientation orientation, AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 
 template<typename F>
 void RowSwap( Matrix<F>& A, Int to, Int from );
@@ -608,15 +591,6 @@ SecondHalfOfSymmetric2x2Solve
 // =========
 template<typename T>
 void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false );
-template<typename T,Dist U,Dist V,Dist W,Dist Z>
-void Transpose
-( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate=false );
-
-template<typename T,Dist U,Dist V,Dist W,Dist Z>
-void Transpose
-( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B,
-  bool conjugate=false );
-
 template<typename T>
 void Transpose
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B,

@@ -123,7 +123,8 @@ public:
     Int DiagonalRoot( Int offset=0 ) const override;
     Int DiagonalAlign( Int offset=0 ) const override;
 
-    void GetDiagonal( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
+    void GetDiagonal
+    ( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( BlockDistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal

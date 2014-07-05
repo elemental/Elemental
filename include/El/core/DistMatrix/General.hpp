@@ -121,15 +121,18 @@ public:
     Int DiagonalRoot( Int offset=0 ) const override;
     Int DiagonalAlign( Int offset=0 ) const override;
 
-    void GetDiagonal( DistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
+    void GetDiagonal
+    ( DistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
     ( DistMatrix<Base<T>,UDiag,VDiag>& d, Int offset=0 ) const;
 
     DistMatrix<T,UDiag,VDiag> GetDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,UDiag,VDiag> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<Base<T>,UDiag,VDiag> GetImagPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<Base<T>,UDiag,VDiag> GetRealPartOfDiagonal
+    ( Int offset=0 ) const;
+    DistMatrix<Base<T>,UDiag,VDiag> GetImagPartOfDiagonal
+    ( Int offset=0 ) const;
 
     void SetDiagonal( const DistMatrix<T,UDiag,VDiag>& d, Int offset=0 );
     void SetRealPartOfDiagonal

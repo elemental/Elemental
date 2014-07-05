@@ -24,60 +24,21 @@ using namespace El;
 
 extern "C" {
 
-ElError ElOnesMatrix_s( ElMatrix_s A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesMatrix_d( ElMatrix_d A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesMatrix_c( ElMatrix_c A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesMatrix_z( ElMatrix_z A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesDistMatrix_s( ElDistMatrix_s A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesDistMatrix_d( ElDistMatrix_d A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesDistMatrix_c( ElDistMatrix_c A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElOnesDistMatrix_z( ElDistMatrix_z A, ElInt m, ElInt n )
-{
-    try { Ones( *Reinterpret(A), m, n ); }
-    CATCH
-    return EL_SUCCESS;
-}
+#define EL_ONES_WRAPPER(SIG) \
+  ElError ElOnes ## SIG ( El ## SIG A, ElInt m, ElInt n ) \
+  { \
+      try { Ones( *Reinterpret(A), m, n ); } \
+      CATCH \
+      return EL_SUCCESS; \
+  }
+EL_ONES_WRAPPER(Matrix_s)
+EL_ONES_WRAPPER(Matrix_d)
+EL_ONES_WRAPPER(Matrix_c)
+EL_ONES_WRAPPER(Matrix_z)
+EL_ONES_WRAPPER(DistMatrix_s)
+EL_ONES_WRAPPER(DistMatrix_d)
+EL_ONES_WRAPPER(DistMatrix_c)
+EL_ONES_WRAPPER(DistMatrix_z)
+#undef EL_ONES_WRAPPER
 
 } // extern "C"

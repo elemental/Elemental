@@ -47,6 +47,13 @@ public:
     DistMatrix( type&& A ) EL_NOEXCEPT;
     ~DistMatrix();
 
+    DistMatrix<T,STAR,MC>* Construct
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
+    DistMatrix<T,MC,STAR>* ConstructTranspose
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
+    DistMatrix<T,MC,STAR>* ConstructDiagonal
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
+
     // Assignment and reconfiguration
     // ==============================
     template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );

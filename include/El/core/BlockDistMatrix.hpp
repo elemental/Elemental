@@ -32,6 +32,16 @@ struct BlockDistData
       root(A.Root()), grid(&A.Grid())
     { }
 };
+inline bool operator==( const BlockDistData& A, const BlockDistData& B )
+{ return A.colDist     == B.colDist &&
+         A.rowDist     == B.rowDist &&
+         A.blockHeight == B.blockHeight &&
+         A.blockWidth  == B.blockWidth &&
+         A.colAlign    == B.colAlign &&
+         A.rowAlign    == B.rowAlign &&
+         A.root        == B.root &&
+         A.grid        == B.grid; }
+
 
 } // namespace El
 

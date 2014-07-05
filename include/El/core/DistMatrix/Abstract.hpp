@@ -27,6 +27,13 @@ public:
 
     virtual ~AbstractDistMatrix();
 
+    virtual AbstractDistMatrix<T>* Construct
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    virtual AbstractDistMatrix<T>* ConstructTranspose
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    virtual AbstractDistMatrix<T>* ConstructDiagonal
+    ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+
     // Assignment and reconfiguration
     // ==============================
     // Move assignment

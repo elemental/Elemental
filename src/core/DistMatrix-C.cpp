@@ -26,49 +26,24 @@ extern "C" {
 
 // DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
 // ------------------------------------------------
-ElError ElDistMatrixCreate_s( ElConstGrid gridHandle, ElDistMatrix_s* AHandle )
-{
-    try 
-    {
-        auto grid = Reinterpret(gridHandle);
-        *AHandle = Reinterpret(new DistMatrix<float>(*grid));
-    }
-    CATCH
-    return EL_SUCCESS;
-}
 
-ElError ElDistMatrixCreate_d( ElConstGrid gridHandle, ElDistMatrix_d* AHandle )
-{
-    try 
-    {
-        auto grid = Reinterpret(gridHandle);
-        *AHandle = Reinterpret(new DistMatrix<double>(*grid));
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCreate_c( ElConstGrid gridHandle, ElDistMatrix_c* AHandle )
-{
-    try 
-    {
-        auto grid = Reinterpret(gridHandle);
-        *AHandle = Reinterpret(new DistMatrix<Complex<float>>(*grid));
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCreate_z( ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
-{
-    try 
-    {
-        auto grid = Reinterpret(gridHandle);
-        *AHandle = Reinterpret(new DistMatrix<Complex<double>>(*grid));
-    }
-    CATCH
-    return EL_SUCCESS;
-}
+#define EL_DISTMATRIXCREATE_WRAPPER(SIG,T) \
+  ElError ElDistMatrixCreate_ ## SIG \
+  ( ElConstGrid gridHandle, ElDistMatrix_ ## SIG * AHandle ) \
+  { \
+      try \
+      { \
+          auto grid = Reinterpret(gridHandle); \
+          *AHandle = Reinterpret( new DistMatrix<T>(*grid) ); \
+      } \
+      CATCH \
+      return EL_SUCCESS; \
+  }
+EL_DISTMATRIXCREATE_WRAPPER(s,float)
+EL_DISTMATRIXCREATE_WRAPPER(d,double)
+EL_DISTMATRIXCREATE_WRAPPER(c,Complex<float>)
+EL_DISTMATRIXCREATE_WRAPPER(z,Complex<double>)
+#undef EL_DISTMATRIXCREATE_WRAPPER
 
 } // extern "C"
 

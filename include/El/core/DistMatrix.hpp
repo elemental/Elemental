@@ -28,6 +28,13 @@ struct DistData
       root(A.Root()), grid(&A.Grid())
     { }
 };
+inline bool operator==( const DistData& A, const DistData& B )
+{ return A.colDist  == B.colDist &&
+         A.rowDist  == B.rowDist &&
+         A.colAlign == B.colAlign &&
+         A.rowAlign == B.rowAlign &&
+         A.root     == B.root &&
+         A.grid     == B.grid; }
 
 template<typename DistTypeA,typename DistTypeB>
 inline void AssertSameDist( const DistTypeA& distA, const DistTypeB& distB )
