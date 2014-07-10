@@ -19,15 +19,17 @@ namespace El {
 template<typename T>
 struct CReflect { typedef T type; };
 
-template<>
-struct CReflect<complex_float> { typedef Complex<float> type; };
-template<>
-struct CReflect<complex_double> { typedef Complex<double> type; };
+// ElInt and Int are typedef's
+/*
+template<> struct CReflect<ElInt> { typedef Int type; };
+template<> struct CReflect<Int> { typedef ElInt type; };
+*/
 
-template<>
-struct CReflect<Complex<float>> { typedef complex_float type; };
-template<>
-struct CReflect<Complex<double>> { typedef complex_double type; };
+template<> struct CReflect<complex_float> { typedef Complex<float> type; };
+template<> struct CReflect<complex_double> { typedef Complex<double> type; };
+
+template<> struct CReflect<Complex<float>> { typedef complex_float type; };
+template<> struct CReflect<Complex<double>> { typedef complex_double type; };
 
 template<typename T>
 inline void DynamicCastCheck( T* A )
@@ -35,11 +37,8 @@ inline void DynamicCastCheck( T* A )
 
 // Dist
 // ----
-inline Dist Reinterpret( ElDist dist )
-{ return static_cast<Dist>(dist); }
-
-inline ElDist Reinterpret( Dist dist )
-{ return static_cast<ElDist>(dist); }
+inline Dist   Reinterpret( ElDist dist ) { return static_cast<Dist>(dist); }
+inline ElDist Reinterpret( Dist   dist ) { return static_cast<ElDist>(dist); }
 
 // Grid
 // ----
@@ -90,13 +89,35 @@ inline complex_double Reinterpret( Complex<double> alpha )
 { complex_double beta; beta.real = alpha.real(); beta.imag = alpha.imag();
   return beta; }
 
-// Analogues for real variables
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Analogues for real variables and integers
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+inline Int Reinterpret( Int alpha ) { return alpha; }
+inline Int* Reinterpret( Int* buffer ) { return buffer; }
+inline const Int* Reinterpret( const Int* buffer ) { return buffer; }
+/*
+inline ElInt Reinterpret( Int alpha ) { return alpha; }
+
+inline ElInt* Reinterpret( Int*   buffer ) { return buffer; }
+inline Int*   Reinterpret( ElInt* buffer ) { return buffer; }
+
+inline const ElInt* Reinterpret( const Int*   buffer ) { return buffer; }
+inline const Int*   Reinterpret( const ElInt* buffer ) { return buffer; }
+*/
+
 inline float Reinterpret( float alpha) { return alpha; }
 inline double Reinterpret( double alpha ) { return alpha; }
 
+inline float* Reinterpret( float* buffer ) { return buffer; }
+inline double* Reinterpret( double* buffer ) { return buffer; }
+
+inline const float* Reinterpret( const float* buffer ) { return buffer; }
+inline const double* Reinterpret( const double* buffer ) { return buffer; }
+
 // Matrix
 // ------
+inline Matrix<Int>* Reinterpret( ElMatrix_i A )
+{ return EL_RC(Matrix<Int>*,A); }
+
 inline Matrix<float>* Reinterpret( ElMatrix_s A )
 { return EL_RC(Matrix<float>*,A); }
 
@@ -108,6 +129,9 @@ inline Matrix<Complex<float>>* Reinterpret( ElMatrix_c A )
 
 inline Matrix<Complex<double>>* Reinterpret( ElMatrix_z A )
 { return EL_RC(Matrix<Complex<double>>*,A); }
+
+inline const Matrix<Int>* Reinterpret( ElConstMatrix_i A )
+{ return EL_RC(const Matrix<Int>*,A); }
 
 inline const Matrix<float>* Reinterpret( ElConstMatrix_s A )
 { return EL_RC(const Matrix<float>*,A); }
@@ -121,6 +145,9 @@ inline const Matrix<Complex<float>>* Reinterpret( ElConstMatrix_c A )
 inline const Matrix<Complex<double>>* Reinterpret( ElConstMatrix_z A )
 { return EL_RC(const Matrix<Complex<double>>*,A); }
 
+inline ElMatrix_i Reinterpret( Matrix<Int>* A )
+{ return (ElMatrix_i)EL_RC(struct ElMatrix_iDummy*,A); }
+
 inline ElMatrix_s Reinterpret( Matrix<float>* A )
 { return (ElMatrix_s)EL_RC(struct ElMatrix_sDummy*,A); }
 
@@ -132,6 +159,9 @@ inline ElMatrix_c Reinterpret( Matrix<Complex<float>>* A )
 
 inline ElMatrix_z Reinterpret( Matrix<Complex<double>>* A )
 { return (ElMatrix_z)EL_RC(struct ElMatrix_zDummy*,A); }
+
+inline ElConstMatrix_i Reinterpret( const Matrix<Int>* A )
+{ return (ElConstMatrix_i)EL_RC(const struct ElMatrix_iDummy*,A); }
 
 inline ElConstMatrix_s Reinterpret( const Matrix<float>* A )
 { return (ElConstMatrix_s)EL_RC(const struct ElMatrix_sDummy*,A); }
@@ -147,6 +177,10 @@ inline ElConstMatrix_z Reinterpret( const Matrix<Complex<double>>* A )
 
 // AbstractDistMatrix
 // ------------------
+inline AbstractDistMatrix<Int>* 
+Reinterpret( ElDistMatrix_i A )
+{ return EL_RC(AbstractDistMatrix<Int>*,A); }
+
 inline AbstractDistMatrix<float>* 
 Reinterpret( ElDistMatrix_s A )
 { return EL_RC(AbstractDistMatrix<float>*,A); }
@@ -162,6 +196,10 @@ Reinterpret( ElDistMatrix_c A )
 inline AbstractDistMatrix<Complex<double>>* 
 Reinterpret( ElDistMatrix_z A )
 { return EL_RC(AbstractDistMatrix<Complex<double>>*,A); }
+
+inline const AbstractDistMatrix<Int>* 
+Reinterpret( ElConstDistMatrix_i A )
+{ return EL_RC(const AbstractDistMatrix<Int>*,A); }
 
 inline const AbstractDistMatrix<float>* 
 Reinterpret( ElConstDistMatrix_s A )
@@ -179,6 +217,10 @@ inline const AbstractDistMatrix<Complex<double>>*
 Reinterpret( ElConstDistMatrix_z A )
 { return EL_RC(const AbstractDistMatrix<Complex<double>>*,A); }
 
+inline ElDistMatrix_i
+Reinterpret( AbstractDistMatrix<Int>* A )
+{ return (ElDistMatrix_i)EL_RC(struct ElDistMatrix_iDummy*,A); }
+
 inline ElDistMatrix_s 
 Reinterpret( AbstractDistMatrix<float>* A )
 { return (ElDistMatrix_s)EL_RC(struct ElDistMatrix_sDummy*,A); }
@@ -194,6 +236,10 @@ Reinterpret( AbstractDistMatrix<Complex<float>>* A )
 inline ElDistMatrix_z 
 Reinterpret( AbstractDistMatrix<Complex<double>>* A )
 { return (ElDistMatrix_z)EL_RC(struct ElDistMatrix_zDummy*,A); }
+
+inline ElConstDistMatrix_i
+Reinterpret( const AbstractDistMatrix<Int>* A )
+{ return (ElConstDistMatrix_i)EL_RC(const struct ElDistMatrix_iDummy*,A); }
 
 inline ElConstDistMatrix_s 
 Reinterpret( const AbstractDistMatrix<float>* A )

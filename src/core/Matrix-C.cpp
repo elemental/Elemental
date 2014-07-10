@@ -20,460 +20,84 @@ using namespace El;
   catch( std::exception& e ) \
   { ReportException(e); return EL_ERROR; }
 
+#define EL_TRY(payload) \
+  try { payload; } CATCH \
+  return EL_SUCCESS;
+
+#define CREFLECT(T) typename CReflect<T>::type
+
 extern "C" {
 
-// Matrix<T>::Matrix()
-// -------------------
-ElError ElMatrixCreate_s( ElMatrix_s* A )
-{
-    try { *A = Reinterpret(new Matrix<float>); }
-    CATCH
-    return EL_SUCCESS;
-}
+#define C_PROTO(SIG,T) \
+  /* Matrix<T>::Matrix() */ \
+  ElError ElMatrixCreate_ ## SIG ( ElMatrix_ ## SIG * A ) \
+  { EL_TRY( *A = Reinterpret( new Matrix<T> ) ) } \
+  /* Matrix<T>::~Matrix() */ \
+  ElError ElMatrixDestroy_ ## SIG ( ElConstMatrix_ ## SIG AHandle ) \
+  { EL_TRY( delete Reinterpret(AHandle) ) } \
+  /* void Matrix<T>::Empty() */ \
+  ElError ElMatrixEmpty_ ## SIG ( ElMatrix_ ## SIG AHandle ) \
+  { EL_TRY( Reinterpret(AHandle)->Empty() ) } \
+  /* void Matrix<T>::Resize( Int height, Int width ) */ \
+  ElError ElMatrixResize_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, ElInt height, ElInt width ) \
+  { EL_TRY( Reinterpret(AHandle)->Resize(height,width) ) } \
+  /* void Matrix<T>::Resize( Int height, Int width, Int ldim ) */ \
+  ElError ElMatrixResizeWithLDim_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, ElInt height, ElInt width, ElInt ldim ) \
+  { EL_TRY( Reinterpret(AHandle)->Resize(height,width,ldim) ) } \
+  /* void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim ) */ \
+  ElError ElMatrixAttach_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, \
+    ElInt height, ElInt width, CREFLECT(T)* buffer, ElInt ldim ) \
+  { EL_TRY\
+    ( Reinterpret(AHandle)->Attach(height,width,Reinterpret(buffer),ldim) ) } \
+  /* void Matrix<T>::LockedAttach
+     ( Int height, Int width, const T* buffer, Int ldim ) */ \
+  ElError ElMatrixLockedAttach_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, \
+    ElInt height, ElInt width, const CREFLECT(T)* buffer, ElInt ldim ) \
+  { EL_TRY \
+    ( Reinterpret(AHandle)->LockedAttach \
+      (height,width,Reinterpret(buffer),ldim) ) } \
+  /* void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim ) */ \
+  ElError ElMatrixControl_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, ElInt height, ElInt width, CREFLECT(T)* buffer, \
+    ElInt ldim ) \
+  { EL_TRY \
+    ( Reinterpret(AHandle)->Control(height,width,Reinterpret(buffer),ldim) ) } \
+  /* B = A */ \
+  ElError ElMatrixCopy_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElMatrix_ ## SIG BHandle ) \
+  { EL_TRY( *Reinterpret(BHandle) = *Reinterpret(AHandle) ) } \
+  /* Int Matrix<T>::Height() const */ \
+  ElError ElMatrixHeight_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElInt* height ) \
+  { EL_TRY( *height = Reinterpret(AHandle)->Height() ) } \
+  /* Int Matrix<T>::Width() const */ \
+  ElError ElMatrixWidth_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElInt* width ) \
+  { EL_TRY( *width = Reinterpret(AHandle)->Width() ) } \
+  /* Int Matrix<T>::LDim() const */ \
+  ElError ElMatrixLDim_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElInt* ldim ) \
+  { EL_TRY( *ldim = Reinterpret(AHandle)->LDim() ) } \
+  /* Int Matrix<T>::MemorySize() const */ \
+  ElError ElMatrixMemorySize_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElInt* mem ) \
+  { EL_TRY( *mem = Reinterpret(AHandle)->MemorySize() ) } \
+  /* Int Matrix<T>::DiagonalLength( Int offset ) const */ \
+  ElError ElMatrixDiagonalLength_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElInt offset, ElInt* length ) \
+  { EL_TRY( *length = Reinterpret(AHandle)->DiagonalLength(offset) ) } \
 
-ElError ElMatrixCreate_d( ElMatrix_d* A )
-{
-    try { *A = Reinterpret(new Matrix<double>); }
-    CATCH
-    return EL_SUCCESS;
-}
+#define C_PROTO_COMPLEX(SIG,T) \
+  C_PROTO(SIG,T) 
+  // TODO: Complex-specific routines
 
-ElError ElMatrixCreate_c( ElMatrix_c* A )
-{
-    try { *A = Reinterpret(new Matrix<Complex<float>>); }
-    CATCH
-    return EL_SUCCESS;
-}
+#include "El/macros/CInstantiate.h"
 
-ElError ElMatrixCreate_z( ElMatrix_z* A )
-{
-    try { *A = Reinterpret(new Matrix<Complex<double>>); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Matrix<T>::~Matrix()
-// --------------------
-ElError ElMatrixDestroy_s( ElConstMatrix_s AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixDestroy_d( ElConstMatrix_d AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixDestroy_c( ElConstMatrix_c AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixDestroy_z( ElConstMatrix_z AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void Matrix<T>::Empty()
-// -----------------------
-ElError ElMatrixEmpty_s( ElMatrix_s AHandle )
-{ 
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixEmpty_d( ElMatrix_d AHandle )
-{ 
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixEmpty_c( ElMatrix_c AHandle )
-{ 
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixEmpty_z( ElMatrix_z AHandle )
-{ 
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void Matrix<T>::Resize( Int height, Int width )
-// -----------------------------------------------
-ElError ElMatrixResize_s( ElMatrix_s AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixResize_d( ElMatrix_d AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixResize_c( ElMatrix_c AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixResize_z( ElMatrix_z AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void Matrix<T>::Resize( Int height, Int width, Int ldim )
-// ---------------------------------------------------------
-ElError ElMatrixResizeWithLDim_s
-( ElMatrix_s AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixResizeWithLDim_d
-( ElMatrix_d AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixResizeWithLDim_c
-( ElMatrix_c AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixResizeWithLDim_z
-( ElMatrix_z AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
-// --------------------------------------------------------------------
-ElError ElMatrixAttach_s
-( ElMatrix_s AHandle, ElInt height, ElInt width, float* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Attach(height,width,buffer,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixAttach_d
-( ElMatrix_d AHandle, ElInt height, ElInt width, double* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Attach(height,width,buffer,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixAttach_c
-( ElMatrix_c AHandle, ElInt height, ElInt width, 
-  complex_float* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Attach(height,width,Reinterpret(buffer),ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixAttach_z
-( ElMatrix_z AHandle, ElInt height, ElInt width, 
-  complex_double* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Attach(height,width,Reinterpret(buffer),ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void Matrix<T>::LockedAttach
-// ( Int height, Int width, const T* buffer, Int ldim )
-// ----------------------------------------------------
-ElError ElMatrixLockedAttach_s
-( ElMatrix_s AHandle, 
-  ElInt height, ElInt width, const float* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->LockedAttach(height,width,buffer,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixLockedAttach_d
-( ElMatrix_d AHandle, 
-  ElInt height, ElInt width, const double* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->LockedAttach(height,width,buffer,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixLockedAttach_c
-( ElMatrix_c AHandle, 
-  ElInt height, ElInt width, const complex_float* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->LockedAttach
-          (height,width,Reinterpret(buffer),ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixLockedAttach_z
-( ElMatrix_z AHandle, 
-  ElInt height, ElInt width, const complex_double* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->LockedAttach
-          (height,width,Reinterpret(buffer),ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
-// ---------------------------------------------------------------------
-ElError ElMatrixControl_s
-( ElMatrix_s AHandle, ElInt height, ElInt width, float* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Control(height,width,buffer,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixControl_d
-( ElMatrix_d AHandle, ElInt height, ElInt width, double* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Control(height,width,buffer,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixControl_c
-( ElMatrix_c AHandle, ElInt height, ElInt width, 
-  complex_float* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Control
-          (height,width,Reinterpret(buffer),ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixControl_z
-( ElMatrix_z AHandle, ElInt height, ElInt width, 
-  complex_double* buffer, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Control
-          (height,width,Reinterpret(buffer),ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// B = A
-// -----
-ElError ElMatrixCopy_s( ElConstMatrix_s AHandle, ElMatrix_s BHandle )
-{
-    try { *Reinterpret(BHandle) = *Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixCopy_d( ElConstMatrix_d AHandle, ElMatrix_d BHandle )
-{
-    try { *Reinterpret(BHandle) = *Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixCopy_c( ElConstMatrix_c AHandle, ElMatrix_c BHandle )
-{
-    try { *Reinterpret(BHandle) = *Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixCopy_z( ElConstMatrix_z AHandle, ElMatrix_z BHandle )
-{
-    try { *Reinterpret(BHandle) = *Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int Matrix<T>::Height() const
-// -----------------------------
-ElError ElMatrixHeight_s( ElConstMatrix_s AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixHeight_d( ElConstMatrix_d AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixHeight_c( ElConstMatrix_c AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixHeight_z( ElConstMatrix_z AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int Matrix<T>::Width() const
-// ----------------------------
-ElError ElMatrixWidth_s( ElConstMatrix_s AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixWidth_d( ElConstMatrix_d AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixWidth_c( ElConstMatrix_c AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixWidth_z( ElConstMatrix_z AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int Matrix<T>::LDim() const
-// ---------------------------
-ElError ElMatrixLDim_s( ElConstMatrix_s AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixLDim_d( ElConstMatrix_d AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixLDim_c( ElConstMatrix_c AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixLDim_z( ElConstMatrix_z AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int Matrix<T>::MemorySize() const
-// ---------------------------------
-ElError ElMatrixMemorySize_s( ElConstMatrix_s AHandle, ElInt* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->MemorySize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixMemorySize_d( ElConstMatrix_d AHandle, ElInt* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->MemorySize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixMemorySize_c( ElConstMatrix_c AHandle, ElInt* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->MemorySize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixMemorySize_z( ElConstMatrix_z AHandle, ElInt* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->MemorySize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int Matrix<T>::DiagonalLength( Int offset ) const
-// -------------------------------------------------
-ElError ElMatrixDiagonalLength_s
-( ElConstMatrix_s AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixDiagonalLength_d
-( ElConstMatrix_d AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixDiagonalLength_c
-( ElConstMatrix_c AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElMatrixDiagonalLength_z
-( ElConstMatrix_z AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
+#undef C_PROTO
 
 // T* Matrix<T>::Buffer()
 // ----------------------

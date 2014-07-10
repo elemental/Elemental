@@ -22,24 +22,28 @@ using namespace El;
   catch( std::exception& e ) \
   { ReportException(e); return EL_ERROR; }
 
+#define EL_TRY(payload) \
+  try { payload; } CATCH \
+  return EL_SUCCESS;
+
+#define CREFLECT(T) typename CReflect<T>::type
+
 extern "C" {
 
-#define EL_UNIFORM_WRAPPER(SIG,T,TBASE) \
-  ElError ElUniform ## SIG \
-  ( El ## SIG A, ElInt m, ElInt n, T center, TBASE radius ) \
-  { \
-      try { Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ); } \
-      CATCH \
-      return EL_SUCCESS; \
-  }
-EL_UNIFORM_WRAPPER(Matrix_s,float,float)
-EL_UNIFORM_WRAPPER(Matrix_d,double,double)
-EL_UNIFORM_WRAPPER(Matrix_c,complex_float,float)
-EL_UNIFORM_WRAPPER(Matrix_z,complex_double,double)
-EL_UNIFORM_WRAPPER(DistMatrix_s,float,float)
-EL_UNIFORM_WRAPPER(DistMatrix_d,double,double)
-EL_UNIFORM_WRAPPER(DistMatrix_c,complex_float,float)
-EL_UNIFORM_WRAPPER(DistMatrix_z,complex_double,double)
-#undef EL_UNIFORM_WRAPPER
+#define C_PROTO(SIG,T) \
+  ElError ElUniformMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, \
+    ElInt m, ElInt n, CREFLECT(T) center, CREFLECT(Base<T>) radius ) \
+  { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) }
+#include "El/macros/CInstantiate.h"
+#undef C_PROTO
+
+#define C_PROTO(SIG,T) \
+  ElError ElUniformDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElInt m, ElInt n, CREFLECT(T) center, CREFLECT(Base<T>) radius ) \
+  { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) }
+#include "El/macros/CInstantiate.h"
+#undef C_PROTO
 
 } // extern "C"

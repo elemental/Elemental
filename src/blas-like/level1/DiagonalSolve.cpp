@@ -117,7 +117,7 @@ void DiagonalSolve
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<F,CDIST,RDIST>&>(X); \
         DiagonalSolve( side, orientation, dCast, XCast, checkIfSingular );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 template<typename F>
@@ -136,7 +136,7 @@ void DiagonalSolve
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<F>,CDIST,RDIST>&>(X); \
         DiagonalSolve( side, orientation, dCast, XCast, checkIfSingular );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 #define DIST_PROTO_INNER(T,U,V,W,Z) \

@@ -104,7 +104,7 @@ void DiagonalScale
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
         DiagonalScale( side, orientation, dCast, XCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 template<typename T>
@@ -122,7 +122,7 @@ void DiagonalScale
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
         DiagonalScale( side, orientation, dCast, XCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 #define DIST_PROTO_INNER(T,U,V,W,Z) \

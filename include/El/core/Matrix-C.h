@@ -16,11 +16,13 @@ extern "C" {
 
 /* An anonymous struct meant as a placeholder for Matrix<T>
    -------------------------------------------------------- */
+typedef struct ElMatrix_iDummy* ElMatrix_i;
 typedef struct ElMatrix_sDummy* ElMatrix_s;
 typedef struct ElMatrix_dDummy* ElMatrix_d;
 typedef struct ElMatrix_cDummy* ElMatrix_c;
 typedef struct ElMatrix_zDummy* ElMatrix_z;
 
+typedef const struct ElMatrix_iDummy* ElConstMatrix_i;
 typedef const struct ElMatrix_sDummy* ElConstMatrix_s;
 typedef const struct ElMatrix_dDummy* ElConstMatrix_d;
 typedef const struct ElMatrix_cDummy* ElConstMatrix_c;
@@ -28,6 +30,7 @@ typedef const struct ElMatrix_zDummy* ElConstMatrix_z;
 
 /* Matrix<T>::Matrix()
    ------------------- */
+ElError ElMatrixCreate_i( ElMatrix_i* A );
 ElError ElMatrixCreate_s( ElMatrix_s* A );
 ElError ElMatrixCreate_d( ElMatrix_d* A );
 ElError ElMatrixCreate_c( ElMatrix_c* A );
@@ -35,6 +38,7 @@ ElError ElMatrixCreate_z( ElMatrix_z* A );
 
 /* Matrix<T>::~Matrix() 
    -------------------- */
+ElError ElMatrixDestroy_i( ElConstMatrix_i A );
 ElError ElMatrixDestroy_s( ElConstMatrix_s A );
 ElError ElMatrixDestroy_d( ElConstMatrix_d A );
 ElError ElMatrixDestroy_c( ElConstMatrix_c A );
@@ -42,6 +46,7 @@ ElError ElMatrixDestroy_z( ElConstMatrix_z A );
 
 /* void Matrix<T>::Empty()
    ----------------------- */
+ElError ElMatrixEmpty_i( ElMatrix_i A );
 ElError ElMatrixEmpty_s( ElMatrix_s A );
 ElError ElMatrixEmpty_d( ElMatrix_d A );
 ElError ElMatrixEmpty_c( ElMatrix_c A );
@@ -49,6 +54,7 @@ ElError ElMatrixEmpty_z( ElMatrix_z A );
 
 /* void Matrix<T>::Resize( Int height, Int width )
    ----------------------------------------------- */
+ElError ElMatrixResize_i( ElMatrix_i A, ElInt height, ElInt width );
 ElError ElMatrixResize_s( ElMatrix_s A, ElInt height, ElInt width );
 ElError ElMatrixResize_d( ElMatrix_d A, ElInt height, ElInt width );
 ElError ElMatrixResize_c( ElMatrix_c A, ElInt height, ElInt width );
@@ -56,6 +62,8 @@ ElError ElMatrixResize_z( ElMatrix_z A, ElInt height, ElInt width );
 
 /* void Matrix<T>::Resize( Int height, Int width, Int ldim )
    --------------------------------------------------------- */
+ElError ElMatrixResizeWithLDim_i
+( ElMatrix_i A, ElInt height, ElInt width, ElInt ldim );
 ElError ElMatrixResizeWithLDim_s
 ( ElMatrix_s A, ElInt height, ElInt width, ElInt ldim );
 ElError ElMatrixResizeWithLDim_d
@@ -67,6 +75,8 @@ ElError ElMatrixResizeWithLDim_z
 
 /* void Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
    -------------------------------------------------------------------- */
+ElError ElMatrixAttach_i
+( ElMatrix_i A, ElInt height, ElInt width, ElInt* buffer, ElInt ldim );
 ElError ElMatrixAttach_s
 ( ElMatrix_s A, ElInt height, ElInt width, float* buffer, ElInt ldim );
 ElError ElMatrixAttach_d
@@ -81,6 +91,8 @@ ElError ElMatrixAttach_z
 /* void Matrix<T>::LockedAttach
    ( Int height, Int width, const T* buffer, Int ldim )
    ---------------------------------------------------- */
+ElError ElMatrixLockedAttach_i
+( ElMatrix_i A, ElInt height, ElInt width, const ElInt* buffer, ElInt ldim );
 ElError ElMatrixLockedAttach_s
 ( ElMatrix_s A, ElInt height, ElInt width, const float* buffer, ElInt ldim );
 ElError ElMatrixLockedAttach_d
@@ -94,6 +106,8 @@ ElError ElMatrixLockedAttach_z
 
 /* void Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
    --------------------------------------------------------------------- */
+ElError ElMatrixControl_i
+( ElMatrix_i A, ElInt height, ElInt width, ElInt* buffer, ElInt ldim );
 ElError ElMatrixControl_s
 ( ElMatrix_s A, ElInt height, ElInt width, float* buffer, ElInt ldim );
 ElError ElMatrixControl_d
@@ -107,6 +121,7 @@ ElError ElMatrixControl_z
 
 /* B := A
    ------ */
+ElError ElMatrixCopy_i( ElConstMatrix_i A, ElMatrix_i B );
 ElError ElMatrixCopy_s( ElConstMatrix_s A, ElMatrix_s B );
 ElError ElMatrixCopy_d( ElConstMatrix_d A, ElMatrix_d B );
 ElError ElMatrixCopy_c( ElConstMatrix_c A, ElMatrix_c B );
@@ -114,6 +129,7 @@ ElError ElMatrixCopy_z( ElConstMatrix_z A, ElMatrix_z B );
 
 /* Int Matrix<T>::Height() const
    ----------------------------- */
+ElError ElMatrixHeight_i( ElConstMatrix_i A, ElInt* height );
 ElError ElMatrixHeight_s( ElConstMatrix_s A, ElInt* height );
 ElError ElMatrixHeight_d( ElConstMatrix_d A, ElInt* height );
 ElError ElMatrixHeight_c( ElConstMatrix_c A, ElInt* height );
@@ -121,6 +137,7 @@ ElError ElMatrixHeight_z( ElConstMatrix_z A, ElInt* height );
 
 /* Int Matrix<T>::Width() const
    ---------------------------- */
+ElError ElMatrixWidth_i( ElConstMatrix_i A, ElInt* width );
 ElError ElMatrixWidth_s( ElConstMatrix_s A, ElInt* width );
 ElError ElMatrixWidth_d( ElConstMatrix_d A, ElInt* width );
 ElError ElMatrixWidth_c( ElConstMatrix_c A, ElInt* width );
@@ -128,6 +145,7 @@ ElError ElMatrixWidth_z( ElConstMatrix_z A, ElInt* width );
 
 /* Int Matrix<T>::LDim() const
    --------------------------- */
+ElError ElMatrixLDim_i( ElConstMatrix_i A, ElInt* ldim );
 ElError ElMatrixLDim_s( ElConstMatrix_s A, ElInt* ldim );
 ElError ElMatrixLDim_d( ElConstMatrix_d A, ElInt* ldim );
 ElError ElMatrixLDim_c( ElConstMatrix_c A, ElInt* ldim );
@@ -135,6 +153,7 @@ ElError ElMatrixLDim_z( ElConstMatrix_z A, ElInt* ldim );
 
 /* Int Matrix<T>::MemorySize() const
    --------------------------------- */
+ElError ElMatrixMemorySize_i( ElConstMatrix_i A, ElInt* memSize );
 ElError ElMatrixMemorySize_s( ElConstMatrix_s A, ElInt* memSize );
 ElError ElMatrixMemorySize_d( ElConstMatrix_d A, ElInt* memSize );
 ElError ElMatrixMemorySize_c( ElConstMatrix_c A, ElInt* memSize );
@@ -142,6 +161,8 @@ ElError ElMatrixMemorySize_z( ElConstMatrix_z A, ElInt* memSize );
 
 /* Int Matrix<T>::DiagonalLength( Int offset ) const
    ------------------------------------------------- */
+ElError ElMatrixDiagonalLength_i
+( ElConstMatrix_i A, ElInt offset, ElInt* length );
 ElError ElMatrixDiagonalLength_s
 ( ElConstMatrix_s A, ElInt offset, ElInt* length );
 ElError ElMatrixDiagonalLength_d
@@ -153,6 +174,7 @@ ElError ElMatrixDiagonalLength_z
 
 /* T* Matrix<T>::Buffer()
    ---------------------- */
+ElError ElMatrixBuffer_i( ElMatrix_i A, ElInt** buffer );
 ElError ElMatrixBuffer_s( ElMatrix_s A, float** buffer );
 ElError ElMatrixBuffer_d( ElMatrix_d A, double** buffer );
 ElError ElMatrixBuffer_c( ElMatrix_c A, complex_float** buffer );
@@ -160,6 +182,8 @@ ElError ElMatrixBuffer_z( ElMatrix_z A, complex_double** buffer );
 
 /* const T* Matrix<T>::LockedBuffer() const
    ---------------------------------------- */
+ElError ElMatrixLockedBuffer_i
+( ElConstMatrix_i A, const ElInt** buffer );
 ElError ElMatrixLockedBuffer_s
 ( ElConstMatrix_s A, const float** buffer );
 ElError ElMatrixLockedBuffer_d
@@ -171,6 +195,7 @@ ElError ElMatrixLockedBuffer_z
 
 /* bool Matrix<T>::Viewing() const
    ------------------------------- */
+ElError ElMatrixViewing_i( ElConstMatrix_i A, bool* viewing );
 ElError ElMatrixViewing_s( ElConstMatrix_s A, bool* viewing );
 ElError ElMatrixViewing_d( ElConstMatrix_d A, bool* viewing );
 ElError ElMatrixViewing_c( ElConstMatrix_c A, bool* viewing );
@@ -178,6 +203,7 @@ ElError ElMatrixViewing_z( ElConstMatrix_z A, bool* viewing );
 
 /* bool Matrix<T>::FixedSize() const
    --------------------------------- */
+ElError ElMatrixFixedSize_i( ElConstMatrix_i A, bool* fixedSize );
 ElError ElMatrixFixedSize_s( ElConstMatrix_s A, bool* fixedSize );
 ElError ElMatrixFixedSize_d( ElConstMatrix_d A, bool* fixedSize );
 ElError ElMatrixFixedSize_c( ElConstMatrix_c A, bool* fixedSize );
@@ -185,6 +211,7 @@ ElError ElMatrixFixedSize_z( ElConstMatrix_z A, bool* fixedSize );
 
 /* bool Matrix<T>::Locked() const
    ------------------------------ */
+ElError ElMatrixLocked_i( ElConstMatrix_i A, bool* locked );
 ElError ElMatrixLocked_s( ElConstMatrix_s A, bool* locked );
 ElError ElMatrixLocked_d( ElConstMatrix_d A, bool* locked );
 ElError ElMatrixLocked_c( ElConstMatrix_c A, bool* locked );
@@ -192,6 +219,8 @@ ElError ElMatrixLocked_z( ElConstMatrix_z A, bool* locked );
 
 /* T Matrix<T>::Get( Int i, Int j ) const
    -------------------------------------- */
+ElError ElMatrixGet_i
+( ElConstMatrix_i A, ElInt i, ElInt j, ElInt* val );
 ElError ElMatrixGet_s
 ( ElConstMatrix_s A, ElInt i, ElInt j, float* val );
 ElError ElMatrixGet_d
@@ -218,6 +247,7 @@ ElError ElMatrixGetImagPart_z
 /* void Matrix<T>::Set( Int i, Int j, T alpha )
    -------------------------------------------- */
 ElError ElMatrixSet_s( ElMatrix_s A, ElInt i, ElInt j, float alpha );
+ElError ElMatrixSet_s( ElMatrix_s A, ElInt i, ElInt j, float alpha );
 ElError ElMatrixSet_d( ElMatrix_d A, ElInt i, ElInt j, double alpha );
 ElError ElMatrixSet_c( ElMatrix_c A, ElInt i, ElInt j, complex_float alpha );
 ElError ElMatrixSet_z( ElMatrix_z A, ElInt i, ElInt j, complex_double alpha );
@@ -234,6 +264,8 @@ ElError ElMatrixSetImagPart_z( ElMatrix_z A, ElInt i, ElInt j, double alpha );
 
 /* void Matrix<T>::Update( Int i, Int j, T alpha )
    ----------------------------------------------- */
+ElError ElMatrixUpdate_i
+( ElMatrix_i A, ElInt i, ElInt j, ElInt alpha );
 ElError ElMatrixUpdate_s
 ( ElMatrix_s A, ElInt i, ElInt j, float alpha );
 ElError ElMatrixUpdate_d
@@ -269,6 +301,7 @@ ElError ElMatrixConjugate_z( ElMatrix_z A, ElInt i, ElInt j );
 
 /* Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const
    ---------------------------------------------------- */
+ElError ElMatrixGetDiagonal_i( ElConstMatrix_i A, ElInt offset, ElMatrix_i* d );
 ElError ElMatrixGetDiagonal_s( ElConstMatrix_s A, ElInt offset, ElMatrix_s* d );
 ElError ElMatrixGetDiagonal_d( ElConstMatrix_d A, ElInt offset, ElMatrix_d* d );
 ElError ElMatrixGetDiagonal_c( ElConstMatrix_c A, ElInt offset, ElMatrix_c* d );
@@ -290,6 +323,8 @@ ElError ElMatrixGetImagPartOfDiagonal_z
 
 /* void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
    ------------------------------------------------------------- */
+ElError ElMatrixSetDiagonal_i
+( ElMatrix_i A, ElConstMatrix_i d, ElInt offset );
 ElError ElMatrixSetDiagonal_s
 ( ElMatrix_s A, ElConstMatrix_s d, ElInt offset );
 ElError ElMatrixSetDiagonal_d
@@ -317,6 +352,8 @@ ElError ElMatrixSetImagPartOfDiagonal_z
 
 /* void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
    ---------------------------------------------------------------- */
+ElError ElMatrixUpdateDiagonal_i
+( ElMatrix_i A, ElConstMatrix_i d, ElInt offset );
 ElError ElMatrixUpdateDiagonal_s
 ( ElMatrix_s A, ElConstMatrix_s d, ElInt offset );
 ElError ElMatrixUpdateDiagonal_d
@@ -355,6 +392,10 @@ ElError ElMatrixConjugateDiagonal_z( ElMatrix_z A, ElInt offset );
 /* Matrix<T> Matrix<T>::GetSubmatrix
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
    -------------------------------------------------------------------------- */
+ElError ElMatrixGetSubmatrix_i
+( ElConstMatrix_i A, 
+  ElInt numRowInds, const ElInt* rowInds, 
+  ElInt numColInds, const ElInt* colInds, ElMatrix_i* ASub );
 ElError ElMatrixGetSubmatrix_s
 ( ElConstMatrix_s A, 
   ElInt numRowInds, const ElInt* rowInds, 
@@ -400,6 +441,9 @@ ElError ElMatrixGetImagPartOfSubmatrix_z
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
      const Matrix<T>& ASub )
    ------------------------------------------------------------------- */
+ElError ElMatrixSetSubmatrix_i
+( ElMatrix_i A, 
+  const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_i ASub );
 ElError ElMatrixSetSubmatrix_s
 ( ElMatrix_s A, 
   const ElInt* rowInds, const ElInt* colInds, ElConstMatrix_s ASub );
@@ -439,6 +483,9 @@ ElError ElMatrixSetImagPartOfSubmatrix_z
    ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds, 
      const Matrix<T>& ASub )
    ------------------------------------------------------------------- */
+ElError ElMatrixUpdateSubmatrix_i
+( ElMatrix_i A, const ElInt* rowInds, const ElInt* colInds, 
+  ElInt alpha, ElConstMatrix_i ASub );
 ElError ElMatrixUpdateSubmatrix_s
 ( ElMatrix_s A, const ElInt* rowInds, const ElInt* colInds, 
   float alpha, ElConstMatrix_s ASub );

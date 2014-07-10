@@ -24,11 +24,13 @@ typedef struct
 
 /* An anonymous struct meant as a placeholder for AbstractDistMatrix<T>
    -------------------------------------------------------------------- */
+typedef struct ElDistMatrix_iDummy* ElDistMatrix_i;
 typedef struct ElDistMatrix_sDummy* ElDistMatrix_s;
 typedef struct ElDistMatrix_dDummy* ElDistMatrix_d;
 typedef struct ElDistMatrix_cDummy* ElDistMatrix_c;
 typedef struct ElDistMatrix_zDummy* ElDistMatrix_z;
 
+typedef const struct ElDistMatrix_iDummy* ElConstDistMatrix_i;
 typedef const struct ElDistMatrix_sDummy* ElConstDistMatrix_s;
 typedef const struct ElDistMatrix_dDummy* ElConstDistMatrix_d;
 typedef const struct ElDistMatrix_cDummy* ElConstDistMatrix_c;
@@ -36,6 +38,7 @@ typedef const struct ElDistMatrix_zDummy* ElConstDistMatrix_z;
 
 /* DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
    ------------------------------------------------ */
+ElError ElDistMatrixCreate_i( ElConstGrid g, ElDistMatrix_i* A );
 ElError ElDistMatrixCreate_s( ElConstGrid g, ElDistMatrix_s* A );
 ElError ElDistMatrixCreate_d( ElConstGrid g, ElDistMatrix_d* A );
 ElError ElDistMatrixCreate_c( ElConstGrid g, ElDistMatrix_c* A );
@@ -43,6 +46,8 @@ ElError ElDistMatrixCreate_z( ElConstGrid g, ElDistMatrix_z* A );
 
 /* DistMatrix<T,U,V>::DistMatrix( const Grid& g )
    ---------------------------------------------- */
+ElError ElDistMatrixCreateSpecific_i
+( ElDist U, ElDist V, ElConstGrid g, ElDistMatrix_i* A );
 ElError ElDistMatrixCreateSpecific_s
 ( ElDist U, ElDist V, ElConstGrid g, ElDistMatrix_s* A );
 ElError ElDistMatrixCreateSpecific_d
@@ -54,6 +59,7 @@ ElError ElDistMatrixCreateSpecific_z
 
 /* DistMatrix<T,U,V>::~DistMatrix()
    -------------------------------- */
+ElError ElDistMatrixDestroy_i( ElConstDistMatrix_i A );
 ElError ElDistMatrixDestroy_s( ElConstDistMatrix_s A );
 ElError ElDistMatrixDestroy_d( ElConstDistMatrix_d A );
 ElError ElDistMatrixDestroy_c( ElConstDistMatrix_c A );
@@ -61,6 +67,7 @@ ElError ElDistMatrixDestroy_z( ElConstDistMatrix_z A );
 
 /* void DistMatrix<T,U,V>::Empty()
    ------------------------------- */
+ElError ElDistMatrixEmpty_i( ElDistMatrix_i A );
 ElError ElDistMatrixEmpty_s( ElDistMatrix_s A );
 ElError ElDistMatrixEmpty_d( ElDistMatrix_d A );
 ElError ElDistMatrixEmpty_c( ElDistMatrix_c A );
@@ -68,6 +75,7 @@ ElError ElDistMatrixEmpty_z( ElDistMatrix_z A );
 
 /* void DistMatrix<T,U,V>::EmptyData()
    ----------------------------------- */
+ElError ElDistMatrixEmptyData_i( ElDistMatrix_i A );
 ElError ElDistMatrixEmptyData_s( ElDistMatrix_s A );
 ElError ElDistMatrixEmptyData_d( ElDistMatrix_d A );
 ElError ElDistMatrixEmptyData_c( ElDistMatrix_c A );
@@ -75,6 +83,7 @@ ElError ElDistMatrixEmptyData_z( ElDistMatrix_z A );
 
 /* void DistMatrix<T,U,V>::SetGrid( const Grid& g )
    ------------------------------------------------ */
+ElError ElDistMatrixSetGrid_i( ElDistMatrix_i A, ElConstGrid grid );
 ElError ElDistMatrixSetGrid_s( ElDistMatrix_s A, ElConstGrid grid );
 ElError ElDistMatrixSetGrid_d( ElDistMatrix_d A, ElConstGrid grid );
 ElError ElDistMatrixSetGrid_c( ElDistMatrix_c A, ElConstGrid grid );
@@ -82,6 +91,7 @@ ElError ElDistMatrixSetGrid_z( ElDistMatrix_z A, ElConstGrid grid );
 
 /* void DistMatrix<T,U,V>::Resize( Int height, Int width )
    ------------------------------------------------------- */
+ElError ElDistMatrixResize_i( ElDistMatrix_i A, ElInt height, ElInt width );
 ElError ElDistMatrixResize_s( ElDistMatrix_s A, ElInt height, ElInt width );
 ElError ElDistMatrixResize_d( ElDistMatrix_d A, ElInt height, ElInt width );
 ElError ElDistMatrixResize_c( ElDistMatrix_c A, ElInt height, ElInt width );
@@ -89,6 +99,8 @@ ElError ElDistMatrixResize_z( ElDistMatrix_z A, ElInt height, ElInt width );
 
 /* void DistMatrix<T,U,V>::Resize( Int height, Int width, Int ldim )
    ----------------------------------------------------------------- */
+ElError ElDistMatrixResizeWithLDim_i
+( ElDistMatrix_i A, ElInt height, ElInt width, ElInt ldim );
 ElError ElDistMatrixResizeWithLDim_s
 ( ElDistMatrix_s A, ElInt height, ElInt width, ElInt ldim );
 ElError ElDistMatrixResizeWithLDim_d
@@ -100,6 +112,7 @@ ElError ElDistMatrixResizeWithLDim_z
 
 /* void DistMatrix<T,U,V>::MakeConsistent( bool includeViewers )
    ------------------------------------------------------------- */
+ElError ElDistMatrixMakeConsistent_i( ElDistMatrix_i A, bool includeViewers );
 ElError ElDistMatrixMakeConsistent_s( ElDistMatrix_s A, bool includeViewers );
 ElError ElDistMatrixMakeConsistent_d( ElDistMatrix_d A, bool includeViewers );
 ElError ElDistMatrixMakeConsistent_c( ElDistMatrix_c A, bool includeViewers );
@@ -107,6 +120,8 @@ ElError ElDistMatrixMakeConsistent_z( ElDistMatrix_z A, bool includeViewers );
 
 /* void DistMatrix<T,U,V>::MakeSizeConsistent( bool includeViewers )
    ----------------------------------------------------------------- */
+ElError ElDistMatrixMakeSizeConsistent_i
+( ElDistMatrix_i A, bool includeViewers );
 ElError ElDistMatrixMakeSizeConsistent_s
 ( ElDistMatrix_s A, bool includeViewers );
 ElError ElDistMatrixMakeSizeConsistent_d
@@ -119,6 +134,8 @@ ElError ElDistMatrixMakeSizeConsistent_z
 /* void DistMatrix<T,U,V>::Align( Int colAlign, Int rowAlign, bool constrain )
    --------------------------------------------------------------------------- 
 */
+ElError ElDistMatrixAlign_i
+( ElDistMatrix_i A, ElInt colAlign, ElInt rowAlign, bool constrain );
 ElError ElDistMatrixAlign_s
 ( ElDistMatrix_s A, ElInt colAlign, ElInt rowAlign, bool constrain );
 ElError ElDistMatrixAlign_d
@@ -130,6 +147,8 @@ ElError ElDistMatrixAlign_z
 
 /* void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain )
    ----------------------------------------------------------------- */
+ElError ElDistMatrixAlignCols_i
+( ElDistMatrix_i A, ElInt colAlign, bool constrain );
 ElError ElDistMatrixAlignCols_s
 ( ElDistMatrix_s A, ElInt colAlign, bool constrain );
 ElError ElDistMatrixAlignCols_d
@@ -141,6 +160,8 @@ ElError ElDistMatrixAlignCols_z
 
 /* void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain )
    ----------------------------------------------------------------- */
+ElError ElDistMatrixAlignRows_i
+( ElDistMatrix_i A, ElInt rowAlign, bool constrain );
 ElError ElDistMatrixAlignRows_s
 ( ElDistMatrix_s A, ElInt rowAlign, bool constrain );
 ElError ElDistMatrixAlignRows_d
@@ -152,6 +173,7 @@ ElError ElDistMatrixAlignRows_z
 
 /* void DistMatrix<T,U,V>::FreeAlignments()
    ---------------------------------------- */
+ElError ElDistMatrixFreeAlignments_i( ElDistMatrix_i A );
 ElError ElDistMatrixFreeAlignments_s( ElDistMatrix_s A );
 ElError ElDistMatrixFreeAlignments_d( ElDistMatrix_d A );
 ElError ElDistMatrixFreeAlignments_c( ElDistMatrix_c A );
@@ -159,6 +181,7 @@ ElError ElDistMatrixFreeAlignments_z( ElDistMatrix_z A );
 
 /* void DistMatrix<T,U,V>::SetRoot( Int root )
    ------------------------------------------- */
+ElError ElDistMatrixSetRoot_i( ElDistMatrix_i A, ElInt root );
 ElError ElDistMatrixSetRoot_s( ElDistMatrix_s A, ElInt root );
 ElError ElDistMatrixSetRoot_d( ElDistMatrix_d A, ElInt root );
 ElError ElDistMatrixSetRoot_c( ElDistMatrix_c A, ElInt root );
@@ -166,6 +189,8 @@ ElError ElDistMatrixSetRoot_z( ElDistMatrix_z A, ElInt root );
 
 /* void DistMatrix<T,U,V>::AlignWith( const DistData& data, bool constrain )
    ------------------------------------------------------------------------- */
+ElError ElDistMatrixAlignWith_i
+( ElDistMatrix_i A, ElDistData distData, bool constrain );
 ElError ElDistMatrixAlignWith_s
 ( ElDistMatrix_s A, ElDistData distData, bool constrain );
 ElError ElDistMatrixAlignWith_d
@@ -178,6 +203,8 @@ ElError ElDistMatrixAlignWith_z
 /* void DistMatrix<T,U,V>::AlignColsWith( const DistData& data, bool constrain )
    -----------------------------------------------------------------------------
 */
+ElError ElDistMatrixAlignColsWith_i
+( ElDistMatrix_i A, ElDistData distData, bool constrain );
 ElError ElDistMatrixAlignColsWith_s
 ( ElDistMatrix_s A, ElDistData distData, bool constrain );
 ElError ElDistMatrixAlignColsWith_d
@@ -190,6 +217,8 @@ ElError ElDistMatrixAlignColsWith_z
 /* void DistMatrix<T,U,V>::AlignRowsWith( const DistData& data, bool constrain )
    -----------------------------------------------------------------------------
 */
+ElError ElDistMatrixAlignRowsWith_i
+( ElDistMatrix_i A, ElDistData distData, bool constrain );
 ElError ElDistMatrixAlignRowsWith_s
 ( ElDistMatrix_s A, ElDistData distData, bool constrain );
 ElError ElDistMatrixAlignRowsWith_d
@@ -203,6 +232,9 @@ ElError ElDistMatrixAlignRowsWith_z
   ( Int colAlign, Int rowAlign, Int height, Int width, 
     bool force, bool constrain )
    --------------------------------------------------- */
+ElError ElDistMatrixAlignAndResize_i
+( ElDistMatrix_i A, ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
 ElError ElDistMatrixAlignAndResize_s
 ( ElDistMatrix_s A, ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
   bool force, bool constrain );
@@ -219,6 +251,9 @@ ElError ElDistMatrixAlignAndResize_z
 /* void DistMatrix<T,U,V>::AlignColsAndResize
    ( Int colAlign, Int height, Int width, bool force, bool constrain )
    ------------------------------------------------------------------- */
+ElError ElDistMatrixAlignColsAndResize_i
+( ElDistMatrix_i A, ElInt colAlign, ElInt height, ElInt width, 
+  bool force, bool constrain );
 ElError ElDistMatrixAlignColsAndResize_s
 ( ElDistMatrix_s A, ElInt colAlign, ElInt height, ElInt width, 
   bool force, bool constrain );
@@ -235,6 +270,9 @@ ElError ElDistMatrixAlignColsAndResize_z
 /* void DistMatrix<T,U,V>::AlignRowsAndResize
   ( Int rowAlign, Int height, Int width, bool force, bool constrain )
    ------------------------------------------------------------------ */
+ElError ElDistMatrixAlignRowsAndResize_i
+( ElDistMatrix_i A, ElInt rowAlign, ElInt height, ElInt width,
+  bool force, bool constrain );
 ElError ElDistMatrixAlignRowsAndResize_s
 ( ElDistMatrix_s A, ElInt rowAlign, ElInt height, ElInt width,
   bool force, bool constrain );
@@ -252,6 +290,10 @@ ElError ElDistMatrixAlignRowsAndResize_z
    ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
      T* buffer, Int ldim, Int root )
    ---------------------------------------------------------------------- */
+ElError ElDistMatrixAttach_i
+( ElDistMatrix_i A, ElInt height, ElInt width, ElConstGrid grid,
+  ElInt colAlign, ElInt rowAlign, ElInt* buffer, ElInt ldim, 
+  ElInt root );
 ElError ElDistMatrixAttach_s
 ( ElDistMatrix_s A, ElInt height, ElInt width, ElConstGrid grid,
   ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, 
@@ -273,6 +315,10 @@ ElError ElDistMatrixAttach_z
    ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
      const T* buffer, Int ldim, Int root )
    ---------------------------------------------------------------------- */
+ElError ElDistMatrixLockedAttach_i
+( ElDistMatrix_i A, ElInt height, ElInt width, ElConstGrid grid,
+  ElInt colAlign, ElInt rowAlign, const ElInt* buffer, 
+  ElInt ldim, ElInt root );
 ElError ElDistMatrixLockedAttach_s
 ( ElDistMatrix_s A, ElInt height, ElInt width, ElConstGrid grid,
   ElInt colAlign, ElInt rowAlign, const float* buffer, 
@@ -292,6 +338,7 @@ ElError ElDistMatrixLockedAttach_z
 
 /* Int DistMatrix<T,U,V>::Height() const
    ------------------------------------- */
+ElError ElDistMatrixHeight_i( ElConstDistMatrix_i A, ElInt* height );
 ElError ElDistMatrixHeight_s( ElConstDistMatrix_s A, ElInt* height );
 ElError ElDistMatrixHeight_d( ElConstDistMatrix_d A, ElInt* height );
 ElError ElDistMatrixHeight_c( ElConstDistMatrix_c A, ElInt* height );
@@ -299,6 +346,7 @@ ElError ElDistMatrixHeight_z( ElConstDistMatrix_z A, ElInt* height );
 
 /* Int DistMatrix<T,U,V>::Width() const
    ------------------------------------ */
+ElError ElDistMatrixWidth_i( ElConstDistMatrix_i A, ElInt* width );
 ElError ElDistMatrixWidth_s( ElConstDistMatrix_s A, ElInt* width );
 ElError ElDistMatrixWidth_d( ElConstDistMatrix_d A, ElInt* width );
 ElError ElDistMatrixWidth_c( ElConstDistMatrix_c A, ElInt* width );
@@ -306,6 +354,8 @@ ElError ElDistMatrixWidth_z( ElConstDistMatrix_z A, ElInt* width );
 
 /* Int DistMatrix<T,U,V>::DiagonalLength( Int offset ) const
    --------------------------------------------------------- */
+ElError ElDistMatrixDiagonalLength_i
+( ElConstDistMatrix_i A, ElInt offset, ElInt* length );
 ElError ElDistMatrixDiagonalLength_s
 ( ElConstDistMatrix_s A, ElInt offset, ElInt* length );
 ElError ElDistMatrixDiagonalLength_d
@@ -317,6 +367,7 @@ ElError ElDistMatrixDiagonalLength_z
 
 /* bool DistMatrix<T,U,V>::Viewing() const
    --------------------------------------- */
+ElError ElDistMatrixViewing_i( ElConstDistMatrix_i A, bool* viewing );
 ElError ElDistMatrixViewing_s( ElConstDistMatrix_s A, bool* viewing );
 ElError ElDistMatrixViewing_d( ElConstDistMatrix_d A, bool* viewing );
 ElError ElDistMatrixViewing_c( ElConstDistMatrix_c A, bool* viewing );
@@ -324,6 +375,7 @@ ElError ElDistMatrixViewing_z( ElConstDistMatrix_z A, bool* viewing );
 
 /* bool DistMatrix<T,U,V>::Locked() const
    --------------------------------------- */
+ElError ElDistMatrixLocked_i( ElConstDistMatrix_i A, bool* locked );
 ElError ElDistMatrixLocked_s( ElConstDistMatrix_s A, bool* locked );
 ElError ElDistMatrixLocked_d( ElConstDistMatrix_d A, bool* locked );
 ElError ElDistMatrixLocked_c( ElConstDistMatrix_c A, bool* locked );
@@ -331,6 +383,7 @@ ElError ElDistMatrixLocked_z( ElConstDistMatrix_z A, bool* locked );
 
 /* Int DistMatrix<T,U,V>::LocalHeight() const
    ------------------------------------------ */
+ElError ElDistMatrixLocalHeight_i( ElConstDistMatrix_i A, ElInt* localHeight );
 ElError ElDistMatrixLocalHeight_s( ElConstDistMatrix_s A, ElInt* localHeight );
 ElError ElDistMatrixLocalHeight_d( ElConstDistMatrix_d A, ElInt* localHeight );
 ElError ElDistMatrixLocalHeight_c( ElConstDistMatrix_c A, ElInt* localHeight );
@@ -338,6 +391,7 @@ ElError ElDistMatrixLocalHeight_z( ElConstDistMatrix_z A, ElInt* localHeight );
 
 /* Int DistMatrix<T,U,V>::LocalWidth() const
    ----------------------------------------- */
+ElError ElDistMatrixLocalWidth_i( ElConstDistMatrix_i A, ElInt* localWidth );
 ElError ElDistMatrixLocalWidth_s( ElConstDistMatrix_s A, ElInt* localWidth );
 ElError ElDistMatrixLocalWidth_d( ElConstDistMatrix_d A, ElInt* localWidth );
 ElError ElDistMatrixLocalWidth_c( ElConstDistMatrix_c A, ElInt* localWidth );
@@ -345,6 +399,7 @@ ElError ElDistMatrixLocalWidth_z( ElConstDistMatrix_z A, ElInt* localWidth );
 
 /* Int DistMatrix<T,U,V>::LDim() const
    ----------------------------------- */
+ElError ElDistMatrixLDim_i( ElConstDistMatrix_i A, ElInt* ldim );
 ElError ElDistMatrixLDim_s( ElConstDistMatrix_s A, ElInt* ldim );
 ElError ElDistMatrixLDim_d( ElConstDistMatrix_d A, ElInt* ldim );
 ElError ElDistMatrixLDim_c( ElConstDistMatrix_c A, ElInt* ldim );
@@ -352,6 +407,7 @@ ElError ElDistMatrixLDim_z( ElConstDistMatrix_z A, ElInt* ldim );
 
 /* Matrix<T>& DistMatrix<T,U,V>::Matrix() 
    -------------------------------------- */
+ElError ElDistMatrixMatrix_i( ElDistMatrix_i A, ElMatrix_i* ALoc );
 ElError ElDistMatrixMatrix_s( ElDistMatrix_s A, ElMatrix_s* ALoc );
 ElError ElDistMatrixMatrix_d( ElDistMatrix_d A, ElMatrix_d* ALoc );
 ElError ElDistMatrixMatrix_c( ElDistMatrix_c A, ElMatrix_c* ALoc );
@@ -359,6 +415,8 @@ ElError ElDistMatrixMatrix_z( ElDistMatrix_z A, ElMatrix_z* ALoc );
 
 /* const Matrix<T>& DistMatrix<T,U,V>::LockedMatrix() const
    -------------------------------------------------------- */
+ElError ElDistMatrixLockedMatrix_i
+( ElConstDistMatrix_i A, ElConstMatrix_i* ALoc );
 ElError ElDistMatrixLockedMatrix_s
 ( ElConstDistMatrix_s A, ElConstMatrix_s* ALoc );
 ElError ElDistMatrixLockedMatrix_d
@@ -370,6 +428,7 @@ ElError ElDistMatrixLockedMatrix_z
 
 /* size_t DistMatrix<T,U,V>::AllocatedMemory() const
    ------------------------------------------------- */
+ElError ElDistMatrixAllocatedMemory_i( ElConstDistMatrix_i A, size_t* mem );
 ElError ElDistMatrixAllocatedMemory_s( ElConstDistMatrix_s A, size_t* mem );
 ElError ElDistMatrixAllocatedMemory_d( ElConstDistMatrix_d A, size_t* mem );
 ElError ElDistMatrixAllocatedMemory_c( ElConstDistMatrix_c A, size_t* mem );
@@ -377,6 +436,7 @@ ElError ElDistMatrixAllocatedMemory_z( ElConstDistMatrix_z A, size_t* mem );
 
 /* T* DistMatrix<T,U,V>::Buffer()
    ------------------------------ */
+ElError ElDistMatrixBuffer_i( ElDistMatrix_i A, ElInt** buffer );
 ElError ElDistMatrixBuffer_s( ElDistMatrix_s A, float** buffer );
 ElError ElDistMatrixBuffer_d( ElDistMatrix_d A, double** buffer );
 ElError ElDistMatrixBuffer_c( ElDistMatrix_c A, complex_float** buffer );
@@ -384,6 +444,8 @@ ElError ElDistMatrixBuffer_z( ElDistMatrix_z A, complex_double** buffer );
 
 /* const T* DistMatrix<T,U,V>::LockedBuffer() const
    ------------------------------------------------ */
+ElError ElDistMatrixLockedBuffer_i
+( ElConstDistMatrix_i A, const ElInt** buffer );
 ElError ElDistMatrixLockedBuffer_s
 ( ElConstDistMatrix_s A, const float** buffer );
 ElError ElDistMatrixLockedBuffer_d
@@ -395,6 +457,7 @@ ElError ElDistMatrixLockedBuffer_z
 
 /* const Grid& DistMatrix<T,U,V>::Grid() const
    ------------------------------------------- */
+ElError ElDistMatrixGrid_i( ElConstDistMatrix_i A, ElConstGrid* grid );
 ElError ElDistMatrixGrid_s( ElConstDistMatrix_s A, ElConstGrid* grid );
 ElError ElDistMatrixGrid_d( ElConstDistMatrix_d A, ElConstGrid* grid );
 ElError ElDistMatrixGrid_c( ElConstDistMatrix_c A, ElConstGrid* grid );
@@ -402,6 +465,7 @@ ElError ElDistMatrixGrid_z( ElConstDistMatrix_z A, ElConstGrid* grid );
 
 /* bool DistMatrix<T,U,V>::ColConstrained() const
    ---------------------------------------------- */
+ElError ElDistMatrixColConstrained_i( ElConstDistMatrix_i A, bool* colConst );
 ElError ElDistMatrixColConstrained_s( ElConstDistMatrix_s A, bool* colConst );
 ElError ElDistMatrixColConstrained_d( ElConstDistMatrix_d A, bool* colConst );
 ElError ElDistMatrixColConstrained_c( ElConstDistMatrix_c A, bool* colConst );
@@ -409,6 +473,7 @@ ElError ElDistMatrixColConstrained_z( ElConstDistMatrix_z A, bool* colConst );
 
 /* bool DistMatrix<T,U,V>::RowConstrained() const
    ---------------------------------------------- */
+ElError ElDistMatrixRowConstrained_i( ElConstDistMatrix_i A, bool* rowConst );
 ElError ElDistMatrixRowConstrained_s( ElConstDistMatrix_s A, bool* rowConst );
 ElError ElDistMatrixRowConstrained_d( ElConstDistMatrix_d A, bool* rowConst );
 ElError ElDistMatrixRowConstrained_c( ElConstDistMatrix_c A, bool* rowConst );
@@ -416,6 +481,7 @@ ElError ElDistMatrixRowConstrained_z( ElConstDistMatrix_z A, bool* rowConst );
 
 /* bool DistMatrix<T,U,V>::RootConstrained() const
    ----------------------------------------------- */
+ElError ElDistMatrixRootConstrained_i( ElConstDistMatrix_i A, bool* rootConst );
 ElError ElDistMatrixRootConstrained_s( ElConstDistMatrix_s A, bool* rootConst );
 ElError ElDistMatrixRootConstrained_d( ElConstDistMatrix_d A, bool* rootConst );
 ElError ElDistMatrixRootConstrained_c( ElConstDistMatrix_c A, bool* rootConst );
@@ -423,6 +489,7 @@ ElError ElDistMatrixRootConstrained_z( ElConstDistMatrix_z A, bool* rootConst );
 
 /* Int DistMatrix<T,U,V>::ColAlign() const
    --------------------------------------- */
+ElError ElDistMatrixColAlign_i( ElConstDistMatrix_i A, ElInt* colAlign );
 ElError ElDistMatrixColAlign_s( ElConstDistMatrix_s A, ElInt* colAlign );
 ElError ElDistMatrixColAlign_d( ElConstDistMatrix_d A, ElInt* colAlign );
 ElError ElDistMatrixColAlign_c( ElConstDistMatrix_c A, ElInt* colAlign );
@@ -430,6 +497,7 @@ ElError ElDistMatrixColAlign_z( ElConstDistMatrix_z A, ElInt* colAlign );
 
 /* Int DistMatrix<T,U,V>::RowAlign() const
    --------------------------------------- */
+ElError ElDistMatrixRowAlign_i( ElConstDistMatrix_i A, ElInt* rowAlign );
 ElError ElDistMatrixRowAlign_s( ElConstDistMatrix_s A, ElInt* rowAlign );
 ElError ElDistMatrixRowAlign_d( ElConstDistMatrix_d A, ElInt* rowAlign );
 ElError ElDistMatrixRowAlign_c( ElConstDistMatrix_c A, ElInt* rowAlign );
@@ -437,6 +505,7 @@ ElError ElDistMatrixRowAlign_z( ElConstDistMatrix_z A, ElInt* rowAlign );
 
 /* Int DistMatrix<T,U,V>::ColShift() const
    --------------------------------------- */
+ElError ElDistMatrixColShift_i( ElConstDistMatrix_i A, ElInt* colShift );
 ElError ElDistMatrixColShift_s( ElConstDistMatrix_s A, ElInt* colShift );
 ElError ElDistMatrixColShift_d( ElConstDistMatrix_d A, ElInt* colShift );
 ElError ElDistMatrixColShift_c( ElConstDistMatrix_c A, ElInt* colShift );
@@ -444,6 +513,7 @@ ElError ElDistMatrixColShift_z( ElConstDistMatrix_z A, ElInt* colShift );
 
 /* Int DistMatrix<T,U,V>::RowShift() const
    --------------------------------------- */
+ElError ElDistMatrixRowShift_i( ElConstDistMatrix_i A, ElInt* rowShift );
 ElError ElDistMatrixRowShift_s( ElConstDistMatrix_s A, ElInt* rowShift );
 ElError ElDistMatrixRowShift_d( ElConstDistMatrix_d A, ElInt* rowShift );
 ElError ElDistMatrixRowShift_c( ElConstDistMatrix_c A, ElInt* rowShift );
@@ -451,6 +521,7 @@ ElError ElDistMatrixRowShift_z( ElConstDistMatrix_z A, ElInt* rowShift );
 
 /* Int DistMatrix<T,U,V>::ColRank() const
    -------------------------------------- */
+ElError ElDistMatrixColRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixColRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixColRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixColRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -458,6 +529,7 @@ ElError ElDistMatrixColRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::RowRank() const
    -------------------------------------- */
+ElError ElDistMatrixRowRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixRowRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixRowRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixRowRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -465,6 +537,7 @@ ElError ElDistMatrixRowRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::PartialColRank() const
    --------------------------------------------- */
+ElError ElDistMatrixPartialColRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixPartialColRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixPartialColRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixPartialColRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -472,6 +545,7 @@ ElError ElDistMatrixPartialColRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::PartialRowRank() const
    --------------------------------------------- */
+ElError ElDistMatrixPartialRowRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixPartialRowRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixPartialRowRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixPartialRowRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -479,6 +553,7 @@ ElError ElDistMatrixPartialRowRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::PartialUnionColRank() const
    -------------------------------------------------- */
+ElError ElDistMatrixPartialUnionColRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixPartialUnionColRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixPartialUnionColRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixPartialUnionColRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -486,6 +561,7 @@ ElError ElDistMatrixPartialUnionColRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::PartialUnionRowRank() const
    -------------------------------------------------- */
+ElError ElDistMatrixPartialUnionRowRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixPartialUnionRowRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixPartialUnionRowRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixPartialUnionRowRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -493,6 +569,7 @@ ElError ElDistMatrixPartialUnionRowRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::DistRank() const
    --------------------------------------- */
+ElError ElDistMatrixDistRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixDistRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixDistRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixDistRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -500,6 +577,7 @@ ElError ElDistMatrixDistRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::CrossRank() const
    ---------------------------------------- */
+ElError ElDistMatrixCrossRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixCrossRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixCrossRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixCrossRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -507,6 +585,7 @@ ElError ElDistMatrixCrossRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::RedundantRank() const
    -------------------------------------------- */
+ElError ElDistMatrixRedundantRank_i( ElConstDistMatrix_i A, ElInt* rank );
 ElError ElDistMatrixRedundantRank_s( ElConstDistMatrix_s A, ElInt* rank );
 ElError ElDistMatrixRedundantRank_d( ElConstDistMatrix_d A, ElInt* rank );
 ElError ElDistMatrixRedundantRank_c( ElConstDistMatrix_c A, ElInt* rank );
@@ -514,6 +593,7 @@ ElError ElDistMatrixRedundantRank_z( ElConstDistMatrix_z A, ElInt* rank );
 
 /* Int DistMatrix<T,U,V>::Root() const
    ----------------------------------- */
+ElError ElDistMatrixRoot_i( ElConstDistMatrix_i A, ElInt* root );
 ElError ElDistMatrixRoot_s( ElConstDistMatrix_s A, ElInt* root );
 ElError ElDistMatrixRoot_d( ElConstDistMatrix_d A, ElInt* root );
 ElError ElDistMatrixRoot_c( ElConstDistMatrix_c A, ElInt* root );
@@ -521,6 +601,8 @@ ElError ElDistMatrixRoot_z( ElConstDistMatrix_z A, ElInt* root );
 
 /* bool DistMatrix<T,U,V>::Participating() const
    --------------------------------------------- */
+ElError ElDistMatrixParticipating_i
+( ElConstDistMatrix_i A, bool* participating );
 ElError ElDistMatrixParticipating_s
 ( ElConstDistMatrix_s A, bool* participating );
 ElError ElDistMatrixParticipating_d
@@ -532,6 +614,8 @@ ElError ElDistMatrixParticipating_z
 
 /* Int DistMatrix<T,U,V>::RowOwner( Int i ) const
    ---------------------------------------------- */
+ElError ElDistMatrixRowOwner_i
+( ElConstDistMatrix_i A, ElInt i, ElInt* rowOwner );
 ElError ElDistMatrixRowOwner_s
 ( ElConstDistMatrix_s A, ElInt i, ElInt* rowOwner );
 ElError ElDistMatrixRowOwner_d
@@ -543,6 +627,8 @@ ElError ElDistMatrixRowOwner_z
 
 /* Int DistMatrix<T,U,V>::ColOwner( Int j ) const
    ---------------------------------------------- */
+ElError ElDistMatrixColOwner_i
+( ElConstDistMatrix_i A, ElInt j, ElInt* colOwner );
 ElError ElDistMatrixColOwner_s
 ( ElConstDistMatrix_s A, ElInt j, ElInt* colOwner );
 ElError ElDistMatrixColOwner_d
@@ -554,6 +640,8 @@ ElError ElDistMatrixColOwner_z
 
 /* Int DistMatrix<T,U,V>::Owner( Int i, Int j ) const
    -------------------------------------------------- */
+ElError ElDistMatrixOwner_i
+( ElConstDistMatrix_i A, ElInt i, ElInt j, ElInt* owner );
 ElError ElDistMatrixOwner_s
 ( ElConstDistMatrix_s A, ElInt i, ElInt j, ElInt* owner );
 ElError ElDistMatrixOwner_d
@@ -565,6 +653,7 @@ ElError ElDistMatrixOwner_z
 
 /* Int DistMatrix<T,U,V>::LocalRow( Int i ) const
    ---------------------------------------------- */
+ElError ElDistMatrixLocalRow_i( ElConstDistMatrix_i A, ElInt i, ElInt* iLoc );
 ElError ElDistMatrixLocalRow_s( ElConstDistMatrix_s A, ElInt i, ElInt* iLoc );
 ElError ElDistMatrixLocalRow_d( ElConstDistMatrix_d A, ElInt i, ElInt* iLoc );
 ElError ElDistMatrixLocalRow_c( ElConstDistMatrix_c A, ElInt i, ElInt* iLoc );
@@ -572,6 +661,7 @@ ElError ElDistMatrixLocalRow_z( ElConstDistMatrix_z A, ElInt i, ElInt* iLoc );
 
 /* Int DistMatrix<T,U,V>::LocalCol( Int j ) const
    ---------------------------------------------- */
+ElError ElDistMatrixLocalCol_i( ElConstDistMatrix_i A, ElInt j, ElInt* jLoc );
 ElError ElDistMatrixLocalCol_s( ElConstDistMatrix_s A, ElInt j, ElInt* jLoc );
 ElError ElDistMatrixLocalCol_d( ElConstDistMatrix_d A, ElInt j, ElInt* jLoc );
 ElError ElDistMatrixLocalCol_c( ElConstDistMatrix_c A, ElInt j, ElInt* jLoc );
@@ -579,6 +669,8 @@ ElError ElDistMatrixLocalCol_z( ElConstDistMatrix_z A, ElInt j, ElInt* jLoc );
 
 /* Int DistMatrix<T,U,V>::LocalRowOffset( Int i ) const
    ---------------------------------------------------- */
+ElError ElDistMatrixLocalRowOffset_i
+( ElConstDistMatrix_i A, ElInt i, ElInt* iLoc );
 ElError ElDistMatrixLocalRowOffset_s
 ( ElConstDistMatrix_s A, ElInt i, ElInt* iLoc );
 ElError ElDistMatrixLocalRowOffset_d
@@ -590,6 +682,8 @@ ElError ElDistMatrixLocalRowOffset_z
 
 /* Int DistMatrix<T,U,V>::LocalColOffset( Int j ) const
    ---------------------------------------------------- */
+ElError ElDistMatrixLocalColOffset_i
+( ElConstDistMatrix_i A, ElInt j, ElInt* jLoc );
 ElError ElDistMatrixLocalColOffset_s
 ( ElConstDistMatrix_s A, ElInt j, ElInt* jLoc );
 ElError ElDistMatrixLocalColOffset_d
@@ -601,6 +695,7 @@ ElError ElDistMatrixLocalColOffset_z
 
 /* Int DistMatrix<T,U,V>::GlobalRow( Int iLoc ) const
    -------------------------------------------------- */
+ElError ElDistMatrixGlobalRow_i( ElConstDistMatrix_i A, ElInt iLoc, ElInt* i );
 ElError ElDistMatrixGlobalRow_s( ElConstDistMatrix_s A, ElInt iLoc, ElInt* i );
 ElError ElDistMatrixGlobalRow_d( ElConstDistMatrix_d A, ElInt iLoc, ElInt* i );
 ElError ElDistMatrixGlobalRow_c( ElConstDistMatrix_c A, ElInt iLoc, ElInt* i );
@@ -608,6 +703,7 @@ ElError ElDistMatrixGlobalRow_z( ElConstDistMatrix_z A, ElInt iLoc, ElInt* i );
 
 /* Int DistMatrix<T,U,V>::GlobalCol( Int jLoc ) const
    -------------------------------------------------- */
+ElError ElDistMatrixGlobalCol_i( ElConstDistMatrix_i A, ElInt jLoc, ElInt* j );
 ElError ElDistMatrixGlobalCol_s( ElConstDistMatrix_s A, ElInt jLoc, ElInt* j );
 ElError ElDistMatrixGlobalCol_d( ElConstDistMatrix_d A, ElInt jLoc, ElInt* j );
 ElError ElDistMatrixGlobalCol_c( ElConstDistMatrix_c A, ElInt jLoc, ElInt* j );
@@ -615,6 +711,8 @@ ElError ElDistMatrixGlobalCol_z( ElConstDistMatrix_z A, ElInt jLoc, ElInt* j );
 
 /* bool DistMatrix<T,U,V>::IsLocalRow( Int i ) const
    ------------------------------------------------- */
+ElError ElDistMatrixIsLocalRow_i
+( ElConstDistMatrix_i A, ElInt i, bool* isLocal );
 ElError ElDistMatrixIsLocalRow_s
 ( ElConstDistMatrix_s A, ElInt i, bool* isLocal );
 ElError ElDistMatrixIsLocalRow_d
@@ -626,6 +724,8 @@ ElError ElDistMatrixIsLocalRow_z
 
 /* bool DistMatrix<T,U,V>::IsLocalCol( Int j ) const
    ------------------------------------------------- */
+ElError ElDistMatrixIsLocalCol_i
+( ElConstDistMatrix_i A, ElInt j, bool* isLocal );
 ElError ElDistMatrixIsLocalCol_s
 ( ElConstDistMatrix_s A, ElInt j, bool* isLocal );
 ElError ElDistMatrixIsLocalCol_d
@@ -637,6 +737,8 @@ ElError ElDistMatrixIsLocalCol_z
 
 /* bool DistMatrix<T,U,V>::IsLocal( Int i, Int j ) const
    ----------------------------------------------------- */
+ElError ElDistMatrixIsLocal_i
+( ElConstDistMatrix_i A, ElInt i, ElInt j, bool* isLocal );
 ElError ElDistMatrixIsLocal_s
 ( ElConstDistMatrix_s A, ElInt i, ElInt j, bool* isLocal );
 ElError ElDistMatrixIsLocal_d
@@ -648,6 +750,7 @@ ElError ElDistMatrixIsLocal_z
 
 /* DistData DistMatrix<T,U,V>::DistData() const
    -------------------------------------------- */
+ElError ElDistMatrixDistData_i( ElConstDistMatrix_i A, ElDistData* distData );
 ElError ElDistMatrixDistData_s( ElConstDistMatrix_s A, ElDistData* distData );
 ElError ElDistMatrixDistData_d( ElConstDistMatrix_d A, ElDistData* distData );
 ElError ElDistMatrixDistData_c( ElConstDistMatrix_c A, ElDistData* distData );
@@ -655,6 +758,7 @@ ElError ElDistMatrixDistData_z( ElConstDistMatrix_z A, ElDistData* distData );
 
 /* mpi::Comm DistMatrix<T,U,V>::DistComm() const
    --------------------------------------------- */
+ElError ElDistMatrixDistComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixDistComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixDistComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixDistComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -662,6 +766,7 @@ ElError ElDistMatrixDistComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::CrossComm() const
    ---------------------------------------------- */
+ElError ElDistMatrixCrossComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixCrossComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixCrossComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixCrossComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -669,6 +774,7 @@ ElError ElDistMatrixCrossComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::RedundantComm() const
    -------------------------------------------------- */
+ElError ElDistMatrixRedundantComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixRedundantComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixRedundantComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixRedundantComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -676,6 +782,7 @@ ElError ElDistMatrixRedundantComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::ColComm() const
    -------------------------------------------- */
+ElError ElDistMatrixColComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixColComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixColComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixColComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -683,6 +790,7 @@ ElError ElDistMatrixColComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::RowComm() const
    -------------------------------------------- */
+ElError ElDistMatrixRowComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixRowComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixRowComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixRowComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -690,6 +798,7 @@ ElError ElDistMatrixRowComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::PartialColComm() const
    --------------------------------------------------- */
+ElError ElDistMatrixPartialColComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixPartialColComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixPartialColComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixPartialColComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -697,6 +806,7 @@ ElError ElDistMatrixPartialColComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::PartialRowComm() const
    --------------------------------------------------- */
+ElError ElDistMatrixPartialRowComm_i( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixPartialRowComm_s( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixPartialRowComm_d( ElConstDistMatrix_d A, MPI_Comm* comm );
 ElError ElDistMatrixPartialRowComm_c( ElConstDistMatrix_c A, MPI_Comm* comm );
@@ -704,6 +814,8 @@ ElError ElDistMatrixPartialRowComm_z( ElConstDistMatrix_z A, MPI_Comm* comm );
 
 /* mpi::Comm DistMatrix<T,U,V>::PartialUnionColComm() const
    -------------------------------------------------------- */
+ElError ElDistMatrixPartialUnionColComm_i
+( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixPartialUnionColComm_s
 ( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixPartialUnionColComm_d
@@ -715,6 +827,8 @@ ElError ElDistMatrixPartialUnionColComm_z
 
 /* mpi::Comm DistMatrix<T,U,V>::PartialUnionRowComm() const
    -------------------------------------------------------- */
+ElError ElDistMatrixPartialUnionRowComm_i
+( ElConstDistMatrix_i A, MPI_Comm* comm );
 ElError ElDistMatrixPartialUnionRowComm_s
 ( ElConstDistMatrix_s A, MPI_Comm* comm );
 ElError ElDistMatrixPartialUnionRowComm_d
@@ -726,6 +840,7 @@ ElError ElDistMatrixPartialUnionRowComm_z
 
 /* Int DistMatrix<T,U,V>::ColStride() const
    ---------------------------------------- */
+ElError ElDistMatrixColStride_i( ElConstDistMatrix_i AHandle, ElInt* stride );
 ElError ElDistMatrixColStride_s( ElConstDistMatrix_s AHandle, ElInt* stride );
 ElError ElDistMatrixColStride_d( ElConstDistMatrix_d AHandle, ElInt* stride );
 ElError ElDistMatrixColStride_c( ElConstDistMatrix_c AHandle, ElInt* stride );
@@ -733,10 +848,13 @@ ElError ElDistMatrixColStride_z( ElConstDistMatrix_z AHandle, ElInt* stride );
 
 /* Int DistMatrix<T,U,V>::RowStride() const
    ---------------------------------------- */
+ElError ElDistMatrixRowStride_i( ElConstDistMatrix_i AHandle, ElInt* stride );
 ElError ElDistMatrixRowStride_s( ElConstDistMatrix_s AHandle, ElInt* stride );
 ElError ElDistMatrixRowStride_d( ElConstDistMatrix_d AHandle, ElInt* stride );
 ElError ElDistMatrixRowStride_c( ElConstDistMatrix_c AHandle, ElInt* stride );
 ElError ElDistMatrixRowStride_z( ElConstDistMatrix_z AHandle, ElInt* stride );
+
+// NOTE: Left off here
 
 /* Int DistMatrix<T,U,V>::PartialColStride() const
    ----------------------------------------------- */

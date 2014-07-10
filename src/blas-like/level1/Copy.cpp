@@ -112,7 +112,7 @@ void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( ACast, BCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 template<typename T>
@@ -128,7 +128,7 @@ void Copy( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B )
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( ACast, BCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 template<typename Real>
@@ -145,7 +145,7 @@ void Copy
     #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
         Copy( ACast, BCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 template<typename Real>
@@ -164,7 +164,7 @@ void Copy
         auto& BCast = \
             dynamic_cast<BlockDistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
         Copy( ACast, BCast );
-    #include "El/core/NestedGuardAndPayload.h"
+    #include "El/macros/NestedGuardAndPayload.h"
 }
 
 #define DIST_PROTO_INNER(T,U,V,W,Z) \
