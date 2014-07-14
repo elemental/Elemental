@@ -22,13 +22,13 @@
 #endif
 
 #ifndef C_PROTO_COMPLEX
-# define C_PROTO_COMPLEX(SIG,T) C_PROTO(SIG,T)
+# define C_PROTO_COMPLEX(SIG,SIGBASE,T) C_PROTO(SIG,T)
 #endif
 #ifndef C_PROTO_COMPLEX_FLOAT
-# define C_PROTO_COMPLEX_FLOAT C_PROTO_COMPLEX(c,Complex<float>)
+# define C_PROTO_COMPLEX_FLOAT C_PROTO_COMPLEX(c,s,Complex<float>)
 #endif
 #ifndef C_PROTO_COMPLEX_DOUBLE
-# define C_PROTO_COMPLEX_DOUBLE C_PROTO_COMPLEX(z,Complex<double>)
+# define C_PROTO_COMPLEX_DOUBLE C_PROTO_COMPLEX(z,d,Complex<double>)
 #endif
 
 #ifndef EL_NO_INT_PROTO

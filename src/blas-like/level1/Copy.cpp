@@ -21,12 +21,8 @@ template<typename Real>
 void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    B.Resize( m, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            B.Set( i, j, A.Get(i,j) );
+    auto convert = []( const Real alpha ) { return Complex<Real>(alpha); };
+    EntrywiseMap( A, B, std::function<Complex<Real>(Real)>(convert) );
 }
 
 template<typename T,Dist U,Dist V,Dist W,Dist Z>

@@ -181,6 +181,17 @@ void EntrywiseMap( AbstractDistMatrix<T>& A, std::function<T(T)> func );
 template<typename T>
 void EntrywiseMap( AbstractBlockDistMatrix<T>& A, std::function<T(T)> func );
 
+template<typename S,typename T>
+void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, std::function<T(S)> func );
+template<typename S,typename T>
+void EntrywiseMap
+( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B, 
+  std::function<T(S)> func );
+template<typename S,typename T>
+void EntrywiseMap
+( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B, 
+  std::function<T(S)> func );
+
 // Fill
 // ====
 template<typename T>
@@ -229,6 +240,18 @@ void IndexDependentMap
 template<typename T>
 void IndexDependentMap
 ( AbstractBlockDistMatrix<T>& A, std::function<T(Int,Int,T)> func );
+
+template<typename S,typename T>
+void IndexDependentMap
+( const Matrix<S>& A, Matrix<T>& B, std::function<T(Int,Int,S)> func );
+template<typename S,typename T>
+void IndexDependentMap
+( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B,
+  std::function<T(Int,Int,S)> func );
+template<typename S,typename T>
+void IndexDependentMap
+( const AbstractBlockDistMatrix<S>& A, AbstractBlockDistMatrix<T>& B,
+  std::function<T(Int,Int,S)> func );
 
 // MakeHermitian
 // =============

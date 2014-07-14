@@ -31,6 +31,8 @@ template<> struct CReflect<complex_double> { typedef Complex<double> type; };
 template<> struct CReflect<Complex<float>> { typedef complex_float type; };
 template<> struct CReflect<Complex<double>> { typedef complex_double type; };
 
+#define CREFLECT(T) typename CReflect<T>::type
+
 template<typename T>
 inline void DynamicCastCheck( T* A )
 { if( A == nullptr ) RuntimeError("Dynamic cast failed"); }
@@ -63,6 +65,18 @@ inline ElConstGrid Reinterpret( const Grid* grid )
 
 // Complex<T>
 // ----------
+inline complex_float* Reinterpret( Complex<float>* buffer )
+{ return EL_RC(complex_float*,buffer); }
+
+inline complex_double* Reinterpret( Complex<double>* buffer )
+{ return EL_RC(complex_double*,buffer); }
+
+inline const complex_float* Reinterpret( const Complex<float>* buffer )
+{ return EL_RC(const complex_float*,buffer); }
+
+inline const complex_double* Reinterpret( const Complex<double>* buffer )
+{ return EL_RC(const complex_double*,buffer); }
+
 inline Complex<float>* Reinterpret( complex_float* buffer )
 { return EL_RC(Complex<float>*,buffer); }
 
