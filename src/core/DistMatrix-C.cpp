@@ -12,20 +12,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define CATCH \
-  catch( std::bad_alloc& e ) \
-  { ReportException(e); return EL_ALLOC_ERROR; } \
-  catch( std::logic_error& e ) \
-  { ReportException(e); return EL_LOGIC_ERROR; } \
-  catch( std::runtime_error& e ) \
-  { ReportException(e); return EL_RUNTIME_ERROR; } \
-  catch( std::exception& e ) \
-  { ReportException(e); return EL_ERROR; }
-
-#define EL_TRY(payload) \
-  try { payload; } CATCH \
-  return EL_SUCCESS;
-
 template<typename T>
 ElError ElDistMatrixCreateSpecific
 ( ElDist U_C, ElDist V_C, ElConstGrid gridHandle, AbstractDistMatrix<T>** A )
@@ -36,179 +22,101 @@ ElError ElDistMatrixCreateSpecific
         Dist V = Reinterpret(V_C);
         auto grid = Reinterpret(gridHandle);
 
-        if( U == CIRC && V == CIRC )
-            *A = new DistMatrix<T,CIRC,CIRC>(*grid); 
-        else if( U == MC && V == MR )
-            *A = new DistMatrix<T,MC,MR>(*grid);
-        else if( U == MC && V == STAR )
-            *A = new DistMatrix<T,MC,STAR>(*grid);
-        else if( U == MD && V == STAR )
-            *A = new DistMatrix<T,MD,STAR>(*grid);
-        else if( U == MR && V == MC )
-            *A = new DistMatrix<T,MR,MC>(*grid);
-        else if( U == MR && V == STAR )
-            *A = new DistMatrix<T,MR,STAR>(*grid);
-        else if( U == STAR && V == MC )
-            *A = new DistMatrix<T,STAR,MC>(*grid);
-        else if( U == STAR && V == MD )
-            *A = new DistMatrix<T,STAR,MD>(*grid);
-        else if( U == STAR && V == MR )
-            *A = new DistMatrix<T,STAR,MR>(*grid);
-        else if( U == STAR && V == STAR )
-            *A = new DistMatrix<T,STAR,STAR>(*grid);
-        else if( U == STAR && V == VC )
-            *A = new DistMatrix<T,STAR,VC>(*grid);
-        else if( U == STAR && V == VR )
-            *A = new DistMatrix<T,STAR,VR>(*grid);
-        else if( U == VC && V == STAR )
-            *A = new DistMatrix<T,VC,STAR>(*grid);
-        else if( U == VR && V == STAR )
-            *A = new DistMatrix<T,VR,STAR>(*grid);
+        #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
+        #define PAYLOAD(CDIST,RDIST) *A = new DistMatrix<T,CDIST,RDIST>(*grid);
+        #include "El/macros/GuardAndPayload.h"
+        #undef GUARD
+        #undef PAYLOAD
     }
-    CATCH
+    EL_CATCH
     return EL_SUCCESS;
 }
 
 // DistMatrix<T,UDiag,VDiag> DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
 // ----------------------------------------------------------------------------
-// TODO: Switch to using #include "El/macros/GuardAndPayload.h"
-template<typename T,Dist CDist,Dist RDist>
-void ElDistMatrixGetDiagonalKernel
-( const AbstractDistMatrix<T>* AAbs, Int offset, AbstractDistMatrix<T>** dAbs )
-{
-    const Grid& g = AAbs->Grid();
-    Dist U = AAbs->DistData().colDist;
-    Dist V = AAbs->DistData().rowDist;
-    if( U == CDist && V == RDist )
-    {
-        auto A = dynamic_cast<const DistMatrix<T,CDist,RDist>*>(AAbs);
-        DynamicCastCheck(A);
-        auto* d = new DistMatrix<T,DiagColDist<CDist,RDist>(),
-                                   DiagRowDist<CDist,RDist>()>(g);
-        A->GetDiagonal( *d, offset );
-        *dAbs = d;
-    }
-}
-
 template<typename T>
 ElError ElDistMatrixGetDiagonal
 ( const AbstractDistMatrix<T>* AAbs, Int offset, 
         AbstractDistMatrix<T>** dAbs )
 {
+    const Grid& g = AAbs->Grid();
+    Dist U = AAbs->DistData().colDist;
+    Dist V = AAbs->DistData().rowDist;
     try 
     {
-        ElDistMatrixGetDiagonalKernel<T,CIRC,CIRC>( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,MC,  MR  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,MC,  STAR>( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,MD,  STAR>( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,MR,  MC  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,MR,  STAR>( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,STAR,MC  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,STAR,MD  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,STAR,MR  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,STAR,STAR>( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,STAR,VC  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,STAR,VR  >( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,VC,  STAR>( AAbs, offset, dAbs );
-        ElDistMatrixGetDiagonalKernel<T,VR,  STAR>( AAbs, offset, dAbs );
+        #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto A = dynamic_cast<const DistMatrix<T,CDIST,RDIST>*>(AAbs); \
+            DynamicCastCheck(A); \
+            auto* d = new DistMatrix<T,DiagColDist<CDIST,RDIST>(), \
+                                       DiagRowDist<CDIST,RDIST>()>(g); \
+            A->GetDiagonal( *d, offset ); \
+            *dAbs = d;
+        #include "El/macros/GuardAndPayload.h"
+        #undef GUARD
+        #undef PAYLOAD
     }
-    CATCH
+    EL_CATCH
     return EL_SUCCESS;
 }
 
 // DistMatrix<Base<T>,UDiag,VDiag> 
 // DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
 // ------------------------------------------------------------
-template<typename T,Dist CDist,Dist RDist>
-void ElDistMatrixGetRealPartOfDiagonalKernel
+template<typename T>
+ElError ElDistMatrixGetRealPartOfDiagonal
 ( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
         AbstractDistMatrix<T>** dAbs )
 {
     const Grid& g = AAbs->Grid();
     Dist U = AAbs->DistData().colDist;
     Dist V = AAbs->DistData().rowDist;
-    if( U == CDist && V == RDist )
-    {
-        auto A = dynamic_cast<const DistMatrix<Complex<T>,CDist,RDist>*>(AAbs);
-        DynamicCastCheck(A);
-        auto* d = new DistMatrix<T,DiagColDist<CDist,RDist>(),
-                                   DiagRowDist<CDist,RDist>()>(g);
-        A->GetRealPartOfDiagonal( *d, offset );
-        *dAbs = d;
-    }
-}
-
-template<typename T>
-ElError ElDistMatrixGetRealPartOfDiagonal
-( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
-        AbstractDistMatrix<T>** dAbs )
-{
     try 
     {
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,CIRC,CIRC>(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,MC,  MR  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,MC,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,MD,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,MR,  MC  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,MR,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,MC  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,MD  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,MR  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,VC  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,STAR,VR  >(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,VC,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetRealPartOfDiagonalKernel<T,VR,  STAR>(AAbs,offset,dAbs);
+        #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto A = \
+              dynamic_cast<const DistMatrix<Complex<T>,CDIST,RDIST>*>(AAbs); \
+            DynamicCastCheck(A); \
+            auto* d = new DistMatrix<T,DiagColDist<CDIST,RDIST>(), \
+                                       DiagRowDist<CDIST,RDIST>()>(g); \
+            A->GetRealPartOfDiagonal( *d, offset ); \
+            *dAbs = d;
+        #include "El/macros/GuardAndPayload.h"
+        #undef GUARD
+        #undef PAYLOAD
     }
-    CATCH
+    EL_CATCH
     return EL_SUCCESS;
 }
 
 // DistMatrix<Base<T>,UDiag,VDiag> 
 // DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
 // ------------------------------------------------------------
-template<typename T,Dist CDist,Dist RDist>
-void ElDistMatrixGetImagPartOfDiagonalKernel
+template<typename T>
+ElError ElDistMatrixGetImagPartOfDiagonal
 ( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
         AbstractDistMatrix<T>** dAbs )
 {
     const Grid& g = AAbs->Grid();
     Dist U = AAbs->DistData().colDist;
     Dist V = AAbs->DistData().rowDist;
-    if( U == CDist && V == RDist )
-    {
-        auto A = dynamic_cast<const DistMatrix<Complex<T>,CDist,RDist>*>(AAbs);
-        DynamicCastCheck(A);
-        auto* d = new DistMatrix<T,DiagColDist<CDist,RDist>(),
-                                   DiagRowDist<CDist,RDist>()>(g);
-        A->GetImagPartOfDiagonal( *d, offset );
-        *dAbs = d;
-    }
-}
-
-template<typename T>
-ElError ElDistMatrixGetImagPartOfDiagonal
-( const AbstractDistMatrix<Complex<T>>* AAbs, Int offset, 
-        AbstractDistMatrix<T>** dAbs )
-{
     try 
     {
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,CIRC,CIRC>(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,MC,  MR  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,MC,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,MD,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,MR,  MC  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,MR,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,MC  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,MD  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,MR  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,VC  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,STAR,VR  >(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,VC,  STAR>(AAbs,offset,dAbs);
-        ElDistMatrixGetImagPartOfDiagonalKernel<T,VR,  STAR>(AAbs,offset,dAbs);
+        #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
+        #define PAYLOAD(CDIST,RDIST) \
+            auto A = \
+              dynamic_cast<const DistMatrix<Complex<T>,CDIST,RDIST>*>(AAbs); \
+            DynamicCastCheck(A); \
+            auto* d = new DistMatrix<T,DiagColDist<CDIST,RDIST>(), \
+                                       DiagRowDist<CDIST,RDIST>()>(g); \
+            A->GetImagPartOfDiagonal( *d, offset ); \
+            *dAbs = d;
+        #include "El/macros/GuardAndPayload.h"
+        #undef GUARD
+        #undef PAYLOAD
     }
-    CATCH
+    EL_CATCH
     return EL_SUCCESS;
 }
 
@@ -762,7 +670,7 @@ extern "C" {
           std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds); \
           std::vector<Int> colIndVec(colInds,colInds+numColInds); \
           A->GetSubmatrix( rowIndVec, colIndVec, *ASub ); \
-          *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+          *ASubHandle = Reinterpret(ASub); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       const DistMatrix<T,STAR,STAR>& ASub ); */ \
@@ -779,7 +687,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       A->SetSubmatrix( rowIndVec, colIndVec, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::UpdateSubmatrix
     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
       T alpha, const DistMatrix<T,STAR,STAR>& ASub ); */ \
@@ -796,7 +704,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       A->UpdateSubmatrix( rowIndVec, colIndVec, Reinterpret(alpha), *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* Matrix<T> DistMatrix<T,U,V>::GetLocalSubmatrix
      ( const std::vector<Int>& rowIndsLoc, 
        const std::vector<Int>& colIndsLoc ) const */ \
@@ -810,7 +718,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                        colIndVec(colIndsLoc,colIndsLoc+numColInds); \
       A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
-      *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+      *ASubHandle = Reinterpret(ASub); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetLocalSubmatrix
      ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
        const Matrix<T>& ASub ); */ \
@@ -826,7 +734,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::UpdateLocalSubmatrix
      ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
        const Matrix<T>& ASub ); */ \
@@ -843,7 +751,7 @@ extern "C" {
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->UpdateLocalSubmatrix \
         ( rowIndVec, colIndVec, Reinterpret(alpha), *ASub ); \
-    } CATCH; return EL_SUCCESS; } 
+    } EL_CATCH; return EL_SUCCESS; } 
 
 #define DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T) \
   /* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetRealPartOfSubmatrix
@@ -859,7 +767,7 @@ extern "C" {
           std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds); \
           std::vector<Int> colIndVec(colInds,colInds+numColInds); \
           A->GetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
-          *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+          *ASubHandle = Reinterpret(ASub); } EL_CATCH; return EL_SUCCESS; } \
   /* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetImagPartOfSubmatrix
      ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
   */ \
@@ -873,7 +781,7 @@ extern "C" {
           std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds); \
           std::vector<Int> colIndVec(colInds,colInds+numColInds); \
           A->GetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
-          *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+          *ASubHandle = Reinterpret(ASub); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetRealPartOfSubmatrix
      ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
        const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
@@ -890,7 +798,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       A->SetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetImagPartOfSubmatrix
      ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
        const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
@@ -907,7 +815,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       A->SetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::UpdateRealPartOfSubmatrix
      ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
        Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
@@ -924,7 +832,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       A->UpdateRealPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::UpdateImagPartOfSubmatrix
      ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
        Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
@@ -941,7 +849,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       A->UpdateImagPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::MakeSubmatrixReal
      ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) */ \
   ElError ElDistMatrixMakeSubmatrixReal_ ## SIG \
@@ -951,7 +859,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
           Reinterpret(AHandle)->MakeSubmatrixReal( rowIndVec, colIndVec ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::ConjugateSubmatrix
      ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) */ \
   ElError ElDistMatrixConjugateSubmatrix_ ## SIG \
@@ -961,7 +869,7 @@ extern "C" {
       std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
                        colIndVec(colInds,colInds+numColInds); \
       Reinterpret(AHandle)->ConjugateSubmatrix( rowIndVec, colIndVec ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* Matrix<Base<T>> DistMatrix<T,U,V>::GetRealPartOfLocalSubmatrix
      ( const std::vector<Int>& rowInds, 
        const std::vector<Int>& colInds ) const */ \
@@ -976,7 +884,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->GetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
-        *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+        *ASubHandle = Reinterpret(ASub); } EL_CATCH; return EL_SUCCESS; } \
   /* Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
      ( const std::vector<Int>& rowInds, 
        const std::vector<Int>& colInds ) const */ \
@@ -991,7 +899,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->GetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
-        *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+        *ASubHandle = Reinterpret(ASub); } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetRealPartOfLocalSubmatrix
      ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
        const Matrix<Base<T>>& ASub ); */ \
@@ -1007,7 +915,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->SetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::SetImagPartOfLocalSubmatrix
      ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
        const Matrix<Base<T>>& ASub ); */ \
@@ -1023,7 +931,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->SetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::UpdateRealPartOfLocalSubmatrix
      ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
        Base<T> alpha, const Matrix<Base<T>>& ASub ); */ \
@@ -1040,7 +948,7 @@ extern "C" {
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->UpdateRealPartOfLocalSubmatrix \
         ( rowIndVec, colIndVec, alpha, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::UpdateImagPartOfLocalSubmatrix
      ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
        Base<T> alpha, const Matrix<Base<T>>& ASub ); */ \
@@ -1057,7 +965,7 @@ extern "C" {
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         A->UpdateImagPartOfLocalSubmatrix \
         ( rowIndVec, colIndVec, alpha, *ASub ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::MakeLocalSubmatrixReal
      ( const std::vector<Int>& rowIndsLoc, 
        const std::vector<Int>& colIndsLoc ) */ \
@@ -1069,7 +977,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         Reinterpret(AHandle)->MakeLocalSubmatrixReal( rowIndVec, colIndVec ); \
-    } CATCH; return EL_SUCCESS; } \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* void DistMatrix<T,U,V>::ConjugateLocalSubmatrix
      ( const std::vector<Int>& rowIndsLoc, 
        const std::vector<Int>& colIndsLoc ) */ \
@@ -1081,7 +989,7 @@ extern "C" {
         std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
                          colIndVec(colIndsLoc,colIndsLoc+numColInds); \
         Reinterpret(AHandle)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); \
-    } CATCH; return EL_SUCCESS; }
+    } EL_CATCH; return EL_SUCCESS; }
 
 #define C_PROTO(SIG,T) \
   DISTMATRIX_CREATE(SIG,T) \

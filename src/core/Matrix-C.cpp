@@ -10,20 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define CATCH \
-  catch( std::bad_alloc& e ) \
-  { ReportException(e); return EL_ALLOC_ERROR; } \
-  catch( std::logic_error& e ) \
-  { ReportException(e); return EL_LOGIC_ERROR; } \
-  catch( std::runtime_error& e ) \
-  { ReportException(e); return EL_RUNTIME_ERROR; } \
-  catch( std::exception& e ) \
-  { ReportException(e); return EL_ERROR; }
-
-#define EL_TRY(payload) \
-  try { payload; } CATCH \
-  return EL_SUCCESS;
-
 extern "C" {
 
 #define MATRIX_CONSTRUCT(SIG,T) \

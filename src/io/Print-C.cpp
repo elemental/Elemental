@@ -10,78 +10,18 @@
 #include "El-C.h"
 using namespace El;
 
-#define CATCH \
-  catch( std::bad_alloc& e ) \
-  { ReportException(e); return EL_ALLOC_ERROR; } \
-  catch( std::logic_error& e ) \
-  { ReportException(e); return EL_LOGIC_ERROR; } \
-  catch( std::runtime_error& e ) \
-  { ReportException(e); return EL_RUNTIME_ERROR; } \
-  catch( std::exception& e ) \
-  { ReportException(e); return EL_ERROR; }
-
 extern "C" {
 
-// Matrix
-// ======
+#define C_PROTO(SIG,T) \
+  /* Matrix */ \
+  ElError ElPrintMatrix_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, const char* title ) \
+  { EL_TRY( Print( *Reinterpret(AHandle), std::string(title) ) ) } \
+  /* AbstractDistMatrix */ \
+  ElError ElPrintDistMatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, const char* title ) \
+  { EL_TRY( Print( *Reinterpret(AHandle), std::string(title) ) ) }
 
-ElError ElPrintMatrix_s( ElConstMatrix_s AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElPrintMatrix_d( ElConstMatrix_d AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElPrintMatrix_c( ElConstMatrix_c AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElPrintMatrix_z( ElConstMatrix_z AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// AbstractDistMatrix
-// ==================
-
-ElError ElPrintDistMatrix_s( ElConstDistMatrix_s AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElPrintDistMatrix_d( ElConstDistMatrix_d AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElPrintDistMatrix_c( ElConstDistMatrix_c AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElPrintDistMatrix_z( ElConstDistMatrix_z AHandle, const char* title )
-{
-    try { Print( *Reinterpret(AHandle), std::string(title) ); }
-    CATCH
-    return EL_SUCCESS;
-}
+#include "El/macros/CInstantiate.h"
 
 } // extern "C"

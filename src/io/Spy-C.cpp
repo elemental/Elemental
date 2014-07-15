@@ -10,82 +10,18 @@
 #include "El-C.h"
 using namespace El;
 
-#define CATCH \
-  catch( std::bad_alloc& e ) \
-  { ReportException(e); return EL_ALLOC_ERROR; } \
-  catch( std::logic_error& e ) \
-  { ReportException(e); return EL_LOGIC_ERROR; } \
-  catch( std::runtime_error& e ) \
-  { ReportException(e); return EL_RUNTIME_ERROR; } \
-  catch( std::exception& e ) \
-  { ReportException(e); return EL_ERROR; }
-
 extern "C" {
 
-// Matrix
-// ======
+#define C_PROTO(SIG,T) \
+  /* Matrix */ \
+  ElError ElSpyMatrix_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
+  { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) } \
+  /* AbstractDistMatrix */ \
+  ElError ElSpyDistMatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
+  { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) }
 
-ElError ElSpyMatrix_s( ElConstMatrix_s AHandle, const char* title, float tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElSpyMatrix_d( ElConstMatrix_d AHandle, const char* title, double tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElSpyMatrix_c( ElConstMatrix_c AHandle, const char* title, float tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElSpyMatrix_z( ElConstMatrix_z AHandle, const char* title, double tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// AbstractDistMatrix
-// ==================
-
-ElError ElSpyDistMatrix_s
-( ElConstDistMatrix_s AHandle, const char* title, float tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElSpyDistMatrix_d
-( ElConstDistMatrix_d AHandle, const char* title, double tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElSpyDistMatrix_c
-( ElConstDistMatrix_c AHandle, const char* title, float tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElSpyDistMatrix_z
-( ElConstDistMatrix_z AHandle, const char* title, double tol )
-{
-    try { Spy( *Reinterpret(AHandle), std::string(title), tol ); }
-    CATCH
-    return EL_SUCCESS;
-}
+#include "El/macros/CInstantiate.h"
 
 } // extern "C"

@@ -10,6 +10,22 @@
 #ifndef EL_REINTERPRET_C_HPP
 #define EL_REINTERPRET_C_HPP
 
+#define EL_CATCH \
+  catch( std::bad_alloc& e ) \
+  { El::ReportException(e); return EL_ALLOC_ERROR; } \
+  catch( El::ArgException& e ) \
+  { El::ReportException(e); return EL_ARG_ERROR; } \
+  catch( std::logic_error& e ) \
+  { El::ReportException(e); return EL_LOGIC_ERROR; } \
+  catch( std::runtime_error& e ) \
+  { El::ReportException(e); return EL_RUNTIME_ERROR; } \
+  catch( std::exception& e ) \
+  { El::ReportException(e); return EL_ERROR; }
+
+#define EL_TRY(payload) \
+  try { payload; } EL_CATCH \
+  return EL_SUCCESS;
+
 #define EL_RC(TYPE,INPUT) reinterpret_cast<TYPE>(INPUT)
 
 namespace El {

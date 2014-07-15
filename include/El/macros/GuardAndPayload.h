@@ -9,10 +9,8 @@
 /* NOTE: This is a commonly-used hack that is only included in this file to
          help avoid redundancy. */
 #define IF_GUARD_AND_PAYLOAD(CDIST,RDIST) \
-  if( GUARD(CDIST,RDIST) ) \
-  { \
-      PAYLOAD(CDIST,RDIST) \
-  }
+  if( GUARD(CDIST,RDIST) ) { PAYLOAD(CDIST,RDIST) }
+
 #define ELSEIF_GUARD_AND_PAYLOAD(CDIST,RDIST) \
   else IF_GUARD_AND_PAYLOAD(CDIST,RDIST)
 

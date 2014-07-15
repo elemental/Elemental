@@ -9,12 +9,11 @@
 /* NOTE: This is a commonly-used hack that is only included in this file to
          help avoid redundancy. */
 #define INNER_IF_GUARD_AND_PAYLOAD(CDIST,RDIST) \
-  if( INNER_GUARD(CDIST,RDIST) ) \
-  { \
-      INNER_PAYLOAD(CDIST,RDIST) \
-  }
+  if( INNER_GUARD(CDIST,RDIST) ) { INNER_PAYLOAD(CDIST,RDIST) }
+
 #define INNER_ELSEIF_GUARD_AND_PAYLOAD(CDIST,RDIST) \
   else INNER_IF_GUARD_AND_PAYLOAD(CDIST,RDIST)
+
 #define IF_GUARD_AND_PAYLOAD(CDIST,RDIST) \
   if( GUARD(CDIST,RDIST) ) \
   { \
@@ -34,6 +33,7 @@
       INNER_ELSEIF_GUARD_AND_PAYLOAD(VC,  STAR) \
       INNER_ELSEIF_GUARD_AND_PAYLOAD(VR,  STAR) \
   }
+
 #define ELSEIF_GUARD_AND_PAYLOAD(CDIST,RDIST) \
   else IF_GUARD_AND_PAYLOAD(CDIST,RDIST)
 

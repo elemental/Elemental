@@ -9,18 +9,6 @@
 #include "El.hpp"
 #include "El-C.h"
 
-#define CATCH \
-  catch( std::bad_alloc& e ) \
-  { El::ReportException(e); return EL_ALLOC_ERROR; } \
-  catch( El::ArgException& e ) \
-  { El::ReportException(e); return EL_ARG_ERROR; } \
-  catch( std::logic_error& e ) \
-  { El::ReportException(e); return EL_LOGIC_ERROR; } \
-  catch( std::runtime_error& e ) \
-  { El::ReportException(e); return EL_RUNTIME_ERROR; } \
-  catch( std::exception& e ) \
-  { El::ReportException(e); return EL_ERROR; }
-
 extern "C" {
 
 ElError ElPrintVersion( FILE* stream )
@@ -81,112 +69,54 @@ const char* ElErrorString( ElError error )
 // TODO: ElPrintCxxCompilerInfo
 
 ElError ElInitialize( int* argc, char*** argv )
-{
-    try { El::Initialize( *argc, *argv ); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( El::Initialize( *argc, *argv ) ) }
 
 ElError ElFinalize()
-{
-    try { El::Finalize(); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( El::Finalize() ) }
 
 ElError ElInitialized( bool* initialized )
-{ 
-    *initialized = El::Initialized(); 
-    return EL_SUCCESS;
-}
+{ EL_TRY( *initialized = El::Initialized() ) } 
 
 ElError ElInput_b
 ( const char* name, const char* desc, bool defaultVal, bool* val )
-{ 
-    try { *val = El::Input(name,desc,defaultVal); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *val = El::Input(name,desc,defaultVal) ) } 
 
 ElError ElInput_i
 ( const char* name, const char* desc, int defaultVal, int* val )
-{ 
-    try { *val = El::Input(name,desc,defaultVal); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *val = El::Input(name,desc,defaultVal) ) } 
 
 ElError ElInput_I
 ( const char* name, const char* desc, ElInt defaultVal, ElInt* val )
-{ 
-    try { *val = El::Input(name,desc,defaultVal); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *val = El::Input(name,desc,defaultVal) ) } 
 
 ElError ElInput_s
 ( const char* name, const char* desc, float defaultVal, float* val )
-{ 
-    try { *val = El::Input(name,desc,defaultVal); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *val = El::Input(name,desc,defaultVal) ) } 
 
 ElError ElInput_d
 ( const char* name, const char* desc, double defaultVal, double* val )
-{ 
-    try { *val = El::Input(name,desc,defaultVal); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *val = El::Input(name,desc,defaultVal) ) } 
 
 ElError ElInput_cstr
 ( const char* name, const char* desc, const char* defaultVal, const char** val )
-{ 
-    try { *val = El::Input(name,desc,defaultVal); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *val = El::Input(name,desc,defaultVal) ) } 
 
-ElError ElProcessInput()
-{
-    try { El::ProcessInput(); }
-    CATCH
-    return EL_SUCCESS;
-}
+ElError ElProcessInput() 
+{ EL_TRY( El::ProcessInput() ) }
 
-ElError ElPrintInputReport()
-{ 
-    El::PrintInputReport(); 
-    return EL_SUCCESS;
-}
+ElError ElPrintInputReport() 
+{ EL_TRY( El::PrintInputReport() ) } 
 
 ElError ElBlocksize( ElInt* blocksize )
-{ 
-    try { *blocksize = El::Blocksize(); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( *blocksize = El::Blocksize() ) }
 
 ElError ElSetBlocksize( ElInt blocksize )
-{
-    try { El::SetBlocksize(blocksize); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( El::SetBlocksize(blocksize) ) }
 
 ElError ElPushBlocksizeStack( ElInt blocksize )
-{
-    try { El::PushBlocksizeStack(blocksize); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( El::PushBlocksizeStack(blocksize) ) }
 
 ElError ElPopBlocksizeStack()
-{
-    try { El::PopBlocksizeStack(); }
-    CATCH
-    return EL_SUCCESS;
-}
+{ EL_TRY( El::PopBlocksizeStack() ) }
 
 } // extern "C"
