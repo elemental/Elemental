@@ -26,13 +26,15 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO(SIG,T) \
+#define MATRIX_CONSTRUCT(SIG,T) \
   /* Matrix<T>::Matrix() */ \
   ElError ElMatrixCreate_ ## SIG ( ElMatrix_ ## SIG * A ) \
   { EL_TRY( *A = Reinterpret( new Matrix<T> ) ) } \
   /* Matrix<T>::~Matrix() */ \
   ElError ElMatrixDestroy_ ## SIG ( ElConstMatrix_ ## SIG AHandle ) \
-  { EL_TRY( delete Reinterpret(AHandle) ) } \
+  { EL_TRY( delete Reinterpret(AHandle) ) }
+
+#define MATRIX_RECONFIG(SIG,T) \
   /* void Matrix<T>::Empty() */ \
   ElError ElMatrixEmpty_ ## SIG ( ElMatrix_ ## SIG AHandle ) \
   { EL_TRY( Reinterpret(AHandle)->Empty() ) } \
@@ -67,7 +69,9 @@ extern "C" {
   /* B = A */ \
   ElError ElMatrixCopy_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, ElMatrix_ ## SIG BHandle ) \
-  { EL_TRY( *Reinterpret(BHandle) = *Reinterpret(AHandle) ) } \
+  { EL_TRY( *Reinterpret(BHandle) = *Reinterpret(AHandle) ) }
+
+#define MATRIX_BASIC(SIG,T) \
   /* Int Matrix<T>::Height() const */ \
   ElError ElMatrixHeight_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, ElInt* height ) \
@@ -107,7 +111,9 @@ extern "C" {
   /* bool Matrix<T>::Locked() const */ \
   ElError ElMatrixLocked_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, bool* locked ) \
-  { EL_TRY( *locked = Reinterpret(AHandle)->Locked() ) } \
+  { EL_TRY( *locked = Reinterpret(AHandle)->Locked() ) }
+
+#define MATRIX_SINGLEENTRY(SIG,T) \
   /* T Matrix<T>::Get( Int i, Int j ) const */ \
   ElError ElMatrixGet_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, ElInt i, ElInt j, CREFLECT(T)* val ) \
@@ -119,42 +125,9 @@ extern "C" {
   /* void Matrix<T>::Update( Int i, Int j, T alpha ) */ \
   ElError ElMatrixUpdate_ ## SIG \
   ( ElMatrix_ ## SIG AHandle, ElInt i, ElInt j, CREFLECT(T) alpha ) \
-  { EL_TRY( Reinterpret(AHandle)->Update(i,j,Reinterpret(alpha)) ) } \
-  /* Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const */ \
-  ElError ElMatrixGetDiagonal_ ## SIG \
-  ( ElConstMatrix_ ## SIG AHandle, ElInt offset, ElMatrix_ ## SIG *dHandle ) \
-  { try { \
-        auto d = new Matrix<T>; \
-        Reinterpret(AHandle)->GetDiagonal( *d, offset ); \
-        *dHandle = Reinterpret(d); \
-    } CATCH; return EL_SUCCESS; } \
-  /* void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset ) */ \
-  ElError ElMatrixSetDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG AHandle, ElConstMatrix_ ## SIG dHandle, ElInt offset ) \
-  { EL_TRY \
-    ( Reinterpret(AHandle)->SetDiagonal( Reinterpret(dHandle), offset ) ) } \
-  /* void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset ) */ \
-  ElError ElMatrixUpdateDiagonal_ ## SIG \
-  ( ElMatrix_ ## SIG AHandle, ElConstMatrix_ ## SIG dHandle, ElInt offset ) \
-  { EL_TRY \
-    ( Reinterpret(AHandle)->UpdateDiagonal( Reinterpret(dHandle), offset ) ) } \
-  /* Matrix<T> Matrix<T>::GetSubmatrix
-     ( const std::vector<Int>& rowInds, \
-       const std::vector<Int>& colInds ) const */ \
-  ElError ElMatrixGetSubmatrix_ ## SIG \
-  ( ElConstMatrix_ ## SIG AHandle, \
-    ElInt numRowInds, const ElInt* rowInds, \
-    ElInt numColInds, const ElInt* colInds, ElMatrix_ ## SIG *ASubHandle ) \
-  { try { \
-        std::vector<Int> rowIndVec( rowInds, rowInds+numRowInds ), \
-                         colIndVec( colInds, colInds+numColInds ); \
-        auto ASub = new Matrix<T>; \
-        Reinterpret(AHandle)->GetSubmatrix( rowIndVec, colIndVec, *ASub ); \
-        *ASubHandle = Reinterpret(ASub); \
-    } CATCH; return EL_SUCCESS; }
+  { EL_TRY( Reinterpret(AHandle)->Update(i,j,Reinterpret(alpha)) ) }
 
-#define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
-  C_PROTO(SIG,T) \
+#define MATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
   /* Base<T> Matrix<T>::GetRealPart( Int i, Int j ) const */ \
   ElError ElMatrixGetRealPart_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T>* val ) \
@@ -186,25 +159,41 @@ extern "C" {
   /* void Matrix<T>::Conjugate( Int i, Int j ) */ \
   ElError ElMatrixConjugate_ ## SIG \
   ( ElMatrix_ ## SIG AHandle, ElInt i, ElInt j ) \
-  { EL_TRY( Reinterpret(AHandle)->Conjugate(i,j) ) } \
+  { EL_TRY( Reinterpret(AHandle)->Conjugate(i,j) ) }
+
+#define MATRIX_DIAGONAL(SIG,T) \
+  /* Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const */ \
+  ElError ElMatrixGetDiagonal_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, ElInt offset, ElMatrix_ ## SIG *dHandle ) \
+  { EL_TRY( auto d = new Matrix<T>; \
+            Reinterpret(AHandle)->GetDiagonal( *d, offset ); \
+            *dHandle = Reinterpret(d) ) } \
+  /* void Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset ) */ \
+  ElError ElMatrixSetDiagonal_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, ElConstMatrix_ ## SIG dHandle, ElInt offset ) \
+  { EL_TRY \
+    ( Reinterpret(AHandle)->SetDiagonal( Reinterpret(dHandle), offset ) ) } \
+  /* void Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset ) */ \
+  ElError ElMatrixUpdateDiagonal_ ## SIG \
+  ( ElMatrix_ ## SIG AHandle, ElConstMatrix_ ## SIG dHandle, ElInt offset ) \
+  { EL_TRY \
+    ( Reinterpret(AHandle)->UpdateDiagonal( Reinterpret(dHandle), offset ) ) }
+
+#define MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
   /* Matrix<Base<T>> Matrix<T>::GetRealPartOfDiagonal( Int offset ) const */ \
   ElError ElMatrixGetRealPartOfDiagonal_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, ElInt offset, \
     ElMatrix_ ## SIGBASE *dHandle ) \
-  { try { \
-        auto d = new Matrix<Base<T>>; \
-        Reinterpret(AHandle)->GetRealPartOfDiagonal( *d, offset ); \
-        *dHandle = Reinterpret(d); \
-    } CATCH; return EL_SUCCESS; } \
+  { EL_TRY( auto d = new Matrix<Base<T>>; \
+            Reinterpret(AHandle)->GetRealPartOfDiagonal( *d, offset ); \
+            *dHandle = Reinterpret(d) ) } \
   /* Matrix<Base<T>> Matrix<T>::GetImagPartOfDiagonal( Int offset ) const */ \
   ElError ElMatrixGetImagPartOfDiagonal_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, ElInt offset, \
     ElMatrix_ ## SIGBASE *dHandle ) \
-  { try { \
-        auto d = new Matrix<Base<T>>; \
-        Reinterpret(AHandle)->GetImagPartOfDiagonal( *d, offset ); \
-        *dHandle = Reinterpret(d); \
-    } CATCH; return EL_SUCCESS; } \
+  { EL_TRY( auto d = new Matrix<Base<T>>; \
+            Reinterpret(AHandle)->GetImagPartOfDiagonal( *d, offset ); \
+            *dHandle = Reinterpret(d) ) } \
   /* void Matrix<T>::SetRealPartOfDiagonal \
      ( const Matrix<Base<T>>& d, Int offset ) */ \
   ElError ElMatrixSetRealPartOfDiagonal_ ## SIG \
@@ -241,6 +230,33 @@ extern "C" {
   ElError ElMatrixConjugateDiagonal_ ## SIG \
   ( ElMatrix_ ## SIG AHandle, ElInt offset ) \
   { EL_TRY( Reinterpret(AHandle)->ConjugateDiagonal(offset) ) }
+
+#define MATRIX_SUBMATRIX(SIG,T) \
+  /* Matrix<T> Matrix<T>::GetSubmatrix
+     ( const std::vector<Int>& rowInds, \
+       const std::vector<Int>& colInds ) const */ \
+  ElError ElMatrixGetSubmatrix_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowInds, \
+    ElInt numColInds, const ElInt* colInds, ElMatrix_ ## SIG *ASubHandle ) \
+  { EL_TRY( std::vector<Int> rowIndVec( rowInds, rowInds+numRowInds ); \
+            std::vector<Int> colIndVec( colInds, colInds+numColInds ); \
+            auto ASub = new Matrix<T>; \
+            Reinterpret(AHandle)->GetSubmatrix( rowIndVec, colIndVec, *ASub ); \
+            *ASubHandle = Reinterpret(ASub) ) }
+
+#define C_PROTO(SIG,T) \
+  MATRIX_CONSTRUCT(SIG,T) \
+  MATRIX_RECONFIG(SIG,T) \
+  MATRIX_BASIC(SIG,T) \
+  MATRIX_SINGLEENTRY(SIG,T) \
+  MATRIX_DIAGONAL(SIG,T) \
+  MATRIX_SUBMATRIX(SIG,T)
+
+#define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
+  C_PROTO(SIG,T) \
+  MATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
+  MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T)
 
 #include "El/macros/CInstantiate.h"
 

@@ -22,33 +22,9 @@ using namespace El;
   catch( std::exception& e ) \
   { ReportException(e); return EL_ERROR; }
 
-extern "C" {
-
-// DistMatrix<T,MC,MR>::DistMatrix( const Grid& g )
-// ------------------------------------------------
-
-#define EL_DISTMATRIXCREATE_WRAPPER(SIG,T) \
-  ElError ElDistMatrixCreate_ ## SIG \
-  ( ElConstGrid gridHandle, ElDistMatrix_ ## SIG * AHandle ) \
-  { \
-      try \
-      { \
-          auto grid = Reinterpret(gridHandle); \
-          *AHandle = Reinterpret( new DistMatrix<T>(*grid) ); \
-      } \
-      CATCH \
-      return EL_SUCCESS; \
-  }
-EL_DISTMATRIXCREATE_WRAPPER(s,float)
-EL_DISTMATRIXCREATE_WRAPPER(d,double)
-EL_DISTMATRIXCREATE_WRAPPER(c,Complex<float>)
-EL_DISTMATRIXCREATE_WRAPPER(z,Complex<double>)
-#undef EL_DISTMATRIXCREATE_WRAPPER
-
-} // extern "C"
-
-// DistMatrix<T,U,V>::DistMatrix( const Grid& g )
-// ----------------------------------------------
+#define EL_TRY(payload) \
+  try { payload; } CATCH \
+  return EL_SUCCESS;
 
 template<typename T>
 ElError ElDistMatrixCreateSpecific
@@ -93,3499 +69,9 @@ ElError ElDistMatrixCreateSpecific
     return EL_SUCCESS;
 }
 
-extern "C" {
-
-ElError ElDistMatrixCreateSpecific_s
-( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_s* AHandle )
-{
-    AbstractDistMatrix<float>* ADM;
-    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
-    *AHandle = Reinterpret(ADM);
-    return error;
-}
-
-ElError ElDistMatrixCreateSpecific_d
-( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_d* AHandle )
-{
-    AbstractDistMatrix<double>* ADM;
-    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
-    *AHandle = Reinterpret(ADM);
-    return error;
-}
-
-ElError ElDistMatrixCreateSpecific_c
-( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_c* AHandle )
-{
-    AbstractDistMatrix<Complex<float>>* ADM;
-    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
-    *AHandle = Reinterpret(ADM);
-    return error;
-}
-
-ElError ElDistMatrixCreateSpecific_z
-( ElDist U, ElDist V, ElConstGrid gridHandle, ElDistMatrix_z* AHandle )
-{
-    AbstractDistMatrix<Complex<double>>* ADM;
-    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM );
-    *AHandle = Reinterpret(ADM);
-    return error;
-}
-
-// DistMatrix<T,U,V>::~DistMatrix()
-// --------------------------------
-ElError ElDistMatrixDestroy_s( ElConstDistMatrix_s AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDestroy_d( ElConstDistMatrix_d AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDestroy_c( ElConstDistMatrix_c AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDestroy_z( ElConstDistMatrix_z AHandle )
-{ 
-    try { delete Reinterpret(AHandle); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Empty()
-// -------------------------------
-ElError ElDistMatrixEmpty_s( ElDistMatrix_s AHandle )
-{
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixEmpty_d( ElDistMatrix_d AHandle )
-{
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixEmpty_c( ElDistMatrix_c AHandle )
-{
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixEmpty_z( ElDistMatrix_z AHandle )
-{
-    try { Reinterpret(AHandle)->Empty(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::EmptyData()
-// -----------------------------------
-ElError ElDistMatrixEmptyData_s( ElDistMatrix_s AHandle )
-{
-    try { Reinterpret(AHandle)->EmptyData(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixEmptyData_d( ElDistMatrix_d AHandle )
-{
-    try { Reinterpret(AHandle)->EmptyData(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixEmptyData_c( ElDistMatrix_c AHandle )
-{
-    try { Reinterpret(AHandle)->EmptyData(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixEmptyData_z( ElDistMatrix_z AHandle )
-{
-    try { Reinterpret(AHandle)->EmptyData(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetGrid( const Grid& g )
-// ------------------------------------------------
-ElError ElDistMatrixSetGrid_s( ElDistMatrix_s AHandle, ElConstGrid gridHandle )
-{
-    try { Reinterpret(AHandle)->SetGrid(*Reinterpret(gridHandle)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetGrid_d( ElDistMatrix_d AHandle, ElConstGrid gridHandle )
-{
-    try { Reinterpret(AHandle)->SetGrid(*Reinterpret(gridHandle)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetGrid_c( ElDistMatrix_c AHandle, ElConstGrid gridHandle )
-{
-    try { Reinterpret(AHandle)->SetGrid(*Reinterpret(gridHandle)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetGrid_z( ElDistMatrix_z AHandle, ElConstGrid gridHandle )
-{
-    try { Reinterpret(AHandle)->SetGrid(*Reinterpret(gridHandle)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Resize( Int height, Int width )
-// -------------------------------------------------------
-ElError ElDistMatrixResize_s
-( ElDistMatrix_s AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixResize_d
-( ElDistMatrix_d AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixResize_c
-( ElDistMatrix_c AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixResize_z
-( ElDistMatrix_z AHandle, ElInt height, ElInt width )
-{
-    try { Reinterpret(AHandle)->Resize(height,width); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Resize( Int height, Int width, Int ldim )
-// -----------------------------------------------------------------
-ElError ElDistMatrixResizeWithLDim_s
-( ElDistMatrix_s AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixResizeWithLDim_d
-( ElDistMatrix_d AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixResizeWithLDim_c
-( ElDistMatrix_c AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixResizeWithLDim_z
-( ElDistMatrix_z AHandle, ElInt height, ElInt width, ElInt ldim )
-{
-    try { Reinterpret(AHandle)->Resize(height,width,ldim); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::MakeConsistent()
-// ----------------------------------------
-ElError ElDistMatrixMakeConsistent_s
-( ElDistMatrix_s AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeConsistent_d
-( ElDistMatrix_d AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeConsistent_c
-( ElDistMatrix_c AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeConsistent_z
-( ElDistMatrix_z AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::MakeSizeConsistent()
-// --------------------------------------------
-ElError ElDistMatrixMakeSizeConsistent_s
-( ElDistMatrix_s AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeSizeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeSizeConsistent_d
-( ElDistMatrix_d AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeSizeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeSizeConsistent_c
-( ElDistMatrix_c AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeSizeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeSizeConsistent_z
-( ElDistMatrix_z AHandle, bool includeViewers )
-{
-    try { Reinterpret(AHandle)->MakeSizeConsistent(includeViewers); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Align( Int colAlign, Int rowAlign, bool constrain )
-// ---------------------------------------------------------------------------
-ElError ElDistMatrixAlign_s
-( ElDistMatrix_s AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->Align(colAlign,rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlign_d
-( ElDistMatrix_d AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->Align(colAlign,rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlign_c
-( ElDistMatrix_c AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->Align(colAlign,rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlign_z
-( ElDistMatrix_z AHandle, ElInt colAlign, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->Align(colAlign,rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain )
-// -----------------------------------------------------------------
-ElError ElDistMatrixAlignCols_s
-( ElDistMatrix_s AHandle, ElInt colAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignCols(colAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignCols_d
-( ElDistMatrix_d AHandle, ElInt colAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignCols(colAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignCols_c
-( ElDistMatrix_c AHandle, ElInt colAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignCols(colAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignCols_z
-( ElDistMatrix_z AHandle, ElInt colAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignCols(colAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain )
-// -----------------------------------------------------------------
-ElError ElDistMatrixAlignRows_s
-( ElDistMatrix_s AHandle, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignRows(rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRows_d
-( ElDistMatrix_d AHandle, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignRows(rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRows_c
-( ElDistMatrix_c AHandle, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignRows(rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRows_z
-( ElDistMatrix_z AHandle, ElInt rowAlign, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignRows(rowAlign,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::FreeAlignments()
-// ----------------------------------------
-ElError ElDistMatrixFreeAlignments_s( ElDistMatrix_s AHandle )
-{ 
-    try { Reinterpret(AHandle)->FreeAlignments(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixFreeAlignments_d( ElDistMatrix_d AHandle )
-{ 
-    try { Reinterpret(AHandle)->FreeAlignments(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixFreeAlignments_c( ElDistMatrix_c AHandle )
-{ 
-    try { Reinterpret(AHandle)->FreeAlignments(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixFreeAlignments_z( ElDistMatrix_z AHandle )
-{ 
-    try { Reinterpret(AHandle)->FreeAlignments(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetRoot( Int root )
-// -------------------------------------------
-ElError ElDistMatrixSetRoot_s( ElDistMatrix_s AHandle, ElInt root )
-{
-    try { Reinterpret(AHandle)->SetRoot(root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetRoot_d( ElDistMatrix_d AHandle, ElInt root )
-{
-    try { Reinterpret(AHandle)->SetRoot(root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetRoot_c( ElDistMatrix_c AHandle, ElInt root )
-{
-    try { Reinterpret(AHandle)->SetRoot(root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetRoot_z( ElDistMatrix_z AHandle, ElInt root )
-{
-    try { Reinterpret(AHandle)->SetRoot(root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignWith( const DistData& data, bool constrain )
-// -------------------------------------------------------------------------
-ElError ElDistMatrixAlignWith_s
-( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignWith_d
-( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignWith_c
-( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignWith_z
-( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
-{
-    try { Reinterpret(AHandle)->AlignWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignColsWith( const DistData& data, bool constrain )
-// -----------------------------------------------------------------------------
-ElError ElDistMatrixAlignColsWith_s
-( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignColsWith_d
-( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignColsWith_c
-( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignColsWith_z
-( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignRowsWith( const DistData& data, bool constrain )
-// -----------------------------------------------------------------------------
-ElError ElDistMatrixAlignRowsWith_s
-( ElDistMatrix_s AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRowsWith_d
-( ElDistMatrix_d AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRowsWith_c
-( ElDistMatrix_c AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRowsWith_z
-( ElDistMatrix_z AHandle, ElDistData distData, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsWith( Reinterpret(distData), constrain ); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignAndResize
-// ( Int colAlign, Int rowAlign, Int height, Int width, 
-//   bool force, bool constrain )
-// ----------------------------------------------------
-ElError ElDistMatrixAlignAndResize_s
-( ElDistMatrix_s AHandle, 
-  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
-  bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignAndResize
-      (colAlign,rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignAndResize_d
-( ElDistMatrix_d AHandle, 
-  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
-  bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignAndResize
-      (colAlign,rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignAndResize_c
-( ElDistMatrix_c AHandle, 
-  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
-  bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignAndResize
-      (colAlign,rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignAndResize_z
-( ElDistMatrix_z AHandle, 
-  ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, 
-  bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignAndResize
-      (colAlign,rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignColsAndResize
-// ( Int colAlign, Int height, Int width, bool force, bool constrain )
-// -------------------------------------------------------------------
-ElError ElDistMatrixAlignColsAndResize_s
-( ElDistMatrix_s AHandle, 
-  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsAndResize
-      (colAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignColsAndResize_d
-( ElDistMatrix_d AHandle, 
-  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsAndResize
-      (colAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignColsAndResize_c
-( ElDistMatrix_c AHandle, 
-  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsAndResize
-      (colAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignColsAndResize_z
-( ElDistMatrix_z AHandle, 
-  ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignColsAndResize
-      (colAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::AlignRowsAndResize
-// ( Int rowAlign, Int height, Int width, bool force, bool constrain )
-// -------------------------------------------------------------------
-ElError ElDistMatrixAlignRowsAndResize_s
-( ElDistMatrix_s AHandle, 
-  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsAndResize
-      (rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRowsAndResize_d
-( ElDistMatrix_d AHandle, 
-  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsAndResize
-      (rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRowsAndResize_c
-( ElDistMatrix_c AHandle, 
-  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsAndResize
-      (rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAlignRowsAndResize_z
-( ElDistMatrix_z AHandle, 
-  ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain )
-{
-    try 
-    { Reinterpret(AHandle)->AlignRowsAndResize
-      (rowAlign,height,width,force,constrain); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Attach
-// ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
-//   T* buffer, Int ldim, Int root )
-// ----------------------------------------------------------------------
-ElError ElDistMatrixAttach_s
-( ElDistMatrix_s AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, float* buffer, ElInt ldim, ElInt root )
-{
-    try { Reinterpret(AHandle)->Attach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,buffer,
-           ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAttach_d
-( ElDistMatrix_d AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, double* buffer, ElInt ldim, ElInt root )
-{
-    try { Reinterpret(AHandle)->Attach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,buffer,
-           ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAttach_c
-( ElDistMatrix_c AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, complex_float* buffer, ElInt ldim, 
-  ElInt root )
-{
-    try { Reinterpret(AHandle)->Attach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,
-           Reinterpret(buffer),ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAttach_z
-( ElDistMatrix_z AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, complex_double* buffer, ElInt ldim, 
-  ElInt root )
-{
-    try { Reinterpret(AHandle)->Attach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,
-           Reinterpret(buffer),ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::LockedAttach
-// ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
-//   const T* buffer, Int ldim, Int root )
-// ----------------------------------------------------------------------
-ElError ElDistMatrixLockedAttach_s
-( ElDistMatrix_s AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, const float* buffer, 
-  ElInt ldim, ElInt root )
-{
-    try { Reinterpret(AHandle)->LockedAttach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,buffer,
-           ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedAttach_d
-( ElDistMatrix_d AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, const double* buffer, 
-  ElInt ldim, ElInt root )
-{
-    try { Reinterpret(AHandle)->LockedAttach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,buffer,
-           ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedAttach_c
-( ElDistMatrix_c AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, const complex_float* buffer, 
-  ElInt ldim, ElInt root )
-{
-    try { Reinterpret(AHandle)->LockedAttach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,
-           Reinterpret(buffer),ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedAttach_z
-( ElDistMatrix_z AHandle, ElInt height, ElInt width, ElConstGrid gridHandle,
-  ElInt colAlign, ElInt rowAlign, const complex_double* buffer, 
-  ElInt ldim, ElInt root )
-{
-    try { Reinterpret(AHandle)->LockedAttach
-          (height,width,*Reinterpret(gridHandle),colAlign,rowAlign,
-           Reinterpret(buffer),ldim,root); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::Height() const
-// -------------------------------------
-ElError ElDistMatrixHeight_s( ElConstDistMatrix_s AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixHeight_d( ElConstDistMatrix_d AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixHeight_c( ElConstDistMatrix_c AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixHeight_z( ElConstDistMatrix_z AHandle, ElInt* height )
-{ 
-    try { *height = Reinterpret(AHandle)->Height(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::Width() const
-// ------------------------------------
-ElError ElDistMatrixWidth_s( ElConstDistMatrix_s AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixWidth_d( ElConstDistMatrix_d AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixWidth_c( ElConstDistMatrix_c AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixWidth_z( ElConstDistMatrix_z AHandle, ElInt* width )
-{ 
-    try { *width = Reinterpret(AHandle)->Width(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::DiagonalLength( Int offset ) const
-// ---------------------------------------------------------
-ElError ElDistMatrixDiagonalLength_s
-( ElConstDistMatrix_s AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalLength_d
-( ElConstDistMatrix_d AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalLength_c
-( ElConstDistMatrix_c AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalLength_z
-( ElConstDistMatrix_z AHandle, ElInt offset, ElInt* length )
-{ 
-    try { *length = Reinterpret(AHandle)->DiagonalLength(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::Viewing() const
-// ---------------------------------------
-ElError ElDistMatrixViewing_s( ElConstDistMatrix_s AHandle, bool* viewing )
-{ 
-    try { *viewing = Reinterpret(AHandle)->Viewing(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixViewing_d( ElConstDistMatrix_d AHandle, bool* viewing )
-{ 
-    try { *viewing = Reinterpret(AHandle)->Viewing(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixViewing_c( ElConstDistMatrix_c AHandle, bool* viewing )
-{ 
-    try { *viewing = Reinterpret(AHandle)->Viewing(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixViewing_z( ElConstDistMatrix_z AHandle, bool* viewing )
-{ 
-    try { *viewing = Reinterpret(AHandle)->Viewing(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::Locked() const
-// --------------------------------------
-ElError ElDistMatrixLocked_s( ElConstDistMatrix_s AHandle, bool* locked )
-{ 
-    try { *locked = Reinterpret(AHandle)->Locked(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocked_d( ElConstDistMatrix_d AHandle, bool* locked )
-{ 
-    try { *locked = Reinterpret(AHandle)->Locked(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocked_c( ElConstDistMatrix_c AHandle, bool* locked )
-{ 
-    try { *locked = Reinterpret(AHandle)->Locked(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocked_z( ElConstDistMatrix_z AHandle, bool* locked )
-{ 
-    try { *locked = Reinterpret(AHandle)->Locked(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LocalHeight() const
-// ------------------------------------------
-ElError ElDistMatrixLocalHeight_s
-( ElConstDistMatrix_s AHandle, ElInt* localHeight )
-{ 
-    try { *localHeight = Reinterpret(AHandle)->LocalHeight(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalHeight_d
-( ElConstDistMatrix_d AHandle, ElInt* localHeight )
-{ 
-    try { *localHeight = Reinterpret(AHandle)->LocalHeight(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalHeight_c
-( ElConstDistMatrix_c AHandle, ElInt* localHeight )
-{ 
-    try { *localHeight = Reinterpret(AHandle)->LocalHeight(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalHeight_z
-( ElConstDistMatrix_z AHandle, ElInt* localHeight )
-{ 
-    try { *localHeight = Reinterpret(AHandle)->LocalHeight(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LocalWidth() const
-// -----------------------------------------
-ElError ElDistMatrixLocalWidth_s
-( ElConstDistMatrix_s AHandle, ElInt* localWidth )
-{ 
-    try { *localWidth = Reinterpret(AHandle)->LocalWidth(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalWidth_d
-( ElConstDistMatrix_d AHandle, ElInt* localWidth )
-{ 
-    try { *localWidth = Reinterpret(AHandle)->LocalWidth(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalWidth_c
-( ElConstDistMatrix_c AHandle, ElInt* localWidth )
-{ 
-    try { *localWidth = Reinterpret(AHandle)->LocalWidth(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalWidth_z
-( ElConstDistMatrix_z AHandle, ElInt* localWidth )
-{ 
-    try { *localWidth = Reinterpret(AHandle)->LocalWidth(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LDim() const
-// -----------------------------------------
-ElError ElDistMatrixLDim_s( ElConstDistMatrix_s AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS; 
-}
-
-ElError ElDistMatrixLDim_d( ElConstDistMatrix_d AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLDim_c( ElConstDistMatrix_c AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLDim_z( ElConstDistMatrix_z AHandle, ElInt* ldim )
-{ 
-    try { *ldim = Reinterpret(AHandle)->LDim(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Matrix<T>& DistMatrix<T,U,V>::Matrix()
-// --------------------------------------
-ElError ElDistMatrixMatrix_s( ElDistMatrix_s AHandle, ElMatrix_s* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->Matrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMatrix_d( ElDistMatrix_d AHandle, ElMatrix_d* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->Matrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMatrix_c( ElDistMatrix_c AHandle, ElMatrix_c* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->Matrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMatrix_z( ElDistMatrix_z AHandle, ElMatrix_z* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->Matrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// const Matrix<T>& DistMatrix<T,U,V>::LockedMatrix() const
-// --------------------------------------------------------
-ElError ElDistMatrixLockedMatrix_s
-( ElConstDistMatrix_s AHandle, ElConstMatrix_s* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->LockedMatrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedMatrix_d
-( ElConstDistMatrix_d AHandle, ElConstMatrix_d* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->LockedMatrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedMatrix_c
-( ElConstDistMatrix_c AHandle, ElConstMatrix_c* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->LockedMatrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedMatrix_z
-( ElConstDistMatrix_z AHandle, ElConstMatrix_z* ALocHandle )
-{
-    try { *ALocHandle = Reinterpret(&Reinterpret(AHandle)->LockedMatrix()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// size_t DistMatrix<T,U,V>::AllocatedMemory() const
-// -------------------------------------------------
-ElError ElDistMatrixAllocatedMemory_s
-( ElConstDistMatrix_s AHandle, size_t* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->AllocatedMemory(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAllocatedMemory_d
-( ElConstDistMatrix_d AHandle, size_t* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->AllocatedMemory(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAllocatedMemory_c
-( ElConstDistMatrix_c AHandle, size_t* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->AllocatedMemory(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixAllocatedMemory_z
-( ElConstDistMatrix_z AHandle, size_t* mem )
-{ 
-    try { *mem = Reinterpret(AHandle)->AllocatedMemory(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// T* DistMatrix<T,U,V>::Buffer()
-// ------------------------------
-ElError ElDistMatrixBuffer_s( ElDistMatrix_s AHandle, float** buffer )
-{ 
-    try { *buffer = Reinterpret(AHandle)->Buffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixBuffer_d( ElDistMatrix_d AHandle, double** buffer )
-{ 
-    try { *buffer = Reinterpret(AHandle)->Buffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixBuffer_c( ElDistMatrix_c AHandle, complex_float** buffer )
-{ 
-    try { *buffer = (complex_float*)Reinterpret(AHandle)->Buffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixBuffer_z( ElDistMatrix_z AHandle, complex_double** buffer )
-{ 
-    try { *buffer = (complex_double*)Reinterpret(AHandle)->Buffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// const T* DistMatrix<T,U,V>::LockedBuffer() const
-// ------------------------------------------------
-ElError ElDistMatrixLockedBuffer_s
-( ElConstDistMatrix_s AHandle, const float** buffer )
-{ 
-    try { *buffer = Reinterpret(AHandle)->LockedBuffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedBuffer_d
-( ElConstDistMatrix_d AHandle, const double** buffer )
-{ 
-    try { *buffer = Reinterpret(AHandle)->LockedBuffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedBuffer_c
-( ElConstDistMatrix_c AHandle, const complex_float** buffer )
-{ 
-    try 
-    { *buffer = (const complex_float*)Reinterpret(AHandle)->LockedBuffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLockedBuffer_z
-( ElConstDistMatrix_z AHandle, const complex_double** buffer )
-{ 
-    try 
-    { *buffer = (const complex_double*)Reinterpret(AHandle)->LockedBuffer(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// const Grid& DistMatrix<T,U,V>::Grid() const
-// -------------------------------------------
-ElError ElDistMatrixGrid_s
-( ElConstDistMatrix_s AHandle, ElConstGrid* gridHandle )
-{ 
-    try { *gridHandle = Reinterpret(&Reinterpret(AHandle)->Grid()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGrid_d
-( ElConstDistMatrix_d AHandle, ElConstGrid* gridHandle )
-{ 
-    try { *gridHandle = Reinterpret(&Reinterpret(AHandle)->Grid()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGrid_c
-( ElConstDistMatrix_c AHandle, ElConstGrid* gridHandle )
-{ 
-    try { *gridHandle = Reinterpret(&Reinterpret(AHandle)->Grid()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGrid_z
-( ElConstDistMatrix_z AHandle, ElConstGrid* gridHandle )
-{ 
-    try { *gridHandle = Reinterpret(&Reinterpret(AHandle)->Grid()); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::ColConstrained() const
-// ----------------------------------------------
-ElError ElDistMatrixColConstrained_s
-( ElConstDistMatrix_s AHandle, bool* colConst )
-{
-    try { *colConst = Reinterpret(AHandle)->ColConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColConstrained_d
-( ElConstDistMatrix_d AHandle, bool* colConst )
-{
-    try { *colConst = Reinterpret(AHandle)->ColConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColConstrained_c
-( ElConstDistMatrix_c AHandle, bool* colConst )
-{
-    try { *colConst = Reinterpret(AHandle)->ColConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColConstrained_z
-( ElConstDistMatrix_z AHandle, bool* colConst )
-{
-    try { *colConst = Reinterpret(AHandle)->ColConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::RowConstrained() const
-// ----------------------------------------------
-ElError ElDistMatrixRowConstrained_s
-( ElConstDistMatrix_s AHandle, bool* rowConst )
-{
-    try { *rowConst = Reinterpret(AHandle)->RowConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowConstrained_d
-( ElConstDistMatrix_d AHandle, bool* rowConst )
-{
-    try { *rowConst = Reinterpret(AHandle)->RowConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowConstrained_c
-( ElConstDistMatrix_c AHandle, bool* rowConst )
-{
-    try { *rowConst = Reinterpret(AHandle)->RowConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowConstrained_z
-( ElConstDistMatrix_z AHandle, bool* rowConst )
-{
-    try { *rowConst = Reinterpret(AHandle)->RowConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::RootConstrained() const
-// -----------------------------------------------
-ElError ElDistMatrixRootConstrained_s
-( ElConstDistMatrix_s AHandle, bool* rootConst )
-{
-    try { *rootConst = Reinterpret(AHandle)->RootConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRootConstrained_d
-( ElConstDistMatrix_d AHandle, bool* rootConst )
-{
-    try { *rootConst = Reinterpret(AHandle)->RootConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRootConstrained_c
-( ElConstDistMatrix_c AHandle, bool* rootConst )
-{
-    try { *rootConst = Reinterpret(AHandle)->RootConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRootConstrained_z
-( ElConstDistMatrix_z AHandle, bool* rootConst )
-{
-    try { *rootConst = Reinterpret(AHandle)->RootConstrained(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::ColAlign() const
-// ---------------------------------------
-ElError ElDistMatrixColAlign_s( ElConstDistMatrix_s AHandle, ElInt* colAlign )
-{
-    try { *colAlign = Reinterpret(AHandle)->ColAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColAlign_d( ElConstDistMatrix_d AHandle, ElInt* colAlign )
-{
-    try { *colAlign = Reinterpret(AHandle)->ColAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColAlign_c( ElConstDistMatrix_c AHandle, ElInt* colAlign )
-{
-    try { *colAlign = Reinterpret(AHandle)->ColAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColAlign_z( ElConstDistMatrix_z AHandle, ElInt* colAlign )
-{
-    try { *colAlign = Reinterpret(AHandle)->ColAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RowAlign() const
-// ---------------------------------------
-ElError ElDistMatrixRowAlign_s( ElConstDistMatrix_s AHandle, ElInt* rowAlign )
-{
-    try { *rowAlign = Reinterpret(AHandle)->RowAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowAlign_d( ElConstDistMatrix_d AHandle, ElInt* rowAlign )
-{
-    try { *rowAlign = Reinterpret(AHandle)->RowAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowAlign_c( ElConstDistMatrix_c AHandle, ElInt* rowAlign )
-{
-    try { *rowAlign = Reinterpret(AHandle)->RowAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowAlign_z( ElConstDistMatrix_z AHandle, ElInt* rowAlign )
-{
-    try { *rowAlign = Reinterpret(AHandle)->RowAlign(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::ColShift() const
-// ---------------------------------------
-ElError ElDistMatrixColShift_s( ElConstDistMatrix_s AHandle, ElInt* colShift )
-{
-    try { *colShift = Reinterpret(AHandle)->ColShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColShift_d( ElConstDistMatrix_d AHandle, ElInt* colShift )
-{
-    try { *colShift = Reinterpret(AHandle)->ColShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColShift_c( ElConstDistMatrix_c AHandle, ElInt* colShift )
-{
-    try { *colShift = Reinterpret(AHandle)->ColShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColShift_z( ElConstDistMatrix_z AHandle, ElInt* colShift )
-{
-    try { *colShift = Reinterpret(AHandle)->ColShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RowShift() const
-// ---------------------------------------
-ElError ElDistMatrixRowShift_s( ElConstDistMatrix_s AHandle, ElInt* rowShift )
-{
-    try { *rowShift = Reinterpret(AHandle)->RowShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowShift_d( ElConstDistMatrix_d AHandle, ElInt* rowShift )
-{
-    try { *rowShift = Reinterpret(AHandle)->RowShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowShift_c( ElConstDistMatrix_c AHandle, ElInt* rowShift )
-{
-    try { *rowShift = Reinterpret(AHandle)->RowShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowShift_z( ElConstDistMatrix_z AHandle, ElInt* rowShift )
-{
-    try { *rowShift = Reinterpret(AHandle)->RowShift(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::ColRank() const
-// ---------------------------------------
-ElError ElDistMatrixColRank_s( ElConstDistMatrix_s AHandle, ElInt* colRank )
-{
-    try { *colRank = Reinterpret(AHandle)->ColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColRank_d( ElConstDistMatrix_d AHandle, ElInt* colRank )
-{
-    try { *colRank = Reinterpret(AHandle)->ColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColRank_c( ElConstDistMatrix_c AHandle, ElInt* colRank )
-{
-    try { *colRank = Reinterpret(AHandle)->ColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColRank_z( ElConstDistMatrix_z AHandle, ElInt* colRank )
-{
-    try { *colRank = Reinterpret(AHandle)->ColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RowRank() const
-// ---------------------------------------
-ElError ElDistMatrixRowRank_s( ElConstDistMatrix_s AHandle, ElInt* rowRank )
-{
-    try { *rowRank = Reinterpret(AHandle)->RowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowRank_d( ElConstDistMatrix_d AHandle, ElInt* rowRank )
-{
-    try { *rowRank = Reinterpret(AHandle)->RowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowRank_c( ElConstDistMatrix_c AHandle, ElInt* rowRank )
-{
-    try { *rowRank = Reinterpret(AHandle)->RowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowRank_z( ElConstDistMatrix_z AHandle, ElInt* rowRank )
-{
-    try { *rowRank = Reinterpret(AHandle)->RowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialColRank() const
-// ---------------------------------------------
-ElError ElDistMatrixPartialColRank_s( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColRank_d( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColRank_c( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColRank_z( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialRowRank() const
-// ---------------------------------------------
-ElError ElDistMatrixPartialRowRank_s( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowRank_d( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowRank_c( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowRank_z( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialUnionColRank() const
-// --------------------------------------------------
-ElError ElDistMatrixPartialUnionColRank_s
-( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColRank_d
-( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColRank_c
-( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColRank_z
-( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionColRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialUnionRowRank() const
-// --------------------------------------------------
-ElError ElDistMatrixPartialUnionRowRank_s
-( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowRank_d
-( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowRank_c
-( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowRank_z
-( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->PartialUnionRowRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::DistRank() const
-// ---------------------------------------
-ElError ElDistMatrixDistRank_s( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->DistRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistRank_d( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->DistRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistRank_c( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->DistRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistRank_z( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->DistRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::CrossRank() const
-// ----------------------------------------
-ElError ElDistMatrixCrossRank_s( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->CrossRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossRank_d( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->CrossRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossRank_c( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->CrossRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossRank_z( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->CrossRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RedundantRank() const
-// --------------------------------------------
-ElError ElDistMatrixRedundantRank_s( ElConstDistMatrix_s AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->RedundantRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantRank_d( ElConstDistMatrix_d AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->RedundantRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantRank_c( ElConstDistMatrix_c AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->RedundantRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantRank_z( ElConstDistMatrix_z AHandle, ElInt* rank )
-{
-    try { *rank = Reinterpret(AHandle)->RedundantRank(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::Root() const
-// -----------------------------------
-ElError ElDistMatrixRoot_s( ElConstDistMatrix_s AHandle, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->Root(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRoot_d( ElConstDistMatrix_d AHandle, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->Root(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRoot_c( ElConstDistMatrix_c AHandle, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->Root(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRoot_z( ElConstDistMatrix_z AHandle, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->Root(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::Participating() const
-// ---------------------------------------------
-ElError ElDistMatrixParticipating_s
-( ElConstDistMatrix_s AHandle, bool* participating )
-{
-    try { *participating = Reinterpret(AHandle)->Participating(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixParticipating_d
-( ElConstDistMatrix_d AHandle, bool* participating )
-{
-    try { *participating = Reinterpret(AHandle)->Participating(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixParticipating_c
-( ElConstDistMatrix_c AHandle, bool* participating )
-{
-    try { *participating = Reinterpret(AHandle)->Participating(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixParticipating_z
-( ElConstDistMatrix_z AHandle, bool* participating )
-{
-    try { *participating = Reinterpret(AHandle)->Participating(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RowOwner( Int i ) const
-// ----------------------------------------------
-ElError ElDistMatrixRowOwner_s
-( ElConstDistMatrix_s AHandle, ElInt i, ElInt* rowOwner )
-{
-    try { *rowOwner = Reinterpret(AHandle)->RowOwner(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowOwner_d
-( ElConstDistMatrix_d AHandle, ElInt i, ElInt* rowOwner )
-{
-    try { *rowOwner = Reinterpret(AHandle)->RowOwner(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowOwner_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt* rowOwner )
-{
-    try { *rowOwner = Reinterpret(AHandle)->RowOwner(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowOwner_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt* rowOwner )
-{
-    try { *rowOwner = Reinterpret(AHandle)->RowOwner(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::ColOwner( Int j ) const
-// ----------------------------------------------
-ElError ElDistMatrixColOwner_s
-( ElConstDistMatrix_s AHandle, ElInt j, ElInt* colOwner )
-{
-    try { *colOwner = Reinterpret(AHandle)->ColOwner(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColOwner_d
-( ElConstDistMatrix_d AHandle, ElInt j, ElInt* colOwner )
-{
-    try { *colOwner = Reinterpret(AHandle)->ColOwner(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColOwner_c
-( ElConstDistMatrix_c AHandle, ElInt j, ElInt* colOwner )
-{
-    try { *colOwner = Reinterpret(AHandle)->ColOwner(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColOwner_z
-( ElConstDistMatrix_z AHandle, ElInt j, ElInt* colOwner )
-{
-    try { *colOwner = Reinterpret(AHandle)->ColOwner(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::Owner( Int i, Int j ) const
-// --------------------------------------------------
-ElError ElDistMatrixOwner_s
-( ElConstDistMatrix_s AHandle, ElInt i, ElInt j, ElInt* owner )
-{
-    try { *owner = Reinterpret(AHandle)->Owner(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixOwner_d
-( ElConstDistMatrix_d AHandle, ElInt i, ElInt j, ElInt* owner )
-{
-    try { *owner = Reinterpret(AHandle)->Owner(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixOwner_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, ElInt* owner )
-{
-    try { *owner = Reinterpret(AHandle)->Owner(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixOwner_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, ElInt* owner )
-{
-    try { *owner = Reinterpret(AHandle)->Owner(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LocalRow( Int i ) const
-// ----------------------------------------------
-ElError ElDistMatrixLocalRow_s
-( ElConstDistMatrix_s AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalRow_d
-( ElConstDistMatrix_d AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalRow_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalRow_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LocalCol( Int j ) const
-// ----------------------------------------------
-ElError ElDistMatrixLocalCol_s
-( ElConstDistMatrix_s AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalCol_d
-( ElConstDistMatrix_d AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalCol_c
-( ElConstDistMatrix_c AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalCol_z
-( ElConstDistMatrix_z AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LocalRowOffset( Int i ) const
-// ----------------------------------------------------
-ElError ElDistMatrixLocalRowOffset_s
-( ElConstDistMatrix_s AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRowOffset(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalRowOffset_d
-( ElConstDistMatrix_d AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRowOffset(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalRowOffset_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRowOffset(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalRowOffset_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt* iLoc )
-{
-    try { *iLoc = Reinterpret(AHandle)->LocalRowOffset(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::LocalColOffset( Int j ) const
-// ----------------------------------------------------
-ElError ElDistMatrixLocalColOffset_s
-( ElConstDistMatrix_s AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalColOffset(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalColOffset_d
-( ElConstDistMatrix_d AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalColOffset(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalColOffset_c
-( ElConstDistMatrix_c AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalColOffset(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixLocalColOffset_z
-( ElConstDistMatrix_z AHandle, ElInt j, ElInt* jLoc )
-{
-    try { *jLoc = Reinterpret(AHandle)->LocalColOffset(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::GlobalRow( Int iLoc ) const
-// --------------------------------------------------
-ElError ElDistMatrixGlobalRow_s
-( ElConstDistMatrix_s AHandle, ElInt iLoc, ElInt* i )
-{
-    try { *i = Reinterpret(AHandle)->GlobalRow(iLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGlobalRow_d
-( ElConstDistMatrix_d AHandle, ElInt iLoc, ElInt* i )
-{
-    try { *i = Reinterpret(AHandle)->GlobalRow(iLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGlobalRow_c
-( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt* i )
-{
-    try { *i = Reinterpret(AHandle)->GlobalRow(iLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGlobalRow_z
-( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt* i )
-{
-    try { *i = Reinterpret(AHandle)->GlobalRow(iLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::GlobalCol( Int jLoc ) const
-// --------------------------------------------------
-ElError ElDistMatrixGlobalCol_s
-( ElConstDistMatrix_s AHandle, ElInt jLoc, ElInt* j )
-{
-    try { *j = Reinterpret(AHandle)->GlobalCol(jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGlobalCol_d
-( ElConstDistMatrix_d AHandle, ElInt jLoc, ElInt* j )
-{
-    try { *j = Reinterpret(AHandle)->GlobalCol(jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGlobalCol_c
-( ElConstDistMatrix_c AHandle, ElInt jLoc, ElInt* j )
-{
-    try { *j = Reinterpret(AHandle)->GlobalCol(jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGlobalCol_z
-( ElConstDistMatrix_z AHandle, ElInt jLoc, ElInt* j )
-{
-    try { *j = Reinterpret(AHandle)->GlobalCol(jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::IsLocalRow( Int i ) const
-// -------------------------------------------------
-ElError ElDistMatrixIsLocalRow_s
-( ElConstDistMatrix_s AHandle, ElInt i, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocalRow_d
-( ElConstDistMatrix_d AHandle, ElInt i, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocalRow_c
-( ElConstDistMatrix_c AHandle, ElInt i, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocalRow_z
-( ElConstDistMatrix_z AHandle, ElInt i, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalRow(i); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::IsLocalCol( Int j ) const
-// -------------------------------------------------
-ElError ElDistMatrixIsLocalCol_s
-( ElConstDistMatrix_s AHandle, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocalCol_d
-( ElConstDistMatrix_d AHandle, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocalCol_c
-( ElConstDistMatrix_c AHandle, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocalCol_z
-( ElConstDistMatrix_z AHandle, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocalCol(j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::IsLocal( Int i, Int j ) const
-// -----------------------------------------------------
-ElError ElDistMatrixIsLocal_s
-( ElConstDistMatrix_s AHandle, ElInt i, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocal(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocal_d
-( ElConstDistMatrix_d AHandle, ElInt i, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocal(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocal_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocal(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixIsLocal_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, bool* isLocal )
-{
-    try { *isLocal = Reinterpret(AHandle)->IsLocal(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// DistData DistMatrix<T,U,V>::DistData() const
-// --------------------------------------------
-ElError ElDistMatrixDistData_s
-( ElConstDistMatrix_s AHandle, ElDistData* distData )
-{
-    try 
-    { 
-        DistData data = Reinterpret(AHandle)->DistData(); 
-        *distData = Reinterpret( data );
-    }
-    CATCH
-    return EL_SUCCESS; 
-}
-
-ElError ElDistMatrixDistData_d
-( ElConstDistMatrix_d AHandle, ElDistData* distData )
-{
-    try 
-    { 
-        DistData data = Reinterpret(AHandle)->DistData(); 
-        *distData = Reinterpret( data );
-    }
-    CATCH
-    return EL_SUCCESS; 
-}
-
-ElError ElDistMatrixDistData_c
-( ElConstDistMatrix_c AHandle, ElDistData* distData )
-{
-    try 
-    { 
-        DistData data = Reinterpret(AHandle)->DistData(); 
-        *distData = Reinterpret( data );
-    }
-    CATCH
-    return EL_SUCCESS; 
-}
-
-ElError ElDistMatrixDistData_z
-( ElConstDistMatrix_z AHandle, ElDistData* distData )
-{
-    try 
-    { 
-        DistData data = Reinterpret(AHandle)->DistData(); 
-        *distData = Reinterpret( data );
-    }
-    CATCH
-    return EL_SUCCESS; 
-}
-
-// mpi::Comm DistMatrix<T,U,V>::DistComm() const
-// ---------------------------------------------
-ElError ElDistMatrixDistComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->DistComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->DistComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->DistComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->DistComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::CrossComm() const
-// ----------------------------------------------
-ElError ElDistMatrixCrossComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->CrossComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->CrossComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->CrossComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->CrossComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::RedundantComm() const
-// --------------------------------------------------
-ElError ElDistMatrixRedundantComm_s
-( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RedundantComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantComm_d
-( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RedundantComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantComm_c
-( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RedundantComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantComm_z
-( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RedundantComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::ColComm() const
-// --------------------------------------------
-ElError ElDistMatrixColComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->ColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->ColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->ColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->ColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::RowComm() const
-// --------------------------------------------
-ElError ElDistMatrixRowComm_s( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowComm_d( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowComm_c( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowComm_z( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->RowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::PartialColComm() const
-// ---------------------------------------------------
-ElError ElDistMatrixPartialColComm_s
-( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColComm_d
-( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColComm_c
-( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColComm_z
-( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::PartialRowComm() const
-// ---------------------------------------------------
-ElError ElDistMatrixPartialRowComm_s
-( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowComm_d
-( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowComm_c
-( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowComm_z
-( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::PartialUnionColComm() const
-// --------------------------------------------------------
-ElError ElDistMatrixPartialUnionColComm_s
-( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColComm_d
-( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColComm_c
-( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColComm_z
-( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionColComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// mpi::Comm DistMatrix<T,U,V>::PartialUnionRowComm() const
-// --------------------------------------------------------
-ElError ElDistMatrixPartialUnionRowComm_s
-( ElConstDistMatrix_s AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowComm_d
-( ElConstDistMatrix_d AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowComm_c
-( ElConstDistMatrix_c AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowComm_z
-( ElConstDistMatrix_z AHandle, MPI_Comm* comm )
-{
-    try { *comm = Reinterpret(AHandle)->PartialUnionRowComm().comm; }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::ColStride() const
-// ----------------------------------------
-ElError ElDistMatrixColStride_s( ElConstDistMatrix_s AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->ColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColStride_d( ElConstDistMatrix_d AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->ColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColStride_c( ElConstDistMatrix_c AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->ColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixColStride_z( ElConstDistMatrix_z AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->ColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RowStride() const
-// ----------------------------------------
-ElError ElDistMatrixRowStride_s( ElConstDistMatrix_s AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->RowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowStride_d( ElConstDistMatrix_d AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->RowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowStride_c( ElConstDistMatrix_c AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->RowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRowStride_z( ElConstDistMatrix_z AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->RowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialColStride() const
-// -----------------------------------------------
-ElError ElDistMatrixPartialColStride_s
-( ElConstDistMatrix_s AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColStride_d
-( ElConstDistMatrix_d AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColStride_c
-( ElConstDistMatrix_c AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialColStride_z
-( ElConstDistMatrix_z AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialRowStride() const
-// -----------------------------------------------
-ElError ElDistMatrixPartialRowStride_s
-( ElConstDistMatrix_s AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowStride_d
-( ElConstDistMatrix_d AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowStride_c
-( ElConstDistMatrix_c AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialRowStride_z
-( ElConstDistMatrix_z AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialUnionColStride() const
-// ----------------------------------------------------
-ElError ElDistMatrixPartialUnionColStride_s
-( ElConstDistMatrix_s AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColStride_d
-( ElConstDistMatrix_d AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColStride_c
-( ElConstDistMatrix_c AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionColStride_z
-( ElConstDistMatrix_z AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionColStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::PartialUnionRowStride() const
-// ----------------------------------------------------
-ElError ElDistMatrixPartialUnionRowStride_s
-( ElConstDistMatrix_s AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowStride_d
-( ElConstDistMatrix_d AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowStride_c
-( ElConstDistMatrix_c AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixPartialUnionRowStride_z
-( ElConstDistMatrix_z AHandle, ElInt* stride )
-{
-    try { *stride = Reinterpret(AHandle)->PartialUnionRowStride(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::DistSize() const
-// ---------------------------------------
-ElError ElDistMatrixDistSize_s( ElConstDistMatrix_s AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->DistSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistSize_d( ElConstDistMatrix_d AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->DistSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistSize_c( ElConstDistMatrix_c AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->DistSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDistSize_z( ElConstDistMatrix_z AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->DistSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::CrossSize() const
-// ----------------------------------------
-ElError ElDistMatrixCrossSize_s( ElConstDistMatrix_s AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->CrossSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossSize_d( ElConstDistMatrix_d AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->CrossSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossSize_c( ElConstDistMatrix_c AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->CrossSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixCrossSize_z( ElConstDistMatrix_z AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->CrossSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::RedundantSize() const
-// --------------------------------------------
-ElError ElDistMatrixRedundantSize_s
-( ElConstDistMatrix_s AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->RedundantSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantSize_d
-( ElConstDistMatrix_d AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->RedundantSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantSize_c
-( ElConstDistMatrix_c AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->RedundantSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixRedundantSize_z
-( ElConstDistMatrix_z AHandle, ElInt* commSize )
-{
-    try { *commSize = Reinterpret(AHandle)->RedundantSize(); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Get( Int i, Int j ) const
-// -------------------------------------------------
-ElError ElDistMatrixGet_s
-( ElConstDistMatrix_s AHandle, ElInt i, ElInt j, float* val )
-{
-    try { *val = Reinterpret(AHandle)->Get(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGet_d
-( ElConstDistMatrix_d AHandle, ElInt i, ElInt j, double* val )
-{
-    try { *val = Reinterpret(AHandle)->Get(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGet_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, complex_float* val )
-{
-    try 
-    { 
-        Complex<float> alpha = Reinterpret(AHandle)->Get(i,j);
-        val->real = alpha.real();
-        val->imag = alpha.imag();
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGet_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, complex_double* val )
-{
-    try 
-    { 
-        Complex<double> alpha = Reinterpret(AHandle)->Get(i,j); 
-        val->real = alpha.real();
-        val->imag = alpha.imag();
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::GetRealPart( Int i, Int j ) const
-// ---------------------------------------------------------
-ElError ElDistMatrixGetRealPart_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, float* val )
-{
-    try { *val = Reinterpret(AHandle)->GetRealPart(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetRealPart_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, double* val )
-{
-    try { *val = Reinterpret(AHandle)->GetRealPart(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::GetImagPart( Int i, Int j ) const
-// ---------------------------------------------------------
-ElError ElDistMatrixGetImagPart_c
-( ElConstDistMatrix_c AHandle, ElInt i, ElInt j, float* val )
-{
-    try { *val = Reinterpret(AHandle)->GetImagPart(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetImagPart_z
-( ElConstDistMatrix_z AHandle, ElInt i, ElInt j, double* val )
-{
-    try { *val = Reinterpret(AHandle)->GetImagPart(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Set( Int i, Int j, T alpha )
-// ----------------------------------------------------
-ElError ElDistMatrixSet_s
-( ElDistMatrix_s AHandle, ElInt i, ElInt j, float alpha )
-{
-    try { Reinterpret(AHandle)->Set(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSet_d
-( ElDistMatrix_d AHandle, ElInt i, ElInt j, double alpha )
-{
-    try { Reinterpret(AHandle)->Set(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSet_c
-( ElDistMatrix_c AHandle, ElInt i, ElInt j, complex_float alpha )
-{
-    try { Reinterpret(AHandle)->Set(i,j,Complex<float>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSet_z
-( ElDistMatrix_z AHandle, ElInt i, ElInt j, complex_double alpha )
-{
-    try { Reinterpret(AHandle)->Set(i,j,Complex<double>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetRealPart( Int i, Int j, Base<T> alpha )
-// ------------------------------------------------------------------
-ElError ElDistMatrixSetRealPart_c
-( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
-{
-    try { Reinterpret(AHandle)->SetRealPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetRealPart_z
-( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
-{
-    try { Reinterpret(AHandle)->SetRealPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetImagPart( Int i, Int j, Base<T> alpha )
-// ------------------------------------------------------------------
-ElError ElDistMatrixSetImagPart_c
-( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
-{
-    try { Reinterpret(AHandle)->SetImagPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetImagPart_z
-( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
-{
-    try { Reinterpret(AHandle)->SetImagPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Update( Int i, Int j, T alpha )
-// -------------------------------------------------------
-ElError ElDistMatrixUpdate_s
-( ElDistMatrix_s AHandle, ElInt i, ElInt j, float alpha )
-{
-    try { Reinterpret(AHandle)->Update(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdate_d
-( ElDistMatrix_d AHandle, ElInt i, ElInt j, double alpha )
-{
-    try { Reinterpret(AHandle)->Update(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdate_c
-( ElDistMatrix_c AHandle, ElInt i, ElInt j, complex_float alpha )
-{
-    try { Reinterpret(AHandle)->Update
-          (i,j,Complex<float>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdate_z
-( ElDistMatrix_z AHandle, ElInt i, ElInt j, complex_double alpha )
-{
-    try { Reinterpret(AHandle)->Update
-          (i,j,Complex<double>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateRealPart( Int i, Int j, Base<T> alpha )
-// ---------------------------------------------------------------------
-ElError ElDistMatrixUpdateRealPart_c
-( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
-{
-    try { Reinterpret(AHandle)->UpdateRealPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateRealPart_z
-( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
-{
-    try { Reinterpret(AHandle)->UpdateRealPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateImagPart( Int i, Int j, Base<T> alpha )
-// ---------------------------------------------------------------------
-ElError ElDistMatrixUpdateImagPart_c
-( ElDistMatrix_c AHandle, ElInt i, ElInt j, float alpha )
-{
-    try { Reinterpret(AHandle)->UpdateImagPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateImagPart_z
-( ElDistMatrix_z AHandle, ElInt i, ElInt j, double alpha )
-{
-    try { Reinterpret(AHandle)->UpdateImagPart(i,j,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::MakeReal( Int i, Int j )
-// ------------------------------------------------
-ElError ElDistMatrixMakeReal_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
-{
-    try { Reinterpret(AHandle)->MakeReal(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeReal_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
-{
-    try { Reinterpret(AHandle)->MakeReal(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::Conjugate( Int i, Int j )
-// -------------------------------------------------
-ElError ElDistMatrixConjugate_c( ElDistMatrix_c AHandle, ElInt i, ElInt j )
-{
-    try { Reinterpret(AHandle)->Conjugate(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixConjugate_z( ElDistMatrix_z AHandle, ElInt i, ElInt j )
-{
-    try { Reinterpret(AHandle)->Conjugate(i,j); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// T DistMatrix<T,U,V>::GetLocal( Int iLoc, Int jLoc ) const
-// ---------------------------------------------------------
-ElError ElDistMatrixGetLocal_s
-( ElConstDistMatrix_s AHandle, ElInt iLoc, ElInt jLoc, float* val )
-{
-    try { *val = Reinterpret(AHandle)->GetLocal(iLoc,jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocal_d
-( ElConstDistMatrix_d AHandle, ElInt iLoc, ElInt jLoc, double* val )
-{
-    try { *val = Reinterpret(AHandle)->GetLocal(iLoc,jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocal_c
-( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, complex_float* val )
-{
-    try 
-    { 
-        Complex<float> alpha = Reinterpret(AHandle)->GetLocal(iLoc,jLoc);
-        val->real = alpha.real();
-        val->imag = alpha.imag();
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocal_z
-( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, complex_double* val )
-{
-    try 
-    { 
-        Complex<double> alpha = Reinterpret(AHandle)->GetLocal(iLoc,jLoc);
-        val->real = alpha.real();
-        val->imag = alpha.imag();
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Base<T> DistMatrix<T,U,V>::GetLocalRealPart( Int iLoc, Int jLoc ) const
-// -----------------------------------------------------------------------
-ElError ElDistMatrixGetLocalRealPart_c
-( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float* val )
-{
-    try { *val = Reinterpret(AHandle)->GetLocalRealPart(iLoc,jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocalRealPart_z
-( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double* val )
-{
-    try { *val = Reinterpret(AHandle)->GetLocalRealPart(iLoc,jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Base<T> DistMatrix<T,U,V>::GetLocalImagPart( Int iLoc, Int jLoc ) const
-// -----------------------------------------------------------------------
-ElError ElDistMatrixGetLocalImagPart_c
-( ElConstDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float* val )
-{
-    try { *val = Reinterpret(AHandle)->GetLocalImagPart(iLoc,jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocalImagPart_z
-( ElConstDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double* val )
-{
-    try { *val = Reinterpret(AHandle)->GetLocalImagPart(iLoc,jLoc); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetLocal( Int iLoc, Int jLoc, T alpha )
-// ---------------------------------------------------------------
-ElError ElDistMatrixSetLocal_s
-( ElDistMatrix_s AHandle, ElInt iLoc, ElInt jLoc, float alpha )
-{
-    try { Reinterpret(AHandle)->SetLocal(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocal_d
-( ElDistMatrix_d AHandle, ElInt iLoc, ElInt jLoc, double alpha )
-{
-    try { Reinterpret(AHandle)->SetLocal(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocal_c
-( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, complex_float alpha )
-{
-    try { Reinterpret(AHandle)->SetLocal
-          (iLoc,jLoc,Complex<float>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocal_z
-( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, complex_double alpha )
-{
-    try { Reinterpret(AHandle)->SetLocal
-          (iLoc,jLoc,Complex<double>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetLocalRealPart( Int iLoc, Int jLoc, Base<T> alpha )
-// -----------------------------------------------------------------------------
-ElError ElDistMatrixSetLocalRealPart_c
-( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
-{
-    try { Reinterpret(AHandle)->SetLocalRealPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocalRealPart_z
-( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
-{
-    try { Reinterpret(AHandle)->SetLocalRealPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetLocalImagPart( Int iLoc, Int jLoc, Base<T> alpha )
-// -----------------------------------------------------------------------------
-ElError ElDistMatrixSetLocalImagPart_c
-( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
-{
-    try { Reinterpret(AHandle)->SetLocalImagPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocalImagPart_z
-( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
-{
-    try { Reinterpret(AHandle)->SetLocalImagPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
-// ------------------------------------------------------------------
-ElError ElDistMatrixUpdateLocal_s
-( ElDistMatrix_s AHandle, ElInt iLoc, ElInt jLoc, float alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocal(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocal_d
-( ElDistMatrix_d AHandle, ElInt iLoc, ElInt jLoc, double alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocal(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocal_c
-( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, complex_float alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocal
-          (iLoc,jLoc,Complex<float>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocal_z
-( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, complex_double alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocal
-          (iLoc,jLoc,Complex<double>(alpha.real,alpha.imag)); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateLocalRealPart
-// ( Int iLoc, Int jLoc, Base<T> alpha )
-// -------------------------------------------
-ElError ElDistMatrixUpdateLocalRealPart_c
-( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocalRealPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocalRealPart_z
-( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocalRealPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateLocalImagPart
-// ( Int iLoc, Int jLoc, Base<T> alpha )
-// -------------------------------------------
-ElError ElDistMatrixUpdateLocalImagPart_c
-( ElDistMatrix_c AHandle, ElInt iLoc, ElInt jLoc, float alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocalImagPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocalImagPart_z
-( ElDistMatrix_z AHandle, ElInt iLoc, ElInt jLoc, double alpha )
-{
-    try { Reinterpret(AHandle)->UpdateLocalImagPart(iLoc,jLoc,alpha); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::MakeDiagonalReal( Int offset )
-// ------------------------------------------------------
-ElError ElDistMatrixMakeDiagonalReal_c( ElDistMatrix_c AHandle, ElInt offset )
-{
-    try { Reinterpret(AHandle)->MakeDiagonalReal(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeDiagonalReal_z( ElDistMatrix_z AHandle, ElInt offset )
-{
-    try { Reinterpret(AHandle)->MakeDiagonalReal(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::ConjugateDiagonal( Int offset )
-// -------------------------------------------------------
-ElError ElDistMatrixConjugateDiagonal_c( ElDistMatrix_c AHandle, ElInt offset )
-{
-    try { Reinterpret(AHandle)->ConjugateDiagonal(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixConjugateDiagonal_z( ElDistMatrix_z AHandle, ElInt offset )
-{
-    try { Reinterpret(AHandle)->ConjugateDiagonal(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// bool DistMatrix<T,U,V>::DiagonalAlignedWith
-// ( const DistData& data, Int offset ) const
-// -------------------------------------------
-ElError ElDistMatrixDiagonalAlignedWith_s
-( ElConstDistMatrix_s AHandle, ElDistData distData, ElInt offset, 
-  bool* aligned )
-{
-    try { *aligned = Reinterpret(AHandle)->DiagonalAlignedWith
-                     (Reinterpret(distData),offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalAlignedWith_d
-( ElConstDistMatrix_d AHandle, ElDistData distData, ElInt offset, 
-  bool* aligned )
-{
-    try { *aligned = Reinterpret(AHandle)->DiagonalAlignedWith
-                     (Reinterpret(distData),offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalAlignedWith_c
-( ElConstDistMatrix_c AHandle, ElDistData distData, ElInt offset, 
-  bool* aligned )
-{
-    try { *aligned = Reinterpret(AHandle)->DiagonalAlignedWith
-                     (Reinterpret(distData),offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalAlignedWith_z
-( ElConstDistMatrix_z AHandle, ElDistData distData, ElInt offset, 
-  bool* aligned )
-{
-    try { *aligned = Reinterpret(AHandle)->DiagonalAlignedWith
-                     (Reinterpret(distData),offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::DiagonalRoot( Int offset ) const
-// -------------------------------------------------------
-ElError ElDistMatrixDiagonalRoot_s
-( ElConstDistMatrix_s AHandle, ElInt offset, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->DiagonalRoot(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalRoot_d
-( ElConstDistMatrix_d AHandle, ElInt offset, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->DiagonalRoot(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalRoot_c
-( ElConstDistMatrix_c AHandle, ElInt offset, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->DiagonalRoot(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalRoot_z
-( ElConstDistMatrix_z AHandle, ElInt offset, ElInt* root )
-{
-    try { *root = Reinterpret(AHandle)->DiagonalRoot(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Int DistMatrix<T,U,V>::DiagonalAlign( Int offset ) const
-// --------------------------------------------------------
-ElError ElDistMatrixDiagonalAlign_s
-( ElConstDistMatrix_s AHandle, ElInt offset, ElInt* align )
-{
-    try { *align = Reinterpret(AHandle)->DiagonalAlign(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalAlign_d
-( ElConstDistMatrix_d AHandle, ElInt offset, ElInt* align )
-{
-    try { *align = Reinterpret(AHandle)->DiagonalAlign(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalAlign_c
-( ElConstDistMatrix_c AHandle, ElInt offset, ElInt* align )
-{
-    try { *align = Reinterpret(AHandle)->DiagonalAlign(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixDiagonalAlign_z
-( ElConstDistMatrix_z AHandle, ElInt offset, ElInt* align )
-{
-    try { *align = Reinterpret(AHandle)->DiagonalAlign(offset); }
-    CATCH
-    return EL_SUCCESS;
-}
-
-} // extern "C"
-
 // DistMatrix<T,UDiag,VDiag> DistMatrix<T,U,V>::GetDiagonal( Int offset ) const
 // ----------------------------------------------------------------------------
+// TODO: Switch to using #include "El/macros/GuardAndPayload.h"
 template<typename T,Dist CDist,Dist RDist>
 void ElDistMatrixGetDiagonalKernel
 ( const AbstractDistMatrix<T>* AAbs, Int offset, AbstractDistMatrix<T>** dAbs )
@@ -3629,50 +115,6 @@ ElError ElDistMatrixGetDiagonal
     CATCH
     return EL_SUCCESS;
 }
-
-extern "C" { 
-
-ElError ElDistMatrixGetDiagonal_s
-( ElConstDistMatrix_s AHandle, ElInt offset, ElDistMatrix_s* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<float>* dAbs;
-    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
-
-ElError ElDistMatrixGetDiagonal_d
-( ElConstDistMatrix_d AHandle, ElInt offset, ElDistMatrix_d* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<double>* dAbs;
-    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
-
-ElError ElDistMatrixGetDiagonal_c
-( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_c* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<Complex<float>>* dAbs;
-    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
-
-ElError ElDistMatrixGetDiagonal_z
-( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_z* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<Complex<double>>* dAbs;
-    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
-
-} // extern "C"
 
 // DistMatrix<Base<T>,UDiag,VDiag> 
 // DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const
@@ -3721,30 +163,6 @@ ElError ElDistMatrixGetRealPartOfDiagonal
     CATCH
     return EL_SUCCESS;
 }
-
-extern "C" {
-
-ElError ElDistMatrixGetRealPartOfDiagonal_c
-( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_s* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<float>* dAbs;
-    ElError error = ElDistMatrixGetRealPartOfDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
-
-ElError ElDistMatrixGetRealPartOfDiagonal_z
-( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_d* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<double>* dAbs;
-    ElError error = ElDistMatrixGetRealPartOfDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
-
-} // extern "C"
 
 // DistMatrix<Base<T>,UDiag,VDiag> 
 // DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const
@@ -3796,1170 +214,892 @@ ElError ElDistMatrixGetImagPartOfDiagonal
 
 extern "C" {
 
-ElError ElDistMatrixGetImagPartOfDiagonal_c
-( ElConstDistMatrix_c AHandle, ElInt offset, ElDistMatrix_s* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<float>* dAbs;
-    ElError error = ElDistMatrixGetImagPartOfDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
+#define DISTMATRIX_CREATE(SIG,T) \
+  /* DistMatrix<T,MC,MR>::DistMatrix( const Grid& g ) */ \
+  ElError ElDistMatrixCreate_ ## SIG \
+  ( ElConstGrid gridHandle, ElDistMatrix_ ## SIG *AHandle ) \
+  { EL_TRY( auto grid = Reinterpret(gridHandle); \
+            *AHandle = Reinterpret( new DistMatrix<T>(*grid) ) ) } \
+  /* DistMatrix<T,U,V>::DistMatrix( const Grid& g ) */ \
+  ElError ElDistMatrixCreateSpecific_ ## SIG \
+  ( ElDist U, ElDist V, ElConstGrid gridHandle, \
+    ElDistMatrix_ ## SIG *AHandle ) \
+  { \
+    AbstractDistMatrix<T>* ADM; \
+    ElError error = ElDistMatrixCreateSpecific( U, V, gridHandle, &ADM ); \
+    *AHandle = Reinterpret(ADM); \
+    return error; \
+  } \
+  /* DistMatrix<T,U,V>::~DistMatrix() */ \
+  ElError ElDistMatrixDestroy_ ## SIG ( ElConstDistMatrix_ ## SIG AHandle ) \
+  { EL_TRY( Reinterpret(AHandle) ) } 
 
-ElError ElDistMatrixGetImagPartOfDiagonal_z
-( ElConstDistMatrix_z AHandle, ElInt offset, ElDistMatrix_d* dHandle )
-{
-    auto AAbs = Reinterpret(AHandle);
-    AbstractDistMatrix<double>* dAbs;
-    ElError error = ElDistMatrixGetImagPartOfDiagonal( AAbs, offset, &dAbs );
-    *dHandle = Reinterpret(dAbs);
-    return error;
-}
+#define DISTMATRIX_RECONFIG(SIG,T) \
+  /* void DistMatrix<T,U,V>::Empty() */ \
+  ElError ElDistMatrixEmpty_ ## SIG ( ElDistMatrix_ ## SIG AHandle ) \
+  { EL_TRY( Reinterpret(AHandle)->Empty() ) } \
+  /* void DistMatrix<T,U,V>::EmptyData() */ \
+  ElError ElDistMatrixEmptyData_ ## SIG ( ElDistMatrix_ ## SIG AHandle ) \
+  { EL_TRY( Reinterpret(AHandle)->EmptyData() ) } \
+  /* void DistMatrix<T,U,V>::SetGrid( const Grid& g ) */ \
+  ElError ElDistMatrixSetGrid_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElConstGrid gridHandle ) \
+  { EL_TRY( Reinterpret(AHandle)->SetGrid(*Reinterpret(gridHandle)) ) } \
+  /* void DistMatrix<T,U,V>::Resize( Int height, Int width ) */ \
+  ElError ElDistMatrixResize_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt height, ElInt width ) \
+  { EL_TRY( Reinterpret(AHandle)->Resize(height,width) ) } \
+  /* void DistMatrix<T,U,V>::Resize( Int height, Int width, Int ldim ) */ \
+  ElError ElDistMatrixResizeWithLDim_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt height, ElInt width, ElInt ldim ) \
+  { EL_TRY( Reinterpret(AHandle)->Resize(height,width,ldim) ) } \
+  /* void DistMatrix<T,U,V>::MakeConsistent() */ \
+  ElError ElDistMatrixMakeConsistent_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, bool includeViewers ) \
+  { EL_TRY( Reinterpret(AHandle)->MakeConsistent(includeViewers) ) } \
+  /* void DistMatrix<T,U,V>::MakeSizeConsistent() */ \
+  ElError ElDistMatrixMakeSizeConsistent_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, bool includeViewers ) \
+  { EL_TRY( Reinterpret(AHandle)->MakeSizeConsistent(includeViewers) ) } \
+  /* void DistMatrix<T,U,V>::Align \
+     ( Int colAlign, Int rowAlign, bool constrain ) */ \
+  ElError ElDistMatrixAlign_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt colAlign, ElInt rowAlign, \
+    bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->Align(colAlign,rowAlign,constrain) ) } \
+  /* void DistMatrix<T,U,V>::AlignCols( Int colAlign, bool constrain ) */ \
+  ElError ElDistMatrixAlignCols_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt colAlign, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignCols(colAlign,constrain) ) } \
+   /* void DistMatrix<T,U,V>::AlignRows( Int rowAlign, bool constrain ) */ \
+  ElError ElDistMatrixAlignRows_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt rowAlign, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignRows(rowAlign,constrain) ) } \
+  /* void DistMatrix<T,U,V>::FreeAlignments() */ \
+  ElError ElDistMatrixFreeAlignments_ ## SIG ( ElDistMatrix_ ## SIG AHandle ) \
+  { EL_TRY( Reinterpret(AHandle)->FreeAlignments() ) } \
+  /* void DistMatrix<T,U,V>::SetRoot( Int root ) */ \
+  ElError ElDistMatrixSetRoot_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt root ) \
+  { EL_TRY( Reinterpret(AHandle)->SetRoot(root) ) } \
+  /* void DistMatrix<T,U,V>::AlignWith \
+     ( const DistData& data, bool constrain ) */ \
+  ElError ElDistMatrixAlignWith_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElDistData distData, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignWith \
+            ( Reinterpret(distData), constrain ) ) } \
+  /* void DistMatrix<T,U,V>::AlignColsWith \
+     ( const DistData& data, bool constrain ) */ \
+  ElError ElDistMatrixAlignColsWith_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElDistData distData, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignColsWith \
+            ( Reinterpret(distData), constrain ) ) } \
+  /* void DistMatrix<T,U,V>::AlignRowsWith \
+     ( const DistData& data, bool constrain ) */ \
+  ElError ElDistMatrixAlignRowsWith_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElDistData distData, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignRowsWith \
+            ( Reinterpret(distData), constrain ) ) } \
+  /* void DistMatrix<T,U,V>::AlignAndResize \
+     ( Int colAlign, Int rowAlign, Int height, Int width, \
+       bool force, bool constrain ) */ \
+  ElError ElDistMatrixAlignAndResize_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    ElInt colAlign, ElInt rowAlign, ElInt height, ElInt width, \
+    bool force, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignAndResize \
+            (colAlign,rowAlign,height,width,force,constrain) ) } \
+  /* void DistMatrix<T,U,V>::AlignColsAndResize
+     ( Int colAlign, Int height, Int width, bool force, bool constrain ) */ \
+  ElError ElDistMatrixAlignColsAndResize_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    ElInt colAlign, ElInt height, ElInt width, bool force, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignColsAndResize \
+            (colAlign,height,width,force,constrain) ) } \
+  /* void DistMatrix<T,U,V>::AlignRowsAndResize
+     ( Int rowAlign, Int height, Int width, bool force, bool constrain ) */ \
+  ElError ElDistMatrixAlignRowsAndResize_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    ElInt rowAlign, ElInt height, ElInt width, bool force, bool constrain ) \
+  { EL_TRY( Reinterpret(AHandle)->AlignRowsAndResize \
+            (rowAlign,height,width,force,constrain) ) } \
+  /* void DistMatrix<T,U,V>::Attach
+     ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
+       T* buffer, Int ldim, Int root ) */ \
+  ElError ElDistMatrixAttach_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt height, ElInt width, \
+    ElConstGrid gridHandle, ElInt colAlign, ElInt rowAlign, \
+    CREFLECT(T)* buffer, ElInt ldim, ElInt root ) \
+  { EL_TRY( Reinterpret(AHandle)->Attach \
+            (height,width,*Reinterpret(gridHandle),colAlign,rowAlign, \
+             Reinterpret(buffer),ldim,root) ) } \
+  /* void DistMatrix<T,U,V>::LockedAttach
+     ( Int height, Int width, const Grid& grid, Int colAlign, Int rowAlign, 
+       const T* buffer, Int ldim, Int root ) */ \
+  ElError ElDistMatrixLockedAttach_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt height, ElInt width, \
+    ElConstGrid gridHandle, ElInt colAlign, ElInt rowAlign, \
+    const CREFLECT(T)* buffer, ElInt ldim, ElInt root ) \
+  { EL_TRY( Reinterpret(AHandle)->LockedAttach \
+            (height,width,*Reinterpret(gridHandle),colAlign,rowAlign, \
+             Reinterpret(buffer),ldim,root) ) }
+
+#define DISTMATRIX_BASIC(SIG,T) \
+  /* Int DistMatrix<T,U,V>::Height() const */ \
+  ElError ElDistMatrixHeight_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* height ) \
+  { EL_TRY( *height = Reinterpret(AHandle)->Height() ) } \
+  /* Int DistMatrix<T,U,V>::Width() const */ \
+  ElError ElDistMatrixWidth_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* width ) \
+  { EL_TRY( *width = Reinterpret(AHandle)->Width() ) } \
+  /* Int DistMatrix<T,U,V>::DiagonalLength( Int offset ) const */ \
+  ElError ElDistMatrixDiagonalLength_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt offset, ElInt* length ) \
+  { EL_TRY( *length = Reinterpret(AHandle)->DiagonalLength(offset) ) } \
+  /* bool DistMatrix<T,U,V>::Viewing() const */ \
+  ElError ElDistMatrixViewing_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, bool* viewing ) \
+  { EL_TRY( *viewing = Reinterpret(AHandle)->Viewing() ) } \
+  /* bool DistMatrix<T,U,V>::Locked() const */ \
+  ElError ElDistMatrixLocked_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, bool* locked ) \
+  { EL_TRY( *locked = Reinterpret(AHandle)->Locked() ) } \
+  /* Int DistMatrix<T,U,V>::LocalHeight() const */ \
+  ElError ElDistMatrixLocalHeight_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* localHeight ) \
+  { EL_TRY( *localHeight = Reinterpret(AHandle)->LocalHeight() ) } \
+  /* Int DistMatrix<T,U,V>::LocalWidth() const */ \
+  ElError ElDistMatrixLocalWidth_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* localWidth ) \
+  { EL_TRY( *localWidth = Reinterpret(AHandle)->LocalWidth() ) } \
+  /* Int DistMatrix<T,U,V>::LDim() const */ \
+  ElError ElDistMatrixLDim_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* ldim ) \
+  { EL_TRY( *ldim = Reinterpret(AHandle)->LDim() ) } \
+  /* Matrix<T>& DistMatrix<T,U,V>::Matrix() */ \
+  ElError ElDistMatrixMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElMatrix_ ## SIG *ALocHandle ) \
+  { EL_TRY( *ALocHandle = Reinterpret(&Reinterpret(AHandle)->Matrix()) ) } \
+  /* const Matrix<T>& DistMatrix<T,U,V>::LockedMatrix() const */ \
+  ElError ElDistMatrixLockedMatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElConstMatrix_ ## SIG *ALocHandle ) \
+  { EL_TRY( *ALocHandle = Reinterpret \
+                          (&Reinterpret(AHandle)->LockedMatrix()) ) } \
+  /* size_t DistMatrix<T,U,V>::AllocatedMemory() const */ \
+  ElError ElDistMatrixAllocatedMemory_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, size_t* mem ) \
+  { EL_TRY( *mem = Reinterpret(AHandle)->AllocatedMemory() ) } \
+  /* T* DistMatrix<T,U,V>::Buffer() */ \
+  ElError ElDistMatrixBuffer_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, CREFLECT(T)** buffer ) \
+  { EL_TRY( *buffer = Reinterpret(Reinterpret(AHandle)->Buffer()) ) } \
+  /* const T* DistMatrix<T,U,V>::LockedBuffer() const */ \
+  ElError ElDistMatrixLockedBuffer_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, const CREFLECT(T)** buffer ) \
+  { EL_TRY( *buffer = Reinterpret(Reinterpret(AHandle)->LockedBuffer()) ) } \
+  /* const Grid& DistMatrix<T,U,V>::Grid() const */ \
+  ElError ElDistMatrixGrid_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElConstGrid* gridHandle ) \
+  { EL_TRY( *gridHandle = Reinterpret(&Reinterpret(AHandle)->Grid()) ) } \
+  /* bool DistMatrix<T,U,V>::ColConstrained() const */ \
+  ElError ElDistMatrixColConstrained_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, bool* colConst ) \
+  { EL_TRY( *colConst = Reinterpret(AHandle)->ColConstrained() ) } \
+  /* bool DistMatrix<T,U,V>::RowConstrained() const */ \
+  ElError ElDistMatrixRowConstrained_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, bool* rowConst ) \
+  { EL_TRY( *rowConst = Reinterpret(AHandle)->RowConstrained() ) } \
+  /* bool DistMatrix<T,U,V>::RootConstrained() const */ \
+  ElError ElDistMatrixRootConstrained_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, bool* rootConst ) \
+  { EL_TRY( *rootConst = Reinterpret(AHandle)->RootConstrained() ) } \
+  /* Int DistMatrix<T,U,V>::ColAlign() const */ \
+  ElError ElDistMatrixColAlign_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* colAlign ) \
+  { EL_TRY( *colAlign = Reinterpret(AHandle)->ColAlign() ) } \
+  /* Int DistMatrix<T,U,V>::RowAlign() const */ \
+  ElError ElDistMatrixRowAlign_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rowAlign ) \
+  { EL_TRY( *rowAlign = Reinterpret(AHandle)->RowAlign() ) } \
+  /* Int DistMatrix<T,U,V>::ColShift() const */ \
+  ElError ElDistMatrixColShift_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* colShift ) \
+  { EL_TRY( *colShift = Reinterpret(AHandle)->ColShift() ) } \
+  /* Int DistMatrix<T,U,V>::RowShift() const */ \
+  ElError ElDistMatrixRowShift_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rowShift ) \
+  { EL_TRY( *rowShift = Reinterpret(AHandle)->RowShift() ) } \
+  /* Int DistMatrix<T,U,V>::ColRank() const */ \
+  ElError ElDistMatrixColRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* colRank ) \
+  { EL_TRY( *colRank = Reinterpret(AHandle)->ColRank() ) } \
+  /* Int DistMatrix<T,U,V>::RowRank() const */ \
+  ElError ElDistMatrixRowRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rowRank ) \
+  { EL_TRY( *rowRank = Reinterpret(AHandle)->RowRank() ) } \
+  /* Int DistMatrix<T,U,V>::PartialColRank() const */ \
+  ElError ElDistMatrixPartialColRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->PartialColRank() ) } \
+  /* Int DistMatrix<T,U,V>::PartialRowRank() const */ \
+  ElError ElDistMatrixPartialRowRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->PartialRowRank() ) } \
+  /* Int DistMatrix<T,U,V>::PartialUnionColRank() const */ \
+  ElError ElDistMatrixPartialUnionColRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->PartialUnionColRank() ) } \
+  /* Int DistMatrix<T,U,V>::PartialUnionRowRank() const */ \
+  ElError ElDistMatrixPartialUnionRowRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->PartialUnionRowRank() ) } \
+  /* Int DistMatrix<T,U,V>::DistRank() const */ \
+  ElError ElDistMatrixDistRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->DistRank() ) } \
+  /* Int DistMatrix<T,U,V>::CrossRank() const */ \
+  ElError ElDistMatrixCrossRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->CrossRank() ) } \
+  /* Int DistMatrix<T,U,V>::RedundantRank() const */ \
+  ElError ElDistMatrixRedundantRank_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* rank ) \
+  { EL_TRY( *rank = Reinterpret(AHandle)->RedundantRank() ) } \
+  /* Int DistMatrix<T,U,V>::Root() const */ \
+  ElError ElDistMatrixRoot_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* root ) \
+  { EL_TRY( *root = Reinterpret(AHandle)->Root() ) } \
+  /* bool DistMatrix<T,U,V>::Participating() const */ \
+  ElError ElDistMatrixParticipating_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, bool* participating ) \
+  { EL_TRY( *participating = Reinterpret(AHandle)->Participating() ) } \
+  /* Int DistMatrix<T,U,V>::RowOwner( Int i ) const */ \
+  ElError ElDistMatrixRowOwner_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt* rowOwner ) \
+  { EL_TRY( *rowOwner = Reinterpret(AHandle)->RowOwner(i) ) } \
+  /* Int DistMatrix<T,U,V>::ColOwner( Int i ) const */ \
+  ElError ElDistMatrixColOwner_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt j, ElInt* colOwner ) \
+  { EL_TRY( *colOwner = Reinterpret(AHandle)->ColOwner(j) ) } \
+  /* Int DistMatrix<T,U,V>::Owner( Int i, Int j ) const */ \
+  ElError ElDistMatrixOwner_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, ElInt* owner ) \
+  { EL_TRY( *owner = Reinterpret(AHandle)->Owner(i,j) ) } \
+  /* Int DistMatrix<T,U,V>::LocalRow( Int i ) const */ \
+  ElError ElDistMatrixLocalRow_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt* iLoc ) \
+  { EL_TRY( *iLoc = Reinterpret(AHandle)->LocalRow(i) ) } \
+  /* Int DistMatrix<T,U,V>::LocalCol( Int j ) const */ \
+  ElError ElDistMatrixLocalCol_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt j, ElInt* jLoc ) \
+  { EL_TRY( *jLoc = Reinterpret(AHandle)->LocalCol(j) ) } \
+  /* Int DistMatrix<T,U,V>::LocalRowOffset( Int i ) const */ \
+  ElError ElDistMatrixLocalRowOffset_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt* iLoc ) \
+  { EL_TRY( *iLoc = Reinterpret(AHandle)->LocalRowOffset(i) ) } \
+  /* Int DistMatrix<T,U,V>::LocalColOffset( Int j ) const */ \
+  ElError ElDistMatrixLocalColOffset_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt j, ElInt* jLoc ) \
+  { EL_TRY( *jLoc = Reinterpret(AHandle)->LocalColOffset(j) ) } \
+  /* Int DistMatrix<T,U,V>::GlobalRow( Int iLoc ) const */ \
+  ElError ElDistMatrixGlobalRow_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt* i ) \
+  { EL_TRY( *i = Reinterpret(AHandle)->GlobalRow(iLoc) ) } \
+  /* Int DistMatrix<T,U,V>::GlobalCol( Int j ) const */ \
+  ElError ElDistMatrixGlobalCol_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt jLoc, ElInt* j ) \
+  { EL_TRY( *j = Reinterpret(AHandle)->GlobalCol(jLoc) ) } \
+  /* bool DistMatrix<T,U,V>::IsLocalRow( Int i ) const */ \
+  ElError ElDistMatrixIsLocalRow_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, bool* isLocal ) \
+  { EL_TRY( *isLocal = Reinterpret(AHandle)->IsLocalRow(i) ) } \
+  /* bool DistMatrix<T,U,V>::IsLocalCol( Int j ) const */ \
+  ElError ElDistMatrixIsLocalCol_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt j, bool* isLocal ) \
+  { EL_TRY( *isLocal = Reinterpret(AHandle)->IsLocalCol(j) ) } \
+  /* bool DistMatrix<T,U,V>::IsLocal( Int i, Int j ) const */ \
+  ElError ElDistMatrixIsLocal_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, bool* isLocal ) \
+  { EL_TRY( *isLocal = Reinterpret(AHandle)->IsLocal(i,j) ) } \
+  /* DistData DistMatrix<T,U,V>::DistData() const */ \
+  ElError ElDistMatrixDistData_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElDistData* distData ) \
+  { EL_TRY( DistData data = Reinterpret(AHandle)->DistData(); \
+            *distData = Reinterpret( data ) ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::DistComm() const */ \
+  ElError ElDistMatrixDistComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->DistComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::CrossComm() const */ \
+  ElError ElDistMatrixCrossComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->CrossComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::RedundantComm() const */ \
+  ElError ElDistMatrixRedundantComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->RedundantComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::ColComm() const */ \
+  ElError ElDistMatrixColComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->ColComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::RowComm() const */ \
+  ElError ElDistMatrixRowComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->RowComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::PartialColComm() const */ \
+  ElError ElDistMatrixPartialColComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->PartialColComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::PartialRowComm() const */ \
+  ElError ElDistMatrixPartialRowComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->PartialRowComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::PartialUnionColComm() const */ \
+  ElError ElDistMatrixPartialUnionColComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->PartialUnionColComm().comm ) } \
+  /* mpi::Comm DistMatrix<T,U,V>::PartialUnionRowComm() const */ \
+  ElError ElDistMatrixPartialUnionRowComm_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, MPI_Comm* comm ) \
+  { EL_TRY( *comm = Reinterpret(AHandle)->PartialUnionRowComm().comm ) } \
+  /* Int DistMatrix<T,U,V>::ColStride() const */ \
+  ElError ElDistMatrixColStride_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* stride ) \
+  { EL_TRY( *stride = Reinterpret(AHandle)->ColStride() ) } \
+  /* Int DistMatrix<T,U,V>::RowStride() const */ \
+  ElError ElDistMatrixRowStride_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* stride ) \
+  { EL_TRY( *stride = Reinterpret(AHandle)->RowStride() ) } \
+  /* Int DistMatrix<T,U,V>::PartialColStride() const */ \
+  ElError ElDistMatrixPartialColStride_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* stride ) \
+  { EL_TRY( *stride = Reinterpret(AHandle)->PartialColStride() ) } \
+  /* Int DistMatrix<T,U,V>::PartialRowStride() const */ \
+  ElError ElDistMatrixPartialRowStride_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* stride ) \
+  { EL_TRY( *stride = Reinterpret(AHandle)->PartialRowStride() ) } \
+  /* Int DistMatrix<T,U,V>::PartialUnionColStride() const */ \
+  ElError ElDistMatrixPartialUnionColStride_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* stride ) \
+  { EL_TRY( *stride = Reinterpret(AHandle)->PartialUnionColStride() ) } \
+  /* Int DistMatrix<T,U,V>::PartialUnionRowStride() const */ \
+  ElError ElDistMatrixPartialUnionRowStride_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* stride ) \
+  { EL_TRY( *stride = Reinterpret(AHandle)->PartialUnionRowStride() ) } \
+  /* Int DistMatrix<T,U,V>::DistSize() const */ \
+  ElError ElDistMatrixDistSize_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* commSize ) \
+  { EL_TRY( *commSize = Reinterpret(AHandle)->DistSize() ) } \
+  /* Int DistMatrix<T,U,V>::CrossSize() const */ \
+  ElError ElDistMatrixCrossSize_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* commSize ) \
+  { EL_TRY( *commSize = Reinterpret(AHandle)->CrossSize() ) } \
+  /* Int DistMatrix<T,U,V>::RedundantSize() const */ \
+  ElError ElDistMatrixRedundantSize_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt* commSize ) \
+  { EL_TRY( *commSize = Reinterpret(AHandle)->RedundantSize() ) }
+
+#define DISTMATRIX_SINGLEENTRY(SIG,T) \
+  /* T DistMatrix<T,U,V>::Get( Int i, Int j ) const */ \
+  ElError ElDistMatrixGet_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, CREFLECT(T)* val ) \
+  { EL_TRY( *val = Reinterpret(Reinterpret(AHandle)->Get(i,j)) ) } \
+  /* void DistMatrix<T,U,V>::Set( Int i, Int j, T alpha ) */ \
+  ElError ElDistMatrixSet_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, CREFLECT(T) alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->Set(i,j,Reinterpret(alpha)) ) } \
+  /* void DistMatrix<T,U,V>::Update( Int i, Int j, T alpha ) */ \
+  ElError ElDistMatrixUpdate_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, CREFLECT(T) alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->Update(i,j,Reinterpret(alpha)) ) } \
+  /* T DistMatrix<T,U,V>::GetLocal( Int iLoc, Int jLoc ) const */ \
+  ElError ElDistMatrixGetLocal_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, \
+    CREFLECT(T)* val ) \
+  { EL_TRY( *val = Reinterpret(Reinterpret(AHandle)->GetLocal(iLoc,jLoc)) ) } \
+  /* void DistMatrix<T,U,V>::SetLocal( Int iLoc, Int jLoc, T alpha ) */ \
+  ElError ElDistMatrixSetLocal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, CREFLECT(T) alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->SetLocal(iLoc,jLoc,Reinterpret(alpha)) ) } \
+  /* void DistMatrix<T,U,V>::UpdateLocal( Int iLoc, Int jLoc, T alpha ) */ \
+  ElError ElDistMatrixUpdateLocal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, CREFLECT(T) alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->UpdateLocal \
+            (iLoc,jLoc,Reinterpret(alpha)) ) }
+
+#define DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
+  /* Base<T> DistMatrix<T,U,V>::GetRealPart( Int i, Int j ) const */ \
+  ElError ElDistMatrixGetRealPart_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T>* val ) \
+  { EL_TRY( *val = Reinterpret(AHandle)->GetRealPart(i,j) ) } \
+  /* Base<T> DistMatrix<T,U,V>::GetImagPart( Int i, Int j ) const */ \
+  ElError ElDistMatrixGetImagPart_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T>* val ) \
+  { EL_TRY( *val = Reinterpret(AHandle)->GetImagPart(i,j) ) } \
+  /* void DistMatrix<T,U,V>::SetRealPart( Int i, Int j, Base<T> alpha ) */ \
+  ElError ElDistMatrixSetRealPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->SetRealPart(i,j,alpha) ) } \
+  /* void DistMatrix<T,U,V>::SetImagPart( Int i, Int j, Base<T> alpha ) */ \
+  ElError ElDistMatrixSetImagPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->SetImagPart(i,j,alpha) ) } \
+  /* void DistMatrix<T,U,V>::UpdateRealPart( Int i, Int j, Base<T> alpha ) */ \
+  ElError ElDistMatrixUpdateRealPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->UpdateRealPart(i,j,alpha) ) } \
+  /* void DistMatrix<T,U,V>::UpdateImagPart( Int i, Int j, Base<T> alpha ) */ \
+  ElError ElDistMatrixUpdateImagPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->UpdateImagPart(i,j,alpha) ) } \
+  /* void DistMatrix<T,U,V>::MakeReal( Int i, Int j ) */ \
+  ElError ElDistMatrixMakeReal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j ) \
+  { EL_TRY( Reinterpret(AHandle)->MakeReal(i,j) ) } \
+  /* void DistMatrix<T,U,V>::Conjugate( Int i, Int j ) */ \
+  ElError ElDistMatrixConjugate_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt i, ElInt j ) \
+  { EL_TRY( Reinterpret(AHandle)->Conjugate(i,j) ) } \
+  /* Base<T> DistMatrix<T,U,V>::GetLocalRealPart \
+     ( Int iLoc, Int jLoc ) const */ \
+  ElError ElDistMatrixGetLocalRealPart_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, Base<T>* val ) \
+  { EL_TRY( *val = Reinterpret(AHandle)->GetLocalRealPart(iLoc,jLoc) ) } \
+  /* Base<T> DistMatrix<T,U,V>::GetLocalImagPart \
+     ( Int iLoc, Int jLoc ) const */ \
+  ElError ElDistMatrixGetLocalImagPart_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, Base<T>* val ) \
+  { EL_TRY( *val = Reinterpret(AHandle)->GetLocalImagPart(iLoc,jLoc) ) } \
+  /* void DistMatrix<T,U,V>::SetLocalRealPart
+     ( Int iLoc, Int jLoc, Base<T> alpha ) */ \
+  ElError ElDistMatrixSetLocalRealPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->SetLocalRealPart(iLoc,jLoc,alpha) ) } \
+  /* void DistMatrix<T,U,V>::SetLocalImagPart
+     ( Int iLoc, Int jLoc, Base<T> alpha ) */ \
+  ElError ElDistMatrixSetLocalImagPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->SetLocalImagPart(iLoc,jLoc,alpha) ) } \
+  /* void DistMatrix<T,U,V>::UpdateLocalRealPart
+     ( Int iLoc, Int jLoc, Base<T> alpha ) */ \
+  ElError ElDistMatrixUpdateLocalRealPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->UpdateLocalRealPart(iLoc,jLoc,alpha) ) } \
+  /* void DistMatrix<T,U,V>::UpdateLocalImagPart
+     ( Int iLoc, Int jLoc, Base<T> alpha ) */ \
+  ElError ElDistMatrixUpdateLocalImagPart_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt iLoc, ElInt jLoc, Base<T> alpha ) \
+  { EL_TRY( Reinterpret(AHandle)->UpdateLocalImagPart(iLoc,jLoc,alpha) ) }
+
+#define DISTMATRIX_DIAGONAL(SIG,T) \
+  /* bool DistMatrix<T,U,V>::DiagonalAlignedWith
+     ( const DistData& data, Int offset ) const */ \
+  ElError ElDistMatrixDiagonalAlignedWith_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElDistData distData, ElInt offset, \
+    bool* aligned ) \
+  { EL_TRY( *aligned = Reinterpret(AHandle)->DiagonalAlignedWith \
+                       (Reinterpret(distData),offset) ) } \
+  /* Int DistMatrix<T,U,V>::DiagonalRoot( Int offset ) const */ \
+  ElError ElDistMatrixDiagonalRoot_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt offset, ElInt* root ) \
+  { EL_TRY( *root = Reinterpret(AHandle)->DiagonalRoot(offset) ) } \
+  /* Int DistMatrix<T,U,V>::DiagonalAlign( Int offset ) const */ \
+  ElError ElDistMatrixDiagonalAlign_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt offset, ElInt* align ) \
+  { EL_TRY( *align = Reinterpret(AHandle)->DiagonalAlign(offset) ) } \
+  /* DistMatrix<T,UDiag,VDiag> 
+     DistMatrix<T,U,V>::GetDiagonal( Int offset ) const */ \
+  ElError ElDistMatrixGetDiagonal_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt offset, \
+    ElDistMatrix_ ## SIG *dHandle ) \
+  { auto AAbs = Reinterpret(AHandle); \
+    AbstractDistMatrix<T>* dAbs; \
+    ElError error = ElDistMatrixGetDiagonal( AAbs, offset, &dAbs ); \
+    *dHandle = Reinterpret(dAbs); \
+    return error; }
+
+#define DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
+  /* void DistMatrix<T,U,V>::MakeDiagonalReal( Int offset ) */ \
+  ElError ElDistMatrixMakeDiagonalReal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt offset ) \
+  { EL_TRY( Reinterpret(AHandle)->MakeDiagonalReal(offset) ) } \
+  /* void DistMatrix<T,U,V>::ConjugateDiagonal( Int offset ) */ \
+  ElError ElDistMatrixConjugateDiagonal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt offset ) \
+  { EL_TRY( Reinterpret(AHandle)->ConjugateDiagonal(offset) ) } \
+  /* DistMatrix<Base<T>,UDiag,VDiag> 
+     DistMatrix<T,U,V>::GetRealPartOfDiagonal( Int offset ) const */ \
+  ElError ElDistMatrixGetRealPartOfDiagonal_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt offset, \
+    ElDistMatrix_ ## SIGBASE *dHandle ) \
+  { auto AAbs = Reinterpret(AHandle); \
+    AbstractDistMatrix<Base<T>>* dAbs; \
+    ElError error = ElDistMatrixGetRealPartOfDiagonal( AAbs, offset, &dAbs ); \
+    *dHandle = Reinterpret(dAbs); \
+    return error; } \
+  /* DistMatrix<Base<T>,UDiag,VDiag> 
+     DistMatrix<T,U,V>::GetImagPartOfDiagonal( Int offset ) const */ \
+  ElError ElDistMatrixGetImagPartOfDiagonal_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, ElInt offset, \
+    ElDistMatrix_ ## SIGBASE *dHandle ) \
+  { auto AAbs = Reinterpret(AHandle); \
+    AbstractDistMatrix<Base<T>>* dAbs; \
+    ElError error = ElDistMatrixGetImagPartOfDiagonal( AAbs, offset, &dAbs ); \
+    *dHandle = Reinterpret(dAbs); \
+    return error; }
+
+#define DISTMATRIX_SUBMATRIX(SIG,T) \
+  /* DistMatrix<T,STAR,STAR> DistMatrix<T,U,V>::GetSubmatrix
+     ( const std::vector<Int>& rowInds, 
+       const std::vector<Int>& colInds ) const */ \
+  ElError ElDistMatrixGetSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowInds, \
+    ElInt numColInds, const ElInt* colInds, ElDistMatrix_ ## SIG *ASubHandle ) \
+  { try { auto A = Reinterpret(AHandle); \
+          auto ASub = new DistMatrix<T,STAR,STAR>(A->Grid()); \
+          std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds); \
+          std::vector<Int> colIndVec(colInds,colInds+numColInds); \
+          A->GetSubmatrix( rowIndVec, colIndVec, *ASub ); \
+          *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::SetSubmatrix
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      const DistMatrix<T,STAR,STAR>& ASub ); */ \
+  ElError ElDistMatrixSetSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, const ElInt* rowInds, const ElInt* colInds, \
+    ElConstDistMatrix_ ## SIG ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASubADM = Reinterpret(ASubHandle); \
+      auto ASub = dynamic_cast<const DistMatrix<T,STAR,STAR>*>(ASubADM); \
+      DynamicCastCheck(ASub); \
+      const Int numRowInds = ASub->Height(); \
+      const Int numColInds = ASub->Width(); \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      A->SetSubmatrix( rowIndVec, colIndVec, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::UpdateSubmatrix
+    ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+      T alpha, const DistMatrix<T,STAR,STAR>& ASub ); */ \
+  ElError ElDistMatrixUpdateSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, const ElInt* rowInds, const ElInt* colInds, \
+    CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASubADM = Reinterpret(ASubHandle); \
+      auto ASub = dynamic_cast<const DistMatrix<T,STAR,STAR>*>(ASubADM); \
+      DynamicCastCheck(ASub); \
+      const Int numRowInds = ASub->Height(); \
+      const Int numColInds = ASub->Width(); \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      A->UpdateSubmatrix( rowIndVec, colIndVec, Reinterpret(alpha), *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* Matrix<T> DistMatrix<T,U,V>::GetLocalSubmatrix
+     ( const std::vector<Int>& rowIndsLoc, 
+       const std::vector<Int>& colIndsLoc ) const */ \
+  ElError ElDistMatrixGetLocalSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowIndsLoc, \
+    ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_ ## SIG *ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASub = new Matrix<T>; \
+      std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                       colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+      A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
+      *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::SetLocalSubmatrix
+     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+       const Matrix<T>& ASub ); */ \
+  ElError ElDistMatrixSetLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    const ElInt* rowIndsLoc, const ElInt* colIndsLoc, \
+    ElConstMatrix_ ## SIG ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = Reinterpret(ASubHandle); \
+        const Int numRowInds = ASub->Height(); \
+        const Int numColInds = ASub->Width(); \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::UpdateLocalSubmatrix
+     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+       const Matrix<T>& ASub ); */ \
+  ElError ElDistMatrixUpdateLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    const ElInt* rowIndsLoc, const ElInt* colIndsLoc, \
+    CREFLECT(T) alpha, ElConstMatrix_ ## SIG ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = Reinterpret(ASubHandle); \
+        const Int numRowInds = ASub->Height(); \
+        const Int numColInds = ASub->Width(); \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->UpdateLocalSubmatrix \
+        ( rowIndVec, colIndVec, Reinterpret(alpha), *ASub ); \
+    } CATCH; return EL_SUCCESS; } 
+
+#define DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T) \
+  /* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetRealPartOfSubmatrix
+     ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+  */ \
+  ElError ElDistMatrixGetRealPartOfSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, \
+  ElInt numRowInds, const ElInt* rowInds, \
+  ElInt numColInds, const ElInt* colInds, \
+  ElDistMatrix_ ## SIGBASE *ASubHandle ) \
+  { try { auto A = Reinterpret(AHandle); \
+          auto ASub = new DistMatrix<Base<T>,STAR,STAR>(A->Grid()); \
+          std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds); \
+          std::vector<Int> colIndVec(colInds,colInds+numColInds); \
+          A->GetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
+          *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+  /* DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetImagPartOfSubmatrix
+     ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
+  */ \
+  ElError ElDistMatrixGetImagPartOfSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, \
+  ElInt numRowInds, const ElInt* rowInds, \
+  ElInt numColInds, const ElInt* colInds, \
+  ElDistMatrix_ ## SIGBASE *ASubHandle ) \
+  { try { auto A = Reinterpret(AHandle); \
+          auto ASub = new DistMatrix<Base<T>,STAR,STAR>(A->Grid()); \
+          std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds); \
+          std::vector<Int> colIndVec(colInds,colInds+numColInds); \
+          A->GetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
+          *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::SetRealPartOfSubmatrix
+     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+       const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
+  ElError ElDistMatrixSetRealPartOfSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, const ElInt* rowInds, const ElInt* colInds, \
+    ElConstDistMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASubADM = Reinterpret(ASubHandle); \
+      auto ASub = dynamic_cast<const DistMatrix<Base<T>,STAR,STAR>*>(ASubADM); \
+      DynamicCastCheck(ASub); \
+      const Int numRowInds = ASub->Height(); \
+      const Int numColInds = ASub->Width(); \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      A->SetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::SetImagPartOfSubmatrix
+     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+       const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
+  ElError ElDistMatrixSetImagPartOfSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, const ElInt* rowInds, const ElInt* colInds, \
+    ElConstDistMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASubADM = Reinterpret(ASubHandle); \
+      auto ASub = dynamic_cast<const DistMatrix<Base<T>,STAR,STAR>*>(ASubADM); \
+      DynamicCastCheck(ASub); \
+      const Int numRowInds = ASub->Height(); \
+      const Int numColInds = ASub->Width(); \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      A->SetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::UpdateRealPartOfSubmatrix
+     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+       Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
+  ElError ElDistMatrixUpdateRealPartOfSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, const ElInt* rowInds, const ElInt* colInds, \
+    Base<T> alpha, ElConstDistMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASubADM = Reinterpret(ASubHandle); \
+      auto ASub = dynamic_cast<const DistMatrix<Base<T>,STAR,STAR>*>(ASubADM); \
+      DynamicCastCheck(ASub); \
+      const Int numRowInds = ASub->Height(); \
+      const Int numColInds = ASub->Width(); \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      A->UpdateRealPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::UpdateImagPartOfSubmatrix
+     ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
+       Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub ); */ \
+  ElError ElDistMatrixUpdateImagPartOfSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, const ElInt* rowInds, const ElInt* colInds, \
+    Base<T> alpha, ElConstDistMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+      auto A = Reinterpret(AHandle); \
+      auto ASubADM = Reinterpret(ASubHandle); \
+      auto ASub = dynamic_cast<const DistMatrix<Base<T>,STAR,STAR>*>(ASubADM); \
+      DynamicCastCheck(ASub); \
+      const Int numRowInds = ASub->Height(); \
+      const Int numColInds = ASub->Width(); \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      A->UpdateImagPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::MakeSubmatrixReal
+     ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) */ \
+  ElError ElDistMatrixMakeSubmatrixReal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt numRowInds, const ElInt* rowInds, \
+                                  ElInt numColInds, const ElInt* colInds ) \
+  { try { \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+          Reinterpret(AHandle)->MakeSubmatrixReal( rowIndVec, colIndVec ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::ConjugateSubmatrix
+     ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) */ \
+  ElError ElDistMatrixConjugateSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, ElInt numRowInds, const ElInt* rowInds, \
+                                  ElInt numColInds, const ElInt* colInds ) \
+  { try { \
+      std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds), \
+                       colIndVec(colInds,colInds+numColInds); \
+      Reinterpret(AHandle)->ConjugateSubmatrix( rowIndVec, colIndVec ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* Matrix<Base<T>> DistMatrix<T,U,V>::GetRealPartOfLocalSubmatrix
+     ( const std::vector<Int>& rowInds, 
+       const std::vector<Int>& colInds ) const */ \
+  ElError ElDistMatrixGetRealPartOfLocalSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowIndsLoc, \
+    ElInt numColInds, const ElInt* colIndsLoc, \
+    ElMatrix_ ## SIGBASE *ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = new Matrix<Base<T>>; \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->GetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
+        *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+  /* Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
+     ( const std::vector<Int>& rowInds, 
+       const std::vector<Int>& colInds ) const */ \
+  ElError ElDistMatrixGetImagPartOfLocalSubmatrix_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowIndsLoc, \
+    ElInt numColInds, const ElInt* colIndsLoc, \
+    ElMatrix_ ## SIGBASE *ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = new Matrix<Base<T>>; \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->GetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
+        *ASubHandle = Reinterpret(ASub); } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::SetRealPartOfLocalSubmatrix
+     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+       const Matrix<Base<T>>& ASub ); */ \
+  ElError ElDistMatrixSetRealPartOfLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    const ElInt* rowIndsLoc, const ElInt* colIndsLoc, \
+    ElConstMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = Reinterpret(ASubHandle); \
+        const Int numRowInds = ASub->Height(); \
+        const Int numColInds = ASub->Width(); \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->SetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::SetImagPartOfLocalSubmatrix
+     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+       const Matrix<Base<T>>& ASub ); */ \
+  ElError ElDistMatrixSetImagPartOfLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    const ElInt* rowIndsLoc, const ElInt* colIndsLoc, \
+    ElConstMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = Reinterpret(ASubHandle); \
+        const Int numRowInds = ASub->Height(); \
+        const Int numColInds = ASub->Width(); \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->SetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::UpdateRealPartOfLocalSubmatrix
+     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+       Base<T> alpha, const Matrix<Base<T>>& ASub ); */ \
+  ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    const ElInt* rowIndsLoc, const ElInt* colIndsLoc, \
+    Base<T> alpha, ElConstMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = Reinterpret(ASubHandle); \
+        const Int numRowInds = ASub->Height(); \
+        const Int numColInds = ASub->Width(); \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->UpdateRealPartOfLocalSubmatrix \
+        ( rowIndVec, colIndVec, alpha, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::UpdateImagPartOfLocalSubmatrix
+     ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
+       Base<T> alpha, const Matrix<Base<T>>& ASub ); */ \
+  ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    const ElInt* rowIndsLoc, const ElInt* colIndsLoc, \
+    Base<T> alpha, ElConstMatrix_ ## SIGBASE ASubHandle ) \
+  { try { \
+        auto A = Reinterpret(AHandle); \
+        auto ASub = Reinterpret(ASubHandle); \
+        const Int numRowInds = ASub->Height(); \
+        const Int numColInds = ASub->Width(); \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        A->UpdateImagPartOfLocalSubmatrix \
+        ( rowIndVec, colIndVec, alpha, *ASub ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::MakeLocalSubmatrixReal
+     ( const std::vector<Int>& rowIndsLoc, 
+       const std::vector<Int>& colIndsLoc ) */ \
+  ElError ElDistMatrixMakeLocalSubmatrixReal_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowIndsLoc, \
+    ElInt numColInds, const ElInt* colIndsLoc ) \
+  { try { \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        Reinterpret(AHandle)->MakeLocalSubmatrixReal( rowIndVec, colIndVec ); \
+    } CATCH; return EL_SUCCESS; } \
+  /* void DistMatrix<T,U,V>::ConjugateLocalSubmatrix
+     ( const std::vector<Int>& rowIndsLoc, 
+       const std::vector<Int>& colIndsLoc ) */ \
+  ElError ElDistMatrixConjugateLocalSubmatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG AHandle, \
+    ElInt numRowInds, const ElInt* rowIndsLoc, \
+    ElInt numColInds, const ElInt* colIndsLoc ) \
+  { try { \
+        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds), \
+                         colIndVec(colIndsLoc,colIndsLoc+numColInds); \
+        Reinterpret(AHandle)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); \
+    } CATCH; return EL_SUCCESS; }
+
+#define C_PROTO(SIG,T) \
+  DISTMATRIX_CREATE(SIG,T) \
+  DISTMATRIX_RECONFIG(SIG,T) \
+  DISTMATRIX_BASIC(SIG,T) \
+  DISTMATRIX_SINGLEENTRY(SIG,T) \
+  DISTMATRIX_DIAGONAL(SIG,T) \
+  DISTMATRIX_SUBMATRIX(SIG,T)
+
+#define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
+  C_PROTO(SIG,T) \
+  DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
+  DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
+  DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T)
+
+#include "El/macros/CInstantiate.h"
 
 // TODO: More diagonal manipulation
 // ================================
-
-// DistMatrix<T,STAR,STAR> DistMatrix<T,U,V>::GetSubmatrix
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
-// --------------------------------------------------------------------------
-ElError ElDistMatrixGetSubmatrix_s
-( ElConstDistMatrix_s AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_s* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<float,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_s)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetSubmatrix_d
-( ElConstDistMatrix_d AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_d* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<double,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_d)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetSubmatrix_c
-( ElConstDistMatrix_c AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_c* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<Complex<float>,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_c)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetSubmatrix_z
-( ElConstDistMatrix_z AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_z* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<Complex<double>,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_z)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetRealPartOfSubmatrix
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
-// --------------------------------------------------------------------------
-ElError ElDistMatrixGetRealPartOfSubmatrix_c
-( ElConstDistMatrix_c AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_s* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<float,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_s)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetRealPartOfSubmatrix_z
-( ElConstDistMatrix_z AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_d* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<double,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_d)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// DistMatrix<Base<T>,STAR,STAR> DistMatrix<T,U,V>::GetImagPartOfSubmatrix
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
-// --------------------------------------------------------------------------
-ElError ElDistMatrixGetImagPartOfSubmatrix_c
-( ElConstDistMatrix_c AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_s* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<float,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_s)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetImagPartOfSubmatrix_z
-( ElConstDistMatrix_z AHandle,
-  ElInt numRowInds, const ElInt* rowInds,
-  ElInt numColInds, const ElInt* colInds, ElDistMatrix_d* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new DistMatrix<double,STAR,STAR>(A->Grid());
-
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->GetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElDistMatrix_d)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetSubmatrix
-// ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-//   const DistMatrix<T,STAR,STAR>& ASub );
-// -----------------------------------------------------------------
-ElError ElDistMatrixSetSubmatrix_s
-( ElDistMatrix_s AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<float,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetSubmatrix_d
-( ElDistMatrix_d AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<double,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_c ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = 
-            dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_z ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = 
-            dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetRealPartOfSubmatrix
-// ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-//   const DistMatrix<Base<T>,STAR,STAR>& ASub );
-// -----------------------------------------------------------------
-ElError ElDistMatrixSetRealPartOfSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<float,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetRealPartOfSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<double,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetRealPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetImagPartOfSubmatrix
-// ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-//   const DistMatrix<Base<T>,STAR,STAR>& ASub );
-// -----------------------------------------------------------------
-ElError ElDistMatrixSetImagPartOfSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<float,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetImagPartOfSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowInds, const ElInt* colInds,
-  ElConstDistMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<double,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->SetImagPartOfSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateSubmatrix
-// ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-//   T alpha, const DistMatrix<T,STAR,STAR>& ASub );
-// -----------------------------------------------------------------
-ElError ElDistMatrixUpdateSubmatrix_s
-( ElDistMatrix_s AHandle, const ElInt* rowInds, const ElInt* colInds,
-  float alpha, ElConstDistMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<float,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateSubmatrix_d
-( ElDistMatrix_d AHandle, const ElInt* rowInds, const ElInt* colInds,
-  double alpha, ElConstDistMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<double,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowInds, const ElInt* colInds,
-  complex_float alpha, ElConstDistMatrix_c ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = 
-            dynamic_cast<const DistMatrix<Complex<float>,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateSubmatrix
-        ( rowIndVec, colIndVec, Complex<float>(alpha.real,alpha.imag), *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowInds, const ElInt* colInds,
-  complex_double alpha, ElConstDistMatrix_z ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = 
-            dynamic_cast<const DistMatrix<Complex<double>,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateSubmatrix
-        ( rowIndVec, colIndVec, Complex<double>(alpha.real,alpha.imag), *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateRealPartOfSubmatrix
-// ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-//   Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
-// -----------------------------------------------------------------
-ElError ElDistMatrixUpdateRealPartOfSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowInds, const ElInt* colInds,
-  float alpha, ElConstDistMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<float,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateRealPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateRealPartOfSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowInds, const ElInt* colInds,
-  double alpha, ElConstDistMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<double,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateRealPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateImagPartOfSubmatrix
-// ( const std::vector<Int>& rowInd, const std::vector<Int>& colInd,
-//   Base<T> alpha, const DistMatrix<Base<T>,STAR,STAR>& ASub );
-// -----------------------------------------------------------------
-ElError ElDistMatrixUpdateImagPartOfSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowInds, const ElInt* colInds,
-  float alpha, ElConstDistMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<float,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateImagPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateImagPartOfSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowInds, const ElInt* colInds,
-  double alpha, ElConstDistMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASubADM = Reinterpret(ASubHandle);
-        auto ASub = dynamic_cast<const DistMatrix<double,STAR,STAR>*>(ASubADM);
-        DynamicCastCheck(ASub); 
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        A->UpdateImagPartOfSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::MakeSubmatrixReal
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds )
-// --------------------------------------------------------------------
-ElError ElDistMatrixMakeSubmatrixReal_c
-( ElDistMatrix_c AHandle, ElInt numRowInds, const ElInt* rowInds,
-                          ElInt numColInds, const ElInt* colInds )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        Reinterpret(AHandle)->MakeSubmatrixReal( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeSubmatrixReal_z
-( ElDistMatrix_z AHandle, ElInt numRowInds, const ElInt* rowInds,
-                          ElInt numColInds, const ElInt* colInds )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        Reinterpret(AHandle)->MakeSubmatrixReal( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::ConjugateSubmatrix
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds )
-// --------------------------------------------------------------------
-ElError ElDistMatrixConjugateSubmatrix_c
-( ElDistMatrix_c AHandle, ElInt numRowInds, const ElInt* rowInds,
-                          ElInt numColInds, const ElInt* colInds )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        Reinterpret(AHandle)->ConjugateSubmatrix( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixConjugateSubmatrix_z
-( ElDistMatrix_z AHandle, ElInt numRowInds, const ElInt* rowInds,
-                          ElInt numColInds, const ElInt* colInds )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowInds,rowInds+numRowInds),
-                         colIndVec(colInds,colInds+numColInds);
-        Reinterpret(AHandle)->ConjugateSubmatrix( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Matrix<T> DistMatrix<T,U,V>::GetLocalSubmatrix
-// ( const std::vector<Int>& rowIndsLoc, 
-//   const std::vector<Int>& colIndsLoc ) const
-// ------------------------------------------------------------
-ElError ElDistMatrixGetLocalSubmatrix_s
-( ElConstDistMatrix_s AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<float>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_s)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocalSubmatrix_d
-( ElConstDistMatrix_d AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<double>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_d)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocalSubmatrix_c
-( ElConstDistMatrix_c AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_c* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<Complex<float>>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_c)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetLocalSubmatrix_z
-( ElConstDistMatrix_z AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_z* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<Complex<double>>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_z)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Matrix<Base<T>> DistMatrix<T,U,V>::GetRealPartOfLocalSubmatrix
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
-// --------------------------------------------------------------------------
-ElError ElDistMatrixGetRealPartOfLocalSubmatrix_c
-( ElConstDistMatrix_c AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<float>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_s)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetRealPartOfLocalSubmatrix_z
-( ElConstDistMatrix_z AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<double>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_d)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// Matrix<Base<T>> DistMatrix<T,U,V>::GetImagPartOfLocalSubmatrix
-// ( const std::vector<Int>& rowInds, const std::vector<Int>& colInds ) const
-// --------------------------------------------------------------------------
-ElError ElDistMatrixGetImagPartOfLocalSubmatrix_c
-( ElConstDistMatrix_c AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_s* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<float>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_s)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixGetImagPartOfLocalSubmatrix_z
-( ElConstDistMatrix_z AHandle,
-  ElInt numRowInds, const ElInt* rowIndsLoc,
-  ElInt numColInds, const ElInt* colIndsLoc, ElMatrix_d* ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);
-        auto ASub = new Matrix<double>;
-
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->GetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-        *ASubHandle = (ElMatrix_d)ASub;
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetLocalSubmatrix
-// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-//   const Matrix<T>& ASub );
-// -----------------------------------------------------------------------
-ElError ElDistMatrixSetLocalSubmatrix_s
-( ElDistMatrix_s AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocalSubmatrix_d
-( ElDistMatrix_d AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocalSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_c ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetLocalSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_z ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetRealPartOfLocalSubmatrix
-// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-//   const Matrix<Base<T>>& ASub );
-// -----------------------------------------------------------------------
-ElError ElDistMatrixSetRealPartOfLocalSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetRealPartOfLocalSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetRealPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::SetImagPartOfLocalSubmatrix
-// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-//   const Matrix<Base<T>>& ASub );
-// -----------------------------------------------------------------------
-ElError ElDistMatrixSetImagPartOfLocalSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixSetImagPartOfLocalSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  ElConstMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->SetImagPartOfLocalSubmatrix( rowIndVec, colIndVec, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateLocalSubmatrix
-// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-//   const Matrix<T>& ASub );
-// -----------------------------------------------------------------------
-ElError ElDistMatrixUpdateLocalSubmatrix_s
-( ElDistMatrix_s AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  float alpha, ElConstMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocalSubmatrix_d
-( ElDistMatrix_d AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  double alpha, ElConstMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocalSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  complex_float alpha, ElConstMatrix_c ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateLocalSubmatrix
-        ( rowIndVec, colIndVec, Complex<float>(alpha.real,alpha.imag), *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateLocalSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  complex_double alpha, ElConstMatrix_z ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateLocalSubmatrix
-        ( rowIndVec, colIndVec, Complex<double>(alpha.real,alpha.imag), *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateRealPartOfLocalSubmatrix
-// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-//   const Matrix<Base<T>>& ASub );
-// -----------------------------------------------------------------------
-ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  float alpha, ElConstMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateRealPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateRealPartOfLocalSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  double alpha, ElConstMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateRealPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::UpdateImagPartOfLocalSubmatrix
-// ( const std::vector<Int>& rowIndLoc, const std::vector<Int>& colIndLoc,
-//   const Matrix<Base<T>>& ASub );
-// -----------------------------------------------------------------------
-ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_c
-( ElDistMatrix_c AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  float alpha, ElConstMatrix_s ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateImagPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixUpdateImagPartOfLocalSubmatrix_z
-( ElDistMatrix_z AHandle, const ElInt* rowIndsLoc, const ElInt* colIndsLoc,
-  double alpha, ElConstMatrix_d ASubHandle )
-{
-    try
-    {
-        auto A = Reinterpret(AHandle);    
-        auto ASub = Reinterpret(ASubHandle);
-
-        const Int numRowInds = ASub->Height();
-        const Int numColInds = ASub->Width();
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        A->UpdateImagPartOfLocalSubmatrix( rowIndVec, colIndVec, alpha, *ASub );
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::MakeLocalSubmatrixReal
-// ( const std::vector<Int>& rowIndsLoc, const std::vector<Int>& colIndsLoc )
-// --------------------------------------------------------------------------
-ElError ElDistMatrixMakeLocalSubmatrixReal_c
-( ElDistMatrix_c AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
-                          ElInt numColInds, const ElInt* colIndsLoc )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        Reinterpret(AHandle)->MakeLocalSubmatrixReal( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixMakeLocalSubmatrixReal_z
-( ElDistMatrix_z AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
-                          ElInt numColInds, const ElInt* colIndsLoc )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        Reinterpret(AHandle)->MakeLocalSubmatrixReal( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-// void DistMatrix<T,U,V>::ConjugateLocalSubmatrix
-// ( const std::vector<Int>& rowIndsLoc, const std::vector<Int>& colIndsLoc )
-// --------------------------------------------------------------------------
-ElError ElDistMatrixConjugateLocalSubmatrix_c
-( ElDistMatrix_c AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
-                          ElInt numColInds, const ElInt* colIndsLoc )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        Reinterpret(AHandle)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
-
-ElError ElDistMatrixConjugateLocalSubmatrix_z
-( ElDistMatrix_z AHandle, ElInt numRowInds, const ElInt* rowIndsLoc,
-                          ElInt numColInds, const ElInt* colIndsLoc )
-{
-    try 
-    {
-        std::vector<Int> rowIndVec(rowIndsLoc,rowIndsLoc+numRowInds),
-                         colIndVec(colIndsLoc,colIndsLoc+numColInds);
-        Reinterpret(AHandle)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); 
-    }
-    CATCH
-    return EL_SUCCESS;
-}
 
 } // extern "C"
