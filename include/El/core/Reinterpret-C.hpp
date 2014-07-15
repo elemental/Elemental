@@ -53,29 +53,40 @@ template<typename T>
 inline void DynamicCastCheck( T* A )
 { if( A == nullptr ) RuntimeError("Dynamic cast failed"); }
 
+inline Orientation   Reinterpret( ElOrientation orient ) 
+{ return static_cast<  Orientation>(orient); }
+inline ElOrientation Reinterpret( Orientation orient )
+{ return static_cast<ElOrientation>(orient); }
+
+inline LeftOrRight   Reinterpret( ElLeftOrRight side )
+{ return static_cast<  LeftOrRight>(side); }
+inline ElLeftOrRight Reinterpret( LeftOrRight side )
+{ return static_cast<ElLeftOrRight>(side); }
+
+inline UpperOrLower   Reinterpret( ElUpperOrLower uplo )
+{ return static_cast<  UpperOrLower>(uplo); }
+inline ElUpperOrLower Reinterpret( UpperOrLower uplo )
+{ return static_cast<ElUpperOrLower>(uplo); }
+
 // Dist
 // ----
-inline Dist   Reinterpret( ElDist dist ) { return static_cast<Dist>(dist); }
-inline ElDist Reinterpret( Dist   dist ) { return static_cast<ElDist>(dist); }
+inline Dist   Reinterpret( ElDist dist ) { return static_cast<  Dist>(dist); }
+inline ElDist Reinterpret(   Dist dist ) { return static_cast<ElDist>(dist); }
 
 // Grid
 // ----
-
-inline GridOrder Reinterpret( ElGridOrderType order )
-{ return static_cast<GridOrder>(order); }
-
-inline ElGridOrderType Reinterpret( GridOrder order )
+inline   GridOrder     Reinterpret( ElGridOrderType order )
+{ return static_cast<  GridOrder    >(order); }
+inline ElGridOrderType Reinterpret(   GridOrder     order )
 { return static_cast<ElGridOrderType>(order); }
 
 inline Grid* Reinterpret( ElGrid grid )
 { return EL_RC(Grid*,grid); }
-
-inline const Grid* Reinterpret( ElConstGrid grid )
-{ return EL_RC(const Grid*,grid); }
-
 inline ElGrid Reinterpret( Grid* grid )
 { return (ElGrid)EL_RC(struct ElGrid_sDummy*,grid); }
 
+inline const Grid* Reinterpret( ElConstGrid grid )
+{ return EL_RC(const Grid*,grid); }
 inline ElConstGrid Reinterpret( const Grid* grid )
 { return (ElConstGrid)EL_RC(const struct ElGrid_sDummy*,grid); }
 
