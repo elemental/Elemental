@@ -272,6 +272,49 @@ ElError ElDotuDistMatrix_c
 ElError ElDotuDistMatrix_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
 
+/* EntrywiseFill
+   ============= */
+ElError ElEntrywiseFillMatrix_i( ElMatrix_i A, ElInt (*fill)() );
+ElError ElEntrywiseFillMatrix_s( ElMatrix_s A, float (*fill)() );
+ElError ElEntrywiseFillMatrix_d( ElMatrix_d A, double (*fill)() );
+ElError ElEntrywiseFillMatrix_c( ElMatrix_c A, complex_float (*fill)() );
+ElError ElEntrywiseFillMatrix_z( ElMatrix_z A, complex_double (*fill)() );
+
+ElError ElEntrywiseFillDistMatrix_i
+( ElDistMatrix_i A, ElInt (*fill)() );
+ElError ElEntrywiseFillDistMatrix_s
+( ElDistMatrix_s A, float (*fill)() );
+ElError ElEntrywiseFillDistMatrix_d
+( ElDistMatrix_d A, double (*fill)() );
+ElError ElEntrywiseFillDistMatrix_c
+( ElDistMatrix_c A, complex_float (*fill)() );
+ElError ElEntrywiseFillDistMatrix_z
+( ElDistMatrix_z A, complex_double (*fill)() );
+
+/* EntrywiseMap
+   ============ */
+ElError ElEntrywiseMapMatrix_i
+( ElMatrix_i A, ElInt (*func)(ElInt) );
+ElError ElEntrywiseMapMatrix_s
+( ElMatrix_s A, float (*func)(float) );
+ElError ElEntrywiseMapMatrix_d
+( ElMatrix_d A, double (*func)(double) );
+ElError ElEntrywiseMapMatrix_c
+( ElMatrix_c A, complex_float (*func)(complex_float) );
+ElError ElEntrywiseMapMatrix_z
+( ElMatrix_z A, complex_double (*func)(complex_double) );
+
+ElError ElEntrywiseMapDistMatrix_i
+( ElDistMatrix_i A, ElInt (*func)(ElInt) );
+ElError ElEntrywiseMapDistMatrix_s
+( ElDistMatrix_s A, float (*func)(float) );
+ElError ElEntrywiseMapDistMatrix_d
+( ElDistMatrix_d A, double (*func)(double) );
+ElError ElEntrywiseMapDistMatrix_c
+( ElDistMatrix_c A, complex_float (*func)(complex_float) );
+ElError ElEntrywiseMapDistMatrix_z
+( ElDistMatrix_z A, complex_double (*func)(complex_double) );
+
 /* Fill
    ==== */
 ElError ElFillMatrix_i( ElMatrix_i A, ElInt alpha );
@@ -334,6 +377,54 @@ ElError ElHilbertSchmidtDistMatrix_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
 ElError ElHilbertSchmidtDistMatrix_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
+
+/* IndexDependentFill
+   ================== */
+ElError ElIndexDependentFillMatrix_i
+( ElMatrix_i A, ElInt (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillMatrix_s
+( ElMatrix_s A, float (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillMatrix_d
+( ElMatrix_d A, double (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillMatrix_c
+( ElMatrix_c A, complex_float (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillMatrix_z
+( ElMatrix_z A, complex_double (*fill)(ElInt,ElInt) );
+
+ElError ElIndexDependentFillDistMatrix_i
+( ElDistMatrix_i A, ElInt (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillDistMatrix_s
+( ElDistMatrix_s A, float (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillDistMatrix_d
+( ElDistMatrix_d A, double (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillDistMatrix_c
+( ElDistMatrix_c A, complex_float (*fill)(ElInt,ElInt) );
+ElError ElIndexDependentFillDistMatrix_z
+( ElDistMatrix_z A, complex_double (*fill)(ElInt,ElInt) );
+
+/* IndexDependentMap
+   ================= */
+ElError ElIndexDependentMapMatrix_i
+( ElMatrix_i A, ElInt (*func)(ElInt,ElInt,ElInt) );
+ElError ElIndexDependentMapMatrix_s
+( ElMatrix_s A, float (*func)(ElInt,ElInt,float) );
+ElError ElIndexDependentMapMatrix_d
+( ElMatrix_d A, double (*func)(ElInt,ElInt,double) );
+ElError ElIndexDependentMapMatrix_c
+( ElMatrix_c A, complex_float (*func)(ElInt,ElInt,complex_float) );
+ElError ElIndexDependentMapMatrix_z
+( ElMatrix_z A, complex_double (*func)(ElInt,ElInt,complex_double) );
+
+ElError ElIndexDependentMapDistMatrix_i
+( ElDistMatrix_i A, ElInt (*func)(ElInt,ElInt,ElInt) );
+ElError ElIndexDependentMapDistMatrix_s
+( ElDistMatrix_s A, float (*func)(ElInt,ElInt,float) );
+ElError ElIndexDependentMapDistMatrix_d
+( ElDistMatrix_d A, double (*func)(ElInt,ElInt,double) );
+ElError ElIndexDependentMapDistMatrix_c
+( ElDistMatrix_c A, complex_float (*func)(ElInt,ElInt,complex_float) );
+ElError ElIndexDependentMapDistMatrix_z
+( ElDistMatrix_z A, complex_double (*func)(ElInt,ElInt,complex_double) );
 
 /* MakeHermitian 
    ============= */

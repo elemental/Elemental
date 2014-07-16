@@ -95,8 +95,34 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG B, \
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = Reinterpret(Dotu(*Reinterpret(A),*Reinterpret(B))) ) } \
-  /* TODO: EntrywiseFill */ \
-  /* TODO: EntrywiseMap */ \
+  /* EntrywiseFill */ \
+  ElError ElEntrywiseFillMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
+  { try { \
+      auto newFill = [&]() { return Reinterpret(fill()); }; \
+      EntrywiseFill( *Reinterpret(A), std::function<T(void)>(newFill) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEntrywiseFillDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*fill)() ) \
+  { try { \
+      auto newFill = [&]() { return Reinterpret(fill()); }; \
+      EntrywiseFill( *Reinterpret(A), std::function<T(void)>(newFill) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* EntrywiseMap */ \
+  ElError ElEntrywiseMapMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( T alpha ) \
+        { return Reinterpret(func(Reinterpret(alpha))); }; \
+      EntrywiseMap( *Reinterpret(A), std::function<T(T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEntrywiseMapDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( T alpha ) \
+        { return Reinterpret(func(Reinterpret(alpha))); }; \
+      EntrywiseMap( *Reinterpret(A), std::function<T(T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* Fill */ \
   ElError ElFillMatrix_ ## SIG \
   ( ElMatrix_ ## SIG A, CREFLECT(T) alpha ) \
@@ -122,8 +148,38 @@ extern "C" {
     CREFLECT(T)* prod ) \
   { EL_TRY( *prod = \
       Reinterpret(HilbertSchmidt(*Reinterpret(A),*Reinterpret(B))) ) } \
-  /* TODO: IndexDependentFill */ \
-  /* TODO: IndexDependentMap */ \
+  /* IndexDependentFill */ \
+  ElError ElIndexDependentFillMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, CREFLECT(T) (*fill)(ElInt,ElInt) ) \
+  { try { \
+      auto newFill = [&]( Int i, Int j ) { return Reinterpret(fill(i,j)); }; \
+      IndexDependentFill \
+      ( *Reinterpret(A), std::function<T(Int,Int)>(newFill) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElIndexDependentFillDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*fill)(ElInt,ElInt) ) \
+  { try { \
+      auto newFill = [&]( Int i, Int j ) { return Reinterpret(fill(i,j)); }; \
+      IndexDependentFill \
+      ( *Reinterpret(A), std::function<T(Int,Int)>(newFill) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* IndexDependentMap */ \
+  ElError ElIndexDependentMapMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, CREFLECT(T) (*func)(ElInt,ElInt,CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( Int i, Int j, T alpha ) \
+        { return Reinterpret(func(i,j,Reinterpret(alpha))); }; \
+      IndexDependentMap \
+      ( *Reinterpret(A), std::function<T(Int,Int,T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElIndexDependentMapDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(ElInt,ElInt,CREFLECT(T)) ) \
+  { try { \
+      auto newMap = [&]( Int i, Int j, T alpha ) \
+        { return Reinterpret(func(i,j,Reinterpret(alpha))); }; \
+      IndexDependentMap \
+      ( *Reinterpret(A), std::function<T(Int,Int,T)>(newMap) ); \
+    } EL_CATCH; return EL_SUCCESS; } \
   /* MakeHermitian */ \
   ElError ElMakeHermitianMatrix_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
