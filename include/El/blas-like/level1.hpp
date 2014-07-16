@@ -150,17 +150,17 @@ void DiagonalSolve
 
 // Dot
 // ===
-template<typename F>
-F Dot( const Matrix<F>& A, const Matrix<F>& B );
-template<typename F>
-F Dot( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+template<typename T>
+T Dot( const Matrix<T>& A, const Matrix<T>& B );
+template<typename T>
+T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 
 // Dotu
 // ====
-template<typename F>
-F Dotu( const Matrix<F>& A, const Matrix<F>& B );
-template<typename F>
-F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+template<typename T>
+T Dotu( const Matrix<T>& A, const Matrix<T>& B );
+template<typename T>
+T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 
 // EntrywiseFill
 // =============
@@ -213,11 +213,11 @@ void Hadamard
 
 // HilbertSchmidt
 // ==============
-template<typename F>
-F HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B );
-template<typename F>
-F HilbertSchmidt
-( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& C );
+template<typename T>
+T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B );
+template<typename T>
+T HilbertSchmidt
+( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& C );
 
 // IndexDependentFill
 // ==================

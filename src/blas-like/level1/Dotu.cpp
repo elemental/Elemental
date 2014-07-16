@@ -12,13 +12,13 @@ namespace El {
 
 // TODO: Think about using a more stable accumulation algorithm?
 
-template<typename F> 
-F Dotu( const Matrix<F>& A, const Matrix<F>& B )
+template<typename T> 
+T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
-    F sum(0);
+    T sum(0);
     const Int width = A.Width();
     const Int height = A.Height();
     for( Int j=0; j<width; ++j )
@@ -27,8 +27,8 @@ F Dotu( const Matrix<F>& A, const Matrix<F>& B )
     return sum;
 }
 
-template<typename F> 
-F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
+template<typename T> 
+T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
@@ -42,10 +42,10 @@ F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
         A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
 
-    F innerProd;
+    T innerProd;
     if( A.Participating() )
     {
-        F localInnerProd(0);
+        T localInnerProd(0);
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -57,12 +57,11 @@ F Dotu( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
     return innerProd;
 }
 
-#define PROTO(F) \
-  template F Dotu( const Matrix<F>& A, const Matrix<F>& B ); \
-  template F Dotu \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
+#define PROTO(T) \
+  template T Dotu( const Matrix<T>& A, const Matrix<T>& B ); \
+  template T Dotu \
+  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 
-#define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace El

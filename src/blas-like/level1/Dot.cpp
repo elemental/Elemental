@@ -10,26 +10,25 @@
 
 namespace El {
 
-template<typename F> 
-F Dot( const Matrix<F>& A, const Matrix<F>& B )
+template<typename T> 
+T Dot( const Matrix<T>& A, const Matrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 
-template<typename F>
-F Dot( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
+template<typename T>
+T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("Dot"))
     return HilbertSchmidt( A, B );
 }
 
-#define PROTO(F) \
-  template F Dot( const Matrix<F>& A, const Matrix<F>& B ); \
-  template F Dot \
-  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B ); 
+#define PROTO(T) \
+  template T Dot( const Matrix<T>& A, const Matrix<T>& B ); \
+  template T Dot \
+  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); 
 
-#define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace El
