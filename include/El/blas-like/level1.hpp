@@ -526,28 +526,28 @@ template<typename T>
 void Swap
 ( Orientation orientation, AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
 
-template<typename F>
-void RowSwap( Matrix<F>& A, Int to, Int from );
-template<typename F,Dist U,Dist V>
-void RowSwap( DistMatrix<F,U,V>& A, Int to, Int from );
+template<typename T>
+void RowSwap( Matrix<T>& A, Int to, Int from );
+template<typename T>
+void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from );
 
-template<typename F>
-void ColSwap( Matrix<F>& A, Int to, Int from );
-template<typename F,Dist U,Dist V>
-void ColSwap( DistMatrix<F,U,V>& A, Int to, Int from );
+template<typename T>
+void ColSwap( Matrix<T>& A, Int to, Int from );
+template<typename T>
+void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from );
 
-template<typename F>
+template<typename T>
 void SymmetricSwap
-( UpperOrLower uplo, Matrix<F>& A, Int to, Int from, bool conjugate=false );
-template<typename F,Dist U,Dist V>
+( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate=false );
+template<typename T,Dist U,Dist V>
 void SymmetricSwap
-( UpperOrLower uplo, DistMatrix<F,U,V>& A, Int to, Int from,
+( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from,
   bool conjugate=false );
 
-template<typename F>
-void HermitianSwap( UpperOrLower uplo, Matrix<F>& A, Int to, Int from );
-template<typename F,Dist U,Dist V>
-void HermitianSwap( UpperOrLower uplo, DistMatrix<F,U,V>& A, Int to, Int from );
+template<typename T>
+void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from );
+template<typename T,Dist U,Dist V>
+void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from );
 
 // Symmetric2x2Inv
 // ===============

@@ -574,6 +574,93 @@ ElError ElSetDiagonalDistMatrix_c
 ElError ElSetDiagonalDistMatrix_z
 ( ElDistMatrix_z A, complex_double alpha, ElInt offset );
 
+/* Swap
+   ==== */
+ElError ElSwapMatrix_i( ElOrientation orientation, ElMatrix_i X, ElMatrix_i Y );
+ElError ElSwapMatrix_s( ElOrientation orientation, ElMatrix_s X, ElMatrix_s Y );
+ElError ElSwapMatrix_d( ElOrientation orientation, ElMatrix_d X, ElMatrix_d Y );
+ElError ElSwapMatrix_c( ElOrientation orientation, ElMatrix_c X, ElMatrix_c Y );
+ElError ElSwapMatrix_z( ElOrientation orientation, ElMatrix_z X, ElMatrix_z Y );
+
+ElError ElSwapDistMatrix_i
+( ElOrientation orientation, ElDistMatrix_i X, ElDistMatrix_i Y );
+ElError ElSwapDistMatrix_s
+( ElOrientation orientation, ElDistMatrix_s X, ElDistMatrix_s Y );
+ElError ElSwapDistMatrix_d
+( ElOrientation orientation, ElDistMatrix_d X, ElDistMatrix_d Y );
+ElError ElSwapDistMatrix_c
+( ElOrientation orientation, ElDistMatrix_c X, ElDistMatrix_c Y );
+ElError ElSwapDistMatrix_z
+( ElOrientation orientation, ElDistMatrix_z X, ElDistMatrix_z Y );
+
+ElError ElRowSwapMatrix_i( ElMatrix_i A, ElInt to, ElInt from );
+ElError ElRowSwapMatrix_s( ElMatrix_s A, ElInt to, ElInt from );
+ElError ElRowSwapMatrix_d( ElMatrix_d A, ElInt to, ElInt from );
+ElError ElRowSwapMatrix_c( ElMatrix_c A, ElInt to, ElInt from );
+ElError ElRowSwapMatrix_z( ElMatrix_z A, ElInt to, ElInt from );
+
+ElError ElRowSwapDistMatrix_i( ElDistMatrix_i A, ElInt to, ElInt from );
+ElError ElRowSwapDistMatrix_s( ElDistMatrix_s A, ElInt to, ElInt from );
+ElError ElRowSwapDistMatrix_d( ElDistMatrix_d A, ElInt to, ElInt from );
+ElError ElRowSwapDistMatrix_c( ElDistMatrix_c A, ElInt to, ElInt from );
+ElError ElRowSwapDistMatrix_z( ElDistMatrix_z A, ElInt to, ElInt from );
+
+ElError ElColSwapMatrix_i( ElMatrix_i A, ElInt to, ElInt from );
+ElError ElColSwapMatrix_s( ElMatrix_s A, ElInt to, ElInt from );
+ElError ElColSwapMatrix_d( ElMatrix_d A, ElInt to, ElInt from );
+ElError ElColSwapMatrix_c( ElMatrix_c A, ElInt to, ElInt from );
+ElError ElColSwapMatrix_z( ElMatrix_z A, ElInt to, ElInt from );
+
+ElError ElColSwapDistMatrix_i( ElDistMatrix_i A, ElInt to, ElInt from );
+ElError ElColSwapDistMatrix_s( ElDistMatrix_s A, ElInt to, ElInt from );
+ElError ElColSwapDistMatrix_d( ElDistMatrix_d A, ElInt to, ElInt from );
+ElError ElColSwapDistMatrix_c( ElDistMatrix_c A, ElInt to, ElInt from );
+ElError ElColSwapDistMatrix_z( ElDistMatrix_z A, ElInt to, ElInt from );
+
+ElError ElSymmetricSwapMatrix_i
+( ElUpperOrLower uplo, ElMatrix_i A, ElInt to, ElInt from );
+ElError ElSymmetricSwapMatrix_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElInt to, ElInt from );
+ElError ElSymmetricSwapMatrix_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElInt to, ElInt from );
+ElError ElSymmetricSwapMatrix_c
+( ElUpperOrLower uplo, ElMatrix_c A, ElInt to, ElInt from );
+ElError ElSymmetricSwapMatrix_z
+( ElUpperOrLower uplo, ElMatrix_z A, ElInt to, ElInt from );
+
+ElError ElSymmetricSwapDistMatrix_i
+( ElUpperOrLower uplo, ElDistMatrix_i A, ElInt to, ElInt from );
+ElError ElSymmetricSwapDistMatrix_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElInt to, ElInt from );
+ElError ElSymmetricSwapDistMatrix_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElInt to, ElInt from );
+ElError ElSymmetricSwapDistMatrix_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElInt to, ElInt from );
+ElError ElSymmetricSwapDistMatrix_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt to, ElInt from );
+
+ElError ElHermitianSwapMatrix_i
+( ElUpperOrLower uplo, ElMatrix_i A, ElInt to, ElInt from );
+ElError ElHermitianSwapMatrix_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElInt to, ElInt from );
+ElError ElHermitianSwapMatrix_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElInt to, ElInt from );
+ElError ElHermitianSwapMatrix_c
+( ElUpperOrLower uplo, ElMatrix_c A, ElInt to, ElInt from );
+ElError ElHermitianSwapMatrix_z
+( ElUpperOrLower uplo, ElMatrix_z A, ElInt to, ElInt from );
+
+ElError ElHermitianSwapDistMatrix_i
+( ElUpperOrLower uplo, ElDistMatrix_i A, ElInt to, ElInt from );
+ElError ElHermitianSwapDistMatrix_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElInt to, ElInt from );
+ElError ElHermitianSwapDistMatrix_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElInt to, ElInt from );
+ElError ElHermitianSwapDistMatrix_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElInt to, ElInt from );
+ElError ElHermitianSwapDistMatrix_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt to, ElInt from );
+
 /* B = A^T 
    ======= */
 ElError ElTransposeMatrix_i( ElConstMatrix_i A, ElMatrix_i B );

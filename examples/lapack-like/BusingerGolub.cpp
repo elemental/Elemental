@@ -80,7 +80,7 @@ main( int argc, char* argv[] )
         auto E( QRPiv );
         MakeTriangular( UPPER, E );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, dPiv, E );
-        InversePermuteCols( E, perm );
+        PermuteCols( E, perm );
         Axpy( C(-1), A, E );
         const Real frobQRPiv = FrobeniusNorm( E );
         if( display )

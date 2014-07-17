@@ -124,8 +124,8 @@ void RowSwap( Matrix<T>& A, Int to, Int from )
     Swap( NORMAL, aToRow, aFromRow );
 }
 
-template<typename T,Dist U,Dist V>
-void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from )
+template<typename T>
+void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("RowSwap"))
     if( to == from )
@@ -134,35 +134,36 @@ void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from )
         return;
     const Int n = A.Width();
     const Int nLocal = A.LocalWidth();
-    // TODO: Make use of new Construct routine
-    auto aToRow   = ViewRange( A, to,   0, to+1,   n );
-    auto aFromRow = ViewRange( A, from, 0, from+1, n );
-    if( aToRow.ColAlign() == aFromRow.ColAlign() )
+    std::unique_ptr<AbstractDistMatrix<T>> aToRow( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> aFromRow( A.Construct(A.Grid()) );
+    ViewRange( *aToRow,   A, to,   0, to+1,   n );
+    ViewRange( *aFromRow, A, from, 0, from+1, n );
+    if( aToRow->ColAlign() == aFromRow->ColAlign() )
     {
-        if( aToRow.ColShift() == 0 )
-            Swap( NORMAL, aToRow.Matrix(), aFromRow.Matrix() );
+        if( aToRow->ColShift() == 0 )
+            Swap( NORMAL, aToRow->Matrix(), aFromRow->Matrix() );
     }
-    else if( aToRow.ColShift() == 0 )
+    else if( aToRow->ColShift() == 0 )
     {
         std::vector<T> buf( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            buf[jLoc] = aToRow.GetLocal(0,jLoc);
+            buf[jLoc] = aToRow->GetLocal(0,jLoc);
         mpi::SendRecv
         ( buf.data(), nLocal, 
-          aFromRow.ColAlign(), aFromRow.ColAlign(), A.ColComm() );
+          aFromRow->ColAlign(), aFromRow->ColAlign(), A.ColComm() );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            aToRow.SetLocal(0,jLoc,buf[jLoc]);
+            aToRow->SetLocal(0,jLoc,buf[jLoc]);
     }
-    else if( aFromRow.ColShift() == 0 )
+    else if( aFromRow->ColShift() == 0 )
     {
         std::vector<T> buf( nLocal );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            buf[jLoc] = aFromRow.GetLocal(0,jLoc);
+            buf[jLoc] = aFromRow->GetLocal(0,jLoc);
         mpi::SendRecv
         ( buf.data(), nLocal, 
-          aToRow.ColAlign(), aToRow.ColAlign(), A.ColComm() );
+          aToRow->ColAlign(), aToRow->ColAlign(), A.ColComm() );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
-            aFromRow.SetLocal(0,jLoc,buf[jLoc]);
+            aFromRow->SetLocal(0,jLoc,buf[jLoc]);
     }
 }
 
@@ -178,8 +179,8 @@ void ColSwap( Matrix<T>& A, Int to, Int from )
     Swap( NORMAL, aToCol, aFromCol );
 }
 
-template<typename T,Dist U,Dist V>
-void ColSwap( DistMatrix<T,U,V>& A, Int to, Int from )
+template<typename T>
+void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("ColSwap"))
     if( to == from )
@@ -188,24 +189,26 @@ void ColSwap( DistMatrix<T,U,V>& A, Int to, Int from )
         return;
     const Int m = A.Height();
     const Int mLocal = A.LocalHeight();
-    auto aToCol   = ViewRange( A, 0, to,   m, to+1   );
-    auto aFromCol = ViewRange( A, 0, from, m, from+1 );
-    if( aToCol.RowAlign() == aFromCol.RowAlign() )
+    std::unique_ptr<AbstractDistMatrix<T>> aToCol( A.Construct(A.Grid()) );
+    std::unique_ptr<AbstractDistMatrix<T>> aFromCol( A.Construct(A.Grid()) );
+    ViewRange( *aToCol,   A, 0, to,   m, to+1   );
+    ViewRange( *aFromCol, A, 0, from, m, from+1 );
+    if( aToCol->RowAlign() == aFromCol->RowAlign() )
     {
-        if( aToCol.RowShift() == 0 )
-            Swap( NORMAL, aToCol.Matrix(), aFromCol.Matrix() );
+        if( aToCol->RowShift() == 0 )
+            Swap( NORMAL, aToCol->Matrix(), aFromCol->Matrix() );
     }
-    else if( aToCol.RowShift() == 0 )
+    else if( aToCol->RowShift() == 0 )
     {
         mpi::SendRecv
-        ( aToCol.Buffer(), mLocal, 
-          aFromCol.RowAlign(), aFromCol.RowAlign(), A.RowComm() );
+        ( aToCol->Buffer(), mLocal, 
+          aFromCol->RowAlign(), aFromCol->RowAlign(), A.RowComm() );
     }
-    else if( aFromCol.RowShift() == 0 )
+    else if( aFromCol->RowShift() == 0 )
     {
         mpi::SendRecv
-        ( aFromCol.Buffer(), mLocal, 
-          aToCol.RowAlign(), aToCol.RowAlign(), A.RowComm() );
+        ( aFromCol->Buffer(), mLocal, 
+          aToCol->RowAlign(), aToCol->RowAlign(), A.RowComm() );
     }
 }
 
@@ -227,8 +230,7 @@ void SymmetricSwap
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( to > from )
-        std::swap( to, from );
-    if( uplo == LOWER )
+        std::swap( to, from ); if( uplo == LOWER )
     { 
         // Bottom swap
         if( from+1 < n )
@@ -410,8 +412,6 @@ void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
 }
 
 #define DIST_PROTO(T,U,V) \
-  template void RowSwap( DistMatrix<T,U,V>& A, Int to, Int from ); \
-  template void ColSwap( DistMatrix<T,U,V>& A, Int to, Int from ); \
   template void SymmetricSwap \
   ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from, \
     bool conjugate ); \
@@ -424,7 +424,9 @@ void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
   ( Orientation orientation, \
     AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y ); \
   template void RowSwap( Matrix<T>& A, Int to, Int from ); \
+  template void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from ); \
   template void ColSwap( Matrix<T>& A, Int to, Int from ); \
+  template void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from ); \
   template void SymmetricSwap \
   ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate ); \
   template void HermitianSwap \

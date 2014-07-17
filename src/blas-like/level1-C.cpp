@@ -239,7 +239,42 @@ extern "C" {
   ElError ElSetDiagonalDistMatrix_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) alpha, ElInt offset ) \
   { EL_TRY( SetDiagonal( *Reinterpret(A), Reinterpret(alpha), offset ) ) } \
-  /* TODO: Swap */ \
+  /* Swap */ \
+  ElError ElSwapMatrix_ ## SIG \
+  ( ElOrientation orientation, ElMatrix_ ## SIG X, ElMatrix_ ## SIG Y ) \
+  { EL_TRY( \
+      Swap( Reinterpret(orientation), *Reinterpret(X), *Reinterpret(Y) ) ) } \
+  ElError ElSwapDistMatrix_ ## SIG \
+  ( ElOrientation orientation, \
+    ElDistMatrix_ ## SIG X, ElDistMatrix_ ## SIG Y ) \
+  { EL_TRY( \
+      Swap( Reinterpret(orientation), *Reinterpret(X), *Reinterpret(Y) ) ) } \
+  ElError ElRowSwapMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( RowSwap( *Reinterpret(A), to, from ) ) } \
+  ElError ElRowSwapDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( RowSwap( *Reinterpret(A), to, from ) ) } \
+  ElError ElColSwapMatrix_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( ColSwap( *Reinterpret(A), to, from ) ) } \
+  ElError ElColSwapDistMatrix_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( ColSwap( *Reinterpret(A), to, from ) ) } \
+  /*
+  ElError ElSymmetricSwapMatrix_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( SymmetricSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
+  ElError ElSymmetricSwapDistMatrix_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( SymmetricSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
+  ElError ElHermitianSwapMatrix_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
+  ElError ElHermitianSwapDistMatrix_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
+  */ \
   /* TODO: Symmetric2x2Scale */ \
   /* B = A^T */ \
   ElError ElTransposeMatrix_ ## SIG \
