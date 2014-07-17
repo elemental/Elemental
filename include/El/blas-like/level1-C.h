@@ -475,6 +475,166 @@ ElError ElMakeTriangularDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElMakeTriangularDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
 ElError ElMakeTriangularDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
+/* Max
+   === */
+ElError ElMax_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMax_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMax_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElMaxDist_i( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMaxDist_s( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMaxDist_d( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMax_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMax_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMax_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMaxDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMaxDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMaxDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElVectorMax_i( ElConstMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMax_s( ElConstMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMax_d( ElConstMatrix_d x, ElValueInt_d* entry );
+
+ElError ElVectorMaxDist_i( ElConstDistMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMaxDist_s( ElConstDistMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMaxDist_d( ElConstDistMatrix_d x, ElValueInt_d* entry );
+
+/* MaxAbs
+   ====== */
+ElError ElMaxAbs_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMaxAbs_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMaxAbs_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
+ElError ElMaxAbs_c( ElConstMatrix_c A, ElValueIntPair_s* entry );
+ElError ElMaxAbs_z( ElConstMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElMaxAbsDist_i( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMaxAbsDist_s( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMaxAbsDist_d( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+ElError ElMaxAbsDist_c( ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+ElError ElMaxAbsDist_z( ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMaxAbs_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMaxAbs_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMaxAbs_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+ElError ElSymmetricMaxAbs_c
+( ElUpperOrLower uplo, ElConstMatrix_c A, ElValueIntPair_s* entry );
+ElError ElSymmetricMaxAbs_z
+( ElUpperOrLower uplo, ElConstMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMaxAbsDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMaxAbsDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMaxAbsDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+ElError ElSymmetricMaxAbsDist_c
+( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+ElError ElSymmetricMaxAbsDist_z
+( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElVectorMaxAbs_i( ElConstMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMaxAbs_s( ElConstMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMaxAbs_d( ElConstMatrix_d x, ElValueInt_d* entry );
+ElError ElVectorMaxAbs_c( ElConstMatrix_c x, ElValueInt_s* entry );
+ElError ElVectorMaxAbs_z( ElConstMatrix_z x, ElValueInt_d* entry );
+
+ElError ElVectorMaxAbsDist_i( ElConstDistMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMaxAbsDist_s( ElConstDistMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMaxAbsDist_d( ElConstDistMatrix_d x, ElValueInt_d* entry );
+ElError ElVectorMaxAbsDist_c( ElConstDistMatrix_c x, ElValueInt_s* entry );
+ElError ElVectorMaxAbsDist_z( ElConstDistMatrix_z x, ElValueInt_d* entry );
+
+/* Min
+   === */
+ElError ElMin_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMin_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMin_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElMinDist_i( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMinDist_s( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMinDist_d( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMin_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMin_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMin_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMinDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMinDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMinDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+
+ElError ElVectorMin_i( ElConstMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMin_s( ElConstMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMin_d( ElConstMatrix_d x, ElValueInt_d* entry );
+
+ElError ElVectorMinDist_i( ElConstDistMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMinDist_s( ElConstDistMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMinDist_d( ElConstDistMatrix_d x, ElValueInt_d* entry );
+
+/* MinAbs
+   ====== */
+ElError ElMinAbs_i( ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMinAbs_s( ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMinAbs_d( ElConstMatrix_d A, ElValueIntPair_d* entry );
+ElError ElMinAbs_c( ElConstMatrix_c A, ElValueIntPair_s* entry );
+ElError ElMinAbs_z( ElConstMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElMinAbsDist_i( ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElMinAbsDist_s( ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElMinAbsDist_d( ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+ElError ElMinAbsDist_c( ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+ElError ElMinAbsDist_z( ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMinAbs_i
+( ElUpperOrLower uplo, ElConstMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMinAbs_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMinAbs_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, ElValueIntPair_d* entry );
+ElError ElSymmetricMinAbs_c
+( ElUpperOrLower uplo, ElConstMatrix_c A, ElValueIntPair_s* entry );
+ElError ElSymmetricMinAbs_z
+( ElUpperOrLower uplo, ElConstMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElSymmetricMinAbsDist_i
+( ElUpperOrLower uplo, ElConstDistMatrix_i A, ElValueIntPair_i* entry );
+ElError ElSymmetricMinAbsDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, ElValueIntPair_s* entry );
+ElError ElSymmetricMinAbsDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, ElValueIntPair_d* entry );
+ElError ElSymmetricMinAbsDist_c
+( ElUpperOrLower uplo, ElConstDistMatrix_c A, ElValueIntPair_s* entry );
+ElError ElSymmetricMinAbsDist_z
+( ElUpperOrLower uplo, ElConstDistMatrix_z A, ElValueIntPair_d* entry );
+
+ElError ElVectorMinAbs_i( ElConstMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMinAbs_s( ElConstMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMinAbs_d( ElConstMatrix_d x, ElValueInt_d* entry );
+ElError ElVectorMinAbs_c( ElConstMatrix_c x, ElValueInt_s* entry );
+ElError ElVectorMinAbs_z( ElConstMatrix_z x, ElValueInt_d* entry );
+
+ElError ElVectorMinAbsDist_i( ElConstDistMatrix_i x, ElValueInt_i* entry );
+ElError ElVectorMinAbsDist_s( ElConstDistMatrix_s x, ElValueInt_s* entry );
+ElError ElVectorMinAbsDist_d( ElConstDistMatrix_d x, ElValueInt_d* entry );
+ElError ElVectorMinAbsDist_c( ElConstDistMatrix_c x, ElValueInt_s* entry );
+ElError ElVectorMinAbsDist_z( ElConstDistMatrix_z x, ElValueInt_d* entry );
+
 /* Nrm2
    ==== */
 ElError ElNrm2_s( ElConstMatrix_s A, float* gamma );

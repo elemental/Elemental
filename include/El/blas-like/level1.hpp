@@ -315,11 +315,6 @@ ValueInt<Real> VectorMax( const Matrix<Real>& x );
 template<typename Real>
 ValueInt<Real> VectorMax( const AbstractDistMatrix<Real>& x );
 
-template<typename Real>
-ValueInt<Real> DiagonalMax( const Matrix<Real>& A );
-template<typename Real,Dist U,Dist V>
-ValueInt<Real> DiagonalMax( const DistMatrix<Real,U,V>& A );
-
 // MaxAbs
 // ======
 template<typename F>
@@ -337,11 +332,6 @@ ValueIntPair<Base<F>> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 ValueIntPair<Base<F>> SymmetricMaxAbs
 ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
-
-template<typename F>
-ValueInt<Base<F>> DiagonalMaxAbs( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-ValueInt<Base<F>> DiagonalMaxAbs( const DistMatrix<F,U,V>& A );
 
 // Min
 // ===
@@ -361,11 +351,6 @@ template<typename Real>
 ValueIntPair<Real>
 SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
-template<typename Real>
-ValueInt<Real> DiagonalMin( const Matrix<Real>& A );
-template<typename Real,Dist U,Dist V>
-ValueInt<Real> DiagonalMin( const DistMatrix<Real,U,V>& A );
-
 // MinAbs
 // ======
 template<typename F>
@@ -383,11 +368,6 @@ ValueIntPair<Base<F>> SymmetricMinAbs( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 ValueIntPair<Base<F>>
 SymmetricMinAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
-
-template<typename F>
-ValueInt<Base<F>> DiagonalMinAbs( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-ValueInt<Base<F>> DiagonalMinAbs( const DistMatrix<F,U,V>& A );
 
 // Nrm2
 // ====

@@ -353,23 +353,6 @@ ValueIntPair<Base<F>> SymmetricMaxAbs
     return pivot;
 }
 
-template<typename F>
-ValueInt<Base<F>> DiagonalMaxAbs( const Matrix<F>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMaxAbs"))
-    return VectorMaxAbs( A.GetDiagonal() );
-}
-
-template<typename F,Dist U,Dist V>
-ValueInt<Base<F>> DiagonalMaxAbs( const DistMatrix<F,U,V>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMaxAbs"))
-    return VectorMaxAbs( A.GetDiagonal() );
-}
-
-#define DIST_PROTO(F,U,V) \
-  template ValueInt<Base<F>> DiagonalMaxAbs( const DistMatrix<F,U,V>& A );
-
 #define PROTO(F) \
   template ValueInt<Base<F>> VectorMaxAbs( const Matrix<F>& x ); \
   template ValueInt<Base<F>> VectorMaxAbs( const AbstractDistMatrix<F>& x ); \
@@ -378,22 +361,7 @@ ValueInt<Base<F>> DiagonalMaxAbs( const DistMatrix<F,U,V>& A )
   template ValueIntPair<Base<F>> SymmetricMaxAbs \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template ValueIntPair<Base<F>> SymmetricMaxAbs \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
-  template ValueInt<Base<F>> DiagonalMaxAbs( const Matrix<F>& A ); \
-  DIST_PROTO(F,CIRC,CIRC); \
-  DIST_PROTO(F,MC,  MR  ); \
-  DIST_PROTO(F,MC,  STAR); \
-  DIST_PROTO(F,MD,  STAR); \
-  DIST_PROTO(F,MR,  MC  ); \
-  DIST_PROTO(F,MR,  STAR); \
-  DIST_PROTO(F,STAR,MC  ); \
-  DIST_PROTO(F,STAR,MD  ); \
-  DIST_PROTO(F,STAR,MR  ); \
-  DIST_PROTO(F,STAR,STAR); \
-  DIST_PROTO(F,STAR,VC  ); \
-  DIST_PROTO(F,STAR,VR  ); \
-  DIST_PROTO(F,VC,  STAR); \
-  DIST_PROTO(F,VR,  STAR); 
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 #include "El/macros/Instantiate.h"
 

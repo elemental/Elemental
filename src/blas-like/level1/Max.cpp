@@ -343,23 +343,6 @@ SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
     return pivot;
 }
 
-template<typename Real>
-ValueInt<Real> DiagonalMax( const Matrix<Real>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
-    return VectorMax( A.GetDiagonal() );
-}
-
-template<typename Real,Dist U,Dist V>
-ValueInt<Real> DiagonalMax( const DistMatrix<Real,U,V>& A )
-{
-    DEBUG_ONLY(CallStackEntry cse("DiagonalMax"))
-    return VectorMax( A.GetDiagonal() );
-}
-
-#define DIST_PROTO(Real,U,V) \
-  template ValueInt<Real> DiagonalMax( const DistMatrix<Real,U,V>& A );
-
 #define PROTO(Real) \
   template ValueInt<Real> VectorMax( const Matrix<Real>& x ); \
   template ValueInt<Real> VectorMax( const AbstractDistMatrix<Real>& x ); \
@@ -368,22 +351,7 @@ ValueInt<Real> DiagonalMax( const DistMatrix<Real,U,V>& A )
   template ValueIntPair<Real> SymmetricMax \
   ( UpperOrLower uplo, const Matrix<Real>& A ); \
   template ValueIntPair<Real> SymmetricMax \
-  ( UpperOrLower uplo, const AbstractDistMatrix<Real>& A ); \
-  template ValueInt<Real> DiagonalMax( const Matrix<Real>& A ); \
-  DIST_PROTO(Real,CIRC,CIRC); \
-  DIST_PROTO(Real,MC,  MR  ); \
-  DIST_PROTO(Real,MC,  STAR); \
-  DIST_PROTO(Real,MD,  STAR); \
-  DIST_PROTO(Real,MR,  MC  ); \
-  DIST_PROTO(Real,MR,  STAR); \
-  DIST_PROTO(Real,STAR,MC  ); \
-  DIST_PROTO(Real,STAR,MD  ); \
-  DIST_PROTO(Real,STAR,MR  ); \
-  DIST_PROTO(Real,STAR,STAR); \
-  DIST_PROTO(Real,STAR,VC  ); \
-  DIST_PROTO(Real,STAR,VR  ); \
-  DIST_PROTO(Real,VC,  STAR); \
-  DIST_PROTO(Real,VR,  STAR); 
+  ( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
 
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"

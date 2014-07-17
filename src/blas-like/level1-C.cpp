@@ -208,8 +208,6 @@ extern "C" {
   ElError ElMakeTriangularDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( MakeTriangular( Reinterpret(uplo), *Reinterpret(A) ) ) } \
-  /* TODO: MaxAbs */ \
-  /* TODO: MinAbs */ \
   /* TODO: QuasiDiagonalScale */ \
   /* Scale */ \
   ElError ElScale_ ## SIG \
@@ -306,7 +304,7 @@ extern "C" {
   { EL_TRY( *entry = \
       Reinterpret(SymmetricMax(Reinterpret(uplo),*Reinterpret(A))) ) } \
   ElError ElSymmetricMaxDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
     ElValueIntPair_ ## SIG *entry ) \
   { EL_TRY( *entry = \
       Reinterpret(SymmetricMax(Reinterpret(uplo),*Reinterpret(A))) ) } \
@@ -316,7 +314,29 @@ extern "C" {
   ElError ElVectorMaxDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
   { EL_TRY( *entry = Reinterpret(VectorMax(*Reinterpret(x))) ) } \
-  /* TODO: DiagonalMax */ \
+  /* MaxAbs */ \
+  ElError ElMaxAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(MaxAbs(*Reinterpret(A))) ) } \
+  ElError ElMaxAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(MaxAbs(*Reinterpret(A))) ) } \
+  ElError ElSymmetricMaxAbs_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMaxAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElSymmetricMaxAbsDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMaxAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElVectorMaxAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMaxAbs(*Reinterpret(x))) ) } \
+  ElError ElVectorMaxAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMaxAbs(*Reinterpret(x))) ) } \
   /* Min */ \
   ElError ElMin_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
@@ -330,7 +350,7 @@ extern "C" {
   { EL_TRY( *entry = \
       Reinterpret(SymmetricMin(Reinterpret(uplo),*Reinterpret(A))) ) } \
   ElError ElSymmetricMinDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
     ElValueIntPair_ ## SIG *entry ) \
   { EL_TRY( *entry = \
       Reinterpret(SymmetricMin(Reinterpret(uplo),*Reinterpret(A))) ) } \
@@ -340,7 +360,29 @@ extern "C" {
   ElError ElVectorMinDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
   { EL_TRY( *entry = Reinterpret(VectorMin(*Reinterpret(x))) ) } \
-  /* TODO: DiagonalMin */
+  /* MinAbs */ \
+  ElError ElMinAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(MinAbs(*Reinterpret(A))) ) } \
+  ElError ElMinAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(MinAbs(*Reinterpret(A))) ) } \
+  ElError ElSymmetricMinAbs_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMinAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElSymmetricMinAbsDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIG *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMinAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElVectorMinAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMinAbs(*Reinterpret(x))) ) } \
+  ElError ElVectorMinAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMinAbs(*Reinterpret(x))) ) }
 
 #define C_PROTO_NOINT(SIG,T) \
   /* DiagonalSolve */ \
@@ -390,7 +432,54 @@ extern "C" {
   ElError ElMakeReal_ ## SIG \
   ( ElMatrix_ ## SIG A ) { EL_TRY( MakeReal( *Reinterpret(A) ) ) } \
   ElError ElMakeRealDist_ ## SIG \
-  ( ElDistMatrix_ ## SIG A ) { EL_TRY( MakeReal( *Reinterpret(A) ) ) }
+  ( ElDistMatrix_ ## SIG A ) { EL_TRY( MakeReal( *Reinterpret(A) ) ) } \
+  /* MaxAbs */ \
+  ElError ElMaxAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(MaxAbs(*Reinterpret(A))) ) } \
+  ElError ElMaxAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(MaxAbs(*Reinterpret(A))) ) } \
+  ElError ElSymmetricMaxAbs_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMaxAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElSymmetricMaxAbsDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMaxAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElVectorMaxAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMaxAbs(*Reinterpret(x))) ) } \
+  ElError ElVectorMaxAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMaxAbs(*Reinterpret(x))) ) } \
+  /* MinAbs */ \
+  ElError ElMinAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(MinAbs(*Reinterpret(A))) ) } \
+  ElError ElMinAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(MinAbs(*Reinterpret(A))) ) } \
+  ElError ElSymmetricMinAbs_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMinAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElSymmetricMinAbsDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
+    ElValueIntPair_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = \
+      Reinterpret(SymmetricMinAbs(Reinterpret(uplo),*Reinterpret(A))) ) } \
+  ElError ElVectorMinAbs_ ## SIG \
+  ( ElConstMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMinAbs(*Reinterpret(x))) ) } \
+  ElError ElVectorMinAbsDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIGBASE *entry ) \
+  { EL_TRY( *entry = Reinterpret(VectorMinAbs(*Reinterpret(x))) ) }
+
 
 #include "El/macros/CInstantiate.h"
 

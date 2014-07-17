@@ -22,7 +22,7 @@ inline LDLPivot
 Full( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
-    const auto diagMax = DiagonalMaxAbs( A );
+    const auto diagMax = VectorMaxAbs( A.GetDiagonal() );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;
@@ -34,7 +34,7 @@ inline LDLPivot
 Full( const DistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::pivot::Full"))
-    const auto diagMax = DiagonalMaxAbs( A );
+    const auto diagMax = VectorMaxAbs( A.GetDiagonal() );
     LDLPivot pivot;
     pivot.nb = 1;
     pivot.from[0] = diagMax.index;

@@ -216,7 +216,7 @@ BunchParlett( const Matrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    const ValueInt<Real> diagMax = DiagonalMaxAbs( A );
+    const ValueInt<Real> diagMax = VectorMaxAbs( A.GetDiagonal() );
     const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
@@ -244,7 +244,7 @@ BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    const ValueInt<Real> diagMax = DiagonalMaxAbs( A );
+    const ValueInt<Real> diagMax = VectorMaxAbs( A.GetDiagonal() );
     const ValueIntPair<Real> offDiagMax = SymmetricMaxAbs( LOWER, A );
 
     LDLPivot pivot;
@@ -729,7 +729,7 @@ UnblockedPivoted
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = DiagonalMaxAbs( ABR );
+            const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = ChoosePivot( ABR, pivotType, gamma );
@@ -813,7 +813,7 @@ UnblockedPivoted
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
-            const auto diagMax = DiagonalMaxAbs( ABR );
+            const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
             SymmetricSwap( LOWER, A, k, k+diagMax.index, conjugate );
         }
         const LDLPivot pivot = ChoosePivot( ABR, pivotType, gamma );
@@ -898,7 +898,7 @@ PanelPivoted
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
-            const auto diagMax = DiagonalMaxAbs( ABRBR );
+            const auto diagMax = VectorMaxAbs( ABRBR.GetDiagonal() );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
             RowSwap( pPerm, k+off, k+off+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
@@ -1023,7 +1023,7 @@ PanelPivoted
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
-            const auto diagMax = DiagonalMaxAbs( ABRBR );
+            const auto diagMax = VectorMaxAbs( ABRBR.GetDiagonal() );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
