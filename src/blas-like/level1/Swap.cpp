@@ -304,15 +304,18 @@ void SymmetricSwap
     }
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T>
 void SymmetricSwap
-( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from, bool conjugate )
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
+  Int to, Int from, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("SymmetricSwap");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )
+    typedef std::unique_ptr<AbstractDistMatrix<T>> ADMPtr;
+
     if( to == from )
     {
         if( conjugate )
@@ -328,15 +331,18 @@ void SymmetricSwap
         // Bottom swap
         if( from+1 < n )
         {
-            auto ABot = ViewRange( A, from+1, 0, n, n );
-            ColSwap( ABot, to, from );
+            ADMPtr ABot( A.Construct( A.Grid() ) );
+            ViewRange( *ABot, A, from+1, 0, n, n );
+            ColSwap( *ABot, to, from );
         }
         // Inner swap
         if( to+1 < from )
         {
-            auto aToInner   = ViewRange( A, to+1, to,   from,   to+1 );
-            auto aFromInner = ViewRange( A, from, to+1, from+1, from );
-            Swap( orientation, aToInner, aFromInner );
+            ADMPtr aToInner( A.Construct( A.Grid() ) );
+            ADMPtr aFromInner( A.Construct( A.Grid() ) );
+            ViewRange( *aToInner,   A, to+1, to,   from,   to+1 );
+            ViewRange( *aFromInner, A, from, to+1, from+1, from );
+            Swap( orientation, *aToInner, *aFromInner );
         }
         // Corner swap
         if( conjugate )
@@ -355,8 +361,9 @@ void SymmetricSwap
         // Left swap
         if( to > 0 )
         {
-            auto ALeft = ViewRange( A, 0, 0, n, to );
-            RowSwap( ALeft, to, from ); 
+            ADMPtr ALeft( A.Construct( A.Grid() ) );
+            ViewRange( *ALeft, A, 0, 0, n, to );
+            RowSwap( *ALeft, to, from ); 
         }
     }
     else
@@ -364,15 +371,18 @@ void SymmetricSwap
         // Right swap
         if( from+1 < n )
         {
-            auto ARight = ViewRange( A, 0, from+1, n, n );
-            RowSwap( ARight, to, from );
+            ADMPtr ARight( A.Construct( A.Grid() ) );
+            ViewRange( *ARight, A, 0, from+1, n, n );
+            RowSwap( *ARight, to, from );
         }
         // Inner swap
         if( to+1 < from )
         {
-            auto aToInner   = ViewRange( A, to,   to+1, to+1, from   );
-            auto aFromInner = ViewRange( A, to+1, from, from, from+1 );
-            Swap( orientation, aToInner, aFromInner );
+            ADMPtr aToInner( A.Construct( A.Grid() ) );
+            ADMPtr aFromInner( A.Construct( A.Grid() ) );
+            ViewRange( *aToInner,   A, to,   to+1, to+1, from   );
+            ViewRange( *aFromInner, A, to+1, from, from, from+1 );
+            Swap( orientation, *aToInner, *aFromInner );
         }
         // Corner swap
         if( conjugate )
@@ -391,8 +401,9 @@ void SymmetricSwap
         // Top swap
         if( to > 0 )
         {
-            auto ATop = ViewRange( A, 0, 0, to, n );
-            ColSwap( ATop, to, from ); 
+            ADMPtr ATop( A.Construct( A.Grid() ) );
+            ViewRange( *ATop, A, 0, 0, to, n );
+            ColSwap( *ATop, to, from ); 
         }
     }
 }
@@ -404,19 +415,13 @@ void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from )
     SymmetricSwap( uplo, A, to, from, true );
 }
 
-template<typename T,Dist U,Dist V>
-void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
+template<typename T>
+void HermitianSwap
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSwap"))
     SymmetricSwap( uplo, A, to, from, true );
 }
-
-#define DIST_PROTO(T,U,V) \
-  template void SymmetricSwap \
-  ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from, \
-    bool conjugate ); \
-  template void HermitianSwap \
-  ( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from );
 
 #define PROTO(T) \
   template void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y ); \
@@ -429,22 +434,13 @@ void HermitianSwap( UpperOrLower uplo, DistMatrix<T,U,V>& A, Int to, Int from )
   template void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from ); \
   template void SymmetricSwap \
   ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate ); \
+  template void SymmetricSwap \
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from, \
+    bool conjugate ); \
   template void HermitianSwap \
   ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from ); \
-  DIST_PROTO(T,CIRC,CIRC) \
-  DIST_PROTO(T,MC,  MR  ) \
-  DIST_PROTO(T,MC,  STAR) \
-  DIST_PROTO(T,MD,  STAR) \
-  DIST_PROTO(T,MR,  MC  ) \
-  DIST_PROTO(T,MR,  STAR) \
-  DIST_PROTO(T,STAR,MC  ) \
-  DIST_PROTO(T,STAR,MD  ) \
-  DIST_PROTO(T,STAR,MR  ) \
-  DIST_PROTO(T,STAR,STAR) \
-  DIST_PROTO(T,STAR,VC  ) \
-  DIST_PROTO(T,STAR,VR  ) \
-  DIST_PROTO(T,VC,  STAR) \
-  DIST_PROTO(T,VR,  STAR)
+  template void HermitianSwap \
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from );
 
 #include "El/macros/Instantiate.h"
 

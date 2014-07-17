@@ -261,7 +261,6 @@ extern "C" {
   ElError ElColSwapDistMatrix_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
   { EL_TRY( ColSwap( *Reinterpret(A), to, from ) ) } \
-  /*
   ElError ElSymmetricSwapMatrix_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
   { EL_TRY( SymmetricSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
@@ -274,7 +273,6 @@ extern "C" {
   ElError ElHermitianSwapDistMatrix_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
   { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
-  */ \
   /* TODO: Symmetric2x2Scale */ \
   /* B = A^T */ \
   ElError ElTransposeMatrix_ ## SIG \
