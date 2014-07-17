@@ -154,6 +154,56 @@ inline double* Reinterpret( double* buffer ) { return buffer; }
 inline const float* Reinterpret( const float* buffer ) { return buffer; }
 inline const double* Reinterpret( const double* buffer ) { return buffer; }
 
+inline ValueInt<Int> Reinterpret( ElValueInt_i entryC )
+{ return {entryC.value,entryC.index}; }
+inline ElValueInt_i Reinterpret( ValueInt<Int> entry )
+{ return {entry.value,entry.index}; }
+
+inline ValueInt<float> Reinterpret( ElValueInt_s entryC )
+{ return {entryC.value,entryC.index}; }
+inline ElValueInt_s Reinterpret( ValueInt<float> entry )
+{ return {entry.value,entry.index}; }
+
+inline ValueInt<double> Reinterpret( ElValueInt_d entryC )
+{ return {entryC.value,entryC.index}; }
+inline ElValueInt_d Reinterpret( ValueInt<double> entry )
+{ return {entry.value,entry.index}; }
+
+inline ValueInt<Complex<float>> Reinterpret( ElValueInt_c entryC )
+{ return {Reinterpret(entryC.value),entryC.index}; }
+inline ElValueInt_c Reinterpret( ValueInt<Complex<float>> entry )
+{ return {Reinterpret(entry.value),entry.index}; }
+
+inline ValueInt<Complex<double>> Reinterpret( ElValueInt_z entryC )
+{ return {Reinterpret(entryC.value),entryC.index}; }
+inline ElValueInt_z Reinterpret( ValueInt<Complex<double>> entry )
+{ return {Reinterpret(entry.value),entry.index}; }
+
+inline ValueIntPair<Int> Reinterpret( ElValueIntPair_i entryC )
+{ return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }
+inline ElValueIntPair_i Reinterpret( ValueIntPair<Int> entry )
+{ return {entry.value,{entry.indices[0],entry.indices[1]}}; }
+
+inline ValueIntPair<float> Reinterpret( ElValueIntPair_s entryC )
+{ return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }
+inline ElValueIntPair_s Reinterpret( ValueIntPair<float> entry )
+{ return {entry.value,{entry.indices[0],entry.indices[1]}}; }
+
+inline ValueIntPair<double> Reinterpret( ElValueIntPair_d entryC )
+{ return {entryC.value,{entryC.indices[0],entryC.indices[1]}}; }
+inline ElValueIntPair_d Reinterpret( ValueIntPair<double> entry )
+{ return {entry.value,{entry.indices[0],entry.indices[1]}}; }
+
+inline ValueIntPair<Complex<float>> Reinterpret( ElValueIntPair_c entryC )
+{ return {Reinterpret(entryC.value),{entryC.indices[0],entryC.indices[1]}}; }
+inline ElValueIntPair_c Reinterpret( ValueIntPair<Complex<float>> entry )
+{ return {Reinterpret(entry.value),{entry.indices[0],entry.indices[1]}}; }
+
+inline ValueIntPair<Complex<double>> Reinterpret( ElValueIntPair_z entryC )
+{ return {Reinterpret(entryC.value),{entryC.indices[0],entryC.indices[1]}}; }
+inline ElValueIntPair_z Reinterpret( ValueIntPair<Complex<double>> entry )
+{ return {Reinterpret(entry.value),{entry.indices[0],entry.indices[1]}}; }
+
 // Matrix
 // ------
 inline Matrix<Int>* Reinterpret( ElMatrix_i A )

@@ -14,11 +14,11 @@ extern "C" {
 
 #define C_PROTO(SIG,T) \
   /* Matrix */ \
-  ElError ElSpyMatrix_ ## SIG \
+  ElError ElSpy_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
   { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) } \
   /* AbstractDistMatrix */ \
-  ElError ElSpyDistMatrix_ ## SIG \
+  ElError ElSpyDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
   { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) }
 

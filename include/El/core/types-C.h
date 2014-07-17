@@ -33,6 +33,58 @@ typedef int ElInt;
 typedef unsigned ElUnsigned;
 #endif
 
+typedef struct
+{
+  ElInt value;
+  ElInt index;
+} ElValueInt_i;
+typedef struct
+{
+  float value;
+  ElInt index;
+} ElValueInt_s;
+typedef struct
+{
+  double value;
+  ElInt index;
+} ElValueInt_d;
+typedef struct
+{
+  complex_float value;
+  ElInt index;
+} ElValueInt_c;
+typedef struct
+{
+  complex_double value;
+  ElInt index;
+} ElValueInt_z;
+
+typedef struct
+{
+  ElInt value;
+  ElInt indices[2];
+} ElValueIntPair_i;
+typedef struct
+{
+  float value;
+  ElInt indices[2];
+} ElValueIntPair_s;
+typedef struct
+{
+  double value;
+  ElInt indices[2];
+} ElValueIntPair_d;
+typedef struct
+{
+  complex_float value;
+  ElInt indices[2];
+} ElValueIntPair_c;
+typedef struct
+{
+  complex_double value;
+  ElInt indices[2];
+} ElValueIntPair_z;
+
 typedef enum
 {
   EL_SUCCESS,

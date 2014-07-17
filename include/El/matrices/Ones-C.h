@@ -14,15 +14,15 @@
 extern "C" {
 #endif
 
-ElError ElOnesMatrix_s( ElMatrix_s A, ElInt m, ElInt n );
-ElError ElOnesMatrix_d( ElMatrix_d A, ElInt m, ElInt n );
-ElError ElOnesMatrix_c( ElMatrix_c A, ElInt m, ElInt n );
-ElError ElOnesMatrix_z( ElMatrix_z A, ElInt m, ElInt n );
+ElError ElOnes_s( ElMatrix_s A, ElInt m, ElInt n );
+ElError ElOnes_d( ElMatrix_d A, ElInt m, ElInt n );
+ElError ElOnes_c( ElMatrix_c A, ElInt m, ElInt n );
+ElError ElOnes_z( ElMatrix_z A, ElInt m, ElInt n );
 
-ElError ElOnesDistMatrix_s( ElDistMatrix_s A, ElInt m, ElInt n );
-ElError ElOnesDistMatrix_d( ElDistMatrix_d A, ElInt m, ElInt n );
-ElError ElOnesDistMatrix_c( ElDistMatrix_c A, ElInt m, ElInt n );
-ElError ElOnesDistMatrix_z( ElDistMatrix_z A, ElInt m, ElInt n );
+ElError ElOnesDist_s( ElDistMatrix_s A, ElInt m, ElInt n );
+ElError ElOnesDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
+ElError ElOnesDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
+ElError ElOnesDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
 
 #ifdef __cplusplus
 } // extern "C"

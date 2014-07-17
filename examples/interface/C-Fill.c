@@ -53,24 +53,24 @@ main( int argc, char* argv[] )
     }
     if( print )
     {
-        error = ElPrintDistMatrix_z( A, "A" );
+        error = ElPrintDist_z( A, "A" );
         EL_ABORT_ON_ERROR( error );
     }
     if( display )
     {
-        error = ElDisplayDistMatrix_z( A, "A" );
+        error = ElDisplayDist_z( A, "A" );
         EL_ABORT_ON_ERROR( error );
     }
 
-    ElEntrywiseMapDistMatrix_z( A, &MapFunc );
+    ElEntrywiseMapDist_z( A, &MapFunc );
     if( print )
     {
-        error = ElPrintDistMatrix_z( A, "ASquared" );
+        error = ElPrintDist_z( A, "ASquared" );
         EL_ABORT_ON_ERROR( error );
     }
     if( display )
     {
-        error = ElDisplayDistMatrix_z( A, "ASquared" );
+        error = ElDisplayDist_z( A, "ASquared" );
         EL_ABORT_ON_ERROR( error );
     }
 

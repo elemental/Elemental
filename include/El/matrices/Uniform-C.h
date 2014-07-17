@@ -14,22 +14,22 @@
 extern "C" {
 #endif
 
-ElError ElUniformMatrix_s
+ElError ElUniform_s
 ( ElMatrix_s A, ElInt m, ElInt n, float center, float radius );
-ElError ElUniformMatrix_d
+ElError ElUniform_d
 ( ElMatrix_d A, ElInt m, ElInt n, double center, double radius );
-ElError ElUniformMatrix_c
+ElError ElUniform_c
 ( ElMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
-ElError ElUniformMatrix_z
+ElError ElUniform_z
 ( ElMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
 
-ElError ElUniformDistMatrix_s
+ElError ElUniformDist_s
 ( ElDistMatrix_s A, ElInt m, ElInt n, float center, float radius );
-ElError ElUniformDistMatrix_d
+ElError ElUniformDist_d
 ( ElDistMatrix_d A, ElInt m, ElInt n, double center, double radius );
-ElError ElUniformDistMatrix_c
+ElError ElUniformDist_c
 ( ElDistMatrix_c A, ElInt m, ElInt n, complex_float center, float radius );
-ElError ElUniformDistMatrix_z
+ElError ElUniformDist_z
 ( ElDistMatrix_z A, ElInt m, ElInt n, complex_double center, double radius );
 
 #ifdef __cplusplus

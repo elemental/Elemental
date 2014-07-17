@@ -13,11 +13,11 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO(SIG,T) \
-  ElError ElUniformMatrix_ ## SIG \
+  ElError ElUniform_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, \
     CREFLECT(T) center, Base<T> radius ) \
   { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) } \
-  ElError ElUniformDistMatrix_ ## SIG \
+  ElError ElUniformDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, \
     CREFLECT(T) center, Base<T> radius ) \
   { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) }

@@ -14,19 +14,15 @@
 extern "C" {
 #endif
 
-ElError ElSpyMatrix_s( ElConstMatrix_s A, const char* title, float tol );
-ElError ElSpyMatrix_d( ElConstMatrix_d A, const char* title, double tol );
-ElError ElSpyMatrix_c( ElConstMatrix_c A, const char* title, float tol );
-ElError ElSpyMatrix_z( ElConstMatrix_z A, const char* title, double tol );
+ElError ElSpy_s( ElConstMatrix_s A, const char* title, float tol );
+ElError ElSpy_d( ElConstMatrix_d A, const char* title, double tol );
+ElError ElSpy_c( ElConstMatrix_c A, const char* title, float tol );
+ElError ElSpy_z( ElConstMatrix_z A, const char* title, double tol );
 
-ElError ElSpyDistMatrix_s
-( ElConstDistMatrix_s A, const char* title, float tol );
-ElError ElSpyDistMatrix_d
-( ElConstDistMatrix_d A, const char* title, double tol );
-ElError ElSpyDistMatrix_c
-( ElConstDistMatrix_c A, const char* title, float tol );
-ElError ElSpyDistMatrix_z
-( ElConstDistMatrix_z A, const char* title, double tol );
+ElError ElSpyDist_s( ElConstDistMatrix_s A, const char* title, float tol );
+ElError ElSpyDist_d( ElConstDistMatrix_d A, const char* title, double tol );
+ElError ElSpyDist_c( ElConstDistMatrix_c A, const char* title, float tol );
+ElError ElSpyDist_z( ElConstDistMatrix_z A, const char* title, double tol );
 
 #ifdef __cplusplus
 } // extern "C"

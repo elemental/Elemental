@@ -19,15 +19,15 @@ extern "C" {
         problematic due to difficulties in converting between FILE* and
         std::ostream 
 */
-ElError ElPrintMatrix_s( ElConstMatrix_s A, const char* title );
-ElError ElPrintMatrix_d( ElConstMatrix_d A, const char* title );
-ElError ElPrintMatrix_c( ElConstMatrix_c A, const char* title );
-ElError ElPrintMatrix_z( ElConstMatrix_z A, const char* title );
+ElError ElPrint_s( ElConstMatrix_s A, const char* title );
+ElError ElPrint_d( ElConstMatrix_d A, const char* title );
+ElError ElPrint_c( ElConstMatrix_c A, const char* title );
+ElError ElPrint_z( ElConstMatrix_z A, const char* title );
 
-ElError ElPrintDistMatrix_s( ElConstDistMatrix_s A, const char* title );
-ElError ElPrintDistMatrix_d( ElConstDistMatrix_d A, const char* title );
-ElError ElPrintDistMatrix_c( ElConstDistMatrix_c A, const char* title );
-ElError ElPrintDistMatrix_z( ElConstDistMatrix_z A, const char* title );
+ElError ElPrintDist_s( ElConstDistMatrix_s A, const char* title );
+ElError ElPrintDist_d( ElConstDistMatrix_d A, const char* title );
+ElError ElPrintDist_c( ElConstDistMatrix_c A, const char* title );
+ElError ElPrintDist_z( ElConstDistMatrix_z A, const char* title );
 
 #ifdef __cplusplus
 } // extern "C"

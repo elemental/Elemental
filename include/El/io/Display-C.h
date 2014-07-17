@@ -14,15 +14,15 @@
 extern "C" {
 #endif
 
-ElError ElDisplayMatrix_s( ElConstMatrix_s A, const char* title );
-ElError ElDisplayMatrix_d( ElConstMatrix_d A, const char* title );
-ElError ElDisplayMatrix_c( ElConstMatrix_c A, const char* title );
-ElError ElDisplayMatrix_z( ElConstMatrix_z A, const char* title );
+ElError ElDisplay_s( ElConstMatrix_s A, const char* title );
+ElError ElDisplay_d( ElConstMatrix_d A, const char* title );
+ElError ElDisplay_c( ElConstMatrix_c A, const char* title );
+ElError ElDisplay_z( ElConstMatrix_z A, const char* title );
 
-ElError ElDisplayDistMatrix_s( ElConstDistMatrix_s A, const char* title );
-ElError ElDisplayDistMatrix_d( ElConstDistMatrix_d A, const char* title );
-ElError ElDisplayDistMatrix_c( ElConstDistMatrix_c A, const char* title );
-ElError ElDisplayDistMatrix_z( ElConstDistMatrix_z A, const char* title );
+ElError ElDisplayDist_s( ElConstDistMatrix_s A, const char* title );
+ElError ElDisplayDist_d( ElConstDistMatrix_d A, const char* title );
+ElError ElDisplayDist_c( ElConstDistMatrix_c A, const char* title );
+ElError ElDisplayDist_z( ElConstDistMatrix_z A, const char* title );
 
 #ifdef __cplusplus
 } // extern "C"

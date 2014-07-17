@@ -18,700 +18,665 @@ extern "C" {
 
 /* B = A^H 
    ======= */
-ElError ElAdjointMatrix_i( ElConstMatrix_i A, ElMatrix_i B );
-ElError ElAdjointMatrix_s( ElConstMatrix_s A, ElMatrix_s B );
-ElError ElAdjointMatrix_d( ElConstMatrix_d A, ElMatrix_d B );
-ElError ElAdjointMatrix_c( ElConstMatrix_c A, ElMatrix_c B );
-ElError ElAdjointMatrix_z( ElConstMatrix_z A, ElMatrix_z B );
+ElError ElAdjoint_i( ElConstMatrix_i A, ElMatrix_i B );
+ElError ElAdjoint_s( ElConstMatrix_s A, ElMatrix_s B );
+ElError ElAdjoint_d( ElConstMatrix_d A, ElMatrix_d B );
+ElError ElAdjoint_c( ElConstMatrix_c A, ElMatrix_c B );
+ElError ElAdjoint_z( ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElAdjointDistMatrix_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
-ElError ElAdjointDistMatrix_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElAdjointDistMatrix_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElAdjointDistMatrix_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElAdjointDistMatrix_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
+ElError ElAdjointDist_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
+ElError ElAdjointDist_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElAdjointDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElAdjointDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
+ElError ElAdjointDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* Y := alpha A X + Y 
    ================== */
-ElError ElAxpyMatrix_i( ElInt alpha, ElConstMatrix_i X, ElMatrix_i Y );
-ElError ElAxpyMatrix_s( float alpha, ElConstMatrix_s X, ElMatrix_s Y );
-ElError ElAxpyMatrix_d( double alpha, ElConstMatrix_d X, ElMatrix_d Y );
-ElError ElAxpyMatrix_c( complex_float alpha, ElConstMatrix_c X, ElMatrix_c Y );
-ElError ElAxpyMatrix_z( complex_double alpha, ElConstMatrix_z X, ElMatrix_z Y );
+ElError ElAxpy_i( ElInt alpha, ElConstMatrix_i X, ElMatrix_i Y );
+ElError ElAxpy_s( float alpha, ElConstMatrix_s X, ElMatrix_s Y );
+ElError ElAxpy_d( double alpha, ElConstMatrix_d X, ElMatrix_d Y );
+ElError ElAxpy_c( complex_float alpha, ElConstMatrix_c X, ElMatrix_c Y );
+ElError ElAxpy_z( complex_double alpha, ElConstMatrix_z X, ElMatrix_z Y );
 
-ElError ElAxpyDistMatrix_i
+ElError ElAxpyDist_i
 ( ElInt alpha, ElConstDistMatrix_i X, ElDistMatrix_i Y );
-ElError ElAxpyDistMatrix_s
+ElError ElAxpyDist_s
 ( float alpha, ElConstDistMatrix_s X, ElDistMatrix_s Y );
-ElError ElAxpyDistMatrix_d
+ElError ElAxpyDist_d
 ( double alpha, ElConstDistMatrix_d X, ElDistMatrix_d Y );
-ElError ElAxpyDistMatrix_c
+ElError ElAxpyDist_c
 ( complex_float alpha, ElConstDistMatrix_c X, ElDistMatrix_c Y );
-ElError ElAxpyDistMatrix_z
+ElError ElAxpyDist_z
 ( complex_double alpha, ElConstDistMatrix_z X, ElDistMatrix_z Y );
 
 /* tri(Y) := tri(alpha A X + Y)
    ============================ */
-ElError ElAxpyTriangleMatrix_i
+ElError ElAxpyTriangle_i
 ( ElUpperOrLower uplo, ElInt alpha, ElConstMatrix_i X, ElMatrix_i Y );
-ElError ElAxpyTriangleMatrix_s
+ElError ElAxpyTriangle_s
 ( ElUpperOrLower uplo, float alpha, ElConstMatrix_s X, ElMatrix_s Y );
-ElError ElAxpyTriangleMatrix_d
+ElError ElAxpyTriangle_d
 ( ElUpperOrLower uplo, double alpha, ElConstMatrix_d X, ElMatrix_d Y );
-ElError ElAxpyTriangleMatrix_c
+ElError ElAxpyTriangle_c
 ( ElUpperOrLower uplo, complex_float alpha, ElConstMatrix_c X, ElMatrix_c Y );
-ElError ElAxpyTriangleMatrix_z
+ElError ElAxpyTriangle_z
 ( ElUpperOrLower uplo, complex_double alpha, ElConstMatrix_z X, ElMatrix_z Y );
 
-ElError ElAxpyTriangleDistMatrix_i
+ElError ElAxpyTriangleDist_i
 ( ElUpperOrLower uplo, ElInt alpha, 
   ElConstDistMatrix_i X, ElDistMatrix_i Y );
-ElError ElAxpyTriangleDistMatrix_s
+ElError ElAxpyTriangleDist_s
 ( ElUpperOrLower uplo, float alpha, 
   ElConstDistMatrix_s X, ElDistMatrix_s Y );
-ElError ElAxpyTriangleDistMatrix_d
+ElError ElAxpyTriangleDist_d
 ( ElUpperOrLower uplo, double alpha, 
   ElConstDistMatrix_d X, ElDistMatrix_d Y );
-ElError ElAxpyTriangleDistMatrix_c
+ElError ElAxpyTriangleDist_c
 ( ElUpperOrLower uplo, complex_float alpha, 
   ElConstDistMatrix_c X, ElDistMatrix_c Y );
-ElError ElAxpyTriangleDistMatrix_z
+ElError ElAxpyTriangleDist_z
 ( ElUpperOrLower uplo, complex_double alpha, 
   ElConstDistMatrix_z X, ElDistMatrix_z Y );
 
 /* A := Conj(A) 
    ============ */
-ElError ElConjugateMatrix_c( ElMatrix_c A );
-ElError ElConjugateMatrix_z( ElMatrix_z A );
+ElError ElConjugate_c( ElMatrix_c A );
+ElError ElConjugate_z( ElMatrix_z A );
 
-ElError ElConjugateDistMatrix_c( ElDistMatrix_c A );
-ElError ElConjugateDistMatrix_z( ElDistMatrix_z A );
+ElError ElConjugateDist_c( ElDistMatrix_c A );
+ElError ElConjugateDist_z( ElDistMatrix_z A );
 
 /* B = A 
    ===== */
-ElError ElCopyMatrix_i( ElConstMatrix_i A, ElMatrix_i B );
-ElError ElCopyMatrix_s( ElConstMatrix_s A, ElMatrix_s B );
-ElError ElCopyMatrix_d( ElConstMatrix_d A, ElMatrix_d B );
-ElError ElCopyMatrix_c( ElConstMatrix_c A, ElMatrix_c B );
-ElError ElCopyMatrix_z( ElConstMatrix_z A, ElMatrix_z B );
+ElError ElCopy_i( ElConstMatrix_i A, ElMatrix_i B );
+ElError ElCopy_s( ElConstMatrix_s A, ElMatrix_s B );
+ElError ElCopy_d( ElConstMatrix_d A, ElMatrix_d B );
+ElError ElCopy_c( ElConstMatrix_c A, ElMatrix_c B );
+ElError ElCopy_z( ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElCopyDistMatrix_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
-ElError ElCopyDistMatrix_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElCopyDistMatrix_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElCopyDistMatrix_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElCopyDistMatrix_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
+ElError ElCopyDist_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
+ElError ElCopyDist_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElCopyDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElCopyDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
+ElError ElCopyDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* DiagonalScale 
    ============= */
-ElError ElDiagonalScaleMatrix_i
+ElError ElDiagonalScale_i
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_i d, ElMatrix_i X );
-ElError ElDiagonalScaleMatrix_s
+ElError ElDiagonalScale_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_s d, ElMatrix_s X );
-ElError ElDiagonalScaleMatrix_d
+ElError ElDiagonalScale_d
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_d d, ElMatrix_d X );
-ElError ElDiagonalScaleMatrix_c
+ElError ElDiagonalScale_c
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_c d, ElMatrix_c X );
-ElError ElDiagonalScaleMatrix_z
+ElError ElDiagonalScale_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_z d, ElMatrix_z X );
 
-ElError ElDiagonalScaleDistMatrix_i
+ElError ElDiagonalScaleDist_i
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_i d, ElDistMatrix_i X );
-ElError ElDiagonalScaleDistMatrix_s
+ElError ElDiagonalScaleDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s d, ElDistMatrix_s X );
-ElError ElDiagonalScaleDistMatrix_d
+ElError ElDiagonalScaleDist_d
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_d d, ElDistMatrix_d X );
-ElError ElDiagonalScaleDistMatrix_c
+ElError ElDiagonalScaleDist_c
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_c d, ElDistMatrix_c X );
-ElError ElDiagonalScaleDistMatrix_z
+ElError ElDiagonalScaleDist_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_z d, ElDistMatrix_z X );
 
 /* DiagonalScaleTrapezoid
    ====================== */
-ElError ElDiagonalScaleTrapezoidMatrix_i
+ElError ElDiagonalScaleTrapezoid_i
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_i d, ElMatrix_i X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidMatrix_s
+ElError ElDiagonalScaleTrapezoid_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_s d, ElMatrix_s X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidMatrix_d
+ElError ElDiagonalScaleTrapezoid_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_d d, ElMatrix_d X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidMatrix_c
+ElError ElDiagonalScaleTrapezoid_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_c d, ElMatrix_c X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidMatrix_z
+ElError ElDiagonalScaleTrapezoid_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_z d, ElMatrix_z X, ElInt offset );
 
-ElError ElDiagonalScaleTrapezoidDistMatrix_i
+ElError ElDiagonalScaleTrapezoidDist_i
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_i d, ElDistMatrix_i X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidDistMatrix_s
+ElError ElDiagonalScaleTrapezoidDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_s d, ElDistMatrix_s X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidDistMatrix_d
+ElError ElDiagonalScaleTrapezoidDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_d d, ElDistMatrix_d X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidDistMatrix_c
+ElError ElDiagonalScaleTrapezoidDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_c d, ElDistMatrix_c X, ElInt offset );
-ElError ElDiagonalScaleTrapezoidDistMatrix_z
+ElError ElDiagonalScaleTrapezoidDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_z d, ElDistMatrix_z X, ElInt offset );
 
 /* DiagonalSolve 
    ============= */
-ElError ElDiagonalSolveMatrix_s
+ElError ElDiagonalSolve_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_s d, ElMatrix_s X );
-ElError ElDiagonalSolveMatrix_d
+ElError ElDiagonalSolve_d
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_d d, ElMatrix_d X );
-ElError ElDiagonalSolveMatrix_c
+ElError ElDiagonalSolve_c
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_c d, ElMatrix_c X );
-ElError ElDiagonalSolveMatrix_z
+ElError ElDiagonalSolve_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstMatrix_z d, ElMatrix_z X );
 
-ElError ElDiagonalSolveDistMatrix_s
+ElError ElDiagonalSolveDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s d, ElDistMatrix_s X );
-ElError ElDiagonalSolveDistMatrix_d
+ElError ElDiagonalSolveDist_d
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_d d, ElDistMatrix_d X );
-ElError ElDiagonalSolveDistMatrix_c
+ElError ElDiagonalSolveDist_c
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_c d, ElDistMatrix_c X );
-ElError ElDiagonalSolveDistMatrix_z
+ElError ElDiagonalSolveDist_z
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_z d, ElDistMatrix_z X );
 
 /* DiagonalSolveTrapezoid
    ====================== */
-ElError ElDiagonalSolveTrapezoidMatrix_s
+ElError ElDiagonalSolveTrapezoid_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_s d, ElMatrix_s X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidMatrix_d
+ElError ElDiagonalSolveTrapezoid_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_d d, ElMatrix_d X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidMatrix_c
+ElError ElDiagonalSolveTrapezoid_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_c d, ElMatrix_c X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidMatrix_z
+ElError ElDiagonalSolveTrapezoid_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstMatrix_z d, ElMatrix_z X, ElInt offset );
 
-ElError ElDiagonalSolveTrapezoidDistMatrix_s
+ElError ElDiagonalSolveTrapezoidDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_s d, ElDistMatrix_s X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidDistMatrix_d
+ElError ElDiagonalSolveTrapezoidDist_d
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_d d, ElDistMatrix_d X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidDistMatrix_c
+ElError ElDiagonalSolveTrapezoidDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_c d, ElDistMatrix_c X, ElInt offset );
-ElError ElDiagonalSolveTrapezoidDistMatrix_z
+ElError ElDiagonalSolveTrapezoidDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_z d, ElDistMatrix_z X, ElInt offset );
 
 /* Dot 
    === */
-ElError ElDotMatrix_i
-( ElConstMatrix_i A, ElConstMatrix_i B, ElInt* prod );
-ElError ElDotMatrix_s
-( ElConstMatrix_s A, ElConstMatrix_s B, float* prod );
-ElError ElDotMatrix_d
-( ElConstMatrix_d A, ElConstMatrix_d B, double* prod );
-ElError ElDotMatrix_c
-( ElConstMatrix_c A, ElConstMatrix_c B, complex_float* prod );
-ElError ElDotMatrix_z
-( ElConstMatrix_z A, ElConstMatrix_z B, complex_double* prod );
+ElError ElDot_i( ElConstMatrix_i A, ElConstMatrix_i B, ElInt* prod );
+ElError ElDot_s( ElConstMatrix_s A, ElConstMatrix_s B, float* prod );
+ElError ElDot_d( ElConstMatrix_d A, ElConstMatrix_d B, double* prod );
+ElError ElDot_c( ElConstMatrix_c A, ElConstMatrix_c B, complex_float* prod );
+ElError ElDot_z( ElConstMatrix_z A, ElConstMatrix_z B, complex_double* prod );
 
-ElError ElDotDistMatrix_i
+ElError ElDotDist_i
 ( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElInt* prod );
-ElError ElDotDistMatrix_s
+ElError ElDotDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float* prod );
-ElError ElDotDistMatrix_d
+ElError ElDotDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double* prod );
-ElError ElDotDistMatrix_c
+ElError ElDotDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
-ElError ElDotDistMatrix_z
+ElError ElDotDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
 
 /* Dotu
    ==== */
-ElError ElDotuMatrix_i
-( ElConstMatrix_i A, ElConstMatrix_i B, ElInt* prod );
-ElError ElDotuMatrix_s
-( ElConstMatrix_s A, ElConstMatrix_s B, float* prod );
-ElError ElDotuMatrix_d
-( ElConstMatrix_d A, ElConstMatrix_d B, double* prod );
-ElError ElDotuMatrix_c
-( ElConstMatrix_c A, ElConstMatrix_c B, complex_float* prod );
-ElError ElDotuMatrix_z
-( ElConstMatrix_z A, ElConstMatrix_z B, complex_double* prod );
+ElError ElDotu_i( ElConstMatrix_i A, ElConstMatrix_i B, ElInt* prod );
+ElError ElDotu_s( ElConstMatrix_s A, ElConstMatrix_s B, float* prod );
+ElError ElDotu_d( ElConstMatrix_d A, ElConstMatrix_d B, double* prod );
+ElError ElDotu_c( ElConstMatrix_c A, ElConstMatrix_c B, complex_float* prod );
+ElError ElDotu_z( ElConstMatrix_z A, ElConstMatrix_z B, complex_double* prod );
 
-ElError ElDotuDistMatrix_i
+ElError ElDotuDist_i
 ( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElInt* prod );
-ElError ElDotuDistMatrix_s
+ElError ElDotuDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float* prod );
-ElError ElDotuDistMatrix_d
+ElError ElDotuDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double* prod );
-ElError ElDotuDistMatrix_c
+ElError ElDotuDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
-ElError ElDotuDistMatrix_z
+ElError ElDotuDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
 
 /* EntrywiseFill
    ============= */
-ElError ElEntrywiseFillMatrix_i( ElMatrix_i A, ElInt (*fill)() );
-ElError ElEntrywiseFillMatrix_s( ElMatrix_s A, float (*fill)() );
-ElError ElEntrywiseFillMatrix_d( ElMatrix_d A, double (*fill)() );
-ElError ElEntrywiseFillMatrix_c( ElMatrix_c A, complex_float (*fill)() );
-ElError ElEntrywiseFillMatrix_z( ElMatrix_z A, complex_double (*fill)() );
+ElError ElEntrywiseFill_i( ElMatrix_i A, ElInt (*fill)() );
+ElError ElEntrywiseFill_s( ElMatrix_s A, float (*fill)() );
+ElError ElEntrywiseFill_d( ElMatrix_d A, double (*fill)() );
+ElError ElEntrywiseFill_c( ElMatrix_c A, complex_float (*fill)() );
+ElError ElEntrywiseFill_z( ElMatrix_z A, complex_double (*fill)() );
 
-ElError ElEntrywiseFillDistMatrix_i
-( ElDistMatrix_i A, ElInt (*fill)() );
-ElError ElEntrywiseFillDistMatrix_s
-( ElDistMatrix_s A, float (*fill)() );
-ElError ElEntrywiseFillDistMatrix_d
-( ElDistMatrix_d A, double (*fill)() );
-ElError ElEntrywiseFillDistMatrix_c
-( ElDistMatrix_c A, complex_float (*fill)() );
-ElError ElEntrywiseFillDistMatrix_z
-( ElDistMatrix_z A, complex_double (*fill)() );
+ElError ElEntrywiseFillDist_i( ElDistMatrix_i A, ElInt (*fill)() );
+ElError ElEntrywiseFillDist_s( ElDistMatrix_s A, float (*fill)() );
+ElError ElEntrywiseFillDist_d( ElDistMatrix_d A, double (*fill)() );
+ElError ElEntrywiseFillDist_c( ElDistMatrix_c A, complex_float (*fill)() );
+ElError ElEntrywiseFillDist_z( ElDistMatrix_z A, complex_double (*fill)() );
 
 /* EntrywiseMap
    ============ */
-ElError ElEntrywiseMapMatrix_i
+ElError ElEntrywiseMap_i
 ( ElMatrix_i A, ElInt (*func)(ElInt) );
-ElError ElEntrywiseMapMatrix_s
+ElError ElEntrywiseMap_s
 ( ElMatrix_s A, float (*func)(float) );
-ElError ElEntrywiseMapMatrix_d
+ElError ElEntrywiseMap_d
 ( ElMatrix_d A, double (*func)(double) );
-ElError ElEntrywiseMapMatrix_c
+ElError ElEntrywiseMap_c
 ( ElMatrix_c A, complex_float (*func)(complex_float) );
-ElError ElEntrywiseMapMatrix_z
+ElError ElEntrywiseMap_z
 ( ElMatrix_z A, complex_double (*func)(complex_double) );
 
-ElError ElEntrywiseMapDistMatrix_i
+ElError ElEntrywiseMapDist_i
 ( ElDistMatrix_i A, ElInt (*func)(ElInt) );
-ElError ElEntrywiseMapDistMatrix_s
+ElError ElEntrywiseMapDist_s
 ( ElDistMatrix_s A, float (*func)(float) );
-ElError ElEntrywiseMapDistMatrix_d
+ElError ElEntrywiseMapDist_d
 ( ElDistMatrix_d A, double (*func)(double) );
-ElError ElEntrywiseMapDistMatrix_c
+ElError ElEntrywiseMapDist_c
 ( ElDistMatrix_c A, complex_float (*func)(complex_float) );
-ElError ElEntrywiseMapDistMatrix_z
+ElError ElEntrywiseMapDist_z
 ( ElDistMatrix_z A, complex_double (*func)(complex_double) );
 
 /* Fill
    ==== */
-ElError ElFillMatrix_i( ElMatrix_i A, ElInt alpha );
-ElError ElFillMatrix_s( ElMatrix_s A, float alpha );
-ElError ElFillMatrix_d( ElMatrix_d A, double alpha );
-ElError ElFillMatrix_c( ElMatrix_c A, complex_float alpha );
-ElError ElFillMatrix_z( ElMatrix_z A, complex_double alpha );
+ElError ElFill_i( ElMatrix_i A, ElInt alpha );
+ElError ElFill_s( ElMatrix_s A, float alpha );
+ElError ElFill_d( ElMatrix_d A, double alpha );
+ElError ElFill_c( ElMatrix_c A, complex_float alpha );
+ElError ElFill_z( ElMatrix_z A, complex_double alpha );
 
-ElError ElFillDistMatrix_i( ElDistMatrix_i A, ElInt alpha );
-ElError ElFillDistMatrix_s( ElDistMatrix_s A, float alpha );
-ElError ElFillDistMatrix_d( ElDistMatrix_d A, double alpha );
-ElError ElFillDistMatrix_c( ElDistMatrix_c A, complex_float alpha );
-ElError ElFillDistMatrix_z( ElDistMatrix_z A, complex_double alpha );
+ElError ElFillDist_i( ElDistMatrix_i A, ElInt alpha );
+ElError ElFillDist_s( ElDistMatrix_s A, float alpha );
+ElError ElFillDist_d( ElDistMatrix_d A, double alpha );
+ElError ElFillDist_c( ElDistMatrix_c A, complex_float alpha );
+ElError ElFillDist_z( ElDistMatrix_z A, complex_double alpha );
 
 /* Hadamard
    ======== */
-ElError ElHadamardMatrix_i
-( ElConstMatrix_i A, ElConstMatrix_i B, ElMatrix_i C );
-ElError ElHadamardMatrix_s
-( ElConstMatrix_s A, ElConstMatrix_s B, ElMatrix_s C );
-ElError ElHadamardMatrix_d
-( ElConstMatrix_d A, ElConstMatrix_d B, ElMatrix_d C );
-ElError ElHadamardMatrix_c
-( ElConstMatrix_c A, ElConstMatrix_c B, ElMatrix_c C );
-ElError ElHadamardMatrix_z
-( ElConstMatrix_z A, ElConstMatrix_z B, ElMatrix_z C );
+ElError ElHadamard_i( ElConstMatrix_i A, ElConstMatrix_i B, ElMatrix_i C );
+ElError ElHadamard_s( ElConstMatrix_s A, ElConstMatrix_s B, ElMatrix_s C );
+ElError ElHadamard_d( ElConstMatrix_d A, ElConstMatrix_d B, ElMatrix_d C );
+ElError ElHadamard_c( ElConstMatrix_c A, ElConstMatrix_c B, ElMatrix_c C );
+ElError ElHadamard_z( ElConstMatrix_z A, ElConstMatrix_z B, ElMatrix_z C );
 
-ElError ElHadamardDistMatrix_i
+ElError ElHadamardDist_i
 ( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElDistMatrix_i C );
-ElError ElHadamardDistMatrix_s
+ElError ElHadamardDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, ElDistMatrix_s C );
-ElError ElHadamardDistMatrix_d
+ElError ElHadamardDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d B, ElDistMatrix_d C );
-ElError ElHadamardDistMatrix_c
+ElError ElHadamardDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, ElDistMatrix_c C );
-ElError ElHadamardDistMatrix_z
+ElError ElHadamardDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, ElDistMatrix_z C );
 
 /* HilbertSchmidt
    ============== */
 /* NOTE: This is the same as Dot */
-ElError ElHilbertSchmidtMatrix_i
+ElError ElHilbertSchmidt_i
 ( ElConstMatrix_i A, ElConstMatrix_i B, ElInt* prod );
-ElError ElHilbertSchmidtMatrix_s
+ElError ElHilbertSchmidt_s
 ( ElConstMatrix_s A, ElConstMatrix_s B, float* prod );
-ElError ElHilbertSchmidtMatrix_d
+ElError ElHilbertSchmidt_d
 ( ElConstMatrix_d A, ElConstMatrix_d B, double* prod );
-ElError ElHilbertSchmidtMatrix_c
+ElError ElHilbertSchmidt_c
 ( ElConstMatrix_c A, ElConstMatrix_c B, complex_float* prod );
-ElError ElHilbertSchmidtMatrix_z
+ElError ElHilbertSchmidt_z
 ( ElConstMatrix_z A, ElConstMatrix_z B, complex_double* prod );
 
-ElError ElHilbertSchmidtDistMatrix_i
+ElError ElHilbertSchmidtDist_i
 ( ElConstDistMatrix_i A, ElConstDistMatrix_i B, ElInt* prod );
-ElError ElHilbertSchmidtDistMatrix_s
+ElError ElHilbertSchmidtDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s B, float* prod );
-ElError ElHilbertSchmidtDistMatrix_d
+ElError ElHilbertSchmidtDist_d
 ( ElConstDistMatrix_d A, ElConstDistMatrix_d B, double* prod );
-ElError ElHilbertSchmidtDistMatrix_c
+ElError ElHilbertSchmidtDist_c
 ( ElConstDistMatrix_c A, ElConstDistMatrix_c B, complex_float* prod );
-ElError ElHilbertSchmidtDistMatrix_z
+ElError ElHilbertSchmidtDist_z
 ( ElConstDistMatrix_z A, ElConstDistMatrix_z B, complex_double* prod );
 
 /* IndexDependentFill
    ================== */
-ElError ElIndexDependentFillMatrix_i
+ElError ElIndexDependentFill_i
 ( ElMatrix_i A, ElInt (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillMatrix_s
+ElError ElIndexDependentFill_s
 ( ElMatrix_s A, float (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillMatrix_d
+ElError ElIndexDependentFill_d
 ( ElMatrix_d A, double (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillMatrix_c
+ElError ElIndexDependentFill_c
 ( ElMatrix_c A, complex_float (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillMatrix_z
+ElError ElIndexDependentFill_z
 ( ElMatrix_z A, complex_double (*fill)(ElInt,ElInt) );
 
-ElError ElIndexDependentFillDistMatrix_i
+ElError ElIndexDependentFillDist_i
 ( ElDistMatrix_i A, ElInt (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillDistMatrix_s
+ElError ElIndexDependentFillDist_s
 ( ElDistMatrix_s A, float (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillDistMatrix_d
+ElError ElIndexDependentFillDist_d
 ( ElDistMatrix_d A, double (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillDistMatrix_c
+ElError ElIndexDependentFillDist_c
 ( ElDistMatrix_c A, complex_float (*fill)(ElInt,ElInt) );
-ElError ElIndexDependentFillDistMatrix_z
+ElError ElIndexDependentFillDist_z
 ( ElDistMatrix_z A, complex_double (*fill)(ElInt,ElInt) );
 
 /* IndexDependentMap
    ================= */
-ElError ElIndexDependentMapMatrix_i
+ElError ElIndexDependentMap_i
 ( ElMatrix_i A, ElInt (*func)(ElInt,ElInt,ElInt) );
-ElError ElIndexDependentMapMatrix_s
+ElError ElIndexDependentMap_s
 ( ElMatrix_s A, float (*func)(ElInt,ElInt,float) );
-ElError ElIndexDependentMapMatrix_d
+ElError ElIndexDependentMap_d
 ( ElMatrix_d A, double (*func)(ElInt,ElInt,double) );
-ElError ElIndexDependentMapMatrix_c
+ElError ElIndexDependentMap_c
 ( ElMatrix_c A, complex_float (*func)(ElInt,ElInt,complex_float) );
-ElError ElIndexDependentMapMatrix_z
+ElError ElIndexDependentMap_z
 ( ElMatrix_z A, complex_double (*func)(ElInt,ElInt,complex_double) );
 
-ElError ElIndexDependentMapDistMatrix_i
+ElError ElIndexDependentMapDist_i
 ( ElDistMatrix_i A, ElInt (*func)(ElInt,ElInt,ElInt) );
-ElError ElIndexDependentMapDistMatrix_s
+ElError ElIndexDependentMapDist_s
 ( ElDistMatrix_s A, float (*func)(ElInt,ElInt,float) );
-ElError ElIndexDependentMapDistMatrix_d
+ElError ElIndexDependentMapDist_d
 ( ElDistMatrix_d A, double (*func)(ElInt,ElInt,double) );
-ElError ElIndexDependentMapDistMatrix_c
+ElError ElIndexDependentMapDist_c
 ( ElDistMatrix_c A, complex_float (*func)(ElInt,ElInt,complex_float) );
-ElError ElIndexDependentMapDistMatrix_z
+ElError ElIndexDependentMapDist_z
 ( ElDistMatrix_z A, complex_double (*func)(ElInt,ElInt,complex_double) );
 
 /* MakeHermitian 
    ============= */
-ElError ElMakeHermitianMatrix_i( ElUpperOrLower uplo, ElMatrix_i A );
-ElError ElMakeHermitianMatrix_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElMakeHermitianMatrix_d( ElUpperOrLower uplo, ElMatrix_d A );
-ElError ElMakeHermitianMatrix_c( ElUpperOrLower uplo, ElMatrix_c A );
-ElError ElMakeHermitianMatrix_z( ElUpperOrLower uplo, ElMatrix_z A );
+ElError ElMakeHermitian_i( ElUpperOrLower uplo, ElMatrix_i A );
+ElError ElMakeHermitian_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElMakeHermitian_d( ElUpperOrLower uplo, ElMatrix_d A );
+ElError ElMakeHermitian_c( ElUpperOrLower uplo, ElMatrix_c A );
+ElError ElMakeHermitian_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-ElError ElMakeHermitianDistMatrix_i( ElUpperOrLower uplo, ElDistMatrix_i A );
-ElError ElMakeHermitianDistMatrix_s( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElMakeHermitianDistMatrix_d( ElUpperOrLower uplo, ElDistMatrix_d A );
-ElError ElMakeHermitianDistMatrix_c( ElUpperOrLower uplo, ElDistMatrix_c A );
-ElError ElMakeHermitianDistMatrix_z( ElUpperOrLower uplo, ElDistMatrix_z A );
+ElError ElMakeHermitianDist_i( ElUpperOrLower uplo, ElDistMatrix_i A );
+ElError ElMakeHermitianDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
+ElError ElMakeHermitianDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
+ElError ElMakeHermitianDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
+ElError ElMakeHermitianDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
 /* MakeReal
    ======== */
-ElError ElMakeRealMatrix_c( ElMatrix_c A );
-ElError ElMakeRealMatrix_z( ElMatrix_z A );
+ElError ElMakeReal_c( ElMatrix_c A );
+ElError ElMakeReal_z( ElMatrix_z A );
 
-ElError ElMakeRealDistMatrix_c( ElDistMatrix_c A );
-ElError ElMakeRealDistMatrix_z( ElDistMatrix_z A );
+ElError ElMakeRealDist_c( ElDistMatrix_c A );
+ElError ElMakeRealDist_z( ElDistMatrix_z A );
 
 /* MakeSymmetric 
    ============= */
-ElError ElMakeSymmetricMatrix_i( ElUpperOrLower uplo, ElMatrix_i A );
-ElError ElMakeSymmetricMatrix_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElMakeSymmetricMatrix_d( ElUpperOrLower uplo, ElMatrix_d A );
-ElError ElMakeSymmetricMatrix_c( ElUpperOrLower uplo, ElMatrix_c A );
-ElError ElMakeSymmetricMatrix_z( ElUpperOrLower uplo, ElMatrix_z A );
+ElError ElMakeSymmetric_i( ElUpperOrLower uplo, ElMatrix_i A );
+ElError ElMakeSymmetric_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElMakeSymmetric_d( ElUpperOrLower uplo, ElMatrix_d A );
+ElError ElMakeSymmetric_c( ElUpperOrLower uplo, ElMatrix_c A );
+ElError ElMakeSymmetric_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-ElError ElMakeSymmetricDistMatrix_i( ElUpperOrLower uplo, ElDistMatrix_i A );
-ElError ElMakeSymmetricDistMatrix_s( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElMakeSymmetricDistMatrix_d( ElUpperOrLower uplo, ElDistMatrix_d A );
-ElError ElMakeSymmetricDistMatrix_c( ElUpperOrLower uplo, ElDistMatrix_c A );
-ElError ElMakeSymmetricDistMatrix_z( ElUpperOrLower uplo, ElDistMatrix_z A );
+ElError ElMakeSymmetricDist_i( ElUpperOrLower uplo, ElDistMatrix_i A );
+ElError ElMakeSymmetricDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
+ElError ElMakeSymmetricDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
+ElError ElMakeSymmetricDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
+ElError ElMakeSymmetricDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
 /* MakeTrapezoidal
    =============== */
-ElError ElMakeTrapezoidalMatrix_i
-( ElUpperOrLower uplo, ElMatrix_i A, ElInt offset );
-ElError ElMakeTrapezoidalMatrix_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElInt offset );
-ElError ElMakeTrapezoidalMatrix_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElInt offset );
-ElError ElMakeTrapezoidalMatrix_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElInt offset );
-ElError ElMakeTrapezoidalMatrix_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElInt offset );
+ElError ElMakeTrapezoidal_i( ElUpperOrLower uplo, ElMatrix_i A, ElInt offset );
+ElError ElMakeTrapezoidal_s( ElUpperOrLower uplo, ElMatrix_s A, ElInt offset );
+ElError ElMakeTrapezoidal_d( ElUpperOrLower uplo, ElMatrix_d A, ElInt offset );
+ElError ElMakeTrapezoidal_c( ElUpperOrLower uplo, ElMatrix_c A, ElInt offset );
+ElError ElMakeTrapezoidal_z( ElUpperOrLower uplo, ElMatrix_z A, ElInt offset );
 
-ElError ElMakeTrapezoidalDistMatrix_i
+ElError ElMakeTrapezoidalDist_i
 ( ElUpperOrLower uplo, ElDistMatrix_i A, ElInt offset );
-ElError ElMakeTrapezoidalDistMatrix_s
+ElError ElMakeTrapezoidalDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElInt offset );
-ElError ElMakeTrapezoidalDistMatrix_d
+ElError ElMakeTrapezoidalDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElInt offset );
-ElError ElMakeTrapezoidalDistMatrix_c
+ElError ElMakeTrapezoidalDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElInt offset );
-ElError ElMakeTrapezoidalDistMatrix_z
+ElError ElMakeTrapezoidalDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt offset );
 
 /* MakeTriangular
    ============== */
-ElError ElMakeTriangularMatrix_i( ElUpperOrLower uplo, ElMatrix_i A );
-ElError ElMakeTriangularMatrix_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElMakeTriangularMatrix_d( ElUpperOrLower uplo, ElMatrix_d A );
-ElError ElMakeTriangularMatrix_c( ElUpperOrLower uplo, ElMatrix_c A );
-ElError ElMakeTriangularMatrix_z( ElUpperOrLower uplo, ElMatrix_z A );
+ElError ElMakeTriangular_i( ElUpperOrLower uplo, ElMatrix_i A );
+ElError ElMakeTriangular_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElMakeTriangular_d( ElUpperOrLower uplo, ElMatrix_d A );
+ElError ElMakeTriangular_c( ElUpperOrLower uplo, ElMatrix_c A );
+ElError ElMakeTriangular_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-ElError ElMakeTriangularDistMatrix_i( ElUpperOrLower uplo, ElDistMatrix_i A );
-ElError ElMakeTriangularDistMatrix_s( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElMakeTriangularDistMatrix_d( ElUpperOrLower uplo, ElDistMatrix_d A );
-ElError ElMakeTriangularDistMatrix_c( ElUpperOrLower uplo, ElDistMatrix_c A );
-ElError ElMakeTriangularDistMatrix_z( ElUpperOrLower uplo, ElDistMatrix_z A );
+ElError ElMakeTriangularDist_i( ElUpperOrLower uplo, ElDistMatrix_i A );
+ElError ElMakeTriangularDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
+ElError ElMakeTriangularDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
+ElError ElMakeTriangularDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
+ElError ElMakeTriangularDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
 /* Nrm2
    ==== */
-ElError ElNrm2Matrix_s( ElConstMatrix_s A, float* gamma );
-ElError ElNrm2Matrix_d( ElConstMatrix_d A, double* gamma );
-ElError ElNrm2Matrix_c( ElConstMatrix_c A, float* gamma );
-ElError ElNrm2Matrix_z( ElConstMatrix_z A, double* gamma );
+ElError ElNrm2_s( ElConstMatrix_s A, float* gamma );
+ElError ElNrm2_d( ElConstMatrix_d A, double* gamma );
+ElError ElNrm2_c( ElConstMatrix_c A, float* gamma );
+ElError ElNrm2_z( ElConstMatrix_z A, double* gamma );
 
-ElError ElNrm2DistMatrix_s( ElConstDistMatrix_s A, float* gamma );
-ElError ElNrm2DistMatrix_d( ElConstDistMatrix_d A, double* gamma );
-ElError ElNrm2DistMatrix_c( ElConstDistMatrix_c A, float* gamma );
-ElError ElNrm2DistMatrix_z( ElConstDistMatrix_z A, double* gamma );
+ElError ElNrm2Dist_s( ElConstDistMatrix_s A, float* gamma );
+ElError ElNrm2Dist_d( ElConstDistMatrix_d A, double* gamma );
+ElError ElNrm2Dist_c( ElConstDistMatrix_c A, float* gamma );
+ElError ElNrm2Dist_z( ElConstDistMatrix_z A, double* gamma );
 
 /* Scale
    ===== */
-ElError ElScaleMatrix_i( ElInt alpha, ElMatrix_i A );
-ElError ElScaleMatrix_s( float alpha, ElMatrix_s A );
-ElError ElScaleMatrix_d( double alpha, ElMatrix_d A );
-ElError ElScaleMatrix_c( complex_float alpha, ElMatrix_c A );
-ElError ElScaleMatrix_z( complex_double alpha, ElMatrix_z A );
+ElError ElScale_i( ElInt alpha, ElMatrix_i A );
+ElError ElScale_s( float alpha, ElMatrix_s A );
+ElError ElScale_d( double alpha, ElMatrix_d A );
+ElError ElScale_c( complex_float alpha, ElMatrix_c A );
+ElError ElScale_z( complex_double alpha, ElMatrix_z A );
 
-ElError ElScaleDistMatrix_i( ElInt alpha, ElDistMatrix_i A );
-ElError ElScaleDistMatrix_s( float alpha, ElDistMatrix_s A );
-ElError ElScaleDistMatrix_d( double alpha, ElDistMatrix_d A );
-ElError ElScaleDistMatrix_c( complex_float alpha, ElDistMatrix_c A );
-ElError ElScaleDistMatrix_z( complex_double alpha, ElDistMatrix_z A );
+ElError ElScaleDist_i( ElInt alpha, ElDistMatrix_i A );
+ElError ElScaleDist_s( float alpha, ElDistMatrix_s A );
+ElError ElScaleDist_d( double alpha, ElDistMatrix_d A );
+ElError ElScaleDist_c( complex_float alpha, ElDistMatrix_c A );
+ElError ElScaleDist_z( complex_double alpha, ElDistMatrix_z A );
 
 /* ScaleTrapezoid
    ============== */
-ElError ElScaleTrapezoidMatrix_i
+ElError ElScaleTrapezoid_i
 ( ElInt alpha, ElUpperOrLower uplo, ElMatrix_i A, ElInt offset );
-ElError ElScaleTrapezoidMatrix_s
+ElError ElScaleTrapezoid_s
 ( float alpha, ElUpperOrLower uplo, ElMatrix_s A, ElInt offset );
-ElError ElScaleTrapezoidMatrix_d
+ElError ElScaleTrapezoid_d
 ( double alpha, ElUpperOrLower uplo, ElMatrix_d A, ElInt offset );
-ElError ElScaleTrapezoidMatrix_c
+ElError ElScaleTrapezoid_c
 ( complex_float alpha, ElUpperOrLower uplo, ElMatrix_c A, ElInt offset );
-ElError ElScaleTrapezoidMatrix_z
+ElError ElScaleTrapezoid_z
 ( complex_double alpha, ElUpperOrLower uplo, ElMatrix_z A, ElInt offset );
 
-ElError ElScaleTrapezoidDistMatrix_i
+ElError ElScaleTrapezoidDist_i
 ( ElInt alpha, ElUpperOrLower uplo, ElDistMatrix_i A, ElInt offset );
-ElError ElScaleTrapezoidDistMatrix_s
+ElError ElScaleTrapezoidDist_s
 ( float alpha, ElUpperOrLower uplo, ElDistMatrix_s A, ElInt offset );
-ElError ElScaleTrapezoidDistMatrix_d
+ElError ElScaleTrapezoidDist_d
 ( double alpha, ElUpperOrLower uplo, ElDistMatrix_d A, ElInt offset );
-ElError ElScaleTrapezoidDistMatrix_c
+ElError ElScaleTrapezoidDist_c
 ( complex_float alpha, ElUpperOrLower uplo, ElDistMatrix_c A, ElInt offset );
-ElError ElScaleTrapezoidDistMatrix_z
+ElError ElScaleTrapezoidDist_z
 ( complex_double alpha, ElUpperOrLower uplo, ElDistMatrix_z A, ElInt offset );
 
 /* SetDiagonal
    =========== */
-ElError ElSetDiagonalMatrix_i
-( ElMatrix_i A, ElInt alpha, ElInt offset );
-ElError ElSetDiagonalMatrix_s
-( ElMatrix_s A, float alpha, ElInt offset );
-ElError ElSetDiagonalMatrix_d
-( ElMatrix_d A, double alpha, ElInt offset );
-ElError ElSetDiagonalMatrix_c
-( ElMatrix_c A, complex_float alpha, ElInt offset );
-ElError ElSetDiagonalMatrix_z
-( ElMatrix_z A, complex_double alpha, ElInt offset );
+ElError ElSetDiagonal_i( ElMatrix_i A, ElInt alpha, ElInt offset );
+ElError ElSetDiagonal_s( ElMatrix_s A, float alpha, ElInt offset );
+ElError ElSetDiagonal_d( ElMatrix_d A, double alpha, ElInt offset );
+ElError ElSetDiagonal_c( ElMatrix_c A, complex_float alpha, ElInt offset );
+ElError ElSetDiagonal_z( ElMatrix_z A, complex_double alpha, ElInt offset );
 
-ElError ElSetDiagonalDistMatrix_i
+ElError ElSetDiagonalDist_i
 ( ElDistMatrix_i A, ElInt alpha, ElInt offset );
-ElError ElSetDiagonalDistMatrix_s
+ElError ElSetDiagonalDist_s
 ( ElDistMatrix_s A, float alpha, ElInt offset );
-ElError ElSetDiagonalDistMatrix_d
+ElError ElSetDiagonalDist_d
 ( ElDistMatrix_d A, double alpha, ElInt offset );
-ElError ElSetDiagonalDistMatrix_c
+ElError ElSetDiagonalDist_c
 ( ElDistMatrix_c A, complex_float alpha, ElInt offset );
-ElError ElSetDiagonalDistMatrix_z
+ElError ElSetDiagonalDist_z
 ( ElDistMatrix_z A, complex_double alpha, ElInt offset );
 
 /* Swap
    ==== */
-ElError ElSwapMatrix_i( ElOrientation orientation, ElMatrix_i X, ElMatrix_i Y );
-ElError ElSwapMatrix_s( ElOrientation orientation, ElMatrix_s X, ElMatrix_s Y );
-ElError ElSwapMatrix_d( ElOrientation orientation, ElMatrix_d X, ElMatrix_d Y );
-ElError ElSwapMatrix_c( ElOrientation orientation, ElMatrix_c X, ElMatrix_c Y );
-ElError ElSwapMatrix_z( ElOrientation orientation, ElMatrix_z X, ElMatrix_z Y );
+ElError ElSwap_i( ElOrientation orientation, ElMatrix_i X, ElMatrix_i Y );
+ElError ElSwap_s( ElOrientation orientation, ElMatrix_s X, ElMatrix_s Y );
+ElError ElSwap_d( ElOrientation orientation, ElMatrix_d X, ElMatrix_d Y );
+ElError ElSwap_c( ElOrientation orientation, ElMatrix_c X, ElMatrix_c Y );
+ElError ElSwap_z( ElOrientation orientation, ElMatrix_z X, ElMatrix_z Y );
 
-ElError ElSwapDistMatrix_i
+ElError ElSwapDist_i
 ( ElOrientation orientation, ElDistMatrix_i X, ElDistMatrix_i Y );
-ElError ElSwapDistMatrix_s
+ElError ElSwapDist_s
 ( ElOrientation orientation, ElDistMatrix_s X, ElDistMatrix_s Y );
-ElError ElSwapDistMatrix_d
+ElError ElSwapDist_d
 ( ElOrientation orientation, ElDistMatrix_d X, ElDistMatrix_d Y );
-ElError ElSwapDistMatrix_c
+ElError ElSwapDist_c
 ( ElOrientation orientation, ElDistMatrix_c X, ElDistMatrix_c Y );
-ElError ElSwapDistMatrix_z
+ElError ElSwapDist_z
 ( ElOrientation orientation, ElDistMatrix_z X, ElDistMatrix_z Y );
 
-ElError ElRowSwapMatrix_i( ElMatrix_i A, ElInt to, ElInt from );
-ElError ElRowSwapMatrix_s( ElMatrix_s A, ElInt to, ElInt from );
-ElError ElRowSwapMatrix_d( ElMatrix_d A, ElInt to, ElInt from );
-ElError ElRowSwapMatrix_c( ElMatrix_c A, ElInt to, ElInt from );
-ElError ElRowSwapMatrix_z( ElMatrix_z A, ElInt to, ElInt from );
+ElError ElRowSwap_i( ElMatrix_i A, ElInt to, ElInt from );
+ElError ElRowSwap_s( ElMatrix_s A, ElInt to, ElInt from );
+ElError ElRowSwap_d( ElMatrix_d A, ElInt to, ElInt from );
+ElError ElRowSwap_c( ElMatrix_c A, ElInt to, ElInt from );
+ElError ElRowSwap_z( ElMatrix_z A, ElInt to, ElInt from );
 
-ElError ElRowSwapDistMatrix_i( ElDistMatrix_i A, ElInt to, ElInt from );
-ElError ElRowSwapDistMatrix_s( ElDistMatrix_s A, ElInt to, ElInt from );
-ElError ElRowSwapDistMatrix_d( ElDistMatrix_d A, ElInt to, ElInt from );
-ElError ElRowSwapDistMatrix_c( ElDistMatrix_c A, ElInt to, ElInt from );
-ElError ElRowSwapDistMatrix_z( ElDistMatrix_z A, ElInt to, ElInt from );
+ElError ElRowSwapDist_i( ElDistMatrix_i A, ElInt to, ElInt from );
+ElError ElRowSwapDist_s( ElDistMatrix_s A, ElInt to, ElInt from );
+ElError ElRowSwapDist_d( ElDistMatrix_d A, ElInt to, ElInt from );
+ElError ElRowSwapDist_c( ElDistMatrix_c A, ElInt to, ElInt from );
+ElError ElRowSwapDist_z( ElDistMatrix_z A, ElInt to, ElInt from );
 
-ElError ElColSwapMatrix_i( ElMatrix_i A, ElInt to, ElInt from );
-ElError ElColSwapMatrix_s( ElMatrix_s A, ElInt to, ElInt from );
-ElError ElColSwapMatrix_d( ElMatrix_d A, ElInt to, ElInt from );
-ElError ElColSwapMatrix_c( ElMatrix_c A, ElInt to, ElInt from );
-ElError ElColSwapMatrix_z( ElMatrix_z A, ElInt to, ElInt from );
+ElError ElColSwap_i( ElMatrix_i A, ElInt to, ElInt from );
+ElError ElColSwap_s( ElMatrix_s A, ElInt to, ElInt from );
+ElError ElColSwap_d( ElMatrix_d A, ElInt to, ElInt from );
+ElError ElColSwap_c( ElMatrix_c A, ElInt to, ElInt from );
+ElError ElColSwap_z( ElMatrix_z A, ElInt to, ElInt from );
 
-ElError ElColSwapDistMatrix_i( ElDistMatrix_i A, ElInt to, ElInt from );
-ElError ElColSwapDistMatrix_s( ElDistMatrix_s A, ElInt to, ElInt from );
-ElError ElColSwapDistMatrix_d( ElDistMatrix_d A, ElInt to, ElInt from );
-ElError ElColSwapDistMatrix_c( ElDistMatrix_c A, ElInt to, ElInt from );
-ElError ElColSwapDistMatrix_z( ElDistMatrix_z A, ElInt to, ElInt from );
+ElError ElColSwapDist_i( ElDistMatrix_i A, ElInt to, ElInt from );
+ElError ElColSwapDist_s( ElDistMatrix_s A, ElInt to, ElInt from );
+ElError ElColSwapDist_d( ElDistMatrix_d A, ElInt to, ElInt from );
+ElError ElColSwapDist_c( ElDistMatrix_c A, ElInt to, ElInt from );
+ElError ElColSwapDist_z( ElDistMatrix_z A, ElInt to, ElInt from );
 
-ElError ElSymmetricSwapMatrix_i
+ElError ElSymmetricSwap_i
 ( ElUpperOrLower uplo, ElMatrix_i A, ElInt to, ElInt from );
-ElError ElSymmetricSwapMatrix_s
+ElError ElSymmetricSwap_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElInt to, ElInt from );
-ElError ElSymmetricSwapMatrix_d
+ElError ElSymmetricSwap_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElInt to, ElInt from );
-ElError ElSymmetricSwapMatrix_c
+ElError ElSymmetricSwap_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElInt to, ElInt from );
-ElError ElSymmetricSwapMatrix_z
+ElError ElSymmetricSwap_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElInt to, ElInt from );
 
-ElError ElSymmetricSwapDistMatrix_i
+ElError ElSymmetricSwapDist_i
 ( ElUpperOrLower uplo, ElDistMatrix_i A, ElInt to, ElInt from );
-ElError ElSymmetricSwapDistMatrix_s
+ElError ElSymmetricSwapDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElInt to, ElInt from );
-ElError ElSymmetricSwapDistMatrix_d
+ElError ElSymmetricSwapDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElInt to, ElInt from );
-ElError ElSymmetricSwapDistMatrix_c
+ElError ElSymmetricSwapDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElInt to, ElInt from );
-ElError ElSymmetricSwapDistMatrix_z
+ElError ElSymmetricSwapDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt to, ElInt from );
 
-ElError ElHermitianSwapMatrix_i
+ElError ElHermitianSwap_i
 ( ElUpperOrLower uplo, ElMatrix_i A, ElInt to, ElInt from );
-ElError ElHermitianSwapMatrix_s
+ElError ElHermitianSwap_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElInt to, ElInt from );
-ElError ElHermitianSwapMatrix_d
+ElError ElHermitianSwap_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElInt to, ElInt from );
-ElError ElHermitianSwapMatrix_c
+ElError ElHermitianSwap_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElInt to, ElInt from );
-ElError ElHermitianSwapMatrix_z
+ElError ElHermitianSwap_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElInt to, ElInt from );
 
-ElError ElHermitianSwapDistMatrix_i
+ElError ElHermitianSwapDist_i
 ( ElUpperOrLower uplo, ElDistMatrix_i A, ElInt to, ElInt from );
-ElError ElHermitianSwapDistMatrix_s
+ElError ElHermitianSwapDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElInt to, ElInt from );
-ElError ElHermitianSwapDistMatrix_d
+ElError ElHermitianSwapDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElInt to, ElInt from );
-ElError ElHermitianSwapDistMatrix_c
+ElError ElHermitianSwapDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElInt to, ElInt from );
-ElError ElHermitianSwapDistMatrix_z
+ElError ElHermitianSwapDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt to, ElInt from );
 
 /* B = A^T 
    ======= */
-ElError ElTransposeMatrix_i( ElConstMatrix_i A, ElMatrix_i B );
-ElError ElTransposeMatrix_s( ElConstMatrix_s A, ElMatrix_s B );
-ElError ElTransposeMatrix_d( ElConstMatrix_d A, ElMatrix_d B );
-ElError ElTransposeMatrix_c( ElConstMatrix_c A, ElMatrix_c B );
-ElError ElTransposeMatrix_z( ElConstMatrix_z A, ElMatrix_z B );
+ElError ElTranspose_i( ElConstMatrix_i A, ElMatrix_i B );
+ElError ElTranspose_s( ElConstMatrix_s A, ElMatrix_s B );
+ElError ElTranspose_d( ElConstMatrix_d A, ElMatrix_d B );
+ElError ElTranspose_c( ElConstMatrix_c A, ElMatrix_c B );
+ElError ElTranspose_z( ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElTransposeDistMatrix_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
-ElError ElTransposeDistMatrix_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElTransposeDistMatrix_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
-ElError ElTransposeDistMatrix_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
-ElError ElTransposeDistMatrix_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
+ElError ElTransposeDist_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
+ElError ElTransposeDist_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElTransposeDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElTransposeDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
+ElError ElTransposeDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
 /* UpdateDiagonal
    ============== */
-ElError ElUpdateDiagonalMatrix_i
-( ElMatrix_i A, ElInt alpha, ElInt offset );
-ElError ElUpdateDiagonalMatrix_s
-( ElMatrix_s A, float alpha, ElInt offset );
-ElError ElUpdateDiagonalMatrix_d
-( ElMatrix_d A, double alpha, ElInt offset );
-ElError ElUpdateDiagonalMatrix_c
-( ElMatrix_c A, complex_float alpha, ElInt offset );
-ElError ElUpdateDiagonalMatrix_z
-( ElMatrix_z A, complex_double alpha, ElInt offset );
+ElError ElUpdateDiagonal_i( ElMatrix_i A, ElInt alpha, ElInt offset );
+ElError ElUpdateDiagonal_s( ElMatrix_s A, float alpha, ElInt offset );
+ElError ElUpdateDiagonal_d( ElMatrix_d A, double alpha, ElInt offset );
+ElError ElUpdateDiagonal_c( ElMatrix_c A, complex_float alpha, ElInt offset );
+ElError ElUpdateDiagonal_z( ElMatrix_z A, complex_double alpha, ElInt offset );
 
-ElError ElUpdateDiagonalDistMatrix_i
+ElError ElUpdateDiagonalDist_i
 ( ElDistMatrix_i A, ElInt alpha, ElInt offset );
-ElError ElUpdateDiagonalDistMatrix_s
+ElError ElUpdateDiagonalDist_s
 ( ElDistMatrix_s A, float alpha, ElInt offset );
-ElError ElUpdateDiagonalDistMatrix_d
+ElError ElUpdateDiagonalDist_d
 ( ElDistMatrix_d A, double alpha, ElInt offset );
-ElError ElUpdateDiagonalDistMatrix_c
+ElError ElUpdateDiagonalDist_c
 ( ElDistMatrix_c A, complex_float alpha, ElInt offset );
-ElError ElUpdateDiagonalDistMatrix_z
+ElError ElUpdateDiagonalDist_z
 ( ElDistMatrix_z A, complex_double alpha, ElInt offset );
 
 /* Zero
    ==== */
-ElError ElZeroMatrix_i( ElMatrix_i A );
-ElError ElZeroMatrix_s( ElMatrix_s A );
-ElError ElZeroMatrix_d( ElMatrix_d A );
-ElError ElZeroMatrix_c( ElMatrix_c A );
-ElError ElZeroMatrix_z( ElMatrix_z A );
+ElError ElZero_i( ElMatrix_i A );
+ElError ElZero_s( ElMatrix_s A );
+ElError ElZero_d( ElMatrix_d A );
+ElError ElZero_c( ElMatrix_c A );
+ElError ElZero_z( ElMatrix_z A );
 
-ElError ElZeroDistMatrix_i( ElDistMatrix_i A );
-ElError ElZeroDistMatrix_s( ElDistMatrix_s A );
-ElError ElZeroDistMatrix_d( ElDistMatrix_d A );
-ElError ElZeroDistMatrix_c( ElDistMatrix_c A );
-ElError ElZeroDistMatrix_z( ElDistMatrix_z A );
+ElError ElZeroDist_i( ElDistMatrix_i A );
+ElError ElZeroDist_s( ElDistMatrix_s A );
+ElError ElZeroDist_d( ElDistMatrix_d A );
+ElError ElZeroDist_c( ElDistMatrix_c A );
+ElError ElZeroDist_z( ElDistMatrix_z A );
 
 #ifdef __cplusplus
 } // extern "C"

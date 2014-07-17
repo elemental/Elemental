@@ -300,11 +300,6 @@ void MakeTriangular( UpperOrLower uplo, AbstractBlockDistMatrix<T>& A );
 // Max
 // ===
 template<typename Real>
-ValueInt<Real> VectorMax( const Matrix<Real>& x );
-template<typename Real>
-ValueInt<Real> VectorMax( const AbstractDistMatrix<Real>& x );
-
-template<typename Real>
 ValueIntPair<Real> Max( const Matrix<Real>& A );
 template<typename Real>
 ValueIntPair<Real> Max( const AbstractDistMatrix<Real>& A );
@@ -314,6 +309,11 @@ ValueIntPair<Real> SymmetricMax( UpperOrLower uplo, const Matrix<Real>& A );
 template<typename Real>
 ValueIntPair<Real>
 SymmetricMax( UpperOrLower uplo, const AbstractDistMatrix<Real>& A );
+
+template<typename Real>
+ValueInt<Real> VectorMax( const Matrix<Real>& x );
+template<typename Real>
+ValueInt<Real> VectorMax( const AbstractDistMatrix<Real>& x );
 
 template<typename Real>
 ValueInt<Real> DiagonalMax( const Matrix<Real>& A );

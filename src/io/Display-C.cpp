@@ -14,11 +14,11 @@ extern "C" {
 
 #define C_PROTO(SIG,T) \
   /* Matrix */ \
-  ElError ElDisplayMatrix_ ## SIG \
+  ElError ElDisplay_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title ) \
   { EL_TRY( Display( *Reinterpret(AHandle), std::string(title) ) ) } \
   /* AbstractDistMatrix */ \
-  ElError ElDisplayDistMatrix_ ## SIG \
+  ElError ElDisplayDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG AHandle, const char* title ) \
   { EL_TRY( Display( *Reinterpret(AHandle), std::string(title) ) ) }
 

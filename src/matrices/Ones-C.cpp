@@ -13,11 +13,9 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO(SIG,T) \
-  ElError ElOnesMatrix_ ## SIG \
-  ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  ElError ElOnes_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) } \
-  ElError ElOnesDistMatrix_ ## SIG \
-  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  ElError ElOnesDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) }
 
 #include "El/macros/CInstantiate.h"

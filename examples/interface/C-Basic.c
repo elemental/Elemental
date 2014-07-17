@@ -65,12 +65,12 @@ main( int argc, char* argv[] )
 
     if( print )
     {
-        error = ElPrintDistMatrix_z( A, "A" );
+        error = ElPrintDist_z( A, "A" );
         EL_ABORT_ON_ERROR( error );
     }
     if( display )
     {
-        error = ElDisplayDistMatrix_z( A, "A" );
+        error = ElDisplayDist_z( A, "A" );
         EL_ABORT_ON_ERROR( error );
     }
 
@@ -94,12 +94,12 @@ main( int argc, char* argv[] )
     EL_ABORT_ON_ERROR( error );
     if( print )
     {
-        error = ElPrintDistMatrix_z( ASub, "ASub" );
+        error = ElPrintDist_z( ASub, "ASub" );
         EL_ABORT_ON_ERROR( error );
     }
     if( display )
     {
-        error = ElDisplayDistMatrix_z( ASub, "ASub" );
+        error = ElDisplayDist_z( ASub, "ASub" );
         EL_ABORT_ON_ERROR( error );
     }
 
