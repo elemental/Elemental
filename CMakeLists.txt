@@ -327,7 +327,8 @@ endif()
 # Build the example drivers if necessary
 if(EL_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
-  set(EXAMPLE_TYPES optimization core blas-like io lapack-like matrices)
+  set(EXAMPLE_TYPES 
+      optimization core blas-like interface io lapack-like matrices)
   foreach(TYPE ${EXAMPLE_TYPES})
     if(EL_C_INTERFACE)
       file(GLOB_RECURSE ${TYPE}_EXAMPLES RELATIVE 
