@@ -18,7 +18,7 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO_BASE(SIG,T) \
+#define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Gemv */ \
   ElError ElGemv_ ## SIG \
   ( ElOrientation orientation, \
@@ -38,7 +38,7 @@ extern "C" {
             Reinterpret(alpha), DM_CAST_CONST(T,A), DM_CAST_CONST(T,x), \
             Reinterpret(beta), DM_CAST(T,y) ) ) }
 
-#define C_PROTO_NOINT(SIG,T) \
+#define C_PROTO_NOINT(SIG,SIGBASE,T) \
   /* Ger */ \
   ElError ElGer_ ## SIG \
   ( CREFLECT(T) alpha, ElConstMatrix_ ## SIG x, ElConstMatrix_ ## SIG y, \
@@ -154,11 +154,11 @@ extern "C" {
         Reinterpret(uplo), Reinterpret(orientation), Reinterpret(diag), \
         M_CAST_CONST(T,A), M_CAST(T,x) ) ) }
 
-#define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,T)
+#define C_PROTO_INT(SIG,SIGBASE,T) C_PROTO_BASE(SIG,SIGBASE,T)
 
-#define C_PROTO(SIG,T) \
-  C_PROTO_BASE(SIG,T) \
-  C_PROTO_NOINT(SIG,T) \
+#define C_PROTO(SIG,SIGBASE,T) \
+  C_PROTO_BASE(SIG,SIGBASE,T) \
+  C_PROTO_NOINT(SIG,SIGBASE,T) \
   /* Trr */ \
   ElError ElTrr_ ## SIG \
   ( ElUpperOrLower uplo, \
@@ -197,8 +197,8 @@ extern "C" {
             DM_CAST(T,A) ) ) } 
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,T) \
-  C_PROTO_NOINT(SIG,T) \
+  C_PROTO_BASE(SIG,SIGBASE,T) \
+  C_PROTO_NOINT(SIG,SIGBASE,T) \
   /* Hemv */ \
   ElError ElHemv_ ## SIG \
   ( ElUpperOrLower uplo, \

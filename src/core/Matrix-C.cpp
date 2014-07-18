@@ -12,7 +12,7 @@ using namespace El;
 
 extern "C" {
 
-#define MATRIX_CONSTRUCT(SIG,T) \
+#define MATRIX_CONSTRUCT(SIG,SIGBASE,T) \
   /* Matrix<T>::Matrix() */ \
   ElError ElMatrixCreate_ ## SIG ( ElMatrix_ ## SIG * A ) \
   { EL_TRY( *A = Reinterpret( new Matrix<T> ) ) } \
@@ -20,7 +20,7 @@ extern "C" {
   ElError ElMatrixDestroy_ ## SIG ( ElConstMatrix_ ## SIG A ) \
   { EL_TRY( delete Reinterpret(A) ) }
 
-#define MATRIX_RECONFIG(SIG,T) \
+#define MATRIX_RECONFIG(SIG,SIGBASE,T) \
   /* void Matrix<T>::Empty() */ \
   ElError ElMatrixEmpty_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Reinterpret(A)->Empty() ) } \
@@ -57,7 +57,7 @@ extern "C" {
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( *Reinterpret(B) = *Reinterpret(A) ) }
 
-#define MATRIX_BASIC(SIG,T) \
+#define MATRIX_BASIC(SIG,SIGBASE,T) \
   /* Int Matrix<T>::Height() const */ \
   ElError ElMatrixHeight_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElInt* height ) \
@@ -99,7 +99,7 @@ extern "C" {
   ( ElConstMatrix_ ## SIG A, bool* locked ) \
   { EL_TRY( *locked = Reinterpret(A)->Locked() ) }
 
-#define MATRIX_SINGLEENTRY(SIG,T) \
+#define MATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
   /* T Matrix<T>::Get( Int i, Int j ) const */ \
   ElError ElMatrixGet_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElInt i, ElInt j, CREFLECT(T)* val ) \
@@ -147,7 +147,7 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt i, ElInt j ) \
   { EL_TRY( Reinterpret(A)->Conjugate(i,j) ) }
 
-#define MATRIX_DIAGONAL(SIG,T) \
+#define MATRIX_DIAGONAL(SIG,SIGBASE,T) \
   /* Matrix<T> Matrix<T>::GetDiagonal( Int offset ) const */ \
   ElError ElMatrixGetDiagonal_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElInt offset, ElMatrix_ ## SIG *d ) \
@@ -217,7 +217,7 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt offset ) \
   { EL_TRY( Reinterpret(A)->ConjugateDiagonal(offset) ) }
 
-#define MATRIX_SUBMATRIX(SIG,T) \
+#define MATRIX_SUBMATRIX(SIG,SIGBASE,T) \
   /* Matrix<T> Matrix<T>::GetSubmatrix
      ( const std::vector<Int>& rowInds, \
        const std::vector<Int>& colInds ) const */ \
@@ -231,16 +231,16 @@ extern "C" {
             Reinterpret(A)->GetSubmatrix( rowIndVec, colIndVec, *ASubPtr ); \
             *ASub = Reinterpret(ASubPtr) ) }
 
-#define C_PROTO(SIG,T) \
-  MATRIX_CONSTRUCT(SIG,T) \
-  MATRIX_RECONFIG(SIG,T) \
-  MATRIX_BASIC(SIG,T) \
-  MATRIX_SINGLEENTRY(SIG,T) \
-  MATRIX_DIAGONAL(SIG,T) \
-  MATRIX_SUBMATRIX(SIG,T)
+#define C_PROTO(SIG,SIGBASE,T) \
+  MATRIX_CONSTRUCT(SIG,SIGBASE,T) \
+  MATRIX_RECONFIG(SIG,SIGBASE,T) \
+  MATRIX_BASIC(SIG,SIGBASE,T) \
+  MATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
+  MATRIX_DIAGONAL(SIG,SIGBASE,T) \
+  MATRIX_SUBMATRIX(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
-  C_PROTO(SIG,T) \
+  C_PROTO(SIG,SIGBASE,T) \
   MATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
   MATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T)
 

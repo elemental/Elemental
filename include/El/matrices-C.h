@@ -435,6 +435,75 @@ ElError ElHelmholtzPML3DDist_z
 ( ElDistMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
   ElInt numPmlPoints, double sigma, double pmlExp );
 
+/* Hermitian from EVD
+   ================== */
+ElError ElHermitianFromEVD_s
+( ElUpperOrLower uplo, ElMatrix_s A, 
+  ElConstMatrix_s w, ElConstMatrix_s Z );
+ElError ElHermitianFromEVD_d
+( ElUpperOrLower uplo, ElMatrix_d A, 
+  ElConstMatrix_d w, ElConstMatrix_d Z );
+ElError ElHermitianFromEVD_c
+( ElUpperOrLower uplo, ElMatrix_c A, 
+  ElConstMatrix_s w, ElConstMatrix_c Z );
+ElError ElHermitianFromEVD_z
+( ElUpperOrLower uplo, ElMatrix_z A, 
+  ElConstMatrix_d w, ElConstMatrix_z Z );
+
+/* TODO: Distributed HermitianFromEVD */
+
+/* Hilbert
+   ======= */
+ElError ElHilbert_s( ElMatrix_s A, ElInt n );
+ElError ElHilbert_d( ElMatrix_d A, ElInt n );
+ElError ElHilbert_c( ElMatrix_c A, ElInt n );
+ElError ElHilbert_z( ElMatrix_z A, ElInt n );
+
+ElError ElHilbertDist_s( ElDistMatrix_s A, ElInt n );
+ElError ElHilbertDist_d( ElDistMatrix_d A, ElInt n );
+ElError ElHilbertDist_c( ElDistMatrix_c A, ElInt n );
+ElError ElHilbertDist_z( ElDistMatrix_z A, ElInt n );
+
+/* Identity
+   ======== */
+ElError ElIdentity_i( ElMatrix_i A, ElInt m, ElInt n );
+ElError ElIdentity_s( ElMatrix_s A, ElInt m, ElInt n );
+ElError ElIdentity_d( ElMatrix_d A, ElInt m, ElInt n );
+ElError ElIdentity_c( ElMatrix_c A, ElInt m, ElInt n );
+ElError ElIdentity_z( ElMatrix_z A, ElInt m, ElInt n );
+
+ElError ElIdentityDist_i( ElDistMatrix_i A, ElInt m, ElInt n );
+ElError ElIdentityDist_s( ElDistMatrix_s A, ElInt m, ElInt n );
+ElError ElIdentityDist_d( ElDistMatrix_d A, ElInt m, ElInt n );
+ElError ElIdentityDist_c( ElDistMatrix_c A, ElInt m, ElInt n );
+ElError ElIdentityDist_z( ElDistMatrix_z A, ElInt m, ElInt n );
+
+/* Jordan
+   ====== */
+ElError ElJordan_i( ElMatrix_i J, ElInt n, ElInt lambda );
+ElError ElJordan_s( ElMatrix_s J, ElInt n, float lambda );
+ElError ElJordan_d( ElMatrix_d J, ElInt n, double lambda );
+ElError ElJordan_c( ElMatrix_c J, ElInt n, complex_float lambda );
+ElError ElJordan_z( ElMatrix_z J, ElInt n, complex_double lambda );
+
+ElError ElJordanDist_i( ElDistMatrix_i J, ElInt n, ElInt lambda );
+ElError ElJordanDist_s( ElDistMatrix_s J, ElInt n, float lambda );
+ElError ElJordanDist_d( ElDistMatrix_d J, ElInt n, double lambda );
+ElError ElJordanDist_c( ElDistMatrix_c J, ElInt n, complex_float lambda );
+ElError ElJordanDist_z( ElDistMatrix_z J, ElInt n, complex_double lambda );
+
+/* Kahan
+   ===== */
+ElError ElKahan_s( ElMatrix_s A, ElInt n, float phi );
+ElError ElKahan_d( ElMatrix_d A, ElInt n, double phi );
+ElError ElKahan_c( ElMatrix_c A, ElInt n, complex_float phi );
+ElError ElKahan_z( ElMatrix_z A, ElInt n, complex_double phi );
+
+ElError ElKahanDist_s( ElDistMatrix_s A, ElInt n, float phi );
+ElError ElKahanDist_d( ElDistMatrix_d A, ElInt n, double phi );
+ElError ElKahanDist_c( ElDistMatrix_c A, ElInt n, complex_float phi );
+ElError ElKahanDist_z( ElDistMatrix_z A, ElInt n, complex_double phi );
+
 /* Ones
    ==== */
 ElError ElOnes_i( ElMatrix_i A, ElInt m, ElInt n );

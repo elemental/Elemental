@@ -12,7 +12,7 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO_BASE(SIG,T) \
+#define C_PROTO_BASE(SIG,SIGBASE,T) \
   /* Circulant */ \
   ElError ElCirculant_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \
@@ -85,6 +85,18 @@ extern "C" {
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) mu ) \
   { EL_TRY( Hanowa( *Reinterpret(A), n, Reinterpret(mu) ) ) } \
   /* TODO: Distributed Hanowa */ \
+  /* Identity */ \
+  ElError ElIdentity_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Identity( *Reinterpret(A), m, n ) ) } \
+  ElError ElIdentityDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Identity( *Reinterpret(A), m, n ) ) } \
+  /* Jordan */ \
+  ElError ElJordan_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) lambda ) \
+  { EL_TRY( Jordan( *Reinterpret(A), n, Reinterpret(lambda) ) ) } \
+  ElError ElJordanDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) lambda ) \
+  { EL_TRY( Jordan( *Reinterpret(A), n, Reinterpret(lambda) ) ) } \
   /* Ones */ \
   ElError ElOnes_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) } \
@@ -100,7 +112,7 @@ extern "C" {
     CREFLECT(T) center, Base<T> radius ) \
   { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) }
 
-#define C_PROTO_NOINT(SIG,T) \
+#define C_PROTO_NOINT(SIG,SIGBASE,T) \
   /* Cauchy */ \
   ElError ElCauchy_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt xSize, CREFLECT(T)* xBuf, \
@@ -211,18 +223,39 @@ extern "C" {
   { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, nz, Reinterpret(shift) ) ) } \
   ElError ElHelmholtz3DDist_ ## SIG \
   ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) shift ) \
-  { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, nz, Reinterpret(shift) ) ) }
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, nz, Reinterpret(shift) ) ) } \
+  /* Hermitian from EVD */ \
+  ElError ElHermitianFromEVD_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
+    ElConstMatrix_ ## SIGBASE w, ElConstMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      HermitianFromEVD( \
+        Reinterpret(uplo), *Reinterpret(A), \
+        *Reinterpret(w), *Reinterpret(Z) ) ) } \
+  /* TODO: Distributed HermitianFromEVD */ \
+  /* Hilbert */ \
+  ElError ElHilbert_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Hilbert( *Reinterpret(A), n ) ) } \
+  ElError ElHilbertDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Hilbert( *Reinterpret(A), n ) ) } \
+  /* Kahan */ \
+  ElError ElKahan_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) phi ) \
+  { EL_TRY( Kahan( *Reinterpret(A), n, Reinterpret(phi) ) ) } \
+  ElError ElKahanDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) phi ) \
+  { EL_TRY( Kahan( *Reinterpret(A), n, Reinterpret(phi) ) ) }
 
-#define C_PROTO_INT(SIG,T) \
-  C_PROTO_BASE(SIG,T)
+#define C_PROTO_INT(SIG,SIGBASE,T) \
+  C_PROTO_BASE(SIG,SIGBASE,T)
 
-#define C_PROTO_REAL(SIG,T) \
-  C_PROTO_BASE(SIG,T) \
-  C_PROTO_NOINT(SIG,T)
+#define C_PROTO_REAL(SIG,SIGBASE,T) \
+  C_PROTO_BASE(SIG,SIGBASE,T) \
+  C_PROTO_NOINT(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,T) \
-  C_PROTO_NOINT(SIG,T) \
+  C_PROTO_BASE(SIG,SIGBASE,T) \
+  C_PROTO_NOINT(SIG,SIGBASE,T) \
   /* Bull's head */ \
   ElError ElBullsHead_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( BullsHead( *Reinterpret(A), n ) ) } \

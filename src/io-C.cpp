@@ -12,7 +12,7 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO(SIG,T) \
+#define C_PROTO(SIG,SIGBASE,T) \
   /* Display */ \
   ElError ElDisplay_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title ) \

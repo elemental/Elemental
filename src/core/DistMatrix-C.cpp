@@ -123,7 +123,7 @@ ElError ElDistMatrixGetImagPartOfDiagonal
 
 extern "C" {
 
-#define DISTMATRIX_CREATE(SIG,T) \
+#define DISTMATRIX_CREATE(SIG,SIGBASE,T) \
   /* DistMatrix<T,MC,MR>::DistMatrix( const Grid& g ) */ \
   ElError ElDistMatrixCreate_ ## SIG \
   ( ElConstGrid grid, ElDistMatrix_ ## SIG *A ) \
@@ -143,7 +143,7 @@ extern "C" {
   ElError ElDistMatrixDestroy_ ## SIG ( ElConstDistMatrix_ ## SIG A ) \
   { EL_TRY( Reinterpret(A) ) } 
 
-#define DISTMATRIX_RECONFIG(SIG,T) \
+#define DISTMATRIX_RECONFIG(SIG,SIGBASE,T) \
   /* void DistMatrix<T,U,V>::Empty() */ \
   ElError ElDistMatrixEmpty_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Reinterpret(A)->Empty() ) } \
@@ -253,7 +253,7 @@ extern "C" {
             (height,width,*Reinterpret(grid),colAlign,rowAlign, \
              Reinterpret(buffer),ldim,root) ) }
 
-#define DISTMATRIX_BASIC(SIG,T) \
+#define DISTMATRIX_BASIC(SIG,SIGBASE,T) \
   /* Int DistMatrix<T,U,V>::Height() const */ \
   ElError ElDistMatrixHeight_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElInt* height ) \
@@ -509,7 +509,7 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG A, ElInt* commSize ) \
   { EL_TRY( *commSize = Reinterpret(A)->RedundantSize() ) }
 
-#define DISTMATRIX_SINGLEENTRY(SIG,T) \
+#define DISTMATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
   /* T DistMatrix<T,U,V>::Get( Int i, Int j ) const */ \
   ElError ElDistMatrixGet_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElInt i, ElInt j, CREFLECT(T)* val ) \
@@ -601,7 +601,7 @@ extern "C" {
   ( ElDistMatrix_ ## SIG A, ElInt iLoc, ElInt jLoc, Base<T> alpha ) \
   { EL_TRY( Reinterpret(A)->UpdateLocalImagPart(iLoc,jLoc,alpha) ) }
 
-#define DISTMATRIX_DIAGONAL(SIG,T) \
+#define DISTMATRIX_DIAGONAL(SIG,SIGBASE,T) \
   /* bool DistMatrix<T,U,V>::DiagonalAlignedWith
      ( const DistData& data, Int offset ) const */ \
   ElError ElDistMatrixDiagonalAlignedWith_ ## SIG \
@@ -660,7 +660,7 @@ extern "C" {
     *d = Reinterpret(dAbsPtr); \
     return error; }
 
-#define DISTMATRIX_SUBMATRIX(SIG,T) \
+#define DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T) \
   /* DistMatrix<T,STAR,STAR> DistMatrix<T,U,V>::GetSubmatrix
      ( const std::vector<Int>& rowInds, 
        const std::vector<Int>& colInds ) const */ \
@@ -1001,16 +1001,16 @@ extern "C" {
         Reinterpret(A)->ConjugateLocalSubmatrix( rowIndVec, colIndVec ); \
     } EL_CATCH; return EL_SUCCESS; }
 
-#define C_PROTO(SIG,T) \
-  DISTMATRIX_CREATE(SIG,T) \
-  DISTMATRIX_RECONFIG(SIG,T) \
-  DISTMATRIX_BASIC(SIG,T) \
-  DISTMATRIX_SINGLEENTRY(SIG,T) \
-  DISTMATRIX_DIAGONAL(SIG,T) \
-  DISTMATRIX_SUBMATRIX(SIG,T)
+#define C_PROTO(SIG,SIGBASE,T) \
+  DISTMATRIX_CREATE(SIG,SIGBASE,T) \
+  DISTMATRIX_RECONFIG(SIG,SIGBASE,T) \
+  DISTMATRIX_BASIC(SIG,SIGBASE,T) \
+  DISTMATRIX_SINGLEENTRY(SIG,SIGBASE,T) \
+  DISTMATRIX_DIAGONAL(SIG,SIGBASE,T) \
+  DISTMATRIX_SUBMATRIX(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
-  C_PROTO(SIG,T) \
+  C_PROTO(SIG,SIGBASE,T) \
   DISTMATRIX_SINGLEENTRY_COMPLEX(SIG,SIGBASE,T) \
   DISTMATRIX_DIAGONAL_COMPLEX(SIG,SIGBASE,T) \
   DISTMATRIX_SUBMATRIX_COMPLEX(SIG,SIGBASE,T)
