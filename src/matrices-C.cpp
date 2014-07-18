@@ -50,6 +50,41 @@ extern "C" {
   { EL_TRY( \
       Forsythe( \
         *Reinterpret(J), n, Reinterpret(alpha), Reinterpret(lambda) ) ) } \
+  /* GCD matrix */ \
+  ElError ElGCDMatrix_ ## SIG ( ElMatrix_ ## SIG G, ElInt m, ElInt n ) \
+  { EL_TRY( GCDMatrix( *Reinterpret(G), m, n ) ) } \
+  ElError ElGCDMatrixDist_ ## SIG ( ElDistMatrix_ ## SIG G, ElInt m, ElInt n ) \
+  { EL_TRY( GCDMatrix( *Reinterpret(G), m, n ) ) } \
+  /* Gear */ \
+  ElError ElGear_ ## SIG \
+  ( ElMatrix_ ## SIG G, ElInt n, ElInt s, ElInt t ) \
+  { EL_TRY( Gear( *Reinterpret(G), n, s, t ) ) } \
+  ElError ElGearDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG G, ElInt n, ElInt s, ElInt t ) \
+  { EL_TRY( Gear( *Reinterpret(G), n, s, t ) ) } \
+  /* Grcar */ \
+  ElError ElGrcar_ ## SIG ( ElMatrix_ ## SIG A, ElInt n, ElInt k ) \
+  { EL_TRY( Grcar( *Reinterpret(A), n, k ) ) } \
+  ElError ElGrcarDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n, ElInt k ) \
+  { EL_TRY( Grcar( *Reinterpret(A), n, k ) ) } \
+  /* Hankel */ \
+  ElError ElHankel_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( Reinterpret(aBuf), Reinterpret(aBuf)+aSize ); \
+      Hankel( *Reinterpret(A), m, n, a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElHankelDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( Reinterpret(aBuf), Reinterpret(aBuf)+aSize ); \
+      Hankel( *Reinterpret(A), m, n, a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Hanowa */ \
+  ElError ElHanowa_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) mu ) \
+  { EL_TRY( Hanowa( *Reinterpret(A), n, Reinterpret(mu) ) ) } \
+  /* TODO: Distributed Hanowa */ \
   /* Ones */ \
   ElError ElOnes_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) } \
@@ -143,7 +178,40 @@ extern "C" {
   { try { \
       std::vector<T> c( Reinterpret(cBuf), Reinterpret(cBuf)+cSize ); \
       Fiedler( *Reinterpret(A), c ); \
-    } EL_CATCH; return EL_SUCCESS; }
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Golub Klema Stewart */ \
+  ElError ElGKS_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( GKS( *Reinterpret(A), n ) ) } \
+  ElError ElGKSDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( GKS( *Reinterpret(A), n ) ) } \
+  /* Hatano-Nelson */ \
+  ElError ElHatanoNelson_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius, \
+    CREFLECT(T) g, bool periodic ) \
+  { EL_TRY( \
+      HatanoNelson( \
+        *Reinterpret(A), n, Reinterpret(center), radius, Reinterpret(g), \
+        periodic ) ) } \
+  /* TODO: Distributed Hatano-Nelson */ \
+  /* Helmholtz */ \
+  ElError ElHelmholtz1D_ ## SIG \
+  ( ElMatrix_ ## SIG H, ElInt nx, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, Reinterpret(shift) ) ) } \
+  ElError ElHelmholtz1DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG H, ElInt nx, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, Reinterpret(shift) ) ) } \
+  ElError ElHelmholtz2D_ ## SIG \
+  ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, Reinterpret(shift) ) ) } \
+  ElError ElHelmholtz2DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, Reinterpret(shift) ) ) } \
+  ElError ElHelmholtz3D_ ## SIG \
+  ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, nz, Reinterpret(shift) ) ) } \
+  ElError ElHelmholtz3DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) shift ) \
+  { EL_TRY( Helmholtz( *Reinterpret(H), nx, ny, nz, Reinterpret(shift) ) ) }
 
 #define C_PROTO_INT(SIG,T) \
   C_PROTO_BASE(SIG,T)
@@ -172,7 +240,59 @@ extern "C" {
   { try { \
       std::function<Base<T>(Int,Int)> phaseFunc(phase); \
       Egorov( *Reinterpret(A), phaseFunc, n ); \
-    } EL_CATCH; return EL_SUCCESS; }
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Fox-Li */ \
+  ElError ElFoxLi_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, Base<T> omega ) \
+  { EL_TRY( FoxLi( *Reinterpret(A), n, omega ) ) } \
+  /* Fourier */ \
+  ElError ElFourier_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Fourier( *Reinterpret(A), n ) ) } \
+  ElError ElFourierDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Fourier( *Reinterpret(A), n ) ) } \
+  /* Helmholtz with PML */ \
+  ElError ElHelmholtzPML1D_ ## SIG \
+  ( ElMatrix_ ## SIG H, ElInt nx, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *Reinterpret(H), nx, Reinterpret(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML1DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG H, ElInt nx, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *Reinterpret(H), nx, Reinterpret(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML2D_ ## SIG \
+  ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *Reinterpret(H), nx, ny, Reinterpret(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML2DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *Reinterpret(H), nx, ny, Reinterpret(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML3D_ ## SIG \
+  ( ElMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *Reinterpret(H), nx, ny, nz, Reinterpret(omega), \
+        numPmlPoints, sigma, pmlExp ) ) } \
+  ElError ElHelmholtzPML3DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG H, ElInt nx, ElInt ny, ElInt nz, CREFLECT(T) omega, \
+    ElInt numPmlPoints, Base<T> sigma, Base<T> pmlExp ) \
+  { EL_TRY( \
+      HelmholtzPML( \
+        *Reinterpret(H), nx, ny, nz, Reinterpret(omega), \
+        numPmlPoints, sigma, pmlExp ) ) }
 
 #include "El/macros/CInstantiate.h"
 

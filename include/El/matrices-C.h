@@ -223,6 +223,218 @@ ElError ElForsytheDist_c
 ElError ElForsytheDist_z
 ( ElDistMatrix_z J, ElInt n, complex_double alpha, complex_double lambda );
 
+/* Fox-Li
+   ====== */
+ElError ElFoxLi_c( ElMatrix_c A, ElInt n, float omega );
+ElError ElFoxLi_z( ElMatrix_z A, ElInt n, double omega );
+
+/* TODO: Distributed Fox-Li */
+
+/* Fourier
+   ======= */
+ElError ElFourier_c( ElMatrix_c A, ElInt n );
+ElError ElFourier_z( ElMatrix_z A, ElInt n );
+
+ElError ElFourierDist_c( ElDistMatrix_c A, ElInt n );
+ElError ElFourierDist_z( ElDistMatrix_z A, ElInt n );
+
+/* GCD matrix
+   ========== */
+ElError ElGCDMatrix_i( ElMatrix_i G, ElInt m, ElInt n );
+ElError ElGCDMatrix_s( ElMatrix_s G, ElInt m, ElInt n );
+ElError ElGCDMatrix_d( ElMatrix_d G, ElInt m, ElInt n );
+ElError ElGCDMatrix_c( ElMatrix_c G, ElInt m, ElInt n );
+ElError ElGCDMatrix_z( ElMatrix_z G, ElInt m, ElInt n );
+
+ElError ElGCDMatrixDist_i( ElDistMatrix_i G, ElInt m, ElInt n );
+ElError ElGCDMatrixDist_s( ElDistMatrix_s G, ElInt m, ElInt n );
+ElError ElGCDMatrixDist_d( ElDistMatrix_d G, ElInt m, ElInt n );
+ElError ElGCDMatrixDist_c( ElDistMatrix_c G, ElInt m, ElInt n );
+ElError ElGCDMatrixDist_z( ElDistMatrix_z G, ElInt m, ElInt n );
+
+/* Gear matrix
+   =========== */
+ElError ElGear_i( ElMatrix_i G, ElInt n, ElInt s, ElInt t );
+ElError ElGear_s( ElMatrix_s G, ElInt n, ElInt s, ElInt t );
+ElError ElGear_d( ElMatrix_d G, ElInt n, ElInt s, ElInt t );
+ElError ElGear_c( ElMatrix_c G, ElInt n, ElInt s, ElInt t );
+ElError ElGear_z( ElMatrix_z G, ElInt n, ElInt s, ElInt t );
+
+ElError ElGearDist_i( ElDistMatrix_i G, ElInt n, ElInt s, ElInt t );
+ElError ElGearDist_s( ElDistMatrix_s G, ElInt n, ElInt s, ElInt t );
+ElError ElGearDist_d( ElDistMatrix_d G, ElInt n, ElInt s, ElInt t );
+ElError ElGearDist_c( ElDistMatrix_c G, ElInt n, ElInt s, ElInt t );
+ElError ElGearDist_z( ElDistMatrix_z G, ElInt n, ElInt s, ElInt t );
+
+/* Golub Klema Stewart
+   =================== */
+ElError ElGKS_s( ElMatrix_s A, ElInt n );
+ElError ElGKS_d( ElMatrix_d A, ElInt n );
+ElError ElGKS_c( ElMatrix_c A, ElInt n );
+ElError ElGKS_z( ElMatrix_z A, ElInt n );
+
+ElError ElGKSDist_s( ElDistMatrix_s A, ElInt n );
+ElError ElGKSDist_d( ElDistMatrix_d A, ElInt n );
+ElError ElGKSDist_c( ElDistMatrix_c A, ElInt n );
+ElError ElGKSDist_z( ElDistMatrix_z A, ElInt n );
+
+/* Grcar
+   ===== */
+ElError ElGrcar_i( ElMatrix_i A, ElInt n, ElInt k );
+ElError ElGrcar_s( ElMatrix_s A, ElInt n, ElInt k );
+ElError ElGrcar_d( ElMatrix_d A, ElInt n, ElInt k );
+ElError ElGrcar_c( ElMatrix_c A, ElInt n, ElInt k );
+ElError ElGrcar_z( ElMatrix_z A, ElInt n, ElInt k );
+
+ElError ElGrcarDist_i( ElDistMatrix_i A, ElInt n, ElInt k );
+ElError ElGrcarDist_s( ElDistMatrix_s A, ElInt n, ElInt k );
+ElError ElGrcarDist_d( ElDistMatrix_d A, ElInt n, ElInt k );
+ElError ElGrcarDist_c( ElDistMatrix_c A, ElInt n, ElInt k );
+ElError ElGrcarDist_z( ElDistMatrix_z A, ElInt n, ElInt k );
+
+/* Hankel
+   ====== */
+ElError ElHankel_i
+( ElMatrix_i A, ElInt m, ElInt n, ElInt aSize, ElInt* aBuf );
+ElError ElHankel_s
+( ElMatrix_s A, ElInt m, ElInt n, ElInt aSize, float* aBuf );
+ElError ElHankel_d
+( ElMatrix_d A, ElInt m, ElInt n, ElInt aSize, double* aBuf );
+ElError ElHankel_c
+( ElMatrix_c A, ElInt m, ElInt n, ElInt aSize, complex_float* aBuf );
+ElError ElHankel_z
+( ElMatrix_z A, ElInt m, ElInt n, ElInt aSize, complex_double* aBuf );
+
+ElError ElHankelDist_i
+( ElDistMatrix_i A, ElInt m, ElInt n, ElInt aSize, ElInt* aBuf );
+ElError ElHankelDist_s
+( ElDistMatrix_s A, ElInt m, ElInt n, ElInt aSize, float* aBuf );
+ElError ElHankelDist_d
+( ElDistMatrix_d A, ElInt m, ElInt n, ElInt aSize, double* aBuf );
+ElError ElHankelDist_c
+( ElDistMatrix_c A, ElInt m, ElInt n, ElInt aSize, complex_float* aBuf );
+ElError ElHankelDist_z
+( ElDistMatrix_z A, ElInt m, ElInt n, ElInt aSize, complex_double* aBuf );
+
+/* Hanowa
+   ====== */
+ElError ElHanowa_i( ElMatrix_i A, ElInt n, ElInt mu );
+ElError ElHanowa_s( ElMatrix_s A, ElInt n, float mu );
+ElError ElHanowa_d( ElMatrix_d A, ElInt n, double mu );
+ElError ElHanowa_c( ElMatrix_c A, ElInt n, complex_float mu );
+ElError ElHanowa_z( ElMatrix_z A, ElInt n, complex_double mu );
+
+/* TODO: Distributed Hanowa */
+
+/* Hatano-Nelson
+   ============= */
+ElError ElHatanoNelson_s
+( ElMatrix_s A, ElInt n, float center, float radius, float g, 
+  bool periodic );
+ElError ElHatanoNelson_d
+( ElMatrix_d A, ElInt n, double center, double radius, double g, 
+  bool periodic );
+ElError ElHatanoNelson_c
+( ElMatrix_c A, ElInt n, complex_float center, float radius, complex_float g, 
+  bool periodic );
+ElError ElHatanoNelson_z
+( ElMatrix_z A, ElInt n, complex_double center, double radius, complex_double g,
+  bool periodic );
+
+/* TODO: Distributed Hatano-Nelson */
+
+/* Helmholtz
+   ========= */
+ElError ElHelmholtz1D_s( ElMatrix_s H, ElInt nx, float shift );
+ElError ElHelmholtz1D_d( ElMatrix_d H, ElInt nx, double shift );
+ElError ElHelmholtz1D_c( ElMatrix_c H, ElInt nx, complex_float shift );
+ElError ElHelmholtz1D_z( ElMatrix_z H, ElInt nx, complex_double shift );
+
+ElError ElHelmholtz1DDist_s( ElDistMatrix_s H, ElInt nx, float shift );
+ElError ElHelmholtz1DDist_d( ElDistMatrix_d H, ElInt nx, double shift );
+ElError ElHelmholtz1DDist_c( ElDistMatrix_c H, ElInt nx, complex_float shift );
+ElError ElHelmholtz1DDist_z( ElDistMatrix_z H, ElInt nx, complex_double shift );
+
+ElError ElHelmholtz2D_s
+( ElMatrix_s H, ElInt nx, ElInt ny, float shift );
+ElError ElHelmholtz2D_d
+( ElMatrix_d H, ElInt nx, ElInt ny, double shift );
+ElError ElHelmholtz2D_c
+( ElMatrix_c H, ElInt nx, ElInt ny, complex_float shift );
+ElError ElHelmholtz2D_z
+( ElMatrix_z H, ElInt nx, ElInt ny, complex_double shift );
+
+ElError ElHelmholtz2DDist_s
+( ElDistMatrix_s H, ElInt nx, ElInt ny, float shift );
+ElError ElHelmholtz2DDist_d
+( ElDistMatrix_d H, ElInt nx, ElInt ny, double shift );
+ElError ElHelmholtz2DDist_c
+( ElDistMatrix_c H, ElInt nx, ElInt ny, complex_float shift );
+ElError ElHelmholtz2DDist_z
+( ElDistMatrix_z H, ElInt nx, ElInt ny, complex_double shift );
+
+ElError ElHelmholtz3D_s
+( ElMatrix_s H, ElInt nx, ElInt ny, ElInt nz, float shift );
+ElError ElHelmholtz3D_d
+( ElMatrix_d H, ElInt nx, ElInt ny, ElInt nz, double shift );
+ElError ElHelmholtz3D_c
+( ElMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float shift );
+ElError ElHelmholtz3D_z
+( ElMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double shift );
+
+ElError ElHelmholtz3DDist_s
+( ElDistMatrix_s H, ElInt nx, ElInt ny, ElInt nz, float shift );
+ElError ElHelmholtz3DDist_d
+( ElDistMatrix_d H, ElInt nx, ElInt ny, ElInt nz, double shift );
+ElError ElHelmholtz3DDist_c
+( ElDistMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float shift );
+ElError ElHelmholtz3DDist_z
+( ElDistMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double shift );
+
+/* Helmholtz with PML
+   ================== */
+ElError ElHelmholtzPML1D_c
+( ElMatrix_c H, ElInt nx, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+ElError ElHelmholtzPML1D_z
+( ElMatrix_z H, ElInt nx, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+ElError ElHelmholtzPML1DDist_c
+( ElDistMatrix_c H, ElInt nx, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+ElError ElHelmholtzPML1DDist_z
+( ElDistMatrix_z H, ElInt nx, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+ElError ElHelmholtzPML2D_c
+( ElMatrix_c H, ElInt nx, ElInt ny, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+ElError ElHelmholtzPML2D_z
+( ElMatrix_z H, ElInt nx, ElInt ny, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+ElError ElHelmholtzPML2DDist_c
+( ElDistMatrix_c H, ElInt nx, ElInt ny, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+ElError ElHelmholtzPML2DDist_z
+( ElDistMatrix_z H, ElInt nx, ElInt ny, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+ElError ElHelmholtzPML3D_c
+( ElMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+ElError ElHelmholtzPML3D_z
+( ElMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
+ElError ElHelmholtzPML3DDist_c
+( ElDistMatrix_c H, ElInt nx, ElInt ny, ElInt nz, complex_float omega, 
+  ElInt numPmlPoints, float sigma, float pmlExp );
+ElError ElHelmholtzPML3DDist_z
+( ElDistMatrix_z H, ElInt nx, ElInt ny, ElInt nz, complex_double omega, 
+  ElInt numPmlPoints, double sigma, double pmlExp );
+
 /* Ones
    ==== */
 ElError ElOnes_i( ElMatrix_i A, ElInt m, ElInt n );

@@ -262,30 +262,30 @@ void Helmholtz( AbstractDistMatrix<F>& H, Int nx, Int ny, Int nz, F shift );
 // =============
 template<typename Real>
 void HelmholtzPML
-( Matrix<Complex<Real>>& H, Int nx, Complex<Real> omega,
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+( Matrix<Complex<Real>>& H, Int nx, 
+  Complex<Real> omega, Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 template<typename Real>
 void HelmholtzPML
-( DistMatrix<Complex<Real>>& H, Int nx, Complex<Real> omega,
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+( AbstractDistMatrix<Complex<Real>>& H, Int nx, 
+  Complex<Real> omega, Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 
 template<typename Real>
 void HelmholtzPML
-( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega,
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+( Matrix<Complex<Real>>& H, Int nx, Int ny, 
+  Complex<Real> omega, Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 template<typename Real>
 void HelmholtzPML
-( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega,
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, 
+  Complex<Real> omega, Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 
 template<typename Real>
 void HelmholtzPML
-( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega,
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
+  Complex<Real> omega, Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 template<typename Real>
 void HelmholtzPML
-( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega,
-  Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
+( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
+  Complex<Real> omega, Int numPmlPoints=5, Real sigma=1.5, Real pmlExp=3 );
 
 // Hermitian from EVD
 // ==================

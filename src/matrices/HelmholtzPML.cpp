@@ -46,8 +46,8 @@ sInv( Int j, Int n, Int numPmlPoints, Real h, Real pmlExp, Real sigma, Real k )
 // 1D Helmholtz with PML
 template<typename Real> 
 void HelmholtzPML
-( Matrix<Complex<Real>>& H, Int n, Complex<Real> omega, 
-  Int numPmlPoints, Real sigma, Real pmlExp )
+( Matrix<Complex<Real>>& H, Int n, 
+  Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -86,8 +86,8 @@ void HelmholtzPML
 // 1D Helmholtz with PML
 template<typename Real> 
 void HelmholtzPML
-( DistMatrix<Complex<Real>>& H, Int n, Complex<Real> omega, 
-  Int numPmlPoints, Real sigma, Real pmlExp )
+( AbstractDistMatrix<Complex<Real>>& H, Int n, 
+  Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -129,8 +129,8 @@ void HelmholtzPML
 // 2D Helmholtz with PML
 template<typename Real> 
 void HelmholtzPML
-( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, 
-  Int numPmlPoints, Real sigma, Real pmlExp )
+( Matrix<Complex<Real>>& H, Int nx, Int ny, 
+  Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -188,8 +188,8 @@ void HelmholtzPML
 // 2D Helmholtz with PML
 template<typename Real> 
 void HelmholtzPML
-( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, 
-  Int numPmlPoints, Real sigma, Real pmlExp )
+( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, 
+  Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -250,8 +250,8 @@ void HelmholtzPML
 // 3D Helmholtz with PML
 template<typename Real> 
 void HelmholtzPML
-( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
-  Int numPmlPoints, Real sigma, Real pmlExp )
+( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
+  Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -327,8 +327,8 @@ void HelmholtzPML
 // 3D Helmholtz with PML
 template<typename Real> 
 void HelmholtzPML
-( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, 
-  Int numPmlPoints, Real sigma, Real pmlExp )
+( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
+  Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
     DEBUG_ONLY(CallStackEntry cse("Helmholtz"))
     using namespace pml;
@@ -406,23 +406,23 @@ void HelmholtzPML
 
 #define PROTO(Real) \
   template void HelmholtzPML \
-  ( Matrix<Complex<Real>>& H, Int nx, Complex<Real> omega, \
-    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  ( Matrix<Complex<Real>>& H, Int nx, \
+    Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp ); \
   template void HelmholtzPML \
-  ( DistMatrix<Complex<Real>>& H, Int nx, Complex<Real> omega, \
-    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  ( AbstractDistMatrix<Complex<Real>>& H, Int nx, \
+    Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp ); \
   template void HelmholtzPML \
-  ( Matrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, \
-    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  ( Matrix<Complex<Real>>& H, Int nx, Int ny, \
+    Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp ); \
   template void HelmholtzPML \
-  ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Complex<Real> omega, \
-    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, \
+    Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp ); \
   template void HelmholtzPML \
-  ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, \
-    Int numPmlPoints, Real sigma, Real pmlExp ); \
+  ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, \
+    Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp ); \
   template void HelmholtzPML \
-  ( DistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, Complex<Real> omega, \
-    Int numPmlPoints, Real sigma, Real pmlExp );
+  ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, \
+    Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
