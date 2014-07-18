@@ -10,12 +10,13 @@
 #ifndef EL_NORM_ZERO_HPP
 #define EL_NORM_ZERO_HPP
 
-// The number of nonzeros in a matrix isn't really a norm...but it's useful
+// The number of nonzeros in a matrix isn't really a norm...
+// but the terminology is common
 
 namespace El {
 
 template<typename F>
-Int ZeroNorm( const Matrix<F>& A )
+Int ZeroNorm( const Matrix<F>& A, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros = 0;
@@ -23,19 +24,19 @@ Int ZeroNorm( const Matrix<F>& A )
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
-            if( Abs(A.Get(i,j)) > 0 )
+            if( Abs(A.Get(i,j)) > tol )
                 ++numNonzeros;
     return numNonzeros;
 }
 
 template<typename F>
-Int ZeroNorm( const AbstractDistMatrix<F>& A )
+Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("ZeroNorm"))
     Int numNonzeros;
     if( A.Participating() )
     {
-        const Int numLocalNonzeros = ZeroNorm( A.LockedMatrix() );
+        const Int numLocalNonzeros = ZeroNorm( A.LockedMatrix(), tol );
         numNonzeros = mpi::AllReduce( numLocalNonzeros, A.DistComm() );
     }
     mpi::Broadcast( numNonzeros, A.Root(), A.CrossComm() );

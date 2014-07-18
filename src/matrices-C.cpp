@@ -13,6 +13,43 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO_BASE(SIG,T) \
+  /* Circulant */ \
+  ElError ElCirculant_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( Reinterpret(aBuf), Reinterpret(aBuf)+aSize ); \
+      Circulant( *Reinterpret(A), a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElCirculantDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( Reinterpret(aBuf), Reinterpret(aBuf)+aSize ); \
+      Circulant( *Reinterpret(A), a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Diagonal */ \
+  ElError ElDiagonal_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt dSize, CREFLECT(T)* dBuf ) \
+  { try { \
+      std::vector<T> d( Reinterpret(dBuf), Reinterpret(dBuf)+dSize ); \
+      Diagonal( *Reinterpret(A), d ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElDiagonalDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt dSize, CREFLECT(T)* dBuf ) \
+  { try { \
+      std::vector<T> d( Reinterpret(dBuf), Reinterpret(dBuf)+dSize ); \
+      Diagonal( *Reinterpret(A), d ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Forsythe */ \
+  ElError ElForsythe_ ## SIG \
+  ( ElMatrix_ ## SIG J, ElInt n, CREFLECT(T) alpha, CREFLECT(T) lambda ) \
+  { EL_TRY( \
+      Forsythe( \
+        *Reinterpret(J), n, Reinterpret(alpha), Reinterpret(lambda) ) ) } \
+  ElError ElForsytheDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG J, ElInt n, CREFLECT(T) alpha, CREFLECT(T) lambda ) \
+  { EL_TRY( \
+      Forsythe( \
+        *Reinterpret(J), n, Reinterpret(alpha), Reinterpret(lambda) ) ) } \
   /* Ones */ \
   ElError ElOnes_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) } \
@@ -69,6 +106,43 @@ extern "C" {
       std::vector<T> x( Reinterpret(xBuf), Reinterpret(xBuf)+xSize ); \
       std::vector<T> y( Reinterpret(yBuf), Reinterpret(yBuf)+ySize ); \
       CauchyLike( *Reinterpret(A), r, s, x, y ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Demmel */ \
+  ElError ElDemmel_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Demmel( *Reinterpret(A), n ) ) } \
+  ElError ElDemmelDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Demmel( *Reinterpret(A), n ) ) } \
+  /* Ehrenfest */ \
+  ElError ElEhrenfest_ ## SIG ( ElMatrix_ ## SIG P, ElInt n ) \
+  { EL_TRY( Ehrenfest( *Reinterpret(P), n ) ) } \
+  ElError ElEhrenfestDist_ ## SIG ( ElDistMatrix_ ## SIG P, ElInt n ) \
+  { EL_TRY( Ehrenfest( *Reinterpret(P), n ) ) } \
+  ElError ElEhrenfestStationary_ ## SIG \
+  ( ElMatrix_ ## SIG PInf, ElInt n ) \
+  { EL_TRY( EhrenfestStationary( *Reinterpret(PInf), n ) ) } \
+  ElError ElEhrenfestStationaryDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG PInf, ElInt n ) \
+  { EL_TRY( EhrenfestStationary( *Reinterpret(PInf), n ) ) } \
+  ElError ElEhrenfestDecay_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( EhrenfestDecay( *Reinterpret(A), n ) ) } \
+  /* TODO: Distributed EhrenfestDecay */ \
+  /* ExtendedKahan */ \
+  ElError ElExtendedKahan_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt k, Base<T> phi, Base<T> mu ) \
+  { EL_TRY( ExtendedKahan( *Reinterpret(A), k, phi, mu ) ) } \
+  /* TODO: Distributed ExtendedKahan */ \
+  /* Fiedler */ \
+  ElError ElFiedler_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt cSize, CREFLECT(T)* cBuf ) \
+  { try { \
+      std::vector<T> c( Reinterpret(cBuf), Reinterpret(cBuf)+cSize ); \
+      Fiedler( *Reinterpret(A), c ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElFiedlerDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt cSize, CREFLECT(T)* cBuf ) \
+  { try { \
+      std::vector<T> c( Reinterpret(cBuf), Reinterpret(cBuf)+cSize ); \
+      Fiedler( *Reinterpret(A), c ); \
     } EL_CATCH; return EL_SUCCESS; }
 
 #define C_PROTO_INT(SIG,T) \
@@ -85,7 +159,20 @@ extern "C" {
   ElError ElBullsHead_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( BullsHead( *Reinterpret(A), n ) ) } \
   ElError ElBullsHeadDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
-  { EL_TRY( BullsHead( *Reinterpret(A), n ) ) } 
+  { EL_TRY( BullsHead( *Reinterpret(A), n ) ) } \
+  /* Egorov */ \
+  ElError ElEgorov_ ## SIG \
+  ( ElMatrix_ ## SIG A, Base<T> (*phase)(ElInt,ElInt), ElInt n ) \
+  { try { \
+      std::function<Base<T>(Int,Int)> phaseFunc(phase); \
+      Egorov( *Reinterpret(A), phaseFunc, n ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElEgorovDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, Base<T> (*phase)(ElInt,ElInt), ElInt n ) \
+  { try { \
+      std::function<Base<T>(Int,Int)> phaseFunc(phase); \
+      Egorov( *Reinterpret(A), phaseFunc, n ); \
+    } EL_CATCH; return EL_SUCCESS; }
 
 #include "El/macros/CInstantiate.h"
 

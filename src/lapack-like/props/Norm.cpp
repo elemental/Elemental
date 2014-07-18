@@ -354,8 +354,8 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> SymmetricTwoNormEstimate \
   ( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts ); \
-  template Int ZeroNorm( const Matrix<F>& A ); \
-  template Int ZeroNorm( const AbstractDistMatrix<F>& A ); \
+  template Int ZeroNorm( const Matrix<F>& A, Base<F> tol ); \
+  template Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol ); \
   PROTO_DIST(F,CIRC,CIRC) \
   PROTO_DIST(F,MC,  MR  ) \
   PROTO_DIST(F,MC,  STAR) \
@@ -372,8 +372,8 @@ Base<F> HermitianNorm
   PROTO_DIST(F,VR,  STAR)
 
 #define PROTO_INT(T) \
-  template Int ZeroNorm( const Matrix<Int>& A ); \
-  template Int ZeroNorm( const AbstractDistMatrix<Int>& A ); \
+  template Int ZeroNorm( const Matrix<Int>& A, Int tol ); \
+  template Int ZeroNorm( const AbstractDistMatrix<Int>& A, Int tol ); \
   template Int MaxNorm( const Matrix<Int>& A ); \
   template Int MaxNorm ( const AbstractDistMatrix<Int>& A ); \
   template Int HermitianMaxNorm \

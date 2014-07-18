@@ -441,9 +441,9 @@ Base<F> SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
 // Zero "norm"
 // -----------
 template<typename F>
-Int ZeroNorm( const Matrix<F>& A );
+Int ZeroNorm( const Matrix<F>& A, Base<F> tol=0 );
 template<typename F>
-Int ZeroNorm( const AbstractDistMatrix<F>& A );
+Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol=0 );
 
 // Pseudospectrum
 // ==============
