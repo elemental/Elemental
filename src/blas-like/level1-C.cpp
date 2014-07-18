@@ -13,13 +13,6 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO_BASE(SIG,T) \
-  /* B = A^H */ \
-  ElError ElAdjoint_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
-  { EL_TRY( Adjoint( *Reinterpret(A), *Reinterpret(B) ) ) } \
-  ElError ElAdjointDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( Adjoint( *Reinterpret(A), *Reinterpret(B) ) ) } \
   /* Y := alpha X + Y */ \
   ElError ElAxpy_ ## SIG \
   ( CREFLECT(T) alpha, ElConstMatrix_ ## SIG X, ElMatrix_ ## SIG Y ) \
@@ -180,13 +173,6 @@ extern "C" {
       IndexDependentMap \
       ( *Reinterpret(A), std::function<T(Int,Int,T)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
-  /* MakeHermitian */ \
-  ElError ElMakeHermitian_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
-  { EL_TRY( MakeHermitian( Reinterpret(uplo), *Reinterpret(A) ) ) } \
-  ElError ElMakeHermitianDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( MakeHermitian( Reinterpret(uplo), *Reinterpret(A) ) ) } \
   /* MakeSymmetric */ \
   ElError ElMakeSymmetric_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
@@ -263,12 +249,6 @@ extern "C" {
   ElError ElSymmetricSwapDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
   { EL_TRY( SymmetricSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
-  ElError ElHermitianSwap_ ## SIG \
-  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
-  { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
-  ElError ElHermitianSwapDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
-  { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
   /* TODO: Symmetric2x2Scale */ \
   /* B = A^T */ \
   ElError ElTranspose_ ## SIG \
@@ -423,11 +403,32 @@ extern "C" {
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,T) \
   C_PROTO_NOINT(SIG,T) \
+  /* B = A^H */ \
+  ElError ElAdjoint_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( Adjoint( *Reinterpret(A), *Reinterpret(B) ) ) } \
+  ElError ElAdjointDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( Adjoint( *Reinterpret(A), *Reinterpret(B) ) ) } \
   /* Conjugate */ \
   ElError ElConjugate_ ## SIG( ElMatrix_ ## SIG A ) \
   { EL_TRY( Conjugate( *Reinterpret(A) ) ) } \
   ElError ElConjugateDist_ ## SIG( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Conjugate( *Reinterpret(A) ) ) } \
+  /* HermitianSwap */ \
+  ElError ElHermitianSwap_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
+  ElError ElHermitianSwapDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElInt to, ElInt from ) \
+  { EL_TRY( HermitianSwap( Reinterpret(uplo), *Reinterpret(A), to, from ) ) } \
+  /* MakeHermitian */ \
+  ElError ElMakeHermitian_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
+  { EL_TRY( MakeHermitian( Reinterpret(uplo), *Reinterpret(A) ) ) } \
+  ElError ElMakeHermitianDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( MakeHermitian( Reinterpret(uplo), *Reinterpret(A) ) ) } \
   /* MakeReal */ \
   ElError ElMakeReal_ ## SIG \
   ( ElMatrix_ ## SIG A ) { EL_TRY( MakeReal( *Reinterpret(A) ) ) } \

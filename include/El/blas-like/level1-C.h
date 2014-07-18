@@ -18,15 +18,9 @@ extern "C" {
 
 /* B = A^H 
    ======= */
-ElError ElAdjoint_i( ElConstMatrix_i A, ElMatrix_i B );
-ElError ElAdjoint_s( ElConstMatrix_s A, ElMatrix_s B );
-ElError ElAdjoint_d( ElConstMatrix_d A, ElMatrix_d B );
 ElError ElAdjoint_c( ElConstMatrix_c A, ElMatrix_c B );
 ElError ElAdjoint_z( ElConstMatrix_z A, ElMatrix_z B );
 
-ElError ElAdjointDist_i( ElConstDistMatrix_i A, ElDistMatrix_i B );
-ElError ElAdjointDist_s( ElConstDistMatrix_s A, ElDistMatrix_s B );
-ElError ElAdjointDist_d( ElConstDistMatrix_d A, ElDistMatrix_d B );
 ElError ElAdjointDist_c( ElConstDistMatrix_c A, ElDistMatrix_c B );
 ElError ElAdjointDist_z( ElConstDistMatrix_z A, ElDistMatrix_z B );
 
@@ -408,15 +402,9 @@ ElError ElIndexDependentMapDist_z
 
 /* MakeHermitian 
    ============= */
-ElError ElMakeHermitian_i( ElUpperOrLower uplo, ElMatrix_i A );
-ElError ElMakeHermitian_s( ElUpperOrLower uplo, ElMatrix_s A );
-ElError ElMakeHermitian_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElMakeHermitian_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElMakeHermitian_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-ElError ElMakeHermitianDist_i( ElUpperOrLower uplo, ElDistMatrix_i A );
-ElError ElMakeHermitianDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
-ElError ElMakeHermitianDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElMakeHermitianDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
 ElError ElMakeHermitianDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
@@ -769,23 +757,11 @@ ElError ElSymmetricSwapDist_c
 ElError ElSymmetricSwapDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElInt to, ElInt from );
 
-ElError ElHermitianSwap_i
-( ElUpperOrLower uplo, ElMatrix_i A, ElInt to, ElInt from );
-ElError ElHermitianSwap_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElInt to, ElInt from );
-ElError ElHermitianSwap_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElInt to, ElInt from );
 ElError ElHermitianSwap_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElInt to, ElInt from );
 ElError ElHermitianSwap_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElInt to, ElInt from );
 
-ElError ElHermitianSwapDist_i
-( ElUpperOrLower uplo, ElDistMatrix_i A, ElInt to, ElInt from );
-ElError ElHermitianSwapDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElInt to, ElInt from );
-ElError ElHermitianSwapDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, ElInt to, ElInt from );
 ElError ElHermitianSwapDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElInt to, ElInt from );
 ElError ElHermitianSwapDist_z
