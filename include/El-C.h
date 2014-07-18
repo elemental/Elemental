@@ -20,12 +20,9 @@
 #include "El/core/Matrix-C.h"
 #include "El/core/DistMatrix-C.h"
 #include "El/blas-like/level1-C.h"
-#include "El/io/Display-C.h"
-#include "El/io/Print-C.h"
-#include "El/io/Spy-C.h"
-
-#include "El/matrices/Ones-C.h"
-#include "El/matrices/Uniform-C.h"
+#include "El/blas-like/level2-C.h"
+#include "El/io-C.h"
+#include "El/matrices-C.h"
 
 #ifdef __cplusplus
 #include "El/core/Reinterpret-C.hpp"

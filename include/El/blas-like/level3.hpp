@@ -58,6 +58,28 @@ void Hemm
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C );
 
+// Herk
+// ====
+template<typename T>
+void Herk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
+
+template<typename T>
+void Herk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, Matrix<T>& C );
+
+template<typename T>
+void Herk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C );
+
+template<typename T>
+void Herk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C );
+
 // Her2k
 // =====
 template<typename T>
@@ -81,28 +103,6 @@ void Her2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
                  DistMatrix<T>& C );
-
-// Herk
-// ====
-template<typename T>
-void Herk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
-
-template<typename T>
-void Herk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, Matrix<T>& C );
-
-template<typename T>
-void Herk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C );
-
-template<typename T>
-void Herk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C );
 
 // MultiShiftQuasiTrsm
 // ===================
@@ -215,6 +215,32 @@ void LocalAccumulateRU
 
 } // namespace symm
 
+// Syrk
+// ====
+template<typename T>
+void Syrk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
+  bool conjugate=false );
+
+template<typename T>
+void Syrk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, Matrix<T>& C,
+  bool conjugate=false );
+
+template<typename T>
+void Syrk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
+  bool conjugate=false );
+
+template<typename T>
+void Syrk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C,
+  bool conjugate=false );
+
 // Syr2k
 // =====
 template<typename T>
@@ -241,32 +267,6 @@ void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
                  DistMatrix<T>& C,
-  bool conjugate=false );
-
-// Syrk
-// ====
-template<typename T>
-void Syrk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
-  bool conjugate=false );
-
-template<typename T>
-void Syrk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, Matrix<T>& C,
-  bool conjugate=false );
-
-template<typename T>
-void Syrk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
-  bool conjugate=false );
-
-template<typename T>
-void Syrk
-( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C,
   bool conjugate=false );
 
 // Trdtrmm
@@ -602,6 +602,48 @@ inline void LocalTrmm
     ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
 }
 
+// Trrk
+// ====
+template<typename T>
+void Trrk
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+template<typename T>
+void Trrk
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  T alpha, const DistMatrix<T,MC,  STAR>& A,
+           const DistMatrix<T,STAR,MR  >& B,
+  T beta,        DistMatrix<T,MC,  MR  >& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,STAR>& A,
+           const DistMatrix<T,MR,STAR>& B,
+  T beta,        DistMatrix<T>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,STAR,MC>& A,
+           const DistMatrix<T,STAR,MR>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,STAR,MC  >& A,
+           const DistMatrix<T,MR,  STAR>& B,
+  T beta,        DistMatrix<T,MC,  MR  >& C );
+
 // Trr2k
 // =====
 template<typename T>
@@ -749,48 +791,6 @@ void LocalTrr2k
   T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
            const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
   T beta,        DistMatrix<T,MC,  MR>& E  );
-
-// Trrk
-// ====
-template<typename T>
-void Trrk
-( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C );
-template<typename T>
-void Trrk
-( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,  STAR>& A,
-           const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C );
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,STAR>& A,
-           const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T>& C );
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C );
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,STAR,MC  >& A,
-           const DistMatrix<T,MR,  STAR>& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C );
 
 // Trsm
 // ====

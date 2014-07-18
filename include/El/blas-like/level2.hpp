@@ -113,6 +113,15 @@ void Hemv
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x,
   T beta,        DistMatrix<T>& y );
 
+// Her
+// ===
+template<typename T>
+void Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
+
+template<typename T>
+void Her
+( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A );
+
 // Her2
 // ====
 template<typename T>
@@ -125,15 +134,6 @@ void Her2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y,
                  DistMatrix<T>& A );
-
-// Her
-// ===
-template<typename T>
-void Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
-
-template<typename T>
-void Her
-( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A );
 
 // QuasiTrsv
 // =========
@@ -187,6 +187,18 @@ void LocalRowAccumulate
 
 } // namespace symv
 
+// Syr
+// ===
+template<typename T>
+void Syr
+( UpperOrLower uplo, 
+  T alpha, const Matrix<T>& x, Matrix<T>& A, bool conjugate=false );
+
+template<typename T>
+void Syr
+( UpperOrLower uplo,
+  T alpha, const DistMatrix<T>& x, DistMatrix<T>& A, bool conjugate=false );
+
 // Syr2
 // ====
 template<typename T>
@@ -201,18 +213,6 @@ void Syr2
   T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y,
                  DistMatrix<T>& A, bool conjugate=false );
 
-// Syr
-// ===
-template<typename T>
-void Syr
-( UpperOrLower uplo, 
-  T alpha, const Matrix<T>& x, Matrix<T>& A, bool conjugate=false );
-
-template<typename T>
-void Syr
-( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x, DistMatrix<T>& A, bool conjugate=false );
-
 // Trmv
 // ====
 template<typename T>
@@ -220,21 +220,6 @@ void Trmv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const Matrix<T>& A, Matrix<T>& x );
 // TODO: Implement distributed version
-
-// Trr2
-// ====
-// A := A + alpha X Y'
-template<typename T>
-void Trr2
-( UpperOrLower uplo,
-  T alpha, const Matrix<T>& X, const Matrix<T>& Y, Matrix<T>& A,
-  bool conjugate=false );
-
-template<typename T>
-void Trr2
-( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& X, const DistMatrix<T>& Y, DistMatrix<T>& A,
-  bool conjugate=false );
 
 // Trr
 // ===
@@ -249,6 +234,21 @@ template<typename T>
 void Trr
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A,
+  bool conjugate=false );
+
+// Trr2
+// ====
+// A := A + alpha X Y'
+template<typename T>
+void Trr2
+( UpperOrLower uplo,
+  T alpha, const Matrix<T>& X, const Matrix<T>& Y, Matrix<T>& A,
+  bool conjugate=false );
+
+template<typename T>
+void Trr2
+( UpperOrLower uplo,
+  T alpha, const DistMatrix<T>& X, const DistMatrix<T>& Y, DistMatrix<T>& A,
   bool conjugate=false );
 
 // Trsv

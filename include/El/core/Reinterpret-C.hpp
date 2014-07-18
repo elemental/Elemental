@@ -53,20 +53,25 @@ template<typename T>
 inline void DynamicCastCheck( T* A )
 { if( A == nullptr ) RuntimeError("Dynamic cast failed"); }
 
-inline Orientation   Reinterpret( ElOrientation orient ) 
-{ return static_cast<  Orientation>(orient); }
+inline Orientation Reinterpret( ElOrientation orient ) 
+{ return static_cast<Orientation>(orient); }
 inline ElOrientation Reinterpret( Orientation orient )
 { return static_cast<ElOrientation>(orient); }
 
-inline LeftOrRight   Reinterpret( ElLeftOrRight side )
-{ return static_cast<  LeftOrRight>(side); }
+inline LeftOrRight Reinterpret( ElLeftOrRight side )
+{ return static_cast<LeftOrRight>(side); }
 inline ElLeftOrRight Reinterpret( LeftOrRight side )
 { return static_cast<ElLeftOrRight>(side); }
 
-inline UpperOrLower   Reinterpret( ElUpperOrLower uplo )
-{ return static_cast<  UpperOrLower>(uplo); }
+inline UpperOrLower Reinterpret( ElUpperOrLower uplo )
+{ return static_cast<UpperOrLower>(uplo); }
 inline ElUpperOrLower Reinterpret( UpperOrLower uplo )
 { return static_cast<ElUpperOrLower>(uplo); }
+
+inline UnitOrNonUnit Reinterpret( ElUnitOrNonUnit diag )
+{ return static_cast<UnitOrNonUnit>(diag); }
+inline ElUnitOrNonUnit Reinterpret( UnitOrNonUnit diag )
+{ return static_cast<ElUnitOrNonUnit>(diag); }
 
 // Dist
 // ----

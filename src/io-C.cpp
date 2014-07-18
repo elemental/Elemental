@@ -13,11 +13,24 @@ using namespace El;
 extern "C" {
 
 #define C_PROTO(SIG,T) \
-  /* Matrix */ \
+  /* Display */ \
+  ElError ElDisplay_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, const char* title ) \
+  { EL_TRY( Display( *Reinterpret(AHandle), std::string(title) ) ) } \
+  ElError ElDisplayDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, const char* title ) \
+  { EL_TRY( Display( *Reinterpret(AHandle), std::string(title) ) ) } \
+  /* Print */ \
+  ElError ElPrint_ ## SIG \
+  ( ElConstMatrix_ ## SIG AHandle, const char* title ) \
+  { EL_TRY( Print( *Reinterpret(AHandle), std::string(title) ) ) } \
+  ElError ElPrintDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG AHandle, const char* title ) \
+  { EL_TRY( Print( *Reinterpret(AHandle), std::string(title) ) ) } \
+  /* Spy */ \
   ElError ElSpy_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
   { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) } \
-  /* AbstractDistMatrix */ \
   ElError ElSpyDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
   { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) }
