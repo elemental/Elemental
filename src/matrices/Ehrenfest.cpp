@@ -148,34 +148,30 @@ void EhrenfestDecay( Matrix<F>& A, Int n )
     Axpy( F(-1), PInf, A );
 }
 
-template<typename F,Dist U,Dist V>
-void EhrenfestDecay( DistMatrix<F,U,V>& A, Int n )
+template<typename F>
+void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
-    DistMatrix<F,U,V> PInf( A.Grid() );
-    PInf.AlignWith( A );
-    EhrenfestStationary( PInf, n );
-    Axpy( F(-1), PInf, A );
+    std::unique_ptr<AbstractDistMatrix<F>> PInf( A.Construct(A.Grid()) );
+    PInf->AlignWith( A.DistData() );
+    EhrenfestStationary( *PInf, n );
+    Axpy( F(-1), *PInf, A );
 }
 
 // NOTE: Axpy not yet supported for BlockDistMatrix
 /*
-template<typename F,Dist U,Dist V>
-void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n )
+template<typename F>
+void EhrenfestDecay( AbstractBlockDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("EhrenfestDecay"))
     Ehrenfest( A, n );
-    BlockDistMatrix<F,U,V> PInf( A.Grid() );
-    PInf.AlignWith( A );
-    EhrenfestStationary( PInf, n );
-    Axpy( F(-1), PInf, A );
+    std::unique_ptr<AbstractBlockDistMatrix<F>> PInf( A.Construct(A.Grid()) );
+    PInf->AlignWith( A.DistData() );
+    EhrenfestStationary( *PInf, n );
+    Axpy( F(-1), *PInf, A );
 }
 */
-
-#define PROTO_DIST(F,U,V) \
-  template void EhrenfestDecay( DistMatrix<F,U,V>& A, Int n ); 
-  //template void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n );
 
 #define PROTO(F) \
   template void Ehrenfest( Matrix<F>& P, Int n ); \
@@ -191,20 +187,7 @@ void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n )
   template void EhrenfestStationary \
   ( AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void EhrenfestDecay( Matrix<F>& A, Int n ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

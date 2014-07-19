@@ -66,9 +66,9 @@ inline void MakeExtendedKahan
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 inline void MakeExtendedKahan
-( DistMatrix<F,U,V>& A, Base<F> phi, Base<F> mu )
+( AbstractDistMatrix<F>& A, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("MakeExtendedKahan"))
     typedef Base<F> Real;
@@ -93,14 +93,15 @@ inline void MakeExtendedKahan
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
-    auto ABlock = View( A, 2*l, 2*l, l, l );
-    Scale( mu, ABlock );
-    ABlock = View( A, 0, l, l, l );
-    Walsh( ABlock, k );
-    Scale( -phi, ABlock );
-    ABlock = View( A, l, 2*l, l, l );
-    Walsh( ABlock, k );
-    Scale( phi, ABlock );
+    std::unique_ptr<AbstractDistMatrix<F>> ABlock( A.Construct(A.Grid()) );
+    View( *ABlock, A, 2*l, 2*l, l, l );
+    Scale( mu, *ABlock );
+    View( *ABlock, A, 0, l, l, l );
+    Walsh( *ABlock, k );
+    Scale( -phi, *ABlock );
+    View( *ABlock, A, l, 2*l, l, l );
+    Walsh( *ABlock, k );
+    Scale( phi, *ABlock );
 
     // Now scale A by S
     const Real zeta = Sqrt(Real(1)-phi*phi);
@@ -122,8 +123,8 @@ void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu )
     MakeExtendedKahan( A, phi, mu );
 }
 
-template<typename F,Dist U,Dist V>
-void ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
+template<typename F>
+void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu )
 {
     DEBUG_ONLY(CallStackEntry cse("ExtendedKahan"))
     const Int n = 3*(1u<<k);
@@ -131,26 +132,11 @@ void ExtendedKahan( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu )
     MakeExtendedKahan( A, phi, mu );
 }
 
-#define PROTO_DIST(F,U,V) \
-  template void ExtendedKahan \
-  ( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu );
-
 #define PROTO(F) \
-  template void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void ExtendedKahan \
+  ( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu ); \
+  template void ExtendedKahan \
+  ( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

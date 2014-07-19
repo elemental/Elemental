@@ -193,33 +193,18 @@ void RiffleDecay( Matrix<F>& A, Int n )
     Axpy( F(-1), PInf, A );
 }
 
-template<typename F,Dist U,Dist V>
-void RiffleDecay( DistMatrix<F,U,V>& A, Int n )
+template<typename F>
+void RiffleDecay( AbstractDistMatrix<F>& A, Int n )
 {
     DEBUG_ONLY(CallStackEntry cse("RiffleDecay"))
     Riffle( A, n );
-    DistMatrix<F,U,V> PInf( A.Grid() );
-    PInf.AlignWith( A.DistData() );
-    RiffleStationary( PInf, n );
-    Axpy( F(-1), PInf, A );
+    std::unique_ptr<AbstractDistMatrix<F>> PInf( A.Construct(A.Grid()) );
+    PInf->AlignWith( A.DistData() );
+    RiffleStationary( *PInf, n );
+    Axpy( F(-1), *PInf, A );
 }
 
-/*
-template<typename F,Dist U,Dist V>
-void RiffleDecay( BlockDistMatrix<F,U,V>& A, Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("RiffleDecay"))
-    Riffle( A, n );
-    BlockDistMatrix<F,U,V> PInf( A.Grid() );
-    PInf.AlignWith( A.DistData() );
-    RiffleStationary( PInf, n );
-    Axpy( F(-1), PInf, A );
-}
-*/
-
-#define PROTO_DIST(F,U,V) \
-  template void RiffleDecay( DistMatrix<F,U,V>& A, Int n ); 
-  //template void RiffleDecay( BlockDistMatrix<F,U,V>& A, Int n );
+// TODO: AbstractBlockDistMatrix version
 
 #define PROTO(F) \
   template void Riffle( Matrix<F>& P, Int n ); \
@@ -235,20 +220,7 @@ void RiffleDecay( BlockDistMatrix<F,U,V>& A, Int n )
   template void RiffleStationary( AbstractDistMatrix<F>& PInf, Int n ); \
   template void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n ); \
   template void RiffleDecay( Matrix<F>& A, Int n ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void RiffleDecay( AbstractDistMatrix<F>& A, Int n );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

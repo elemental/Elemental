@@ -27,13 +27,6 @@ void Laplacian( AbstractDistMatrix<F>& L, Int n )
     Helmholtz( L, n, F(0) );
 }
 
-template<typename F>
-void Laplacian( AbstractBlockDistMatrix<F>& L, Int n )
-{
-    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
-    Helmholtz( L, n, F(0) );
-}
-
 // 2D Laplacian
 // ============
 
@@ -46,13 +39,6 @@ void Laplacian( Matrix<F>& L, Int nx, Int ny )
 
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny )
-{
-    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
-    Helmholtz( L, nx, ny, F(0) );
-}
-
-template<typename F>
-void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny )
 {
     DEBUG_ONLY(CallStackEntry cse("Laplacian"))
     Helmholtz( L, nx, ny, F(0) );
@@ -75,25 +61,17 @@ void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz )
     Helmholtz( L, nx, ny, nz, F(0) );
 }
 
-template<typename F>
-void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz )
-{
-    DEBUG_ONLY(CallStackEntry cse("Laplacian"))
-    Helmholtz( L, nx, ny, nz, F(0) );
-}
-
 #define PROTO(F) \
   template void Laplacian( Matrix<F>& L, Int nx ); \
   template void Laplacian( AbstractDistMatrix<F>& L, Int nx ); \
-  template void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx ); \
   template void Laplacian( Matrix<F>& L, Int nx, Int ny ); \
   template void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny ); \
-  template void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny ); \
   template void Laplacian \
   ( Matrix<F>& L, Int nx, Int ny, Int nz ); \
   template void Laplacian \
-  ( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz ); \
-  template void Laplacian \
-  ( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz );
+  ( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz );
+
+#define EL_NO_INT_PROTO
+#include "El/macros/Instantiate.h"
 
 } // namespace El

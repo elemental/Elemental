@@ -97,11 +97,52 @@ extern "C" {
   ElError ElJordanDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) lambda ) \
   { EL_TRY( Jordan( *Reinterpret(A), n, Reinterpret(lambda) ) ) } \
+  /* KMS */ \
+  ElError ElKMS_ ## SIG \
+  ( ElMatrix_ ## SIG K, ElInt n, CREFLECT(T) rho ) \
+  { EL_TRY( KMS( *Reinterpret(K), n, Reinterpret(rho) ) ) } \
+  ElError ElKMSDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG K, ElInt n, CREFLECT(T) rho ) \
+  { EL_TRY( KMS( *Reinterpret(K), n, Reinterpret(rho) ) ) } \
+  /* Lauchli */ \
+  ElError ElLauchli_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) mu ) \
+  { EL_TRY( Lauchli( *Reinterpret(A), n, Reinterpret(mu) ) ) } \
+  ElError ElLauchliDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) mu ) \
+  { EL_TRY( Lauchli( *Reinterpret(A), n, Reinterpret(mu) ) ) } \
+  /* MinIJ */ \
+  ElError ElMinIJ_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( MinIJ( *Reinterpret(A), n ) ) } \
+  ElError ElMinIJDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( MinIJ( *Reinterpret(A), n ) ) } \
   /* Ones */ \
   ElError ElOnes_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) } \
   ElError ElOnesDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Ones( *Reinterpret(A), m, n ) ) } \
+  /* 1-2-1 */ \
+  ElError ElOneTwoOne_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( OneTwoOne( *Reinterpret(A), n ) ) } \
+  ElError ElOneTwoOneDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( OneTwoOne( *Reinterpret(A), n ) ) } \
+  /* Redheffer */ \
+  ElError ElRedheffer_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Redheffer( *Reinterpret(A), n ) ) } \
+  ElError ElRedhefferDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Redheffer( *Reinterpret(A), n ) ) } \
+  /* Riemann */ \
+  ElError ElRiemann_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Riemann( *Reinterpret(A), n ) ) } \
+  ElError ElRiemannDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Riemann( *Reinterpret(A), n ) ) } \
+  /* TriW */ \
+  ElError ElTriW_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, CREFLECT(T) alpha, ElInt k ) \
+  { EL_TRY( TriW( *Reinterpret(A), m, n, Reinterpret(alpha), k ) ) } \
+  ElError ElTriWDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, CREFLECT(T) alpha, ElInt k ) \
+  { EL_TRY( TriW( *Reinterpret(A), m, n, Reinterpret(alpha), k ) ) } \
   /* Uniform */ \
   ElError ElUniform_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt m, ElInt n, \
@@ -110,7 +151,22 @@ extern "C" {
   ElError ElUniformDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, \
     CREFLECT(T) center, Base<T> radius ) \
-  { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) }
+  { EL_TRY( Uniform( *Reinterpret(A), m, n, Reinterpret(center), radius ) ) } \
+  /* Walsh */ \
+  ElError ElWalsh_ ## SIG ( ElMatrix_ ## SIG A, ElInt k, bool binary ) \
+  { EL_TRY( Walsh( *Reinterpret(A), k, binary ) ) } \
+  ElError ElWalshDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt k, bool binary ) \
+  { EL_TRY( Walsh( *Reinterpret(A), k, binary ) ) } \
+  /* Wilkinson */ \
+  ElError ElWilkinson_ ## SIG ( ElMatrix_ ## SIG A, ElInt k ) \
+  { EL_TRY( Wilkinson( *Reinterpret(A), k ) ) } \
+  ElError ElWilkinsonDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt k ) \
+  { EL_TRY( Wilkinson( *Reinterpret(A), k ) ) } \
+  /* Zeros */ \
+  ElError ElZeros_ ## SIG ( ElMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Zeros( *Reinterpret(A), m, n ) ) } \
+  ElError ElZerosDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
+  { EL_TRY( Zeros( *Reinterpret(A), m, n ) ) }
 
 #define C_PROTO_NOINT(SIG,SIGBASE,T) \
   /* Cauchy */ \
@@ -141,6 +197,7 @@ extern "C" {
       std::vector<T> s( Reinterpret(sBuf), Reinterpret(sBuf)+sSize ); \
       std::vector<T> x( Reinterpret(xBuf), Reinterpret(xBuf)+xSize ); \
       std::vector<T> y( Reinterpret(yBuf), Reinterpret(yBuf)+ySize ); \
+      CauchyLike( *Reinterpret(A), r, s, x, y ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElCauchyLikeDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt rSize, CREFLECT(T)* rBuf, \
@@ -172,12 +229,15 @@ extern "C" {
   { EL_TRY( EhrenfestStationary( *Reinterpret(PInf), n ) ) } \
   ElError ElEhrenfestDecay_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( EhrenfestDecay( *Reinterpret(A), n ) ) } \
-  /* TODO: Distributed EhrenfestDecay */ \
+  ElError ElEhrenfestDecayDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( EhrenfestDecay( *Reinterpret(A), n ) ) } \
   /* ExtendedKahan */ \
   ElError ElExtendedKahan_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt k, Base<T> phi, Base<T> mu ) \
   { EL_TRY( ExtendedKahan( *Reinterpret(A), k, phi, mu ) ) } \
-  /* TODO: Distributed ExtendedKahan */ \
+  ElError ElExtendedKahanDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt k, Base<T> phi, Base<T> mu ) \
+  { EL_TRY( ExtendedKahan( *Reinterpret(A), k, phi, mu ) ) } \
   /* Fiedler */ \
   ElError ElFiedler_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt cSize, CREFLECT(T)* cBuf ) \
@@ -191,11 +251,30 @@ extern "C" {
       std::vector<T> c( Reinterpret(cBuf), Reinterpret(cBuf)+cSize ); \
       Fiedler( *Reinterpret(A), c ); \
     } EL_CATCH; return EL_SUCCESS; } \
+  /* Gaussian */ \
+  ElError ElGaussian_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, \
+    CREFLECT(T) mean, Base<T> stddev ) \
+  { EL_TRY( Gaussian( *Reinterpret(A), m, n, Reinterpret(mean), stddev ) ) } \
+  ElError ElGaussianDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, \
+    CREFLECT(T) mean, Base<T> stddev ) \
+  { EL_TRY( Gaussian( *Reinterpret(A), m, n, Reinterpret(mean), stddev ) ) } \
   /* Golub Klema Stewart */ \
   ElError ElGKS_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( GKS( *Reinterpret(A), n ) ) } \
   ElError ElGKSDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( GKS( *Reinterpret(A), n ) ) } \
+  /* Haar */ \
+  ElError ElHaar_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Haar( *Reinterpret(A), n ) ) } \
+  /* TODO: Distributed Haar */ \
+  ElError ElImplicitHaar_ ## SIG \
+  ( ElMatrix_ ## SIG A, \
+    ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, ElInt n ) \
+  { EL_TRY( \
+      ImplicitHaar( *Reinterpret(A), *Reinterpret(t), *Reinterpret(d), n ) ) } \
+  /* TODO: Distributed implicit Haar */ \
   /* Hatano-Nelson */ \
   ElError ElHatanoNelson_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius, \
@@ -233,6 +312,11 @@ extern "C" {
         Reinterpret(uplo), *Reinterpret(A), \
         *Reinterpret(w), *Reinterpret(Z) ) ) } \
   /* TODO: Distributed HermitianFromEVD */ \
+  /* Hermitian uniform spectrum */ \
+  ElError ElHermitianUniformSpectrum_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, Base<T> lower, Base<T> upper ) \
+  { EL_TRY( HermitianUniformSpectrum( *Reinterpret(A), n, lower, upper ) ) } \
+  /* TODO: Distributed HermitianUniformSpectrum */ \
   /* Hilbert */ \
   ElError ElHilbert_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Hilbert( *Reinterpret(A), n ) ) } \
@@ -244,7 +328,96 @@ extern "C" {
   { EL_TRY( Kahan( *Reinterpret(A), n, Reinterpret(phi) ) ) } \
   ElError ElKahanDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) phi ) \
-  { EL_TRY( Kahan( *Reinterpret(A), n, Reinterpret(phi) ) ) }
+  { EL_TRY( Kahan( *Reinterpret(A), n, Reinterpret(phi) ) ) } \
+  /* Laplacian */ \
+  ElError ElLaplacian1D_ ## SIG ( ElMatrix_ ## SIG L, ElInt nx ) \
+  { EL_TRY( Laplacian( *Reinterpret(L), nx ) ) } \
+  ElError ElLaplacian1DDist_ ## SIG ( ElDistMatrix_ ## SIG L, ElInt nx ) \
+  { EL_TRY( Laplacian( *Reinterpret(L), nx ) ) } \
+  ElError ElLaplacian2D_ ## SIG \
+  ( ElMatrix_ ## SIG L, ElInt nx, ElInt ny ) \
+  { EL_TRY( Laplacian( *Reinterpret(L), nx, ny ) ) } \
+  ElError ElLaplacian2DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG L, ElInt nx, ElInt ny ) \
+  { EL_TRY( Laplacian( *Reinterpret(L), nx, ny ) ) } \
+  ElError ElLaplacian3D_ ## SIG \
+  ( ElMatrix_ ## SIG L, ElInt nx, ElInt ny, ElInt nz ) \
+  { EL_TRY( Laplacian( *Reinterpret(L), nx, ny, nz ) ) } \
+  ElError ElLaplacian3DDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG L, ElInt nx, ElInt ny, ElInt nz ) \
+  { EL_TRY( Laplacian( *Reinterpret(L), nx, ny, nz ) ) } \
+  /* Legendre */ \
+  ElError ElLegendre_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Legendre( *Reinterpret(A), n ) ) } \
+  ElError ElLegendreDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Legendre( *Reinterpret(A), n ) ) } \
+  /* Lehmer */ \
+  ElError ElLehmer_ ## SIG ( ElMatrix_ ## SIG L, ElInt n ) \
+  { EL_TRY( Lehmer( *Reinterpret(L), n ) ) } \
+  ElError ElLehmerDist_ ## SIG ( ElDistMatrix_ ## SIG L, ElInt n ) \
+  { EL_TRY( Lehmer( *Reinterpret(L), n ) ) } \
+  /* Lotkin */ \
+  ElError ElLotkin_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Lotkin( *Reinterpret(A), n ) ) } \
+  ElError ElLotkinDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Lotkin( *Reinterpret(A), n ) ) }  \
+  /* Parter */ \
+  ElError ElParter_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Parter( *Reinterpret(A), n ) ) } \
+  ElError ElParterDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Parter( *Reinterpret(A), n ) ) } \
+  /* Pei */ \
+  ElError ElPei_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) alpha ) \
+  { EL_TRY( Pei( *Reinterpret(A), n, Reinterpret(alpha) ) ) } \
+  ElError ElPeiDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) alpha ) \
+  { EL_TRY( Pei( *Reinterpret(A), n, Reinterpret(alpha) ) ) } \
+  /* Riffle */ \
+  ElError ElRiffle_ ## SIG ( ElMatrix_ ## SIG P, ElInt n ) \
+  { EL_TRY( Riffle( *Reinterpret(P), n ) ) } \
+  ElError ElRiffleDist_ ## SIG ( ElDistMatrix_ ## SIG P, ElInt n ) \
+  { EL_TRY( Riffle( *Reinterpret(P), n ) ) } \
+  ElError ElRiffleStationary_ ## SIG \
+  ( ElMatrix_ ## SIG PInf, ElInt n ) \
+  { EL_TRY( RiffleStationary( *Reinterpret(PInf), n ) ) } \
+  ElError ElRiffleStationaryDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG PInf, ElInt n ) \
+  { EL_TRY( RiffleStationary( *Reinterpret(PInf), n ) ) } \
+  ElError ElRiffleDecay_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( RiffleDecay( *Reinterpret(A), n ) ) } \
+  ElError ElRiffleDecayDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( RiffleDecay( *Reinterpret(A), n ) ) } \
+  /* Ris */ \
+  ElError ElRis_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Ris( *Reinterpret(A), n ) ) } \
+  ElError ElRisDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Ris( *Reinterpret(A), n ) ) } \
+  /* Toeplitz */ \
+  ElError ElToeplitz_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( Reinterpret(aBuf), Reinterpret(aBuf)+aSize ); \
+      Toeplitz( *Reinterpret(A), m, n, a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  ElError ElToeplitzDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n, ElInt aSize, CREFLECT(T)* aBuf ) \
+  { try { \
+      std::vector<T> a( Reinterpret(aBuf), Reinterpret(aBuf)+aSize ); \
+      Toeplitz( *Reinterpret(A), m, n, a ); \
+    } EL_CATCH; return EL_SUCCESS; } \
+  /* Triangle */ \
+  ElError ElTriangle_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Triangle( *Reinterpret(A), n ) ) } \
+  ElError ElTriangleDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Triangle( *Reinterpret(A), n ) ) } \
+  /* Wigner */ \
+  ElError ElWigner_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) mean, Base<T> stddev ) \
+  { EL_TRY( Wigner( *Reinterpret(A), n, Reinterpret(mean), stddev ) ) } \
+  ElError ElWignerDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) mean, Base<T> stddev ) \
+  { EL_TRY( Wigner( *Reinterpret(A), n, Reinterpret(mean), stddev ) ) }
 
 #define C_PROTO_INT(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T)
@@ -325,7 +498,37 @@ extern "C" {
   { EL_TRY( \
       HelmholtzPML( \
         *Reinterpret(H), nx, ny, nz, Reinterpret(omega), \
-        numPmlPoints, sigma, pmlExp ) ) }
+        numPmlPoints, sigma, pmlExp ) ) } \
+  /* NormalFromEVD */ \
+  ElError ElNormalFromEVD_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElConstMatrix_ ## SIG w, ElConstMatrix_ ## SIG Z ) \
+  { EL_TRY( \
+      NormalFromEVD( *Reinterpret(A), *Reinterpret(w), *Reinterpret(Z) ) ) } \
+  /* TODO: Distributed NormalFromEVD */ \
+  /* NormalUniformSpectrum */ \
+  ElError ElNormalUniformSpectrum_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, CREFLECT(T) center, Base<T> radius ) \
+  { EL_TRY( \
+      NormalUniformSpectrum( \
+        *Reinterpret(A), n, Reinterpret(center), radius ) ) } \
+  /* TODO: Distributed NormalUniformSpectrum */ \
+  /* Trefethen */ \
+  ElError ElTrefethen_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Trefethen( *Reinterpret(A), n ) ) } \
+  ElError ElTrefethenDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Trefethen( *Reinterpret(A), n ) ) } \
+  /* Uniform Helmholtz Green's */ \
+  ElError ElUniformHelmholtzGreens_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElInt n, Base<T> lambda ) \
+  { EL_TRY( UniformHelmholtzGreens( *Reinterpret(A), n, lambda ) ) } \
+  ElError ElUniformHelmholtzGreensDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, Base<T> lambda ) \
+  { EL_TRY( UniformHelmholtzGreens( *Reinterpret(A), n, lambda ) ) } \
+  /* Whale */ \
+  ElError ElWhale_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Whale( *Reinterpret(A), n ) ) } \
+  ElError ElWhaleDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt n ) \
+  { EL_TRY( Whale( *Reinterpret(A), n ) ) }
 
 #include "El/macros/CInstantiate.h"
 

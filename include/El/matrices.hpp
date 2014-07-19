@@ -123,8 +123,8 @@ void EhrenfestStationary( AbstractBlockDistMatrix<F>& PInf, Int n );
 
 template<typename F>
 void EhrenfestDecay( Matrix<F>& A, Int n );
-template<typename F,Dist U,Dist V>
-void EhrenfestDecay( DistMatrix<F,U,V>& A, Int n );
+template<typename F>
+void EhrenfestDecay( AbstractDistMatrix<F>& A, Int n );
 /*
 template<typename F,Dist U,Dist V>
 void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n );
@@ -134,9 +134,8 @@ void EhrenfestDecay( BlockDistMatrix<F,U,V>& A, Int n );
 // ==============
 template<typename F>
 void ExtendedKahan( Matrix<F>& A, Int k, Base<F> phi, Base<F> mu );
-template<typename F,Dist U,Dist V>
-void ExtendedKahan
-( DistMatrix<F,U,V>& A, Int k, Base<F> phi, Base<F> mu );
+template<typename F>
+void ExtendedKahan( AbstractDistMatrix<F>& A, Int k, Base<F> phi, Base<F> mu );
 
 // Fiedler
 // =======
@@ -222,12 +221,8 @@ void Hankel
 // ======
 template<typename T>
 void Hanowa( Matrix<T>& A, Int n, T mu );
-template<typename T,Dist U,Dist V>
-void Hanowa( DistMatrix<T,U,V>& A, Int n, T mu );
-/*
-template<typename T,Dist U,Dist V>
-void Hanowa( BlockDistMatrix<T,U,V>& A, Int n, T mu );
-*/
+template<typename T>
+void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu );
 
 // Hatano-Nelson
 // =============
@@ -350,48 +345,29 @@ void KMS( AbstractDistMatrix<T>& K, Int n, T rho );
 template<typename T>
 void KMS( AbstractBlockDistMatrix<T>& K, Int n, T rho );
 
-// Lehmer
-// ======
-template<typename F>
-void Lehmer( Matrix<F>& L, Int n );
-template<typename F>
-void Lehmer( AbstractDistMatrix<F>& L, Int n );
-template<typename F>
-void Lehmer( AbstractBlockDistMatrix<F>& L, Int n );
-
 // Laplacian
 // =========
 template<typename F>
 void Laplacian( Matrix<F>& L, Int nx );
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int nx );
-template<typename F>
-void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx );
 
 template<typename F>
 void Laplacian( Matrix<F>& L, Int nx, Int ny );
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny );
-template<typename F>
-void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny );
 
 template<typename F>
 void Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz );
 template<typename F>
 void Laplacian( AbstractDistMatrix<F>& L, Int nx, Int ny, Int nz );
-template<typename F>
-void Laplacian( AbstractBlockDistMatrix<F>& L, Int nx, Int ny, Int nz );
 
 // Lauchli
 // =======
 template<typename T>
 void Lauchli( Matrix<T>& A, Int n, T mu );
-template<typename T,Dist U,Dist V>
-void Lauchli( DistMatrix<T,U,V>& A, Int n, T mu );
-/*
-template<typename T,Dist U,Dist V>
-void Lauchli( BlockDistMatrix<T,U,V>& A, Int n, T mu );
-*/
+template<typename T>
+void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu );
 
 // Legendre
 // ========
@@ -401,6 +377,15 @@ template<typename F>
 void Legendre( AbstractDistMatrix<F>& A, Int n );
 template<typename F>
 void Legendre( AbstractBlockDistMatrix<F>& A, Int n );
+
+// Lehmer
+// ======
+template<typename F>
+void Lehmer( Matrix<F>& L, Int n );
+template<typename F>
+void Lehmer( AbstractDistMatrix<F>& L, Int n );
+template<typename F>
+void Lehmer( AbstractBlockDistMatrix<F>& L, Int n );
 
 // Lotkin
 // ======
@@ -515,12 +500,8 @@ void RiffleStationary( AbstractBlockDistMatrix<F>& PInf, Int n );
 
 template<typename F>
 void RiffleDecay( Matrix<F>& A, Int n );
-template<typename F,Dist U,Dist V>
-void RiffleDecay( DistMatrix<F,U,V>& A, Int n );
-/*
-template<typename F,Dist U,Dist V>
-void RiffleDecay( BlockDistMatrix<F,U,V>& A, Int n );
-*/
+template<typename F>
+void RiffleDecay( AbstractDistMatrix<F>& A, Int n );
 
 // Ris
 // ===
@@ -607,21 +588,22 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 
 // Gaussian
 // ========
-template<typename T>
-void MakeGaussian( Matrix<T>& A, T mean=0, Base<T> stddev=1 );
-template<typename T>
-void MakeGaussian( AbstractDistMatrix<T>& A, T mean=0, Base<T> stddev=1 );
-template<typename T>
-void MakeGaussian( AbstractBlockDistMatrix<T>& A, T mean=0, Base<T> stddev=1 );
+template<typename F>
+void MakeGaussian( Matrix<F>& A, F mean=0, Base<F> stddev=1 );
+template<typename F>
+void MakeGaussian( AbstractDistMatrix<F>& A, F mean=0, Base<F> stddev=1 );
+template<typename F>
+void MakeGaussian
+( AbstractBlockDistMatrix<F>& A, F mean=0, Base<F> stddev=1 );
 
-template<typename T>
-void Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 );
-template<typename T>
+template<typename F>
+void Gaussian( Matrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
+template<typename F>
 void Gaussian
-( AbstractDistMatrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 );
-template<typename T>
+( AbstractDistMatrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
+template<typename F>
 void Gaussian
-( AbstractBlockDistMatrix<T>& A, Int m, Int n, T mean=0, Base<T> stddev=1 );
+( AbstractBlockDistMatrix<F>& A, Int m, Int n, F mean=0, Base<F> stddev=1 );
 
 // Haar
 // ====
@@ -697,10 +679,10 @@ void UniformHelmholtzGreens
 
 // Wigner
 // ======
-template<typename T>
-void Wigner( Matrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
-template<typename T>
-void Wigner( AbstractDistMatrix<T>& A, Int n, T mean=0, Base<T> stddev=1 );
+template<typename F>
+void Wigner( Matrix<F>& A, Int n, F mean=0, Base<F> stddev=1 );
+template<typename F>
+void Wigner( AbstractDistMatrix<F>& A, Int n, F mean=0, Base<F> stddev=1 );
 
 } // namespace El
 
