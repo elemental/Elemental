@@ -21,6 +21,7 @@
 #include "El/core/DistMatrix-C.h"
 #include "El/blas-like/level1-C.h"
 #include "El/blas-like/level2-C.h"
+#include "El/blas-like/level3-C.h"
 #include "El/io-C.h"
 #include "El/matrices-C.h"
 

@@ -30,8 +30,6 @@
 
 namespace El {
 
-// Reflect datatypes to and from C
-// -------------------------------
 template<typename T>
 struct CReflect { typedef T type; };
 
@@ -376,6 +374,13 @@ inline DistData Reinterpret( const ElDistData distData )
     data.grid = Reinterpret(distData.grid);
     return data;
 }
+
+// BLAS-like
+// ---------
+inline ElGemmAlgorithm Reinterpret( GemmAlgorithm alg )
+{ return static_cast<ElGemmAlgorithm>(alg); }
+inline GemmAlgorithm Reinterpret( ElGemmAlgorithm alg )
+{ return static_cast<GemmAlgorithm>(alg); }
 
 } // namespace El
 
