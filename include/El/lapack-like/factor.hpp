@@ -155,6 +155,7 @@ enum LDLPivotType
     BUNCH_KAUFMAN_D=2,
     BUNCH_KAUFMAN_BOUNDED=3,
     BUNCH_PARLETT=4
+    /* TODO: Diagonal pivoting? */
 };
 }
 using namespace LDLPivotTypeNS;
@@ -165,8 +166,8 @@ struct LDLPivot
     Int from[2];
 };
 
-// Return the L from an LDL factorization of A
-// -------------------------------------------
+// Return the L (and D) from an LDL factorization of A (without pivoting)
+// ----------------------------------------------------------------------
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate );
 template<typename F>

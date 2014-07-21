@@ -382,6 +382,92 @@ inline ElGemmAlgorithm Reinterpret( GemmAlgorithm alg )
 inline GemmAlgorithm Reinterpret( ElGemmAlgorithm alg )
 { return static_cast<GemmAlgorithm>(alg); }
 
+// LAPACK-like
+// -----------
+inline ElLDLPivotType Reinterpret( LDLPivotType pivotType )
+{ return static_cast<ElLDLPivotType>( pivotType ); }
+
+inline LDLPivotType Reinterpret( ElLDLPivotType pivotType )
+{ return static_cast<LDLPivotType>( pivotType ); }
+
+inline ElLDLPivot Reinterpret( LDLPivot pivot )
+{
+    ElLDLPivot pivotC;
+    pivotC.nb = pivot.nb;
+    pivotC.from[0] = pivot.from[0];
+    pivotC.from[1] = pivot.from[1];
+    return pivotC;
+}
+
+inline LDLPivot Reinterpret( ElLDLPivot pivotC )
+{
+    LDLPivot pivot;
+    pivot.nb = pivotC.nb;
+    pivot.from[0] = pivotC.from[0];
+    pivot.from[1] = pivotC.from[1];
+    return pivot;
+}
+
+inline ElInertiaType Reinterpret( InertiaType inertia )
+{ 
+    ElInertiaType inertiaC;
+    inertiaC.numPositive = inertia.numPositive;
+    inertiaC.numNegative = inertia.numNegative;
+    inertiaC.numZero = inertia.numZero;
+    return inertiaC;
+}
+
+inline InertiaType Reinterpret( ElInertiaType inertiaC )
+{ 
+    InertiaType inertia;
+    inertia.numPositive = inertiaC.numPositive;
+    inertia.numNegative = inertiaC.numNegative;
+    inertia.numZero = inertiaC.numZero;
+    return inertia;
+}
+
+inline ElQRCtrl_s Reinterpret( QRCtrl<float> ctrl )
+{ 
+    ElQRCtrl_s ctrlC;
+    ctrlC.boundRank = ctrl.boundRank;
+    ctrlC.maxRank = ctrl.maxRank;
+    ctrlC.adaptive = ctrl.adaptive;
+    ctrlC.tol = ctrl.tol;
+    ctrlC.alwaysRecomputeNorms = ctrl.alwaysRecomputeNorms;
+    return ctrlC;
+}
+inline ElQRCtrl_d Reinterpret( QRCtrl<double> ctrl )
+{ 
+    ElQRCtrl_d ctrlC;
+    ctrlC.boundRank = ctrl.boundRank;
+    ctrlC.maxRank = ctrl.maxRank;
+    ctrlC.adaptive = ctrl.adaptive;
+    ctrlC.tol = ctrl.tol;
+    ctrlC.alwaysRecomputeNorms = ctrl.alwaysRecomputeNorms;
+    return ctrlC;
+}
+
+inline QRCtrl<float> Reinterpret( ElQRCtrl_s ctrlC )
+{ 
+    QRCtrl<float> ctrl;
+    ctrl.boundRank = ctrlC.boundRank;
+    ctrl.maxRank = ctrlC.maxRank;
+    ctrl.adaptive = ctrlC.adaptive;
+    ctrl.tol = ctrlC.tol;
+    ctrl.alwaysRecomputeNorms = ctrlC.alwaysRecomputeNorms;
+    return ctrl;
+}
+inline QRCtrl<double> Reinterpret( ElQRCtrl_d ctrlC )
+{ 
+    QRCtrl<double> ctrl;
+    ctrl.boundRank = ctrlC.boundRank;
+    ctrl.maxRank = ctrlC.maxRank;
+    ctrl.adaptive = ctrlC.adaptive;
+    ctrl.tol = ctrlC.tol;
+    ctrl.alwaysRecomputeNorms = ctrlC.alwaysRecomputeNorms;
+    return ctrl;
+}
+
 } // namespace El
 
 #endif // ifndef EL_REINTERPRET_C_HPP
