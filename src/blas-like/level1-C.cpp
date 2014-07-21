@@ -364,7 +364,7 @@ extern "C" {
   ( ElConstDistMatrix_ ## SIG x, ElValueInt_ ## SIG *entry ) \
   { EL_TRY( *entry = Reinterpret(VectorMin(*Reinterpret(x))) ) }
 
-#define C_PROTO_NOINT(SIG,SIGBASE,T) \
+#define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* DiagonalSolve */ \
   ElError ElDiagonalSolve_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
@@ -382,10 +382,10 @@ extern "C" {
         *Reinterpret(d), *Reinterpret(X) ) ) } \
   /* Nrm2 (same as FrobeniusNorm) */ \
   ElError ElNrm2_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, Base<T> *gamma ) \
+  ( ElConstMatrix_ ## SIG A, Base<F> *gamma ) \
   { EL_TRY( *gamma = Nrm2(*Reinterpret(A)) ) } \
   ElError ElNrm2Dist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, Base<T> *gamma ) \
+  ( ElConstDistMatrix_ ## SIG A, Base<F> *gamma ) \
   { EL_TRY( *gamma = Nrm2(*Reinterpret(A)) ) } \
   /* TODO: QuasiDiagonalSolve */ \
   /* TODO: Symmetric2x2Inv */ \
@@ -398,11 +398,11 @@ extern "C" {
 #define C_PROTO_REAL(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \
   C_PROTO_NOCOMPLEX(SIG,SIGBASE,T) \
-  C_PROTO_NOINT(SIG,SIGBASE,T)
+  C_PROTO_FIELD(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_NOINT(SIG,SIGBASE,T) \
+  C_PROTO_FIELD(SIG,SIGBASE,T) \
   /* B = A^H */ \
   ElError ElAdjoint_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \

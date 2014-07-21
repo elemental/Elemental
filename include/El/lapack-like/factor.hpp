@@ -44,10 +44,10 @@ template<typename F>
 void ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A );
 
 template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& pPerm );
+void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p );
 template<typename F,Dist UPerm>
 void Cholesky
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p );
 
 template<typename F>
 void CholeskyMod
@@ -75,12 +75,12 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation,
-  const Matrix<F>& A, const Matrix<Int>& pPerm, 
+  const Matrix<F>& A, const Matrix<Int>& p, 
         Matrix<F>& B );
 template<typename F,Dist UPerm>
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<Int,UPerm,STAR>& pPerm,
+  const DistMatrix<F>& A, const DistMatrix<Int,UPerm,STAR>& p,
         DistMatrix<F>& B );
 
 } // namespace cholesky
@@ -123,25 +123,25 @@ void GRQ
 // ===========================
 template<typename F>
 void ID
-( const Matrix<F>& A, Matrix<Int>& pPerm, 
+( const Matrix<F>& A, Matrix<Int>& p, 
         Matrix<F>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 // NOTE: This is only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 void ID
-( const DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm,
+( const DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p,
         DistMatrix<F,STAR,VR>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
 void ID
-( Matrix<F>& A, Matrix<Int>& pPerm, 
+( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 // NOTE: This is only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 void ID
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm,
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p,
   DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 
@@ -177,13 +177,13 @@ void LDL( DistMatrix<F>& A, bool conjugate );
 template<typename F>
 void LDL
 ( Matrix<F>& A, Matrix<F>& dSub,
-  Matrix<Int>& pPerm, bool conjugate,
+  Matrix<Int>& p, bool conjugate,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 // NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void LDL
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub,
-  DistMatrix<Int,UPerm,STAR>& pPerm, bool conjugate,
+  DistMatrix<Int,UPerm,STAR>& p, bool conjugate,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 
 namespace ldl {
@@ -210,12 +210,12 @@ void MultiplyAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated );
 template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub,
-  const Matrix<Int>& pPerm, Matrix<F>& B, bool conjugated );
+  const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
 // NOTE: Only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 void MultiplyAfter
 ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub,
-  const DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<F>& B, bool conjugated );
+  const DistMatrix<Int,UPerm,STAR>& p, DistMatrix<F>& B, bool conjugated );
 
 // Solve linear systems using an implicit LDL factorization
 // --------------------------------------------------------
@@ -229,12 +229,12 @@ void SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated );
 template<typename F>
 void SolveAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub,
-  const Matrix<Int>& pPerm, Matrix<F>& B, bool conjugated );
+  const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
 // NOTE: Only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 void SolveAfter
 ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub,
-  const DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<F>& B, bool conjugated );
+  const DistMatrix<Int,UPerm,STAR>& p, DistMatrix<F>& B, bool conjugated );
 
 } // namespace ldl
 
@@ -316,20 +316,20 @@ void LU( DistMatrix<F>& A );
 // LU with partial pivoting
 // ------------------------
 template<typename F>
-void LU( Matrix<F>& A, Matrix<Int>& pPerm );
+void LU( Matrix<F>& A, Matrix<Int>& p );
 // NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
-void LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm );
+void LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p );
 
 // LU with full pivoting
 // ---------------------
 template<typename F>
-void LU( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm );
+void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q );
 // NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void LU
 ( DistMatrix<F>& A, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<Int,UPerm,STAR>& qPerm );
+  DistMatrix<Int,UPerm,STAR>& p, DistMatrix<Int,UPerm,STAR>& q );
 
 // Rank-one modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
@@ -372,27 +372,25 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation, const Matrix<F>& A,
-  const Matrix<Int>& pPerm, Matrix<F>& B );
+  const Matrix<Int>& p, Matrix<F>& B );
 // NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void SolveAfter
 ( Orientation orientation, const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<F>& B );
+  const DistMatrix<Int,UPerm,STAR>& p, DistMatrix<F>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
 // ---------------------------------------------------------------------
 template<typename F>
 void SolveAfter
 ( Orientation orientation, const Matrix<F>& A,
-  const Matrix<Int>& pPerm,
-  const Matrix<Int>& qPerm,
+  const Matrix<Int>& p, const Matrix<Int>& q,
         Matrix<F>& B );
 // NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void SolveAfter
 ( Orientation orientation, const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& pPerm,
-  const DistMatrix<Int,UPerm,STAR>& qPerm,
+  const DistMatrix<Int,UPerm,STAR>& p, const DistMatrix<Int,UPerm,STAR>& q,
         DistMatrix<F>& B );
 
 } // namespace lu
@@ -420,12 +418,12 @@ void QR
 // ----------------------------------------------
 template<typename F>
 Int QR
-( Matrix<F>& A, Matrix<Int>& pPerm, 
+( Matrix<F>& A, Matrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 // NOTE: Only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 Int QR
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 // Return an implicit representation of (Q,R,P) such that A P ~= Q R
@@ -433,13 +431,13 @@ Int QR
 template<typename F>
 Int QR
 ( Matrix<F>& A, Matrix<F>& t, 
-  Matrix<Base<F>>& d, Matrix<Int>& pPerm,
+  Matrix<Base<F>>& d, Matrix<Int>& p,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 // NOTE: Only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 Int QR
 ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, 
-  DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<Int,UPerm,STAR>& pPerm,
+  DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<Int,UPerm,STAR>& p,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 namespace qr {
@@ -486,11 +484,11 @@ void Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false );
 // TODO: Return the explicit permutation matrix instead of the representative
 //       vector
 template<typename F>
-void Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& pPerm );
+void Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& p );
 // NOTE: Only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 void Explicit
-( DistMatrix<F>& A, DistMatrix<F>& R, DistMatrix<Int,UPerm,STAR>& pPerm );
+( DistMatrix<F>& A, DistMatrix<F>& R, DistMatrix<Int,UPerm,STAR>& p );
 // TODO: Version which accepts QRCtrl
 
 // Solve a linear system with the implicit QR factorization

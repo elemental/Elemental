@@ -48,6 +48,7 @@ ElError ElGemm_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElGemmDist_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,
@@ -69,6 +70,7 @@ ElError ElGemmDist_z
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C );
 
+/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElGemmDistX_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,
@@ -101,6 +103,7 @@ ElError ElHemm_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElHemmDist_c
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
@@ -121,6 +124,7 @@ ElError ElHerk_z
   complex_double alpha, ElConstMatrix_z A, 
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A' and 'C' must be in [MC,MR] distributions */
 ElError ElHerkDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, 
@@ -141,6 +145,7 @@ ElError ElHer2k_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElHer2kDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
@@ -169,7 +174,9 @@ ElError ElMultiShiftQuasiTrsm_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B );
 
-/* NOTE: 'shifts' must be in a [VR,STAR] distribution */
+
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
+         'shifts' must be in a [VR,STAR] distribution */
 ElError ElMultiShiftQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
@@ -206,7 +213,8 @@ ElError ElMultiShiftTrsm_z
   complex_double alpha, ElMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B );
 
-/* NOTE: 'shifts' must be in a [VR,STAR] distribution */
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
+         'shifts' must be in a [VR,STAR] distribution */
 ElError ElMultiShiftTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
@@ -239,6 +247,7 @@ ElError ElQuasiTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElDistMatrix_s B );
@@ -271,6 +280,7 @@ ElError ElSymm_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElSymmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
@@ -307,6 +317,7 @@ ElError ElSyrk_z
   complex_double alpha, ElConstMatrix_z A, 
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A' and 'C' must be in [MC,MR] distributions */
 ElError ElSyrkDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, 
@@ -343,6 +354,7 @@ ElError ElSyr2k_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
+/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElSyr2kDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
@@ -367,6 +379,7 @@ ElError ElTrdtrmm_d( ElUpperOrLower uplo, ElMatrix_d A, bool conjugate );
 ElError ElTrdtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
 ElError ElTrdtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
+/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElTrdtrmmDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, bool conjugate );
 ElError ElTrdtrmmDist_d
@@ -389,7 +402,8 @@ ElError ElTrdtrmmQuasi_c
 ElError ElTrdtrmmQuasi_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElConstMatrix_z dOff, bool conjugate );
 
-/* NOTE: 'dOff' must be in a [MD,STAR] distribution */
+/* NOTE: 'A' must be in a [MC,MR] distribution, while 
+         'dOff' must be in a [MD,STAR] distribution */
 ElError ElTrdtrmmQuasiDist_s
 ( ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElConstDistMatrix_s dOff, bool conjugate );
@@ -422,6 +436,7 @@ ElError ElTrmm_z
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTrmmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
@@ -458,6 +473,7 @@ ElError ElTrsm_z
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
@@ -494,6 +510,7 @@ ElError ElTrstrm_z
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTrstrmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
@@ -518,6 +535,7 @@ ElError ElTrtrmm_d( ElUpperOrLower uplo, ElMatrix_d A, bool conjugate );
 ElError ElTrtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
 ElError ElTrtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
+/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElTrtrmmDist_s( ElUpperOrLower uplo, ElDistMatrix_s A, bool conjugate );
 ElError ElTrtrmmDist_d( ElUpperOrLower uplo, ElDistMatrix_d A, bool conjugate );
 ElError ElTrtrmmDist_c( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );
@@ -534,6 +552,7 @@ ElError ElTwoSidedTrmm_c
 ElError ElTwoSidedTrmm_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A, ElConstMatrix_z B );
 
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTwoSidedTrmmDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_s A, ElConstDistMatrix_s B );
@@ -558,6 +577,7 @@ ElError ElTwoSidedTrsm_c
 ElError ElTwoSidedTrsm_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A, ElConstMatrix_z B );
 
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTwoSidedTrsmDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_s A, ElConstDistMatrix_s B );

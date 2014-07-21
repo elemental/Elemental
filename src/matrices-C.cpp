@@ -168,7 +168,7 @@ extern "C" {
   ElError ElZerosDist_ ## SIG ( ElDistMatrix_ ## SIG A, ElInt m, ElInt n ) \
   { EL_TRY( Zeros( *Reinterpret(A), m, n ) ) }
 
-#define C_PROTO_NOINT(SIG,SIGBASE,T) \
+#define C_PROTO_FIELD(SIG,SIGBASE,T) \
   /* Cauchy */ \
   ElError ElCauchy_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt xSize, CREFLECT(T)* xBuf, \
@@ -424,11 +424,11 @@ extern "C" {
 
 #define C_PROTO_REAL(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_NOINT(SIG,SIGBASE,T)
+  C_PROTO_FIELD(SIG,SIGBASE,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_NOINT(SIG,SIGBASE,T) \
+  C_PROTO_FIELD(SIG,SIGBASE,T) \
   /* Bull's head */ \
   ElError ElBullsHead_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( BullsHead( *Reinterpret(A), n ) ) } \
