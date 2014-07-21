@@ -14,15 +14,20 @@ namespace El {
 
 // Bidiag
 // ======
-template<typename F>
-void Bidiag( Matrix<F>& A ); 
 
+// Return the packed reduction to bidiagonal form
+// ----------------------------------------------
 template<typename F>
 void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ );
 
 template<typename F>
 void Bidiag
 ( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ );
+
+// Only return the condensed bidiagonal matrix
+// -------------------------------------------
+template<typename F>
+void Bidiag( Matrix<F>& A ); 
 
 template<typename F>
 void Bidiag( DistMatrix<F>& A );

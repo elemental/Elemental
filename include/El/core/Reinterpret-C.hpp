@@ -384,6 +384,37 @@ inline GemmAlgorithm Reinterpret( ElGemmAlgorithm alg )
 
 // LAPACK-like
 // -----------
+
+// Condensed form
+// ^^^^^^^^^^^^^^
+inline ElHermitianTridiagApproach 
+Reinterpret( HermitianTridiagApproach approach )
+{ return static_cast<ElHermitianTridiagApproach>( approach ); }
+
+inline HermitianTridiagApproach 
+Reinterpret( ElHermitianTridiagApproach approach )
+{ return static_cast<HermitianTridiagApproach>( approach ); }
+
+inline ElHermitianTridiagCtrl
+Reinterpret( HermitianTridiagCtrl ctrl )
+{ 
+    ElHermitianTridiagCtrl ctrlC;
+    ctrlC.approach = Reinterpret(ctrl.approach);
+    ctrlC.order = Reinterpret(ctrl.order);
+    return ctrlC;
+}
+
+inline HermitianTridiagCtrl
+Reinterpret( ElHermitianTridiagCtrl ctrlC )
+{ 
+    HermitianTridiagCtrl ctrl;
+    ctrl.approach = Reinterpret(ctrlC.approach);
+    ctrl.order = Reinterpret(ctrlC.order);
+    return ctrl;
+}
+
+// Factorizations
+// ^^^^^^^^^^^^^^
 inline ElLDLPivotType Reinterpret( LDLPivotType pivotType )
 { return static_cast<ElLDLPivotType>( pivotType ); }
 
