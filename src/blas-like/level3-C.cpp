@@ -44,7 +44,7 @@ extern "C" {
       Gemm( Reinterpret(orientationOfA), Reinterpret(orientationOfB), \
             Reinterpret(alpha), DM_CAST_CONST(T,A), DM_CAST_CONST(T,B), \
             Reinterpret(beta), DM_CAST(T,C) ) ) } \
-  ElError ElGemmDistX_ ## SIG \
+  ElError ElGemmXDist_ ## SIG \
   ( ElOrientation orientationOfA, ElOrientation orientationOfB, \
     CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
                        ElConstDistMatrix_ ## SIG B, \

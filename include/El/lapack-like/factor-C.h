@@ -561,6 +561,232 @@ ElError ElSolveAfterLQDist_z
 ( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
   ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
 
+/* LU factorization
+   ================ */
+
+/* LU factorization with no pivoting
+   --------------------------------- */
+ElError ElLU_s( ElMatrix_s A );
+ElError ElLU_d( ElMatrix_d A );
+ElError ElLU_c( ElMatrix_c A );
+ElError ElLU_z( ElMatrix_z A );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElLUDist_s( ElDistMatrix_s A );
+ElError ElLUDist_d( ElDistMatrix_d A );
+ElError ElLUDist_c( ElDistMatrix_c A );
+ElError ElLUDist_z( ElDistMatrix_z A );
+
+/* LU factorization with partial pivoting
+   -------------------------------------- */
+ElError ElLUPartialPiv_s( ElMatrix_s A, ElMatrix_i p );
+ElError ElLUPartialPiv_d( ElMatrix_d A, ElMatrix_i p );
+ElError ElLUPartialPiv_c( ElMatrix_c A, ElMatrix_i p );
+ElError ElLUPartialPiv_z( ElMatrix_z A, ElMatrix_i p );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         'p' must be in a [VC,STAR] distribution */
+ElError ElLUPartialPivDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
+ElError ElLUPartialPivDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
+ElError ElLUPartialPivDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
+ElError ElLUPartialPivDist_z( ElDistMatrix_z A, ElDistMatrix_i p );
+
+/* LU factorization with full pivoting
+   ----------------------------------- */
+ElError ElLUFullPiv_s( ElMatrix_s A, ElMatrix_i p, ElMatrix_i q );
+ElError ElLUFullPiv_d( ElMatrix_d A, ElMatrix_i p, ElMatrix_i q );
+ElError ElLUFullPiv_c( ElMatrix_c A, ElMatrix_i p, ElMatrix_i q );
+ElError ElLUFullPiv_z( ElMatrix_z A, ElMatrix_i p, ElMatrix_i q );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         'p' and 'q' must be in [VC,STAR] distributions */
+ElError ElLUFullPivDist_s
+( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_i q );
+ElError ElLUFullPivDist_d
+( ElDistMatrix_d A, ElDistMatrix_i p, ElDistMatrix_i q );
+ElError ElLUFullPivDist_c
+( ElDistMatrix_c A, ElDistMatrix_i p, ElDistMatrix_i q );
+ElError ElLUFullPivDist_z
+( ElDistMatrix_z A, ElDistMatrix_i p, ElDistMatrix_i q );
+
+/* Rank-one LU modification
+   ------------------------ */
+ElError ElLUMod_s
+( ElMatrix_s A, ElMatrix_i p, 
+  ElConstMatrix_s u, ElConstMatrix_s v, float tau );
+ElError ElLUMod_d
+( ElMatrix_d A, ElMatrix_i p, 
+  ElConstMatrix_d u, ElConstMatrix_d v, double tau );
+ElError ElLUMod_c
+( ElMatrix_c A, ElMatrix_i p, 
+  ElConstMatrix_c u, ElConstMatrix_c v, bool conjugate, float tau );
+ElError ElLUMod_z
+( ElMatrix_z A, ElMatrix_i p, 
+  ElConstMatrix_z u, ElConstMatrix_z v, bool conjugate, double tau );
+
+/* NOTE: 'A', 'u', and 'v' must be in [MC,MR] distributions, while
+        'p' must be in a [VC,STAR] distribution */
+ElError ElLUModDist_s
+( ElDistMatrix_s A, ElDistMatrix_i p, 
+  ElConstDistMatrix_s u, ElConstDistMatrix_s v, float tau );
+ElError ElLUModDist_d
+( ElDistMatrix_d A, ElDistMatrix_i p, 
+  ElConstDistMatrix_d u, ElConstDistMatrix_d v, double tau );
+ElError ElLUModDist_c
+( ElDistMatrix_c A, ElDistMatrix_i p, 
+  ElConstDistMatrix_c u, ElConstDistMatrix_c v, bool conjugate, float tau );
+ElError ElLUModDist_z
+( ElDistMatrix_z A, ElDistMatrix_i p, 
+  ElConstDistMatrix_z u, ElConstDistMatrix_z v, bool conjugate, double tau );
+
+/* Solve linear systems after LU with no pivoting
+   ---------------------------------------------- */
+ElError ElSolveAfterLU_s
+( ElOrientation orientation, ElConstMatrix_s A, ElMatrix_s B );
+ElError ElSolveAfterLU_d
+( ElOrientation orientation, ElConstMatrix_d A, ElMatrix_d B );
+ElError ElSolveAfterLU_c
+( ElOrientation orientation, ElConstMatrix_c A, ElMatrix_c B );
+ElError ElSolveAfterLU_z
+( ElOrientation orientation, ElConstMatrix_z A, ElMatrix_z B );
+
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
+ElError ElSolveAfterLUDist_s
+( ElOrientation orientation, ElConstDistMatrix_s A, ElDistMatrix_s B );
+ElError ElSolveAfterLUDist_d
+( ElOrientation orientation, ElConstDistMatrix_d A, ElDistMatrix_d B );
+ElError ElSolveAfterLUDist_c
+( ElOrientation orientation, ElConstDistMatrix_c A, ElDistMatrix_c B );
+ElError ElSolveAfterLUDist_z
+( ElOrientation orientation, ElConstDistMatrix_z A, ElDistMatrix_z B );
+
+/* Solve linear systems after LU with partial pivoting
+   --------------------------------------------------- */
+ElError ElSolveAfterLUPartialPiv_s
+( ElOrientation orientation, 
+  ElConstMatrix_s A, ElConstMatrix_i p, ElMatrix_s B );
+ElError ElSolveAfterLUPartialPiv_d
+( ElOrientation orientation, 
+  ElConstMatrix_d A, ElConstMatrix_i p, ElMatrix_d B );
+ElError ElSolveAfterLUPartialPiv_c
+( ElOrientation orientation, 
+  ElConstMatrix_c A, ElConstMatrix_i p, ElMatrix_c B );
+ElError ElSolveAfterLUPartialPiv_z
+( ElOrientation orientation, 
+  ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
+
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
+         'p' must be in a [VC,STAR] distribution */
+ElError ElSolveAfterLUPartialPivDist_s
+( ElOrientation orientation, 
+  ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
+ElError ElSolveAfterLUPartialPivDist_d
+( ElOrientation orientation, 
+  ElConstDistMatrix_d A, ElConstDistMatrix_i p, ElDistMatrix_d B );
+ElError ElSolveAfterLUPartialPivDist_c
+( ElOrientation orientation, 
+  ElConstDistMatrix_c A, ElConstDistMatrix_i p, ElDistMatrix_c B );
+ElError ElSolveAfterLUPartialPivDist_z
+( ElOrientation orientation, 
+  ElConstDistMatrix_z A, ElConstDistMatrix_i p, ElDistMatrix_z B );
+
+/* Solve linear systems after LU with full pivoting 
+   ------------------------------------------------ */
+ElError ElSolveAfterLUFullPiv_s
+( ElOrientation orientation, ElConstMatrix_s A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_s B );
+ElError ElSolveAfterLUFullPiv_d
+( ElOrientation orientation, ElConstMatrix_d A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_d B );
+ElError ElSolveAfterLUFullPiv_c
+( ElOrientation orientation, ElConstMatrix_c A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_c B );
+ElError ElSolveAfterLUFullPiv_z
+( ElOrientation orientation, ElConstMatrix_z A, 
+  ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_z B );
+
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
+         'p' and 'q' must be in [VC,STAR] distributions */
+ElError ElSolveAfterLUFullPivDist_s
+( ElOrientation orientation, ElConstDistMatrix_s A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_s B );
+ElError ElSolveAfterLUFullPivDist_d
+( ElOrientation orientation, ElConstDistMatrix_d A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_d B );
+ElError ElSolveAfterLUFullPivDist_c
+( ElOrientation orientation, ElConstDistMatrix_c A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_c B );
+ElError ElSolveAfterLUFullPivDist_z
+( ElOrientation orientation, ElConstDistMatrix_z A, 
+  ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_z B );
+
+/* QR factorization
+   ================ */
+
+/* Return the packed QR factorization (with no pivoting)
+   ----------------------------------------------------- */
+ElError ElQR_s( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d );
+ElError ElQR_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d );
+ElError ElQR_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d );
+ElError ElQR_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         't' and 'd' must be in [MD,STAR] distributions */
+ElError ElQRDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d );
+ElError ElQRDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d );
+ElError ElQRDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d );
+ElError ElQRDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d );
+
+/* Return the packed QR factorization (with column pivoting)
+   --------------------------------------------------------- */
+ElError ElQRColPiv_s
+( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElMatrix_i p );
+ElError ElQRColPiv_d
+( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElMatrix_i p );
+ElError ElQRColPiv_c
+( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElMatrix_i p );
+ElError ElQRColPiv_z
+( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElMatrix_i p );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         't' and 'd' must be in [MD,STAR] distributions, and
+         'p' must be in a [VR,STAR] distribution */
+ElError ElQRColPivDist_s
+( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistMatrix_i p );
+ElError ElQRColPivDist_d
+( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElDistMatrix_i p );
+ElError ElQRColPivDist_c
+( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElDistMatrix_i p );
+ElError ElQRColPivDist_z
+( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistMatrix_i p );
+
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+ElError ElQRColPivX_s
+( ElMatrix_s A, ElMatrix_s t, ElMatrix_s d, ElMatrix_i p, ElQRCtrl_s ctrl );
+ElError ElQRColPivX_d
+( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d, ElMatrix_i p, ElQRCtrl_d ctrl );
+ElError ElQRColPivX_c
+( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d, ElMatrix_i p, ElQRCtrl_s ctrl );
+ElError ElQRColPivX_z
+( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElMatrix_i p, ElQRCtrl_d ctrl );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         't' and 'd' must be in [MD,STAR] distributions, and
+         'p' must be in a [VR,STAR] distribution */
+ElError ElQRColPivXDist_s
+( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistMatrix_i p, 
+  ElQRCtrl_s ctrl );
+ElError ElQRColPivXDist_d
+( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d, ElDistMatrix_i p,
+  ElQRCtrl_d ctrl );
+ElError ElQRColPivXDist_c
+( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d, ElDistMatrix_i p,
+  ElQRCtrl_s ctrl );
+ElError ElQRColPivXDist_z
+( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistMatrix_i p,
+  ElQRCtrl_d ctrl );
+
 /* RQ factorization
    ================ */
 

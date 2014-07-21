@@ -261,6 +261,102 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
       Reinterpret(orientation), \
       DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), \
       DM_MD_STAR_CAST_CONST(Base<F>,d), DM_CAST_CONST(F,B), DM_CAST(F,X) ) ) } \
+  /* LU factorization 
+     ================ */ \
+  /* LU without pivoting */ \
+  ElError ElLU_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( LU( *Reinterpret(A) ) ) } \
+  ElError ElLUDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( LU( DM_CAST(F,A) ) ) } \
+  /* LU with partial pivoting */ \
+  ElError ElLUPartialPiv_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_i p ) \
+  { EL_TRY( LU( *Reinterpret(A), *Reinterpret(p) ) ) } \
+  ElError ElLUPartialPivDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
+  { EL_TRY( LU( DM_CAST(F,A), DM_VC_STAR_CAST(Int,p) ) ) } \
+  /* LU with full pivoting */ \
+  ElError ElLUFullPiv_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_i p, ElMatrix_i q ) \
+  { EL_TRY( LU( *Reinterpret(A), *Reinterpret(p), *Reinterpret(q) ) ) } \
+  ElError ElLUFullPivDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, ElDistMatrix_i q ) \
+  { EL_TRY( LU( \
+      DM_CAST(F,A), DM_VC_STAR_CAST(Int,p), DM_VC_STAR_CAST(Int,q) ) ) } \
+  /* Solve against vectors after LU with no pivoting */ \
+  ElError ElSolveAfterLU_ ## SIG \
+  ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
+  { EL_TRY( lu::SolveAfter( \
+      Reinterpret(orientation), *Reinterpret(A), *Reinterpret(B) ) ) } \
+  ElError ElSolveAfterLUDist_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( lu::SolveAfter( \
+      Reinterpret(orientation), DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+  /* Solve against vectors after LU with partial pivoting */ \
+  ElError ElSolveAfterLUPartialPiv_ ## SIG \
+  ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElConstMatrix_i p, \
+    ElMatrix_ ## SIG B ) \
+  { EL_TRY( lu::SolveAfter( \
+      Reinterpret(orientation), \
+      *Reinterpret(A), *Reinterpret(p), *Reinterpret(B) ) ) } \
+  ElError ElSolveAfterLUPartialPivDist_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, \
+    ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( lu::SolveAfter( \
+      Reinterpret(orientation), \
+      DM_CAST_CONST(F,A), DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B) ) ) } \
+  /* Solve against vectors after LU with full pivoting */ \
+  ElError ElSolveAfterLUFullPiv_ ## SIG \
+  ( ElOrientation orientation, ElConstMatrix_ ## SIG A, \
+    ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_ ## SIG B ) \
+  { EL_TRY( lu::SolveAfter( \
+      Reinterpret(orientation), *Reinterpret(A), \
+      *Reinterpret(p), *Reinterpret(q), *Reinterpret(B) ) ) } \
+  ElError ElSolveAfterLUFullPivDist_ ## SIG \
+  ( ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, ElConstDistMatrix_i q, \
+    ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( lu::SolveAfter( \
+      Reinterpret(orientation), DM_CAST_CONST(F,A), \
+      DM_VC_STAR_CAST_CONST(Int,p), DM_VC_STAR_CAST_CONST(Int,q), \
+      DM_CAST(F,B) ) ) } \
+  /* QR factorization */ \
+  /* Return the packed QR factorization (with no pivoting) */ \
+  ElError ElQR_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d ) \
+  { EL_TRY( QR( *Reinterpret(A), *Reinterpret(t), *Reinterpret(d) ) ) } \
+  ElError ElQRDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d ) \
+  { EL_TRY( QR( \
+      DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d) ) ) } \
+  /* Return the packed QR factorization (with column pivoting) */ \
+  ElError ElQRColPiv_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, \
+    ElMatrix_i p ) \
+  { EL_TRY( QR( \
+      *Reinterpret(A), *Reinterpret(t), *Reinterpret(d), *Reinterpret(p) ) ) } \
+  ElError ElQRColPivDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElDistMatrix_i p ) \
+  { EL_TRY( QR( \
+      DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d), \
+      DM_VR_STAR_CAST(Int,p) ) ) } \
+  /* Return the packed QR factorization (with column pivoting, eXpert) */ \
+  ElError ElQRColPivX_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, \
+    ElMatrix_i p, ElQRCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( QR( \
+      *Reinterpret(A), *Reinterpret(t), *Reinterpret(d), *Reinterpret(p),\
+      Reinterpret(ctrl) ) ) } \
+  ElError ElQRColPivXDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, \
+    ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElDistMatrix_i p, \
+    ElQRCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( QR( \
+      DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d), \
+      DM_VR_STAR_CAST(Int,p), Reinterpret(ctrl) ) ) } \
   /* RQ factorization 
      ================ */ \
   /* Return the packed RQ factorization */ \
@@ -373,7 +469,24 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::SolveAfter( \
       DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VR_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) }
+      DM_VR_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
+  /* LU factorization
+     ================ */ \
+  /* Rank-one LU factorization modification */ \
+  ElError ElLUMod_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_i p, \
+    ElConstMatrix_ ## SIG u, ElConstMatrix_ ## SIG v, \
+    Base<F> tau ) \
+  { EL_TRY( LUMod( \
+      *Reinterpret(A), *Reinterpret(p), \
+      *Reinterpret(u), *Reinterpret(v), false, tau ) ) } \
+  ElError ElLUModDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, \
+    ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, \
+    Base<F> tau ) \
+  { EL_TRY( LUMod( \
+      DM_CAST(F,A), DM_VC_STAR_CAST(Int,p), \
+      DM_CAST_CONST(F,u), DM_CAST_CONST(F,v), false, tau ) ) }
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \
@@ -438,7 +551,24 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( ldl::SolveAfter( \
       DM_CAST_CONST(F,A), \
       DM_MD_STAR_CAST_CONST(F,dSub), DM_VR_STAR_CAST_CONST(Int,p), \
-      DM_CAST(F,B), conjugate ) ) }
+      DM_CAST(F,B), conjugate ) ) } \
+  /* LU factorization
+     ================ */ \
+  /* Rank-one LU factorization modification */ \
+  ElError ElLUMod_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_i p, \
+    ElConstMatrix_ ## SIG u, ElConstMatrix_ ## SIG v, \
+    bool conjugate, Base<F> tau ) \
+  { EL_TRY( LUMod( \
+      *Reinterpret(A), *Reinterpret(p), \
+      *Reinterpret(u), *Reinterpret(v), conjugate, tau ) ) } \
+  ElError ElLUModDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, \
+    ElConstDistMatrix_ ## SIG u, ElConstDistMatrix_ ## SIG v, \
+    bool conjugate, Base<F> tau ) \
+  { EL_TRY( LUMod( \
+      DM_CAST(F,A), DM_VC_STAR_CAST(Int,p), \
+      DM_CAST_CONST(F,u), DM_CAST_CONST(F,v), conjugate, tau ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

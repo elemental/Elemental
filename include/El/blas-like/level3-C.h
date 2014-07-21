@@ -71,23 +71,23 @@ ElError ElGemmDist_z
   complex_double beta,  ElDistMatrix_z C );
 
 /* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
-ElError ElGemmDistX_i
+ElError ElGemmXDist_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,
   ElInt beta,  ElDistMatrix_i C, ElGemmAlgorithm alg );
-ElError ElGemmDistX_s
+ElError ElGemmXDist_s
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,
   float beta,  ElDistMatrix_s C, ElGemmAlgorithm alg );
-ElError ElGemmDistX_d
+ElError ElGemmXDist_d
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B,
   double beta,  ElDistMatrix_d C, ElGemmAlgorithm alg );
-ElError ElGemmDistX_c
+ElError ElGemmXDist_c
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
   complex_float beta,  ElDistMatrix_c C, ElGemmAlgorithm alg );
-ElError ElGemmDistX_z
+ElError ElGemmXDist_z
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B,
   complex_double beta,  ElDistMatrix_z C, ElGemmAlgorithm alg );

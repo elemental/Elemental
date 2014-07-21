@@ -336,13 +336,13 @@ void LU
 // -------------------------------------------------------------
 template<typename F>
 void LUMod
-( Matrix<F>& A, Matrix<Int>& perm,
+( Matrix<F>& A, Matrix<Int>& p,
   const Matrix<F>& u, const Matrix<F>& v, bool conjugate=true,
   Base<F> tau=0.1 );
 // NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void LUMod
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& perm,
+( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p,
   const DistMatrix<F>& u, const DistMatrix<F>& v, bool conjugate=true,
   Base<F> tau=0.1 );
 
