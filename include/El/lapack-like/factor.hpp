@@ -631,13 +631,13 @@ void SolveAfter
 template<typename F>
 void Skeleton
 ( const Matrix<F>& A,
-  Matrix<Int>& permR, Matrix<Int>& permC,
+  Matrix<Int>& pR, Matrix<Int>& pC,
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 // NOTE: Only instantiated for UPerm=VR
 template<typename F,Dist UPerm>
 void Skeleton
 ( const DistMatrix<F>& A,
-  DistMatrix<Int,UPerm,STAR>& permR, DistMatrix<Int,UPerm,STAR>& permC,
+  DistMatrix<Int,UPerm,STAR>& pR, DistMatrix<Int,UPerm,STAR>& pC,
   DistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 // Inline convenience functions

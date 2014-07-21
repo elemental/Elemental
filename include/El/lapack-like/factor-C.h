@@ -456,16 +456,16 @@ ElError ElLQDist_z( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d );
 
 /* Return the explicit LQ factorization 
    ------------------------------------ */
-ElError ElLQExplicit_s( ElMatrix_s L, ElMatrix_s A );
-ElError ElLQExplicit_d( ElMatrix_d L, ElMatrix_d A );
-ElError ElLQExplicit_c( ElMatrix_c L, ElMatrix_c A );
-ElError ElLQExplicit_z( ElMatrix_z L, ElMatrix_z A );
+ElError ElExplicitLQ_s( ElMatrix_s L, ElMatrix_s A );
+ElError ElExplicitLQ_d( ElMatrix_d L, ElMatrix_d A );
+ElError ElExplicitLQ_c( ElMatrix_c L, ElMatrix_c A );
+ElError ElExplicitLQ_z( ElMatrix_z L, ElMatrix_z A );
 
 /* NOTE: 'L' and 'A' must be in [MC,MR] distributions */
-ElError ElLQExplicitDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
-ElError ElLQExplicitDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
-ElError ElLQExplicitDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
-ElError ElLQExplicitDist_z( ElDistMatrix_z L, ElDistMatrix_z A );
+ElError ElExplicitLQDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
+ElError ElExplicitLQDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
+ElError ElExplicitLQDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
+ElError ElExplicitLQDist_z( ElDistMatrix_z L, ElDistMatrix_z A );
 
 /* Only return the triangular factor, L
    ------------------------------------ */
@@ -787,6 +787,175 @@ ElError ElQRColPivXDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z t, ElDistMatrix_d d, ElDistMatrix_i p,
   ElQRCtrl_d ctrl );
 
+/* Return the explicit QR factorization (with no pivoting)
+   ------------------------------------------------------- */
+ElError ElExplicitQR_s( ElMatrix_s A, ElMatrix_s R );
+ElError ElExplicitQR_d( ElMatrix_d A, ElMatrix_d R );
+ElError ElExplicitQR_c( ElMatrix_c A, ElMatrix_c R );
+ElError ElExplicitQR_z( ElMatrix_z A, ElMatrix_z R );
+
+/* NOTE: 'A' and 'R' must be in [MC,MR] distributions */
+ElError ElExplicitQRDist_s( ElDistMatrix_s A, ElDistMatrix_s R );
+ElError ElExplicitQRDist_d( ElDistMatrix_d A, ElDistMatrix_d R );
+ElError ElExplicitQRDist_c( ElDistMatrix_c A, ElDistMatrix_c R );
+ElError ElExplicitQRDist_z( ElDistMatrix_z A, ElDistMatrix_z R );
+
+/* Return the explicit QR factorization with column pivoting
+   --------------------------------------------------------- */
+ElError ElExplicitQRColPiv_s( ElMatrix_s A, ElMatrix_s R, ElMatrix_i p );
+ElError ElExplicitQRColPiv_d( ElMatrix_d A, ElMatrix_d R, ElMatrix_i p );
+ElError ElExplicitQRColPiv_c( ElMatrix_c A, ElMatrix_c R, ElMatrix_i p );
+ElError ElExplicitQRColPiv_z( ElMatrix_z A, ElMatrix_z R, ElMatrix_i p );
+
+/* NOTE: 'A' and 'R' must be in [MC,MR] distributions, while
+         'p' must be in a [VR,STAR] distribution */
+ElError ElExplicitQRColPivDist_s
+( ElDistMatrix_s A, ElDistMatrix_s R, ElDistMatrix_i p );
+ElError ElExplicitQRColPivDist_d
+( ElDistMatrix_d A, ElDistMatrix_d R, ElDistMatrix_i p );
+ElError ElExplicitQRColPivDist_c
+( ElDistMatrix_c A, ElDistMatrix_c R, ElDistMatrix_i p );
+ElError ElExplicitQRColPivDist_z
+( ElDistMatrix_z A, ElDistMatrix_z R, ElDistMatrix_i p );
+
+/* Return the triangular factor from QR with no pivoting
+   ----------------------------------------------------- */
+ElError ElQRTriang_s( ElMatrix_s A );
+ElError ElQRTriang_d( ElMatrix_d A );
+ElError ElQRTriang_c( ElMatrix_c A );
+ElError ElQRTriang_z( ElMatrix_z A );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElQRTriangDist_s( ElDistMatrix_s A );
+ElError ElQRTriangDist_d( ElDistMatrix_d A );
+ElError ElQRTriangDist_c( ElDistMatrix_c A );
+ElError ElQRTriangDist_z( ElDistMatrix_z A );
+
+/* Return the triangular factor and P from QR with column pivoting
+   --------------------------------------------------------------- */
+ElError ElQRColPivTriang_s( ElMatrix_s A, ElMatrix_i p );
+ElError ElQRColPivTriang_d( ElMatrix_d A, ElMatrix_i p );
+ElError ElQRColPivTriang_c( ElMatrix_c A, ElMatrix_i p );
+ElError ElQRColPivTriang_z( ElMatrix_z A, ElMatrix_i p );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         'p' must be in a [VR,STAR] distribution */
+ElError ElQRColPivTriangDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
+ElError ElQRColPivTriangDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
+ElError ElQRColPivTriangDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
+ElError ElQRColPivTriangDist_z( ElDistMatrix_z A, ElDistMatrix_i p );
+
+/* Return the unitary factor from QR with no pivoting
+   -------------------------------------------------- */
+ElError ElQRTriang_s( ElMatrix_s A );
+ElError ElQRTriang_d( ElMatrix_d A );
+ElError ElQRTriang_c( ElMatrix_c A );
+ElError ElQRTriang_z( ElMatrix_z A );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElQRTriangDist_s( ElDistMatrix_s A );
+ElError ElQRTriangDist_d( ElDistMatrix_d A );
+ElError ElQRTriangDist_c( ElDistMatrix_c A );
+ElError ElQRTriangDist_z( ElDistMatrix_z A );
+
+/* Return the unitary factor from QR with column pivoting
+   ------------------------------------------------------ */
+ElError ElQRColPivUnitary_s( ElMatrix_s A );
+ElError ElQRColPivUnitary_d( ElMatrix_d A );
+ElError ElQRColPivUnitary_c( ElMatrix_c A );
+ElError ElQRColPivUnitary_z( ElMatrix_z A );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElQRColPivUnitaryDist_s( ElDistMatrix_s A );
+ElError ElQRColPivUnitaryDist_d( ElDistMatrix_d A );
+ElError ElQRColPivUnitaryDist_c( ElDistMatrix_c A );
+ElError ElQRColPivUnitaryDist_z( ElDistMatrix_z A );
+
+/* Perform a Cholesky-based QR factorization
+   ----------------------------------------- */
+ElError ElCholeskyQR_s( ElMatrix_s A, ElMatrix_s R );
+ElError ElCholeskyQR_d( ElMatrix_d A, ElMatrix_d R );
+ElError ElCholeskyQR_c( ElMatrix_c A, ElMatrix_c R );
+ElError ElCholeskyQR_z( ElMatrix_z A, ElMatrix_z R );
+
+/* NOTE: 'A' must be in a [VC,STAR] distribution, while 
+         'R' must be in a [STAR,STAR] distribution */
+ElError ElCholeskyQRDist_s( ElDistMatrix_s A, ElDistMatrix_s R );
+ElError ElCholeskyQRDist_d( ElDistMatrix_d A, ElDistMatrix_d R );
+ElError ElCholeskyQRDist_c( ElDistMatrix_c A, ElDistMatrix_c R );
+ElError ElCholeskyQRDist_z( ElDistMatrix_z A, ElDistMatrix_z R );
+
+/* Apply Q from a QR factorization to vectors
+   ------------------------------------------ */
+ElError ElApplyQAfterQR_s
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_s A, ElConstMatrix_s t, 
+  ElConstMatrix_s d, ElMatrix_s B );
+ElError ElApplyQAfterQR_d
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_d A, ElConstMatrix_d t, 
+  ElConstMatrix_d d, ElMatrix_d B );
+ElError ElApplyQAfterQR_c
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_c A, ElConstMatrix_c t, 
+  ElConstMatrix_s d, ElMatrix_c B );
+ElError ElApplyQAfterQR_z
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstMatrix_z A, ElConstMatrix_z t, 
+  ElConstMatrix_d d, ElMatrix_z B );
+
+/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
+         't' and 'd' must be in [MD,STAR] distributions */
+ElError ElApplyQAfterQRDist_s
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
+  ElConstDistMatrix_s d, ElDistMatrix_s B );
+ElError ElApplyQAfterQRDist_d
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_d A, ElConstDistMatrix_d t, 
+  ElConstDistMatrix_d d, ElDistMatrix_d B );
+ElError ElApplyQAfterQRDist_c
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_c A, ElConstDistMatrix_c t, 
+  ElConstDistMatrix_s d, ElDistMatrix_c B );
+ElError ElApplyQAfterQRDist_z
+( ElLeftOrRight side, ElOrientation orientation, 
+  ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
+  ElConstDistMatrix_d d, ElDistMatrix_z B );
+
+/* Solve against vectors after a QR factorization
+   ----------------------------------------------- */
+ElError ElSolveAfterQR_s
+( ElOrientation orientation, ElConstMatrix_s A, ElConstMatrix_s t, 
+  ElConstMatrix_s d, ElConstMatrix_s B, ElMatrix_s X );
+ElError ElSolveAfterQR_d
+( ElOrientation orientation, ElConstMatrix_d A, ElConstMatrix_d t, 
+  ElConstMatrix_d d, ElConstMatrix_d B, ElMatrix_d X );
+ElError ElSolveAfterQR_c
+( ElOrientation orientation, ElConstMatrix_c A, ElConstMatrix_c t, 
+  ElConstMatrix_s d, ElConstMatrix_c B, ElMatrix_c X );
+ElError ElSolveAfterQR_z
+( ElOrientation orientation, ElConstMatrix_z A, ElConstMatrix_z t, 
+  ElConstMatrix_d d, ElConstMatrix_z B, ElMatrix_z X );
+
+/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions, while
+         't' and 'd' must be in [MD,STAR] distributions */
+ElError ElSolveAfterQRDist_s
+( ElOrientation orientation, ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
+  ElConstDistMatrix_s d, ElConstDistMatrix_s B, ElDistMatrix_s X );
+ElError ElSolveAfterQRDist_d
+( ElOrientation orientation, ElConstDistMatrix_d A, ElConstDistMatrix_d t, 
+  ElConstDistMatrix_d d, ElConstDistMatrix_d B, ElDistMatrix_d X );
+ElError ElSolveAfterQRDist_c
+( ElOrientation orientation, ElConstDistMatrix_c A, ElConstDistMatrix_c t, 
+  ElConstDistMatrix_s d, ElConstDistMatrix_c B, ElDistMatrix_c X );
+ElError ElSolveAfterQRDist_z
+( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
+  ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
+
+/* TODO: TSQR */
+/* TODO: ExplicitTSQR */
+
 /* RQ factorization
    ================ */
 
@@ -890,6 +1059,36 @@ ElError ElSolveAfterRQDist_c
 ElError ElSolveAfterRQDist_z
 ( ElOrientation orientation, ElConstDistMatrix_z A, ElConstDistMatrix_z t, 
   ElConstDistMatrix_d d, ElConstDistMatrix_z B, ElDistMatrix_z X );
+
+/* Skeleton factorization
+   ====================== */
+ElError ElSkeleton_s
+( ElConstMatrix_s A, ElMatrix_i pR, ElMatrix_i pC, 
+  ElMatrix_s Z, ElQRCtrl_s ctrl );
+ElError ElSkeleton_d
+( ElConstMatrix_d A, ElMatrix_i pR, ElMatrix_i pC, 
+  ElMatrix_d Z, ElQRCtrl_d ctrl );
+ElError ElSkeleton_c
+( ElConstMatrix_c A, ElMatrix_i pR, ElMatrix_i pC, 
+  ElMatrix_c Z, ElQRCtrl_s ctrl );
+ElError ElSkeleton_z
+( ElConstMatrix_z A, ElMatrix_i pR, ElMatrix_i pC, 
+  ElMatrix_z Z, ElQRCtrl_d ctrl );
+
+/* NOTE: 'A' and 'Z' must be in [MC,MR] distributions, while
+         'pR' and 'pC' must be in [VR,STAR] distributions */
+ElError ElSkeletonDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+  ElDistMatrix_s Z, ElQRCtrl_s ctrl );
+ElError ElSkeletonDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+  ElDistMatrix_d Z, ElQRCtrl_d ctrl );
+ElError ElSkeletonDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+  ElDistMatrix_c Z, ElQRCtrl_s ctrl );
+ElError ElSkeletonDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_i pR, ElDistMatrix_i pC, 
+  ElDistMatrix_z Z, ElQRCtrl_d ctrl );
 
 #ifdef __cplusplus
 } // extern "C"
