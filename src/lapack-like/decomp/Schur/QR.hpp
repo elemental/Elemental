@@ -151,7 +151,7 @@ QR
     Hessenberg( UPPER, AElem, t );
     // There is not yet a 'form Q'
     Identity( QElem, n, n ); 
-    hessenberg::ApplyQ( UPPER, LEFT, NORMAL, AElem, t, QElem );
+    hessenberg::ApplyQ( LEFT, UPPER, NORMAL, AElem, t, QElem );
     MakeTrapezoidal( UPPER, AElem, -1 );
     A = AElem;
     Q = QElem;
@@ -264,7 +264,7 @@ QR
     Hessenberg( UPPER, A, t );
     // There is not yet a 'form Q'
     Identity( Q, n, n ); 
-    hessenberg::ApplyQ( UPPER, LEFT, NORMAL, A, t, Q );
+    hessenberg::ApplyQ( LEFT, UPPER, NORMAL, A, t, Q );
     MakeTrapezoidal( UPPER, A, -1 );
 
     // Run the Hessenberg QR algorithm in block form

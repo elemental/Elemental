@@ -545,7 +545,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::MultiplyAfter( \
       DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VR_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
+      DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
   /* Solve against vectors after an unpivoted LDL factorization */ \
   ElError ElSolveAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -565,7 +565,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::SolveAfter( \
       DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VR_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
+      DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
   /* LU factorization
      ================ */ \
   /* Rank-one LU factorization modification */ \
@@ -626,7 +626,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B, bool conjugate ) \
   { EL_TRY( ldl::MultiplyAfter( \
       DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VR_STAR_CAST_CONST(Int,p), DM_CAST(F,B), conjugate ) ) } \
+      DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B), conjugate ) ) } \
   /* Solve against vectors after an unpivoted LDL factorization */ \
   ElError ElSolveAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B, bool conjugate ) \
@@ -646,7 +646,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B, bool conjugate ) \
   { EL_TRY( ldl::SolveAfter( \
       DM_CAST_CONST(F,A), \
-      DM_MD_STAR_CAST_CONST(F,dSub), DM_VR_STAR_CAST_CONST(Int,p), \
+      DM_MD_STAR_CAST_CONST(F,dSub), DM_VC_STAR_CAST_CONST(Int,p), \
       DM_CAST(F,B), conjugate ) ) } \
   /* LU factorization
      ================ */ \

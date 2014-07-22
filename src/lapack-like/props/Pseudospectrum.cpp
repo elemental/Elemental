@@ -650,7 +650,7 @@ Matrix<Int> Pseudospectrum
             Matrix<C> t;
             Hessenberg( UPPER, U, t );
             Identity( Q, A.Height(), A.Height() );
-            hessenberg::ApplyQ( UPPER, LEFT, NORMAL, U, t, Q );
+            hessenberg::ApplyQ( LEFT, UPPER, NORMAL, U, t, Q );
             return HessenbergPseudospectrum( U, Q, shifts, invNorms, psCtrl );
         }
     }
@@ -748,7 +748,7 @@ DistMatrix<Int,VR,STAR> Pseudospectrum
             DistMatrix<C,STAR,STAR> t(g);
             Hessenberg( UPPER, U, t );
             Identity( Q, U.Height(), U.Height() );
-            hessenberg::ApplyQ( UPPER, LEFT, NORMAL, U, t, Q );
+            hessenberg::ApplyQ( LEFT, UPPER, NORMAL, U, t, Q );
             return HessenbergPseudospectrum( U, Q, shifts, invNorms, psCtrl );
         }
     }
@@ -1818,7 +1818,7 @@ Matrix<Int> Pseudospectrum
             Matrix<C> t;
             Hessenberg( UPPER, B, t );
             Identity( Q, B.Height(), B.Height() );
-            hessenberg::ApplyQ( UPPER, LEFT, NORMAL, B, t, Q );
+            hessenberg::ApplyQ( LEFT, UPPER, NORMAL, B, t, Q );
             return HessenbergPseudospectrum
                    ( B, Q, invNormMap, center, realSize, imagSize, psCtrl );
         }
@@ -1924,7 +1924,7 @@ DistMatrix<Int> Pseudospectrum
             DistMatrix<C,STAR,STAR> t(g);
             Hessenberg( UPPER, B, t );
             Identity( Q, B.Height(), B.Height() );
-            hessenberg::ApplyQ( UPPER, LEFT, NORMAL, B, t, Q );
+            hessenberg::ApplyQ( LEFT, UPPER, NORMAL, B, t, Q );
             return HessenbergPseudospectrum
                    ( B, Q, invNormMap, center, realSize, imagSize, psCtrl );
         }

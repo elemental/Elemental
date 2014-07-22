@@ -66,16 +66,16 @@ void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A )
   template void Hessenberg \
   ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t ); \
   template void hessenberg::ApplyQ \
-  ( UpperOrLower uplo, LeftOrRight side, Orientation orientation, \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& H ); \
   template void hessenberg::ApplyQ \
-  ( UpperOrLower uplo, LeftOrRight side, Orientation orientation, \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    DistMatrix<F>& H ); \
+    DistMatrix<F>& B ); \
   template void hessenberg::ApplyQ \
-  ( UpperOrLower uplo, LeftOrRight side, Orientation orientation, \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
     const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, \
-    DistMatrix<F>& H );
+    DistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

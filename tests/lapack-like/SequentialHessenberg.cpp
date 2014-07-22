@@ -37,7 +37,7 @@ void TestCorrectness
     {
         Matrix<F> Q;
         Identity( Q, n, n );
-        hessenberg::ApplyQ( uplo, LEFT, NORMAL, A, t, Q );
+        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, t, Q );
         if( print )
             Print( Q, "Q" );
         if( display )
@@ -45,8 +45,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    hessenberg::ApplyQ( uplo, LEFT, ADJOINT, A, t, AOrig );
-    hessenberg::ApplyQ( uplo, RIGHT, NORMAL, A, t, AOrig );
+    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, t, AOrig );
+    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, t, AOrig );
     if( print && mpi::WorldRank() == 0 )
         Print( AOrig, "Manual Hessenberg" );
     if( display && mpi::WorldRank() == 0 )

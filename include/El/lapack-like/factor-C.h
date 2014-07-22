@@ -423,7 +423,7 @@ ElError ElMultiplyAfterLDLPiv_z
 
 /* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
          'dSub' must be in a [MD,STAR] distribution and
-         'p' must be in a [VR,STAR] distribution */
+         'p' must be in a [VC,STAR] distribution */
 ElError ElMultiplyAfterLDLPivDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s dSub, ElConstDistMatrix_i p, 
   ElDistMatrix_s B );

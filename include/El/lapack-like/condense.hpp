@@ -129,22 +129,23 @@ void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A );
 template<typename F>
 void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
 template<typename F>
-void Hessenberg( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t );
+void Hessenberg
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t );
 
 namespace hessenberg {
 
 template<typename F>
 void ApplyQ
-( UpperOrLower uplo, LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& H );
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B );
 template<typename F>
 void ApplyQ
-( UpperOrLower uplo, LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& H );
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B );
 template<typename F>
 void ApplyQ
-( UpperOrLower uplo, LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& H );
+( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
+  const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B );
 
 } // namespace hessenberg
 

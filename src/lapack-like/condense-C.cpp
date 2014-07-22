@@ -143,6 +143,45 @@ extern "C" {
     else \
       herm_tridiag::ApplyQ \
       ( Reinterpret(side), Reinterpret(uplo), Reinterpret(orientation), \
+        DM_CAST_CONST(F,A), DM_STAR_STAR_CAST_CONST(F,t), DM_CAST(F,B) ) ) } \
+  /* Hessenberg
+     ========== */ \
+  /* Packed reduction to Hessenberg form, H := Q^H A Q */ \
+  ElError ElHessenberg_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIG t ) \
+  { EL_TRY( Hessenberg( \
+      Reinterpret(uplo), *Reinterpret(A), *Reinterpret(t) ) ) } \
+  ElError ElHessenbergDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG t ) \
+  { EL_TRY( Hessenberg( \
+      Reinterpret(uplo), DM_CAST(F,A), DM_STAR_STAR_CAST(F,t) ) ) } \
+  /* Only return the similar Hessenberg matrix */ \
+  ElError ElHessenbergOnly_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
+  { EL_TRY( Hessenberg( Reinterpret(uplo), *Reinterpret(A) ) ) } \
+  ElError ElHessenbergOnlyDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( Hessenberg( Reinterpret(uplo), DM_CAST(F,A) ) ) } \
+  /* Apply Q from a Hessenberg decomposition, H := Q^H A Q */ \
+  ElError ElApplyQAfterHessenberg_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
+    ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG t, \
+    ElMatrix_ ## SIG B ) \
+  { EL_TRY( hessenberg::ApplyQ( \
+      Reinterpret(side), Reinterpret(uplo), Reinterpret(orientation), \
+      *Reinterpret(A), *Reinterpret(t), *Reinterpret(B) ) ) } \
+  ElError ElApplyQAfterHessenbergDist_ ## SIG \
+  ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
+    ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG t, \
+    ElDistMatrix_ ## SIG B ) \
+  { EL_TRY( \
+    if( Reinterpret(t)->DistData().colDist == MD ) \
+      hessenberg::ApplyQ \
+      ( Reinterpret(side), Reinterpret(uplo), Reinterpret(orientation), \
+        DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), DM_CAST(F,B) ); \
+    else \
+      hessenberg::ApplyQ \
+      ( Reinterpret(side), Reinterpret(uplo), Reinterpret(orientation), \
         DM_CAST_CONST(F,A), DM_STAR_STAR_CAST_CONST(F,t), DM_CAST(F,B) ) ) }
 
 #define C_PROTO_REAL(SIG,SIGBASE,F) \

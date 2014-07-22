@@ -77,6 +77,7 @@ void SolveAfter
 ( UpperOrLower uplo, Orientation orientation,
   const Matrix<F>& A, const Matrix<Int>& p, 
         Matrix<F>& B );
+/* NOTE: Only instantiated for UPerm=VC */
 template<typename F,Dist UPerm>
 void SolveAfter
 ( UpperOrLower uplo, Orientation orientation,
@@ -212,7 +213,7 @@ template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub,
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
-// NOTE: Only instantiated for UPerm=VR
+// NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void MultiplyAfter
 ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub,
@@ -231,7 +232,7 @@ template<typename F>
 void SolveAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub,
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
-// NOTE: Only instantiated for UPerm=VR
+// NOTE: Only instantiated for UPerm=VC
 template<typename F,Dist UPerm>
 void SolveAfter
 ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub,

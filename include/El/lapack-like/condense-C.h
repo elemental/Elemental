@@ -212,6 +212,70 @@ ElError ElApplyQAfterHermitianTridiagDist_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
   ElConstDistMatrix_z A, ElConstDistMatrix_z t, ElDistMatrix_z B );
 
+/* Hessenberg
+   ========== */
+
+/* Packed reduction to Hessenberg form, H := Q^H A Q
+   ------------------------------------------------- */
+ElError ElHessenberg_s( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s t );
+ElError ElHessenberg_d( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d t );
+ElError ElHessenberg_c( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_c t );
+ElError ElHessenberg_z( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z t );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         't' must be in a [STAR,STAR] distribution */
+ElError ElHessenbergDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s t );
+ElError ElHessenbergDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d t );
+ElError ElHessenbergDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_c t );
+ElError ElHessenbergDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_z t );
+
+/* Only return the similar Hessenberg matrix, H := Q^H A Q
+   ------------------------------------------------------- */
+ElError ElHessenbergOnly_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElHessenbergOnly_d( ElUpperOrLower uplo, ElMatrix_d A );
+ElError ElHessenbergOnly_c( ElUpperOrLower uplo, ElMatrix_c A );
+ElError ElHessenbergOnly_z( ElUpperOrLower uplo, ElMatrix_z A );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElHessenbergOnlyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
+ElError ElHessenbergOnlyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
+ElError ElHessenbergOnlyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
+ElError ElHessenbergOnlyDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
+
+/* Apply Q from a Hessenberg decomposition, H := Q^H A Q
+   ----------------------------------------------------- */
+ElError ElApplyQAfterHessenberg_s
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstMatrix_s A, ElConstMatrix_s t, ElMatrix_s B );
+ElError ElApplyQAfterHessenberg_d
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstMatrix_d A, ElConstMatrix_d t, ElMatrix_d B );
+ElError ElApplyQAfterHessenberg_c
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstMatrix_c A, ElConstMatrix_c t, ElMatrix_c B );
+ElError ElApplyQAfterHessenberg_z
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstMatrix_z A, ElConstMatrix_z t, ElMatrix_z B );
+
+/* NOTE: 'A' and 'H' must be in a [MC,MR] distribution, while
+         't' must be in either a [MD,STAR] or [STAR,STAR] distribution */ 
+ElError ElApplyQAfterHessenbergDist_s
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstDistMatrix_s A, ElConstDistMatrix_s t, ElDistMatrix_s B );
+ElError ElApplyQAfterHessenbergDist_d
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstDistMatrix_d A, ElConstDistMatrix_d t, ElDistMatrix_d B );
+ElError ElApplyQAfterHessenbergDist_c
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstDistMatrix_c A, ElConstDistMatrix_c t, ElDistMatrix_c B );
+ElError ElApplyQAfterHessenbergDist_z
+( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, 
+  ElConstDistMatrix_z A, ElConstDistMatrix_z t, ElDistMatrix_z B );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
