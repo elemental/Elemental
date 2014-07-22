@@ -30,7 +30,7 @@ MakeGKS( Matrix<F>& A )
     MakeZeros( A );
     for( Int j=0; j<n; ++j )
     {
-        const F jDiag = F(1)/Sqrt(F(j));
+        const F jDiag = F(1)/Sqrt(F(j+1));
         for( Int i=0; i<j; ++i )
             A.Set( i, j, -jDiag );
         A.Set( j, j, jDiag );
@@ -52,7 +52,7 @@ MakeGKS( DistMatrix<F,U,V>& A )
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
-        const F jDiag = F(1)/Sqrt(F(j));
+        const F jDiag = F(1)/Sqrt(F(j+1));
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
@@ -81,7 +81,7 @@ MakeGKS( BlockDistMatrix<F,U,V>& A )
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);
-        const F jDiag = F(1)/Sqrt(F(j));
+        const F jDiag = F(1)/Sqrt(F(j+1));
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
