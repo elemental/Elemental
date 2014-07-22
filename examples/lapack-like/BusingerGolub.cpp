@@ -21,15 +21,15 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
+        const Int n = Input("--size","width of matrix",100);
         const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+        const Int m = n;
 
         DistMatrix<C> A;
-        Uniform( A, m, n );
+        GKS( A, n );
         const Real frobA = FrobeniusNorm( A );
         if( display )
             Display( A, "A" );

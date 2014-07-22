@@ -10,10 +10,6 @@
 #ifndef EL_QR_BUSINGERGOLUB_HPP
 #define EL_QR_BUSINGERGOLUB_HPP
 
-
-
-#include <algorithm>
-
 namespace El {
 namespace qr {
 

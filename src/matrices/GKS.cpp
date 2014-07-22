@@ -22,8 +22,8 @@ void GKS( Matrix<F>& A, Int n )
     A.Resize( n, n );
     auto gksFill = 
       []( Int i, Int j ) 
-      { if( i < j )       { return -F(1)/Sqrt(F(j)); }
-        else if( i == j ) { return  F(1)/Sqrt(F(j)); }
+      { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
+        else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
     IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
 }
@@ -35,8 +35,8 @@ void GKS( AbstractDistMatrix<F>& A, Int n )
     A.Resize( n, n );
     auto gksFill = 
       []( Int i, Int j ) 
-      { if( i < j )       { return -F(1)/Sqrt(F(j)); }
-        else if( i == j ) { return  F(1)/Sqrt(F(j)); }
+      { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
+        else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
     IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
 }
@@ -48,8 +48,8 @@ void GKS( AbstractBlockDistMatrix<F>& A, Int n )
     A.Resize( n, n );
     auto gksFill = 
       []( Int i, Int j ) 
-      { if( i < j )       { return -F(1)/Sqrt(F(j)); }
-        else if( i == j ) { return  F(1)/Sqrt(F(j)); }
+      { if( i < j )       { return -F(1)/Sqrt(F(j+1)); }
+        else if( i == j ) { return  F(1)/Sqrt(F(j+1)); }
         else              { return  F(0);            } };
     IndexDependentFill( A, std::function<F(Int,Int)>(gksFill) );
 }
