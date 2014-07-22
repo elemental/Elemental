@@ -1059,8 +1059,7 @@ void HermitianTridiagEigPostEstimate
   PROTO_DIST_SORT(F,VC,  STAR) \
   PROTO_DIST_SORT(F,VR,  STAR)
 
-#define PROTO(F) \
-  PROTO_SORT(F) \
+#define PROTO_SEQEIG(F) \
   template void HermitianTridiagEig \
   ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, SortType sort ); \
   template void HermitianTridiagEig \
@@ -1077,7 +1076,11 @@ void HermitianTridiagEigPostEstimate
     Matrix<F>& Z, Int il, Int iu, SortType sort ); \
   template void HermitianTridiagEig \
   ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, \
-    Matrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort ); \
+    Matrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort );
+
+#define PROTO(F) \
+  PROTO_SORT(F) \
+  PROTO_SEQEIG(F) \
   PROTO_DIST(F,CIRC,CIRC) \
   PROTO_DIST(F,MC,  MR  ) \
   PROTO_DIST(F,MC,  STAR) \
@@ -1109,9 +1112,13 @@ void HermitianTridiagEigPostEstimate
   PROTO_DIST_REAL(Real,VR,  STAR)
 
 #define EL_NO_INT_PROTO
-#define PROTO_FLOAT          PROTO_SORT(float)
-#define PROTO_DOUBLE         PROTO_REAL(double)
-#define PROTO_COMPLEX_FLOAT  PROTO_SORT(Complex<float>)
+#define PROTO_FLOAT \
+  PROTO_SORT(float) \
+  PROTO_SEQEIG(float)
+#define PROTO_DOUBLE  PROTO_REAL(double)
+#define PROTO_COMPLEX_FLOAT \
+  PROTO_SORT(Complex<float>) \
+  PROTO_SEQEIG(Complex<float>)
 #define PROTO_COMPLEX_DOUBLE PROTO(Complex<double>)
 #include "El/macros/Instantiate.h"
 

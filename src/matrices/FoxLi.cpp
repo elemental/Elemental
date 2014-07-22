@@ -133,8 +133,10 @@ void FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
   PROTO_DIST(Real,VC,  STAR) \
   PROTO_DIST(Real,VR,  STAR)
 
+#define PROTO_FLOAT \
+  template void FoxLi( Matrix<Complex<float>>& A, Int n, float omega );
+
 #define EL_NO_INT_PROTO
-#define EL_NO_FLOAT_PROTO
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"
 
