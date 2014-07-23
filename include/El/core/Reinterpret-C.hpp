@@ -499,6 +499,18 @@ inline QRCtrl<double> Reinterpret( ElQRCtrl_d ctrlC )
     return ctrl;
 }
 
+// Solvers
+// ^^^^^^^
+inline ElTikhonovAlg Reinterpret( TikhonovAlg alg )
+{ return static_cast<ElTikhonovAlg>(alg); }
+inline TikhonovAlg Reinterpret( ElTikhonovAlg alg )
+{ return static_cast<TikhonovAlg>(alg); }
+
+inline ElRidgeAlg Reinterpret( RidgeAlg alg )
+{ return static_cast<ElRidgeAlg>(alg); }
+inline RidgeAlg Reinterpret( ElRidgeAlg alg )
+{ return static_cast<RidgeAlg>(alg); }
+
 } // namespace El
 
 #endif // ifndef EL_REINTERPRET_C_HPP

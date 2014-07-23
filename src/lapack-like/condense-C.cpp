@@ -185,12 +185,10 @@ extern "C" {
         DM_CAST_CONST(F,A), DM_STAR_STAR_CAST_CONST(F,t), DM_CAST(F,B) ) ) }
 
 #define C_PROTO_REAL(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F) \
-  /* TODO */
+  C_PROTO_FIELD(SIG,SIGBASE,F)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F) \
-  /* TODO */
+  C_PROTO_FIELD(SIG,SIGBASE,F)
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

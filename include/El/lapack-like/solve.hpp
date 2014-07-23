@@ -72,8 +72,8 @@ void LSE
 ( DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<F>& C, DistMatrix<F>& D, 
   DistMatrix<F>& X, bool computeResidual=false );
 
-// B := inv(A) B where A is Hessenberg
-// ===================================
+// Solve for B in op(H) B - B op(D) = X, where H is Hessenberg
+// ===========================================================
 template<typename F>
 void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
@@ -84,6 +84,29 @@ void MultiShiftHessSolve
 ( UpperOrLower uplo, Orientation orientation,
   F alpha, const DistMatrix<F,UH,VH>& H, const DistMatrix<F,VX,STAR>& shifts,
   DistMatrix<F,STAR,VX>& X );
+
+// Ridge regression
+// ================
+// NOTE: This is simply Tikhonov regularization for cases where 
+//       Gamma = alpha I
+
+namespace RidgeAlgNS {
+enum RidgeAlg {
+    RIDGE_CHOLESKY,
+    RIDGE_QR,
+    RIDGE_SVD
+};
+}
+using namespace RidgeAlgNS;
+
+template<typename F>
+void Ridge
+( const Matrix<F>& A, const Matrix<F>& B, 
+  Base<F> alpha, Matrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
+template<typename F>
+void Ridge
+( const DistMatrix<F>& A, const DistMatrix<F>& B, 
+  Base<F> alpha, DistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
 
 // B := inv(A) B for a symmetric A
 // ===============================
@@ -121,29 +144,6 @@ void Tikhonov
 ( const DistMatrix<F>& A, const DistMatrix<F>& B, 
   const DistMatrix<F>& Gamma, DistMatrix<F>& X, 
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
-
-// Ridge regression
-// ================
-// NOTE: This is simply Tikhonov regularization for cases where 
-//       Gamma = alpha I
-
-namespace RidgeAlgNS {
-enum RidgeAlg {
-    RIDGE_CHOLESKY,
-    RIDGE_QR,
-    RIDGE_SVD
-};
-}
-using namespace RidgeAlgNS;
-
-template<typename F>
-void Ridge
-( const Matrix<F>& A, const Matrix<F>& B, 
-  Base<F> alpha, Matrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
-template<typename F>
-void Ridge
-( const DistMatrix<F>& A, const DistMatrix<F>& B, 
-  Base<F> alpha, DistMatrix<F>& X, RidgeAlg alg=RIDGE_CHOLESKY );
 
 // TODO: Generalized Tikhonov regularization
 
