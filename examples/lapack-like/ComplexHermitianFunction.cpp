@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
 
         // Reform H with the exponentials of the original eigenvalues
         auto expFunc = []( Real alpha ) { return Exp(Complex<Real>(0,alpha)); };
-        ComplexHermitianFunction
+        HermitianFunction
         ( LOWER, H, std::function<Complex<Real>(Real)>(expFunc) );
         if( print )
             Print( H, "exp(i*H)" );

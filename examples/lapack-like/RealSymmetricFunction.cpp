@@ -48,7 +48,7 @@ main( int argc, char* argv[] )
 
         // Reform the matrix with the exponentials of the original eigenvalues
         auto expFunc = []( Real alpha ) { return Exp(alpha); };
-        RealHermitianFunction( LOWER, H, std::function<Real(Real)>(expFunc) );
+        HermitianFunction( LOWER, H, std::function<Real(Real)>(expFunc) );
         if( print )
         {
             MakeHermitian( LOWER, H );
