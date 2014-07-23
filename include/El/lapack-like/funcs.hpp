@@ -52,18 +52,18 @@ struct SquareRootCtrl {
 // Hermitian function
 // ==================
 template<typename F>
-void RealHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func );
 template<typename F>
-void RealHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, DistMatrix<F>& A, std::function<Base<F>(Base<F>)> func );
 
 template<typename Real>
-void ComplexHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<Real>>& A,
   std::function<Complex<Real>(Real)> func );
 template<typename Real>
-void ComplexHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& A,
   std::function<Complex<Real>(Real)> func );
 
@@ -77,11 +77,9 @@ template<typename F>
 void LocalInverse( DistMatrix<F,STAR,STAR>& A );
 namespace inverse {
 template<typename F>
-void AfterLUPartialPiv
-( Matrix<F>& A, const Matrix<Int>& pPerm );
+void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p );
 template<typename F>
-void AfterLUPartialPiv
-( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm );
+void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p );
 } // namespace inverse
 
 template<typename F>

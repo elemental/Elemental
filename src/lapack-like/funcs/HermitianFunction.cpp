@@ -14,10 +14,10 @@ namespace El {
 // therefore result in a Hermitian matrix, which we store in-place.
 
 template<typename F>
-void RealHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("RealHermitianFunction"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<F> Real;
@@ -35,10 +35,10 @@ void RealHermitianFunction
 }
 
 template<typename F>
-void RealHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, DistMatrix<F>& A, std::function<Base<F>(Base<F>)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("RealHermitianFunction"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<F> Real;
@@ -62,11 +62,11 @@ void RealHermitianFunction
 // symmetric matrix as input and produces a complex normal matrix.
 
 template<typename Real>
-void ComplexHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<Real>>& A, 
   std::function<Complex<Real>(Real)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -90,11 +90,11 @@ void ComplexHermitianFunction
 }
 
 template<typename Real>
-void ComplexHermitianFunction
+void HermitianFunction
 ( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, 
   std::function<Complex<Real>(Real)> func )
 {
-    DEBUG_ONLY(CallStackEntry cse("ComplexHermitianFunction"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -121,19 +121,19 @@ void ComplexHermitianFunction
 }
 
 #define PROTO_COMPLEX(F) \
-  template void RealHermitianFunction \
+  template void HermitianFunction \
   ( UpperOrLower uplo, Matrix<F>& A, \
     std::function<Base<F>(Base<F>)> func ); \
-  template void RealHermitianFunction \
+  template void HermitianFunction \
   ( UpperOrLower uplo, DistMatrix<F>& A, \
     std::function<Base<F>(Base<F>)> func );
 
 #define PROTO_REAL(Real) \
   PROTO_COMPLEX(Real) \
-  template void ComplexHermitianFunction \
+  template void HermitianFunction \
   ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
     std::function<Complex<Real>(Real)> func ); \
-  template void ComplexHermitianFunction \
+  template void HermitianFunction \
   ( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, \
     std::function<Complex<Real>(Real)> func );
 
