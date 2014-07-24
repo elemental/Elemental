@@ -25,6 +25,8 @@
 #include "El/lapack-like/condense-C.h"
 #include "El/lapack-like/factor-C.h"
 #include "El/lapack-like/solve-C.h"
+#include "El/lapack-like/funcs-C.h"
+
 #include "El/io-C.h"
 #include "El/matrices-C.h"
 
