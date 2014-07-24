@@ -26,12 +26,13 @@
 #include "El/lapack-like/factor-C.h"
 #include "El/lapack-like/solve-C.h"
 #include "El/lapack-like/funcs-C.h"
+#include "El/lapack-like/decomp-C.h"
 
 #include "El/io-C.h"
 #include "El/matrices-C.h"
 
 #ifdef __cplusplus
-#include "El/core/Reinterpret-C.hpp"
+#include "El/CReflect.hpp"
 #endif
 
 #endif /* ifndef EL_C_H */

@@ -26,7 +26,7 @@ extern "C" {
 
 ElError ElDefaultGrid( ElConstGrid* gridHandle )
 { 
-    *gridHandle = Reinterpret(&DefaultGrid()); 
+    *gridHandle = CReflect(&DefaultGrid()); 
     return EL_SUCCESS;
 }
 
@@ -35,8 +35,8 @@ ElError ElDefaultGrid( ElConstGrid* gridHandle )
 ElError ElGridCreate
 ( MPI_Comm comm, ElGridOrderType orderC, ElGrid* gridHandle )
 {
-    GridOrder order = Reinterpret(orderC);
-    try { *gridHandle = Reinterpret(new Grid(comm,order)); }
+    GridOrder order = CReflect(orderC);
+    try { *gridHandle = CReflect(new Grid(comm,order)); }
     CATCH
     return EL_SUCCESS;
 }
@@ -46,8 +46,8 @@ ElError ElGridCreate
 ElError ElGridCreateSpecific
 ( MPI_Comm comm, int height, ElGridOrderType orderC, ElGrid* gridHandle )
 {
-    GridOrder order = Reinterpret(orderC);
-    try { *gridHandle = Reinterpret(new Grid(comm,height,order)); }
+    GridOrder order = CReflect(orderC);
+    try { *gridHandle = CReflect(new Grid(comm,height,order)); }
     CATCH
     return EL_SUCCESS;
 }
@@ -56,7 +56,7 @@ ElError ElGridCreateSpecific
 // -------------
 ElError ElGridDestroy( ElConstGrid gridHandle )
 { 
-    delete Reinterpret(gridHandle); 
+    delete CReflect(gridHandle); 
     return EL_SUCCESS;
 }
 
@@ -79,7 +79,7 @@ ElError ElGridRank( ElConstGrid gridHandle, int* rank )
 // ------------------------
 ElError ElGridHeight( ElConstGrid gridHandle, int* height )
 { 
-    *height = Reinterpret(gridHandle)->Height(); 
+    *height = CReflect(gridHandle)->Height(); 
     return EL_SUCCESS;
 }
 
@@ -87,7 +87,7 @@ ElError ElGridHeight( ElConstGrid gridHandle, int* height )
 // -----------------------
 ElError ElGridWidth( ElConstGrid gridHandle, int* width )
 { 
-    *width = Reinterpret(gridHandle)->Width(); 
+    *width = CReflect(gridHandle)->Width(); 
     return EL_SUCCESS;
 }
 
@@ -95,7 +95,7 @@ ElError ElGridWidth( ElConstGrid gridHandle, int* width )
 // ----------------------
 ElError ElGridSize( ElConstGrid gridHandle, int* size )
 { 
-    *size = Reinterpret(gridHandle)->Size(); 
+    *size = CReflect(gridHandle)->Size(); 
     return EL_SUCCESS;
 }
 
@@ -103,7 +103,7 @@ ElError ElGridSize( ElConstGrid gridHandle, int* size )
 // -----------------------------
 ElError ElGridOrder( ElConstGrid gridHandle, ElGridOrderType* order )
 { 
-    *order = Reinterpret(Reinterpret(gridHandle)->Order()); 
+    *order = CReflect(CReflect(gridHandle)->Order()); 
     return EL_SUCCESS;
 }
 
@@ -111,7 +111,7 @@ ElError ElGridOrder( ElConstGrid gridHandle, ElGridOrderType* order )
 // -------------------------------
 ElError ElGridColComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->ColComm().comm; 
+    *comm = CReflect(gridHandle)->ColComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -119,7 +119,7 @@ ElError ElGridColComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // -------------------------------
 ElError ElGridRowComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->RowComm().comm; 
+    *comm = CReflect(gridHandle)->RowComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -127,7 +127,7 @@ ElError ElGridRowComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ----------------------------
 ElError ElGridComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->Comm().comm; 
+    *comm = CReflect(gridHandle)->Comm().comm; 
     return EL_SUCCESS;
 }
 
@@ -135,7 +135,7 @@ ElError ElGridComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ------------------------
 ElError ElGridMCRank( ElConstGrid gridHandle, int* mcRank )
 {
-    try { *mcRank = Reinterpret(gridHandle)->MCRank(); }
+    try { *mcRank = CReflect(gridHandle)->MCRank(); }
     CATCH
     return EL_SUCCESS;
 }
@@ -144,7 +144,7 @@ ElError ElGridMCRank( ElConstGrid gridHandle, int* mcRank )
 // ------------------------
 ElError ElGridMRRank( ElConstGrid gridHandle, int* mrRank )
 {
-    try { *mrRank = Reinterpret(gridHandle)->MRRank(); }
+    try { *mrRank = CReflect(gridHandle)->MRRank(); }
     CATCH
     return EL_SUCCESS;
 }
@@ -153,7 +153,7 @@ ElError ElGridMRRank( ElConstGrid gridHandle, int* mrRank )
 // ------------------------
 ElError ElGridVCRank( ElConstGrid gridHandle, int* vcRank )
 { 
-    try { *vcRank = Reinterpret(gridHandle)->VCRank(); }
+    try { *vcRank = CReflect(gridHandle)->VCRank(); }
     CATCH
     return EL_SUCCESS;
 }
@@ -162,7 +162,7 @@ ElError ElGridVCRank( ElConstGrid gridHandle, int* vcRank )
 // ------------------------
 ElError ElGridVRRank( ElConstGrid gridHandle, int* vrRank )
 { 
-    try { *vrRank = Reinterpret(gridHandle)->VRRank(); }
+    try { *vrRank = CReflect(gridHandle)->VRRank(); }
     CATCH
     return EL_SUCCESS;
 }
@@ -171,7 +171,7 @@ ElError ElGridVRRank( ElConstGrid gridHandle, int* vrRank )
 // ------------------------
 ElError ElGridMCSize( ElConstGrid gridHandle, int* mcSize )
 { 
-    *mcSize = Reinterpret(gridHandle)->MCSize(); 
+    *mcSize = CReflect(gridHandle)->MCSize(); 
     return EL_SUCCESS;
 }
 
@@ -179,7 +179,7 @@ ElError ElGridMCSize( ElConstGrid gridHandle, int* mcSize )
 // ------------------------
 ElError ElGridMRSize( ElConstGrid gridHandle, int* mrSize )
 { 
-    *mrSize = Reinterpret(gridHandle)->MRSize(); 
+    *mrSize = CReflect(gridHandle)->MRSize(); 
     return EL_SUCCESS;
 }
 
@@ -187,7 +187,7 @@ ElError ElGridMRSize( ElConstGrid gridHandle, int* mrSize )
 // ------------------------
 ElError ElGridVCSize( ElConstGrid gridHandle, int* vcSize )
 { 
-    *vcSize = Reinterpret(gridHandle)->VCSize(); 
+    *vcSize = CReflect(gridHandle)->VCSize(); 
     return EL_SUCCESS;
 }
 
@@ -195,7 +195,7 @@ ElError ElGridVCSize( ElConstGrid gridHandle, int* vcSize )
 // ------------------------
 ElError ElGridVRSize( ElConstGrid gridHandle, int* vrSize )
 { 
-    *vrSize = Reinterpret(gridHandle)->VRSize(); 
+    *vrSize = CReflect(gridHandle)->VRSize(); 
     return EL_SUCCESS;
 }
 
@@ -203,7 +203,7 @@ ElError ElGridVRSize( ElConstGrid gridHandle, int* vrSize )
 // ------------------------------
 ElError ElGridMCComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->MCComm().comm; 
+    *comm = CReflect(gridHandle)->MCComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -211,7 +211,7 @@ ElError ElGridMCComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ------------------------------
 ElError ElGridMRComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->MRComm().comm; 
+    *comm = CReflect(gridHandle)->MRComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -219,7 +219,7 @@ ElError ElGridMRComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ------------------------------
 ElError ElGridVCComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->VCComm().comm; 
+    *comm = CReflect(gridHandle)->VCComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -227,7 +227,7 @@ ElError ElGridVCComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ------------------------------
 ElError ElGridVRComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->VRComm().comm; 
+    *comm = CReflect(gridHandle)->VRComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -235,7 +235,7 @@ ElError ElGridVRComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ------------------------------
 ElError ElGridMDComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->MDComm().comm; 
+    *comm = CReflect(gridHandle)->MDComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -243,7 +243,7 @@ ElError ElGridMDComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // ----------------------------------
 ElError ElGridMDPerpComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->MDPerpComm().comm; 
+    *comm = CReflect(gridHandle)->MDPerpComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -253,8 +253,8 @@ ElError ElGridCreateAdvanced
 ( MPI_Comm comm, MPI_Group owners, int height, ElGridOrderType orderC,
   ElGrid* gridHandle )
 {
-    GridOrder order = Reinterpret(orderC);
-    try { *gridHandle = Reinterpret(new Grid(comm,owners,height,order)); }
+    GridOrder order = CReflect(orderC);
+    try { *gridHandle = CReflect(new Grid(comm,owners,height,order)); }
     CATCH
     return EL_SUCCESS;
 }
@@ -263,7 +263,7 @@ ElError ElGridCreateAdvanced
 // ---------------------
 ElError ElGridGCD( ElConstGrid gridHandle, int* gcd )
 { 
-    *gcd = Reinterpret(gridHandle)->GCD(); 
+    *gcd = CReflect(gridHandle)->GCD(); 
     return EL_SUCCESS;
 }
 
@@ -271,7 +271,7 @@ ElError ElGridGCD( ElConstGrid gridHandle, int* gcd )
 // ---------------------
 ElError ElGridLCM( ElConstGrid gridHandle, int* lcm )
 { 
-    *lcm = Reinterpret(gridHandle)->LCM(); 
+    *lcm = CReflect(gridHandle)->LCM(); 
     return EL_SUCCESS;
 }
 
@@ -279,7 +279,7 @@ ElError ElGridLCM( ElConstGrid gridHandle, int* lcm )
 // -------------------------
 ElError ElGridInGrid( ElConstGrid gridHandle, bool* inGrid )
 { 
-    *inGrid = Reinterpret(gridHandle)->InGrid(); 
+    *inGrid = CReflect(gridHandle)->InGrid(); 
     return EL_SUCCESS;
 }
 
@@ -287,7 +287,7 @@ ElError ElGridInGrid( ElConstGrid gridHandle, bool* inGrid )
 // ------------------------------
 ElError ElGridHaveViewers( ElConstGrid gridHandle, bool* haveViewers )
 { 
-    *haveViewers = Reinterpret(gridHandle)->HaveViewers(); 
+    *haveViewers = CReflect(gridHandle)->HaveViewers(); 
     return EL_SUCCESS;
 }
 
@@ -295,7 +295,7 @@ ElError ElGridHaveViewers( ElConstGrid gridHandle, bool* haveViewers )
 // ----------------------------
 ElError ElGridOwningRank( ElConstGrid gridHandle, int* owningRank )
 { 
-    *owningRank = Reinterpret(gridHandle)->OwningRank(); 
+    *owningRank = CReflect(gridHandle)->OwningRank(); 
     return EL_SUCCESS;
 }
 
@@ -303,7 +303,7 @@ ElError ElGridOwningRank( ElConstGrid gridHandle, int* owningRank )
 // -----------------------------
 ElError ElGridViewingRank( ElConstGrid gridHandle, int* viewingRank )
 { 
-    *viewingRank = Reinterpret(gridHandle)->ViewingRank(); 
+    *viewingRank = CReflect(gridHandle)->ViewingRank(); 
     return EL_SUCCESS;
 }
 
@@ -312,7 +312,7 @@ ElError ElGridViewingRank( ElConstGrid gridHandle, int* viewingRank )
 ElError ElGridVCToViewingMap
 ( ElConstGrid gridHandle, int vcRank, int* viewingRank )
 { 
-    *viewingRank = Reinterpret(gridHandle)->VCToViewingMap(vcRank); 
+    *viewingRank = CReflect(gridHandle)->VCToViewingMap(vcRank); 
     return EL_SUCCESS;
 }
 
@@ -320,7 +320,7 @@ ElError ElGridVCToViewingMap
 // ------------------------------------
 ElError ElGridOwningGroup( ElConstGrid gridHandle, MPI_Group* group )
 { 
-    *group = Reinterpret(gridHandle)->OwningGroup().group; 
+    *group = CReflect(gridHandle)->OwningGroup().group; 
     return EL_SUCCESS;
 }
 
@@ -328,7 +328,7 @@ ElError ElGridOwningGroup( ElConstGrid gridHandle, MPI_Group* group )
 // ----------------------------------
 ElError ElGridOwningComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->OwningComm().comm; 
+    *comm = CReflect(gridHandle)->OwningComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -336,7 +336,7 @@ ElError ElGridOwningComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // -----------------------------------
 ElError ElGridViewingComm( ElConstGrid gridHandle, MPI_Comm* comm )
 { 
-    *comm = Reinterpret(gridHandle)->ViewingComm().comm; 
+    *comm = CReflect(gridHandle)->ViewingComm().comm; 
     return EL_SUCCESS;
 }
 
@@ -344,7 +344,7 @@ ElError ElGridViewingComm( ElConstGrid gridHandle, MPI_Comm* comm )
 // --------------------------------------
 ElError ElGridDiagPath( ElConstGrid gridHandle, int vcRank, int* diagPath )
 { 
-    *diagPath = Reinterpret(gridHandle)->DiagPath(vcRank); 
+    *diagPath = CReflect(gridHandle)->DiagPath(vcRank); 
     return EL_SUCCESS;
 }
 
@@ -353,7 +353,7 @@ ElError ElGridDiagPath( ElConstGrid gridHandle, int vcRank, int* diagPath )
 ElError ElGridDiagPathRank
 ( ElConstGrid gridHandle, int vcRank, int* diagPathRank )
 { 
-    *diagPathRank = Reinterpret(gridHandle)->DiagPathRank(vcRank); 
+    *diagPathRank = CReflect(gridHandle)->DiagPathRank(vcRank); 
     return EL_SUCCESS;
 }
 
@@ -362,7 +362,7 @@ ElError ElGridDiagPathRank
 ElError ElGridFirstVCRank
 ( ElConstGrid gridHandle, int vcRank, int* firstVCRank )
 { 
-    *firstVCRank = Reinterpret(gridHandle)->FirstVCRank(vcRank); 
+    *firstVCRank = CReflect(gridHandle)->FirstVCRank(vcRank); 
     return EL_SUCCESS;
 }
 

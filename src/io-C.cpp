@@ -16,24 +16,24 @@ extern "C" {
   /* Display */ \
   ElError ElDisplay_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title ) \
-  { EL_TRY( Display( *Reinterpret(AHandle), std::string(title) ) ) } \
+  { EL_TRY( Display( *CReflect(AHandle), std::string(title) ) ) } \
   ElError ElDisplayDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG AHandle, const char* title ) \
-  { EL_TRY( Display( *Reinterpret(AHandle), std::string(title) ) ) } \
+  { EL_TRY( Display( *CReflect(AHandle), std::string(title) ) ) } \
   /* Print */ \
   ElError ElPrint_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title ) \
-  { EL_TRY( Print( *Reinterpret(AHandle), std::string(title) ) ) } \
+  { EL_TRY( Print( *CReflect(AHandle), std::string(title) ) ) } \
   ElError ElPrintDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG AHandle, const char* title ) \
-  { EL_TRY( Print( *Reinterpret(AHandle), std::string(title) ) ) } \
+  { EL_TRY( Print( *CReflect(AHandle), std::string(title) ) ) } \
   /* Spy */ \
   ElError ElSpy_ ## SIG \
   ( ElConstMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
-  { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) } \
+  { EL_TRY( Spy( *CReflect(AHandle), std::string(title), tol ) ) } \
   ElError ElSpyDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG AHandle, const char* title, Base<T> tol ) \
-  { EL_TRY( Spy( *Reinterpret(AHandle), std::string(title), tol ) ) }
+  { EL_TRY( Spy( *CReflect(AHandle), std::string(title), tol ) ) }
 
 #include "El/macros/CInstantiate.h"
 

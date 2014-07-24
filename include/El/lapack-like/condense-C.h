@@ -121,6 +121,7 @@ typedef struct {
   ElHermitianTridiagApproach approach;
   ElGridOrderType order;
 } ElHermitianTridiagCtrl;
+ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl );
 
 /* Return packed reduction to real symmetric tridiagonal form, T := Q^H A Q 
    ------------------------------------------------------------------------ */
