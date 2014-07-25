@@ -33,6 +33,7 @@ main( int argc, char* argv[] )
         Wigner( A, n );
         const Real frobA = FrobeniusNorm( A );
 
+        HermitianEigSubset<Real> subset;
         HermitianEigCtrl<Real> ctrl;
         ctrl.useSdc = true;
         ctrl.sdcCtrl.cutoff = cutoff;
@@ -44,8 +45,7 @@ main( int argc, char* argv[] )
         // but do not overwrite A
         DistMatrix<C> ACopy( A ), Q;
         DistMatrix<Real,VR,STAR>  w;
-        HermitianEig( LOWER, ACopy, w, Q, ASCENDING, ctrl );
-
+        HermitianEig( LOWER, ACopy, w, Q, ASCENDING, subset, ctrl );
         if( display )
         {
             Display( A, "A" );

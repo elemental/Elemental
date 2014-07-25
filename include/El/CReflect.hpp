@@ -482,6 +482,53 @@ inline HermitianSdcCtrl<double> CReflect( ElHermitianSdcCtrl_d ctrlC )
     return ctrl;
 }
 
+/* HermitianEigSubset */
+inline ElHermitianEigSubset_s CReflect( HermitianEigSubset<float> subset )
+{
+    ElHermitianEigSubset_s subsetC;
+    subsetC.indexSubset = subset.indexSubset;
+    subsetC.lowerIndex = subset.lowerIndex;
+    subsetC.upperIndex = subset.upperIndex;
+    subsetC.rangeSubset = subset.rangeSubset;
+    subsetC.lowerBound = subset.lowerBound;
+    subsetC.upperBound = subset.upperBound;
+    return subsetC;
+}
+inline ElHermitianEigSubset_d CReflect( HermitianEigSubset<double> subset )
+{
+    ElHermitianEigSubset_d subsetC;
+    subsetC.indexSubset = subset.indexSubset;
+    subsetC.lowerIndex = subset.lowerIndex;
+    subsetC.upperIndex = subset.upperIndex;
+    subsetC.rangeSubset = subset.rangeSubset;
+    subsetC.lowerBound = subset.lowerBound;
+    subsetC.upperBound = subset.upperBound;
+    return subsetC;
+}
+
+inline HermitianEigSubset<float> CReflect( ElHermitianEigSubset_s subsetC )
+{
+    HermitianEigSubset<float> subset;
+    subset.indexSubset = subsetC.indexSubset;
+    subset.lowerIndex = subsetC.lowerIndex;
+    subset.upperIndex = subsetC.upperIndex;
+    subset.rangeSubset = subsetC.rangeSubset;
+    subset.lowerBound = subsetC.lowerBound;
+    subset.upperBound = subsetC.upperBound;
+    return subset;
+}
+inline HermitianEigSubset<double> CReflect( ElHermitianEigSubset_d subsetC )
+{
+    HermitianEigSubset<double> subset;
+    subset.indexSubset = subsetC.indexSubset;
+    subset.lowerIndex = subsetC.lowerIndex;
+    subset.upperIndex = subsetC.upperIndex;
+    subset.rangeSubset = subsetC.rangeSubset;
+    subset.lowerBound = subsetC.lowerBound;
+    subset.upperBound = subsetC.upperBound;
+    return subset;
+}
+
 /* HermitianEigCtrl */
 inline ElHermitianEigCtrl_s CReflect( HermitianEigCtrl<float> ctrl )
 {

@@ -48,7 +48,11 @@ inline void TallAbsoluteThresholded
     Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
-    HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    subset.upperBound = frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -175,7 +179,11 @@ TallAbsoluteThresholded
     Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
-    HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    subset.upperBound = frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
     {
@@ -325,7 +333,11 @@ TallAbsoluteThresholded
     C.SumOver( A.ColComm() );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
-    HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    subset.upperBound = frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, V, DESCENDING, subset );
     const int k = s.Height();
     
     // Sigma := sqrt(Sigma^2)
@@ -470,7 +482,11 @@ WideAbsoluteThresholded
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
     Matrix<F> U;
-    HermitianEig( LOWER, C, s, U, tol*tol, frobNorm*frobNorm );
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    subset.upperBound = frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, U, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
@@ -598,7 +614,11 @@ WideAbsoluteThresholded
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
     DistMatrix<F> U(g);
-    HermitianEig( LOWER, C, s, U, tol*tol, frobNorm*frobNorm );
+    HermitianEigSubset<Real> subset;
+    subset.rangeSubset = true;
+    subset.lowerBound = tol*tol;
+    subset.upperBound = frobNorm*frobNorm;
+    HermitianEig( LOWER, C, s, U, DESCENDING, subset );
     
     // Sigma := sqrt(Sigma^2)
     {

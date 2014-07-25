@@ -16,12 +16,14 @@
 extern "C" {
 #endif
 
+/* HermitianGenDefiniteEigType */
 typedef enum {
   EL_AXBX=1,
   EL_ABX=2, 
   EL_BAX=3
 } ElHermitianGenDefiniteEigType;
 
+/* HermitianSdcCtrl */
 typedef struct {
   ElInt cutoff;
   ElInt maxInnerIts, maxOuterIts;
@@ -40,6 +42,26 @@ typedef struct {
 } ElHermitianSdcCtrl_d;
 ElError ElHermitianSdcCtrlDefault_d( ElHermitianSdcCtrl_d* ctrl );
 
+/* HermitianEigSubset */
+typedef struct {
+  bool indexSubset;
+  ElInt lowerIndex, upperIndex;
+
+  bool rangeSubset;
+  float lowerBound, upperBound;
+} ElHermitianEigSubset_s;
+ElError ElHermitianEigSubsetDefault_s( ElHermitianEigSubset_s* subset );
+
+typedef struct {
+  bool indexSubset;
+  ElInt lowerIndex, upperIndex;
+
+  bool rangeSubset;
+  double lowerBound, upperBound;
+} ElHermitianEigSubset_d;
+ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset );
+
+/* HermitianEigCtrl */
 typedef struct {
   ElHermitianTridiagCtrl tridiagCtrl;
   ElHermitianSdcCtrl_s sdcCtrl;
@@ -54,6 +76,7 @@ typedef struct {
 } ElHermitianEigCtrl_d;
 ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
 
+/* PolarCtrl */
 typedef struct {
   bool qdwh;
   bool colPiv;
@@ -62,12 +85,14 @@ typedef struct {
 } ElPolarCtrl;
 ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
 
+/* HessQrCtrl */
 typedef struct {
   bool aed;
   ElInt blockHeight, blockWidth;
 } ElHessQrCtrl;
 ElError ElHessQrCtrlDefault( ElHessQrCtrl* ctrl );
 
+/* SdcCtrl */
 typedef struct {
   ElInt cutoff;
   ElInt maxInnerIts, maxOuterIts;
@@ -90,6 +115,7 @@ typedef struct {
 } ElSdcCtrl_d;
 ElError ElSdcCtrlDefault_d( ElSdcCtrl_d* ctrl );
 
+/* SchurCtrl */
 typedef struct {
   bool useSdc;
   ElHessQrCtrl qrCtrl;
@@ -107,35 +133,31 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
 /* Hermitian eigenvalue solvers
    ============================ */
 
-/* Compute all of the eigenvalues
-   ------------------------------ */
+/* Compute all eigenvalues
+   ----------------------- */
 ElError ElHermitianEig_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sortType );
+( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sort );
 ElError ElHermitianEig_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sortType );
+( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sort );
 ElError ElHermitianEig_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sortType );
+( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sort );
 ElError ElHermitianEig_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sortType );
+( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort );
 
 /* NOTE: 'A' must be in a [MC,MR] distribution, while 
          'w' must be in a [VR,STAR] distribution */
-/*
 ElError ElHermitianEigDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
-  ElSortType sortType );
-*/
+  ElSortType sort );
 ElError ElHermitianEigDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w,
-  ElSortType sortType );
-/*
+  ElSortType sort );
 ElError ElHermitianEigDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w,
-  ElSortType sortType );
-*/
+  ElSortType sort );
 ElError ElHermitianEigDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w,
-  ElSortType sortType );
+  ElSortType sort );
 
 /* TODO: Expert version */
 
@@ -143,185 +165,256 @@ ElError ElHermitianEigDist_z
    ------------------------------------------- */
 ElError ElHermitianEigPair_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Z,
-  ElSortType sortType );
+  ElSortType sort );
 ElError ElHermitianEigPair_d
 ( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_d Z,
-  ElSortType sortType );
+  ElSortType sort );
 ElError ElHermitianEigPair_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
-  ElSortType sortType );
+  ElSortType sort );
 ElError ElHermitianEigPair_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
-  ElSortType sortType );
+  ElSortType sort );
 
 /* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
          'w' must be in a [VR,STAR] distribution */
-/*
 ElError ElHermitianEigPairDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z,
-  ElSortType sortType );
-*/
+  ElSortType sort );
 ElError ElHermitianEigPairDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_d Z,
-  ElSortType sortType );
-/*
+  ElSortType sort );
 ElError ElHermitianEigPairDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
-  ElSortType sortType );
-*/
+  ElSortType sort );
 ElError ElHermitianEigPairDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
-  ElSortType sortType );
+  ElSortType sort );
 
 /* TODO: Expert version */
 
-/* Compute the eigenvalues within a half-open interval
-   --------------------------------------------------- */
-ElError ElHermitianEigInterval_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, float lower, float upper,
-  ElSortType sortType );
-ElError ElHermitianEigInterval_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, double lower, double upper,
-  ElSortType sortType );
-ElError ElHermitianEigInterval_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, float lower, float upper,
-  ElSortType sortType );
-ElError ElHermitianEigInterval_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, double lower, double upper,
-  ElSortType sortType );
+/* Compute a partial set of eigenvalues
+   ------------------------------------ */
+ElError ElHermitianEigPartial_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPartial_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+ElError ElHermitianEigPartial_c
+( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPartial_z
+( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
 
 /* NOTE: 'A' must be in a [MC,MR] distribution, while 
          'w' must be in a [VR,STAR] distribution */
-/*
-ElError ElHermitianEigIntervalDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
-  float lower, float upper );
-*/
-ElError ElHermitianEigIntervalDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w,
-  double lower, double upper, ElSortType sortType );
-/*
-ElError ElHermitianEigIntervalDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w,
-  float lower, float upper, ElSortType sortType );
-*/
-ElError ElHermitianEigIntervalDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w,
-  double lower, double upper, ElSortType sortType );
+ElError ElHermitianEigPartialDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPartialDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+ElError ElHermitianEigPartialDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPartialDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
 
 /* TODO: Expert version */
 
-/* Compute the eigenpairs within a half-open interval
-   -------------------------------------------------- */
-ElError ElHermitianEigPairInterval_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Z, 
-  float lower, float upper, ElSortType sortType );
-ElError ElHermitianEigPairInterval_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_d Z, 
-  double lower, double upper, ElSortType sortType );
-ElError ElHermitianEigPairInterval_c
+/* Compute a partial set of eigenpairs
+   ----------------------------------- */
+ElError ElHermitianEigPairPartial_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Z,
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPairPartial_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_d Z,
+  ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianEigPairPartial_c
 ( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
-  float lower, float upper, ElSortType sortType );
-ElError ElHermitianEigPairInterval_z
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPairPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
-  double lower, double upper, ElSortType sortType );
+  ElSortType sort, ElHermitianEigSubset_d subset );
 
 /* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
          'w' must be in a [VR,STAR] distribution */
-/*
-ElError ElHermitianEigPairIntervalDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z,
-  float lower, float upper, ElSortType sortType );
-*/
-ElError ElHermitianEigPairIntervalDist_d
+ElError ElHermitianEigPairPartialDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z, 
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPairPartialDist_d
 ( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_d Z,
-  double lower, double upper, ElSortType sortType );
-/*
-ElError ElHermitianEigPairIntervalDist_c
+  ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianEigPairPartialDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
-  float lower, float upper, ElSortType sortType );
-*/
-ElError ElHermitianEigPairIntervalDist_z
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianEigPairPartialDist_z
 ( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
-  double lower, double upper, ElSortType sortType );
-
-/* TODO: Expert version */
-
-/* Compute the eigenvalues within an index range
-   --------------------------------------------- */
-ElError ElHermitianEigIndices_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElInt lower, ElInt upper,
-  ElSortType sortType );
-ElError ElHermitianEigIndices_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElInt lower, ElInt upper,
-  ElSortType sortType );
-ElError ElHermitianEigIndices_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElInt lower, ElInt upper,
-  ElSortType sortType );
-ElError ElHermitianEigIndices_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElInt lower, ElInt upper,
-  ElSortType sortType );
-
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
-/*
-ElError ElHermitianEigIndicesDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
-  ElInt lower, ElInt upper, ElSortType sortType );
-*/
-ElError ElHermitianEigIndicesDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w,
-  ElInt lower, ElInt upper, ElSortType sortType );
-/*
-ElError ElHermitianEigIndicesDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w,
-  ElInt lower, ElInt upper, ElSortType sortType );
-*/
-ElError ElHermitianEigIndicesDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w,
-  ElInt lower, ElInt upper, ElSortType sortType );
-
-/* TODO: Expert version */
-
-/* Compute the eigenpairs within an index range
-   -------------------------------------------- */
-ElError ElHermitianEigPairIndices_s
-( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Z, 
-  ElInt lower, ElInt upper, ElSortType sortType );
-ElError ElHermitianEigPairIndices_d
-( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d w, ElMatrix_d Z, 
-  ElInt lower, ElInt upper, ElSortType sortType );
-ElError ElHermitianEigPairIndices_c
-( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_s w, ElMatrix_c Z,
-  ElInt lower, ElInt upper, ElSortType sortType );
-ElError ElHermitianEigPairIndices_z
-( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
-  ElInt lower, ElInt upper, ElSortType sortType );
-
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
-/*
-ElError ElHermitianEigPairIndicesDist_s
-( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z,
-  ElInt lower, ElInt upper, ElSortType sortType );
-*/
-ElError ElHermitianEigPairIndicesDist_d
-( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d w, ElDistMatrix_d Z,
-  ElInt lower, ElInt upper, ElSortType sortType );
-/*
-ElError ElHermitianEigPairIndicesDist_c
-( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_s w, ElDistMatrix_c Z,
-  ElInt lower, ElInt upper, ElSortType sortType );
-*/
-ElError ElHermitianEigPairIndicesDist_z
-( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_d w, ElDistMatrix_z Z,
-  ElInt lower, ElInt upper, ElSortType sortType );
+  ElSortType sort, ElHermitianEigSubset_d subset );
 
 /* TODO: Expert version */
 
 /* Hermitian generalized-definite eigensolvers
    =========================================== */
-/* TODO: Mirror approach from above */
+
+/* Compute all of the eigenvalues
+   ------------------------------ */
+ElError ElHermitianGenDefiniteEig_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElSortType sort );
+ElError ElHermitianGenDefiniteEig_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElSortType sort );
+ElError ElHermitianGenDefiniteEig_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElSortType sort );
+ElError ElHermitianGenDefiniteEig_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElSortType sort );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while 
+         'w' must be in a [VR,STAR] distribution */
+ElError ElHermitianGenDefiniteEigDist_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, 
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigDist_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigDist_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigDist_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w,
+  ElSortType sort );
+
+/* TODO: Expert version */
+
+/* Compute the entire eigenvalue decomposition 
+   ------------------------------------------- */
+ElError ElHermitianGenDefiniteEigPair_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElMatrix_s Z,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigPair_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElMatrix_d Z,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigPair_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElMatrix_c Z,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigPair_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z Z,
+  ElSortType sort );
+
+/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
+         'w' must be in a [VR,STAR] distribution */
+ElError ElHermitianGenDefiniteEigPairDist_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s Z,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigPairDist_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElDistMatrix_d Z,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigPairDist_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElDistMatrix_c Z,
+  ElSortType sort );
+ElError ElHermitianGenDefiniteEigPairDist_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElDistMatrix_z Z,
+  ElSortType sort );
+
+/* TODO: Expert version */
+
+/* Compute a partial set of eigenvalues
+   ------------------------------------ */
+ElError ElHermitianGenDefiniteEigPartial_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPartial_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+ElError ElHermitianGenDefiniteEigPartial_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPartial_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while 
+         'w' must be in a [VR,STAR] distribution */
+ElError ElHermitianGenDefiniteEigPartialDist_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPartialDist_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+ElError ElHermitianGenDefiniteEigPartialDist_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPartialDist_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+
+/* TODO: Expert version */
+
+/* Compute a partial set of eigenpairs
+   ----------------------------------- */
+ElError ElHermitianGenDefiniteEigPairPartial_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElMatrix_s Z, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPairPartial_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElMatrix_d Z, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+ElError ElHermitianGenDefiniteEigPairPartial_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElMatrix_c Z, ElSortType sort,
+  ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPairPartial_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z Z, ElSortType sort,
+  ElHermitianEigSubset_d subset );
+
+/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
+         'w' must be in a [VR,STAR] distribution */
+ElError ElHermitianGenDefiniteEigPairPartialDist_s
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s Z,
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPairPartialDist_d
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElDistMatrix_d Z,
+  ElSortType sort, ElHermitianEigSubset_d subset );
+ElError ElHermitianGenDefiniteEigPairPartialDist_c
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElDistMatrix_c Z,
+  ElSortType sort, ElHermitianEigSubset_s subset );
+ElError ElHermitianGenDefiniteEigPairPartialDist_z
+( ElHermitianGenDefiniteEigType type, ElUpperOrLower uplo, 
+  ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElDistMatrix_z Z,
+  ElSortType sort, ElHermitianEigSubset_d subset );
+
+/* TODO: Expert version */
 
 #ifdef __cplusplus
 } // extern "C"

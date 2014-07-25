@@ -39,6 +39,20 @@ struct HermitianSdcCtrl {
 };
 
 template<typename Real>
+struct HermitianEigSubset
+{
+    bool indexSubset;
+    Int lowerIndex, upperIndex;
+ 
+    bool rangeSubset;
+    Real lowerBound, upperBound;
+
+    HermitianEigSubset() 
+    : indexSubset(false), lowerIndex(0), upperIndex(0), 
+      rangeSubset(false), lowerBound(0), upperBound(0) { }
+};
+
+template<typename Real>
 struct HermitianEigCtrl
 {
     HermitianTridiagCtrl tridiagCtrl;
@@ -102,12 +116,12 @@ struct SchurCtrl {
 
 // Hermitian eigenvalue solvers
 // ============================
-
-// Compute the eigenvalues of a Hermitian matrix
-// ---------------------------------------------
+// Compute eigenvalues
+// -------------------
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
@@ -118,130 +132,57 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,
   SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
-// Compute the full eigenvalue decomposition of a Hermitian matrix
-// ---------------------------------------------------------------
+// Compute eigenpairs
+// ------------------
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
   SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
   DistMatrix<Base<F>,STAR,STAR>& w, DistMatrix<F,STAR,STAR>& Z,
   SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo,
   DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
   SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-
-// Compute the eigenvalues of a Hermitian matrix within a selected range
-// ---------------------------------------------------------------------
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,
-  Int lowerBound, Int upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  Int lowerBound, Int upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,
-  Int lowerBound, Int upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-
-// Compute a selected set of eigenpairs of a Hermitian matrix
-// ----------------------------------------------------------
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
-  Int lowerBound, Int upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Z,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  DistMatrix<F,STAR,STAR>& Z,
-  Int lowerBound, Int upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& w,
-  DistMatrix<F,STAR,STAR>& Z,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
-  Int lowerBound, Int upperBound, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
-  Base<F> lowerBound, Base<F> upperBound, SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 // Hermitian generalized definite eigenvalue solvers
 // =================================================
-// Compute the full set of eigenvalues
-// -----------------------------------
+// Compute eigenvalues
+// -------------------
 template<typename F>
 void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<Base<F>,VR,STAR>& w, SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-// Compute the full set of eigenpairs
-// ----------------------------------
+// Compute eigenpairs
+// ------------------
 template<typename F>
 void HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo,
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
   SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianGenDefiniteEig
@@ -249,142 +190,40 @@ void HermitianGenDefiniteEig
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
   SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-// Compute the eigenvalues within a specified index range
-// ------------------------------------------------------
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-// Compute the eigenpairs within a specified index range
-// -----------------------------------------------------
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-// Compute the eigenvalues lying in a particular interval
-// ------------------------------------------------------
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w,
-  Base<F> a, Base<F> b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<Base<F>,VR,STAR>& w,
-  Base<F> a, Base<F> b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-// Compute the eigenpairs with eigenvalues in a particular interval
-// ----------------------------------------------------------------
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
-  Base<F> a, Base<F> b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
-template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
-  Base<F> a, Base<F> b, SortType sort=ASCENDING, 
+  const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 // Hermitian tridiagonal eigenvalue solvers
 // ========================================
-// Compute the full set of eigenvalues
-// -----------------------------------
+// Compute eigenvalues
+// --------------------
 template<typename F>
 void HermitianTridiagEig
 ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, 
-  SortType sort=ASCENDING );
+  SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 template<typename F,Dist U,Dist V,Dist X>
 void HermitianTridiagEig
 ( const DistMatrix<Base<F>,U,V   >& d,
   const DistMatrix<F,      U,V   >& e,
-        DistMatrix<Base<F>,X,STAR>& w, SortType sort=ASCENDING );
-// Compute the eigenvalues within the specified index range
-// --------------------------------------------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w,
-  Int il, Int iu, SortType sort=ASCENDING );
-template<typename F,Dist U,Dist V,Dist X>
-void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,V   >& d,
-  const DistMatrix<F,      U,V   >& e,
-        DistMatrix<Base<F>,X,STAR>& w, Int il, Int iu, 
-  SortType sort=ASCENDING );
-// Compute the eigenvalues within a given interval
-// -----------------------------------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w,
-  Base<F> vl, Base<F> vu, SortType sort=ASCENDING );
-template<typename F,Dist U,Dist V,Dist X>
-void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,V   >& d,
-  const DistMatrix<F,      U,V   >& e,
-        DistMatrix<Base<F>,X,STAR>& w, Base<F> vl, Base<F> vu, 
-  SortType sort=ASCENDING );
-// Compute the full set of eigenpairs
-// ----------------------------------
+        DistMatrix<Base<F>,X,STAR>& w, 
+  SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
+// Compute eigenpairs
+// ------------------
 template<typename F>
 void HermitianTridiagEig
 ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, Matrix<F>& Z,
-  SortType sort=ASCENDING );
+  SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 template<typename F,Dist U,Dist V,Dist X>
 void HermitianTridiagEig
 ( const DistMatrix<Base<F>,U,   V   >& d,
   const DistMatrix<F,      U,   V   >& e,
         DistMatrix<Base<F>,X,   STAR>& w,
-        DistMatrix<F,      STAR,X   >& Z, SortType sort=ASCENDING );
-// Compute the eigenpairs within the specified index range
-// -------------------------------------------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w,
-  Matrix<F>& Z, Int il, Int iu, SortType sort=ASCENDING );
-template<typename F,Dist U,Dist V,Dist X>
-void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,   V   >& d,
-  const DistMatrix<F,      U,   V   >& e,
-        DistMatrix<Base<F>,X,   STAR>& w,
-        DistMatrix<F,      STAR,X   >& Z, Int il, Int iu, 
-  SortType sort=ASCENDING );
-// Compute the eigenpairs with eigenvalues within a specified interval
-// -------------------------------------------------------------------
-template<typename F>
-void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w,
-  Matrix<F>& Z, Base<F> vl, Base<F> vu, SortType sort=ASCENDING );
-template<typename F,Dist U,Dist V,Dist X>
-void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,   V   >& d,
-  const DistMatrix<F,      U,   V   >& e,
-        DistMatrix<Base<F>,X,   STAR>& w,
-        DistMatrix<F,      STAR,X   >& Z,
-  Base<F> vl, Base<F> vu, SortType sort=ASCENDING );
+        DistMatrix<F,      STAR,X   >& Z, 
+  SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 
 template<typename Real,Dist U,Dist V>
 Int HermitianTridiagEigEstimate
@@ -398,7 +237,7 @@ void HermitianTridiagEigPostEstimate
   const DistMatrix<Real,U,   V   >& e,
         DistMatrix<Real,X,   STAR>& w,
         DistMatrix<Real,STAR,X   >& Z, 
-  Real vl, Real vu, SortType sort=ASCENDING );
+  SortType sort, Real vl, Real vu );
 
 namespace herm_eig {
 
@@ -511,159 +350,35 @@ void RealToComplex
 // =================================
 // Compute the full set of eigenvalues
 // -----------------------------------
-template<typename Real>
+template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Real>& G, Matrix<Real>& wImag,
+( UpperOrLower uplo, const Matrix<F>& G, Matrix<Base<F>>& wImag,
   SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
+  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
+template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
+( UpperOrLower uplo, const DistMatrix<F>& G,
+  DistMatrix<Base<F>,VR,STAR>& wImag, SortType sort=ASCENDING,
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
+  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
 
-template<typename Real>
+// Compute eigenpairs
+// ------------------
+template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<Real>>& G,
-  Matrix<Real>& wImag, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-// Compute the eigenvalues within the specified index range
-// --------------------------------------------------------
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Real>& G, Matrix<Real>& wImag,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<Real>>& G,
-  Matrix<Real>& wImag, Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-// Compute the eigenvalues which lie within the specified imaginary interval
-// -------------------------------------------------------------------------
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Real>& G, Matrix<Real>& wImag,
-  Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<Real>>& G,
-  Matrix<Real>& wImag, Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-// Compute the full set of eigenpairs
-// ----------------------------------
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Real>& G,
-  Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
+( UpperOrLower uplo, const Matrix<F>& G,
+  Matrix<Base<F>>& wImag, Matrix<Complex<Base<F>>>& Z,
   SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
+  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
+template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
+( UpperOrLower uplo, const DistMatrix<F>& G,
+  DistMatrix<Base<F>,VR,STAR>& wImag, DistMatrix<Complex<Base<F>>>& Z,
   SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<Real>>& G,
-  Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-// Compute the eigenpairs within the specified index range
-// -------------------------------------------------------
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Real>& G,
-  Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<Real>>& G,
-  Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Int a, Int b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-// Compute eigenpairs with eigenvalues within a specified imaginary interval
-// -------------------------------------------------------------------------
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Real>& G,
-  Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Real>& G,
-  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<Real>>& G,
-  Matrix<Real>& wImag, Matrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
-template<typename Real>
-void SkewHermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& G,
-  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real>>& Z,
-  Real a, Real b, SortType sort=ASCENDING,
-  const HermitianEigCtrl<Real>& ctrl=HermitianEigCtrl<Real>() );
+  const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
+  const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
 
 // Singular Value Decomposition
 // ============================

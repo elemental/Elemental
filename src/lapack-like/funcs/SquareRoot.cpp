@@ -166,7 +166,8 @@ void HPSDSquareRoot
     // Get the EVD of A
     Matrix<Real> w;
     Matrix<F> Z;
-    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
+    HermitianEigSubset<Real> subset;
+    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );
@@ -213,7 +214,8 @@ void HPSDSquareRoot
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
-    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
+    HermitianEigSubset<Real> subset;
+    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
 
     // Compute the two-norm of A as the maximum absolute value of the eigvals
     const Real twoNorm = MaxNorm( w );

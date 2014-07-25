@@ -89,8 +89,9 @@ void TestCorrectness
 template<typename F>
 void TestHermitianEig
 ( bool testCorrectness, bool print,
-  bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, Int m, 
-  Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort, const Grid& g,
+  bool onlyEigvals, bool clustered, UpperOrLower uplo, Int m, 
+  SortType sort, const Grid& g,
+  const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
     typedef Base<F> Real;
@@ -123,23 +124,9 @@ void TestHermitianEig
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( onlyEigvals )
-    {
-        if( range == 'A' )
-            HermitianEig( uplo, A, w, sort, ctrl );
-        else if( range == 'I' )
-            HermitianEig( uplo, A, w, il, iu, sort, ctrl );
-        else
-            HermitianEig( uplo, A, w, vl, vu, sort, ctrl );
-    }
+        HermitianEig( uplo, A, w, sort, subset, ctrl );
     else
-    {
-        if( range == 'A' )
-            HermitianEig( uplo, A, w, Z, sort, ctrl );
-        else if( range == 'I' )
-            HermitianEig( uplo, A, w, Z, il, iu, sort, ctrl );
-        else
-            HermitianEig( uplo, A, w, Z, vl, vu, sort, ctrl );
-    }
+        HermitianEig( uplo, A, w, Z, sort, subset, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -211,6 +198,19 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             cout << "Will test HermitianEig " << uploChar << endl;
 
+        HermitianEigSubset<double> subset;
+        if( range == 'I' )
+        {
+            subset.indexSubset = true;
+            subset.lowerIndex = il;
+            subset.upperIndex = iu;
+        }
+        else if( range == 'V' )
+        {
+            subset.rangeSubset = true;
+            subset.lowerBound = vl;
+            subset.upperBound = vu;
+        }
         HermitianEigCtrl<double> ctrl;
 
         if( commRank == 0 )
@@ -218,14 +218,12 @@ main( int argc, char* argv[] )
         ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
             TestHermitianEig<double>
-            ( testCorrectness, print, 
-              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
-              ctrl );
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianEig<Complex<double>>
-            ( testCorrectness, print, 
-              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
-              ctrl );
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
 
         if( commRank == 0 )
             cout << "Square row-major tridiag algorithms:" << endl;
@@ -233,14 +231,12 @@ main( int argc, char* argv[] )
         ctrl.tridiagCtrl.order = ROW_MAJOR;
         if( testReal )
             TestHermitianEig<double>
-            ( testCorrectness, print, 
-              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
-              ctrl );
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianEig<Complex<double>>
-            ( testCorrectness, print, 
-              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
-              ctrl );
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
 
         if( commRank == 0 )
             cout << "Square column-major tridiag algorithms:" << endl;
@@ -248,14 +244,12 @@ main( int argc, char* argv[] )
         ctrl.tridiagCtrl.order = COLUMN_MAJOR;
         if( testReal )
             TestHermitianEig<double>
-            ( testCorrectness, print, 
-              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
-              ctrl );
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianEig<Complex<double>>
-            ( testCorrectness, print, 
-              onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g,
-              ctrl );
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
     }
     catch( exception& e ) { ReportException(e); }
 

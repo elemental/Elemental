@@ -226,8 +226,9 @@ void TestHermitianGenDefiniteEig
 ( bool testCorrectness, bool print,
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigvals, UpperOrLower uplo, 
-  Int m, char range, Base<F> vl, Base<F> vu, Int il, Int iu, SortType sort,
-  const Grid& g, const HermitianEigCtrl<Base<F>> ctrl )
+  Int m, SortType sort, const Grid& g, 
+  const HermitianEigSubset<Base<F>> subset, 
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     typedef Base<F> Real;
     DistMatrix<F> A(g), AOrig(g);
@@ -274,29 +275,10 @@ void TestHermitianGenDefiniteEig
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( onlyEigvals )
-    {
-        if( range == 'A' )
-            HermitianGenDefiniteEig
-            ( eigType, uplo, A, B, w, sort, ctrl );
-        else if( range == 'I' )
-            HermitianGenDefiniteEig
-            ( eigType, uplo, A, B, w, il, iu, sort, ctrl );
-        else
-            HermitianGenDefiniteEig
-            ( eigType, uplo, A, B, w, vl, vu, sort, ctrl );
-    }
+        HermitianGenDefiniteEig( eigType, uplo, A, B, w, sort, subset, ctrl );
     else
-    {
-        if( range == 'A' )
-            HermitianGenDefiniteEig
-            ( eigType, uplo, A, B, w, X, sort, ctrl );
-        else if( range == 'I' )
-            HermitianGenDefiniteEig
-            ( eigType, uplo, A, B, w, X, il, iu, sort, ctrl );
-        else
-            HermitianGenDefiniteEig
-            ( eigType, uplo, A, B, w, X, vl, vu, sort, ctrl );
-    }
+        HermitianGenDefiniteEig
+        ( eigType, uplo, A, B, w, X, sort, subset, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -394,6 +376,19 @@ main( int argc, char* argv[] )
                  << ( uplo==LOWER ? "lower" : "upper" )
                  << " " << eigTypeString << " HermitianGenDefiniteEig." << endl;
 
+        HermitianEigSubset<double> subset;
+        if( range == 'I' )
+        {
+            subset.indexSubset = true;
+            subset.lowerIndex = il;
+            subset.upperIndex = iu;
+        }
+        else if( range == 'V' )
+        {
+            subset.rangeSubset = true;
+            subset.lowerBound = vl;
+            subset.upperBound = vu;
+        }
         HermitianEigCtrl<double> ctrl;
 
         if( commRank == 0 )
@@ -402,13 +397,11 @@ main( int argc, char* argv[] )
         if( testReal )
             TestHermitianGenDefiniteEig<double>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
-              ctrl );
+              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianGenDefiniteEig<Complex<double>>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
-              ctrl );
+              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
 
         if( commRank == 0 )
             cout << "Square row-major algorithms:" << endl;
@@ -417,13 +410,11 @@ main( int argc, char* argv[] )
         if( testReal )
             TestHermitianGenDefiniteEig<double>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
-              ctrl );
+              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianGenDefiniteEig<Complex<double>>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
-              ctrl );
+              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
 
         if( commRank == 0 )
             cout << "Square column-major algorithms:" << endl;
@@ -432,13 +423,11 @@ main( int argc, char* argv[] )
         if( testReal )
             TestHermitianGenDefiniteEig<double>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
-              ctrl );
+              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianGenDefiniteEig<Complex<double>>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g,
-              ctrl );
+              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
     }
     catch( exception& e ) { ReportException(e); }
 

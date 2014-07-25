@@ -245,7 +245,8 @@ void HermitianSign
     // Get the EVD of A
     Matrix<Real> w;
     Matrix<F> Z;
-    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
+    HermitianEigSubset<Real> subset;
+    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
 
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
@@ -272,7 +273,8 @@ void HermitianSign
     // Get the EVD of A
     Matrix<Real> w;
     Matrix<F> Z;
-    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
+    HermitianEigSubset<Real> subset;
+    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
 
     const Int n = A.Height();
     Matrix<Real> wSgn( n, 1 ), wAbs( n, 1 );
@@ -307,7 +309,8 @@ void HermitianSign
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
-    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
+    HermitianEigSubset<Real> subset;
+    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
 
     const Int numLocalEigs = w.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
@@ -335,7 +338,8 @@ void HermitianSign
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
-    HermitianEig( uplo, A, w, Z, UNSORTED, ctrl );
+    HermitianEigSubset<Real> subset;
+    HermitianEig( uplo, A, w, Z, UNSORTED, subset, ctrl );
 
     const Int n = A.Height();
     const Int numLocalEigs = w.LocalHeight();
