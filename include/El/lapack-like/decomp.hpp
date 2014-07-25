@@ -12,15 +12,15 @@
 
 namespace El {
 
-namespace HermitianGenDefiniteEigTypeNS {
-enum HermitianGenDefiniteEigType
+namespace PencilNS {
+enum Pencil
 {
     AXBX=1,
     ABX=2,
     BAX=3
 };
 }
-using namespace HermitianGenDefiniteEigTypeNS;
+using namespace PencilNS;
 
 template<typename Real>
 struct HermitianSdcCtrl {
@@ -163,14 +163,14 @@ void HermitianEig
 // Compute eigenvalues
 // -------------------
 template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo,
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<Base<F>,VR,STAR>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
@@ -178,15 +178,15 @@ void HermitianGenDefiniteEig
 // Compute eigenpairs
 // ------------------
 template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo,
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo,
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo,
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
   SortType sort=ASCENDING,

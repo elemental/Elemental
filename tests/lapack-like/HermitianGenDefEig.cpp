@@ -13,14 +13,10 @@ using namespace El;
 template<typename F>
 void TestCorrectness
 ( bool print,
-  HermitianGenDefiniteEigType eigType,
-  UpperOrLower uplo,
-  const DistMatrix<F>& A,
-  const DistMatrix<F>& B,
-  const DistMatrix<Base<F>,VR,STAR>& w,
-  const DistMatrix<F>& X,
-  const DistMatrix<F>& AOrig,
-  const DistMatrix<F>& BOrig )
+  Pencil pencil, UpperOrLower uplo,
+  const DistMatrix<F>& A, const DistMatrix<F>& B,
+  const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& X,
+  const DistMatrix<F>& AOrig, const DistMatrix<F>& BOrig )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -37,7 +33,7 @@ void TestCorrectness
     if( g.Rank() == 0 )
         cout << "DONE" << endl;
 
-    if( eigType == AXBX )
+    if( pencil == AXBX )
     {
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
@@ -91,7 +87,7 @@ void TestCorrectness
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
     }
-    else if( eigType == ABX )
+    else if( pencil == ABX )
     {
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
@@ -155,7 +151,7 @@ void TestCorrectness
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
                  << "    ||X^H B X - I||_F  = " << frobNormOfError << endl;
     }
-    else /* eigType == BAX */
+    else /* pencil == BAX */
     {
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
@@ -222,9 +218,9 @@ void TestCorrectness
 }
 
 template<typename F>
-void TestHermitianGenDefiniteEig
+void TestHermitianGenDefEig
 ( bool testCorrectness, bool print,
-  HermitianGenDefiniteEigType eigType, 
+  Pencil pencil,
   bool onlyEigvals, UpperOrLower uplo, 
   Int m, SortType sort, const Grid& g, 
   const HermitianEigSubset<Base<F>> subset, 
@@ -237,7 +233,7 @@ void TestHermitianGenDefiniteEig
     DistMatrix<F> X(g);
 
     HermitianUniformSpectrum( A, m, 1, 10 );
-    if( eigType == BAX )
+    if( pencil == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
@@ -275,10 +271,9 @@ void TestHermitianGenDefiniteEig
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( onlyEigvals )
-        HermitianGenDefiniteEig( eigType, uplo, A, B, w, sort, subset, ctrl );
+        HermitianGenDefEig( pencil, uplo, A, B, w, sort, subset, ctrl );
     else
-        HermitianGenDefiniteEig
-        ( eigType, uplo, A, B, w, X, sort, subset, ctrl );
+        HermitianGenDefEig( pencil, uplo, A, B, w, X, sort, subset, ctrl );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
@@ -293,10 +288,7 @@ void TestHermitianGenDefiniteEig
             Print( X, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
-    {
-        TestCorrectness
-        ( print, eigType, uplo, A, B, w, X, AOrig, BOrig );
-    }
+        TestCorrectness( print, pencil, uplo, A, B, w, X, AOrig, BOrig );
 }
 
 int 
@@ -311,7 +303,7 @@ main( int argc, char* argv[] )
     {
         Int r = Input("--gridHeight","height of process grid",0);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int eigInt = Input("--eigType",
+        const Int pencilInt = Input("--pencil",
              "1 is A x = lambda B x, "
              "2 is A B x = lambda x, "
              "3 is B A x = lambda x",1);
@@ -351,30 +343,30 @@ main( int argc, char* argv[] )
         const SortType sort = static_cast<SortType>(sortInt);
         if( testCorrectness && onlyEigvals && commRank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
-        HermitianGenDefiniteEigType eigType;
-        string eigTypeString;
-        if( eigInt == 1 )
+        Pencil pencil;
+        string pencilString;
+        if( pencilInt == 1 )
         {
-            eigType = AXBX;
-            eigTypeString = "AXBX";
+            pencil = AXBX;
+            pencilString = "AXBX";
         }
-        else if( eigInt == 2 )
+        else if( pencil == 2 )
         {
-            eigType = ABX;
-            eigTypeString = "ABX";
+            pencil = ABX;
+            pencilString = "ABX";
         }
-        else if( eigInt == 3 )
+        else if( pencilInt == 3 )
         {
-            eigType = BAX;
-            eigTypeString = "BAX";
+            pencil = BAX;
+            pencilString = "BAX";
         }
         else
-            LogicError("Invalid eigenvalue problem integer");
+            LogicError("Invalid pencil integer");
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test " 
                  << ( uplo==LOWER ? "lower" : "upper" )
-                 << " " << eigTypeString << " HermitianGenDefiniteEig." << endl;
+                 << " " << pencilString << " HermitianGenDefEig." << endl;
 
         HermitianEigSubset<double> subset;
         if( range == 'I' )
@@ -395,39 +387,39 @@ main( int argc, char* argv[] )
             cout << "Normal tridiag algorithms:" << endl;
         ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_NORMAL;
         if( testReal )
-            TestHermitianGenDefiniteEig<double>
+            TestHermitianGenDefEig<double>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
-            TestHermitianGenDefiniteEig<Complex<double>>
+            TestHermitianGenDefEig<Complex<double>>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
 
         if( commRank == 0 )
             cout << "Square row-major algorithms:" << endl;
         ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl.tridiagCtrl.order = ROW_MAJOR;
         if( testReal )
-            TestHermitianGenDefiniteEig<double>
+            TestHermitianGenDefEig<double>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
-            TestHermitianGenDefiniteEig<Complex<double>>
+            TestHermitianGenDefEig<Complex<double>>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
 
         if( commRank == 0 )
             cout << "Square column-major algorithms:" << endl;
         ctrl.tridiagCtrl.approach = HERMITIAN_TRIDIAG_SQUARE;
         ctrl.tridiagCtrl.order = COLUMN_MAJOR;
         if( testReal )
-            TestHermitianGenDefiniteEig<double>
+            TestHermitianGenDefEig<double>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
-            TestHermitianGenDefiniteEig<Complex<double>>
+            TestHermitianGenDefEig<Complex<double>>
             ( testCorrectness, print, 
-              eigType, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
     }
     catch( exception& e ) { ReportException(e); }
 

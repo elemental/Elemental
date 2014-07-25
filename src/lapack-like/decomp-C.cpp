@@ -185,8 +185,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   { EL_TRY( HermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
                           *CReflect(Z), CReflect(sort) ) ) } \
   ElError ElHermitianEigPairDist_ ## SIG \
-   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
-     ElDistMatrix_ ## SIG Z, ElSortType sort ) \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
+    ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( HermitianEig( \
       CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
       DM_CAST(F,Z), CReflect(sort) ) ) } \
@@ -217,8 +217,77 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianEig( \
       CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort), CReflect(subset) ) ) }
-
+      DM_CAST(F,Z), CReflect(sort), CReflect(subset) ) ) } \
+  /* HermitianGenDefEig
+     ======================= */ \
+  /* Return all eigenvalues
+     ---------------------- */ \
+  ElError ElHermitianGenDefEig_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, ElMatrix_ ## SIGBASE w, \
+    ElSortType sort ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), CReflect(sort) ) ) } \
+  ElError ElHermitianGenDefEigDist_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
+      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort) ) ) } \
+  /* Return all eigenpairs
+     --------------------- */ \
+  ElError ElHermitianGenDefEigPair_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, ElMatrix_ ## SIGBASE w, \
+    ElMatrix_ ## SIG Z, ElSortType sort ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), *CReflect(Z), CReflect(sort) ) ) } \
+  ElError ElHermitianGenDefEigPairDist_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
+      DM_VR_STAR_CAST(Base<F>,w), DM_CAST(F,Z), CReflect(sort) ) ) } \
+  /* Return a subset of eigenvalues 
+     ------------------------------ */ \
+  ElError ElHermitianGenDefEigPartial_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, ElMatrix_ ## SIGBASE w, \
+    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), CReflect(sort), CReflect(subset) ) ) } \
+  ElError ElHermitianGenDefEigPartialDist_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIGBASE w, ElSortType sort, \
+    ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
+      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort), CReflect(subset) ) ) } \
+  /* Return a subset of eigenpairs
+     ----------------------------- */ \
+  ElError ElHermitianGenDefEigPairPartial_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElMatrix_ ## SIG A, ElMatrix_ ## SIG B, \
+    ElMatrix_ ## SIGBASE w, ElMatrix_ ## SIG Z, ElSortType sort, \
+    ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), *CReflect(Z), CReflect(sort), CReflect(subset) ) ) } \
+  ElError ElHermitianGenDefEigPairPartialDist_ ## SIG \
+  ( ElPencil pencil, ElUpperOrLower uplo, \
+    ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
+    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort, \
+    ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianGenDefEig( \
+      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
+      DM_VR_STAR_CAST(Base<F>,w), DM_CAST(F,Z), CReflect(sort), \
+      CReflect(subset) ) ) }
 
 #define C_PROTO_REAL(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \

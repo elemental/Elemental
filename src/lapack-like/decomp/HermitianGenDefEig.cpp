@@ -14,18 +14,18 @@ namespace El {
 // ===================
 
 template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
-    if( type == AXBX )
+    if( pencil == AXBX )
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
@@ -33,19 +33,19 @@ void HermitianGenDefiniteEig
 }
 
 template<typename F>
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<Base<F>,VR,STAR>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
-    if( type == AXBX )
+    if( pencil == AXBX )
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
@@ -56,28 +56,28 @@ void HermitianGenDefiniteEig
 // ==================
 
 template<typename F> 
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, Matrix<F>& X,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
-    if( type == AXBX )
+    if( pencil == AXBX )
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X, sort, subset, ctrl );
-    if( type == AXBX || type == ABX )
+    if( pencil == AXBX || pencil == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
         Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
-    else /* type == BAX */
+    else /* pencil == BAX */
     {
         const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
         Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
@@ -85,29 +85,29 @@ void HermitianGenDefiniteEig
 }
 
 template<typename F> 
-void HermitianGenDefiniteEig
-( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
+void HermitianGenDefEig
+( Pencil pencil, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefiniteEig"))
+    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
-    if( type == AXBX )
+    if( pencil == AXBX )
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X, sort, subset, ctrl );
-    if( type == AXBX || type == ABX )
+    if( pencil == AXBX || pencil == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
         Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
-    else /* type == BAX */
+    else /* pencil == BAX */
     {
         const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
         Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
@@ -115,24 +115,24 @@ void HermitianGenDefiniteEig
 }
 
 #define PROTO(F) \
-  template void HermitianGenDefiniteEig \
-  ( HermitianGenDefiniteEigType type, UpperOrLower uplo, \
+  template void HermitianGenDefEig \
+  ( Pencil pencil, UpperOrLower uplo, \
     Matrix<F>& A, Matrix<F>& B, Matrix<Base<F>>& w, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
-  template void HermitianGenDefiniteEig \
-  ( HermitianGenDefiniteEigType type, UpperOrLower uplo, \
+  template void HermitianGenDefEig \
+  ( Pencil pencil, UpperOrLower uplo, \
     DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<Base<F>,VR,STAR>& w, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
-  template void HermitianGenDefiniteEig \
-  ( HermitianGenDefiniteEigType type, UpperOrLower uplo, \
+  template void HermitianGenDefEig \
+  ( Pencil pencil, UpperOrLower uplo, \
     Matrix<F>& A, Matrix<F>& B, \
     Matrix<Base<F>>& w, Matrix<F>& X, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
-  template void HermitianGenDefiniteEig \
-  ( HermitianGenDefiniteEigType type, UpperOrLower uplo, \
+  template void HermitianGenDefEig \
+  ( Pencil pencil, UpperOrLower uplo, \
     DistMatrix<F>& A, DistMatrix<F>& B, \
     DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \

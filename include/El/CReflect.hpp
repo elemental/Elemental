@@ -2,7 +2,7 @@
    Copyright (c) 2009-2014, Jack Poulson
    All rights reserved.
 
-   This file is part of Elental and is under the BSD 2-Clause License, 
+   This file is part of Elemental and is under the BSD 2-Clause License, 
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
@@ -426,14 +426,12 @@ CReflect( ElHermitianTridiagCtrl ctrlC )
 // Decompositions
 // ^^^^^^^^^^^^^^
 
-/* HermitianGenDefiniteEigType */
-inline ElHermitianGenDefiniteEigType
-CReflect( HermitianGenDefiniteEigType eigType )
-{ return static_cast<ElHermitianGenDefiniteEigType>(eigType); }
+/* Pencil */
+inline ElPencil CReflect( Pencil pencil )
+{ return static_cast<ElPencil>(pencil); }
 
-inline HermitianGenDefiniteEigType
-CReflect( ElHermitianGenDefiniteEigType eigType )
-{ return static_cast<HermitianGenDefiniteEigType>(eigType); }
+inline Pencil CReflect( ElPencil pencil )
+{ return static_cast<Pencil>(pencil); }
 
 /* HermitianSdcCtrl */
 inline ElHermitianSdcCtrl_s CReflect( HermitianSdcCtrl<float> ctrl )
