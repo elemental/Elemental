@@ -351,10 +351,37 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
       *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
-      CReflect(sort), CReflect(subset) ) ) }
+      CReflect(sort), CReflect(subset) ) ) } \
+  /* Polar decomposition
+     =================== */ \
+  /* Compute just the polar factor
+     ----------------------------- */ \
+  ElError ElPolar_ ## SIG ( ElMatrix_ ## SIG A ) \
+  { EL_TRY( Polar( *CReflect(A) ) ) } \
+  ElError ElPolarDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( Polar( DM_CAST(F,A) ) ) } \
+   ElError ElHermitianPolar_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
+  { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A) ) ) } \
+  ElError ElHermitianPolarDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
+  { EL_TRY( HermitianPolar( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  /* Compute the entire polar decomposition
+     -------------------------------------- */ \
+  ElError ElPolarDecomp_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG P ) \
+  { EL_TRY( Polar( *CReflect(A), *CReflect(P) ) ) } \
+  ElError ElPolarDecompDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P ) \
+  { EL_TRY( Polar( DM_CAST(F,A), DM_CAST(F,P) ) ) } \
+  ElError ElHermitianPolarDecomp_ ## SIG \
+  ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIG P ) \
+  { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A), *CReflect(P) ) ) } \
+  ElError ElHermitianPolarDecompDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P ) \
+  { EL_TRY( HermitianPolar( CReflect(uplo), DM_CAST(F,A), DM_CAST(F,P) ) ) }
 
-#define C_PROTO_REAL(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F)
+#define C_PROTO_REAL(SIG,F) \
+  C_PROTO_FIELD(SIG,SIG,F)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \

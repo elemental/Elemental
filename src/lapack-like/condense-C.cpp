@@ -191,8 +191,8 @@ ElError ElHermitianTridiagCtrlDefault( ElHermitianTridiagCtrl* ctrl )
       ( CReflect(side), CReflect(uplo), CReflect(orientation), \
         DM_CAST_CONST(F,A), DM_STAR_STAR_CAST_CONST(F,t), DM_CAST(F,B) ) ) }
 
-#define C_PROTO_REAL(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F)
+#define C_PROTO_REAL(SIG,F) \
+  C_PROTO_FIELD(SIG,SIG,F)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F)

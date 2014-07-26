@@ -684,6 +684,67 @@ ElError ElHermitianTridiagEigPairPartialDist_z
 
 /* TODO: Expert version */
 
+/* Polar decomposition
+   =================== */
+
+/* Compute just the polar factor
+   ----------------------------- */
+ElError ElPolar_s( ElMatrix_s A );
+ElError ElPolar_d( ElMatrix_d A );
+ElError ElPolar_c( ElMatrix_c A );
+ElError ElPolar_z( ElMatrix_z A );
+
+/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
+ElError ElPolarDist_s( ElDistMatrix_s A );
+ElError ElPolarDist_d( ElDistMatrix_d A );
+ElError ElPolarDist_c( ElDistMatrix_c A );
+ElError ElPolarDist_z( ElDistMatrix_z A );
+
+ElError ElHermitianPolar_s( ElUpperOrLower uplo, ElMatrix_s A );
+ElError ElHermitianPolar_d( ElUpperOrLower uplo, ElMatrix_d A );
+ElError ElHermitianPolar_c( ElUpperOrLower uplo, ElMatrix_c A );
+ElError ElHermitianPolar_z( ElUpperOrLower uplo, ElMatrix_z A );
+
+/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
+ElError ElHermitianPolarDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
+ElError ElHermitianPolarDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
+ElError ElHermitianPolarDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
+ElError ElHermitianPolarDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
+
+/* Compute the entire polar decomposition
+   -------------------------------------- */
+ElError ElPolarDecomp_s( ElMatrix_s A, ElMatrix_s P );
+ElError ElPolarDecomp_d( ElMatrix_d A, ElMatrix_d P );
+ElError ElPolarDecomp_c( ElMatrix_c A, ElMatrix_c P );
+ElError ElPolarDecomp_z( ElMatrix_z A, ElMatrix_z P );
+
+/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
+ElError ElPolarDecompDist_s( ElDistMatrix_s A, ElDistMatrix_s P );
+ElError ElPolarDecompDist_d( ElDistMatrix_d A, ElDistMatrix_d P );
+ElError ElPolarDecompDist_c( ElDistMatrix_c A, ElDistMatrix_c P );
+ElError ElPolarDecompDist_z( ElDistMatrix_z A, ElDistMatrix_z P );
+
+ElError ElHermitianPolarDecomp_s
+( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s P );
+ElError ElHermitianPolarDecomp_d
+( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_d P );
+ElError ElHermitianPolarDecomp_c
+( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_c P );
+ElError ElHermitianPolarDecomp_z
+( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z P );
+
+/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
+ElError ElHermitianPolarDecompDist_s
+( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s P );
+ElError ElHermitianPolarDecompDist_d
+( ElUpperOrLower uplo, ElDistMatrix_d A, ElDistMatrix_d P );
+ElError ElHermitianPolarDecompDist_c
+( ElUpperOrLower uplo, ElDistMatrix_c A, ElDistMatrix_c P );
+ElError ElHermitianPolarDecompDist_z
+( ElUpperOrLower uplo, ElDistMatrix_z A, ElDistMatrix_z P );
+
+/* TODO: Expert versions */
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

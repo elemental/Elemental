@@ -19,6 +19,8 @@ std::ostream& operator<<( std::ostream& os, Complex<Real> alpha )
     return os;
 }
 
+// Basic complex entry manipulation
+// ================================
 template<typename Real>
 inline Real RealPart( const Real&          alpha ) { return alpha; }
 template<typename Real>
@@ -62,6 +64,23 @@ template<typename Real>
 inline void UpdateImagPart( Complex<Real>& alpha, const Real& beta )
 { alpha.imag( alpha.imag()+beta ); }
 
+template<typename Real>
+inline Real Conj( const Real& alpha ) { return alpha; }
+
+template<typename Real>
+inline Complex<Real> Conj( const Complex<Real>& alpha )
+{ return Complex<Real>(alpha.real(),-alpha.imag()); }
+
+template<typename F>
+inline Base<F> Arg( const F& alpha )
+{ return Atan2( ImagPart(alpha), RealPart(alpha) ); }
+
+template<typename Real>
+inline Complex<Real> Polar( const Real& r, const Real& theta )
+{ return std::polar(r,theta); }
+
+// Size measurements
+// =================
 template<typename F>
 inline Base<F> Abs( const F& alpha ) { return std::abs(alpha); }
 
@@ -75,17 +94,29 @@ template<typename F>
 inline Base<F> FastAbs( const F& alpha )
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
-template<typename Real>
-inline Real Conj( const Real& alpha ) { return alpha; }
+// Exponentiation
+// ==============
+template<typename F>
+inline F      Exp( const F&   alpha ) { return std::exp(alpha); }
+inline double Exp( const Int& alpha ) { return std::exp(alpha); }
 
-template<typename Real>
-inline Complex<Real> Conj( const Complex<Real>& alpha )
-{ return Complex<Real>(alpha.real(),-alpha.imag()); }
+template<typename F,typename T>
+inline F Pow( const F& alpha, const T& beta ) { return std::pow(alpha,beta); }
+// NOTE: What about integer to a floating-point power? Switch to auto 
+//       return type inherited from std::pow?
+
+// Inverse exponentiation
+// ----------------------
+template<typename F>
+inline F      Log( const F&   alpha ) { return std::log(alpha); }
+inline double Log( const Int& alpha ) { return std::log(alpha); }
 
 template<typename F>
 inline F      Sqrt( const F&   alpha ) { return std::sqrt(alpha); }
 inline double Sqrt( const Int& alpha ) { return std::sqrt(alpha); }
 
+// Trigonometric
+// =============
 template<typename F>
 inline F      Cos( const F&   alpha ) { return std::cos(alpha); }
 inline double Cos( const Int& alpha ) { return std::cos(alpha); }
@@ -98,18 +129,8 @@ template<typename F>
 inline F      Tan( const F&   alpha ) { return std::tan(alpha); }
 inline double Tan( const Int& alpha ) { return std::tan(alpha); }
 
-template<typename F>
-inline F      Cosh( const F&   alpha ) { return std::cosh(alpha); }
-inline double Cosh( const Int& alpha ) { return std::cosh(alpha); }
-
-template<typename F>
-inline F      Sinh( const F&   alpha ) { return std::sinh(alpha); }
-inline double Sinh( const Int& alpha ) { return std::sinh(alpha); }
-
-template<typename F>
-inline F      Tanh( const F&   alpha ) { return std::tanh(alpha); }
-inline double Tanh( const Int& alpha ) { return std::tanh(alpha); }
-
+// Inverse trigonometric
+// ---------------------
 template<typename F>
 inline F      Acos( const F&   alpha ) { return std::acos(alpha); }
 inline double Acos( const Int& alpha ) { return std::acos(alpha); }
@@ -128,6 +149,22 @@ inline Real Atan2( const Real& y, const Real& x )
 inline double Atan2( const Int& y, const Int& x )
 { return std::atan2( y, x ); }
 
+// Hyperbolic
+// ==========
+template<typename F>
+inline F      Cosh( const F&   alpha ) { return std::cosh(alpha); }
+inline double Cosh( const Int& alpha ) { return std::cosh(alpha); }
+
+template<typename F>
+inline F      Sinh( const F&   alpha ) { return std::sinh(alpha); }
+inline double Sinh( const Int& alpha ) { return std::sinh(alpha); }
+
+template<typename F>
+inline F      Tanh( const F&   alpha ) { return std::tanh(alpha); }
+inline double Tanh( const Int& alpha ) { return std::tanh(alpha); }
+
+// Inverse hyperbolic
+// ------------------
 template<typename F>
 inline F      Acosh( const F&   alpha ) { return std::acosh(alpha); }
 inline double Acosh( const Int& alpha ) { return std::acosh(alpha); }
@@ -139,27 +176,6 @@ inline double Asinh( const Int& alpha ) { return std::asinh(alpha); }
 template<typename F>
 inline F      Atanh( const F&   alpha ) { return std::atanh(alpha); }
 inline double Atanh( const Int& alpha ) { return std::atanh(alpha); }
-
-template<typename F>
-inline Base<F> Arg( const F& alpha )
-{ return Atan2( ImagPart(alpha), RealPart(alpha) ); }
-
-template<typename Real>
-inline Complex<Real> Polar( const Real& r, const Real& theta )
-{ return std::polar(r,theta); }
-
-template<typename F>
-inline F      Exp( const F&   alpha ) { return std::exp(alpha); }
-inline double Exp( const Int& alpha ) { return std::exp(alpha); }
-
-template<typename F,typename T>
-inline F Pow( const F& alpha, const T& beta ) { return std::pow(alpha,beta); }
-// NOTE: What about integer to a floating-point power? Switch to auto 
-//       return type inherited from std::pow?
-
-template<typename F>
-inline F      Log( const F&   alpha ) { return std::log(alpha); }
-inline double Log( const Int& alpha ) { return std::log(alpha); }
 
 } // namespace El
 

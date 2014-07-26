@@ -316,7 +316,7 @@ extern "C" {
   ElError ElZeroDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
   { EL_TRY( Zero( *CReflect(A) ) ) }
 
-#define C_PROTO_NOCOMPLEX(SIG,SIGBASE,T) \
+#define C_PROTO_NOCOMPLEX(SIG,T) \
   /* Max */ \
   ElError ElMax_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElValueIntPair_ ## SIG *entry ) \
@@ -391,14 +391,14 @@ extern "C" {
   /* TODO: Symmetric2x2Inv */ \
   /* TODO: Symmetric2x2Solve */
 
-#define C_PROTO_INT(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_NOCOMPLEX(SIG,SIGBASE,T)
+#define C_PROTO_INT(SIG,T) \
+  C_PROTO_BASE(SIG,SIG,T) \
+  C_PROTO_NOCOMPLEX(SIG,T)
 
-#define C_PROTO_REAL(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_NOCOMPLEX(SIG,SIGBASE,T) \
-  C_PROTO_FIELD(SIG,SIGBASE,T)
+#define C_PROTO_REAL(SIG,T) \
+  C_PROTO_BASE(SIG,SIG,T) \
+  C_PROTO_NOCOMPLEX(SIG,T) \
+  C_PROTO_FIELD(SIG,SIG,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \

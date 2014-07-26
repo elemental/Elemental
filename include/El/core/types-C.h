@@ -10,15 +10,16 @@
 #ifndef EL_TYPES_C_H
 #define EL_TYPES_C_H
 
-#include "./Scalar-C.h"
-
 #ifdef __cplusplus
 #include <cstdbool>
 #include <cstdio>
-extern "C" {
 #else
 #include <stdbool.h>
 #include <stdio.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef unsigned char ElByte;
@@ -31,6 +32,28 @@ typedef long long unsigned ElUnsigned;
 #else
 typedef int ElInt;
 typedef unsigned ElUnsigned;
+#endif
+
+typedef enum
+{
+  EL_SUCCESS,
+  EL_ALLOC_ERROR,
+  EL_OUT_OF_BOUNDS_ERROR,
+  EL_ARG_ERROR,           /* input argument error */
+  EL_LOGIC_ERROR,         /* catch-all for logic errors */
+  EL_RUNTIME_ERROR,       /* catch-all for runtime errors */
+  EL_ERROR                /* catch-all if the cause is unspecified */
+} ElError;
+const char* ElErrorString( ElError error );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#include "El/core/Scalar-C.h"
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef struct
@@ -84,19 +107,6 @@ typedef struct
   complex_double value;
   ElInt indices[2];
 } ElValueIntPair_z;
-
-typedef enum
-{
-  EL_SUCCESS,
-  EL_ALLOC_ERROR,
-  EL_OUT_OF_BOUNDS_ERROR,
-  EL_ARG_ERROR,           /* input argument error */
-  EL_LOGIC_ERROR,         /* catch-all for logic errors */
-  EL_RUNTIME_ERROR,       /* catch-all for runtime errors */
-  EL_ERROR                /* catch-all if the cause is unspecified */
-} ElError;
-
-const char* ElErrorString( ElError error );
 
 /* product = rho * exp(kappa*n)
    where rho lies in (usually on) the unit circle and kappa is real-valued. */

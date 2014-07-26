@@ -172,8 +172,8 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( HPSDSquareRoot( CReflect(uplo), DM_CAST(F,A) ) ) }
 
-#define C_PROTO_REAL(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F)
+#define C_PROTO_REAL(SIG,F) \
+  C_PROTO_FIELD(SIG,SIG,F)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \

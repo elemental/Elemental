@@ -419,12 +419,12 @@ extern "C" {
   ( ElDistMatrix_ ## SIG A, ElInt n, CREFLECT(T) mean, Base<T> stddev ) \
   { EL_TRY( Wigner( *CReflect(A), n, CReflect(mean), stddev ) ) }
 
-#define C_PROTO_INT(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,SIGBASE,T)
+#define C_PROTO_INT(SIG,T) \
+  C_PROTO_BASE(SIG,SIG,T)
 
-#define C_PROTO_REAL(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_FIELD(SIG,SIGBASE,T)
+#define C_PROTO_REAL(SIG,T) \
+  C_PROTO_BASE(SIG,SIG,T) \
+  C_PROTO_FIELD(SIG,SIG,T)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,T) \
   C_PROTO_BASE(SIG,SIGBASE,T) \

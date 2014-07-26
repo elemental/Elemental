@@ -24,123 +24,151 @@ typedef complex double complex_double;
 
 /* TODO: Better interface between C and C++ complex */
 
-float  ElRealPart_c( const complex_float alpha );
-double ElRealPart_z( const complex_double alpha );
+/* Basic complex entry manipulation
+   ================================ */
+ElError ElRealPart_c( complex_float alpha, float* alphaReal );
+ElError ElRealPart_z( complex_double alpha, double* alphaReal );
 
-float  ElImagPart_c( const complex_float alpha );
-double ElImagPart_z( const complex_double alpha );
+ElError ElImagPart_c( complex_float alpha, float* alphaImag );
+ElError ElImagPart_z( complex_double alpha, double* alphaImag );
 
-void ElSetRealPart_c( complex_float* alpha, float alphaReal );
-void ElSetRealPart_z( complex_double* alpha, double alphaReal );
+ElError ElSetRealPart_c( complex_float* alpha, float alphaReal );
+ElError ElSetRealPart_z( complex_double* alpha, double alphaReal );
 
-void ElSetImagPart_c( complex_float* alpha, float alphaImag );
-void ElSetImagPart_z( complex_double* alpha, double alphaImag );
+ElError ElSetImagPart_c( complex_float* alpha, float alphaImag );
+ElError ElSetImagPart_z( complex_double* alpha, double alphaImag );
 
-void ElUpdateRealPart_c( complex_float* alpha, float betaReal );
-void ElUpdateImagPart_z( complex_double* alpha, double betaReal );
+ElError ElUpdateRealPart_c( complex_float* alpha, float betaReal );
+ElError ElUpdateImagPart_z( complex_double* alpha, double betaReal );
 
-void ElUpdateImagPart_c( complex_float* alpha, float betaImag );
-void ElUpdateImagPart_z( complex_double* alpha, double betaImag );
+ElError ElUpdateImagPart_c( complex_float* alpha, float betaImag );
+ElError ElUpdateImagPart_z( complex_double* alpha, double betaImag );
 
-float  ElAbs_s( float alpha );
-double ElAbs_d( double alpha );
-float  ElAbs_c( complex_float alpha );
-double ElAbs_z( complex_double alpha );
+ElError ElConj_c( complex_float alpha, complex_float* alphaConj );
+ElError ElConj_z( complex_double alpha, complex_double* alphaConj );
 
-float  ElSafeAbs_c( complex_float alpha );
-double ElSafeAbs_z( complex_double alpha );
+ElError ElArg_s( float alpha, float* alphaArg );
+ElError ElArg_d( double alpha, double* alphaArg );
+ElError ElArg_c( complex_float alpha, float* alphaArg );
+ElError ElArg_z( complex_double alpha, double* alphaArg );
 
-float  ElFastAbs_c( complex_float alpha );
-double ElFastAbs_z( complex_double alpha );
+/* NOTE: This is not simply named 'Polar' due to a conflict with the
+         polar decomposition function */
+ElError ElComplexFromPolar_c( float r, float theta, complex_float* alpha );
+ElError ElComplexFromPolar_z( double r, double theta, complex_double* alpha );
 
-float  ElConj_c( complex_float alpha );
-double ElConj_z( complex_double alpha );
+/* Size measurements
+   ================= */
+ElError ElAbs_i( ElInt alpha, ElInt* alphaAbs );
+ElError ElAbs_s( float alpha, float* alphaAbs );
+ElError ElAbs_d( double alpha, double* alphaAbs );
+ElError ElAbs_c( complex_float alpha, float* alphaAbs );
+ElError ElAbs_z( complex_double alpha, double* alphaAbs );
 
-float          ElSqrt_s( float alpha );
-double         ElSqrt_d( double alpha );
-complex_float  ElSqrt_c( complex_float alpha );
-complex_double ElSqrt_z( complex_double alpha );
+ElError ElSafeAbs_c( complex_float alpha, float* alphaAbs );
+ElError ElSafeAbs_z( complex_double alpha, double* alphaAbs );
 
-float          ElCos_s( float alpha );
-double         ElCos_d( double alpha );
-complex_float  ElCos_c( complex_float alpha );
-complex_double ElCos_z( complex_double alpha );
+ElError ElFastAbs_c( complex_float alpha, float* alphaAbs );
+ElError ElFastAbs_z( complex_double alpha, double* alphaAbs );
 
-float          ElSin_s( float alpha );
-double         ElSin_d( double alpha );
-complex_float  ElSin_c( complex_float alpha );
-complex_double ElSin_z( complex_double alpha );
+/* Exponentiation
+   ============== */
+ElError ElExp_s( float alpha, float* alphaExp );
+ElError ElExp_d( double alpha, double* alphaExp );
+ElError ElExp_c( complex_float alpha, complex_float* alphaExp );
+ElError ElExp_z( complex_double alpha, complex_double* alphaExp );
 
-float          ElTan_s( float alpha );
-double         ElTan_d( double alpha );
-complex_float  ElTan_c( complex_float alpha );
-complex_double ElTan_z( complex_double alpha );
+ElError ElPow_s
+( float alpha, float beta, float* result );
+ElError ElPow_d
+( double alpha, double beta, double* result );
+ElError ElPow_c
+( complex_float apha, complex_float beta, complex_float* result );
+ElError ElPow_z
+( complex_double alpha, complex_double beta, complex_double* result );
 
-float          ElCosh_s( float alpha );
-double         ElCosh_d( double alpha );
-complex_float  ElCosh_c( complex_float alpha );
-complex_double ElCosh_z( complex_float alpha );
+/* Inverse exponentiation
+   ---------------------- */
+ElError ElLog_s( float alpha, float* alphaLog );
+ElError ElLog_d( double alpha, double* alphaLog );
+ElError ElLog_c( complex_float alpha, complex_float* alphaLog );
+ElError ElLog_z( complex_double alpha, complex_double* alphaLog );
 
-float          ElSinh_s( float alpha );
-double         ElSinh_d( double alpha );
-complex_float  ElSinh_c( complex_float alpha );
-complex_double ElSinh_z( complex_double alpha );
+ElError ElSqrt_s( float alpha, float* alphaSqrt );
+ElError ElSqrt_d( double alpha, double* alphaSqrt );
+ElError ElSqrt_c( complex_float alpha, complex_float* alphaSqrt );
+ElError ElSqrt_z( complex_double alpha, complex_double* alphaSqrt );
 
-float          ElAcos_s( float alpha );
-double         ElAcos_d( double alpha );
-complex_float  ElAcos_c( complex_float alpha );
-complex_double ElAcos_z( complex_double alpha );
+/* Trigonometric
+   ============= */
+ElError ElCos_s( float alpha, float* alphaCos );
+ElError ElCos_d( double alpha, double* alphaCos );
+ElError ElCos_c( complex_float alpha, complex_float* alphaCos );
+ElError ElCos_z( complex_double alpha, complex_double* alphaCos );
 
-float          ElAsin_s( float alpha );
-double         ElAsin_d( double alpha );
-complex_float  ElAsin_c( complex_float alpha );
-complex_double ElAsin_z( complex_double alpha );
+ElError ElSin_s( float alpha, float* alphaSin );
+ElError ElSin_d( double alpha, double* alphaSin );
+ElError ElSin_c( complex_float alpha, complex_float* alphaSin );
+ElError ElSin_z( complex_double alpha, complex_double* alphaSin );
 
-float          ElAtan_s( float alpha );
-double         ElAtan_d( double alpha );
-complex_float  ElAtan_c( complex_float alpha );
-complex_double ElAtan_z( complex_double alpha );
+ElError ElTan_s( float alpha, float* alphaTan );
+ElError ElTan_d( double alpha, double* alphaTan );
+ElError ElTan_c( complex_float alpha, complex_float* alphaTan );
+ElError ElTan_z( complex_double alpha, complex_double* alphaTan );
 
-float  ElAtan2_s( float y, float x );
-double ElAtan2_d( double y, double x );
+/* Inverse trigonometric
+   --------------------- */
+ElError ElAcos_s( float alpha, float* alphaAcos );
+ElError ElAcos_d( double alpha, double* alphaAcos );
+ElError ElAcos_c( complex_float alpha, complex_float* alphaAcos );
+ElError ElAcos_z( complex_double alpha, complex_double* alphaAcos );
 
-float          ElAcosh_s( float alpha );
-double         ElAcosh_d( double alpha );
-complex_float  ElAcosh_c( complex_float alpha );
-complex_double ElAcosh_z( complex_double alpha );
+ElError ElAsin_s( float alpha, float* alphaAsin );
+ElError ElAsin_d( double alpha, double* alphaAsin );
+ElError ElAsin_c( complex_float alpha, complex_float* alphaAsin );
+ElError ElAsin_z( complex_double alpha, complex_double* alphaAsin );
 
-float          ElAsinh_s( float alpha );
-double         ElAsinh_d( double alpha );
-complex_float  ElAsinh_c( complex_float alpha );
-complex_double ElAsinh_z( complex_double alpha );
+ElError ElAtan_s( float alpha, float* alphaAtan );
+ElError ElAtan_d( double alpha, double* alphaAtan );
+ElError ElAtan_c( complex_float alpha, complex_float* alphaAtan );
+ElError ElAtan_z( complex_double alpha, complex_double* alphaAtan );
 
-float          ElAtanh_s( float alpha );
-double         ElAtanh_d( double alpha );
-complex_float  ElAtanh_c( complex_float alpha );
-complex_double ElAtanh_z( complex_double alpha );
+ElError ElAtan2_s( float y, float x, float* result );
+ElError ElAtan2_d( double y, double x, double* result );
 
-float  ElArg_s( float alpha );
-double ElArg_d( double alpha );
-float  ElArg_c( complex_float alpha );
-double ElArg_z( complex_double alpha );
+/* Hyperbolic
+   ========== */
+ElError ElCosh_s( float alpha, float* alphaCosh );
+ElError ElCosh_d( double alpha, double* alphaCosh );
+ElError ElCosh_c( complex_float alpha, complex_float* alphaCosh );
+ElError ElCosh_z( complex_double alpha, complex_double* alphaCosh );
 
-complex_float  ElPolar_c( float r, float theta );
-complex_double ElPolar_z( double r, double theta );
+ElError ElSinh_s( float alpha, float* alphaSinh );
+ElError ElSinh_d( double alpha, double* alphaSinh );
+ElError ElSinh_c( complex_float alpha, complex_float* alphaSinh );
+ElError ElSinh_z( complex_double alpha, complex_double* alphaSinh );
 
-float          ElExp_s( float alpha );
-double         ElExp_d( double alpha );
-complex_float  ElExp_c( complex_float alpha );
-complex_double ElExp_z( complex_double alpha );
+ElError ElTanh_s( float alpha, float* alphaTanh );
+ElError ElTanh_d( double alpha, double* alphaTanh );
+ElError ElTanh_c( complex_float alpha, complex_float* alphaTanh );
+ElError ElTanh_z( complex_double alpha, complex_double* alphaTanh );
 
-float          ElPow_s( float alpha, float beta );
-double         ElPow_d( double alpha, double beta );
-complex_float  ElPow_c( complex_float apha, complex_float beta );
-complex_double ElPow_z( complex_double alpha, complex_double beta );
+/* Inverse hyperbolic
+   ------------------ */
+ElError ElAcosh_s( float alpha, float* alphaAcosh );
+ElError ElAcosh_d( double alpha, double* alphaAcosh );
+ElError ElAcosh_c( complex_float alpha, complex_float* alphaAcosh );
+ElError ElAcosh_z( complex_double alpha, complex_double* alphaAcosh );
 
-float          ElLog_s( float alpha );
-double         ElLog_d( double alpha );
-complex_double ElLog_c( complex_float alpha );
-complex_double ElLog_z( complex_double alpha );
+ElError ElAsinh_s( float alpha, float* alphaAsinh );
+ElError ElAsinh_d( double alpha, double* alphaAsinh );
+ElError ElAsinh_c( complex_float alpha, complex_float* alphaAsinh );
+ElError ElAsinh_z( complex_double alpha, complex_double* alphaAsinh );
+
+ElError ElAtanh_s( float alpha, float* alphaAtanh );
+ElError ElAtanh_d( double alpha, double* alphaAtanh );
+ElError ElAtanh_c( complex_float alpha, complex_float* alphaAtanh );
+ElError ElAtanh_z( complex_double alpha, complex_double* alphaAtanh );
 
 #ifdef __cplusplus
 } // extern "C"

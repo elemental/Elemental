@@ -166,8 +166,8 @@ extern "C" {
                       DM_CAST_CONST(F,Gamma), DM_CAST(F,X), \
                       CReflect(alg) ) ) }
 
-#define C_PROTO_REAL(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F)
+#define C_PROTO_REAL(SIG,F) \
+  C_PROTO_FIELD(SIG,SIG,F)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \

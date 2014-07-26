@@ -8,17 +8,17 @@
 */
 
 #ifndef C_PROTO_INT
-# define C_PROTO_INT(SIG,SIGBASE,T) C_PROTO(SIG,SIGBASE,T)
+# define C_PROTO_INT(SIG,T) C_PROTO(SIG,SIG,T)
 #endif
 
 #ifndef C_PROTO_REAL 
-# define C_PROTO_REAL(SIG,SIGBASE,T) C_PROTO(SIG,SIGBASE,T)
+# define C_PROTO_REAL(SIG,T) C_PROTO(SIG,SIG,T)
 #endif
 #ifndef C_PROTO_FLOAT
-# define C_PROTO_FLOAT C_PROTO_REAL(s,s,float)
+# define C_PROTO_FLOAT C_PROTO_REAL(s,float)
 #endif
 #ifndef C_PROTO_DOUBLE
-# define C_PROTO_DOUBLE C_PROTO_REAL(d,d,double)
+# define C_PROTO_DOUBLE C_PROTO_REAL(d,double)
 #endif
 
 #ifndef C_PROTO_COMPLEX
@@ -32,7 +32,7 @@
 #endif
 
 #ifndef EL_NO_INT_PROTO
-C_PROTO_INT(i,i,Int)
+C_PROTO_INT(i,Int)
 #endif
 
 #ifndef EL_NO_REAL_PROTO

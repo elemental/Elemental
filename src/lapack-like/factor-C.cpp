@@ -506,8 +506,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
       DM_CAST_CONST(F,A), DM_VR_STAR_CAST(Int,pR), DM_VR_STAR_CAST(Int,pC), \
       DM_CAST(F,Z), CReflect(ctrl) ) ) }
 
-#define C_PROTO_REAL(SIG,SIGBASE,F) \
-  C_PROTO_FIELD(SIG,SIGBASE,F) \
+#define C_PROTO_REAL(SIG,F) \
+  C_PROTO_FIELD(SIG,SIG,F) \
   /* LDL factorization 
      ================= */ \
   /* Return the packed LDL factorization (without pivoting) */ \

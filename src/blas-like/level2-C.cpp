@@ -151,11 +151,11 @@ extern "C" {
         CReflect(uplo), CReflect(orientation), CReflect(diag), \
         DM_CAST_CONST(F,A), DM_CAST(F,x) ) ) }
 
-#define C_PROTO_INT(SIG,SIGBASE,T) C_PROTO_BASE(SIG,SIGBASE,T)
+#define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 
-#define C_PROTO_REAL(SIG,SIGBASE,T) \
-  C_PROTO_BASE(SIG,SIGBASE,T) \
-  C_PROTO_FIELD(SIG,SIGBASE,T) \
+#define C_PROTO_REAL(SIG,T) \
+  C_PROTO_BASE(SIG,SIG,T) \
+  C_PROTO_FIELD(SIG,SIG,T) \
   /* Trr */ \
   ElError ElTrr_ ## SIG \
   ( ElUpperOrLower uplo, \
