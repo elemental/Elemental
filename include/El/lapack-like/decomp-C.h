@@ -745,6 +745,79 @@ ElError ElHermitianPolarDecompDist_z
 
 /* TODO: Expert versions */
 
+/* Schur decomposition
+   =================== */
+
+/* Compute just the eigenvalues (and perhaps the Schur factor)
+   ----------------------------------------------------------- */
+ElError ElSchur_s( ElMatrix_s A, ElMatrix_c w, bool fullTriangle );
+ElError ElSchur_d( ElMatrix_d A, ElMatrix_z w, bool fullTriangle );
+ElError ElSchur_c( ElMatrix_c A, ElMatrix_c w, bool fullTriangle );
+ElError ElSchur_z( ElMatrix_z A, ElMatrix_z w, bool fullTriangle );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         'w' must be in a [VR,STAR] distribution  */
+ElError ElSchurDist_s( ElDistMatrix_s A, ElDistMatrix_c w, bool fullTriangle );
+ElError ElSchurDist_d( ElDistMatrix_d A, ElDistMatrix_z w, bool fullTriangle );
+ElError ElSchurDist_c( ElDistMatrix_c A, ElDistMatrix_c w, bool fullTriangle );
+ElError ElSchurDist_z( ElDistMatrix_z A, ElDistMatrix_z w, bool fullTriangle );
+
+/* Compute the eigvalues and Schur vectors (and possibly Schur factor)
+   ------------------------------------------------------------------- */
+ElError ElSchurDecomp_s
+( ElMatrix_s A, ElMatrix_c w, ElMatrix_s Q, bool fullTriangle );
+ElError ElSchurDecomp_d
+( ElMatrix_d A, ElMatrix_z w, ElMatrix_d Q, bool fullTriangle );
+ElError ElSchurDecomp_c
+( ElMatrix_c A, ElMatrix_c w, ElMatrix_c Q, bool fullTriangle );
+ElError ElSchurDecomp_z
+( ElMatrix_z A, ElMatrix_z w, ElMatrix_z Q, bool fullTriangle );
+
+/* NOTE: 'A' and 'Q' must be in [MC,MR] distributions, while
+         'w' must be in a [VR,STAR] distribution  */
+ElError ElSchurDecompDist_s
+( ElDistMatrix_s A, ElDistMatrix_c w, ElDistMatrix_s Q, bool fullTriangle );
+ElError ElSchurDecompDist_d
+( ElDistMatrix_d A, ElDistMatrix_z w, ElDistMatrix_d Q, bool fullTriangle );
+ElError ElSchurDecompDist_c
+( ElDistMatrix_c A, ElDistMatrix_c w, ElDistMatrix_c Q, bool fullTriangle );
+ElError ElSchurDecompDist_z
+( ElDistMatrix_z A, ElDistMatrix_z w, ElDistMatrix_z Q, bool fullTriangle );
+
+/* TODO: Expert versions */
+/* TODO: QuasiTriangEig, CheckRealSchur, and RealToComplex */
+
+/* Singular Value Decomposition (SVD)
+   ================================== */
+
+/* Compute the singular values
+   --------------------------- */
+ElError ElSingularValues_s( ElMatrix_s A, ElMatrix_s s );
+ElError ElSingularValues_d( ElMatrix_d A, ElMatrix_d s );
+ElError ElSingularValues_c( ElMatrix_c A, ElMatrix_s s );
+ElError ElSingularValues_z( ElMatrix_z A, ElMatrix_d s );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution, while
+         's' must be in a [VR,STAR] distribution */
+ElError ElSingularValuesDist_s( ElDistMatrix_s A, ElDistMatrix_s s );
+ElError ElSingularValuesDist_d( ElDistMatrix_d A, ElDistMatrix_d s );
+ElError ElSingularValuesDist_c( ElDistMatrix_c A, ElDistMatrix_s s );
+ElError ElSingularValuesDist_z( ElDistMatrix_z A, ElDistMatrix_d s );
+
+/* Compute the full SVD
+   -------------------- */
+ElError ElSVD_s( ElMatrix_s A, ElMatrix_s s, ElMatrix_s V );
+ElError ElSVD_d( ElMatrix_d A, ElMatrix_d s, ElMatrix_d V );
+ElError ElSVD_c( ElMatrix_c A, ElMatrix_s s, ElMatrix_c V );
+ElError ElSVD_z( ElMatrix_z A, ElMatrix_d s, ElMatrix_z V );
+
+/* NOTE: 'A' and 'V' must be in [MC,MR] distributions, while
+         's' must be in a [VR,STAR] distribution */
+ElError ElSVDDist_s( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
+ElError ElSVDDist_d( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
+ElError ElSVDDist_c( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
+ElError ElSVDDist_z( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

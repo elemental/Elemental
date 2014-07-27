@@ -378,13 +378,119 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A), *CReflect(P) ) ) } \
   ElError ElHermitianPolarDecompDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P ) \
-  { EL_TRY( HermitianPolar( CReflect(uplo), DM_CAST(F,A), DM_CAST(F,P) ) ) }
+  { EL_TRY( HermitianPolar( CReflect(uplo), DM_CAST(F,A), DM_CAST(F,P) ) ) } \
+  /* Singular Value Decomposition
+     ============================ */ \
+  /* Compute the singular values
+     --------------------------- */ \
+  ElError ElSingularValues_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s ) \
+  { EL_TRY( SVD( *CReflect(A), *CReflect(s) ) ) } \
+  ElError ElSingularValuesDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
+  { EL_TRY( SVD( DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,s) ) ) } \
+  /* Compute the full SVD
+     -------------------- */ \
+  ElError ElSVD_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIGBASE s, ElMatrix_ ## SIG V ) \
+  { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) } \
+  ElError ElSVDDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
+    ElDistMatrix_ ## SIG V ) \
+  { EL_TRY( SVD( DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,s), DM_CAST(F,V) ) ) }
+
+#define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
+  /* Schur decomposition
+     =================== */ \
+  /* Compute the eigenvalues (and possibly Schur factor) 
+     --------------------------------------------------- */ \
+  ElError ElSchur_ ## SIGBASE \
+  ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, bool fullTriangle ) \
+  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  ElError ElSchurDist_ ## SIGBASE \
+  ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
+  { EL_TRY( Schur( \
+      DM_CAST(Base<F>,A), DM_VR_STAR_CAST(F,w), fullTriangle ) ) } \
+  ElError ElSchur_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, bool fullTriangle ) \
+  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  ElError ElSchurDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
+  { EL_TRY( Schur( DM_CAST(F,A), DM_VR_STAR_CAST(F,w), fullTriangle ) ) } \
+  /* Compute the eigvalues and Schur vectors (and possibly Schur factor)
+     ------------------------------------------------------------------- */ \
+  ElError ElSchurDecomp_ ## SIGBASE \
+  ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, ElMatrix_ ## SIGBASE Q, \
+    bool fullTriangle ) \
+  { EL_TRY( Schur( \
+      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  ElError ElSchurDecompDist_ ## SIGBASE \
+  ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, \
+    ElDistMatrix_ ## SIGBASE Q, bool fullTriangle ) \
+  { EL_TRY( Schur( \
+      DM_CAST(Base<F>,A), DM_VR_STAR_CAST(F,w), DM_CAST(Base<F>,Q), \
+      fullTriangle ) ) } \
+  ElError ElSchurDecomp_ ## SIG \
+  ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, \
+    ElMatrix_ ## SIG Q, bool fullTriangle ) \
+  { EL_TRY( Schur( \
+      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  ElError ElSchurDecompDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, \
+    ElDistMatrix_ ## SIG Q, bool fullTriangle ) \
+  { EL_TRY( Schur( \
+      DM_CAST(F,A), DM_VR_STAR_CAST(F,w), DM_CAST(F,Q), fullTriangle ) ) }
+
+#define C_PROTO_DOUBLE_ONLY(SIG,SIGBASE,F) \
+  /* HermitianTridiagEig
+     =================== */ \
+  /* Compute all eigenvalues
+     ----------------------- */ \
+  ElError ElHermitianTridiagEigDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
+  { EL_TRY( HermitianTridiagEig( \
+      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
+      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort) ) ) } \
+  /* Compute all eigenpairs
+     ---------------------- */ \
+  ElError ElHermitianTridiagEigPairDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
+  { EL_TRY( HermitianTridiagEig( \
+      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
+      DM_VR_STAR_CAST(Base<F>,w), DM_STAR_VR_CAST(F,Z), \
+      CReflect(sort) ) ) } \
+  /* Compute a subset of eigenvalues
+     ------------------------------- */ \
+  ElError ElHermitianTridiagEigPartialDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, \
+    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianTridiagEig( \
+      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
+      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort), CReflect(subset) ) ) } \
+  /* Compute a subset of eigenpairs
+     ------------------------------ */ \
+  ElError ElHermitianTridiagEigPairPartialDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
+    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, \
+    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
+  { EL_TRY( HermitianTridiagEig( \
+      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
+      DM_VR_STAR_CAST(Base<F>,w), DM_STAR_VR_CAST(F,Z), \
+      CReflect(sort), CReflect(subset) ) ) }
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F)
 
+#define C_PROTO_DOUBLE \
+  C_PROTO_FIELD(d,d,double) \
+  C_PROTO_DOUBLE_ONLY(d,d,double)
+
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \
+  C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* SkewHermitianEig
      ================ */ \
   /* Return all eigenpairs
@@ -444,53 +550,10 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
       CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
       DM_CAST(F,Z), CReflect(sort), CReflect(subset) ) ) }
 
-#define C_PROTO_DOUBLE_ONLY(SIG,SIGBASE,F) \
-  /* HermitianTridiagEig
-     =================== */ \
-  /* Compute all eigenvalues
-     ----------------------- */ \
-  ElError ElHermitianTridiagEigDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
-  { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort) ) ) } \
-  /* Compute all eigenpairs
-     ---------------------- */ \
-  ElError ElHermitianTridiagEigPairDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
-  { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), DM_STAR_VR_CAST(F,Z), \
-      CReflect(sort) ) ) } \
-  /* Compute a subset of eigenvalues
-     ------------------------------- */ \
-  ElError ElHermitianTridiagEigPartialDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, \
-    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort), CReflect(subset) ) ) } \
-  /* Compute a subset of eigenpairs
-     ------------------------------ */ \
-  ElError ElHermitianTridiagEigPairPartialDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
-    ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, \
-    ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), DM_STAR_VR_CAST(F,Z), \
-      CReflect(sort), CReflect(subset) ) ) }
-
-#define C_PROTO_DOUBLE \
-  C_PROTO_FIELD(d,d,double) \
-  C_PROTO_DOUBLE_ONLY(d,d,double)
-
 #define C_PROTO_COMPLEX_DOUBLE \
   C_PROTO_FIELD(z,d,Complex<double>) \
-  C_PROTO_DOUBLE_ONLY(z,d,Complex<double>)
+  C_PROTO_DOUBLE_ONLY(z,d,Complex<double>) \
+  C_PROTO_COMPLEX_ONLY(z,d,Complex<double>)
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"

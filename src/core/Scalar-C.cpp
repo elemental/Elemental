@@ -67,11 +67,11 @@ extern "C" {
   ElError ElAtanh_ ## SIG ( CREFLECT(F) alpha, CREFLECT(F)* alphaAtanh ) \
   { EL_TRY( *alphaAtanh = CReflect(Atanh(CReflect(alpha))) ) }
 
-#define C_PROTO_REALONLY(SIG,F) \
-  ELError ElAtan2_ ## SIG ( Base<F> y, Base<F> x, Base<F>* result ) \
+#define C_PROTO_REAL_ONLY(SIG,F) \
+  ElError ElAtan2_ ## SIG ( Base<F> y, Base<F> x, Base<F>* result ) \
   { EL_TRY( *result = Atan2( y, x ) ) }
 
-#define C_PROTO_COMPLEXONLY(SIG,SIGBASE,F) \
+#define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Basic complex entry manipulation
      ================================ */ \
   ElError ElRealPart_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaReal ) \
@@ -103,11 +103,12 @@ extern "C" {
   { EL_TRY( *alphaAbs = Abs(alpha) ) }
 
 #define C_PROTO_REAL(SIG,F) \
-  C_PROTO_FIELD(SIG,SIG,F)
+  C_PROTO_FIELD(SIG,SIG,F) \
+  C_PROTO_REAL_ONLY(SIG,F)
 
 #define C_PROTO_COMPLEX(SIG,SIGBASE,F) \
   C_PROTO_FIELD(SIG,SIGBASE,F) \
-  C_PROTO_COMPLEXONLY(SIG,SIGBASE,F)
+  C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F)
 
 #include "El/macros/CInstantiate.h"
 
