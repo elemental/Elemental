@@ -81,6 +81,34 @@ void Write
     }
 }
 
+template<typename T>
+void Write
+( const AbstractDistMatrix<T>& A, std::string basename, FileFormat format,
+  std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Write"))
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+      Write( ACast, basename, format, title );
+    #include "El/macros/GuardAndPayload.h"
+}
+
+template<typename T>
+void Write
+( const AbstractBlockDistMatrix<T>& A, std::string basename, FileFormat format,
+  std::string title )
+{
+    DEBUG_ONLY(CallStackEntry cse("Write"))
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
+      Write( ACast, basename, format, title );
+    #include "El/macros/GuardAndPayload.h"
+}
+
 #define PROTO_DIST(T,U,V) \
   template void Write \
   ( const DistMatrix<T,U,V>& A, \
@@ -92,6 +120,12 @@ void Write
 #define PROTO(T) \
   template void Write \
   ( const Matrix<T>& A, \
+    std::string basename, FileFormat format, std::string title ); \
+  template void Write \
+  ( const AbstractDistMatrix<T>& A, \
+    std::string basename, FileFormat format, std::string title ); \
+  template void Write \
+  ( const AbstractBlockDistMatrix<T>& A, \
     std::string basename, FileFormat format, std::string title ); \
   PROTO_DIST(T,CIRC,CIRC) \
   PROTO_DIST(T,MC,  MR  ) \

@@ -55,6 +55,17 @@ template<typename T>
 inline void DynamicCastCheck( T* A )
 { if( A == nullptr ) RuntimeError("Dynamic cast failed"); }
 
+inline std::string CReflect( const char* name )
+{ return std::string(name); }
+// NOTE: This creates a deep copy and the pointer should be deleted later
+inline char* CReflect( const std::string& name ) 
+{
+    const auto size = name.size();
+    char* buffer = new char[size+1];
+    memcpy( buffer, name.c_str(), size+1 );
+    return buffer;
+}
+
 inline Orientation CReflect( ElOrientation orient ) 
 { return static_cast<Orientation>(orient); }
 inline ElOrientation CReflect( Orientation orient )
@@ -201,8 +212,7 @@ inline ValueIntPair<double> CReflect( ElValueIntPair_d entryC )
 inline ElValueIntPair_d CReflect( ValueIntPair<double> entry )
 { return {entry.value,{entry.indices[0],entry.indices[1]}}; }
 
-inline ValueIntPair<Complex<float>> CReflect( ElValueIntPair_c entryC )
-{ return {CReflect(entryC.value),{entryC.indices[0],entryC.indices[1]}}; }
+inline ValueIntPair<Complex<float>> CReflect( ElValueIntPair_c entryC ) { return {CReflect(entryC.value),{entryC.indices[0],entryC.indices[1]}}; }
 inline ElValueIntPair_c CReflect( ValueIntPair<Complex<float>> entry )
 { return {CReflect(entry.value),{entry.indices[0],entry.indices[1]}}; }
 
@@ -367,7 +377,7 @@ inline ElDistData CReflect( const DistData& data )
     return distData;
 }
 
-inline DistData CReflect( const ElDistData distData )
+inline DistData CReflect( const ElDistData& distData )
 {
     DistData data;
     data.colDist = CReflect(distData.colDist);
@@ -378,6 +388,18 @@ inline DistData CReflect( const ElDistData distData )
     data.grid = CReflect(distData.grid);
     return data;
 }
+
+// Input/Output
+// ------------
+inline ElFileFormat CReflect( FileFormat format )
+{ return static_cast<ElFileFormat>(format); }
+inline FileFormat CReflect( ElFileFormat format )
+{ return static_cast<FileFormat>(format); }
+
+inline ElColorMap CReflect( ColorMap map )
+{ return static_cast<ElColorMap>(map); }
+inline ColorMap CReflect( ElColorMap map )
+{ return static_cast<ColorMap>(map); }
 
 // BLAS-like
 // ---------
@@ -406,7 +428,7 @@ CReflect( ElHermitianTridiagApproach approach )
 { return static_cast<HermitianTridiagApproach>( approach ); }
 
 inline ElHermitianTridiagCtrl
-CReflect( HermitianTridiagCtrl ctrl )
+CReflect( const HermitianTridiagCtrl& ctrl )
 { 
     ElHermitianTridiagCtrl ctrlC;
     ctrlC.approach = CReflect(ctrl.approach);
@@ -415,7 +437,7 @@ CReflect( HermitianTridiagCtrl ctrl )
 }
 
 inline HermitianTridiagCtrl
-CReflect( ElHermitianTridiagCtrl ctrlC )
+CReflect( const ElHermitianTridiagCtrl& ctrlC )
 { 
     HermitianTridiagCtrl ctrl;
     ctrl.approach = CReflect(ctrlC.approach);
@@ -434,7 +456,7 @@ inline Pencil CReflect( ElPencil pencil )
 { return static_cast<Pencil>(pencil); }
 
 /* HermitianSdcCtrl */
-inline ElHermitianSdcCtrl_s CReflect( HermitianSdcCtrl<float> ctrl )
+inline ElHermitianSdcCtrl_s CReflect( const HermitianSdcCtrl<float>& ctrl )
 {
     ElHermitianSdcCtrl_s ctrlC;
     ctrlC.cutoff = ctrl.cutoff;
@@ -445,7 +467,7 @@ inline ElHermitianSdcCtrl_s CReflect( HermitianSdcCtrl<float> ctrl )
     ctrlC.progress = ctrl.progress;
     return ctrlC;
 }
-inline ElHermitianSdcCtrl_d CReflect( HermitianSdcCtrl<double> ctrl )
+inline ElHermitianSdcCtrl_d CReflect( const HermitianSdcCtrl<double>& ctrl )
 {
     ElHermitianSdcCtrl_d ctrlC;
     ctrlC.cutoff = ctrl.cutoff;
@@ -457,7 +479,7 @@ inline ElHermitianSdcCtrl_d CReflect( HermitianSdcCtrl<double> ctrl )
     return ctrlC;
 }
 
-inline HermitianSdcCtrl<float> CReflect( ElHermitianSdcCtrl_s ctrlC )
+inline HermitianSdcCtrl<float> CReflect( const ElHermitianSdcCtrl_s& ctrlC )
 {
     HermitianSdcCtrl<float> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
@@ -468,7 +490,7 @@ inline HermitianSdcCtrl<float> CReflect( ElHermitianSdcCtrl_s ctrlC )
     ctrl.progress = ctrlC.progress;
     return ctrl;
 }
-inline HermitianSdcCtrl<double> CReflect( ElHermitianSdcCtrl_d ctrlC )
+inline HermitianSdcCtrl<double> CReflect( const ElHermitianSdcCtrl_d& ctrlC )
 {
     HermitianSdcCtrl<double> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
@@ -481,7 +503,8 @@ inline HermitianSdcCtrl<double> CReflect( ElHermitianSdcCtrl_d ctrlC )
 }
 
 /* HermitianEigSubset */
-inline ElHermitianEigSubset_s CReflect( HermitianEigSubset<float> subset )
+inline ElHermitianEigSubset_s CReflect
+( const HermitianEigSubset<float>& subset )
 {
     ElHermitianEigSubset_s subsetC;
     subsetC.indexSubset = subset.indexSubset;
@@ -492,7 +515,8 @@ inline ElHermitianEigSubset_s CReflect( HermitianEigSubset<float> subset )
     subsetC.upperBound = subset.upperBound;
     return subsetC;
 }
-inline ElHermitianEigSubset_d CReflect( HermitianEigSubset<double> subset )
+inline ElHermitianEigSubset_d CReflect
+( const HermitianEigSubset<double>& subset )
 {
     ElHermitianEigSubset_d subsetC;
     subsetC.indexSubset = subset.indexSubset;
@@ -504,7 +528,8 @@ inline ElHermitianEigSubset_d CReflect( HermitianEigSubset<double> subset )
     return subsetC;
 }
 
-inline HermitianEigSubset<float> CReflect( ElHermitianEigSubset_s subsetC )
+inline HermitianEigSubset<float> CReflect
+( const ElHermitianEigSubset_s& subsetC )
 {
     HermitianEigSubset<float> subset;
     subset.indexSubset = subsetC.indexSubset;
@@ -515,7 +540,8 @@ inline HermitianEigSubset<float> CReflect( ElHermitianEigSubset_s subsetC )
     subset.upperBound = subsetC.upperBound;
     return subset;
 }
-inline HermitianEigSubset<double> CReflect( ElHermitianEigSubset_d subsetC )
+inline HermitianEigSubset<double> CReflect
+( const ElHermitianEigSubset_d& subsetC )
 {
     HermitianEigSubset<double> subset;
     subset.indexSubset = subsetC.indexSubset;
@@ -528,7 +554,7 @@ inline HermitianEigSubset<double> CReflect( ElHermitianEigSubset_d subsetC )
 }
 
 /* HermitianEigCtrl */
-inline ElHermitianEigCtrl_s CReflect( HermitianEigCtrl<float> ctrl )
+inline ElHermitianEigCtrl_s CReflect( const HermitianEigCtrl<float>& ctrl )
 {
     ElHermitianEigCtrl_s ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
@@ -536,7 +562,7 @@ inline ElHermitianEigCtrl_s CReflect( HermitianEigCtrl<float> ctrl )
     ctrlC.useSdc = ctrl.useSdc;
     return ctrlC;
 }
-inline ElHermitianEigCtrl_d CReflect( HermitianEigCtrl<double> ctrl )
+inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
 {
     ElHermitianEigCtrl_d ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
@@ -545,7 +571,7 @@ inline ElHermitianEigCtrl_d CReflect( HermitianEigCtrl<double> ctrl )
     return ctrlC;
 }
 
-inline HermitianEigCtrl<float> CReflect( ElHermitianEigCtrl_s ctrlC )
+inline HermitianEigCtrl<float> CReflect( const ElHermitianEigCtrl_s& ctrlC )
 {
     HermitianEigCtrl<float> ctrl;
     ctrl.tridiagCtrl = CReflect( ctrlC.tridiagCtrl );
@@ -553,7 +579,7 @@ inline HermitianEigCtrl<float> CReflect( ElHermitianEigCtrl_s ctrlC )
     ctrl.useSdc = ctrlC.useSdc;
     return ctrl;
 }
-inline HermitianEigCtrl<double> CReflect( ElHermitianEigCtrl_d ctrlC )
+inline HermitianEigCtrl<double> CReflect( const ElHermitianEigCtrl_d& ctrlC )
 {
     HermitianEigCtrl<double> ctrl;
     ctrl.tridiagCtrl = CReflect( ctrlC.tridiagCtrl );
@@ -563,7 +589,7 @@ inline HermitianEigCtrl<double> CReflect( ElHermitianEigCtrl_d ctrlC )
 }
 
 /* PolarCtrl */
-inline ElPolarCtrl CReflect( PolarCtrl ctrl )
+inline ElPolarCtrl CReflect( const PolarCtrl& ctrl )
 {
     ElPolarCtrl ctrlC;
     ctrlC.qdwh = ctrl.qdwh;
@@ -573,7 +599,7 @@ inline ElPolarCtrl CReflect( PolarCtrl ctrl )
     return ctrlC;
 }
 
-inline PolarCtrl CReflect( ElPolarCtrl ctrlC )
+inline PolarCtrl CReflect( const ElPolarCtrl& ctrlC )
 {
     PolarCtrl ctrl;
     ctrl.qdwh = ctrlC.qdwh;
@@ -584,7 +610,7 @@ inline PolarCtrl CReflect( ElPolarCtrl ctrlC )
 }
 
 /* HessQrCtrl */
-inline ElHessQrCtrl CReflect( HessQrCtrl ctrl )
+inline ElHessQrCtrl CReflect( const HessQrCtrl& ctrl )
 {
     ElHessQrCtrl ctrlC;
     ctrlC.aed = ctrl.aed;
@@ -593,7 +619,7 @@ inline ElHessQrCtrl CReflect( HessQrCtrl ctrl )
     return ctrlC;
 }
 
-inline HessQrCtrl CReflect( ElHessQrCtrl ctrlC )
+inline HessQrCtrl CReflect( const ElHessQrCtrl& ctrlC )
 {
     HessQrCtrl ctrl;
     ctrl.aed = ctrlC.aed;
@@ -603,7 +629,7 @@ inline HessQrCtrl CReflect( ElHessQrCtrl ctrlC )
 }
 
 /* SdcCtrl */
-inline ElSdcCtrl_s CReflect( SdcCtrl<float> ctrl )
+inline ElSdcCtrl_s CReflect( const SdcCtrl<float>& ctrl )
 {
     ElSdcCtrl_s ctrlC;    
     ctrlC.cutoff = ctrl.cutoff;
@@ -615,7 +641,7 @@ inline ElSdcCtrl_s CReflect( SdcCtrl<float> ctrl )
     ctrlC.progress = ctrl.progress;
     return ctrlC;
 }
-inline ElSdcCtrl_d CReflect( SdcCtrl<double> ctrl )
+inline ElSdcCtrl_d CReflect( const SdcCtrl<double>& ctrl )
 {
     ElSdcCtrl_d ctrlC;    
     ctrlC.cutoff = ctrl.cutoff;
@@ -628,7 +654,7 @@ inline ElSdcCtrl_d CReflect( SdcCtrl<double> ctrl )
     return ctrlC;
 }
 
-inline SdcCtrl<float> CReflect( ElSdcCtrl_s ctrlC )
+inline SdcCtrl<float> CReflect( const ElSdcCtrl_s& ctrlC )
 {
     SdcCtrl<float> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
@@ -640,7 +666,7 @@ inline SdcCtrl<float> CReflect( ElSdcCtrl_s ctrlC )
     ctrl.progress = ctrlC.progress;
     return ctrl;
 }
-inline SdcCtrl<double> CReflect( ElSdcCtrl_d ctrlC )
+inline SdcCtrl<double> CReflect( const ElSdcCtrl_d& ctrlC )
 {
     SdcCtrl<double> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
@@ -654,7 +680,7 @@ inline SdcCtrl<double> CReflect( ElSdcCtrl_d ctrlC )
 }
 
 /* SchurCtrl */
-inline ElSchurCtrl_s CReflect( SchurCtrl<float> ctrl )
+inline ElSchurCtrl_s CReflect( const SchurCtrl<float>& ctrl )
 {
     ElSchurCtrl_s ctrlC;
     ctrlC.useSdc = ctrl.useSdc;
@@ -662,7 +688,7 @@ inline ElSchurCtrl_s CReflect( SchurCtrl<float> ctrl )
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     return ctrlC;
 }
-inline ElSchurCtrl_d CReflect( SchurCtrl<double> ctrl )
+inline ElSchurCtrl_d CReflect( const SchurCtrl<double>& ctrl )
 {
     ElSchurCtrl_d ctrlC;
     ctrlC.useSdc = ctrl.useSdc;
@@ -671,7 +697,7 @@ inline ElSchurCtrl_d CReflect( SchurCtrl<double> ctrl )
     return ctrlC;
 }
 
-inline SchurCtrl<float> CReflect( ElSchurCtrl_s ctrlC )
+inline SchurCtrl<float> CReflect( const ElSchurCtrl_s& ctrlC )
 {
     SchurCtrl<float> ctrl;
     ctrl.useSdc = ctrlC.useSdc;
@@ -679,7 +705,7 @@ inline SchurCtrl<float> CReflect( ElSchurCtrl_s ctrlC )
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     return ctrl;
 }
-inline SchurCtrl<double> CReflect( ElSchurCtrl_d ctrlC )
+inline SchurCtrl<double> CReflect( const ElSchurCtrl_d& ctrlC )
 {
     SchurCtrl<double> ctrl;
     ctrl.useSdc = ctrlC.useSdc;
@@ -696,7 +722,7 @@ inline ElLDLPivotType CReflect( LDLPivotType pivotType )
 inline LDLPivotType CReflect( ElLDLPivotType pivotType )
 { return static_cast<LDLPivotType>( pivotType ); }
 
-inline ElLDLPivot CReflect( LDLPivot pivot )
+inline ElLDLPivot CReflect( const LDLPivot& pivot )
 {
     ElLDLPivot pivotC;
     pivotC.nb = pivot.nb;
@@ -705,7 +731,7 @@ inline ElLDLPivot CReflect( LDLPivot pivot )
     return pivotC;
 }
 
-inline LDLPivot CReflect( ElLDLPivot pivotC )
+inline LDLPivot CReflect( const ElLDLPivot& pivotC )
 {
     LDLPivot pivot;
     pivot.nb = pivotC.nb;
@@ -714,7 +740,7 @@ inline LDLPivot CReflect( ElLDLPivot pivotC )
     return pivot;
 }
 
-inline ElInertiaType CReflect( InertiaType inertia )
+inline ElInertiaType CReflect( const InertiaType& inertia )
 { 
     ElInertiaType inertiaC;
     inertiaC.numPositive = inertia.numPositive;
@@ -723,7 +749,7 @@ inline ElInertiaType CReflect( InertiaType inertia )
     return inertiaC;
 }
 
-inline InertiaType CReflect( ElInertiaType inertiaC )
+inline InertiaType CReflect( const ElInertiaType& inertiaC )
 { 
     InertiaType inertia;
     inertia.numPositive = inertiaC.numPositive;
@@ -732,7 +758,7 @@ inline InertiaType CReflect( ElInertiaType inertiaC )
     return inertia;
 }
 
-inline ElQRCtrl_s CReflect( QRCtrl<float> ctrl )
+inline ElQRCtrl_s CReflect( const QRCtrl<float>& ctrl )
 { 
     ElQRCtrl_s ctrlC;
     ctrlC.boundRank = ctrl.boundRank;
@@ -742,7 +768,7 @@ inline ElQRCtrl_s CReflect( QRCtrl<float> ctrl )
     ctrlC.alwaysRecomputeNorms = ctrl.alwaysRecomputeNorms;
     return ctrlC;
 }
-inline ElQRCtrl_d CReflect( QRCtrl<double> ctrl )
+inline ElQRCtrl_d CReflect( const QRCtrl<double>& ctrl )
 { 
     ElQRCtrl_d ctrlC;
     ctrlC.boundRank = ctrl.boundRank;
@@ -753,7 +779,7 @@ inline ElQRCtrl_d CReflect( QRCtrl<double> ctrl )
     return ctrlC;
 }
 
-inline QRCtrl<float> CReflect( ElQRCtrl_s ctrlC )
+inline QRCtrl<float> CReflect( const ElQRCtrl_s& ctrlC )
 { 
     QRCtrl<float> ctrl;
     ctrl.boundRank = ctrlC.boundRank;
@@ -763,7 +789,7 @@ inline QRCtrl<float> CReflect( ElQRCtrl_s ctrlC )
     ctrl.alwaysRecomputeNorms = ctrlC.alwaysRecomputeNorms;
     return ctrl;
 }
-inline QRCtrl<double> CReflect( ElQRCtrl_d ctrlC )
+inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
 { 
     QRCtrl<double> ctrl;
     ctrl.boundRank = ctrlC.boundRank;
@@ -771,6 +797,50 @@ inline QRCtrl<double> CReflect( ElQRCtrl_d ctrlC )
     ctrl.adaptive = ctrlC.adaptive;
     ctrl.tol = ctrlC.tol;
     ctrl.alwaysRecomputeNorms = ctrlC.alwaysRecomputeNorms;
+    return ctrl;
+}
+
+// Properties
+// ^^^^^^^^^^
+inline ElPseudospecNorm CReflect( PseudospecNorm psNorm )
+{ return static_cast<ElPseudospecNorm>(psNorm); }
+inline PseudospecNorm CReflect( ElPseudospecNorm psNorm )
+{ return static_cast<PseudospecNorm>(psNorm); }
+
+inline ElSnapshotCtrl CReflect( const SnapshotCtrl& ctrl )
+{
+    ElSnapshotCtrl ctrlC;
+    ctrlC.realSize = ctrl.realSize; 
+    ctrlC.imagSize = ctrl.imagSize;
+    ctrlC.imgSaveFreq = ctrl.imgSaveFreq;
+    ctrlC.numSaveFreq = ctrl.numSaveFreq;
+    ctrlC.imgDispFreq = ctrl.imgDispFreq;
+    ctrlC.imgSaveCount = ctrl.imgSaveCount;
+    ctrlC.numSaveCount = ctrl.numSaveCount;
+    ctrlC.imgDispCount = ctrl.imgDispCount;
+    ctrlC.imgBase = CReflect(ctrl.imgBase);
+    ctrlC.numBase = CReflect(ctrl.numBase);
+    ctrlC.imgFormat = CReflect(ctrl.imgFormat);
+    ctrlC.numFormat = CReflect(ctrl.numFormat);
+    ctrlC.itCounts = ctrl.itCounts;
+    return ctrlC;
+}
+inline SnapshotCtrl CReflect( const ElSnapshotCtrl& ctrlC )
+{
+    SnapshotCtrl ctrl;
+    ctrl.realSize = ctrlC.realSize; 
+    ctrl.imagSize = ctrlC.imagSize;
+    ctrl.imgSaveFreq = ctrlC.imgSaveFreq;
+    ctrl.numSaveFreq = ctrlC.numSaveFreq;
+    ctrl.imgDispFreq = ctrlC.imgDispFreq;
+    ctrl.imgSaveCount = ctrlC.imgSaveCount;
+    ctrl.numSaveCount = ctrlC.numSaveCount;
+    ctrl.imgDispCount = ctrlC.imgDispCount;
+    ctrl.imgBase = CReflect(ctrlC.imgBase);
+    ctrl.numBase = CReflect(ctrlC.numBase);
+    ctrl.imgFormat = CReflect(ctrlC.imgFormat);
+    ctrl.numFormat = CReflect(ctrlC.numFormat);
+    ctrl.itCounts = ctrlC.itCounts;
     return ctrl;
 }
 

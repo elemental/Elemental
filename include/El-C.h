@@ -19,6 +19,9 @@
 #include "El/core/Grid-C.h"
 #include "El/core/Matrix-C.h"
 #include "El/core/DistMatrix-C.h"
+
+#include "El/io-C.h"
+
 #include "El/blas-like/level1-C.h"
 #include "El/blas-like/level2-C.h"
 #include "El/blas-like/level3-C.h"
@@ -27,8 +30,8 @@
 #include "El/lapack-like/solve-C.h"
 #include "El/lapack-like/funcs-C.h"
 #include "El/lapack-like/decomp-C.h"
+#include "El/lapack-like/props-C.h"
 
-#include "El/io-C.h"
 #include "El/matrices-C.h"
 
 #ifdef __cplusplus

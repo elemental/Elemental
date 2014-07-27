@@ -159,6 +159,34 @@ void Read
     }
 }
 
+template<typename T>
+void Read
+( AbstractDistMatrix<T>& A, const std::string filename, FileFormat format,
+  bool sequential )
+{
+    DEBUG_ONLY(CallStackEntry cse("Read"))
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+      Read( ACast, filename, format, sequential );
+    #include "El/macros/GuardAndPayload.h"
+}
+
+template<typename T>
+void Read
+( AbstractBlockDistMatrix<T>& A, const std::string filename, FileFormat format,
+  bool sequential )
+{
+    DEBUG_ONLY(CallStackEntry cse("Read"))
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(A); \
+      Read( ACast, filename, format, sequential );
+    #include "El/macros/GuardAndPayload.h"
+}
+
 #define PROTO_DIST(T,U,V) \
   template void Read \
   ( DistMatrix<T,U,V>& A, const std::string filename, FileFormat format, \
@@ -170,6 +198,12 @@ void Read
 #define PROTO(T) \
   template void Read \
   ( Matrix<T>& A, const std::string filename, FileFormat format ); \
+  template void Read \
+  ( AbstractDistMatrix<T>& A, const std::string filename, \
+    FileFormat format, bool sequential ); \
+  template void Read \
+  ( AbstractBlockDistMatrix<T>& A, const std::string filename, \
+    FileFormat format, bool sequential ); \
   PROTO_DIST(T,CIRC,CIRC) \
   PROTO_DIST(T,MC,  MR  ) \
   PROTO_DIST(T,MC,  STAR) \

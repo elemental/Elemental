@@ -113,6 +113,11 @@ void Print
   ( const std::vector<T>& x, std::string title, std::ostream& os ); \
   template void Print \
   ( const Matrix<T>& A, std::string title, std::ostream& os ); \
+  template void Print \
+  ( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os ); \
+  template void Print \
+  ( const AbstractBlockDistMatrix<T>& A, \
+    std::string title, std::ostream& os ); \
   DISTPROTO(T,CIRC,CIRC); \
   DISTPROTO(T,MC,  MR  ); \
   DISTPROTO(T,MC,  STAR); \
@@ -126,11 +131,7 @@ void Print
   DISTPROTO(T,STAR,VC  ); \
   DISTPROTO(T,STAR,VR  ); \
   DISTPROTO(T,VC,  STAR); \
-  DISTPROTO(T,VR,  STAR); \
-  template void Print \
-  ( const AbstractDistMatrix<T>& A, std::string title, std::ostream& os ); \
-  template void Print \
-  ( const AbstractBlockDistMatrix<T>& A, std::string title, std::ostream& os ); 
+  DISTPROTO(T,VR,  STAR);
 
 #include "El/macros/Instantiate.h"
 

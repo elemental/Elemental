@@ -6,18 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef EL_IO_IMPL_HPP
-#define EL_IO_IMPL_HPP
-
-#include "./Display.hpp"
-// TODO: Distribution plot
-#include "./Print.hpp"
-#include "./Spy.hpp"
+#include "El.hpp"
 
 namespace El {
 
-inline const char* QtImageFormat( FileFormat format )
+const char* QtImageFormat( FileFormat format )
 {
     switch( format )
     {
@@ -32,7 +25,7 @@ inline const char* QtImageFormat( FileFormat format )
     }
 }
 
-inline std::string FileExtension( FileFormat format )
+std::string FileExtension( FileFormat format )
 {
     switch( format )
     {
@@ -52,7 +45,7 @@ inline std::string FileExtension( FileFormat format )
     }
 }
 
-inline FileFormat FormatFromExtension( const std::string ext )
+FileFormat FormatFromExtension( const std::string ext )
 {
     bool foundFormat = false;
     FileFormat format = BINARY;
@@ -70,14 +63,13 @@ inline FileFormat FormatFromExtension( const std::string ext )
     return format;
 }
 
-inline FileFormat DetectFormat( const std::string filename )
+FileFormat DetectFormat( const std::string filename )
 {
     const std::string ext = filename.substr(filename.find_last_of(".")+1);
     return FormatFromExtension( ext );
 }
 
-inline std::ifstream::pos_type
-FileSize( std::ifstream& file )
+std::ifstream::pos_type FileSize( std::ifstream& file )
 {
     auto pos = file.tellg();
     file.seekg( 0, std::ifstream::end );
@@ -87,5 +79,3 @@ FileSize( std::ifstream& file )
 }
 
 } // namespace El
-
-#endif // ifndef EL_IO_IMPL_HPP
