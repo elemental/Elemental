@@ -25,11 +25,15 @@
 #include "El/blas-like/level1-C.h"
 #include "El/blas-like/level2-C.h"
 #include "El/blas-like/level3-C.h"
+
 #include "El/lapack-like/condense-C.h"
 #include "El/lapack-like/factor-C.h"
-#include "El/lapack-like/solve-C.h"
+
+#include "El/lapack-like/spectral-C.h"
 #include "El/lapack-like/funcs-C.h"
-#include "El/lapack-like/decomp-C.h"
+
+#include "El/lapack-like/solve-C.h"
+
 #include "El/lapack-like/props-C.h"
 
 #include "El/matrices-C.h"

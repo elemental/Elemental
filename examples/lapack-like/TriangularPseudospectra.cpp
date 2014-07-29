@@ -183,7 +183,7 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.numBase = matName+"-"+numBase;
         psCtrl.snapCtrl.itCounts = itCounts;
 
-        // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
+        // Visualize the pseudospectra by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
@@ -192,16 +192,16 @@ main( int argc, char* argv[] )
             if( isReal )
             {
                 if( quasi )
-                    itCountMap = QuasiTriangularPseudospectrum
+                    itCountMap = QuasiTriangularPseudospectra
                     ( AReal, invNormMap, center, realWidth, imagWidth, 
                       realSize, imagSize, psCtrl );
                 else
-                    itCountMap = TriangularPseudospectrum
+                    itCountMap = TriangularPseudospectra
                     ( AReal, invNormMap, center, realWidth, imagWidth, 
                       realSize, imagSize, psCtrl );
             }
             else
-                itCountMap = TriangularPseudospectrum
+                itCountMap = TriangularPseudospectra
                 ( ACpx, invNormMap, center, realWidth, imagWidth, 
                   realSize, imagSize, psCtrl );
         }
@@ -211,16 +211,16 @@ main( int argc, char* argv[] )
             {
                 if( quasi )
                 {
-                    itCountMap = QuasiTriangularPseudospectrum
-                    ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+                    itCountMap = QuasiTriangularPseudospectra
+                    ( AReal, invNormMap, realSize, imagSize, psCtrl );
                 }
                 else
-                    itCountMap = TriangularPseudospectrum
-                    ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+                    itCountMap = TriangularPseudospectra
+                    ( AReal, invNormMap, realSize, imagSize, psCtrl );
             }
             else
-                itCountMap = TriangularPseudospectrum
-                ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
+                itCountMap = TriangularPseudospectra
+                ( ACpx, invNormMap, realSize, imagSize, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

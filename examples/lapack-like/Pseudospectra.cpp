@@ -256,29 +256,29 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.numBase = matName+"-"+numBase;
         psCtrl.snapCtrl.itCounts = itCounts;
 
-        // Visualize the pseudospectrum by evaluating ||inv(A-sigma I)||_2 
+        // Visualize the pseudospectra by evaluating ||inv(A-sigma I)||_2 
         // for a grid of complex sigma's.
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
         if( realWidth != 0. && imagWidth != 0. )
         {
             if( isReal )
-                itCountMap = Pseudospectrum
+                itCountMap = Pseudospectra
                 ( AReal, invNormMap, center, realWidth, imagWidth, 
                   realSize, imagSize, psCtrl );
             else
-                itCountMap = Pseudospectrum
+                itCountMap = Pseudospectra
                 ( ACpx, invNormMap, center, realWidth, imagWidth, 
                   realSize, imagSize, psCtrl );
         }
         else
         {
             if( isReal )
-                itCountMap = Pseudospectrum
-                ( AReal, invNormMap, center, realSize, imagSize, psCtrl );
+                itCountMap = Pseudospectra
+                ( AReal, invNormMap, realSize, imagSize, psCtrl );
             else
-                itCountMap = Pseudospectrum
-                ( ACpx, invNormMap, center, realSize, imagSize, psCtrl );
+                itCountMap = Pseudospectra
+                ( ACpx, invNormMap, realSize, imagSize, psCtrl );
         }
         const Int numIts = MaxNorm( itCountMap );
         if( mpi::WorldRank() == 0 )

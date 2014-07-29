@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_DECOMP_HPP
-#define EL_DECOMP_HPP
+#ifndef EL_SPECTRAL_HPP
+#define EL_SPECTRAL_HPP
 
 namespace El {
 
@@ -439,4 +439,4 @@ void TallThresholded
 
 } // namespace El
 
-#endif // ifndef EL_DECOMP_HPP
+#endif // ifndef EL_SPECTRAL_HPP

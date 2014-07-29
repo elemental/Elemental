@@ -37,9 +37,10 @@ void Zeros( AbstractBlockDistMatrix<T>& A, Int m, Int n );
 
 #include "./lapack-like/factor.hpp"
 #include "./lapack-like/condense.hpp"
+
+#include "./lapack-like/spectral.hpp"
 #include "./lapack-like/funcs.hpp"
 
-#include "./lapack-like/decomp.hpp"
 #include "./lapack-like/solve.hpp"
 
 #include "./lapack-like/props.hpp"

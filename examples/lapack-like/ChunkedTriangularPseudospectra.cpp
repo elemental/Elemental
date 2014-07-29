@@ -225,7 +225,7 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.numFormat = numFormat;
         psCtrl.snapCtrl.itCounts = itCounts;
 
-        // Visualize/write the pseudospectrum within each window
+        // Visualize/write the pseudospectra within each window
         Timer timer;
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
@@ -266,19 +266,19 @@ main( int argc, char* argv[] )
                 if( isReal )
                 {
                     if( quasi )
-                        itCountMap = QuasiTriangularPseudospectrum
+                        itCountMap = QuasiTriangularPseudospectra
                         ( AReal, invNormMap, chunkCenter, 
                           realChunkWidth, imagChunkWidth, 
                           realChunkSize, imagChunkSize, psCtrl );
                     else
-                        itCountMap = TriangularPseudospectrum
+                        itCountMap = TriangularPseudospectra
                         ( AReal, invNormMap, chunkCenter, 
                           realChunkWidth, imagChunkWidth, 
                           realChunkSize, imagChunkSize, psCtrl );
                 }
                 else
                 {
-                    itCountMap = TriangularPseudospectrum
+                    itCountMap = TriangularPseudospectra
                     ( ACpx, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );

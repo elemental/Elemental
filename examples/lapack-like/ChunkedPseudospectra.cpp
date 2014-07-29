@@ -362,7 +362,7 @@ main( int argc, char* argv[] )
         psCtrl.snapCtrl.numFormat = numFormat;
         psCtrl.snapCtrl.itCounts = itCounts;
 
-        // Visualize/write the pseudospectrum within each window
+        // Visualize/write the pseudospectra within each window
         DistMatrix<Real> invNormMap(g);
         DistMatrix<Int> itCountMap(g);
         const Int xBlock = realSize / numReal;
@@ -401,14 +401,14 @@ main( int argc, char* argv[] )
                 psCtrl.snapCtrl.imgBase = matName+"-"+imgBase+chunkTag;
                 if( isReal )
                 {
-                    itCountMap = QuasiTriangularPseudospectrum
+                    itCountMap = QuasiTriangularPseudospectra
                     ( AReal, QReal, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );
                 }
                 else
                 {
-                    itCountMap = TriangularPseudospectrum
+                    itCountMap = TriangularPseudospectra
                     ( ACpx, QCpx, invNormMap, chunkCenter, 
                       realChunkWidth, imagChunkWidth, 
                       realChunkSize, imagChunkSize, psCtrl );

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef EL_LAPACK_DECOMP_C_H
-#define EL_LAPACK_DECOMP_C_H
+#ifndef EL_LAPACK_SPECTRAL_C_H
+#define EL_LAPACK_SPECTRAL_C_H
 
 #include "El/lapack-like/funcs-C.h"
 
@@ -822,4 +822,4 @@ ElError ElSVDDist_z( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
 } // extern "C"
 #endif
 
-#endif /* ifndef EL_LAPACK_DECOMP_C_H */
+#endif /* ifndef EL_LAPACK_SPECTRAL_C_H */

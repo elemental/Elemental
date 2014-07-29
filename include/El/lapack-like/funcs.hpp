@@ -11,7 +11,7 @@
 #define EL_FUNCS_HPP
 
 #include "El/lapack-like/factor.hpp"
-#include "El/lapack-like/decomp.hpp"
+#include "El/lapack-like/spectral.hpp"
 
 namespace El {
 
