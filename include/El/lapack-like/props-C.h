@@ -769,7 +769,120 @@ ElError ElZeroNormDist_d( ElConstDistMatrix_d A, double tol, ElInt* norm );
 ElError ElZeroNormDist_c( ElConstDistMatrix_c A, float tol, ElInt* norm );
 ElError ElZeroNormDist_z( ElConstDistMatrix_z A, double tol, ElInt* norm );
 
-/* TODO: Two-norm estimates */
+/* Two-norm estimates
+   ------------------ */
+ElError ElTwoNormEstimate_s
+( ElConstMatrix_s A, float tol, ElInt maxIts, float* normEst );
+ElError ElTwoNormEstimate_d
+( ElConstMatrix_d A, double tol, ElInt maxIts, double* normEst );
+ElError ElTwoNormEstimate_c
+( ElConstMatrix_c A, float tol, ElInt maxIts, float* normEst );
+ElError ElTwoNormEstimate_z
+( ElConstMatrix_z A, double tol, ElInt maxIts, double* normEst );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElTwoNormEstimateDist_s
+( ElConstDistMatrix_s A, float tol, ElInt maxIts, float* normEst );
+ElError ElTwoNormEstimateDist_d
+( ElConstDistMatrix_d A, double tol, ElInt maxIts, double* normEst );
+ElError ElTwoNormEstimateDist_c
+( ElConstDistMatrix_c A, float tol, ElInt maxIts, float* normEst );
+ElError ElTwoNormEstimateDist_z
+( ElConstDistMatrix_z A, double tol, ElInt maxIts, double* normEst );
+
+ElError ElSymmetricTwoNormEstimate_s
+( ElUpperOrLower uplo, ElConstMatrix_s A, float tol, ElInt maxIts, 
+  float* normEst );
+ElError ElSymmetricTwoNormEstimate_d
+( ElUpperOrLower uplo, ElConstMatrix_d A, double tol, ElInt maxIts, 
+  double* normEst );
+ElError ElSymmetricTwoNormEstimate_c
+( ElUpperOrLower uplo, ElConstMatrix_c A, float tol, ElInt maxIts, 
+  float* normEst );
+ElError ElSymmetricTwoNormEstimate_z
+( ElUpperOrLower uplo, ElConstMatrix_z A, double tol, ElInt maxIts, 
+  double* normEst );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElSymmetricTwoNormEstimateDist_s
+( ElUpperOrLower uplo, ElConstDistMatrix_s A, float tol, ElInt maxIts, 
+  float* normEst );
+ElError ElSymmetricTwoNormEstimateDist_d
+( ElUpperOrLower uplo, ElConstDistMatrix_d A, double tol, ElInt maxIts, 
+  double* normEst );
+ElError ElSymmetricTwoNormEstimateDist_c
+( ElUpperOrLower uplo, ElConstDistMatrix_c A, float tol, ElInt maxIts, 
+  float* normEst );
+ElError ElSymmetricTwoNormEstimateDist_z
+( ElUpperOrLower uplo, ElConstDistMatrix_z A, double tol, ElInt maxIts, 
+  double* normEst );
+
+ElError ElHermitianTwoNormEstimate_c
+( ElUpperOrLower uplo, ElConstMatrix_c A, float tol, ElInt maxIts, 
+  float* normEst );
+ElError ElHermitianTwoNormEstimate_z
+( ElUpperOrLower uplo, ElConstMatrix_z A, double tol, ElInt maxIts, 
+  double* normEst );
+
+/* NOTE: 'A' must be in a [MC,MR] distribution */
+ElError ElHermitianTwoNormEstimateDist_c
+( ElUpperOrLower uplo, ElConstDistMatrix_c A, float tol, ElInt maxIts, 
+  float* normEst );
+ElError ElHermitianTwoNormEstimateDist_z
+( ElUpperOrLower uplo, ElConstDistMatrix_z A, double tol, ElInt maxIts, 
+  double* normEst );
+
+/* Pseudospectra
+   ============= */
+/* NOTE: These are not yet implemented */
+ElError ElPseudospectralWindow_s
+( ElConstMatrix_s A, ElMatrix_s invNormMap, 
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+ElError ElPseudospectralWindow_d
+( ElConstMatrix_d A, ElMatrix_d invNormMap, 
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+ElError ElPseudospectralWindow_c
+( ElConstMatrix_c A, ElMatrix_s invNormMap, 
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+ElError ElPseudospectralWindow_z
+( ElConstMatrix_z A, ElMatrix_d invNormMap, 
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+
+/* NOTE: 'A' and 'invNormMap' must be in [MC,MR] distributions */
+ElError ElPseudospectralWindowDist_s
+( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+ElError ElPseudospectralWindowDist_d
+( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap, 
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+ElError ElPseudospectralWindowDist_c
+( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap, 
+  complex_float center, float realWidth, float imagWidth,
+  ElInt realSize, ElInt imagSize );
+ElError ElPseudospectralWindowDist_z
+( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap, 
+  complex_double center, double realWidth, double imagWidth,
+  ElInt realSize, ElInt imagSize );
+
+/* Trace
+   ===== */
+ElError ElTrace_i( ElConstMatrix_i A, ElInt* trace );
+ElError ElTrace_s( ElConstMatrix_s A, float* trace );
+ElError ElTrace_d( ElConstMatrix_d A, double* trace );
+ElError ElTrace_c( ElConstMatrix_c A, complex_float* trace );
+ElError ElTrace_z( ElConstMatrix_z A, complex_double* trace );
+
+ElError ElTraceDist_i( ElConstDistMatrix_i A, ElInt* trace );
+ElError ElTraceDist_s( ElConstDistMatrix_s A, float* trace );
+ElError ElTraceDist_d( ElConstDistMatrix_d A, double* trace );
+ElError ElTraceDist_c( ElConstDistMatrix_c A, complex_float* trace );
+ElError ElTraceDist_z( ElConstDistMatrix_z A, complex_double* trace );
 
 #ifdef __cplusplus
 } // extern "C"

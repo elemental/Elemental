@@ -10,47 +10,53 @@
 
 namespace El {
 
-template<typename F>
-F Trace( const Matrix<F>& A )
+template<typename T>
+T Trace( const Matrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
 
-    Matrix<F> d;
+    Matrix<T> d;
     A.GetDiagonal( d );
-    F trace = 0;
+    T trace = 0;
     const Int n = A.Height();
     for( Int i=0; i<n; ++i )
         trace += d.Get(i,0);
     return trace;
 }
 
-template<typename F> 
-F Trace( const DistMatrix<F>& A )
+template<typename T> 
+T Trace( const AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Trace"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
     const Grid& g = A.Grid();
 
-    DistMatrix<F,MD,STAR> d(g);
-    A.GetDiagonal( d );
-    F localTrace = 0;
-    if( d.Participating() )
+    T trace = 0;
+    if( A.Participating() )
     {
-        const Int nLocalDiag = d.LocalHeight();
-        for( Int iLoc=0; iLoc<nLocalDiag; ++iLoc )
-            localTrace += d.GetLocal(iLoc,0);
+        T localTrace = 0;
+        for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
+        {
+            const Int j = A.GlobalCol(jLoc);
+            if( A.IsLocalRow(j) )
+            {
+                const Int iLoc = A.LocalRow(j);
+                localTrace += A.GetLocal(iLoc,jLoc); 
+            }
+        }
+        trace = mpi::AllReduce( localTrace, A.DistComm() ); 
     }
-    return mpi::AllReduce( localTrace, g.VCComm() );
+    mpi::Broadcast( trace, A.Root(), A.CrossComm() );
+    return trace;
 }
 
-#define PROTO(F) \
-  template F Trace( const Matrix<F>& A ); \
-  template F Trace( const DistMatrix<F>& A );
+#define PROTO(T) \
+  template T Trace( const Matrix<T>& A ); \
+  template T Trace( const AbstractDistMatrix<T>& A );
 
-#define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
 
 } // namespace El

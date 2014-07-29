@@ -115,7 +115,18 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
+#define C_PROTO_BASE(SIG,SIGBASE,T) \
+  /* Trace
+     ===== */ \
+  ElError ElTrace_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, CREFLECT(T)* trace ) \
+  { EL_TRY( *trace = CReflect(Trace(*CReflect(A))) ) } \
+  ElError ElTraceDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, CREFLECT(T)* trace ) \
+  { EL_TRY( *trace = CReflect(Trace(*CReflect(A))) ) }
+
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
+  C_PROTO_BASE(SIG,SIGBASE,F) \
   /* Condition number
      ================ */ \
   ElError ElCondition_ ## SIG \
@@ -386,7 +397,25 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( *norm = SymmetricTwoNorm( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElSymmetricTwoNormDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = SymmetricTwoNorm( CReflect(uplo), *CReflect(A) ) ) }
+  { EL_TRY( *norm = SymmetricTwoNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  /* Two norm estimate
+     ----------------- */ \
+  ElError ElTwoNormEstimate_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
+  { EL_TRY( *normEst = TwoNormEstimate( *CReflect(A), tol, maxIts ) ) } \
+  ElError ElTwoNormEstimateDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
+  { EL_TRY( *normEst = TwoNormEstimate( DM_CAST_CONST(F,A), tol, maxIts ) ) } \
+  ElError ElSymmetricTwoNormEstimate_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+    Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
+  { EL_TRY( *normEst = SymmetricTwoNormEstimate( \
+      CReflect(uplo), *CReflect(A), tol, maxIts ) ) } \
+  ElError ElSymmetricTwoNormEstimateDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
+    Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
+  { EL_TRY( *normEst = SymmetricTwoNormEstimate( \
+      CReflect(uplo), DM_CAST_CONST(F,A), tol, maxIts ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Norm
@@ -500,7 +529,21 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( *norm = HermitianTwoNorm( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianTwoNormDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* norm ) \
-  { EL_TRY( *norm = HermitianTwoNorm( CReflect(uplo), *CReflect(A) ) ) }
+  { EL_TRY( *norm = HermitianTwoNorm( CReflect(uplo), *CReflect(A) ) ) } \
+  /* Two norm estimate
+     ----------------- */ \
+  ElError ElHermitianTwoNormEstimate_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
+    Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
+  { EL_TRY( *normEst = HermitianTwoNormEstimate( \
+      CReflect(uplo), *CReflect(A), tol, maxIts ) ) } \
+  ElError ElHermitianTwoNormEstimateDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
+    Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
+  { EL_TRY( *normEst = HermitianTwoNormEstimate( \
+      CReflect(uplo), DM_CAST_CONST(F,A), tol, maxIts ) ) }
+
+#define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F)
