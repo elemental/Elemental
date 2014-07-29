@@ -113,7 +113,7 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
 /* HessQrCtrl */
 ElError ElHessQrCtrlDefault( ElHessQrCtrl* ctrl )
 {
-    ctrl->aed = false;
+    ctrl->distAed = false;
     ctrl->blockHeight = DefaultBlockHeight();
     ctrl->blockWidth = DefaultBlockWidth();
     return EL_SUCCESS;

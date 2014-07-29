@@ -235,7 +235,7 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_SCALAPACK
         psCtrl.schurCtrl.qrCtrl.blockHeight = nbDist;
         psCtrl.schurCtrl.qrCtrl.blockWidth = nbDist;
-        psCtrl.schurCtrl.qrCtrl.aed = false;
+        psCtrl.schurCtrl.qrCtrl.distAed = false;
 #else
         psCtrl.schurCtrl.sdcCtrl.cutoff = cutoff;
         psCtrl.schurCtrl.sdcCtrl.maxInnerIts = maxInnerIts;

@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
 #ifdef EL_HAVE_SCALAPACK
         //ctrl.qrCtrl.blockHeight = nbDist;
         //ctrl.qrCtrl.blockWidth = nbDist;
-        ctrl.qrCtrl.aed = false;
+        ctrl.qrCtrl.distAed = false;
 #else
         ctrl.useSdc = true;
         ctrl.sdcCtrl.cutoff = cutoff;

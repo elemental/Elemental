@@ -675,7 +675,7 @@ inline PolarCtrl CReflect( const ElPolarCtrl& ctrlC )
 inline ElHessQrCtrl CReflect( const HessQrCtrl& ctrl )
 {
     ElHessQrCtrl ctrlC;
-    ctrlC.aed = ctrl.aed;
+    ctrlC.distAed = ctrl.distAed;
     ctrlC.blockHeight = ctrl.blockHeight;
     ctrlC.blockWidth = ctrl.blockWidth;
     return ctrlC;
@@ -684,7 +684,7 @@ inline ElHessQrCtrl CReflect( const HessQrCtrl& ctrl )
 inline HessQrCtrl CReflect( const ElHessQrCtrl& ctrlC )
 {
     HessQrCtrl ctrl;
-    ctrl.aed = ctrlC.aed;
+    ctrl.distAed = ctrlC.distAed;
     ctrl.blockHeight = ctrlC.blockHeight;
     ctrl.blockWidth = ctrlC.blockWidth;
     return ctrl;

@@ -94,7 +94,7 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, 
-      ctrl.aed );
+      ctrl.distAed );
     w = w_STAR_STAR;
 
     blacs::FreeGrid( context );
@@ -174,7 +174,7 @@ QR
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.aed );
+      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAed );
     w = w_STAR_STAR;
 
     blacs::FreeGrid( context );
@@ -230,7 +230,7 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      fullTriangle, ctrl.aed );
+      fullTriangle, ctrl.distAed );
     A = ABlock;
     w = w_STAR_STAR;
 
@@ -300,7 +300,7 @@ QR
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.aed );
+      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAed );
     A = ABlock;
     w = w_STAR_STAR;
     Q = QBlock;

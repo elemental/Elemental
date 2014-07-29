@@ -74,11 +74,11 @@ struct PolarCtrl {
 };
 
 struct HessQrCtrl {
-    bool aed;
+    bool distAed;
     Int blockHeight, blockWidth;
 
     HessQrCtrl() 
-    : aed(false), 
+    : distAed(false), 
       blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()) 
     { }
 };
@@ -282,15 +282,15 @@ void HermitianPolar
 template<typename F>
 void Schur
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w,
-  bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
-  bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
 ( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
-  bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+  bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 
 template<typename F>
 void Schur

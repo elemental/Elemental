@@ -87,7 +87,7 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
 
 /* HessQrCtrl */
 typedef struct {
-  bool aed;
+  bool distAed;
   ElInt blockHeight, blockWidth;
 } ElHessQrCtrl;
 ElError ElHessQrCtrlDefault( ElHessQrCtrl* ctrl );
