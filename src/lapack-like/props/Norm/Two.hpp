@@ -16,9 +16,8 @@ template<typename F>
 Base<F> TwoNorm( const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
-    typedef Base<F> R;
     Matrix<F> B( A );
-    Matrix<R> s;
+    Matrix<Base<F>> s;
     SVD( B, s );
     return InfinityNorm( s );
 }
@@ -27,9 +26,8 @@ template<typename F>
 Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
-    typedef Base<F> R;
     Matrix<F> B( A );
-    Matrix<R> s;
+    Matrix<Base<F>> s;
     HermitianSVD( uplo, B, s );
     return InfinityNorm( s );
 }
@@ -38,43 +36,39 @@ template<typename F>
 Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
-    typedef Base<F> R;
     Matrix<F> B( A );
-    Matrix<R> s;
+    Matrix<Base<F>> s;
     MakeSymmetric( uplo, B );
     SVD( B, s );
     return MaxNorm( s );
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> TwoNorm( const DistMatrix<F,U,V>& A )
+template<typename F> 
+Base<F> TwoNorm( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNorm"))
-    typedef Base<F> R;
     DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
+    DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     SVD( B, s );
     return InfinityNorm( s );
 }
 
-template<typename F,Dist U,Dist V>
-Base<F> HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+template<typename F>
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNorm"))
-    typedef Base<F> R;
     DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
+    DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
     return InfinityNorm( s );
 }
 
-template<typename F,Dist U,Dist V>
-Base<F> SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+template<typename F>
+Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNorm"))
-    typedef Base<F> R;
     DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
+    DistMatrix<Base<F>,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
     SVD( B, s );
     return MaxNorm( s );

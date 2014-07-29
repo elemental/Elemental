@@ -47,6 +47,7 @@ public:
       Int blockHeight, Int blockWidth, Int root=0 );
     // Create a copy of distributed matrix A (redistributing if necessary)
     BlockDistMatrix( const type& A );
+    BlockDistMatrix( const absType& A );
     template<Dist U,Dist V> BlockDistMatrix( const BlockDistMatrix<T,U,V>& A );
     template<Dist U,Dist V> BlockDistMatrix( const DistMatrix<T,U,V>& A );
     // Move constructor
@@ -64,6 +65,7 @@ public:
     // Assignment and reconfiguration
     // ==============================
     template<Dist U,Dist V> type& operator=( const DistMatrix<T,U,V>& A );
+    type& operator=( const absType& A );
     type& operator=( const BlockDistMatrix<T,MC,  MR  >& A );
     type& operator=( const BlockDistMatrix<T,MC,  STAR>& A );
     type& operator=( const BlockDistMatrix<T,STAR,MR  >& A );

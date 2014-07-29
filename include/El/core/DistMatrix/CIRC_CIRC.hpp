@@ -38,6 +38,7 @@ public:
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), Int root=0 );
     // Create a direct copy (redistributing if necessary)
     DistMatrix( const type& A );
+    DistMatrix( const AbstractDistMatrix<T>& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
     // Move constructor
@@ -70,6 +71,7 @@ public:
     type& operator=( const DistMatrix<T,STAR,VR  >& A );
     type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
+    type& operator=( const AbstractDistMatrix<T>& A );
     void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
     void CopyFromNonRoot( bool includingViewers=false );
     // Move assignment

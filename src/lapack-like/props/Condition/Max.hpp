@@ -26,8 +26,8 @@ Base<F> MaxCondition( const Matrix<F>& A )
     return maxNorm*maxNormInv;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> MaxCondition( const DistMatrix<F,U,V>& A )
+template<typename F> 
+Base<F> MaxCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("MaxCondition"))
     typedef Base<F> Real;

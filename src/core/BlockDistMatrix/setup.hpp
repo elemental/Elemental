@@ -95,6 +95,25 @@ BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
 }
 
 template<typename T>
+BDM::BlockDistMatrix( const AbstractBlockDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("BDM(ABDM)"))
+    if( ColDist == CIRC && RowDist == CIRC )
+        this->matrix_.viewType_ = OWNER;
+    this->SetShifts();
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+      if( ColDist != CDIST || RowDist != RDIST || \
+          reinterpret_cast<const BDM*>(&A) != this ) \
+          *this = ACast; \
+      else \
+          LogicError("Tried to construct DistMatrix with itself");
+    #include "El/macros/GuardAndPayload.h"
+}
+
+template<typename T>
 template<Dist U,Dist V>
 BDM::BlockDistMatrix( const DistMatrix<T,U,V>& A )
 : GBDM(A.Grid())
@@ -135,6 +154,19 @@ BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
     BlockDistMatrix<T,U,V> ABlock(A.Grid());
     LockedView( ABlock, A );
     *this = ABlock;
+    return *this;
+}
+
+template<typename T>
+BDM& BDM::operator=( const AbstractBlockDistMatrix<T>& A )
+{
+    DEBUG_ONLY(CallStackEntry cse("BDM = ABDM"))
+    #define GUARD(CDIST,RDIST) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+      auto& ACast = dynamic_cast<const BlockDistMatrix<T,CDIST,RDIST>&>(A); \
+      *this = ACast;
+    #include "El/macros/GuardAndPayload.h"
     return *this;
 }
 

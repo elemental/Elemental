@@ -26,8 +26,8 @@ Base<F> FrobeniusCondition( const Matrix<F>& A )
     return oneNorm*oneNormInv;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> FrobeniusCondition( const DistMatrix<F,U,V>& A )
+template<typename F> 
+Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("FrobeniusCondition"))
     typedef Base<F> Real;

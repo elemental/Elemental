@@ -44,8 +44,8 @@ Base<F> Condition( const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type )
+template<typename F> 
+Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CallStackEntry cse("Condition"))
     Base<F> norm = 0;
@@ -72,35 +72,19 @@ Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type )
     return norm;
 }
 
-#define PROTO_DIST(F,U,V) \
-  template Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type ); \
-  template Base<F> FrobeniusCondition( const DistMatrix<F,U,V>& A ); \
-  template Base<F> InfinityCondition( const DistMatrix<F,U,V>& A ); \
-  template Base<F> MaxCondition( const DistMatrix<F,U,V>& A ); \
-  template Base<F> OneCondition( const DistMatrix<F,U,V>& A ); \
-  template Base<F> TwoCondition( const DistMatrix<F,U,V>& A );
-
 #define PROTO(F) \
   template Base<F> Condition( const Matrix<F>& A, NormType type ); \
+  template Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type ); \
   template Base<F> FrobeniusCondition( const Matrix<F>& A ); \
+  template Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A ); \
   template Base<F> InfinityCondition( const Matrix<F>& A ); \
+  template Base<F> InfinityCondition( const AbstractDistMatrix<F>& A ); \
   template Base<F> MaxCondition( const Matrix<F>& A ); \
+  template Base<F> MaxCondition( const AbstractDistMatrix<F>& A ); \
   template Base<F> OneCondition( const Matrix<F>& A ); \
+  template Base<F> OneCondition( const AbstractDistMatrix<F>& A ); \
   template Base<F> TwoCondition( const Matrix<F>& A ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template Base<F> TwoCondition( const AbstractDistMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

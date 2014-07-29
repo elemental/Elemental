@@ -26,8 +26,8 @@ Base<F> InfinityCondition( const Matrix<F>& A )
     return infNorm*infNormInv;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> InfinityCondition( const DistMatrix<F,U,V>& A )
+template<typename F> 
+Base<F> InfinityCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("InfinityCondition"))
     typedef Base<F> Real;

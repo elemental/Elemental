@@ -93,40 +93,40 @@ struct PseudospecCtrl
 // ================
 template<typename F>
 Base<F> Condition( const Matrix<F>& A, NormType type=TWO_NORM );
-template<typename F,Dist U,Dist V>
-Base<F> Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM );
+template<typename F>
+Base<F> Condition( const AbstractDistMatrix<F>& A, NormType type=TWO_NORM );
 
 template<typename F>
 Base<F> FrobeniusCondition( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> FrobeniusCondition( const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> FrobeniusCondition( const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> InfinityCondition( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> InfinityCondition( const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> InfinityCondition( const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> MaxCondition( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> MaxCondition( const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> MaxCondition( const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> OneCondition( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> OneCondition( const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> OneCondition( const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> TwoCondition( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> TwoCondition( const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> TwoCondition( const AbstractDistMatrix<F>& A );
 
 // Determinant
 // ===========
 template<typename F>
 SafeProduct<F> SafeDeterminant( const Matrix<F>& A );
 template<typename F>
-SafeProduct<F> SafeDeterminant( const DistMatrix<F>& A );
+SafeProduct<F> SafeDeterminant( const AbstractDistMatrix<F>& A );
 template<typename F>
 SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
@@ -137,7 +137,7 @@ SafeProduct<Base<F>> SafeHPDDeterminant
 ( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, const DistMatrix<F>& A );
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
@@ -148,7 +148,7 @@ SafeProduct<Base<F>> SafeHPDDeterminant
 template<typename F>
 F Determinant( const Matrix<F>& A );
 template<typename F>
-F Determinant( const DistMatrix<F>& A );
+F Determinant( const AbstractDistMatrix<F>& A );
 template<typename F>
 F Determinant( Matrix<F>& A, bool canOverwrite=false );
 template<typename F>
@@ -157,7 +157,7 @@ F Determinant( DistMatrix<F>& A, bool canOverwrite=false );
 template<typename F>
 Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A );
 template<typename F>
-Base<F> HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A );
+Base<F> HPDDeterminant( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 template<typename F>
 Base<F> HPDDeterminant
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false );
@@ -198,23 +198,23 @@ InertiaType Inertia
 // ====
 template<typename F>
 Base<F> Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
-template<typename F,Dist U,Dist V>
-Base<F> Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM );
+template<typename F>
+Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type=FROBENIUS_NORM );
 
 template<typename F>
 Base<F> SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM );
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, 
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
   NormType type=FROBENIUS_NORM );
 
 template<typename F>
 Base<F> HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM );
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> HermitianNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, 
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
   NormType type=FROBENIUS_NORM );
 
 // Entrywise norm
@@ -305,22 +305,43 @@ Base<F> SymmetricInfinityNorm
 // ------------
 template<typename F>
 Base<F> KyFanNorm( const Matrix<F>& A, Int k );
-template<typename F,Dist U,Dist V>
-Base<F> KyFanNorm( const DistMatrix<F,U,V>& A, Int k );
+template<typename F>
+Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k );
 
 template<typename F>
 Base<F> HermitianKyFanNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k );
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> HermitianKyFanNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k );
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k );
 
 template<typename F>
 Base<F> SymmetricKyFanNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Int k );
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> SymmetricKyFanNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k );
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k );
+
+// Ky-Fan-Schatten norms
+// ---------------------
+template<typename F>
+Base<F> KyFanSchattenNorm( const Matrix<F>& A, Int k, Base<F> p );
+template<typename F>
+Base<F> KyFanSchattenNorm( const AbstractDistMatrix<F>& A, Int k, Base<F> p );
+
+template<typename F>
+Base<F> HermitianKyFanSchattenNorm
+( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p );
+template<typename F>
+Base<F> HermitianKyFanSchattenNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p );
+
+template<typename F>
+Base<F> SymmetricKyFanSchattenNorm
+( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p );
+template<typename F>
+Base<F> SymmetricKyFanSchattenNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p );
 
 // Max norm
 // --------
@@ -343,18 +364,20 @@ Base<F> SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 // ------------
 template<typename F>
 Base<F> NuclearNorm( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> NuclearNorm( const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> NuclearNorm( const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> HermitianNuclearNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 template<typename F>
 Base<F> SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
+template<typename F>
+Base<F> SymmetricNuclearNorm
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 
 // One norm
 // --------
@@ -377,22 +400,46 @@ Base<F> SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
 // -------------
 template<typename F>
 Base<F> SchattenNorm( const Matrix<F>& A, Base<F> p );
-template<typename F,Dist U,Dist V>
-Base<F> SchattenNorm( const DistMatrix<F,U,V>& A, Base<F> p );
+template<typename F>
+Base<F> SchattenNorm( const AbstractDistMatrix<F>& A, Base<F> p );
 
 template<typename F>
 Base<F> HermitianSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p );
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> HermitianSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p );
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p );
 
 template<typename F>
 Base<F> SymmetricSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p );
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> SymmetricSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p );
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p );
+
+// Two norm
+// --------
+template<typename F>
+Base<F> TwoNorm( const Matrix<F>& A );
+template<typename F>
+Base<F> TwoNorm( const AbstractDistMatrix<F>& A );
+
+template<typename F>
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+Base<F> HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+
+template<typename F>
+Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+Base<F> SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+
+// Zero "norm"
+// -----------
+template<typename F>
+Int ZeroNorm( const Matrix<F>& A, Base<F> tol=0 );
+template<typename F>
+Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol=0 );
 
 // Two-norm estimate
 // -----------------
@@ -421,29 +468,6 @@ Base<F> SymmetricTwoNormEstimate
 ( UpperOrLower uplo, const DistMatrix<F>& A, 
   Base<F> tol=1e-6, Int maxIts=1000 );
 
-// Two norm
-// --------
-template<typename F>
-Base<F> TwoNorm( const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> TwoNorm( const DistMatrix<F,U,V>& A );
-
-template<typename F>
-Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
-
-template<typename F>
-Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F,Dist U,Dist V>
-Base<F> SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
-
-// Zero "norm"
-// -----------
-template<typename F>
-Int ZeroNorm( const Matrix<F>& A, Base<F> tol=0 );
-template<typename F>
-Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol=0 );
 
 // Pseudospectrum
 // ==============

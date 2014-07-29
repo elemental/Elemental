@@ -26,8 +26,8 @@ Base<F> OneCondition( const Matrix<F>& A )
     return oneNorm*oneNormInv;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> OneCondition( const DistMatrix<F,U,V>& A )
+template<typename F> 
+Base<F> OneCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("OneCondition"))
     typedef Base<F> Real;

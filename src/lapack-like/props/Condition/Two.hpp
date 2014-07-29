@@ -28,8 +28,8 @@ Base<F> TwoCondition( const Matrix<F>& A )
     return cond;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> TwoCondition( const DistMatrix<F,U,V>& A )
+template<typename F> 
+Base<F> TwoCondition( const AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoCondition"))
     typedef Base<F> R;

@@ -13,6 +13,7 @@
 #include "./Norm/Frobenius.hpp"
 #include "./Norm/Infinity.hpp"
 #include "./Norm/KyFan.hpp"
+#include "./Norm/KyFanSchatten.hpp"
 #include "./Norm/Max.hpp"
 #include "./Norm/One.hpp"
 
@@ -128,8 +129,8 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F,Dist U,Dist V> 
-Base<F> Norm( const DistMatrix<F,U,V>& A, NormType type )
+template<typename F> 
+Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CallStackEntry cse("Norm"))
     Base<F> norm = 0;
@@ -162,9 +163,9 @@ Base<F> Norm( const DistMatrix<F,U,V>& A, NormType type )
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type )
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricNorm"))
     Base<F> norm = 0;
@@ -197,9 +198,9 @@ Base<F> SymmetricNorm
     return norm;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 Base<F> HermitianNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type )
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianNorm"))
     Base<F> norm = 0;
@@ -232,43 +233,19 @@ Base<F> HermitianNorm
     return norm;
 }
 
-#define PROTO_DIST(F,U,V) \
-  template Base<F> Norm( const DistMatrix<F,U,V>& A, NormType type ); \
-  template Base<F> HermitianNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type ); \
-  template Base<F> SymmetricNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, NormType type ); \
-  template Base<F> KyFanNorm( const DistMatrix<F,U,V>& A, Int k ); \
-  template Base<F> HermitianKyFanNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k ); \
-  template Base<F> SymmetricKyFanNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k ); \
-  template Base<F> NuclearNorm( const DistMatrix<F,U,V>& A ); \
-  template Base<F> HermitianNuclearNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A ); \
-  template Base<F> SymmetricNuclearNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A ); \
-  template Base<F> SchattenNorm( const DistMatrix<F,U,V>& A, Base<F> p ); \
-  template Base<F> HermitianSchattenNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p ); \
-  template Base<F> SymmetricSchattenNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Base<F> p ); \
-  template Base<F> TwoNorm( const DistMatrix<F,U,V>& A ); \
-  template Base<F> HermitianTwoNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A ); \
-  template Base<F> SymmetricTwoNorm \
-  ( UpperOrLower uplo, const DistMatrix<F,U,V>& A );
-
 #define PROTO(F) \
   template Base<F> Norm( const Matrix<F>& A, NormType type ); \
+  template Base<F> Norm( const AbstractDistMatrix<F>& A, NormType type ); \
   template Base<F> HermitianNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, NormType type ); \
+  template Base<F> HermitianNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type ); \
   template Base<F> SymmetricNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, NormType type ); \
-  template Base<F> EntrywiseNorm \
-  ( const Matrix<F>& A, Base<F> p ); \
-  template Base<F> EntrywiseNorm \
-  ( const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, NormType type ); \
+  template Base<F> EntrywiseNorm( const Matrix<F>& A, Base<F> p ); \
+  template Base<F> EntrywiseNorm( const AbstractDistMatrix<F>& A, Base<F> p ); \
   template Base<F> HermitianEntrywiseNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> HermitianEntrywiseNorm \
@@ -308,10 +285,27 @@ Base<F> HermitianNorm
   template Base<F> SymmetricInfinityNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> KyFanNorm( const Matrix<F>& A, Int k ); \
+  template Base<F> KyFanNorm( const AbstractDistMatrix<F>& A, Int k ); \
   template Base<F> HermitianKyFanNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
+  template Base<F> HermitianKyFanNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k ); \
   template Base<F> SymmetricKyFanNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
+  template Base<F> SymmetricKyFanNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k ); \
+  template Base<F> KyFanSchattenNorm \
+  ( const Matrix<F>& A, Int k, Base<F> p ); \
+  template Base<F> KyFanSchattenNorm \
+  ( const AbstractDistMatrix<F>& A, Int k, Base<F> p ); \
+  template Base<F> HermitianKyFanSchattenNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p ); \
+  template Base<F> HermitianKyFanSchattenNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p ); \
+  template Base<F> SymmetricKyFanSchattenNorm \
+  ( UpperOrLower uplo, const Matrix<F>& A, Int k, Base<F> p ); \
+  template Base<F> SymmetricKyFanSchattenNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Int k, Base<F> p ); \
   template Base<F> MaxNorm( const Matrix<F>& A ); \
   template Base<F> MaxNorm ( const AbstractDistMatrix<F>& A ); \
   template Base<F> HermitianMaxNorm \
@@ -323,10 +317,15 @@ Base<F> HermitianNorm
   template Base<F> SymmetricMaxNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> NuclearNorm( const Matrix<F>& A ); \
+  template Base<F> NuclearNorm( const AbstractDistMatrix<F>& A ); \
   template Base<F> HermitianNuclearNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> HermitianNuclearNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> SymmetricNuclearNorm \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> SymmetricNuclearNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> OneNorm( const Matrix<F>& A ); \
   template Base<F> OneNorm ( const AbstractDistMatrix<F>& A ); \
   template Base<F> HermitianOneNorm \
@@ -338,10 +337,15 @@ Base<F> HermitianNorm
   template Base<F> SymmetricOneNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> SchattenNorm( const Matrix<F>& A, Base<F> p ); \
+  template Base<F> SchattenNorm( const AbstractDistMatrix<F>& A, Base<F> p ); \
   template Base<F> HermitianSchattenNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
+  template Base<F> HermitianSchattenNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
   template Base<F> SymmetricSchattenNorm \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
+  template Base<F> SymmetricSchattenNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
   template Base<F> TwoNormEstimate \
   ( const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> TwoNormEstimate \
@@ -355,21 +359,7 @@ Base<F> HermitianNorm
   template Base<F> SymmetricTwoNormEstimate \
   ( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts ); \
   template Int ZeroNorm( const Matrix<F>& A, Base<F> tol ); \
-  template Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol );
 
 #define PROTO_INT(T) \
   template Int ZeroNorm( const Matrix<Int>& A, Int tol ); \

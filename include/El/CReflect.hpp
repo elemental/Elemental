@@ -389,6 +389,68 @@ inline DistData CReflect( const ElDistData& distData )
     return data;
 }
 
+inline ElSafeProduct_s CReflect( const SafeProduct<float>& prod )
+{ 
+    ElSafeProduct_s prodC;    
+    prodC.rho = prod.rho;
+    prodC.kappa = prod.kappa;
+    prodC.n = prod.n;
+    return prodC;
+}
+inline ElSafeProduct_d CReflect( const SafeProduct<double>& prod )
+{ 
+    ElSafeProduct_d prodC;    
+    prodC.rho = prod.rho;
+    prodC.kappa = prod.kappa;
+    prodC.n = prod.n;
+    return prodC;
+}
+inline ElSafeProduct_c CReflect( const SafeProduct<Complex<float>>& prod )
+{ 
+    ElSafeProduct_c prodC;    
+    prodC.rho = CReflect(prod.rho);
+    prodC.kappa = prod.kappa;
+    prodC.n = prod.n;
+    return prodC;
+}
+inline ElSafeProduct_z CReflect( const SafeProduct<Complex<double>>& prod )
+{ 
+    ElSafeProduct_z prodC;    
+    prodC.rho = CReflect(prod.rho);
+    prodC.kappa = prod.kappa;
+    prodC.n = prod.n;
+    return prodC;
+}
+
+inline SafeProduct<float> CReflect( const ElSafeProduct_s& prodC )
+{ 
+    SafeProduct<float> prod( prodC.n );
+    prod.rho = prodC.rho;
+    prod.kappa = prodC.kappa;
+    return prod;
+}
+inline SafeProduct<double> CReflect( const ElSafeProduct_d& prodC )
+{ 
+    SafeProduct<double> prod( prodC.n );
+    prod.rho = prodC.rho;
+    prod.kappa = prodC.kappa;
+    return prod;
+}
+inline SafeProduct<Complex<float>> CReflect( const ElSafeProduct_c& prodC )
+{ 
+    SafeProduct<Complex<float>> prod( prodC.n );
+    prod.rho = CReflect(prodC.rho);
+    prod.kappa = prodC.kappa;
+    return prod;
+}
+inline SafeProduct<Complex<double>> CReflect( const ElSafeProduct_z& prodC )
+{ 
+    SafeProduct<Complex<double>> prod( prodC.n );
+    prod.rho = CReflect(prodC.rho);
+    prod.kappa = prodC.kappa;
+    return prod;
+}
+
 // Input/Output
 // ------------
 inline ElFileFormat CReflect( FileFormat format )
@@ -802,6 +864,11 @@ inline QRCtrl<double> CReflect( const ElQRCtrl_d& ctrlC )
 
 // Properties
 // ^^^^^^^^^^
+inline ElNormType CReflect( NormType type )
+{ return static_cast<ElNormType>(type); }
+inline NormType CReflect( ElNormType type )
+{ return static_cast<NormType>(type); }
+
 inline ElPseudospecNorm CReflect( PseudospecNorm psNorm )
 { return static_cast<ElPseudospecNorm>(psNorm); }
 inline PseudospecNorm CReflect( ElPseudospecNorm psNorm )

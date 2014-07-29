@@ -41,6 +41,7 @@ public:
     ( Int height, Int width, const El::Grid& g=DefaultGrid(), Int root=0 );
     // Create a copy of distributed matrix A (redistributing if necessary)
     DistMatrix( const type& A );
+    DistMatrix( const absType& A );
     template<Dist U,Dist V> DistMatrix( const DistMatrix<T,U,V>& A );
     template<Dist U,Dist V> DistMatrix( const BlockDistMatrix<T,U,V>& A );
     // Move constructor
@@ -58,6 +59,7 @@ public:
     // Assignment and reconfiguration
     // ==============================
     template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+    type& operator=( const absType& A );
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
     type& operator=( const DistMatrix<T,STAR,MR  >& A );

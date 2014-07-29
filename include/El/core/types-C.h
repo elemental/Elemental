@@ -124,16 +124,16 @@ typedef struct
 } ElSafeProduct_d;
 typedef struct
 {
-    float rhoReal, rhoImag;    
+    complex_float rho;
     float kappa;
     ElInt n;
 } ElSafeProduct_c;
 typedef struct 
 {
-    double rhoReal, rhoImag;    
+    complex_double rho;
     double kappa;
     ElInt n;
-} ElSafeProduce_z;
+} ElSafeProduct_z;
 
 /* The basic eigenvalue structure of a Hermitian matrix */
 typedef struct 
