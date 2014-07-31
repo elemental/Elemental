@@ -57,8 +57,6 @@ void Trsm
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
-// TODO: Greatly improve (and allow the user to modify) the mechanism for 
-//       choosing between the different TRSM algorithms.
 template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo, 
@@ -156,6 +154,9 @@ void Trsm
     }
 }
 
+// TODO: Greatly improve (and allow the user to modify) the mechanism for 
+//       choosing between the different TRSM algorithms.
+
 #define PROTO(F) \
   template void Trsm \
   ( LeftOrRight side, UpperOrLower uplo, \
@@ -166,7 +167,15 @@ void Trsm
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
     F alpha, const DistMatrix<F>& A, DistMatrix<F>& B, \
-    bool checkIfSingular );
+    bool checkIfSingular ); \
+  template void trsm::LLTSmall \
+  ( Orientation orientation, UnitOrNonUnit diag, \
+    const DistMatrix<F,VC,STAR>& A, DistMatrix<F,VC,STAR>& B, \
+    bool checkIfSingular ); \
+  template void trsm::LLTSmall \
+  ( Orientation orientation, UnitOrNonUnit diag, \
+    const DistMatrix<F,VR,STAR>& A, DistMatrix<F,VR,STAR>& B, \
+    bool checkIfSingular ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
