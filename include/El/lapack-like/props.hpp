@@ -487,7 +487,7 @@ Matrix<Int> Pseudospectra
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> Pseudospectra
-( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap,
+( const AbstractDistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap,
   Int realSize, Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 
@@ -570,7 +570,7 @@ Matrix<Int> Pseudospectra
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int> Pseudospectra
-( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap,
+( const AbstractDistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap,
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth,
   Int realSize, Int imagSize,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
@@ -671,7 +671,8 @@ Matrix<Int> Pseudospectra
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 template<typename F>
 DistMatrix<Int,VR,STAR> Pseudospectra
-( const DistMatrix<F>& A, const DistMatrix<Complex<Base<F>>,VR,STAR>& shifts,
+( const AbstractDistMatrix<F>& A, 
+  const DistMatrix<Complex<Base<F>>,VR,STAR>& shifts,
   DistMatrix<Base<F>,VR,STAR>& invNorms,
   PseudospecCtrl<Base<F>> psCtrl=PseudospecCtrl<Base<F>>() );
 

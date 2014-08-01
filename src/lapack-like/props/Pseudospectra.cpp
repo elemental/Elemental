@@ -708,7 +708,8 @@ Matrix<Int> Helper
 
 template<typename Real>
 DistMatrix<Int,VR,STAR> Helper
-( const DistMatrix<Real>& A, const DistMatrix<Complex<Real>,VR,STAR>& shifts,
+( const AbstractDistMatrix<Real>& A, 
+  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
   DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
@@ -803,7 +804,7 @@ Matrix<Int> Helper
 
 template<typename Real>
 DistMatrix<Int,VR,STAR> Helper
-( const DistMatrix<Complex<Real>>& A, 
+( const AbstractDistMatrix<Complex<Real>>& A, 
   const DistMatrix<Complex<Real>,VR,STAR>& shifts,
   DistMatrix<Real,VR,STAR>& invNorms, PseudospecCtrl<Real> psCtrl )
 {
@@ -862,7 +863,8 @@ Matrix<Int> Pseudospectra
 
 template<typename F>
 DistMatrix<Int,VR,STAR> Pseudospectra
-( const DistMatrix<F>& A, const DistMatrix<Complex<Base<F>>,VR,STAR>& shifts,
+( const AbstractDistMatrix<F>& A, 
+  const DistMatrix<Complex<Base<F>>,VR,STAR>& shifts,
   DistMatrix<Base<F>,VR,STAR>& invNorms, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectra"))
@@ -1358,7 +1360,7 @@ Matrix<Int> Pseudospectra
 
 template<typename F>
 DistMatrix<Int> Pseudospectra
-( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, 
+( const AbstractDistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, 
   Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, 
   Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
@@ -1934,7 +1936,7 @@ Matrix<Int> Helper
 
 template<typename Real>
 DistMatrix<Int> Helper
-( const DistMatrix<Complex<Real>>& A, DistMatrix<Real>& invNormMap, 
+( const AbstractDistMatrix<Complex<Real>>& A, DistMatrix<Real>& invNormMap, 
   Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
@@ -2037,7 +2039,7 @@ Matrix<Int> Helper
 
 template<typename Real>
 DistMatrix<Int> Helper
-( const DistMatrix<Real>& A, DistMatrix<Real>& invNormMap, 
+( const AbstractDistMatrix<Real>& A, DistMatrix<Real>& invNormMap, 
   Int realSize, Int imagSize, PseudospecCtrl<Real> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Helper"))
@@ -2102,7 +2104,7 @@ Matrix<Int> Pseudospectra
 
 template<typename F>
 DistMatrix<Int> Pseudospectra
-( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, 
+( const AbstractDistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, 
   Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudospectra"))
@@ -2114,7 +2116,7 @@ DistMatrix<Int> Pseudospectra
   ( const Matrix<F>& A, const Matrix<Complex<Base<F>>>& shifts, \
     Matrix<Base<F>>& invNorms, PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int,VR,STAR> Pseudospectra \
-  ( const DistMatrix<F>& A, \
+  ( const AbstractDistMatrix<F>& A, \
     const DistMatrix<Complex<Base<F>>,VR,STAR>& shifts, \
     DistMatrix<Base<F>,VR,STAR>& invNorms, PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> TriangularPseudospectra \
@@ -2186,14 +2188,14 @@ DistMatrix<Int> Pseudospectra
     Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
     Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> Pseudospectra \
-  ( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, \
+  ( const AbstractDistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, \
     Complex<Base<F>> center, Base<F> realWidth, Base<F> imagWidth, \
     Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> Pseudospectra \
   ( const Matrix<F>& A, Matrix<Base<F>>& invNormMap, \
     Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
   template DistMatrix<Int> Pseudospectra \
-  ( const DistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, \
+  ( const AbstractDistMatrix<F>& A, DistMatrix<Base<F>>& invNormMap, \
     Int realSize, Int imagSize, PseudospecCtrl<Base<F>> psCtrl ); \
   template Matrix<Int> TriangularPseudospectra \
   ( const Matrix<F>& U, Matrix<Base<F>>& invNormMap, \

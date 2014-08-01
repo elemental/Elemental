@@ -911,6 +911,84 @@ inline SnapshotCtrl CReflect( const ElSnapshotCtrl& ctrlC )
     return ctrl;
 }
 
+inline ElPseudospecCtrl_s CReflect( const PseudospecCtrl<float>& ctrl )
+{
+    ElPseudospecCtrl_s ctrlC;
+    ctrlC.norm = CReflect(ctrl.norm);
+    ctrlC.blockWidth = ctrl.norm;
+    ctrlC.schur = ctrl.schur;
+    ctrlC.forceComplexSchur = ctrl.forceComplexSchur;
+    ctrlC.forceComplexPs = ctrl.forceComplexPs;
+    ctrlC.schurCtrl = CReflect(ctrl.schurCtrl);
+    ctrlC.maxIts = ctrl.maxIts;
+    ctrlC.tol = ctrl.tol;
+    ctrlC.deflate = ctrl.deflate;
+    ctrlC.arnoldi = ctrl.arnoldi;
+    ctrlC.basisSize = ctrl.basisSize;
+    ctrlC.reorthog = ctrl.reorthog;
+    ctrlC.progress = ctrl.progress;
+    ctrlC.snapCtrl = CReflect(ctrl.snapCtrl);
+    return ctrlC;
+}
+inline ElPseudospecCtrl_d CReflect( const PseudospecCtrl<double>& ctrl )
+{
+    ElPseudospecCtrl_d ctrlC;
+    ctrlC.norm = CReflect(ctrl.norm);
+    ctrlC.blockWidth = ctrl.norm;
+    ctrlC.schur = ctrl.schur;
+    ctrlC.forceComplexSchur = ctrl.forceComplexSchur;
+    ctrlC.forceComplexPs = ctrl.forceComplexPs;
+    ctrlC.schurCtrl = CReflect(ctrl.schurCtrl);
+    ctrlC.maxIts = ctrl.maxIts;
+    ctrlC.tol = ctrl.tol;
+    ctrlC.deflate = ctrl.deflate;
+    ctrlC.arnoldi = ctrl.arnoldi;
+    ctrlC.basisSize = ctrl.basisSize;
+    ctrlC.reorthog = ctrl.reorthog;
+    ctrlC.progress = ctrl.progress;
+    ctrlC.snapCtrl = CReflect(ctrl.snapCtrl);
+    return ctrlC;
+}
+
+inline PseudospecCtrl<float> CReflect( const ElPseudospecCtrl_s& ctrlC )
+{
+    PseudospecCtrl<float> ctrl;
+    ctrl.norm = CReflect(ctrlC.norm);
+    ctrl.blockWidth = ctrlC.norm;
+    ctrl.schur = ctrlC.schur;
+    ctrl.forceComplexSchur = ctrlC.forceComplexSchur;
+    ctrl.forceComplexPs = ctrlC.forceComplexPs;
+    ctrl.schurCtrl = CReflect(ctrlC.schurCtrl);
+    ctrl.maxIts = ctrlC.maxIts;
+    ctrl.tol = ctrlC.tol;
+    ctrl.deflate = ctrlC.deflate;
+    ctrl.arnoldi = ctrlC.arnoldi;
+    ctrl.basisSize = ctrlC.basisSize;
+    ctrl.reorthog = ctrlC.reorthog;
+    ctrl.progress = ctrlC.progress;
+    ctrl.snapCtrl = CReflect(ctrlC.snapCtrl);
+    return ctrl;
+}
+inline PseudospecCtrl<double> CReflect( const ElPseudospecCtrl_d& ctrlC )
+{
+    PseudospecCtrl<double> ctrl;
+    ctrl.norm = CReflect(ctrlC.norm);
+    ctrl.blockWidth = ctrlC.norm;
+    ctrl.schur = ctrlC.schur;
+    ctrl.forceComplexSchur = ctrlC.forceComplexSchur;
+    ctrl.forceComplexPs = ctrlC.forceComplexPs;
+    ctrl.schurCtrl = CReflect(ctrlC.schurCtrl);
+    ctrl.maxIts = ctrlC.maxIts;
+    ctrl.tol = ctrlC.tol;
+    ctrl.deflate = ctrlC.deflate;
+    ctrl.arnoldi = ctrlC.arnoldi;
+    ctrl.basisSize = ctrlC.basisSize;
+    ctrl.reorthog = ctrlC.reorthog;
+    ctrl.progress = ctrlC.progress;
+    ctrl.snapCtrl = CReflect(ctrlC.snapCtrl);
+    return ctrl;
+}
+
 // Solvers
 // ^^^^^^^
 inline ElTikhonovAlg CReflect( TikhonovAlg alg )

@@ -58,25 +58,25 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 // ====
 template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B );
-
-template<typename Real>
-void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B );
-
-template<typename T,Dist U,Dist V,Dist W,Dist Z>
-void Copy( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
-template<typename T,Dist U,Dist V,Dist W,Dist Z>
-void Copy( const BlockDistMatrix<T,U,V>& A, BlockDistMatrix<T,W,Z>& B );
-
-template<typename Real,Dist U,Dist V,Dist W,Dist Z>
-void Copy( const DistMatrix<Real,U,V>& A, DistMatrix<Complex<Real>,W,Z>& B );
-template<typename Real,Dist U,Dist V,Dist W,Dist Z>
-void Copy
-( const BlockDistMatrix<Real,U,V>& A, BlockDistMatrix<Complex<Real>,W,Z>& B );
-
+template<typename T,Dist U,Dist V>
+void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B );
+template<typename T,Dist U,Dist V>
+void Copy( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B );
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 template<typename T>
 void Copy( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+
+template<typename Real>
+void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B );
+template<typename Real,Dist U,Dist V>
+void Copy
+( const AbstractDistMatrix<Real>& A, 
+  DistMatrix<Complex<Real>,U,V>& B );
+template<typename Real,Dist U,Dist V>
+void Copy
+( const AbstractBlockDistMatrix<Real>& A, 
+  BlockDistMatrix<Complex<Real>,U,V>& B );
 
 // DiagonalScale
 // =============
