@@ -117,14 +117,12 @@ DistMatrix<T,RowDist,ColDist>* DM::ConstructTranspose
 ( const El::Grid& g, Int root ) const
 { return new DistMatrix<T,RowDist,ColDist>(g,root); }
 
-// TODO: Figure out why this is okay in GCC but not Clang
-/*
 template<typename T>
 DistMatrix<T,DiagColDist<ColDist,RowDist>(),
              DiagRowDist<ColDist,RowDist>()>* DM::ConstructDiagonal
 ( const El::Grid& g, Int root ) const
-{ return new DistMatrix<T,this->UDiag,this->VDiag>(g,root); }
-*/
+{ return new DistMatrix<T,DiagColDist<ColDist,RowDist>(),
+                          DiagRowDist<ColDist,RowDist>()>(g,root); }
 
 template<typename T>
 template<Dist U,Dist V>

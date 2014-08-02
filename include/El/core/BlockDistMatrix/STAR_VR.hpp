@@ -59,10 +59,8 @@ public:
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
     BlockDistMatrix<T,VR,STAR>* ConstructTranspose
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
-    /*
     BlockDistMatrix<T,VR,STAR>* ConstructDiagonal
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
-    */
 
     // Assignment and reconfiguration
     // ==============================

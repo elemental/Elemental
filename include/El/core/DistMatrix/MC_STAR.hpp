@@ -53,10 +53,8 @@ public:
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
     DistMatrix<T,STAR,MC>* ConstructTranspose
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
-    /*
     DistMatrix<T,MC,STAR>* ConstructDiagonal
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const override;
-    */
 
     // Assignment and reconfiguration
     // ==============================
