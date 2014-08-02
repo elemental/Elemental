@@ -140,11 +140,14 @@ BlockDistMatrix<T,RowDist,ColDist>* BDM::ConstructTranspose
 ( const El::Grid& g, Int root ) const
 { return new BlockDistMatrix<T,RowDist,ColDist>(g,root); }
 
+// TODO: Figure out why this is okay in GCC but not Clang
+/*
 template<typename T> 
 BlockDistMatrix<T,DiagColDist<ColDist,RowDist>(),
                   DiagRowDist<ColDist,RowDist>()>* BDM::ConstructDiagonal
 ( const El::Grid& g, Int root ) const
 { return new BlockDistMatrix<T,this->UDiag,this->VDiag>(g,root); }
+*/
 
 template<typename T>
 template<Dist U,Dist V>

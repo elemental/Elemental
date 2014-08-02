@@ -845,7 +845,7 @@ ElError ElPseudospectralWindowAuto_c
 ElError ElPseudospectralWindowAuto_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize );
 
-/* NOTE: 'A' and 'invNormMap' must be in [MC,MR] distributions */
+/* NOTE: 'invNormMap' must be in a [MC,MR] distribution */
 ElError ElPseudospectralWindowAutoDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize );
@@ -874,7 +874,7 @@ ElError ElPseudospectralWindowAutoX_z
 ( ElConstMatrix_z A, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
   ElPseudospecCtrl_d ctrl );
 
-/* NOTE: 'A' and 'invNormMap' must be in [MC,MR] distributions */
+/* NOTE: 'invNormMap' must be in a [MC,MR] distribution */
 ElError ElPseudospectralWindowAutoXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_s ctrl );
@@ -907,7 +907,7 @@ ElError ElPseudospectralWindow_z
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize );
 
-/* NOTE: 'A' and 'invNormMap' must be in [MC,MR] distributions */
+/* NOTE: 'invNormMap' must be in a [MC,MR] distribution */
 ElError ElPseudospectralWindowDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
@@ -944,7 +944,7 @@ ElError ElPseudospectralWindowX_z
   complex_double center, double realWidth, double imagWidth,
   ElInt realSize, ElInt imagSize, ElPseudospecCtrl_d ctrl );
 
-/* NOTE: 'A' and 'invNormMap' must be in [MC,MR] distributions */
+/* NOTE: 'invNormMap' must be in a [MC,MR] distribution */
 ElError ElPseudospectralWindowXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap, 
   complex_float center, float realWidth, float imagWidth,
@@ -964,7 +964,57 @@ ElError ElPseudospectralWindowXDist_z
 
 /* Point cloud
    ----------- */
-/* HERE */
+ElError ElPseudospectralCloud_s
+( ElConstMatrix_s A, ElConstMatrix_c shifts, ElMatrix_s invNormMap );
+ElError ElPseudospectralCloud_d
+( ElConstMatrix_d A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
+ElError ElPseudospectralCloud_c
+( ElConstMatrix_c A, ElConstMatrix_c shifts, ElMatrix_s invNormMap );
+ElError ElPseudospectralCloud_z
+( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
+
+/* NOTE: 'shifts' and 'invNormMap' must be in [VR,STAR] distributions */
+ElError ElPseudospectralCloudDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts, 
+  ElDistMatrix_s invNormMap );
+ElError ElPseudospectralCloudDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_z shifts, 
+  ElDistMatrix_d invNormMap );
+ElError ElPseudospectralCloudDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
+  ElDistMatrix_s invNormMap );
+ElError ElPseudospectralCloudDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
+  ElDistMatrix_d invNormMap );
+
+/* Expert version
+   ^^^^^^^^^^^^^^ */
+ElError ElPseudospectralCloudX_s
+( ElConstMatrix_s A, ElConstMatrix_c shifts, ElMatrix_s invNormMap,
+  ElPseudospecCtrl_s ctrl );
+ElError ElPseudospectralCloudX_d
+( ElConstMatrix_d A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
+  ElPseudospecCtrl_d ctrl );
+ElError ElPseudospectralCloudX_c
+( ElConstMatrix_c A, ElConstMatrix_c shifts, ElMatrix_s invNormMap,
+  ElPseudospecCtrl_s ctrl );
+ElError ElPseudospectralCloudX_z
+( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
+  ElPseudospecCtrl_d ctrl );
+
+/* NOTE: 'shifts' and 'invNormMap' must be in [VR,STAR] distributions */
+ElError ElPseudospectralCloudXDist_s
+( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts, 
+  ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );
+ElError ElPseudospectralCloudXDist_d
+( ElConstDistMatrix_d A, ElConstDistMatrix_z shifts, 
+  ElDistMatrix_d invNormMap, ElPseudospecCtrl_d ctrl );
+ElError ElPseudospectralCloudXDist_c
+( ElConstDistMatrix_c A, ElConstDistMatrix_c shifts, 
+  ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );
+ElError ElPseudospectralCloudXDist_z
+( ElConstDistMatrix_z A, ElConstDistMatrix_z shifts, 
+  ElDistMatrix_d invNormMap, ElPseudospecCtrl_d ctrl );
 
 /* Trace
    ===== */

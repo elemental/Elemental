@@ -472,9 +472,6 @@ Base<F> SymmetricTwoNormEstimate
 // Pseudospectra
 // =============
 
-// TODO: Pick unique names for the automatic window, manual window,
-//       and point cloud interfaces. 
-
 // Automatic window
 // ---------------
 // Treat each pixel as being located a cell center and tesselate a box with

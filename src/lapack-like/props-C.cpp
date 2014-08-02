@@ -657,7 +657,56 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( Pseudospectra( \
       *CReflect(A), DM_CAST(Base<F>,invNormMap), \
       CReflect(center), realWidth, imagWidth, \
-      realSize, imagSize, CReflect(ctrl) ) ) }
+      realSize, imagSize, CReflect(ctrl) ) ) } \
+  /* Point cloud
+     ----------- */ \
+  ElError ElPseudospectralCloud_ ## SIGBASE \
+  ( ElConstMatrix_ ## SIGBASE A, ElConstMatrix_ ## SIG shifts, \
+    ElMatrix_ ## SIGBASE invNorms ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms) ) ) } \
+  ElError ElPseudospectralCloud_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG shifts, \
+    ElMatrix_ ## SIGBASE invNorms ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms) ) ) } \
+  ElError ElPseudospectralCloudDist_ ## SIGBASE \
+  ( ElConstDistMatrix_ ## SIGBASE A, ElConstDistMatrix_ ## SIG shifts, \
+    ElDistMatrix_ ## SIGBASE invNorms ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), DM_VR_STAR_CAST_CONST(F,shifts), \
+      DM_VR_STAR_CAST(Base<F>,invNorms) ) ) } \
+  ElError ElPseudospectralCloudDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG shifts, \
+    ElDistMatrix_ ## SIGBASE invNorms ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), DM_VR_STAR_CAST_CONST(F,shifts), \
+      DM_VR_STAR_CAST(Base<F>,invNorms) ) ) } \
+  /* Expert version */ \
+  ElError ElPseudospectralCloudX_ ## SIGBASE \
+  ( ElConstMatrix_ ## SIGBASE A, ElConstMatrix_ ## SIG shifts, \
+    ElMatrix_ ## SIGBASE invNorms, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms), \
+      CReflect(ctrl) ) ) } \
+  ElError ElPseudospectralCloudX_ ## SIG \
+  ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG shifts, \
+    ElMatrix_ ## SIGBASE invNorms, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms), \
+      CReflect(ctrl) ) ) } \
+  ElError ElPseudospectralCloudXDist_ ## SIGBASE \
+  ( ElConstDistMatrix_ ## SIGBASE A, ElConstDistMatrix_ ## SIG shifts, \
+    ElDistMatrix_ ## SIGBASE invNorms, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), DM_VR_STAR_CAST_CONST(F,shifts), \
+      DM_VR_STAR_CAST(Base<F>,invNorms), CReflect(ctrl) ) ) } \
+  ElError ElPseudospectralCloudXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG shifts, \
+    ElDistMatrix_ ## SIGBASE invNorms, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( Pseudospectra( \
+      *CReflect(A), DM_VR_STAR_CAST_CONST(F,shifts), \
+      DM_VR_STAR_CAST(Base<F>,invNorms), CReflect(ctrl) ) ) }
 
 #define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 

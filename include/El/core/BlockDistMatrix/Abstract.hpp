@@ -31,8 +31,10 @@ public:
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
     virtual AbstractBlockDistMatrix<T>* ConstructTranspose
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    /*
     virtual AbstractBlockDistMatrix<T>* ConstructDiagonal
     ( const El::Grid& g=DefaultGrid(), Int root=0 ) const = 0;
+    */
 
     // Assignment and reconfiguration
     // ==============================
