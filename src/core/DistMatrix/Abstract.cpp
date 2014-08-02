@@ -991,6 +991,135 @@ AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
 
 // Diagonal manipulation
 // =====================
+template<typename T>
+bool AbstractDistMatrix<T>::DiagonalAlignedWith
+( const El::DistData& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlignedWith"))
+    if( this->Grid() != *d.grid )
+        return false;
+
+    const Int diagRoot = this->DiagonalRoot(offset);
+    if( diagRoot != d.root )
+        return false;
+
+    const Int diagAlign = this->DiagonalAlign(offset);
+    const Dist UDiag = DiagColDist( this->ColDist(), this->RowDist() ); 
+    const Dist VDiag = DiagRowDist( this->ColDist(), this->RowDist() );
+    if( d.colDist == UDiag && d.rowDist == VDiag )
+        return d.colAlign == diagAlign;
+    else if( d.colDist == VDiag && d.rowDist == UDiag )
+        return d.rowAlign == diagAlign;
+    else
+        return false;
+}
+
+template<typename T>
+Int AbstractDistMatrix<T>::DiagonalRoot( Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalRoot"))
+    const El::Grid& grid = this->Grid();
+
+    if( this->ColDist() == MC && this->RowDist() == MR )
+    {
+        // Result is an [MD,* ] or [* ,MD]
+        Int owner;
+        if( offset >= 0 )
+        {
+            const Int procRow = this->ColAlign();
+            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        else
+        {
+            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
+            const Int procCol = this->RowAlign();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        return grid.DiagPath(owner);
+    }
+    else if( this->ColDist() == MR && this->RowDist() == MC )
+    {
+        // Result is an [MD,* ] or [* ,MD]
+        Int owner;
+        if( offset >= 0 )
+        {
+            const Int procCol = this->ColAlign();
+            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        else
+        {
+            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
+            const Int procRow = this->RowAlign();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        return grid.DiagPath(owner);
+    }
+    else
+        return this->Root();
+}
+
+template<typename T>
+Int AbstractDistMatrix<T>::DiagonalAlign( Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ADM::DiagonalAlign"))
+    const El::Grid& grid = this->Grid();
+    const El::DistData& data( *this );
+
+    if( this->ColDist() == MC && this->RowDist() == MR )
+    {
+        // Result is an [MD,* ] or [* ,MD]
+        Int owner;
+        if( offset >= 0 )
+        {
+            const Int procRow = this->ColAlign();
+            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        else
+        {
+            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
+            const Int procCol = this->RowAlign();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        return grid.DiagPathRank(owner);
+    }
+    else if( this->ColDist() == MR && this->RowDist() == MC )
+    {
+        // Result is an [MD,* ] or [* ,MD]
+        Int owner;
+        if( offset >= 0 )
+        {
+            const Int procCol = this->ColAlign();
+            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        else
+        {
+            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
+            const Int procRow = this->RowAlign();
+            owner = procRow + this->ColStride()*procCol;
+        }
+        return grid.DiagPathRank(owner);
+    }
+    else if( this->ColDist() == STAR )
+    {
+        // Result is a [V,* ] or [* ,V]
+        if( offset >= 0 )
+            return (this->RowAlign()+offset) % this->RowStride();
+        else
+            return this->RowAlign();
+    }
+    else
+    {
+        // Result is [U,V] or [V,U], where V is either STAR or CIRC
+        if( offset >= 0 )
+            return this->ColAlign();
+        else
+            return (this->ColAlign()-offset) % this->ColStride();
+    }
+}
 
 template<typename T>
 void

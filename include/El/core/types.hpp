@@ -214,12 +214,12 @@ template<Dist U> constexpr Dist PartialDist() { return U; }
 template<> constexpr Dist PartialDist<VC>() { return MC; }
 template<> constexpr Dist PartialDist<VR>() { return MR; }
 
-template<Dist U,Dist V> constexpr Dist ScatteredRowDist() { return V; }
-template<> constexpr Dist ScatteredRowDist<VC,STAR>() { return MR; }
-template<> constexpr Dist ScatteredRowDist<VR,STAR>() { return MC; }
+template<Dist U,Dist V> constexpr Dist PartialUnionRowDist() { return V; }
+template<> constexpr Dist PartialUnionRowDist<VC,STAR>() { return MR; }
+template<> constexpr Dist PartialUnionRowDist<VR,STAR>() { return MC; }
 
-template<Dist U,Dist V> constexpr Dist ScatteredColDist() 
-{ return ScatteredRowDist<V,U>(); }
+template<Dist U,Dist V> constexpr Dist PartialUnionColDist() 
+{ return PartialUnionRowDist<V,U>(); }
 
 namespace ViewTypeNS {
 enum ViewType

@@ -187,6 +187,7 @@ void Copy
 
 #define PROTO_REAL(T) \
   PROTO_BASE(T) \
+  template void Copy( const Matrix<T>& A, Matrix<Complex<T>>& B ); \
   template void Copy \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Complex<T>>& B ); \
   template void Copy \

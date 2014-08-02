@@ -1085,6 +1085,32 @@ void AbstractBlockDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
 
 // Diagonal manipulation
 // =====================
+template<typename T>
+bool AbstractBlockDistMatrix<T>::DiagonalAlignedWith
+( const El::BlockDistData& d, Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ABDM::DiagonalAlignedWith"))
+    // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
+    //       diagonal distribution are variable except for special cases.
+    LogicError("This routine is not yet written");
+    return false;
+}
+
+template<typename T>
+Int AbstractBlockDistMatrix<T>::DiagonalRoot( Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ABDM::DiagonalRoot"))
+    LogicError("This routine is not yet written");
+    return 0;
+}
+
+template<typename T>
+Int AbstractBlockDistMatrix<T>::DiagonalAlign( Int offset ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("ABDM::DiagonalAlign"))
+    LogicError("This routine is not yet written");
+    return 0;
+}
 
 template<typename T>
 void AbstractBlockDistMatrix<T>::MakeDiagonalReal( Int offset )

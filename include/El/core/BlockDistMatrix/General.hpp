@@ -26,8 +26,8 @@ public:
     static constexpr Dist VGath = GatheredDist<V>();
     static constexpr Dist UPart = PartialDist<U>();
     static constexpr Dist VPart = PartialDist<V>();
-    static constexpr Dist UScat = ScatteredColDist<U,V>();
-    static constexpr Dist VScat = ScatteredRowDist<U,V>();
+    static constexpr Dist UScat = PartialUnionColDist<U,V>();
+    static constexpr Dist VScat = PartialUnionRowDist<U,V>();
 
     // Constructors and destructors
     // ============================
@@ -116,13 +116,19 @@ public:
     void AdjointPartialColSumScatterUpdate
     ( T alpha, const BlockDistMatrix<T,V,UPart>& A );
 
+    // Basic queries
+    // =============
+    // Distribution information
+    // ------------------------
+    Dist ColDist() const override;
+    Dist RowDist() const override;
+    Dist PartialColDist() const override;
+    Dist PartialRowDist() const override;
+    Dist PartialUnionColDist() const override;
+    Dist PartialUnionRowDist() const override;
+
     // Diagonal manipulation
     // =====================
-    bool DiagonalAlignedWith
-    ( const El::BlockDistData& d, Int offset=0 ) const override;
-    Int DiagonalRoot( Int offset=0 ) const override;
-    Int DiagonalAlign( Int offset=0 ) const override;
-
     void GetDiagonal
     ( BlockDistMatrix<T,UDiag,VDiag>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal

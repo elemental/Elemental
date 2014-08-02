@@ -85,6 +85,8 @@ Instrumentation/visualization/testing
 
 Consistency/modularity
 ----------------------
+[-] Modify Grid to return communicators based upon the distribution, e.g., 
+    Comm(VC)?
 [-] Extract BLAS/LAPACK/MPI wrappers into a separate project
 [-] Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 [-] Consistent implementation of unblocked routines

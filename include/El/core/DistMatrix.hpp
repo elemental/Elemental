@@ -21,9 +21,9 @@ struct DistData
 
     DistData() { }
 
-    template<typename T,Dist U,Dist V>
-    DistData( const GeneralDistMatrix<T,U,V>& A )
-    : colDist(U), rowDist(V),
+    template<typename T>
+    DistData( const AbstractDistMatrix<T>& A )
+    : colDist(A.ColDist()), rowDist(A.RowDist()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
       root(A.Root()), grid(&A.Grid())
     { }

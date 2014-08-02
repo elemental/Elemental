@@ -23,9 +23,9 @@ struct BlockDistData
 
     BlockDistData() { }
 
-    template<typename T,Dist U,Dist V>
-    BlockDistData( const GeneralBlockDistMatrix<T,U,V>& A )
-    : colDist(U), rowDist(V), 
+    template<typename T>
+    BlockDistData( const AbstractBlockDistMatrix<T>& A )
+    : colDist(A.ColDist()), rowDist(A.RowDist()), 
       blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
       colCut(A.ColCut()), rowCut(A.RowCut()),

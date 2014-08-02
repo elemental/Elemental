@@ -151,6 +151,12 @@ public:
                   bool              IsLocalRow( Int i )     const; 
                   bool              IsLocalCol( Int j )     const;
                   bool              IsLocal( Int i, Int j ) const;
+    virtual       Dist              ColDist()               const = 0;
+    virtual       Dist              RowDist()               const = 0;
+    virtual       Dist              PartialColDist()        const = 0;
+    virtual       Dist              PartialRowDist()        const = 0;
+    virtual       Dist              PartialUnionColDist()   const = 0;
+    virtual       Dist              PartialUnionRowDist()   const = 0;
     virtual       mpi::Comm         ColComm()               const = 0;
     virtual       mpi::Comm         RowComm()               const = 0;
     virtual       mpi::Comm         PartialColComm()        const;
@@ -216,10 +222,9 @@ public:
 
     // Diagonal manipulation
     // =====================
-    virtual bool DiagonalAlignedWith
-    ( const El::BlockDistData& d, Int offset=0 ) const = 0;
-    virtual Int DiagonalRoot( Int offset=0 ) const = 0;
-    virtual Int DiagonalAlign( Int offset=0 ) const = 0;
+    bool DiagonalAlignedWith( const El::BlockDistData& d, Int offset=0 ) const;
+    Int DiagonalRoot( Int offset=0 ) const;
+    Int DiagonalAlign( Int offset=0 ) const;
     void MakeDiagonalReal( Int offset=0 );
     void ConjugateDiagonal( Int offset=0 );
 

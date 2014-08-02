@@ -862,38 +862,29 @@ GeneralBlockDistMatrix<T,U,V>::AdjointPartialColSumScatterUpdate
     this->TransposePartialColSumScatterUpdate( alpha, A, true );
 }
 
+// Basic queries
+// =============
+// Distribution information
+// ------------------------
+template<typename T,Dist U,Dist V>
+Dist GeneralBlockDistMatrix<T,U,V>::ColDist() const { return U; }
+template<typename T,Dist U,Dist V>
+Dist GeneralBlockDistMatrix<T,U,V>::RowDist() const { return V; }
+template<typename T,Dist U,Dist V>
+Dist GeneralBlockDistMatrix<T,U,V>::PartialColDist() const 
+{ return PartialDist<U>(); }
+template<typename T,Dist U,Dist V>
+Dist GeneralBlockDistMatrix<T,U,V>::PartialRowDist() const 
+{ return PartialDist<V>(); }
+template<typename T,Dist U,Dist V>
+Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionColDist() const
+{ return El::PartialUnionColDist<U,V>(); }
+template<typename T,Dist U,Dist V>
+Dist GeneralBlockDistMatrix<T,U,V>::PartialUnionRowDist() const
+{ return El::PartialUnionRowDist<U,V>(); }
+
 // Diagonal manipulation
 // =====================
-template<typename T,Dist U,Dist V>
-bool
-GeneralBlockDistMatrix<T,U,V>::DiagonalAlignedWith
-( const El::BlockDistData& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GBDM::DiagonalAlignedWith"))
-    // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
-    //       diagonal distribution are variable except for special cases.
-    LogicError("This routine is not yet written");
-    return false;
-}
-
-template<typename T,Dist U,Dist V>
-Int 
-GeneralBlockDistMatrix<T,U,V>::DiagonalRoot( Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GBDM::DiagonalRoot"))
-    LogicError("This routine is not yet written");
-    return 0;
-}
-
-template<typename T,Dist U,Dist V>
-Int
-GeneralBlockDistMatrix<T,U,V>::DiagonalAlign( Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GBDM::DiagonalAlign"))
-    LogicError("This routine is not yet written");
-    return 0;
-}
-
 template<typename T,Dist U,Dist V>
 void
 GeneralBlockDistMatrix<T,U,V>::GetDiagonal

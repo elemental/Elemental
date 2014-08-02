@@ -2916,8 +2916,7 @@ GeneralDistMatrix<T,U,V>::TransposePartialColSumScatterUpdate
 }
 
 template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::AdjointColSumScatterUpdate
+void GeneralDistMatrix<T,U,V>::AdjointColSumScatterUpdate
 ( T alpha, const DistMatrix<T,V,UGath>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::AdjointColSumScatterUpdate"))
@@ -2925,149 +2924,38 @@ GeneralDistMatrix<T,U,V>::AdjointColSumScatterUpdate
 }
 
 template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::AdjointPartialColSumScatterUpdate
+void GeneralDistMatrix<T,U,V>::AdjointPartialColSumScatterUpdate
 ( T alpha, const DistMatrix<T,V,UPart>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::AdjointPartialColSumScatterUpdate"))
     this->TransposePartialColSumScatterUpdate( alpha, A, true );
 }
 
+// Basic queries
+// =============
+// Distribution information
+// ------------------------
+template<typename T,Dist U,Dist V>
+Dist GeneralDistMatrix<T,U,V>::ColDist() const { return U; }
+template<typename T,Dist U,Dist V>
+Dist GeneralDistMatrix<T,U,V>::RowDist() const { return V; }
+template<typename T,Dist U,Dist V>
+Dist GeneralDistMatrix<T,U,V>::PartialColDist() const 
+{ return PartialDist<U>(); }
+template<typename T,Dist U,Dist V>
+Dist GeneralDistMatrix<T,U,V>::PartialRowDist() const 
+{ return PartialDist<V>(); }
+template<typename T,Dist U,Dist V>
+Dist GeneralDistMatrix<T,U,V>::PartialUnionColDist() const 
+{ return El::PartialUnionColDist<U,V>(); }
+template<typename T,Dist U,Dist V>
+Dist GeneralDistMatrix<T,U,V>::PartialUnionRowDist() const 
+{ return El::PartialUnionRowDist<U,V>(); }
+
 // Diagonal manipulation
 // =====================
 template<typename T,Dist U,Dist V>
-bool
-GeneralDistMatrix<T,U,V>::DiagonalAlignedWith
-( const El::DistData& d, Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::DiagonalAlignedWith"))
-    if( this->Grid() != *d.grid )
-        return false;
-
-    const Int diagRoot = this->DiagonalRoot(offset);
-    if( diagRoot != d.root )
-        return false;
-
-    const Int diagAlign = this->DiagonalAlign(offset);
-    if( d.colDist == UDiag && d.rowDist == VDiag )
-        return d.colAlign == diagAlign;
-    else if( d.colDist == VDiag && d.rowDist == UDiag )
-        return d.rowAlign == diagAlign;
-    else
-        return false;
-}
-
-template<typename T,Dist U,Dist V>
-Int 
-GeneralDistMatrix<T,U,V>::DiagonalRoot( Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::DiagonalRoot"))
-    const El::Grid& grid = this->Grid();
-
-    if( U == MC && V == MR )
-    {
-        // Result is an [MD,* ] or [* ,MD]
-        Int owner;
-        if( offset >= 0 )
-        {
-            const Int procRow = this->ColAlign();
-            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        else
-        {
-            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
-            const Int procCol = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        return grid.DiagPath(owner);
-    }
-    else if( U == MR && V == MC )
-    {
-        // Result is an [MD,* ] or [* ,MD]
-        Int owner;
-        if( offset >= 0 )
-        {
-            const Int procCol = this->ColAlign();
-            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        else
-        {
-            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
-            const Int procRow = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        return grid.DiagPath(owner);
-    }
-    else
-        return this->Root();
-}
-
-template<typename T,Dist U,Dist V>
-Int
-GeneralDistMatrix<T,U,V>::DiagonalAlign( Int offset ) const
-{
-    DEBUG_ONLY(CallStackEntry cse("GDM::DiagonalAlign"))
-    const El::Grid& grid = this->Grid();
-
-    if( U == MC && V == MR )
-    {
-        // Result is an [MD,* ] or [* ,MD]
-        Int owner;
-        if( offset >= 0 )
-        {
-            const Int procRow = this->ColAlign();
-            const Int procCol = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        else
-        {
-            const Int procRow = (this->ColAlign()-offset) % this->ColStride();
-            const Int procCol = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        return grid.DiagPathRank(owner);
-    }
-    else if( U == MR && V == MC )
-    {
-        // Result is an [MD,* ] or [* ,MD]
-        Int owner;
-        if( offset >= 0 )
-        {
-            const Int procCol = this->ColAlign();
-            const Int procRow = (this->RowAlign()+offset) % this->RowStride();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        else
-        {
-            const Int procCol = (this->ColAlign()-offset) % this->ColStride();
-            const Int procRow = this->RowAlign();
-            owner = procRow + this->ColStride()*procCol;
-        }
-        return grid.DiagPathRank(owner);
-    }
-    else if( U == STAR )
-    {
-        // Result is a [V,* ] or [* ,V]
-        if( offset >= 0 )
-            return (this->RowAlign()+offset) % this->RowStride();
-        else
-            return this->RowAlign();
-    }
-    else
-    {
-        // Result is [U,V] or [V,U], where V is either STAR or CIRC
-        if( offset >= 0 )
-            return this->ColAlign();
-        else
-            return (this->ColAlign()-offset) % this->ColStride();
-    }
-}
-
-template<typename T,Dist U,Dist V>
-void
-GeneralDistMatrix<T,U,V>::GetDiagonal
+void GeneralDistMatrix<T,U,V>::GetDiagonal
 ( DistMatrix<T,UDiag,VDiag>& d, Int offset ) const
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::GetDiagonal"))
