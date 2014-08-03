@@ -1,6 +1,6 @@
 [submodule "external/blis"]
 	path = external/blis
-	url = https://code.google.com/p/blis.git
+	url = https://github.com/flame/blis.git
 [submodule "external/OpenBLAS"]
 	path = external/OpenBLAS
 	url = https://github.com/xianyi/OpenBLAS.git
