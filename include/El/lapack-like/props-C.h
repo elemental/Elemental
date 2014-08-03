@@ -973,7 +973,7 @@ ElError ElPseudospectralCloud_c
 ElError ElPseudospectralCloud_z
 ( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap );
 
-/* NOTE: 'shifts' and 'invNormMap' must be in [VR,STAR] distributions */
+/* NOTE: 'invNormMap' must be in a [VR,STAR] distribution */
 ElError ElPseudospectralCloudDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts, 
   ElDistMatrix_s invNormMap );
@@ -1002,7 +1002,7 @@ ElError ElPseudospectralCloudX_z
 ( ElConstMatrix_z A, ElConstMatrix_z shifts, ElMatrix_d invNormMap,
   ElPseudospecCtrl_d ctrl );
 
-/* NOTE: 'shifts' and 'invNormMap' must be in [VR,STAR] distributions */
+/* NOTE: 'invNormMap' must be in a [VR,STAR] distribution */
 ElError ElPseudospectralCloudXDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_c shifts, 
   ElDistMatrix_s invNormMap, ElPseudospecCtrl_s ctrl );

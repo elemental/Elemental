@@ -57,26 +57,52 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 // Copy
 // ====
 template<typename T>
-void Copy( const Matrix<T>& A, Matrix<T>& B );
-template<typename T,Dist U,Dist V>
-void Copy( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B );
-template<typename T,Dist U,Dist V>
-void Copy( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B );
+void Copy( Matrix<T>& A, Matrix<T>& B, bool allowShallow=false );
 template<typename T>
-void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
-template<typename T>
-void Copy( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B );
+void Copy( const Matrix<T>& A, Matrix<T>& B, bool allowShallow=false );
 
+template<typename T,Dist U,Dist V>
+void Copy
+( AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, 
+  bool allowShallow=false );
+template<typename T,Dist U,Dist V>
+void Copy
+( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, 
+  bool allowShallow=false );
+
+template<typename T>
+void Copy
+( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
+  bool allowShallow=false );
+template<typename T>
+void Copy
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
+  bool allowShallow=false );
+
+template<typename T,Dist U,Dist V>
+void Copy
+( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B, 
+  bool allowShallow=false );
+template<typename T>
+void Copy
+( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B, 
+  bool allowShallow=false );
+
+// NOTE: The 'allowShallow' argument has no effect on the following routines,
+//       as it will be impossible to shallow copy a real to complex matrix,
+//       but the argument is kept so that routines which separately template
+//       over the datatype of A and B can use a single interface.
 template<typename Real>
-void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B );
+void Copy
+( const Matrix<Real>& A, Matrix<Complex<Real>>& B, bool allowShallow=false );
 template<typename Real,Dist U,Dist V>
 void Copy
 ( const AbstractDistMatrix<Real>& A, 
-  DistMatrix<Complex<Real>,U,V>& B );
+  DistMatrix<Complex<Real>,U,V>& B, bool allowShallow=false );
 template<typename Real,Dist U,Dist V>
 void Copy
 ( const AbstractBlockDistMatrix<Real>& A, 
-  BlockDistMatrix<Complex<Real>,U,V>& B );
+  BlockDistMatrix<Complex<Real>,U,V>& B, bool allowShallow=false );
 
 // DiagonalScale
 // =============

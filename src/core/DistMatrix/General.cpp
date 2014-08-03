@@ -41,7 +41,7 @@ GeneralDistMatrix<T,U,V>::operator=( GeneralDistMatrix<T,U,V>&& A )
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::AlignColsWith
-( const El::DistData& data, bool constrain )
+( const El::DistData& data, bool constrain, bool allowMismatch )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::AlignColsWith")) 
     this->SetGrid( *data.grid );
@@ -54,16 +54,15 @@ GeneralDistMatrix<T,U,V>::AlignColsWith
         this->AlignCols( data.colAlign % this->ColStride(), constrain );
     else if( data.rowDist == UScat )
         this->AlignCols( data.rowAlign % this->ColStride(), constrain );
-    DEBUG_ONLY(
-        else if( U != UGath && data.colDist != UGath && data.rowDist != UGath ) 
-            LogicError("Nonsensical alignment");
-    )
+    else if( U != UGath && data.colDist != UGath && data.rowDist != UGath &&
+            !allowMismatch ) 
+        LogicError("Nonsensical alignment");
 }
 
 template<typename T,Dist U,Dist V>
 void
 GeneralDistMatrix<T,U,V>::AlignRowsWith
-( const El::DistData& data, bool constrain )
+( const El::DistData& data, bool constrain, bool allowMismatch )
 {
     DEBUG_ONLY(CallStackEntry cse("GDM::AlignRowsWith")) 
     this->SetGrid( *data.grid );
@@ -76,10 +75,9 @@ GeneralDistMatrix<T,U,V>::AlignRowsWith
         this->AlignRows( data.colAlign % this->RowStride(), constrain );
     else if( data.rowDist == VScat )
         this->AlignRows( data.rowAlign % this->RowStride(), constrain );
-    DEBUG_ONLY(
-        else if( V != VGath && data.colDist != VGath && data.rowDist != VGath ) 
-            LogicError("Nonsensical alignment");
-    )
+    else if( V != VGath && data.colDist != VGath && data.rowDist != VGath &&
+             !allowMismatch ) 
+        LogicError("Nonsensical alignment");
 }
 
 template<typename T,Dist U,Dist V>

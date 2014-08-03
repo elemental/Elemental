@@ -31,6 +31,8 @@ Fundamental functionality additions
 
 Incremental functionality improvements
 --------------------------------------
+[o] Generalize vast majority of interfaces to AbstractDistMatrix by making use
+    of the new version of Copy which allows for shallow copies to be requested
 [o] Add Bunch-Kaufman C now that explicit permutations are used
 [o] Simplify MPI wrappers by allowing for displacements to be automatically
     computed from counts if not specified

@@ -39,10 +39,12 @@ public:
     // Move assignment
     type& operator=( type&& A );
 
-    void AlignColsWith
-    ( const El::DistData& data, bool constrain=true ) override;
-    void AlignRowsWith
-    ( const El::DistData& data, bool constrain=true ) override;
+    virtual void AlignColsWith
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
+     override;
+    virtual void AlignRowsWith
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
+    override;
 
     void Translate( DistMatrix<T,U,V>& A ) const;
 

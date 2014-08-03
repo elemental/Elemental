@@ -331,37 +331,11 @@ AbstractDistMatrix<T>::SetRoot( Int root, bool constrain )
 template<typename T>
 void
 AbstractDistMatrix<T>::AlignWith
-( const El::DistData& data, bool constrain )
+( const El::DistData& data, bool constrain, bool allowMismatch )
 { 
     DEBUG_ONLY(CallStackEntry cse("ADM::AlignWith"))
-    AlignColsWith( data, constrain );
-    AlignRowsWith( data, constrain );
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::AlignColsWith
-( const El::DistData& data, bool constrain )
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("ADM::AlignColsWith");
-        if( colAlign_ != 0 )
-            LogicError("Alignment should have been zero");
-    )
-    SetGrid( *data.grid );
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::AlignRowsWith
-( const El::DistData& data, bool constrain )
-{ 
-    DEBUG_ONLY(
-        CallStackEntry cse("ADM::AlignRowsWith");
-        if( rowAlign_ != 0 )
-            LogicError("Alignment should have been zero");
-    )
-    SetGrid( *data.grid );
+    AlignColsWith( data, constrain, allowMismatch );
+    AlignRowsWith( data, constrain, allowMismatch );
 }
 
 template<typename T>

@@ -55,11 +55,14 @@ public:
     void AlignRows( Int rowAlign, bool constrain=true );
     void FreeAlignments();
     void SetRoot( Int root, bool constrain=true );
-    void AlignWith( const El::DistData& data, bool constrain=true );
+    void AlignWith
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false );
     virtual void AlignColsWith
-    ( const El::DistData& data, bool constrain=true );
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
+    = 0;
     virtual void AlignRowsWith
-    ( const El::DistData& data, bool constrain=true );
+    ( const El::DistData& data, bool constrain=true, bool allowMismatch=false )
+     = 0;
     void AlignAndResize
     ( Int colAlign, Int rowAlign, Int height, Int width, 
       bool force=false, bool constrain=true );
