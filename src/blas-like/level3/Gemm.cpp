@@ -84,8 +84,8 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C, GemmAlgorithm alg )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg )
 {
     DEBUG_ONLY(CallStackEntry cse("Gemm"))
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
@@ -113,8 +113,8 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-                 DistMatrix<T>& C, GemmAlgorithm alg )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C, GemmAlgorithm alg )
 {
     DEBUG_ONLY(CallStackEntry cse("Gemm"))
     const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
@@ -134,12 +134,12 @@ void Gemm
                    Matrix<T>& C ); \
   template void Gemm \
   ( Orientation orientationA, Orientation orientationB, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-    T beta,        DistMatrix<T>& C, GemmAlgorithm alg ); \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg ); \
   template void Gemm \
   ( Orientation orientationA, Orientation orientationB, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-                   DistMatrix<T>& C, GemmAlgorithm alg );
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+                   AbstractDistMatrix<T>& C, GemmAlgorithm alg );
 
 #include "El/macros/Instantiate.h"
 

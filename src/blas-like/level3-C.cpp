@@ -42,8 +42,8 @@ extern "C" {
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
-            CReflect(alpha), DM_CAST_CONST(T,A), DM_CAST_CONST(T,B), \
-            CReflect(beta), DM_CAST(T,C) ) ) } \
+            CReflect(alpha), *CReflect(A), *CReflect(B), \
+            CReflect(beta), *CReflect(C) ) ) } \
   ElError ElGemmXDist_ ## SIG \
   ( ElOrientation orientationOfA, ElOrientation orientationOfB, \
     CREFLECT(T) alpha, ElConstDistMatrix_ ## SIG A, \
@@ -51,8 +51,8 @@ extern "C" {
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C, ElGemmAlgorithm alg ) \
   { EL_TRY( \
       Gemm( CReflect(orientationOfA), CReflect(orientationOfB), \
-            CReflect(alpha), DM_CAST_CONST(T,A), DM_CAST_CONST(T,B), \
-            CReflect(beta), DM_CAST(T,C), CReflect(alg) ) ) } 
+            CReflect(alpha), *CReflect(A), *CReflect(B), \
+            CReflect(beta), *CReflect(C), CReflect(alg) ) ) } 
 
 #define C_PROTO_FIELD(SIG,SIGBASE,F) \
   /* MultiShiftQuasiTrsm */ \

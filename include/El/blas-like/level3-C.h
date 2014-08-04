@@ -48,7 +48,6 @@ ElError ElGemm_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElGemmDist_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,
@@ -72,7 +71,6 @@ ElError ElGemmDist_z
 
 /* Expert version
    ^^^^^^^^^^^^^^ */
-/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElGemmXDist_i
 ( ElOrientation orientationOfA, ElOrientation orientationOfB,
   ElInt alpha, ElConstDistMatrix_i A, ElConstDistMatrix_i B,

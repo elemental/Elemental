@@ -36,14 +36,14 @@ void Gemm
 template<typename T>
 void Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
 
 template<typename T>
 void Gemm
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-                 DistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT );
 
 // Hemm
 // ====

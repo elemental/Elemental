@@ -54,12 +54,12 @@ Analytic
     FinalSnapshot( invNorms, itCounts, snapCtrl );
 }
 
-template<typename Real,Dist colDist,Dist rowDist>
+template<typename Real>
 inline void
 Analytic
-( const DistMatrix<Complex<Real>,colDist,rowDist>& w, 
-  const DistMatrix<Complex<Real>,VR,     STAR   >& shifts, 
-        DistMatrix<Real,         VR,     STAR   >& invNorms,
+( const AbstractDistMatrix<Complex<Real>>& w, 
+  const AbstractDistMatrix<Complex<Real>>& shifts, 
+        DistMatrix<Real,VR,STAR>& invNorms,
         SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
@@ -68,17 +68,23 @@ Analytic
     const Int n = w.Height();
     const Int numShifts = shifts.Height();
     const Real normCap = NormCap<Real>();
+    const Grid& g = w.Grid();
 
+    // Force 'shifts' to be in a [VR,STAR] distribution
+    DistMatrix<Complex<Real>,VR,STAR> shifts_VR_STAR(g);
+    Copy( shifts, shifts_VR_STAR, true );
+
+    invNorms.AlignWith( shifts_VR_STAR );
     Zeros( invNorms, numShifts, 1 );
     if( n == 0 )
         return;
 
     DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
 
-    const Int numLocShifts = shifts.LocalHeight();
+    const Int numLocShifts = shifts_VR_STAR.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
-        const C shift = shifts.GetLocal(jLoc,0);
+        const C shift = shifts_VR_STAR.GetLocal(jLoc,0);
         Real minDist = Abs(shift-w_STAR_STAR.GetLocal(0,0));
         for( Int k=1; k<n; ++k )
         {
@@ -92,7 +98,7 @@ Analytic
     }
 
     snapCtrl.itCounts = false;
-    DistMatrix<Int,VR,STAR> itCounts(w.Grid());
+    DistMatrix<Int,VR,STAR> itCounts(g);
     FinalSnapshot( invNorms, itCounts, snapCtrl );
 }
 

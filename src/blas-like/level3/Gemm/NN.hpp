@@ -14,25 +14,32 @@ namespace gemm {
 template<typename T>
 inline void
 Cannon_NN
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+( T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::Cannon_NN");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must have the same grid");
-        if( A.Height() != C.Height() || B.Width() != C.Width() ||
-            A.Width() != B.Height() )
+        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+            APre.Width() != BPre.Height() )
             LogicError
             ("Nonconformal matrices:\n",
-             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+             DimsString(CPre,"C"));
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
     if( g.Height() != g.Width() )
         LogicError("Process grid must be square for Cannon's");
-    if( C.ColAlign() != A.ColAlign() || C.RowAlign() != B.RowAlign() )
-        LogicError("C is not properly aligned");
+
+    // Force A, B, and C to be in [MC,MR] distributions aligned with C
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( CPre, C, true );
+    A.AlignColsWith( C );
+    B.AlignRowsWith( C );
+    Copy( APre, A, true );
+    Copy( BPre, B, true );
 
     const Int row = g.Row();
     const Int col = g.Col();
@@ -87,33 +94,42 @@ Cannon_NN
             ( pkgB.Buffer(), pkgSizeB, aboveRow, belowRow, colComm );
         }
     }
+
+    // Perform a deep copy back to 'CPre' if necessary
+    if( !C.Viewing() )
+        Copy( C, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix A
 template<typename T>
 inline void
 SUMMA_NNA
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+( T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNA");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must have the same grid");
-        if( A.Height() != C.Height() || B.Width() != C.Width() ||
-            A.Width() != B.Height() )
+        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+            APre.Width() != BPre.Height() )
             LogicError
             ("Nonconformal matrices:\n",
-             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+             DimsString(CPre,"C"));
     )
-    const Grid& g = A.Grid();
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Int sumDim = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<T> BL(g), BR(g),
-                  B0(g), B1(g), B2(g);
-    DistMatrix<T> CL(g), CR(g),
-                  C0(g), C1(g), C2(g);
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, true );
+    Copy( BPre, B, true );
+    Copy( CPre, C, true );
 
     // Temporary distributions
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -124,68 +140,57 @@ SUMMA_NNA
     B1Trans_STAR_MR.AlignWith( A );
     D1_MC_STAR.AlignWith( A );
 
-    // Start the algorithm
     Scale( beta, C );
-    LockedPartitionRight( B, BL, BR, 0 );
-    PartitionRight( C, CL, CR, 0 );
-    while( BR.Width() > 0 )
+    for( Int k=0; k<n; k+=bsize )
     {
-        LockedRepartitionRight
-        ( BL, /**/     BR,
-          B0, /**/ B1, B2 );
-
-        RepartitionRight
-        ( CL, /**/     CR,
-          C0, /**/ C1, C2 );
-
-        //--------------------------------------------------------------------//
-        B1_VR_STAR = B1;
-        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR );
+        const Int nb = Min(bsize,n-k);
+        auto B1 = LockedView( B, 0, k, sumDim, nb );
+        auto C1 =       View( C, 0, k, m,        nb );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
+        B1_VR_STAR = B1;
+        B1_VR_STAR.TransposePartialColAllGather( B1Trans_STAR_MR );
         LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionRight
-        ( BL,     /**/ BR,
-          B0, B1, /**/ B2 );
-
-        SlidePartitionRight
-        ( CL,     /**/ CR,
-          C0, C1, /**/ C2 );
     }
+
+    // Perform a deep copy back to 'CPre' if necessary
+    if( !C.Viewing() )
+        Copy( C, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix B
 template<typename T>
 inline void 
 SUMMA_NNB
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+( T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNB");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must be distributed over the same grid");
-        if( A.Height() != C.Height() || B.Width() != C.Width() ||
-            A.Width() != B.Height() )
+        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+            APre.Width() != BPre.Height() )
             LogicError
             ("Nonconformal matrices:\n",
-             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+             DimsString(CPre,"C"));
     )
-    const Grid& g = A.Grid();
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Int sumDim = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<T> AT(g),  A0(g),
-                  AB(g),  A1(g),
-                          A2(g);
-    DistMatrix<T> CT(g),  C0(g),
-                  CB(g),  C1(g),
-                          C2(g);
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, true );
+    Copy( BPre, B, true );
+    Copy( CPre, C, true );
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
@@ -194,78 +199,56 @@ SUMMA_NNB
     A1_STAR_MC.AlignWith( B );
     D1Trans_MR_STAR.AlignWith( B );
 
-    // Start the algorithm
     Scale( beta, C );
-    LockedPartitionDown
-    ( A, AT,
-         AB, 0 );
-    PartitionDown
-    ( C, CT,
-         CB, 0 );
-    while( AB.Height() > 0 )
+    for( Int k=0; k<m; k+=bsize )
     {
-        LockedRepartitionDown
-        ( AT,  A0,
-         /**/ /**/
-               A1,
-          AB,  A2 );
-
-        RepartitionDown
-        ( CT,  C0,
-         /**/ /**/
-               C1,
-          CB,  C2 );
-
-        //--------------------------------------------------------------------//
-        A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
+        const Int nb = Min(bsize,m-k);
+        auto A1 = LockedView( A, k, 0, nb, sumDim );
+        auto C1 =       View( C, k, 0, nb, n        );
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
+        A1_STAR_MC = A1;
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, D1Trans_MR_STAR );
 
         C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDown
-        ( AT,  A0,
-               A1,
-         /**/ /**/
-          AB,  A2 );
- 
-        SlidePartitionDown
-        ( CT,  C0,
-               C1,
-         /**/ /**/
-          CB,  C2 );
     }
-}                     
+
+    // Perform a deep copy back to 'CPre' if necessary
+    if( !C.Viewing() )
+        Copy( C, CPre );
+}
 
 // Normal Normal Gemm that avoids communicating the matrix C
 template<typename T>
 inline void 
 SUMMA_NNC
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+( T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNC");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must be distributed over the same grid");
-        if( A.Height() != C.Height() || B.Width() != C.Width() ||
-            A.Width() != B.Height() )
+        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+            APre.Width() != BPre.Height() )
             LogicError
             ("Nonconformal matrices:\n",
-             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+             DimsString(CPre,"C"));
     )
-    const Grid& g = A.Grid();
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Int sumDim = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<T> AL(g), AR(g),
-                  A0(g), A1(g), A2(g);         
-    DistMatrix<T> BT(g),  B0(g),
-                  BB(g),  B1(g),
-                          B2(g);
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, true );
+    Copy( BPre, B, true );
+    Copy( CPre, C, true );
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -274,255 +257,145 @@ SUMMA_NNC
     A1_MC_STAR.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
 
-    // Start the algorithm
     Scale( beta, C );
-    LockedPartitionRight( A, AL, AR, 0 ); 
-    LockedPartitionDown
-    ( B, BT, 
-         BB, 0 ); 
-    while( AR.Width() > 0 )
+    for( Int k=0; k<sumDim; k+=bsize )
     {
-        LockedRepartitionRight( AL, /**/ AR,
-                                A0, /**/ A1, A2 );
-
-        LockedRepartitionDown( BT,  B0,
-                              /**/ /**/
-                                    B1, 
-                               BB,  B2 );
-
-        //--------------------------------------------------------------------//
-        A1_MC_STAR = A1; 
-        B1.TransposeColAllGather( B1Trans_MR_STAR );
+        const Int nb = Min(bsize,sumDim-k);
+        auto A1 = LockedView( A, 0, k, m,  nb );
+        auto B1 = LockedView( B, k, 0, nb, n  );
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
+        A1_MC_STAR = A1; 
+        B1.TransposeColAllGather( B1Trans_MR_STAR );
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionRight( AL,     /**/ AR,
-                                   A0, A1, /**/ A2 );
-
-        SlideLockedPartitionDown( BT,  B0,
-                                       B1,
-                                 /**/ /**/
-                                  BB,  B2 );
     }
+
+    // Perform a deep copy back to 'CPre' if necessary
+    if( !C.Viewing() )
+        Copy( C, CPre );
 }
 
 // Normal Normal Gemm for panel-panel dot products
 template<typename T>
 inline void 
 SUMMA_NNDot
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+( T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNDot");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must have the same grid");
-        if( A.Height() != C.Height() || B.Width() != C.Width() ||
-            A.Width() != B.Height() )
+        if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
+            APre.Width() != BPre.Height() )
             LogicError
             ("Nonconformal matrices:\n",
-             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+             DimsString(CPre,"C"));
     )
-    const Grid& g = A.Grid();
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Int sumDim = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, true );
+    Copy( BPre, B, true );
+    Copy( CPre, C, true );
+
+    Scale( beta, C );
     if( A.Height() > B.Width() )
     {
-        // Matrix views
-        DistMatrix<T> AT(g), AB(g),
-                      A0(g), A1(g), A2(g);         
-        DistMatrix<T> BL(g),  B0(g),
-                      BR(g),  B1(g),
-                              B2(g);
-        DistMatrix<T> CT(g), C0(g), C1L(g), C1R(g),
-                      CB(g), C1(g), C10(g), C11(g), C12(g),
-                             C2(g);
-
         // Temporary distributions
         DistMatrix<T,STAR,VC> A1_STAR_VC(g);
         DistMatrix<T,VC,STAR> B1_VC_STAR(g);
         DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
-        // Star the algorithm
-        Scale( beta, C );
-        LockedPartitionDown
-        ( A, AT,
-             AB, 0 );
-        PartitionDown
-        ( C, CT,
-             CB, 0 );
-        while( AB.Height() > 0 )
+        for( Int kOuter=0; kOuter<m; kOuter+=bsize )
         {
-            LockedRepartitionDown
-            ( AT,  A0,
-             /**/ /**/
-                   A1,
-              AB,  A2 );
-
-            RepartitionDown
-            ( CT,  C0,
-             /**/ /**/
-                   C1,
-              CB,  C2 );
+            const Int nbOuter = Min(bsize,m-kOuter);
+            auto A1 = LockedView( A, kOuter, 0, nbOuter, sumDim );
 
             A1_STAR_VC = A1; 
             B1_VC_STAR.AlignWith( A1_STAR_VC );
 
-            LockedPartitionRight( B, BL, BR, 0 );
-            PartitionRight( C1, C1L, C1R, 0 );
-            while( BR.Width() > 0 )
+            for( Int kInner=0; kInner<n; kInner+=bsize )
             {
-                LockedRepartitionRight
-                ( BL, /**/ BR,
-                  B0, /**/ B1, B2 );
+                const Int nbInner = Min(bsize,n-kInner);
+                auto B1 = LockedView( B, 0,      kInner, sumDim,  nbInner );
+                auto C11 =      View( C, kOuter, kInner, nbOuter, nbInner );
 
-                RepartitionRight
-                ( C1L, /**/ C1R,
-                  C10, /**/ C11, C12 );
-
-                //------------------------------------------------------------//
                 B1_VC_STAR = B1;
                 LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VC, B1_VC_STAR, C11_STAR_STAR );
+
                 C11.SumScatterUpdate( T(1), C11_STAR_STAR );
-                //------------------------------------------------------------//
-
-                SlideLockedPartitionRight
-                ( BL,     /**/ BR,
-                  B0, B1, /**/ B2 );
-
-                SlidePartitionRight
-                ( C1L,      /**/ C1R,
-                  C10, C11, /**/ C12 );
             }
-
-            SlideLockedPartitionDown
-            ( AT,  A0,
-                   A1,
-             /**/ /**/
-              AB,  A2 );
-
-            SlidePartitionDown
-            ( CT,  C0,
-                   C1,
-             /**/ /**/
-              CB,  C2 );
         }
     }
     else
     {
-        // Matrix views
-        DistMatrix<T> AT(g), AB(g),
-                      A0(g), A1(g), A2(g);         
-        DistMatrix<T> BL(g),  B0(g),
-                      BR(g),  B1(g),
-                              B2(g);
-        DistMatrix<T> 
-            CL(g), CR(g),         C1T(g),  C01(g),
-            C0(g), C1(g), C2(g),  C1B(g),  C11(g),
-                                           C21(g);
-
         // Temporary distributions
         DistMatrix<T,STAR,VR> A1_STAR_VR(g);
         DistMatrix<T,VR,STAR> B1_VR_STAR(g);
         DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
-        // Star the algorithm
-        Scale( beta, C );
-        LockedPartitionRight( B, BL, BR, 0 );
-        PartitionRight( C, CL, CR, 0 );
-        while( BR.Width() > 0 )
+        for( Int kOuter=0; kOuter<n; kOuter+=bsize )
         {
-            LockedRepartitionRight
-            ( BL, /**/ BR,
-              B0, /**/ B1, B2 );
-
-            RepartitionRight
-            ( CL, /**/ CR,
-              C0, /**/ C1, C2 );
+            const Int nbOuter = Min(bsize,n-kOuter);
+            auto B1 = LockedView( B, 0, kOuter, sumDim, nbOuter );
 
             B1_VR_STAR = B1;
             A1_STAR_VR.AlignWith( B1_VR_STAR );
 
-            LockedPartitionDown
-            ( A, AT,
-                 AB, 0 );
-            PartitionDown
-            ( C1, C1T,
-                  C1B, 0 );
-            while( AB.Height() > 0 )
+            for( Int kInner=0; kInner<m; kInner+=bsize )
             {
-                LockedRepartitionDown
-                ( AT,  A0,
-                 /**/ /**/
-                       A1,
-                  AB,  A2 );
+                const Int nbInner = Min(bsize,m-kInner);
+                auto A1 = LockedView( A, kInner, 0, nbInner, sumDim );
+                auto C11 =      View( C, kInner, kOuter, nbInner, nbOuter );
 
-                RepartitionDown
-                ( C1T,  C01,
-                 /***/ /***/
-                        C11,
-                  C1B,  C21 );
-
-                //------------------------------------------------------------//
                 A1_STAR_VR = A1;
                 LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VR, B1_VR_STAR, C11_STAR_STAR );
                 C11.SumScatterUpdate( T(1), C11_STAR_STAR );
-                //------------------------------------------------------------//
-
-                SlideLockedPartitionDown
-                ( AT,  A0,
-                       A1,
-                 /**/ /**/
-                  AB,  A2 );
-
-                SlidePartitionDown
-                ( C1T,  C01,
-                        C11,
-                 /***/ /***/
-                  C1B,  C21 );
             }
-
-            SlideLockedPartitionRight
-            ( BL,     /**/ BR,
-              B0, B1, /**/ B2 ); 
-
-            SlidePartitionRight
-            ( CL,     /**/ CR,
-              C0, C1, /**/ C2 );
         }
     }
+
+    // Perform a deep copy back to 'CPre' if necessary
+    if( !C.Viewing() )
+        Copy( C, CPre );
 }
 
 template<typename T>
 inline void
 SUMMA_NN
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
+( T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_NN"))
     const Int m = C.Height();
     const Int n = C.Width();
-    const Int k = A.Width();
+    const Int sumDim = A.Width();
     const double weightTowardsC = 2.;
     const double weightAwayFromDot = 10.;
 
     switch( alg )
     {
     case GEMM_DEFAULT:
-        if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
+        if( weightAwayFromDot*m <= sumDim && weightAwayFromDot*n <= sumDim )
             SUMMA_NNDot( alpha, A, B, beta, C );
-        else if( m <= n && weightTowardsC*m <= k )
+        else if( m <= n && weightTowardsC*m <= sumDim )
             SUMMA_NNB( alpha, A, B, beta, C );    
-        else if( n <= m && weightTowardsC*n <= k )
+        else if( n <= m && weightTowardsC*n <= sumDim )
             SUMMA_NNA( alpha, A, B, beta, C );
         else
             SUMMA_NNC( alpha, A, B, beta, C );
