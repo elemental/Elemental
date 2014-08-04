@@ -4,7 +4,7 @@
 #
 
 # The Cray wrappers
-set(COMPILER_DIR /opt/cray/craype/1.01/bin)
+set(COMPILER_DIR $ENV{CRAYPE_DIR}/bin)
 set(CMAKE_C_COMPILER       ${COMPILER_DIR}/cc)
 set(CMAKE_CXX_COMPILER     ${COMPILER_DIR}/CC)
 set(CMAKE_Fortran_COMPILER ${COMPILER_DIR}/ftn)
@@ -25,10 +25,9 @@ endif()
 
 set(OpenMP_CXX_FLAGS "-fopenmp")
 
-#set(MATH_LIBS "/opt/xt-libsci/11.0.06/gnu/46/mc12/lib/libsci_gnu.a;/opt/gcc/4.7.1/snos/lib64/libgfortran.a;-lm")
-#set(MATH_LIBS "/opt/cray/libsci/default/GNU/47/sandybridge/lib/libsci_gnu.a;/opt/gcc/4.7.2/snos/lib64/libgfortran.a;-lm")
-#set(MATH_LIBS "/opt/cray/libsci/default/GNU/47/sandybridge/lib/libsci_gnu.a;/opt/gcc/4.7.2/snos/lib64/libgfortran.a;/opt/cray/xc-sysroot/5.0.15/usr/lib64/libm.a")
-set(MATH_LIBS "/opt/cray/libsci/default/GNU/47/sandybridge/lib/libsci_gnu.a")
+string(REPLACE " " ";" GNU_VERSIONS $ENV{PE_LIBSCI_GENCOMPS_GNU_x86_64})
+list(GET GNU_VERSIONS 0 GNU_VERSION_NUMBER)
+set(MATH_LIBS "/opt/cray/libsci/default/GNU/${GNU_VERSION_NUMBER}/sandybridge/lib/libsci_gnu.a")
 set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
