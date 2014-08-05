@@ -124,8 +124,8 @@ extern "C" {
     CREFLECT(F) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Symm( CReflect(side), CReflect(uplo), \
-            CReflect(alpha), DM_CAST_CONST(F,A), DM_CAST_CONST(F,B), \
-            CReflect(beta), DM_CAST(F,C) ) ) } \
+            CReflect(alpha), *CReflect(A), *CReflect(B), \
+            CReflect(beta), *CReflect(C) ) ) } \
   /* Syrk */ \
   ElError ElSyrk_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
@@ -303,8 +303,8 @@ extern "C" {
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Hemm( CReflect(side), CReflect(uplo), \
-            CReflect(alpha), DM_CAST_CONST(T,A), DM_CAST_CONST(T,B), \
-            CReflect(beta), DM_CAST(T,C) ) ) } \
+            CReflect(alpha), *CReflect(A), *CReflect(B), \
+            CReflect(beta), *CReflect(C) ) ) } \
   /* Herk */ \
   ElError ElHerk_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \

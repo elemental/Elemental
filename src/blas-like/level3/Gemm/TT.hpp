@@ -15,8 +15,7 @@ template<typename T>
 inline void
 SUMMA_TTA
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -40,9 +39,9 @@ SUMMA_TTA
 
     // Force 'A', 'B', 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
@@ -71,9 +70,7 @@ SUMMA_TTA
         Axpy( T(1), D1_MR_MC, C1 );
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Transpose Transpose Gemm that avoids communicating the matrix B
@@ -81,8 +78,7 @@ template<typename T>
 inline void
 SUMMA_TTB
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -107,9 +103,9 @@ SUMMA_TTB
 
     // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
@@ -140,9 +136,7 @@ SUMMA_TTB
         Axpy( T(1), D1_MR_MC, C1 );
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Transpose Transpose Gemm that avoids communicating the matrix C
@@ -150,8 +144,7 @@ template<typename T>
 inline void
 SUMMA_TTC
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -176,9 +169,9 @@ SUMMA_TTC
 
     // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
@@ -207,17 +200,14 @@ SUMMA_TTC
           alpha, A1_STAR_MC, B1Trans_STAR_MR, T(1), C );
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 SUMMA_TT
 ( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_TT"))

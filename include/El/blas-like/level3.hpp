@@ -14,6 +14,7 @@ namespace El {
 
 // Gemm
 // ====
+namespace GemmAlgorithmNS {
 enum GemmAlgorithm {
   GEMM_DEFAULT,
   GEMM_SUMMA_A,
@@ -22,6 +23,8 @@ enum GemmAlgorithm {
   GEMM_SUMMA_DOT,
   GEMM_CANNON
 };
+}
+using namespace GemmAlgorithmNS;
 
 template<typename T>
 void Gemm
@@ -55,8 +58,8 @@ void Hemm
 template<typename T>
 void Hemm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C );
 
 // Herk
 // ====
@@ -171,9 +174,8 @@ void Symm
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C,
-  bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
 
 namespace symm {
 

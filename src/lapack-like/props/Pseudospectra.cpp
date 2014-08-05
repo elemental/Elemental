@@ -32,7 +32,7 @@ Matrix<Int> TriangularPseudospectra
 
     // Force U to be complex in as cheap of a manner as possible
     Matrix<C> UCpx;
-    Copy( U, UCpx, true );
+    Copy( U, UCpx, READ_PROXY );
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -83,7 +83,7 @@ Matrix<Int> TriangularPseudospectra
 
     // Force U to be complex as cheaply as possible
     Matrix<C> UCpx;
-    Copy( U, UCpx, true );
+    Copy( U, UCpx, READ_PROXY );
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -121,7 +121,7 @@ Matrix<Int> TriangularPseudospectra
     {
         // Force Q to be complex as cheaply as possible
         Matrix<C> QCpx;
-        Copy( Q, QCpx, true );
+        Copy( Q, QCpx, READ_PROXY );
         return pspec::HagerHigham( UCpx, QCpx, shifts, invNorms, psCtrl );
     }
 }
@@ -203,7 +203,7 @@ Matrix<Int> HessenbergPseudospectra
 
     // Force H to be complex as cheaply as possible
     Matrix<C> HCpx;
-    Copy( H, HCpx, true );
+    Copy( H, HCpx, READ_PROXY );
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       triangular version of Pseudospectra?
@@ -237,7 +237,7 @@ Matrix<Int> HessenbergPseudospectra
 
     // Force H to be complex as cheaply as possible
     Matrix<C> HCpx;
-    Copy( H, HCpx, true );
+    Copy( H, HCpx, READ_PROXY );
 
     // TODO: Check if the subdiagonal is numerically zero, and, if so, revert to
     //       triangular version of Pseudospectra?
@@ -258,7 +258,7 @@ Matrix<Int> HessenbergPseudospectra
     {
         // Force Q to be complex as cheaply as possible
         Matrix<C> QCpx;
-        Copy( Q, QCpx, true );
+        Copy( Q, QCpx, READ_PROXY );
 
         return pspec::HagerHigham( HCpx, QCpx, shifts, invNorms, psCtrl );
     }
@@ -277,11 +277,11 @@ DistMatrix<Int,VR,STAR> TriangularPseudospectra
 
     // Force 'U' to be complex and in a [MC,MR] distribution
     DistMatrix<C> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<C,VR,STAR> shifts(g);
-    Copy( shiftsPre, shifts, true );
+    Copy( shiftsPre, shifts, READ_PROXY );
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -333,11 +333,11 @@ DistMatrix<Int,VR,STAR> TriangularPseudospectra
 
     // Force 'U' to be complex and in a [MC,MR] distribution 
     DistMatrix<C> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<C,VR,STAR> shifts(g);
-    Copy( shiftsPre, shifts, true );
+    Copy( shiftsPre, shifts, READ_PROXY );
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -377,7 +377,7 @@ DistMatrix<Int,VR,STAR> TriangularPseudospectra
         // Force 'Q' to be complex and in a [MC,MR] distribution as cheaply
         // as possible
         DistMatrix<C> Q(g);
-        Copy( QPre, Q, true );
+        Copy( QPre, Q, READ_PROXY );
 
         return pspec::HagerHigham( U, Q, shifts, invNorms, psCtrl );
     }
@@ -394,11 +394,11 @@ DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectra
 
     // Force 'U' to be in a [MC,MR] distribution
     DistMatrix<Real> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<Complex<Real>,VR,STAR> shifts(g);
-    Copy( shiftsPre, shifts, true );
+    Copy( shiftsPre, shifts, READ_PROXY );
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -437,11 +437,11 @@ DistMatrix<Int,VR,STAR> QuasiTriangularPseudospectra
 
     // Force 'U' to be in a [MC,MR] distribution
     DistMatrix<Real> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<Complex<Real>,VR,STAR> shifts(g);
-    Copy( shiftsPre, shifts, true );
+    Copy( shiftsPre, shifts, READ_PROXY );
 
     // Check if the off-diagonal is sufficiently small; if so, compute the 
     // pseudospectrum analytically from the eigenvalues. This also takes care
@@ -482,11 +482,11 @@ DistMatrix<Int,VR,STAR> HessenbergPseudospectra
 
     // Force 'H' to be complex in a [MC,MR] distribution
     DistMatrix<C> H(g);
-    Copy( HPre, H, true );
+    Copy( HPre, H, READ_PROXY );
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<C,VR,STAR> shifts(g);
-    Copy( shiftsPre, shifts, true );
+    Copy( shiftsPre, shifts, READ_PROXY );
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularPseudospectra
@@ -520,11 +520,11 @@ DistMatrix<Int,VR,STAR> HessenbergPseudospectra
 
     // Force 'H' to be complex and in a [MC,MR] distribution
     DistMatrix<C> H(g);
-    Copy( HPre, H, true );
+    Copy( HPre, H, READ_PROXY );
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<C,VR,STAR> shifts(g);
-    Copy( shiftsPre, shifts, true );
+    Copy( shiftsPre, shifts, READ_PROXY );
 
     // TODO: Check if the subdiagonal is sufficiently small, and, if so, revert
     //       to TriangularPseudospectra
@@ -545,7 +545,7 @@ DistMatrix<Int,VR,STAR> HessenbergPseudospectra
     {
         // Force 'Q' to be complex and in a [MC,MR] distribution
         DistMatrix<C> Q(g);
-        Copy( QPre, Q, true );
+        Copy( QPre, Q, READ_PROXY );
 
         return pspec::HagerHigham( H, Q, shifts, invNorms, psCtrl );
     }
@@ -1545,7 +1545,7 @@ DistMatrix<Int> TriangularPseudospectra
 
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
     DistMatrix<F> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
     auto diag = U.GetDiagonal();
 
     const Real radius = MaxNorm( diag );
@@ -1596,7 +1596,7 @@ DistMatrix<Int> TriangularPseudospectra
 
     // Force 'U' to be in a [MC,MR] distribution so that we can get its diagonal
     DistMatrix<F> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
     auto diag = U.GetDiagonal();
 
     const Real radius = MaxNorm( diag );
@@ -1646,7 +1646,7 @@ DistMatrix<Int> QuasiTriangularPseudospectra
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
     DistMatrix<Real> U(g);
-    Copy( UPre, U, true );
+    Copy( UPre, U, READ_PROXY );
     const auto w = schur::QuasiTriangEig( U );
 
     const Real radius = MaxNorm( w );
@@ -1696,7 +1696,7 @@ DistMatrix<Int> QuasiTriangularPseudospectra
 
     // Force 'U' to be in a [MC,MR] distribution to get its eigenvalues
     DistMatrix<Real> U_MC_MR(g);
-    Copy( U, U_MC_MR, true );
+    Copy( U, U_MC_MR, READ_PROXY );
     const auto w = schur::QuasiTriangEig( U_MC_MR );
 
     const Real radius = MaxNorm( w );
@@ -1912,7 +1912,7 @@ Matrix<Int> Helper
     if( psCtrl.forceComplexSchur )
     {
         Matrix<C> ACpx;
-        Copy( A, ACpx, true );
+        Copy( A, ACpx );
         return Helper( ACpx, invNormMap, realSize, imagSize, psCtrl );
     }
 
@@ -1965,7 +1965,7 @@ DistMatrix<Int> Helper
     if( psCtrl.forceComplexSchur )
     {
         DistMatrix<C> ACpx(g);
-        Copy( A, ACpx, true );
+        Copy( A, ACpx );
         return Pseudospectra( ACpx, invNormMap, realSize, imagSize, psCtrl );
     }
 

@@ -22,9 +22,8 @@ void Hemm
 template<typename T>
 void Hemm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Hemm"))
     Symm( side, uplo, alpha, A, B, beta, C, true );
@@ -37,8 +36,8 @@ void Hemm
     T beta,        Matrix<T>& C ); \
   template void Hemm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-    T beta,        DistMatrix<T>& C );
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C );
 
 // blas::Hemm not yet supported for Int
 #define EL_NO_INT_PROTO

@@ -7,8 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace symm {
 
@@ -49,83 +47,32 @@ void LocalAccumulateRL
             ZTrans_MR_STAR.ColAlign() != A.RowAlign() )
             LogicError("Partial matrix distributions are misaligned");
     )
+    const Int m = B_STAR_MC.Height();
+    const Int n = B_STAR_MC.Width();
     const Grid& g = A.Grid();
-
-    // Matrix views
-    DistMatrix<T>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
+    const Int ratio = Max( g.Height(), g.Width() );
+    const Int bsize = ratio*Blocksize();
 
     DistMatrix<T> D11(g);
 
-    DistMatrix<T,STAR,MC>
-        BL_STAR_MC(g), BR_STAR_MC(g),
-        B0_STAR_MC(g), B1_STAR_MC(g), B2_STAR_MC(g);
-
-    DistMatrix<T,MR,STAR>
-        BTTrans_MR_STAR(g),  B0Trans_MR_STAR(g),
-        BBTrans_MR_STAR(g),  B1Trans_MR_STAR(g),
-                             B2Trans_MR_STAR(g);
-
-    DistMatrix<T,MC,STAR>
-        ZTTrans_MC_STAR(g),  Z0Trans_MC_STAR(g),
-        ZBTrans_MC_STAR(g),  Z1Trans_MC_STAR(g),
-                             Z2Trans_MC_STAR(g);
-
-    DistMatrix<T,MR,STAR>
-        ZTTrans_MR_STAR(g),  Z0Trans_MR_STAR(g),
-        ZBTrans_MR_STAR(g),  Z1Trans_MR_STAR(g),
-                             Z2Trans_MR_STAR(g);
-
-    const Int ratio = Max( g.Height(), g.Width() );
-    PushBlocksizeStack( ratio*Blocksize() );
-
-    LockedPartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionRight( B_STAR_MC,  BL_STAR_MC, BR_STAR_MC, 0 );
-    LockedPartitionDown
-    ( BTrans_MR_STAR, BTTrans_MR_STAR,
-                      BBTrans_MR_STAR, 0 );
-    PartitionDown
-    ( ZTrans_MC_STAR, ZTTrans_MC_STAR,
-                      ZBTrans_MC_STAR, 0 );
-    PartitionDown
-    ( ZTrans_MR_STAR, ZTTrans_MR_STAR,
-                      ZBTrans_MR_STAR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        LockedRepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        LockedRepartitionRight
-        ( BL_STAR_MC, /**/ BR_STAR_MC,
-          B0_STAR_MC, /**/ B1_STAR_MC, B2_STAR_MC );
+        auto A11 = LockedViewRange( A, k,    k, k+nb, k+nb );
+        auto A21 = LockedViewRange( A, k+nb, k, n,    k+nb );
 
-        LockedRepartitionDown
-        ( BTTrans_MR_STAR,  B0Trans_MR_STAR,
-         /***************/ /***************/
-                            B1Trans_MR_STAR,
-          BBTrans_MR_STAR,  B2Trans_MR_STAR );
+        auto B1_STAR_MC = LockedViewRange( B_STAR_MC, 0, k,    m, k+nb );
+        auto B2_STAR_MC = LockedViewRange( B_STAR_MC, 0, k+nb, m, n    );
 
-        RepartitionDown
-        ( ZTTrans_MC_STAR,  Z0Trans_MC_STAR,
-         /***************/ /***************/
-                            Z1Trans_MC_STAR,
-          ZBTrans_MC_STAR,  Z2Trans_MC_STAR );
+        auto B1Trans_MR_STAR = LockedViewRange( BTrans_MR_STAR, k, 0, k+nb, m );
 
-        RepartitionDown
-        ( ZTTrans_MR_STAR,  Z0Trans_MR_STAR,
-         /***************/ /***************/
-                            Z1Trans_MR_STAR,
-          ZBTrans_MR_STAR,  Z2Trans_MR_STAR );
+        auto Z1Trans_MC_STAR = ViewRange( ZTrans_MC_STAR, k,    0, k+nb, m );
+        auto Z2Trans_MC_STAR = ViewRange( ZTrans_MC_STAR, k+nb, 0, m,    m );
+
+        auto Z1Trans_MR_STAR = ViewRange( ZTrans_MR_STAR, k, 0, k+nb, m );
 
         D11.AlignWith( A11 );
-        //--------------------------------------------------------------------//
         D11 = A11;
         MakeTriangular( LOWER, D11 );
         LocalGemm
@@ -141,62 +88,31 @@ void LocalAccumulateRL
 
         LocalGemm
         ( NORMAL, NORMAL, alpha, A21, B1Trans_MR_STAR, T(1), Z2Trans_MC_STAR );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionRight
-        ( BL_STAR_MC,             /**/ BR_STAR_MC,
-          B0_STAR_MC, B1_STAR_MC, /**/ B2_STAR_MC );
-
-        SlideLockedPartitionDown
-        ( BTTrans_MR_STAR,  B0Trans_MR_STAR,
-                            B1Trans_MR_STAR,
-         /***************/ /***************/
-          BBTrans_MR_STAR,  B2Trans_MR_STAR );
-
-        SlidePartitionDown
-        ( ZTTrans_MC_STAR,  Z0Trans_MC_STAR,
-                            Z1Trans_MC_STAR,
-         /***************/ /***************/
-          ZBTrans_MC_STAR,  Z2Trans_MC_STAR );
-
-        SlidePartitionDown
-        ( ZTTrans_MR_STAR,  Z0Trans_MR_STAR,
-                            Z1Trans_MR_STAR,
-         /***************/ /***************/
-          ZBTrans_MR_STAR,  Z2Trans_MR_STAR );
     }
-    PopBlocksizeStack();
 }
 
 template<typename T>
 inline void
 RLA
-( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C,
-  bool conjugate=false )
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("symm::RLA");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must be distributed over the same grid");
     )
-    const Grid& g = A.Grid();
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    DistMatrix<T>
-        BT(g),  B0(g),
-        BB(g),  B1(g),
-                B2(g);
-    DistMatrix<T>
-        CT(g),  C0(g),
-        CB(g),  C1(g),
-                C2(g);
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
     DistMatrix<T,VC,  STAR> B1Trans_VC_STAR(g);
@@ -215,33 +131,19 @@ RLA
     Matrix<T> Z1Local;
 
     Scale( beta, C );
-    LockedPartitionDown
-    ( B, BT,
-         BB, 0 );
-    PartitionDown
-    ( C, CT,
-         CB, 0 );
-    while( BT.Height() < B.Height() )
+    for( Int k=0; k<m; k+=bsize )
     {
-        LockedRepartitionDown
-        ( BT,  B0,
-         /**/ /**/
-               B1,
-          BB,  B2 );
+        const Int nb = Min(bsize,m-k);
 
-        RepartitionDown
-        ( CT,  C0,
-         /**/ /**/
-               C1,
-          CB,  C2 );
+        auto B1 = LockedView( B, k, 0, nb, n );
+        auto C1 =       View( C, k, 0, nb, n );
 
         Z1Trans_MR_MC.AlignWith( C1 );
-        //--------------------------------------------------------------------//
         B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
         B1Trans_VC_STAR = B1Trans_MR_STAR;
         B1Trans_VC_STAR.TransposePartialColAllGather( B1_STAR_MC, conjugate );
-        Zeros( Z1Trans_MC_STAR, C1.Width(), C1.Height() );
-        Zeros( Z1Trans_MR_STAR, C1.Width(), C1.Height() );
+        Zeros( Z1Trans_MC_STAR, n, nb );
+        Zeros( Z1Trans_MR_STAR, n, nb );
         LocalAccumulateRL
         ( orientation, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
           Z1Trans_MC_STAR, Z1Trans_MR_STAR );
@@ -251,46 +153,32 @@ RLA
         Z1Trans_MR_MC.RowSumScatterUpdate( T(1), Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.LockedMatrix(), Z1Local, conjugate );
         Axpy( T(1), Z1Local, C1.Matrix() );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDown
-        ( BT,  B0,
-               B1,
-         /**/ /**/
-          BB,  B2 );
-
-        SlidePartitionDown
-        ( CT,  C0,
-               C1,
-         /**/ /**/
-          CB,  C2 );
     }
+
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 RLC
-( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C,
-  bool conjugate=false )
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("symm::RLC");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must be distributed over the same grid");
     )
-    const Grid& g = A.Grid();
+    const Int m = CPre.Height();
+    const Int n = CPre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<T> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AB1(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  A1L(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<T> BL(g), BR(g),
-                  B0(g), B1(g), B2(g);
-    DistMatrix<T> CL(g), CR(g),
-                  C0(g), C1(g), C2(g),
-                  CLeft(g), CRight(g);
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
@@ -300,49 +188,29 @@ RLC
 
     B1_MC_STAR.AlignWith( C );
 
-    // Start the algorithm
     Scale( beta, C );
-    LockedPartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionRight( B, BL, BR, 0 );
-    PartitionRight( C, CL, CR, 0 );
-    while( CR.Width() > 0 )
+    for( Int k=0; k<n; k+=bsize )
     {
-        LockedRepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        LockedRepartitionRight
-        ( BL, /**/ BR,
-          B0, /**/ B1, B2 );
+        auto A1L = LockedViewRange( A, k, 0, k+nb, k+nb );
+        auto AB1 = LockedViewRange( A, k, k, n,    k+nb );
 
-        RepartitionRight
-        ( CL, /**/ CR,
-          C0, /**/ C1, C2 );
+        auto B1 = LockedViewRange( B, 0, k, m, k+nb );
 
-        LockedView1x2( A1L, A10, A11 );
-        LockedView2x1( AB1, A11, A21 );
+        auto CLeft  = ViewRange( C, 0, 0, m, k+nb );
+        auto CRight = ViewRange( C, 0, k, m, n    );
 
-        View1x2( CLeft, C0, C1 );
-        View1x2( CRight, C1, C2 );
-
-        AB1_VR_STAR.AlignWith( CRight );
-        AB1Trans_STAR_MR.AlignWith( CRight );
         A1LTrans_MR_STAR.AlignWith( CLeft );
-        //--------------------------------------------------------------------//
-        B1_MC_STAR = B1;
-
         A1L.TransposeColAllGather( A1LTrans_MR_STAR );
+        AB1_VR_STAR.AlignWith( CRight );
         AB1_VR_STAR = AB1;
+        AB1Trans_STAR_MR.AlignWith( CRight );
         AB1_VR_STAR.TransposePartialColAllGather( AB1Trans_STAR_MR, conjugate );
-        MakeTrapezoidal
-        ( UPPER, A1LTrans_MR_STAR, 
-          A1LTrans_MR_STAR.Width()-A1LTrans_MR_STAR.Height() );
+        MakeTrapezoidal( UPPER, A1LTrans_MR_STAR, -k );
         MakeTrapezoidal( UPPER, AB1Trans_STAR_MR, 1 );
 
+        B1_MC_STAR = B1;
         LocalGemm
         ( NORMAL, TRANSPOSE, 
           alpha, B1_MC_STAR, A1LTrans_MR_STAR, T(1), CLeft );
@@ -350,30 +218,16 @@ RLC
         LocalGemm
         ( NORMAL, NORMAL, 
           alpha, B1_MC_STAR, AB1Trans_STAR_MR, T(1), CRight );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionRight
-        ( BL,     /**/ BR,
-          B0, B1, /**/ B2 );
-
-        SlidePartitionRight
-        ( CL,     /**/ CR,
-          C0, C1, /**/ C2 );
     }
+
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 RL
-( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C,
-  bool conjugate=false )
+( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false )
 {
     DEBUG_ONLY(CallStackEntry cse("symm::RL"))
     // TODO: Come up with a better routing mechanism

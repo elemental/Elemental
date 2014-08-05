@@ -11,107 +11,222 @@
 namespace El {
 
 template<typename T>
-void Copy( Matrix<T>& A, Matrix<T>& B, bool allowShallow )
+void Copy( Matrix<T>& A, Matrix<T>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    if( allowShallow )
-        View( B, A );
-    else
-        B = A;
+    switch( copyType )
+    {
+    case DEEP_COPY: 
+        B = A; break;
+
+    case READ_PROXY:
+        LockedView( B, A ); break;
+
+    case READ_WRITE_PROXY:
+    case WRITE_PROXY:
+        View( B, A ); break;
+
+    case RESTORE_READ_WRITE_PROXY:
+    case RESTORE_WRITE_PROXY:
+        break;
+    }
 }
 
 template<typename T>
-void Copy( const Matrix<T>& A, Matrix<T>& B, bool allowShallow )
+void Copy( const Matrix<T>& A, Matrix<T>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    if( allowShallow )
-        LockedView( B, A );
-    else
-        B = A;
+    switch( copyType )
+    {
+    case DEEP_COPY:  
+        B = A; break;
+
+    case READ_PROXY: 
+        LockedView( B, A ); break;
+
+    case RESTORE_READ_WRITE_PROXY:
+    case RESTORE_WRITE_PROXY:
+        break;
+
+    default: LogicError("Cannot write to const matrix");
+    }
 }
 
 template<typename Real>
-void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B, bool allowShallow )
+void Copy( const Matrix<Real>& A, Matrix<Complex<Real>>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     auto convert = []( const Real alpha ) { return Complex<Real>(alpha); };
-    EntrywiseMap( A, B, std::function<Complex<Real>(Real)>(convert) );
+    switch( copyType )
+    {
+    case DEEP_COPY:
+    case READ_PROXY:
+    case READ_WRITE_PROXY:
+        EntrywiseMap( A, B, std::function<Complex<Real>(Real)>(convert) );
+        break;
+
+    case WRITE_PROXY:
+        LogicError("Nonsensical write proxy since restore impossible"); break;
+
+    case RESTORE_READ_WRITE_PROXY:
+    case RESTORE_WRITE_PROXY:
+        LogicError
+        ("Impossible to be restoring a complex matrix from a real write proxy");
+        break;
+    }
 }
 
 template<typename T,Dist U,Dist V>
 void Copy
-( AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, bool allowShallow )
+( AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    if( allowShallow && A.Grid() == B.Grid() && 
-        A.ColDist() == U && A.RowDist() == V )
+    switch( copyType )
     {
-        if( !B.ColConstrained() )
-            B.AlignCols( A.ColAlign() );
-        if( !B.RowConstrained() )
-            B.AlignRows( A.RowAlign() );
-        if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
-            View( B, A );
+    case DEEP_COPY:
+        B = A; 
+        break;
+
+    case READ_PROXY:
+        if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
+        {
+            if( !B.ColConstrained() )
+                B.AlignCols( A.ColAlign() );
+            if( !B.RowConstrained() )
+                B.AlignRows( A.RowAlign() );
+            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+                LockedView( B, A );
+            else
+                B = A;
+        }
         else
             B = A;
+        break;
+
+    case READ_WRITE_PROXY:
+        if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
+        {
+            if( !B.ColConstrained() )
+                B.AlignCols( A.ColAlign() );
+            if( !B.RowConstrained() )
+                B.AlignRows( A.RowAlign() );
+            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+                View( B, A );
+            else
+                B = A;
+        }
+        else
+            B = A;
+        break;
+
+    case WRITE_PROXY:
+        if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
+        {
+            if( !B.ColConstrained() )
+                B.AlignCols( A.ColAlign() );
+            if( !B.RowConstrained() )
+                B.AlignRows( A.RowAlign() );
+            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+                View( B, A );
+        }
+        break;
+
+    case RESTORE_READ_WRITE_PROXY:
+    case RESTORE_WRITE_PROXY:
+        if( !A.Viewing() )
+            B = A;
+        break;
     }
-    else
-        B = A;
 }
 
 template<typename T,Dist U,Dist V>
 void Copy
-( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, bool allowShallow )
+( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    if( allowShallow && A.Grid() == B.Grid() && 
-        A.ColDist() == U && A.RowDist() == V )
+    switch( copyType )
     {
-        if( !B.ColConstrained() )
-            B.AlignCols( A.ColAlign() );
-        if( !B.RowConstrained() )
-            B.AlignRows( A.RowAlign() );
-        if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
-            LockedView( B, A );
+    case DEEP_COPY:
+    case READ_WRITE_PROXY:
+        B = A; 
+        break;
+
+    case READ_PROXY:
+        if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
+        {
+            if( !B.ColConstrained() )
+                B.AlignCols( A.ColAlign() );
+            if( !B.RowConstrained() )
+                B.AlignRows( A.RowAlign() );
+            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+                LockedView( B, A );
+            else
+                B = A;
+        }
         else
             B = A;
+        break;
+
+    case WRITE_PROXY:
+        LogicError("Nonsensical write proxy");
+        break;
+
+    case RESTORE_READ_WRITE_PROXY:
+    case RESTORE_WRITE_PROXY:
+        if( !A.Viewing() )
+            B = A;
+        break;
     }
-    else
-        B = A;
 }
 
 template<typename Real,Dist U,Dist V>
 void Copy
 ( const AbstractDistMatrix<Real>& A, DistMatrix<Complex<Real>,U,V>& B,
-  bool allowShallow )
+  CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
 
-    if( U == A.DistData().colDist && V == A.DistData().rowDist )
-    {
-        if( !B.ColConstrained() )
-            B.AlignCols( A.ColAlign() );
-        if( !B.RowConstrained() )
-            B.AlignRows( A.RowAlign() );
-        if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
-        {
-            B.Resize( A.Height(), A.Width() );
-            Copy( A.LockedMatrix(), B.Matrix() );
-            return;
-        }
-    }
-
     DistMatrix<Real,U,V> BReal(A.Grid());
-    BReal.AlignWith( B );
-    BReal = A;
-    B.Resize( A.Height(), A.Width() );
-    Copy( BReal.LockedMatrix(), B.Matrix() );
+
+    switch( copyType )
+    {
+    case DEEP_COPY:
+    case READ_PROXY:
+    case READ_WRITE_PROXY:
+        if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
+        {
+            if( !B.ColConstrained() )
+                B.AlignCols( A.ColAlign() );
+            if( !B.RowConstrained() )
+                B.AlignRows( A.RowAlign() );
+            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+            {
+                B.Resize( A.Height(), A.Width() );
+                Copy( A.LockedMatrix(), B.Matrix() );
+                return;
+            }
+        }
+        BReal.AlignWith( B );
+        BReal = A;
+        B.Resize( A.Height(), A.Width() );
+        Copy( BReal.LockedMatrix(), B.Matrix() );
+        break;
+
+    case WRITE_PROXY:
+        LogicError("Nonsensical write proxy since restore impossible"); break;
+
+    case RESTORE_READ_WRITE_PROXY:
+    case RESTORE_WRITE_PROXY:
+        LogicError
+        ("Impossible to be restoring a complex matrix from a real write proxy");
+        break;
+    }
 }
 
 template<typename T,Dist U,Dist V>
 void Copy
 ( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B, 
-  bool allowShallow )
+  CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     // TODO: Add support for shallow copies
@@ -121,11 +236,11 @@ void Copy
 template<typename Real,Dist U,Dist V>
 void Copy
 ( const AbstractBlockDistMatrix<Real>& A, 
-  BlockDistMatrix<Complex<Real>,U,V>& B, bool allowShallow )
+  BlockDistMatrix<Complex<Real>,U,V>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
 
-    if( U == A.DistData().colDist && V == A.DistData().rowDist )
+    if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.ColConstrained() )
             B.AlignColsWith( A.DistData() );
@@ -151,62 +266,62 @@ void Copy
 
 template<typename T>
 void Copy
-( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, bool allowShallow )
+( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) \
         B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
-        Copy( A, BCast, allowShallow );
+        Copy( A, BCast, copyType );
     #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
 void Copy
-( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, bool allowShallow )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) \
         B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
-        Copy( A, BCast, allowShallow );
+        Copy( A, BCast, copyType );
     #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
 void Copy
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B,
-  bool allowShallow )
+  CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) \
         B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(B); \
-        Copy( A, BCast, allowShallow );
+        Copy( A, BCast, copyType );
     #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename Real>
 void Copy
 ( const AbstractDistMatrix<Real>& A, AbstractDistMatrix<Complex<Real>>& B,
-  bool allowShallow )
+  CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) \
         B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
-        Copy( A, BCast, allowShallow );
+        Copy( A, BCast, copyType );
     #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename Real>
 void Copy
 ( const AbstractBlockDistMatrix<Real>& A, 
-        AbstractBlockDistMatrix<Complex<Real>>& B, bool allowShallow )
+        AbstractBlockDistMatrix<Complex<Real>>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
     #define GUARD(CDIST,RDIST) \
@@ -214,39 +329,39 @@ void Copy
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = \
             dynamic_cast<BlockDistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
-        Copy( A, BCast, allowShallow );
+        Copy( A, BCast, copyType );
     #include "El/macros/GuardAndPayload.h"
 }
 
 #define DIST_PROTO(T,U,V) \
   template void Copy \
-  ( AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, bool allowShallow ); \
+  ( AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, CopyType copyType ); \
   template void Copy \
-  ( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, bool allowShallow ); \
+  ( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, CopyType copyType ); \
   template void Copy \
   ( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B, \
-    bool allowShallow );
+    CopyType copyType );
 
 #define DIST_PROTO_REAL(T,U,V) \
   DIST_PROTO(T,U,V) \
   template void Copy \
   ( const AbstractDistMatrix<T>& A, DistMatrix<Complex<T>,U,V>& B, \
-    bool allowShallow ); \
+    CopyType copyType ); \
   template void Copy \
   ( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<Complex<T>,U,V>& B, \
-    bool allowShallow );
+    CopyType copyType );
 
 #define PROTO_BASE(T) \
-  template void Copy( Matrix<T>& A, Matrix<T>& B, bool allowShallow ); \
-  template void Copy( const Matrix<T>& A, Matrix<T>& B, bool allowShallow ); \
+  template void Copy( Matrix<T>& A, Matrix<T>& B, CopyType copyType ); \
+  template void Copy( const Matrix<T>& A, Matrix<T>& B, CopyType copyType ); \
   template void Copy \
-  ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, bool allowShallow ); \
+  ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, CopyType copyType ); \
   template void Copy \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, \
-    bool allowShallow ); \
+    CopyType copyType ); \
   template void Copy \
   ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B, \
-    bool allowShallow );
+    CopyType copyType );
 
 #define PROTO(T) \
   PROTO_BASE(T) \
@@ -268,13 +383,13 @@ void Copy
 #define PROTO_REAL(T) \
   PROTO_BASE(T) \
   template void Copy \
-  ( const Matrix<T>& A, Matrix<Complex<T>>& B, bool allowShallow ); \
+  ( const Matrix<T>& A, Matrix<Complex<T>>& B, CopyType copyType ); \
   template void Copy \
   ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Complex<T>>& B, \
-    bool allowShallow ); \
+    CopyType copyType ); \
   template void Copy \
   ( const AbstractBlockDistMatrix<T>& A, \
-          AbstractBlockDistMatrix<Complex<T>>& B, bool allowShallow ); \
+          AbstractBlockDistMatrix<Complex<T>>& B, CopyType copyType ); \
   DIST_PROTO_REAL(T,CIRC,CIRC); \
   DIST_PROTO_REAL(T,MC,  MR  ); \
   DIST_PROTO_REAL(T,MC,  STAR); \

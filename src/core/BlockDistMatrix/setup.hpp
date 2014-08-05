@@ -96,6 +96,7 @@ BDM::BlockDistMatrix( const BlockDistMatrix<T,U,V>& A )
 
 template<typename T>
 BDM::BlockDistMatrix( const AbstractBlockDistMatrix<T>& A )
+: GBDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("BDM(ABDM)"))
     if( ColDist == CIRC && RowDist == CIRC )

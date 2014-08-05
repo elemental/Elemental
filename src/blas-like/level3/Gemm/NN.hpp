@@ -14,8 +14,7 @@ namespace gemm {
 template<typename T>
 inline void
 Cannon_NN
-( T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -35,11 +34,11 @@ Cannon_NN
 
     // Force A, B, and C to be in [MC,MR] distributions aligned with C
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( CPre, C, true );
+    Copy( CPre, C, READ_WRITE_PROXY );
     A.AlignColsWith( C );
     B.AlignRowsWith( C );
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
 
     const Int row = g.Row();
     const Int col = g.Col();
@@ -95,17 +94,14 @@ Cannon_NN
         }
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix A
 template<typename T>
 inline void
 SUMMA_NNA
-( T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -127,9 +123,9 @@ SUMMA_NNA
 
     // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -156,17 +152,14 @@ SUMMA_NNA
         C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix B
 template<typename T>
 inline void 
 SUMMA_NNB
-( T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -188,9 +181,9 @@ SUMMA_NNB
 
     // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
@@ -214,17 +207,14 @@ SUMMA_NNB
         C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix C
 template<typename T>
 inline void 
 SUMMA_NNC
-( T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -246,9 +236,9 @@ SUMMA_NNC
 
     // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -272,17 +262,14 @@ SUMMA_NNC
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Normal Normal Gemm for panel-panel dot products
 template<typename T>
 inline void 
 SUMMA_NNDot
-( T alpha, const AbstractDistMatrix<T>& APre,
-           const AbstractDistMatrix<T>& BPre,
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
   T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
@@ -304,9 +291,9 @@ SUMMA_NNDot
 
     // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
     DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, true );
-    Copy( BPre, B, true );
-    Copy( CPre, C, true );
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     Scale( beta, C );
     if( A.Height() > B.Width() )
@@ -369,16 +356,13 @@ SUMMA_NNDot
         }
     }
 
-    // Perform a deep copy back to 'CPre' if necessary
-    if( !C.Viewing() )
-        Copy( C, CPre );
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 SUMMA_NN
-( T alpha, const AbstractDistMatrix<T>& A,
-           const AbstractDistMatrix<T>& B,
+( T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, GemmAlgorithm alg=GEMM_DEFAULT )
 {
     DEBUG_ONLY(CallStackEntry cse("gemm::SUMMA_NN"))

@@ -45,8 +45,8 @@ void Symm
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Symm"))
     if( side == LEFT && uplo == LOWER )
@@ -66,8 +66,8 @@ void Symm
     T beta,        Matrix<T>& C, bool conjugate ); \
   template void Symm \
   ( LeftOrRight side, UpperOrLower uplo, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-    T beta,        DistMatrix<T>& C, bool conjugate ); \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C, bool conjugate ); \
   template void symm::LocalAccumulateLL \
   ( Orientation orientation, T alpha, \
     const DistMatrix<T>& A, \

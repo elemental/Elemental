@@ -72,7 +72,7 @@ Analytic
 
     // Force 'shifts' to be in a [VR,STAR] distribution
     DistMatrix<Complex<Real>,VR,STAR> shifts_VR_STAR(g);
-    Copy( shifts, shifts_VR_STAR, true );
+    Copy( shifts, shifts_VR_STAR, READ_PROXY );
 
     invNorms.AlignWith( shifts_VR_STAR );
     Zeros( invNorms, numShifts, 1 );

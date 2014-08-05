@@ -1172,7 +1172,11 @@ SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, 
   const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
+    DEBUG_ONLY(
+        CallStackEntry cse("schur::SDC");
+        if( A.Grid() != w.Grid() )
+            LogicError("A and w must have matching grids");
+    )
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1338,7 +1342,11 @@ SDC
 ( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q, 
   bool fullTriangle=true, const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
 {
-    DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
+    DEBUG_ONLY(
+        CallStackEntry cse("schur::SDC");
+        if( A.Grid() != w.Grid() || w.Grid() != Q.Grid() )
+            LogicError("{A,w,Q} must have the same grids");
+    )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();

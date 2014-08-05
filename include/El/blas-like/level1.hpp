@@ -56,37 +56,59 @@ void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 // Copy
 // ====
+
+namespace CopyTypeNS {
+enum CopyType {
+  /* The usual option: create a full copy */
+  DEEP_COPY,
+
+  /* Create an (ideally shallow) copy of a matrix */
+  READ_PROXY,
+
+  /* Create an (ideally shallow) copy of a read/write matrix */
+  READ_WRITE_PROXY,
+  /* Ensure that the result is transferred back to the output matrix */
+  RESTORE_READ_WRITE_PROXY,
+
+  /* Create an (ideally shallow) copy of a write matrix */
+  WRITE_PROXY,
+  /* Ensure that the result is transferred back to the output matrix */
+  RESTORE_WRITE_PROXY
+};
+}
+using namespace CopyTypeNS;
+
 template<typename T>
-void Copy( Matrix<T>& A, Matrix<T>& B, bool allowShallow=false );
+void Copy( Matrix<T>& A, Matrix<T>& B, CopyType copyType=DEEP_COPY );
 template<typename T>
-void Copy( const Matrix<T>& A, Matrix<T>& B, bool allowShallow=false );
+void Copy( const Matrix<T>& A, Matrix<T>& B, CopyType copyType=DEEP_COPY );
 
 template<typename T,Dist U,Dist V>
 void Copy
 ( AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, 
-  bool allowShallow=false );
+  CopyType copyType=DEEP_COPY );
 template<typename T,Dist U,Dist V>
 void Copy
 ( const AbstractDistMatrix<T>& A, DistMatrix<T,U,V>& B, 
-  bool allowShallow=false );
+  CopyType copyType=DEEP_COPY );
 
 template<typename T>
 void Copy
 ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
-  bool allowShallow=false );
+  CopyType copyType=DEEP_COPY );
 template<typename T>
 void Copy
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
-  bool allowShallow=false );
+  CopyType copyType=DEEP_COPY );
 
 template<typename T,Dist U,Dist V>
 void Copy
 ( const AbstractBlockDistMatrix<T>& A, BlockDistMatrix<T,U,V>& B, 
-  bool allowShallow=false );
+  CopyType copyType=DEEP_COPY );
 template<typename T>
 void Copy
 ( const AbstractBlockDistMatrix<T>& A, AbstractBlockDistMatrix<T>& B, 
-  bool allowShallow=false );
+  CopyType copyType=DEEP_COPY );
 
 // NOTE: The 'allowShallow' argument has no effect on the following routines,
 //       as it will be impossible to shallow copy a real to complex matrix,
@@ -94,15 +116,16 @@ void Copy
 //       over the datatype of A and B can use a single interface.
 template<typename Real>
 void Copy
-( const Matrix<Real>& A, Matrix<Complex<Real>>& B, bool allowShallow=false );
+( const Matrix<Real>& A, Matrix<Complex<Real>>& B, 
+  CopyType copyType=DEEP_COPY );
 template<typename Real,Dist U,Dist V>
 void Copy
 ( const AbstractDistMatrix<Real>& A, 
-  DistMatrix<Complex<Real>,U,V>& B, bool allowShallow=false );
+  DistMatrix<Complex<Real>,U,V>& B, CopyType copyType=DEEP_COPY );
 template<typename Real,Dist U,Dist V>
 void Copy
 ( const AbstractBlockDistMatrix<Real>& A, 
-  BlockDistMatrix<Complex<Real>,U,V>& B, bool allowShallow=false );
+  BlockDistMatrix<Complex<Real>,U,V>& B, CopyType copyType=DEEP_COPY );
 
 // DiagonalScale
 // =============

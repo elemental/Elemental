@@ -73,6 +73,7 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
 
 template<typename T>
 DM::DistMatrix( const AbstractDistMatrix<T>& A )
+: GDM(A.Grid())
 {
     DEBUG_ONLY(CallStackEntry cse("DM(ADM)"))
     if( ColDist == CIRC && RowDist == CIRC )
