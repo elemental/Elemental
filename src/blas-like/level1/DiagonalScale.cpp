@@ -57,8 +57,7 @@ void DiagonalScale
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     if( side == LEFT )
     {
-        const Dist ZGath = GatheredDist<Z>();
-        DistMatrix<TDiag,W,ZGath> d_W_ZGath( X.Grid() );
+        DistMatrix<TDiag,W,GatheredDist<Z>()> d_W_ZGath( X.Grid() );
         if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
             d_W_ZGath = LockedView( d );
@@ -73,8 +72,7 @@ void DiagonalScale
     }
     else
     {
-        const Dist WGath = GatheredDist<W>();
-        DistMatrix<TDiag,Z,WGath> d_Z_WGath( X.Grid() );
+        DistMatrix<TDiag,Z,GatheredDist<W>()> d_Z_WGath( X.Grid() );
         if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
             d_Z_WGath = LockedView( d );

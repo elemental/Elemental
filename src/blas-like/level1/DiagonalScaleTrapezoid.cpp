@@ -101,8 +101,7 @@ void DiagonalScaleTrapezoid
 
     if( side == LEFT )
     {
-        const Dist ZGath = GatheredDist<Z>();
-        DistMatrix<TDiag,W,ZGath> d_W_ZGath( A.Grid() );
+        DistMatrix<TDiag,W,GatheredDist<Z>()> d_W_ZGath( A.Grid() );
         if( U == W && V == STAR && d.ColAlign() == A.ColAlign() )
         {
             d_W_ZGath = LockedView( d );
@@ -155,8 +154,7 @@ void DiagonalScaleTrapezoid
     }
     else
     {
-        const Dist WGath = GatheredDist<W>();
-        DistMatrix<TDiag,Z,WGath> d_Z_WGath( A.Grid() );
+        DistMatrix<TDiag,Z,GatheredDist<W>()> d_Z_WGath( A.Grid() );
         if( U == Z && V == STAR && d.ColAlign() == A.RowAlign() )
         {
             d_Z_WGath = LockedView( d );

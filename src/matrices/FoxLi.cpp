@@ -85,10 +85,8 @@ void FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
 
     // Form the integral operator
     A.Resize( n, n );
-    const Dist UGath = GatheredDist<U>();
-    const Dist VGath = GatheredDist<V>();
-    DistMatrix<Real,U,VGath> x_U_VGath( A.Grid() );
-    DistMatrix<Real,V,UGath> x_V_UGath( A.Grid() );
+    DistMatrix<Real,U,GatheredDist<V>()> x_U_VGath( A.Grid() );
+    DistMatrix<Real,V,GatheredDist<U>()> x_V_UGath( A.Grid() );
     x_U_VGath.AlignWith( A ); 
     x_V_UGath.AlignWith( A );
     x_U_VGath = x;

@@ -146,8 +146,7 @@ void PermuteRows
             LogicError("misaligned perm and invPerm");
     )
     const Grid& g = A.Grid();
-    const Dist VGath = GatheredDist<V>();
-    DistMatrix<Int,U,VGath> perm_U_VGath(g), invPerm_U_VGath(g);
+    DistMatrix<Int,U,GatheredDist<V>()> perm_U_VGath(g), invPerm_U_VGath(g);
     if( U == UPerm && A.ColAlign() == perm.ColAlign() )
     {
         perm_U_VGath = LockedView( perm );
@@ -175,8 +174,7 @@ void PermuteRows
 {
     DEBUG_ONLY(CallStackEntry cse("PermuteRows"))
     const Grid& g = A.Grid();
-    const Dist VGath = GatheredDist<V>();
-    DistMatrix<Int,U,VGath> perm_U_VGath(g), invPerm_U_VGath(g);
+    DistMatrix<Int,U,GatheredDist<V>()> perm_U_VGath(g), invPerm_U_VGath(g);
     perm_U_VGath.AlignWith( A );
     perm_U_VGath = perm;
     InvertPermutation( perm_U_VGath, invPerm_U_VGath );
@@ -190,8 +188,7 @@ void InversePermuteRows
 {
     DEBUG_ONLY(CallStackEntry cse("InversePermuteRows"))
     const Grid& g = A.Grid();
-    const Dist VGath = GatheredDist<V>();
-    DistMatrix<Int,U,VGath> perm_U_VGath(g), invPerm_U_VGath(g);
+    DistMatrix<Int,U,GatheredDist<V>()> perm_U_VGath(g), invPerm_U_VGath(g);
     invPerm_U_VGath.AlignWith( A );
     invPerm_U_VGath = invPerm;
     InvertPermutation( invPerm_U_VGath, perm_U_VGath );

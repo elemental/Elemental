@@ -65,7 +65,6 @@ DiagonalSolve
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
     if( side == LEFT )
     {
-        const Dist ZGath = GatheredDist<Z>();
         if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
             DiagonalSolve
@@ -74,7 +73,7 @@ DiagonalSolve
         }
         else
         {
-            DistMatrix<FDiag,W,ZGath> d_W_ZGath( X.Grid() );
+            DistMatrix<FDiag,W,GatheredDist<Z>()> d_W_ZGath( X.Grid() );
             d_W_ZGath = d;
             DiagonalSolve
             ( LEFT, orientation,
@@ -83,7 +82,6 @@ DiagonalSolve
     }
     else
     {
-        const Dist WGath = GatheredDist<W>();
         if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
             DiagonalSolve
@@ -92,7 +90,7 @@ DiagonalSolve
         }
         else
         {
-            DistMatrix<FDiag,Z,WGath> d_Z_WGath( X.Grid() );
+            DistMatrix<FDiag,Z,GatheredDist<W>()> d_Z_WGath( X.Grid() );
             d_Z_WGath = d;
             DiagonalSolve
             ( RIGHT, orientation,
