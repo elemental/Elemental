@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_RUN_HPP
 #define EL_TRMM_RUN_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -31,17 +29,12 @@ LocalAccumulateRUN
         if( U.Grid() != X.Grid() ||
             X.Grid() != ZTrans.Grid() )
             LogicError("{U,X,Z} must be distributed over the same grid");
-        if( U.Height() != U.Width() ||
-            U.Height() != X.Width() ||
+        if( U.Height() != U.Width() || U.Height() != X.Width() ||
             U.Height() != ZTrans.Height() )
             LogicError
-            ("Nonconformal:\n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X[* ,MC] ~ ",X.Height()," x ",X.Width(),"\n",
-             "  Z^H/T[MR,* ] ~ ",ZTrans.Height()," x ",
-                                 ZTrans.Width());
-        if( X.RowAlign() != U.ColAlign() ||
-            ZTrans.ColAlign() != U.RowAlign() )
+            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"),"\n",
+             DimsString(ZTrans,"Z'"));
+        if( X.RowAlign() != U.ColAlign() || ZTrans.ColAlign() != U.RowAlign() )
             LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = ZTrans.Height();
@@ -76,17 +69,24 @@ LocalAccumulateRUN
 
 template<typename T>
 inline void
-RUNA( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+RUNA
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUNA");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("{U,X} must be distributed over the same grid");
+        // TODO: More input checks
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,VC  > X1_STAR_VC(g);
     DistMatrix<T,STAR,MC  > X1_STAR_MC(g);
@@ -113,26 +113,32 @@ RUNA( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
         Z1Trans_MR_MC.RowSumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-RUNCOld( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+RUNCOld
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUNCOld");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
-        if( U.Height() != U.Width() || X.Width() != U.Height() )
+        if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
             LogicError
-            ("Nonconformal:\n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width());
+            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MR,  STAR> U01_MR_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g); 
@@ -162,26 +168,32 @@ RUNCOld( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
         LocalGemm( NORMAL, NORMAL, T(1), X0, U01_MR_STAR, D1_MC_STAR );
         X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-RUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+RUNC
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUNC");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
-        if( U.Height() != U.Width() || X.Width() != U.Height() )
+        if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
             LogicError
-            ("Nonconformal:\n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width());
+            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MR,  STAR> U12Trans_MR_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
@@ -213,6 +225,8 @@ RUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
         ( RIGHT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Right Upper Normal (Non)Unit Trmm
@@ -220,7 +234,8 @@ RUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 //   X := X triuu(U)
 template<typename T>
 inline void
-RUN( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+RUN
+( UnitOrNonUnit diag, const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::RUN"))
     // TODO: Come up with a better routing mechanism

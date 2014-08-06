@@ -13,26 +13,27 @@ namespace syrk {
 template<typename T>
 inline void
 LT
-( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, 
-  bool conjugate=false )
+( T alpha, const AbstractDistMatrix<T>& APre, 
+  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("syrk::LT");
-        if( A.Grid() != C.Grid() )
+        if( APre.Grid() != CPre.Grid() )
             LogicError("A and C must be distributed over the same grid");
-        if( A.Width() != C.Height() || A.Width() != C.Width() )
+        if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width() )
             LogicError
-            ("Nonconformal:\n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  C ~ ",C.Height()," x ",C.Width());
+            ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))
     )
-    const Grid& g = A.Grid();
+    const Int n = APre.Width();
+    const Int r = APre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<T> AT(g),  A0(g),
-                  AB(g),  A1(g),
-                          A2(g);
+    // Force 'A" and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), C(g); 
+    Copy( APre, A, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);
@@ -42,20 +43,12 @@ LT
     A1Trans_MR_STAR.AlignWith( C );
     A1_STAR_MC.AlignWith( C );
 
-    // Start the algorithm
     ScaleTrapezoid( beta, LOWER, C );
-    LockedPartitionDown
-    ( A, AT, 
-         AB, 0 );
-    while( AB.Height() > 0 )
+    for( Int k=0; k<r; k+=bsize )
     {
-        LockedRepartitionDown
-        ( AT,  A0,
-         /**/ /**/
-               A1,
-          AB,  A2 );
+        const Int nb = Min(bsize,r-k);
+        auto A1 = LockedView( A, k, 0, nb, n );
 
-        //--------------------------------------------------------------------//
         A1.TransposeColAllGather( A1Trans_MR_STAR );
         A1_STAR_VR.TransposePartialRowFilterFrom( A1Trans_MR_STAR );
         A1_STAR_MC = A1_STAR_VR;
@@ -63,14 +56,9 @@ LT
         LocalTrrk
         ( LOWER, orientation, TRANSPOSE, 
           alpha, A1_STAR_MC, A1Trans_MR_STAR, T(1), C );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDown
-        ( AT,  A0,
-               A1,
-         /**/ /**/
-          AB,  A2 );
     }
+
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace syrk

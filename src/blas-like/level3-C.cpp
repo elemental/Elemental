@@ -141,8 +141,8 @@ extern "C" {
     CREFLECT(F) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Syrk( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), DM_CAST_CONST(F,A), \
-            CReflect(beta), DM_CAST(F,C) ) ) } \
+            CReflect(alpha), *CReflect(A), \
+            CReflect(beta), *CReflect(C) ) ) } \
   /* Syr2k */ \
   ElError ElSyr2k_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
@@ -201,7 +201,7 @@ extern "C" {
       Trmm( \
         CReflect(side), CReflect(uplo), \
         CReflect(orientation), CReflect(diag), \
-        CReflect(alpha), DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+        CReflect(alpha), *CReflect(A), *CReflect(B) ) ) } \
   /* Trsm */ \
   ElError ElTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
@@ -320,8 +320,8 @@ extern "C" {
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Herk( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), DM_CAST_CONST(T,A), \
-            CReflect(beta), DM_CAST(T,C) ) ) } \
+            CReflect(alpha), *CReflect(A), \
+            CReflect(beta), *CReflect(C) ) ) } \
   /* Her2k */ \
   ElError ElHer2k_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \

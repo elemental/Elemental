@@ -13,24 +13,26 @@ namespace syrk {
 template<typename T>
 inline void
 LN
-( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, 
-  bool conjugate=false )
+( T alpha, const AbstractDistMatrix<T>& APre, 
+  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("syrk::LN");
-        if( A.Grid() != C.Grid() )
+        if( APre.Grid() != CPre.Grid() )
             LogicError("A and C must be distributed over the same grid");
-        if( A.Height() != C.Height() || A.Height() != C.Width() )
+        if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() )
             LogicError
-            ("Nonconformal:\n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  C ~ ",C.Height()," x ",C.Width());
+            ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))
     )
-    const Grid& g = A.Grid();
+    const Int n = APre.Height();
+    const Int r = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<T> AL(g), AR(g),
-                  A0(g), A1(g), A2(g);
+    // Force 'A' and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), C(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
@@ -41,25 +43,18 @@ LN
     A1_VR_STAR.AlignWith( C );
     A1Trans_STAR_MR.AlignWith( C );
 
-    // Start the algorithm
     ScaleTrapezoid( beta, LOWER, C );
-    LockedPartitionRight( A, AL, AR, 0 );
-    while( AR.Width() > 0 )
+    for( Int k=0; k<r; k+=bsize )
     {
-        LockedRepartitionRight
-        ( AL, /**/ AR,
-          A0, /**/ A1, A2 );
+        const Int nb = Min(bsize,r-k);
+        auto A1 = LockedView( A, 0, k, n, nb );
 
-        //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
         A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );
         LocalTrrk( LOWER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionRight
-        ( AL,     /**/ AR,
-          A0, A1, /**/ A2 );
     }
+
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace syrk 

@@ -33,7 +33,7 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A, T beta, AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Herk"))
     Syrk( uplo, orientation, alpha, A, beta, C, true );
@@ -42,7 +42,7 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Herk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -57,16 +57,14 @@ void Herk
     T beta,        Matrix<T>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const Matrix<T>& A, \
-                   Matrix<T>& C ); \
+    T alpha, const Matrix<T>& A, Matrix<T>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistMatrix<T>& A, \
-                   DistMatrix<T>& C ); \
+    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C ); \
   template void Herk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistMatrix<T>& A, \
-    T beta,        DistMatrix<T>& C );
+    T alpha, const AbstractDistMatrix<T>& A, \
+    T beta,        AbstractDistMatrix<T>& C );
 
 // blas::Herk not yet supported for Int
 #define EL_NO_INT_PROTO

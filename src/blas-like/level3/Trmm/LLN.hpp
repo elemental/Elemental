@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_LLN_HPP
 #define EL_TRMM_LLN_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -36,11 +34,8 @@ LocalAccumulateLLN
             L.Height() != Z.Height() ||
             XTrans.Height() != Z.Width() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X^H/T[* ,MR] ~ ",XTrans.Height()," x ",
-                                 XTrans.Width(),"\n",
-             "  Z[MC,* ] ~ ",Z.Height()," x ",Z.Width());
+            ("Nonconformal: \n",DimsString(L,"L"),"\n",
+             DimsString(XTrans,"X'"),"\n",DimsString(Z,"Z"));
         if( XTrans.RowAlign() != L.RowAlign() ||
             Z.ColAlign() != L.ColAlign() )
             LogicError("Partial matrix distributions are misaligned");
@@ -76,22 +71,26 @@ LocalAccumulateLLN
 
 template<typename T>
 inline void
-LLNA( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+LLNA
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLNA");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
-        if( L.Height() != L.Width() || L.Width() != X.Height() )
+        if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n"
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width());
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
@@ -114,26 +113,32 @@ LLNA( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
         ( TRANSPOSE, diag, T(1), L, X1Trans_STAR_MR, Z1_MC_STAR );
         X1.RowSumScatterFrom( Z1_MC_STAR );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-LLNCOld( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+LLNCOld
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLNCOld");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
-        if( L.Height() != L.Width() || L.Width() != X.Height() )
+        if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width());
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -170,26 +175,32 @@ LLNCOld( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-LLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+LLNC
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLNC");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
-        if( L.Height() != L.Width() || L.Width() != X.Height() )
+        if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width());
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -220,6 +231,8 @@ LLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
         LocalTrmm( LEFT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Lower Normal (Non)Unit Trmm 
@@ -227,7 +240,8 @@ LLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
 //   X := trilu(L) X
 template<typename T>
 inline void
-LLN( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+LLN
+( UnitOrNonUnit diag, const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::LLN"))
     // TODO: Come up with a better routing mechanism

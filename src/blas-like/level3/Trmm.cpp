@@ -53,7 +53,7 @@ template<typename T>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& X )
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("Trmm"))
     Scale( alpha, X );
@@ -95,7 +95,7 @@ void Trmm
   template void Trmm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    T alpha, const DistMatrix<T>& A, DistMatrix<T>& B );
+    T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

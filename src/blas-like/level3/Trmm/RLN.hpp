@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_RLN_HPP
 #define EL_TRMM_RLN_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -75,17 +73,24 @@ LocalAccumulateRLN
 
 template<typename T>
 inline void
-RLNA( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+RLNA
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLNA");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("{L,X} must be distributed over the same grid");
+        // TODO: More checks
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,VC  > X1_STAR_VC(g);
     DistMatrix<T,STAR,MC  > X1_STAR_MC(g);
@@ -113,25 +118,33 @@ RLNA( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
         Z1Trans_MR_MC.RowSumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-RLNCOld( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+RLNCOld
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLNCOld");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError
             ("L and X must be distributed over the same grid");
-        if( L.Height() != L.Width() || X.Width() != L.Height() )
+        if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
             LogicError
-            ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+ 
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> L21_MR_STAR(g);
@@ -160,24 +173,32 @@ RLNCOld( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
         LocalGemm( NORMAL, NORMAL, T(1), X2, L21_MR_STAR, D1_MC_STAR );
         X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-RLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+RLNC
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLNC");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
-        if( L.Height() != L.Width() || X.Width() != L.Height() )
+        if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
             LogicError
-            ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> L10Trans_MR_STAR(g);
@@ -208,6 +229,8 @@ RLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
         ( RIGHT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Right Lower Normal (Non)Unit Trmm
@@ -215,7 +238,9 @@ RLNC( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
 //   X := X trilu(L)
 template<typename T>
 inline void
-RLN( UnitOrNonUnit diag, const DistMatrix<T>& L, DistMatrix<T>& X )
+RLN
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::RLN"))
     // TODO: Come up with a better routing mechanism

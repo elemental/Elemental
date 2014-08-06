@@ -66,7 +66,8 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, 
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
     if( uplo == LOWER && orientation == NORMAL )
@@ -82,7 +83,8 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, 
+                 AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syrk"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -99,11 +101,12 @@ void Syrk
     T alpha, const Matrix<T>& A, Matrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, \
-    bool conjugate ); \
+    T alpha, const AbstractDistMatrix<T>& A, \
+    T beta, AbstractDistMatrix<T>& C, bool conjugate ); \
   template void Syrk \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistMatrix<T>& A, DistMatrix<T>& C, bool conjugate );
+    T alpha, const AbstractDistMatrix<T>& A, \
+                   AbstractDistMatrix<T>& C, bool conjugate );
 
 // blas::Syrk is not yet supported for Int
 #define EL_NO_INT_PROTO

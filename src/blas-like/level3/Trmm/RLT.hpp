@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_RLT_HPP
 #define EL_TRMM_RLT_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -36,12 +34,8 @@ LocalAccumulateRLT
             L.Height() != ZTrans.Height() ||
             XTrans.Width() != ZTrans.Width() )
             LogicError
-            ("Nonconformal:\n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X^H/T[MR,* ] ~ ",XTrans.Height()," x ",
-                                 XTrans.Width(),"\n",
-             "  Z^H/T[MC,* ] ~ ",ZTrans.Height()," x ",
-                                 ZTrans.Width());
+            ("Nonconformal:\n",DimsString(L,"L"),"\n",
+             DimsString(XTrans,"X'"),"\n",DimsString(ZTrans,"Z'"));
         if( XTrans.ColAlign() != L.RowAlign() ||
             ZTrans.ColAlign() != L.ColAlign() )
             LogicError("Partial matrix distributions are misaligned");
@@ -81,18 +75,23 @@ template<typename T>
 inline void
 RLTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLTA");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("{L,X} must be distributed over the same grid");
+        // TODO: More error checks
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
     DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
@@ -118,31 +117,35 @@ RLTA
         Z1Trans_MR_MC = Z1Trans;
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix(), conjugate );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 RLTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLTC");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected Adjoint/Transpose option");
-        if( L.Height() != L.Width() || X.Width() != L.Height() )
+        if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width());
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MR,  STAR> L10Trans_MR_STAR(g);
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -172,6 +175,8 @@ RLTC
         LocalGemm( NORMAL, NORMAL, T(1), X0, L10Trans_MR_STAR, D1_MC_STAR );
         X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Right Lower Adjoint/Transpose (Non)Unit Trmm
@@ -183,7 +188,7 @@ template<typename T>
 inline void
 RLT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::RLT"))
     // TODO: Come up with a better routing mechanism

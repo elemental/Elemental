@@ -76,12 +76,12 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C );
+  T alpha, const AbstractDistMatrix<T>& A, T beta, AbstractDistMatrix<T>& C );
 
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C );
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C );
 
 // Her2k
 // =====
@@ -234,13 +234,13 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
-  bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& A, 
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
 
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C,
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C,
   bool conjugate=false );
 
 // Syr2k
@@ -301,7 +301,7 @@ template<typename T>
 void Trmm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T>& A, DistMatrix<T>& X );
+  T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X );
 
 // Trsm
 // ====

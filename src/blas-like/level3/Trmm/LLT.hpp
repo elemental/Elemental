@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_LLT_HPP
 #define EL_TRMM_LLT_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -30,16 +28,12 @@ LocalAccumulateLLT
         CallStackEntry cse("trmm::LocalAccumulateLLT");
         if( L.Grid() != X.Grid() || X.Grid() != Z.Grid() )
             LogicError("{L,X,Z} must be distributed over the same grid");
-        if( L.Height() != L.Width() ||
-            L.Height() != X.Height() ||
+        if( L.Height() != L.Width() || L.Height() != X.Height() ||
             L.Height() != Z.Height() )
             LogicError
-            ("Nonconformal:\n",
-             "  L        ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X[MC,* ] ~ ",X.Height()," x ",X.Width(),"\n",
-             "  Z[MR,* ] ~ ",Z.Height()," x ",Z.Width(),"\n");
-        if( X.ColAlign() != L.ColAlign() ||
-            Z.ColAlign() != L.RowAlign() )
+            ("Nonconformal:\n",DimsString(L,"L"),"\n",DimsString(X,"X"),"\n",
+             DimsString(Z,"Z"));
+        if( X.ColAlign() != L.ColAlign() || Z.ColAlign() != L.RowAlign() )
             LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = Z.Height();
@@ -76,24 +70,26 @@ template<typename T>
 inline void
 LLTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLTA");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
-        if( L.Height() != L.Width() || L.Height() != X.Height() )
+        if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
@@ -116,31 +112,35 @@ LLTA
         Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
    
 template<typename T>
 inline void
 LLTCOld
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLTCOld");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
-        if( L.Height() != L.Width() || L.Height() != X.Height() )
+        if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
@@ -177,30 +177,34 @@ LLTCOld
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 LLTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& LPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLTC");
-        if( L.Grid() != X.Grid() )
+        if( LPre.Grid() != XPre.Grid() )
             LogicError("L and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
-        if( L.Height() != L.Width() || L.Height() != X.Height() )
+        if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<T> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
@@ -232,6 +236,8 @@ LLTC
         ( LEFT, LOWER, orientation, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Lower (Conjugate)Transpose (Non)Unit Trmm
@@ -243,7 +249,7 @@ template<typename T>
 inline void
 LLT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& L, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& L, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::LLT"))
     // TODO: Come up with a better routing mechanism

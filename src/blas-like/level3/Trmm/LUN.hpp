@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_LUN_HPP
 #define EL_TRMM_LUN_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -76,20 +74,26 @@ LocalAccumulateLUN
 
 template<typename T>
 inline void
-LUNA( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+LUNA
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUNA");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
-        if( U.Height() != U.Width() || U.Width() != X.Height() )
+        if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
             LogicError
-            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
@@ -113,24 +117,32 @@ LUNA( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 
         X1.RowSumScatterFrom( Z1_MC_STAR );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-LUNCOld( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+LUNCOld
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUNCOld");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
-        if( U.Height() != U.Width() || U.Width() != X.Height() )
+        if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
             LogicError
-            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
@@ -167,24 +179,32 @@ LUNCOld( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
-LUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+LUNC
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUNC");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
-        if( U.Height() != U.Width() || U.Width() != X.Height() )
+        if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
             LogicError
-            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"));
+            ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
@@ -214,6 +234,8 @@ LUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
         LocalTrmm( LEFT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Upper Normal (Non)Unit Trmm
@@ -221,7 +243,8 @@ LUNC( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
 //   X := triuu(U) X
 template<typename T>
 inline void
-LUN( UnitOrNonUnit diag, const DistMatrix<T>& U, DistMatrix<T>& X )
+LUN
+( UnitOrNonUnit diag, const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::LUN"))
     // TODO: Come up with a better routing mechanism

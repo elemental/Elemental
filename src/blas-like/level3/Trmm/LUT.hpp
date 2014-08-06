@@ -13,8 +13,6 @@
 #ifndef EL_TRMM_LUT_HPP
 #define EL_TRMM_LUT_HPP
 
-
-
 namespace El {
 namespace trmm {
 
@@ -35,12 +33,9 @@ LocalAccumulateLUT
             U.Height() != X.Height() ||
             U.Height() != Z.Height() )
             LogicError
-            ("Nonconformal:\n",
-             "  U        ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X[MC,* ] ~ ",X.Height()," x ",X.Width(),"\n",
-             "  Z[MR,* ] ~ ",Z.Height()," x ",Z.Width(),"\n");
-        if( X.ColAlign() != U.ColAlign() ||
-            Z.ColAlign() != U.RowAlign() )
+            ("Nonconformal:\n",DimsString(U,"U"),"\n",DimsString(X,"X"),"\n",
+             DimsString(Z,"Z"));
+        if( X.ColAlign() != U.ColAlign() || Z.ColAlign() != U.RowAlign() )
             LogicError("Partial matrix distributions are misaligned");
     )
     const Int m = Z.Height();
@@ -77,24 +72,26 @@ template<typename T>
 inline void
 LUTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& U, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUTA");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
-        if( U.Height() != U.Width() || U.Height() != X.Height() )
+        if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
@@ -117,31 +114,35 @@ LUTA
         Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 LUTCOld
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& U, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUTCOld");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
-        if( U.Height() != U.Width() || U.Height() != X.Height() )
+        if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g); 
@@ -179,30 +180,34 @@ LUTCOld
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
 inline void
 LUTC
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& U, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& UPre, AbstractDistMatrix<T>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUTC");
-        if( U.Grid() != X.Grid() )
+        if( UPre.Grid() != XPre.Grid() )
             LogicError("U and X must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
-        if( U.Height() != U.Width() || U.Height() != X.Height() )
+        if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"))
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<T> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
@@ -235,6 +240,8 @@ LUTC
         ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Upper (Conjugate)Transpose (Non)Unit Trmm
@@ -246,7 +253,7 @@ template<typename T>
 inline void
 LUT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<T>& U, DistMatrix<T>& X )
+  const AbstractDistMatrix<T>& U, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("trmm::LUT"))
     // TODO: Come up with a better routing mechanism
