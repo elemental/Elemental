@@ -159,8 +159,8 @@ extern "C" {
     CREFLECT(F) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Syr2k( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), DM_CAST_CONST(F,A), DM_CAST_CONST(F,B), \
-            CReflect(beta), DM_CAST(F,C) ) ) } \
+            CReflect(alpha), *CReflect(A), *CReflect(B), \
+            CReflect(beta), *CReflect(C) ) ) } \
   /* Trdtrmm */ \
   ElError ElTrdtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
@@ -338,8 +338,8 @@ extern "C" {
     CREFLECT(T) beta, ElDistMatrix_ ## SIG C ) \
   { EL_TRY( \
       Her2k( CReflect(uplo), CReflect(orientation), \
-            CReflect(alpha), DM_CAST_CONST(T,A), DM_CAST_CONST(T,B), \
-            CReflect(beta), DM_CAST(T,C) ) ) }
+            CReflect(alpha), *CReflect(A), *CReflect(B), \
+            CReflect(beta), *CReflect(C) ) ) }
 
 #include "El/macros/CInstantiate.h"
 

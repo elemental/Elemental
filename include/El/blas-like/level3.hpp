@@ -98,14 +98,14 @@ void Her2k
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C );
 
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-                 DistMatrix<T>& C );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C );
 
 // MultiShiftQuasiTrsm
 // ===================
@@ -260,15 +260,15 @@ void Syr2k
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C,
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C,
   bool conjugate=false );
 
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-                 DistMatrix<T>& C,
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C,
   bool conjugate=false );
 
 // Trdtrmm

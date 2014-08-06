@@ -72,8 +72,8 @@ void Syr2k
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syr2k"))
     if( uplo == LOWER && orientation == NORMAL )
@@ -89,8 +89,8 @@ void Syr2k
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-                 DistMatrix<T>& C, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+                 AbstractDistMatrix<T>& C, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("Syr2k"))
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
@@ -109,12 +109,12 @@ void Syr2k
                    Matrix<T>& C, bool conjugate ); \
   template void Syr2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-    T beta,        DistMatrix<T>& C, bool conjugate ); \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C, bool conjugate ); \
   template void Syr2k \
   ( UpperOrLower uplo, Orientation orientation, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-                   DistMatrix<T>& C, bool conjugate );
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+                   AbstractDistMatrix<T>& C, bool conjugate );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

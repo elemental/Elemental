@@ -144,7 +144,6 @@ ElError ElHer2k_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElHer2kDist_c
 ( ElUpperOrLower uplo, ElOrientation orientation,
   complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B,
@@ -352,7 +351,6 @@ ElError ElSyr2k_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B,
   complex_double beta,  ElMatrix_z C );
 
-/* NOTE: 'A', 'B', and 'C' must be in [MC,MR] distributions */
 ElError ElSyr2kDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B,

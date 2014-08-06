@@ -13,36 +13,36 @@ namespace syr2k {
 template<typename T>
 inline void
 LN
-( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C,
-  bool conjugate=false )
+( T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("syr2k::LN");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
             LogicError("{A,B,C} must be distributed over the same grid");
-        if( A.Height() != C.Height() || A.Height() != C.Width() ||
-            B.Height() != C.Height() || B.Height() != C.Width() ||
-            A.Width() != B.Width() )
+        if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() ||
+            BPre.Height() != CPre.Height() || BPre.Height() != CPre.Width() ||
+            APre.Width() != BPre.Width() )
             LogicError
             ("Nonconformal:\n",
-             DimsString(A,"A"),"\n",DimsString(B,"B"),"\n",DimsString(C,"C"));
+             DimsString(APre,"A"),"\n",DimsString(BPre,"B"),"\n",
+             DimsString(CPre,"C"));
     )
-    const Grid& g = A.Grid();
+    const Int n = APre.Height();
+    const Int r = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views 
-    DistMatrix<T> AL(g), AR(g),
-                  A0(g), A1(g), A2(g);
-    DistMatrix<T> BL(g), BR(g),
-                  B0(g), B1(g), B2(g);
+    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     // Temporary distributions
-    DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
-    DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
-    DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
-    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
+    DistMatrix<T,MC,  STAR> A1_MC_STAR(g), B1_MC_STAR(g);
+    DistMatrix<T,VR,  STAR> A1_VR_STAR(g), B1_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g), B1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( C );
     B1_MC_STAR.AlignWith( C );
@@ -51,21 +51,14 @@ LN
     A1Trans_STAR_MR.AlignWith( C );
     B1Trans_STAR_MR.AlignWith( C );
 
-    // Start the algorithm
     ScaleTrapezoid( beta, LOWER, C );
-    LockedPartitionRight( A, AL, AR, 0 );
-    LockedPartitionRight( B, BL, BR, 0 );
-    while( AR.Width() > 0 )
+    for( Int k=0; k<r; k+=bsize )
     {
-        LockedRepartitionRight
-        ( AL, /**/ AR,
-          A0, /**/ A1, A2 );
+        const Int nb = Min(bsize,r-k);
 
-        LockedRepartitionRight
-        ( BL, /**/ BR,
-          B0, /**/ B1, B2 );
+        auto A1 = LockedView( A, 0, k, n, nb );
+        auto B1 = LockedView( B, 0, k, n, nb );
 
-        //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
         A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );
 
@@ -76,16 +69,9 @@ LN
         ( LOWER, 
           alpha, A1_MC_STAR, B1Trans_STAR_MR,
                  B1_MC_STAR, A1Trans_STAR_MR, T(1), C );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionRight
-        ( AL,     /**/ AR,
-          A0, A1, /**/ A2 );
-
-        SlideLockedPartitionRight
-        ( BL,     /**/ BR,
-          B0, B1, /**/ B2 );
     }
+
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace syr2k
