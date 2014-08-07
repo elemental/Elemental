@@ -10,8 +10,6 @@
 #ifndef EL_TWOSIDEDTRMM_UVAR2_HPP
 #define EL_TWOSIDEDTRMM_UVAR2_HPP
 
-
-
 namespace El {
 namespace twotrmm {
 
@@ -30,40 +28,29 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         if( A.Height() != U.Height() )
             LogicError("A and U must be the same size");
     )
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,
-        ABL, ABR,  A10, A11, A12,
-                   A20, A21, A22;
-    Matrix<F>
-        UTL, UTR,  U00, U01, U02,
-        UBL, UBR,  U10, U11, U12,
-                   U20, U21, U22;
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
 
     // Temporary products
     Matrix<F> Y12;
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        LockedRepartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        //--------------------------------------------------------------------//
+        auto A01 =       View( A, ind0, ind1 );
+        auto A02 = LockedView( A, ind0, ind2 );
+        auto A11 =       View( A, ind1, ind1 );
+        auto A12 =       View( A, ind1, ind2 );
+        auto A22 = LockedView( A, ind2, ind2 );
+
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
         // A01 := A01 U11'
         Trmm( RIGHT, UPPER, ADJOINT, diag, F(1), U11, A01 );
 
@@ -71,7 +58,7 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Gemm( NORMAL, ADJOINT, F(1), A02, U12, F(1), A01 );
 
         // Y12 := U12 A22
-        Zeros( Y12, A12.Height(), A12.Width() );
+        Zeros( Y12, nb, A12.Width() );
         Hemm( RIGHT, UPPER, F(1), A22, U12, F(0), Y12 );
 
         // A12 := U11 A12
@@ -88,96 +75,60 @@ UVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         // A12 := A12 + 1/2 Y12
         Axpy( F(1)/F(2), Y12, A12 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
 }
 
 template<typename F> 
 inline void
-UVar2( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
+UVar2
+( UnitOrNonUnit diag, 
+  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& UPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("twotrmm::UVar2");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("Triangular matrices must be square");
-        if( A.Height() != U.Height() )
+        if( APre.Height() != UPre.Height() )
             LogicError("A and U must be the same size");
     )
-    const Grid& g = A.Grid();
+    const Int n = APre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F>
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
+    DistMatrix<F> A(g), U(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( UPre, U, READ_PROXY );
 
     // Temporary distributions
-    DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), U11_STAR_STAR(g), 
+                            X11_STAR_STAR(g);
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
-    DistMatrix<F,STAR,VR  > U12_STAR_VR(g);
-    DistMatrix<F,MR,  STAR> U12Adj_MR_STAR(g);
-    DistMatrix<F,VC,  STAR> U12Adj_VC_STAR(g);
-    DistMatrix<F,MC,  STAR> X01_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> X11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g), U12_STAR_VR(g);
+    DistMatrix<F,MC,  STAR> X01_MC_STAR(g), Z12Adj_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> U12Adj_MR_STAR(g), Z12Adj_MR_STAR(g);
+    DistMatrix<F,VC,  STAR> A01_VC_STAR(g), U12Adj_VC_STAR(g);
     DistMatrix<F,MR,  MC  > Z12Adj_MR_MC(g);
-    DistMatrix<F,MC,  STAR> Z12Adj_MC_STAR(g);
-    DistMatrix<F,MR,  STAR> Z12Adj_MR_STAR(g);
-    DistMatrix<F> Y12(g);
-    DistMatrix<F> Z12Adj(g);
+    DistMatrix<F> Y12(g), Z12Adj(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        LockedRepartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        A12_STAR_VR.AlignWith( A12 );
-        U12_STAR_MC.AlignWith( A22 );
-        U12_STAR_VR.AlignWith( A12 );
-        U12Adj_MR_STAR.AlignWith( A22 );
-        U12Adj_VC_STAR.AlignWith( A22 );
-        X01_MC_STAR.AlignWith( A01 );
-        Y12.AlignWith( A12 );
-        Z12Adj.AlignWith( A12 );
-        Z12Adj_MR_MC.AlignWith( A12 );
-        Z12Adj_MC_STAR.AlignWith( A22 );
-        Z12Adj_MR_STAR.AlignWith( A22 );
-        //--------------------------------------------------------------------//
+        auto A01 =       View( A, ind0, ind1 );
+        auto A02 = LockedView( A, ind0, ind2 );
+        auto A11 =       View( A, ind1, ind1 );
+        auto A12 =       View( A, ind1, ind2 );
+        auto A22 = LockedView( A, ind2, ind2 );
+
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
         // A01 := A01 U11'
         U11_STAR_STAR = U11;
         A01_VC_STAR = A01;
@@ -186,26 +137,36 @@ UVar2( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
         A01 = A01_VC_STAR;
 
         // A01 := A01 + A02 U12'
+        U12Adj_MR_STAR.AlignWith( A22 );
         U12.AdjointColAllGather( U12Adj_MR_STAR );
+        X01_MC_STAR.AlignWith( A01 );
         LocalGemm( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, X01_MC_STAR );
         A01.RowSumScatterUpdate( F(1), X01_MC_STAR );
 
         // Y12 := U12 A22
+        U12Adj_VC_STAR.AlignWith( A22 );
         U12Adj_VC_STAR = U12Adj_MR_STAR;
+        U12_STAR_MC.AlignWith( A22 );
         U12Adj_VC_STAR.AdjointPartialColAllGather( U12_STAR_MC );
-        Zeros( Z12Adj_MC_STAR, A12.Width(), A12.Height() );
-        Zeros( Z12Adj_MR_STAR, A12.Width(), A12.Height() );
+        Z12Adj_MC_STAR.AlignWith( A22 );
+        Z12Adj_MR_STAR.AlignWith( A22 );
+        Zeros( Z12Adj_MC_STAR, A12.Width(), nb );
+        Zeros( Z12Adj_MR_STAR, A12.Width(), nb );
         symm::LocalAccumulateRU
         ( ADJOINT, 
           F(1), A22, U12_STAR_MC, U12Adj_MR_STAR, 
           Z12Adj_MC_STAR, Z12Adj_MR_STAR );
+        Z12Adj.AlignWith( A12 );
         Z12Adj.RowSumScatterFrom( Z12Adj_MC_STAR );
+        Z12Adj_MR_MC.AlignWith( A12 );
         Z12Adj_MR_MC = Z12Adj;
         Z12Adj_MR_MC.RowSumScatterUpdate( F(1), Z12Adj_MR_STAR );
-        Y12.Resize( A12.Height(), A12.Width() );
+        Y12.AlignWith( A12 );
+        Y12.Resize( nb, A12.Width() );
         Adjoint( Z12Adj_MR_MC.LockedMatrix(), Y12.Matrix() );
 
         // A12 := U11 A12
+        A12_STAR_VR.AlignWith( A12 );
         A12_STAR_VR = A12;
         U11_STAR_STAR = U11;
         LocalTrmm
@@ -222,8 +183,9 @@ UVar2( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 
         // A11 := A11 + (A12 U12' + U12 A12')
         A12_STAR_VR = A12;
+        U12_STAR_VR.AlignWith( A12 );
         U12_STAR_VR = U12;
-        Zeros( X11_STAR_STAR, A11.Height(), A11.Width() );
+        Zeros( X11_STAR_STAR, nb, nb );
         Her2k
         ( UPPER, NORMAL,
           F(1), A12_STAR_VR.Matrix(), U12_STAR_VR.Matrix(),
@@ -232,20 +194,8 @@ UVar2( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 
         // A12 := A12 + 1/2 Y12
         Axpy( F(1)/F(2), Y12, A12 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrmm

@@ -363,7 +363,7 @@ void TwoSidedTrmm
 template<typename T>
 void TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  DistMatrix<T>& A, const DistMatrix<T>& B );
+  AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 
 // TwoSidedTrsm
 // ============

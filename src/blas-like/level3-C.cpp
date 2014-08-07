@@ -261,7 +261,7 @@ extern "C" {
   { EL_TRY( \
       TwoSidedTrmm( \
         CReflect(uplo), CReflect(diag), \
-        DM_CAST(F,A), DM_CAST_CONST(F,B) ) ) } \
+        *CReflect(A), *CReflect(B) ) ) } \
   /* TwoSidedTrsm */ \
   ElError ElTwoSidedTrsm_ ## SIG \
   ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, \

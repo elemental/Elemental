@@ -13,8 +13,6 @@
 #ifndef EL_TWOSIDEDTRMM_LVAR4_HPP
 #define EL_TWOSIDEDTRMM_LVAR4_HPP
 
-
-
 namespace El {
 namespace twotrmm {
 
@@ -33,42 +31,31 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         if( A.Height() != L.Height() )
             LogicError("A and L must be the same size");
     )
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,
-        ABL, ABR,  A10, A11, A12,
-                   A20, A21, A22;
-    Matrix<F>
-        LTL, LTR,  L00, L01, L02,
-        LBL, LBR,  L10, L11, L12,
-                   L20, L21, L22;
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
 
     // Temporary products
     Matrix<F> Y10;
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        //--------------------------------------------------------------------//
+        auto A00 =       View( A, ind0, ind0 );
+        auto A10 =       View( A, ind1, ind0 );
+        auto A11 =       View( A, ind1, ind1 );
+        auto A20 =       View( A, ind2, ind0 );
+        auto A21 =       View( A, ind2, ind1 );
+
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
         // Y10 := A11 L10
-        Zeros( Y10, A10.Height(), A10.Width() );
+        Zeros( Y10, nb, k );
         Hemm( LEFT, LOWER, F(1), A11, L10, F(0), Y10 );
 
         // A10 := A10 + 1/2 Y10
@@ -91,106 +78,82 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         // A21 := A21 L11
         Trmm( RIGHT, LOWER, NORMAL, diag, F(1), L11, A21 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
 }
 
 template<typename F>
 inline void
-LVar4( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& L )
+LVar4
+( UnitOrNonUnit diag, 
+  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& LPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("twotrmm::LVar4");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("Triangular matrices must be square");
-        if( A.Height() != L.Height() )
+        if( APre.Height() != LPre.Height() )
             LogicError("A and L must be the same size");
     )
-    const Grid& g = A.Grid();
+    const Int n = APre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F>
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
+    DistMatrix<F> A(g), L(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( LPre, L, READ_PROXY );
 
     // Temporary distributions
-    DistMatrix<F,STAR,VR  > A10_STAR_VR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), L11_STAR_STAR(g);
+    DistMatrix<F,STAR,MC  > A10_STAR_MC(g), L10_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A10_STAR_MR(g);
-    DistMatrix<F,STAR,MC  > A10_STAR_MC(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,STAR,VR  > A10_STAR_VR(g), L10_STAR_VR(g), Y10_STAR_VR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
-    DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,MR,  STAR> L10Adj_MR_STAR(g);
-    DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
-    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,STAR,VR  > Y10_STAR_VR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        A10_STAR_VR.AlignWith( A00 );
-        A10_STAR_MR.AlignWith( A00 );
-        A10_STAR_MC.AlignWith( A00 );
-        A21_MC_STAR.AlignWith( A20 );
-        L10_STAR_VR.AlignWith( A00 );
-        L10Adj_MR_STAR.AlignWith( A00 );
-        L10_STAR_MC.AlignWith( A00 );
-        Y10_STAR_VR.AlignWith( A10 );
-        //--------------------------------------------------------------------//
+        auto A00 =       View( A, ind0, ind0 );
+        auto A10 =       View( A, ind1, ind0 );
+        auto A11 =       View( A, ind1, ind1 );
+        auto A20 =       View( A, ind2, ind0 );
+        auto A21 =       View( A, ind2, ind1 );
+
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
         // Y10 := A11 L10
         A11_STAR_STAR = A11;
+        L10Adj_MR_STAR.AlignWith( A00 );
         L10.AdjointColAllGather( L10Adj_MR_STAR );
+        L10_STAR_VR.AlignWith( A00 );
         L10_STAR_VR.AdjointPartialRowFilterFrom( L10Adj_MR_STAR );
-        Zeros( Y10_STAR_VR, A10.Height(), A10.Width() );
+        Y10_STAR_VR.AlignWith( A10 );
+        Zeros( Y10_STAR_VR, nb, k );
         Hemm
         ( LEFT, LOWER,
           F(1), A11_STAR_STAR.LockedMatrix(), L10_STAR_VR.LockedMatrix(),
           F(0), Y10_STAR_VR.Matrix() );
 
         // A10 := A10 + 1/2 Y10
+        A10_STAR_VR.AlignWith( A00 );
         A10_STAR_VR = A10;
         Axpy( F(1)/F(2), Y10_STAR_VR, A10_STAR_VR );
 
         // A00 := A00 + (A10' L10 + L10' A10)
+        A10_STAR_MR.AlignWith( A00 );
         A10_STAR_MR = A10_STAR_VR;
+        A10_STAR_MC.AlignWith( A00 );
         A10_STAR_MC = A10_STAR_VR;
+        L10_STAR_MC.AlignWith( A00 );
         L10_STAR_MC = L10_STAR_VR;
         LocalTrr2k
         ( LOWER, ADJOINT, ADJOINT, ADJOINT,
@@ -208,6 +171,7 @@ LVar4( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& L )
         A10 = A10_STAR_VR;
 
         // A20 := A20 + A21 L10
+        A21_MC_STAR.AlignWith( A20 );
         A21_MC_STAR = A21;
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A21_MC_STAR, L10Adj_MR_STAR, F(1), A20 );
@@ -221,20 +185,8 @@ LVar4( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& L )
         LocalTrmm
         ( RIGHT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrmm

@@ -544,7 +544,6 @@ ElError ElTwoSidedTrmm_c
 ElError ElTwoSidedTrmm_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A, ElConstMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTwoSidedTrmmDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_s A, ElConstDistMatrix_s B );
