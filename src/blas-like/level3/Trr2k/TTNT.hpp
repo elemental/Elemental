@@ -20,9 +20,9 @@ void Trr2kTTNT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfD, 
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-           const DistMatrix<T>& C, const DistMatrix<T>& D,
-  T beta,        DistMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+           const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T beta,        AbstractDistMatrix<T>& E )
 {
     DEBUG_ONLY(CallStackEntry cse("trr2k::Trr2kTTNT"))
     Trr2kNTTT

@@ -447,6 +447,104 @@ ElError ElTrmmDist_z
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstDistMatrix_z A, ElDistMatrix_z B );
 
+/* Trrk
+   ==== */
+/* TRiangular Rank-K update */
+ElError ElTrrk_s
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  float alpha, ElConstMatrix_s A, ElConstMatrix_s B, 
+  float beta,                     ElMatrix_s C );
+ElError ElTrrk_d
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  double alpha, ElConstMatrix_d A, ElConstMatrix_d B, 
+  double beta,                     ElMatrix_d C );
+ElError ElTrrk_c
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B, 
+  complex_float beta,                     ElMatrix_c C );
+ElError ElTrrk_z
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B, 
+  complex_double beta,                     ElMatrix_z C );
+
+ElError ElTrrkDist_s
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
+  float beta,                         ElDistMatrix_s C );
+ElError ElTrrkDist_d
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
+  double beta,                         ElDistMatrix_d C );
+ElError ElTrrkDist_c
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
+  complex_float beta,                         ElDistMatrix_c C );
+ElError ElTrrkDist_z
+( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, 
+  complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
+  complex_double beta,                         ElDistMatrix_z C );
+
+/* Trr2k
+   ===== */
+/* TRiangular Rank-2K update */
+ElError ElTrr2k_s
+( ElUpperOrLower uplo, 
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD,
+  float alpha, ElConstMatrix_s A, ElConstMatrix_s B, 
+               ElConstMatrix_s C, ElConstMatrix_s D,
+  float beta,                     ElMatrix_s E );
+ElError ElTrr2k_d
+( ElUpperOrLower uplo, 
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD, 
+  double alpha, ElConstMatrix_d A, ElConstMatrix_d B, 
+                ElConstMatrix_d C, ElConstMatrix_d D,
+  double beta,                     ElMatrix_d E );
+ElError ElTrr2k_c
+( ElUpperOrLower uplo, 
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD, 
+  complex_float alpha, ElConstMatrix_c A, ElConstMatrix_c B, 
+                       ElConstMatrix_c C, ElConstMatrix_c D,
+  complex_float beta,                     ElMatrix_c E );
+ElError ElTrr2k_z
+( ElUpperOrLower uplo,
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD, 
+  complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B, 
+                        ElConstMatrix_z C, ElConstMatrix_z D,
+  complex_double beta,                     ElMatrix_z E );
+
+ElError ElTrr2kDist_s
+( ElUpperOrLower uplo, 
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD,
+  float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s B, 
+               ElConstDistMatrix_s C, ElConstDistMatrix_s D,
+  float beta,                         ElDistMatrix_s E );
+ElError ElTrr2kDist_d
+( ElUpperOrLower uplo, 
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD, 
+  double alpha, ElConstDistMatrix_d A, ElConstDistMatrix_d B, 
+                ElConstDistMatrix_d C, ElConstDistMatrix_d D,
+  double beta,                         ElDistMatrix_d E );
+ElError ElTrr2kDist_c
+( ElUpperOrLower uplo, 
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD, 
+  complex_float alpha, ElConstDistMatrix_c A, ElConstDistMatrix_c B, 
+                       ElConstDistMatrix_c C, ElConstDistMatrix_c D,
+  complex_float beta,                         ElDistMatrix_c E );
+ElError ElTrr2kDist_z
+( ElUpperOrLower uplo,
+  ElOrientation orientA, ElOrientation orientB, 
+  ElOrientation orientC, ElOrientation orientD, 
+  complex_double alpha, ElConstDistMatrix_z A, ElConstDistMatrix_z B, 
+                        ElConstDistMatrix_z C, ElConstDistMatrix_z D,
+  complex_double beta,                         ElDistMatrix_z E );
+
 /* Trsm
    ==== */
 ElError ElTrsm_s
@@ -502,7 +600,6 @@ ElError ElTrstrm_z
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTrstrmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
@@ -527,7 +624,6 @@ ElError ElTrtrmm_d( ElUpperOrLower uplo, ElMatrix_d A, bool conjugate );
 ElError ElTrtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
 ElError ElTrtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElTrtrmmDist_s( ElUpperOrLower uplo, ElDistMatrix_s A, bool conjugate );
 ElError ElTrtrmmDist_d( ElUpperOrLower uplo, ElDistMatrix_d A, bool conjugate );
 ElError ElTrtrmmDist_c( ElUpperOrLower uplo, ElDistMatrix_c A, bool conjugate );

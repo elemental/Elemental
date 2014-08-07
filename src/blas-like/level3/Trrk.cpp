@@ -38,8 +38,8 @@ void Trrk
 template<typename T>
 void Trrk
 ( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C )
 {
     DEBUG_ONLY(CallStackEntry cse("Trrk"))
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
@@ -62,8 +62,8 @@ void Trrk
   template void Trrk \
   ( UpperOrLower uplo, \
     Orientation orientationOfA, Orientation orientationOfB, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-    T beta,        DistMatrix<T>& C ); \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+    T beta,        AbstractDistMatrix<T>& C ); \
   template void LocalTrrk \
    ( UpperOrLower uplo, \
      T alpha, const DistMatrix<T,MC,  STAR>& A, \

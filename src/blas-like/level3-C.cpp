@@ -202,6 +202,51 @@ extern "C" {
         CReflect(side), CReflect(uplo), \
         CReflect(orientation), CReflect(diag), \
         CReflect(alpha), *CReflect(A), *CReflect(B) ) ) } \
+  /* Trrk */ \
+  ElError ElTrrk_ ## SIG \
+  ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, \
+    CREFLECT(F) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+    CREFLECT(F) beta,  ElMatrix_ ## SIG C ) \
+  { EL_TRY( Trrk( CReflect(uplo), CReflect(orientA), CReflect(orientB), \
+      CReflect(alpha), *CReflect(A), *CReflect(B), \
+      CReflect(beta), *CReflect(C) ) ) } \
+  ElError ElTrrkDist_ ## SIG \
+  ( ElUpperOrLower uplo, ElOrientation orientA, ElOrientation orientB, \
+    CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG A, \
+                       ElConstDistMatrix_ ## SIG B, \
+    CREFLECT(F) beta,  ElDistMatrix_ ## SIG C ) \
+  { EL_TRY( Trrk( CReflect(uplo), CReflect(orientA), CReflect(orientB), \
+      CReflect(alpha), *CReflect(A), *CReflect(B), \
+      CReflect(beta), *CReflect(C) ) ) } \
+  /* Trr2k */ \
+  ElError ElTrr2k_ ## SIG \
+  ( ElUpperOrLower uplo, \
+    ElOrientation orientA, ElOrientation orientB, \
+    ElOrientation orientC, ElOrientation orientD, \
+    CREFLECT(F) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
+                       ElConstMatrix_ ## SIG C, ElConstMatrix_ ## SIG D, \
+    CREFLECT(F) beta,  ElMatrix_ ## SIG E ) \
+  { EL_TRY( Trrk( CReflect(uplo), \
+      CReflect(orientA), CReflect(orientB), \
+      CReflect(orientC), CReflect(orientD), \
+      CReflect(alpha), *CReflect(A), *CReflect(B), \
+                       *CReflect(C), *CReflect(D), \
+      CReflect(beta), *CReflect(E) ) ) } \
+  ElError ElTrr2kDist_ ## SIG \
+  ( ElUpperOrLower uplo, \
+    ElOrientation orientA, ElOrientation orientB, \
+    ElOrientation orientC, ElOrientation orientD, \
+    CREFLECT(F) alpha, ElConstDistMatrix_ ## SIG A, \
+                       ElConstDistMatrix_ ## SIG B, \
+                       ElConstDistMatrix_ ## SIG C, \
+                       ElConstDistMatrix_ ## SIG D, \
+    CREFLECT(F) beta,  ElDistMatrix_ ## SIG E ) \
+  { EL_TRY( Trrk( CReflect(uplo), \
+      CReflect(orientA), CReflect(orientB), \
+      CReflect(orientC), CReflect(orientD), \
+      CReflect(alpha), *CReflect(A), *CReflect(B), \
+                       *CReflect(C), *CReflect(D), \
+      CReflect(beta), *CReflect(E) ) ) } \
   /* Trsm */ \
   ElError ElTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
@@ -239,14 +284,14 @@ extern "C" {
       Trstrm( \
         CReflect(side), CReflect(uplo), \
         CReflect(orientation), CReflect(diag), \
-        CReflect(alpha), DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+        CReflect(alpha), *CReflect(A), *CReflect(B) ) ) } \
   /* Trtrmm */ \
   ElError ElTrtrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
   ElError ElTrtrmmDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( Trtrmm( CReflect(uplo), DM_CAST(F,A), conjugate ) ) } \
+  { EL_TRY( Trtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
   /* TwoSidedTrmm */ \
   ElError ElTwoSidedTrmm_ ## SIG \
   ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, \

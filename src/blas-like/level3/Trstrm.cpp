@@ -71,7 +71,7 @@ template<typename F>
 void Trstrm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& A, DistMatrix<F>& X,
+  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("Trstrm"))
@@ -124,7 +124,8 @@ void Trstrm
   template void Trstrm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    F alpha, const DistMatrix<F>& A, DistMatrix<F>& X, bool checkIfSingular );
+    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X, \
+    bool checkIfSingular );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

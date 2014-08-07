@@ -17,33 +17,29 @@ template<typename T>
 void Trr2kTNTN
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfC,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-           const DistMatrix<T>& C, const DistMatrix<T>& D,
-  T beta,        DistMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
+           const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
+  T beta,        AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trr2k::Trr2kTNTN");
-        if( E.Height() != E.Width()  || A.Height() != C.Height() ||
-            A.Width()  != E.Height() || C.Width()  != E.Height() ||
-            B.Width()  != E.Width()  || D.Width()  != E.Width()  ||
-            A.Height() != B.Height() || C.Height() != D.Height() )
+        if( EPre.Height() != EPre.Width()  || APre.Height() != CPre.Height() ||
+            APre.Width()  != EPre.Height() || CPre.Width()  != EPre.Height() ||
+            BPre.Width()  != EPre.Width()  || DPre.Width()  != EPre.Width()  ||
+            APre.Height() != BPre.Height() || CPre.Height() != DPre.Height() )
             LogicError("Nonconformal Trr2kTNTN");
     )
-    const Grid& g = E.Grid();
+    const Int n = EPre.Height();
+    const Int r = APre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = EPre.Grid();
 
-    DistMatrix<T> AT(g),  A0(g),
-                  AB(g),  A1(g),
-                          A2(g);
-    DistMatrix<T> BT(g),  B0(g),
-                  BB(g),  B1(g),
-                          B2(g);
-
-    DistMatrix<T> CT(g),  C0(g),
-                  CB(g),  C1(g),
-                          C2(g);
-    DistMatrix<T> DT(g),  D0(g),
-                  DB(g),  D1(g),
-                          D2(g);
+    DistMatrix<T> A(g), B(g), C(g), D(g), E(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_PROXY );
+    Copy( DPre, D, READ_PROXY );
+    Copy( EPre, E, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
@@ -55,42 +51,17 @@ void Trr2kTNTN
     C1_STAR_MC.AlignWith( E );
     D1Trans_MR_STAR.AlignWith( E );
 
-    LockedPartitionDown
-    ( A, AT,
-         AB, 0 );
-    LockedPartitionDown
-    ( B, BT,
-         BB, 0 );
-    LockedPartitionDown
-    ( C, CT,
-         CB, 0 );
-    LockedPartitionDown
-    ( D, DT,
-         DB, 0 );
-    while( AT.Height() < A.Height() )
+    for( Int k=0; k<r; k+=bsize )
     {
-        LockedRepartitionDown
-        ( AT,  A0,
-         /**/ /**/
-               A1,
-          AB,  A2 );
-        LockedRepartitionDown
-        ( BT,  B0,
-         /**/ /**/
-               B1,
-          BB,  B2 );
-        LockedRepartitionDown
-        ( CT,  C0,
-         /**/ /**/
-               C1,
-          CB,  C2 );
-        LockedRepartitionDown
-        ( DT,  D0,
-         /**/ /**/
-               D1,
-          DB,  D2 );
+        const Int nb = Min(bsize,r-k);
 
-        //--------------------------------------------------------------------//
+        const IndexRange ind1( k, k+nb );
+
+        auto A1 = LockedView( A, ind1, outerInd );
+        auto B1 = LockedView( B, ind1, outerInd );
+        auto C1 = LockedView( C, ind1, outerInd );
+        auto D1 = LockedView( D, ind1, outerInd );
+
         A1_STAR_MC = A1;
         C1_STAR_MC = C1;
         B1.TransposeColAllGather( B1Trans_MR_STAR );
@@ -99,29 +70,8 @@ void Trr2kTNTN
         ( uplo, orientationOfA, TRANSPOSE, orientationOfC, TRANSPOSE,
           alpha, A1_STAR_MC, B1Trans_MR_STAR, 
                  C1_STAR_MC, D1Trans_MR_STAR, beta, E );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionDown
-        ( DT,  D0,
-               D1,
-         /**/ /**/
-          DB,  D2 );
-        SlideLockedPartitionDown
-        ( CT,  C0,
-               C1,
-         /**/ /**/
-          CB,  C2 );
-        SlideLockedPartitionDown
-        ( BT,  B0,
-               B1,
-         /**/ /**/
-          BB,  B2 );
-        SlideLockedPartitionDown
-        ( AT,  A0,
-               A1,
-         /**/ /**/
-          AB,  A2 );
     }
+    Copy( E, EPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trr2k

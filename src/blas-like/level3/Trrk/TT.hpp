@@ -17,25 +17,27 @@ template<typename T>
 void TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+  T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& BPre,
+  T beta,        AbstractDistMatrix<T>& CPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trrk::TrrkTN");
-        if( C.Height() != C.Width() || A.Width() != C.Height() || 
-            B.Height() != C.Width() || A.Height() != B.Width() )
+        if( CPre.Height() != CPre.Width() || APre.Width() != CPre.Height() || 
+            BPre.Height() != CPre.Width() || APre.Height() != BPre.Width() )
             LogicError("Nonconformal TrrkTN");
         if( orientationOfA == NORMAL || orientationOfB == NORMAL )
             LogicError("Orientations must be TRANSPOSE or ADJOINT");
     )
-    const Grid& g = C.Grid();
+    const Int n = CPre.Height();
+    const Int r = APre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = CPre.Grid();
 
-    DistMatrix<T> AT(g),  A0(g),
-                  AB(g),  A1(g),
-                          A2(g);
-    DistMatrix<T> BL(g), BR(g),
-                  B0(g), B1(g), B2(g);
+    DistMatrix<T> A(g), B(g), C(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_WRITE_PROXY );
 
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -45,22 +47,16 @@ void TrrkTT
     B1_VR_STAR.AlignWith( C );
     B1Trans_STAR_MR.AlignWith( C );
 
-    LockedPartitionDown
-    ( A, AT,
-         AB, 0 );
-    LockedPartitionRight( B, BL, BR, 0 );
-    while( AT.Width() < A.Height() )
+    const IndexRange outerInd( 0, n );
+    for( Int k=0; k<r; k+=bsize )
     {
-        LockedRepartitionDown
-        ( AT,  A0,
-         /**/ /**/
-               A1,
-          AB,  A2 );
-        LockedRepartitionRight
-        ( BL, /**/ BR,
-          B0, /**/ B1, B2 );
+        const Int nb = Min(bsize,r-k);
 
-        //--------------------------------------------------------------------//
+        const IndexRange ind1( k, k+nb );
+
+        auto A1 = LockedView( A, ind1,     outerInd );
+        auto B1 = LockedView( B, outerInd, ind1     );
+
         A1_STAR_MC = A1;
         B1_VR_STAR = B1;
         B1_VR_STAR.TransposePartialColAllGather
@@ -68,17 +64,8 @@ void TrrkTT
         LocalTrrk
         ( uplo, orientationOfA,
           alpha, A1_STAR_MC, B1Trans_STAR_MR, beta, C );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionRight
-        ( BL,     /**/ BR,
-          B0, B1, /**/ B2 );
-        SlideLockedPartitionDown
-        ( AT,  A0,
-               A1,
-         /**/ /**/
-          AB,  A2 );
     }
+    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trrk

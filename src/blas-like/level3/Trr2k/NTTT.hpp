@@ -18,37 +18,34 @@ void Trr2kNTTT
 ( UpperOrLower uplo,
   Orientation orientationOfB, 
   Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-           const DistMatrix<T>& C, const DistMatrix<T>& D,
-  T beta,        DistMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& APre, const AbstractDistMatrix<T>& BPre,
+           const AbstractDistMatrix<T>& CPre, const AbstractDistMatrix<T>& DPre,
+  T beta,        AbstractDistMatrix<T>& EPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trr2k::Trr2kNTTT");
-        if( E.Height() != E.Width()  || A.Width()  != C.Height() ||
-            A.Height() != E.Height() || C.Width()  != E.Height() ||
-            B.Height() != E.Width()  || D.Height() != E.Width()  ||
-            A.Width()  != B.Width()  || C.Height() != D.Width() )
+        if( EPre.Height() != EPre.Width()  || APre.Width()  != CPre.Height() ||
+            APre.Height() != EPre.Height() || CPre.Width()  != EPre.Height() ||
+            BPre.Height() != EPre.Width()  || DPre.Height() != EPre.Width()  ||
+            APre.Width()  != BPre.Width()  || CPre.Height() != DPre.Width() )
             LogicError("Nonconformal Trr2kNTTT");
     )
-    const Grid& g = E.Grid();
+    const Int n = EPre.Height();
+    const Int r = APre.Width();
+    const Int bsize = Blocksize();
+    const Grid& g = EPre.Grid();
 
-    DistMatrix<T> AL(g), AR(g),
-                  A0(g), A1(g), A2(g);
-    DistMatrix<T> BL(g), BR(g),
-                  B0(g), B1(g), B2(g);
-
-    DistMatrix<T> CT(g),  C0(g),
-                  CB(g),  C1(g),
-                          C2(g);
-    DistMatrix<T> DL(g), DR(g),
-                  D0(g), D1(g), D2(g);
+    DistMatrix<T> A(g), B(g), C(g), D(g), E(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+    Copy( CPre, C, READ_PROXY );
+    Copy( DPre, D, READ_PROXY );
+    Copy( EPre, E, READ_WRITE_PROXY );
 
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
-    DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
+    DistMatrix<T,VR,  STAR> B1_VR_STAR(g), D1_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g), D1Trans_STAR_MR(g);
     DistMatrix<T,STAR,MC  > C1_STAR_MC(g);
-    DistMatrix<T,VR,  STAR> D1_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > D1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( E );
     B1_VR_STAR.AlignWith( E );
@@ -57,30 +54,18 @@ void Trr2kNTTT
     D1_VR_STAR.AlignWith( E );
     D1Trans_STAR_MR.AlignWith( E );
 
-    LockedPartitionRight( A, AL, AR, 0 );
-    LockedPartitionRight( B, BL, BR, 0 );
-    LockedPartitionDown
-    ( C, CT,
-         CB, 0 );
-    LockedPartitionRight( D, DL, DR, 0 );
-    while( AL.Width() < A.Width() )
+    const IndexRange outerInd( 0, n );
+    for( Int k=0; k<r; k+=bsize )
     {
-        LockedRepartitionRight
-        ( AL, /**/ AR,
-          A0, /**/ A1, A2 );
-        LockedRepartitionRight
-        ( BL, /**/ BR,
-          B0, /**/ B1, B2 );
-        LockedRepartitionDown
-        ( CT,  C0,
-         /**/ /**/
-               C1,
-          CB,  C2 );
-        LockedRepartitionRight
-        ( DL, /**/ DR,
-          D0, /**/ D1, D2 );
+        const Int nb = Min(bsize,r-k);
 
-        //--------------------------------------------------------------------//
+        const IndexRange ind1( k, k+nb );
+
+        auto A1 = LockedView( A, outerInd, ind1     );
+        auto B1 = LockedView( B, outerInd, ind1     );
+        auto C1 = LockedView( C, ind1,     outerInd );
+        auto D1 = LockedView( D, outerInd, ind1     );
+
         A1_MC_STAR = A1;
         C1_STAR_MC = C1;
         B1_VR_STAR = B1;
@@ -93,23 +78,8 @@ void Trr2kNTTT
         ( uplo, orientationOfC,
           alpha, A1_MC_STAR, B1Trans_STAR_MR, 
                  C1_STAR_MC, D1Trans_STAR_MR, beta, E );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionRight
-        ( DL,     /**/ DR,
-          D0, D1, /**/ D2 );
-        SlideLockedPartitionDown
-        ( CT,  C0,
-               C1,
-         /**/ /**/
-          CB,  C2 );
-        SlideLockedPartitionRight
-        ( BL,     /**/ BR,
-          B0, B1, /**/ B2 );
-        SlideLockedPartitionRight
-        ( AL,     /**/ AR,
-          A0, A1, /**/ A2 );
     }
+    Copy( E, EPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trr2k

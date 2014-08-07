@@ -18,54 +18,43 @@ inline void
 LVar1( Matrix<T>& L, bool conjugate=false )
 {
     DEBUG_ONLY(CallStackEntry cse("trtrmm::LVar1"))
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    Matrix<T>
-        LTL, LTR,  L00, L01, L02,
-        LBL, LBR,  L10, L11, L12,
-                   L20, L21, L22;
-
-    PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);  
 
-        //--------------------------------------------------------------------/
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto L00 = View( L, ind0, ind0 );
+        auto L10 = View( L, ind1, ind0 );
+        auto L11 = View( L, ind1, ind1 );
+
         Trrk( LOWER, orientation, NORMAL, T(1), L10, L10, T(1), L00 );
         Trmm( LEFT, LOWER, orientation, NON_UNIT, T(1), L11, L10 );
         trtrmm::LUnblocked( L11, conjugate );
-        //--------------------------------------------------------------------/
-
-        SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
 }
 
 template<typename T>
 inline void
-LVar1( DistMatrix<T>& L, bool conjugate=false )
+LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trtrmm::LVar1");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
     )
-    const Grid& g = L.Grid();
+    const Int n = LPre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<T>
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
+    DistMatrix<T> L(g);
+    Copy( LPre, L, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,STAR,VR  > L10_STAR_VR(g);
@@ -79,18 +68,17 @@ LVar1( DistMatrix<T>& L, bool conjugate=false )
     L10_STAR_MC.AlignWith( L );
     L10_STAR_MR.AlignWith( L );
 
-    PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal 
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------//
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto L00 = View( L, ind0, ind0 );
+        auto L10 = View( L, ind1, ind0 );
+        auto L11 = View( L, ind1, ind1 );
+
         L10_STAR_VR = L10;
         L10_STAR_VC = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VC;
@@ -106,14 +94,8 @@ LVar1( DistMatrix<T>& L, bool conjugate=false )
 
         LocalTrtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
+    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trtrmm

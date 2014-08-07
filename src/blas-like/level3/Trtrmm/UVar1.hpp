@@ -18,54 +18,43 @@ inline void
 UVar1( Matrix<T>& U, bool conjugate=false )
 {
     DEBUG_ONLY(CallStackEntry cse("trtrmm::UVar1"))
+    const Int n = U.Height();
+    const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE ); 
-    Matrix<T>
-        UTL, UTR,  U00, U01, U02,
-        UBL, UBR,  U10, U11, U12,
-                   U20, U21, U22;
 
-    PartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------/
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto U00 = View( U, ind0, ind0 );
+        auto U01 = View( U, ind0, ind1 );
+        auto U11 = View( U, ind1, ind1 );
+
         Trrk( UPPER, NORMAL, orientation, T(1), U01, U01, T(1), U00 );
         Trmm( RIGHT, UPPER, orientation, NON_UNIT, T(1), U11, U01 );
         trtrmm::UUnblocked( U11, conjugate );
-        //--------------------------------------------------------------------/
-
-        SlidePartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
 }
 
 template<typename T>
 inline void
-UVar1( DistMatrix<T>& U, bool conjugate=false )
+UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trtrmm::UVar1");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
     )
-    const Grid& g = U.Grid();
+    const Int n = UPre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = UPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Matrix views
-    DistMatrix<T>
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
+    DistMatrix<T> U(g);
+    Copy( UPre, U, READ_WRITE_PROXY );
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
@@ -79,18 +68,17 @@ UVar1( DistMatrix<T>& U, bool conjugate=false )
     U01_VR_STAR.AlignWith( U );
     U01Trans_STAR_MR.AlignWith( U );
 
-    PartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal 
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        const Int nb = Min(bsize,n-k);
 
-        //--------------------------------------------------------------------//
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto U00 = View( U, ind0, ind0 );
+        auto U01 = View( U, ind0, ind1 );
+        auto U11 = View( U, ind1, ind1 );
+
         U01_MC_STAR = U01;
         U01_VC_STAR = U01_MC_STAR;
         U01_VR_STAR = U01_VC_STAR;
@@ -105,14 +93,8 @@ UVar1( DistMatrix<T>& U, bool conjugate=false )
 
         LocalTrtrmm( UPPER, U11_STAR_STAR, conjugate );
         U11 = U11_STAR_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
+    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trtrmm

@@ -126,9 +126,9 @@ void Trr2k
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-           const DistMatrix<T>& C, const DistMatrix<T>& D,
-  T beta,        DistMatrix<T>& E )
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+           const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T beta,        AbstractDistMatrix<T>& E )
 {
     DEBUG_ONLY(CallStackEntry cse("Trr2k"))
     const bool normalA = orientationOfA == NORMAL;
@@ -216,9 +216,9 @@ void Trr2k
   ( UpperOrLower uplo, \
     Orientation orientationOfA, Orientation orientationOfB, \
     Orientation orientationOfC, Orientation orientationOfD, \
-    T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, \
-             const DistMatrix<T>& C, const DistMatrix<T>& D, \
-    T beta,        DistMatrix<T>& E ); \
+    T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, \
+             const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D, \
+    T beta,        AbstractDistMatrix<T>& E ); \
   template void LocalTrr2k \
   ( UpperOrLower uplo, \
     T alpha, const DistMatrix<T,MC,  STAR>& A, \

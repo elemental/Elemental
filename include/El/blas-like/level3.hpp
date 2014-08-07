@@ -343,7 +343,7 @@ template<typename F>
 void Trstrm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& A, DistMatrix<F>& X,
+  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X,
   bool checkIfSingular=true );
 
 // Trtrmm
@@ -352,7 +352,8 @@ template<typename T>
 void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false );
 
 template<typename T>
-void Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false );
+void Trtrmm
+( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate=false );
 
 // TwoSidedTrmm
 // ============
@@ -625,8 +626,8 @@ template<typename T>
 void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+  T beta,        AbstractDistMatrix<T>& C );
 template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
@@ -670,9 +671,9 @@ void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-           const DistMatrix<T>& C, const DistMatrix<T>& D,
-  T beta,        DistMatrix<T>& E );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
+           const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
+  T beta,        AbstractDistMatrix<T>& E );
 
 template<typename T>
 void LocalTrr2k

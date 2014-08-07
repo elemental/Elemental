@@ -29,7 +29,7 @@ void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 }
 
 template<typename T>
-void Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate )
+void Trtrmm( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trtrmm");
@@ -44,7 +44,8 @@ void Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate )
 
 #define PROTO(T) \
   template void Trtrmm( UpperOrLower uplo, Matrix<T>& A, bool conjugate ); \
-  template void Trtrmm( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate );
+  template void Trtrmm \
+  ( UpperOrLower uplo, AbstractDistMatrix<T>& A, bool conjugate );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
