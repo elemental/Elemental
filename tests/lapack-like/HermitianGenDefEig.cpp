@@ -350,7 +350,7 @@ main( int argc, char* argv[] )
             pencil = AXBX;
             pencilString = "AXBX";
         }
-        else if( pencil == 2 )
+        else if( pencilInt == 2 )
         {
             pencil = ABX;
             pencilString = "ABX";

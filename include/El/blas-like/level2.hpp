@@ -261,7 +261,7 @@ void Trsv
 template<typename F>
 void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F>& A, DistMatrix<F>& x );
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x );
 
 } // namespace El
 

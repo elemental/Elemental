@@ -316,7 +316,7 @@ template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
+  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   bool checkIfSingular=false );
 
 // TODO: Greatly improve (and allow the user to modify) the mechanism for 
@@ -374,7 +374,7 @@ void TwoSidedTrsm
 template<typename F>
 void TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag,
-  DistMatrix<F>& A, const DistMatrix<F>& B );
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B );
 
 // Inline convenience functions
 // ############################

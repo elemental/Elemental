@@ -21,7 +21,7 @@ template<typename F>
 inline void
 LUTLarge
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F>& U, DistMatrix<F>& X,
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -29,10 +29,14 @@ LUTLarge
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -68,6 +72,8 @@ LUTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) ~= p
@@ -75,17 +81,22 @@ template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsm::LUTMedium");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -122,6 +133,8 @@ LUTMedium
         ( orientation, orientation, 
           F(-1), U12_STAR_MC, X1Trans_MR_STAR, F(1), X2 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) << p

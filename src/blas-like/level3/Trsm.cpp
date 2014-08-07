@@ -61,7 +61,7 @@ template<typename F>
 void Trsm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
+  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -166,7 +166,7 @@ void Trsm
   template void Trsm \
   ( LeftOrRight side, UpperOrLower uplo, \
     Orientation orientation, UnitOrNonUnit diag, \
-    F alpha, const DistMatrix<F>& A, DistMatrix<F>& B, \
+    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     bool checkIfSingular ); \
   template void trsm::LLTSmall \
   ( Orientation orientation, UnitOrNonUnit diag, \

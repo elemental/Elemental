@@ -19,17 +19,22 @@ template<typename F>
 inline void
 RUT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsm::RUT");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
     DistMatrix<F,STAR,MR  > U01Trans_STAR_MR(g);
@@ -71,6 +76,8 @@ RUT
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, U01Trans_STAR_MR, F(1), X0 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsm

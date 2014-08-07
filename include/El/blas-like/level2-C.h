@@ -418,7 +418,6 @@ ElError ElTrsv_z
 ( ElUpperOrLower uplo, ElOrientation orientation, ElUnitOrNonUnit diag, 
   ElConstMatrix_z A, ElMatrix_z x );
 
-/* NOTE: 'A' and 'x' must be in [MC,MR] distributions */
 ElError ElTrsvDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation, ElUnitOrNonUnit diag, 
   ElConstDistMatrix_s A, ElDistMatrix_s x );

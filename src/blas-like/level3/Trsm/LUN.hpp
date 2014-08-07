@@ -18,13 +18,18 @@ template<typename F>
 inline void
 LUNLarge
 ( UnitOrNonUnit diag,
-  const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::LUNLarge"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -59,19 +64,26 @@ LUNLarge
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
 inline void
 LUNMedium
-( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& X,
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::LUNMedium"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -106,6 +118,8 @@ LUNMedium
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), U01_MC_STAR, X1Trans_MR_STAR, F(1), X0 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F,Dist colDist>

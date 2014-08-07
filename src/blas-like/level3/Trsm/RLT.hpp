@@ -19,17 +19,22 @@ template<typename F>
 inline void
 RLT
 ( Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsm::RLT");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,VR,  STAR> L21_VR_STAR(g);
@@ -70,6 +75,8 @@ RLT
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, L21Trans_STAR_MR, F(1), X2 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsm

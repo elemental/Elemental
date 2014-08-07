@@ -30,7 +30,7 @@ template<typename F>
 inline void
 TwoSidedTrsm
 ( UpperOrLower uplo, UnitOrNonUnit diag, 
-  DistMatrix<F>& A, const DistMatrix<F>& B )
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoSidedTrsm"))
     if( uplo == LOWER )
@@ -45,7 +45,7 @@ TwoSidedTrsm
     Matrix<T>& A, const Matrix<T>& B ); \
   template void TwoSidedTrsm \
   ( UpperOrLower uplo, UnitOrNonUnit diag, \
-    DistMatrix<T>& A, const DistMatrix<T>& B );
+    AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

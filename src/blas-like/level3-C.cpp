@@ -220,7 +220,7 @@ extern "C" {
       Trsm( \
         CReflect(side), CReflect(uplo), \
         CReflect(orientation), CReflect(diag), \
-        CReflect(alpha), DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+        CReflect(alpha), *CReflect(A), *CReflect(B) ) ) } \
   /* Trstrm */ \
   ElError ElTrstrm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
@@ -276,7 +276,7 @@ extern "C" {
   { EL_TRY( \
       TwoSidedTrsm( \
         CReflect(uplo), CReflect(diag), \
-        DM_CAST(F,A), DM_CAST_CONST(F,B) ) ) }
+        *CReflect(A), *CReflect(B) ) ) }
 
 #define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 

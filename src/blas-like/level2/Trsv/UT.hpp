@@ -7,8 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace trsv {
 
@@ -16,25 +14,30 @@ template<typename F>
 inline void
 UT
 ( Orientation orientation, UnitOrNonUnit diag, 
-  const DistMatrix<F>& U, DistMatrix<F>& x )
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsv::UT");
-        if( U.Grid() != x.Grid() )
-            LogicError("{U,x} must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected a (conjugate-)transpose option");
-        if( U.Height() != U.Width() )
+        if( UPre.Grid() != xPre.Grid() )
+            LogicError("{U,x} must be distributed over the same grid");
+        if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( U.Width() != xLength )
+        const Int xLength =
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( UPre.Width() != xLength )
             LogicError("Nonconformal");
     )
-    const Int m = U.Height();
+    const Int m = UPre.Height();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), x(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);
@@ -122,6 +125,8 @@ UT
             LocalGemv( orientation, F(-1), U12, x1_STAR_MC, F(1), z2_STAR_MR );
         }
     }
+
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

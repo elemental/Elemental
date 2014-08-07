@@ -466,7 +466,6 @@ ElError ElTrsm_z
   ElOrientation orientation, ElUnitOrNonUnit diag,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, 
   ElOrientation orientation, ElUnitOrNonUnit diag,
@@ -570,7 +569,6 @@ ElError ElTwoSidedTrsm_c
 ElError ElTwoSidedTrsm_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A, ElConstMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElTwoSidedTrsmDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, 
   ElDistMatrix_s A, ElConstDistMatrix_s B );

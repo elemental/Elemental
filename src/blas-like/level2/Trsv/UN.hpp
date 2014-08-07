@@ -7,31 +7,36 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace trsv {
 
 template<typename F>
 inline void
-UN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
+UN
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsv::UN");
-        if( U.Grid() != x.Grid() )
+        if( UPre.Grid() != xPre.Grid() )
             LogicError("{U,x} must be distributed over the same grid");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( U.Width() != xLength )
+        const Int xLength =
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( UPre.Width() != xLength )
             LogicError("Nonconformal");
     )
-    const Int m = U.Height();
+    const Int m = UPre.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), x(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
 
     // Matrix views
     DistMatrix<F> U01(g), U11(g), x1(g);
@@ -119,6 +124,8 @@ UN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
             LocalGemv( NORMAL, F(-1), U01, x1_STAR_MR, F(1), z0_STAR_MC );
         }
     }
+
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

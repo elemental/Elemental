@@ -149,7 +149,7 @@ extern "C" {
   { EL_TRY( \
       Trsv( \
         CReflect(uplo), CReflect(orientation), CReflect(diag), \
-        DM_CAST_CONST(F,A), DM_CAST(F,x) ) ) }
+        *CReflect(A), *CReflect(x) ) ) }
 
 #define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 

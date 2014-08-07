@@ -10,8 +10,6 @@
 #ifndef EL_TWOSIDEDTRSM_UVAR3_HPP
 #define EL_TWOSIDEDTRSM_UVAR3_HPP
 
-
-
 namespace El {
 namespace twotrsm {
 
@@ -28,55 +26,35 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         if( A.Height() != U.Height() )
             LogicError("A and U must be the same size");
     )
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,
-        ABL, ABR,  A10, A11, A12,
-                   A20, A21, A22;
-    Matrix<F>
-        YTL, YTR,  Y00, Y01, Y02,
-        YBL, YBR,  Y10, Y11, Y12,
-                   Y20, Y21, Y22;
-    Matrix<F>
-        UTL, UTR,  U00, U01, U02,
-        UBL, UBR,  U10, U11, U12,
-                   U20, U21, U22;
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
 
     // We will use an entire extra matrix as temporary storage. If this is not
     // acceptable, use UVar4 instead.
     Matrix<F> Y;
-    Zeros( Y, A.Height(), A.Width() );
+    Zeros( Y, n, n );
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDownDiagonal
-    ( Y, YTL, YTR,
-         YBL, YBR, 0 );
-    LockedPartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        RepartitionDownDiagonal
-        ( YTL, /**/ YTR,  Y00, /**/ Y01, Y02,
-         /*************/ /******************/
-               /**/       Y10, /**/ Y11, Y12,
-          YBL, /**/ YBR,  Y20, /**/ Y21, Y22 );
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        LockedRepartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        auto A01 =       View( A, ind0, ind1 );
+        auto A02 = LockedView( A, ind0, ind2 );
+        auto A11 =       View( A, ind1, ind1 );
+        auto A12 =       View( A, ind1, ind2 );
 
-        //--------------------------------------------------------------------//
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto Y01 = LockedView( Y, ind0, ind1 );
+        auto Y02 =       View( Y, ind0, ind2 );
+        auto Y12 =       View( Y, ind1, ind2 );
+ 
         // A01 := A01 - 1/2 Y01
         Axpy( F(-1)/F(2), Y01, A01 );
 
@@ -106,120 +84,74 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         // Y12 := Y12 + A01' U02
         Gemm( ADJOINT, NORMAL, F(1), A01, U02, F(1), Y12 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlidePartitionDownDiagonal
-        ( YTL, /**/ YTR,  Y00, Y01, /**/ Y02,
-               /**/       Y10, Y11, /**/ Y12,
-         /*************/ /******************/
-          YBL, /**/ YBR,  Y20, Y21, /**/ Y22 );
-
-        SlideLockedPartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /**********************************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
 }
 
 template<typename F> 
 inline void
-UVar3( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
+UVar3
+( UnitOrNonUnit diag, 
+  AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& UPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("twotrsm::UVar4");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("Triangular matrices must be square");
-        if( A.Height() != U.Height() )
+        if( APre.Height() != UPre.Height() )
             LogicError("A and U must be the same size");
     )
-    const Grid& g = A.Grid();
+    const Int n = APre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = APre.Grid();
 
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F>
-        YTL(g), YTR(g),  Y00(g), Y01(g), Y02(g),
-        YBL(g), YBR(g),  Y10(g), Y11(g), Y12(g),
-                         Y20(g), Y21(g), Y22(g);
-    DistMatrix<F>
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
+    DistMatrix<F> A(g), U(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( UPre, U, READ_PROXY );
 
     // Temporary distributions
-    DistMatrix<F,MC,  STAR> A11_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
-    DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
-    DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
-    DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<F,MC,  STAR> A01_MC_STAR(g), U01_MC_STAR(g), A11_MC_STAR(g);
     DistMatrix<F,MR,  STAR> U12Adj_MR_STAR(g);
-    DistMatrix<F,STAR,STAR> X11_STAR_STAR(g);
-    DistMatrix<F,STAR,MR  > X12_STAR_MR(g);
-    DistMatrix<F,STAR,MR  > Z12_STAR_MR(g);
+    DistMatrix<F,VC,  STAR> A01_VC_STAR(g), U01_VC_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), U11_STAR_STAR(g), 
+                            X11_STAR_STAR(g);
+    DistMatrix<F,STAR,MR  > X12_STAR_MR(g), Z12_STAR_MR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
 
     // We will use an entire extra matrix as temporary storage. If this is not
     // acceptable, use UVar4 instead.
     DistMatrix<F> Y(g);
     Y.AlignWith( A );
-    Zeros( Y, A.Height(), A.Width() );
+    Zeros( Y, n, n );
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDownDiagonal
-    ( Y, YTL, YTR,
-         YBL, YBR, 0 );
-    LockedPartitionDownDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
 
-        RepartitionDownDiagonal
-        ( YTL, /**/ YTR,  Y00, /**/ Y01, Y02,
-         /*************/ /******************/
-               /**/       Y10, /**/ Y11, Y12,
-          YBL, /**/ YBR,  Y20, /**/ Y21, Y22 );
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        LockedRepartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+        auto A01 =       View( A, ind0, ind1 );
+        auto A02 = LockedView( A, ind0, ind2 );
+        auto A11 =       View( A, ind1, ind1 );
+        auto A12 =       View( A, ind1, ind2 );
 
-        A11_MC_STAR.AlignWith( Y12 );
-        A12_STAR_VR.AlignWith( A12 );
-        A01_VC_STAR.AlignWith( A01 );
-        A01_MC_STAR.AlignWith( A01 );
-        U01_VC_STAR.AlignWith( A01 );
-        U01_MC_STAR.AlignWith( A01 );
-        U12Adj_MR_STAR.AlignWith( Y12 );
-        X12_STAR_MR.AlignWith( A02 );
-        Z12_STAR_MR.AlignWith( U02 );
-        //--------------------------------------------------------------------//
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto Y01 = LockedView( Y, ind0, ind1 );
+        auto Y02 =       View( Y, ind0, ind2 );
+        auto Y12 =       View( Y, ind1, ind2 );
+
         // A01 := A01 - 1/2 Y01
         Axpy( F(-1)/F(2), Y01, A01 );
 
         // A11 := A11 - (A01' U01 + U01' A01)
+        A01_VC_STAR.AlignWith( A01 );
+        U01_VC_STAR.AlignWith( A01 );
         A01_VC_STAR = A01;
         U01_VC_STAR = U01;
         Zeros( X11_STAR_STAR, A11.Height(), A11.Width() );
@@ -237,11 +169,14 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - U01' A02
+        U01_MC_STAR.AlignWith( A01 );
         U01_MC_STAR = U01;
+        X12_STAR_MR.AlignWith( A02 );
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A02, X12_STAR_MR );
         A12.ColSumScatterUpdate( F(-1), X12_STAR_MR );
 
         // A12 := inv(U11)' A12
+        A12_STAR_VR.AlignWith( A12 );
         A12_STAR_VR = A12;
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, diag, F(1), U11_STAR_STAR, A12_STAR_VR );
@@ -257,40 +192,27 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
         A01 = A01_VC_STAR;
 
         // Y02 := Y02 + A01 U12
+        A01_MC_STAR.AlignWith( A01 );
         A01_MC_STAR = A01;
+        U12Adj_MR_STAR.AlignWith( Y12 );
         U12.AdjointColAllGather( U12Adj_MR_STAR );
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A01_MC_STAR, U12Adj_MR_STAR, F(1), Y02 );
 
         // Y12 := Y12 + A11 U12
         MakeHermitian( UPPER, A11_STAR_STAR );
+        A11_MC_STAR.AlignWith( Y12 );
         A11_MC_STAR = A11_STAR_STAR;
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A11_MC_STAR, U12Adj_MR_STAR, F(0), Y12 );
 
         // Y12 := Y12 + A01' U02
+        Z12_STAR_MR.AlignWith( U02 );
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U02, Z12_STAR_MR );
         Y12.ColSumScatterUpdate( F(1), Z12_STAR_MR );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlidePartitionDownDiagonal
-        ( YTL, /**/ YTR,  Y00, Y01, /**/ Y02,
-               /**/       Y10, Y11, /**/ Y12,
-         /*************/ /******************/
-          YBL, /**/ YBR,  Y20, Y21, /**/ Y22 );
-
-        SlideLockedPartitionDownDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /**********************************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrsm

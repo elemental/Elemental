@@ -27,6 +27,13 @@ typedef unsigned Unsigned;
 typedef Complex<float>  scomplex; 
 typedef Complex<double> dcomplex;
 
+struct IndexRange
+{
+    Int beg, end;
+    IndexRange() : beg(0), end(0) { }
+    IndexRange( Int begArg, Int endArg ) : beg(begArg), end(endArg) { }
+};
+
 template<typename Real>
 struct ValueInt
 {

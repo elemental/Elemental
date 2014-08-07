@@ -16,26 +16,31 @@ template<typename F>
 inline void
 LT
 ( Orientation orientation, UnitOrNonUnit diag, 
-  const DistMatrix<F>& L, DistMatrix<F>& x )
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsv::LT");
-        if( L.Grid() != x.Grid() )
-            LogicError("{L,x} must be distributed over the same grid");
         if( orientation == NORMAL )
             LogicError("Expected a (conjugate-)transpose option");
-        if( L.Height() != L.Width() )
+        if( LPre.Grid() != xPre.Grid() )
+            LogicError("{L,x} must be distributed over the same grid");
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
+        const Int xLength =
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( LPre.Width() != xLength )
             LogicError("Nonconformal");
     )
-    const Int m = L.Height();
+    const Int m = LPre.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), x(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
 
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);
@@ -123,6 +128,8 @@ LT
             LocalGemv( orientation, F(-1), L10, x1_STAR_MC, F(1), z0_STAR_MR );
         }
     }
+
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

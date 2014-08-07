@@ -43,7 +43,7 @@ void Trsv
 template<typename F>
 void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
-  const DistMatrix<F>& A, DistMatrix<F>& x )
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("Trsv"))
     if( uplo == LOWER )
@@ -68,7 +68,7 @@ void Trsv
     const Matrix<F>& A, Matrix<F>& x ); \
   template void Trsv \
   ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, \
-    const DistMatrix<F>& A, DistMatrix<F>& x );
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

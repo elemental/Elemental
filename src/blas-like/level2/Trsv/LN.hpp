@@ -7,30 +7,35 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace trsv {
 
 template<typename F>
 inline void
-LN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
+LN
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsv::LN");
-        if( L.Grid() != x.Grid() )
+        if( LPre.Grid() != xPre.Grid() )
             LogicError("{L,x} must be distributed over the same grid");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
+        const Int xLength = 
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( LPre.Width() != xLength )
             LogicError("Nonconformal");
     )
-    const Int m = L.Height();
+    const Int m = LPre.Height();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), x(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
 
     // Matrix views 
     DistMatrix<F> L11(g), L21(g), x1(g);
@@ -118,6 +123,8 @@ LN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
             LocalGemv( NORMAL, F(-1), L21, x1_STAR_MR, F(1), z2_STAR_MC );
         }
     }
+
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

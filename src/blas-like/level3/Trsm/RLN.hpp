@@ -19,14 +19,19 @@ namespace trsm {
 template<typename F>
 inline void
 RLN
-( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& X,
+( UnitOrNonUnit diag, 
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("trsm::RLN"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,MR,  STAR> L10Trans_MR_STAR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -61,6 +66,8 @@ RLN
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );
     }
+
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsm
