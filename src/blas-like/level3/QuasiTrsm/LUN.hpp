@@ -106,6 +106,8 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -115,11 +117,14 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         LUNUnb( U11, X1, checkIfSingular );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -134,18 +139,25 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 inline void
 LUNLarge
-( const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNLarge"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -156,11 +168,14 @@ LUNLarge
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -184,22 +199,30 @@ LUNLarge
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
 inline void
 LUNMedium
-( const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LUNMedium"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -210,11 +233,14 @@ LUNMedium
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -239,6 +265,7 @@ LUNMedium
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F,Dist colDist>
@@ -253,9 +280,7 @@ LUNSmall
             LogicError("U and X must be distributed over the same grid");
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));
         if( U.ColAlign() != X.ColAlign() )
             LogicError("U and X are assumed to be aligned");
     )
@@ -266,6 +291,8 @@ LUNSmall
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -275,11 +302,14 @@ LUNSmall
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]

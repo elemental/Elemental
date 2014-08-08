@@ -30,9 +30,12 @@ UVar1( Matrix<F>& U, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto U00 = LockedView( U, 0, 0, k,    k    );
-        auto U01 = LockedView( U, 0, k, k,    k+nb );
-        auto U11 = LockedView( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto U00 = LockedView( U, ind0, ind0 );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
         auto d1 = U11.GetDiagonal();
 
         S01 = U01;
@@ -45,15 +48,20 @@ UVar1( Matrix<F>& U, bool conjugate=false )
 
 template<typename F>
 inline void
-UVar1( DistMatrix<F>& U, bool conjugate=false )
+UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trdtrmm::UVar1");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
     )
-    const Grid& g = U.Grid();
+    const Int n = UPre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = UPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    DistMatrix<F> U(g);
+    Copy( UPre, U, READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> S01_MC_STAR(g);
     DistMatrix<F,VC,  STAR> S01_VC_STAR(g);
@@ -66,16 +74,17 @@ UVar1( DistMatrix<F>& U, bool conjugate=false )
     U01_VR_STAR.AlignWith( U );
     U01Trans_STAR_MR.AlignWith( U );
 
-    const Int n = U.Height();
-    const Int bsize = Blocksize();
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto U00 = LockedView( U, 0, 0, k,    k    );
-        auto U01 = LockedView( U, 0, k, k,    k+nb );
-        auto U11 = LockedView( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto U00 = LockedView( U, ind0, ind0 );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
         auto d1 = U11.GetDiagonal();
 
         S01_MC_STAR = U01;
@@ -93,6 +102,7 @@ UVar1( DistMatrix<F>& U, bool conjugate=false )
         LocalTrdtrmm( UPPER, U11_STAR_STAR, conjugate );
         U11 = U11_STAR_STAR;
     }
+    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trdtrmm

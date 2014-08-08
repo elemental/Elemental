@@ -28,9 +28,12 @@ LVar1( Matrix<F>& L, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto L00 = ViewRange( L, 0, 0, k,    k    );
-        auto L10 = ViewRange( L, k, 0, k+nb, k    );
-        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto L00 = View( L, ind0, ind0 );
+        auto L10 = View( L, ind1, ind0 );
+        auto L11 = View( L, ind1, ind1 );
         auto d1 = L11.GetDiagonal();
        
         S10 = L10;
@@ -63,9 +66,12 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
         auto dSub1 = LockedViewRange( dSub, k, 0, k+nb-1, 1 );
 
-        auto L00 = ViewRange( L, 0, 0, k,    k    );
-        auto L10 = ViewRange( L, k, 0, k+nb, k    );
-        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto L00 = View( L, ind0, ind0 );
+        auto L10 = View( L, ind1, ind0 );
+        auto L11 = View( L, ind1, ind1 );
         auto d1 = L11.GetDiagonal();
 
         S10 = L10;
@@ -80,15 +86,20 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 
 template<typename F>
 inline void
-LVar1( DistMatrix<F>& L, bool conjugate=false )
+LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trdtrmm::LVar1");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
     )
-    const Grid& g = L.Grid();
+    const Int n = LPre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    DistMatrix<F> L(g);
+    Copy( LPre, L, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
@@ -101,15 +112,16 @@ LVar1( DistMatrix<F>& L, bool conjugate=false )
     S10_STAR_MC.AlignWith( L );
     L10_STAR_MR.AlignWith( L );
 
-    const Int n = L.Height();
-    const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto L00 = ViewRange( L, 0, 0, k,    k    );
-        auto L10 = ViewRange( L, k, 0, k+nb, k    );
-        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto L00 = View( L, ind0, ind0 );
+        auto L10 = View( L, ind1, ind0 );
+        auto L11 = View( L, ind1, ind1 );
         auto d1 = L11.GetDiagonal();
 
         L10_STAR_VR = L10;
@@ -128,20 +140,29 @@ LVar1( DistMatrix<F>& L, bool conjugate=false )
         LocalTrdtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
     }
+    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
 inline void
 LVar1
-( DistMatrix<F>& L, const DistMatrix<F,MD,STAR>& dSub, bool conjugate=false )
+( AbstractDistMatrix<F>& LPre, const AbstractDistMatrix<F>& dSubPre, 
+  bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("trdtrmm::LVar1");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
     )
-    const Grid& g = L.Grid();
+    const Int n = LPre.Height();
+    const Int bsize = Blocksize();
+    const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+
+    DistMatrix<F> L(g);
+    DistMatrix<F,MD,STAR> dSub(g);
+    Copy( LPre, L, READ_WRITE_PROXY );
+    Copy( dSubPre, dSub, READ_PROXY );
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
@@ -155,20 +176,22 @@ LVar1
     S10_STAR_MC.AlignWith( L );
     L10_STAR_MR.AlignWith( L );
 
-    const Int n = L.Height();
-    const Int bsize = Blocksize();
     Int k=0;
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
         const bool in2x2 = ( k+nbProp<n && dSub.Get(k+nbProp-1,0) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
-        auto dSub1 = LockedViewRange( dSub, k, 0, k+nb-1, 1 );
 
-        auto L00 = ViewRange( L, 0, 0, k,    k    );
-        auto L10 = ViewRange( L, k, 0, k+nb, k    );
-        auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto L00 = View( L, ind0, ind0 );
+        auto L10 = View( L, ind1, ind0 );
+        auto L11 = View( L, ind1, ind1 );
         auto d1 = L11.GetDiagonal();
+
+        auto dSub1 = LockedView( dSub, IndexRange(k,k+nb-1), IndexRange(0,1) );
 
         L10_STAR_VR = L10;
         S10_STAR_VC = L10_STAR_VR;
@@ -194,6 +217,7 @@ LVar1
 
         k += nb;
     }
+    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trdtrmm

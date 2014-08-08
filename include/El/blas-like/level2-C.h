@@ -189,7 +189,6 @@ ElError ElQuasiTrsv_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElMatrix_z x );
 
-/* NOTE: 'A' and 'x' must be in [MC,MR] distributions */
 ElError ElQuasiTrsvDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElDistMatrix_s x );

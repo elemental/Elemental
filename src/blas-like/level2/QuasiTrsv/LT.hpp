@@ -7,8 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace quasitrsv {
 
@@ -124,6 +122,8 @@ LT
     if( conjugate )
         Conjugate( x );
 
+    const IndexRange outerInd( 0, 1 );
+
     Matrix<F> x0, x1;
     const Int m = L.Height();
     const Int bsize = Blocksize();
@@ -135,18 +135,21 @@ LT
         if( in2x2 )
             --k;
 
-        auto L10 = LockedViewRange( L, k, 0, kOld, k    );
-        auto L11 = LockedViewRange( L, k, k, kOld, kOld );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, kOld );
+
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
 
         if( vert )
         {
-            x0 = ViewRange( x, 0, 0, k,    1 );
-            x1 = ViewRange( x, k, 0, kOld, 1 );
+            x0 = View( x, ind0, outerInd );
+            x1 = View( x, ind1, outerInd );
         }
         else
         {
-            x0 = ViewRange( x, 0, 0, 1, k    );
-            x1 = ViewRange( x, 0, k, 1, kOld );
+            x0 = View( x, outerInd, ind0 );
+            x1 = View( x, outerInd, ind1 );
         }
 
         quasitrsv::LTUnb( TRANSPOSE, L11, x1, checkIfSingular );
@@ -164,30 +167,38 @@ LT
 template<typename F>
 inline void
 LT
-( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& x,
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsv::LT");
-        if( L.Grid() != x.Grid() )
+        if( LPre.Grid() != xPre.Grid() )
             LogicError("{L,x} must be distributed over the same grid");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
+        const Int xLength = 
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( LPre.Width() != xLength )
             LogicError("Nonconformal");
         if( orientation == NORMAL )
             LogicError("Invalid orientation");
     )
-    const Int m = L.Height();
+    const Int m = LPre.Height();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation==ADJOINT );
     if( conjugate )
-        Conjugate( x );
+        Conjugate( xPre );
+
+    DistMatrix<F> L(g), x(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
+
+    const IndexRange outerInd( 0, 1 );
 
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);
@@ -213,13 +224,16 @@ LT
             if( in2x2 )
                 --k;
 
-            LockedViewRange( L10, L, k, 0, kOld, k    );
-            LockedViewRange( L11, L, k, k, kOld, kOld );
+            const IndexRange ind0( 0, k    );
+            const IndexRange ind1( k, kOld );
 
-            ViewRange( x1, x, k, 0, kOld, 1 );
+            LockedView( L10, L, ind1, ind0 );
+            LockedView( L11, L, ind1, ind1 );
 
-            ViewRange( z0_MC_STAR, z_MC_STAR, 0, 0, k,    1 );
-            ViewRange( z1_MC_STAR, z_MC_STAR, k, 0, kOld, 1 );
+            View( x1, x, ind1, outerInd );
+
+            View( z0_MC_STAR, z_MC_STAR, ind0, outerInd );
+            View( z1_MC_STAR, z_MC_STAR, ind1, outerInd );
 
             if( kOld != m )
                 x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
@@ -261,13 +275,16 @@ LT
             if( in2x2 )
                 --k;
 
-            LockedViewRange( L10, L, k, 0, kOld, k    );
-            LockedViewRange( L11, L, k, k, kOld, kOld );
+            const IndexRange ind0( 0, k    );
+            const IndexRange ind1( k, kOld );
 
-            ViewRange( x1, x, 0, k, 1, kOld );
+            LockedView( L10, L, ind1, ind0 );
+            LockedView( L11, L, ind1, ind1 );
 
-            ViewRange( z0_STAR_MC, z_STAR_MC, 0, 0, 1, k    );
-            ViewRange( z1_STAR_MC, z_STAR_MC, 0, k, 1, kOld );
+            View( x1, x, outerInd, ind1 );
+
+            View( z0_STAR_MC, z_STAR_MC, outerInd, ind0 );
+            View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
 
             if( kOld != m )
                 x1.RowSumScatterUpdate( F(1), z1_STAR_MC );
@@ -291,6 +308,7 @@ LT
     }
     if( conjugate )
         Conjugate( x );
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace quasitrsv

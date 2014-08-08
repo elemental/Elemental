@@ -145,7 +145,8 @@ void QuasiTrsv
 template<typename F>
 void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular=false );
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x, 
+  bool checkIfSingular=false );
 
 // Symv
 // ====

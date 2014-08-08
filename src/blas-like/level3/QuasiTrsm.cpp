@@ -94,7 +94,7 @@ void QuasiTrsm
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
+  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -192,7 +192,7 @@ void QuasiTrsm
     F alpha, const Matrix<F>& A, Matrix<F>& B, bool checkIfSingular ); \
   template void QuasiTrsm \
   ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    F alpha, const DistMatrix<F>& A, DistMatrix<F>& B, \
+    F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
     bool checkIfSingular );
 
 #define EL_NO_INT_PROTO

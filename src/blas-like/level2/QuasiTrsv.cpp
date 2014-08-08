@@ -40,7 +40,8 @@ void QuasiTrsv
 template<typename F>
 void QuasiTrsv
 ( UpperOrLower uplo, Orientation orientation, 
-  const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular )
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiTrsv"))
     if( uplo == LOWER )
@@ -65,7 +66,8 @@ void QuasiTrsv
     const Matrix<F>& A, Matrix<F>& x, bool checkIfSingular ); \
   template void QuasiTrsv \
   ( UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, DistMatrix<F>& x, bool checkIfSingular );
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x, \
+    bool checkIfSingular );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

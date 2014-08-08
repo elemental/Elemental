@@ -7,8 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace quasitrsv {
 
@@ -115,6 +113,8 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
     )
     const bool vert = ( x.Width()==1 );
 
+    const IndexRange outerInd( 0, 1 );
+
     Matrix<F> x1, x2;
     const Int m = L.Height();
     const Int bsize = Blocksize();
@@ -125,18 +125,21 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
+
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
 
         if( vert )
         {
-            x1 = ViewRange( x, k,    0, k+nb, 1 );
-            x2 = ViewRange( x, k+nb, 0, m,    1 );
+            x1 = View( x, ind1, outerInd );
+            x2 = View( x, ind2, outerInd );
         }
         else
         {
-            x1 = ViewRange( x, 0, k,    1, k+nb );
-            x2 = ViewRange( x, 0, k+nb, 1, m    );
+            x1 = View( x, outerInd, ind1 );
+            x2 = View( x, outerInd, ind2 );
         }
 
         quasitrsv::LNUnb( L11, x1, checkIfSingular );
@@ -148,23 +151,30 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
 
 template<typename F>
 inline void
-LN( const DistMatrix<F>& L, DistMatrix<F>& x, bool checkIfSingular=false )
+LN
+( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& xPre, 
+  bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsv::LN");
-        if( L.Grid() != x.Grid() )
+        if( LPre.Grid() != xPre.Grid() )
             LogicError("{L,x} must be distributed over the same grid");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( L.Width() != xLength )
+        const Int xLength = 
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( LPre.Width() != xLength )
             LogicError("Nonconformal");
     )
-    const Int m = L.Height();
+    const Int m = LPre.Height();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), x(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
 
     // Matrix views 
     DistMatrix<F> L11(g), L21(g), x1(g);
@@ -191,13 +201,13 @@ LN( const DistMatrix<F>& L, DistMatrix<F>& x, bool checkIfSingular=false )
                 ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            LockedViewRange( L11, L, k,    k, k+nb, k+nb );
-            LockedViewRange( L21, L, k+nb, k, m,    k+nb );
+            LockedView( L11, L, k,    k, k+nb, k+nb );
+            LockedView( L21, L, k+nb, k, m,    k+nb );
 
-            ViewRange( x1, x, k,    0, k+nb, 1 );
+            View( x1, x, k,    0, k+nb, 1 );
 
-            ViewRange( z1_MC_STAR, z_MC_STAR, k,    0, k+nb, 1 );
-            ViewRange( z2_MC_STAR, z_MC_STAR, k+nb, 0, m,    1 ); 
+            View( z1_MC_STAR, z_MC_STAR, k,    0, k+nb, 1 );
+            View( z2_MC_STAR, z_MC_STAR, k+nb, 0, m,    1 ); 
 
             if( k != 0 )
                 x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
@@ -228,6 +238,8 @@ LN( const DistMatrix<F>& L, DistMatrix<F>& x, bool checkIfSingular=false )
         z_STAR_MC.AlignWith( L );
         Zeros( z_STAR_MC, 1, m );
 
+        const IndexRange outerInd( 0, 1 );
+
         Int k=0;
         while( k < m )
         {
@@ -236,13 +248,16 @@ LN( const DistMatrix<F>& L, DistMatrix<F>& x, bool checkIfSingular=false )
                 ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            LockedViewRange( L11, L, k,    k, k+nb, k+nb );
-            LockedViewRange( L21, L, k+nb, k, m,    k+nb );
+            const IndexRange ind1( k,    k+nb );
+            const IndexRange ind2( k+nb, m    );
 
-            ViewRange( x1, x, 0, k, 1, k+nb );
+            LockedView( L11, L, ind1, ind1 );
+            LockedView( L21, L, ind2, ind1 );
 
-            ViewRange( z1_STAR_MC, z_STAR_MC, 0, k,    1, k+nb );
-            ViewRange( z2_STAR_MC, z_STAR_MC, 0, k+nb, 1, m    );
+            View( x1, x, outerInd, ind1 );
+
+            View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
+            View( z2_STAR_MC, z_STAR_MC, outerInd, ind2 );
 
             if( k != 0 )
             {
@@ -264,6 +279,7 @@ LN( const DistMatrix<F>& L, DistMatrix<F>& x, bool checkIfSingular=false )
             k += nb;
         }
     }
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace quasitrsv

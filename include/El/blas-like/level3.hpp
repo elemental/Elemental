@@ -160,7 +160,7 @@ void QuasiTrsm
 template<typename F>
 void QuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
+  F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
   bool checkIfSingular=false );
 
 // Symm
@@ -282,12 +282,14 @@ void Trdtrmm
   bool conjugate=false );
 
 template<typename F>
-void Trdtrmm( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false );
+void Trdtrmm
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false );
 
 template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo,
-  DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dOff, bool conjugate=false );
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
+  bool conjugate=false );
 
 // Trmm
 // ====

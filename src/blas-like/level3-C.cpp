@@ -107,7 +107,7 @@ extern "C" {
   { EL_TRY( \
       QuasiTrsm( \
         CReflect(side), CReflect(uplo), CReflect(orientation), \
-        CReflect(alpha), DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+        CReflect(alpha), *CReflect(A), *CReflect(B) ) ) } \
   /* Symm */ \
   ElError ElSymm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \
@@ -167,22 +167,18 @@ extern "C" {
   { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
   ElError ElTrdtrmmDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, bool conjugate ) \
-  { EL_TRY( Trdtrmm( CReflect(uplo), DM_CAST(F,A), conjugate ) ) } \
+  { EL_TRY( Trdtrmm( CReflect(uplo), *CReflect(A), conjugate ) ) } \
   /* TrdtrmmQuasi */ \
   ElError ElTrdtrmmQuasi_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, \
     ElConstMatrix_ ## SIG dOff, bool conjugate ) \
   { EL_TRY( \
-      Trdtrmm( \
-        CReflect(uplo), *CReflect(A), *CReflect(dOff), \
-        conjugate ) ) } \
+      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff), conjugate ) ) } \
   ElError ElTrdtrmmQuasiDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, \
     ElConstDistMatrix_ ## SIG dOff, bool conjugate ) \
   { EL_TRY( \
-      Trdtrmm( \
-        CReflect(uplo), DM_CAST(F,A), DM_MD_STAR_CAST_CONST(F,dOff), \
-        conjugate ) ) } \
+      Trdtrmm( CReflect(uplo), *CReflect(A), *CReflect(dOff), conjugate ) ) } \
   /* Trmm */ \
   ElError ElTrmm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, \

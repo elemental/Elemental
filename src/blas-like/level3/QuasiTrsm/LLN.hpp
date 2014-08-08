@@ -112,17 +112,21 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
+    const IndexRange outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         LLNUnb( L11, X1, checkIfSingular );
         Gemm( NORMAL, NORMAL, F(-1), L21, X1, F(1), X2 );
@@ -132,35 +136,44 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
 inline void
-LLNLarge( const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
+LLNLarge
+( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNLarge"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
+    const IndexRange outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
 
-        L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
-        X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
+        L11_STAR_STAR = L11; 
+        X1_STAR_VR    = X1; 
         LocalQuasiTrsm
         ( LEFT, LOWER, NORMAL, F(1), L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
@@ -174,34 +187,45 @@ LLNLarge( const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
 inline void
-LLNMedium( const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
+LLNMedium
+( const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("quasitrsm::LLNMedium"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
@@ -221,6 +245,7 @@ LLNMedium( const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), L21_MC_STAR, X1Trans_MR_STAR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // For small numbers of RHS's, e.g., width(X) < p
@@ -242,22 +267,25 @@ LLNSmall
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
 
-        L11_STAR_STAR = L11; // L11[* ,* ] <- L11[VC,* ]
-        X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
+        L11_STAR_STAR = L11; 
+        X1_STAR_STAR = X1; 
         LocalQuasiTrsm
         ( LEFT, LOWER, NORMAL, 
           F(1), L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );

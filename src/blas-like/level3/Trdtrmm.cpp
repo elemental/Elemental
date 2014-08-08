@@ -44,7 +44,7 @@ void Trdtrmm
 }
 
 template<typename F>
-void Trdtrmm( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate )
+void Trdtrmm( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trdtrmm");
@@ -60,7 +60,8 @@ void Trdtrmm( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate )
 template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dOff, bool conjugate )
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
+  bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trdtrmm");
@@ -78,9 +79,10 @@ void Trdtrmm
   template void Trdtrmm \
   ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate ); \
   template void Trdtrmm \
-  ( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate ); \
   template void Trdtrmm \
-  ( UpperOrLower uplo, DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dOff, \
+  ( UpperOrLower uplo, \
+    AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, \
     bool conjugate );
 
 #define EL_NO_INT_PROTO

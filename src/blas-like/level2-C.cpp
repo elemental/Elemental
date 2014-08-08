@@ -125,7 +125,7 @@ extern "C" {
   { EL_TRY( \
       QuasiTrsv( \
         CReflect(uplo), CReflect(orientation), \
-        DM_CAST_CONST(F,A), DM_CAST(F,x) ) ) } \
+        *CReflect(A), *CReflect(x) ) ) } \
   /* Trmv */ \
   ElError ElTrmv_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, ElUnitOrNonUnit diag, \

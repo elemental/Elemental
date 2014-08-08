@@ -120,6 +120,8 @@ LLT
 
     const bool conjugate = ( orientation==ADJOINT );
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -129,11 +131,14 @@ LLT
             --k;
         const Int nb = kOld-k;
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         LLTUnb( conjugate, L11, X1, checkIfSingular );
         Gemm( orientation, NORMAL, F(-1), L10, X1, F(1), X0 );
@@ -150,22 +155,29 @@ template<typename F>
 inline void
 LLTLarge
 ( Orientation orientation, 
-  const DistMatrix<F>& L, DistMatrix<F>& X, bool checkIfSingular )
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
+  bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsm::LLTLarge");
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -176,16 +188,18 @@ LLTLarge
             --k;
         const Int nb = kOld-k;
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
 
-        L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
-        X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         // X1[* ,VR] := L11^-[T/H][* ,* ] X1[* ,VR]
+        L11_STAR_STAR = L11; 
+        X1_STAR_VR    = X1;
         LocalQuasiTrsm
         ( LEFT, LOWER, orientation, F(1), L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
@@ -206,13 +220,15 @@ LLTLarge
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) ~= p
 template<typename F>
 inline void
 LLTMedium
-( Orientation orientation, const DistMatrix<F>& L, DistMatrix<F>& X, 
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -220,14 +236,20 @@ LLTMedium
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = L.Grid();
+    const Grid& g = LPre.Grid();
+
+    DistMatrix<F> L(g), X(g);
+    Copy( LPre, L, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -238,11 +260,14 @@ LLTMedium
             --k;
         const Int nb = kOld-k;
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
@@ -270,6 +295,7 @@ LLTMedium
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) << p
@@ -288,9 +314,7 @@ LLTSmall
             LogicError("Expected (Conjugate)Transpose option");
         if( L.Height() != L.Width() || L.Height() != X.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
         if( L.ColAlign() != X.ColAlign() )
             LogicError("L and X must be aligned");
     )
@@ -302,6 +326,8 @@ LLTSmall
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> Z1_STAR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -311,11 +337,14 @@ LLTSmall
             --k;
         const Int nb = kOld-k;
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
@@ -351,9 +380,7 @@ LLTSmall
             LogicError("Expected (Conjugate)Transpose option");
         if( L.Height() != L.Width() || L.Height() != X.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
         if( L.RowAlign() != X.ColAlign() )
             LogicError("L and X must be aligned");
     )
@@ -364,6 +391,8 @@ LLTSmall
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -373,11 +402,14 @@ LLTSmall
             --k;
         const Int nb = kOld-k;
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

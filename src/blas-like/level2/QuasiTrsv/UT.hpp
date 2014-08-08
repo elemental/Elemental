@@ -7,8 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 
-
-
 namespace El {
 namespace quasitrsv {
 
@@ -133,6 +131,8 @@ UT
     if( conjugate )
         Conjugate( x );
 
+    const IndexRange outerInd( 0, 1 );
+
     Matrix<F> x1, x2;
     const Int m = U.Height();
     const Int bsize = Blocksize();
@@ -143,18 +143,21 @@ UT
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
+
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
 
         if( vert )
         {
-            x1 = ViewRange( x, k,    0, k+nb, 1 );
-            x2 = ViewRange( x, k+nb, 0, m,    1 );
+            x1 = View( x, ind1, outerInd );
+            x2 = View( x, ind2, outerInd );
         }
         else
         {
-            x1 = ViewRange( x, 0, k,    1, k+nb );
-            x2 = ViewRange( x, 0, k+nb, 1, m    );
+            x1 = View( x, outerInd, ind1 );
+            x2 = View( x, outerInd, ind2 );
         }
 
         quasitrsv::UTUnb( TRANSPOSE, U11, x1, checkIfSingular );
@@ -169,35 +172,43 @@ UT
 template<typename F>
 inline void
 UT
-( Orientation orientation, const DistMatrix<F>& U, DistMatrix<F>& x,
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsv::UT");
-        if( U.Grid() != x.Grid() )
+        if( UPre.Grid() != xPre.Grid() )
             LogicError("{U,x} must be distributed over the same grid");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
-        if( x.Width() != 1 && x.Height() != 1 )
+        if( xPre.Width() != 1 && xPre.Height() != 1 )
             LogicError("x must be a vector");
-        const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
-        if( U.Width() != xLength )
+        const Int xLength = 
+            ( xPre.Width() == 1 ? xPre.Height() : xPre.Width() );
+        if( UPre.Width() != xLength )
             LogicError("Nonconformal");
         if( orientation == NORMAL )
             LogicError("Invalid orientation");
     )
-    const Int m = U.Height();
+    const Int m = UPre.Height();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation==ADJOINT );
     if( conjugate )
-        Conjugate( x );
+        Conjugate( xPre );
+
+    DistMatrix<F> U(g), x(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( xPre, x, READ_WRITE_PROXY );
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), x1_STAR_STAR(g);
+
+    const IndexRange outerInd( 0, 1 );
 
     if( x.Width() == 1 )
     {
@@ -218,13 +229,16 @@ UT
                 ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            LockedViewRange( U11, U, k, k,    k+nb, k+nb );
-            LockedViewRange( U12, U, k, k+nb, k+nb, m    );
+            const IndexRange ind1( k,    k+nb );
+            const IndexRange ind2( k+nb, m    );
 
-            ViewRange( x1, x, k,    0, k+nb, 1 );
+            LockedView( U11, U, ind1, ind1 );
+            LockedView( U12, U, ind1, ind2 );
 
-            ViewRange( z1_MC_STAR, z_MC_STAR, k,    0, k+nb, 1 );
-            ViewRange( z2_MC_STAR, z_MC_STAR, k+nb, 0, m,    1 );
+            View( x1, x, ind1, outerInd );
+
+            View( z1_MC_STAR, z_MC_STAR, ind1, outerInd );
+            View( z2_MC_STAR, z_MC_STAR, ind2, outerInd );
 
             if( k != 0 )
                 x1.RowSumScatterUpdate( F(1), z1_MC_STAR );
@@ -263,13 +277,16 @@ UT
                 ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            LockedViewRange( U11, U, k, k,    k+nb, k+nb );
-            LockedViewRange( U12, U, k, k+nb, k+nb, m    );
+            const IndexRange ind1( k,    k+nb );
+            const IndexRange ind2( k+nb, m    );
 
-            ViewRange( x1, x, 0, k, 1, k+nb );
+            LockedView( U11, U, ind1, ind1 );
+            LockedView( U12, U, ind1, ind2 );
 
-            ViewRange( z1_STAR_MC, z_STAR_MC, 0, k,    1, k+nb );
-            ViewRange( z2_STAR_MC, z_STAR_MC, 0, k+nb, 1, m    );
+            View( x1, x, outerInd, ind1 );
+
+            View( z1_STAR_MC, z_STAR_MC, outerInd, ind1 );
+            View( z2_STAR_MC, z_STAR_MC, outerInd, ind2 );
 
             if( k != 0 )
             {
@@ -293,6 +310,7 @@ UT
     }
     if( conjugate )
         Conjugate( x );
+    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace quasitrsv

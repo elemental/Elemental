@@ -126,17 +126,22 @@ LUT
 
     const bool conjugate = ( orientation==ADJOINT );
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         LUTUnb( conjugate, U11, X1, checkIfSingular );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -147,7 +152,8 @@ LUT
 template<typename F>
 inline void
 LUTLarge
-( Orientation orientation, const DistMatrix<F>& U, DistMatrix<F>& X,
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
     DEBUG_ONLY(
@@ -155,15 +161,21 @@ LUTLarge
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -171,11 +183,14 @@ LUTLarge
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -196,6 +211,7 @@ LUTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) ~= p
@@ -203,21 +219,28 @@ template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const DistMatrix<F>& U, DistMatrix<F>& X, bool checkIfSingular )
+  const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
+  bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsm::LUTMedium");
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
+
+    const IndexRange outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -225,11 +248,14 @@ LUTMedium
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -252,6 +278,7 @@ LUTMedium
         ( orientation, orientation, 
           F(-1), U12_STAR_MC, X1Trans_MR_STAR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) << p
@@ -270,9 +297,7 @@ LUTSmall
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  U ~ ",U.Height()," x ",U.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));
         if( U.RowAlign() != X.ColAlign() )
             LogicError("U and X are assumed to be aligned");
     )
@@ -283,17 +308,22 @@ LUTSmall
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g); 
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

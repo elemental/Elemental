@@ -244,7 +244,6 @@ ElError ElQuasiTrsm_z
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   complex_double alpha, ElConstMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElDistMatrix_s B );
@@ -373,7 +372,6 @@ ElError ElTrdtrmm_d( ElUpperOrLower uplo, ElMatrix_d A, bool conjugate );
 ElError ElTrdtrmm_c( ElUpperOrLower uplo, ElMatrix_c A, bool conjugate );
 ElError ElTrdtrmm_z( ElUpperOrLower uplo, ElMatrix_z A, bool conjugate );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElTrdtrmmDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, bool conjugate );
 ElError ElTrdtrmmDist_d
@@ -396,8 +394,6 @@ ElError ElTrdtrmmQuasi_c
 ElError ElTrdtrmmQuasi_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElConstMatrix_z dOff, bool conjugate );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'dOff' must be in a [MD,STAR] distribution */
 ElError ElTrdtrmmQuasiDist_s
 ( ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElConstDistMatrix_s dOff, bool conjugate );
