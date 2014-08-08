@@ -51,6 +51,7 @@ void Trr2kTNTN
     C1_STAR_MC.AlignWith( E );
     D1Trans_MR_STAR.AlignWith( E );
 
+    const IndexRange outerInd( 0, n );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);

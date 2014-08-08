@@ -226,7 +226,7 @@ extern "C" {
     CREFLECT(F) alpha, ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG B, \
                        ElConstMatrix_ ## SIG C, ElConstMatrix_ ## SIG D, \
     CREFLECT(F) beta,  ElMatrix_ ## SIG E ) \
-  { EL_TRY( Trrk( CReflect(uplo), \
+  { EL_TRY( Trr2k( CReflect(uplo), \
       CReflect(orientA), CReflect(orientB), \
       CReflect(orientC), CReflect(orientD), \
       CReflect(alpha), *CReflect(A), *CReflect(B), \
@@ -241,7 +241,7 @@ extern "C" {
                        ElConstDistMatrix_ ## SIG C, \
                        ElConstDistMatrix_ ## SIG D, \
     CREFLECT(F) beta,  ElDistMatrix_ ## SIG E ) \
-  { EL_TRY( Trrk( CReflect(uplo), \
+  { EL_TRY( Trr2k( CReflect(uplo), \
       CReflect(orientA), CReflect(orientB), \
       CReflect(orientC), CReflect(orientD), \
       CReflect(alpha), *CReflect(A), *CReflect(B), \
