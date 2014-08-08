@@ -125,16 +125,16 @@ void MultiShiftQuasiTrsm
 template<typename F>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F>& A, const DistMatrix<F,VR,STAR>& shifts,
-  DistMatrix<F>& B );
+  F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts,
+  AbstractDistMatrix<F>& B );
 
 template<typename Real>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   Complex<Real> alpha,
-  const DistMatrix<Real>& A,
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts,
-        DistMatrix<Real>& BReal, DistMatrix<Real>& BImag );
+  const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Complex<Real>>& shifts,
+        AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag );
 
 // MultiShiftTrsm
 // ==============
@@ -146,8 +146,8 @@ void MultiShiftTrsm
 template<typename F>
 void MultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  F alpha, const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts,
-  DistMatrix<F>& X );
+  F alpha, const AbstractDistMatrix<F>& U, const AbstractDistMatrix<F>& shifts,
+  AbstractDistMatrix<F>& X );
 
 // QuasiTrsm
 // =========

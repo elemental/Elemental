@@ -54,15 +54,21 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
     const Int n = X.Width();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
+
+    const IndexRange outerInd( 0, n );
+
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 =       ViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 =       View( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         LeftUnb( UPPER, NORMAL, F(1), U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -72,13 +78,20 @@ LUN( F alpha, Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 template<typename F>
 inline void
 LUN
-( F alpha, const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts,
-  DistMatrix<F>& X ) 
+( F alpha, const AbstractDistMatrix<F>& UPre, 
+  const AbstractDistMatrix<F>& shiftsPre, AbstractDistMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
+
+    const Grid& g = UPre.Grid();
+    DistMatrix<F> U(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
+
     Scale( alpha, X );
 
-    const Grid& g = U.Grid();
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
@@ -88,15 +101,21 @@ LUN
     const Int n = X.Width();
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
+
+    const IndexRange outerInd( 0, n );
+
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 =       View( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
@@ -115,6 +134,7 @@ LUN
         U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mstrsm

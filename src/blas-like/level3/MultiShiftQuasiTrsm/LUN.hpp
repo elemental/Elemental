@@ -209,6 +209,8 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -218,11 +220,14 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         LUNUnb( U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -245,6 +250,8 @@ LUN
     const Int n = XReal.Width();
     const Int bsize = Blocksize();
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -254,13 +261,16 @@ LUN
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
-        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
-        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0Real = View( XReal, ind0, outerInd );
+        auto X0Imag = View( XImag, ind0, outerInd );
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
 
         LUNUnb( U11, shifts, X1Real, X1Imag );
         Gemm( NORMAL, NORMAL, Real(-1), U01, X1Real, Real(1), X0Real );
@@ -276,19 +286,27 @@ LUN
 template<typename F>
 inline void
 LUNLarge
-( const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts, 
-        DistMatrix<F>& X )
+( const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNLarge"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XPre,      X,      READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -299,11 +317,14 @@ LUNLarge
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -327,26 +348,38 @@ LUNLarge
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename Real>
 inline void
 LUNLarge
-( const DistMatrix<Real>& U, const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real>& XReal, DistMatrix<Real>& XImag )
+( const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNLarge"))
     // TODO: More error checks, especially on alignments?
     typedef Complex<Real> C; 
-    const Int m = XReal.Height();
-    const Int n = XReal.Width();
+    const Int m = XRealPre.Height();
+    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<Real> U(g), XReal(g), XImag(g);
+    DistMatrix<Complex<Real>,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XRealPre,  XReal,  READ_WRITE_PROXY );
+    Copy( XImagPre,  XImag,  READ_WRITE_PROXY );
 
     DistMatrix<Real,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<Real,STAR,MR  > X1Real_STAR_MR(g), X1Imag_STAR_MR(g);
     DistMatrix<Real,STAR,VR  > X1Real_STAR_VR(g), X1Imag_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -357,13 +390,16 @@ LUNLarge
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
-        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
-        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0Real = View( XReal, ind0, outerInd );
+        auto X0Imag = View( XImag, ind0, outerInd );
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -398,20 +434,27 @@ LUNLarge
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( XReal, XRealPre, RESTORE_READ_WRITE_PROXY );
+    Copy( XImag, XImagPre, RESTORE_READ_WRITE_PROXY );
 }
 
-template<typename F,Dist shiftColDist,Dist shiftRowDist>
+template<typename F>
 inline void
 LUNMedium
-( const DistMatrix<F>& U, 
-  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
-        DistMatrix<F>& X )
+( const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNMedium"))
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XPre,      X,      READ_WRITE_PROXY );
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -419,6 +462,8 @@ LUNMedium
 
     DistMatrix<F,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -429,11 +474,14 @@ LUNMedium
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -460,22 +508,31 @@ LUNMedium
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
-template<typename Real,Dist shiftColDist,Dist shiftRowDist>
+template<typename Real>
 inline void
 LUNMedium
-( const DistMatrix<Real>& U, 
-  const DistMatrix<Complex<Real>,shiftColDist,shiftRowDist>& shifts, 
-        DistMatrix<Real>& XReal, DistMatrix<Real>& XImag )
+( const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(CallStackEntry cse("msquasitrsm::LUNMedium"))
     // TODO: Error checks, particularly on alignments?
     typedef Complex<Real> C;
-    const Int m = XReal.Height();
-    const Int n = XReal.Width();
+    const Int m = XRealPre.Height();
+    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<Real> U(g), XReal(g), XImag(g);
+    DistMatrix<Complex<Real>,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XRealPre,  XReal,  READ_WRITE_PROXY );
+    Copy( XImagPre,  XImag,  READ_WRITE_PROXY );
 
     DistMatrix<Real,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g);
@@ -484,6 +541,8 @@ LUNMedium
 
     DistMatrix<C,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
+
+    const IndexRange outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -494,13 +553,16 @@ LUNMedium
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
-        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
-        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0Real = View( XReal, ind0, outerInd );
+        auto X0Imag = View( XImag, ind0, outerInd );
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1RealTrans_MR_STAR.AlignWith( X0Real );
@@ -535,6 +597,8 @@ LUNMedium
         kOld = k;
         k -= Min(bsize,k);
     }
+    Copy( XReal, XRealPre, RESTORE_READ_WRITE_PROXY );
+    Copy( XImag, XImagPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>
@@ -564,6 +628,8 @@ LUNSmall
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g),
                             shifts_STAR_STAR(shifts);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -573,11 +639,14 @@ LUNSmall
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
@@ -632,6 +701,8 @@ LUNSmall
                                                  X1Imag_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> shifts_STAR_STAR(shifts);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
     while( true )
@@ -641,13 +712,16 @@ LUNSmall
             --k;
         const Int nb = kOld-k;
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0Real = ViewRange( XReal, 0, 0, k,    n );
-        auto X0Imag = ViewRange( XImag, 0, 0, k,    n );
-        auto X1Real = ViewRange( XReal, k, 0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k, 0, k+nb, n );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0Real = View( XReal, ind0, outerInd );
+        auto X0Imag = View( XImag, ind0, outerInd );
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1Real_STAR_STAR = X1Real; 

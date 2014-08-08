@@ -141,8 +141,8 @@ void MultiShiftQuasiTrsm
 template<typename F>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
-  F alpha, const DistMatrix<F>& A, const DistMatrix<F,VR,STAR>& shifts, 
-  DistMatrix<F>& B )
+  F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts, 
+  AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("MultiShiftQuasiTrsm");
@@ -235,9 +235,9 @@ template<typename Real>
 void MultiShiftQuasiTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, 
   Complex<Real> alpha, 
-  const DistMatrix<Real>& A, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real>& BReal, DistMatrix<Real>& BImag )
+  const AbstractDistMatrix<Real>& A, 
+  const AbstractDistMatrix<Complex<Real>>& shifts, 
+        AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag )
 {
     DEBUG_ONLY(
         CallStackEntry cse("MultiShiftQuasiTrsm");
@@ -333,8 +333,8 @@ void MultiShiftQuasiTrsm
       F alpha, const Matrix<F>& A, const Matrix<F>& shifts, Matrix<F>& B ); \
     template void MultiShiftQuasiTrsm \
     ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-      F alpha, const DistMatrix<F>& A, const DistMatrix<F,VR,STAR>& shifts, \
-      DistMatrix<F>& B );
+      F alpha, const AbstractDistMatrix<F>& A, \
+      const AbstractDistMatrix<F>& shifts, AbstractDistMatrix<F>& B );
 
 #define PROTO_REAL(Real) \
     PROTO(Real) \
@@ -345,9 +345,9 @@ void MultiShiftQuasiTrsm
       Matrix<Real>& BReal, Matrix<Real>& BImag ); \
     template void MultiShiftQuasiTrsm \
     ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-      Complex<Real> alpha, const DistMatrix<Real>& A, \
-      const DistMatrix<Complex<Real>,VR,STAR>& shifts, \
-      DistMatrix<Real>& BReal, DistMatrix<Real>& BImag );
+      Complex<Real> alpha, const AbstractDistMatrix<Real>& A, \
+      const AbstractDistMatrix<Complex<Real>>& shifts, \
+      AbstractDistMatrix<Real>& BReal, AbstractDistMatrix<Real>& BImag );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

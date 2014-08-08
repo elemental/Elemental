@@ -172,8 +172,6 @@ ElError ElMultiShiftQuasiTrsm_z
                         ElMatrix_z B );
 
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         'shifts' must be in a [VR,STAR] distribution */
 ElError ElMultiShiftQuasiTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 
@@ -210,8 +208,6 @@ ElError ElMultiShiftTrsm_z
   complex_double alpha, ElMatrix_z A, ElConstMatrix_z shifts, 
                         ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         'shifts' must be in a [VR,STAR] distribution */
 ElError ElMultiShiftTrsmDist_s
 ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation,
   float alpha, ElConstDistMatrix_s A, ElConstDistMatrix_s shifts, 

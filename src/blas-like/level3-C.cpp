@@ -72,8 +72,8 @@ extern "C" {
   { EL_TRY( \
       MultiShiftQuasiTrsm( \
         CReflect(side), CReflect(uplo), CReflect(orientation), \
-        CReflect(alpha), DM_CAST_CONST(F,A), \
-        DM_VR_STAR_CAST_CONST(F,shifts), DM_CAST(F,B) ) ) } \
+        CReflect(alpha), *CReflect(A), \
+        *CReflect(shifts), *CReflect(B) ) ) } \
   /* MultiShiftTrsm */ \
   ElError ElMultiShiftTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \
@@ -91,8 +91,8 @@ extern "C" {
   { EL_TRY( \
       MultiShiftTrsm( \
         CReflect(side), CReflect(uplo), CReflect(orientation), \
-        CReflect(alpha), DM_CAST_CONST(F,A), \
-        DM_VR_STAR_CAST_CONST(F,shifts), DM_CAST(F,B) ) ) } \
+        CReflect(alpha), *CReflect(A), \
+        *CReflect(shifts), *CReflect(B) ) ) } \
   /* QuasiTrsm */ \
   ElError ElQuasiTrsm_ ## SIG \
   ( ElLeftOrRight side, ElUpperOrLower uplo, ElOrientation orientation, \

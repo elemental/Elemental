@@ -22,15 +22,21 @@ LUT
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
+
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto U11 =       ViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 =       View( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         LeftUnb( UPPER, orientation, F(1), U11, shifts, X1 );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -41,13 +47,19 @@ template<typename F>
 inline void
 LUT
 ( Orientation orientation, F alpha, 
-  const DistMatrix<F>& U, const DistMatrix<F,VR,STAR>& shifts,
-        DistMatrix<F>& X ) 
+  const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
-    Scale( alpha, X );
+    Scale( alpha, XPre );
 
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+    DistMatrix<F> U(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
+    Copy( UPre, U, READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XPre, X, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
@@ -56,15 +68,21 @@ LUT
     const Int m = X.Height();
     const Int n = X.Width();
     const Int bsize = Blocksize();
+
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         // X1[* ,VR] := U11^-'[*,*] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
@@ -85,6 +103,7 @@ LUT
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mstrsm

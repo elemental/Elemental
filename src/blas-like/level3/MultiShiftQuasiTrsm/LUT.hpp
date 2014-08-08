@@ -221,17 +221,22 @@ LUT
     if( conjugate )
         Conjugate( X );
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         LUTUnb( false, U11, shifts, X1 );
         Gemm( TRANSPOSE, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -262,6 +267,8 @@ LUT
     if( conjugate )
         Scale( Real(-1), XImag );
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -269,13 +276,16 @@ LUT
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1Real = ViewRange( XReal, k,    0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k,    0, k+nb, n );
-        auto X2Real = ViewRange( XReal, k+nb, 0, m,    n );
-        auto X2Imag = ViewRange( XImag, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X2Real = View( XReal, ind2, outerInd );
+        auto X2Imag = View( XImag, ind2, outerInd );
 
         LUTUnb( false, U11, shifts, X1Real, X1Imag );
         Gemm( TRANSPOSE, NORMAL, Real(-1), U12, X1Real, Real(1), X2Real );
@@ -290,24 +300,31 @@ template<typename F>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const DistMatrix<F>& U, 
-  const DistMatrix<F,VR,STAR>& shifts, 
-        DistMatrix<F>& X )
+  const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre,
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUTLarge");
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XPre,      X,      READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -315,11 +332,14 @@ LUTLarge
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -340,15 +360,17 @@ LUTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename Real>
 inline void
 LUTLarge
 ( Orientation orientation, 
-  const DistMatrix<Real>& U, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real>& XReal, DistMatrix<Real>& XImag )
+  const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUTLarge");
@@ -356,15 +378,24 @@ LUTLarge
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     typedef Complex<Real> C;
-    const Int m = XReal.Height();
-    const Int n = XReal.Width();
+    const Int m = XRealPre.Height();
+    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<Real> U(g), XReal(g), XImag(g);
+    DistMatrix<Complex<Real>,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XRealPre,  XReal,  READ_WRITE_PROXY );
+    Copy( XImagPre,  XImag,  READ_WRITE_PROXY );
 
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<Real,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<Real,STAR,MR  > X1Real_STAR_MR(g), X1Imag_STAR_MR(g);
     DistMatrix<Real,STAR,VR  > X1Real_STAR_VR(g), X1Imag_STAR_VR(g);
+
+    const IndexRange outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -373,13 +404,16 @@ LUTLarge
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1Real = ViewRange( XReal, k,    0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k,    0, k+nb, n );
-        auto X2Real = ViewRange( XReal, k+nb, 0, m,    n );
-        auto X2Imag = ViewRange( XImag, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X2Real = View( XReal, ind2, outerInd );
+        auto X2Imag = View( XImag, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -410,26 +444,33 @@ LUTLarge
         ( orientation, NORMAL, 
           Real(-1), U12_STAR_MC, X1Imag_STAR_MR, Real(1), X2Imag );
     }
+    Copy( XReal, XRealPre, RESTORE_READ_WRITE_PROXY );
+    Copy( XImag, XImagPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) ~= p
-template<typename F,Dist shiftColDist,Dist shiftRowDist>
+template<typename F>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const DistMatrix<F>& U, 
-  const DistMatrix<F,shiftColDist,shiftRowDist>& shifts, 
-        DistMatrix<F>& X )
+  const AbstractDistMatrix<F>& UPre, const AbstractDistMatrix<F>& shiftsPre, 
+        AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUTMedium");
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
-    const Int m = X.Height();
-    const Int n = X.Width();
+    const Int m = XPre.Height();
+    const Int n = XPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<F> U(g), X(g);
+    DistMatrix<F,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XPre,      X,      READ_WRITE_PROXY );
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -438,17 +479,22 @@ LUTMedium
     DistMatrix<F,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = ViewRange( X, ind1, outerInd );
+        auto X2 = ViewRange( X, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -473,15 +519,17 @@ LUTMedium
         ( orientation, orientation, 
           F(-1), U12_STAR_MC, X1Trans_MR_STAR, F(1), X2 );
     }
+    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
-template<typename Real,Dist shiftColDist,Dist shiftRowDist>
+template<typename Real>
 inline void
 LUTMedium
 ( Orientation orientation, 
-  const DistMatrix<Real>& U, 
-  const DistMatrix<Complex<Real>,shiftColDist,shiftRowDist>& shifts, 
-        DistMatrix<Real>& XReal, DistMatrix<Real>& XImag )
+  const AbstractDistMatrix<Real>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& XRealPre, 
+        AbstractDistMatrix<Real>& XImagPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUTMedium");
@@ -489,10 +537,17 @@ LUTMedium
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     )
     typedef Complex<Real> C;
-    const Int m = XReal.Height();
-    const Int n = XReal.Width();
+    const Int m = XRealPre.Height();
+    const Int n = XRealPre.Width();
     const Int bsize = Blocksize();
-    const Grid& g = U.Grid();
+    const Grid& g = UPre.Grid();
+
+    DistMatrix<Real> U(g), XReal(g), XImag(g);
+    DistMatrix<Complex<Real>,VR,STAR> shifts(g);
+    Copy( UPre,      U,      READ_PROXY );
+    Copy( shiftsPre, shifts, READ_PROXY );
+    Copy( XRealPre,  XReal,  READ_WRITE_PROXY );
+    Copy( XImagPre,  XImag,  READ_WRITE_PROXY );
 
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<Real,STAR,MC  > U12_STAR_MC(g);
@@ -501,6 +556,8 @@ LUTMedium
     DistMatrix<Complex<Real>,MR,STAR> shifts_MR_STAR(shifts),
                                       shifts_MR_STAR_Align(g);
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -508,13 +565,16 @@ LUTMedium
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1Real = ViewRange( XReal, k,    0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k,    0, k+nb, n );
-        auto X2Real = ViewRange( XReal, k+nb, 0, m,    n );
-        auto X2Imag = ViewRange( XImag, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X2Real = View( XReal, ind2, outerInd );
+        auto X2Imag = View( XImag, ind2, outerInd );
 
         U11_STAR_STAR = U11; 
         X1RealTrans_MR_STAR.AlignWith( X2Real );
@@ -549,6 +609,8 @@ LUTMedium
         ( orientation, orientation, 
           Real(-1), U12_STAR_MC, X1ImagTrans_MR_STAR, Real(1), X2Imag );
     }
+    Copy( XReal, XRealPre, RESTORE_READ_WRITE_PROXY );
+    Copy( XImag, XImagPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) << p
@@ -582,17 +644,22 @@ LUTSmall
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g),
                             shifts_STAR_STAR(shifts);
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, k, k,    k+nb, k+nb );
+        auto U12 = LockedView( U, k, k+nb, k+nb, m    );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
@@ -643,6 +710,8 @@ LUTSmall
                                                  X1Imag_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> shifts_STAR_STAR(shifts);
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nbProp = Min(bsize,m-k);
@@ -650,13 +719,16 @@ LUTSmall
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, m    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1Real = ViewRange( XReal, k,    0, k+nb, n );
-        auto X1Imag = ViewRange( XImag, k,    0, k+nb, n );
-        auto X2Real = ViewRange( XReal, k+nb, 0, m,    n );
-        auto X2Imag = ViewRange( XImag, k+nb, 0, m,    n );
+        auto U11 = LockedView( U, k, k,    k+nb, k+nb );
+        auto U12 = LockedView( U, k, k+nb, k+nb, m    );
+
+        auto X1Real = View( XReal, ind1, outerInd );
+        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X2Real = View( XReal, ind2, outerInd );
+        auto X2Imag = View( XImag, ind2, outerInd );
 
         U11_STAR_STAR = U11;
         X1Real_STAR_STAR = X1Real;  
