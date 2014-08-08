@@ -219,6 +219,7 @@ extern "C" {
       CReflect(alpha), *CReflect(A), *CReflect(B), \
       CReflect(beta), *CReflect(C) ) ) } \
   /* Trr2k */ \
+  /*
   ElError ElTrr2k_ ## SIG \
   ( ElUpperOrLower uplo, \
     ElOrientation orientA, ElOrientation orientB, \
@@ -232,6 +233,7 @@ extern "C" {
       CReflect(alpha), *CReflect(A), *CReflect(B), \
                        *CReflect(C), *CReflect(D), \
       CReflect(beta), *CReflect(E) ) ) } \
+  */ \
   ElError ElTrr2kDist_ ## SIG \
   ( ElUpperOrLower uplo, \
     ElOrientation orientA, ElOrientation orientB, \

@@ -487,6 +487,8 @@ ElError ElTrrkDist_z
 /* Trr2k
    ===== */
 /* TRiangular Rank-2K update */
+/* An optimized sequential implementation does not yet exist */
+/*
 ElError ElTrr2k_s
 ( ElUpperOrLower uplo, 
   ElOrientation orientA, ElOrientation orientB, 
@@ -515,6 +517,7 @@ ElError ElTrr2k_z
   complex_double alpha, ElConstMatrix_z A, ElConstMatrix_z B, 
                         ElConstMatrix_z C, ElConstMatrix_z D,
   complex_double beta,                     ElMatrix_z E );
+*/
 
 ElError ElTrr2kDist_s
 ( ElUpperOrLower uplo, 
