@@ -51,26 +51,29 @@ void Syr2
 template<typename T>
 void Syr2
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x,
-           const DistMatrix<T>& y,
-                 DistMatrix<T>& A, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& xPre,
+           const AbstractDistMatrix<T>& yPre,
+                 AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr2");
-        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+        if( APre.Grid() != xPre.Grid() || xPre.Grid() != yPre.Grid() )
             LogicError("{A,x,y} must be distributed over the same grid");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( A.Height() != xLength || A.Height() != yLength )
+        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
+        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
+        if( APre.Height() != xLength || APre.Height() != yLength )
             LogicError
-            ("A must conform with x: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x ~ ",x.Height()," x ",x.Width(),"\n",
-             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+            ("A must conform with x: \n",DimsString(APre,"A"),"\n",
+             DimsString(xPre,"x"),"\n",DimsString(yPre,"y"));
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<T> A(g), x(g), y(g);
+    Copy( xPre, x, READ_PROXY );
+    Copy( yPre, y, READ_PROXY );
+    Copy( APre, A, READ_WRITE_PROXY );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -289,6 +292,7 @@ void Syr2
             }
         }
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \
@@ -297,8 +301,8 @@ void Syr2
     const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, bool conjugate ); \
   template void Syr2 \
   ( UpperOrLower uplo, T alpha, \
-    const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A, \
-    bool conjugate );
+    const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+    AbstractDistMatrix<T>& A, bool conjugate );
 
 // blas::Syr2 not yet supported
 #define EL_NO_INT_PROTO

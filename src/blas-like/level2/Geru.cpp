@@ -34,27 +34,31 @@ void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
 template<typename T>
 void Geru
-( T alpha, const DistMatrix<T>& x,
-           const DistMatrix<T>& y,
-                 DistMatrix<T>& A )
+( T alpha, const AbstractDistMatrix<T>& xPre, const AbstractDistMatrix<T>& yPre,
+                 AbstractDistMatrix<T>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Geru");
-        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-           LogicError("{A,x,y} must be distributed over the same grid");
-        if( ( x.Width() != 1 && x.Height() != 1 ) ||
-            ( y.Width() != 1 && y.Height() != 1 )   )
+        if( APre.Grid() != xPre.Grid() || xPre.Grid() != yPre.Grid() )
+            LogicError("{A,x,y} must be distributed over the same grid");
+        if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
+            ( yPre.Width() != 1 && yPre.Height() != 1 )   )
             LogicError("x and y are assumed to be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( A.Height() != xLength || A.Width() != yLength )
+        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
+        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
+        if( APre.Height() != xLength || APre.Width() != yLength )
             LogicError
-            ("Nonconformal Geru: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x ~ ",x.Height()," x ",x.Width(),"\n",
-             "  y ~ ",y.Height()," x ",y.Width(),"\n")
+            ("Nonconformal Geru:\n",
+             DimsString(APre,"A"),"\n",DimsString(xPre,"x"),"\n",
+             DimsString(yPre,"y"));
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<T> x(g), y(g), A(g);
+    Copy( xPre, x, READ_PROXY );
+    Copy( yPre, y, READ_PROXY );
+    Copy( APre, A, READ_WRITE_PROXY );
+
     if( x.Width() == 1 && y.Width() == 1 )
     {
         DistMatrix<T,MC,STAR> x_MC_STAR(g);
@@ -115,14 +119,15 @@ void Geru
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \
   template void Geru \
   ( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
   template void Geru \
-  ( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, \
-                   DistMatrix<T>& A );
+  ( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+                   AbstractDistMatrix<T>& A );
 
 // blas::Geru not yet supported
 #define EL_NO_INT_PROTO

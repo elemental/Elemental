@@ -18,7 +18,9 @@ void Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 }
 
 template<typename T>
-void Her( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A )
+void Her
+( UpperOrLower uplo, T alpha, const AbstractDistMatrix<T>& x, 
+                                    AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Her"))
     Syr( uplo, alpha, x, A, true );
@@ -28,7 +30,8 @@ void Her( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A )
   template void Her \
   ( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A ); \
   template void Her \
-  ( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A );
+  ( UpperOrLower uplo, T alpha, const AbstractDistMatrix<T>& x, \
+    AbstractDistMatrix<T>& A );
 
 // blas::Her not yet supported
 #define EL_NO_INT_PROTO

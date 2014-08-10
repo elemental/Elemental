@@ -14,27 +14,31 @@ template<typename T>
 inline void
 Transpose
 ( Orientation orientation,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y )
+  T alpha, const AbstractDistMatrix<T>& APre,
+           const AbstractDistMatrix<T>& xPre,
+  T beta,        AbstractDistMatrix<T>& yPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemv::Transpose");
-        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+        if( APre.Grid() != xPre.Grid() || xPre.Grid() != yPre.Grid() )
             LogicError("{A,x,y} must be distributed over the same grid");
-        if( ( x.Width() != 1 && x.Height() != 1 ) ||
-            ( y.Width() != 1 && y.Height() != 1 )   )
+        if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
+            ( yPre.Width() != 1 && yPre.Height() != 1 )   )
             LogicError("Expected x and y to be vectors");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
-        if( A.Height() != xLength || A.Width() != yLength )
+        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
+        const Int yLength = ( yPre.Width()==1 ? yPre.Height() : yPre.Width() );
+        if( APre.Height() != xLength || APre.Width() != yLength )
             LogicError
-            ("Nonconformal: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x ~ ",x.Height()," x ",x.Width(),"\n",
-             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+            ("Nonconformal: \n",DimsString(APre,"A"),"\n",
+             DimsString(xPre,"x"),"\n",DimsString(yPre,"y"));
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<T> A(g), x(g), y(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( xPre, x, READ_PROXY );
+    Copy( yPre, y, READ_WRITE_PROXY );
+
     Scale( beta, y );
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -108,6 +112,7 @@ Transpose
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
     }
+    Copy( y, yPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -126,10 +131,8 @@ Transpose
             LogicError("Expected x and y to be column vectors");
         if( A.Height() != x.Height() || A.Width() != y.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x ~ ",x.Height()," x ",x.Width(),"\n",
-             "  y ~ ",y.Height()," x ",y.Width(),"\n");
+            ("Nonconformal: \n",DimsString(A,"A"),"\n",
+             DimsString(x,"x"),"\n",DimsString(y,"y"));
     )
     const Grid& g = A.Grid();
     Scale( beta, y );

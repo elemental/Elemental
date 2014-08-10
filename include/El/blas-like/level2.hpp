@@ -27,30 +27,16 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y );
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y );
 
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& x,
-                 DistMatrix<T>& y );
-
-template<typename T>
-void Gemv
-( Orientation orientation,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T,VC,STAR>& x,
-  T beta,        DistMatrix<T,VC,STAR>& y );
-
-template<typename T>
-void Gemv
-( Orientation orientation,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T,VC,STAR>& x,
-                 DistMatrix<T,VC,STAR>& y );
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+                 AbstractDistMatrix<T>& y );
 
 template<typename T,Dist AColDist,Dist ARowDist,
                     Dist xColDist,Dist xRowDist,
@@ -76,7 +62,8 @@ void Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 template<typename T>
 void Ger
-( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A );
+( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, 
+                 AbstractDistMatrix<T>& A );
 
 template<typename T,Dist xColDist,Dist xRowDist,
                     Dist yColDist,Dist yRowDist,
@@ -98,7 +85,8 @@ void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
 
 template<typename T>
 void Geru
-( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A );
+( T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, 
+                 AbstractDistMatrix<T>& A );
 
 // Hemv
 // ====
@@ -110,8 +98,8 @@ void Hemv
 template<typename T>
 void Hemv
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y );
 
 // Her
 // ===
@@ -120,7 +108,8 @@ void Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
 
 template<typename T>
 void Her
-( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A );
+( UpperOrLower uplo, 
+  T alpha, const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A );
 
 // Her2
 // ====
@@ -132,8 +121,8 @@ void Her2
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y,
-                 DistMatrix<T>& A );
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A );
 
 // QuasiTrsv
 // =========
@@ -159,8 +148,8 @@ void Symv
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y, bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y, bool conjugate=false );
 
 // namespace symv
 // --------------
@@ -198,7 +187,8 @@ void Syr
 template<typename T>
 void Syr
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x, DistMatrix<T>& A, bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A, 
+  bool conjugate=false );
 
 // Syr2
 // ====
@@ -211,8 +201,8 @@ void Syr2
 template<typename T>
 void Syr2
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y,
-                 DistMatrix<T>& A, bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A, bool conjugate=false );
 
 // Trmv
 // ====
@@ -234,8 +224,8 @@ void Trr
 template<typename T>
 void Trr
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A,
-  bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, 
+  AbstractDistMatrix<T>& A, bool conjugate=false );
 
 // Trr2
 // ====
@@ -249,8 +239,8 @@ void Trr2
 template<typename T>
 void Trr2
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& X, const DistMatrix<T>& Y, DistMatrix<T>& A,
-  bool conjugate=false );
+  T alpha, const AbstractDistMatrix<T>& X, const AbstractDistMatrix<T>& Y, 
+  AbstractDistMatrix<T>& A, bool conjugate=false );
 
 // Trsv
 // ====

@@ -22,9 +22,9 @@ void Hemv
 template<typename T>
 void Hemv
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y )
+  T alpha, const AbstractDistMatrix<T>& A,
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("Hemv"))
     Symv( uplo, alpha, A, x, beta, y, true );
@@ -36,7 +36,8 @@ void Hemv
     const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y ); \
   template void Hemv \
   ( UpperOrLower uplo, T alpha, \
-    const DistMatrix<T>& A, const DistMatrix<T>& x, T beta, DistMatrix<T>& y );
+    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+    T beta, AbstractDistMatrix<T>& y );
 
 // blas::Hemv not yet supported
 #define EL_NO_INT_PROTO

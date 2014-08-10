@@ -43,23 +43,26 @@ void Syr
 template<typename T>
 void Syr
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x,
-                 DistMatrix<T>& A, bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& xPre,
+                 AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr");
-        if( A.Grid() != x.Grid() )
+        if( APre.Grid() != xPre.Grid() )
             LogicError("A and x must be distributed over the same grid");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-        if( A.Height() != xLength )
+        const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );
+        if( APre.Height() != xLength )
             LogicError
-            ("A must conform with x: \n",
-             "  A ~ ",A.Height()," x ",A.Width(),"\n",
-             "  x ~ ",x.Height()," x ",x.Width(),"\n");
+            ("A must conform with x: \n",DimsString(APre,"A"),"\n",
+             DimsString(xPre,"x"));
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<T> A(g), x(g);
+    Copy( xPre, x, READ_PROXY );
+    Copy( APre, A, READ_WRITE_PROXY );
 
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -145,6 +148,7 @@ void Syr
             }
         }
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \
@@ -153,7 +157,7 @@ void Syr
     const Matrix<T>& x, Matrix<T>& A, bool conjugate ); \
   template void Syr \
   ( UpperOrLower uplo, T alpha, \
-    const DistMatrix<T>& x, DistMatrix<T>& A, bool conjugate );
+    const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& A, bool conjugate );
 
 // blas::Syr not yet supported
 #define EL_NO_INT_PROTO

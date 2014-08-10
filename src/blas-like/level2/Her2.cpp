@@ -22,9 +22,8 @@ void Her2
 template<typename T>
 void Her2
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x,
-           const DistMatrix<T>& y,
-                 DistMatrix<T>& A )
+  T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y,
+                 AbstractDistMatrix<T>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Her2"))
     Syr2( uplo, alpha, x, y, A, true );
@@ -36,7 +35,8 @@ void Her2
     const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A ); \
   template void Her2 \
   ( UpperOrLower uplo, T alpha, \
-    const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A );
+    const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+          AbstractDistMatrix<T>& A );
 
 // blas::Her2 not yet supported
 #define EL_NO_INT_PROTO

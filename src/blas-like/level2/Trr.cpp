@@ -59,14 +59,21 @@ void Trr
 template<typename T>
 void Trr
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A, 
-  bool conjugate )
+  T alpha, const AbstractDistMatrix<T>& xPre, const AbstractDistMatrix<T>& yPre,
+                 AbstractDistMatrix<T>& APre, bool conjugate )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trr");
-        if( x.Width() != 1 || y.Width() != 1 )
+        if( xPre.Width() != 1 || yPre.Width() != 1 )
             LogicError("x and y must be of width 1");
     )
+
+    const Grid& g = APre.Grid();
+    DistMatrix<T> x(g), y(g), A(g);
+    Copy( xPre, x, READ_PROXY );
+    Copy( yPre, y, READ_PROXY );
+    Copy( APre, A, READ_WRITE_PROXY );
+
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     DEBUG_ONLY(
@@ -74,8 +81,8 @@ void Trr
             LogicError("x and y must conform with A");
     )
 
-    DistMatrix<T,MC,STAR> x_MC_STAR(A.Grid());
-    DistMatrix<T,MR,STAR> y_MR_STAR(A.Grid());
+    DistMatrix<T,MC,STAR> x_MC_STAR(g);
+    DistMatrix<T,MR,STAR> y_MR_STAR(g);
     x_MC_STAR.AlignWith( A );
     y_MR_STAR.AlignWith( A );
     x_MC_STAR = x;
@@ -116,6 +123,7 @@ void Trr
                 A.MakeReal( j, j );
         }
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \
@@ -125,8 +133,8 @@ void Trr
     Matrix<T>& A, bool conjugate ); \
   template void Trr \
   ( UpperOrLower uplo, \
-    T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, \
-    DistMatrix<T>& A, bool conjugate );
+    T alpha, const AbstractDistMatrix<T>& x, const AbstractDistMatrix<T>& y, \
+    AbstractDistMatrix<T>& A, bool conjugate );
 
 #include "El/macros/Instantiate.h"
 

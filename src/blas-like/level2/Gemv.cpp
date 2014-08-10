@@ -23,28 +23,22 @@ void Gemv
         if( ( x.Height() != 1 && x.Width() != 1 ) ||
             ( y.Height() != 1 && y.Width() != 1 ) )
             LogicError
-            ("x and y must be vectors:\n",
-             "  x ~ ",x.Height()," x ",x.Width(),"\n",
-             "  y ~ ",y.Height()," x ",y.Width());
+            ("Nonconformal: \n",DimsString(x,"x"),"\n",DimsString(y,"y"));
         const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
         const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
         if( orientation == NORMAL )
         {
             if( A.Height() != yLength || A.Width() != xLength )
                 LogicError
-                ("A must conform with x and y:\n",
-                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
-                 "  x ~ ",x.Height()," x ",x.Width(),"\n",
-                 "  y ~ ",y.Height()," x ",y.Width());
+                ("Nonconformal: \n",DimsString(A,"A"),"\n",
+                 DimsString(x,"x"),"\n",DimsString(y,"y"));
         }
         else
         {
             if( A.Width() != yLength || A.Height() != xLength )
                 LogicError
-                ("A must conform with x and y:\n",
-                 "  A ~ ",A.Height()," x ",A.Width(),"\n",
-                 "  x ~ ",x.Height()," x ",x.Width(),"\n",
-                 "  y ~ ",y.Height()," x ",y.Width());
+                ("Nonconformal: \n",DimsString(A,"A"),"\n",
+                 DimsString(x,"x"),"\n",DimsString(y,"y"));
         }
     )
     const char transChar = OrientationToChar( orientation );
@@ -82,9 +76,9 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const DistMatrix<T>& A, 
-           const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y )
+  T alpha, const AbstractDistMatrix<T>& A, 
+           const AbstractDistMatrix<T>& x,
+  T beta,        AbstractDistMatrix<T>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("Gemv"))
     if( orientation == NORMAL )
@@ -96,39 +90,9 @@ void Gemv
 template<typename T>
 void Gemv
 ( Orientation orientation,
-  T alpha, const DistMatrix<T>& A, 
-           const DistMatrix<T>& x,
-                 DistMatrix<T>& y )
-{
-    DEBUG_ONLY(CallStackEntry cse("Gemv"))
-    y.AlignWith( A );
-    if( orientation == NORMAL )
-        Zeros( y, A.Height(), 1 );
-    else
-        Zeros( y, A.Width(), 1 );
-    Gemv( orientation, alpha, A, x, T(0), y );
-}
-
-template<typename T>
-void Gemv
-( Orientation orientation,
-  T alpha, const DistMatrix<T>& A, 
-           const DistMatrix<T,VC,STAR>& x,
-  T beta,        DistMatrix<T,VC,STAR>& y )
-{
-    DEBUG_ONLY(CallStackEntry cse("Gemv"))
-    if( orientation == NORMAL )
-        gemv::Normal( alpha, A, x, beta, y );
-    else
-        gemv::Transpose( orientation, alpha, A, x, beta, y );
-}
-
-template<typename T>
-void Gemv
-( Orientation orientation,
-  T alpha, const DistMatrix<T>& A, 
-           const DistMatrix<T,VC,STAR>& x,
-                 DistMatrix<T,VC,STAR>& y )
+  T alpha, const AbstractDistMatrix<T>& A, 
+           const AbstractDistMatrix<T>& x,
+                 AbstractDistMatrix<T>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("Gemv"))
     y.AlignWith( A );
@@ -148,19 +112,12 @@ void Gemv
     const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, const DistMatrix<T>& x, \
-    T beta, DistMatrix<T>& y ); \
+    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+    T beta, AbstractDistMatrix<T>& y ); \
   template void Gemv \
   ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, const DistMatrix<T>& x, DistMatrix<T>& y ); \
-  template void Gemv \
-  ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, const DistMatrix<T,VC,STAR>& x, \
-    T beta, DistMatrix<T,VC,STAR>& y ); \
-  template void Gemv \
-  ( Orientation orientation, T alpha, \
-    const DistMatrix<T>& A, const DistMatrix<T,VC,STAR>& x, \
-          DistMatrix<T,VC,STAR>& y ); 
+    const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& x, \
+          AbstractDistMatrix<T>& y );
 
 #include "El/macros/Instantiate.h"
 
