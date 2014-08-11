@@ -52,8 +52,7 @@ Base<F> LogDetDiv
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
     DEBUG_ONLY(CallStackEntry cse("LogDetDiv"))
-    if( A.Grid() != B.Grid() )
-        LogicError("A and B must use the same grid");
+    AssertSameGrids( A, B );
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");

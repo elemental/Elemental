@@ -571,7 +571,6 @@ ElError ElLU_d( ElMatrix_d A );
 ElError ElLU_c( ElMatrix_c A );
 ElError ElLU_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElLUDist_s( ElDistMatrix_s A );
 ElError ElLUDist_d( ElDistMatrix_d A );
 ElError ElLUDist_c( ElDistMatrix_c A );
@@ -584,8 +583,6 @@ ElError ElLUPartialPiv_d( ElMatrix_d A, ElMatrix_i p );
 ElError ElLUPartialPiv_c( ElMatrix_c A, ElMatrix_i p );
 ElError ElLUPartialPiv_z( ElMatrix_z A, ElMatrix_i p );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         'p' must be in a [VC,STAR] distribution */
 ElError ElLUPartialPivDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
 ElError ElLUPartialPivDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
 ElError ElLUPartialPivDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
@@ -598,8 +595,6 @@ ElError ElLUFullPiv_d( ElMatrix_d A, ElMatrix_i p, ElMatrix_i q );
 ElError ElLUFullPiv_c( ElMatrix_c A, ElMatrix_i p, ElMatrix_i q );
 ElError ElLUFullPiv_z( ElMatrix_z A, ElMatrix_i p, ElMatrix_i q );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         'p' and 'q' must be in [VC,STAR] distributions */
 ElError ElLUFullPivDist_s
 ( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_i q );
 ElError ElLUFullPivDist_d
@@ -624,8 +619,6 @@ ElError ElLUMod_z
 ( ElMatrix_z A, ElMatrix_i p, 
   ElConstMatrix_z u, ElConstMatrix_z v, bool conjugate, double tau );
 
-/* NOTE: 'A', 'u', and 'v' must be in [MC,MR] distributions, while
-        'p' must be in a [VC,STAR] distribution */
 ElError ElLUModDist_s
 ( ElDistMatrix_s A, ElDistMatrix_i p, 
   ElConstDistMatrix_s u, ElConstDistMatrix_s v, float tau );
@@ -650,7 +643,6 @@ ElError ElSolveAfterLU_c
 ElError ElSolveAfterLU_z
 ( ElOrientation orientation, ElConstMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElSolveAfterLUDist_s
 ( ElOrientation orientation, ElConstDistMatrix_s A, ElDistMatrix_s B );
 ElError ElSolveAfterLUDist_d
@@ -675,8 +667,6 @@ ElError ElSolveAfterLUPartialPiv_z
 ( ElOrientation orientation, 
   ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         'p' must be in a [VC,STAR] distribution */
 ElError ElSolveAfterLUPartialPivDist_s
 ( ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );
@@ -705,8 +695,6 @@ ElError ElSolveAfterLUFullPiv_z
 ( ElOrientation orientation, ElConstMatrix_z A, 
   ElConstMatrix_i p, ElConstMatrix_i q, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         'p' and 'q' must be in [VC,STAR] distributions */
 ElError ElSolveAfterLUFullPivDist_s
 ( ElOrientation orientation, ElConstDistMatrix_s A, 
   ElConstDistMatrix_i p, ElConstDistMatrix_i q, ElDistMatrix_s B );

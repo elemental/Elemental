@@ -41,17 +41,22 @@ RUT
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
+
+    const IndexRange outerInd( 0, m );
     
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto U01 = LockedView( U, ind0, ind1 );
+        auto U11 = LockedView( U, ind1, ind1 );
+
+        auto X0 = View( X, outerInd, ind0 );
+        auto X1 = View( X, outerInd, ind1 );
 
         U11_STAR_STAR = U11;
         X1_VC_STAR.AlignWith( X0 );
@@ -76,7 +81,6 @@ RUT
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, U01Trans_STAR_MR, F(1), X0 );
     }
-
     Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 

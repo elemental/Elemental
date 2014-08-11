@@ -214,19 +214,52 @@ template<> constexpr Dist DiagInvRowDist<MD,STAR>() { return MR; }
 template<> constexpr Dist DiagInvColDist<STAR,MD>() { return MC; }
 template<> constexpr Dist DiagInvRowDist<STAR,MD>() { return MR; }
 
+// Compile-time
 template<Dist U> 
 constexpr Dist GatheredDist() { return ( U==CIRC ? CIRC : STAR ); }
 
+// Run-time
+inline Dist GatheredDist( Dist U ) { return ( U==CIRC ? CIRC : STAR ); }
+
+// Compile-time
 template<Dist U> constexpr Dist PartialDist() { return U; }
 template<> constexpr Dist PartialDist<VC>() { return MC; }
 template<> constexpr Dist PartialDist<VR>() { return MR; }
 
+// Run-time
+inline Dist PartialDist( Dist U ) 
+{ 
+    if( U == VC ) 
+        return MC;
+    else if( U == VR )
+        return MR;
+    else
+        return U;
+}
+
+// Compile-time
 template<Dist U,Dist V> constexpr Dist PartialUnionRowDist() { return V; }
 template<> constexpr Dist PartialUnionRowDist<VC,STAR>() { return MR; }
 template<> constexpr Dist PartialUnionRowDist<VR,STAR>() { return MC; }
 
+// Run-time
+inline Dist PartialUnionRowDist( Dist U, Dist V )
+{ 
+    if( U == VC )
+        return MR;
+    else if( U == VR )
+        return MC;
+    else
+        return V;
+}
+
+// Compile-time
 template<Dist U,Dist V> constexpr Dist PartialUnionColDist() 
 { return PartialUnionRowDist<V,U>(); }
+
+// Run-time
+inline Dist PartialUnionColDist( Dist U, Dist V )
+{ return PartialUnionRowDist( V, U ); }
 
 namespace ViewTypeNS {
 enum ViewType

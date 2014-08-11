@@ -313,25 +313,23 @@ void SolveAfter
 template<typename F>
 void LU( Matrix<F>& A );
 template<typename F>
-void LU( DistMatrix<F>& A );
+void LU( AbstractDistMatrix<F>& A );
 
 // LU with partial pivoting
 // ------------------------
 template<typename F>
 void LU( Matrix<F>& A, Matrix<Int>& p );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
-void LU( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p );
+template<typename F>
+void LU( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p );
 
 // LU with full pivoting
 // ---------------------
 template<typename F>
 void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void LU
-( DistMatrix<F>& A, 
-  DistMatrix<Int,UPerm,STAR>& p, DistMatrix<Int,UPerm,STAR>& q );
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q );
 
 // Rank-one modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
@@ -340,12 +338,11 @@ void LUMod
 ( Matrix<F>& A, Matrix<Int>& p,
   const Matrix<F>& u, const Matrix<F>& v, bool conjugate=true,
   Base<F> tau=0.1 );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void LUMod
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p,
-  const DistMatrix<F>& u, const DistMatrix<F>& v, bool conjugate=true,
-  Base<F> tau=0.1 );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
+  const AbstractDistMatrix<F>& u, const AbstractDistMatrix<F>& v, 
+  bool conjugate=true, Base<F> tau=0.1 );
 
 namespace lu {
 
@@ -367,7 +364,8 @@ template<typename F>
 void SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B );
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 // Solve linear systems using an implicit partially-pivoted LU factorization
 // -------------------------------------------------------------------------
@@ -375,11 +373,10 @@ template<typename F>
 void SolveAfter
 ( Orientation orientation, const Matrix<F>& A,
   const Matrix<Int>& p, Matrix<F>& B );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& p, DistMatrix<F>& B );
+( Orientation orientation, const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
 // ---------------------------------------------------------------------
@@ -388,12 +385,11 @@ void SolveAfter
 ( Orientation orientation, const Matrix<F>& A,
   const Matrix<Int>& p, const Matrix<Int>& q,
         Matrix<F>& B );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A,
-  const DistMatrix<Int,UPerm,STAR>& p, const DistMatrix<Int,UPerm,STAR>& q,
-        DistMatrix<F>& B );
+( Orientation orientation, const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Int>& p, const AbstractDistMatrix<Int>& q,
+        AbstractDistMatrix<F>& B );
 
 } // namespace lu
 

@@ -278,15 +278,14 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( LU( *CReflect(A), *CReflect(p) ) ) } \
   ElError ElLUPartialPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
-  { EL_TRY( LU( DM_CAST(F,A), DM_VC_STAR_CAST(Int,p) ) ) } \
+  { EL_TRY( LU( *CReflect(A), *CReflect(p) ) ) } \
   /* LU with full pivoting */ \
   ElError ElLUFullPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_i p, ElMatrix_i q ) \
   { EL_TRY( LU( *CReflect(A), *CReflect(p), *CReflect(q) ) ) } \
   ElError ElLUFullPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, ElDistMatrix_i q ) \
-  { EL_TRY( LU( \
-      DM_CAST(F,A), DM_VC_STAR_CAST(Int,p), DM_VC_STAR_CAST(Int,q) ) ) } \
+  { EL_TRY( LU( *CReflect(A), *CReflect(p), *CReflect(q) ) ) } \
   /* Solve against vectors after LU with no pivoting */ \
   ElError ElSolveAfterLU_ ## SIG \
   ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
@@ -296,7 +295,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElOrientation orientation, \
     ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
-      CReflect(orientation), DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+      CReflect(orientation), *CReflect(A), *CReflect(B) ) ) } \
   /* Solve against vectors after LU with partial pivoting */ \
   ElError ElSolveAfterLUPartialPiv_ ## SIG \
   ( ElOrientation orientation, ElConstMatrix_ ## SIG A, ElConstMatrix_i p, \
@@ -309,8 +308,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, \
     ElDistMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
-      CReflect(orientation), \
-      DM_CAST_CONST(F,A), DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B) ) ) } \
+      CReflect(orientation), *CReflect(A), *CReflect(p), *CReflect(B) ) ) } \
   /* Solve against vectors after LU with full pivoting */ \
   ElError ElSolveAfterLUFullPiv_ ## SIG \
   ( ElOrientation orientation, ElConstMatrix_ ## SIG A, \
@@ -323,9 +321,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_i p, ElConstDistMatrix_i q, \
     ElDistMatrix_ ## SIG B ) \
   { EL_TRY( lu::SolveAfter( \
-      CReflect(orientation), DM_CAST_CONST(F,A), \
-      DM_VC_STAR_CAST_CONST(Int,p), DM_VC_STAR_CAST_CONST(Int,q), \
-      DM_CAST(F,B) ) ) } \
+      CReflect(orientation), *CReflect(A), \
+      *CReflect(p), *CReflect(q), *CReflect(B) ) ) } \
   /* QR factorization 
      ================ */ \
   /* Return the packed QR factorization (with no pivoting) */ \

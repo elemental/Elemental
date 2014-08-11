@@ -10,9 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define DM_CAST(T,A) dynamic_cast<DistMatrix<T>&>(*CReflect(A))
-#define DM_CAST_CONST(T,A) dynamic_cast<const DistMatrix<T>&>(*CReflect(A))
-
 extern "C" {
 
 #define C_PROTO_BASE(SIG,SIGBASE,T) \
@@ -251,8 +248,8 @@ extern "C" {
                        ElDistMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( \
       Trr( CReflect(uplo), \
-           CReflect(alpha), DM_CAST_CONST(T,x), DM_CAST_CONST(T,y), \
-           DM_CAST(T,A), conjugate ) ) } \
+           CReflect(alpha), *CReflect(x), *CReflect(y), *CReflect(A), \
+           conjugate ) ) } \
   /* Trr2 */ \
   ElError ElTrr2_ ## SIG \
   ( ElUpperOrLower uplo, \
@@ -269,8 +266,8 @@ extern "C" {
                        ElDistMatrix_ ## SIG A, bool conjugate ) \
   { EL_TRY( \
       Trr2( CReflect(uplo), \
-            CReflect(alpha), DM_CAST_CONST(T,X), DM_CAST_CONST(T,Y), \
-            DM_CAST(T,A), conjugate ) ) }
+            CReflect(alpha), *CReflect(X), *CReflect(Y), *CReflect(A), \
+            conjugate ) ) }
 
 #include "El/macros/CInstantiate.h"
 

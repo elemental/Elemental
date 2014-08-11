@@ -10,19 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define DM_CAST(T,A) dynamic_cast<DistMatrix<T>&>(*CReflect(A))
-#define DM_CAST_CONST(T,A) dynamic_cast<const DistMatrix<T>&>(*CReflect(A))
-
-#define DM_MD_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,MD,STAR>&>(*CReflect(A))
-#define DM_MD_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,MD,STAR>&>(*CReflect(A))
-
-#define DM_VR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VR,STAR>&>(*CReflect(A))
-#define DM_VR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VR,STAR>&>(*CReflect(A))
-
 extern "C" {
 
 #define C_PROTO_BASE(SIG,SIGBASE,T) \

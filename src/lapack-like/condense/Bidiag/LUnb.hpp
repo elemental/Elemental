@@ -106,8 +106,7 @@ inline void LUnb
 {
     DEBUG_ONLY(
         CallStackEntry cse("bidiag::LUnb");
-        if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-            LogicError("Process grids do not match");
+        AssertSameGrids( A, tP, tQ );
         if( A.Height() > A.Width() )
             LogicError("A must be at least as wide as it is tall");
     )

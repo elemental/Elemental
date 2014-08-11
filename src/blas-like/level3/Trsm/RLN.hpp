@@ -38,16 +38,21 @@ RLN
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
 
+    const IndexRange outerInd( 0, m );
+
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, outerInd, ind0 );
+        auto X1 = View( X, outerInd, ind1 );
 
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1;
@@ -66,7 +71,6 @@ RLN
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );
     }
-
     Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 

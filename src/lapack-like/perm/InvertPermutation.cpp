@@ -34,22 +34,25 @@ void InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm )
         invPerm.Set( perm.Get(i,0), 0, i );
 }
 
-template<Dist U>
 void InvertPermutation
-( const DistMatrix<Int,U,GatheredDist<U>()>& perm, 
-        DistMatrix<Int,U,GatheredDist<U>()>& invPerm )
+( const AbstractDistMatrix<Int>& permPre, AbstractDistMatrix<Int>& invPermPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("InvertPermutation");
-        if( perm.Width() != 1 )
+        if( permPre.Width() != 1 )
             LogicError("perm must be a column vector");
     )
-    const Int n = perm.Height();
-    invPerm.SetGrid( perm.Grid() );
-    invPerm.AlignWith( perm );
-    invPerm.Resize( n, 1 );
+
+    const Int n = permPre.Height();
+    invPermPre.AlignWith( permPre, false );
+    invPermPre.Resize( n, 1 );
     if( n == 0 )
         return;
+
+    const Grid& g = permPre.Grid();
+    DistMatrix<Int,VC,STAR> perm(g), invPerm(g);
+    Copy( permPre,    perm,    READ_PROXY  );
+    Copy( invPermPre, invPerm, WRITE_PROXY );
 
     DEBUG_ONLY(
         // This is obviously necessary but not sufficient for 'perm' to contain
@@ -114,19 +117,8 @@ void InvertPermutation
         const Int iDestLoc = invPerm.LocalRow(iDest);
         invPerm.SetLocal( iDestLoc, 0, i );
     }
+
+    Copy( invPerm, invPermPre, RESTORE_WRITE_PROXY );
 }
-
-#define PROTO_DIST(U) \
-  template void InvertPermutation \
-  ( const DistMatrix<Int,U,GatheredDist<U>()>& perm, \
-          DistMatrix<Int,U,GatheredDist<U>()>& invPerm );
-
-PROTO_DIST(CIRC)
-PROTO_DIST(MC  )
-PROTO_DIST(MD  )
-PROTO_DIST(MR  )
-PROTO_DIST(STAR)
-PROTO_DIST(VC  )
-PROTO_DIST(VR  )
 
 } // namespace El

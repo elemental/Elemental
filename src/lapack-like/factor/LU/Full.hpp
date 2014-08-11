@@ -32,8 +32,14 @@ Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
 
     for( Int k=0; k<minDim; ++k )
     {
+        const IndexRange ind1( k, k+1 );
+        const IndexRange indB( k, m );
+        const IndexRange indR( k, n );
+        const IndexRange ind2Vert( k+1, m );
+        const IndexRange ind2Horz( k+1, n );
+
         // Find the index and value of the pivot candidate
-        auto ABR = ViewRange( A, k, k, m, n );
+        auto ABR = View( A, indB, indR );
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
@@ -46,9 +52,9 @@ Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
-        auto a21 = ViewRange( A, k+1, k,   m,   k+1 );
-        auto a12 = ViewRange( A, k,   k+1, k+1, n   );
-        auto A22 = ViewRange( A, k+1, k+1, m,   n   );
+        auto a21 = View( A, ind2Vert, ind1     );
+        auto a12 = View( A, ind1,     ind2Horz );
+        auto A22 = View( A, ind2Vert, ind2Horz );
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;
@@ -57,26 +63,31 @@ Full( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 inline void
 Full
-( DistMatrix<F>& A, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, 
-  DistMatrix<Int,UPerm,STAR>& qPerm )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<Int>& pPermPre, AbstractDistMatrix<Int>& qPermPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::Full");
-        if( A.Grid() != pPerm.Grid() || pPerm.Grid() != qPerm.Grid() )
-            LogicError("Matrices must be distributed over the same grid");
+        AssertSameGrids( APre, pPermPre, qPermPre );
     )
-    const Int m = A.Height();
-    const Int n = A.Width();
+    const Int m = APre.Height();
+    const Int n = APre.Width();
     const Int minDim = Min(m,n);
+    const Grid& g = APre.Grid();
+
+    pPermPre.Resize( m, 1 );
+    qPermPre.Resize( n, 1 );
+
+    DistMatrix<F> A(g);
+    DistMatrix<Int,VC,STAR> pPerm(g), qPerm(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( pPermPre, pPerm, WRITE_PROXY );
+    Copy( qPermPre, qPerm, WRITE_PROXY );
 
     // Initialize the permutations P and Q
-    qPerm.AlignWith( pPerm );
-    pPerm.Resize( m, 1 );
-    qPerm.Resize( n, 1 );
     for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
         pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
     for( Int jLoc=0; jLoc<qPerm.LocalHeight(); ++jLoc )
@@ -84,8 +95,14 @@ Full
 
     for( Int k=0; k<minDim; ++k )
     {
+        const IndexRange ind1( k, k+1 );
+        const IndexRange ind2Vert( k+1, m );
+        const IndexRange ind2Horz( k+1, n );
+        const IndexRange indB( k, m );
+        const IndexRange indR( k, n );
+
         // Find the index and value of the pivot candidate
-        auto ABR = ViewRange( A, k, k, m, n );
+        auto ABR = View( A, indB, indR );
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
@@ -98,15 +115,18 @@ Full
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
-        auto a21 = ViewRange( A, k+1, k,   m,   k+1 );
-        auto a12 = ViewRange( A, k,   k+1, k+1, n   );
-        auto A22 = ViewRange( A, k+1, k+1, m,   n   );
+        auto a21 = View( A, ind2Vert, ind1     );
+        auto a12 = View( A, ind1,     ind2Horz );
+        auto A22 = View( A, ind2Vert, ind2Horz );
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( pPerm, pPermPre, RESTORE_WRITE_PROXY );
+    Copy( qPerm, qPermPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace lu

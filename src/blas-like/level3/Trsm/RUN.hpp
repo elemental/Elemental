@@ -34,16 +34,21 @@ RUN
     DistMatrix<F,STAR,MR  > U12_STAR_MR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);    
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
+
+    const IndexRange outerInd( 0, m );
     
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, n    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
 
-        auto X1 = ViewRange( X, 0, k,    m, k+nb );
-        auto X2 = ViewRange( X, 0, k+nb, m, n    );
+        auto U11 = LockedView( U, ind1, ind1 );
+        auto U12 = LockedView( U, ind1, ind2 );
+
+        auto X1 = View( X, outerInd, ind1 );
+        auto X2 = View( X, outerInd, ind2 );
 
         U11_STAR_STAR = U11; 
         X1_VC_STAR.AlignWith( X2 );
@@ -64,7 +69,6 @@ RUN
         LocalGemm
         ( TRANSPOSE, NORMAL, F(-1), X1Trans_STAR_MC, U12_STAR_MR, F(1), X2 );
     }
-
     Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 

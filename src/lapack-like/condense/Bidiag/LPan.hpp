@@ -169,11 +169,7 @@ LPan
     const Int nX = X.Width();
     DEBUG_ONLY(
         CallStackEntry cse("bidiag::LPan");
-        if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
-            tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
-            Y.Grid() != AL_MC_STAR.Grid() || 
-            Y.Grid() != AT_STAR_MR.Grid() )
-            LogicError("Grids must match");
+        AssertSameGrids( A, tP, tQ, X, Y, AL_MC_STAR, AT_STAR_MR );
         if( A.ColAlign() != X.ColAlign() ||
             A.RowAlign() != X.RowAlign() )
             LogicError("A and X must be aligned");

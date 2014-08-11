@@ -37,12 +37,12 @@ void SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+( Orientation orientation, 
+  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        if( A.Grid() != B.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -88,15 +88,14 @@ void SolveAfter
     }
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A, 
-  const DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<F>& B )
+( Orientation orientation, const AbstractDistMatrix<F>& A, 
+  const AbstractDistMatrix<Int>& pPerm, AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        if( A.Grid() != B.Grid() || A.Grid() != pPerm.Grid() )
-            LogicError("{A,B,pPerm} must be distributed over the same grid");
+        AssertSameGrids( A, B, pPerm );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -152,19 +151,15 @@ void SolveAfter
     }
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A, 
-  const DistMatrix<Int,UPerm,STAR>& pPerm, 
-  const DistMatrix<Int,UPerm,STAR>& qPerm,
-        DistMatrix<F>& B )
+( Orientation orientation, const AbstractDistMatrix<F>& A, 
+  const AbstractDistMatrix<Int>& pPerm, const AbstractDistMatrix<Int>& qPerm,
+        AbstractDistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        if( A.Grid() != B.Grid() || 
-            A.Grid() != pPerm.Grid() || 
-            pPerm.Grid() != qPerm.Grid() )
-            LogicError("{A,B,pPerm,qPerm} must be distributed over same grid");
+        AssertSameGrids( A, B, pPerm, qPerm );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )

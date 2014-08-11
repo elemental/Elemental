@@ -10,8 +10,6 @@
 #ifndef EL_LU_MOD_HPP
 #define EL_LU_MOD_HPP
 
-
-
 namespace El {
 
 // Begin with an LU factorization with partial pivoting, 
@@ -66,10 +64,15 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
-        auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
-        auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
+        const IndexRange indi( i, i+1 );
+        const IndexRange indip1( i+1, i+2 );
+        const IndexRange indB( i+2, m );
+        const IndexRange indR( i+1, n );
+
+        auto lBi   = View( A, indB,   indi   );
+        auto lBip1 = View( A, indB,   indip1 );
+        auto uiR   = View( A, indi,   indR   );
+        auto uip1R = View( A, indip1, indR   );
 
         if( pivot )
         {
@@ -179,10 +182,15 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
-        auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
-        auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
+        const IndexRange indi( i, i+1 );
+        const IndexRange indip1( i+1, i+2 );
+        const IndexRange indB( i+2, m );
+        const IndexRange indR( i+1, n );
+
+        auto lBi   = View( A, indB,   indi   );
+        auto lBip1 = View( A, indB,   indip1 );
+        auto uiR   = View( A, indi,   indR   );
+        auto uip1R = View( A, indip1, indR   );
 
         if( pivot )
         {
@@ -262,27 +270,34 @@ void LUMod
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 void LUMod
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& perm, 
-  const DistMatrix<F>& u, const DistMatrix<F>& v, bool conjugate, 
-  Base<F> tau )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& permPre, 
+  const AbstractDistMatrix<F>& uPre, const AbstractDistMatrix<F>& vPre, 
+  bool conjugate, Base<F> tau )
 {
     DEBUG_ONLY(CallStackEntry cse("LUMod"))
+    const Grid& g = APre.Grid();
     typedef Base<F> Real;
+
+    DistMatrix<F> A(g), u(g), v(g);
+    DistMatrix<Int,VC,STAR> perm(g);
+    Copy( APre,    A,    READ_WRITE_PROXY );
+    Copy( permPre, perm, READ_WRITE_PROXY );
+    Copy( uPre,    u,    READ_PROXY );
+    Copy( vPre,    v,    READ_PROXY );
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    const Grid& g = A.Grid();
+
     if( minDim != m )
         LogicError("It is assumed that height(A) <= width(A)");
     if( u.Height() != m || u.Width() != 1 )
         LogicError("u is expected to be a conforming column vector");
     if( v.Height() != n || v.Width() != 1 )
         LogicError("v is expected to be a conforming column vector");
-    if( A.Grid() != perm.Grid() || perm.Grid() != u.Grid() ||
-        u.Grid() != v.Grid() )
-        LogicError("Grids must match");
+    AssertSameGrids( A, perm, u, v );
 
     // w := inv(L) P u
     auto w( u );
@@ -309,10 +324,15 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
-        auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
-        auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
+        const IndexRange indB( i+2, m );
+        const IndexRange indR( i+1, n );
+        const IndexRange indi( i, i+1 );
+        const IndexRange indip1( i+1, i+2 );
+
+        auto lBi   = View( A, indB,   indi   );
+        auto lBip1 = View( A, indB,   indip1 );
+        auto uiR   = View( A, indi,   indR   );
+        auto uip1R = View( A, indip1, indR   );
 
         if( pivot )
         {
@@ -423,10 +443,15 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
-        auto lBi   = ViewRange( A, i+2, i,   m,   i+1 );
-        auto lBip1 = ViewRange( A, i+2, i+1, m,   i+2 );
-        auto uiR   = ViewRange( A, i,   i+1, i+1, n   );
-        auto uip1R = ViewRange( A, i+1, i+1, i+2, n   );
+        const IndexRange indB( i+2, m );
+        const IndexRange indR( i+1, n );
+        const IndexRange indi( i, i+1 );
+        const IndexRange indip1( i+1, i+2 );
+
+        auto lBi   = View( A, indB,   indi   );
+        auto lBip1 = View( A, indB,   indip1 );
+        auto uiR   = View( A, indi,   indR   );
+        auto uip1R = View( A, indip1, indR   );
 
         if( pivot )
         {
@@ -503,6 +528,8 @@ void LUMod
             Axpy( -gamma, uiR, uip1R );
         }
     }
+    Copy( A,    APre,    RESTORE_READ_WRITE_PROXY );
+    Copy( perm, permPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace El

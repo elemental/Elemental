@@ -50,14 +50,10 @@ struct PermutationMeta
         }
     }
 
-    template<Dist U>
     PermutationMeta
-    ( const DistMatrix<Int,U,GatheredDist<U>()>& perm,
-      const DistMatrix<Int,U,GatheredDist<U>()>& invPerm );
+    ( const AbstractDistMatrix<Int>& perm,
+      const AbstractDistMatrix<Int>& invPerm );
 };
-
-// TODO: Generalize remaining routines to have prototypes of the form
-//       (U,GatheredDist<U>())
 
 // Apply column pivots
 // ===================
@@ -127,10 +123,8 @@ void ExplicitPermutation
 // Invert permutation
 // ==================
 void InvertPermutation( const Matrix<Int>& perm, Matrix<Int>& invPerm );
-template<Dist U>
 void InvertPermutation
-( const DistMatrix<Int,U,GatheredDist<U>()>& perm, 
-        DistMatrix<Int,U,GatheredDist<U>()>& invPerm );
+( const AbstractDistMatrix<Int>& perm, AbstractDistMatrix<Int>& invPerm );
 
 // Parity of a permutation
 // =======================
@@ -142,57 +136,53 @@ bool PermutationParity( const DistMatrix<Int,UPerm,STAR>& origPerm );
 // ===============
 template<typename T>
 void PermuteCols( Matrix<T>& A, const Matrix<Int>& perm );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void PermuteCols
-(       DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm );
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm );
 
 template<typename T>
 void InversePermuteCols( Matrix<T>& A, const Matrix<Int>& perm );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void InversePermuteCols
-(       DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm );
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm );
 
 template<typename T>
 void PermuteCols
 ( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void PermuteCols
-( DistMatrix<T,U,V>& A,
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm,
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& invPerm );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& perm,
+  const AbstractDistMatrix<Int>& invPerm );
 
-template<typename T,Dist U,Dist V>
-void PermuteCols( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta );
+template<typename T>
+void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta );
 
 // Permute rows
 // ============
 template<typename T>
 void PermuteRows( Matrix<T>& A, const Matrix<Int>& perm );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void PermuteRows
-(       DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm );
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm );
 
 template<typename T>
 void InversePermuteRows( Matrix<T>& A, const Matrix<Int>& perm );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void InversePermuteRows
-(       DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm );
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm );
 
 template<typename T>
 void PermuteRows
 ( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm );
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void PermuteRows
-( DistMatrix<T,U,V>& A,
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm,
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& invPerm );
+(       AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<Int>& perm,
+  const AbstractDistMatrix<Int>& invPerm );
 
-template<typename T,Dist U,Dist V>
-void PermuteRows( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta );
+template<typename T>
+void PermuteRows( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta );
 
 // Parity of a sequence of pivots
 // ==============================

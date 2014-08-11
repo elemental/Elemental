@@ -78,6 +78,27 @@ FillDesc( const BlockDistMatrix<T>& A, int context )
 }
 #endif
 
+template<typename T>
+inline void AssertSameGrids( const AbstractBlockDistMatrix<T>& A ) { }
+
+template<typename T1,typename T2>
+inline void AssertSameGrids
+( const AbstractBlockDistMatrix<T1>& A1, const AbstractBlockDistMatrix<T2>& A2 )
+{
+    if( A1.Grid() != A2.Grid() )
+        LogicError("Grids did not match");
+}
+
+template<typename T1,typename T2,typename... Args>
+inline void AssertSameGrids
+( const AbstractBlockDistMatrix<T1>& A1, const AbstractBlockDistMatrix<T2>& A2,
+  Args&... args )
+{
+    if( A1.Grid() != A2.Grid() )
+        LogicError("Grids did not match");
+    AssertSameGrids( A2, args... );
+}
+
 } // namespace El
 
 #endif // ifndef EL_BLOCKDISTMATRIX_HPP

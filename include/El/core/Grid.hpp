@@ -106,6 +106,22 @@ bool operator!= ( const Grid& A, const Grid& B );
 // Return a grid constructed using mpi::COMM_WORLD.
 const Grid& DefaultGrid();
 
+inline void AssertSameGrids( const Grid& g1 ) { }
+
+inline void AssertSameGrids( const Grid& g1, const Grid& g2 )
+{
+    if( g1 != g2 )
+        LogicError("Grids did not match");
+}
+
+template<typename... Args>
+inline void AssertSameGrids( const Grid& g1, const Grid& g2, Args&... args )
+{
+    if( g1 != g2 )
+        LogicError("Grids did not match");
+    AssertSameGrids( g2, args... );
+}
+
 } // namespace El
 
 #endif // ifndef EL_GRID_HPP

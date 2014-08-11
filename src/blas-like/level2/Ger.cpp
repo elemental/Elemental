@@ -57,9 +57,9 @@ void Ger
     const Grid& g = APre.Grid();
 
     DistMatrix<T> A(g), x(g), y(g);
-    Copy( APre, x, READ_PROXY );
-    Copy( xPre, y, READ_PROXY );
-    Copy( yPre, A, READ_WRITE_PROXY );
+    Copy( xPre, x, READ_PROXY );
+    Copy( yPre, y, READ_PROXY );
+    Copy( APre, A, READ_WRITE_PROXY );
 
     if( x.Width() == 1 && y.Width() == 1 )
     {

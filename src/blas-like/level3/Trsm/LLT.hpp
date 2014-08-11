@@ -43,16 +43,21 @@ LLTLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -73,7 +78,6 @@ LLTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), L10_STAR_MC, X1_STAR_MR, F(1), X0 );
     }
-
     Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
@@ -103,16 +107,21 @@ LLTMedium
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
@@ -135,7 +144,6 @@ LLTMedium
         ( orientation, orientation, 
           F(-1), L10_STAR_MC, X1Trans_MR_STAR, F(1), X0 );
     }
-
     Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
@@ -149,15 +157,12 @@ LLTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsm::LLTSmall");
-        if( L.Grid() != X.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( L, X );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( L.Height() != L.Width() || L.Height() != X.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
         if( L.ColAlign() != X.ColAlign() )
             LogicError("L and X must be aligned");
     )
@@ -168,16 +173,21 @@ LLTSmall
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), Z1_STAR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = LockedView( L, ind1, ind1 );
+        auto L21 = LockedView( L, ind2, ind1 );
+
+        auto X1 = View( X, ind1, outerInd );
+        auto X2 = View( X, ind2, outerInd );
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
@@ -202,15 +212,12 @@ LLTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("trsm::LLTSmall");
-        if( L.Grid() != X.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( L, X );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( L.Height() != L.Width() || L.Height() != X.Height() )
             LogicError
-            ("Nonconformal: \n",
-             "  L ~ ",L.Height()," x ",L.Width(),"\n",
-             "  X ~ ",X.Height()," x ",X.Width(),"\n");
+            ("Nonconformal: \n",DimsString(L,"L"),"\n",DimsString(X,"X"));
         if( L.RowAlign() != X.ColAlign() )
             LogicError("L and X must be aligned");
     )
@@ -221,16 +228,21 @@ LLTSmall
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
+    const IndexRange outerInd( 0, n );
+
     const Int kLast = LastOffset( m, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto L10 = LockedView( L, ind1, ind0 );
+        auto L11 = LockedView( L, ind1, ind1 );
+
+        auto X0 = View( X, ind0, outerInd );
+        auto X1 = View( X, ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

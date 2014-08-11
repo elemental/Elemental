@@ -66,8 +66,7 @@ void Trsm
 {
     DEBUG_ONLY(
         CallStackEntry cse("Trsm");
-        if( A.Grid() != B.Grid() )
-            LogicError("A and B must use the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( side == LEFT )

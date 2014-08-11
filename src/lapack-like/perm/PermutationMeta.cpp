@@ -10,17 +10,21 @@
 
 namespace El {
 
-template<Dist U>
 PermutationMeta::PermutationMeta
-( const DistMatrix<Int,U,GatheredDist<U>()>& perm,
-  const DistMatrix<Int,U,GatheredDist<U>()>& invPerm )
+( const AbstractDistMatrix<Int>& perm,
+  const AbstractDistMatrix<Int>& invPerm )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermutationMeta::PermutationMeta");
-        if( invPerm.Grid() != perm.Grid() )
-            LogicError("perm and invPerm must share the same grid");
-        if( invPerm.ColAlign() != perm.ColAlign() )
+        AssertSameGrids( perm, invPerm );
+        if( perm.ColDist() != invPerm.ColDist() )
+            LogicError("perm and invPerm must have the same column dist");
+        if( perm.RowDist() != invPerm.RowDist() )
+            LogicError("perm and invPerm must have the same row dist");
+        if( perm.ColAlign() != invPerm.ColAlign() )
             LogicError("perm and invPerm must align");
+        if( perm.RowDist() != GatheredDist( perm.ColDist() ) )
+            LogicError("permutations must have column distributions");
     )
     comm = perm.ColComm();
     align = perm.ColAlign();
@@ -101,18 +105,5 @@ PermutationMeta::PermutationMeta
              totalRecv);
     )
 }
-
-#define PROTO_DIST(U) \
-  template PermutationMeta::PermutationMeta \
-  ( const DistMatrix<Int,U,GatheredDist<U>()>& perm, \
-    const DistMatrix<Int,U,GatheredDist<U>()>& invPerm );
-
-PROTO_DIST(CIRC)
-PROTO_DIST(MC  )
-PROTO_DIST(MD  )
-PROTO_DIST(MR  )
-PROTO_DIST(STAR)
-PROTO_DIST(VC  )
-PROTO_DIST(VR  )
 
 } // namespace El

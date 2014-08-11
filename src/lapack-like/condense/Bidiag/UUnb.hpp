@@ -104,8 +104,7 @@ inline void UUnb
 {
     DEBUG_ONLY(
         CallStackEntry cse("bidiag::UUnb");
-        if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-            LogicError("Process grids do not match");
+        AssertSameGrids( A, tP, tQ );
     )
     const Int m = A.Height();
     const Int n = A.Width();

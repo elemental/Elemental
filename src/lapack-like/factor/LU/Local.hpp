@@ -17,18 +17,22 @@ namespace lu {
 
 template<typename F> 
 inline void
-UnbFLAME( Matrix<F>& A )
+UnbObj( Matrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("lu::UnbFLAME"))
+    DEBUG_ONLY(CallStackEntry cse("lu::UnbObj"))
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
+        const IndexRange ind1( k, k+1 );
+        const IndexRange ind2Vert( k+1, m );
+        const IndexRange ind2Horz( k+1, n );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a12     = View( A, ind1,     ind2Horz );
+        auto a21     = View( A, ind2Vert, ind1     );
+        auto A22     = View( A, ind2Vert, ind2Horz );
 
         F alpha = alpha11.Get(0,0);
         if( alpha == F(0) )

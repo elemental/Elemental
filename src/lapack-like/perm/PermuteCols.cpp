@@ -73,8 +73,8 @@ void InversePermuteCols( Matrix<T>& A, const Matrix<Int>& invPerm )
     PermuteCols( A, perm, invPerm );
 }
 
-template<typename T,Dist U,Dist V> 
-void PermuteCols( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta )
+template<typename T> 
+void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
 {
     DEBUG_ONLY(
         CallStackEntry cse("PermuteCols");
@@ -124,31 +124,20 @@ void PermuteCols( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta )
     }
 }
 
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T,Dist U,Dist V>
 void PermuteCols
 ( DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& invPerm )
+  const AbstractDistMatrix<Int>& perm, 
+  const AbstractDistMatrix<Int>& invPerm )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("PermuteCols");
-        if( perm.ColAlign() != invPerm.ColAlign() )
-            LogicError("misaligned perm and invPerm");
-    )
+    DEBUG_ONLY(CallStackEntry cse("PermuteCols"))
+
     const Grid& g = A.Grid();
     DistMatrix<Int,V,GatheredDist<U>()> perm_V_UGath(g), invPerm_V_UGath(g);
-    if( V == UPerm && A.RowAlign() == perm.ColAlign() )
-    {
-        perm_V_UGath = LockedView( perm );
-        invPerm_V_UGath = LockedView( invPerm );
-    }
-    else
-    {
-        perm_V_UGath.AlignWith( A );
-        perm_V_UGath = perm;
-        invPerm_V_UGath.AlignWith( A );
-        invPerm_V_UGath = invPerm;
-    }
+    perm_V_UGath.AlignWith( A );
+    invPerm_V_UGath.AlignWith( A );
+    Copy( perm,    perm_V_UGath,    READ_PROXY );
+    Copy( invPerm, invPerm_V_UGath, READ_PROXY );
 
     if( A.Participating() )
     {
@@ -157,76 +146,59 @@ void PermuteCols
     }
 }
 
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void PermuteCols
-(       DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& perm )
+( AbstractDistMatrix<T>& APre,
+  const AbstractDistMatrix<Int>& perm,
+  const AbstractDistMatrix<Int>& invPerm )
+{
+    DEBUG_ONLY(CallStackEntry cse("PermuteCols"))
+    const Dist U = APre.ColDist();
+    const Dist V = APre.RowDist();
+    #define GUARD(CDIST,RDIST) U == CDIST && V == RDIST
+    #define PAYLOAD(CDIST,RDIST) \
+        auto& A = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(APre); \
+        PermuteCols( A, perm, invPerm );
+    #include "El/macros/GuardAndPayload.h"
+}
+
+template<typename T>
+void PermuteCols
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm )
 {
     DEBUG_ONLY(CallStackEntry cse("PermuteCols"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,V,GatheredDist<U>()> perm_V_UGath(g), invPerm_V_UGath(g);
-    perm_V_UGath.AlignWith( A );
-    perm_V_UGath = perm;
-    InvertPermutation( perm_V_UGath, invPerm_V_UGath );
-    PermuteCols( A, perm_V_UGath, invPerm_V_UGath );
+    DistMatrix<Int,VC,STAR> invPerm(g);
+    InvertPermutation( perm, invPerm );
+    PermuteCols( A, perm, invPerm );
 }
 
-template<typename T,Dist U,Dist V,Dist UPerm>
+template<typename T>
 void InversePermuteCols
-(       DistMatrix<T,U,V>& A, 
-  const DistMatrix<Int,UPerm,GatheredDist<UPerm>()>& invPerm )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& invPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("InversePermuteCols"))
     const Grid& g = A.Grid();
-    DistMatrix<Int,V,GatheredDist<U>()> perm_V_UGath(g), invPerm_V_UGath(g);
-    invPerm_V_UGath.AlignWith( A );
-    invPerm_V_UGath = invPerm;
-    InvertPermutation( invPerm_V_UGath, perm_V_UGath );
-    PermuteCols( A, perm_V_UGath, invPerm_V_UGath );
+    DistMatrix<Int,VC,STAR> perm(g);
+    InvertPermutation( invPerm, perm );
+    PermuteCols( A, perm, invPerm );
 }
-
-#define PROTO_DIST_INTERNAL(T,U,V,UPERM) \
-  template void PermuteCols \
-  (       DistMatrix<T,U,V>& A, \
-    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& perm ); \
-  template void InversePermuteCols \
-  (       DistMatrix<T,U,V>& A, \
-    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& perm ); \
-  template void PermuteCols \
-  ( DistMatrix<T,U,V>& A, \
-    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& perm, \
-    const DistMatrix<Int,UPERM,GatheredDist<UPERM>()>& invPerm );
-
-#define PROTO_DIST(T,U,V) \
-  PROTO_DIST_INTERNAL(T,U,V,CIRC) \
-  PROTO_DIST_INTERNAL(T,U,V,MC  ) \
-  PROTO_DIST_INTERNAL(T,U,V,MD  ) \
-  PROTO_DIST_INTERNAL(T,U,V,MR  ) \
-  PROTO_DIST_INTERNAL(T,U,V,STAR) \
-  PROTO_DIST_INTERNAL(T,U,V,VC  ) \
-  PROTO_DIST_INTERNAL(T,U,V,VR  ) \
-  template void PermuteCols \
-  ( DistMatrix<T,U,V>& A, const PermutationMeta& oldMeta );
 
 #define PROTO(T) \
   template void PermuteCols( Matrix<T>& A, const Matrix<Int>& perm ); \
+  template void PermuteCols \
+  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm ); \
   template void InversePermuteCols( Matrix<T>& A, const Matrix<Int>& perm ); \
+  template void InversePermuteCols \
+  ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Int>& perm ); \
   template void PermuteCols \
   ( Matrix<T>& A, const Matrix<Int>& perm, const Matrix<Int>& invPerm ); \
-  PROTO_DIST(T,CIRC,CIRC) \
-  PROTO_DIST(T,MC,  MR  ) \
-  PROTO_DIST(T,MC,  STAR) \
-  PROTO_DIST(T,MD,  STAR) \
-  PROTO_DIST(T,MR,  MC  ) \
-  PROTO_DIST(T,MR,  STAR) \
-  PROTO_DIST(T,STAR,MC  ) \
-  PROTO_DIST(T,STAR,MD  ) \
-  PROTO_DIST(T,STAR,MR  ) \
-  PROTO_DIST(T,STAR,STAR) \
-  PROTO_DIST(T,STAR,VC  ) \
-  PROTO_DIST(T,STAR,VR  ) \
-  PROTO_DIST(T,VC,  STAR) \
-  PROTO_DIST(T,VR,  STAR)
+  template void PermuteCols \
+  ( AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<Int>& perm, \
+    const AbstractDistMatrix<Int>& invPerm ); \
+  template void PermuteCols \
+  ( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta );
 
 #include "El/macros/Instantiate.h"
 

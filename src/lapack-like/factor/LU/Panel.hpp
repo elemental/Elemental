@@ -25,12 +25,18 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
     )
     pivots.Resize( n, 1 );
 
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<n; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
+        const IndexRange ind1( k, k+1 );
+        const IndexRange ind2Vert( k+1, m );
+        const IndexRange ind2Horz( k+1, n );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a12     = View( A, ind1,     ind2Horz );
+        auto a21     = View( A, ind2Vert, ind1     );
+        auto A22     = View( A, ind2Vert, ind2Horz );
 
         // Find the index and value of the pivot candidate
         auto pivot = VectorMaxAbs( ViewRange(A,k,k,m,k+1) );
@@ -40,8 +46,8 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
         // Swap the pivot row and current row
         if( iPiv != k )
         {
-            auto aCurRow = ViewRange( A, k,    0, k+1,    n );
-            auto aPivRow = ViewRange( A, iPiv, 0, iPiv+1, n );
+            auto aCurRow = View( A, ind1,                    outerInd );
+            auto aPivRow = View( A, IndexRange(iPiv,iPiv+1), outerInd );
             Swap( NORMAL, aCurRow, aPivRow );
         }
 
@@ -78,14 +84,21 @@ void Panel
 
     pivots.Resize( n, 1 );
 
+    const IndexRange outerInd( 0, mB );
+
     for( Int k=0; k<n; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   n,   k+1 );
-        auto A22     = ViewRange( A, k+1, k+1, n,   n   );
-        auto b1      = ViewRange( B, 0,   k,   mB,  k+1 );
-        auto B2      = ViewRange( B, 0,   k+1, mB,  nB  );
+        const IndexRange ind1( k,   k+1 );
+        const IndexRange ind2( k+1, n   );
+        const IndexRange ind2HorzB( k+1, nB );
+
+        auto alpha11 = View( A, ind1, ind1 );
+        auto a12     = View( A, ind1, ind2 );
+        auto a21     = View( A, ind2, ind1 );
+        auto A22     = View( A, ind2, ind2 );
+
+        auto b1      = View( B, outerInd, ind1      );
+        auto B2      = View( B, outerInd, ind2HorzB );
 
         // Store the index/value of the local pivot candidate
         ValueInt<Real> localPivot;
