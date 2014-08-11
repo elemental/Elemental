@@ -26,8 +26,7 @@ void UPanSquare
     const Int nW = W.Width();
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::UPanSquare");
-        if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
-            LogicError("A, W, and t must be distributed over the same grid.");
+        AssertSameGrids( A, W, t );
         if( n != A.Width() )
             LogicError("A must be square.");
         if( n != W.Height() )

@@ -117,8 +117,7 @@ void Sylvester
             LogicError("B must be square");
         if( C.Height() != A.Height() || C.Width() != B.Height() )
             LogicError("C must conform with A and B");
-        if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-            LogicError("A, B, and C must have the same grid");
+        AssertSameGrids( A, B, C );
     )
     const Int m = C.Height();
     const Int n = C.Width();

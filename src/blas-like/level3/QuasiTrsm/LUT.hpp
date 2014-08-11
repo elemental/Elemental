@@ -291,8 +291,7 @@ LUTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsm::LUTSmall");
-        if( U.Grid() != X.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( U, X );
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )

@@ -113,8 +113,7 @@ void Ricatti
             LogicError("L must be square");
         if( A.Height() != K.Height() || A.Height() != L.Height() )
             LogicError("A, K, and L must be the same size");
-        if( A.Grid() != K.Grid() || K.Grid() != L.Grid() )
-            LogicError("A, K, and L must have the same grid");
+        AssertSameGrids( A, K, L );
     )
     const Grid& g = A.Grid();
     const Int n = A.Height();

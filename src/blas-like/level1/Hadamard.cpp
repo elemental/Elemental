@@ -38,8 +38,7 @@ void Hadamard
     DistData CDistData = C.DistData();
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
-    if( A.Grid() != B.Grid() )
-        LogicError("A and B must have the same grids");
+    AssertSameGrids( A, B );
     if( ADistData.colDist != BDistData.colDist ||
         ADistData.rowDist != BDistData.rowDist ||
         BDistData.colDist != CDistData.colDist ||

@@ -10,8 +10,6 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_LUHB_HPP
 #define EL_APPLYPACKEDREFLECTORS_LUHB_HPP
 
-
-
 namespace El {
 namespace apply_packed_reflectors {
 
@@ -88,8 +86,7 @@ LUHB
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::LUHB");
-        if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
-            LogicError("{H,t,A} must be distributed over the same grid");
+        AssertSameGrids( H, t, A );
     )
     const Int nA = A.Width();
     const Int nH = H.Width();

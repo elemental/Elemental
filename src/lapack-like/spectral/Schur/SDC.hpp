@@ -1174,8 +1174,7 @@ SDC
 {
     DEBUG_ONLY(
         CallStackEntry cse("schur::SDC");
-        if( A.Grid() != w.Grid() )
-            LogicError("A and w must have matching grids");
+        AssertSameGrids( A, w );
     )
     const Grid& g = A.Grid();
     const Int n = A.Height();
@@ -1344,8 +1343,7 @@ SDC
 {
     DEBUG_ONLY(
         CallStackEntry cse("schur::SDC");
-        if( A.Grid() != w.Grid() || w.Grid() != Q.Grid() )
-            LogicError("{A,w,Q} must have the same grids");
+        AssertSameGrids( A, w, Q );
     )
     typedef Base<F> Real;
     const Grid& g = A.Grid();

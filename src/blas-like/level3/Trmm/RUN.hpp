@@ -26,9 +26,7 @@ LocalAccumulateRUN
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateRUN");
-        if( U.Grid() != X.Grid() ||
-            X.Grid() != ZTrans.Grid() )
-            LogicError("{U,X,Z} must be distributed over the same grid");
+        AssertSameGrids( U, X, ZTrans );
         if( U.Height() != U.Width() || U.Height() != X.Width() ||
             U.Height() != ZTrans.Height() )
             LogicError
@@ -75,8 +73,7 @@ RUNA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUNA");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("{U,X} must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         // TODO: More input checks
     )
     const Int m = XPre.Height();
@@ -125,8 +122,7 @@ RUNCOld
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUNCOld");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
             LogicError
             ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
@@ -180,8 +176,7 @@ RUNC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUNC");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
             LogicError
             ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));

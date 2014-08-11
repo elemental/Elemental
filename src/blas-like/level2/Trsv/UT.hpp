@@ -20,8 +20,7 @@ UT
         CallStackEntry cse("trsv::UT");
         if( orientation == NORMAL )
             LogicError("Expected a (conjugate-)transpose option");
-        if( UPre.Grid() != xPre.Grid() )
-            LogicError("{U,x} must be distributed over the same grid");
+        AssertSameGrids( UPre, xPre );
         if( UPre.Height() != UPre.Width() )
             LogicError("U must be square");
         if( xPre.Width() != 1 && xPre.Height() != 1 )

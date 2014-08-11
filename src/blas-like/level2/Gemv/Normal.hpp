@@ -18,8 +18,7 @@ inline void Normal
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemv::Normal");
-        if( APre.Grid() != xPre.Grid() || xPre.Grid() != yPre.Grid() )
-            LogicError("{A,x,y} must be distributed over the same grid");
+        AssertSameGrids( APre, xPre, yPre );
         if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||
             ( yPre.Width() != 1 && yPre.Height() != 1 )   )
             LogicError("x and y are assumed to be vectors");
@@ -108,8 +107,7 @@ inline void Normal
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemv::Normal");
-        if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-            LogicError("{A,x,y} must be distributed over the same grid");
+        AssertSameGrids( A, x, y );
         if( x.Width() != 1 || y.Width() != 1 )
             LogicError("x and y are assumed to be column vectors");
         if( A.Height() != y.Height() || A.Width() != x.Height() )

@@ -72,8 +72,7 @@ SafeProduct<F> AfterLUPartialPiv
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    if( A.Grid() != pPerm.Grid() )
-        LogicError("A and p must have the same grid");
+    AssertSameGrids( A, pPerm );
     if( A.Height() != pPerm.Height() )
         LogicError("Permutation vector is incorrect length");
 

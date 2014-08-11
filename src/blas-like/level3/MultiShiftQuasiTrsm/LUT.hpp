@@ -624,8 +624,7 @@ LUTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUTSmall");
-        if( U.Grid() != X.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( U, shifts, X );
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != X.Height() )
@@ -687,8 +686,7 @@ LUTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUTSmall");
-        if( U.Grid() != XReal.Grid() || XReal.Grid() != XImag.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( U, shifts, XReal, XImag );
         if( orientation == NORMAL )
             LogicError("TrsmLUT expects a (Conjugate)Transpose option");
         if( U.Height() != U.Width() || U.Height() != XReal.Height() )

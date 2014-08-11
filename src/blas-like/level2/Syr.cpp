@@ -48,8 +48,7 @@ void Syr
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr");
-        if( APre.Grid() != xPre.Grid() )
-            LogicError("A and x must be distributed over the same grid");
+        AssertSameGrids( APre, xPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );

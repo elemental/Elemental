@@ -10,8 +10,6 @@
 #ifndef EL_RQ_PANEL_HPP
 #define EL_RQ_PANEL_HPP
 
-
-
 namespace El {
 namespace rq {
 
@@ -90,8 +88,7 @@ PanelHouseholder
 {
     DEBUG_ONLY(
         CallStackEntry cse("rq::PanelHouseholder");
-        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
-            LogicError("{A,t,d} must be distributed over the same grid");
+        AssertSameGrids( A, t, d );
     )
     const Int m = A.Height();
     const Int n = A.Width();

@@ -10,8 +10,6 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_LUVF_HPP
 #define EL_APPLYPACKEDREFLECTORS_LUVF_HPP
 
-
-
 namespace El {
 namespace apply_packed_reflectors {
 
@@ -85,8 +83,7 @@ LUVF
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::LUVF");
-        if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
-            LogicError("{H,t,A} must be distributed over the same grid");
+        AssertSameGrids( H, t, A );
         if( H.Height() != A.Height() )
             LogicError("H and A must be the same height");
     )

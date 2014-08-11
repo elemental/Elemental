@@ -18,8 +18,7 @@ LT
 {
     DEBUG_ONLY(
         CallStackEntry cse("syrk::LT");
-        if( APre.Grid() != CPre.Grid() )
-            LogicError("A and C must be distributed over the same grid");
+        AssertSameGrids( APre, CPre );
         if( APre.Width() != CPre.Height() || APre.Width() != CPre.Width() )
             LogicError
             ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))

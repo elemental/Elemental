@@ -26,9 +26,7 @@ LocalAccumulateRUT
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateRUT");
-        if( U.Grid() != XTrans.Grid() ||
-            XTrans.Grid() != ZTrans.Grid() )
-            LogicError("{U,X,Z} must be distributed over the same grid");
+        AssertSameGrids( U, XTrans, ZTrans );
         if( U.Height() != U.Width() ||
             U.Height() != XTrans.Height() ||
             U.Height() != ZTrans.Height() ||
@@ -78,8 +76,7 @@ RUTA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUTA");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("{U,X} must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         // TODO: More input checks
     )
     const Int m = XPre.Height();
@@ -128,8 +125,7 @@ RUTC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RUTC");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected Adjoint/Transpose option");
         if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )

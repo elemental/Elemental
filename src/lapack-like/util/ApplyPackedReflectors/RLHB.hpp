@@ -10,8 +10,6 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_RLHB_HPP
 #define EL_APPLYPACKEDREFLECTORS_RLHB_HPP
 
-
-
 namespace El {
 namespace apply_packed_reflectors {
 
@@ -86,8 +84,7 @@ RLHB
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::RLHB");
-        if( H.Grid() != A.Grid() || A.Grid() != t.Grid() )
-            LogicError("{H,t,A} must be distributed over the same grid");
+        AssertSameGrids( H, t, A );
     )
     const Int m = A.Height();
     const Int diagLength = H.DiagonalLength(offset);

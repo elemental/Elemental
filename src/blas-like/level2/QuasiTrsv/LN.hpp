@@ -157,8 +157,7 @@ LN
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsv::LN");
-        if( LPre.Grid() != xPre.Grid() )
-            LogicError("{L,x} must be distributed over the same grid");
+        AssertSameGrids( LPre, xPre );
         if( LPre.Height() != LPre.Width() )
             LogicError("L must be square");
         if( xPre.Width() != 1 && xPre.Height() != 1 )

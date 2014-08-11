@@ -308,8 +308,7 @@ LLTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsm::LLTSmall");
-        if( L.Grid() != X.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( L, X );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( L.Height() != L.Width() || L.Height() != X.Height() )
@@ -374,8 +373,7 @@ LLTSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsm::LLTSmall");
-        if( L.Grid() != X.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( L, X );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( L.Height() != L.Width() || L.Height() != X.Height() )

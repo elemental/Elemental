@@ -26,9 +26,7 @@ LocalAccumulateLLN
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateLLN");
-        if( L.Grid() != XTrans.Grid() ||
-            XTrans.Grid() != Z.Grid() )
-            LogicError("{L,X,Z} must be distributed over the same grid");
+        AssertSameGrids( L, XTrans, Z );
         if( L.Height() != L.Width() ||
             L.Height() != XTrans.Width() ||
             L.Height() != Z.Height() ||
@@ -77,8 +75,7 @@ LLNA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLNA");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
             LogicError
             ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
@@ -125,8 +122,7 @@ LLNCOld
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLNCOld");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
             LogicError
             ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))
@@ -187,8 +183,7 @@ LLNC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLNC");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( LPre.Height() != LPre.Width() || LPre.Width() != XPre.Height() )
             LogicError
             ("Nonconformal: \n",DimsString(LPre,"L"),"\n",DimsString(XPre,"X"))

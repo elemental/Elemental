@@ -10,8 +10,6 @@
 #ifndef EL_LQ_PANELHOUSEHOLDER_HPP
 #define EL_LQ_PANELHOUSEHOLDER_HPP
 
-
-
 namespace El {
 namespace lq {
 
@@ -87,8 +85,7 @@ PanelHouseholder
 {
     DEBUG_ONLY(
         CallStackEntry cse("lq::PanelHouseholder");
-        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
-            LogicError("{A,t,d} must be distributed over the same grid");
+        AssertSameGrids( A, t, d );
     )
     t.SetRoot( A.DiagonalRoot() );
     d.SetRoot( A.DiagonalRoot() );

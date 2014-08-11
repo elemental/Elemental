@@ -26,9 +26,7 @@ LocalAccumulateLUN
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateLUN");
-        if( U.Grid() != XTrans.Grid() ||
-            XTrans.Grid() != Z.Grid() )
-            LogicError("{U,X,Z} must be distributed over the same grid");
+        AssertSameGrids( U, XTrans, Z );
         if( U.Height() != U.Width() ||
             U.Height() != XTrans.Width() ||
             U.Height() != Z.Height() ||
@@ -80,8 +78,7 @@ LUNA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUNA");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
             LogicError
             ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
@@ -129,8 +126,7 @@ LUNCOld
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUNCOld");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
             LogicError
             ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));
@@ -191,8 +187,7 @@ LUNC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUNC");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( UPre.Height() != UPre.Width() || UPre.Width() != XPre.Height() )
             LogicError
             ("Nonconformal:\n",DimsString(UPre,"U"),"\n",DimsString(XPre,"X"));

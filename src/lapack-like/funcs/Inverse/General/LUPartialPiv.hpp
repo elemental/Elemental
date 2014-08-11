@@ -101,8 +101,7 @@ void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
         LogicError("Cannot invert non-square matrices");
     if( A.Height() != pPerm.Height() )
         LogicError("Pivot vector is incorrect length");
-    if( A.Grid() != pPerm.Grid() )
-        LogicError("A and pPerm must have the same grid");
+    AssertSameGrids( A, pPerm );
     const Grid& g = A.Grid();
     TriangularInverse( UPPER, NON_UNIT, A );
 

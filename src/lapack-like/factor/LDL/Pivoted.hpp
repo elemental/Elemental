@@ -789,8 +789,7 @@ UnblockedPivoted
         CallStackEntry cse("ldl::UnblockedPivoted");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( A.Grid() != dSub.Grid() || dSub.Grid() != pPerm.Grid() )
-            LogicError("A, dSub, and pPerm must share the same grid");
+        AssertSameGrids( A, dSub, pPerm );
     )
     const Int n = A.Height();
     dSub.SetRoot( A.DiagonalRoot(-1) );

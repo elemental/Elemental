@@ -115,8 +115,7 @@ F LeftHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LeftHyperbolicReflector");
-        if( chi.Grid() != x.Grid() )
-            LogicError("chi and x must be distributed over the same grid");
+        AssertSameGrids( chi, x );
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
         if( x.Width() != 1 )
@@ -172,8 +171,7 @@ F RightHyperbolicReflector( DistMatrix<F,U,V>& chi, DistMatrix<F,U,V>& x )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RightHyperbolicReflector");
-        if( chi.Grid() != x.Grid() )
-            LogicError("chi and x must be distributed over the same grid");
+        AssertSameGrids( chi, x );
         if( chi.Height() != 1 || chi.Width() != 1 )
             LogicError("chi must be a scalar");
         if( x.Height() != 1 )

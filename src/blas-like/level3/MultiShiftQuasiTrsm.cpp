@@ -146,8 +146,7 @@ void MultiShiftQuasiTrsm
 {
     DEBUG_ONLY(
         CallStackEntry cse("MultiShiftQuasiTrsm");
-        if( A.Grid() != B.Grid() )
-            LogicError("A and B must use the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( side == LEFT )
@@ -241,8 +240,7 @@ void MultiShiftQuasiTrsm
 {
     DEBUG_ONLY(
         CallStackEntry cse("MultiShiftQuasiTrsm");
-        if( A.Grid() != BReal.Grid() || BReal.Grid() != BImag.Grid() )
-            LogicError("A and B must use the same grid");
+        AssertSameGrids( A, BReal, BImag );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( BReal.Height() != BImag.Height() ||

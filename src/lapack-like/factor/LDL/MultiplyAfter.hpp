@@ -35,8 +35,7 @@ void MultiplyAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::MultiplyAfter");
-        if( A.Grid() != B.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -84,8 +83,7 @@ void MultiplyAfter
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::MultiplyAfter");
-        if( A.Grid() != B.Grid() || A.Grid() != pPerm.Grid() )
-            LogicError("{A,B,pPerm} must be distributed over the same grid");
+        AssertSameGrids( A, B, pPerm );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )

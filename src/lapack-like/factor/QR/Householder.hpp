@@ -59,8 +59,7 @@ Householder
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::Householder");
-        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
-            LogicError("{A,t,d} must be distributed over the same grid");
+        AssertSameGrids( A, t, d );
     )
     const Int m = A.Height();
     const Int n = A.Width();

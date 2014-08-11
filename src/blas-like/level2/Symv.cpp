@@ -60,8 +60,7 @@ void Symv
 {
     DEBUG_ONLY(
         CallStackEntry cse("Symv");
-        if( APre.Grid() != xPre.Grid() || xPre.Grid() != yPre.Grid() )
-            LogicError("{A,x,y} must be distributed over the same grid");
+        AssertSameGrids( APre, xPre, yPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         if( ( xPre.Width() != 1 && xPre.Height() != 1 ) ||

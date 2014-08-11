@@ -610,8 +610,7 @@ LUNSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUNSmall");
-        if( U.Grid() != X.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( U, shifts, X );
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
             ("Nonconformal: \n",
@@ -677,8 +676,7 @@ LUNSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("msquasitrsm::LUNSmall");
-        if( U.Grid() != XReal.Grid() || XReal.Grid() != XImag.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( U, shifts, XReal, XImag );
         if( XReal.Height() != XImag.Height() || 
             XReal.Width() != XImag.Width() )
             LogicError("XReal and XImag must be the same size");

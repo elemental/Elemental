@@ -159,8 +159,7 @@ LV
 {
     DEBUG_ONLY(
         CallStackEntry cse("expand_packed_reflectors::LV");
-        if( H.Grid() != t.Grid() )
-            LogicError("H and t must be distributed over same grid");
+        AssertSameGrids( H, t );
         if( offset > 0 || offset < -H.Height() )
             LogicError("Transforms out of bounds");
         if( t.Height() != H.DiagonalLength( offset ) )

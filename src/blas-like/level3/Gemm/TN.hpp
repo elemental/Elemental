@@ -20,8 +20,7 @@ SUMMA_TNA
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_TNA");    
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must have the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( orientationOfA == NORMAL )
             LogicError("A must be (Conjugate)Transposed");
         if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
@@ -81,8 +80,7 @@ SUMMA_TNB
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_TNB");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must have the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( orientationOfA == NORMAL )
             LogicError("A must be (Conjugate)Transposed");
         if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||
@@ -141,8 +139,7 @@ SUMMA_TNC
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_TNC");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must have the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( orientationOfA == NORMAL )
             LogicError("A must be (Conjugate)Transposed");
         if( APre.Width() != CPre.Height() || BPre.Width() != CPre.Width() ||

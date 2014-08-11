@@ -26,9 +26,7 @@ LocalAccumulateRLT
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateRLT");
-        if( L.Grid() != XTrans.Grid() ||
-            XTrans.Grid() != ZTrans.Grid() )
-            LogicError("{L,X,Z} must be distributed over the same grid");
+        AssertSameGrids( L, XTrans, ZTrans );
         if( L.Height() != L.Width() ||
             L.Height() != XTrans.Height() ||
             L.Height() != ZTrans.Height() ||
@@ -79,8 +77,7 @@ RLTA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLTA");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("{L,X} must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         // TODO: More error checks
     )
     const Int m = XPre.Height();
@@ -129,8 +126,7 @@ RLTC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::RLTC");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected Adjoint/Transpose option");
         if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )

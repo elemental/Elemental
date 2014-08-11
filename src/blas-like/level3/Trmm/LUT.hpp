@@ -26,9 +26,7 @@ LocalAccumulateLUT
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateLUT");
-        if( U.Grid() != X.Grid() ||
-            X.Grid() != Z.Grid() )
-            LogicError("{U,X,Z} must be distributed over the same grid");
+        AssertSameGrids( U, X, Z );
         if( U.Height() != U.Width() ||
             U.Height() != X.Height() ||
             U.Height() != Z.Height() )
@@ -76,8 +74,7 @@ LUTA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUTA");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
@@ -126,8 +123,7 @@ LUTCOld
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUTCOld");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )
@@ -192,8 +188,7 @@ LUTC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LUTC");
-        if( UPre.Grid() != XPre.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( UPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( UPre.Height() != UPre.Width() || UPre.Height() != XPre.Height() )

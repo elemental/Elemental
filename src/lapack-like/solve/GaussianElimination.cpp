@@ -60,8 +60,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
     DEBUG_ONLY(
         CallStackEntry cse("RowEchelon");
-        if( A.Grid() != B.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
     )
@@ -142,13 +141,7 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 template<typename F> 
 void GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("GaussianElimination");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
-    )
+    DEBUG_ONLY(CallStackEntry cse("GaussianElimination"))
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
@@ -156,15 +149,7 @@ void GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 template<typename F> 
 void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 {
-    DEBUG_ONLY(
-        CallStackEntry cse("GaussianElimination");
-        if( A.Grid() != B.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
-        if( A.Height() != A.Width() )
-            LogicError("A must be square");
-        if( A.Height() != B.Height() )
-            LogicError("A and B must be the same height");
-    )
+    DEBUG_ONLY(CallStackEntry cse("GaussianElimination"))
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }

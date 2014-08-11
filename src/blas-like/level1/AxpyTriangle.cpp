@@ -41,9 +41,7 @@ void AxpyTriangle
 {
     DEBUG_ONLY(
         CallStackEntry cse("AxpyTriangle");
-        if( X.Grid() != Y.Grid() )
-            LogicError
-            ("X and Y must be distributed over the same grid");
+        AssertSameGrids( X, Y );
         if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
             X.Height() != Y.Height() )
             LogicError("Nonconformal AxpyTriangle");

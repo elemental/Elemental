@@ -82,8 +82,7 @@ void SolveAfter
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::SolveAfter");
-        if( A.Grid() != B.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -113,8 +112,7 @@ void SolveAfter
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::SolveAfter");
-        if( A.Grid() != B.Grid() )
-            LogicError("{A,B} must be distributed over the same grid");
+        AssertSameGrids( A, B );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != pPerm.Height() )

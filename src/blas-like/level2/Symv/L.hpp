@@ -22,11 +22,7 @@ inline void LocalColAccumulateL
 {
     DEBUG_ONLY(
         CallStackEntry cse("symv::LocalColAccumulateL");
-        if( A.Grid() != x_MC_STAR.Grid() ||
-            x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
-            x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
-            z_MC_STAR.Grid() != z_MR_STAR.Grid() )
-            LogicError("{A,x,z} must be distributed over the same grid");
+        AssertSameGrids( A, x_MC_STAR, x_MR_STAR, z_MC_STAR, z_MR_STAR );
         if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
             z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
             LogicError("Expected x and z to be column vectors");
@@ -122,11 +118,7 @@ inline void LocalRowAccumulateL
 {
     DEBUG_ONLY(
         CallStackEntry cse("symv::LocalRowAccumulateL");
-        if( A.Grid() != x_STAR_MC.Grid() ||
-            x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
-            x_STAR_MR.Grid() != z_STAR_MC.Grid() ||
-            z_STAR_MC.Grid() != z_STAR_MR.Grid()   )
-            LogicError("{A,x,z} must be distributed over the same grid");
+        AssertSameGrids( A, x_STAR_MC, x_STAR_MR, z_STAR_MC, z_STAR_MR );
         if( x_STAR_MC.Height() != 1 || x_STAR_MR.Height() != 1 ||
             z_STAR_MC.Height() != 1 || z_STAR_MR.Height() != 1    )
             LogicError("Expected x and z to be row vectors");

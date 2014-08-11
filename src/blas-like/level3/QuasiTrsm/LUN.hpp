@@ -276,8 +276,7 @@ LUNSmall
 {
     DEBUG_ONLY(
         CallStackEntry cse("quasitrsm::LUNSmall");
-        if( U.Grid() != X.Grid() )
-            LogicError("U and X must be distributed over the same grid");
+        AssertSameGrids( U, X );
         if( U.Height() != U.Width() || U.Width() != X.Height() )
             LogicError
             ("Nonconformal: \n",DimsString(U,"U"),"\n",DimsString(X,"X"));

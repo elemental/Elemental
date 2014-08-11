@@ -69,8 +69,7 @@ void Panel
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::Panel");
-        if( A.Grid() != pivots.Grid() || pivots.Grid() != B.Grid() )
-            LogicError("Matrices must be distributed over the same grid");
+        AssertSameGrids( A, B, pivots );
         if( A.Width() != B.Width() )
             LogicError("A and B must be the same width");
     )

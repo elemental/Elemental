@@ -21,11 +21,7 @@ void LocalAccumulateLL
 {
     DEBUG_ONLY(
         CallStackEntry cse("symm::LocalAccumulateLL");
-        if( A.Grid() != B_MC_STAR.Grid() ||
-            B_MC_STAR.Grid() != BTrans_STAR_MR.Grid() ||
-            BTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() ||
-            Z_MC_STAR.Grid() != Z_MR_STAR.Grid() )
-            LogicError("{A,B,Z} must be distributed over the same grid");
+        AssertSameGrids( A, B_MC_STAR, BTrans_STAR_MR, Z_MC_STAR, Z_MR_STAR );
         if( A.Height() != A.Width() ||
             A.Height() != B_MC_STAR.Height() ||
             A.Height() != BTrans_STAR_MR.Width() ||
@@ -99,8 +95,7 @@ LLA
 {
     DEBUG_ONLY(
         CallStackEntry cse("symm::LLA");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must be distributed over the same grid");
+        AssertSameGrids( APre, BPre, CPre );
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();
@@ -164,8 +159,7 @@ LLC
 {
     DEBUG_ONLY(
         CallStackEntry cse("symm::LLC");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must be distributed over the same grid");
+        AssertSameGrids( APre, BPre, CPre );
     )
     const Int m = CPre.Height();
     const Int n = CPre.Width();

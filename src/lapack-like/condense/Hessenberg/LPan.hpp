@@ -118,11 +118,7 @@ inline void LPan
     const Int n = A.Height();
     DEBUG_ONLY(
         CallStackEntry cse("hessenberg::UPan");
-        if( A.Grid() != t.Grid() || t.Grid() != U_MC_STAR.Grid() ||
-            U_MC_STAR.Grid() != U_MR_STAR.Grid() ||
-            U_MR_STAR.Grid() != V_MR_STAR.Grid() ||
-            V_MR_STAR.Grid() != G_STAR_STAR.Grid() )
-            LogicError("Grids must match");
+        AssertSameGrids( A, t, U_MC_STAR, U_MR_STAR, V_MR_STAR, G_STAR_STAR );
         if( A.ColAlign() != U_MC_STAR.ColAlign() )
             LogicError("A and U[MC,* ] must be aligned");
         if( A.RowAlign() != U_MR_STAR.ColAlign() )

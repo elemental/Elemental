@@ -52,8 +52,7 @@ void Lyapunov
             LogicError("A must be square");
         if( C.Height() != A.Height() || C.Width() != A.Height() )
             LogicError("C must conform with A");
-        if( A.Grid() != C.Grid() )
-            LogicError("A and C must have the same grid");
+        AssertSameGrids( A, C );
     )
     const Grid& g = A.Grid();
     const Int m = A.Height();

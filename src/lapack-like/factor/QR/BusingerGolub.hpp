@@ -330,9 +330,7 @@ inline Int BusingerGolub
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::BusingerGolub");
-        if( A.Grid() != pPerm.Grid() || A.Grid() != t.Grid() || 
-            t.Grid() != d.Grid() )
-            LogicError("A, t, d, and pPerm must have the same grid");
+        AssertSameGrids( A, t, d, pPerm );
     )
     typedef Base<F> Real;
     const Int m = A.Height();

@@ -10,8 +10,6 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_RLVB_HPP
 #define EL_APPLYPACKEDREFLECTORS_RLVB_HPP
 
-
-
 namespace El {
 namespace apply_packed_reflectors {
 
@@ -88,8 +86,7 @@ RLVB
 {
     DEBUG_ONLY(
         CallStackEntry cse("apply_packed_reflectors::RLVB");
-        if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
-            LogicError("{H,t,A} must be distributed over the same grid");
+        AssertSameGrids( H, t, A );
     )
     const Int mA = A.Height();
     const Int nA = A.Width();

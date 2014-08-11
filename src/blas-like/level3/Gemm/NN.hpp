@@ -19,8 +19,7 @@ Cannon_NN
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::Cannon_NN");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must have the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Width() != BPre.Height() )
             LogicError
@@ -106,8 +105,7 @@ SUMMA_NNA
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNA");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must have the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Width() != BPre.Height() )
             LogicError
@@ -164,8 +162,7 @@ SUMMA_NNB
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNB");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must be distributed over the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Width() != BPre.Height() )
             LogicError
@@ -219,8 +216,7 @@ SUMMA_NNC
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNC");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must be distributed over the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Width() != BPre.Height() )
             LogicError
@@ -274,8 +270,7 @@ SUMMA_NNDot
 {
     DEBUG_ONLY(
         CallStackEntry cse("gemm::SUMMA_NNDot");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must have the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( APre.Height() != CPre.Height() || BPre.Width() != CPre.Width() ||
             APre.Width() != BPre.Height() )
             LogicError

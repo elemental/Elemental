@@ -26,8 +26,7 @@ LocalAccumulateLLT
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LocalAccumulateLLT");
-        if( L.Grid() != X.Grid() || X.Grid() != Z.Grid() )
-            LogicError("{L,X,Z} must be distributed over the same grid");
+        AssertSameGrids( L, X, Z );
         if( L.Height() != L.Width() || L.Height() != X.Height() ||
             L.Height() != Z.Height() )
             LogicError
@@ -74,8 +73,7 @@ LLTA
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLTA");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
@@ -124,8 +122,7 @@ LLTCOld
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLTCOld");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )
@@ -189,8 +186,7 @@ LLTC
 {
     DEBUG_ONLY(
         CallStackEntry cse("trmm::LLTC");
-        if( LPre.Grid() != XPre.Grid() )
-            LogicError("L and X must be distributed over the same grid");
+        AssertSameGrids( LPre, XPre );
         if( orientation == NORMAL )
             LogicError("Expected (Conjugate)Transpose option");
         if( LPre.Height() != LPre.Width() || LPre.Height() != XPre.Height() )

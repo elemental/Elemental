@@ -19,8 +19,7 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
     DEBUG_ONLY(
         CallStackEntry cse("herm_tridiag::LSquare");
-        if( A.Grid() != t.Grid() )
-            LogicError("{A,t} must be distributed over the same grid");
+        AssertSameGrids( A, t );
         if( A.Height() != A.Width() )
             LogicError("A must be square");
     )

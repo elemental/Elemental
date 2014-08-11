@@ -61,8 +61,7 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Axpy");
-        if( X.Grid() != Y.Grid() )
-            LogicError("X and Y must be distributed over the same grid");
+        AssertSameGrids( X, Y );
     )
     const T alpha = T(alphaS);
 

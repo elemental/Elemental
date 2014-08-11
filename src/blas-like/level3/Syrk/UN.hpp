@@ -18,8 +18,7 @@ UN
 {
     DEBUG_ONLY(
         CallStackEntry cse("syrk::UN");
-        if( APre.Grid() != CPre.Grid() )
-            LogicError("A and C must be distributed over the same grid");
+        AssertSameGrids( APre, CPre );
         if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() )
             LogicError
             ("Nonconformal:\n",DimsString(APre,"A"),"\n",DimsString(CPre,"C"))

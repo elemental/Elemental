@@ -34,8 +34,7 @@ T HilbertSchmidt
     DEBUG_ONLY(CallStackEntry cse("HilbertSchmidt"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
-    if( A.Grid() != B.Grid() )
-        LogicError("Grids must match");
+    AssertSameGrids( A, B );
     if( A.DistData().colDist != B.DistData().colDist ||
         A.DistData().rowDist != B.DistData().rowDist )
         LogicError("A and B must have the same distribution");

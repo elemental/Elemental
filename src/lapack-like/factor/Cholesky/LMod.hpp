@@ -73,8 +73,7 @@ LUpdate( DistMatrix<F>& L, DistMatrix<F>& V )
             LogicError("Cholesky factors must be square");
         if( V.Height() != L.Height() )
             LogicError("V is the wrong height");
-        if( L.Grid() != V.Grid() )
-            LogicError("L and V must have the same grid");
+        AssertSameGrids( L, V );
     )
     const Int m = V.Height();
     const Int n = V.Width();
@@ -176,8 +175,7 @@ LDowndate( DistMatrix<F>& L, DistMatrix<F>& V )
             LogicError("Cholesky factors must be square");
         if( V.Height() != L.Height() )
             LogicError("V is the wrong height");
-        if( L.Grid() != V.Grid() )
-            LogicError("L and V must have the same grid");
+        AssertSameGrids( L, V );
     )
     const Int m = V.Height();
     const Int n = V.Width();

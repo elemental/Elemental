@@ -73,8 +73,7 @@ inline void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hessenberg::L");
-        if( A.Grid() != t.Grid() )
-            LogicError("A and t must be distributed over the same grid");
+        AssertSameGrids( A, t );
         // Is this requirement necessary?!?
         if( t.Viewing() )
             LogicError("t must not be a view");

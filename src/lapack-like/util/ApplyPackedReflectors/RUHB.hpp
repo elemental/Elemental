@@ -10,8 +10,6 @@
 #ifndef EL_APPLYPACKEDREFLECTORS_RUHB_HPP
 #define EL_APPLYPACKEDREFLECTORS_RUHB_HPP
 
-
-
 namespace El {
 namespace apply_packed_reflectors {
 
@@ -90,8 +88,7 @@ RUHB
         CallStackEntry cse("apply_packed_reflectors::RUHB");
         if( A.Width() != H.Width() )
             LogicError("H and A must have the same width");
-        if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
-            LogicError("{H,t,A} must be distributed over the same grid");
+        AssertSameGrids( H, t, A );
     )
     const Int mA = A.Height();
     const Int nA = A.Width();

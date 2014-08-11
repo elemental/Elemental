@@ -66,8 +66,7 @@ UUnblockedPivoted( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
         CallStackEntry cse("cholesky::UUnblockedPivoted");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
-        if( A.Grid() != pPerm.Grid() )
-            LogicError("A and pPerm must share the same grid");
+        AssertSameGrids( A, pPerm );
     )
     const Int n = A.Height();
 

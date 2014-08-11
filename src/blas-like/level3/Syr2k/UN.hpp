@@ -18,8 +18,7 @@ UN
 {
     DEBUG_ONLY(
         CallStackEntry cse("syr2k::UN");
-        if( APre.Grid() != BPre.Grid() || BPre.Grid() != CPre.Grid() )
-            LogicError("{A,B,C} must be distributed over the same grid");
+        AssertSameGrids( APre, BPre, CPre );
         if( APre.Height() != CPre.Height() || APre.Height() != CPre.Width() ||
             BPre.Height() != CPre.Height() || BPre.Height() != CPre.Width() ||
             APre.Width() != BPre.Width() )

@@ -57,8 +57,7 @@ void Syr2
 {
     DEBUG_ONLY(
         CallStackEntry cse("Syr2");
-        if( APre.Grid() != xPre.Grid() || xPre.Grid() != yPre.Grid() )
-            LogicError("{A,x,y} must be distributed over the same grid");
+        AssertSameGrids( APre, xPre, yPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
         const Int xLength = ( xPre.Width()==1 ? xPre.Height() : xPre.Width() );

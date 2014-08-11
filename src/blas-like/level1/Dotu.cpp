@@ -33,8 +33,7 @@ T Dotu( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
     DEBUG_ONLY(CallStackEntry cse("Dotu"))
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
-    if( A.Grid() != B.Grid() )
-        LogicError("Grids must match");
+    AssertSameGrids( A, B );
     if( A.DistData().colDist != B.DistData().colDist ||
         A.DistData().rowDist != B.DistData().rowDist )
         LogicError("Matrices must have the same distribution");

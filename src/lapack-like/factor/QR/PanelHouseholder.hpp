@@ -10,8 +10,6 @@
 #ifndef EL_QR_PANEL_HPP
 #define EL_QR_PANEL_HPP
 
-
-
 namespace El {
 namespace qr {
 
@@ -88,8 +86,7 @@ PanelHouseholder
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::PanelHouseholder");
-        if( A.Grid() != t.Grid() || t.Grid() != d.Grid() )
-            LogicError("{A,t,d} must be distributed over the same grid");
+        AssertSameGrids( A, t, d );
     )
     t.SetRoot( A.DiagonalRoot() );
     d.SetRoot( A.DiagonalRoot() );
