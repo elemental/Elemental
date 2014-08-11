@@ -33,15 +33,20 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
 
     Matrix<F> z12;
 
+    const IndexRange outerInd( 0, n );
+
     F* UBuf = U.Buffer();
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        F& upsilon11 = UBuf[k+k*ldu];
-        auto u12 = ViewRange( U, k, k+1, k+1, m );
+        const IndexRange ind1( k,   k+1 );
+        const IndexRange ind2( k+1, m   );
 
-        auto v1 = ViewRange( V, k,   0, k+1, n );
-        auto V2 = ViewRange( V, k+1, 0, m,   n );
+        F& upsilon11 = UBuf[k+k*ldu];
+        auto u12 = View( U, ind1, ind2 );
+
+        auto v1 = View( V, ind1, outerInd );
+        auto V2 = View( V, ind2, outerInd );
 
         // Find tau and w such that
         //  /I - tau | 1 | | 1 w^H | \ | upsilon11 | = | -beta |
@@ -74,29 +79,39 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
 
 template<typename F>
 inline void
-UUpdate( DistMatrix<F>& U, DistMatrix<F>& V )
+UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::mod::UUpdate");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("Cholesky factors must be square");
-        if( V.Height() != U.Height() )
+        if( VPre.Height() != UPre.Height() )
             LogicError("V is the wrong height");
-        AssertSameGrids( U, V );
+        AssertSameGrids( UPre, VPre );
     )
-    const Int m = V.Height();
-    const Int n = V.Width();
+    const Int m = VPre.Height();
+    const Int n = VPre.Width();
+    const Grid& g = UPre.Grid();
 
-    const Grid& g = U.Grid();
+    DistMatrix<F> U(g), V(g);
+    Copy( UPre, U, READ_WRITE_PROXY );
+    Copy( VPre, V, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
+
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; ++k )
     {
-        F upsilon11 = U.Get(k,k);
-        auto u12 = ViewRange( U, k, k+1, k+1, m );
+        const IndexRange ind1( k,   k+1 );
+        const IndexRange ind2( k+1, m   );
 
-        auto v1 = ViewRange( V, k,   0, k+1, n );
-        auto V2 = ViewRange( V, k+1, 0, m,   n );
+        F upsilon11 = U.Get(k,k);
+        auto u12 = View( U, ind1, ind2 );
+
+        auto v1 = View( V, ind1, outerInd );
+        auto V2 = View( V, ind2, outerInd );
 
         // Find tau and w such that
         //  /I - tau | 1 | | 1 w^H | \ | upsilon11 | = | -beta |
@@ -135,6 +150,8 @@ UUpdate( DistMatrix<F>& U, DistMatrix<F>& V )
         Scale( F(-1), u12 );
         Axpy( tau, z12_STAR_MC, u12 );
     }
+    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
+    Copy( V, VPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -153,15 +170,20 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
 
     Matrix<F> z12;
 
+    const IndexRange outerInd( 0, n );
+
     F* UBuf = U.Buffer();
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        F& upsilon11 = UBuf[k+k*ldu];
-        auto u12 = ViewRange( U, k, k+1, k+1, m );
+        const IndexRange ind1( k,   k+1 );
+        const IndexRange ind2( k+1, m   );
 
-        auto v1 = ViewRange( V, k,   0, k+1, n );
-        auto V2 = ViewRange( V, k+1, 0, m,   n );
+        F& upsilon11 = UBuf[k+k*ldu];
+        auto u12 = View( U, ind1, ind2 );
+
+        auto v1 = View( V, ind1, outerInd );
+        auto V2 = View( V, ind2, outerInd );
 
         // Find tau and w such that
         //  /I - 1/tau | 1 | | 1 w^H | Sigma \ | upsilon11 | = | -beta |
@@ -194,29 +216,39 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
 
 template<typename F>
 inline void
-UDowndate( DistMatrix<F>& U, DistMatrix<F>& V )
+UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::mod::UDowndate");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("Cholesky factors must be square");
-        if( V.Height() != U.Height() )
+        if( VPre.Height() != UPre.Height() )
             LogicError("V is the wrong height");
-        AssertSameGrids( U, V );
+        AssertSameGrids( UPre, VPre );
     )
-    const Int m = V.Height();
-    const Int n = V.Width();
+    const Int m = VPre.Height();
+    const Int n = VPre.Width();
+    const Grid& g = UPre.Grid();
 
-    const Grid& g = U.Grid();
+    DistMatrix<F> U(g), V(g);
+    Copy( UPre, U, READ_WRITE_PROXY );
+    Copy( VPre, V, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
+
+    const IndexRange outerInd( 0, n );
+
     for( Int k=0; k<m; ++k )
     {
-        F upsilon11 = U.Get(k,k);
-        auto u12 = ViewRange( U, k, k+1, k+1, m );
+        const IndexRange ind1( k,   k+1 );
+        const IndexRange ind2( k+1, m   );
 
-        auto v1 = ViewRange( V, k,   0, k+1, n );
-        auto V2 = ViewRange( V, k+1, 0, m,   n );
+        F upsilon11 = U.Get(k,k);
+        auto u12 = View( U, ind1, ind2 );
+
+        auto v1 = View( V, ind1, outerInd );
+        auto V2 = View( V, ind2, outerInd );
 
         // Find tau and w such that
         //  /I - 1/tau | 1 | | 1 w^H | Sigma \ | upsilon11 | = | -beta |
@@ -255,6 +287,8 @@ UDowndate( DistMatrix<F>& U, DistMatrix<F>& V )
         Conjugate( z12_STAR_MC );
         Axpy( F(1)/tau, z12_STAR_MC, u12 );
     }
+    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
+    Copy( V, VPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mod
@@ -281,7 +315,7 @@ UMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 inline void
-UMod( DistMatrix<F>& U, Base<F> alpha, DistMatrix<F>& V )
+UMod( AbstractDistMatrix<F>& U, Base<F> alpha, AbstractDistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UMod"))
     typedef Base<F> Real;

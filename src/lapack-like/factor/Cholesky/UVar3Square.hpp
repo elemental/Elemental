@@ -17,17 +17,21 @@ namespace cholesky {
 
 template<typename F>
 inline void
-UVar3Square( DistMatrix<F>& A )
+UVar3Square( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UVar3Square");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices.");
-        if( A.Grid().Height() != A.Grid().Width() )
+        if( APre.Grid().Height() != APre.Grid().Width() )
             LogicError("CholeskyUVar3Square assumes a square process grid.");
     )
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     // Find the process holding our transposed data
-    const Grid& g = A.Grid();
     const Int transposeRank =
         A.RowOwner(A.RowShift()) + A.ColStride()*A.ColOwner(A.ColShift());
     const bool onDiagonal = ( transposeRank == g.VCRank() );
@@ -42,9 +46,13 @@ UVar3Square( DistMatrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A12 = View( A, ind1, ind2 );
+        auto A22 = View( A, ind2, ind2 );
 
         A11_STAR_STAR = A11;
         LocalCholesky( UPPER, A11_STAR_STAR );
@@ -83,6 +91,7 @@ UVar3Square( DistMatrix<F>& A )
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

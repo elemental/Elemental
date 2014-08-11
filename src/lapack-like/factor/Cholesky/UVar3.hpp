@@ -87,9 +87,13 @@ UVar3( Matrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A12 = View( A, ind1, ind2 );
+        auto A22 = View( A, ind2, ind2 );
 
         cholesky::UVar3Unb( A11 );
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
@@ -112,9 +116,13 @@ ReverseUVar3( Matrix<F>& A )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A00 = ViewRange( A, 0, 0, k,    k    );
-        auto A01 = ViewRange( A, 0, k, k,    k+nb );
-        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
+
+        const IndexRange ind0( 0, k );
+        const IndexRange ind1( k, k+nb );
+
+        auto A00 = View( A, ind0, ind0 );
+        auto A01 = View( A, ind0, ind1 );
+        auto A11 = View( A, ind1, ind1 );
 
         cholesky::ReverseUVar3Unb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A01 );
@@ -122,17 +130,20 @@ ReverseUVar3( Matrix<F>& A )
     }
 }
 
-
 template<typename F> 
 inline void
-UVar3( DistMatrix<F>& A )
+UVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UVar3");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,STAR,MC  > A12_STAR_MC(g);
@@ -143,9 +154,13 @@ UVar3( DistMatrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A12 = View( A, ind1, ind2 );
+        auto A22 = View( A, ind2, ind2 );
 
         A11_STAR_STAR = A11;
         LocalCholesky( UPPER, A11_STAR_STAR );
@@ -164,18 +179,23 @@ UVar3( DistMatrix<F>& A )
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F> 
 inline void
-ReverseUVar3( DistMatrix<F>& A )
+ReverseUVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::ReverseUVar3");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
     DistMatrix<F,VR,  STAR> A01_VR_STAR(g);
@@ -188,9 +208,13 @@ ReverseUVar3( DistMatrix<F>& A )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A00 = ViewRange( A, 0, 0, k,    k    );
-        auto A01 = ViewRange( A, 0, k, k,    k+nb );
-        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
+
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto A00 = View( A, ind0, ind0 );
+        auto A01 = View( A, ind0, ind1 );
+        auto A11 = View( A, ind1, ind1 );
 
         A11_STAR_STAR = A11;
         LocalReverseCholesky( UPPER, A11_STAR_STAR );
@@ -212,6 +236,7 @@ ReverseUVar3( DistMatrix<F>& A )
           F(-1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );
         A01.TransposeRowFilterFrom( A01Trans_STAR_MC );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

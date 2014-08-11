@@ -70,7 +70,6 @@ ElError ElCholesky_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElCholesky_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElCholesky_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElCholeskyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElCholeskyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElCholeskyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -83,7 +82,6 @@ ElError ElReverseCholesky_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElReverseCholesky_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElReverseCholesky_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElReverseCholeskyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElReverseCholeskyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElReverseCholeskyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -96,8 +94,6 @@ ElError ElCholeskyPiv_d( ElUpperOrLower uplo, ElMatrix_d A, ElMatrix_i p );
 ElError ElCholeskyPiv_c( ElUpperOrLower uplo, ElMatrix_c A, ElMatrix_i p );
 ElError ElCholeskyPiv_z( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_i p );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, and
-         'p' must be in a [VC,STAR] distribution */
 ElError ElCholeskyPivDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_i p );
 ElError ElCholeskyPivDist_d
@@ -118,7 +114,6 @@ ElError ElCholeskyMod_c
 ElError ElCholeskyMod_z
 ( ElUpperOrLower uplo, ElMatrix_z T, double alpha, ElMatrix_z V );
 
-/* NOTE: 'T' and 'V' must be in a [MC,MR] distribution */
 ElError ElCholeskyModDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s T, float alpha, ElDistMatrix_s V );
 ElError ElCholeskyModDist_d
@@ -135,7 +130,6 @@ ElError ElHPSDCholesky_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHPSDCholesky_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHPSDCholesky_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHPSDCholeskyDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHPSDCholeskyDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHPSDCholeskyDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -156,7 +150,6 @@ ElError ElSolveAfterCholesky_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElSolveAfterCholeskyDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElDistMatrix_s B );
@@ -185,8 +178,6 @@ ElError ElSolveAfterCholeskyFullPiv_z
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstMatrix_z A, ElConstMatrix_i p, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         'p' must be in a [VC,STAR] distribution */
 ElError ElSolveAfterCholeskyFullPivDist_s
 ( ElUpperOrLower uplo, ElOrientation orientation,
   ElConstDistMatrix_s A, ElConstDistMatrix_i p, ElDistMatrix_s B );

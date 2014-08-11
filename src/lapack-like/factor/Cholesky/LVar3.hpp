@@ -87,9 +87,13 @@ LVar3( Matrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+        
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A21 = View( A, ind2, ind1 );
+        auto A22 = View( A, ind2, ind2 );
 
         cholesky::LVar3Unb( A11 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
@@ -112,9 +116,13 @@ ReverseLVar3( Matrix<F>& A )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A00 = ViewRange( A, 0, 0, k,    k    );
-        auto A10 = ViewRange( A, k, 0, k+nb, k    );
-        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
+
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto A00 = View( A, ind0, ind0 );
+        auto A10 = View( A, ind1, ind0 );
+        auto A11 = View( A, ind1, ind1 );
 
         cholesky::ReverseLVar3Unb( A11 );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
@@ -124,14 +132,17 @@ ReverseLVar3( Matrix<F>& A )
 
 template<typename F>
 inline void
-LVar3( DistMatrix<F>& A )
+LVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::LVar3");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
     DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
@@ -143,9 +154,13 @@ LVar3( DistMatrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A21 = View( A, ind2, ind1 );
+        auto A22 = View( A, ind2, ind2 );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
@@ -171,18 +186,22 @@ LVar3( DistMatrix<F>& A )
 
         A21.TransposeRowFilterFrom( A21Trans_STAR_MC );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 } 
 
 template<typename F>
 inline void
-ReverseLVar3( DistMatrix<F>& A )
+ReverseLVar3( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::ReverseLVar3");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A10_STAR_VR(g);
     DistMatrix<F,STAR,MC  > A10_STAR_MC(g);
@@ -194,9 +213,13 @@ ReverseLVar3( DistMatrix<F>& A )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A00 = ViewRange( A, 0, 0, k,    k    );
-        auto A10 = ViewRange( A, k, 0, k+nb, k    );
-        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
+
+        const IndexRange ind0( 0, k    );
+        const IndexRange ind1( k, k+nb );
+
+        auto A00 = View( A, ind0, ind0 );
+        auto A10 = View( A, ind1, ind0 );
+        auto A11 = View( A, ind1, ind1 );
 
         A11_STAR_STAR = A11;
         LocalReverseCholesky( LOWER, A11_STAR_STAR );
@@ -218,6 +241,7 @@ ReverseLVar3( DistMatrix<F>& A )
 
         A10 = A10_STAR_MR;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 } 
 
 } // namespace cholesky

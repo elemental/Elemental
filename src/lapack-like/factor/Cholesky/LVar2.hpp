@@ -31,10 +31,15 @@ LVar2( Matrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A10 = ViewRange( A, k,    0, k+nb, k    );
-        auto A11 = ViewRange( A, k,    k, k+nb, k+nb );
-        auto A20 = ViewRange( A, k+nb, 0, n,    k    );
-        auto A21 = ViewRange( A, k+nb, k, n,    k+nb );
+
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A10 = View( A, ind1, ind0 );
+        auto A11 = View( A, ind1, ind1 );
+        auto A20 = View( A, ind2, ind0 );
+        auto A21 = View( A, ind2, ind1 );
 
         Herk( LOWER, NORMAL, F(-1), A10, F(1), A11 );
         cholesky::LVar3Unb( A11 );
@@ -45,14 +50,18 @@ LVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-LVar2( DistMatrix<F>& A )
+LVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::LVar2");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
-    const Grid& g = A.Grid();
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,MR,  STAR> A10Adj_MR_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
@@ -64,10 +73,15 @@ LVar2( DistMatrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A10 = ViewRange( A, k,    0, k+nb, k    );
-        auto A11 = ViewRange( A, k,    k, k+nb, k+nb );
-        auto A20 = ViewRange( A, k+nb, 0, n,    k    );
-        auto A21 = ViewRange( A, k+nb, k, n,    k+nb );
+
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A10 = View( A, ind1, ind0 );
+        auto A11 = View( A, ind1, ind1 );
+        auto A20 = View( A, ind2, ind0 );
+        auto A21 = View( A, ind2, ind1 );
  
         A10Adj_MR_STAR.AlignWith( A10 );
         A10.AdjointColAllGather( A10Adj_MR_STAR );
@@ -88,6 +102,7 @@ LVar2( DistMatrix<F>& A )
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

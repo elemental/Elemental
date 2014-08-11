@@ -31,10 +31,15 @@ UVar2( Matrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A01 = ViewRange( A, 0, k,    k,    k+nb );
-        auto A02 = ViewRange( A, 0, k+nb, k,    n    );
-        auto A11 = ViewRange( A, k, k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k, k+nb, k+nb, n    );
+
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A01 = View( A, ind0, ind1 );
+        auto A02 = View( A, ind0, ind2 );
+        auto A11 = View( A, ind1, ind1 );
+        auto A12 = View( A, ind1, ind2 );
 
         Herk( UPPER, ADJOINT, F(-1), A01, F(1), A11 );
         cholesky::UVar3Unb( A11 );
@@ -45,14 +50,18 @@ UVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-UVar2( DistMatrix<F>& A )
+UVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UVar2");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
@@ -67,10 +76,15 @@ UVar2( DistMatrix<F>& A )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A01 = ViewRange( A, 0, k,    k,    k+nb );
-        auto A02 = ViewRange( A, 0, k+nb, k,    n    );
-        auto A11 = ViewRange( A, k, k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k, k+nb, k+nb, n    );
+
+        const IndexRange ind0( 0,    k    );
+        const IndexRange ind1( k,    k+nb );
+        const IndexRange ind2( k+nb, n    );
+
+        auto A01 = View( A, ind0, ind1 );
+        auto A02 = View( A, ind0, ind2 );
+        auto A11 = View( A, ind1, ind1 );
+        auto A12 = View( A, ind1, ind2 );
 
         A01_MC_STAR.AlignWith( A01 );
         A01_MC_STAR = A01;
@@ -99,6 +113,7 @@ UVar2( DistMatrix<F>& A )
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

@@ -69,43 +69,39 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( Cholesky( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElCholeskyDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Cholesky( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( Cholesky( CReflect(uplo), *CReflect(A) ) ) } \
   /* Reverse Cholesky (no pivoting) */ \
   ElError ElReverseCholesky_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( ReverseCholesky( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElReverseCholeskyDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( ReverseCholesky( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( ReverseCholesky( CReflect(uplo), *CReflect(A) ) ) } \
   /* Cholesky (full pivoting) */ \
   ElError ElCholeskyPiv_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_i p ) \
-  { EL_TRY( \
-      Cholesky( CReflect(uplo), *CReflect(A), *CReflect(p) ) ) } \
+  { EL_TRY( Cholesky( CReflect(uplo), *CReflect(A), *CReflect(p) ) ) } \
   ElError ElCholeskyPivDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
-  { EL_TRY( \
-      Cholesky( CReflect(uplo), DM_CAST(F,A), DM_VC_STAR_CAST(Int,p) ) ) } \
+  { EL_TRY( Cholesky( CReflect(uplo), *CReflect(A), *CReflect(p) ) ) } \
   /* Cholesky low-rank modification */ \
   ElError ElCholeskyMod_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG T, \
     Base<F> alpha, ElMatrix_ ## SIG V ) \
   { EL_TRY( \
-      CholeskyMod( \
-        CReflect(uplo), *CReflect(T), alpha, *CReflect(V) ) ) } \
+      CholeskyMod( CReflect(uplo), *CReflect(T), alpha, *CReflect(V) ) ) } \
   ElError ElCholeskyModDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG T, \
     Base<F> alpha, ElDistMatrix_ ## SIG V ) \
   { EL_TRY( \
-      CholeskyMod( \
-        CReflect(uplo), DM_CAST(F,T), alpha, DM_CAST(F,V) ) ) } \
+      CholeskyMod( CReflect(uplo), *CReflect(T), alpha, *CReflect(V) ) ) } \
   /* Hermitian Positive Semi-Definite Cholesky */ \
   ElError ElHPSDCholesky_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HPSDCholesky( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHPSDCholeskyDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HPSDCholesky( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( HPSDCholesky( CReflect(uplo), *CReflect(A) ) ) } \
   /* Solve after a Cholesky factorization (without pivoting) */ \
   ElError ElSolveAfterCholesky_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
@@ -120,7 +116,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( \
       cholesky::SolveAfter( \
         CReflect(uplo), CReflect(orientation), \
-        DM_CAST_CONST(F,A), DM_CAST(F,B) ) ) } \
+        *CReflect(A), *CReflect(B) ) ) } \
   /* Solve after a Cholesky factorization (full pivoting) */ \
   ElError ElSolveAfterCholeskyFullPiv_ ## SIG \
   ( ElUpperOrLower uplo, ElOrientation orientation, \
@@ -136,7 +132,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   { EL_TRY( \
       cholesky::SolveAfter( \
         CReflect(uplo), CReflect(orientation), \
-        DM_CAST_CONST(F,A), DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B) ) ) } \
+        *CReflect(A), *CReflect(p), *CReflect(B) ) ) } \
   /* Generalized QR
      ============== */ \
   ElError ElGQR_ ## SIG \

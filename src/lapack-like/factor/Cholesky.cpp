@@ -66,7 +66,7 @@ void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-void Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
+void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Cholesky"))
     const Grid& g = A.Grid();
@@ -86,9 +86,9 @@ void Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     }
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void Cholesky
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& pPerm )
 {
     DEBUG_ONLY(CallStackEntry cse("Cholesky"))
     if( uplo == LOWER )
@@ -98,7 +98,7 @@ void Cholesky
 }
 
 template<typename F> 
-void ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("ReverseCholesky"))
     if( uplo == LOWER )
@@ -142,7 +142,8 @@ void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
 
 template<typename F>
 void CholeskyMod
-( UpperOrLower uplo, DistMatrix<F>& T, Base<F> alpha, DistMatrix<F>& V )
+( UpperOrLower uplo, AbstractDistMatrix<F>& T, 
+  Base<F> alpha, AbstractDistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("CholeskyMod"))
     if( alpha == Base<F>(0) )
@@ -173,9 +174,13 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F>
-void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
+
+    // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
+    DistMatrix<F> A(APre.Grid());
+    Copy( APre, A, READ_WRITE_PROXY );
 
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -190,35 +195,40 @@ void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
         QR( A );
         MakeTriangular( UPPER, A );
     }
+
+    // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(F) \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void Cholesky( UpperOrLower uplo, DistMatrix<F>& A ); \
+  template void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A ); \
+  template void ReverseCholesky \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void Cholesky( UpperOrLower uplo, Matrix<F>& A, Matrix<Int>& p ); \
   template void Cholesky \
-  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p ); \
   template void CholeskyMod \
   ( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V ); \
   template void CholeskyMod \
-  ( UpperOrLower uplo, DistMatrix<F>& T, Base<F> alpha, DistMatrix<F>& V ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& T, \
+    Base<F> alpha, AbstractDistMatrix<F>& V ); \
   template void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A ); \
-  template void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A ); \
+  template void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, DistMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
     const Matrix<F>& A, const Matrix<Int>& pPerm, Matrix<F>& B ); \
   template void cholesky::SolveAfter \
   ( UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm, \
-          DistMatrix<F>& B ); 
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& pPerm, \
+          AbstractDistMatrix<F>& B ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
