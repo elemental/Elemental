@@ -39,8 +39,8 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F& upsilon11 = UBuf[k+k*ldu];
         auto u12 = View( U, ind1, ind2 );
@@ -104,8 +104,8 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F upsilon11 = U.Get(k,k);
         auto u12 = View( U, ind1, ind2 );
@@ -176,8 +176,8 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F& upsilon11 = UBuf[k+k*ldu];
         auto u12 = View( U, ind1, ind2 );
@@ -241,8 +241,8 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F upsilon11 = U.Get(k,k);
         auto u12 = View( U, ind1, ind2 );

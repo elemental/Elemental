@@ -142,14 +142,13 @@ Inertia
     return inertia;
 }
 
-template<typename F,Dist U,Dist V>
+template<typename F>
 InertiaType Inertia
-( const DistMatrix<Base<F>,U,V>& d, const DistMatrix<F,U,V>& dSub )
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Inertia"))
     typedef Base<F> Real;
     const Grid& g = d.Grid();
-    const Int colStride = g.Height();
 
     DistMatrix<Real,MC,STAR> d_MC_STAR(g);
     DistMatrix<F,MC,STAR> dSub_MC_STAR(g);
@@ -159,6 +158,7 @@ InertiaType Inertia
     dSub_MC_STAR = dSub;
 
     // Handle the easy case
+    const Int colStride = g.Height();
     if( colStride == 1 )
         return Inertia( d_MC_STAR.LockedMatrix(), dSub_MC_STAR.LockedMatrix() );
 

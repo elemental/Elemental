@@ -30,9 +30,9 @@ void LU( Matrix<F>& A )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind1( k, k+nb );
-        const IndexRange ind2Vert( k+nb, m );
-        const IndexRange ind2Horz( k+nb, n );
+        const IndexRange ind1( k, k+nb ),
+                         ind2Vert( k+nb, m ),
+                         ind2Horz( k+nb, n );
 
         auto A11 = View( A, ind1,     ind1     );
         auto A12 = View( A, ind1,     ind2Horz );
@@ -68,9 +68,9 @@ void LU( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind1( k, k+nb );
-        const IndexRange ind2Vert( k+nb, m );
-        const IndexRange ind2Horz( k+nb, n );
+        const IndexRange ind1( k, k+nb ),
+                         ind2Vert( k+nb, m ),
+                         ind2Horz( k+nb, n );
 
         auto A11 = View( A, ind1,     ind1     );
         auto A12 = View( A, ind1,     ind2Horz );
@@ -105,7 +105,7 @@ void LU( AbstractDistMatrix<F>& APre )
 // Performs LU factorization with partial pivoting
 
 template<typename F> 
-void LU( Matrix<F>& A, Matrix<Int>& pPerm )
+void LU( Matrix<F>& A, Matrix<Int>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
 
@@ -115,23 +115,23 @@ void LU( Matrix<F>& A, Matrix<Int>& pPerm )
     const Int bsize = Blocksize();
 
     // Initialize P to the identity matrix
-    pPerm.Resize( m, 1 );
+    p.Resize( m, 1 );
     for( Int i=0; i<m; ++i )
-        pPerm.Set( i, 0, i );
+        p.Set( i, 0, i );
 
     // Temporaries for accumulating partial permutations for each block
-    Matrix<Int> p1;
-    Matrix<Int> p1Perm, p1InvPerm;
+    Matrix<Int> p1Piv;
+    Matrix<Int> p1, p1Inv;
 
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
-        const IndexRange indB( k, m    );
-        const IndexRange ind2Vert( k+nb, m );
-        const IndexRange ind2Horz( k+nb, n );
+        const IndexRange ind0( 0, k    ),
+                         ind1( k, k+nb ),
+                         indB( k, m    ),
+                         ind2Vert( k+nb, m ),
+                         ind2Horz( k+nb, n );
 
         auto A11 = View( A, ind1,     ind1     );
         auto A12 = View( A, ind1,     ind2Horz );
@@ -142,14 +142,14 @@ void LU( Matrix<F>& A, Matrix<Int>& pPerm )
         auto AB1 = View( A, indB, ind1     );
         auto AB2 = View( A, indB, ind2Horz );
 
-        lu::Panel( AB1, p1 );
-        PivotsToPartialPermutation( p1, p1Perm, p1InvPerm );
-        PermuteRows( AB0, p1Perm, p1InvPerm );
-        PermuteRows( AB2, p1Perm, p1InvPerm );
+        lu::Panel( AB1, p1Piv );
+        PivotsToPartialPermutation( p1Piv, p1, p1Inv );
+        PermuteRows( AB0, p1, p1Inv );
+        PermuteRows( AB2, p1, p1Inv );
 
         // Update the preimage of the permutation
-        auto pPermB = View( pPerm, indB, IndexRange(0,1) ); 
-        PermuteRows( pPermB, p1Perm, p1InvPerm );
+        auto pB = View( p, indB, IndexRange(0,1) ); 
+        PermuteRows( pB, p1, p1Inv );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
@@ -157,18 +157,18 @@ void LU( Matrix<F>& A, Matrix<Int>& pPerm )
 }
 
 template<typename F> 
-void LU( Matrix<F>& A, Matrix<Int>& pPerm, Matrix<Int>& qPerm )
+void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    lu::Full( A, pPerm, qPerm );
+    lu::Full( A, p, q );
 }
 
 template<typename F> 
-void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPermPre )
+void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("LU");
-        AssertSameGrids( APre, pPermPre );
+        AssertSameGrids( APre, pPre );
     )
     const Int m = APre.Height();
     const Int n = APre.Width();
@@ -176,23 +176,24 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPermPre )
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    pPermPre.Resize( m, 1 );
+    pPre.Resize( m, 1 );
 
     DistMatrix<F> A(g);
-    DistMatrix<Int,VC,STAR> pPerm(g);
+    DistMatrix<Int,VC,STAR> p(g);
     Copy( APre, A, READ_WRITE_PROXY );
-    Copy( pPermPre, pPerm, WRITE_PROXY );
+    Copy( pPre, p, WRITE_PROXY      );
 
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
-    DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
+    DistMatrix<Int,STAR,STAR> p1Piv_STAR_STAR(g);
 
     // Initialize the permutation to the identity
-    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
-        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
-    DistMatrix<Int,VC,STAR> p1Perm(g), p1InvPerm(g);
+    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
+        p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
+
+    DistMatrix<Int,VC,STAR> p1(g), p1Inv(g);
 
     const IndexRange outerInd( 0, n );
 
@@ -200,10 +201,10 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPermPre )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind1( k, k+nb );
-        const IndexRange indB( k, m    );
-        const IndexRange ind2Vert( k+nb, m );
-        const IndexRange ind2Horz( k+nb, n );
+        const IndexRange ind1( k, k+nb ),
+                         indB( k, m    ),
+                         ind2Vert( k+nb, m ),
+                         ind2Horz( k+nb, n );
 
         auto A11 = View( A, ind1,     ind1     );
         auto A12 = View( A, ind1,     ind2Horz );
@@ -216,13 +217,13 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPermPre )
         A21_MC_STAR = A21;
         A11_STAR_STAR = A11;
 
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR );
-        PivotsToPartialPermutation( p1_STAR_STAR, p1Perm, p1InvPerm );
-        PermuteRows( AB, p1Perm, p1InvPerm );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR );
+        PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
+        PermuteRows( AB, p1, p1Inv );
 
         // Update the preimage of the permutation
-        auto pPermB = View( pPerm, indB, IndexRange(0,1) );
-        PermuteRows( pPermB, p1Perm, p1InvPerm );
+        auto pB = View( p, indB, IndexRange(0,1) );
+        PermuteRows( pB, p1, p1Inv );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
@@ -240,30 +241,27 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPermPre )
         A21 = A21_MC_STAR;
     }
     Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( pPerm, pPermPre, RESTORE_WRITE_PROXY );
+    Copy( p, pPre, RESTORE_WRITE_PROXY      );
 }
 
 template<typename F> 
 void LU
 ( AbstractDistMatrix<F>& A, 
-  AbstractDistMatrix<Int>& pPerm, AbstractDistMatrix<Int>& qPerm )
+  AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    lu::Full( A, pPerm, qPerm );
+    lu::Full( A, p, q );
 }
 
 #define PROTO(F) \
   template void LU( Matrix<F>& A ); \
   template void LU( AbstractDistMatrix<F>& A ); \
-  template void LU( Matrix<F>& A, Matrix<Int>& pPerm ); \
-  template void LU \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& pPerm ); \
-  template void LU \
-  ( Matrix<F>& A, \
-    Matrix<Int>& pPerm, Matrix<Int>& qPerm ); \
+  template void LU( Matrix<F>& A, Matrix<Int>& p ); \
+  template void LU( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p ); \
+  template void LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q ); \
   template void LU \
   ( AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Int>& pPerm, AbstractDistMatrix<Int>& qPerm ); \
+    AbstractDistMatrix<Int>& p, AbstractDistMatrix<Int>& q ); \
   template void LUMod \
   ( Matrix<F>& A, Matrix<Int>& perm, \
     const Matrix<F>& u, const Matrix<F>& v, bool conjugate, \
@@ -284,18 +282,17 @@ void LU
     const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, const Matrix<F>& A, \
-    const Matrix<Int>& pPerm, Matrix<F>& B ); \
+    const Matrix<Int>& p, Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<Int>& pPerm, AbstractDistMatrix<F>& B ); \
+    const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, const Matrix<F>& A, \
-    const Matrix<Int>& pPerm, \
-    const Matrix<Int>& qPerm, Matrix<F>& B ); \
+    const Matrix<Int>& p, const Matrix<Int>& q, Matrix<F>& B ); \
   template void lu::SolveAfter \
   ( Orientation orientation, const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<Int>& pPerm, \
-    const AbstractDistMatrix<Int>& qPerm, AbstractDistMatrix<F>& B );
+    const AbstractDistMatrix<Int>& p, const AbstractDistMatrix<Int>& q, \
+          AbstractDistMatrix<F>& B );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

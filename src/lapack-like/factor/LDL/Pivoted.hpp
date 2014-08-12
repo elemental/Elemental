@@ -10,8 +10,6 @@
 #ifndef EL_LDL_PIVOTED_HPP
 #define EL_LDL_PIVOTED_HPP
 
-
-
 // TODO: Reference LAPACK's dsytf2 and zhetf2
 
 namespace El {
@@ -32,7 +30,9 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
         gamma = (1+Sqrt(Real(17)))/8;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
+    const IndexRange ind1( 0, 1 ),
+                     ind2( 1, n );
+    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -46,8 +46,11 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,  0,r+1,r  ) );
-    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r+1,r,n,  r+1) );
+    const IndexRange indr0( 0,   r   ),
+                     indr1( r,   r+1 ),
+                     indr2( r+1, n   );
+    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( LockedView(A,indr2,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -82,7 +85,9 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
         gamma = (1+Sqrt(Real(17)))/8;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
+    const IndexRange ind1( 0, 1 ),
+                     ind2( 1, n );
+    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -96,8 +101,11 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,  0,r+1,r  ) );
-    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r+1,r,n,  r+1) );
+    const IndexRange indr0( 0,   r   ),
+                     indr1( r,   r+1 ),
+                     indr2( r+1, n   );
+    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( LockedView(A,indr2,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -132,7 +140,9 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
         gamma = Real(525)/1000;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
+    const IndexRange ind1( 0, 1 ),
+                     ind2( 1, n );
+    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -146,8 +156,11 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,0,r+1,r  ) );
-    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r,r,n,  r+1) );
+    const IndexRange indr0( 0,   r   ),
+                     indr1( r,   r+1 ),
+                     indrB( r,   n   );
+    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( LockedView(A,indrB,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -175,7 +188,9 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
         gamma = Real(525)/1000;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(A,1,0,n,1) );
+    const IndexRange ind1( 0, 1 ),
+                     ind2( 1, n );
+    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -189,8 +204,11 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const auto leftMax   = VectorMaxAbs( LockedViewRange(A,r,0,r+1,r  ) );
-    const auto bottomMax = VectorMaxAbs( LockedViewRange(A,r,r,n,  r+1) );
+    const IndexRange indr0( 0,   r   ),
+                     indr1( r,   r+1 ),
+                     indrB( r,   n   );
+    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( LockedView(A,indrB,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -277,17 +295,22 @@ PanelBunchKaufmanA
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    auto aB1 = LockedViewRange( A, k, k, n, k+1 );
+    const IndexRange ind0( 0,   k   ),
+                     ind1( k,   k+1 ),  ind1Off( 0, 1   ),
+                     ind2( k+1, n   ),  ind2Off( 1, n-k ),
+                     indB( k,   n   );
+
+    auto aB1 = LockedView( A, indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     {
-        auto XBL  = LockedViewRange( X, k, 0, n,   k );
-        auto yRow = LockedViewRange( Y, k, 0, k+1, k );
-        Gemv( NORMAL, F(-1), XBL, yRow, F(1), zB1 );
+        auto XB0 = LockedView( X, indB, ind0 );
+        auto y10 = LockedView( Y, ind1, ind0 );
+        Gemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -301,29 +324,32 @@ PanelBunchKaufmanA
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    auto aLeft   = LockedViewRange( A, r, k, r+1, r   );
-    auto aBottom = LockedViewRange( A, r, r, n,   r+1 );
+    const IndexRange indrM( k, r   ),
+                     indr1( r, r+1 ), indr1Off( 0, 1   ),
+                                      indr2Off( 1, n-r ),
+                     indrB( r, n   );
+    auto aLeft   = LockedView( A, indr1, indrM );
+    auto aBottom = LockedView( A, indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
-    auto zStrictBottom = ViewRange( zBottom, 1, 0, n-r, 1 );
+    auto zStrictBottom = View( zBottom, indr2Off, indr1Off );
 
-    //
     // Update necessary components out-of-place
-    //
+    // ----------------------------------------
 
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     {
-        auto xMid = LockedViewRange( X, r, 0, r+1, k );
-        auto YBL = LockedViewRange( Y, k, 0, r, k );
-        Gemv( NORMAL, F(-1), YBL, xMid, F(1), zLeft );
+        auto xr10 = LockedView( X, indr1, ind0 );
+        auto YrM0 = LockedView( Y, indrM, ind0 );
+        Gemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     {
-        auto XBL = LockedViewRange( X, r, 0, n, k );
-        auto yRow = LockedViewRange( Y, r, 0, r+1, k );
-        Gemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
+        auto XrB0 = LockedView( X, indrB, ind0 );
+        auto yr10 = LockedView( Y, indr1, ind0 );
+        Gemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
     const auto leftMax   = VectorMaxAbs( zLeft );
@@ -367,18 +393,23 @@ PanelBunchKaufmanA
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    auto aB1 = LockedViewRange( A, k, k, n, k+1 );
+    const IndexRange ind0( 0,   k   ),
+                     ind1( k,   k+1 ),  ind1Off( 0, 1   ),
+                     ind2( k+1, n   ),  ind2Off( 1, n-k ),
+                     indB( k,   n   );
+
+    auto aB1 = LockedView( A, indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     if( aB1.RowAlign() == aB1.RowRank() )
     {
-        auto XBL  = LockedViewRange( X, k, 0, n,   k );
-        auto yRow = LockedViewRange( Y, k, 0, k+1, k );
-        LocalGemv( NORMAL, F(-1), XBL, yRow, F(1), zB1 );
+        auto XB0 = LockedView( X, indB, ind0 );
+        auto y10 = LockedView( Y, ind1, ind0 );
+        LocalGemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -392,31 +423,34 @@ PanelBunchKaufmanA
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    auto aLeft   = LockedViewRange( A, r, k, r+1, r   );
-    auto aBottom = LockedViewRange( A, r, r, n,   r+1 );
+    const IndexRange indrM( k, r   ),
+                     indr1( r, r+1 ), indr1Off( 0, 1   ),
+                                      indr2Off( 1, n-r ),
+                     indrB( r, n   );
+    auto aLeft   = LockedView( A, indr1, indrM );
+    auto aBottom = LockedView( A, indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
-    auto zStrictBottom = ViewRange( zBottom, 1, 0, n-r, 1 );
+    auto zStrictBottom = View( zBottom, indr2Off, indr1Off );
 
-    //
     // Update necessary components out-of-place
-    //
+    // ----------------------------------------
 
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     if( aLeft.ColAlign() == aLeft.ColRank() )
     {
-        auto xMid = LockedViewRange( X, r, 0, r+1, k );
-        auto YBL = LockedViewRange( Y, k, 0, r, k );
-        LocalGemv( NORMAL, F(-1), YBL, xMid, F(1), zLeft );
+        auto xr10 = LockedView( X, indr1, ind0 );
+        auto YrM0 = LockedView( Y, indrM, ind0 );
+        LocalGemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     if( aBottom.RowAlign() == aBottom.RowRank() )
     {
-        auto XBL = LockedViewRange( X, r, 0, n, k );
-        auto yRow = LockedViewRange( Y, r, 0, r+1, k );
-        LocalGemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
+        auto XrB0 = LockedView( X, indrB, ind0 );
+        auto yr10 = LockedView( Y, indr1, ind0 );
+        LocalGemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
     const auto leftMax   = VectorMaxAbs( zLeft );
@@ -456,17 +490,22 @@ PanelBunchKaufmanD
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
 
-    auto aB1 = LockedViewRange( A, k, k, n, k+1 );
+    const IndexRange ind0( 0, k   ),
+                     ind1( k, k+1 ), ind1Off( 0, 1   ),
+                                     ind2Off( 1, n-k ), 
+                     indB( k, n   );
+
+    auto aB1 = LockedView( A, indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     {
-        auto XBL  = LockedViewRange( X, k, 0, n,   k );
-        auto yRow = LockedViewRange( Y, k, 0, k+1, k );
-        Gemv( NORMAL, F(-1), XBL, yRow, F(1), zB1 );
+        auto XB0  = LockedView( X, indB, ind0 );
+        auto y10 = LockedView( Y, ind1, ind0 );
+        Gemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -480,28 +519,30 @@ PanelBunchKaufmanD
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    auto aLeft   = LockedViewRange( A, r, k, r+1, r   );
-    auto aBottom = LockedViewRange( A, r, r, n,   r+1 );
+    const IndexRange indrM( k, r   ),
+                     indr1( r, r+1 ),
+                     indrB( r, n   );
+    auto aLeft   = LockedView( A, indr1, indrM );
+    auto aBottom = LockedView( A, indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
 
-    //
     // Update necessary components out-of-place
-    //
+    // ----------------------------------------
 
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     {
-        auto xMid = LockedViewRange( X, r, 0, r+1, k );
-        auto YBL = LockedViewRange( Y, k, 0, r, k );
-        Gemv( NORMAL, F(-1), YBL, xMid, F(1), zLeft );
+        auto xr10 = LockedView( X, indr1, ind0 );
+        auto YrM0 = LockedView( Y, indrM, ind0 );
+        Gemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     {
-        auto XBL = LockedViewRange( X, r, 0, n, k );
-        auto yRow = LockedViewRange( Y, r, 0, r+1, k );
-        Gemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
+        auto XrB0 = LockedView( X, indrB, ind0 );
+        auto yr10 = LockedView( Y, indr1, ind0 );
+        Gemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
     const auto leftMax   = VectorMaxAbs( zLeft );
@@ -538,18 +579,23 @@ PanelBunchKaufmanD
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
 
-    auto aB1 = LockedViewRange( A, k, k, n, k+1 );
+    const IndexRange ind0( 0, k   ),
+                     ind1( k, k+1 ), ind1Off( 0, 1   ),
+                                     ind2Off( 1, n-k ), 
+                     indB( k, n   );
+
+    auto aB1 = LockedView( A, indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     if( aB1.RowAlign() == aB1.RowRank() )
     {
-        auto XBL  = LockedViewRange( X, k, 0, n,   k );
-        auto yRow = LockedViewRange( Y, k, 0, k+1, k );
-        LocalGemv( NORMAL, F(-1), XBL, yRow, F(1), zB1 );
+        auto XB0  = LockedView( X, indB, ind0 );
+        auto y10 = LockedView( Y, ind1, ind0 );
+        LocalGemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedViewRange(zB1,1,0,n-k,1) );
+    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -563,30 +609,32 @@ PanelBunchKaufmanD
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    auto aLeft   = LockedViewRange( A, r, k, r+1, r   );
-    auto aBottom = LockedViewRange( A, r, r, n,   r+1 );
+    const IndexRange indrM( k, r   ),
+                     indr1( r, r+1 ),
+                     indrB( r, n   );
+    auto aLeft   = LockedView( A, indr1, indrM );
+    auto aBottom = LockedView( A, indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
 
-    //
     // Update necessary components out-of-place
-    //
+    // ----------------------------------------
 
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     if( aLeft.ColAlign() == aLeft.ColRank() )
     {
-        auto xMid = LockedViewRange( X, r, 0, r+1, k );
-        auto YBL = LockedViewRange( Y, k, 0, r, k );
-        LocalGemv( NORMAL, F(-1), YBL, xMid, F(1), zLeft );
+        auto xr10 = LockedView( X, indr1, ind0 );
+        auto YrM0 = LockedView( Y, indrM, ind0 );
+        LocalGemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     if( aBottom.RowAlign() == aBottom.RowRank() )
     {
-        auto XBL = LockedViewRange( X, r, 0, n, k );
-        auto yRow = LockedViewRange( Y, r, 0, r+1, k );
-        LocalGemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
+        auto XrB0 = LockedView( X, indrB, ind0 );
+        auto yr10 = LockedView( Y, indr1, ind0 );
+        LocalGemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
     const auto leftMax   = VectorMaxAbs( zLeft );
@@ -697,7 +745,7 @@ ChoosePanelPivot
 template<typename F>
 inline void
 UnblockedPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
@@ -709,23 +757,26 @@ UnblockedPivoted
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        pPerm.Resize( 0, 1 );
+        p.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
 
     // Initialize the permutation to the identity
-    pPerm.Resize( n, 1 );
+    p.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
-        pPerm.Set( j, 0, j );
+        p.Set( j, 0, j );
      
     Matrix<F> Y21;
 
     Int k=0;
     while( k < n )
     {
+        const IndexRange indB( k,   n   ),
+                         indR( k,   n   );
+
         // Determine the pivot (block)
-        auto ABR = ViewRange( A, k, k, n, n );
+        auto ABR = View( A, indB, indR );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
@@ -737,14 +788,17 @@ UnblockedPivoted
         // Update trailing submatrix and store pivots
         if( pivot.nb == 1 )
         {
+            const IndexRange ind1( k,   k+1 ),
+                             ind2( k+1, n   );
+
             const Int from = k + pivot.from[0];
             SymmetricSwap( LOWER, A, k, from, conjugate );
-            RowSwap( pPerm, k, from );
+            RowSwap( p, k, from );
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
-            auto a21 = ViewRange( ABR, 1, 0, n-k, 1   );
-            auto A22 = ViewRange( ABR, 1, 1, n-k, n-k );
+            auto a21 = View( A, ind2, ind1 );
+            auto A22 = View( A, ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
@@ -752,17 +806,20 @@ UnblockedPivoted
         }
         else
         {
+            const IndexRange ind1( k,   k+2 ),
+                             ind2( k+2, n   );
+
             const Int from0 = k + pivot.from[0];
             const Int from1 = k + pivot.from[1];
             SymmetricSwap( LOWER, A, k,   from0, conjugate );
             SymmetricSwap( LOWER, A, k+1, from1, conjugate );
-            RowSwap( pPerm, k+0, from0 );
-            RowSwap( pPerm, k+1, from1 );
+            RowSwap( p, k+0, from0 );
+            RowSwap( p, k+1, from1 );
 
             // Rank-two update: A22 -= A21 inv(D11) A21'
-            auto D11 = ViewRange( ABR, 0, 0, 2,   2   );
-            auto A21 = ViewRange( ABR, 2, 0, n-k, 2   );
-            auto A22 = ViewRange( ABR, 2, 2, n-k, n-k );
+            auto D11 = View( A, ind1, ind1 );
+            auto A21 = View( A, ind2, ind1 );
+            auto A22 = View( A, ind2, ind2 );
             Y21 = A21;
             Symmetric2x2Solve( RIGHT, LOWER, D11, A21, conjugate );
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
@@ -776,39 +833,43 @@ UnblockedPivoted
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 inline void
 UnblockedPivoted
-( DistMatrix<F>& A, 
-  DistMatrix<F,MD,STAR>& dSub, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, 
-  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  Base<F> gamma=0 )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& dSub, 
+  AbstractDistMatrix<Int>& p, bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::UnblockedPivoted");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        AssertSameGrids( A, dSub, pPerm );
+        AssertSameGrids( APre, dSub, p );
     )
-    const Int n = A.Height();
-    dSub.SetRoot( A.DiagonalRoot(-1) );
-    dSub.AlignCols( A.DiagonalAlign(-1) );
+    const Int n = APre.Height();
+    const Grid& g = APre.Grid();
+
     Zeros( dSub, n-1, 1 );
+    p.Resize( n, 1 );
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
 
     // Initialize the permutation to the identity
-    pPerm.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
-        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
+    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
+        p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
-    DistMatrix<F> Y21( A.Grid() );
-    DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
+    DistMatrix<F> Y21(g);
+    DistMatrix<F,STAR,STAR> D11_STAR_STAR(g);
 
     Int k=0;
     while( k < n )
     {
+        const IndexRange indB( k, n ),
+                         indR( k, n );
+
         // Determine the pivot (block)
-        auto ABR = ViewRange( A, k, k, n, n );
+        auto ABR = View( A, indB, indR );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
@@ -820,14 +881,17 @@ UnblockedPivoted
         // Update trailing submatrix and store pivots
         if( pivot.nb == 1 )
         {
+            const IndexRange ind1( k,   k+1 ),
+                             ind2( k+1, n   );
+
             const Int from = k + pivot.from[0];
             SymmetricSwap( LOWER, A, k, from, conjugate );
-            RowSwap( pPerm, k, from ); 
+            RowSwap( p, k, from ); 
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
-            auto a21 = ViewRange( ABR, 1, 0, n-k, 1   );
-            auto A22 = ViewRange( ABR, 1, 1, n-k, n-k );
+            auto a21 = View( A, ind2, ind1 );
+            auto A22 = View( A, ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
@@ -835,17 +899,20 @@ UnblockedPivoted
         }
         else
         {
+            const IndexRange ind1( k,   k+2 ),
+                             ind2( k+2, n   );
+
             const Int from0 = k + pivot.from[0];
             const Int from1 = k + pivot.from[1];
             SymmetricSwap( LOWER, A, k,   from0, conjugate );
             SymmetricSwap( LOWER, A, k+1, from1, conjugate );
-            RowSwap( pPerm, k+0, from0 );
-            RowSwap( pPerm, k+1, from1 );
+            RowSwap( p, k+0, from0 );
+            RowSwap( p, k+1, from1 );
 
             // Rank-two update: A22 -= A21 inv(D11) A21'
-            auto D11 = ViewRange( ABR, 0, 0, 2,   2   );
-            auto A21 = ViewRange( ABR, 2, 0, n-k, 2   );
-            auto A22 = ViewRange( ABR, 2, 2, n-k, n-k );
+            auto D11 = View( A, ind1, ind1 );
+            auto A21 = View( A, ind2, ind1 );
+            auto A22 = View( A, ind2, ind2 );
             Y21 = A21;
             D11_STAR_STAR = D11;
             Symmetric2x2Solve( RIGHT, LOWER, D11_STAR_STAR, A21, conjugate );
@@ -858,14 +925,18 @@ UnblockedPivoted
             k += 2;
         }
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
+
+// TODO: Switch to simpler Cholesky panel pivoting scheme and make use
+//       of IndexRange
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
 inline void
 PanelPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   Base<F> gamma=0 )
@@ -879,7 +950,7 @@ PanelPivoted
             LogicError("A must be square");
         if( dSub.Height() != n-1 || dSub.Width() != 1 )
             LogicError("dSub is the wrong size" );
-        if( pPerm.Height() != n || pPerm.Width() != 1 )
+        if( p.Height() != n || p.Width() != 1 )
             LogicError("permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
@@ -899,7 +970,7 @@ PanelPivoted
             auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
             const auto diagMax = VectorMaxAbs( ABRBR.GetDiagonal() );
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
-            RowSwap( pPerm, k+off, k+off+diagMax.index );
+            RowSwap( p, k+off, k+off+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
@@ -915,7 +986,7 @@ PanelPivoted
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( pPerm, to, from );
+        RowSwap( p, to, from );
         RowSwap( X0, to-off, from-off );
         RowSwap( Y0, to-off, from-off );
 
@@ -981,12 +1052,12 @@ PanelPivoted
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 inline void
 PanelPivoted
 ( DistMatrix<F>& A, 
-  DistMatrix<F,MD,STAR>& dSub, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, 
+  AbstractDistMatrix<F>& dSub, 
+  AbstractDistMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
@@ -1000,7 +1071,7 @@ PanelPivoted
             LogicError("A must be square");
         if( dSub.Height() != n-1 || dSub.Width() != 1 )
             LogicError("dSub is the wrong size" );
-        if( pPerm.Height() != n || pPerm.Width() != 1 )
+        if( p.Height() != n || p.Width() != 1 )
             LogicError("permutation vector is the wrong size");
     )
     auto ABR = ViewRange( A, off, off, n, n );
@@ -1026,7 +1097,7 @@ PanelPivoted
             SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
-            RowSwap( pPerm, off+k, off+k+diagMax.index );
+            RowSwap( p, off+k, off+k+diagMax.index );
         }
         const auto pivot = ChoosePanelPivot( ABR, X0, Y0, pivotType, gamma );
         const Int from = off + pivot.from[pivot.nb-1];
@@ -1040,7 +1111,7 @@ PanelPivoted
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( pPerm, to, from );
+        RowSwap( p, to, from );
         RowSwap( X0, to-off, from-off );
         RowSwap( Y0, to-off, from-off );
 
@@ -1114,7 +1185,7 @@ PanelPivoted
 template<typename F>
 inline void
 BlockedPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
@@ -1126,15 +1197,15 @@ BlockedPivoted
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        pPerm.Resize( 0, 1 );
+        p.Resize( 0, 1 );
         return;
     }
     Zeros( dSub, n-1, 1 );
 
     // Initialize the permutation to the identity
-    pPerm.Resize( n, 1 );
+    p.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        pPerm.Set( i, 0, i );
+        p.Set( i, 0, i );
 
     Matrix<F> X, Y;
     const Int bsize = Blocksize();
@@ -1143,7 +1214,7 @@ BlockedPivoted
     {
         const Int nbProp = Min(bsize,n-k);
         PanelPivoted
-        ( A, dSub, pPerm, X, Y, nbProp, k, conjugate, pivotType, gamma );
+        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = X.Width();
 
         // Update the bottom-right panel
@@ -1156,36 +1227,37 @@ BlockedPivoted
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 inline void
 BlockedPivoted
-( DistMatrix<F>& A, 
-  DistMatrix<F,MD,STAR>& dSub, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, 
-  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  Base<F> gamma=0 )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& dSub,
+  AbstractDistMatrix<Int>& p, bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::BlockedPivoted");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     const Int n = A.Height();
     if( n == 0 )
     {
         dSub.Resize( 0, 1 );
-        pPerm.Resize( 0, 1 );
+        p.Resize( 0, 1 );
         return;
     }
-    dSub.SetRoot( A.DiagonalRoot(-1) );
-    dSub.AlignCols( A.DiagonalAlign(-1) );
     Zeros( dSub, n-1, 1 );
 
     // Initialize the permutation to the identity
-    pPerm.Resize( n, 1 );
-    for( Int iLoc=0; iLoc<pPerm.LocalHeight(); ++iLoc )
-        pPerm.SetLocal( iLoc, 0, pPerm.GlobalRow(iLoc) );
+    p.Resize( n, 1 );
+    if( p.IsLocalCol(0) )
+        for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
+            p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
     DistMatrix<F,MC,STAR> X(g);
     DistMatrix<F,MR,STAR> Y(g);
@@ -1195,7 +1267,7 @@ BlockedPivoted
     {
         const Int nbProp = Min(bsize,n-k);
         PanelPivoted
-        ( A, dSub, pPerm, X, Y, nbProp, k, conjugate, pivotType, gamma );
+        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = X.Width();
 
         // Update the bottom-right panel
@@ -1206,12 +1278,13 @@ BlockedPivoted
 
         k += nb;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
 inline void
 Pivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& pPerm, bool conjugate=false,
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
@@ -1220,21 +1293,19 @@ Pivoted
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        BlockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
+        BlockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
         break;
     default:
-        UnblockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
+        UnblockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 inline void
 Pivoted
-( DistMatrix<F>& A, 
-  DistMatrix<F,MD,STAR>& dSub, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, 
-  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
-  Base<F> gamma=0 )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, 
+  AbstractDistMatrix<Int>& p, bool conjugate=false, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::Pivoted"))
     switch( pivotType )
@@ -1242,10 +1313,10 @@ Pivoted
     case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C:
     case BUNCH_KAUFMAN_D:
-        BlockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
+        BlockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
         break;
     default:
-        UnblockedPivoted( A, dSub, pPerm, conjugate, pivotType, gamma );
+        UnblockedPivoted( A, dSub, p, conjugate, pivotType, gamma );
     }
 }
 

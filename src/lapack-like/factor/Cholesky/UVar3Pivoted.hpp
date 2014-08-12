@@ -33,10 +33,10 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
      
     for( Int k=0; k<n; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, n   );
-        const IndexRange indB( k,   n   );
-        const IndexRange indR( k,   n   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, n   ),
+                         indB( k,   n   ),
+                         indR( k,   n   );
 
         auto a12 = View( A, ind1, ind2 );
         auto A22 = View( A, ind2, ind2 );
@@ -66,34 +66,32 @@ UUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F>
 inline void
-UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
+UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(
         CallStackEntry cse("cholesky::UUnblockedPivoted");
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        AssertSameGrids( APre, pPre );
+        AssertSameGrids( APre, p );
     )
     const Int n = APre.Height();
     const Grid& g = APre.Grid();
 
-    pPre.Resize( n, 1 );
-
     DistMatrix<F> A(g);
-    DistMatrix<Int,VC,STAR> p(g);
     Copy( APre, A, READ_WRITE_PROXY );
-    Copy( pPre, p, WRITE_PROXY      );
 
     // Initialize the permutation to the identity
-    for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
-        p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
+    p.Resize( n, 1 );
+    if( p.IsLocalCol(0) )
+        for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
+            p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
     for( Int k=0; k<n; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, n   );
-        const IndexRange indB( k,   n   );
-        const IndexRange indR( k,   n   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, n   ),
+                         indB( k,   n   ),
+                         indR( k,   n   );
 
         auto a12 = View( A, ind1, ind2 );
         auto A22 = View( A, ind2, ind2 );
@@ -120,7 +118,6 @@ UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         Conjugate( a12 );
     }
     Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( p, pPre, RESTORE_WRITE_PROXY      );
 }
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
@@ -128,10 +125,12 @@ UUnblockedPivoted( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 template<typename F>
 inline void
 UPanelPivoted
-( Matrix<F>& A, Matrix<Int>& p, 
-  Matrix<F>& X, Matrix<F>& Y, Int bsize )
+( Matrix<F>& AFull, Matrix<Int>& p, 
+  Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
+    const Int nFull = AFull.Height();
+    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -144,11 +143,11 @@ UPanelPivoted
 
     for( Int k=0; k<bsize; ++k )
     {
-        const IndexRange ind0( 0,   k   );
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, n   );
-        const IndexRange indB( k,   n   );
-        const IndexRange indR( k,   n   );
+        const IndexRange ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         ind2( k+1, n   ),
+                         indB( k,   n   ),
+                         indR( k,   n   );
 
         auto a12 = View( A, ind1, ind2 );
         auto a1R = View( A, ind1, indR );
@@ -166,7 +165,7 @@ UPanelPivoted
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
-        HermitianSwap( UPPER, A, k, from );
+        HermitianSwap( UPPER, AFull, k+off, from+off );
         RowSwap( p, k, from );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -190,10 +189,12 @@ UPanelPivoted
 template<typename F>
 inline void
 UPanelPivoted
-( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
-  DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize )
+( DistMatrix<F>& AFull, AbstractDistMatrix<Int>& p, 
+  DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off )
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::UPanelPivoted"))
+    const Int nFull = AFull.Height();
+    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -208,11 +209,11 @@ UPanelPivoted
 
     for( Int k=0; k<bsize; ++k )
     {
-        const IndexRange ind0( 0,   k   );
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, n   );
-        const IndexRange indB( k,   n   );
-        const IndexRange indR( k,   n   );
+        const IndexRange ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         ind2( k+1, n   ),
+                         indB( k,   n   ),
+                         indR( k,   n   );
 
         auto a12 = View( A, ind1, ind2 );
         auto a1R = View( A, ind1, indR );
@@ -230,7 +231,7 @@ UPanelPivoted
         const Int from = k + pivot.from[0];
 
         // Apply the pivot
-        HermitianSwap( UPPER, A, k, from );
+        HermitianSwap( UPPER, AFull, k+off, from+off );
         RowSwap( p, k, from );
         RowSwap( XB0, 0, pivot.from[0] );
         RowSwap( YB0, 0, pivot.from[0] );
@@ -274,16 +275,15 @@ UVar3( Matrix<F>& A, Matrix<Int>& p )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange indB( k, n );
-        const IndexRange indR( k, n );
-        auto ABR = View( A, indB, indR );
+        const IndexRange indB( k, n ),
+                         indR( k, n );
         auto pB = View( p, indB, IndexRange(0,1) );
-        UPanelPivoted( ABR, pB, XB1, YB1, nb );
+        UPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
-        const IndexRange ind2( k+nb, n );
-        const IndexRange ind1Pan( 0,  nb  );
-        const IndexRange ind2Pan( nb, n-k );
+        const IndexRange ind2( k+nb, n ),
+                         ind1Pan( 0,  nb  ),
+                         ind2Pan( nb, n-k );
         auto A22 = View( A, ind2, ind2 );
         auto X21 = View( XB1, ind2Pan, ind1Pan );
         auto Y21 = View( YB1, ind2Pan, ind1Pan );
@@ -321,16 +321,15 @@ UVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange indB( k, n );
-        const IndexRange indR( k, n );
-        auto ABR = View( A, indB, indR );
+        const IndexRange indB( k, n ),
+                         indR( k, n );
         auto pB = View( p, indB, IndexRange(0,1) );
-        UPanelPivoted( ABR, pB, XB1, YB1, nb );
+        UPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
-        const IndexRange ind2( k+nb, n );
-        const IndexRange ind1Pan( 0,  nb  );
-        const IndexRange ind2Pan( nb, n-k );
+        const IndexRange ind2( k+nb, n ),
+                         ind1Pan( 0,  nb  ),
+                         ind2Pan( nb, n-k );
         auto A22 = View( A, ind2, ind2 );
         auto X21 = View( XB1, ind2Pan, ind1Pan );
         auto Y21 = View( YB1, ind2Pan, ind1Pan );

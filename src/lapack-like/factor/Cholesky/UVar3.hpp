@@ -88,8 +88,8 @@ UVar3( Matrix<F>& A )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const IndexRange ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
         auto A11 = View( A, ind1, ind1 );
         auto A12 = View( A, ind1, ind2 );
@@ -117,8 +117,8 @@ ReverseUVar3( Matrix<F>& A )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k );
-        const IndexRange ind1( k, k+nb );
+        const IndexRange ind0( 0, k    ),
+                         ind1( k, k+nb );
 
         auto A00 = View( A, ind0, ind0 );
         auto A01 = View( A, ind0, ind1 );
@@ -155,8 +155,8 @@ UVar3( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const IndexRange ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
         auto A11 = View( A, ind1, ind1 );
         auto A12 = View( A, ind1, ind2 );
@@ -209,8 +209,8 @@ ReverseUVar3( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const IndexRange ind0( 0, k    ),
+                         ind1( k, k+nb );
 
         auto A00 = View( A, ind0, ind0 );
         auto A01 = View( A, ind0, ind1 );

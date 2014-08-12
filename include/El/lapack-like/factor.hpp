@@ -172,7 +172,7 @@ struct LDLPivot
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate );
 template<typename F>
-void LDL( DistMatrix<F>& A, bool conjugate );
+void LDL( AbstractDistMatrix<F>& A, bool conjugate );
 
 // Return an implicit representation of a pivoted LDL factorization of A
 // ---------------------------------------------------------------------
@@ -181,11 +181,10 @@ void LDL
 ( Matrix<F>& A, Matrix<F>& dSub,
   Matrix<Int>& p, bool conjugate,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void LDL
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub,
-  DistMatrix<Int,UPerm,STAR>& p, bool conjugate,
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub,
+  AbstractDistMatrix<Int>& p, bool conjugate,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 
 namespace ldl {
@@ -195,17 +194,17 @@ namespace ldl {
 template<typename F>
 InertiaType Inertia
 ( const Matrix<Base<F>>& d, const Matrix<F>& dSub );
-// NOTE: Only instantiated for (U,V) = (MD,STAR)
-template<typename F,Dist U,Dist V>
+template<typename F>
 InertiaType Inertia
-( const DistMatrix<Base<F>,U,V>& d, const DistMatrix<F,U,V>& dSub );
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub );
 
 // Multiply vectors using an implicit representation of an LDL factorization
 // -------------------------------------------------------------------------
 template<typename F>
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated );
 template<typename F>
-void MultiplyAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated );
+void MultiplyAfter
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
 
 // Multiply vectors using an implicit representation of a pivoted LDL fact.
 // ------------------------------------------------------------------------
@@ -213,18 +212,18 @@ template<typename F>
 void MultiplyAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub,
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void MultiplyAfter
-( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub,
-  const DistMatrix<Int,UPerm,STAR>& p, DistMatrix<F>& B, bool conjugated );
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub,
+  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, bool conjugated );
 
 // Solve linear systems using an implicit LDL factorization
 // --------------------------------------------------------
 template<typename F>
 void SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated );
 template<typename F>
-void SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated );
+void SolveAfter
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, bool conjugated );
 
 // Solve linear system with the implicit representations of L, D, and P
 // --------------------------------------------------------------------
@@ -232,11 +231,10 @@ template<typename F>
 void SolveAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub,
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated );
-// NOTE: Only instantiated for UPerm=VC
-template<typename F,Dist UPerm>
+template<typename F>
 void SolveAfter
-( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub,
-  const DistMatrix<Int,UPerm,STAR>& p, DistMatrix<F>& B, bool conjugated );
+( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub,
+  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, bool conjugated );
 
 } // namespace ldl
 

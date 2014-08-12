@@ -32,9 +32,9 @@ LVar2( Matrix<F>& A )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const IndexRange ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
         auto A10 = View( A, ind1, ind0 );
         auto A11 = View( A, ind1, ind1 );
@@ -74,9 +74,9 @@ LVar2( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const IndexRange ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
         auto A10 = View( A, ind1, ind0 );
         auto A11 = View( A, ind1, ind1 );

@@ -199,7 +199,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG dSub, \
     ElInertiaType* inertia ) \
   { EL_TRY( *inertia = CReflect(ldl::Inertia( \
-      DM_MD_STAR_CAST_CONST(Base<F>,d),DM_MD_STAR_CAST_CONST(F,dSub))) ) } \
+      *CReflect(d), *CReflect(dSub))) ) } \
   /* LQ factorization 
      ================ */ \
   /* Return the packed LQ factorization */ \
@@ -507,7 +507,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLDL_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( LDL( *CReflect(A), false ) ) } \
   ElError ElLDLDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( LDL( DM_CAST(F,A), false ) ) } \
+  { EL_TRY( LDL( *CReflect(A), false ) ) } \
   /* Return the packed LDL factorization with pivoting */ \
   ElError ElLDLPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG dSub, ElMatrix_i p, \
@@ -517,15 +517,15 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLDLPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG dSub, ElDistMatrix_i p, \
     ElLDLPivotType pivotType ) \
-  { EL_TRY( LDL( DM_CAST(F,A), DM_MD_STAR_CAST(F,dSub), \
-                 DM_VC_STAR_CAST(Int,p), false, CReflect(pivotType) ) ) } \
+  { EL_TRY( LDL( *CReflect(A), *CReflect(dSub), \
+                 *CReflect(p), false, CReflect(pivotType) ) ) } \
   /* Multiply vectors after an unpivoted LDL factorization */ \
   ElError ElMultiplyAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( ldl::MultiplyAfter( *CReflect(A), *CReflect(B), false ) ) } \
   ElError ElMultiplyAfterLDLDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( ldl::MultiplyAfter( DM_CAST_CONST(F,A), DM_CAST(F,B), false ) ) } \
+  { EL_TRY( ldl::MultiplyAfter( *CReflect(A), *CReflect(B), false ) ) } \
   /* Multiply vectors after a pivoted LDL factorization */ \
   ElError ElMultiplyAfterLDLPiv_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
@@ -537,15 +537,14 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::MultiplyAfter( \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
+      *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), false ) ) } \
   /* Solve against vectors after an unpivoted LDL factorization */ \
   ElError ElSolveAfterLDL_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( ldl::SolveAfter( *CReflect(A), *CReflect(B), false ) ) } \
   ElError ElSolveAfterLDLDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( ldl::SolveAfter( DM_CAST_CONST(F,A), DM_CAST(F,B), false ) ) } \
+  { EL_TRY( ldl::SolveAfter( *CReflect(A), *CReflect(B), false ) ) } \
   /* Solve against vectors after a pivoted LDL factorization */ \
   ElError ElSolveAfterLDLPiv_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElConstMatrix_ ## SIG dSub, ElConstMatrix_i p, \
@@ -557,8 +556,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG dSub, \
     ElConstDistMatrix_i p, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( ldl::SolveAfter( \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,dSub), \
-      DM_VC_STAR_CAST_CONST(Int,p), DM_CAST(F,B), false ) ) } \
+      *CReflect(A), *CReflect(dSub), *CReflect(p), *CReflect(B), false ) ) } \
   /* LU factorization
      ================ */ \
   /* Rank-one LU factorization modification */ \

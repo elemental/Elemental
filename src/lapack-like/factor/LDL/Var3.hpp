@@ -98,14 +98,18 @@ Var3( Matrix<F>& A, bool conjugate=false )
 
 template<typename F>
 inline void
-Var3( DistMatrix<F>& A, bool conjugate=false )
+Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::Var3");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -147,6 +151,7 @@ Var3( DistMatrix<F>& A, bool conjugate=false )
 
         A21 = A21_VC_STAR;
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace ldl

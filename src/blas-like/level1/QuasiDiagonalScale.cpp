@@ -260,12 +260,12 @@ void RightQuasiDiagonalScale
     }
 }
 
-template<typename F,typename FMain,Dist U1,Dist V1,Dist U2,Dist V2>
+template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo, 
-  const DistMatrix<FMain,U1,V1>& d, const DistMatrix<F,U1,V1>& dSub, 
-  DistMatrix<F,U2,V2>& X, bool conjugated )
+  const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub, 
+  DistMatrix<F,U,V>& X, bool conjugated )
 {
     DEBUG_ONLY(CallStackEntry cse("QuasiDiagonalScale"))
     const Grid& g = X.Grid();
@@ -274,90 +274,84 @@ QuasiDiagonalScale
     if( side == LEFT )
     {
         const Int colStride = X.ColStride();
-        DistMatrix<FMain,U2,STAR> d_U2_STAR(g);
-        DistMatrix<F,U2,STAR> dSub_U2_STAR(g);
-        d_U2_STAR.AlignWith( X );
-        dSub_U2_STAR.AlignWith( X );
-        d_U2_STAR = d;
-        dSub_U2_STAR = dSub;
+        DistMatrix<FMain,U,STAR> d_U_STAR(g);
+        DistMatrix<F,U,STAR> dSub_U_STAR(g);
+        d_U_STAR.AlignWith( X );
+        dSub_U_STAR.AlignWith( X );
+        d_U_STAR = d;
+        dSub_U_STAR = dSub;
         if( colStride == 1 )
         {
             QuasiDiagonalScale
             ( side, uplo, 
-              d_U2_STAR.LockedMatrix(), dSub_U2_STAR.LockedMatrix(),
+              d_U_STAR.LockedMatrix(), dSub_U_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
         }
 
-        DistMatrix<FMain,U2,STAR> dPrev_U2_STAR(g), dNext_U2_STAR(g);
-        DistMatrix<F,U2,STAR> dSubPrev_U2_STAR(g), dSubNext_U2_STAR(g);
-        DistMatrix<F,U2,V2> XPrev(g), XNext(g);
+        DistMatrix<FMain,U,STAR> dPrev_U_STAR(g), dNext_U_STAR(g);
+        DistMatrix<F,U,STAR> dSubPrev_U_STAR(g), dSubNext_U_STAR(g);
+        DistMatrix<F,U,V> XPrev(g), XNext(g);
         const Int colAlignPrev = Mod(colAlign+1,colStride);
         const Int colAlignNext = Mod(colAlign-1,colStride);
-        dPrev_U2_STAR.AlignCols( colAlignPrev );
-        dNext_U2_STAR.AlignCols( colAlignNext );
-        dSubPrev_U2_STAR.AlignCols( colAlignPrev );
-        dSubNext_U2_STAR.AlignCols( colAlignNext );
+        dPrev_U_STAR.AlignCols( colAlignPrev );
+        dNext_U_STAR.AlignCols( colAlignNext );
+        dSubPrev_U_STAR.AlignCols( colAlignPrev );
+        dSubNext_U_STAR.AlignCols( colAlignNext );
         XPrev.Align( colAlignPrev, rowAlign );
         XNext.Align( colAlignNext, rowAlign );
-        dPrev_U2_STAR = d;
-        dNext_U2_STAR = d;
-        dSubPrev_U2_STAR = dSub;
-        dSubNext_U2_STAR = dSub;
+        dPrev_U_STAR = d;
+        dNext_U_STAR = d;
+        dSubPrev_U_STAR = dSub;
+        dSubNext_U_STAR = dSub;
         XPrev = X;
         XNext = X;
         LeftQuasiDiagonalScale
-        ( uplo, d_U2_STAR, dPrev_U2_STAR, dNext_U2_STAR,
-          dSub_U2_STAR, dSubPrev_U2_STAR, dSubNext_U2_STAR,
+        ( uplo, d_U_STAR, dPrev_U_STAR, dNext_U_STAR,
+          dSub_U_STAR, dSubPrev_U_STAR, dSubNext_U_STAR,
           X, XPrev, XNext, conjugated );
     }
     else
     {
         const Int rowStride = X.RowStride();
-        DistMatrix<FMain,V2,STAR> d_V2_STAR(g);
-        DistMatrix<F,V2,STAR> dSub_V2_STAR(g);
-        d_V2_STAR.AlignWith( X );
-        dSub_V2_STAR.AlignWith( X );
-        d_V2_STAR = d;
-        dSub_V2_STAR = dSub;
+        DistMatrix<FMain,V,STAR> d_V_STAR(g);
+        DistMatrix<F,V,STAR> dSub_V_STAR(g);
+        d_V_STAR.AlignWith( X );
+        dSub_V_STAR.AlignWith( X );
+        d_V_STAR = d;
+        dSub_V_STAR = dSub;
         if( rowStride == 1 )
         {
             QuasiDiagonalScale
             ( side, uplo, 
-              d_V2_STAR.LockedMatrix(), dSub_V2_STAR.LockedMatrix(),
+              d_V_STAR.LockedMatrix(), dSub_V_STAR.LockedMatrix(),
               X.Matrix(), conjugated );
             return;
         }
 
-        DistMatrix<FMain,V2,STAR> dPrev_V2_STAR(g), dNext_V2_STAR(g);
-        DistMatrix<F,V2,STAR> dSubPrev_V2_STAR(g), dSubNext_V2_STAR(g);
-        DistMatrix<F,U2,V2> XPrev(g), XNext(g);
+        DistMatrix<FMain,V,STAR> dPrev_V_STAR(g), dNext_V_STAR(g);
+        DistMatrix<F,V,STAR> dSubPrev_V_STAR(g), dSubNext_V_STAR(g);
+        DistMatrix<F,U,V> XPrev(g), XNext(g);
         const Int rowAlignPrev = Mod(rowAlign+1,rowStride);
         const Int rowAlignNext = Mod(rowAlign-1,rowStride);
-        dPrev_V2_STAR.AlignCols( rowAlignPrev );
-        dNext_V2_STAR.AlignCols( rowAlignNext );
-        dSubPrev_V2_STAR.AlignCols( rowAlignPrev );
-        dSubNext_V2_STAR.AlignCols( rowAlignNext );
+        dPrev_V_STAR.AlignCols( rowAlignPrev );
+        dNext_V_STAR.AlignCols( rowAlignNext );
+        dSubPrev_V_STAR.AlignCols( rowAlignPrev );
+        dSubNext_V_STAR.AlignCols( rowAlignNext );
         XPrev.Align( colAlign, rowAlignPrev );
         XNext.Align( colAlign, rowAlignNext );
-        dPrev_V2_STAR = d;
-        dNext_V2_STAR = d;
-        dSubPrev_V2_STAR = dSub;
-        dSubNext_V2_STAR = dSub;
+        dPrev_V_STAR = d;
+        dNext_V_STAR = d;
+        dSubPrev_V_STAR = dSub;
+        dSubNext_V_STAR = dSub;
         XPrev = X;
         XNext = X;
         RightQuasiDiagonalScale
-        ( uplo, d_V2_STAR, dPrev_V2_STAR, dNext_V2_STAR,
-          dSub_V2_STAR, dSubPrev_V2_STAR, dSubNext_V2_STAR,
+        ( uplo, d_V_STAR, dPrev_V_STAR, dNext_V_STAR,
+          dSub_V_STAR, dSubPrev_V_STAR, dSubNext_V_STAR,
           X, XPrev, XNext, conjugated );
     }
 }
-
-#define DIST_PROTO_INNER(F,FMain,U,V,W,Z) \
-  template void QuasiDiagonalScale \
-  ( LeftOrRight side, UpperOrLower uplo, \
-    const DistMatrix<FMain,U,V>& d, const DistMatrix<F,U,V>& dSub, \
-          DistMatrix<F,    W,Z>& X, bool conjugated );
 
 #define PROTO_TYPES_DIST(F,FMain,U,V) \
   template void LeftQuasiDiagonalScale \
@@ -384,19 +378,10 @@ QuasiDiagonalScale
     const DistMatrix<F,U,V>& XPrev, \
     const DistMatrix<F,U,V>& XNext, \
           bool conjugated ); \
-  DIST_PROTO_INNER(F,FMain,U,V,MC,  MR  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,MC,  STAR) \
-  DIST_PROTO_INNER(F,FMain,U,V,MD,  STAR) \
-  DIST_PROTO_INNER(F,FMain,U,V,MR,  MC  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,MR,  STAR) \
-  DIST_PROTO_INNER(F,FMain,U,V,STAR,MC  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,STAR,MD  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,STAR,MR  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,STAR,STAR) \
-  DIST_PROTO_INNER(F,FMain,U,V,STAR,VC  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,STAR,VR  ) \
-  DIST_PROTO_INNER(F,FMain,U,V,VC,  STAR) \
-  DIST_PROTO_INNER(F,FMain,U,V,VR,  STAR)
+  template void QuasiDiagonalScale \
+  ( LeftOrRight side, UpperOrLower uplo, \
+    const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub, \
+          DistMatrix<F,U,V>& X, bool conjugated );
 
 #define PROTO_TYPES(F,FMain) \
   template void QuasiDiagonalScale \

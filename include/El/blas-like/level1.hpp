@@ -432,11 +432,11 @@ void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d, const Matrix<F>& dSub,
   Matrix<F>& X, bool conjugated=false );
-template<typename F,typename FMain,Dist U1,Dist V1,Dist U2,Dist V2>
+template<typename F,typename FMain,Dist U,Dist V>
 void QuasiDiagonalScale
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<FMain,U1,V1>& d, const DistMatrix<F,U1,V1>& dSub,
-  DistMatrix<F,U2,V2>& X, bool conjugated=false );
+  const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub,
+  DistMatrix<F,U,V>& X, bool conjugated=false );
 
 template<typename F,typename FMain,Dist U,Dist V>
 void LeftQuasiDiagonalScale
@@ -474,12 +474,12 @@ QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo,
   const Matrix<FMain>& d, const Matrix<F>& dSub,
   Matrix<F>& X, bool conjugated=false );
-template<typename F,typename FMain,Dist U1,Dist V1,Dist U2,Dist V2>
+template<typename F,typename FMain,Dist U,Dist V>
 void
 QuasiDiagonalSolve
 ( LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<FMain,U1,V1>& d, const DistMatrix<F,U1,V1>& dSub,
-  DistMatrix<F,U2,V2>& X, bool conjugated=false );
+  const AbstractDistMatrix<FMain>& d, const AbstractDistMatrix<F>& dSub,
+  DistMatrix<F,U,V>& X, bool conjugated=false );
 
 template<typename F,typename FMain,Dist U,Dist V>
 void

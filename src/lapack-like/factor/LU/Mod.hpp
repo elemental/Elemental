@@ -29,7 +29,7 @@ namespace El {
 
 template<typename F>
 void LUMod
-( Matrix<F>& A, Matrix<Int>& perm, 
+( Matrix<F>& A, Matrix<Int>& p, 
   const Matrix<F>& u, const Matrix<F>& v, bool conjugate, Base<F> tau )
 {
     DEBUG_ONLY(CallStackEntry cse("LUMod"))
@@ -46,7 +46,7 @@ void LUMod
 
     // w := inv(L) P u
     auto w( u );
-    PermuteRows( w, perm );
+    PermuteRows( w, p );
     Trsv( LOWER, NORMAL, UNIT, A, w );
 
     // Maintain an external vector for the temporary subdiagonal of U
@@ -64,10 +64,10 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
-        const IndexRange indi( i, i+1 );
-        const IndexRange indip1( i+1, i+2 );
-        const IndexRange indB( i+2, m );
-        const IndexRange indR( i+1, n );
+        const IndexRange indi( i, i+1 ),
+                         indip1( i+1, i+2 ),
+                         indB( i+2, m ),
+                         indR( i+1, n );
 
         auto lBi   = View( A, indB,   indi   );
         auto lBip1 = View( A, indB,   indip1 );
@@ -77,7 +77,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( perm, i, i+1 );
+            RowSwap( p, i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -182,10 +182,10 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
-        const IndexRange indi( i, i+1 );
-        const IndexRange indip1( i+1, i+2 );
-        const IndexRange indB( i+2, m );
-        const IndexRange indR( i+1, n );
+        const IndexRange indi( i, i+1 ),
+                         indip1( i+1, i+2 ),
+                         indB( i+2, m ),
+                         indR( i+1, n );
 
         auto lBi   = View( A, indB,   indi   );
         auto lBip1 = View( A, indB,   indip1 );
@@ -195,7 +195,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( perm, i, i+1 );
+            RowSwap( p, i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -272,20 +272,16 @@ void LUMod
 
 template<typename F>
 void LUMod
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& permPre, 
-  const AbstractDistMatrix<F>& uPre, const AbstractDistMatrix<F>& vPre, 
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p, 
+  const AbstractDistMatrix<F>& u, const AbstractDistMatrix<F>& v, 
   bool conjugate, Base<F> tau )
 {
     DEBUG_ONLY(CallStackEntry cse("LUMod"))
     const Grid& g = APre.Grid();
     typedef Base<F> Real;
 
-    DistMatrix<F> A(g), u(g), v(g);
-    DistMatrix<Int,VC,STAR> perm(g);
-    Copy( APre,    A,    READ_WRITE_PROXY );
-    Copy( permPre, perm, READ_WRITE_PROXY );
-    Copy( uPre,    u,    READ_PROXY );
-    Copy( vPre,    v,    READ_PROXY );
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -297,11 +293,13 @@ void LUMod
         LogicError("u is expected to be a conforming column vector");
     if( v.Height() != n || v.Width() != 1 )
         LogicError("v is expected to be a conforming column vector");
-    AssertSameGrids( A, perm, u, v );
+    AssertSameGrids( A, p, u, v );
 
     // w := inv(L) P u
-    auto w( u );
-    PermuteRows( w, perm );
+    // TODO: Consider locally maintaining all of w to avoid unnecessarily 
+    //       broadcasting at every iteration.
+    DistMatrix<F> w( u );
+    PermuteRows( w, p );
     Trsv( LOWER, NORMAL, UNIT, A, w );
 
     // Maintain an external vector for the temporary subdiagonal of U
@@ -309,9 +307,6 @@ void LUMod
     uSub.SetRoot( A.DiagonalRoot(-1) );
     uSub.AlignCols( A.DiagonalAlign(-1) );
     Zeros( uSub, minDim-1, 1 );
-
-    // TODO: Consider locally maintaining all of w to avoid unnecessarily 
-    //       broadcasting at every iteration.
 
     // Reduce w to a multiple of e0
     for( Int i=minDim-2; i>=0; --i )
@@ -324,10 +319,10 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
-        const IndexRange indB( i+2, m );
-        const IndexRange indR( i+1, n );
-        const IndexRange indi( i, i+1 );
-        const IndexRange indip1( i+1, i+2 );
+        const IndexRange indB( i+2, m ),
+                         indR( i+1, n ),
+                         indi( i, i+1 ),
+                         indip1( i+1, i+2 );
 
         auto lBi   = View( A, indB,   indi   );
         auto lBip1 = View( A, indB,   indip1 );
@@ -337,7 +332,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( perm, i, i+1 );
+            RowSwap( p, i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -443,10 +438,10 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
-        const IndexRange indB( i+2, m );
-        const IndexRange indR( i+1, n );
-        const IndexRange indi( i, i+1 );
-        const IndexRange indip1( i+1, i+2 );
+        const IndexRange indB( i+2, m ),
+                         indR( i+1, n ),
+                         indi( i, i+1 ),
+                         indip1( i+1, i+2 );
 
         auto lBi   = View( A, indB,   indi   );
         auto lBip1 = View( A, indB,   indip1 );
@@ -456,7 +451,7 @@ void LUMod
         if( pivot )
         {
             // P := P_i P
-            RowSwap( perm, i, i+1 );
+            RowSwap( p, i, i+1 );
 
             // Simultaneously perform 
             //   U := P_i U and
@@ -528,8 +523,7 @@ void LUMod
             Axpy( -gamma, uiR, uip1R );
         }
     }
-    Copy( A,    APre,    RESTORE_READ_WRITE_PROXY );
-    Copy( perm, permPre, RESTORE_READ_WRITE_PROXY );
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace El

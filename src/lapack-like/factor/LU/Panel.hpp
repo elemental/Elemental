@@ -29,9 +29,9 @@ void Panel( Matrix<F>& A, Matrix<Int>& pivots )
 
     for( Int k=0; k<n; ++k )
     {
-        const IndexRange ind1( k, k+1 );
-        const IndexRange ind2Vert( k+1, m );
-        const IndexRange ind2Horz( k+1, n );
+        const IndexRange ind1( k, k+1 ),
+                         ind2Vert( k+1, m ),
+                         ind2Horz( k+1, n );
 
         auto alpha11 = View( A, ind1,     ind1     );
         auto a12     = View( A, ind1,     ind2Horz );
@@ -87,9 +87,9 @@ void Panel
 
     for( Int k=0; k<n; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, n   );
-        const IndexRange ind2HorzB( k+1, nB );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, n   ),
+                         ind2HorzB( k+1, nB );
 
         auto alpha11 = View( A, ind1, ind1 );
         auto a12     = View( A, ind1, ind2 );

@@ -32,19 +32,25 @@ void SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 }
 
 template<typename F> 
-void SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated )
+void SolveAfter
+( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        AssertSameGrids( A, B );
-        if( A.Height() != A.Width() )
+        AssertSameGrids( APre, B );
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        if( A.Height() != B.Height() )
+        if( APre.Height() != B.Height() )
             LogicError("A and B must be the same height");
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
+
+    DistMatrix<F> A(APre.Grid());
+    Copy( APre, A, READ_PROXY );
+
     const auto d = A.GetDiagonal();
+
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     DiagonalSolve( LEFT, NORMAL, d, B, checkIfSingular );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
@@ -53,7 +59,7 @@ void SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated )
 template<typename F> 
 void SolveAfter
 ( const Matrix<F>& A, const Matrix<F>& dSub, 
-  const Matrix<Int>& pPerm, Matrix<F>& B, bool conjugated )
+  const Matrix<Int>& p, Matrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
@@ -61,50 +67,57 @@ void SolveAfter
             LogicError("A must be square");
         if( A.Height() != B.Height() )
             LogicError("A and B must be the same height");
-        if( pPerm.Height() != A.Height() )
-            LogicError("A and pPerm must be the same height");
+        if( p.Height() != A.Height() )
+            LogicError("A and p must be the same height");
         // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const auto d = A.GetDiagonal();
 
-    Matrix<Int> pInvPerm;
-    InvertPermutation( pPerm, pInvPerm );
+    Matrix<Int> pInv;
+    InvertPermutation( p, pInv );
 
-    PermuteRows( B, pPerm, pInvPerm );
+    PermuteRows( B, p, pInv );
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-    PermuteRows( B, pInvPerm, pPerm );
+    PermuteRows( B, pInv, p );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void SolveAfter
-( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, 
-  const DistMatrix<Int,UPerm,STAR>& pPerm, DistMatrix<F>& B, bool conjugated )
+( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& dSub, 
+  const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& BPre, 
+  bool conjugated )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lu::SolveAfter");
-        AssertSameGrids( A, B, pPerm );
-        if( A.Height() != A.Width() )
+        AssertSameGrids( APre, BPre, p );
+        if( APre.Height() != APre.Width() )
             LogicError("A must be square");
-        if( A.Height() != B.Height() )
+        if( APre.Height() != BPre.Height() )
             LogicError("A and B must be the same height");
-        if( A.Height() != pPerm.Height() )
-            LogicError("A and pPerm must be the same height");
+        if( APre.Height() != p.Height() )
+            LogicError("A and p must be the same height");
         // TODO: Check for dSub
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g), B(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( BPre, B, READ_PROXY );
+
     const auto d = A.GetDiagonal();
 
-    DistMatrix<Int,UPerm,STAR> pInvPerm(pPerm.Grid());
-    InvertPermutation( pPerm, pInvPerm );
+    DistMatrix<Int,VC,STAR> pInv(p.Grid());
+    InvertPermutation( p, pInv );
 
-    PermuteRows( B, pPerm, pInvPerm );
+    PermuteRows( B, p, pInv );
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-    PermuteRows( B, pInvPerm, pPerm );
+    PermuteRows( B, pInv, p );
 }
 
 } // namespace ldl

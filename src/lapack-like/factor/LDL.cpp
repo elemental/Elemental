@@ -26,7 +26,7 @@ void LDL( Matrix<F>& A, bool conjugate )
 }
 
 template<typename F>
-void LDL( DistMatrix<F>& A, bool conjugate )
+void LDL( AbstractDistMatrix<F>& A, bool conjugate )
 {
     DEBUG_ONLY(CallStackEntry cse("LDL"))
     ldl::Var3( A, conjugate );
@@ -35,54 +35,58 @@ void LDL( DistMatrix<F>& A, bool conjugate )
 template<typename F>
 void LDL
 ( Matrix<F>& A, Matrix<F>& dSub, 
-  Matrix<Int>& pPerm, bool conjugate, LDLPivotType pivotType )
+  Matrix<Int>& p, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("LDL"))
-    ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
+    ldl::Pivoted( A, dSub, p, conjugate, pivotType );
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 void LDL
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, bool conjugate, LDLPivotType pivotType )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, 
+  AbstractDistMatrix<Int>& p, bool conjugate, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("LDL"))
-    ldl::Pivoted( A, dSub, pPerm, conjugate, pivotType );
+    ldl::Pivoted( A, dSub, p, conjugate, pivotType );
 }
 
 #define PROTO(F) \
   template void LDL( Matrix<F>& A, bool conjugate ); \
-  template void LDL( DistMatrix<F>& A, bool conjugate ); \
+  template void LDL( AbstractDistMatrix<F>& A, bool conjugate ); \
   template void LDL \
   ( Matrix<F>& A, Matrix<F>& dSub, \
-    Matrix<Int>& pPerm, bool conjugate, LDLPivotType pivotType ); \
+    Matrix<Int>& p, bool conjugate, LDLPivotType pivotType ); \
   template void LDL \
-  ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, \
-    DistMatrix<Int,VC,STAR>& pPerm, bool conjugate, LDLPivotType pivotType ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& dSub, \
+    AbstractDistMatrix<Int>& p, bool conjugate, LDLPivotType pivotType ); \
   template InertiaType ldl::Inertia \
   ( const Matrix<Base<F>>& d, const Matrix<F>& dSub ); \
   template InertiaType ldl::Inertia \
-  ( const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F,MD,STAR>& dSub ); \
+  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub ); \
   template void ldl::MultiplyAfter \
   ( const Matrix<F>& A, Matrix<F>& B, bool conjugated ); \
   template void ldl::MultiplyAfter \
-  ( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated ); \
+  ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    bool conjugated ); \
   template void ldl::MultiplyAfter \
   ( const Matrix<F>& A, const Matrix<F>& dSub, \
-    const Matrix<Int>& pPerm, Matrix<F>& B, bool conjugated ); \
+    const Matrix<Int>& p, Matrix<F>& B, bool conjugated ); \
   template void ldl::MultiplyAfter \
-  ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, \
-    const DistMatrix<Int,VC,STAR>& pPerm, DistMatrix<F>& B, bool conjugated ); \
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub, \
+    const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, \
+    bool conjugated ); \
   template void ldl::SolveAfter \
   ( const Matrix<F>& A, Matrix<F>& B, bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated ); \
+  ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    bool conjugated ); \
   template void ldl::SolveAfter \
   ( const Matrix<F>& A, const Matrix<F>& dSub, \
-    const Matrix<Int>& pPerm, Matrix<F>& B, bool conjugated ); \
+    const Matrix<Int>& p, Matrix<F>& B, bool conjugated ); \
   template void ldl::SolveAfter \
-  ( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, \
-    const DistMatrix<Int,VC,STAR>& pPerm, DistMatrix<F>& B, bool conjugated );
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dSub, \
+    const AbstractDistMatrix<Int>& p, AbstractDistMatrix<F>& B, \
+     bool conjugated );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

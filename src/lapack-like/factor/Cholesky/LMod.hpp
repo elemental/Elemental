@@ -39,8 +39,8 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
     const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F& lambda11 = LBuf[k+k*ldl];
         auto l21 = View( L, ind2, ind1 );
@@ -95,8 +95,8 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F lambda11 = L.Get( k, k );
         auto l21 = View( L, ind2, ind1 );
@@ -155,8 +155,8 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
     const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F& lambda11 = LBuf[k+k*ldl];
         auto l21 = View( L, ind2, ind1 );
@@ -214,8 +214,8 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 );
-        const IndexRange ind2( k+1, m   );
+        const IndexRange ind1( k,   k+1 ),
+                         ind2( k+1, m   );
 
         F lambda11 = L.Get( k, k );
         auto l21 = View( L, ind2, ind1 );

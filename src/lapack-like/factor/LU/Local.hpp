@@ -25,9 +25,9 @@ UnbObj( Matrix<F>& A )
     const Int minDim = Min(m,n);
     for( Int k=0; k<minDim; ++k )
     {
-        const IndexRange ind1( k, k+1 );
-        const IndexRange ind2Vert( k+1, m );
-        const IndexRange ind2Horz( k+1, n );
+        const IndexRange ind1( k, k+1 ),
+                         ind2Vert( k+1, m ),
+                         ind2Horz( k+1, n );
 
         auto alpha11 = View( A, ind1,     ind1     );
         auto a12     = View( A, ind1,     ind2Horz );

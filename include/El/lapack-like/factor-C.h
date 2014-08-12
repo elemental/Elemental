@@ -326,7 +326,6 @@ ElError ElLDL_d( ElMatrix_d A );
 ElError ElLDL_c( ElMatrix_c A, bool conjugate );
 ElError ElLDL_z( ElMatrix_z A, bool conjugate );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElLDLDist_s( ElDistMatrix_s A );
 ElError ElLDLDist_d( ElDistMatrix_d A );
 ElError ElLDLDist_c( ElDistMatrix_c A, bool conjugate );
@@ -345,9 +344,6 @@ ElError ElLDLPiv_z
 ( ElMatrix_z A, ElMatrix_z dSub, ElMatrix_i p, bool conjugate, 
   ElLDLPivotType pivotType );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, 
-         'dSub' must be in a [MD,STAR] distribution, and 
-         'p' must be in a [VC,STAR] distribution */
 ElError ElLDLPivDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s dSub, ElDistMatrix_i p, 
   ElLDLPivotType pivotType );
@@ -372,7 +368,6 @@ ElError ElInertiaAfterLDL_c
 ElError ElInertiaAfterLDL_z
 ( ElConstMatrix_d d, ElConstMatrix_z dSub, ElInertiaType* inertia );
 
-/* NOTE: 'd' and 'dSub' must be in [MD,STAR] distributions */
 ElError ElInertiaAfterLDLDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, ElInertiaType* inertia );
 ElError ElInertiaAfterLDLDist_d
@@ -389,7 +384,6 @@ ElError ElMultiplyAfterLDL_d( ElConstMatrix_d A, ElMatrix_d B );
 ElError ElMultiplyAfterLDL_c( ElConstMatrix_c A, ElMatrix_c B, bool conjugate );
 ElError ElMultiplyAfterLDL_z( ElConstMatrix_z A, ElMatrix_z B, bool conjugate );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions */
 ElError ElMultiplyAfterLDLDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s B );
 ElError ElMultiplyAfterLDLDist_d
@@ -412,9 +406,6 @@ ElError ElMultiplyAfterLDLPiv_z
 ( ElConstMatrix_z A, ElConstMatrix_z dSub, ElConstMatrix_i p, ElMatrix_z B, 
   bool conjugate );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         'dSub' must be in a [MD,STAR] distribution and
-         'p' must be in a [VC,STAR] distribution */
 ElError ElMultiplyAfterLDLPivDist_s
 ( ElConstDistMatrix_s A, ElConstDistMatrix_s dSub, ElConstDistMatrix_i p, 
   ElDistMatrix_s B );
