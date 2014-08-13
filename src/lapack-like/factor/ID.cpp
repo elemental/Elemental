@@ -101,8 +101,8 @@ BusingerGolub
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    auto Rl = LockedView( A, IndexRange(0,numSteps), IndexRange(0,numSteps) );
-    auto RR = LockedView( A, IndexRange(0,numStpes), IndexRange(numStpes,n) );
+    auto RL = LockedView( A, IndexRange(0,numSteps), IndexRange(0,numSteps) );
+    auto RR = LockedView( A, IndexRange(0,numSteps), IndexRange(numSteps,n) );
     Z = RR;
     PseudoTrsm( RL, Z, pinvTol );
 }
