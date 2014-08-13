@@ -22,20 +22,21 @@ void ApplyQ
     DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
-
     const bool applyDFirst = normal==onLeft;
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+
+    auto BTop  = View( B, IndexRange(0,minDim), IndexRange(0,n     ) );
+    auto BLeft = View( B, IndexRange(0,m     ), IndexRange(0,minDim) );
+
     if( applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
 
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -46,66 +47,60 @@ void ApplyQ
     if( !applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
 }
 
-template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
+template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t, 
-  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& tPre, 
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
-
     const bool applyDFirst = normal==onLeft;
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g), B(g);
+    DistMatrix<F,MD,STAR> t(g);
+    Copy( APre, A, READ_PROXY );
+    t.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    Copy( tPre, t, READ_PROXY );
+    Copy( BPre, B, READ_WRITE_PROXY );
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+
+    auto BTop  = View( B, IndexRange(0,minDim), IndexRange(0,n     ) );
+    auto BLeft = View( B, IndexRange(0,m     ), IndexRange(0,minDim) );
+
     if( applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
 
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation =  ( normal ? CONJUGATED : UNCONJUGATED );
-
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot() );
-    tDiag.AlignCols( A.DiagonalAlign() );
-    tDiag = t;
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, tDiag, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, t, B );
 
     if( !applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
+    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace qr

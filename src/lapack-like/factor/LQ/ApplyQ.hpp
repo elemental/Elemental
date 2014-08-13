@@ -22,20 +22,21 @@ void ApplyQ
     DEBUG_ONLY(CallStackEntry cse("lq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
-
     const bool applyDFirst = normal!=onLeft;
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+
+    auto BTop  = View( B, IndexRange(0,minDim), IndexRange(0,n     ) );
+    auto BLeft = View( B, IndexRange(0,m     ), IndexRange(0,minDim) );
+
     if( applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
 
     const ForwardOrBackward direction = ( normal==onLeft ? FORWARD : BACKWARD );
@@ -46,15 +47,9 @@ void ApplyQ
     if( !applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
 }
 
@@ -67,8 +62,9 @@ void ApplyQ
     DEBUG_ONLY(CallStackEntry cse("lq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
+    const bool applyDFirst = normal!=onLeft;
+
     const Grid& g = APre.Grid();
-    
     DistMatrix<F> A(g), B(g);
     DistMatrix<F,MD,STAR> t(g);
     Copy( APre, A, READ_PROXY );
@@ -77,19 +73,19 @@ void ApplyQ
     Copy( tPre, t, READ_PROXY       );
     Copy( BPre, B, READ_WRITE_PROXY );
 
-    const bool applyDFirst = normal!=onLeft;
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+
+    auto BTop  = View( B, IndexRange(0,minDim), IndexRange(0,n     ) );
+    auto BLeft = View( B, IndexRange(0,m     ), IndexRange(0,minDim) );
+
     if( applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
 
     const ForwardOrBackward direction = ( normal==onLeft ? FORWARD : BACKWARD );
@@ -101,15 +97,9 @@ void ApplyQ
     if( !applyDFirst )
     {
         if( onLeft )
-        {
-            auto BTop = View( B, 0, 0, d.Height(), B.Width() );
             DiagonalScale( side, orientation, d, BTop );
-        }
         else
-        {
-            auto BLeft = View( B, 0, 0, B.Height(), d.Height() );
             DiagonalScale( side, orientation, d, BLeft );
-        }
     }
     Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }

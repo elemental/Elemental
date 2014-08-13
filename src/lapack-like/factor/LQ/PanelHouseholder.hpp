@@ -141,7 +141,7 @@ PanelHouseholder
             alpha11.SetLocal(0,0,alpha);
     }
     // Form d and rescale L
-    auto L = View( A, 0, 0, m, minDim );
+    auto L = View( A, IndexRange(0,m), IndexRange(0,minDim) );
     Copy( L.GetRealPartOfDiagonal(), d );
     auto sgn = []( Real delta ) 
                { return delta >= Real(0) ? Real(1) : Real(-1); };
@@ -151,7 +151,7 @@ PanelHouseholder
 
 template<typename F>
 inline void
-PanelHouseholder( DistMatrix<F>& A )
+PanelHouseholder( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
     DistMatrix<F,MD,STAR> t(A.Grid());

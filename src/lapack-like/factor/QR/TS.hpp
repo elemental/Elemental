@@ -14,10 +14,14 @@ namespace El {
 namespace qr {
 namespace ts {
 
-template<typename F,Dist U>
-void Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
+template<typename F>
+void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ts::Reduce"))
+    DEBUG_ONLY(
+        CallStackEntry cse("qr::ts::Reduce");
+        if( A.RowDist() != STAR )
+            LogicError("Invalid row distribution for TSQR");
+    )
     const Int m =  A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
@@ -79,10 +83,12 @@ void Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
     }
 }
 
-template<typename F,Dist U>
+template<typename F>
 Matrix<F>&
-RootQR( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
+RootQR( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
@@ -93,10 +99,12 @@ RootQR( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
         return treeData.QRList.back();
 }
 
-template<typename F,Dist U>
+template<typename F>
 const Matrix<F>&
-RootQR( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
+RootQR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
@@ -107,10 +115,12 @@ RootQR( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
         return treeData.QRList.back();
 }
 
-template<typename F,Dist U>
+template<typename F>
 inline Matrix<F>&
-RootPhases( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
+RootPhases( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
@@ -121,10 +131,12 @@ RootPhases( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
         return treeData.tList.back();
 }
 
-template<typename F,Dist U>
+template<typename F>
 inline const Matrix<F>&
-RootPhases( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
+RootPhases( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
@@ -135,10 +147,12 @@ RootPhases( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
         return treeData.tList.back();
 }
 
-template<typename F,Dist U>
+template<typename F>
 inline Matrix<Base<F>>&
-RootSignature( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
+RootSignature( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
@@ -149,10 +163,12 @@ RootSignature( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
         return treeData.dList.back();
 }
 
-template<typename F,Dist U>
+template<typename F>
 inline const Matrix<Base<F>>&
-RootSignature( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
+RootSignature( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     const Int rank = mpi::Rank( A.ColComm() );
     if( rank != 0 )
@@ -163,10 +179,14 @@ RootSignature( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
         return treeData.dList.back();
 }
 
-template<typename F,Dist U>
-void Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
+template<typename F>
+void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
-    DEBUG_ONLY(CallStackEntry cse("qr::ts::Scatter"))
+    DEBUG_ONLY(
+        CallStackEntry cse("qr::ts::Scatter");
+        if( A.RowDist() != STAR )
+            LogicError("Invalid row distribution for TSQR");
+    )
     const Int m =  A.Height();
     const Int n = A.Width();
     const mpi::Comm colComm = A.ColComm();
@@ -228,10 +248,12 @@ void Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
     ApplyQ( LEFT, NORMAL, treeData.QR0, treeData.t0, treeData.d0, A.Matrix() );
 }
 
-template<typename F,Dist U>
+template<typename F>
 inline DistMatrix<F,STAR,STAR>
-FormR( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
+FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Grid& g = A.Grid();
     DistMatrix<F,CIRC,CIRC> RRoot(g);
     if( A.ColRank() == 0 )
@@ -249,10 +271,12 @@ FormR( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData )
 }
 
 // NOTE: This is destructive
-template<typename F,Dist U>
+template<typename F>
 inline void
-FormQ( DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
+FormQ( AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     const Int p = mpi::Size( A.ColComm() );
     if( p == 1 )
     {
@@ -278,9 +302,11 @@ FormQ( DistMatrix<F,U,STAR>& A, TreeData<F>& treeData )
 
 } // namespace ts
 
-template<typename F,Dist U>
-TreeData<F> TS( const DistMatrix<F,U,STAR>& A )
+template<typename F>
+TreeData<F> TS( const AbstractDistMatrix<F>& A )
 {
+    if( A.RowDist() != STAR )
+        LogicError("Invalid row distribution for TSQR");
     TreeData<F> treeData;
     treeData.QR0 = A.LockedMatrix();
     QR( treeData.QR0, treeData.t0, treeData.d0 );
@@ -297,11 +323,11 @@ TreeData<F> TS( const DistMatrix<F,U,STAR>& A )
     return treeData;
 }
 
-template<typename F,Dist U>
-void ExplicitTS( DistMatrix<F,U,STAR>& A, DistMatrix<F,STAR,STAR>& R )
+template<typename F>
+void ExplicitTS( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R )
 {
     auto treeData = TS( A );
-    R = ts::FormR( A, treeData );
+    Copy( ts::FormR( A, treeData ), R );
     ts::FormQ( A, treeData );
 }
 

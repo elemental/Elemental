@@ -325,8 +325,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElQRDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
     ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d ) \
-  { EL_TRY( QR( \
-      DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d) ) ) } \
+  { EL_TRY( QR( *CReflect(A), *CReflect(t), *CReflect(d) ) ) } \
   /* Return the packed QR factorization (with column pivoting) */ \
   ElError ElQRColPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, \
@@ -336,9 +335,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElQRColPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, \
     ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElDistMatrix_i p ) \
-  { EL_TRY( QR( \
-      DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d), \
-      DM_VR_STAR_CAST(Int,p) ) ) } \
+  { EL_TRY( QR( *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(p) ) ) } \
   /* Return the packed QR factorization (with column pivoting, eXpert) */ \
   ElError ElQRColPivX_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG t, ElMatrix_ ## SIGBASE d, \
@@ -351,15 +348,15 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElDistMatrix_ ## SIG t, ElDistMatrix_ ## SIGBASE d, ElDistMatrix_i p, \
     ElQRCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( QR( \
-      DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d), \
-      DM_VR_STAR_CAST(Int,p), CReflect(ctrl) ) ) } \
+      *CReflect(A), *CReflect(t), *CReflect(d), \
+      *CReflect(p), CReflect(ctrl) ) ) } \
   /* Explicitly return Q and R (with no pivoting) */ \
   ElError ElExplicitQR_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R ) \
   { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
   ElError ElExplicitQRDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R ) \
-  { EL_TRY( qr::Explicit( DM_CAST(F,A), DM_CAST(F,R) ) ) } \
+  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R) ) ) } \
   /* Explicitly return Q, R, and P (with column pivoting) */ \
   ElError ElExplicitQRColPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R, ElMatrix_i p ) \
@@ -367,36 +364,35 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
       qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(p) ) ) } \
   ElError ElExplicitQRColPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R, ElDistMatrix_i p ) \
-  { EL_TRY( qr::Explicit( \
-      DM_CAST(F,A), DM_CAST(F,R), DM_VR_STAR_CAST(Int,p) ) ) } \
+  { EL_TRY( qr::Explicit( *CReflect(A), *CReflect(R), *CReflect(p) ) ) } \
   /* Return the triangular factor from QR (with no pivoting) */ \
   ElError ElQRTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( QR( *CReflect(A) ) ) } \
   ElError ElQRTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( QR( DM_CAST(F,A) ) ) } \
+  { EL_TRY( QR( *CReflect(A) ) ) } \
   /* Return the triangular factor and P from QR (with column pivoting) */ \
   ElError ElQRColPivTriang_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_i p ) \
   { EL_TRY( QR( *CReflect(A), *CReflect(p) ) ) } \
   ElError ElQRColPivTriangDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p ) \
-  { EL_TRY( QR( DM_CAST(F,A), DM_VR_STAR_CAST(Int,p) ) ) } \
+  { EL_TRY( QR( *CReflect(A), *CReflect(p) ) ) } \
   /* Return the unitary factor from QR with no pivoting */ \
   ElError ElQRUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( qr::Explicit( *CReflect(A) ) ) } \
   ElError ElQRUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( qr::Explicit( DM_CAST(F,A) ) ) } \
+  { EL_TRY( qr::Explicit( *CReflect(A) ) ) } \
   /* Return the unitary factor from QR with column pivoting */ \
   ElError ElQRColPivUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( qr::Explicit( *CReflect(A), true ) ) } \
   ElError ElQRColPivUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( qr::Explicit( DM_CAST(F,A), true ) ) } \
+  { EL_TRY( qr::Explicit( *CReflect(A), true ) ) } \
   /* Cholesky-based QR factorization */ \
   ElError ElCholeskyQR_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG R ) \
   { EL_TRY( qr::Cholesky( *CReflect(A), *CReflect(R) ) ) } \
   ElError ElCholeskyQRDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG R ) \
-  { EL_TRY( qr::Cholesky( DM_VC_STAR_CAST(F,A), DM_STAR_STAR_CAST(F,R) ) ) } \
+  { EL_TRY( qr::Cholesky( *CReflect(A), *CReflect(R) ) ) } \
   /* Apply Q after a QR factorization */ \
   ElError ElApplyQAfterQR_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
@@ -412,8 +408,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIGBASE d, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( qr::ApplyQ( \
       CReflect(side), CReflect(orientation), \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), \
-      DM_MD_STAR_CAST_CONST(Base<F>,d), DM_CAST(F,B) ) ) } \
+      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(B) ) ) } \
   /* Solve against vectors after QR factorization */ \
   ElError ElSolveAfterQR_ ## SIG \
   ( ElOrientation orientation, ElConstMatrix_ ## SIG A, \
@@ -427,9 +422,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIG t, ElConstDistMatrix_ ## SIGBASE d, \
     ElConstDistMatrix_ ## SIG B, ElDistMatrix_ ## SIG X ) \
   { EL_TRY( qr::SolveAfter( \
-      CReflect(orientation), DM_CAST_CONST(F,A), \
-      DM_MD_STAR_CAST_CONST(F,t), DM_MD_STAR_CAST_CONST(Base<F>,d), \
-      DM_CAST_CONST(F,B), DM_CAST(F,X) ) ) } \
+      CReflect(orientation), *CReflect(A), \
+      *CReflect(t), *CReflect(d), *CReflect(B), *CReflect(X) ) ) } \
   /* RQ factorization 
      ================ */ \
   /* Return the packed RQ factorization */ \
@@ -439,14 +433,13 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElRQDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG t, \
     ElDistMatrix_ ## SIGBASE d ) \
-  { EL_TRY( \
-      RQ( DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d) ) ) } \
+  { EL_TRY( RQ( *CReflect(A), *CReflect(t), *CReflect(d) ) ) } \
   /* TODO: Explicitly return both factors */ \
   /* Only return the triangular factor */ \
   ElError ElRQTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( RQ( *CReflect(A) ) ) } \
   ElError ElRQTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( RQ( DM_CAST(F,A) ) ) } \
+  { EL_TRY( RQ( *CReflect(A) ) ) } \
   /* TODO: Only return the unitary factor */ \
   /* Apply Q after an RQ factorization */ \
   ElError ElApplyQAfterRQ_ ## SIG \
@@ -455,16 +448,14 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstMatrix_ ## SIGBASE d, ElMatrix_ ## SIG B ) \
   { EL_TRY( rq::ApplyQ( \
       CReflect(side), CReflect(orientation), \
-      *CReflect(A), *CReflect(t), \
-      *CReflect(d), *CReflect(B) ) ) } \
+      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(B) ) ) } \
   ElError ElApplyQAfterRQDist_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
     ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG t, \
     ElConstDistMatrix_ ## SIGBASE d, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( rq::ApplyQ( \
       CReflect(side), CReflect(orientation), \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), \
-      DM_MD_STAR_CAST_CONST(Base<F>,d), DM_CAST(F,B) ) ) } \
+      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(B) ) ) } \
   /* Solve against vectors after RQ factorization */ \
   ElError ElSolveAfterRQ_ ## SIG \
   ( ElOrientation orientation, \
@@ -479,9 +470,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIG X ) \
   { EL_TRY( rq::SolveAfter( \
-      CReflect(orientation), \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), \
-      DM_MD_STAR_CAST_CONST(Base<F>,d), DM_CAST_CONST(F,B), DM_CAST(F,X) ) ) } \
+      CReflect(orientation), *CReflect(A), *CReflect(t), \
+      *CReflect(d), *CReflect(B), *CReflect(X) ) ) } \
   /* Skeleton factorization
      ====================== */ \
   ElError ElSkeleton_ ## SIG \

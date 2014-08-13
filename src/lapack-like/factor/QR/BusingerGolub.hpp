@@ -45,7 +45,7 @@ FindPivot( const std::vector<Real>& norms, Int col )
 
 template<typename F> 
 inline Int BusingerGolub
-( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& pPerm,
+( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, Matrix<Int>& p,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
@@ -68,25 +68,29 @@ inline Int BusingerGolub
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
     // Initialize the inverse permutation to the identity
-    Matrix<Int> pInvPerm;
-    pInvPerm.Resize( n, 1 );
+    Matrix<Int> pInv;
+    pInv.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
-        pInvPerm.Set( j, 0, j ); 
+        pInv.Set( j, 0, j ); 
 
     Int k=0;
     for( ; k<maxSteps; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
-        auto AB2     = ViewRange( A, k,   k+1, m,   n   );
+        const IndexRange ind1(     k,   k+1 ),
+                         indB(     k,   m   ),
+                         ind2Vert( k+1, m   ), ind2Horz( k+1, n );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a12     = View( A, ind1,     ind2Horz );
+        auto a21     = View( A, ind2Vert, ind1     );
+        auto aB1     = View( A, indB,     ind1     );
+        auto AB2     = View( A, indB,     ind2Horz );
 
         // Find the next column pivot
         const ValueInt<Real> pivot = FindPivot( norms, k );
         if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
             break;
-        RowSwap( pInvPerm, k, pivot.index );
+        RowSwap( pInv, k, pivot.index );
  
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -138,19 +142,14 @@ inline Int BusingerGolub
             }
         }
     }
-    InvertPermutation( pInvPerm, pPerm );
+    InvertPermutation( pInv, p );
 
     // Form d and rescale R
-    auto R = View( A, 0, 0, k, n );
+    auto R = View( A, IndexRange(0,k), IndexRange(0,n) );
     d = R.GetRealPartOfDiagonal();
-    for( Int j=0; j<k; ++j )
-    {
-        const Real delta = d.Get(j,0);
-        if( delta >= Real(0) )
-            d.Set(j,0,Real(1));
-        else
-            d.Set(j,0,Real(-1));
-    }
+    auto sgn = []( Real delta )
+               { return delta >= Real(0) ? Real(1) : Real(-1); };
+    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
     return k;
@@ -158,12 +157,12 @@ inline Int BusingerGolub
 
 template<typename F> 
 inline Int BusingerGolub
-( Matrix<F>& A, Matrix<Int>& pPerm, const QRCtrl<Base<F>> ctrl )
+( Matrix<F>& A, Matrix<Int>& p, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     Matrix<F> t;
     Matrix<Base<F>> d;
-    return BusingerGolub( A, t, d, pPerm, ctrl );
+    return BusingerGolub( A, t, d, p, ctrl );
 }
 
 template<typename F>
@@ -323,25 +322,27 @@ ReplaceColNorms
     }
 }
 
-template<typename F,Dist UPerm>
+template<typename F>
 inline Int BusingerGolub
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, 
-  DistMatrix<Int,UPerm,STAR>& pPerm, const QRCtrl<Base<F>> ctrl )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p, 
+  const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::BusingerGolub");
-        AssertSameGrids( A, t, d, pPerm );
+        AssertSameGrids( APre, t, d, p );
     )
     typedef Base<F> Real;
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int mLocal = A.LocalHeight();
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    t.SetRoot( A.DiagonalRoot() );
-    d.SetRoot( A.DiagonalRoot() );
-    t.AlignCols( A.DiagonalAlign() );
-    d.AlignCols( A.DiagonalAlign() );
     t.Resize( maxSteps, 1 );
     d.Resize( maxSteps, 1 );
 
@@ -355,13 +356,11 @@ inline Int BusingerGolub
     std::vector<Int> inaccurateNorms;
 
     // Initialize the inverse permutation to the identity
-    DistMatrix<Int,UPerm,STAR> pInvPerm( pPerm.Grid() );
-    pInvPerm.AlignWith( pPerm );
-    pInvPerm.Resize( n, 1 );
-    for( Int jLoc=0; jLoc<pInvPerm.LocalHeight(); ++jLoc ) 
-        pInvPerm.SetLocal( jLoc, 0, pInvPerm.GlobalRow(jLoc) );
+    DistMatrix<Int,VC,STAR> pInv(g);
+    pInv.Resize( n, 1 );
+    for( Int jLoc=0; jLoc<pInv.LocalHeight(); ++jLoc ) 
+        pInv.SetLocal( jLoc, 0, pInv.GlobalRow(jLoc) );
 
-    const Grid& g = A.Grid();
     DistMatrix<F> z21(g);
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
     DistMatrix<F,MR,STAR> z21_MR_STAR(g);
@@ -370,17 +369,21 @@ inline Int BusingerGolub
     Int k=0;
     for( ; k<maxSteps; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
-        auto AB2     = ViewRange( A, k,   k+1, m,   n   );
+        const IndexRange ind1(     k,   k+1 ),
+                         indB(     k,   m   ),
+                         ind2Vert( k+1, m   ), ind2Horz( k+1, n );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a12     = View( A, ind1,     ind2Horz );
+        auto a21     = View( A, ind2Vert, ind1     );
+        auto aB1     = View( A, indB,     ind1     );
+        auto AB2     = View( A, indB,     ind2Horz );
 
         // Find the next column pivot
         const ValueInt<Real> pivot = FindColPivot( A, norms, k );
         if( ctrl.adaptive && pivot.value <= ctrl.tol*maxOrigNorm )
             break;
-        RowSwap( pInvPerm, k, pivot.index );
+        RowSwap( pInv, k, pivot.index );
 
         // Perform the swap
         const Int jPiv = pivot.index;
@@ -480,35 +483,30 @@ inline Int BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColNorms( A, inaccurateNorms, norms, origNorms );
     }
-    InvertPermutation( pInvPerm, pPerm );
+    InvertPermutation( pInv, p );
 
     // Form d and rescale R
-    auto R = View( A, 0, 0, k, n );
-    d = R.GetRealPartOfDiagonal();
-    const Int diagLengthLoc = d.LocalHeight();
-    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
-    {
-        const Real delta = d.GetLocal(jLoc,0);
-        if( delta >= Real(0) )
-            d.SetLocal(jLoc,0,Real(1));
-        else
-            d.SetLocal(jLoc,0,Real(-1));
-    }
+    auto R = View( A, IndexRange(0,k), IndexRange(0,n) );
+    Copy( R.GetRealPartOfDiagonal(), d );
+    auto sgn = []( Real delta )
+               { return delta >= Real(0) ? Real(1) : Real(-1); };
+    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
     return k;
 }
 
 // If we don't need 't' or 'd' from the above routine
-template<typename F,Dist UPerm>
+template<typename F>
 inline Int BusingerGolub
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm,
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::BusingerGolub"))
     DistMatrix<F,MD,STAR> t( A.Grid() );
     DistMatrix<Base<F>,MD,STAR> d( A.Grid() );
-    return BusingerGolub( A, t, d, pPerm, ctrl );
+    return BusingerGolub( A, t, d, p, ctrl );
 }
 
 } // namespace qr

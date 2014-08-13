@@ -23,7 +23,7 @@ void RQ( Matrix<F>& A )
 }
 
 template<typename F> 
-void RQ( DistMatrix<F>& A )
+void RQ( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("RQ"))
     rq::Householder( A );
@@ -38,7 +38,8 @@ void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 void RQ
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("RQ"))
     rq::Householder( A, t, d );
@@ -50,22 +51,22 @@ void RQ
 
 #define PROTO(F) \
   template void RQ( Matrix<F>& A ); \
-  template void RQ( DistMatrix<F>& A ); \
+  template void RQ( AbstractDistMatrix<F>& A ); \
   template void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void RQ \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d ); \
   template void rq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
     const Matrix<Base<F>>& d, Matrix<F>& B ); \
   template void rq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    const DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+    const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
   template void rq::Cholesky( Matrix<F>& A, Matrix<F>& R ); \
   template void rq::Cholesky \
-  ( DistMatrix<F,STAR,VR>& A, DistMatrix<F,STAR,STAR>& R ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
   template void rq::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -73,9 +74,9 @@ void RQ
           Matrix<F>& X ); \
   template void rq::SolveAfter \
   ( Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B, \
-          DistMatrix<F>& X );
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+    const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
+          AbstractDistMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

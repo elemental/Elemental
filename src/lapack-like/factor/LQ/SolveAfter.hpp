@@ -27,7 +27,9 @@ void SolveAfter
     const Int n = A.Width();
     if( m > n )
         LogicError("Must have full row rank");
+
     // TODO: Add scaling
+    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -41,7 +43,6 @@ void SolveAfter
         Zero( XB );
 
         // Solve against L (checking for singularities)
-        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
         // Apply Q' to X 
@@ -65,7 +66,6 @@ void SolveAfter
         X.Resize( m, X.Width() );
 
         // Solve against L' (check for singularities)
-        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
 
         if( orientation == TRANSPOSE )
@@ -87,19 +87,22 @@ void SolveAfter
     if( m > n )
         LogicError("Must have full row rank");
 
+    // Proxies cannot be resizes since they might be views
+    XPre.Resize( n, B.Width() );
+
     DistMatrix<F> A(g), X(g);
     Copy( APre, A, READ_PROXY );
     Copy( XPre, X, WRITE_PROXY );
 
     // TODO: Add scaling
 
+    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
             LogicError("A and B do not conform");
 
         // Copy B into X
-        X.Resize( n, B.Width() );
         DistMatrix<F> XT(g), XB(g);
         PartitionDown( X, XT, XB, m );
         XT = B;
@@ -109,7 +112,6 @@ void SolveAfter
             Conjugate( XT );
 
         // Solve against L (checking for singularities)
-        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
         // Apply Q' to X 
@@ -133,7 +135,6 @@ void SolveAfter
         X.Resize( m, X.Width() );
 
         // Solve against L' (check for singularities)
-        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
 
         if( orientation == TRANSPOSE )

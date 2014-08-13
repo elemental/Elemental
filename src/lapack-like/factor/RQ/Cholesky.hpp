@@ -10,8 +10,6 @@
 #ifndef EL_CHOLESKY_RQ_HPP
 #define EL_CHOLESKY_RQ_HPP
 
-
-
 namespace El {
 namespace rq {
 
@@ -23,9 +21,7 @@ template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::Cholesky"))
-    const Int height = A.Height();
-    const Int width = A.Width();
-    if( height > width )
+    if( A.Height() > A.Width() )
         LogicError("A A^H will be singular");
     Herk( UPPER, NORMAL, F(1), A, R );
     El::ReverseCholesky( UPPER, R );
@@ -33,18 +29,31 @@ void Cholesky( Matrix<F>& A, Matrix<F>& R )
 }
 
 template<typename F> 
-void Cholesky( DistMatrix<F,STAR,VR>& A, DistMatrix<F,STAR,STAR>& R )
+void Cholesky( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& RPre )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::Cholesky"))
-    const Int height = A.Height();
-    const Int width = A.Width();
-    if( height > width )
+    const Int m = APre.Height();
+    const Int n = APre.Width();
+    if( m > n )
         LogicError("A A^H will be singular");
-    Zeros( R, height, height );
+
+    // Proxies cannot be resized since they might be views
+    RPre.Resize( m, m );
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F,VR,STAR> A(g);
+    DistMatrix<F,STAR,STAR> R(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( RPre, R, WRITE_PROXY );
+
+    Zero( R );
     Herk( UPPER, NORMAL, F(1), A.Matrix(), F(0), R.Matrix() );
     R.SumOver( A.RowComm() );
     El::ReverseCholesky( UPPER, R.Matrix() );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( R, RPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace rq

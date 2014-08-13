@@ -691,8 +691,6 @@ ElError ElQR_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d );
 ElError ElQR_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d );
 ElError ElQR_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElQRDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d );
 ElError ElQRDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d );
 ElError ElQRDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d );
@@ -709,9 +707,6 @@ ElError ElQRColPiv_c
 ElError ElQRColPiv_z
 ( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElMatrix_i p );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         't' and 'd' must be in [MD,STAR] distributions, and
-         'p' must be in a [VR,STAR] distribution */
 ElError ElQRColPivDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistMatrix_i p );
 ElError ElQRColPivDist_d
@@ -732,9 +727,6 @@ ElError ElQRColPivX_c
 ElError ElQRColPivX_z
 ( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d, ElMatrix_i p, ElQRCtrl_d ctrl );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         't' and 'd' must be in [MD,STAR] distributions, and
-         'p' must be in a [VR,STAR] distribution */
 ElError ElQRColPivXDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d, ElDistMatrix_i p, 
   ElQRCtrl_s ctrl );
@@ -755,7 +747,6 @@ ElError ElExplicitQR_d( ElMatrix_d A, ElMatrix_d R );
 ElError ElExplicitQR_c( ElMatrix_c A, ElMatrix_c R );
 ElError ElExplicitQR_z( ElMatrix_z A, ElMatrix_z R );
 
-/* NOTE: 'A' and 'R' must be in [MC,MR] distributions */
 ElError ElExplicitQRDist_s( ElDistMatrix_s A, ElDistMatrix_s R );
 ElError ElExplicitQRDist_d( ElDistMatrix_d A, ElDistMatrix_d R );
 ElError ElExplicitQRDist_c( ElDistMatrix_c A, ElDistMatrix_c R );
@@ -768,8 +759,6 @@ ElError ElExplicitQRColPiv_d( ElMatrix_d A, ElMatrix_d R, ElMatrix_i p );
 ElError ElExplicitQRColPiv_c( ElMatrix_c A, ElMatrix_c R, ElMatrix_i p );
 ElError ElExplicitQRColPiv_z( ElMatrix_z A, ElMatrix_z R, ElMatrix_i p );
 
-/* NOTE: 'A' and 'R' must be in [MC,MR] distributions, while
-         'p' must be in a [VR,STAR] distribution */
 ElError ElExplicitQRColPivDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s R, ElDistMatrix_i p );
 ElError ElExplicitQRColPivDist_d
@@ -786,7 +775,6 @@ ElError ElQRTriang_d( ElMatrix_d A );
 ElError ElQRTriang_c( ElMatrix_c A );
 ElError ElQRTriang_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElQRTriangDist_s( ElDistMatrix_s A );
 ElError ElQRTriangDist_d( ElDistMatrix_d A );
 ElError ElQRTriangDist_c( ElDistMatrix_c A );
@@ -799,8 +787,6 @@ ElError ElQRColPivTriang_d( ElMatrix_d A, ElMatrix_i p );
 ElError ElQRColPivTriang_c( ElMatrix_c A, ElMatrix_i p );
 ElError ElQRColPivTriang_z( ElMatrix_z A, ElMatrix_i p );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         'p' must be in a [VR,STAR] distribution */
 ElError ElQRColPivTriangDist_s( ElDistMatrix_s A, ElDistMatrix_i p );
 ElError ElQRColPivTriangDist_d( ElDistMatrix_d A, ElDistMatrix_i p );
 ElError ElQRColPivTriangDist_c( ElDistMatrix_c A, ElDistMatrix_i p );
@@ -813,7 +799,6 @@ ElError ElQRTriang_d( ElMatrix_d A );
 ElError ElQRTriang_c( ElMatrix_c A );
 ElError ElQRTriang_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElQRTriangDist_s( ElDistMatrix_s A );
 ElError ElQRTriangDist_d( ElDistMatrix_d A );
 ElError ElQRTriangDist_c( ElDistMatrix_c A );
@@ -826,7 +811,6 @@ ElError ElQRColPivUnitary_d( ElMatrix_d A );
 ElError ElQRColPivUnitary_c( ElMatrix_c A );
 ElError ElQRColPivUnitary_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElQRColPivUnitaryDist_s( ElDistMatrix_s A );
 ElError ElQRColPivUnitaryDist_d( ElDistMatrix_d A );
 ElError ElQRColPivUnitaryDist_c( ElDistMatrix_c A );
@@ -839,8 +823,6 @@ ElError ElCholeskyQR_d( ElMatrix_d A, ElMatrix_d R );
 ElError ElCholeskyQR_c( ElMatrix_c A, ElMatrix_c R );
 ElError ElCholeskyQR_z( ElMatrix_z A, ElMatrix_z R );
 
-/* NOTE: 'A' must be in a [VC,STAR] distribution, while 
-         'R' must be in a [STAR,STAR] distribution */
 ElError ElCholeskyQRDist_s( ElDistMatrix_s A, ElDistMatrix_s R );
 ElError ElCholeskyQRDist_d( ElDistMatrix_d A, ElDistMatrix_d R );
 ElError ElCholeskyQRDist_c( ElDistMatrix_c A, ElDistMatrix_c R );
@@ -865,8 +847,6 @@ ElError ElApplyQAfterQR_z
   ElConstMatrix_z A, ElConstMatrix_z t, 
   ElConstMatrix_d d, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElApplyQAfterQRDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
@@ -899,8 +879,6 @@ ElError ElSolveAfterQR_z
 ( ElOrientation orientation, ElConstMatrix_z A, ElConstMatrix_z t, 
   ElConstMatrix_d d, ElConstMatrix_z B, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElSolveAfterQRDist_s
 ( ElOrientation orientation, ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
   ElConstDistMatrix_s d, ElConstDistMatrix_s B, ElDistMatrix_s X );
@@ -927,8 +905,6 @@ ElError ElRQ_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d );
 ElError ElRQ_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d );
 ElError ElRQ_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElRQDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d );
 ElError ElRQDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d );
 ElError ElRQDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d );
@@ -944,7 +920,6 @@ ElError ElRQTriang_d( ElMatrix_d A );
 ElError ElRQTriang_c( ElMatrix_c A );
 ElError ElRQTriang_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElRQTriangDist_s( ElDistMatrix_s A );
 ElError ElRQTriangDist_d( ElDistMatrix_d A );
 ElError ElRQTriangDist_c( ElDistMatrix_c A );
@@ -972,8 +947,6 @@ ElError ElApplyQAfterRQ_z
   ElConstMatrix_z A, ElConstMatrix_z t, 
   ElConstMatrix_d d, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElApplyQAfterRQDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
@@ -1006,8 +979,6 @@ ElError ElSolveAfterRQ_z
 ( ElOrientation orientation, ElConstMatrix_z A, ElConstMatrix_z t, 
   ElConstMatrix_d d, ElConstMatrix_z B, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElSolveAfterRQDist_s
 ( ElOrientation orientation, ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
   ElConstDistMatrix_s d, ElConstDistMatrix_s B, ElDistMatrix_s X );

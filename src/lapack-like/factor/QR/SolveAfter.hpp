@@ -26,7 +26,9 @@ void SolveAfter
     const Int n = A.Width();
     if( m < n )
         LogicError("Must have full column rank");
+
     // TODO: Add scaling
+    auto AT = LockedView( A, IndexRange(0,n), IndexRange(0,n) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -42,7 +44,6 @@ void SolveAfter
         X.Resize( n, X.Width() );
 
         // Solve against R (checking for singularities)
-        auto AT = LockedView( A, 0, 0, n, n );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AT, X, true );
     }
     else // orientation in {TRANSPOSE,ADJOINT}
@@ -61,7 +62,6 @@ void SolveAfter
             Conjugate( XT );
 
         // Solve against R' (checking for singularities)
-        auto AT = LockedView( A, 0, 0, n, n );
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
         // Apply Q to X
@@ -74,19 +74,28 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( Orientation orientation, const DistMatrix<F>& A, 
-  const DistMatrix<F,MD,STAR>& t, const DistMatrix<Base<F>,MD,STAR>& d,
-  const DistMatrix<F>& B, DistMatrix<F>& X )
+( Orientation orientation, 
+  const AbstractDistMatrix<F      >& APre, const AbstractDistMatrix<F>& t, 
+  const AbstractDistMatrix<Base<F>>& d,    const AbstractDistMatrix<F>& B, 
+        AbstractDistMatrix<F      >& XPre )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::SolveAfter"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Grid& g = A.Grid();
+    const Int m = APre.Height();
+    const Int n = APre.Width();
+    const Grid& g = APre.Grid();
     if( m < n )
         LogicError("Must have full column rank");
 
+    // Proxies cannot be resized since they might be views
+    XPre.Resize( m, B.Width() );
+
+    DistMatrix<F> A(g), X(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( XPre, X, WRITE_PROXY );
+
     // TODO: Add scaling
 
+    auto AT = LockedView( A, IndexRange(0,n), IndexRange(0,n) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -105,7 +114,6 @@ void SolveAfter
         X.Resize( n, X.Width() );
 
         // Solve against R (checking for singularities)
-        auto AT = LockedView( A, 0, 0, n, n );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AT, X, true );
 
         if( orientation == TRANSPOSE )
@@ -114,7 +122,6 @@ void SolveAfter
     else
     {
         // Copy B into X
-        X.Resize( m, B.Width() );
         DistMatrix<F> XT(g), XB(g);
         PartitionDown( X, XT, XB, n );
         XT = B;
@@ -124,7 +131,6 @@ void SolveAfter
             Conjugate( XT );
 
         // Solve against R' (checking for singularities)
-        auto AT = LockedView( A, 0, 0, n, n );
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
         // Apply Q to X
@@ -133,6 +139,7 @@ void SolveAfter
         if( orientation == TRANSPOSE )
             Conjugate( X );
     }
+    Copy( X, XPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace qr

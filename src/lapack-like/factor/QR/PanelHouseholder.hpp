@@ -18,6 +18,7 @@ inline void
 PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::PanelHouseholder"))
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -28,10 +29,14 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
-        auto AB2     = ViewRange( A, k,   k+1, m,   n   );
+        const IndexRange ind1(     k,   k+1 ),
+                         indB(     k,   m   ),
+                         ind2Vert( k+1, m   ), ind2Horz( k+1, n );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a21     = View( A, ind2Vert, ind1     );
+        auto aB1     = View( A, indB,     ind1     );
+        auto AB2     = View( A, indB,     ind2Horz );
 
         // Find tau and u such that
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
@@ -55,17 +60,11 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         alpha11.Set(0,0,alpha);
     }
     // Form d and rescale R
-    auto R = View( A, 0, 0, minDim, n );
+    auto R = View( A, IndexRange(0,minDim), IndexRange(0,n) );
     d = R.GetRealPartOfDiagonal();
-    typedef Base<F> Real;
-    for( Int j=0; j<minDim; ++j )
-    {
-        const Real delta = d.Get(j,0);
-        if( delta >= Real(0) )
-            d.Set(j,0,Real(1));
-        else
-            d.Set(j,0,Real(-1));
-    }
+    auto sgn = []( Real delta )
+               { return delta >= Real(0) ? Real(1) : Real(-1); };
+    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
@@ -82,16 +81,13 @@ PanelHouseholder( Matrix<F>& A )
 template<typename F> 
 inline void
 PanelHouseholder
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
+( DistMatrix<F>& A, AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("qr::PanelHouseholder");
         AssertSameGrids( A, t, d );
     )
-    t.SetRoot( A.DiagonalRoot() );
-    d.SetRoot( A.DiagonalRoot() );
-    t.AlignCols( A.DiagonalAlign() );
-    d.AlignCols( A.DiagonalAlign() );
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
     DistMatrix<F,MR,STAR> z21_MR_STAR(g);
@@ -100,14 +96,17 @@ PanelHouseholder
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
-        auto AB2     = ViewRange( A, k,   k+1, m,   n   );
+        const IndexRange ind1(     k,   k+1 ),
+                         indB(     k,   m   ),
+                         ind2Vert( k+1, m   ), ind2Horz( k+1, n );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a21     = View( A, ind2Vert, ind1     );
+        auto aB1     = View( A, indB,     ind1     );
+        auto AB2     = View( A, indB,     ind2Horz );
 
         // Find tau and u such that
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
@@ -142,24 +141,17 @@ PanelHouseholder
             alpha11.SetLocal(0,0,alpha);
     }
     // Form d and rescale R
-    auto R = View( A, 0, 0, minDim, n );
-    d = R.GetRealPartOfDiagonal();
-    const Int diagLengthLoc = d.LocalHeight();
-    typedef Base<F> Real;
-    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
-    {
-        const Real delta = d.GetLocal(jLoc,0);
-        if( delta >= Real(0) )
-            d.SetLocal(jLoc,0,Real(1));
-        else
-            d.SetLocal(jLoc,0,Real(-1));
-    }
+    auto R = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    Copy( R.GetRealPartOfDiagonal(), d );
+    auto sgn = []( Real delta )
+               { return delta >= Real(0) ? Real(1) : Real(-1); };
+    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 }
 
 template<typename F> 
 inline void
-PanelHouseholder( DistMatrix<F>& A )
+PanelHouseholder( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::PanelHouseholder"))
     DistMatrix<F,MD,STAR> t(A.Grid());

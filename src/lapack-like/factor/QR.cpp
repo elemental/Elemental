@@ -26,7 +26,7 @@ void QR( Matrix<F>& A )
 }
 
 template<typename F> 
-void QR( DistMatrix<F>& A )
+void QR( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::Householder( A );
@@ -41,7 +41,8 @@ void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 void QR
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
     qr::Householder( A, t, d );
@@ -52,97 +53,84 @@ void QR
 
 template<typename F> 
 Int QR
-( Matrix<F>& A, Matrix<Int>& pPerm, 
-  const QRCtrl<Base<F>> ctrl )
+( Matrix<F>& A, Matrix<Int>& p, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    return qr::BusingerGolub( A, pPerm, ctrl );
+    return qr::BusingerGolub( A, p, ctrl );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 Int QR
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    return qr::BusingerGolub( A, pPerm, ctrl );
+    return qr::BusingerGolub( A, p, ctrl );
 }
 
 template<typename F> 
 Int QR
 ( Matrix<F>& A, Matrix<F>& t, 
-  Matrix<Base<F>>& d, Matrix<Int>& pPerm, 
-  const QRCtrl<Base<F>> ctrl )
+  Matrix<Base<F>>& d, Matrix<Int>& p, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    return qr::BusingerGolub( A, t, d, pPerm, ctrl );
+    return qr::BusingerGolub( A, t, d, p, ctrl );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 Int QR
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, 
-  DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<Int,UPerm,STAR>& pPerm,
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p,
   const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("QR"))
-    return qr::BusingerGolub( A, t, d, pPerm, ctrl );
+    return qr::BusingerGolub( A, t, d, p, ctrl );
 }
-
-#define PROTO_DIST(F,U) \
-   template qr::TreeData<F> qr::TS( const DistMatrix<F,U,STAR>& A ); \
-  template void qr::ExplicitTS \
-  ( DistMatrix<F,U,STAR>& A, DistMatrix<F,STAR,STAR>& R ); \
-  template Matrix<F>& qr::ts::RootQR \
-  ( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData ); \
-  template const Matrix<F>& qr::ts::RootQR \
-  ( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData ); \
-  template void qr::ts::Reduce \
-  ( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData ); \
-  template void qr::ts::Scatter \
-  ( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData ); 
 
 #define PROTO(F) \
   template void QR( Matrix<F>& A ); \
-  template void QR( DistMatrix<F>& A ); \
+  template void QR( AbstractDistMatrix<F>& A ); \
   template void QR( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void QR \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
+    AbstractDistMatrix<Base<F>>& d ); \
   template Int QR \
-  ( Matrix<F>& A, Matrix<Int>& pPerm, \
+  ( Matrix<F>& A, Matrix<Int>& p, \
     const QRCtrl<Base<F>> ctrl ); \
   template Int QR \
-  ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& pPerm, \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, \
     const QRCtrl<Base<F>> ctrl ); \
   template Int QR \
-  ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d, \
-    Matrix<Int>& pPerm, const QRCtrl<Base<F>> ctrl ); \
+  ( Matrix<F>& A, Matrix<F>& t, \
+    Matrix<Base<F>>& d, Matrix<Int>& p, \
+    const QRCtrl<Base<F>> ctrl ); \
   template Int QR \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d, \
-    DistMatrix<Int,VR,STAR>& pPerm, const QRCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, \
+    AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p, \
+    const QRCtrl<Base<F>> ctrl ); \
   template void qr::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
     const Matrix<Base<F>>& d, Matrix<F>& B ); \
   template void qr::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    const DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+    const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
   template void qr::Cholesky \
   ( Matrix<F>& A, Matrix<F>& R ); \
   template void qr::Cholesky \
-  ( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
   template void qr::Explicit( Matrix<F>& A, bool colPiv ); \
-  template void qr::Explicit( DistMatrix<F>& A, bool colPiv ); \
+  template void qr::Explicit( AbstractDistMatrix<F>& A, bool colPiv ); \
   template void qr::Explicit \
   ( Matrix<F>& A, Matrix<F>& R, bool colPiv ); \
   template void qr::Explicit \
-  ( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, bool colPiv ); \
   template void qr::Explicit \
-  ( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& pPerm ); \
+  ( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& p ); \
   template void qr::Explicit \
-  ( DistMatrix<F>& A, DistMatrix<F>& R, DistMatrix<Int,VR,STAR>& pPerm ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, \
+    AbstractDistMatrix<Int>& p ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -150,15 +138,20 @@ Int QR
           Matrix<F>& X ); \
   template void qr::SolveAfter \
   ( Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B, \
-          DistMatrix<F>& X ); \
-  PROTO_DIST(F,MC  ) \
-  PROTO_DIST(F,MD  ) \
-  PROTO_DIST(F,MR  ) \
-  PROTO_DIST(F,STAR) \
-  PROTO_DIST(F,VC  ) \
-  PROTO_DIST(F,VR  )
+    const AbstractDistMatrix<F      >& A, const AbstractDistMatrix<F>& t, \
+    const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
+          AbstractDistMatrix<F      >& X ); \
+  template qr::TreeData<F> qr::TS( const AbstractDistMatrix<F>& A ); \
+  template void qr::ExplicitTS \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R ); \
+  template Matrix<F>& qr::ts::RootQR \
+  ( const AbstractDistMatrix<F>& A, TreeData<F>& treeData ); \
+  template const Matrix<F>& qr::ts::RootQR \
+  ( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData ); \
+  template void qr::ts::Reduce \
+  ( const AbstractDistMatrix<F>& A, TreeData<F>& treeData ); \
+  template void qr::ts::Scatter \
+  ( AbstractDistMatrix<F>& A, const TreeData<F>& treeData ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

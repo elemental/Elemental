@@ -399,7 +399,7 @@ void SolveAfter
 template<typename F>
 void QR( Matrix<F>& A );
 template<typename F>
-void QR( DistMatrix<F>& A );
+void QR( AbstractDistMatrix<F>& A );
 
 // Return an implicit representation of Q and R such that A = Q R
 // --------------------------------------------------------------
@@ -408,7 +408,8 @@ void QR
 ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void QR
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d );
 
 // Return R and (implicit) P such that A P ~= Q R
 // ----------------------------------------------
@@ -416,10 +417,9 @@ template<typename F>
 Int QR
 ( Matrix<F>& A, Matrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-// NOTE: Only instantiated for UPerm=VR
-template<typename F,Dist UPerm>
+template<typename F>
 Int QR
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p, 
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 // Return an implicit representation of (Q,R,P) such that A P ~= Q R
@@ -429,11 +429,10 @@ Int QR
 ( Matrix<F>& A, Matrix<F>& t, 
   Matrix<Base<F>>& d, Matrix<Int>& p,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-// NOTE: Only instantiated for UPerm=VR
-template<typename F,Dist UPerm>
+template<typename F>
 Int QR
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, 
-  DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<Int,UPerm,STAR>& p,
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<Int>& p,
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 namespace qr {
@@ -445,26 +444,25 @@ void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A, const Matrix<F>& t,
   const Matrix<Base<F>>& d, Matrix<F>& B );
-// NOTE: Only instantiated for (Ut,Vt)=(Ud,Vd)=(MD,STAR) 
-template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
+template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t,
-  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
 
 // Cholesky-based QR
 // -----------------
 template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
-void Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R );
+void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
 
 // Overwrite A with Q
 // ------------------
 template<typename F>
 void Explicit( Matrix<F>& A, bool colPiv=false );
 template<typename F>
-void Explicit( DistMatrix<F>& A, bool colPiv=false );
+void Explicit( AbstractDistMatrix<F>& A, bool colPiv=false );
 // TODO: Version which accepts QRCtrl
 
 // Return both Q and R such that A = Q R or A P = Q R
@@ -472,7 +470,8 @@ void Explicit( DistMatrix<F>& A, bool colPiv=false );
 template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false );
 template<typename F>
-void Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false );
+void Explicit
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, bool colPiv=false );
 // TODO: Version which accepts QRCtrl
 
 // Return (Q,R,P) such that A P = Q R
@@ -482,9 +481,10 @@ void Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false );
 template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& p );
 // NOTE: Only instantiated for UPerm=VR
-template<typename F,Dist UPerm>
+template<typename F>
 void Explicit
-( DistMatrix<F>& A, DistMatrix<F>& R, DistMatrix<Int,UPerm,STAR>& p );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R, 
+  AbstractDistMatrix<Int>& p );
 // TODO: Version which accepts QRCtrl
 
 // Solve a linear system with the implicit QR factorization
@@ -498,9 +498,9 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t,
-  const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B,
-        DistMatrix<F>& X );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& X );
 // TODO: Version which involves permutation matrix
 
 // TODO: Add support for solving with an implicit pivoted QR factorizatino
@@ -540,34 +540,28 @@ struct TreeData
 };
 
 // Return an implicit tall-skinny QR factorization
-// NOTE: Only instantiated for U=VC
-template<typename F,Dist U>
-TreeData<F> TS( const DistMatrix<F,U,STAR>& A );
+template<typename F>
+TreeData<F> TS( const AbstractDistMatrix<F>& A );
 
 // Return an explicit tall-skinny QR factorization
-// NOTE: Only instantiated for U=VC
-template<typename F,Dist U>
-void ExplicitTS( DistMatrix<F,U,STAR>& A, DistMatrix<F,STAR,STAR>& R );
+template<typename F>
+void ExplicitTS( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
 
 namespace ts {
 
-// NOTE: Only instantiated for U=VC
-template<typename F,Dist U>
+template<typename F>
 Matrix<F>& RootQR
-( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData );
+( const AbstractDistMatrix<F>& A, TreeData<F>& treeData );
 
-// NOTE: Only instantiated for U=VC
-template<typename F,Dist U>
+template<typename F>
 const Matrix<F>& RootQR
-( const DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData );
+( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
 
-// NOTE: Only instantiated for U=VC
-template<typename F,Dist U>
-void Reduce( const DistMatrix<F,U,STAR>& A, TreeData<F>& treeData );
+template<typename F>
+void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData );
 
-// NOTE: Only instantiated for U=VC
-template<typename F,Dist U>
-void Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData );
+template<typename F>
+void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData );
 
 } // namespace ts
 
@@ -578,13 +572,14 @@ void Scatter( DistMatrix<F,U,STAR>& A, const TreeData<F>& treeData );
 template<typename F>
 void RQ( Matrix<F>& A );
 template<typename F>
-void RQ( DistMatrix<F>& A );
+void RQ( AbstractDistMatrix<F>& A );
 
 template<typename F>
 void RQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void RQ
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d );
 
 namespace rq {
 
@@ -593,18 +588,17 @@ void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A, const Matrix<F>& t,
   const Matrix<Base<F>>& d, Matrix<F>& B );
-// NOTE: Only instantiated for (Ut,Vt)=(Ud,Vd)=(MD,STAR) 
-template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
+template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t,
-  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
 
 // TODO: Think about ensuring this ordering is consistent with lq::Explicit
 template<typename F>
 void Cholesky( Matrix<F>& A, Matrix<F>& R );
 template<typename F>
-void Cholesky( DistMatrix<F,STAR,VR>& A, DistMatrix<F,STAR,STAR>& R );
+void Cholesky( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& R );
 
 template<typename F>
 void SolveAfter
@@ -615,9 +609,9 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t,
-  const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B,
-        DistMatrix<F>& X );
+  const AbstractDistMatrix<F      >& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F      >& X );
 
 } // namespace rq
 

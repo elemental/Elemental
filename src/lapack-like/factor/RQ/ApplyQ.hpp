@@ -22,21 +22,21 @@ void ApplyQ
     DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
-
     const bool applyDFirst = normal!=onLeft;
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+
+    auto BBot   = View( B, IndexRange(m-minDim,m), IndexRange(0,       n) );
+    auto BRight = View( B, IndexRange(0,       m), IndexRange(n-minDim,n) );
+
     if( applyDFirst )
     {
-        const Int minDim = d.Height();
         if( onLeft )
-        {
-            auto BBot = View( B, B.Height()-minDim, 0, minDim, B.Width() );
             DiagonalScale( side, orientation, d, BBot );
-        }
         else
-        {
-            auto BRight = View( B, 0, B.Width()-minDim, B.Height(), minDim );
             DiagonalScale( side, orientation, d, BRight );
-        }
     }
 
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -47,44 +47,46 @@ void ApplyQ
 
     if( !applyDFirst )
     {
-        const Int minDim = d.Height();
         if( onLeft )
-        {
-            auto BBot = View( B, B.Height()-minDim, 0, minDim, B.Width() );
             DiagonalScale( side, orientation, d, BBot );
-        }
         else
-        {
-            auto BRight = View( B, 0, B.Width()-minDim, B.Height(), minDim );
             DiagonalScale( side, orientation, d, BRight );
-        }
     }
 }
 
-template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
+template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t, 
-  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& tPre, 
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("rq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
-
     const bool applyDFirst = normal!=onLeft;
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g), B(g); 
+    DistMatrix<F,MD,STAR> t(g);
+    Copy( APre, A, READ_PROXY );
+    t.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    Copy( tPre, t, READ_PROXY );
+    Copy( BPre, B, READ_WRITE_PROXY );
+
+    const Int m = B.Height();
+    const Int n = B.Width();
+    const Int minDim = Min(m,n);
+
+    auto BBot   = View( B, IndexRange(m-minDim,m), IndexRange(0,       n) );
+    auto BRight = View( B, IndexRange(0,       m), IndexRange(n-minDim,n) );
+
     if( applyDFirst )
     {
-        const Int minDim = d.Height();
         if( onLeft )
-        {
-            auto BBot = View( B, B.Height()-minDim, 0, minDim, B.Width() );
             DiagonalScale( side, orientation, d, BBot );
-        }
         else
-        {
-            auto BRight = View( B, 0, B.Width()-minDim, B.Height(), minDim );
             DiagonalScale( side, orientation, d, BRight );
-        }
     }
 
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -100,18 +102,12 @@ void ApplyQ
 
     if( !applyDFirst ) 
     {
-        const Int minDim = d.Height();
         if( onLeft )
-        {
-            auto BBot = View( B, B.Height()-minDim, 0, minDim, B.Width() );
             DiagonalScale( side, orientation, d, BBot );
-        }
         else
-        {
-            auto BRight = View( B, 0, B.Width()-minDim, B.Height(), minDim );
             DiagonalScale( side, orientation, d, BRight );
-        }
     }
+    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace rq
