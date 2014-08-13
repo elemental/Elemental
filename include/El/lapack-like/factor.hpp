@@ -246,7 +246,7 @@ void SolveAfter
 template<typename F>
 void LQ( Matrix<F>& A );
 template<typename F>
-void LQ( DistMatrix<F>& A );
+void LQ( AbstractDistMatrix<F>& A );
 
 // Overwrite A with both L and the scaled Householder vectors
 // ----------------------------------------------------------
@@ -254,7 +254,8 @@ template<typename F>
 void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d );
 template<typename F>
 void LQ
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d );
 
 namespace lq {
 
@@ -265,26 +266,25 @@ void ApplyQ
 ( LeftOrRight side, Orientation orientation,
   const Matrix<F>& A, const Matrix<F>& t,
   const Matrix<Base<F>>& d, Matrix<F>& B );
-// NOTE: Only instantiated for (Ut,Vt)=(Ud,Vd)=(MD,STAR) 
-template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
+template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t,
-  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B );
 
 // Overwrite A with Q
 // ------------------
 template<typename F>
 void Explicit( Matrix<F>& A );
 template<typename F>
-void Explicit( DistMatrix<F>& A );
+void Explicit( AbstractDistMatrix<F>& A );
 
 // Return both L and Q such that A = L Q
 // -------------------------------------
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A );
 template<typename F>
-void Explicit( DistMatrix<F>& L, DistMatrix<F>& A );
+void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A );
 
 // Solve a linear system with the implicit representations of L and Q 
 // ------------------------------------------------------------------
@@ -297,9 +297,9 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t,
-  const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B,
-        DistMatrix<F>& X );
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t,
+  const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B,
+        AbstractDistMatrix<F>& X );
 
 } // namespace lq
 

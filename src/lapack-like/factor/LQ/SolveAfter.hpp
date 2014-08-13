@@ -41,7 +41,7 @@ void SolveAfter
         Zero( XB );
 
         // Solve against L (checking for singularities)
-        auto AL = LockedView( A, 0, 0, m, m );
+        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
         // Apply Q' to X 
@@ -65,7 +65,7 @@ void SolveAfter
         X.Resize( m, X.Width() );
 
         // Solve against L' (check for singularities)
-        auto AL = LockedView( A, 0, 0, m, m );
+        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
 
         if( orientation == TRANSPOSE )
@@ -76,16 +76,20 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, 
-  const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B, 
-        DistMatrix<F>& X )
+  const AbstractDistMatrix<F      >& APre, const AbstractDistMatrix<F>& t, 
+  const AbstractDistMatrix<Base<F>>& d,    const AbstractDistMatrix<F>& B, 
+        AbstractDistMatrix<F      >& XPre )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::SolveAfter"))
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Grid& g = A.Grid();
+    const Int m = APre.Height();
+    const Int n = APre.Width();
+    const Grid& g = APre.Grid();
     if( m > n )
         LogicError("Must have full row rank");
+
+    DistMatrix<F> A(g), X(g);
+    Copy( APre, A, READ_PROXY );
+    Copy( XPre, X, WRITE_PROXY );
 
     // TODO: Add scaling
 
@@ -105,7 +109,7 @@ void SolveAfter
             Conjugate( XT );
 
         // Solve against L (checking for singularities)
-        auto AL = LockedView( A, 0, 0, m, m );
+        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
         // Apply Q' to X 
@@ -129,12 +133,13 @@ void SolveAfter
         X.Resize( m, X.Width() );
 
         // Solve against L' (check for singularities)
-        auto AL = LockedView( A, 0, 0, m, m );
+        auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
 
         if( orientation == TRANSPOSE )
             Conjugate( X );
     }
+    Copy( X, XPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace lq

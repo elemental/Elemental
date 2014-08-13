@@ -58,15 +58,24 @@ void ApplyQ
     }
 }
 
-template<typename F,Dist Ut,Dist Vt,Dist Ud,Dist Vd>
+template<typename F>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<F,Ut,Vt>& t, 
-  const DistMatrix<Base<F>,Ud,Vd>& d, DistMatrix<F>& B )
+  const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<F>& tPre, 
+  const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::ApplyQ"))
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
+    const Grid& g = APre.Grid();
+    
+    DistMatrix<F> A(g), B(g);
+    DistMatrix<F,MD,STAR> t(g);
+    Copy( APre, A, READ_PROXY );
+    t.SetRoot( A.DiagonalRoot() );
+    t.AlignCols( A.DiagonalAlign() );
+    Copy( tPre, t, READ_PROXY       );
+    Copy( BPre, B, READ_WRITE_PROXY );
 
     const bool applyDFirst = normal!=onLeft;
     if( applyDFirst )
@@ -86,12 +95,8 @@ void ApplyQ
     const ForwardOrBackward direction = ( normal==onLeft ? FORWARD : BACKWARD );
     const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
 
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot() );
-    tDiag.AlignCols( A.DiagonalAlign() );
-    tDiag = t;
     ApplyPackedReflectors
-    ( side, UPPER, HORIZONTAL, direction, conjugation, 0, A, tDiag, B );
+    ( side, UPPER, HORIZONTAL, direction, conjugation, 0, A, t, B );
 
     if( !applyDFirst )
     {
@@ -106,6 +111,7 @@ void ApplyQ
             DiagonalScale( side, orientation, d, BLeft );
         }
     }
+    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace lq

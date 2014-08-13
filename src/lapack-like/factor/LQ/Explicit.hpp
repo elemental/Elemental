@@ -29,10 +29,14 @@ void Explicit( Matrix<F>& A )
 }
 
 template<typename F>
-void Explicit( DistMatrix<F>& A )
+void Explicit( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     LQ( A, t, d );
@@ -42,7 +46,7 @@ void Explicit( DistMatrix<F>& A )
     Q.AlignWith( A );
     Identity( Q, A.Height(), A.Width() );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
-    A = Q;
+    Copy( Q, APre );
 }
 
 template<typename F>
@@ -52,8 +56,11 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
     Matrix<F> t;
     Matrix<Base<F>> d;
     LQ( A, t, d );
-    Matrix<F> AL, AR;
-    PartitionRight( A, AL, AR, Min(A.Height(),A.Width()) );
+
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,minDim) );
     L = AL;
     MakeTriangular( LOWER, L );
 
@@ -65,23 +72,30 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
 }
 
 template<typename F>
-void Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
+void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
-    const Grid& g = A.Grid();
+    const Grid& g = APre.Grid();
+
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     LQ( A, t, d );
-    DistMatrix<F> AL(g), AR(g);
-    PartitionRight( A, AL, AR, Min(A.Height(),A.Width()) );
-    L = AL;
+
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,minDim) );
+    Copy( AL, L );
     MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q(g);
     Identity( Q, A.Height(), A.Width() );
     lq::ApplyQ( RIGHT, NORMAL, A, t, d, Q );
-    A = Q;
+    Copy( Q, APre );
 }
 
 } // namespace lq

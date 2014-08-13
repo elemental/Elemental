@@ -18,6 +18,7 @@ inline void
 PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("lq::PanelHouseholder"))
+    typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -28,10 +29,15 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a1R     = ViewRange( A, k,   k,   k+1, n   );
-        auto A2R     = ViewRange( A, k+1, k,   m,   n   );
+        const IndexRange ind1(     k,   k+1 ),
+                         indR(     k,   n   ),
+                         ind2Vert( k+1, m   ),
+                         ind2Horz( k+1, n   );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a12     = View( A, ind1,     ind2Horz );
+        auto a1R     = View( A, ind1,     indR     );
+        auto A2R     = View( A, ind2Vert, indR     );
 
         // Find tau and v such that
         //  |alpha11 a12| /I - tau |1  | |1 conj(v)|\ = |beta 0|
@@ -41,7 +47,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
         // Temporarily set a1R = | 1 v |
         const F alpha = alpha11.Get(0,0);
-        alpha11.Set(0,0,1);
+        alpha11.Set(0,0,F(1));
 
         // A2R := A2R Hous(a1R^T,tau)
         //      = A2R (I - tau a1R^T conj(a1R))
@@ -54,17 +60,11 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         alpha11.Set(0,0,alpha);
     }
     // Form d and rescale L
-    auto L = View( A, 0, 0, m, minDim );
+    auto L = View( A, IndexRange(0,m), IndexRange(0,minDim) );
     d = L.GetRealPartOfDiagonal();
-    typedef Base<F> Real;
-    for( Int j=0; j<minDim; ++j )
-    {
-        const Real delta = d.Get(j,0);
-        if( delta >= Real(0) )
-            d.Set(j,0,Real(1));
-        else
-            d.Set(j,0,Real(-1));
-    }
+    auto sgn = []( Real delta ) 
+               { return delta >= Real(0) ? Real(1) : Real(-1); };
+    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, d, L );
 }
 
@@ -81,16 +81,13 @@ PanelHouseholder( Matrix<F>& A )
 template<typename F>
 inline void
 PanelHouseholder
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
+( DistMatrix<F>& A, AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(
         CallStackEntry cse("lq::PanelHouseholder");
         AssertSameGrids( A, t, d );
     )
-    t.SetRoot( A.DiagonalRoot() );
-    d.SetRoot( A.DiagonalRoot() );
-    t.AlignCols( A.DiagonalAlign() );
-    d.AlignCols( A.DiagonalAlign() );
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);
     DistMatrix<F,MC,  STAR> z21_MC_STAR(g);
@@ -99,14 +96,18 @@ PanelHouseholder
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a1R     = ViewRange( A, k,   k,   k+1, n   );
-        auto A2R     = ViewRange( A, k+1, k,   m,   n   );
+        const IndexRange ind1(     k,   k+1 ),
+                         indR(     k,   n   ),
+                         ind2Vert( k+1, m   ),
+                         ind2Horz( k+1, n   );
+
+        auto alpha11 = View( A, ind1,     ind1     );
+        auto a12     = View( A, ind1,     ind2Horz );
+        auto a1R     = View( A, ind1,     indR     );
+        auto A2R     = View( A, ind2Vert, indR     );
 
         // Find tau and v such that
         //  |alpha11 a12| /I - tau |1  | |1 conj(v)|\ = |beta 0|
@@ -119,7 +120,7 @@ PanelHouseholder
         if( alpha11.IsLocal(0,0) )
         {
             alpha = alpha11.GetLocal(0,0);
-            alpha11.SetLocal(0,0,1);
+            alpha11.SetLocal(0,0,F(1));
         }
 
         // A2R := A2R Hous(a1R^T,tau)
@@ -141,17 +142,10 @@ PanelHouseholder
     }
     // Form d and rescale L
     auto L = View( A, 0, 0, m, minDim );
-    d = L.GetRealPartOfDiagonal();
-    const Int diagLengthLoc = d.LocalHeight();
-    typedef Base<F> Real;
-    for( Int jLoc=0; jLoc<diagLengthLoc; ++jLoc )
-    {
-        const Real delta = d.GetLocal(jLoc,0);
-        if( delta >= Real(0) )
-            d.SetLocal(jLoc,0,Real(1));
-        else
-            d.SetLocal(jLoc,0,Real(-1));
-    }
+    Copy( L.GetRealPartOfDiagonal(), d );
+    auto sgn = []( Real delta ) 
+               { return delta >= Real(0) ? Real(1) : Real(-1); };
+    EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, d, L );
 }
 

@@ -23,7 +23,7 @@ void LQ( Matrix<F>& A )
 }
 
 template<typename F> 
-void LQ( DistMatrix<F>& A )
+void LQ( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
     lq::Householder( A );
@@ -38,7 +38,8 @@ void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
 template<typename F> 
 void LQ
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& t, 
+  AbstractDistMatrix<Base<F>>& d )
 {
     DEBUG_ONLY(CallStackEntry cse("LQ"))
     lq::Householder( A, t, d );
@@ -50,23 +51,24 @@ void LQ
 
 #define PROTO(F) \
   template void LQ( Matrix<F>& A ); \
-  template void LQ( DistMatrix<F>& A ); \
+  template void LQ( AbstractDistMatrix<F>& A ); \
   template void LQ( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d ); \
   template void LQ \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& t, AbstractDistMatrix<Base<F>>& d ); \
   template void lq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
     const Matrix<Base<F>>& d, Matrix<F>& B ); \
   template void lq::ApplyQ \
   ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    const DistMatrix<Base<F>,MD,STAR>& d, DistMatrix<F>& B ); \
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+    const AbstractDistMatrix<Base<F>>& d, AbstractDistMatrix<F>& B ); \
   template void lq::Explicit( Matrix<F>& A ); \
-  template void lq::Explicit( DistMatrix<F>& A ); \
+  template void lq::Explicit( AbstractDistMatrix<F>& A ); \
   template void lq::Explicit( Matrix<F>& L, Matrix<F>& A ); \
-  template void lq::Explicit( DistMatrix<F>& L, DistMatrix<F>& A ); \
+  template void lq::Explicit \
+  ( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& A ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
     const Matrix<F>& A, const Matrix<F>& t, \
@@ -74,9 +76,9 @@ void LQ
           Matrix<F>& X ); \
   template void lq::SolveAfter \
   ( Orientation orientation, \
-    const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, \
-    const DistMatrix<Base<F>,MD,STAR>& d, const DistMatrix<F>& B, \
-          DistMatrix<F>& X );
+    const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& t, \
+    const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& B, \
+          AbstractDistMatrix<F>& X );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

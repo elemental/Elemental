@@ -209,25 +209,24 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ElError ElLQDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG t, \
     ElDistMatrix_ ## SIGBASE d ) \
-  { EL_TRY( \
-      LQ( DM_CAST(F,A), DM_MD_STAR_CAST(F,t), DM_MD_STAR_CAST(Base<F>,d) ) ) } \
+  { EL_TRY( LQ( *CReflect(A), *CReflect(t), *CReflect(d) ) ) } \
   /* Explicitly return both factors */ \
   ElError ElExplicitLQ_ ## SIG \
   ( ElMatrix_ ## SIG L, ElMatrix_ ## SIG A ) \
   { EL_TRY( lq::Explicit( *CReflect(L), *CReflect(A) ) ) } \
   ElError ElExplicitLQDist_ ## SIG \
   ( ElDistMatrix_ ## SIG L, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( lq::Explicit( DM_CAST(F,L), DM_CAST(F,A) ) ) } \
+  { EL_TRY( lq::Explicit( *CReflect(L), *CReflect(A) ) ) } \
   /* Only return the triangular factor */ \
   ElError ElLQTriang_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( LQ( *CReflect(A) ) ) } \
   ElError ElLQTriangDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( LQ( DM_CAST(F,A) ) ) } \
+  { EL_TRY( LQ( *CReflect(A) ) ) } \
   /* Only return the unitary factor */ \
   ElError ElLQUnitary_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( lq::Explicit( *CReflect(A) ) ) } \
   ElError ElLQUnitaryDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( lq::Explicit( DM_CAST(F,A) ) ) } \
+  { EL_TRY( lq::Explicit( *CReflect(A) ) ) } \
   /* Apply Q after an LQ factorization */ \
   ElError ElApplyQAfterLQ_ ## SIG \
   ( ElLeftOrRight side, ElOrientation orientation, \
@@ -243,8 +242,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIGBASE d, ElDistMatrix_ ## SIG B ) \
   { EL_TRY( lq::ApplyQ( \
       CReflect(side), CReflect(orientation), \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), \
-      DM_MD_STAR_CAST_CONST(Base<F>,d), DM_CAST(F,B) ) ) } \
+      *CReflect(A), *CReflect(t), *CReflect(d), *CReflect(B) ) ) } \
   /* Solve against vectors after LQ factorization */ \
   ElError ElSolveAfterLQ_ ## SIG \
   ( ElOrientation orientation, \
@@ -259,9 +257,8 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIG X ) \
   { EL_TRY( lq::SolveAfter( \
-      CReflect(orientation), \
-      DM_CAST_CONST(F,A), DM_MD_STAR_CAST_CONST(F,t), \
-      DM_MD_STAR_CAST_CONST(Base<F>,d), DM_CAST_CONST(F,B), DM_CAST(F,X) ) ) } \
+      CReflect(orientation), *CReflect(A), *CReflect(t), \
+      *CReflect(d), *CReflect(B), *CReflect(X) ) ) } \
   /* LU factorization 
      ================ */ \
   /* LU without pivoting */ \

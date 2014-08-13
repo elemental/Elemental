@@ -429,8 +429,6 @@ ElError ElLQ_d( ElMatrix_d A, ElMatrix_d t, ElMatrix_d d );
 ElError ElLQ_c( ElMatrix_c A, ElMatrix_c t, ElMatrix_s d );
 ElError ElLQ_z( ElMatrix_z A, ElMatrix_z t, ElMatrix_d d );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElLQDist_s( ElDistMatrix_s A, ElDistMatrix_s t, ElDistMatrix_s d );
 ElError ElLQDist_d( ElDistMatrix_d A, ElDistMatrix_d t, ElDistMatrix_d d );
 ElError ElLQDist_c( ElDistMatrix_c A, ElDistMatrix_c t, ElDistMatrix_s d );
@@ -443,7 +441,6 @@ ElError ElExplicitLQ_d( ElMatrix_d L, ElMatrix_d A );
 ElError ElExplicitLQ_c( ElMatrix_c L, ElMatrix_c A );
 ElError ElExplicitLQ_z( ElMatrix_z L, ElMatrix_z A );
 
-/* NOTE: 'L' and 'A' must be in [MC,MR] distributions */
 ElError ElExplicitLQDist_s( ElDistMatrix_s L, ElDistMatrix_s A );
 ElError ElExplicitLQDist_d( ElDistMatrix_d L, ElDistMatrix_d A );
 ElError ElExplicitLQDist_c( ElDistMatrix_c L, ElDistMatrix_c A );
@@ -456,7 +453,6 @@ ElError ElLQTriang_d( ElMatrix_d A );
 ElError ElLQTriang_c( ElMatrix_c A );
 ElError ElLQTriang_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElLQTriangDist_s( ElDistMatrix_s A );
 ElError ElLQTriangDist_d( ElDistMatrix_d A );
 ElError ElLQTriangDist_c( ElDistMatrix_c A );
@@ -469,7 +465,6 @@ ElError ElLQUnitary_d( ElMatrix_d A );
 ElError ElLQUnitary_c( ElMatrix_c A );
 ElError ElLQUnitary_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElLQUnitaryDist_s( ElDistMatrix_s A );
 ElError ElLQUnitaryDist_d( ElDistMatrix_d A );
 ElError ElLQUnitaryDist_c( ElDistMatrix_c A );
@@ -494,8 +489,6 @@ ElError ElApplyQAfterLQ_z
   ElConstMatrix_z A, ElConstMatrix_z t, 
   ElConstMatrix_d d, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElApplyQAfterLQDist_s
 ( ElLeftOrRight side, ElOrientation orientation, 
   ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
@@ -528,8 +521,6 @@ ElError ElSolveAfterLQ_z
 ( ElOrientation orientation, ElConstMatrix_z A, ElConstMatrix_z t, 
   ElConstMatrix_d d, ElConstMatrix_z B, ElMatrix_z X );
 
-/* NOTE: 'A', 'B', and 'X' must be in [MC,MR] distributions, while
-         't' and 'd' must be in [MD,STAR] distributions */
 ElError ElSolveAfterLQDist_s
 ( ElOrientation orientation, ElConstDistMatrix_s A, ElConstDistMatrix_s t, 
   ElConstDistMatrix_s d, ElConstDistMatrix_s B, ElDistMatrix_s X );

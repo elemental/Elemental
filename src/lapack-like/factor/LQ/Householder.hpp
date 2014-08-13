@@ -31,13 +31,18 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
-        auto ATopPan    = ViewRange( A, k,    k, k+nb, n );
-        auto ABottomPan = ViewRange( A, k+nb, k, m,    n );
-        auto t1 = View( t, k, 0, nb, 1 );
-        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( ATopPan, t1, d1 );
-        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, d1, ABottomPan );
+        const IndexRange ind1( k, k+nb ), 
+                         indR( k, n    ),
+                         ind2Vert( k+nb, m );
+
+        auto A1R = View( A, ind1,     indR            );
+        auto A2R = View( A, ind2Vert, indR            );
+        auto t1  = View( t, ind1,     IndexRange(0,1) );
+        auto d1  = View( d, ind1,     IndexRange(0,1) );
+
+        PanelHouseholder( A1R, t1, d1 );
+        ApplyQ( RIGHT, ADJOINT, A1R, t1, d1, A2R );
     }
 }
 
@@ -55,40 +60,57 @@ Householder( Matrix<F>& A )
 template<typename F> 
 inline void
 Householder
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Base<F>,MD,STAR>& d )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& tPre, 
+  AbstractDistMatrix<Base<F>>& dPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("Householder");
-        AssertSameGrids( A, t, d );
+        AssertSameGrids( APre, tPre, dPre );
     )
-    const Int m = A.Height();
-    const Int n = A.Width();
+    const Int m = APre.Height();
+    const Int n = APre.Width();
     const Int minDim = Min(m,n);
+    const Grid& g = APre.Grid();
 
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
+    tPre.Resize( minDim, 1 );
+    dPre.Resize( minDim, 1 );
+    DistMatrix<F,      MD,STAR> t(g);
+    DistMatrix<Base<F>,MD,STAR> d(g);
     t.SetRoot( A.DiagonalRoot() );
     d.SetRoot( A.DiagonalRoot() );
     t.AlignCols( A.DiagonalAlign() );
     d.AlignCols( A.DiagonalAlign() );
-    t.Resize( minDim, 1 );
-    d.Resize( minDim, 1 );
+    Copy( tPre, t, WRITE_PROXY );
+    Copy( dPre, d, WRITE_PROXY );
 
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
-        auto ATopPan    = ViewRange( A, k,    k, k+nb, n );
-        auto ABottomPan = ViewRange( A, k+nb, k, m,    n );
-        auto t1 = View( t, k, 0, nb, 1 );
-        auto d1 = View( d, k, 0, nb, 1 );
 
-        PanelHouseholder( ATopPan, t1, d1 );
-        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, d1, ABottomPan );
+        const IndexRange ind1( k, k+nb ),
+                         indR( k, n    ),
+                         ind2Vert( k+nb, m );
+
+        auto A1R = View( A, ind1,     indR            );
+        auto A2R = View( A, ind2Vert, indR            );
+        auto t1  = View( t, ind1,     IndexRange(0,1) );
+        auto d1  = View( d, ind1,     IndexRange(0,1) );
+
+        PanelHouseholder( A1R, t1, d1 );
+        ApplyQ( RIGHT, ADJOINT, A1R, t1, d1, A2R );
     }
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( t, tPre, RESTORE_WRITE_PROXY      );
+    Copy( d, dPre, RESTORE_WRITE_PROXY      );
 }
 
 template<typename F> 
 inline void
-Householder( DistMatrix<F>& A )
+Householder( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Householder"))
     DistMatrix<F,MD,STAR> t(A.Grid());
