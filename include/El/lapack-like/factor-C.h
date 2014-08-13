@@ -209,8 +209,6 @@ ElError ElGQR_z
 ( ElMatrix_z A, ElMatrix_z tA, ElMatrix_d dA,
   ElMatrix_z B, ElMatrix_z tB, ElMatrix_d dB );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while 
-         'tA', 'tB', 'dA', and 'dB' must be in [MD,STAR] distributions */
 ElError ElGQRDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s tA, ElDistMatrix_s dA,
   ElDistMatrix_s B, ElDistMatrix_s tB, ElDistMatrix_s dB );
@@ -224,15 +222,13 @@ ElError ElGQRDist_z
 ( ElDistMatrix_z A, ElDistMatrix_z tA, ElDistMatrix_d dA,
   ElDistMatrix_z B, ElDistMatrix_z tB, ElDistMatrix_d dB );
 
-/* Return just the triangular factors from the GRQ factorization
+/* Return just the triangular factors from the GQR factorization
    ------------------------------------------------------------- */
 ElError ElGQRTriang_s( ElMatrix_s A, ElMatrix_s B );
 ElError ElGQRTriang_d( ElMatrix_d A, ElMatrix_d B );
 ElError ElGQRTriang_c( ElMatrix_c A, ElMatrix_c B );
 ElError ElGQRTriang_z( ElMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while 
-         'tA', 'tB', 'dA', and 'dB' must be in [MD,STAR] distributions */
 ElError ElGQRTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
 ElError ElGQRTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
 ElError ElGQRTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
@@ -256,8 +252,6 @@ ElError ElGRQ_z
 ( ElMatrix_z A, ElMatrix_z tA, ElMatrix_d dA,
   ElMatrix_z B, ElMatrix_z tB, ElMatrix_d dB );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while 
-         'tA', 'tB', 'dA', and 'dB' must be in [MD,STAR] distributions */
 ElError ElGRQDist_s
 ( ElDistMatrix_s A, ElDistMatrix_s tA, ElDistMatrix_s dA,
   ElDistMatrix_s B, ElDistMatrix_s tB, ElDistMatrix_s dB );
@@ -278,8 +272,6 @@ ElError ElGRQTriang_d( ElMatrix_d A, ElMatrix_d B );
 ElError ElGRQTriang_c( ElMatrix_c A, ElMatrix_c B );
 ElError ElGRQTriang_z( ElMatrix_z A, ElMatrix_z B );
 
-/* NOTE: 'A' and 'B' must be in [MC,MR] distributions, while 
-         'tA', 'tB', 'dA', and 'dB' must be in [MD,STAR] distributions */
 ElError ElGRQTriangDist_s( ElDistMatrix_s A, ElDistMatrix_s B );
 ElError ElGRQTriangDist_d( ElDistMatrix_d A, ElDistMatrix_d B );
 ElError ElGRQTriangDist_c( ElDistMatrix_c A, ElDistMatrix_c B );
@@ -300,9 +292,6 @@ ElError ElID_z
 ( ElMatrix_z A, ElMatrix_i p, ElMatrix_z Z, ElQRCtrl_d ctrl,
   bool canOverwrite );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         'Z' must be in a [STAR,VR] distribution, and
-         'p' must be in a [VR,STAR] distribution */
 ElError ElIDDist_s
 ( ElDistMatrix_s A, ElDistMatrix_i p, ElDistMatrix_s Z, ElQRCtrl_s ctrl, 
   bool canOverwrite );

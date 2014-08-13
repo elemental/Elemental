@@ -63,11 +63,21 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, Base<F> tol )
 // RR
 template<typename F>
 inline void
-PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, Base<F> tol )
+PseudoTrsm
+( const AbstractDistMatrix<F>& RLPre, AbstractDistMatrix<F>& RRPre,
+  Base<F> tol )
 {
     DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
-    DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
-    PseudoTrsm( RL_STAR_STAR.Matrix(), RR.Matrix(), tol );
+
+    const Grid& g = RLPre.Grid();
+    DistMatrix<F,STAR,STAR> RL(g);
+    DistMatrix<F,VR,  STAR> RR(g);
+    Copy( RLPre, RL, READ_PROXY );
+    Copy( RRPre, RR, READ_WRITE_PROXY );
+
+    PseudoTrsm( RL.Matrix(), RR.Matrix(), tol );
+
+    Copy( RR, RRPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // On output, the matrix Z contains the non-trivial portion of the interpolation
@@ -77,7 +87,7 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, Base<F> tol )
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<Int>& pPerm, 
+( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
@@ -85,30 +95,35 @@ BusingerGolub
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization
-    const Int numSteps = QR( A, pPerm, ctrl );
+    const Int numSteps = QR( A, p, ctrl );
 
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    auto RL = LockedViewRange( A, 0, 0,        numSteps, numSteps );
-    auto RR = LockedViewRange( A, 0, numSteps, numSteps, n        );
+    auto Rl = LockedView( A, IndexRange(0,numSteps), IndexRange(0,numSteps) );
+    auto RR = LockedView( A, IndexRange(0,numStpes), IndexRange(numStpes,n) );
     Z = RR;
     PseudoTrsm( RL, Z, pinvTol );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 inline void
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
-  DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& p, 
+  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization
-    const Int numSteps = QR( A, pPerm, ctrl );
+    const Int numSteps = QR( A, p, ctrl );
 
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
@@ -116,25 +131,27 @@ BusingerGolub
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     auto RL = LockedViewRange( A, 0, 0,        numSteps, numSteps );
     auto RR = LockedViewRange( A, 0, numSteps, numSteps, n        );
-    Z = RR;
+    Copy( RR, Z );
     PseudoTrsm( RL, Z, pinvTol );
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace id
 
 template<typename F> 
 void ID
-( const Matrix<F>& A, Matrix<Int>& pPerm, 
+( const Matrix<F>& A, Matrix<Int>& p, 
         Matrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     Matrix<F> B( A );
-    id::BusingerGolub( B, pPerm, Z, ctrl );
+    id::BusingerGolub( B, p, Z, ctrl );
 }
 
 template<typename F> 
 void ID
-( Matrix<F>& A, Matrix<Int>& pPerm, 
+( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
@@ -143,46 +160,49 @@ void ID
         View( B, A );
     else
         B = A;
-    id::BusingerGolub( B, pPerm, Z, ctrl );
+    id::BusingerGolub( B, p, Z, ctrl );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void ID
-( const DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
-        DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl )
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
+        AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
     DistMatrix<F> B( A );
-    id::BusingerGolub( B, pPerm, Z, ctrl );
+    id::BusingerGolub( B, p, Z, ctrl );
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void ID
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& pPerm, 
-  DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, 
+  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("ID"))
-    DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
-        View( B, A );
+    {
+        id::BusingerGolub( A, p, Z, ctrl );
+    }
     else
-        B = A;
-    id::BusingerGolub( B, pPerm, Z, ctrl );
+    {
+        DistMatrix<F> B( A );
+        id::BusingerGolub( B, p, Z, ctrl );
+    }
 }
 
 #define PROTO(F) \
   template void ID \
-  ( const Matrix<F>& A, Matrix<Int>& perm, \
+  ( const Matrix<F>& A, Matrix<Int>& p, \
           Matrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
   template void ID \
-  ( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& perm, \
-          DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl ); \
+  ( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, \
+          AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl ); \
   template void ID \
-  ( Matrix<F>& A, Matrix<Int>& perm, \
+  ( Matrix<F>& A, Matrix<Int>& p, \
     Matrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); \
   template void ID \
-  ( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& perm, \
-    DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); 
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p, \
+    AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl, bool canOverwrite ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

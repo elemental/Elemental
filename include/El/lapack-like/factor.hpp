@@ -91,7 +91,7 @@ void SolveAfter
 template<typename F>
 void GQR( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void GQR( DistMatrix<F>& A, DistMatrix<F>& B );
+void GQR( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 template<typename F>
 void GQR
@@ -99,16 +99,17 @@ void GQR
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
 template<typename F>
 void GQR
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tA, DistMatrix<Base<F>,MD,STAR>& dA,
-  DistMatrix<F>& B, DistMatrix<F,MD,STAR>& tB, DistMatrix<Base<F>,MD,STAR>& dB 
-);
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
+  AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
 
 // Generalized RQ
 // ==============
 template<typename F>
 void GRQ( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void GRQ( DistMatrix<F>& A, DistMatrix<F>& B );
+void GRQ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B );
 
 template<typename F>
 void GRQ
@@ -116,9 +117,10 @@ void GRQ
   Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB );
 template<typename F>
 void GRQ
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tA, DistMatrix<Base<F>,MD,STAR>& dA,
-  DistMatrix<F>& B, DistMatrix<F,MD,STAR>& tB, DistMatrix<Base<F>,MD,STAR>& dB 
-);
+( AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
+  AbstractDistMatrix<F>& B, 
+  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
 
 // Interpolative Decomposition
 // ===========================
@@ -127,11 +129,10 @@ void ID
 ( const Matrix<F>& A, Matrix<Int>& p, 
         Matrix<F>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
-// NOTE: This is only instantiated for UPerm=VR
-template<typename F,Dist UPerm>
+template<typename F>
 void ID
-( const DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p,
-        DistMatrix<F,STAR,VR>& Z, 
+( const AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
+        AbstractDistMatrix<F>& Z, 
   const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>() );
 
 template<typename F>
@@ -139,11 +140,10 @@ void ID
 ( Matrix<F>& A, Matrix<Int>& p, 
   Matrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
-// NOTE: This is only instantiated for UPerm=VR
-template<typename F,Dist UPerm>
+template<typename F>
 void ID
-( DistMatrix<F>& A, DistMatrix<Int,UPerm,STAR>& p,
-  DistMatrix<F,STAR,VR>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Int>& p,
+  AbstractDistMatrix<F>& Z, const QRCtrl<Base<F>> ctrl=QRCtrl<Base<F>>(), 
   bool canOverwrite=false );
 
 // LDL

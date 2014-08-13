@@ -145,14 +145,13 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElDistMatrix_ ## SIG tA, ElDistMatrix_ ## SIGBASE dA, \
     ElDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIG tB, ElDistMatrix_ ## SIGBASE dB ) \
-  { EL_TRY( GQR( \
-      DM_CAST(F,A), DM_MD_STAR_CAST(F,tA), DM_MD_STAR_CAST(Base<F>,dA), \
-      DM_CAST(F,B), DM_MD_STAR_CAST(F,tB), DM_MD_STAR_CAST(Base<F>,dB) ) ) } \
+  { EL_TRY( GQR( *CReflect(A), *CReflect(tA), *CReflect(dA), \
+                 *CReflect(B), *CReflect(tB), *CReflect(dB) ) ) } \
   ElError ElGQRTriang_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( GQR( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElGQRTriangDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( GQR( DM_CAST(F,A), DM_CAST(F,B) ) ) } \
+  { EL_TRY( GQR( *CReflect(A), *CReflect(B) ) ) } \
   /* Generalized RQ
      ============== */ \
   ElError ElGRQ_ ## SIG \
@@ -165,14 +164,13 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
     ElDistMatrix_ ## SIG tA, ElDistMatrix_ ## SIGBASE dA, \
     ElDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIG tB, ElDistMatrix_ ## SIGBASE dB ) \
-  { EL_TRY( GRQ( \
-      DM_CAST(F,A), DM_MD_STAR_CAST(F,tA), DM_MD_STAR_CAST(Base<F>,dA), \
-      DM_CAST(F,B), DM_MD_STAR_CAST(F,tB), DM_MD_STAR_CAST(Base<F>,dB) ) ) } \
+  { EL_TRY( GRQ( *CReflect(A), *CReflect(tA), *CReflect(dA), \
+                 *CReflect(B), *CReflect(tB), *CReflect(dB) ) ) } \
   ElError ElGRQTriang_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG B ) \
   { EL_TRY( GRQ( *CReflect(A), *CReflect(B) ) ) } \
   ElError ElGRQTriangDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B ) \
-  { EL_TRY( GRQ( DM_CAST(F,A), DM_CAST(F,B) ) ) } \
+  { EL_TRY( GRQ( *CReflect(A), *CReflect(B) ) ) } \
   /* Interpolative Decomposition 
      =========================== */ \
   ElError ElID_ ## SIG \
@@ -185,7 +183,7 @@ ElError ElQRCtrlFillDefault_d( ElQRCtrl_d* ctrl )
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_i p, ElDistMatrix_ ## SIG Z, \
     ElQRCtrl_ ## SIGBASE ctrl, bool canOverwrite ) \
   { EL_TRY( \
-      ID( DM_CAST(F,A), DM_VR_STAR_CAST(Int,p), DM_STAR_VR_CAST(F,Z), \
+      ID( *CReflect(A), *CReflect(p), *CReflect(Z), \
           CReflect(ctrl), canOverwrite ) ) } \
   /* LDL factorization
      ================= */ \

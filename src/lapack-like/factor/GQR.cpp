@@ -23,16 +23,24 @@ void GQR( Matrix<F>& A, Matrix<F>& B )
 }
 
 template<typename F> 
-void GQR( DistMatrix<F>& A, DistMatrix<F>& B )
+void GQR( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GQR"))
-    const Grid& g = A.Grid();
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g), B(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( BPre, B, READ_WRITE_PROXY );
+
     DistMatrix<F,MD,STAR> tA(g);
     DistMatrix<Base<F>,MD,STAR> dA(g);
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     MakeTriangular( UPPER, A );
     RQ( B );
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F> 
@@ -48,26 +56,37 @@ void GQR
 
 template<typename F> 
 void GQR
-( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& tA, DistMatrix<Base<F>,MD,STAR>& dA,
-  DistMatrix<F>& B, DistMatrix<F,MD,STAR>& tB, DistMatrix<Base<F>,MD,STAR>& dB )
+( AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA,
+  AbstractDistMatrix<F>& BPre, 
+  AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB )
 {
     DEBUG_ONLY(CallStackEntry cse("GQR"))
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g), B(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( BPre, B, READ_WRITE_PROXY );
+
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     RQ( B, tB, dB );
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(F) \
   template void GQR( Matrix<F>& A, Matrix<F>& B ); \
-  template void GQR( DistMatrix<F>& A, DistMatrix<F>& B ); \
+  template void GQR( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
   template void GQR \
   ( Matrix<F>& A, Matrix<F>& tA, Matrix<Base<F>>& dA, \
     Matrix<F>& B, Matrix<F>& tB, Matrix<Base<F>>& dB ); \
   template void GQR \
-  ( DistMatrix<F>& A, \
-    DistMatrix<F,MD,STAR>& tA, DistMatrix<Base<F>,MD,STAR>& dA, \
-    DistMatrix<F>& B, \
-    DistMatrix<F,MD,STAR>& tB, DistMatrix<Base<F>,MD,STAR>& dB );
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& tA, AbstractDistMatrix<Base<F>>& dA, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
