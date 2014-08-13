@@ -448,7 +448,7 @@ Base<F> TwoNormEstimate
 ( const Matrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> TwoNormEstimate
-( const DistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 );
+( const AbstractDistMatrix<F>& A, Base<F> tol=1e-6, Int maxIts=1000 );
 
 template<typename F>
 Base<F> HermitianTwoNormEstimate
@@ -456,7 +456,7 @@ Base<F> HermitianTwoNormEstimate
   Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> HermitianTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, 
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
   Base<F> tol=1e-6, Int maxIts=1000 );
 
 template<typename F>
@@ -465,7 +465,7 @@ Base<F> SymmetricTwoNormEstimate
   Base<F> tol=1e-6, Int maxIts=1000 );
 template<typename F>
 Base<F> SymmetricTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, 
+( UpperOrLower uplo, const AbstractDistMatrix<F>& A, 
   Base<F> tol=1e-6, Int maxIts=1000 );
 
 

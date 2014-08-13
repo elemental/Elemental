@@ -346,18 +346,28 @@ Base<F> HermitianNorm
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> p ); \
   template Base<F> SymmetricSchattenNorm \
   ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> p ); \
+  template Base<F> TwoNorm( const Matrix<F>& A ); \
+  template Base<F> TwoNorm( const AbstractDistMatrix<F>& A ); \
+  template Base<F> HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> HermitianTwoNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
+  template Base<F> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A ); \
+  template Base<F> SymmetricTwoNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template Base<F> TwoNormEstimate \
   ( const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> TwoNormEstimate \
-  ( const DistMatrix<F>& A, Base<F> tol, Int maxIts ); \
+  ( const AbstractDistMatrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> HermitianTwoNormEstimate \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> HermitianTwoNormEstimate \
-  ( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts ); \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
+    Int maxIts ); \
   template Base<F> SymmetricTwoNormEstimate \
   ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
   template Base<F> SymmetricTwoNormEstimate \
-  ( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts ); \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A, Base<F> tol, \
+    Int maxIts ); \
   template Int ZeroNorm( const Matrix<F>& A, Base<F> tol ); \
   template Int ZeroNorm( const AbstractDistMatrix<F>& A, Base<F> tol );
 

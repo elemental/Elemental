@@ -47,11 +47,16 @@ Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
 }
 
 template<typename F>
-Base<F> TwoNormEstimate( const DistMatrix<F>& A, Base<F> tol, Int maxIts )
+Base<F> TwoNormEstimate
+( const AbstractDistMatrix<F>& APre, Base<F> tol, Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_PROXY );
+
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -118,11 +123,16 @@ Base<F> HermitianTwoNormEstimate
 
 template<typename F>
 Base<F> HermitianTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts )
+( UpperOrLower uplo, const AbstractDistMatrix<F>& APre, Base<F> tol, 
+  Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    Copy( APre, A, READ_PROXY );
+
     const Int n = A.Height();
 
     DistMatrix<F> x(g), y(g);
@@ -191,11 +201,16 @@ Base<F> SymmetricTwoNormEstimate
 
 template<typename F>
 Base<F> SymmetricTwoNormEstimate
-( UpperOrLower uplo, const DistMatrix<F>& A, Base<F> tol, Int maxIts )
+( UpperOrLower uplo, const AbstractDistMatrix<F>& APre, Base<F> tol, 
+  Int maxIts )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g); 
+    Copy( APre, A, READ_PROXY );
+
     const Int n = A.Height();
 
     DistMatrix<F> x(g), y(g);

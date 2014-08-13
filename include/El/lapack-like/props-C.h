@@ -780,7 +780,6 @@ ElError ElTwoNormEstimate_c
 ElError ElTwoNormEstimate_z
 ( ElConstMatrix_z A, double tol, ElInt maxIts, double* normEst );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElTwoNormEstimateDist_s
 ( ElConstDistMatrix_s A, float tol, ElInt maxIts, float* normEst );
 ElError ElTwoNormEstimateDist_d
@@ -803,7 +802,6 @@ ElError ElSymmetricTwoNormEstimate_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double tol, ElInt maxIts, 
   double* normEst );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElSymmetricTwoNormEstimateDist_s
 ( ElUpperOrLower uplo, ElConstDistMatrix_s A, float tol, ElInt maxIts, 
   float* normEst );
@@ -824,7 +822,6 @@ ElError ElHermitianTwoNormEstimate_z
 ( ElUpperOrLower uplo, ElConstMatrix_z A, double tol, ElInt maxIts, 
   double* normEst );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianTwoNormEstimateDist_c
 ( ElUpperOrLower uplo, ElConstDistMatrix_c A, float tol, ElInt maxIts, 
   float* normEst );

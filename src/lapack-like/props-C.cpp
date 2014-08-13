@@ -405,7 +405,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( *normEst = TwoNormEstimate( *CReflect(A), tol, maxIts ) ) } \
   ElError ElTwoNormEstimateDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
-  { EL_TRY( *normEst = TwoNormEstimate( DM_CAST_CONST(F,A), tol, maxIts ) ) } \
+  { EL_TRY( *normEst = TwoNormEstimate( *CReflect(A), tol, maxIts ) ) } \
   ElError ElSymmetricTwoNormEstimate_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
     Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
@@ -415,7 +415,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
     Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
   { EL_TRY( *normEst = SymmetricTwoNormEstimate( \
-      CReflect(uplo), DM_CAST_CONST(F,A), tol, maxIts ) ) }
+      CReflect(uplo), *CReflect(A), tol, maxIts ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Norm
@@ -541,7 +541,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
     Base<F> tol, ElInt maxIts, Base<F>* normEst ) \
   { EL_TRY( *normEst = HermitianTwoNormEstimate( \
-      CReflect(uplo), DM_CAST_CONST(F,A), tol, maxIts ) ) } \
+      CReflect(uplo), *CReflect(A), tol, maxIts ) ) } \
   /* Pseudospectra
      ============= */ \
   /* Automatic window
