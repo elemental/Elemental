@@ -95,6 +95,12 @@ PanelHouseholder
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
+ 
+    if( t.Height() != minDim || t.Width() != 1 )
+        LogicError("Unexpected size of t");
+    if( d.Height() != minDim || d.Width() != 1 )
+        LogicError("Unexpected size of d");
+
     t.Resize( minDim, 1 );
 
     for( Int k=0; k<minDim; ++k )

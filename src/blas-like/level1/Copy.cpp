@@ -90,11 +90,14 @@ void Copy
     case READ_PROXY:
         if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
         {
+            if( !B.RootConstrained() )
+                B.SetRoot( A.Root() );
             if( !B.ColConstrained() )
                 B.AlignCols( A.ColAlign() );
             if( !B.RowConstrained() )
                 B.AlignRows( A.RowAlign() );
-            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+            if( A.Root() == B.Root() && 
+                A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
                 LockedView( B, A );
             else
                 B = A;
@@ -106,11 +109,14 @@ void Copy
     case READ_WRITE_PROXY:
         if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
         {
+            if( !B.RootConstrained() )
+                B.SetRoot( A.Root() );
             if( !B.ColConstrained() )
                 B.AlignCols( A.ColAlign() );
             if( !B.RowConstrained() )
                 B.AlignRows( A.RowAlign() );
-            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+            if( A.Root() == B.Root() && 
+                A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
                 View( B, A );
             else
                 B = A;
@@ -122,11 +128,14 @@ void Copy
     case WRITE_PROXY:
         if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
         {
+            if( !B.RootConstrained() )
+                B.SetRoot( A.Root() );
             if( !B.ColConstrained() )
                 B.AlignCols( A.ColAlign() );
             if( !B.RowConstrained() )
                 B.AlignRows( A.RowAlign() );
-            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+            if( A.Root() == B.Root() && 
+                A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
                 View( B, A );
         }
         B.Resize( A.Height(), A.Width() );
@@ -155,11 +164,14 @@ void Copy
     case READ_PROXY:
         if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V ) 
         {
+            if( !B.RootConstrained() )
+                B.SetRoot( A.Root() );
             if( !B.ColConstrained() )
                 B.AlignCols( A.ColAlign() );
             if( !B.RowConstrained() )
                 B.AlignRows( A.RowAlign() );
-            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+            if( A.Root() == B.Root() && 
+                A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
                 LockedView( B, A );
             else
                 B = A;
@@ -196,11 +208,14 @@ void Copy
     case READ_WRITE_PROXY:
         if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
         {
+            if( !B.RootConstrained() )
+                B.SetRoot( A.Root() );
             if( !B.ColConstrained() )
                 B.AlignCols( A.ColAlign() );
             if( !B.RowConstrained() )
                 B.AlignRows( A.RowAlign() );
-            if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+            if( A.Root() == B.Root() && 
+                A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
             {
                 B.Resize( A.Height(), A.Width() );
                 Copy( A.LockedMatrix(), B.Matrix() );
@@ -243,11 +258,14 @@ void Copy
 
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
+        if( !B.RootConstrained() )
+            B.SetRoot( A.Root() );
         if( !B.ColConstrained() )
             B.AlignColsWith( A.DistData() );
         if( !B.RowConstrained() )
             B.AlignRowsWith( A.DistData() );
-        if( A.ColAlign() == B.ColAlign() && 
+        if( A.Root() == B.Root() && 
+            A.ColAlign() == B.ColAlign() && 
             A.RowAlign() == B.RowAlign() && 
             A.ColCut() == B.ColCut() &&
             A.RowCut() == B.RowCut() )

@@ -56,46 +56,34 @@ DiagonalSolve
     }
 }
 
-template<typename FDiag,typename F,Dist U,Dist V,Dist W,Dist Z>
+template<typename FDiag,typename F,Dist U,Dist V>
 inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<FDiag,U,V>& d, DistMatrix<F,W,Z>& X, bool checkIfSingular )
+  const AbstractDistMatrix<FDiag>& d, 
+        DistMatrix<F,U,V>& X, bool checkIfSingular )
 {
-    DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
+    DEBUG_ONLY(
+        CallStackEntry cse("DiagonalSolve");
+        AssertSameGrids( d, X );
+    )
     if( side == LEFT )
     {
-        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
-        {
-            DiagonalSolve
-            ( LEFT, orientation, d.LockedMatrix(), X.Matrix(),
-              checkIfSingular );
-        }
-        else
-        {
-            DistMatrix<FDiag,W,GatheredDist<Z>()> d_W_ZGath( X.Grid() );
-            d_W_ZGath = d;
-            DiagonalSolve
-            ( LEFT, orientation,
-              d_W_ZGath.LockedMatrix(), X.Matrix(), checkIfSingular );
-        }
+        DistMatrix<FDiag,U,GatheredDist<V>()> d_U_VGath( X.Grid() );
+        d_U_VGath.AlignWith( X );
+        Copy( d, d_U_VGath, READ_PROXY );
+        DiagonalSolve
+        ( LEFT, orientation,
+          d_U_VGath.LockedMatrix(), X.Matrix(), checkIfSingular );
     }
     else
     {
-        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
-        {
-            DiagonalSolve
-            ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(),
-              checkIfSingular );
-        }
-        else
-        {
-            DistMatrix<FDiag,Z,GatheredDist<W>()> d_Z_WGath( X.Grid() );
-            d_Z_WGath = d;
-            DiagonalSolve
-            ( RIGHT, orientation,
-              d_Z_WGath.LockedMatrix(), X.Matrix(), checkIfSingular );
-        }
+        DistMatrix<FDiag,V,GatheredDist<U>()> d_V_UGath( X.Grid() );
+        d_V_UGath.AlignWith( X );
+        Copy( d, d_V_UGath, READ_PROXY );
+        DiagonalSolve
+        ( RIGHT, orientation,
+          d_V_UGath.LockedMatrix(), X.Matrix(), checkIfSingular );
     }
 }
 
@@ -107,15 +95,11 @@ void DiagonalSolve
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
     #define GUARD(CDIST,RDIST) \
-        d.DistData().colDist == CDIST && d.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
         X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& dCast = dynamic_cast<const DistMatrix<F,CDIST,RDIST>&>(d);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<F,CDIST,RDIST>&>(X); \
-        DiagonalSolve( side, orientation, dCast, XCast, checkIfSingular );
-    #include "El/macros/NestedGuardAndPayload.h"
+        DiagonalSolve( side, orientation, d, XCast, checkIfSingular );
+    #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename F>
@@ -126,59 +110,25 @@ void DiagonalSolve
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
     #define GUARD(CDIST,RDIST) \
-        d.DistData().colDist == CDIST && d.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
         X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& dCast = dynamic_cast<const DistMatrix<F,CDIST,RDIST>&>(d);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<F>,CDIST,RDIST>&>(X); \
-        DiagonalSolve( side, orientation, dCast, XCast, checkIfSingular );
-    #include "El/macros/NestedGuardAndPayload.h"
+        DiagonalSolve( side, orientation, d, XCast, checkIfSingular );
+    #include "El/macros/GuardAndPayload.h"
 }
 
-#define DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void DiagonalSolve \
-  ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X, \
-    bool checkIfSingular );
-
-#define DIST_PROTO_INNER_REAL(T,U,V,W,Z) \
-  DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void DiagonalSolve \
-  ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<T,U,V>& d, DistMatrix<Complex<T>,W,Z>& X, \
-    bool checkIfSingular );
-
 #define DIST_PROTO(T,U,V) \
-  DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,VR,  STAR);
+  template void DiagonalSolve \
+  ( LeftOrRight side, Orientation orientation, \
+    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& X, \
+    bool checkIfSingular );
 
 #define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO_INNER_REAL(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER_REAL(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,VR,  STAR);
+  DIST_PROTO(T,U,V) \
+  template void DiagonalSolve \
+  ( LeftOrRight side, Orientation orientation, \
+    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& X, \
+    bool checkIfSingular );
 
 #define PROTO(T) \
   template void DiagonalSolve \

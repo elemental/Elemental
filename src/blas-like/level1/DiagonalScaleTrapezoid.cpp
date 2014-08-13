@@ -80,10 +80,10 @@ void DiagonalScaleTrapezoid
     }
 }
 
-template<typename TDiag,typename T,Dist U,Dist V,Dist W,Dist Z>
+template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const DistMatrix<TDiag,U,V>& d, DistMatrix<T,W,Z>& A, Int offset )
+  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& A, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
     const Int m = A.Height();
@@ -101,16 +101,9 @@ void DiagonalScaleTrapezoid
 
     if( side == LEFT )
     {
-        DistMatrix<TDiag,W,GatheredDist<Z>()> d_W_ZGath( A.Grid() );
-        if( U == W && V == STAR && d.ColAlign() == A.ColAlign() )
-        {
-            d_W_ZGath = LockedView( d );
-        }
-        else
-        {
-            d_W_ZGath.AlignWith( A );
-            d_W_ZGath = d;
-        }
+        DistMatrix<TDiag,U,GatheredDist<V>()> d_U_VGath( A.Grid() );
+        d_U_VGath.AlignWith( A );
+        Copy( d, d_U_VGath, READ_PROXY );
 
         if( uplo == LOWER )
         {
@@ -125,8 +118,8 @@ void DiagonalScaleTrapezoid
                     const Int width = Min(j+1,n);
                     const Int localWidth = A.LocalColOffset(width);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_W_ZGath.GetLocal(iLoc,0))
-                                    : d_W_ZGath.GetLocal(iLoc,0) );
+                        ( conjugate ? Conj(d_U_VGath.GetLocal(iLoc,0))
+                                    : d_U_VGath.GetLocal(iLoc,0) );
                     blas::Scal( localWidth, alpha, &ABuf[iLoc], ldim );
                 }
             }
@@ -144,8 +137,8 @@ void DiagonalScaleTrapezoid
                     const Int jLeft = Max(j,0);
                     const Int jLeftLoc = A.LocalColOffset(jLeft);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_W_ZGath.GetLocal(iLoc,0))
-                                    : d_W_ZGath.GetLocal(iLoc,0) );
+                        ( conjugate ? Conj(d_U_VGath.GetLocal(iLoc,0))
+                                    : d_U_VGath.GetLocal(iLoc,0) );
                     blas::Scal
                     ( nLoc-jLeftLoc, alpha, &ABuf[iLoc+jLeftLoc*ldim], ldim );
                 }
@@ -154,16 +147,9 @@ void DiagonalScaleTrapezoid
     }
     else
     {
-        DistMatrix<TDiag,Z,GatheredDist<W>()> d_Z_WGath( A.Grid() );
-        if( U == Z && V == STAR && d.ColAlign() == A.RowAlign() )
-        {
-            d_Z_WGath = LockedView( d );
-        }
-        else
-        {
-            d_Z_WGath.AlignWith( A );
-            d_Z_WGath = d;
-        }
+        DistMatrix<TDiag,V,GatheredDist<U>()> d_V_UGath( A.Grid() );
+        d_V_UGath.AlignWith( A );
+        Copy( d, d_V_UGath, READ_PROXY );
 
         if( uplo == LOWER )
         {
@@ -178,8 +164,8 @@ void DiagonalScaleTrapezoid
                     const Int iTop = Max(i,0);
                     const Int iTopLoc = A.LocalRowOffset(iTop);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_Z_WGath.GetLocal(jLoc,0))
-                                    : d_Z_WGath.GetLocal(jLoc,0) );
+                        ( conjugate ? Conj(d_V_UGath.GetLocal(jLoc,0))
+                                    : d_V_UGath.GetLocal(jLoc,0) );
                     blas::Scal
                     ( mLoc-iTopLoc, alpha, &ABuf[iTopLoc+jLoc*ldim], 1 );
                 }
@@ -198,8 +184,8 @@ void DiagonalScaleTrapezoid
                     const Int height = Min(i+1,m);
                     const Int localHeight = A.LocalRowOffset(height);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_Z_WGath.GetLocal(jLoc,0))
-                                    : d_Z_WGath.GetLocal(jLoc,0) );
+                        ( conjugate ? Conj(d_V_UGath.GetLocal(jLoc,0))
+                                    : d_V_UGath.GetLocal(jLoc,0) );
                     blas::Scal( localHeight, alpha, &ABuf[jLoc*ldim], 1 );
                 }
             }
@@ -214,15 +200,11 @@ void DiagonalScaleTrapezoid
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) \
-        d.DistData().colDist == CDIST && d.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
         X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& dCast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(d);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
-        DiagonalScaleTrapezoid( side, uplo, orientation, dCast, XCast, offset );
-    #include "El/macros/NestedGuardAndPayload.h"
+        DiagonalScaleTrapezoid( side, uplo, orientation, d, XCast, offset );
+    #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
@@ -233,58 +215,23 @@ void DiagonalScaleTrapezoid
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) \
-        d.DistData().colDist == CDIST && d.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
         X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& dCast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(d);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
-        DiagonalScaleTrapezoid \
-        ( side, uplo, orientation, dCast, XCast, offset );
-    #include "El/macros/NestedGuardAndPayload.h"
+        DiagonalScaleTrapezoid( side, uplo, orientation, d, XCast, offset );
+    #include "El/macros/GuardAndPayload.h"
 }
 
-#define DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void DiagonalScaleTrapezoid \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X, Int offset );
-
-#define DIST_PROTO_INNER_REAL(T,U,V,W,Z) \
-  DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void DiagonalScaleTrapezoid \
-  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
-    const DistMatrix<T,U,V>& d, DistMatrix<Complex<T>,W,Z>& X, Int offset );
-
 #define DIST_PROTO(T,U,V) \
-  DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,VR,  STAR);
+  template void DiagonalScaleTrapezoid \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& X, Int offset );
 
 #define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO_INNER_REAL(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER_REAL(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,VR,  STAR);
+  DIST_PROTO(T,U,V) \
+  template void DiagonalScaleTrapezoid \
+  ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, \
+    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& X, Int offset );
 
 #define PROTO(T) \
   template void DiagonalScaleTrapezoid \

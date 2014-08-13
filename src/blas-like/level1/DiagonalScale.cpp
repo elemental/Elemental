@@ -49,41 +49,27 @@ void DiagonalScale
     }
 }
 
-template<typename TDiag,typename T,Dist U,Dist V,Dist W,Dist Z>
+template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<TDiag,U,V>& d, DistMatrix<T,W,Z>& X )
+  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     if( side == LEFT )
     {
-        DistMatrix<TDiag,W,GatheredDist<Z>()> d_W_ZGath( X.Grid() );
-        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
-        {
-            d_W_ZGath = LockedView( d );
-        }
-        else
-        {
-            d_W_ZGath.AlignWith( X );
-            d_W_ZGath = d;
-        }
+        DistMatrix<TDiag,U,GatheredDist<V>()> d_U_VGath( X.Grid() );
+        d_U_VGath.AlignWith( X );
+        Copy( d, d_U_VGath, READ_PROXY );
         DiagonalScale
-        ( LEFT, orientation, d_W_ZGath.LockedMatrix(), X.Matrix() );
+        ( LEFT, orientation, d_U_VGath.LockedMatrix(), X.Matrix() );
     }
     else
     {
-        DistMatrix<TDiag,Z,GatheredDist<W>()> d_Z_WGath( X.Grid() );
-        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
-        {
-            d_Z_WGath = LockedView( d );
-        }
-        else
-        {
-            d_Z_WGath.AlignWith( X );
-            d_Z_WGath = d;
-        }
+        DistMatrix<TDiag,V,GatheredDist<U>()> d_V_UGath( X.Grid() );
+        d_V_UGath.AlignWith( X );
+        Copy( d, d_V_UGath, READ_PROXY );
         DiagonalScale
-        ( RIGHT, orientation, d_Z_WGath.LockedMatrix(), X.Matrix() );
+        ( RIGHT, orientation, d_V_UGath.LockedMatrix(), X.Matrix() );
     }
 }
 
@@ -94,15 +80,11 @@ void DiagonalScale
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) \
-        d.DistData().colDist == CDIST && d.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
         X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& dCast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(d);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
-        DiagonalScale( side, orientation, dCast, XCast );
-    #include "El/macros/NestedGuardAndPayload.h"
+        DiagonalScale( side, orientation, d, XCast );
+    #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
@@ -112,57 +94,23 @@ void DiagonalScale
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     #define GUARD(CDIST,RDIST) \
-        d.DistData().colDist == CDIST && d.DistData().rowDist == RDIST
-    #define INNER_GUARD(CDIST,RDIST) \
         X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
     #define PAYLOAD(CDIST,RDIST) \
-        auto& dCast = dynamic_cast<const DistMatrix<T,CDIST,RDIST>&>(d);
-    #define INNER_PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
-        DiagonalScale( side, orientation, dCast, XCast );
-    #include "El/macros/NestedGuardAndPayload.h"
+        DiagonalScale( side, orientation, d, XCast );
+    #include "El/macros/GuardAndPayload.h"
 }
 
-#define DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void DiagonalScale \
-  ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X );
-
-#define DIST_PROTO_INNER_REAL(T,U,V,W,Z) \
-  DIST_PROTO_INNER(T,U,V,W,Z) \
-  template void DiagonalScale \
-  ( LeftOrRight side, Orientation orientation, \
-    const DistMatrix<T,U,V>& d, DistMatrix<Complex<T>,W,Z>& X );
-
 #define DIST_PROTO(T,U,V) \
-  DIST_PROTO_INNER(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER(T,U,V,VR,  STAR);
+  template void DiagonalScale \
+  ( LeftOrRight side, Orientation orientation, \
+    const AbstractDistMatrix<T>& d, DistMatrix<T,U,V>& X );
 
 #define DIST_PROTO_REAL(T,U,V) \
-  DIST_PROTO_INNER_REAL(T,U,V,CIRC,CIRC); \
-  DIST_PROTO_INNER_REAL(T,U,V,MC,  MR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,MC,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,MD,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,MR,  MC  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,MR,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,MD  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,MR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,VC  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,STAR,VR  ); \
-  DIST_PROTO_INNER_REAL(T,U,V,VC,  STAR); \
-  DIST_PROTO_INNER_REAL(T,U,V,VR,  STAR);
+  DIST_PROTO(T,U,V) \
+  template void DiagonalScale \
+  ( LeftOrRight side, Orientation orientation, \
+    const AbstractDistMatrix<T>& d, DistMatrix<Complex<T>,U,V>& X );
 
 #define PROTO(T) \
   template void DiagonalScale \

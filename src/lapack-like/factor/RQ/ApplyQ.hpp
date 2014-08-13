@@ -24,33 +24,43 @@ void ApplyQ
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;
 
+    const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
+    const Int offset = A.Width()-A.Height();
+    const Int minDim = Min(A.Height(),A.Width());
+
     const Int m = B.Height();
     const Int n = B.Width();
-    const Int minDim = Min(m,n);
-
-    auto BBot   = View( B, IndexRange(m-minDim,m), IndexRange(0,       n) );
-    auto BRight = View( B, IndexRange(0,       m), IndexRange(n-minDim,n) );
 
     if( applyDFirst )
     {
         if( onLeft )
+        {
+            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
             DiagonalScale( side, orientation, d, BBot );
+        }
         else
+        {
+            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
+        }
     }
 
-    const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
-    const Int offset = A.Width()-A.Height();
     ApplyPackedReflectors
     ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, t, B );
 
     if( !applyDFirst )
     {
         if( onLeft )
+        {
+            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
             DiagonalScale( side, orientation, d, BBot );
+        }
         else
+        {
+            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
+        }
     }
 }
 
@@ -65,47 +75,52 @@ void ApplyQ
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;
 
+    const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
+    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
+    const Int offset = APre.Width()-APre.Height();
+    const Int minDim = Min(APre.Height(),APre.Width());
+
     const Grid& g = APre.Grid();
     DistMatrix<F> A(g), B(g); 
     DistMatrix<F,MD,STAR> t(g);
     Copy( APre, A, READ_PROXY );
-    t.SetRoot( A.DiagonalRoot() );
-    t.AlignCols( A.DiagonalAlign() );
+    t.SetRoot( A.DiagonalRoot(offset) );
+    t.AlignCols( A.DiagonalAlign(offset) );
     Copy( tPre, t, READ_PROXY );
     Copy( BPre, B, READ_WRITE_PROXY );
 
     const Int m = B.Height();
     const Int n = B.Width();
-    const Int minDim = Min(m,n);
-
-    auto BBot   = View( B, IndexRange(m-minDim,m), IndexRange(0,       n) );
-    auto BRight = View( B, IndexRange(0,       m), IndexRange(n-minDim,n) );
 
     if( applyDFirst )
     {
         if( onLeft )
+        {
+            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
             DiagonalScale( side, orientation, d, BBot );
+        }
         else
+        {
+            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
+        }
     }
 
-    const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
-    const Conjugation conjugation = ( normal ? CONJUGATED : UNCONJUGATED );
-    const Int offset = A.Width()-A.Height();
-
-    DistMatrix<F,MD,STAR> tDiag(A.Grid());
-    tDiag.SetRoot( A.DiagonalRoot(offset) );
-    tDiag.AlignCols( A.DiagonalAlign(offset) );
-    tDiag = t;
     ApplyPackedReflectors
     ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, t, B );
 
     if( !applyDFirst ) 
     {
         if( onLeft )
+        {
+            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
             DiagonalScale( side, orientation, d, BBot );
+        }
         else
+        {
+            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
+        }
     }
     Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
