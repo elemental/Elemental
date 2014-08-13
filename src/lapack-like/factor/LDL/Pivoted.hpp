@@ -928,21 +928,22 @@ UnblockedPivoted
     Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
-// TODO: Switch to simpler Cholesky panel pivoting scheme and make use
-//       of IndexRange
-
 // We must use a lazy algorithm so that the symmetric pivoting does not move
 // data from a fully-updated to partially-updated region (and vice-versa)
 template<typename F>
 inline void
 PanelPivoted
-( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
+( Matrix<F>& AFull, Matrix<F>& dSub, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
   bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
   Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
+    const Int nFull = AFull.Height();
+    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
     const Int n = A.Height();
+    Zeros( X, n, bsize );
+    Zeros( Y, n, bsize );
     if( n == 0 )
         return;
     DEBUG_ONLY(
@@ -953,59 +954,66 @@ PanelPivoted
         if( p.Height() != n || p.Width() != 1 )
             LogicError("permutation vector is the wrong size");
     )
-    auto ABR = ViewRange( A, off, off, n, n );
-    Zeros( X, n-off, bsize );
-    Zeros( Y, n-off, bsize );
+
+    const IndexRange outerInd( 0, n );
 
     Int k=0;
     while( k < bsize )
     {
+        const IndexRange ind0( 0, k ),
+                         indB( k, n ),
+                         indR( k, n );
+
         // Determine the pivot (block)
-        auto X0 = ViewRange( X, 0, 0, n-off, k );
-        auto Y0 = ViewRange( Y, 0, 0, n-off, k );
+        auto X0 = View( X, outerInd, ind0 );
+        auto Y0 = View( Y, outerInd, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
-            auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
-            const auto diagMax = VectorMaxAbs( ABRBR.GetDiagonal() );
-            SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
-            RowSwap( p, k+off, k+off+diagMax.index );
+            auto ABR = View( A, indB, indR );
+            const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
+            SymmetricSwap
+            ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
+            RowSwap( p,  k, k+diagMax.index );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
         }
-        const auto pivot = ChoosePanelPivot( ABR, X0, Y0, pivotType, gamma );
-        const Int from = off + pivot.from[pivot.nb-1];
-        const Int to = (off+k) + (pivot.nb-1);
+        const auto pivot = ChoosePanelPivot( A, X0, Y0, pivotType, gamma );
+        const Int from = pivot.from[pivot.nb-1];
+        const Int to = k + (pivot.nb-1);
         if( k+pivot.nb > bsize )
         {
-            X.Resize( n-off, bsize-1 );
-            Y.Resize( n-off, bsize-1 );
+            X.Resize( n, bsize-1 );
+            Y.Resize( n, bsize-1 );
             break;
         }
 
         // Apply the symmetric pivot
-        SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( p, to, from );
-        RowSwap( X0, to-off, from-off );
-        RowSwap( Y0, to-off, from-off );
+        SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
+        RowSwap( p,  to, from );
+        RowSwap( X0, to, from );
+        RowSwap( Y0, to, from );
 
         // Update the active columns and then store the new update factors
         if( pivot.nb == 1 ) 
         {
-            // Update ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T
-            auto XB0 = LockedViewRange( X,   k, 0, n-off, k   );
-            auto y10 = LockedViewRange( Y,   k, 0, k+1,   k   );
-            auto aB1 =       ViewRange( ABR, k, k, n-off, k+1 );
+            const IndexRange ind1( k,   k+1 ),
+                             ind2( k+1, n   );
+
+            // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
+            auto XB0 = LockedView( X, indB, ind0 ); 
+            auto y10 = LockedView( Y, ind1, ind0 ); 
+            auto aB1 =       View( A, indB, ind1 );
             Gemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
             if( conjugate )
                 aB1.MakeReal(0,0);
 
             // Store x21 := a21/delta11 and y21 := a21
-            const F delta11Inv = F(1)/ABR.Get(k,k);
-            auto a21 = ViewRange( ABR, k+1, k, n-off, k+1 );
-            auto x21 = ViewRange( X,   k+1, k, n-off, k+1 );
-            auto y21 = ViewRange( Y,   k+1, k, n-off, k+1 );
+            const F delta11Inv = F(1)/A.Get(k,k);
+            auto a21 = View( A, ind2, ind1 );
+            auto x21 = View( X, ind2, ind1 ); 
+            auto y21 = View( Y, ind2, ind1 ); 
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -1017,11 +1025,14 @@ PanelPivoted
         }
         else
         {
-            // Update ABR(k:end,k:k+1) -= X(k:n-off-1,0:k-1) Y(k:k+1,0:k-1)^T
+            const IndexRange ind1( k,   k+2 ),
+                             ind2( k+2, n   );
+
+            // Update A(k:end,k:k+1) -= X(k:n-1,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
-            auto XB0 = LockedViewRange( X,   k, 0, n-off, k   );
-            auto Y10 = LockedViewRange( Y,   k, 0, k+2,   k   );
-            auto AB1 =       ViewRange( ABR, k, k, n-off, k+2 );
+            auto XB0 = LockedView( X, indB, ind0 );
+            auto Y10 = LockedView( Y, ind1, ind0 );
+            auto AB1 =       View( A, indB, ind1 );
             const F psi = AB1.Get(0,1);
             Gemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
             AB1.Set(0,1,psi);
@@ -1032,10 +1043,10 @@ PanelPivoted
             }
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
-            auto D11 = ViewRange( ABR, k,   k, k+2,   k+2 );
-            auto A21 = ViewRange( ABR, k+2, k, n-off, k+2 );
-            auto X21 = ViewRange( X,   k+2, k, n-off, k+2 );
-            auto Y21 = ViewRange( Y,   k+2, k, n-off, k+2 );
+            auto D11 = View( A, ind1, ind1 );
+            auto A21 = View( A, ind2, ind1 );
+            auto X21 = View( X, ind2, ind1 );
+            auto Y21 = View( Y, ind2, ind1 );
             if( conjugate )
                 Conjugate( A21, Y21 );
             else
@@ -1045,8 +1056,8 @@ PanelPivoted
 
             // Only leave the main diagonal of D in A, so that routines like
             // Trsm can still be used. Thus, return the subdiagonal.
-            dSub.Set( off+k, 0, D11.Get(1,0) );
-            D11.Set( 1, 0, 0 );
+            dSub.Set( k, 0, D11.Get(1,0) );
+            D11.Set( 1, 0, F(0) );
             k += 2;
         }
     }
@@ -1055,7 +1066,7 @@ PanelPivoted
 template<typename F>
 inline void
 PanelPivoted
-( DistMatrix<F>& A, 
+( DistMatrix<F>& AFull, 
   AbstractDistMatrix<F>& dSub, 
   AbstractDistMatrix<Int>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
@@ -1063,7 +1074,14 @@ PanelPivoted
   Base<F> gamma=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
+    const Int nFull = AFull.Height();
+    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
     const Int n = A.Height();
+    X.AlignWith( A );
+    Y.AlignWith( A );
+    Zeros( X, n, bsize );
+    Zeros( Y, n, bsize );
+
     if( n == 0 )
         return;
     DEBUG_ONLY(
@@ -1074,66 +1092,71 @@ PanelPivoted
         if( p.Height() != n || p.Width() != 1 )
             LogicError("permutation vector is the wrong size");
     )
-    auto ABR = ViewRange( A, off, off, n, n );
-    X.AlignWith( ABR );
-    Y.AlignWith( ABR );
-    Zeros( X, n-off, bsize );
-    Zeros( Y, n-off, bsize );
 
     DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
+
+    const IndexRange outerInd( 0, n );
 
     Int k=0;
     while( k < bsize )
     {
+        const IndexRange ind0( 0, k ),
+                         indB( k, n ),
+                         indR( k, n );
+
         // Determine the pivot (block)
-        auto X0 = ViewRange( X, 0, 0, n-off, k );
-        auto Y0 = ViewRange( Y, 0, 0, n-off, k );
+        auto X0 = View( X, outerInd, ind0 );
+        auto Y0 = View( Y, outerInd, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
-            auto ABRBR = ViewRange( ABR, k, k, n-off, n-off );
-            const auto diagMax = VectorMaxAbs( ABRBR.GetDiagonal() );
-            SymmetricSwap( LOWER, A, off+k, off+k+diagMax.index, conjugate );
+            auto ABR = View( A, indB, indR );
+            const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
+            SymmetricSwap
+            ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
             RowSwap( X0, k, k+diagMax.index );
             RowSwap( Y0, k, k+diagMax.index );
-            RowSwap( p, off+k, off+k+diagMax.index );
+            RowSwap( p,  k, k+diagMax.index );
         }
-        const auto pivot = ChoosePanelPivot( ABR, X0, Y0, pivotType, gamma );
-        const Int from = off + pivot.from[pivot.nb-1];
-        const Int to = (off+k) + (pivot.nb-1);
+        const auto pivot = ChoosePanelPivot( A, X0, Y0, pivotType, gamma );
+        const Int from = pivot.from[pivot.nb-1];
+        const Int to = k + (pivot.nb-1);
         if( k+pivot.nb > bsize )
         {
-            X.Resize( n-off, bsize-1 );
-            Y.Resize( n-off, bsize-1 );
+            X.Resize( n, bsize-1 );
+            Y.Resize( n, bsize-1 );
             break;
         }
 
         // Apply the symmetric pivot
-        SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( p, to, from );
-        RowSwap( X0, to-off, from-off );
-        RowSwap( Y0, to-off, from-off );
+        SymmetricSwap( LOWER, AFull, off+to, off+from, conjugate );
+        RowSwap( p,  to, from );
+        RowSwap( X0, to, from );
+        RowSwap( Y0, to, from );
 
         // Update the active columns and then store the new update factors
         if( pivot.nb == 1 ) 
         {
-            // Update ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T
-            auto aB1 = ViewRange( ABR, k, k, n-off, k+1 );
+            const IndexRange ind1( k,   k+1 ),
+                             ind2( k+1, n   );
+
+            // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
+            auto aB1 = View( A, indB, ind1 );
             if( aB1.RowAlign() == aB1.RowRank() )
             {
-                auto XB0 = LockedViewRange( X, k, 0, n-off, k );
-                auto y10 = LockedViewRange( Y, k, 0, k+1,   k );
+                auto XB0 = LockedView( X, indB, ind0 );
+                auto y10 = LockedView( Y, ind1, ind0 );
                 LocalGemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
             }
             if( conjugate )
                 aB1.MakeReal(0,0);
 
             // Store x21 := a21/delta11 and y21 := a21
-            const F delta11Inv = F(1)/ABR.Get(k,k);
-            auto a21 = ViewRange( ABR, k+1, k, n-off, k+1 );
-            auto x21 = ViewRange( X,   k+1, k, n-off, k+1 );
-            auto y21 = ViewRange( Y,   k+1, k, n-off, k+1 );
+            const F delta11Inv = F(1)/A.Get(k,k);
+            auto a21 = View( A, ind2, ind1 );
+            auto x21 = View( X, ind2, ind1 );
+            auto y21 = View( Y, ind2, ind1 ); 
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -1145,11 +1168,14 @@ PanelPivoted
         }
         else
         {
-            // Update ABR(k:end,k:k+1) -= X(k:n-off-1,0:k-1) Y(k:k+1,0:k-1)^T
+            const IndexRange ind1( k,   k+2 ),
+                             ind2( k+2, n   );
+
+            // Update A(k:end,k:k+1) -= X(k:end,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
-            auto XB0 = LockedViewRange( X,   k, 0, n-off, k   );
-            auto Y10 = LockedViewRange( Y,   k, 0, k+2,   k   );
-            auto AB1 =       ViewRange( ABR, k, k, n-off, k+2 );
+            auto XB0 = LockedView( X, indB, ind0 ); 
+            auto Y10 = LockedView( Y, ind1, ind0 ); 
+            auto AB1 =       View( A, indB, ind1 );
             // TODO: Make Get and Set local
             const F psi = AB1.Get(0,1);
             LocalGemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
@@ -1161,10 +1187,10 @@ PanelPivoted
             }
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
-            auto D11 = ViewRange( ABR, k,   k, k+2,   k+2 );
-            auto A21 = ViewRange( ABR, k+2, k, n-off, k+2 );
-            auto X21 = ViewRange( X,   k+2, k, n-off, k+2 );
-            auto Y21 = ViewRange( Y,   k+2, k, n-off, k+2 );
+            auto D11 = View( A, ind1, ind1 );
+            auto A21 = View( A, ind2, ind1 );
+            auto X21 = View( X, ind2, ind1 );
+            auto Y21 = View( Y, ind2, ind1 );
             if( conjugate )
                 Conjugate( A21, Y21 );
             else
@@ -1175,7 +1201,7 @@ PanelPivoted
 
             // Only leave the main diagonal of D in A, so that routines like
             // Trsm can still be used. Thus, return the subdiagonal.
-            dSub.Set( off+k, 0, D11_STAR_STAR.GetLocal(1,0) );
+            dSub.Set( k, 0, D11_STAR_STAR.GetLocal(1,0) );
             D11.Set( 1, 0, 0 );
             k += 2;
         }
@@ -1207,21 +1233,27 @@ BlockedPivoted
     for( Int i=0; i<n; ++i )
         p.Set( i, 0, i );
 
-    Matrix<F> X, Y;
+    Matrix<F> XB1, YB1;
     const Int bsize = Blocksize();
     Int k=0;
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
+        const IndexRange indB( k, n ), indBSub( k, n-1 );
+        auto dSubB = View( dSub, indBSub, IndexRange(0,1) );
+        auto pB    = View( p,    indB,    IndexRange(0,1) );
         PanelPivoted
-        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
-        const Int nb = X.Width();
+        ( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
+        const Int nb = XB1.Width();
 
         // Update the bottom-right panel
-        auto X21B  = ViewRange( X, nb,   0,    n-k, nb );
-        auto Y21B  = ViewRange( Y, nb,   0,    n-k, nb );
-        auto A22BR = ViewRange( A, k+nb, k+nb, n,   n  );
-        Trrk( LOWER, NORMAL, TRANSPOSE, F(-1), X21B, Y21B, F(1), A22BR );
+        const IndexRange ind2( k+nb, n ),
+                         ind1Pan( 0,  nb  ),
+                         ind2Pan( nb, n-k );
+        auto A22 =       View( A,   ind2,    ind2    );
+        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
+        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
+        Trrk( LOWER, NORMAL, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
 
         k += nb;
     }
@@ -1230,55 +1262,68 @@ BlockedPivoted
 template<typename F>
 inline void
 BlockedPivoted
-( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& dSub,
-  AbstractDistMatrix<Int>& p, bool conjugate=false, 
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& dSubPre,
+  AbstractDistMatrix<Int>& pPre, bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A, Base<F> gamma=0 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("ldl::BlockedPivoted");
+        AssertSameGrids( APre, dSubPre, pPre );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
-    const Grid& g = APre.Grid();
-
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-
-    const Int n = A.Height();
+    const Int n = APre.Height();
+    pPre.Resize( n, 1 );
     if( n == 0 )
     {
-        dSub.Resize( 0, 1 );
-        p.Resize( 0, 1 );
+        dSubPre.Resize( 0, 1 );
         return;
     }
-    Zeros( dSub, n-1, 1 );
+    dSubPre.Resize( n-1, 1 );
+
+    const Grid& g = APre.Grid();
+    DistMatrix<F> A(g);
+    DistMatrix<F,MC,STAR> dSub(g);
+    DistMatrix<Int,VC,STAR> p(g);
+    Copy( APre,    A,    READ_WRITE_PROXY );
+    Copy( dSubPre, dSub, WRITE_PROXY      );
+    Copy( pPre,    p,    WRITE_PROXY      );
+
+    Zero( dSub );
 
     // Initialize the permutation to the identity
-    p.Resize( n, 1 );
     if( p.IsLocalCol(0) )
         for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
             p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
-    DistMatrix<F,MC,STAR> X(g);
-    DistMatrix<F,MR,STAR> Y(g);
+    DistMatrix<F,MC,STAR> XB1(g);
+    DistMatrix<F,MR,STAR> YB1(g);
     const Int bsize = Blocksize();
     Int k=0;
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
+        const IndexRange indB( k, n ), indBSub( k, n-1 );
+        auto dSubB = View( dSub, indBSub, IndexRange(0,1) );
+        auto pB    = View( p,    indB,    IndexRange(0,1) );
         PanelPivoted
-        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
-        const Int nb = X.Width();
+        ( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
+        const Int nb = XB1.Width();
 
         // Update the bottom-right panel
-        auto X21B  = ViewRange( X, nb,   0,    n-k, nb );
-        auto Y21B  = ViewRange( Y, nb,   0,    n-k, nb );
-        auto A22BR = ViewRange( A, k+nb, k+nb, n,   n  );
-        LocalTrrk( LOWER, TRANSPOSE, F(-1), X21B, Y21B, F(1), A22BR );
+        const IndexRange ind2( k+nb, n ),
+                         ind1Pan( 0,  nb  ),
+                         ind2Pan( nb, n-k );
+        auto A22 =       View( A,   ind2,    ind2    );
+        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
+        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
+        LocalTrrk( LOWER, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
 
         k += nb;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( A,    APre,    RESTORE_READ_WRITE_PROXY );
+    Copy( dSub, dSubPre, RESTORE_WRITE_PROXY      );
+    Copy( p,    pPre,    RESTORE_WRITE_PROXY      );
 }
 
 template<typename F>

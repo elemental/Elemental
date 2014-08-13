@@ -83,9 +83,13 @@ Var3( Matrix<F>& A, bool conjugate=false )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+
+        const IndexRange ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A21 = View( A, ind2, ind1 );
+        auto A22 = View( A, ind2, ind2 );
 
         ldl::Var3Unb( A11, conjugate );
         A11.GetDiagonal( d1 );
@@ -123,9 +127,13 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+        
+        const IndexRange ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
+
+        auto A11 = View( A, ind1, ind1 );
+        auto A21 = View( A, ind2, ind1 );
+        auto A22 = View( A, ind2, ind2 );
 
         A11_STAR_STAR = A11;
         LocalLDL( A11_STAR_STAR, conjugate );

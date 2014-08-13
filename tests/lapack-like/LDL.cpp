@@ -10,12 +10,12 @@
 using namespace std;
 using namespace El;
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 void TestCorrectness
 ( bool conjugated, bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<F,MD,STAR>& dSub,
-  const DistMatrix<Int,UPerm,STAR>& pPerm,
+  const AbstractDistMatrix<Int>& p,
   const DistMatrix<F>& AOrig )
 {
     typedef Base<F> Real;
@@ -30,7 +30,7 @@ void TestCorrectness
     // random set of 100 vectors to the application of tril(A) tril(A)^H
     if( print )
         Print( X, "X" );
-    ldl::MultiplyAfter( A, dSub, pPerm, Y, conjugated );
+    ldl::MultiplyAfter( A, dSub, p, Y, conjugated );
     if( print )
         Print( Y, "P' L B L' P X" );
     Symm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y, conjugated );
@@ -89,8 +89,8 @@ void TestLDL
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     DistMatrix<F,MD,STAR> dSub(g);
-    DistMatrix<Int,UPerm,STAR> pPerm(g);
-    LDL( A, dSub, pPerm, conjugated );
+    DistMatrix<Int,UPerm,STAR> p(g);
+    LDL( A, dSub, p, conjugated );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -104,10 +104,10 @@ void TestLDL
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( pPerm, "pPerm" );
+        Print( p, "p" );
     }
     if( testCorrectness )
-        TestCorrectness( conjugated, print, A, dSub, pPerm, AOrig );
+        TestCorrectness( conjugated, print, A, dSub, p, AOrig );
 }
 
 int 

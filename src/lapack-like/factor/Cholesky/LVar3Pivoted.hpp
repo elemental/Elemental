@@ -362,9 +362,9 @@ LVar3( Matrix<F>& A, Matrix<Int>& p )
         const IndexRange ind2( k+nb, n ),
                          ind1Pan( 0,  nb  ),
                          ind2Pan( nb, n-k );
-        auto A22 = View( A, ind2, ind2 );
-        auto X21 = View( XB1, ind2Pan, ind1Pan );
-        auto Y21 = View( YB1, ind2Pan, ind1Pan );
+        auto A22 =       View( A,   ind2,    ind2    );
+        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
+        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
         Trrk( LOWER, NORMAL, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
     }
 }
@@ -408,12 +408,13 @@ LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         const IndexRange ind2( k+nb, n ),
                          ind1Pan( 0,  nb  ),
                          ind2Pan( nb, n-k );
-        auto A22 = View( A, ind2, ind2 );
-        auto X21 = View( XB1, ind2Pan, ind1Pan );
-        auto Y21 = View( YB1, ind2Pan, ind1Pan );
+        auto A22 =       View( A,   ind2,    ind2    );
+        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
+        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
         LocalTrrk( LOWER, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
     }
     Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( p, pPre, RESTORE_WRITE_PROXY      );
 }
 
 } // namespace cholesky

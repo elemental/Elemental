@@ -129,6 +129,7 @@ void Copy
             if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
                 View( B, A );
         }
+        B.Resize( A.Height(), A.Width() );
         break;
 
     case RESTORE_READ_WRITE_PROXY:
