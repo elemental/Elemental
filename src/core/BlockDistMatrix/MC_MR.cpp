@@ -86,7 +86,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
     ( new BlockDistMatrix<T,VC,STAR>(this->Grid()) );
     A_VC_STAR->AlignWith( *this );
     *A_VC_STAR = *A_VR_STAR;
-    delete A_VR_STAR.reset(); // lowers memory highwater
+    A_VR_STAR.reset(); // lowers memory highwater
     *this = *A_VC_STAR;
     return *this;
 }
@@ -101,7 +101,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
     ( new BlockDistMatrix<T,STAR,VR>(this->Grid()) );
     A_STAR_VR->AlignWith( *this );
     *A_STAR_VR = *A_STAR_VC;
-    delete A_STAR_VC.reset(); // lowers memory highwater
+    A_STAR_VC.reset(); // lowers memory highwater
     *this = *A_STAR_VR;
     return *this;
 }

@@ -40,7 +40,7 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
     ( new DistMatrix<T,VR,STAR>(this->Grid()) );
     A_VR_STAR->AlignColsWith(*this);
     *A_VR_STAR = *A_VC_STAR;
-    delete A_VC_STAR.reset(); // lowers memory highwater
+    A_VC_STAR.reset(); // lowers memory highwater
 
     *this = *A_VR_STAR;
     return *this;
@@ -134,7 +134,7 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
         ( new DistMatrix<T,VR,STAR>(g) );
         A_VR_STAR->AlignColsWith(*this);
         *A_VR_STAR = *A_VC_STAR;
-        delete A_VC_STAR.reset(); // lowers memory highwater
+        A_VC_STAR.reset(); // lowers memory highwater
 
         *this = *A_VR_STAR;
     }
@@ -149,13 +149,13 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(*A_MC_MR) );
-    delete A_MC_MR.reset(); // lowers memory highwater
+    A_MC_MR.reset(); // lowers memory highwater
 
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
     ( new DistMatrix<T,VR,STAR>(this->Grid()) );
     A_VR_STAR->AlignColsWith(*this);
     *A_VR_STAR = *A_VC_STAR;
-    delete A_VC_STAR.reset(); // lowers memory highwater
+    A_VC_STAR.reset(); // lowers memory highwater
 
     *this = *A_VR_STAR;
     return *this;
@@ -237,7 +237,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
     ( new DistMatrix<T,MR,MC>(this->Grid()) );
     A_MR_MC->AlignColsWith(*this);
     *A_MR_MC = *A_STAR_VC;
-    delete A_STAR_VC.reset(); // lowers memory highwater
+    A_STAR_VC.reset(); // lowers memory highwater
 
     *this = *A_MR_MC;
     return *this;

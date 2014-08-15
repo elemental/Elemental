@@ -54,7 +54,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
     std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
     std::unique_ptr<DistMatrix<T,VC,STAR>> 
         A_VC_STAR( new DistMatrix<T,VC,STAR>(*A_MC_MR) );
-    delete A_MC_MR.reset(); // lowers memory highwater
+    A_MC_MR.reset(); // lowers memory highwater
     *this = *A_VC_STAR;
     return *this;
 }
@@ -192,7 +192,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
         A_MC_MR( new DistMatrix<T,MC,MR>(A) );
     std::unique_ptr<DistMatrix<T,VC,STAR>> 
         A_VC_STAR( new DistMatrix<T,VC,STAR>(*A_MC_MR) );
-    delete A_MC_MR.reset(); // lowers memory highwater
+    A_MC_MR.reset(); // lowers memory highwater
     *this = *A_VC_STAR;
     return *this;
 }

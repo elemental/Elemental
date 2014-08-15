@@ -92,7 +92,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
         A_MR_MC( new BlockDistMatrix<T,MR,MC>(A) );
     std::unique_ptr<BlockDistMatrix<T,VR,STAR>> 
         A_VR_STAR( new BlockDistMatrix<T,VR,STAR>(*A_MR_MC) );
-    delete A_MR_MC.reset(); // lowers memory highwater
+    A_MR_MC.reset(); // lowers memory highwater
     *this = *A_VR_STAR;
     return *this;
 }
@@ -113,7 +113,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VC>& A )
         A_MR_MC( new BlockDistMatrix<T,MR,MC>(A) );
     std::unique_ptr<BlockDistMatrix<T,VR,STAR>> 
         A_VR_STAR( new BlockDistMatrix<T,VR,STAR>(*A_MR_MC) );
-    delete A_MR_MC.reset(); // lowers memory highwater
+    A_MR_MC.reset(); // lowers memory highwater
     *this = *A_VR_STAR;
     return *this;
 }
