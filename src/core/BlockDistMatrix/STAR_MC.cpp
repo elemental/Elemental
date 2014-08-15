@@ -32,7 +32,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
     ( new BlockDistMatrix<T,STAR,VC>(this->Grid()) );
     A_STAR_VC->AlignRowsWith(*this);
     *A_STAR_VC = *A_STAR_VR;
-    delete A_STAR_VR.release(); // lowers memory highwater
+    delete A_STAR_VR.reset(); // lowers memory highwater
 
     *this = *A_STAR_VC;
     return *this;
@@ -47,13 +47,13 @@ BDM& BDM::operator=( const BlockDistMatrix<T,MC,STAR>& A )
 
     std::unique_ptr<BlockDistMatrix<T,STAR,VR>> A_STAR_VR
     ( new BlockDistMatrix<T,STAR,VR>(*A_MC_MR) );
-    delete A_MC_MR.release(); // lowers memory highwater
+    delete A_MC_MR.reset(); // lowers memory highwater
 
     std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
     ( new BlockDistMatrix<T,STAR,VC>(this->Grid()) );
     A_STAR_VC->AlignRowsWith(*this);
     *A_STAR_VC = *A_STAR_VR;
-    delete A_STAR_VR.release(); // lowers memory highwater
+    delete A_STAR_VR.reset(); // lowers memory highwater
 
     *this = *A_STAR_VC;
     return *this;
@@ -123,7 +123,7 @@ BDM& BDM::operator=( const BlockDistMatrix<T,VC,STAR>& A )
     ( new BlockDistMatrix<T,MR,MC>(this->Grid()) );
     A_MR_MC->AlignRowsWith(*this);
     *A_MR_MC = *A_VR_STAR;
-    delete A_VR_STAR.release();
+    delete A_VR_STAR.reset();
 
     *this = *A_MR_MC;
     return *this;
