@@ -144,8 +144,6 @@ ElError ElHermitianEig_c
 ElError ElHermitianEig_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianEigDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
   ElSortType sort );
@@ -176,8 +174,6 @@ ElError ElHermitianEigPair_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
 
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianEigPairDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z,
   ElSortType sort );
@@ -208,8 +204,6 @@ ElError ElHermitianEigPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianEigPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
@@ -240,8 +234,6 @@ ElError ElHermitianEigPairPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
 
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianEigPairPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_s Z, 
   ElSortType sort, ElHermitianEigSubset_s subset );
@@ -271,8 +263,6 @@ ElError ElSkewHermitianEig_c
 ElError ElSkewHermitianEig_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElSkewHermitianEigDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, 
   ElSortType sort );
@@ -303,8 +293,6 @@ ElError ElSkewHermitianEigPair_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
 
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElSkewHermitianEigPairDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_c Z,
   ElSortType sort );
@@ -335,8 +323,6 @@ ElError ElSkewHermitianEigPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElSkewHermitianEigPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElSortType sort,
   ElHermitianEigSubset_s subset );
@@ -367,8 +353,6 @@ ElError ElSkewHermitianEigPairPartial_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort, ElHermitianEigSubset_d subset );
 
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElSkewHermitianEigPairPartialDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s w, ElDistMatrix_c Z, 
   ElSortType sort, ElHermitianEigSubset_s subset );
@@ -402,8 +386,6 @@ ElError ElHermitianGenDefEig_z
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElSortType sort );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianGenDefEigDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, 
@@ -442,8 +424,6 @@ ElError ElHermitianGenDefEigPair_z
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z Z,
   ElSortType sort );
 
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianGenDefEigPairDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s Z,
@@ -482,8 +462,6 @@ ElError ElHermitianGenDefEigPartial_z
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianGenDefEigPartialDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElSortType sort,
@@ -522,8 +500,6 @@ ElError ElHermitianGenDefEigPairPartial_z
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z Z, ElSortType sort,
   ElHermitianEigSubset_d subset );
 
-/* NOTE: 'A' and 'Z' must be in a [MC,MR] distribution, while 
-         'w' must be in a [VR,STAR] distribution */
 ElError ElHermitianGenDefEigPairPartialDist_s
 ( ElPencil pencil, ElUpperOrLower uplo, 
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s Z,
@@ -557,7 +533,6 @@ ElError ElHermitianTridiagEig_c
 ElError ElHermitianTridiagEig_z
 ( ElMatrix_d d, ElMatrix_z e, ElMatrix_d w, ElSortType sort );
 
-/* NOTE: 'd', 'e', and 'w' must be in [VR,STAR] distributions */
 /*
 ElError ElHermitianTridiagEigDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
@@ -588,8 +563,6 @@ ElError ElHermitianTridiagEigPair_c
 ElError ElHermitianTridiagEigPair_z
 ( ElMatrix_d d, ElMatrix_z e, ElMatrix_d w, ElMatrix_z Z, ElSortType sort );
 
-/* NOTE: 'd', 'e', and 'w' must be in [VR,STAR] distributions, while
-         'Z' must be in a [STAR,VR] distribution */ 
 /*
 ElError ElHermitianTridiagEigPairDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
@@ -624,7 +597,6 @@ ElError ElHermitianTridiagEigPartial_z
 ( ElMatrix_d d, ElMatrix_z e, 
   ElMatrix_d w, ElSortType sort, ElHermitianEigSubset_d subset );
 
-/* NOTE: 'd', 'e', and 'w' must be in [VR,STAR] distributions */
 /*
 ElError ElHermitianTridiagEigPartialDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 
@@ -659,8 +631,6 @@ ElError ElHermitianTridiagEigPairPartial_z
 ( ElMatrix_d d, ElMatrix_z e, 
   ElMatrix_d w, ElMatrix_z Z, ElSortType sort, ElHermitianEigSubset_d subset );
 
-/* NOTE: 'd', 'e', and 'w' must be in [VR,STAR] distributions, while
-         'Z' must be in a [STAR,VR] distribution */ 
 /*
 ElError ElHermitianTridiagEigPairPartialDist_s
 ( ElConstDistMatrix_s d, ElConstDistMatrix_s e, 

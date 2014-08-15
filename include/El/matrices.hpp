@@ -626,10 +626,7 @@ void HermitianUniformSpectrum
 ( Matrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
 template<typename F>
 void HermitianUniformSpectrum
-( DistMatrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
-template<typename F,Dist U,Dist V>
-void HermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
+( AbstractDistMatrix<F>& A, Int n, Base<F> lower=0, Base<F> upper=1 );
 
 // Normal uniform spectrum
 // =======================

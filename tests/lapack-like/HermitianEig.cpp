@@ -12,27 +12,14 @@ using namespace El;
 
 template<typename F>
 void TestCorrectness
-( bool print,
-  UpperOrLower uplo,
-  const DistMatrix<F>& A,
-  const DistMatrix<Base<F>,VR,STAR>& w,
-  const DistMatrix<F>& Z,
-  const DistMatrix<F>& AOrig )
+( bool print, UpperOrLower uplo,
+  const AbstractDistMatrix<F>& AOrig, const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& Z )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = Z.Height();
     const Int k = Z.Width();
-
-    if( g.Rank() == 0 )
-    {
-        cout << "  Gathering computed eigenvalues...";
-        cout.flush();
-    }
-    DistMatrix<Real,MR,STAR> w_MR_STAR(true,Z.RowAlign(),g); 
-    w_MR_STAR = w;
-    if( g.Rank() == 0 )
-        cout << "DONE" << endl;
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
@@ -54,16 +41,9 @@ void TestCorrectness
     Zeros( X, n, k );
     Hemm( LEFT, uplo, F(1), AOrig, Z, F(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
-    for( Int jLoc=0; jLoc<X.LocalWidth(); ++jLoc )
-    {
-        const Real omega = w_MR_STAR.GetLocal(jLoc,0);
-        for( Int iLoc=0; iLoc<X.LocalHeight(); ++iLoc )
-        {
-            const F chi = X.GetLocal(iLoc,jLoc);
-            const F zeta = Z.GetLocal(iLoc,jLoc);
-            X.SetLocal(iLoc,jLoc,chi-omega*zeta);
-        }
-    }
+    DistMatrix<F> ZW( Z );
+    DiagonalScale( RIGHT, NORMAL, w, ZW );
+    Axpy( F(-1), ZW, X );
     // Find the infinity norms of A, Z, and AZ-ZW
     Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
     Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
@@ -86,7 +66,7 @@ void TestCorrectness
     }
 }
 
-template<typename F>
+template<typename F,Dist U=MC,Dist V=MR,Dist S=MC>
 void TestHermitianEig
 ( bool testCorrectness, bool print,
   bool onlyEigvals, bool clustered, UpperOrLower uplo, Int m, 
@@ -95,8 +75,8 @@ void TestHermitianEig
   const HermitianEigCtrl<Base<F>> ctrl )
 {
     typedef Base<F> Real;
-    DistMatrix<F> A(g), AOrig(g), Z(g);
-    DistMatrix<Real,VR,STAR> w(g);
+    DistMatrix<F,U,V> A(g), AOrig(g), Z(g);
+    DistMatrix<Real,S,STAR> w(g);
 
     if( clustered )
         Wilkinson( A, m/2 );
@@ -141,7 +121,7 @@ void TestHermitianEig
             Print( Z, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
-        TestCorrectness( print, uplo, A, w, Z, AOrig );
+        TestCorrectness( print, uplo, AOrig, A, w, Z );
 }
 
 int 
@@ -248,6 +228,18 @@ main( int argc, char* argv[] )
               uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianEig<Complex<double>>
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
+
+        // Also test with non-standard distributions
+        if( commRank == 0 )
+            cout << "Nonstandard distributions:" << endl;
+        if( testReal )
+            TestHermitianEig<double,MR,MC,MC>
+            ( testCorrectness, print, onlyEigvals, clustered, 
+              uplo, m, sort, g, subset, ctrl );
+        if( testCpx )
+            TestHermitianEig<Complex<double>,MR,MC,MC>
             ( testCorrectness, print, onlyEigvals, clustered, 
               uplo, m, sort, g, subset, ctrl );
     }

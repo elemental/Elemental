@@ -40,8 +40,9 @@ void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort )
     Z = ZPerm;
 }
 
-template<typename F,Dist U1,Dist V1,Dist U2,Dist V2>
-void Sort( DistMatrix<Base<F>,U1,V1>& w, DistMatrix<F,U2,V2>& Z, SortType sort )
+template<typename F>
+void Sort
+( AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::Sort"))
     if( sort == UNSORTED )
@@ -66,7 +67,7 @@ void Sort( DistMatrix<Base<F>,U1,V1>& w, DistMatrix<F,U2,V2>& Z, SortType sort )
         w.Set( j, 0, pairs[j].value );
     }
     Z_VC_STAR.Empty();
-    Z = ZPerm_VC_STAR;
+    Copy( ZPerm_VC_STAR, Z );
 }
 
 } // namespace herm_eig

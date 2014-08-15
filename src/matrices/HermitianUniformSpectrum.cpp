@@ -20,7 +20,6 @@ void HermitianUniformSpectrum
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
     A.Resize( n, n );
     typedef Base<F> Real;
-    const bool isComplex = IsComplex<F>::val;
 
     // Form d and D
     std::vector<F> d( n );
@@ -35,23 +34,21 @@ void HermitianUniformSpectrum
     qr::ApplyQ( LEFT, NORMAL, Q, t, s, A );
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 
-    if( isComplex )
-    {
-        const Int height = A.Height();
-        for( Int j=0; j<height; ++j )
-            A.SetImagPart( j, j, Real(0) );
-    }
+    A.MakeDiagonalReal();
 }
 
 template<typename F>
 void HermitianUniformSpectrum
-( DistMatrix<F>& A, Int n, Base<F> lower, Base<F> upper )
+( AbstractDistMatrix<F>& APre, Int n, Base<F> lower, Base<F> upper )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
-    A.Resize( n, n );
-    const Grid& grid = A.Grid();
+    APre.Resize( n, n );
+    const Grid& grid = APre.Grid();
     typedef Base<F> Real;
-    const bool isComplex = IsComplex<F>::val;
+
+    // Switch to [MC,MR] so that qr::ApplyQ is fast
+    DistMatrix<F> A(grid);
+    Copy( APre, A, WRITE_PROXY );
 
     // Form d and D
     std::vector<F> d( n );
@@ -72,94 +69,16 @@ void HermitianUniformSpectrum
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, A );
 
     // Force the diagonal to be real-valued
-    if( isComplex )
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            {
-                const Int i = A.GlobalRow(iLoc);
-                if( i == j )
-                    A.SetLocalImagPart( iLoc, jLoc, Real(0) );
-            }
-        }
-    }
+    A.MakeDiagonalReal();
+
+    Copy( A, APre, RESTORE_WRITE_PROXY );
 }
-
-template<typename F,Dist U,Dist V>
-void HermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, Int n, Base<F> lower, Base<F> upper )
-{
-    DEBUG_ONLY(CallStackEntry cse("HermitianUniformSpectrum"))
-    A.Resize( n, n );
-    const Grid& grid = A.Grid();
-    typedef Base<F> Real;
-    const bool isComplex = IsComplex<F>::val;
-    const bool standardDist = ( U == MC && V == MR );
-
-    // Form d and D
-    std::vector<F> d( n );
-    if( grid.Rank() == 0 )
-        for( Int j=0; j<n; ++j )
-            d[j] = SampleUniform<Real>( lower, upper );
-    mpi::Broadcast( d.data(), n, 0, grid.Comm() );
-    DistMatrix<F> ABackup( grid );
-    ABackup.AlignWith( A );
-    Diagonal( ABackup, d );
-
-    // Apply a Haar matrix from both sides
-    DistMatrix<F> Q(grid);
-    DistMatrix<F,MD,STAR> t(grid);
-    DistMatrix<Real,MD,STAR> s(grid);
-    ImplicitHaar( Q, t, s, n );
-
-    // Copy the result into the correct distribution
-    qr::ApplyQ( LEFT, NORMAL, Q, t, s, ABackup );
-    qr::ApplyQ( RIGHT, ADJOINT, Q, t, s, ABackup );
-    A = ABackup;
-
-    // Force the diagonal to be real-valued
-    if( isComplex )
-    {
-        const Int localHeight = A.LocalHeight();
-        const Int localWidth = A.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const Int j = A.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            {
-                const Int i = A.GlobalRow(iLoc);
-                if( i == j )
-                    A.SetLocalImagPart( iLoc, jLoc, Real(0) );
-            }
-        }
-    }
-}
-
-#define PROTO_DIST(F,U,V) \
-  template void HermitianUniformSpectrum \
-  ( DistMatrix<F,U,V>& A, Int n, Base<F> lower, Base<F> upper );
 
 #define PROTO(F) \
   template void HermitianUniformSpectrum \
   ( Matrix<F>& A, Int n, Base<F> lower, Base<F> upper ); \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  template void HermitianUniformSpectrum \
+  ( AbstractDistMatrix<F>& A, Int n, Base<F> lower, Base<F> upper );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

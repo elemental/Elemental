@@ -28,6 +28,8 @@ void Copy( Matrix<T>& A, Matrix<T>& B, CopyType copyType )
 
     case RESTORE_READ_WRITE_PROXY:
     case RESTORE_WRITE_PROXY:
+        // This is not a no-op if A was shrunk after viewing
+        B.Resize( A.Height(), A.Width() );
         break;
     }
 }
@@ -46,6 +48,8 @@ void Copy( const Matrix<T>& A, Matrix<T>& B, CopyType copyType )
 
     case RESTORE_READ_WRITE_PROXY:
     case RESTORE_WRITE_PROXY:
+        // This is not a no-op if A was shrunk after viewing
+        B.Resize( A.Height(), A.Width() );
         break;
 
     default: LogicError("Cannot write to const matrix");
@@ -145,6 +149,8 @@ void Copy
     case RESTORE_WRITE_PROXY:
         if( !A.Viewing() )
             B = A;
+        // This is not a no-op if A was shrunk after viewing
+        B.Resize( A.Height(), A.Width() );
         break;
     }
 }
@@ -188,6 +194,8 @@ void Copy
     case RESTORE_WRITE_PROXY:
         if( !A.Viewing() )
             B = A;
+        // This is not a no-op if A was shrunk after viewing
+        B.Resize( A.Height(), A.Width() );
         break;
     }
 }

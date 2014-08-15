@@ -29,8 +29,7 @@ using El::schur::PullSubproblems;
 // the computed unitary matrix upon exit.
 template<typename F>
 inline ValueInt<Base<F>>
-QDWHDivide
-( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
+QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::QDWHDivide"))
 
@@ -521,25 +520,31 @@ void SDC
 
 template<typename F>
 void SDC
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, 
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+  AbstractDistMatrix<Base<F>>& wPre, 
   const HermitianSdcCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
-    const Int n = A.Height();
-    w.Resize( n, 1 );
-    if( A.Grid().Size() == 1 )
+    const Grid& g = APre.Grid();
+    const Int n = APre.Height();
+    wPre.Resize( n, 1 );
+    if( APre.Grid().Size() == 1 )
     {
-        HermitianEig( uplo, A.Matrix(), w.Matrix() );
+        HermitianEig( uplo, APre.Matrix(), wPre.Matrix() );
         return;
     }
     if( n <= ctrl.cutoff )
     {
-        HermitianEig( uplo, A, w );
+        HermitianEig( uplo, APre, wPre );
         return;
     }
+
+    DistMatrix<F> A(g);
+    DistMatrix<Base<F>,VR,STAR> w(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( wPre, w, WRITE_PROXY );
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, ctrl );
@@ -565,31 +570,41 @@ void SDC
     if( ABR.Participating() )
         SDC( uplo, ABRSub, wBSub, ctrl );
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
 }
 
 template<typename F>
 void SDC
 ( UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& Q, 
+  AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& wPre, 
+  AbstractDistMatrix<F>& QPre, 
   const HermitianSdcCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
-    const Int n = A.Height();
-    w.Resize( n, 1 );
-    Q.Resize( n, n );
-    if( A.Grid().Size() == 1 )
+    const Grid& g = APre.Grid();
+    const Int n = APre.Height();
+    wPre.Resize( n, 1 );
+    QPre.Resize( n, n );
+    if( APre.Grid().Size() == 1 )
     {
-        HermitianEig( uplo, A.Matrix(), w.Matrix(), Q.Matrix() );
+        HermitianEig( uplo, APre.Matrix(), wPre.Matrix(), QPre.Matrix() );
         return;
     }
     if( n <= ctrl.cutoff )
     {
-        HermitianEig( uplo, A, w, Q );
+        HermitianEig( uplo, APre, wPre, QPre );
         return;
     }
+
+    DistMatrix<F> A(g), Q(g);
+    DistMatrix<Base<F>,VR,STAR> w(g);
+    Copy( APre, A, READ_WRITE_PROXY );
+    Copy( wPre, w, WRITE_PROXY );
+    Copy( QPre, Q, WRITE_PROXY );
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, Q, ctrl );
@@ -628,6 +643,10 @@ void SDC
     Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );
+
+    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
+    Copy( Q, QPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace herm_eig

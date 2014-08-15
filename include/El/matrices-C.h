@@ -513,7 +513,14 @@ ElError ElHermitianUniformSpectrum_c
 ElError ElHermitianUniformSpectrum_z
 ( ElMatrix_z A, ElInt n, double lower, double upper );
 
-/* TODO: Distributed HermitianUniformSpectrum */
+ElError ElHermitianUniformSpectrumDist_s
+( ElDistMatrix_s A, ElInt n, float lower, float upper );
+ElError ElHermitianUniformSpectrumDist_d
+( ElDistMatrix_d A, ElInt n, double lower, double upper );
+ElError ElHermitianUniformSpectrumDist_c
+( ElDistMatrix_c A, ElInt n, float lower, float upper );
+ElError ElHermitianUniformSpectrumDist_z
+( ElDistMatrix_z A, ElInt n, double lower, double upper );
 
 /* Hilbert
    ======= */

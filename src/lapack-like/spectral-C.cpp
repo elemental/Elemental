@@ -174,9 +174,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElHermitianEigDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElSortType sort ) \
-  { EL_TRY( HermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      CReflect(sort) ) ) } \
+  { EL_TRY( HermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
+                          CReflect(sort) ) ) } \
   /* Return all eigenpairs
      --------------------- */ \
   ElError ElHermitianEigPair_ ## SIG \
@@ -187,9 +186,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElHermitianEigPairDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElDistMatrix_ ## SIG Z, ElSortType sort ) \
-  { EL_TRY( HermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort) ) ) } \
+  { EL_TRY( HermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
+                          *CReflect(Z), CReflect(sort) ) ) } \
   /* Return a subset of eigenvalues 
      ------------------------------ */ \
   ElError ElHermitianEigPartial_ ## SIG \
@@ -200,9 +198,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElHermitianEigPartialDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( HermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      CReflect(sort), CReflect(subset) ) ) } \
+  { EL_TRY( HermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
+                          CReflect(sort), CReflect(subset) ) ) } \
   /* Return a subset of eigenpairs
      ----------------------------- */ \
   ElError ElHermitianEigPairPartial_ ## SIG \
@@ -215,9 +212,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElDistMatrix_ ## SIG Z, ElSortType sort, \
     ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( HermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort), CReflect(subset) ) ) } \
+  { EL_TRY( HermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
+                          *CReflect(Z), CReflect(sort), CReflect(subset) ) ) } \
   /* SkewHermitianEig
      ================ */ \
   /* Return all eigenvalues
@@ -230,9 +226,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElSkewHermitianEigDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElSortType sort ) \
-  { EL_TRY( SkewHermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      CReflect(sort) ) ) } \
+  { EL_TRY( SkewHermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
+                              CReflect(sort) ) ) } \
   /* Return a subset of eigenvalues 
      ------------------------------ */ \
   ElError ElSkewHermitianEigPartial_ ## SIG \
@@ -243,9 +238,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElSkewHermitianEigPartialDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
-  { EL_TRY( SkewHermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      CReflect(sort), CReflect(subset) ) ) } \
+  { EL_TRY( SkewHermitianEig( CReflect(uplo), *CReflect(A), *CReflect(w), \
+                          CReflect(sort), CReflect(subset) ) ) } \
   /* HermitianGenDefEig
      ================== */ \
   /* Return all eigenvalues
@@ -262,8 +256,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
   { EL_TRY( HermitianGenDefEig( \
-      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
-      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort) ) ) } \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), CReflect(sort) ) ) } \
   /* Return all eigenpairs
      --------------------- */ \
   ElError ElHermitianGenDefEigPair_ ## SIG \
@@ -278,8 +272,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG B, \
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( HermitianGenDefEig( \
-      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
-      DM_VR_STAR_CAST(Base<F>,w), DM_CAST(F,Z), CReflect(sort) ) ) } \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), *CReflect(Z), CReflect(sort) ) ) } \
   /* Return a subset of eigenvalues 
      ------------------------------ */ \
   ElError ElHermitianGenDefEigPartial_ ## SIG \
@@ -295,8 +289,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIGBASE w, ElSortType sort, \
     ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianGenDefEig( \
-      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
-      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort), CReflect(subset) ) ) } \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), CReflect(sort), CReflect(subset) ) ) } \
   /* Return a subset of eigenpairs
      ----------------------------- */ \
   ElError ElHermitianGenDefEigPairPartial_ ## SIG \
@@ -313,9 +307,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort, \
     ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianGenDefEig( \
-      CReflect(pencil), CReflect(uplo), DM_CAST(F,A), DM_CAST(F,B), \
-      DM_VR_STAR_CAST(Base<F>,w), DM_CAST(F,Z), CReflect(sort), \
-      CReflect(subset) ) ) } \
+      CReflect(pencil), CReflect(uplo), *CReflect(A), *CReflect(B), \
+      *CReflect(w), *CReflect(Z), CReflect(sort), CReflect(subset) ) ) } \
   /* HermitianTridiagEig
      =================== */ \
   /* Compute all eigenvalues
@@ -450,16 +443,14 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
     ElDistMatrix_ ## SIGBASE w, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort) ) ) } \
+      *CReflect(d), *CReflect(e), *CReflect(w), CReflect(sort) ) ) } \
   /* Compute all eigenpairs
      ---------------------- */ \
   ElError ElHermitianTridiagEigPairDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIGBASE d, ElConstDistMatrix_ ## SIG e, \
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), DM_STAR_VR_CAST(F,Z), \
+      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
       CReflect(sort) ) ) } \
   /* Compute a subset of eigenvalues
      ------------------------------- */ \
@@ -468,8 +459,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIGBASE w, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), CReflect(sort), CReflect(subset) ) ) } \
+      *CReflect(d), *CReflect(e), *CReflect(w), CReflect(sort), \
+      CReflect(subset) ) ) } \
   /* Compute a subset of eigenpairs
      ------------------------------ */ \
   ElError ElHermitianTridiagEigPairPartialDist_ ## SIG \
@@ -477,9 +468,8 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, \
     ElSortType sort, ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( HermitianTridiagEig( \
-      DM_VR_STAR_CAST_CONST(Base<F>,d), DM_VR_STAR_CAST_CONST(F,e), \
-      DM_VR_STAR_CAST(Base<F>,w), DM_STAR_VR_CAST(F,Z), \
-      CReflect(sort), CReflect(subset) ) ) }
+      *CReflect(d), *CReflect(e), *CReflect(w), *CReflect(Z), \
+      CReflect(sort), CReflect(subset) ) ) } \
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F)
@@ -511,14 +501,14 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIGBASE A, \
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( SkewHermitianEig( \
-      CReflect(uplo), DM_CAST(Base<F>,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort) ) ) } \
+      CReflect(uplo), *CReflect(A), *CReflect(w), *CReflect(Z), \
+      CReflect(sort) ) ) } \
   ElError ElSkewHermitianEigPairDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElDistMatrix_ ## SIG Z, ElSortType sort ) \
   { EL_TRY( SkewHermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort) ) ) } \
+      CReflect(uplo), *CReflect(A), *CReflect(w), *CReflect(Z), \
+      CReflect(sort) ) ) } \
   /* Return a subset of eigenpairs
      ----------------------------- */ \
   ElError ElSkewHermitianEigPairPartial_ ## SIGBASE \
@@ -540,15 +530,15 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElDistMatrix_ ## SIGBASE w, ElDistMatrix_ ## SIG Z, ElSortType sort, \
     ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( SkewHermitianEig( \
-      CReflect(uplo), DM_CAST(Base<F>,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort), CReflect(subset) ) ) } \
+      CReflect(uplo), *CReflect(A), *CReflect(w), \
+      *CReflect(Z), CReflect(sort), CReflect(subset) ) ) } \
   ElError ElSkewHermitianEigPairPartialDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE w, \
     ElDistMatrix_ ## SIG Z, ElSortType sort, \
     ElHermitianEigSubset_ ## SIGBASE subset ) \
   { EL_TRY( SkewHermitianEig( \
-      CReflect(uplo), DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,w), \
-      DM_CAST(F,Z), CReflect(sort), CReflect(subset) ) ) }
+      CReflect(uplo), *CReflect(A), *CReflect(w), \
+      *CReflect(Z), CReflect(sort), CReflect(subset) ) ) }
 
 #define C_PROTO_COMPLEX_DOUBLE \
   C_PROTO_FIELD(z,d,Complex<double>) \

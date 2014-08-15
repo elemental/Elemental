@@ -81,156 +81,166 @@ void HermitianTridiagEig
 
 namespace herm_tridiag_eig {
 
-template<typename Real,Dist U,Dist V,Dist X>
+template<typename Real>
 inline void Helper
-( const DistMatrix<Real,U,V   >& d,
-  const DistMatrix<Real,U,V   >& e,
-        DistMatrix<Real,X,STAR>& w, SortType sort,
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& e,
+        AbstractDistMatrix<Real>& wPre, SortType sort,
   const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
+    const Grid& g = d.Grid();
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR(g);
     e_STAR_STAR.Resize( n-1, 1, n );
     e_STAR_STAR = e;
 
-    if( w.Participating() )
-    {
-        Int k;
-        if( subset.rangeSubset )
-        {
-            std::vector<Real> dVector(n), eVector(n), wVector(n);
-            MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-            MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
-            auto estimate = herm_tridiag_eig::EigEstimate
-              ( int(n), dVector.data(), eVector.data(), 
-                wVector.data(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-            SwapClear( dVector );
-            SwapClear( eVector );
-            k = estimate.numGlobalEigenvalues;
-        }
-        else if( subset.indexSubset )
-            k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
-        else
-            k = n;
-        w.AlignCols( 0 );
-        w.Resize( k, 1 );
+    DistMatrix<Real,VR,STAR> w(g);
 
-        std::vector<Real> wVector(n);
-        herm_tridiag_eig::Info info;
-        if( subset.rangeSubset )
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-                wVector.data(), w.ColComm(), 
-                subset.lowerBound, subset.upperBound );
-        else if( subset.indexSubset )
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-                wVector.data(), w.ColComm(), 
-                int(subset.lowerIndex), int(subset.upperIndex) );
-        else
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-                wVector.data(), w.ColComm() );
-        w.Resize( info.numGlobalEigenvalues, 1 );
-        for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-            w.SetLocal( iLoc, 0, wVector[iLoc] );
+    Int k;
+    if( subset.rangeSubset )
+    {
+        std::vector<Real> dVector(n), eVector(n), wVector(n);
+        MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
+        MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
+        auto estimate = herm_tridiag_eig::EigEstimate
+          ( int(n), dVector.data(), eVector.data(), 
+            wVector.data(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+        SwapClear( dVector );
+        SwapClear( eVector );
+        k = estimate.numGlobalEigenvalues;
     }
-    w.MakeConsistent( true );
+    else if( subset.indexSubset )
+        k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
+    else
+        k = n;
+
+    if( !wPre.ColConstrained() )
+        wPre.AlignCols( 0 );
+    wPre.Resize( k, 1 );
+    Copy( wPre, w, WRITE_PROXY );
+
+    std::vector<Real> wVector(n);
+    herm_tridiag_eig::Info info;
+    if( subset.rangeSubset )
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+            wVector.data(), w.ColComm(), 
+            subset.lowerBound, subset.upperBound );
+    else if( subset.indexSubset )
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+            wVector.data(), w.ColComm(), 
+            int(subset.lowerIndex), int(subset.upperIndex) );
+    else
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+            wVector.data(), w.ColComm() );
+    w.Resize( info.numGlobalEigenvalues, 1 );
+    for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
+        w.SetLocal( iLoc, 0, wVector[iLoc] );
     Sort( w, sort );
+
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
 }
 
-template<typename Real,Dist U,Dist V,Dist X>
+template<typename Real>
 inline void Helper
-( const DistMatrix<Real,         U,V   >& d,
-  const DistMatrix<Complex<Real>,U,V   >& e,
-        DistMatrix<Real,         X,STAR>& w, 
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& e,
+        AbstractDistMatrix<Real         >& wPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
     typedef Complex<Real> C;
     const Int n = d.Height();
+    const Grid& g = d.Grid();
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<C,STAR,STAR> e_STAR_STAR( d.Grid() );
+    DistMatrix<C,STAR,STAR> e_STAR_STAR(g);
     e_STAR_STAR.Resize( n-1, 1, n );
     e_STAR_STAR = e;
 
-    DistMatrix<Real,STAR,STAR> eReal( d.Grid() );
+    DistMatrix<Real,STAR,STAR> eReal(g);
     eReal.Resize( n-1, 1, n );
-    if( w.Participating() )
+
+    DistMatrix<Real,VR,STAR> w(g);
+
+    C yLast = 1;
+    for( Int j=0; j<n-1; ++j )
     {
-        C yLast = 1;
-        for( Int j=0; j<n-1; ++j )
-        {
-            const C psi = e_STAR_STAR.GetLocal(j,0);
-            const Real psiAbs = Abs(psi);
-            if( psiAbs == Real(0) )
-                yLast = 1;
-            else
-                yLast = Polar(Real(1),Arg(psi*yLast));
-            eReal.SetLocal( j, 0, psiAbs );
-        }
-
-        Int k;
-        if( subset.rangeSubset )
-        {
-            std::vector<Real> dVector(n), eVector(n), wVector(n);
-            MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-            MemCopy( eVector.data(), eReal.Buffer(), n-1 );
-            auto estimate = herm_tridiag_eig::EigEstimate
-              ( int(n), dVector.data(), eVector.data(), 
-                wVector.data(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-            SwapClear( dVector );
-            SwapClear( eVector );
-            k = estimate.numGlobalEigenvalues;
-        }
-        else if( subset.indexSubset )
-            k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
+        const C psi = e_STAR_STAR.GetLocal(j,0);
+        const Real psiAbs = Abs(psi);
+        if( psiAbs == Real(0) )
+            yLast = 1;
         else
-            k = n;
-        w.AlignCols( 0 );
-        w.Resize( k, 1 );
-
-        herm_tridiag_eig::Info info;
-        std::vector<Real> wVector(n);
-        if( subset.rangeSubset )
-        {
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
-                wVector.data(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-        }
-        else if( subset.indexSubset )
-        {
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
-                wVector.data(), w.ColComm(),
-                int(subset.lowerIndex), int(subset.upperIndex) );
-        }
-        else
-        {
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
-                wVector.data(), w.ColComm() );
-        }
-        w.Resize( info.numGlobalEigenvalues, 1 );
-        for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-            w.SetLocal( iLoc, 0, wVector[iLoc] );
+            yLast = Polar(Real(1),Arg(psi*yLast));
+        eReal.SetLocal( j, 0, psiAbs );
     }
-    w.MakeConsistent( true );
+
+    Int k;
+    if( subset.rangeSubset )
+    {
+        std::vector<Real> dVector(n), eVector(n), wVector(n);
+        MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
+        MemCopy( eVector.data(), eReal.Buffer(), n-1 );
+        auto estimate = herm_tridiag_eig::EigEstimate
+          ( int(n), dVector.data(), eVector.data(), 
+            wVector.data(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+        SwapClear( dVector );
+        SwapClear( eVector );
+        k = estimate.numGlobalEigenvalues;
+    }
+    else if( subset.indexSubset )
+        k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
+    else
+        k = n;
+
+    if( !wPre.ColConstrained() )
+        wPre.AlignCols( 0 );
+    wPre.Resize( k, 1 );
+    Copy( wPre, w, WRITE_PROXY );
+
+    herm_tridiag_eig::Info info;
+    std::vector<Real> wVector(n);
+    if( subset.rangeSubset )
+    {
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
+            wVector.data(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+    }
+    else if( subset.indexSubset )
+    {
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
+            wVector.data(), w.ColComm(),
+            int(subset.lowerIndex), int(subset.upperIndex) );
+    }
+    else
+    {
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(),
+            wVector.data(), w.ColComm() );
+    }
+    w.Resize( info.numGlobalEigenvalues, 1 );
+    for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
+        w.SetLocal( iLoc, 0, wVector[iLoc] );
+
     Sort( w, sort );
+
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace herm_tridiag_eig
 
-template<typename F,Dist U,Dist V,Dist X>
+template<typename F>
 void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,V   >& d,
-  const DistMatrix<F,      U,V   >& e,
-        DistMatrix<Base<F>,X,STAR>& w, 
+( const AbstractDistMatrix<Base<F>>& d,
+  const AbstractDistMatrix<F      >& e,
+        AbstractDistMatrix<Base<F>>& w, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
@@ -318,78 +328,89 @@ void HermitianTridiagEig
 
 namespace herm_tridiag_eig {
 
-template<typename Real,Dist U,Dist V,Dist X>
+template<typename Real>
 inline void Helper
-( const DistMatrix<Real,U,  V   >& d,
-  const DistMatrix<Real,U,  V   >& e,
-        DistMatrix<Real,X,  STAR>& w, 
-        DistMatrix<Real,STAR,X  >& Z, 
+( const AbstractDistMatrix<Real>& d,
+  const AbstractDistMatrix<Real>& e,
+        AbstractDistMatrix<Real>& wPre, 
+        AbstractDistMatrix<Real>& ZPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
+    const Grid& g = d.Grid();
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( d.Grid() );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR(g);
     e_STAR_STAR.Resize( n-1, 1, n );
     e_STAR_STAR = e;
-    if( w.Participating() )
+
+    DistMatrix<Real,VR,STAR> w(g);
+
+    Int k;
+    if( subset.rangeSubset )
     {
-        Int k;
-        if( subset.rangeSubset )
-        {
-            std::vector<Real> dVector(n), eVector(n), wVector(n);
-            MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-            MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
-            auto estimate = herm_tridiag_eig::EigEstimate
-              ( int(n), dVector.data(), eVector.data(),
-                wVector.data(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-            SwapClear( dVector );
-            SwapClear( eVector );
-            k = estimate.numGlobalEigenvalues;
-        }
-        else if( subset.indexSubset )
-            k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
-        else
-            k = n;
-
-        w.AlignCols( 0 );
-        w.Resize( n, 1 );
-        Z.AlignRows( 0 );
-        Z.Resize( n, k );
-
-        herm_tridiag_eig::Info info;
-        std::vector<Real> wVector(n);
-        if( subset.rangeSubset )
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-                wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-        else if( subset.indexSubset )
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-                wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
-                int(subset.lowerIndex), int(subset.upperIndex) );
-        else
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-                wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm() );
-        w.Resize( info.numGlobalEigenvalues, 1 );
-        Z.Resize( n, info.numGlobalEigenvalues );
-        for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-            w.SetLocal( iLoc, 0, wVector[iLoc] );
+        std::vector<Real> dVector(n), eVector(n), wVector(n);
+        MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
+        MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n-1 );
+        auto estimate = herm_tridiag_eig::EigEstimate
+          ( int(n), dVector.data(), eVector.data(),
+            wVector.data(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+        SwapClear( dVector );
+        SwapClear( eVector );
+        k = estimate.numGlobalEigenvalues;
     }
-    w.MakeConsistent( true );
-    Z.MakeConsistent( true );
+    else if( subset.indexSubset )
+        k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
+    else
+        k = n;
+
+    if( !wPre.ColConstrained() )
+        wPre.AlignCols( 0 );
+    wPre.Resize( n, 1 );
+    w.AlignCols( 0 );
+    Copy( wPre, w, WRITE_PROXY );
+
+    if( !ZPre.RowConstrained() )
+        ZPre.AlignRows( 0 );
+    ZPre.Resize( n, k );
+    DistMatrix<Real,STAR,VR> Z(g);
+    Z.AlignRows( 0 );
+    Copy( ZPre, Z, WRITE_PROXY );
+
+    herm_tridiag_eig::Info info;
+    std::vector<Real> wVector(n);
+    if( subset.rangeSubset )
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+            wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+    else if( subset.indexSubset )
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+            wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm(),
+            int(subset.lowerIndex), int(subset.upperIndex) );
+    else
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+            wVector.data(), Z.Buffer(), Z.LDim(), w.ColComm() );
+    w.Resize( info.numGlobalEigenvalues, 1 );
+    Z.Resize( n, info.numGlobalEigenvalues );
+    for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
+        w.SetLocal( iLoc, 0, wVector[iLoc] );
+
     herm_eig::Sort( w, Z, sort );
+
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
+    Copy( Z, ZPre, RESTORE_WRITE_PROXY );
 }
 
-template<typename Real,Dist U,Dist V,Dist X>
+template<typename Real>
 inline void Helper
-( const DistMatrix<Real,         U,  V   >& d,
-  const DistMatrix<Complex<Real>,U,  V   >& e,
-        DistMatrix<Real,         X,  STAR>& w, 
-        DistMatrix<Complex<Real>,STAR,X  >& Z, 
+( const AbstractDistMatrix<Real         >& d,
+  const AbstractDistMatrix<Complex<Real>>& e,
+        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Complex<Real>>& ZPre, 
   SortType sort, const HermitianEigSubset<Real>& subset )
 {
     const Int n = d.Height();
@@ -400,100 +421,109 @@ inline void Helper
     DistMatrix<C,STAR,STAR> e_STAR_STAR(g);
     e_STAR_STAR.Resize( n-1, 1, n );
     e_STAR_STAR = e;
-    DistMatrix<Real,STAR,X   > ZReal(g);
-    DistMatrix<C,   STAR,STAR> y(n,1,g);
 
+    DistMatrix<C,   STAR,STAR> y(n,1,g);
     DistMatrix<Real,STAR,STAR> eReal(g);
     eReal.Resize( n-1, 1, n );
-    if( w.Participating() )
+
+    DistMatrix<Real,VR,STAR> w(g);
+
+    y.SetLocal(0,0,1);
+    for( Int j=0; j<n-1; ++j )
     {
-        y.SetLocal(0,0,1);
-        for( Int j=0; j<n-1; ++j )
-        {
-            const C psi = e_STAR_STAR.GetLocal(j,0);
-            const Real psiAbs = Abs(psi);
-            if( psiAbs == Real(0) )
-                y.SetLocal( j+1, 0, 1 );
-            else
-                y.SetLocal( j+1, 0, Polar(Real(1),Arg(psi*y.GetLocal(j,0))) );
-            eReal.SetLocal( j, 0, psiAbs );
-        }
-
-        Int k;
-        if( subset.rangeSubset )
-        {
-            std::vector<Real> dVector(n), eVector(n), wVector(n);
-            MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
-            MemCopy( eVector.data(), eReal.Buffer(), n-1 );
-            auto estimate = herm_tridiag_eig::EigEstimate
-              ( int(n), dVector.data(), eVector.data(),
-                wVector.data(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-            SwapClear( dVector );
-            SwapClear( eVector );
-            k = estimate.numGlobalEigenvalues;
-        }
-        else if( subset.indexSubset )
-            k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
+        const C psi = e_STAR_STAR.GetLocal(j,0);
+        const Real psiAbs = Abs(psi);
+        if( psiAbs == Real(0) )
+            y.SetLocal( j+1, 0, 1 );
         else
-            k = n;
-
-        w.AlignCols( 0 );
-        w.Resize( n, 1 );
-        ZReal.AlignRows( 0 );
-        ZReal.Resize( n, k );
-        Z.AlignWith( ZReal );
-
-        herm_tridiag_eig::Info info;
-        std::vector<Real> wVector(n);
-        if( subset.rangeSubset )
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
-                wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
-                subset.lowerBound, subset.upperBound );
-        else if( subset.indexSubset )
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
-                wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
-                int(subset.lowerIndex), int(subset.upperIndex) );
-        else
-            info = herm_tridiag_eig::Eig
-              ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
-                wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm() );
-
-        w.Resize( info.numGlobalEigenvalues, 1 );
-        Z.Resize( n, info.numGlobalEigenvalues );
-        ZReal.Resize( n, info.numGlobalEigenvalues );
-        for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-            w.SetLocal( iLoc, 0, wVector[iLoc] );
+            y.SetLocal( j+1, 0, Polar(Real(1),Arg(psi*y.GetLocal(j,0))) );
+        eReal.SetLocal( j, 0, psiAbs );
     }
-    w.MakeConsistent( true );
-    Z.MakeConsistent( true );
-    ZReal.MakeConsistent( true );
+
+    Int k;
+    if( subset.rangeSubset )
+    {
+        std::vector<Real> dVector(n), eVector(n), wVector(n);
+        MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
+        MemCopy( eVector.data(), eReal.Buffer(), n-1 );
+        auto estimate = herm_tridiag_eig::EigEstimate
+          ( int(n), dVector.data(), eVector.data(),
+            wVector.data(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+        SwapClear( dVector );
+        SwapClear( eVector );
+        k = estimate.numGlobalEigenvalues;
+    }
+    else if( subset.indexSubset )
+        k = ( n==0 ? 0 : subset.upperIndex-subset.lowerIndex+1 );
+    else
+        k = n;
+
+    if( !wPre.ColConstrained() )
+        wPre.AlignCols( 0 );
+    wPre.Resize( n, 1 );
+    w.AlignCols( 0 );
+    Copy( wPre, w, WRITE_PROXY );
+
+    DistMatrix<Real,STAR,VR> ZReal(g);
+    ZReal.AlignRows( 0 );
+    ZReal.Resize( n, k );
+
+    herm_tridiag_eig::Info info;
+    std::vector<Real> wVector(n);
+    if( subset.rangeSubset )
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
+            wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
+            subset.lowerBound, subset.upperBound );
+    else if( subset.indexSubset )
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
+            wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm(),
+            int(subset.lowerIndex), int(subset.upperIndex) );
+    else
+        info = herm_tridiag_eig::Eig
+          ( int(n), d_STAR_STAR.Buffer(), eReal.Buffer(), 
+            wVector.data(), ZReal.Buffer(), ZReal.LDim(), w.ColComm() );
+
+    w.Resize( info.numGlobalEigenvalues, 1 );
+    for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
+        w.SetLocal( iLoc, 0, wVector[iLoc] );
+
+    ZReal.Resize( n, info.numGlobalEigenvalues );
     herm_eig::Sort( w, ZReal, sort );
+
+    if( !ZPre.ColConstrained() )
+        ZPre.AlignColsWith( ZReal ); 
+    if( !ZPre.RowConstrained() )
+        ZPre.AlignRowsWith( ZReal );
+    ZPre.Resize( n, info.numGlobalEigenvalues );
+    DistMatrix<C,STAR,VR> Z(g);
+    Z.AlignWith( ZReal );
+    Copy( ZPre, Z, WRITE_PROXY );
     for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
         for( Int i=0; i<n; ++i )
             Z.SetLocal( i, jLoc, y.GetLocal(i,0)*ZReal.GetLocal(i,jLoc) );
+
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
+    Copy( Z, ZPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace herm_tridiag_eig
 
-template<typename F,Dist U,Dist V,Dist X>
+template<typename F>
 void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,   V   >& d,
-  const DistMatrix<F,      U,   V   >& e,
-        DistMatrix<Base<F>,X,   STAR>& w, 
-        DistMatrix<F,      STAR,X   >& Z, 
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e,
+        AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, 
   SortType sort, const HermitianEigSubset<Base<F>>& subset )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEig"))
     herm_tridiag_eig::Helper( d, e, w, Z, sort, subset );
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 Int HermitianTridiagEigEstimate
-( const DistMatrix<Real,U,V>& d,
-  const DistMatrix<Real,U,V>& e,
+( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e,
         mpi::Comm wColComm, Real vl, Real vu )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigEstimate"))
@@ -512,121 +542,56 @@ Int HermitianTridiagEigEstimate
 }
 
 // Z is assumed to be sufficiently large and properly aligned
-template<typename Real,Dist U,Dist V,Dist X>
+template<typename Real>
 void HermitianTridiagEigPostEstimate
-( const DistMatrix<Real,U,   V   >& d,
-  const DistMatrix<Real,U,   V   >& e,
-        DistMatrix<Real,X,   STAR>& w, 
-        DistMatrix<Real,STAR,X   >& Z, 
+( const AbstractDistMatrix<Real>& d,    const AbstractDistMatrix<Real>& e,
+        AbstractDistMatrix<Real>& wPre,       AbstractDistMatrix<Real>& ZPre,
   SortType sort, Real vl, Real vu )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianTridiagEigPostEstimate"))
     const Int n = d.Height();
-    w.AlignCols( 0 );
-    if( Z.RowAlign() != 0 )
-        LogicError("Z was not properly aligned");
+    const Grid& g = d.Grid();
+
+    DistMatrix<Real,STAR,VR> Z(g);
+    Z.AlignRows( 0 );
+    Copy( ZPre, Z, WRITE_PROXY );
 
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( d.Grid() );
     e_STAR_STAR.Resize( n-1, 1, n );
     e_STAR_STAR = e;
-    if( w.Participating() )
-    {
-        std::vector<Real> wVector(n);
-        auto info = herm_tridiag_eig::Eig
-        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
-          Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
-        const Int k = info.numGlobalEigenvalues;
 
-        w.Resize( k, 1 );
-        for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
-            w.SetLocal( iLoc, 0, wVector[iLoc] );
-        Z.Resize( n, k );
-    }
-    w.MakeConsistent( true );
-    Z.MakeConsistent( true );
+    DistMatrix<Real,VR,STAR> w(g);
+
+    std::vector<Real> wVector(n);
+    auto info = herm_tridiag_eig::Eig
+    ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), wVector.data(), 
+      Z.Buffer(), Z.LDim(), w.ColComm(), vl, vu );
+    const Int k = info.numGlobalEigenvalues;
+
+    if( !wPre.ColConstrained() )
+        wPre.AlignCols(0);
+    wPre.Resize( k, 1 );
+    w.AlignCols(0);
+    Copy( wPre, w, WRITE_PROXY );
+
+    for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
+        w.SetLocal( iLoc, 0, wVector[iLoc] );
+
+    // Shrink Z
+    Z.Resize( n, k );
+
     herm_eig::Sort( w, Z, sort );
+
+    Copy( w, wPre, RESTORE_WRITE_PROXY );
+    Copy( Z, ZPre, RESTORE_WRITE_PROXY );
 }
 
-#define PROTO_DIST_INNER(F,U,V,X) \
-  template void HermitianTridiagEig \
-  ( const DistMatrix<Base<F>,U,V   >& d, \
-    const DistMatrix<F,      U,V   >& e, \
-          DistMatrix<Base<F>,X,STAR>& w, SortType sort, \
-    const HermitianEigSubset<Base<F>>& subset ); \
-  template void HermitianTridiagEig \
-  ( const DistMatrix<Base<F>,U,   V   >& d, \
-    const DistMatrix<F,      U,   V   >& e, \
-          DistMatrix<Base<F>,X,   STAR>& w, \
-          DistMatrix<F,      STAR,X   >& Z, SortType sort, \
-    const HermitianEigSubset<Base<F>>& subset );
-
-#define PROTO_DIST(F,U,V) \
-  PROTO_DIST_INNER(F,U,V,MC  ) \
-  PROTO_DIST_INNER(F,U,V,MD  ) \
-  PROTO_DIST_INNER(F,U,V,MR  ) \
-  PROTO_DIST_INNER(F,U,V,STAR) \
-  PROTO_DIST_INNER(F,U,V,VC  ) \
-  PROTO_DIST_INNER(F,U,V,VR  ) \
-
-#define PROTO_DIST_INNER_SORT(F,U,V,W,X) \
-  template void herm_eig::Sort \
-  ( DistMatrix<Base<F>,U,V>& w, DistMatrix<F,W,X>& Z, SortType sort );
-
-#define PROTO_DIST_SORT(F,U,V) \
-  PROTO_DIST_INNER_SORT(F,U,V,CIRC,CIRC) \
-  PROTO_DIST_INNER_SORT(F,U,V,MC,  MR  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,MC,  STAR) \
-  PROTO_DIST_INNER_SORT(F,U,V,MD,  STAR) \
-  PROTO_DIST_INNER_SORT(F,U,V,MR,  MC  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,MR,  STAR) \
-  PROTO_DIST_INNER_SORT(F,U,V,STAR,MC  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,STAR,MD  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,STAR,MR  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,STAR,STAR) \
-  PROTO_DIST_INNER_SORT(F,U,V,STAR,VC  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,STAR,VR  ) \
-  PROTO_DIST_INNER_SORT(F,U,V,VC,  STAR) \
-  PROTO_DIST_INNER_SORT(F,U,V,VR,  STAR)
-
-#define PROTO_DIST_REAL_INNER(Real,U,V,X) \
-  template void HermitianTridiagEigPostEstimate \
-  ( const DistMatrix<Real,U,   V   >& d, \
-    const DistMatrix<Real,U,   V   >& e, \
-          DistMatrix<Real,X,   STAR>& w, \
-          DistMatrix<Real,STAR,X   >& Z, \
-    SortType sort, Real vl, Real vu );
-
-#define PROTO_DIST_REAL(Real,U,V) \
-  template Int HermitianTridiagEigEstimate \
-  ( const DistMatrix<Real,U,V>& d, \
-    const DistMatrix<Real,U,V>& e, \
-          mpi::Comm wColComm, Real vl, Real vu ); \
-  PROTO_DIST_REAL_INNER(Real,U,V,MC  ) \
-  PROTO_DIST_REAL_INNER(Real,U,V,MD  ) \
-  PROTO_DIST_REAL_INNER(Real,U,V,MR  ) \
-  PROTO_DIST_REAL_INNER(Real,U,V,STAR) \
-  PROTO_DIST_REAL_INNER(Real,U,V,VC  ) \
-  PROTO_DIST_REAL_INNER(Real,U,V,VR  )
-
-#define PROTO_SORT(F) \
+#define PROTO_BASE(F) \
   template void herm_eig::Sort \
   ( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort ); \
-  PROTO_DIST_SORT(F,CIRC,CIRC) \
-  PROTO_DIST_SORT(F,MC,  MR  ) \
-  PROTO_DIST_SORT(F,MC,  STAR) \
-  PROTO_DIST_SORT(F,MD,  STAR) \
-  PROTO_DIST_SORT(F,MR,  MC  ) \
-  PROTO_DIST_SORT(F,STAR,MC  ) \
-  PROTO_DIST_SORT(F,STAR,MD  ) \
-  PROTO_DIST_SORT(F,STAR,MR  ) \
-  PROTO_DIST_SORT(F,STAR,STAR) \
-  PROTO_DIST_SORT(F,STAR,VC  ) \
-  PROTO_DIST_SORT(F,STAR,VR  ) \
-  PROTO_DIST_SORT(F,VC,  STAR) \
-  PROTO_DIST_SORT(F,VR,  STAR)
-
-#define PROTO_SEQEIG(F) \
+  template void herm_eig::Sort \
+  ( AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z, SortType sort ); \
   template void HermitianTridiagEig \
   ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, SortType sort, \
     const HermitianEigSubset<Base<F>>& subset ); \
@@ -635,46 +600,31 @@ void HermitianTridiagEigPostEstimate
     SortType sort, const HermitianEigSubset<Base<F>>& subset );
 
 #define PROTO(F) \
-  PROTO_SORT(F) \
-  PROTO_SEQEIG(F) \
-  PROTO_DIST(F,CIRC,CIRC) \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  PROTO_BASE(F) \
+  template void HermitianTridiagEig \
+  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e, \
+          AbstractDistMatrix<Base<F>>& w, \
+    SortType sort, const HermitianEigSubset<Base<F>>& subset ); \
+  template void HermitianTridiagEig \
+  ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e, \
+          AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, \
+    SortType sort, const HermitianEigSubset<Base<F>>& subset );
 
 #define PROTO_REAL(Real) \
   PROTO(Real) \
-  PROTO_DIST_REAL(Real,CIRC,CIRC) \
-  PROTO_DIST_REAL(Real,MC,  MR  ) \
-  PROTO_DIST_REAL(Real,MC,  STAR) \
-  PROTO_DIST_REAL(Real,MD,  STAR) \
-  PROTO_DIST_REAL(Real,MR,  MC  ) \
-  PROTO_DIST_REAL(Real,STAR,MC  ) \
-  PROTO_DIST_REAL(Real,STAR,MD  ) \
-  PROTO_DIST_REAL(Real,STAR,MR  ) \
-  PROTO_DIST_REAL(Real,STAR,STAR) \
-  PROTO_DIST_REAL(Real,STAR,VC  ) \
-  PROTO_DIST_REAL(Real,STAR,VR  ) \
-  PROTO_DIST_REAL(Real,VC,  STAR) \
-  PROTO_DIST_REAL(Real,VR,  STAR)
+  template Int HermitianTridiagEigEstimate \
+  ( const AbstractDistMatrix<Real>& d, \
+    const AbstractDistMatrix<Real>& e, \
+          mpi::Comm wColComm, Real vl, Real vu ); \
+  template void HermitianTridiagEigPostEstimate \
+  ( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e, \
+          AbstractDistMatrix<Real>& w,       AbstractDistMatrix<Real>& Z, \
+    SortType sort, Real vl, Real vu );
 
 #define EL_NO_INT_PROTO
-#define PROTO_FLOAT \
-  PROTO_SORT(float) \
-  PROTO_SEQEIG(float)
-#define PROTO_DOUBLE  PROTO_REAL(double)
-#define PROTO_COMPLEX_FLOAT \
-  PROTO_SORT(Complex<float>) \
-  PROTO_SEQEIG(Complex<float>)
+#define PROTO_FLOAT          PROTO_BASE(float)
+#define PROTO_DOUBLE         PROTO_REAL(double)
+#define PROTO_COMPLEX_FLOAT  PROTO_BASE(Complex<float>)
 #define PROTO_COMPLEX_DOUBLE PROTO(Complex<double>)
 #include "El/macros/Instantiate.h"
 

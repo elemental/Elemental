@@ -130,7 +130,7 @@ void HermitianEig
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w,
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& w,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
@@ -152,9 +152,8 @@ void HermitianEig
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& paddedZ,
-  SortType sort=ASCENDING,
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& w, 
+  AbstractDistMatrix<F>& Z, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
@@ -171,8 +170,8 @@ void HermitianGenDefEig
 template<typename F>
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, SortType sort=ASCENDING,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 // Compute eigenpairs
@@ -187,8 +186,8 @@ void HermitianGenDefEig
 template<typename F>
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& X,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>> subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
@@ -199,15 +198,12 @@ void HermitianGenDefEig
 // --------------------
 template<typename F>
 void HermitianTridiagEig
-( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, 
-  SortType sort=ASCENDING,
+( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-template<typename F,Dist U,Dist V,Dist X>
+template<typename F>
 void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,V   >& d,
-  const DistMatrix<F,      U,V   >& e,
-        DistMatrix<Base<F>,X,STAR>& w, 
-  SortType sort=ASCENDING,
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e,
+        AbstractDistMatrix<Base<F>>& w, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 // Compute eigenpairs
 // ------------------
@@ -216,36 +212,31 @@ void HermitianTridiagEig
 ( Matrix<Base<F>>& d, Matrix<F>& e, Matrix<Base<F>>& w, Matrix<F>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
-template<typename F,Dist U,Dist V,Dist X>
+template<typename F>
 void HermitianTridiagEig
-( const DistMatrix<Base<F>,U,   V   >& d,
-  const DistMatrix<F,      U,   V   >& e,
-        DistMatrix<Base<F>,X,   STAR>& w,
-        DistMatrix<F,      STAR,X   >& Z, 
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& e,
+        AbstractDistMatrix<Base<F>>& w,       AbstractDistMatrix<F>& Z, 
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>() );
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 Int HermitianTridiagEigEstimate
-( const DistMatrix<Real,U,V>& d,
-  const DistMatrix<Real,U,V>& e,
+( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e,
         mpi::Comm wColComm, Real vl, Real vu );
 // Z is assumed to be sufficiently large and properly aligned
-template<typename Real,Dist U,Dist V,Dist X>
+template<typename Real>
 void HermitianTridiagEigPostEstimate
-( const DistMatrix<Real,U,   V   >& d,
-  const DistMatrix<Real,U,   V   >& e,
-        DistMatrix<Real,X,   STAR>& w,
-        DistMatrix<Real,STAR,X   >& Z, 
+( const AbstractDistMatrix<Real>& d, const AbstractDistMatrix<Real>& e,
+        AbstractDistMatrix<Real>& w,       AbstractDistMatrix<Real>& Z, 
   SortType sort, Real vl, Real vu );
 
 namespace herm_eig {
 
 template<typename F>
 void Sort( Matrix<Base<F>>& w, Matrix<F>& Z, SortType sort=ASCENDING );
-template<typename F,Dist U1,Dist V1,Dist U2,Dist V2>
+template<typename F>
 void Sort
-( DistMatrix<Base<F>,U1,V1>& w, DistMatrix<F,U2,V2>& Z,
+( AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Z,
   SortType sort=ASCENDING );
 
 } // namespace herm_eig
@@ -358,8 +349,8 @@ void SkewHermitianEig
   const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const DistMatrix<F>& G,
-  DistMatrix<Base<F>,VR,STAR>& wImag, SortType sort=ASCENDING,
+( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
+  AbstractDistMatrix<Base<F>>& wImag, SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
 
@@ -374,8 +365,8 @@ void SkewHermitianEig
   const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void SkewHermitianEig
-( UpperOrLower uplo, const DistMatrix<F>& G,
-  DistMatrix<Base<F>,VR,STAR>& wImag, DistMatrix<Complex<Base<F>>>& Z,
+( UpperOrLower uplo, const AbstractDistMatrix<F>& G,
+  AbstractDistMatrix<Base<F>>& wImag, AbstractDistMatrix<Complex<Base<F>>>& Z,
   SortType sort=ASCENDING,
   const HermitianEigSubset<Base<F>>& subset=HermitianEigSubset<Base<F>>(), 
   const HermitianEigCtrl<Base<F>>& ctrl=HermitianEigCtrl<Base<F>>() );

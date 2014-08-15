@@ -32,14 +32,15 @@ void Sort( Matrix<Real>& X, SortType sort )
     }
 }
 
-template<typename Real,Dist U,Dist V>
-void Sort( DistMatrix<Real,U,V>& X, SortType sort )
+template<typename Real>
+void Sort( AbstractDistMatrix<Real>& X, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("Sort"))
     if( sort == UNSORTED )
         return;
 
-    if( (U==STAR && V==STAR) || (U==CIRC && V==CIRC) )
+    if( (X.ColDist()==STAR && X.RowDist()==STAR) || 
+        (X.ColDist()==CIRC && X.RowDist()==CIRC) )
     {
         if( X.Participating() )
             Sort( X.Matrix(), sort );
@@ -52,7 +53,7 @@ void Sort( DistMatrix<Real,U,V>& X, SortType sort )
             Sort( X_CIRC_CIRC.Matrix(), sort );
 
         // Refill the distributed X with the sorted values
-        X = X_CIRC_CIRC;
+        Copy( X_CIRC_CIRC, X );
     }
 }
 
@@ -89,12 +90,12 @@ std::vector<ValueInt<Real>> TaggedSort
     return pairs;
 }
 
-template<typename Real,Dist U,Dist V>
+template<typename Real>
 std::vector<ValueInt<Real>> TaggedSort
-( const DistMatrix<Real,U,V>& x, SortType sort )
+( const AbstractDistMatrix<Real>& x, SortType sort )
 {
     DEBUG_ONLY(CallStackEntry cse("TaggedSort"))
-    if( U==STAR && V==STAR )
+    if( x.ColDist()==STAR && x.RowDist()==STAR )
     {
         return TaggedSort( x.LockedMatrix(), sort );
     }
@@ -105,29 +106,13 @@ std::vector<ValueInt<Real>> TaggedSort
     }
 }
 
-#define PROTO_DIST(Real,U,V) \
-  template void Sort( DistMatrix<Real,U,V>& x, SortType sort ); \
-  template std::vector<ValueInt<Real>> TaggedSort \
-  ( const DistMatrix<Real,U,V>& x, SortType sort );
-
 #define PROTO(Real) \
   template void Sort( Matrix<Real>& x, SortType sort ); \
+  template void Sort( AbstractDistMatrix<Real>& x, SortType sort ); \
   template std::vector<ValueInt<Real>> TaggedSort \
   ( const Matrix<Real>& x, SortType sort ); \
-  PROTO_DIST(Real,CIRC,CIRC) \
-  PROTO_DIST(Real,MC,  MR  ) \
-  PROTO_DIST(Real,MC,  STAR) \
-  PROTO_DIST(Real,MD,  STAR) \
-  PROTO_DIST(Real,MR,  MC  ) \
-  PROTO_DIST(Real,MR,  STAR) \
-  PROTO_DIST(Real,STAR,MC  ) \
-  PROTO_DIST(Real,STAR,MD  ) \
-  PROTO_DIST(Real,STAR,MR  ) \
-  PROTO_DIST(Real,STAR,STAR) \
-  PROTO_DIST(Real,STAR,VC  ) \
-  PROTO_DIST(Real,STAR,VR  ) \
-  PROTO_DIST(Real,VC,  STAR) \
-  PROTO_DIST(Real,VR,  STAR)
+  template std::vector<ValueInt<Real>> TaggedSort \
+  ( const AbstractDistMatrix<Real>& x, SortType sort );
 
 #define EL_NO_COMPLEX_PROTO
 #include "El/macros/Instantiate.h"

@@ -35,8 +35,8 @@ void HermitianGenDefEig
 template<typename F>
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, SortType sort,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<Base<F>>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
@@ -87,8 +87,8 @@ void HermitianGenDefEig
 template<typename F> 
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
-  DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X,
+  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& X,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
@@ -122,7 +122,7 @@ void HermitianGenDefEig
     const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HermitianGenDefEig \
   ( Pencil pencil, UpperOrLower uplo, \
-    DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<Base<F>,VR,STAR>& w, \
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, AbstractDistMatrix<Base<F>>& w, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HermitianGenDefEig \
@@ -133,8 +133,8 @@ void HermitianGenDefEig
     const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HermitianGenDefEig \
   ( Pencil pencil, UpperOrLower uplo, \
-    DistMatrix<F>& A, DistMatrix<F>& B, \
-    DistMatrix<Base<F>,VR,STAR>& w, DistMatrix<F>& X, \
+    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& X, \
     SortType sort, const HermitianEigSubset<Base<F>> subset, \
     const HermitianEigCtrl<Base<F>> ctrl );
 

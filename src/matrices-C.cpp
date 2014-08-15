@@ -316,7 +316,9 @@ extern "C" {
   ElError ElHermitianUniformSpectrum_ ## SIG \
   ( ElMatrix_ ## SIG A, ElInt n, Base<T> lower, Base<T> upper ) \
   { EL_TRY( HermitianUniformSpectrum( *CReflect(A), n, lower, upper ) ) } \
-  /* TODO: Distributed HermitianUniformSpectrum */ \
+  ElError ElHermitianUniformSpectrumDist_ ## SIG \
+  ( ElDistMatrix_ ## SIG A, ElInt n, Base<T> lower, Base<T> upper ) \
+  { EL_TRY( HermitianUniformSpectrum( *CReflect(A), n, lower, upper ) ) } \
   /* Hilbert */ \
   ElError ElHilbert_ ## SIG ( ElMatrix_ ## SIG A, ElInt n ) \
   { EL_TRY( Hilbert( *CReflect(A), n ) ) } \

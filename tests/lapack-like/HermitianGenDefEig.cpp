@@ -14,9 +14,9 @@ template<typename F>
 void TestCorrectness
 ( bool print,
   Pencil pencil, UpperOrLower uplo,
-  const DistMatrix<F>& A, const DistMatrix<F>& B,
-  const DistMatrix<Base<F>,VR,STAR>& w, const DistMatrix<F>& X,
-  const DistMatrix<F>& AOrig, const DistMatrix<F>& BOrig )
+  const AbstractDistMatrix<F>& AOrig, const AbstractDistMatrix<F>& BOrig,
+  const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& B,
+  const AbstractDistMatrix<Base<F>>& w, const AbstractDistMatrix<F>& X )
 {
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -217,7 +217,7 @@ void TestCorrectness
     }
 }
 
-template<typename F>
+template<typename F,Dist U=MC,Dist V=MR,Dist S=VR>
 void TestHermitianGenDefEig
 ( bool testCorrectness, bool print,
   Pencil pencil,
@@ -227,9 +227,8 @@ void TestHermitianGenDefEig
   const HermitianEigCtrl<Base<F>> ctrl )
 {
     typedef Base<F> Real;
-    DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F> B(g), BOrig(g);
-    DistMatrix<Real,VR,STAR> w(g);
+    DistMatrix<F,U,V> A(g), B(g), AOrig(g), BOrig(g);
+    DistMatrix<Real,S,STAR> w(g);
     DistMatrix<F> X(g);
 
     HermitianUniformSpectrum( A, m, 1, 10 );
@@ -288,7 +287,7 @@ void TestHermitianGenDefEig
             Print( X, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
-        TestCorrectness( print, pencil, uplo, A, B, w, X, AOrig, BOrig );
+        TestCorrectness( print, pencil, uplo, AOrig, BOrig, A, B, w, X );
 }
 
 int 
@@ -418,6 +417,18 @@ main( int argc, char* argv[] )
               pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
         if( testCpx )
             TestHermitianGenDefEig<Complex<double>>
+            ( testCorrectness, print, 
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+
+        // Also test with non-standard distributions
+        if( commRank == 0 )
+            cout << "Nonstandard distributions:" << endl;
+        if( testReal )
+            TestHermitianGenDefEig<double,MR,MC,MC>
+            ( testCorrectness, print, 
+              pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
+        if( testCpx )
+            TestHermitianGenDefEig<Complex<double>,MR,MC,MC>
             ( testCorrectness, print, 
               pencil, onlyEigvals, uplo, m, sort, g, subset, ctrl );
     }
