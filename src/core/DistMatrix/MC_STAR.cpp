@@ -72,13 +72,11 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [MR,MC]"))
-    std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new DistMatrix<T,VR,STAR>(A) );
-    std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new DistMatrix<T,VC,STAR>(this->Grid()) );
+    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( A );
+    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( this->Grid() );
     A_VC_STAR->AlignColsWith(*this);
     *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset(); // lowers memory highwater
+    A_VR_STAR.reset(); 
     *this = *A_VC_STAR;
     return *this;
 }
@@ -87,13 +85,11 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [MR,STAR]"))
-    std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new DistMatrix<T,VR,STAR>(A) );
-    std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new DistMatrix<T,VC,STAR>(this->Grid()) );
+    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( A );
+    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( this->Grid() );
     A_VC_STAR->AlignColsWith(*this);
     *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset(); // lowers memory highwater
+    A_VR_STAR.reset(); 
     *this = *A_VC_STAR;
     return *this;
 }
@@ -102,17 +98,14 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [STAR,MC]"))
-    std::unique_ptr<DistMatrix<T,MR,MC>> 
-        A_MR_MC( new DistMatrix<T,MR,MC>(A) );
-    std::unique_ptr<DistMatrix<T,VR,STAR>> 
-        A_VR_STAR( new DistMatrix<T,VR,STAR>(*A_MR_MC) );
-    A_MR_MC.reset(); // lowers memory highwater
+    auto A_MR_MC = MakeUnique<DistMatrix<T,MR,MC>>( A );
+    auto A_VR_STAR = MakeUnique<DistMatrix<T,VR,STAR>>( *A_MR_MC );
+    A_MR_MC.reset();
 
-    std::unique_ptr<DistMatrix<T,VC,STAR>> 
-        A_VC_STAR( new DistMatrix<T,VC,STAR>(this->Grid()) );
+    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( this->Grid() );
     A_VC_STAR->AlignColsWith(*this);
     *A_VC_STAR = *A_VR_STAR;
-    A_VR_STAR.reset(); // lowers memory highwater
+    A_VR_STAR.reset(); 
 
     *this = *A_VC_STAR;
     return *this;
@@ -130,13 +123,11 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MC,STAR] = [STAR,VC]"))
-    std::unique_ptr<DistMatrix<T,STAR,VR>> 
-        A_STAR_VR( new DistMatrix<T,STAR,VR>(A) );
-    std::unique_ptr<DistMatrix<T,MC,MR>> 
-        A_MC_MR( new DistMatrix<T,MC,MR>(this->Grid()) );
+    auto A_STAR_VR = MakeUnique<DistMatrix<T,STAR,VR>>( A );
+    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( this->Grid() );
     A_MC_MR->AlignColsWith(*this);
     *A_MC_MR = *A_STAR_VR;
-    A_STAR_VR.reset(); // lowers memory highwater
+    A_STAR_VR.reset();
     *this = *A_MC_MR;
     return *this;
 }

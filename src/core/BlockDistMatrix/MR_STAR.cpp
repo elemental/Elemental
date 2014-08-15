@@ -25,14 +25,11 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MC,MR>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [MC,MR]"))
-    std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new BlockDistMatrix<T,VC,STAR>(A) );
-
-    std::unique_ptr<BlockDistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new BlockDistMatrix<T,VR,STAR>(this->Grid()) );
+    auto A_VC_STAR = MakeUnique<BlockDistMatrix<T,VC,STAR>>( A );
+    auto A_VR_STAR = MakeUnique<BlockDistMatrix<T,VR,STAR>>( this->Grid() );
     A_VR_STAR->AlignColsWith(*this);
     *A_VR_STAR = *A_VC_STAR;
-    A_VC_STAR.reset(); // lowers memory highwater
+    A_VC_STAR.reset(); 
 
     *this = *A_VR_STAR;
     return *this;
@@ -50,18 +47,14 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,MR]"))
-    std::unique_ptr<BlockDistMatrix<T,MC,MR>> 
-        A_MC_MR( new BlockDistMatrix<T,MC,MR>(A) );
+    auto A_MC_MR = MakeUnique<BlockDistMatrix<T,MC,MR>>( A );
+    auto A_VC_STAR = MakeUnique<BlockDistMatrix<T,VC,STAR>>( *A_MC_MR );
+    A_MC_MR.reset();
 
-    std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new BlockDistMatrix<T,VC,STAR>(*A_MC_MR) );
-    A_MC_MR.reset(); // lowers memory highwater
-
-    std::unique_ptr<BlockDistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new BlockDistMatrix<T,VR,STAR>(this->Grid()) );
+    auto A_VR_STAR = MakeUnique<BlockDistMatrix<T,VR,STAR>>( this->Grid() );
     A_VR_STAR->AlignColsWith(*this);
     *A_VR_STAR = *A_VC_STAR;
-    A_VC_STAR.reset(); // lowers memory highwater
+    A_VC_STAR.reset(); 
 
     *this = *A_VR_STAR;
     return *this;
@@ -144,14 +137,11 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[MR,STAR] = [STAR,VR]"))
-    std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new BlockDistMatrix<T,STAR,VC>(A) );
-
-    std::unique_ptr<BlockDistMatrix<T,MR,MC>> A_MR_MC
-    ( new BlockDistMatrix<T,MR,MC>(this->Grid()) );
+    auto A_STAR_VC = MakeUnique<BlockDistMatrix<T,STAR,VC>>( A );
+    auto A_MR_MC = MakeUnique<BlockDistMatrix<T,MR,MC>>( this->Grid() );
     A_MR_MC->AlignColsWith(*this);
     *A_MR_MC = *A_STAR_VC;
-    A_STAR_VC.reset(); // lowers memory highwater
+    A_STAR_VC.reset(); 
 
     *this = *A_MR_MC;
     return *this;

@@ -72,14 +72,11 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MR,MC]"))
-    std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new BlockDistMatrix<T,STAR,VC>(A) );
-
-    std::unique_ptr<BlockDistMatrix<T,STAR,VR>> A_STAR_VR
-    ( new BlockDistMatrix<T,STAR,VR>(this->Grid()) );
+    auto A_STAR_VC = MakeUnique<BlockDistMatrix<T,STAR,VC>>( A );
+    auto A_STAR_VR = MakeUnique<BlockDistMatrix<T,STAR,VR>>( this->Grid() );
     A_STAR_VR->AlignRowsWith(*this);
     *A_STAR_VR = *A_STAR_VC;
-    A_STAR_VC.reset(); // lowers memory highwater
+    A_STAR_VC.reset();
 
     *this = *A_STAR_VR;
     return *this;
@@ -89,18 +86,14 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,MR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [MR,STAR]"))
-    std::unique_ptr<BlockDistMatrix<T,VR,STAR>> A_VR_STAR
-    ( new BlockDistMatrix<T,VR,STAR>(A) );
+    auto A_VR_STAR = MakeUnique<BlockDistMatrix<T,VR,STAR>>( A );
+    auto A_VC_STAR = MakeUnique<BlockDistMatrix<T,VC,STAR>>( *A_VR_STAR );
+    A_VR_STAR.reset(); 
 
-    std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new BlockDistMatrix<T,VC,STAR>(*A_VR_STAR) );
-    A_VR_STAR.reset(); // lowers memory highwater
-
-    std::unique_ptr<BlockDistMatrix<T,MC,MR>> A_MC_MR
-    ( new BlockDistMatrix<T,MC,MR>(this->Grid()) );
+    auto A_MC_MR = MakeUnique<BlockDistMatrix<T,MC,MR>>( this->Grid() );
     A_MC_MR->AlignRowsWith(*this);
     *A_MC_MR = *A_VC_STAR;
-    A_VC_STAR.reset(); // lowers memory highwater
+    A_VC_STAR.reset();
 
     *this = *A_MC_MR;
     return *this;
@@ -110,18 +103,14 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,STAR,MC>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [STAR,MC]"))
-    std::unique_ptr<BlockDistMatrix<T,STAR,VC>> A_STAR_VC
-    ( new BlockDistMatrix<T,STAR,VC>(A) );
-
-    std::unique_ptr<BlockDistMatrix<T,STAR,VR>> A_STAR_VR
-    ( new BlockDistMatrix<T,STAR,VR>(this->Grid()) );
+    auto A_STAR_VC = MakeUnique<BlockDistMatrix<T,STAR,VC>>( A );
+    auto A_STAR_VR = MakeUnique<BlockDistMatrix<T,STAR,VR>>( this->Grid() );
     A_STAR_VR->AlignRowsWith(*this);
     *A_STAR_VR = *A_STAR_VC;
-    A_STAR_VC.reset(); // lowers memory highwater
+    A_STAR_VC.reset(); 
 
-    std::unique_ptr<BlockDistMatrix<T,MC,MR>> A_MC_MR
-    ( new BlockDistMatrix<T,MC,MR>(*A_STAR_VR) );
-    A_STAR_VR.reset(); // lowers memory highwater
+    auto A_MC_MR = MakeUnique<BlockDistMatrix<T,MC,MR>>( *A_STAR_VR );
+    A_STAR_VR.reset();
 
     *this = *A_MC_MR;
     return *this;
@@ -153,14 +142,11 @@ template<typename T>
 BDM& BDM::operator=( const BlockDistMatrix<T,VR,STAR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[STAR,MR] = [VR,STAR]"))
-    std::unique_ptr<BlockDistMatrix<T,VC,STAR>> A_VC_STAR
-    ( new BlockDistMatrix<T,VC,STAR>(A) );
-
-    std::unique_ptr<BlockDistMatrix<T,MC,MR>> A_MC_MR
-    ( new BlockDistMatrix<T,MC,MR>(this->Grid()) );
+    auto A_VC_STAR = MakeUnique<BlockDistMatrix<T,VC,STAR>>( A );
+    auto A_MC_MR = MakeUnique<BlockDistMatrix<T,MC,MR>>( this->Grid() );
     A_MC_MR->AlignRowsWith(*this);
     *A_MC_MR = *A_VC_STAR;
-    A_VC_STAR.reset(); // lowers memory highwater
+    A_VC_STAR.reset();
 
     *this = *A_MC_MR;
     return *this;

@@ -94,8 +94,7 @@ void DiagonalSolve
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    #define GUARD(CDIST,RDIST) \
-        X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<F,CDIST,RDIST>&>(X); \
         DiagonalSolve( side, orientation, d, XCast, checkIfSingular );
@@ -109,8 +108,7 @@ void DiagonalSolve
   bool checkIfSingular )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalSolve"))
-    #define GUARD(CDIST,RDIST) \
-        X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<F>,CDIST,RDIST>&>(X); \
         DiagonalSolve( side, orientation, d, XCast, checkIfSingular );

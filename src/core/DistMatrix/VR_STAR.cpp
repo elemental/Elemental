@@ -51,10 +51,9 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,MR]"))
-    std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
-    std::unique_ptr<DistMatrix<T,VC,STAR>> 
-        A_VC_STAR( new DistMatrix<T,VC,STAR>(*A_MC_MR) );
-    A_MC_MR.reset(); // lowers memory highwater
+    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( A );
+    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( *A_MC_MR );
+    A_MC_MR.reset(); 
     *this = *A_VC_STAR;
     return *this;
 }
@@ -188,11 +187,9 @@ template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
     DEBUG_ONLY(CallStackEntry cse("[VR,STAR] = [STAR,VR]"))
-    std::unique_ptr<DistMatrix<T,MC,MR>> 
-        A_MC_MR( new DistMatrix<T,MC,MR>(A) );
-    std::unique_ptr<DistMatrix<T,VC,STAR>> 
-        A_VC_STAR( new DistMatrix<T,VC,STAR>(*A_MC_MR) );
-    A_MC_MR.reset(); // lowers memory highwater
+    auto A_MC_MR = MakeUnique<DistMatrix<T,MC,MR>>( A );
+    auto A_VC_STAR = MakeUnique<DistMatrix<T,VC,STAR>>( *A_MC_MR );
+    A_MC_MR.reset(); 
     *this = *A_VC_STAR;
     return *this;
 }

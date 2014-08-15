@@ -198,6 +198,11 @@ void ComplainIfDebug();
 template<typename T>
 void EnsureConsistent( T alpha, mpi::Comm comm, std::string name="" );
 
+// This will be guaranteed by C++14 via std::make_unique
+template<typename T, typename ...Args>
+inline std::unique_ptr<T> MakeUnique( Args&& ...args )
+{ return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) ); }
+
 } // namespace El
 
 #endif // ifndef EL_ENVIRONMENT_DECL_HPP

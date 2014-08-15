@@ -82,41 +82,22 @@ void HermitianSVD
   DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
+    typedef Base<F> Real;
+
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
 
-    // Redistribute the singular values into an [MR,* ] distribution
-    typedef Base<F> Real;
-    const Grid& grid = A.Grid();
-    DistMatrix<Real,MR,STAR> s_MR_STAR( grid );
-    s_MR_STAR.AlignWith( V.DistData() );
-    s_MR_STAR = s;
-
     // Copy V into U (flipping the sign as necessary)
-    U.AlignWith( V );
-    U.Resize( V.Height(), V.Width() );
-    const Int localHeight = V.LocalHeight();
-    const Int localWidth = V.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-    {
-        const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-        F* UCol = U.Buffer( 0, jLoc );
-        const F* VCol = V.LockedBuffer( 0, jLoc );
-        if( sigma >= 0 )
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                UCol[iLoc] = VCol[iLoc];
-        else
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                UCol[iLoc] = -VCol[iLoc];
-    }
+    Copy( U, V );
+    DistMatrix<Real,VR,STAR> sSgn( s );
+    auto sgnLambda = []( Real sigma )
+                     { return ( sigma >= 0 ? Real(1) : Real(-1) ); };
+    EntrywiseMap( sSgn, std::function<Real(Real)>(sgnLambda) );
+    DiagonalScale( RIGHT, NORMAL, sSgn, U );
 
     // Set the singular values to the absolute value of the eigenvalues
-    const Int numLocalVals = s.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
-    {
-        const Real sigma = s.GetLocal(iLoc,0);
-        s.SetLocal(iLoc,0,Abs(sigma));
-    }
+    auto absLambda = []( Real sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
 
     // TODO: Descending sort of triplets
 }
@@ -139,12 +120,13 @@ void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
 #if 1
+    typedef Base<F> Real;
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
 
     // Set the singular values to the absolute value of the eigenvalues
-    for( Int i=0; i<s.Height(); ++i )
-        s.Set(i,0,Abs(s.Get(i,0)));
+    auto absLambda = []( Real sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
 
     Sort( s, DESCENDING );
 #else
@@ -166,16 +148,14 @@ void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
+    typedef Base<F> Real;
+
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
 
-    // Replace the eigenvalues with their absolute values
-    const Int numLocalVals = s.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
-    {
-        const Base<F> sigma = s.GetLocal(iLoc,0);
-        s.SetLocal(iLoc,0,Abs(sigma));
-    }
+    // Set the singular values to the absolute value of the eigenvalues
+    auto absLambda = []( Real sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
 
     Sort( s, DESCENDING );
 }

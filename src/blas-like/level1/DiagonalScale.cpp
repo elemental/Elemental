@@ -79,8 +79,7 @@ void DiagonalScale
   const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) \
-        X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
         DiagonalScale( side, orientation, d, XCast );
@@ -93,8 +92,7 @@ void DiagonalScale
   const AbstractDistMatrix<T>& d, AbstractDistMatrix<Complex<T>>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) \
-        X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
         DiagonalScale( side, orientation, d, XCast );

@@ -199,8 +199,7 @@ void DiagonalScaleTrapezoid
   const AbstractDistMatrix<T>& d, AbstractDistMatrix<T>& X, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) \
-        X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(X); \
         DiagonalScaleTrapezoid( side, uplo, orientation, d, XCast, offset );
@@ -214,8 +213,7 @@ void DiagonalScaleTrapezoid
   Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
-    #define GUARD(CDIST,RDIST) \
-        X.DistData().colDist == CDIST && X.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) X.ColDist() == CDIST && X.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& XCast = dynamic_cast<DistMatrix<Complex<T>,CDIST,RDIST>&>(X); \
         DiagonalScaleTrapezoid( side, uplo, orientation, d, XCast, offset );

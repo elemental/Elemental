@@ -296,8 +296,7 @@ void Copy
 ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) \
-        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( A, BCast, copyType );
@@ -309,8 +308,7 @@ void Copy
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) \
-        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( A, BCast, copyType );
@@ -323,8 +321,7 @@ void Copy
   CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) \
-        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<BlockDistMatrix<T,CDIST,RDIST>&>(B); \
         Copy( A, BCast, copyType );
@@ -337,8 +334,7 @@ void Copy
   CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) \
-        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = dynamic_cast<DistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
         Copy( A, BCast, copyType );
@@ -351,8 +347,7 @@ void Copy
         AbstractBlockDistMatrix<Complex<Real>>& B, CopyType copyType )
 {
     DEBUG_ONLY(CallStackEntry cse("Copy"))
-    #define GUARD(CDIST,RDIST) \
-        B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
+    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
     #define PAYLOAD(CDIST,RDIST) \
         auto& BCast = \
             dynamic_cast<BlockDistMatrix<Complex<Real>,CDIST,RDIST>&>(B); \
