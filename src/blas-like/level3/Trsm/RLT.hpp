@@ -42,20 +42,20 @@ RLT
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
-    const IndexRange outerInd( 0, m );
+    const Range<Int> outerInd( 0, m );
 
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, outerInd, ind1 );
-        auto X2 = View( X, outerInd, ind2 );
+        auto X1 = X( outerInd, ind1 );
+        auto X2 = X( outerInd, ind2 );
 
         L11_STAR_STAR = L11; 
         X1_VC_STAR.AlignWith( X2 );

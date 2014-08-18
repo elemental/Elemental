@@ -120,7 +120,7 @@ LLT
 
     const bool conjugate = ( orientation==ADJOINT );
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -131,8 +131,8 @@ LLT
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto L10 = LockedView( L, ind1, ind0 );
         auto L11 = LockedView( L, ind1, ind1 );
@@ -177,7 +177,7 @@ LLTLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -188,8 +188,8 @@ LLTLarge
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto L10 = LockedView( L, ind1, ind0 );
         auto L11 = LockedView( L, ind1, ind1 );
@@ -249,7 +249,7 @@ LLTMedium
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -260,8 +260,8 @@ LLTMedium
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto L10 = LockedView( L, ind1, ind0 );
         auto L11 = LockedView( L, ind1, ind1 );
@@ -325,7 +325,7 @@ LLTSmall
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> Z1_STAR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -336,8 +336,8 @@ LLTSmall
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
@@ -389,7 +389,7 @@ LLTSmall
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -400,8 +400,8 @@ LLTSmall
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto L10 = LockedView( L, ind1, ind0 );
         auto L11 = LockedView( L, ind1, ind1 );

@@ -30,9 +30,9 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
         gamma = (1+Sqrt(Real(17)))/8;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const IndexRange ind1( 0, 1 ),
+    const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
-    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
+    const auto a21Max = VectorMaxAbs( A(ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -46,11 +46,11 @@ BunchKaufmanA( const Matrix<F>& A, Base<F> gamma )
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const IndexRange indr0( 0,   r   ),
+    const Range<Int> indr0( 0,   r   ),
                      indr1( r,   r+1 ),
                      indr2( r+1, n   );
-    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
-    const auto bottomMax = VectorMaxAbs( LockedView(A,indr2,indr1) );
+    const auto leftMax   = VectorMaxAbs( A(indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( A(indr2,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -85,9 +85,9 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
         gamma = (1+Sqrt(Real(17)))/8;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const IndexRange ind1( 0, 1 ),
+    const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
-    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
+    const auto a21Max = VectorMaxAbs( A(ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -101,11 +101,11 @@ BunchKaufmanA( const DistMatrix<F>& A, Base<F> gamma )
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const IndexRange indr0( 0,   r   ),
+    const Range<Int> indr0( 0,   r   ),
                      indr1( r,   r+1 ),
                      indr2( r+1, n   );
-    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
-    const auto bottomMax = VectorMaxAbs( LockedView(A,indr2,indr1) );
+    const auto leftMax   = VectorMaxAbs( A(indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( A(indr2,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -140,9 +140,9 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
         gamma = Real(525)/1000;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const IndexRange ind1( 0, 1 ),
+    const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
-    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
+    const auto a21Max = VectorMaxAbs( A(ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -156,11 +156,11 @@ BunchKaufmanD( const Matrix<F>& A, Base<F> gamma )
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const IndexRange indr0( 0,   r   ),
+    const Range<Int> indr0( 0,   r   ),
                      indr1( r,   r+1 ),
                      indrB( r,   n   );
-    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
-    const auto bottomMax = VectorMaxAbs( LockedView(A,indrB,indr1) );
+    const auto leftMax   = VectorMaxAbs( A(indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( A(indrB,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -188,9 +188,9 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
         gamma = Real(525)/1000;
 
     const Real alpha11Abs = Abs(A.Get(0,0));
-    const IndexRange ind1( 0, 1 ),
+    const Range<Int> ind1( 0, 1 ),
                      ind2( 1, n );
-    const auto a21Max = VectorMaxAbs( LockedView(A,ind2,ind1) );
+    const auto a21Max = VectorMaxAbs( A(ind2,ind1) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -204,11 +204,11 @@ BunchKaufmanD( const DistMatrix<F>& A, Base<F> gamma )
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + 1;
-    const IndexRange indr0( 0,   r   ),
+    const Range<Int> indr0( 0,   r   ),
                      indr1( r,   r+1 ),
                      indrB( r,   n   );
-    const auto leftMax   = VectorMaxAbs( LockedView(A,indr1,indr0) );
-    const auto bottomMax = VectorMaxAbs( LockedView(A,indrB,indr1) );
+    const auto leftMax   = VectorMaxAbs( A(indr1,indr0) );
+    const auto bottomMax = VectorMaxAbs( A(indrB,indr1) );
     const Real rowMaxVal = Max(leftMax.value,bottomMax.value);
 
     if( alpha11Abs >= gamma*a21Max.value*(a21Max.value/rowMaxVal) )
@@ -295,22 +295,22 @@ PanelBunchKaufmanA
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    const IndexRange ind0( 0,   k   ),
+    const Range<Int> ind0( 0,   k   ),
                      ind1( k,   k+1 ),  ind1Off( 0, 1   ),
                      ind2( k+1, n   ),  ind2Off( 1, n-k ),
                      indB( k,   n   );
 
-    auto aB1 = LockedView( A, indB, ind1 );
+    auto aB1 = A( indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     {
-        auto XB0 = LockedView( X, indB, ind0 );
-        auto y10 = LockedView( Y, ind1, ind0 );
+        auto XB0 = X( indB, ind0 );
+        auto y10 = Y( ind1, ind0 );
         Gemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
+    const auto a21Max = VectorMaxAbs( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -324,31 +324,31 @@ PanelBunchKaufmanA
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    const IndexRange indrM( k, r   ),
+    const Range<Int> indrM( k, r   ),
                      indr1( r, r+1 ), indr1Off( 0, 1   ),
                                       indr2Off( 1, n-r ),
                      indrB( r, n   );
-    auto aLeft   = LockedView( A, indr1, indrM );
-    auto aBottom = LockedView( A, indrB, indr1 );
+    auto aLeft   = A( indr1, indrM );
+    auto aBottom = A( indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
-    auto zStrictBottom = View( zBottom, indr2Off, indr1Off );
+    auto zStrictBottom = zBottom( indr2Off, indr1Off );
 
     // Update necessary components out-of-place
     // ----------------------------------------
 
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     {
-        auto xr10 = LockedView( X, indr1, ind0 );
-        auto YrM0 = LockedView( Y, indrM, ind0 );
+        auto xr10 = X( indr1, ind0 );
+        auto YrM0 = Y( indrM, ind0 );
         Gemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     {
-        auto XrB0 = LockedView( X, indrB, ind0 );
-        auto yr10 = LockedView( Y, indr1, ind0 );
+        auto XrB0 = X( indrB, ind0 );
+        auto yr10 = Y( indr1, ind0 );
         Gemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
@@ -393,23 +393,23 @@ PanelBunchKaufmanA
     if( gamma == Real(0) )
         gamma = (1+Sqrt(Real(17)))/8;
 
-    const IndexRange ind0( 0,   k   ),
+    const Range<Int> ind0( 0,   k   ),
                      ind1( k,   k+1 ),  ind1Off( 0, 1   ),
                      ind2( k+1, n   ),  ind2Off( 1, n-k ),
                      indB( k,   n   );
 
-    auto aB1 = LockedView( A, indB, ind1 );
+    auto aB1 = A( indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     if( aB1.RowAlign() == aB1.RowRank() )
     {
-        auto XB0 = LockedView( X, indB, ind0 );
-        auto y10 = LockedView( Y, ind1, ind0 );
+        auto XB0 = X( indB, ind0 );
+        auto y10 = Y( ind1, ind0 );
         LocalGemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
+    const auto a21Max = VectorMaxAbs( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -423,16 +423,16 @@ PanelBunchKaufmanA
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    const IndexRange indrM( k, r   ),
+    const Range<Int> indrM( k, r   ),
                      indr1( r, r+1 ), indr1Off( 0, 1   ),
                                       indr2Off( 1, n-r ),
                      indrB( r, n   );
-    auto aLeft   = LockedView( A, indr1, indrM );
-    auto aBottom = LockedView( A, indrB, indr1 );
+    auto aLeft   = A( indr1, indrM );
+    auto aBottom = A( indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
-    auto zStrictBottom = View( zBottom, indr2Off, indr1Off );
+    auto zStrictBottom = zBottom( indr2Off, indr1Off );
 
     // Update necessary components out-of-place
     // ----------------------------------------
@@ -440,16 +440,16 @@ PanelBunchKaufmanA
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     if( aLeft.ColAlign() == aLeft.ColRank() )
     {
-        auto xr10 = LockedView( X, indr1, ind0 );
-        auto YrM0 = LockedView( Y, indrM, ind0 );
+        auto xr10 = X( indr1, ind0 );
+        auto YrM0 = Y( indrM, ind0 );
         LocalGemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     if( aBottom.RowAlign() == aBottom.RowRank() )
     {
-        auto XrB0 = LockedView( X, indrB, ind0 );
-        auto yr10 = LockedView( Y, indr1, ind0 );
+        auto XrB0 = X( indrB, ind0 );
+        auto yr10 = Y( indr1, ind0 );
         LocalGemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
@@ -490,22 +490,22 @@ PanelBunchKaufmanD
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
 
-    const IndexRange ind0( 0, k   ),
+    const Range<Int> ind0( 0, k   ),
                      ind1( k, k+1 ), ind1Off( 0, 1   ),
                                      ind2Off( 1, n-k ), 
                      indB( k, n   );
 
-    auto aB1 = LockedView( A, indB, ind1 );
+    auto aB1 = A( indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     {
-        auto XB0  = LockedView( X, indB, ind0 );
-        auto y10 = LockedView( Y, ind1, ind0 );
+        auto XB0 = X( indB, ind0 );
+        auto y10 = Y( ind1, ind0 );
         Gemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
+    const auto a21Max = VectorMaxAbs( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -519,11 +519,11 @@ PanelBunchKaufmanD
 
     // Find maximum value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    const IndexRange indrM( k, r   ),
+    const Range<Int> indrM( k, r   ),
                      indr1( r, r+1 ),
                      indrB( r, n   );
-    auto aLeft   = LockedView( A, indr1, indrM );
-    auto aBottom = LockedView( A, indrB, indr1 );
+    auto aLeft   = A( indr1, indrM );
+    auto aBottom = A( indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
@@ -533,15 +533,15 @@ PanelBunchKaufmanD
 
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     {
-        auto xr10 = LockedView( X, indr1, ind0 );
-        auto YrM0 = LockedView( Y, indrM, ind0 );
+        auto xr10 = X( indr1, ind0 );
+        auto YrM0 = Y( indrM, ind0 );
         Gemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     {
-        auto XrB0 = LockedView( X, indrB, ind0 );
-        auto yr10 = LockedView( Y, indr1, ind0 );
+        auto XrB0 = X( indrB, ind0 );
+        auto yr10 = Y( indr1, ind0 );
         Gemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
@@ -579,23 +579,23 @@ PanelBunchKaufmanD
     if( gamma == Real(0) )
         gamma = Real(525)/1000;
 
-    const IndexRange ind0( 0, k   ),
+    const Range<Int> ind0( 0, k   ),
                      ind1( k, k+1 ), ind1Off( 0, 1   ),
                                      ind2Off( 1, n-k ), 
                      indB( k, n   );
 
-    auto aB1 = LockedView( A, indB, ind1 );
+    auto aB1 = A( indB, ind1 );
     auto zB1( aB1 );
     // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     if( aB1.RowAlign() == aB1.RowRank() )
     {
-        auto XB0  = LockedView( X, indB, ind0 );
-        auto y10 = LockedView( Y, ind1, ind0 );
+        auto XB0 = X( indB, ind0 );
+        auto y10 = Y( ind1, ind0 );
         LocalGemv( NORMAL, F(-1), XB0, y10, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    const auto a21Max = VectorMaxAbs( LockedView(zB1,ind2Off,ind1Off) );
+    const auto a21Max = VectorMaxAbs( zB1(ind2Off,ind1Off) );
     if( a21Max.value == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
@@ -609,11 +609,11 @@ PanelBunchKaufmanD
 
     // Find maximum off-diag value in row r (exploit symmetry)
     const Int r = a21Max.index + (k+1);
-    const IndexRange indrM( k, r   ),
+    const Range<Int> indrM( k, r   ),
                      indr1( r, r+1 ),
                      indrB( r, n   );
-    auto aLeft   = LockedView( A, indr1, indrM );
-    auto aBottom = LockedView( A, indrB, indr1 );
+    auto aLeft   = A( indr1, indrM );
+    auto aBottom = A( indrB, indr1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
@@ -624,16 +624,16 @@ PanelBunchKaufmanD
     // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     if( aLeft.ColAlign() == aLeft.ColRank() )
     {
-        auto xr10 = LockedView( X, indr1, ind0 );
-        auto YrM0 = LockedView( Y, indrM, ind0 );
+        auto xr10 = X( indr1, ind0 );
+        auto YrM0 = Y( indrM, ind0 );
         LocalGemv( NORMAL, F(-1), YrM0, xr10, F(1), zLeft );
     }
 
     // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     if( aBottom.RowAlign() == aBottom.RowRank() )
     {
-        auto XrB0 = LockedView( X, indrB, ind0 );
-        auto yr10 = LockedView( Y, indr1, ind0 );
+        auto XrB0 = X( indrB, ind0 );
+        auto yr10 = Y( indr1, ind0 );
         LocalGemv( NORMAL, F(-1), XrB0, yr10, F(1), zBottom );
     } 
 
@@ -772,11 +772,11 @@ UnblockedPivoted
     Int k=0;
     while( k < n )
     {
-        const IndexRange indB( k,   n   ),
+        const Range<Int> indB( k,   n   ),
                          indR( k,   n   );
 
         // Determine the pivot (block)
-        auto ABR = View( A, indB, indR );
+        auto ABR = A( indB, indR );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
@@ -788,7 +788,7 @@ UnblockedPivoted
         // Update trailing submatrix and store pivots
         if( pivot.nb == 1 )
         {
-            const IndexRange ind1( k,   k+1 ),
+            const Range<Int> ind1( k,   k+1 ),
                              ind2( k+1, n   );
 
             const Int from = k + pivot.from[0];
@@ -797,8 +797,8 @@ UnblockedPivoted
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
-            auto a21 = View( A, ind2, ind1 );
-            auto A22 = View( A, ind2, ind2 );
+            auto a21 = A( ind2, ind1 );
+            auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
@@ -806,7 +806,7 @@ UnblockedPivoted
         }
         else
         {
-            const IndexRange ind1( k,   k+2 ),
+            const Range<Int> ind1( k,   k+2 ),
                              ind2( k+2, n   );
 
             const Int from0 = k + pivot.from[0];
@@ -817,9 +817,9 @@ UnblockedPivoted
             RowSwap( p, k+1, from1 );
 
             // Rank-two update: A22 -= A21 inv(D11) A21'
-            auto D11 = View( A, ind1, ind1 );
-            auto A21 = View( A, ind2, ind1 );
-            auto A22 = View( A, ind2, ind2 );
+            auto D11 = A( ind1, ind1 );
+            auto A21 = A( ind2, ind1 );
+            auto A22 = A( ind2, ind2 );
             Y21 = A21;
             Symmetric2x2Solve( RIGHT, LOWER, D11, A21, conjugate );
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
@@ -865,11 +865,11 @@ UnblockedPivoted
     Int k=0;
     while( k < n )
     {
-        const IndexRange indB( k, n ),
+        const Range<Int> indB( k, n ),
                          indR( k, n );
 
         // Determine the pivot (block)
-        auto ABR = View( A, indB, indR );
+        auto ABR = A( indB, indR );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
@@ -881,7 +881,7 @@ UnblockedPivoted
         // Update trailing submatrix and store pivots
         if( pivot.nb == 1 )
         {
-            const IndexRange ind1( k,   k+1 ),
+            const Range<Int> ind1( k,   k+1 ),
                              ind2( k+1, n   );
 
             const Int from = k + pivot.from[0];
@@ -890,8 +890,8 @@ UnblockedPivoted
 
             // Rank-one update: A22 -= a21 inv(delta11) a21'
             const F delta11Inv = F(1)/ABR.Get(0,0);
-            auto a21 = View( A, ind2, ind1 );
-            auto A22 = View( A, ind2, ind2 );
+            auto a21 = A( ind2, ind1 );
+            auto A22 = A( ind2, ind2 );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
@@ -899,7 +899,7 @@ UnblockedPivoted
         }
         else
         {
-            const IndexRange ind1( k,   k+2 ),
+            const Range<Int> ind1( k,   k+2 ),
                              ind2( k+2, n   );
 
             const Int from0 = k + pivot.from[0];
@@ -910,9 +910,9 @@ UnblockedPivoted
             RowSwap( p, k+1, from1 );
 
             // Rank-two update: A22 -= A21 inv(D11) A21'
-            auto D11 = View( A, ind1, ind1 );
-            auto A21 = View( A, ind2, ind1 );
-            auto A22 = View( A, ind2, ind2 );
+            auto D11 = A( ind1, ind1 );
+            auto A21 = A( ind2, ind1 );
+            auto A22 = A( ind2, ind2 );
             Y21 = A21;
             D11_STAR_STAR = D11;
             Symmetric2x2Solve( RIGHT, LOWER, D11_STAR_STAR, A21, conjugate );
@@ -940,7 +940,7 @@ PanelPivoted
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
     const Int nFull = AFull.Height();
-    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
+    auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
     Zeros( X, n, bsize );
     Zeros( Y, n, bsize );
@@ -955,23 +955,23 @@ PanelPivoted
             LogicError("permutation vector is the wrong size");
     )
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     Int k=0;
     while( k < bsize )
     {
-        const IndexRange ind0( 0, k ),
+        const Range<Int> ind0( 0, k ),
                          indB( k, n ),
                          indR( k, n );
 
         // Determine the pivot (block)
-        auto X0 = View( X, outerInd, ind0 );
-        auto Y0 = View( Y, outerInd, ind0 );
+        auto X0 = X( outerInd, ind0 );
+        auto Y0 = Y( outerInd, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
-            auto ABR = View( A, indB, indR );
+            auto ABR = A( indB, indR );
             const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
@@ -998,22 +998,22 @@ PanelPivoted
         // Update the active columns and then store the new update factors
         if( pivot.nb == 1 ) 
         {
-            const IndexRange ind1( k,   k+1 ),
+            const Range<Int> ind1( k,   k+1 ),
                              ind2( k+1, n   );
 
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
-            auto XB0 = LockedView( X, indB, ind0 ); 
-            auto y10 = LockedView( Y, ind1, ind0 ); 
-            auto aB1 =       View( A, indB, ind1 );
+            auto XB0 = X( indB, ind0 ); 
+            auto y10 = Y( ind1, ind0 ); 
+            auto aB1 = A( indB, ind1 );
             Gemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
             if( conjugate )
                 aB1.MakeReal(0,0);
 
             // Store x21 := a21/delta11 and y21 := a21
             const F delta11Inv = F(1)/A.Get(k,k);
-            auto a21 = View( A, ind2, ind1 );
-            auto x21 = View( X, ind2, ind1 ); 
-            auto y21 = View( Y, ind2, ind1 ); 
+            auto a21 = A( ind2, ind1 );
+            auto x21 = X( ind2, ind1 ); 
+            auto y21 = Y( ind2, ind1 ); 
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -1025,14 +1025,14 @@ PanelPivoted
         }
         else
         {
-            const IndexRange ind1( k,   k+2 ),
+            const Range<Int> ind1( k,   k+2 ),
                              ind2( k+2, n   );
 
             // Update A(k:end,k:k+1) -= X(k:n-1,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
-            auto XB0 = LockedView( X, indB, ind0 );
-            auto Y10 = LockedView( Y, ind1, ind0 );
-            auto AB1 =       View( A, indB, ind1 );
+            auto XB0 = X( indB, ind0 );
+            auto Y10 = Y( ind1, ind0 );
+            auto AB1 = A( indB, ind1 );
             const F psi = AB1.Get(0,1);
             Gemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
             AB1.Set(0,1,psi);
@@ -1043,10 +1043,10 @@ PanelPivoted
             }
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
-            auto D11 = View( A, ind1, ind1 );
-            auto A21 = View( A, ind2, ind1 );
-            auto X21 = View( X, ind2, ind1 );
-            auto Y21 = View( Y, ind2, ind1 );
+            auto D11 = A( ind1, ind1 );
+            auto A21 = A( ind2, ind1 );
+            auto X21 = X( ind2, ind1 );
+            auto Y21 = Y( ind2, ind1 );
             if( conjugate )
                 Conjugate( A21, Y21 );
             else
@@ -1075,7 +1075,7 @@ PanelPivoted
 {
     DEBUG_ONLY(CallStackEntry cse("ldl::PanelPivoted"))
     const Int nFull = AFull.Height();
-    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
+    auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
     X.AlignWith( A );
     Y.AlignWith( A );
@@ -1095,23 +1095,23 @@ PanelPivoted
 
     DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     Int k=0;
     while( k < bsize )
     {
-        const IndexRange ind0( 0, k ),
+        const Range<Int> ind0( 0, k ),
                          indB( k, n ),
                          indR( k, n );
 
         // Determine the pivot (block)
-        auto X0 = View( X, outerInd, ind0 );
-        auto Y0 = View( Y, outerInd, ind0 );
+        auto X0 = X( outerInd, ind0 );
+        auto Y0 = Y( outerInd, ind0 );
         if( pivotType == BUNCH_KAUFMAN_C )
         {
             LogicError("Have not yet generalized pivot storage");
             // TODO: Form updated diagonal and select maximum
-            auto ABR = View( A, indB, indR );
+            auto ABR = A( indB, indR );
             const auto diagMax = VectorMaxAbs( ABR.GetDiagonal() );
             SymmetricSwap
             ( LOWER, AFull, off+k, off+k+diagMax.index, conjugate );
@@ -1138,15 +1138,15 @@ PanelPivoted
         // Update the active columns and then store the new update factors
         if( pivot.nb == 1 ) 
         {
-            const IndexRange ind1( k,   k+1 ),
+            const Range<Int> ind1( k,   k+1 ),
                              ind2( k+1, n   );
 
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
-            auto aB1 = View( A, indB, ind1 );
+            auto aB1 = A( indB, ind1 );
             if( aB1.RowAlign() == aB1.RowRank() )
             {
-                auto XB0 = LockedView( X, indB, ind0 );
-                auto y10 = LockedView( Y, ind1, ind0 );
+                auto XB0 = X( indB, ind0 );
+                auto y10 = Y( ind1, ind0 );
                 LocalGemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
             }
             if( conjugate )
@@ -1154,9 +1154,9 @@ PanelPivoted
 
             // Store x21 := a21/delta11 and y21 := a21
             const F delta11Inv = F(1)/A.Get(k,k);
-            auto a21 = View( A, ind2, ind1 );
-            auto x21 = View( X, ind2, ind1 );
-            auto y21 = View( Y, ind2, ind1 ); 
+            auto a21 = A( ind2, ind1 );
+            auto x21 = X( ind2, ind1 );
+            auto y21 = Y( ind2, ind1 ); 
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -1168,14 +1168,14 @@ PanelPivoted
         }
         else
         {
-            const IndexRange ind1( k,   k+2 ),
+            const Range<Int> ind1( k,   k+2 ),
                              ind2( k+2, n   );
 
             // Update A(k:end,k:k+1) -= X(k:end,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
-            auto XB0 = LockedView( X, indB, ind0 ); 
-            auto Y10 = LockedView( Y, ind1, ind0 ); 
-            auto AB1 =       View( A, indB, ind1 );
+            auto XB0 = X( indB, ind0 ); 
+            auto Y10 = Y( ind1, ind0 ); 
+            auto AB1 = A( indB, ind1 );
             // TODO: Make Get and Set local
             const F psi = AB1.Get(0,1);
             LocalGemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
@@ -1187,10 +1187,10 @@ PanelPivoted
             }
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
-            auto D11 = View( A, ind1, ind1 );
-            auto A21 = View( A, ind2, ind1 );
-            auto X21 = View( X, ind2, ind1 );
-            auto Y21 = View( Y, ind2, ind1 );
+            auto D11 = A( ind1, ind1 );
+            auto A21 = A( ind2, ind1 );
+            auto X21 = X( ind2, ind1 );
+            auto Y21 = Y( ind2, ind1 );
             if( conjugate )
                 Conjugate( A21, Y21 );
             else
@@ -1239,20 +1239,20 @@ BlockedPivoted
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
-        const IndexRange indB( k, n ), indBSub( k, n-1 );
-        auto dSubB = View( dSub, indBSub, IndexRange(0,1) );
-        auto pB    = View( p,    indB,    IndexRange(0,1) );
+        const Range<Int> indB( k, n ), indBSub( k, n-1 );
+        auto dSubB = dSub( indBSub, IR(0,1) );
+        auto pB = p( indB, IR(0,1) );
         PanelPivoted
         ( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
         // Update the bottom-right panel
-        const IndexRange ind2( k+nb, n ),
+        const Range<Int> ind2( k+nb, n ),
                          ind1Pan( 0,  nb  ),
                          ind2Pan( nb, n-k );
-        auto A22 =       View( A,   ind2,    ind2    );
-        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
-        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
+        auto A22 = A( ind2, ind2 );
+        auto X21 = XB1( ind2Pan, ind1Pan );
+        auto Y21 = YB1( ind2Pan, ind1Pan );
         Trrk( LOWER, NORMAL, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
 
         k += nb;
@@ -1303,20 +1303,20 @@ BlockedPivoted
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
-        const IndexRange indB( k, n ), indBSub( k, n-1 );
-        auto dSubB = View( dSub, indBSub, IndexRange(0,1) );
-        auto pB    = View( p,    indB,    IndexRange(0,1) );
+        const Range<Int> indB( k, n ), indBSub( k, n-1 );
+        auto dSubB = dSub( indBSub, IR(0,1) );
+        auto pB = p( indB, IR(0,1) );
         PanelPivoted
         ( A, dSubB, pB, XB1, YB1, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = XB1.Width();
 
         // Update the bottom-right panel
-        const IndexRange ind2( k+nb, n ),
+        const Range<Int> ind2( k+nb, n ),
                          ind1Pan( 0,  nb  ),
                          ind2Pan( nb, n-k );
-        auto A22 =       View( A,   ind2,    ind2    );
-        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
-        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
+        auto A22 = A( ind2, ind2 );
+        auto X21 = XB1( ind2Pan, ind1Pan );
+        auto Y21 = YB1( ind2Pan, ind1Pan );
         LocalTrrk( LOWER, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
 
         k += nb;

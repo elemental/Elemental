@@ -29,7 +29,7 @@ void SolveAfter
         LogicError("Must have full row rank");
 
     // TODO: Add scaling
-    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
+    auto AL = A( IR(0,m), IR(0,m) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -96,7 +96,7 @@ void SolveAfter
 
     // TODO: Add scaling
 
-    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,m) );
+    auto AL = A( IR(0,m), IR(0,m) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )

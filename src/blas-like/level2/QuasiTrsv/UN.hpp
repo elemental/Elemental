@@ -107,7 +107,7 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
     )
     const bool vert = ( x.Width()==1 );
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     Matrix<F> x0, x1;
     const Int m = U.Height();
@@ -120,8 +120,8 @@ UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
         if( in2x2 )
             --k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, kOld );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, kOld );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );
@@ -180,7 +180,7 @@ UN
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), x1_STAR_STAR(g);
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     if( x.Width() == 1 )
     {
@@ -200,8 +200,8 @@ UN
             if( in2x2 )
                 --k;
 
-            const IndexRange ind0( 0, k    );
-            const IndexRange ind1( k, kOld );
+            const Range<Int> ind0( 0, k    );
+            const Range<Int> ind1( k, kOld );
 
             LockedView( U01, U, ind0, ind1 );
             LockedView( U11, U, ind1, ind1 );
@@ -251,8 +251,8 @@ UN
             if( in2x2 )
                 --k;
 
-            const IndexRange ind0( 0, k    );
-            const IndexRange ind1( k, kOld );
+            const Range<Int> ind0( 0, k    );
+            const Range<Int> ind1( k, kOld );
 
             LockedView( U01, U, ind0, ind1 );
             LockedView( U11, U, ind1, ind1 );

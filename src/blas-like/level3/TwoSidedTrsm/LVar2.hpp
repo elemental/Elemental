@@ -36,9 +36,9 @@ LVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto A00 = LockedView( A, ind0, ind0 );
         auto A10 =       View( A, ind1, ind0 );
@@ -118,9 +118,9 @@ LVar2
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto A00 = LockedView( A, ind0, ind0 );
         auto A10 =       View( A, ind1, ind0 );

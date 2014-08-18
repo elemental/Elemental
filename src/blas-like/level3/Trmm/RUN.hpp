@@ -47,13 +47,13 @@ LocalAccumulateRUN
     {
         const Int nb = Min(ratio*bsize,m-k);
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        auto U01 = U( IR(0,k),    IR(k,k+nb) );
+        auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = LockedViewRange( X, 0, 0, n, k    );
-        auto X1 = LockedViewRange( X, 0, k, n, k+nb );
+        auto X0 = X( IR(0,n), IR(0,k)    );
+        auto X1 = X( IR(0,n), IR(k,k+nb) );
         
-        auto Z1Trans = ViewRange( ZTrans, k, 0, k+nb, n );
+        auto Z1Trans = ZTrans( IR(k,k+nb), IR(0,n) );
 
         D11.AlignWith( U11 );
         D11 = U11;
@@ -98,7 +98,7 @@ RUNA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto X1 = X( IR(k,k+nb), IR(0,n) );
 
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
@@ -146,11 +146,11 @@ RUNCOld
     {
         const Int nb = Min(bsize,n-k);
 
-        auto U01 = LockedViewRange( U, 0, k, k,    k+nb );
-        auto U11 = LockedViewRange( U, k, k, k+nb, k+nb );
+        auto U01 = U( IR(0,k),    IR(k,k+nb) );
+        auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = X( IR(0,m), IR(0,k)    );
+        auto X1 = X( IR(0,m), IR(k,k+nb) );
 
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
@@ -200,11 +200,11 @@ RUNC
     {
         const Int nb = Min(bsize,n-k);
 
-        auto U11 = LockedViewRange( U, k, k,    k+nb, k+nb );
-        auto U12 = LockedViewRange( U, k, k+nb, k+nb, n    );
+        auto U11 = U( IR(k,k+nb), IR(k,k+nb) );
+        auto U12 = U( IR(k,k+nb), IR(k+nb,n) );
 
-        auto X1 = ViewRange( X, 0, k,    m, k+nb );
-        auto X2 = ViewRange( X, 0, k+nb, m, n    );
+        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X2 = X( IR(0,m), IR(k+nb,n) );
 
         X1_MC_STAR.AlignWith( X2 );
         X1_MC_STAR = X1;

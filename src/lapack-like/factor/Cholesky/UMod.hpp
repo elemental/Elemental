@@ -33,13 +33,13 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
 
     Matrix<F> z12;
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     F* UBuf = U.Buffer();
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F& upsilon11 = UBuf[k+k*ldu];
@@ -100,11 +100,11 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F upsilon11 = U.Get(k,k);
@@ -170,13 +170,13 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
 
     Matrix<F> z12;
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     F* UBuf = U.Buffer();
     const Int ldu = U.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F& upsilon11 = UBuf[k+k*ldu];
@@ -237,11 +237,11 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F upsilon11 = U.Get(k,k);

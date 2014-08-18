@@ -32,14 +32,14 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 
     for( Int k=0; k<minDim; ++k )
     {
-        const IndexRange ind1( k, k+1 ),
+        const Range<Int> ind1( k, k+1 ),
                          indB( k, m   ),
                          indR( k, n   ),
                          ind2Vert( k+1, m ),
                          ind2Horz( k+1, n );
 
         // Find the index and value of the pivot candidate
-        auto ABR = View( A, indB, indR );
+        auto ABR = A( indB, indR );
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
@@ -52,9 +52,9 @@ Full( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
-        auto a21 = View( A, ind2Vert, ind1     );
-        auto a12 = View( A, ind1,     ind2Horz );
-        auto A22 = View( A, ind2Vert, ind2Horz );
+        auto a21 = A( ind2Vert, ind1     );
+        auto a12 = A( ind1,     ind2Horz );
+        auto A22 = A( ind2Vert, ind2Horz );
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;
@@ -93,14 +93,14 @@ Full
 
     for( Int k=0; k<minDim; ++k )
     {
-        const IndexRange ind1( k, k+1 ),
+        const Range<Int> ind1( k, k+1 ),
                          indB( k, m   ),
                          indR( k, n   ),
                          ind2Vert( k+1, m ),
                          ind2Horz( k+1, n );
 
         // Find the index and value of the pivot candidate
-        auto ABR = View( A, indB, indR );
+        auto ABR = A( indB, indR );
         auto pivot = MaxAbs( ABR );
         const Int iPiv = pivot.indices[0] + k;
         const Int jPiv = pivot.indices[1] + k;
@@ -113,9 +113,9 @@ Full
 
         // Now we can perform the update of the current panel
         const F alpha11 = A.Get(k,k);
-        auto a21 = View( A, ind2Vert, ind1     );
-        auto a12 = View( A, ind1,     ind2Horz );
-        auto A22 = View( A, ind2Vert, ind2Horz );
+        auto a21 = A( ind2Vert, ind1     );
+        auto a12 = A( ind1,     ind2Horz );
+        auto A22 = A( ind2Vert, ind2Horz );
         if( alpha11 == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha11;

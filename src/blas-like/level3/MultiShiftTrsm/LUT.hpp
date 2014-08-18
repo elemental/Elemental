@@ -23,14 +23,14 @@ LUT
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 =       View( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -69,14 +69,14 @@ LUT
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );

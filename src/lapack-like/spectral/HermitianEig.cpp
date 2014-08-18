@@ -528,7 +528,7 @@ void HermitianEig
         for( Int j=0; j<k; j+=nbProp )
         {
             const Int nb = Min(nbProp,k-j);
-            auto Z1 = View( Z, IndexRange(0,n), IndexRange(j,j+nb) );
+            auto Z1 = Z( IR(0,n), IR(j,j+nb) );
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             // NOTE: This assumes that Z_STAR_VR did not reallocate within

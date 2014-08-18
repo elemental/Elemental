@@ -49,13 +49,13 @@ LocalAccumulateLLN
     {
         const Int nb = Min(ratio*bsize,m-k);
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
+        auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1Trans = LockedViewRange( XTrans, 0, k, n, k+nb );
+        auto X1Trans = XTrans( IR(0,n), IR(k,k+nb) );
 
-        auto Z1 = ViewRange( Z, k,    0, k+nb, n );
-        auto Z2 = ViewRange( Z, k+nb, 0, m,    n );
+        auto Z1 = Z( IR(k,k+nb), IR(0,n) );
+        auto Z2 = Z( IR(k+nb,m), IR(0,n) );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -101,7 +101,7 @@ LLNA
     {
         const Int nb = Min(bsize,n-k);
 
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X1 = X( IR(0,m), IR(k,k+nb) );
 
         X1_VR_STAR = X1;
         X1_VR_STAR.TransposePartialColAllGather( X1Trans_STAR_MR );
@@ -148,11 +148,11 @@ LLNCOld
     {
         const Int nb = Min(bsize,m-k);
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        auto L10 = L( IR(k,k+nb), IR(0,k)    );
+        auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = ViewRange( X, 0, 0, k,    n );
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto X0 = X( IR(0,k),    IR(0,n) );
+        auto X1 = X( IR(k,k+nb), IR(0,n) );
 
         L11_STAR_STAR = L11;
         X1_STAR_VR = X1;
@@ -207,11 +207,11 @@ LLNC
     {
         const Int nb = Min(bsize,m-k);
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
+        auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto X1 = X( IR(k,k+nb), IR(0,n) );
+        auto X2 = X( IR(k+nb,m), IR(0,n) );
 
         L21_MC_STAR.AlignWith( X2 );
         L21_MC_STAR = L21;

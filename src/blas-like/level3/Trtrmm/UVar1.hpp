@@ -26,8 +26,8 @@ UVar1( Matrix<T>& U, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U00 = View( U, ind0, ind0 );
         auto U01 = View( U, ind0, ind1 );
@@ -72,8 +72,8 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U00 = View( U, ind0, ind0 );
         auto U01 = View( U, ind0, ind1 );

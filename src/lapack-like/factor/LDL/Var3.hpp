@@ -84,7 +84,7 @@ Var3( Matrix<F>& A, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb ),
+        const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
         auto A11 = View( A, ind1, ind1 );
@@ -128,7 +128,7 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
         
-        const IndexRange ind1( k,    k+nb ),
+        const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
         auto A11 = View( A, ind1, ind1 );

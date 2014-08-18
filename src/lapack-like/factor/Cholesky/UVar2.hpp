@@ -32,7 +32,7 @@ UVar2( Matrix<F>& A )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    ),
+        const Range<Int> ind0( 0,    k    ),
                          ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
@@ -77,7 +77,7 @@ UVar2( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    ),
+        const Range<Int> ind0( 0,    k    ),
                          ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 

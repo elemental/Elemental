@@ -85,6 +85,37 @@ inline void AssertSameGrids
     AssertSameGrids( A2, args... );
 }
 
+struct ProxyCtrl 
+{
+    bool colConstrain, rowConstrain, rootConstrain;
+    Int root, colAlign, rowAlign;
+
+    ProxyCtrl() 
+    : colConstrain(false), rowConstrain(false), rootConstrain(false),
+      root(0), colAlign(0), rowAlign(0) 
+    { }
+};
+
+template<typename T,Dist U=MC,Dist V=MR>
+std::shared_ptr<const DistMatrix<T,U,V>> 
+ReadProxy( const AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+
+template<typename T,Dist U=MC,Dist V=MR>
+std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
+( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+
+template<typename T,Dist U=MC,Dist V=MR>
+std::shared_ptr<DistMatrix<T,U,V>> WriteProxy
+( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+
+template<typename T,Dist U,Dist V>
+void RestoreReadWriteProxy
+( std::shared_ptr<DistMatrix<T,U,V>>& AProx, AbstractDistMatrix<T>& A );
+
+template<typename T,Dist U,Dist V>
+void RestoreWriteProxy
+( std::shared_ptr<DistMatrix<T,U,V>>& AProx, AbstractDistMatrix<T>& A );
+
 } // namespace El
 
 #endif // ifndef EL_DISTMATRIX_HPP

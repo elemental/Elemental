@@ -42,12 +42,12 @@ void TrrkNN
     A1_MC_STAR.AlignWith( C );
     B1Trans_MR_STAR.AlignWith( C );
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);
 
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind1( k, k+nb );
 
         auto A1 = LockedView( A, outerInd, ind1     );
         auto B1 = LockedView( B, ind1,     outerInd );

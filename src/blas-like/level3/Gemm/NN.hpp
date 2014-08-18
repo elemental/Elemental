@@ -32,12 +32,12 @@ Cannon_NN
         LogicError("Process grid must be square for Cannon's");
 
     // Force A, B, and C to be in [MC,MR] distributions aligned with C
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( CPre, C, READ_WRITE_PROXY );
-    A.AlignColsWith( C );
-    B.AlignRowsWith( C );
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
+    ProxyCtrl ctrlA, ctrlB;
+    ctrlA.colConstrain = true; ctrlA.colAlign = C.ColAlign();
+    ctrlB.rowConstrain = true; ctrlB.rowAlign = C.RowAlign();
+    auto APtr = ReadProxy( &APre, ctrlA ); auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre, ctrlB ); auto& B = *BPtr;
 
     const Int row = g.Row();
     const Int col = g.Col();
@@ -92,8 +92,7 @@ Cannon_NN
             ( pkgB.Buffer(), pkgSizeB, aboveRow, belowRow, colComm );
         }
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix A
@@ -119,11 +118,9 @@ SUMMA_NNA
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -138,8 +135,8 @@ SUMMA_NNA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = LockedView( B, 0, k, sumDim, nb );
-        auto C1 =       View( C, 0, k, m,        nb );
+        auto B1 = B( IR(0,sumDim), IR(k,k+nb) );
+        auto C1 = C( IR(0,m),      IR(k,k+nb) );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         B1_VR_STAR = B1;
@@ -149,8 +146,7 @@ SUMMA_NNA
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix B
@@ -176,11 +172,9 @@ SUMMA_NNB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
@@ -193,8 +187,8 @@ SUMMA_NNB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = LockedView( A, k, 0, nb, sumDim );
-        auto C1 =       View( C, k, 0, nb, n        );
+        auto A1 = A( IR(k,k+nb), IR(0,sumDim) );
+        auto C1 = C( IR(k,k+nb), IR(0,n)      );
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
         A1_STAR_MC = A1;
@@ -203,8 +197,7 @@ SUMMA_NNB
 
         C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix C
@@ -230,11 +223,9 @@ SUMMA_NNC
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -247,8 +238,8 @@ SUMMA_NNC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = LockedView( A, 0, k, m,  nb );
-        auto B1 = LockedView( B, k, 0, nb, n  );
+        auto A1 = A( IR(0,m),    IR(k,k+nb) );
+        auto B1 = B( IR(k,k+nb), IR(0,n)    );
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
@@ -257,8 +248,7 @@ SUMMA_NNC
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm for panel-panel dot products
@@ -284,11 +274,9 @@ SUMMA_NNDot
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     Scale( beta, C );
     if( A.Height() > B.Width() )
@@ -301,7 +289,9 @@ SUMMA_NNDot
         for( Int kOuter=0; kOuter<m; kOuter+=bsize )
         {
             const Int nbOuter = Min(bsize,m-kOuter);
-            auto A1 = LockedView( A, kOuter, 0, nbOuter, sumDim );
+            const Range<Int> indOuter( kOuter, kOuter+nbOuter );
+
+            auto A1 = A( indOuter, IR(0,sumDim) );
 
             A1_STAR_VC = A1; 
             B1_VC_STAR.AlignWith( A1_STAR_VC );
@@ -309,8 +299,10 @@ SUMMA_NNDot
             for( Int kInner=0; kInner<n; kInner+=bsize )
             {
                 const Int nbInner = Min(bsize,n-kInner);
-                auto B1 = LockedView( B, 0,      kInner, sumDim,  nbInner );
-                auto C11 =      View( C, kOuter, kInner, nbOuter, nbInner );
+                const Range<Int> indInner( kInner, kInner+nbInner );
+
+                auto B1  = B( IR(0,sumDim), indInner );
+                auto C11 = C( indOuter,     indInner );
 
                 B1_VC_STAR = B1;
                 LocalGemm
@@ -331,7 +323,9 @@ SUMMA_NNDot
         for( Int kOuter=0; kOuter<n; kOuter+=bsize )
         {
             const Int nbOuter = Min(bsize,n-kOuter);
-            auto B1 = LockedView( B, 0, kOuter, sumDim, nbOuter );
+            const Range<Int> indOuter( kOuter, kOuter+nbOuter );
+
+            auto B1 = B( IR(0,sumDim), indOuter );
 
             B1_VR_STAR = B1;
             A1_STAR_VR.AlignWith( B1_VR_STAR );
@@ -339,8 +333,10 @@ SUMMA_NNDot
             for( Int kInner=0; kInner<m; kInner+=bsize )
             {
                 const Int nbInner = Min(bsize,m-kInner);
-                auto A1 = LockedView( A, kInner, 0, nbInner, sumDim );
-                auto C11 =      View( C, kInner, kOuter, nbInner, nbOuter );
+                const Range<Int> indInner( kInner, kInner+nbInner );
+
+                auto A1  = A( indInner, IR(0,sumDim) );
+                auto C11 = C( indInner, indOuter     );
 
                 A1_STAR_VR = A1;
                 LocalGemm
@@ -350,8 +346,7 @@ SUMMA_NNDot
             }
         }
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 template<typename T>

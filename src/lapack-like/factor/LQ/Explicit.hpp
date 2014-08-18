@@ -60,7 +60,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,minDim) );
+    auto AL = A( IR(0,m), IR(0,minDim) );
     L = AL;
     MakeTriangular( LOWER, L );
 
@@ -87,7 +87,7 @@ void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    auto AL = LockedView( A, IndexRange(0,m), IndexRange(0,minDim) );
+    auto AL = A( IR(0,m), IR(0,minDim) );
     Copy( AL, L );
     MakeTriangular( LOWER, L );
 

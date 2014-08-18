@@ -30,12 +30,12 @@ UVar1( Matrix<F>& U, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U00 = LockedView( U, ind0, ind0 );
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U00 = U( ind0, ind0 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
         auto d1 = U11.GetDiagonal();
 
         S01 = U01;
@@ -79,12 +79,12 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U00 = LockedView( U, ind0, ind0 );
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U00 = U( ind0, ind0 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
         auto d1 = U11.GetDiagonal();
 
         S01_MC_STAR = U01;

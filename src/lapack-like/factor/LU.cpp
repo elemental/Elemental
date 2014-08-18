@@ -30,14 +30,14 @@ void LU( Matrix<F>& A )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind1( k, k+nb ),
+        const Range<Int> ind1( k, k+nb ),
                          ind2Vert( k+nb, m ),
                          ind2Horz( k+nb, n );
 
-        auto A11 = View( A, ind1,     ind1     );
-        auto A12 = View( A, ind1,     ind2Horz );
-        auto A21 = View( A, ind2Vert, ind1     );
-        auto A22 = View( A, ind2Vert, ind2Horz );
+        auto A11 = A( ind1,     ind1     );
+        auto A12 = A( ind1,     ind2Horz );
+        auto A21 = A( ind2Vert, ind1     );
+        auto A22 = A( ind2Vert, ind2Horz );
 
         lu::Unb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
@@ -68,14 +68,14 @@ void LU( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind1( k, k+nb ),
+        const Range<Int> ind1( k, k+nb ),
                          ind2Vert( k+nb, m ),
                          ind2Horz( k+nb, n );
 
-        auto A11 = View( A, ind1,     ind1     );
-        auto A12 = View( A, ind1,     ind2Horz );
-        auto A21 = View( A, ind2Vert, ind1     );
-        auto A22 = View( A, ind2Vert, ind2Horz );
+        auto A11 = A( ind1,     ind1     );
+        auto A12 = A( ind1,     ind2Horz );
+        auto A21 = A( ind2Vert, ind1     );
+        auto A22 = A( ind2Vert, ind2Horz );
 
         A11_STAR_STAR = A11;
         LocalLU( A11_STAR_STAR );
@@ -127,20 +127,20 @@ void LU( Matrix<F>& A, Matrix<Int>& p )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind0( 0, k    ),
+        const Range<Int> ind0( 0, k    ),
                          ind1( k, k+nb ),
                          indB( k, m    ),
                          ind2Vert( k+nb, m ),
                          ind2Horz( k+nb, n );
 
-        auto A11 = View( A, ind1,     ind1     );
-        auto A12 = View( A, ind1,     ind2Horz );
-        auto A21 = View( A, ind2Vert, ind1     );
-        auto A22 = View( A, ind2Vert, ind2Horz );
+        auto A11 = A( ind1,     ind1     );
+        auto A12 = A( ind1,     ind2Horz );
+        auto A21 = A( ind2Vert, ind1     );
+        auto A22 = A( ind2Vert, ind2Horz );
 
-        auto AB0 = View( A, indB, ind0     );
-        auto AB1 = View( A, indB, ind1     );
-        auto AB2 = View( A, indB, ind2Horz );
+        auto AB0 = A( indB, ind0     );
+        auto AB1 = A( indB, ind1     );
+        auto AB2 = A( indB, ind2Horz );
 
         lu::Panel( AB1, p1Piv );
         PivotsToPartialPermutation( p1Piv, p1, p1Inv );
@@ -148,7 +148,7 @@ void LU( Matrix<F>& A, Matrix<Int>& p )
         PermuteRows( AB2, p1, p1Inv );
 
         // Update the preimage of the permutation
-        auto pB = View( p, indB, IndexRange(0,1) ); 
+        auto pB = p( indB, IR(0,1) ); 
         PermuteRows( pB, p1, p1Inv );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
@@ -195,23 +195,23 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 
     DistMatrix<Int,VC,STAR> p1(g), p1Inv(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
 
-        const IndexRange ind1( k, k+nb ),
+        const Range<Int> ind1( k, k+nb ),
                          indB( k, m    ),
                          ind2Vert( k+nb, m ),
                          ind2Horz( k+nb, n );
 
-        auto A11 = View( A, ind1,     ind1     );
-        auto A12 = View( A, ind1,     ind2Horz );
-        auto A21 = View( A, ind2Vert, ind1     );
-        auto A22 = View( A, ind2Vert, ind2Horz );
+        auto A11 = A( ind1,     ind1     );
+        auto A12 = A( ind1,     ind2Horz );
+        auto A21 = A( ind2Vert, ind1     );
+        auto A22 = A( ind2Vert, ind2Horz );
 
-        auto AB  = View( A, indB, outerInd );
+        auto AB  = A( indB, outerInd );
 
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
@@ -222,7 +222,7 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         PermuteRows( AB, p1, p1Inv );
 
         // Update the preimage of the permutation
-        auto pB = View( p, indB, IndexRange(0,1) );
+        auto pB = p( indB, IR(0,1) );
         PermuteRows( pB, p1, p1Inv );
 
         // Perhaps we should give up perfectly distributing this operation since

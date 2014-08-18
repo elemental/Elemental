@@ -122,7 +122,7 @@ LT
     if( conjugate )
         Conjugate( x );
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     Matrix<F> x0, x1;
     const Int m = L.Height();
@@ -135,8 +135,8 @@ LT
         if( in2x2 )
             --k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, kOld );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, kOld );
 
         auto L10 = LockedView( L, ind1, ind0 );
         auto L11 = LockedView( L, ind1, ind1 );
@@ -197,7 +197,7 @@ LT
     Copy( LPre, L, READ_PROXY );
     Copy( xPre, x, READ_WRITE_PROXY );
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);
@@ -223,8 +223,8 @@ LT
             if( in2x2 )
                 --k;
 
-            const IndexRange ind0( 0, k    );
-            const IndexRange ind1( k, kOld );
+            const Range<Int> ind0( 0, k    );
+            const Range<Int> ind1( k, kOld );
 
             LockedView( L10, L, ind1, ind0 );
             LockedView( L11, L, ind1, ind1 );
@@ -274,8 +274,8 @@ LT
             if( in2x2 )
                 --k;
 
-            const IndexRange ind0( 0, k    );
-            const IndexRange ind1( k, kOld );
+            const Range<Int> ind0( 0, k    );
+            const Range<Int> ind1( k, kOld );
 
             LockedView( L10, L, ind1, ind0 );
             LockedView( L11, L, ind1, ind1 );

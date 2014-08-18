@@ -66,9 +66,9 @@ LLN
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
@@ -114,9 +114,9 @@ LLN
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );

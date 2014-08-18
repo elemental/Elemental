@@ -43,20 +43,20 @@ LUTLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -106,20 +106,20 @@ LUTMedium
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         // X1[* ,VR] <- X1[MC,MR]
@@ -171,20 +171,20 @@ LUTSmall
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g); 
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

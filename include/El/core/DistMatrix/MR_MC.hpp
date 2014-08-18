@@ -59,7 +59,14 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
-    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+
+    // Return a view
+    // -------------
+          type operator()( Range<Int> indVert, Range<Int> indHorz );
+    const type operator()( Range<Int> indVert, Range<Int> indHorz ) const;
+
+    // Make a copy
+    // -----------
     type& operator=( const absType& A );
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
@@ -75,7 +82,10 @@ public:
     type& operator=( const DistMatrix<T,STAR,VR  >& A );
     type& operator=( const DistMatrix<T,STAR,STAR>& A );
     type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
+    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+
     // Move assignment
+    // ---------------
     type& operator=( type&& A );
 
     // Basic queries

@@ -28,12 +28,12 @@ LVar1( Matrix<F>& L, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L00 = View( L, ind0, ind0 );
-        auto L10 = View( L, ind1, ind0 );
-        auto L11 = View( L, ind1, ind1 );
+        auto L00 = L( ind0, ind0 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
         auto d1 = L11.GetDiagonal();
        
         S10 = L10;
@@ -64,14 +64,14 @@ LVar1( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
         const Int nbProp = Min(bsize,n-k);
         const bool in2x2 = ( k+nbProp<n && dSub.Get(k+nbProp-1,0) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
-        auto dSub1 = LockedViewRange( dSub, k, 0, k+nb-1, 1 );
+        auto dSub1 = dSub( IR(k,k+nb-1), IR(0,1) );
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L00 = View( L, ind0, ind0 );
-        auto L10 = View( L, ind1, ind0 );
-        auto L11 = View( L, ind1, ind1 );
+        auto L00 = L( ind0, ind0 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
         auto d1 = L11.GetDiagonal();
 
         S10 = L10;
@@ -116,12 +116,12 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L00 = View( L, ind0, ind0 );
-        auto L10 = View( L, ind1, ind0 );
-        auto L11 = View( L, ind1, ind1 );
+        auto L00 = L( ind0, ind0 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
         auto d1 = L11.GetDiagonal();
 
         L10_STAR_VR = L10;
@@ -183,15 +183,15 @@ LVar1
         const bool in2x2 = ( k+nbProp<n && dSub.Get(k+nbProp-1,0) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L00 = View( L, ind0, ind0 );
-        auto L10 = View( L, ind1, ind0 );
-        auto L11 = View( L, ind1, ind1 );
+        auto L00 = L( ind0, ind0 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
         auto d1 = L11.GetDiagonal();
 
-        auto dSub1 = LockedView( dSub, IndexRange(k,k+nb-1), IndexRange(0,1) );
+        auto dSub1 = dSub( IR(k,k+nb-1), IR(0,1) );
 
         L10_STAR_VR = L10;
         S10_STAR_VC = L10_STAR_VR;

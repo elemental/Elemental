@@ -34,14 +34,14 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         const Int ki = k + iOff;
         const Int kj = k + jOff;
 
-        const IndexRange ind0Vert( 0,  ki   ), ind0Horz( 0,  kj   ),
+        const Range<Int> ind0Vert( 0,  ki   ), ind0Horz( 0,  kj   ),
                          ind1Vert( ki, ki+1 ), ind1Horz( kj, kj+1 ),
                                                indL(     0,  kj+1 );
 
-        auto a10     = View( A, ind1Vert, ind0Horz );
-        auto alpha11 = View( A, ind1Vert, ind1Horz );
-        auto A0L     = View( A, ind0Vert, indL     );
-        auto a1L     = View( A, ind1Vert, indL     );
+        auto a10     = A( ind1Vert, ind0Horz );
+        auto alpha11 = A( ind1Vert, ind1Horz );
+        auto A0L     = A( ind0Vert, indL     );
+        auto a1L     = A( ind1Vert, indL     );
 
         // Find tau and v such that
         //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
@@ -64,7 +64,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         alpha11.Set(0,0,alpha);
     }
     // Form d and rescale R
-    auto R = View( A, IndexRange(0,m), IndexRange(jOff,n) );
+    auto R = A( IR(0,m), IR(jOff,n) );
     d = R.GetRealPartOfDiagonal();
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
@@ -107,14 +107,14 @@ PanelHouseholder
         const Int ki = k + iOff;
         const Int kj = k + jOff;
 
-        const IndexRange ind0Vert( 0,  ki   ), ind0Horz( 0,  kj   ),
+        const Range<Int> ind0Vert( 0,  ki   ), ind0Horz( 0,  kj   ),
                          ind1Vert( ki, ki+1 ), ind1Horz( kj, kj+1 ),
                                                indL(     0,  kj+1 );
 
-        auto a10     = View( A, ind1Vert, ind0Horz );
-        auto alpha11 = View( A, ind1Vert, ind1Horz );
-        auto A0L     = View( A, ind0Vert, indL     );
-        auto a1L     = View( A, ind1Vert, indL     );
+        auto a10     = A( ind1Vert, ind0Horz );
+        auto alpha11 = A( ind1Vert, ind1Horz );
+        auto A0L     = A( ind0Vert, indL     );
+        auto a1L     = A( ind1Vert, indL     );
 
         // Find tau and v such that
         //  |a10 alpha11| /I - tau |v^T| |conj(v) 1|\ = |0 beta|
@@ -148,7 +148,7 @@ PanelHouseholder
             alpha11.SetLocal(0,0,alpha);
     }
     // Form d and rescale R
-    auto R = View( A, IndexRange(0,m), IndexRange(jOff,n) );
+    auto R = A( IR(0,m), IR(jOff,n) );
     Copy( R.GetRealPartOfDiagonal(), d );
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };

@@ -117,14 +117,14 @@ LUnblockedPivoted( Matrix<F>& A, Matrix<Int>& p )
      
     for( Int k=0; k<n; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, n   ),
                          indB( k,   n   ),
                          indR( k,   n   );
 
-        auto a21 = View( A, ind2, ind1 );
-        auto A22 = View( A, ind2, ind2 );
-        auto ABR = View( A, indB, indR );
+        auto a21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
+        auto ABR = A( indB, indR );
 
         // Determine the pivot
         const LDLPivot pivot = pivot::Full( ABR );
@@ -170,14 +170,14 @@ LUnblockedPivoted
 
     for( Int k=0; k<n; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, n   ),
                          indB( k,   n   ),
                          indR( k,   n   );
 
-        auto a21 = View( A, ind2, ind1 );
-        auto A22 = View( A, ind2, ind2 );
-        auto ABR = View( A, indB, indR );
+        auto a21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
+        auto ABR = A( indB, indR );
 
         // Determine the pivot
         const LDLPivot pivot = pivot::Full( ABR );
@@ -209,7 +209,7 @@ LPanelPivoted
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
     const Int nFull = AFull.Height();
-    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
+    auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -222,22 +222,22 @@ LPanelPivoted
 
     for( Int k=0; k<bsize; ++k )
     {
-        const IndexRange ind0( 0,   k   ),
+        const Range<Int> ind0( 0,   k   ),
                          ind1( k,   k+1 ),
                          ind2( k+1, n   ),
                          indB( k,   n   ),
                          indR( k,   n   );
 
-        auto a21 = View( A, ind2, ind1 );
-        auto aB1 = View( A, indB, ind1 );
-        auto ABR = View( A, indB, indR );
+        auto a21 = A( ind2, ind1 );
+        auto aB1 = A( indB, ind1 );
+        auto ABR = A( indB, indR );
 
-        auto x21 = View( X, ind2, ind1 );
-        auto XB0 = View( X, indB, ind0 );
+        auto x21 = X( ind2, ind1 );
+        auto XB0 = X( indB, ind0 );
 
-        auto y10 = LockedView( Y, ind1, ind0 );
-        auto y21 =       View( Y, ind2, ind1 );
-        auto YB0 =       View( Y, indB, ind0 );
+        auto y10 = Y( ind1, ind0 );
+        auto y21 = Y( ind2, ind1 );
+        auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot 
         const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
@@ -273,7 +273,7 @@ LPanelPivoted
 {
     DEBUG_ONLY(CallStackEntry cse("cholesky::LPanelPivoted"))
     const Int nFull = AFull.Height();
-    auto A = View( AFull, IndexRange(off,nFull), IndexRange(off,nFull) );
+    auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
     DEBUG_ONLY(
         if( A.Width() != n )
@@ -288,22 +288,22 @@ LPanelPivoted
 
     for( Int k=0; k<bsize; ++k )
     {
-        const IndexRange ind0( 0,   k   ),
+        const Range<Int> ind0( 0,   k   ),
                          ind1( k,   k+1 ),
                          ind2( k+1, n   ),
                          indB( k,   n   ),
                          indR( k,   n   );
 
-        auto a21 = View( A, ind2, ind1 );
-        auto aB1 = View( A, indB, ind1 );
-        auto ABR = View( A, indB, indR );
+        auto a21 = A( ind2, ind1 );
+        auto aB1 = A( indB, ind1 );
+        auto ABR = A( indB, indR );
 
-        auto x21 = View( X, ind2, ind1 );
-        auto XB0 = View( X, indB, ind0 );
+        auto x21 = X( ind2, ind1 );
+        auto XB0 = X( indB, ind0 );
 
-        auto y10 = LockedView( Y, ind1, ind0 );
-        auto y21 =       View( Y, ind2, ind1 );
-        auto YB0 =       View( Y, indB, ind0 );
+        auto y10 = Y( ind1, ind0 );
+        auto y21 = Y( ind2, ind1 );
+        auto YB0 = Y( indB, ind0 );
 
         // Determine the pivot
         const auto pivot = pivot::PanelFull( ABR, XB0, YB0 );
@@ -354,17 +354,17 @@ LVar3( Matrix<F>& A, Matrix<Int>& p )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange indB( k, n );
-        auto pB = View( p, indB, IndexRange(0,1) );
+        const Range<Int> indB( k, n );
+        auto pB = p( indB, IR(0,1) );
         LPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
-        const IndexRange ind2( k+nb, n ),
+        const Range<Int> ind2( k+nb, n ),
                          ind1Pan( 0,  nb  ),
                          ind2Pan( nb, n-k );
-        auto A22 =       View( A,   ind2,    ind2    );
-        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
-        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
+        auto A22 = A( ind2, ind2 );
+        auto X21 = XB1( ind2Pan, ind1Pan );
+        auto Y21 = YB1( ind2Pan, ind1Pan );
         Trrk( LOWER, NORMAL, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
     }
 }
@@ -400,17 +400,17 @@ LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange indB( k, n );
-        auto pB = View( p, indB, IndexRange(0,1) );
+        const Range<Int> indB( k, n );
+        auto pB = p( indB, IR(0,1) );
         LPanelPivoted( A, pB, XB1, YB1, nb, k );
 
         // Update the bottom-right panel
-        const IndexRange ind2( k+nb, n ),
+        const Range<Int> ind2( k+nb, n ),
                          ind1Pan( 0,  nb  ),
                          ind2Pan( nb, n-k );
-        auto A22 =       View( A,   ind2,    ind2    );
-        auto X21 = LockedView( XB1, ind2Pan, ind1Pan );
-        auto Y21 = LockedView( YB1, ind2Pan, ind1Pan );
+        auto A22 = A( ind2, ind2 );
+        auto X21 = XB1( ind2Pan, ind1Pan );
+        auto Y21 = YB1( ind2Pan, ind1Pan );
         LocalTrrk( LOWER, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
     }
     Copy( A, APre, RESTORE_READ_WRITE_PROXY );

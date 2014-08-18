@@ -37,20 +37,20 @@ LLNLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
@@ -94,20 +94,20 @@ LLNMedium
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
@@ -150,20 +150,20 @@ LLNSmall
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]

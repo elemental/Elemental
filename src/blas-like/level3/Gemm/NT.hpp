@@ -37,11 +37,9 @@ SUMMA_NTA
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientationOfB == ADJOINT );
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);
@@ -54,8 +52,8 @@ SUMMA_NTA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = LockedView( B, k, 0, nb, sumDim );
-        auto C1 =       View( C, 0, k, m,  nb     );
+        auto B1 = B( IR(k,k+nb), IR(0,sumDim) );
+        auto C1 = C( IR(0,m),    IR(k,k+nb)   );
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
         B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
@@ -64,8 +62,7 @@ SUMMA_NTA
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Transpose Gemm that avoids communicating the matrix B
@@ -95,11 +92,9 @@ SUMMA_NTB
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MR,STAR> A1Trans_MR_STAR(g);
@@ -113,8 +108,8 @@ SUMMA_NTB
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A1 = LockedView( A, k, 0, nb, sumDim );
-        auto C1 =       View( C, k, 0, nb, n      );
+        auto A1 = A( IR(k,k+nb), IR(0,sumDim) );
+        auto C1 = C( IR(k,k+nb), IR(0,n)      );
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha (A1^T)[MR,*] (B^T)[MR,MC]
@@ -126,8 +121,7 @@ SUMMA_NTB
         D1_MR_MC.ColSumScatterFrom( D1_STAR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Transpose Gemm that avoids communicating the matrix C
@@ -158,11 +152,9 @@ SUMMA_NTC
     const Grid& g = APre.Grid();
     const bool conjugate = ( orientationOfB == ADJOINT );
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -177,8 +169,8 @@ SUMMA_NTC
     for( Int k=0; k<sumDim; k+=bsize )
     {
         const Int nb = Min(bsize,sumDim-k);
-        auto A1 = LockedView( A, 0, k, m, nb );
-        auto B1 = LockedView( B, 0, k, n, nb );
+        auto A1 = A( IR(0,m), IR(k,k+nb) );
+        auto B1 = B( IR(0,n), IR(k,k+nb) );
 
         A1_MC_STAR = A1;
         B1_VR_STAR = B1;
@@ -188,8 +180,7 @@ SUMMA_NTC
         LocalGemm
         ( NORMAL, NORMAL, alpha, A1_MC_STAR, B1Trans_STAR_MR, T(1), C );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 template<typename T>

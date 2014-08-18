@@ -64,7 +64,7 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
-        const IndexRange indi( i, i+1 ),
+        const Range<Int> indi( i, i+1 ),
                          indip1( i+1, i+2 ),
                          indB( i+2, m ),
                          indR( i+1, n );
@@ -182,7 +182,7 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
-        const IndexRange indi( i, i+1 ),
+        const Range<Int> indi( i, i+1 ),
                          indip1( i+1, i+2 ),
                          indB( i+2, m ),
                          indR( i+1, n );
@@ -319,7 +319,7 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
         const bool pivot = ( Abs(omega_i) < tau*rightTerm );
 
-        const IndexRange indB( i+2, m ),
+        const Range<Int> indB( i+2, m ),
                          indR( i+1, n ),
                          indi( i, i+1 ),
                          indip1( i+1, i+2 );
@@ -438,7 +438,7 @@ void LUMod
         const Real rightTerm = Abs(lambdaSub*ups_ii+ups_ip1i);
         const bool pivot = ( Abs(ups_ii) < tau*rightTerm );
 
-        const IndexRange indB( i+2, m ),
+        const Range<Int> indB( i+2, m ),
                          indR( i+1, n ),
                          indi( i, i+1 ),
                          indip1( i+1, i+2 );

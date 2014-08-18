@@ -66,7 +66,7 @@ void Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    auto AT = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    auto AT = A( IR(0,minDim), IR(0,n) );
     R = AT;
     MakeTriangular( UPPER, R );
 
@@ -95,7 +95,7 @@ void Explicit
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    auto AT = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    auto AT = A( IR(0,minDim), IR(0,n) );
     Copy( AT, R );
     MakeTriangular( UPPER, R );
 
@@ -116,7 +116,7 @@ void Explicit( Matrix<F>& A, Matrix<F>& R, Matrix<Int>& p )
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    auto AT = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    auto AT = A( IR(0,minDim), IR(0,n) );
     R = AT;
     MakeTriangular( UPPER, R );
 
@@ -142,7 +142,7 @@ void Explicit
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
-    auto AT = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    auto AT = A( IR(0,minDim), IR(0,n) );
     Copy( AT, R );
     MakeTriangular( UPPER, R );
 

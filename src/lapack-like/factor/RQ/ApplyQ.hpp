@@ -36,12 +36,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
+            auto BBot = B( IR(m-minDim,m), IR(0,n) );
             DiagonalScale( side, orientation, d, BBot );
         }
         else
         {
-            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
+            auto BRight = B( IR(0,m), IR(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
         }
     }
@@ -53,12 +53,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
+            auto BBot = B( IR(m-minDim,m), IR(0,n) );
             DiagonalScale( side, orientation, d, BBot );
         }
         else
         {
-            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
+            auto BRight = B( IR(0,m), IR(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
         }
     }
@@ -96,12 +96,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
+            auto BBot = B( IR(m-minDim,m), IR(0,n) );
             DiagonalScale( side, orientation, d, BBot );
         }
         else
         {
-            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
+            auto BRight = B( IR(0,m), IR(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
         }
     }
@@ -113,12 +113,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BBot = View( B, IndexRange(m-minDim,m), IndexRange(0,n) );
+            auto BBot = B( IR(m-minDim,m), IR(0,n) );
             DiagonalScale( side, orientation, d, BBot );
         }
         else
         {
-            auto BRight = View( B, IndexRange(0,m), IndexRange(n-minDim,n) );
+            auto BRight = B( IR(0,m), IR(n-minDim,n) );
             DiagonalScale( side, orientation, d, BRight );
         }
     }

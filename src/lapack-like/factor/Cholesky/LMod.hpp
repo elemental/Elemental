@@ -33,13 +33,13 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
 
     Matrix<F> z21;
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     F* LBuf = L.Buffer();
     const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F& lambda11 = LBuf[k+k*ldl];
@@ -91,11 +91,11 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
     DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F lambda11 = L.Get( k, k );
@@ -149,13 +149,13 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
 
     Matrix<F> z21;
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     F* LBuf = L.Buffer();
     const Int ldl = L.LDim();
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F& lambda11 = LBuf[k+k*ldl];
@@ -210,11 +210,11 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
     DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; ++k )
     {
-        const IndexRange ind1( k,   k+1 ),
+        const Range<Int> ind1( k,   k+1 ),
                          ind2( k+1, m   );
 
         F lambda11 = L.Get( k, k );

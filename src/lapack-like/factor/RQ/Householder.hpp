@@ -39,15 +39,15 @@ Householder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         const Int ki = k + iOff;
         const Int kj = k + jOff;
 
-        const IndexRange ind0Vert( 0,  ki    ),
+        const Range<Int> ind0Vert( 0,  ki    ),
                          ind1(     k,  k+nb  ),
                          ind1Vert( ki, ki+nb ),
                          indL( 0, kj+nb );
 
-        auto A0L = View( A, ind0Vert, indL );
-        auto A1L = View( A, ind1Vert, indL );
-        auto t1 = View( t, ind1, IndexRange(0,1) );
-        auto d1 = View( d, ind1, IndexRange(0,1) );
+        auto A0L = A( ind0Vert, indL );
+        auto A1L = A( ind1Vert, indL );
+        auto t1 = t( ind1, IR(0,1) );
+        auto d1 = d( ind1, IR(0,1) );
 
         PanelHouseholder( A1L, t1, d1 );
         ApplyQ( RIGHT, ADJOINT, A1L, t1, d1, A0L );
@@ -106,15 +106,15 @@ Householder
         const Int ki = k + iOff;
         const Int kj = k + jOff;
 
-        const IndexRange ind0Vert( 0,  ki    ),
+        const Range<Int> ind0Vert( 0,  ki    ),
                          ind1(     k,  k+nb  ),
                          ind1Vert( ki, ki+nb ),
                          indL( 0, kj+nb );
 
-        auto A0L = View( A, ind0Vert, indL );
-        auto A1L = View( A, ind1Vert, indL );
-        auto t1 = View( t, ind1, IndexRange(0,1) );
-        auto d1 = View( d, ind1, IndexRange(0,1) );
+        auto A0L = A( ind0Vert, indL );
+        auto A1L = A( ind1Vert, indL );
+        auto t1 = t( ind1, IR(0,1) );
+        auto d1 = d( ind1, IR(0,1) );
 
         PanelHouseholder( A1L, t1, d1 );
         ApplyQ( RIGHT, ADJOINT, A1L, t1, d1, A0L );

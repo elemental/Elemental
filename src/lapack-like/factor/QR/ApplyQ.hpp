@@ -35,12 +35,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BTop = View( B, IndexRange(0,minDim), IndexRange(0,n) );
+            auto BTop = B( IR(0,minDim), IR(0,n) );
             DiagonalScale( side, orientation, d, BTop );
         }
         else
         {
-            auto BLeft = View( B, IndexRange(0,m), IndexRange(0,minDim) );
+            auto BLeft = B( IR(0,m), IR(0,minDim) );
             DiagonalScale( side, orientation, d, BLeft );
         }
     }
@@ -52,12 +52,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BTop = View( B, IndexRange(0,minDim), IndexRange(0,n) );
+            auto BTop = B( IR(0,minDim), IR(0,n) );
             DiagonalScale( side, orientation, d, BTop );
         }
         else
         {
-            auto BLeft = View( B, IndexRange(0,m), IndexRange(0,minDim) );
+            auto BLeft = B( IR(0,m), IR(0,minDim) );
             DiagonalScale( side, orientation, d, BLeft );
         }
     }
@@ -94,12 +94,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BTop = View( B, IndexRange(0,minDim), IndexRange(0,n) );
+            auto BTop = B( IR(0,minDim), IR(0,n) );
             DiagonalScale( side, orientation, d, BTop );
         }
         else
         {
-            auto BLeft = View( B, IndexRange(0,m), IndexRange(0,minDim) );
+            auto BLeft = B( IR(0,m), IR(0,minDim) );
             DiagonalScale( side, orientation, d, BLeft );
         }
     }
@@ -111,12 +111,12 @@ void ApplyQ
     {
         if( onLeft )
         {
-            auto BTop = View( B, IndexRange(0,minDim), IndexRange(0,n) );
+            auto BTop = B( IR(0,minDim), IR(0,n) );
             DiagonalScale( side, orientation, d, BTop );
         }
         else
         {
-            auto BLeft = View( B, IndexRange(0,m), IndexRange(0,minDim) );
+            auto BLeft = B( IR(0,m), IR(0,minDim) );
             DiagonalScale( side, orientation, d, BLeft );
         }
     }

@@ -113,7 +113,7 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
     )
     const bool vert = ( x.Width()==1 );
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     Matrix<F> x1, x2;
     const Int m = L.Height();
@@ -125,8 +125,8 @@ LN( const Matrix<F>& L, Matrix<F>& x, bool checkIfSingular=false )
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
@@ -237,7 +237,7 @@ LN
         z_STAR_MC.AlignWith( L );
         Zeros( z_STAR_MC, 1, m );
 
-        const IndexRange outerInd( 0, 1 );
+        const Range<Int> outerInd( 0, 1 );
 
         Int k=0;
         while( k < m )
@@ -247,8 +247,8 @@ LN
                 ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            const IndexRange ind1( k,    k+nb );
-            const IndexRange ind2( k+nb, m    );
+            const Range<Int> ind1( k,    k+nb );
+            const Range<Int> ind2( k+nb, m    );
 
             LockedView( L11, L, ind1, ind1 );
             LockedView( L21, L, ind2, ind1 );

@@ -29,14 +29,14 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
 
     for( Int k=0; k<minDim; ++k )
     {
-        const IndexRange ind1(     k,   k+1 ),
+        const Range<Int> ind1(     k,   k+1 ),
                          indB(     k,   m   ),
                          ind2Vert( k+1, m   ), ind2Horz( k+1, n );
 
-        auto alpha11 = View( A, ind1,     ind1     );
-        auto a21     = View( A, ind2Vert, ind1     );
-        auto aB1     = View( A, indB,     ind1     );
-        auto AB2     = View( A, indB,     ind2Horz );
+        auto alpha11 = A( ind1,     ind1     );
+        auto a21     = A( ind2Vert, ind1     );
+        auto aB1     = A( indB,     ind1     );
+        auto AB2     = A( indB,     ind2Horz );
 
         // Find tau and u such that
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
@@ -60,7 +60,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t, Matrix<Base<F>>& d )
         alpha11.Set(0,0,alpha);
     }
     // Form d and rescale R
-    auto R = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    auto R = A( IR(0,minDim), IR(0,n) );
     d = R.GetRealPartOfDiagonal();
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
@@ -105,14 +105,14 @@ PanelHouseholder
 
     for( Int k=0; k<minDim; ++k )
     {
-        const IndexRange ind1(     k,   k+1 ),
+        const Range<Int> ind1(     k,   k+1 ),
                          indB(     k,   m   ),
                          ind2Vert( k+1, m   ), ind2Horz( k+1, n );
 
-        auto alpha11 = View( A, ind1,     ind1     );
-        auto a21     = View( A, ind2Vert, ind1     );
-        auto aB1     = View( A, indB,     ind1     );
-        auto AB2     = View( A, indB,     ind2Horz );
+        auto alpha11 = A( ind1,     ind1     );
+        auto a21     = A( ind2Vert, ind1     );
+        auto aB1     = A( indB,     ind1     );
+        auto AB2     = A( indB,     ind2Horz );
 
         // Find tau and u such that
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
@@ -147,7 +147,7 @@ PanelHouseholder
             alpha11.SetLocal(0,0,alpha);
     }
     // Form d and rescale R
-    auto R = View( A, IndexRange(0,minDim), IndexRange(0,n) );
+    auto R = A( IR(0,minDim), IR(0,n) );
     Copy( R.GetRealPartOfDiagonal(), d );
     auto sgn = []( Real delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };

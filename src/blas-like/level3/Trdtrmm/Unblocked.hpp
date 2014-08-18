@@ -26,8 +26,8 @@ LUnblocked( Matrix<F>& L, bool conjugate=false )
 
     for( Int k=0; k<n; ++k )
     {
-        auto L00 = ViewRange( L, 0, 0, k,   k );
-        auto l10 = ViewRange( L, k, 0, k+1, k );
+        auto L00 = L( IR(0,k),   IR(0,k) );
+        auto l10 = L( IR(k,k+1), IR(0,k) );
 
         // S10 := L10
         s10 = l10;
@@ -86,8 +86,8 @@ LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
 
         if( nb == 1 )
         {
-            auto L00 = ViewRange( L, 0, 0, k,    k );
-            auto l10 = ViewRange( L, k, 0, k+nb, k );
+            auto L00 = L( IR(0,k),    IR(0,k) );
+            auto l10 = L( IR(k,k+nb), IR(0,k) );
 
             // S10 := L10
             s10 = l10;
@@ -125,9 +125,9 @@ LUnblocked( Matrix<F>& L, const Matrix<F>& dSub, bool conjugate=false )
         }
         else
         {
-            auto L00 = ViewRange( L, 0, 0, k,    k    );
-            auto L10 = ViewRange( L, k, 0, k+nb, k    );
-            auto L11 = ViewRange( L, k, k, k+nb, k+nb );
+            auto L00 = L( IR(0,k),    IR(0,k)    );
+            auto L10 = L( IR(k,k+nb), IR(0,k)    );
+            auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
             // S10 := L10
             S10 = L10;
@@ -167,8 +167,8 @@ UUnblocked( Matrix<F>& U, bool conjugate=false )
 
     for( Int k=0; k<n; ++k )
     {
-        auto U00 = ViewRange( U, 0, 0, k, k   );
-        auto u01 = ViewRange( U, 0, k, k, k+1 );
+        auto U00 = U( IR(0,k), IR(0,k)   );
+        auto u01 = U( IR(0,k), IR(k,k+1) );
 
         s01 = u01;
 

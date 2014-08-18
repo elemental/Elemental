@@ -221,7 +221,7 @@ LUT
     if( conjugate )
         Conjugate( X );
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -229,8 +229,8 @@ LUT
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -267,7 +267,7 @@ LUT
     if( conjugate )
         Scale( Real(-1), XImag );
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -276,8 +276,8 @@ LUT
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -324,7 +324,7 @@ LUTLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -332,8 +332,8 @@ LUTLarge
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -395,7 +395,7 @@ LUTLarge
     DistMatrix<Real,STAR,MR  > X1Real_STAR_MR(g), X1Imag_STAR_MR(g);
     DistMatrix<Real,STAR,VR  > X1Real_STAR_VR(g), X1Imag_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -404,8 +404,8 @@ LUTLarge
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -479,7 +479,7 @@ LUTMedium
     DistMatrix<F,MR,  STAR> shifts_MR_STAR(shifts),
                             shifts_MR_STAR_Align(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -487,8 +487,8 @@ LUTMedium
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -556,7 +556,7 @@ LUTMedium
     DistMatrix<Complex<Real>,MR,STAR> shifts_MR_STAR(shifts),
                                       shifts_MR_STAR_Align(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -565,8 +565,8 @@ LUTMedium
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -643,7 +643,7 @@ LUTSmall
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g),
                             shifts_STAR_STAR(shifts);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -651,8 +651,8 @@ LUTSmall
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, k, k,    k+nb, k+nb );
         auto U12 = LockedView( U, k, k+nb, k+nb, m    );
@@ -708,7 +708,7 @@ LUTSmall
                                                  X1Imag_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> shifts_STAR_STAR(shifts);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -717,8 +717,8 @@ LUTSmall
             ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != Real(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, k, k,    k+nb, k+nb );
         auto U12 = LockedView( U, k, k+nb, k+nb, m    );

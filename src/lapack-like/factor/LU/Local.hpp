@@ -25,7 +25,7 @@ UnbObj( Matrix<F>& A )
     const Int minDim = Min(m,n);
     for( Int k=0; k<minDim; ++k )
     {
-        const IndexRange ind1( k, k+1 ),
+        const Range<Int> ind1( k, k+1 ),
                          ind2Vert( k+1, m ),
                          ind2Horz( k+1, n );
 

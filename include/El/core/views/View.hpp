@@ -218,13 +218,13 @@ inline void LockedViewRange
 
 template<typename T>
 inline void View
-( Matrix<T>& A, Matrix<T>& B, IndexRange vertRange, IndexRange horzRange )
+( Matrix<T>& A, Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
 { ViewRange
   ( A, B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 
 template<typename T>
 inline void LockedView
-( Matrix<T>& A, const Matrix<T>& B, IndexRange vertRange, IndexRange horzRange )
+( Matrix<T>& A, const Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
 { LockedViewRange
   ( A, B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 
@@ -266,13 +266,13 @@ inline Matrix<T> LockedViewRange
 
 template<typename T>
 inline Matrix<T> View
-( Matrix<T>& B, IndexRange vertRange, IndexRange horzRange )
+( Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
 { return ViewRange
   ( B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 
 template<typename T>
 inline Matrix<T> LockedView
-( const Matrix<T>& B, IndexRange vertRange, IndexRange horzRange )
+( const Matrix<T>& B, Range<Int> vertRange, Range<Int> horzRange )
 { return LockedViewRange
   ( B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 
@@ -354,14 +354,14 @@ inline void LockedViewRange
 template<typename T>
 inline void View
 ( AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B, 
-  IndexRange vertRange, IndexRange horzRange )
+  Range<Int> vertRange, Range<Int> horzRange )
 { ViewRange
   ( A, B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 
 template<typename T>
 inline void LockedView
 ( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B, 
-  IndexRange vertRange, IndexRange horzRange )
+  Range<Int> vertRange, Range<Int> horzRange )
 { LockedViewRange
   ( A, B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 
@@ -404,13 +404,13 @@ inline DistMatrix<T,U,V> LockedViewRange
 
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> View
-( DistMatrix<T,U,V>& B, IndexRange vertRange, IndexRange horzRange )
+( DistMatrix<T,U,V>& B, Range<Int> vertRange, Range<Int> horzRange )
 { return ViewRange
   ( B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
  
 template<typename T,Dist U,Dist V>
 inline DistMatrix<T,U,V> LockedView
-( const DistMatrix<T,U,V>& B, IndexRange vertRange, IndexRange horzRange )
+( const DistMatrix<T,U,V>& B, Range<Int> vertRange, Range<Int> horzRange )
 { return LockedViewRange
   ( B, vertRange.beg, horzRange.beg, vertRange.end, horzRange.end ); }
 

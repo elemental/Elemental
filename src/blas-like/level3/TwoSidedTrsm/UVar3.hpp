@@ -38,9 +38,9 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto A01 =       View( A, ind0, ind1 );
         auto A02 = LockedView( A, ind0, ind2 );
@@ -129,9 +129,9 @@ UVar3
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0,    k    );
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto A01 =       View( A, ind0, ind1 );
         auto A02 = LockedView( A, ind0, ind2 );

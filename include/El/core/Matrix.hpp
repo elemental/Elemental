@@ -38,9 +38,20 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
+
+    // Return a view
+    // -------------
+          Matrix<T> operator()( Range<Int> indVert, Range<Int> indHorz );
+    const Matrix<T> operator()( Range<Int> indVert, Range<Int> indHorz ) const;
+
+    // Make a copy
+    // -----------
     Matrix<T>& operator=( const Matrix<T>& A );
-    // Move the metadata from the given matrix
+
+    // Move assignment
+    // ---------------
     Matrix<T>& operator=( Matrix<T>&& A );
+
     void Empty();
     void Resize( Int height, Int width );
     void Resize( Int height, Int width, Int ldim );

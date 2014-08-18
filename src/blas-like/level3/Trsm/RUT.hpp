@@ -42,15 +42,15 @@ RUT
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
-    const IndexRange outerInd( 0, m );
+    const Range<Int> outerInd( 0, m );
     
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );

@@ -88,7 +88,7 @@ LVar3( Matrix<F>& A )
     {
         const Int nb = Min(bsize,n-k);
         
-        const IndexRange ind1( k,    k+nb ),
+        const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
         auto A11 = View( A, ind1, ind1 );
@@ -117,7 +117,7 @@ ReverseLVar3( Matrix<F>& A )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    ),
+        const Range<Int> ind0( 0, k    ),
                          ind1( k, k+nb );
 
         auto A00 = View( A, ind0, ind0 );
@@ -140,8 +140,8 @@ LVar3( AbstractDistMatrix<F>& APre )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
@@ -155,7 +155,7 @@ LVar3( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb ),
+        const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
         auto A11 = View( A, ind1, ind1 );
@@ -186,7 +186,7 @@ LVar3( AbstractDistMatrix<F>& APre )
 
         A21.TransposeRowFilterFrom( A21Trans_STAR_MC );
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
+    RestoreReadWriteProxy( APtr, APre );
 } 
 
 template<typename F>
@@ -199,8 +199,8 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
     const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A10_STAR_VR(g);
@@ -214,7 +214,7 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    ),
+        const Range<Int> ind0( 0, k    ),
                          ind1( k, k+nb );
 
         auto A00 = View( A, ind0, ind0 );
@@ -241,8 +241,8 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
 
         A10 = A10_STAR_MR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-} 
+    RestoreReadWriteProxy( APtr, APre );
+}
 
 } // namespace cholesky
 } // namespace El

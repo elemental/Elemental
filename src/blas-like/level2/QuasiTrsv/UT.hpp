@@ -131,7 +131,7 @@ UT
     if( conjugate )
         Conjugate( x );
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     Matrix<F> x1, x2;
     const Int m = U.Height();
@@ -143,8 +143,8 @@ UT
         const bool in2x2 = ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto U11 = LockedView( U, ind1, ind1 );
         auto U12 = LockedView( U, ind1, ind2 );
@@ -207,7 +207,7 @@ UT
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), x1_STAR_STAR(g);
 
-    const IndexRange outerInd( 0, 1 );
+    const Range<Int> outerInd( 0, 1 );
 
     if( x.Width() == 1 )
     {
@@ -228,8 +228,8 @@ UT
                 ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            const IndexRange ind1( k,    k+nb );
-            const IndexRange ind2( k+nb, m    );
+            const Range<Int> ind1( k,    k+nb );
+            const Range<Int> ind2( k+nb, m    );
 
             LockedView( U11, U, ind1, ind1 );
             LockedView( U12, U, ind1, ind2 );
@@ -276,8 +276,8 @@ UT
                 ( k+nbProp<m && U.Get(k+nbProp,k+nbProp-1) != F(0) );
             const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-            const IndexRange ind1( k,    k+nb );
-            const IndexRange ind2( k+nb, m    );
+            const Range<Int> ind1( k,    k+nb );
+            const Range<Int> ind2( k+nb, m    );
 
             LockedView( U11, U, ind1, ind1 );
             LockedView( U12, U, ind1, ind2 );

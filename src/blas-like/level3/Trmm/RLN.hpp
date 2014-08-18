@@ -51,13 +51,13 @@ LocalAccumulateRLN
     {
         const Int nb = Min(ratio*bsize,m-k);
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
+        auto L21 = L( IR(k+nb,m), IR(k,k+nb) );
 
-        auto X1 = LockedViewRange( X, 0, k,    n, k+nb );
-        auto X2 = LockedViewRange( X, 0, k+nb, n, m    );
+        auto X1 = X( IR(0,n), IR(k,k+nb) );
+        auto X2 = X( IR(0,n), IR(k+nb,m) );
 
-        auto Z1Trans = ViewRange( ZTrans, k, 0, k+nb, n );
+        auto Z1Trans = ZTrans( IR(k,k+nb), IR(0,n) );
 
         D11.AlignWith( L11 );
         D11 = L11;
@@ -102,7 +102,7 @@ RLNA
     {
         const Int nb = Min(bsize,m-k);
 
-        auto X1 = ViewRange( X, k, 0, k+nb, n );
+        auto X1 = X( IR(k,k+nb), IR(0,n) );
 
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
@@ -150,11 +150,11 @@ RLNCOld
     {
         const Int nb = Min(bsize,n-k);
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, n,    k+nb );
+        auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
+        auto L21 = L( IR(k+nb,n), IR(k,k+nb) );
 
-        auto X1 = ViewRange( X, 0, k,    m, k+nb );
-        auto X2 = ViewRange( X, 0, k+nb, m, n    );
+        auto X1 = X( IR(0,m), IR(k,k+nb) );
+        auto X2 = X( IR(0,m), IR(k+nb,n) );
 
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;
@@ -203,11 +203,11 @@ RLNC
     {
         const Int nb = Min(bsize,n-k);
 
-        auto L10 = LockedViewRange( L, k, 0, k+nb, k    );
-        auto L11 = LockedViewRange( L, k, k, k+nb, k+nb );
+        auto L10 = L( IR(k,k+nb), IR(0,k)    );
+        auto L11 = L( IR(k,k+nb), IR(k,k+nb) );
 
-        auto X0 = ViewRange( X, 0, 0, m, k    );
-        auto X1 = ViewRange( X, 0, k, m, k+nb );
+        auto X0 = X( IR(0,m), IR(0,k)    );
+        auto X1 = X( IR(0,m), IR(k,k+nb) );
 
         X1_MC_STAR.AlignWith( X0 );
         X1_MC_STAR = X1;

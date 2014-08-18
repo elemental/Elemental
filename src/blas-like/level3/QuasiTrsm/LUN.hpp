@@ -106,7 +106,7 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -117,8 +117,8 @@ LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );
@@ -157,7 +157,7 @@ LUNLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -168,8 +168,8 @@ LUNLarge
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );
@@ -222,7 +222,7 @@ LUNMedium
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -233,8 +233,8 @@ LUNMedium
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );
@@ -290,7 +290,7 @@ LUNSmall
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g), X1_STAR_STAR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     const Int kLast = LastOffset( m, bsize );
     Int k=kLast, kOld=m;
@@ -301,8 +301,8 @@ LUNSmall
             --k;
         const Int nb = kOld-k;
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    );
+        const Range<Int> ind1( k, k+nb );
 
         auto U01 = LockedView( U, ind0, ind1 );
         auto U11 = LockedView( U, ind1, ind1 );

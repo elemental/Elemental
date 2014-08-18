@@ -103,6 +103,29 @@ Matrix<T>::~Matrix() { }
 // Assignment and reconfiguration
 // ==============================
 
+// Return a view
+// -------------
+template<typename T>
+Matrix<T> Matrix<T>::operator()( Range<Int> indVert, Range<Int> indHorz )
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix ind, ind )"))
+    if( this->Locked() )
+        return LockedView( *this, indVert, indHorz );
+    else
+        return View( *this, indVert, indHorz );
+}
+
+template<typename T>
+const Matrix<T> Matrix<T>::operator()
+( Range<Int> indVert, Range<Int> indHorz ) const
+{
+    DEBUG_ONLY(CallStackEntry cse("Matrix( ind, ind )"))
+    return LockedView( *this, indVert, indHorz );
+}
+
+// Make a copy
+// -----------
+
 template<typename T>
 Matrix<T>& Matrix<T>::operator=( const Matrix<T>& A )
 {

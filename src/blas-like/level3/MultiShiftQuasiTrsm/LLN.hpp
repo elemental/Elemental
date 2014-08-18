@@ -102,7 +102,7 @@ LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
     const Int n = X.Width();
     const Int bsize = Blocksize();
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -110,8 +110,8 @@ LLN( const Matrix<F>& L, const Matrix<F>& shifts, Matrix<F>& X )
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
@@ -148,7 +148,7 @@ LLNLarge
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -156,8 +156,8 @@ LLNLarge
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
@@ -211,7 +211,7 @@ LLNMedium
     DistMatrix<F,MR,  STAR> shifts_MR_STAR( shifts ),
                             shifts_MR_STAR_Align(g);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -219,8 +219,8 @@ LLNMedium
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );
@@ -272,7 +272,7 @@ LLNSmall
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g), X1_STAR_STAR(g),
                             shifts_STAR_STAR(shifts);
 
-    const IndexRange outerInd( 0, n );
+    const Range<Int> outerInd( 0, n );
 
     for( Int k=0; k<m; k+=bsize )
     {
@@ -280,8 +280,8 @@ LLNSmall
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, m    );
 
         auto L11 = LockedView( L, ind1, ind1 );
         auto L21 = LockedView( L, ind2, ind1 );

@@ -28,7 +28,7 @@ void SolveAfter
         LogicError("Must have full column rank");
 
     // TODO: Add scaling
-    auto AT = LockedView( A, IndexRange(0,n), IndexRange(0,n) );
+    auto AT = A( IR(0,n), IR(0,n) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -95,7 +95,7 @@ void SolveAfter
 
     // TODO: Add scaling
 
-    auto AT = LockedView( A, IndexRange(0,n), IndexRange(0,n) );
+    auto AT = A( IR(0,n), IR(0,n) );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )

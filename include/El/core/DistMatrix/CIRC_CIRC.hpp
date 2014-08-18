@@ -55,8 +55,14 @@ public:
 
     // Assignment and reconfiguration
     // ==============================
-    // Redistribute from one distribution to another
-    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+
+    // Return a view
+    // -------------
+          type operator()( Range<Int> indVert, Range<Int> indHorz );
+    const type operator()( Range<Int> indVert, Range<Int> indHorz ) const;
+
+    // Make a copy
+    // -----------
     type& operator=( const DistMatrix<T,MC,  MR  >& A );
     type& operator=( const DistMatrix<T,MC,  STAR>& A );
     type& operator=( const DistMatrix<T,STAR,MR  >& A );
@@ -74,7 +80,10 @@ public:
     type& operator=( const AbstractDistMatrix<T>& A );
     void CopyFromRoot( const Matrix<T>& A, bool includingViewers=false );
     void CopyFromNonRoot( bool includingViewers=false );
+    template<Dist U,Dist V> type& operator=( const BlockDistMatrix<T,U,V>& A );
+
     // Move assignment
+    // ---------------
     type& operator=( type&& A );
 
     // Basic queries

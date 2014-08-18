@@ -38,8 +38,8 @@ UVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto A11 =       View( A, ind1, ind1 );
         auto A12 =       View( A, ind1, ind2 );
@@ -111,8 +111,8 @@ UVar1
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind1( k,    k+nb );
-        const IndexRange ind2( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb );
+        const Range<Int> ind2( k+nb, n    );
 
         auto A11 =       View( A, ind1, ind1 );
         auto A12 =       View( A, ind1, ind2 );

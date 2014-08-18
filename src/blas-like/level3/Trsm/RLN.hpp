@@ -38,21 +38,21 @@ RLN
     DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
 
-    const IndexRange outerInd( 0, m );
+    const Range<Int> outerInd( 0, m );
 
     const Int kLast = LastOffset( n, bsize );
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
 
-        const IndexRange ind0( 0, k    );
-        const IndexRange ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
-        auto X0 = View( X, outerInd, ind0 );
-        auto X1 = View( X, outerInd, ind1 );
+        auto X0 = X( outerInd, ind0 );
+        auto X1 = X( outerInd, ind1 );
 
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1;
