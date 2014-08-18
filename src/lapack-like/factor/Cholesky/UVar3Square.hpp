@@ -50,9 +50,9 @@ UVar3Square( AbstractDistMatrix<F>& APre )
         const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A11 = View( A, ind1, ind1 );
-        auto A12 = View( A, ind1, ind2 );
-        auto A22 = View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
 
         A11_STAR_STAR = A11;
         LocalCholesky( UPPER, A11_STAR_STAR );

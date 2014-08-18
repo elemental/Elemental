@@ -58,9 +58,9 @@ RLHF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, ki, 0, ki+nb, kj+nb );
-        auto ALeft = ViewRange( A, 0, 0, mA, kj+nb );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
+        auto ALeft = A( IR(0,mA),     IR(0,kj+nb) );
+        auto t1    = t( IR(k,k+nb),   IR(0,1)     );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );
@@ -114,9 +114,9 @@ RLHF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, ki, 0, ki+nb, kj+nb );
-        auto ALeft = ViewRange( A, 0, 0, mA, kj+nb );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan  = H( IR(ki,ki+nb), IR(0,kj+nb) );
+        auto ALeft = A( IR(0,mA),     IR(0,kj+nb) );
+        auto t1    = t( IR(k,k+nb),   IR(0,1)     );
 
         Conjugate( HPan, HPanConj );
         MakeTrapezoidal( LOWER, HPanConj, HPanConj.Width()-HPanConj.Height() );

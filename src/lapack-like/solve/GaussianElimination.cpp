@@ -21,8 +21,8 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
             LogicError("A and B must be the same height");
     )
 
-    Matrix<Int> p1;
-    Matrix<Int> p1Perm, p1InvPerm;
+    Matrix<Int> p1Piv;
+    Matrix<Int> p1, p1Inv;
 
     const Int mA = A.Height();
     const Int nA = A.Width();
@@ -32,18 +32,21 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
-        auto A11  = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12  = ViewRange( A, k,    k+nb, k+nb, nA   );
-        auto A21  = ViewRange( A, k+nb, k,    mA,   k+nb );
-        auto A22  = ViewRange( A, k+nb, k+nb, mA,   nA   ); 
-        auto APan = ViewRange( A, k,    k+nb, mA,   nA   );
-        auto B1   = ViewRange( B, k,    0,    k+nb, nB   );
-        auto B2   = ViewRange( B, k+nb, 0,    mA,   nB   );
-        auto BB   = ViewRange( B, k,    0,    mA,   nB   );
+        const Range<Int> ind1( k, k+nb ),
+                         indB( k, mA   ),
+                         ind2Vert( k+nb, mA ), ind2Horz( k+nb, nA );
+        auto A11 = A( ind1,     ind1     );
+        auto A12 = A( ind1,     ind2Horz );
+        auto A21 = A( ind2Vert, ind1     );
+        auto A22 = A( ind2Vert, ind2Horz ); 
+        auto AB2 = A( indB,     ind2Horz );
+        auto B1  = B( ind1,     IR(0,nB)    );
+        auto B2  = B( ind2Vert, IR(0,nB)    );
+        auto BB  = B( indB,     IR(0,nB)    );
 
-        lu::Panel( APan, p1 );
-        PivotsToPartialPermutation( p1, p1Perm, p1InvPerm ); 
-        PermuteRows( BB, p1Perm, p1InvPerm );
+        lu::Panel( AB2, p1Piv );
+        PivotsToPartialPermutation( p1Piv, p1, p1Inv ); 
+        PermuteRows( BB, p1, p1Inv );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
@@ -72,14 +75,12 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     const Grid& g = A.Grid();
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
-    DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
+    DistMatrix<F,STAR,VR  > A12_STAR_VR(g), B1_STAR_VR(g);
+    DistMatrix<F,STAR,MR  > A12_STAR_MR(g), B1_STAR_MR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
-    DistMatrix<F,STAR,VR  > B1_STAR_VR(g);
-    DistMatrix<F,STAR,MR  > B1_STAR_MR(g);
-    DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
+    DistMatrix<Int,STAR,STAR> p1Piv_STAR_STAR(g);
 
-    DistMatrix<Int,VC,STAR> p1Perm(g), p1InvPerm(g);
+    DistMatrix<Int,VC,STAR> p1(g), p1Inv(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
@@ -88,23 +89,26 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
-        auto A11  = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12  = ViewRange( A, k,    k+nb, k+nb, nA   );
-        auto A21  = ViewRange( A, k+nb, k,    mA,   k+nb );
-        auto A22  = ViewRange( A, k+nb, k+nb, mA,   nA   );          
-        auto APan = ViewRange( A, k,    k+nb, mA,   nA   );
-        auto B1   = ViewRange( B, k,    0,    k+nb, nB   );
-        auto B2   = ViewRange( B, k+nb, 0,    mA,   nB   );
-        auto BB   = ViewRange( B, k,    0,    mA,   nB   );
+        const Range<Int> ind1( k, k+nb ),
+                         indB( k, mA   ),
+                         ind2Vert( k+nb, mA ), ind2Horz( k+nb, nA );
+        auto A11 = A( ind1,     ind1     );
+        auto A12 = A( ind1,     ind2Horz );
+        auto A21 = A( ind2Vert, ind1     );
+        auto A22 = A( ind2Vert, ind2Horz ); 
+        auto AB2 = A( indB,     ind2Horz );
+        auto B1  = B( ind1,     IR(0,nB)    );
+        auto B2  = B( ind2Vert, IR(0,nB)    );
+        auto BB  = B( indB,     IR(0,nB)    );
 
         A11_STAR_STAR = A11;
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
 
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR );
-        PivotsToPartialPermutation( p1_STAR_STAR, p1Perm, p1InvPerm );
-        PermuteRows( APan, p1Perm, p1InvPerm );
-        PermuteRows( BB,   p1Perm, p1InvPerm );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1Piv_STAR_STAR );
+        PivotsToPartialPermutation( p1Piv_STAR_STAR, p1, p1Inv );
+        PermuteRows( AB2, p1, p1Inv );
+        PermuteRows( BB,  p1, p1Inv );
 
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;

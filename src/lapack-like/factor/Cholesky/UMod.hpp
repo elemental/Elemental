@@ -43,10 +43,10 @@ UUpdate( Matrix<F>& U, Matrix<F>& V )
                          ind2( k+1, m   );
 
         F& upsilon11 = UBuf[k+k*ldu];
-        auto u12 = View( U, ind1, ind2 );
+        auto u12 = U( ind1, ind2 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and w such that
         //  /I - tau | 1 | | 1 w^H | \ | upsilon11 | = | -beta |
@@ -108,10 +108,10 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
                          ind2( k+1, m   );
 
         F upsilon11 = U.Get(k,k);
-        auto u12 = View( U, ind1, ind2 );
+        auto u12 = U( ind1, ind2 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and w such that
         //  /I - tau | 1 | | 1 w^H | \ | upsilon11 | = | -beta |
@@ -180,10 +180,10 @@ UDowndate( Matrix<F>& U, Matrix<F>& V )
                          ind2( k+1, m   );
 
         F& upsilon11 = UBuf[k+k*ldu];
-        auto u12 = View( U, ind1, ind2 );
+        auto u12 = U( ind1, ind2 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and w such that
         //  /I - 1/tau | 1 | | 1 w^H | Sigma \ | upsilon11 | = | -beta |
@@ -245,10 +245,10 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
                          ind2( k+1, m   );
 
         F upsilon11 = U.Get(k,k);
-        auto u12 = View( U, ind1, ind2 );
+        auto u12 = U( ind1, ind2 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and w such that
         //  /I - 1/tau | 1 | | 1 w^H | Sigma \ | upsilon11 | = | -beta |

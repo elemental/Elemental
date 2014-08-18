@@ -61,9 +61,9 @@ LLVB
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, ki, kj, m, kj+nb );
-        auto ABot = ViewRange( A, ki, 0, m, nA );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan = H( IR(ki,m),   IR(kj,kj+nb) );
+        auto ABot = A( IR(ki,m),   IR(0,nA)     );
+        auto t1   = t( IR(k,k+nb), IR(0,1)      );
 
         HPanCopy = HPan;
         MakeTriangular( LOWER, HPanCopy );
@@ -119,9 +119,9 @@ LLVB
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, ki, kj, m, kj+nb );
-        auto ABot = ViewRange( A, ki, 0, m, nA );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan = H( IR(ki,m),   IR(kj,kj+nb) );
+        auto ABot = A( IR(ki,m),   IR(0,nA)     );
+        auto t1   = t( IR(k,k+nb), IR(0,1)      );
 
         HPanCopy = HPan;
         MakeTriangular( LOWER, HPanCopy );

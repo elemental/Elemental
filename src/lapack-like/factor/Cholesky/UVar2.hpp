@@ -36,10 +36,10 @@ UVar2( Matrix<F>& A )
                          ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A01 = View( A, ind0, ind1 );
-        auto A02 = View( A, ind0, ind2 );
-        auto A11 = View( A, ind1, ind1 );
-        auto A12 = View( A, ind1, ind2 );
+        auto A01 = A( ind0, ind1 );
+        auto A02 = A( ind0, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
 
         Herk( UPPER, ADJOINT, F(-1), A01, F(1), A11 );
         cholesky::UVar3Unb( A11 );
@@ -81,10 +81,10 @@ UVar2( AbstractDistMatrix<F>& APre )
                          ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A01 = View( A, ind0, ind1 );
-        auto A02 = View( A, ind0, ind2 );
-        auto A11 = View( A, ind1, ind1 );
-        auto A12 = View( A, ind1, ind2 );
+        auto A01 = A( ind0, ind1 );
+        auto A02 = A( ind0, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
 
         A01_MC_STAR.AlignWith( A01 );
         A01_MC_STAR = A01;

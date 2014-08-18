@@ -43,10 +43,10 @@ LUpdate( Matrix<F>& L, Matrix<F>& V )
                          ind2( k+1, m   );
 
         F& lambda11 = LBuf[k+k*ldl];
-        auto l21 = View( L, ind2, ind1 );
+        auto l21 = L( ind2, ind1 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and u such that
         //  | lambda11 u | /I - tau | 1   | | 1 conj(u) |\ = | -beta 0 |
@@ -99,10 +99,10 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
                          ind2( k+1, m   );
 
         F lambda11 = L.Get( k, k );
-        auto l21 = View( L, ind2, ind1 );
+        auto l21 = L( ind2, ind1 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and u such that
         //  | lambda11 u | /I - tau | 1   | | 1 conj(u) |\ = | -beta 0 |
@@ -159,10 +159,10 @@ LDowndate( Matrix<F>& L, Matrix<F>& V )
                          ind2( k+1, m   );
 
         F& lambda11 = LBuf[k+k*ldl];
-        auto l21 = View( L, ind2, ind1 );
+        auto l21 = L( ind2, ind1 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and u such that
         //  | lambda11 u | /I - 1/tau Sigma | 1   | | 1 conj(u) |\ = | -beta 0 |
@@ -218,10 +218,10 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
                          ind2( k+1, m   );
 
         F lambda11 = L.Get( k, k );
-        auto l21 = View( L, ind2, ind1 );
+        auto l21 = L( ind2, ind1 );
 
-        auto v1 = View( V, ind1, outerInd );
-        auto V2 = View( V, ind2, outerInd );
+        auto v1 = V( ind1, outerInd );
+        auto V2 = V( ind2, outerInd );
 
         // Find tau and u such that
         //  | lambda11 u | /I - 1/tau Sigma | 1   | | 1 conj(u) |\ = | -beta 0 |

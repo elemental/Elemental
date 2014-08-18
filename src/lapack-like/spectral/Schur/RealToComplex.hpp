@@ -39,12 +39,12 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
             U.Set(j+1,j,0);
 
             // Apply Q11 from the right
-            auto U01 = ViewRange( U, 0, j, j, j+2 );
+            auto U01 = U( IR(0,j), IR(j,j+2) );
             U01Copy = U01;
             Gemm( NORMAL, NORMAL, C(1), U01Copy, Q11, C(0), U01 );
 
             // Apply Q11^H from the left
-            auto U12 = ViewRange( U, j, j+2, j+2, n );
+            auto U12 = U( IR(j,j+2), IR(j+2,n) );
             U12Copy = U12;
             Gemm( ADJOINT, NORMAL, C(1), Q11, U12Copy, C(0), U12 );
         }
@@ -76,7 +76,7 @@ void RealToComplex
             // Compute the Schur decomposition of the 2x2 block.
             // TODO: Switch to an analytical formula. Note that ScaLAPACK
             //       typically does not return the 2x2 blocks in standard form
-            auto U11 = ViewRange( U, j, j, j+2, j+2 );
+            auto U11 = U( IR(j,j+2), IR(j,j+2) );
             U11_STAR_STAR = U11;
             lapack::HessenbergSchur
             ( 2, U11_STAR_STAR.Buffer(), U11_STAR_STAR.LDim(), 
@@ -85,7 +85,7 @@ void RealToComplex
             U.Set(j+1,j,0);
 
             // Apply Q11 from the right
-            auto U01 = ViewRange( U, 0, j, j, j+2 );
+            auto U01 = U( IR(0,j), IR(j,j+2) );
             U01_VC_STAR = U01;
             U01Copy_VC_STAR = U01_VC_STAR;
 
@@ -94,7 +94,7 @@ void RealToComplex
             U01 = U01_VC_STAR;
 
             // Apply Q11^H from the left
-            auto U12 = ViewRange( U, j, j+2, j+2, n );
+            auto U12 = U( IR(j,j+2), IR(j+2,n) );
             U12_STAR_VR = U12;
             U12Copy_STAR_VR = U12_STAR_VR;
             LocalGemm

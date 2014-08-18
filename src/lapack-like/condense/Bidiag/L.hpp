@@ -42,20 +42,28 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-        auto A22 = ViewRange( A, k+nb, k+nb, m, n );
-        auto ABR = ViewRange( A, k,    k,    m, n );
+
+        const Range<Int> ind1( k, k+nb ),
+                         indB( k, m ), indR( k, n ),
+                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
+
+        auto A22 = A( ind2Vert, ind2Horz );
+        auto ABR = A( indB,     indR     );
+
+        auto tP1 = tP( ind1, IR(0,1) );
+
         if( A22.Height() > 0 )
         {
-            auto tP1 = View( tP, k, 0, nb, 1 );
-            auto tQ1 = View( tQ, k, 0, nb, 1 );
+            auto A12 = A( ind1,     ind2Horz );
+            auto A21 = A( ind2Vert, ind1     );
+
+            auto tQ1 = tQ( ind1, IR(0,1) );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
             bidiag::LPan( ABR, tP1, tQ1, X, Y );
 
-            auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
-            auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
-            auto X21 = ViewRange( X, nb, 0,  m-k, nb  );
-            auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
+            auto X21 = X( IR(nb,m-k), IR(0,nb)   );
+            auto Y12 = Y( IR(0,nb),   IR(nb,n-k) );
 
             // Set top-right entry of A21 to 1
             const F epsilon = A21.Get(0,nb-1);
@@ -71,8 +79,7 @@ inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
         }
         else
         {
-            auto tP1 = View( tP, k, 0, nb,   1 );
-            auto tQ1 = View( tQ, k, 0, nb-1, 1 );
+            auto tQ1 = tQ( IR(k,k+nb-1), IR(0,1) );
             bidiag::LUnb( ABR, tP1, tQ1 );
         }
     }
@@ -115,14 +122,21 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
     {
         const Int nb = Min(bsize,m-k);
 
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
-        auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
-        auto A22 = ViewRange( A, k+nb, k+nb, m,    n    );
-        auto ABR = ViewRange( A, k,    k,    m,    n    );
+        const Range<Int> ind1( k, k+nb ),
+                         indB( k, m ), indR( k, n ),
+                         ind2Vert( k+nb, m ), ind2Horz( k+nb, n );
+
+        auto A22 = A( ind2Vert, ind2Horz );
+        auto ABR = A( indB,     indR     );
+
+        auto tP1 = tP( ind1, IR(0,1) );
 
         if( A22.Height() > 0 )
         {
+            auto A11 = A( ind1,     ind1     );
+            auto A12 = A( ind1,     ind2Horz );
+            auto A21 = A( ind2Vert, ind1     );
+
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
             X.Resize( m-k, nb  );
@@ -133,19 +147,18 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
             AB1_MC_STAR.Resize( m-k, nb  );
             A1R_STAR_MR.Resize( nb,  n-k );
 
-            auto tP1 = View( tP, k, 0, nb, 1 );
-            auto tQ1 = View( tQ, k, 0, nb, 1 );
+            auto tQ1 = tQ( ind1, IR(0,1) );
             bidiag::LPan( ABR, tP1, tQ1, X, Y, AB1_MC_STAR, A1R_STAR_MR );
 
-            auto X21 = ViewRange( X, nb, 0,  m-k, nb  );
-            auto Y12 = ViewRange( Y, 0,  nb, nb,  n-k );
+            auto X21 = X( IR(nb,m-k), IR(0,nb)   );
+            auto Y12 = Y( IR(0,nb),   IR(nb,n-k) );
             X21_MC_STAR.AlignWith( A21 );
             Y12Adj_MR_STAR.AlignWith( A12 );
             X21_MC_STAR = X21;
             Y12.AdjointColAllGather( Y12Adj_MR_STAR );
 
-            auto A21_MC_STAR = ViewRange( AB1_MC_STAR, nb, 0,  m-k, nb  );
-            auto A12_STAR_MR = ViewRange( A1R_STAR_MR, 0,  nb, nb,  n-k );
+            auto A21_MC_STAR = AB1_MC_STAR( IR(nb,m-k), IR(0,nb)   );
+            auto A12_STAR_MR = A1R_STAR_MR( IR(0,nb),   IR(nb,n-k) );
 
             LocalGemm
             ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y12Adj_MR_STAR, F(1), A22 );
@@ -155,8 +168,7 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         }
         else
         {
-            auto tP1 = View( tP, k, 0, nb,   1 );
-            auto tQ1 = View( tQ, k, 0, nb-1, 1 );
+            auto tQ1 = tQ( IR(k,k+nb-1), IR(0,1) );
             bidiag::LUnb( ABR, tP1, tQ1 );
         }
     }

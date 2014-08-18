@@ -35,7 +35,7 @@ void MultiplyAfter
 ( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::MultiplyAfter");
+        CallStackEntry cse("ldl::MultiplyAfter");
         AssertSameGrids( APre, B );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
@@ -60,7 +60,7 @@ void MultiplyAfter
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::MultiplyAfter");
+        CallStackEntry cse("ldl::MultiplyAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -89,7 +89,7 @@ void MultiplyAfter
   bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::MultiplyAfter");
+        CallStackEntry cse("ldl::MultiplyAfter");
         AssertSameGrids( APre, BPre, p );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
@@ -102,9 +102,8 @@ void MultiplyAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g), B(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr; 
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
 
     const auto d = A.GetDiagonal();
 
@@ -116,6 +115,8 @@ void MultiplyAfter
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     PermuteRows( B, pInv, p );
+
+    RestoreReadWriteProxy( BPtr, BPre );
 }
 
 } // namespace ldl

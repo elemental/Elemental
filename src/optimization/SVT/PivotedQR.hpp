@@ -33,8 +33,7 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     ctrl.boundRank = true;
     ctrl.maxRank = numSteps;
     QR( ACopy, t, d, pPerm, ctrl );
-    Matrix<F> ACopyUpper;
-    LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
+    auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
     Matrix<F> U( ACopyUpper ), V;
     Matrix<Real> s;
@@ -74,8 +73,7 @@ Int PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     ctrl.boundRank = true;
     ctrl.maxRank = numSteps;
     QR( ACopy, t, d, pPerm, ctrl );
-    DistMatrix<F> ACopyUpper(g);
-    LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
+    auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
     DistMatrix<F> U( ACopyUpper ), V(g);
     DistMatrix<Real,VR,STAR> s(g);

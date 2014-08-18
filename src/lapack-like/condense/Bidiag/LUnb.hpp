@@ -36,12 +36,12 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 
     for( Int k=0; k<m; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
-        auto a1R     = ViewRange( A, k,   k,   k+1, n   );
-        auto A2R     = ViewRange( A, k+1, k,   m,   n   );
+        auto alpha11 = A( IR(k,k+1), IR(k,k+1) );
+        auto a12     = A( IR(k,k+1), IR(k+1,n) );
+        auto a21     = A( IR(k+1,m), IR(k,k+1) );
+        auto A22     = A( IR(k+1,m), IR(k+1,n) );
+        auto a1R     = A( IR(k,k+1), IR(k,n)   );
+        auto A2R     = A( IR(k+1,m), IR(k,n)   );
 
         // Find tauP and v such that
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |
@@ -125,12 +125,12 @@ inline void LUnb
 
     for( Int k=0; k<m; ++k )
     {
-        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
-        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
-        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
-        auto a1R     = ViewRange( A, k,   k,   k+1, n   );
-        auto A2R     = ViewRange( A, k+1, k,   m,   n   );
+        auto alpha11 = A( IR(k,k+1), IR(k,k+1) );
+        auto a12     = A( IR(k,k+1), IR(k+1,n) );
+        auto a21     = A( IR(k+1,m), IR(k,k+1) );
+        auto A22     = A( IR(k+1,m), IR(k+1,n) );
+        auto a1R     = A( IR(k,k+1), IR(k,n)   );
+        auto A2R     = A( IR(k+1,m), IR(k,n)   );
 
         // Find tauP and v such that
         //  | alpha11 a12 | / I - tauP | 1   | | 1, conj(v) | \ = | epsilonP 0 |

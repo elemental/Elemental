@@ -16,11 +16,11 @@ void Lauchli( Matrix<T>& A, Int n, T mu )
     DEBUG_ONLY(CallStackEntry cse("Lauchli"))
     A.Resize( n+1, n );
 
-    auto ABlock = View( A, 0, 0, 1, n );
+    auto ABlock = A( IR(0,1), IR(0,n) );
     Fill( ABlock, T(1) );
 
     std::vector<T> d(n,mu);
-    ABlock = View( A, 1, 0, n, n );
+    ABlock = A( IR(1,n+1), IR(0,n) );
     Diagonal( ABlock, d );
 }
 
@@ -31,30 +31,13 @@ void Lauchli( AbstractDistMatrix<T>& A, Int n, T mu )
     A.Resize( n+1, n );
 
     std::unique_ptr<AbstractDistMatrix<T>> ABlock( A.Construct(A.Grid()) );
-    View( *ABlock, A, 0, 0, 1, n );
+    View( *ABlock, A, IR(0,1), IR(0,n) );
     Fill( *ABlock, T(1) );
 
     std::vector<T> d(n,mu);
-    View( *ABlock, A, 1, 0, n, n );
+    View( *ABlock, A, IR(1,n+1), IR(0,n) );
     Diagonal( *ABlock, d );
 }
-
-/*
-template<typename T>
-void Lauchli( AbstractBlockDistMatrix<T>& A, Int n, T mu )
-{
-    DEBUG_ONLY(CallStackEntry cse("Lauchli"))
-    A.Resize( n+1, n );
-
-    std::unique_ptr<AbstractBlockDistMatrix<T>> ABlock( A.Construct(A.Grid()) );
-    View( *ABlock, A, 0, 0, 1, n );
-    Fill( *ABlock, T(1) );
-
-    std::vector<T> d(n,mu);
-    View( *ABlock, A, 1, 0, n, n );
-    Diagonal( *ABlock, d );
-}
-*/
 
 #define PROTO(T) \
   template void Lauchli( Matrix<T>& A, Int n, T mu ); \

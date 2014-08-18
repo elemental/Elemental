@@ -69,10 +69,10 @@ void LUMod
                          indB( i+2, m ),
                          indR( i+1, n );
 
-        auto lBi   = View( A, indB,   indi   );
-        auto lBip1 = View( A, indB,   indip1 );
-        auto uiR   = View( A, indi,   indR   );
-        auto uip1R = View( A, indip1, indR   );
+        auto lBi   = A( indB,   indi   );
+        auto lBip1 = A( indB,   indip1 );
+        auto uiR   = A( indi,   indR   );
+        auto uip1R = A( indip1, indR   );
 
         if( pivot )
         {
@@ -165,7 +165,7 @@ void LUMod
 
     // Add the modified w v' into U
     {
-        auto a0 = View( A, 0, 0, 1, n );
+        auto a0 = A( IR(0,1), IR(0,n) );
         const F omega_0 = w.Get( 0, 0 ); 
         Matrix<F> vTrans;
         Transpose( v, vTrans, conjugate );
@@ -187,10 +187,10 @@ void LUMod
                          indB( i+2, m ),
                          indR( i+1, n );
 
-        auto lBi   = View( A, indB,   indi   );
-        auto lBip1 = View( A, indB,   indip1 );
-        auto uiR   = View( A, indi,   indR   );
-        auto uip1R = View( A, indip1, indR   );
+        auto lBi   = A( indB,   indi   );
+        auto lBip1 = A( indB,   indip1 );
+        auto uiR   = A( indi,   indR   );
+        auto uip1R = A( indip1, indR   );
 
         if( pivot )
         {
@@ -324,10 +324,10 @@ void LUMod
                          indi( i, i+1 ),
                          indip1( i+1, i+2 );
 
-        auto lBi   = View( A, indB,   indi   );
-        auto lBip1 = View( A, indB,   indip1 );
-        auto uiR   = View( A, indi,   indR   );
-        auto uip1R = View( A, indip1, indR   );
+        auto lBi   = A( indB,   indi   );
+        auto lBip1 = A( indB,   indip1 );
+        auto uiR   = A( indi,   indR   );
+        auto uip1R = A( indip1, indR   );
 
         if( pivot )
         {
@@ -420,7 +420,7 @@ void LUMod
 
     // Add the modified w v' into U
     {
-        auto a0 = View( A, 0, 0, 1, n );
+        auto a0 = A( IR(0,1), IR(0,n) );
         const F omega_0 = w.Get( 0, 0 ); 
         DistMatrix<F> vTrans(g);
         vTrans.AlignWith( a0 );
@@ -443,10 +443,10 @@ void LUMod
                          indi( i, i+1 ),
                          indip1( i+1, i+2 );
 
-        auto lBi   = View( A, indB,   indi   );
-        auto lBip1 = View( A, indB,   indip1 );
-        auto uiR   = View( A, indi,   indR   );
-        auto uip1R = View( A, indip1, indR   );
+        auto lBi   = A( indB,   indi   );
+        auto lBip1 = A( indB,   indip1 );
+        auto uiR   = A( indi,   indR   );
+        auto uip1R = A( indip1, indR   );
 
         if( pivot )
         {

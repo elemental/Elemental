@@ -29,7 +29,7 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
     }
     Matrix<Real> x, Z;
     HermitianTridiagEig( d, e, x, Z, UNSORTED );
-    auto z = LockedView( Z, 0, 0, 1, n );
+    auto z = Z( IR(0,1), IR(0,n) );
     Matrix<Real> sqrtWeights( z ), sqrtWeightsTrans;
     for( Int j=0; j<n; ++j )
         sqrtWeights.Set( 0, j, Sqrt(2)*Abs(sqrtWeights.Get(0,j)) );
@@ -76,7 +76,7 @@ void FoxLi( DistMatrix<Complex<Real>,U,V>& A, Int n, Real omega )
     DistMatrix<Real,VR,STAR> x(g);
     DistMatrix<Real,STAR,VR> Z(g);
     HermitianTridiagEig( d, e, x, Z, UNSORTED );
-    auto z = LockedView( Z, 0, 0, 1, n );
+    auto z = Z( IR(0,1), IR(0,n) );
     DistMatrix<Real,STAR,VR> sqrtWeights( z );
     for( Int jLoc=0; jLoc<sqrtWeights.LocalWidth(); ++jLoc )
         sqrtWeights.SetLocal

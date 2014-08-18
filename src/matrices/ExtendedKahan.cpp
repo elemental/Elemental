@@ -47,12 +47,12 @@ inline void MakeExtendedKahan
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
-    auto ABlock = View( A, 2*l, 2*l, l, l );
+    auto ABlock = A( IR(2*l,3*l), IR(2*l,3*l) );
     Scale( mu, ABlock );
-    ABlock = View( A, 0, l, l, l );
+    ABlock = A( IR(0,l), IR(l,2*l) );
     Walsh( ABlock, k );
     Scale( -phi, ABlock );
-    ABlock = View( A, l, 2*l, l, l );
+    ABlock = A( IR(l,2*l), IR(2*l,3*l) );
     Walsh( ABlock, k );
     Scale( phi, ABlock );
 
@@ -94,12 +94,12 @@ inline void MakeExtendedKahan
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
     std::unique_ptr<AbstractDistMatrix<F>> ABlock( A.Construct(A.Grid()) );
-    View( *ABlock, A, 2*l, 2*l, l, l );
+    View( *ABlock, A, IR(2*l,3*l), IR(2*l,3*l) );
     Scale( mu, *ABlock );
-    View( *ABlock, A, 0, l, l, l );
+    View( *ABlock, A, IR(0,l), IR(l,2*l) );
     Walsh( *ABlock, k );
     Scale( -phi, *ABlock );
-    View( *ABlock, A, l, 2*l, l, l );
+    View( *ABlock, A, IR(l,2*l), IR(2*l,3*l) );
     Walsh( *ABlock, k );
     Scale( phi, *ABlock );
 

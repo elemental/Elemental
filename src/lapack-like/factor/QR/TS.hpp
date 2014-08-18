@@ -34,7 +34,7 @@ void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
     if( !PowerOfTwo(p) )
         LogicError("TSQR currently requires power-of-two number of processes");
     const Int logp = Log2(p);
-    auto lastZ = LockedView( treeData.QR0, 0, 0, n, n );
+    auto lastZ = treeData.QR0( IR(0,n), IR(0,n) );
     treeData.QRList.resize( logp );
     treeData.tList.resize( logp );
     treeData.dList.resize( logp );
@@ -66,8 +66,8 @@ void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
         Q.Resize( 2*n, n, 2*n );
         t.Resize( n, 1 );
         d.Resize( n, 1 );
-        auto QTop = View( Q, 0, 0, n, n );
-        auto QBot = View( Q, n, 0, n, n );
+        auto QTop = Q( IR(0,n),   IR(0,n) );
+        auto QBot = Q( IR(n,2*n), IR(0,n) );
         QTop = ZTop;
         QBot = ZBot;
 
@@ -78,7 +78,7 @@ void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
         {
             // TODO: Exploit double-triangular structure
             QR( Q, t, d );
-            lastZ = LockedView( Q, 0, 0, n, n );
+            lastZ = Q( IR(0,n), IR(0,n) );
         }
     }
 }
@@ -204,8 +204,8 @@ void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
     Matrix<F> Z(2*n,n,2*n), ZHalf(n,n,n);
     if( rank == 0 )
         Z = RootQR( A, treeData );
-    auto ZTop = View( Z, 0, 0, n, n );
-    auto ZBot = View( Z, n, 0, n, n );
+    auto ZTop = Z( IR(0,n),   IR(0,n) );
+    auto ZBot = Z( IR(n,2*n), IR(0,n) );
     for( Int revStage=0; revStage<logp; ++revStage )
     {
         const Int stage = (logp-1)-revStage;
@@ -242,7 +242,7 @@ void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 
     // Apply the initial Q
     Zero( A.Matrix() );
-    auto ATop = View( A.Matrix(), 0, 0, n, n );
+    auto ATop = A.Matrix()( IR(0,n), IR(0,n) );
     ATop = ZHalf;
     // TODO: Exploit sparsity
     ApplyQ( LEFT, NORMAL, treeData.QR0, treeData.t0, treeData.d0, A.Matrix() );
@@ -259,7 +259,8 @@ FormR( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
     if( A.ColRank() == 0 )
     {
         const Int n = A.Width();
-        auto RTop = LockedView( RootQR(A,treeData), 0, 0, n, n );
+        auto R = RootQR(A,treeData);
+        auto RTop = R( IR(0,n), IR(0,n) );
         RRoot.CopyFromRoot( RTop );
         MakeTriangular( UPPER, RRoot );
     }

@@ -91,9 +91,9 @@ LVar3( Matrix<F>& A )
         const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A11 = View( A, ind1, ind1 );
-        auto A21 = View( A, ind2, ind1 );
-        auto A22 = View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
         cholesky::LVar3Unb( A11 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
@@ -120,9 +120,9 @@ ReverseLVar3( Matrix<F>& A )
         const Range<Int> ind0( 0, k    ),
                          ind1( k, k+nb );
 
-        auto A00 = View( A, ind0, ind0 );
-        auto A10 = View( A, ind1, ind0 );
-        auto A11 = View( A, ind1, ind1 );
+        auto A00 = A( ind0, ind0 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
 
         cholesky::ReverseLVar3Unb( A11 );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
@@ -158,9 +158,9 @@ LVar3( AbstractDistMatrix<F>& APre )
         const Range<Int> ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A11 = View( A, ind1, ind1 );
-        auto A21 = View( A, ind2, ind1 );
-        auto A22 = View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
@@ -217,9 +217,9 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
         const Range<Int> ind0( 0, k    ),
                          ind1( k, k+nb );
 
-        auto A00 = View( A, ind0, ind0 );
-        auto A10 = View( A, ind1, ind0 );
-        auto A11 = View( A, ind1, ind1 );
+        auto A00 = A( ind0, ind0 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
 
         A11_STAR_STAR = A11;
         LocalReverseCholesky( LOWER, A11_STAR_STAR );

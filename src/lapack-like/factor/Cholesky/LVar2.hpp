@@ -36,10 +36,10 @@ LVar2( Matrix<F>& A )
                          ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A10 = View( A, ind1, ind0 );
-        auto A11 = View( A, ind1, ind1 );
-        auto A20 = View( A, ind2, ind0 );
-        auto A21 = View( A, ind2, ind1 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A20 = A( ind2, ind0 );
+        auto A21 = A( ind2, ind1 );
 
         Herk( LOWER, NORMAL, F(-1), A10, F(1), A11 );
         cholesky::LVar3Unb( A11 );
@@ -78,10 +78,10 @@ LVar2( AbstractDistMatrix<F>& APre )
                          ind1( k,    k+nb ),
                          ind2( k+nb, n    );
 
-        auto A10 = View( A, ind1, ind0 );
-        auto A11 = View( A, ind1, ind1 );
-        auto A20 = View( A, ind2, ind0 );
-        auto A21 = View( A, ind2, ind1 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A20 = A( ind2, ind0 );
+        auto A21 = A( ind2, ind1 );
  
         A10Adj_MR_STAR.AlignWith( A10 );
         A10.AdjointColAllGather( A10Adj_MR_STAR );

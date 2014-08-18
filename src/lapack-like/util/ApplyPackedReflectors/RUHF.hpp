@@ -60,9 +60,9 @@ RUHF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, ki, kj, ki+nb, nA );
-        auto ARight = ViewRange( A, 0, kj, mA, nA );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan   = H( IR(ki,ki+nb), IR(kj,nA) );
+        auto ARight = A( IR(0,mA),     IR(kj,nA) );
+        auto t1     = t( IR(k,k+nb),   IR(0,1)   );
 
         Conjugate( HPan, HPanConj );
         MakeTriangular( UPPER, HPanConj );
@@ -117,9 +117,9 @@ RUHF
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, ki, kj, ki+nb, nA );
-        auto ARight = ViewRange( A, 0, kj, mA, nA );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan   = H( IR(ki,ki+nb), IR(kj,nA) );
+        auto ARight = A( IR(0,mA),     IR(kj,nA) );
+        auto t1     = t( IR(k,k+nb),   IR(0,1)   );
 
         Conjugate( HPan, HPanConj );
         MakeTriangular( UPPER, HPanConj );

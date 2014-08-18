@@ -60,9 +60,9 @@ RUVB
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, 0, kj, ki+nb, kj+nb );
-        auto ALeft = ViewRange( A, 0, 0, mA, ki+nb );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan  = H( IR(0,ki+nb), IR(kj,kj+nb) );
+        auto ALeft = A( IR(0,mA),    IR(0,ki+nb)  );
+        auto t1    = t( IR(k,k+nb),  IR(0,1)      );
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );
@@ -117,9 +117,9 @@ RUVB
         const Int ki = k+iOff;
         const Int kj = k+jOff;
 
-        auto HPan = LockedViewRange( H, 0, kj, ki+nb, kj+nb );
-        auto ALeft = ViewRange( A, 0, 0, mA, ki+nb );
-        auto t1 = LockedView( t, k, 0, nb, 1 );
+        auto HPan  = H( IR(0,ki+nb), IR(kj,kj+nb) );
+        auto ALeft = A( IR(0,mA),    IR(0,ki+nb)  );
+        auto t1    = t( IR(k,k+nb),  IR(0,1)      ); 
 
         HPanCopy = HPan;
         MakeTrapezoidal( UPPER, HPanCopy, HPanCopy.Width()-HPanCopy.Height() );

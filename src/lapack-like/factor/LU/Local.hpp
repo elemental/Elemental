@@ -29,10 +29,10 @@ UnbObj( Matrix<F>& A )
                          ind2Vert( k+1, m ),
                          ind2Horz( k+1, n );
 
-        auto alpha11 = View( A, ind1,     ind1     );
-        auto a12     = View( A, ind1,     ind2Horz );
-        auto a21     = View( A, ind2Vert, ind1     );
-        auto A22     = View( A, ind2Vert, ind2Horz );
+        auto alpha11 = A( ind1,     ind1     );
+        auto a12     = A( ind1,     ind2Horz );
+        auto a21     = A( ind2Vert, ind1     );
+        auto A22     = A( ind2Vert, ind2Horz );
 
         F alpha = alpha11.Get(0,0);
         if( alpha == F(0) )

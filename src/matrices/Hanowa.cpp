@@ -22,19 +22,19 @@ void Hanowa( Matrix<T>& A, Int n, T mu )
 
     for( Int j=0; j<m; ++j )
         d[j] = mu;
-    auto ABlock = View( A, 0, 0, m, m );
+    auto ABlock = A( IR(0,m), IR(0,m) );
     Diagonal( ABlock, d );
-    ABlock = View( A, m, m, m, m );
+    ABlock = A( IR(m,2*m), IR(m,2*m) );
     Diagonal( ABlock, d );
 
     for( Int j=0; j<m; ++j )
         d[j] = -(j+1);
-    ABlock = View( A, 0, m, m, m );
+    ABlock = A( IR(0,m), IR(m,2*m) );
     Diagonal( ABlock, d );
 
     for( Int j=0; j<m; ++j )
         d[j] = j+1;
-    ABlock = View( A, m, 0, m, m );
+    ABlock = A( IR(m,2*m), IR(0,m) );
     Diagonal( ABlock, d );
 }
 
@@ -51,19 +51,19 @@ void Hanowa( AbstractDistMatrix<T>& A, Int n, T mu )
     for( Int j=0; j<m; ++j )
         d[j] = mu;
     std::unique_ptr<AbstractDistMatrix<T>> ABlock( A.Construct(A.Grid()) );
-    View( *ABlock, A, 0, 0, m, m );
+    View( *ABlock, A, IR(0,m), IR(0,m) );
     Diagonal( *ABlock, d );
-    View( *ABlock, A, m, m, m, m );
+    View( *ABlock, A, IR(m,2*m), IR(m,2*m) );
     Diagonal( *ABlock, d );
 
     for( Int j=0; j<m; ++j )
         d[j] = -(j+1);
-    View( *ABlock, A, 0, m, m, m );
+    View( *ABlock, A, IR(0,m), IR(m,2*m) );
     Diagonal( *ABlock, d );
 
     for( Int j=0; j<m; ++j )
         d[j] = j+1;
-    View( *ABlock, A, m, 0, m, m );
+    View( *ABlock, A, IR(m,2*m), IR(0,m) );
     Diagonal( *ABlock, d );
 }
 

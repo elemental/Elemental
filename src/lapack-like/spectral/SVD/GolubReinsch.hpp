@@ -40,7 +40,7 @@ GolubReinsch
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = View( eHat_STAR_STAR, 0, 0, k-1, 1 );
+    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), IR(0,1) );
     e_STAR_STAR = e_MD_STAR;
 
     // Initialize U and VAdj to the appropriate identity matrices
@@ -76,7 +76,7 @@ GolubReinsch
     }
     else
     {
-        auto VAdjL_STAR_VC = LockedView( VAdj_STAR_VC, 0, 0, k, m );
+        auto VAdjL_STAR_VC = VAdj_STAR_VC( IR(0,k), IR(0,m) );
         DistMatrix<F> VT(g), VB(g);
         PartitionDown( V, VT, VB, m );
         Adjoint( VAdjL_STAR_VC, VT );
@@ -150,7 +150,7 @@ GolubReinschFlame
     auto B( A );
     if( m >= n )
     {
-        auto UT_VC_STAR = LockedView( U_VC_STAR, 0, 0, n, k );
+        auto UT_VC_STAR = U_VC_STAR( IR(0,n), IR(0,k) );
         DistMatrix<F> AT(g), AB(g);
         PartitionDown( A, AT, AB, n );
         AT = UT_VC_STAR;
@@ -159,7 +159,7 @@ GolubReinschFlame
     }
     else
     {
-        auto VT_VC_STAR = LockedView( V_VC_STAR, 0, 0, m, k );
+        auto VT_VC_STAR = V_VC_STAR( IR(0,m), IR(0,k) );
         DistMatrix<F> VT(g), VB(g);
         PartitionDown( V, VT, VB, m );
         VT = VT_VC_STAR;
@@ -220,7 +220,7 @@ GolubReinsch( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
     // NOTE: lapack::BidiagDQDS expects e to be of length k
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                eHat_STAR_STAR( k, 1, g );
-    auto e_STAR_STAR = View( eHat_STAR_STAR, 0, 0, k-1, 1 );
+    auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), IR(0,1) );
     e_STAR_STAR = e_MD_STAR;
 
     // Compute the singular values of the bidiagonal matrix via DQDS

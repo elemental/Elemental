@@ -33,8 +33,8 @@ void Ridge
         else if( alg == RIDGE_QR )
         {
             Zeros( Z, m+n, n );
-            auto ZT = View( Z, 0, 0, m, n );
-            auto ZB = View( Z, m, 0, n, n );
+            auto ZT = Z( IR(0,m),   IR(0,n) );
+            auto ZB = Z( IR(m,m+n), IR(0,n) );
             ZT = A;
             SetDiagonal( ZB, F(alpha*alpha) );
             // NOTE: This QR factorization could exploit the upper-triangular
@@ -88,8 +88,8 @@ void Ridge
         else if( alg == RIDGE_QR )
         {
             Zeros( Z, m+n, n );
-            auto ZT = View( Z, 0, 0, m, n );
-            auto ZB = View( Z, m, 0, n, n );
+            auto ZT = Z( IR(0,m),   IR(0,n) ); 
+            auto ZB = Z( IR(m,m+n), IR(0,n) );
             ZT = A;
             SetDiagonal( ZB, F(alpha*alpha) );
             // NOTE: This QR factorization could exploit the upper-triangular

@@ -34,8 +34,8 @@ void Tikhonov
         {
             const Int mGamma = Gamma.Height();
             Zeros( Z, m+mGamma, n );
-            auto ZT = View( Z, 0, 0, m,      n );
-            auto ZB = View( Z, m, 0, mGamma, n );
+            auto ZT = Z( IR(0,m),        IR(0,n) );
+            auto ZB = Z( IR(m,m+mGamma), IR(0,n) );
             ZT = A;
             ZB = Gamma;
             QR( Z );
@@ -73,8 +73,8 @@ void Tikhonov
         {
             const Int mGamma = Gamma.Height();
             Zeros( Z, m+mGamma, n );
-            auto ZT = View( Z, 0, 0, m,      n );
-            auto ZB = View( Z, m, 0, mGamma, n );
+            auto ZT = Z( IR(0,m),        IR(0,n) );
+            auto ZB = Z( IR(m,m+mGamma), IR(0,n) );
             ZT = A;
             ZB = Gamma;
             QR( Z );
