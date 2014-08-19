@@ -518,7 +518,7 @@ FixColumns( Matrix<F>& X )
     const Int n = X.Width();
     for( Int j=0; j<n; ++j )
     {
-        auto x = View( X, 0, j, m, 1 );
+        auto x = X( IR(0,m), IR(j,j+1) );
         Real norm = norms.Get(j,0);
         if( norm == Real(0) )
         {
@@ -542,7 +542,7 @@ FixColumns( DistMatrix<F,U,V>& X )
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
         const Int j = X.GlobalCol(jLoc);
-        auto x = View( X, 0, j, m, 1 );
+        auto x = X( IR(0,m), IR(j,j+1) );
         Real norm = norms.GetLocal(jLoc,0);
         if( norm == Real(0) )
         {

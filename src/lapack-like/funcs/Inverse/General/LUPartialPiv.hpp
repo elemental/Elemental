@@ -21,43 +21,38 @@ namespace inverse {
 //     inv(A) = inv(U) inv(L) P.
 
 template<typename F> 
-void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& pPerm )
+void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != pPerm.Height() )
+    if( A.Height() != p.Height() )
         LogicError("Pivot vector is incorrect length");
 
     TriangularInverse( UPPER, NON_UNIT, A );
 
+    const Int n = A.Height();
+    const Range<Int> outerInd( 0, n );
+
     // Solve inv(A) L = inv(U) for inv(A)
-    Matrix<F> ATL, ATR,
-              ABL, ABR;
-    Matrix<F> A00, A01, A02,
-              A10, A11, A12,
-              A20, A21, A22;
-    Matrix<F> A1, A2;
-    Matrix<F> L11,
-              L21;
-    PartitionUpDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ABR.Height() < A.Height() )
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( n, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        const Int nb = Min(bsize,n-k);
 
-        View( A1, A, 0, A00.Width(),             A.Height(), A01.Width() );
-        View( A2, A, 0, A00.Width()+A01.Width(), A.Height(), A02.Width() );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        //--------------------------------------------------------------------//
+        auto A1 = A( outerInd, ind1 );
+        auto A2 = A( outerInd, ind2 );
+
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+
         // Copy out L1
-        L11 = A11;
-        L21 = A21;
+        auto L11( A11 );
+        auto L21( A21 );
 
         // Zero the strictly lower triangular portion of A1
         MakeTriangular( UPPER, A11 );
@@ -68,17 +63,10 @@ void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& pPerm )
 
         // Solve against this diagonal block of L11
         Trsm( RIGHT, LOWER, NORMAL, UNIT, F(1), L11, A1 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /*******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 
     // inv(A) := inv(A) P
-    InversePermuteCols( A, pPerm );
+    InversePermuteCols( A, p );
 }
 
 template<typename F> 
@@ -88,56 +76,54 @@ LUPartialPiv( Matrix<F>& A )
     DEBUG_ONLY(CallStackEntry cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    Matrix<Int> pPerm;
-    El::LU( A, pPerm );
-    inverse::AfterLUPartialPiv( A, pPerm );
+    Matrix<Int> p;
+    El::LU( A, p );
+    inverse::AfterLUPartialPiv( A, p );
 }
 
 template<typename F> 
-void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
+void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
-    if( A.Height() != pPerm.Height() )
+    if( A.Height() != p.Height() )
         LogicError("Pivot vector is incorrect length");
-    AssertSameGrids( A, pPerm );
-    const Grid& g = A.Grid();
+    AssertSameGrids( A, p );
+
     TriangularInverse( UPPER, NON_UNIT, A );
 
-    // Solve inv(A) L = inv(U) for inv(A)
-    DistMatrix<F> ATL(g), ATR(g), 
-                  ABL(g), ABR(g);
-    DistMatrix<F> A00(g), A01(g), A02(g),
-                  A10(g), A11(g), A12(g),
-                  A20(g), A21(g), A22(g);
-    DistMatrix<F> A1(g), A2(g);
+    const Grid& g = A.Grid();
     DistMatrix<F,VC,  STAR> A1_VC_STAR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,VR,  STAR> L21_VR_STAR(g);
     DistMatrix<F,STAR,MR  > L21Trans_STAR_MR(g);
     DistMatrix<F,MC,  STAR> Z1(g);
-    PartitionUpDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ABR.Height() < A.Height() )
+
+    const Int n = A.Height();
+    const Range<Int> outerInd( 0, n );
+
+    // Solve inv(A) L = inv(U) for inv(A)
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( n, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        const Int nb = Min(bsize,n-k);
 
-        View( A1, A, 0, A00.Width(),             A.Height(), A01.Width() );
-        View( A2, A, 0, A00.Width()+A01.Width(), A.Height(), A02.Width() );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        L21_VR_STAR.AlignWith( A2 );
-        L21Trans_STAR_MR.AlignWith( A2 );
-        Z1.AlignWith( A01 );
-        //--------------------------------------------------------------------//
+        auto A1 = A( outerInd, ind1 );
+        auto A2 = A( outerInd, ind2 );
+
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+
         // Copy out L1
         L11_STAR_STAR = A11;
+        L21_VR_STAR.AlignWith( A2 );
         L21_VR_STAR = A21;
+        L21Trans_STAR_MR.AlignWith( A2 );
         L21_VR_STAR.TransposePartialColAllGather( L21Trans_STAR_MR );
 
         // Zero the strictly lower triangular portion of A1
@@ -145,7 +131,8 @@ void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
         Zero( A21 );
 
         // Perform the lazy update of A1
-        Zeros( Z1, A.Height(), A01.Width() );
+        Z1.AlignWith( A1 );
+        Zeros( Z1, n, nb );
         LocalGemm( NORMAL, TRANSPOSE, F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
         A1.RowSumScatterUpdate( F(1), Z1 );
 
@@ -154,17 +141,10 @@ void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm )
         LocalTrsm
         ( RIGHT, LOWER, NORMAL, UNIT, F(1), L11_STAR_STAR, A1_VC_STAR );
         A1 = A1_VC_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /*******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 
     // inv(A) := inv(A) P
-    InversePermuteCols( A, pPerm );
+    InversePermuteCols( A, p );
 }
 
 template<typename F> 
@@ -175,9 +155,9 @@ LUPartialPiv( DistMatrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();
-    DistMatrix<Int,VC,STAR> pPerm( g );
-    El::LU( A, pPerm );
-    inverse::AfterLUPartialPiv( A, pPerm );
+    DistMatrix<Int,VC,STAR> p( g );
+    El::LU( A, p );
+    inverse::AfterLUPartialPiv( A, p );
 }
 
 } // namespace inverse

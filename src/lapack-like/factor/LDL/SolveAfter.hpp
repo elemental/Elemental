@@ -36,7 +36,7 @@ void SolveAfter
 ( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CallStackEntry cse("ldl::SolveAfter");
         AssertSameGrids( APre, B );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
@@ -62,7 +62,7 @@ void SolveAfter
   const Matrix<Int>& p, Matrix<F>& B, bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CallStackEntry cse("ldl::SolveAfter");
         if( A.Height() != A.Width() )
             LogicError("A must be square");
         if( A.Height() != B.Height() )
@@ -91,7 +91,7 @@ void SolveAfter
   bool conjugated )
 {
     DEBUG_ONLY(
-        CallStackEntry cse("lu::SolveAfter");
+        CallStackEntry cse("ldl::SolveAfter");
         AssertSameGrids( APre, BPre, p );
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
@@ -106,7 +106,7 @@ void SolveAfter
     const Grid& g = APre.Grid();
     DistMatrix<F> A(g), B(g);
     Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
+    Copy( BPre, B, READ_WRITE_PROXY );
 
     const auto d = A.GetDiagonal();
 
@@ -118,6 +118,8 @@ void SolveAfter
     QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     PermuteRows( B, pInv, p );
+
+    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace ldl

@@ -282,14 +282,14 @@ Lanczos
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        auto activeXOld = View( XOld, 0, 0, n, numActive );
-        auto activeX    = View( X,    0, 0, n, numActive );
-        auto activeXNew = View( XNew, 0, 0, n, numActive );
+        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
+        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
+        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeXOld = XOld( IR(0,n), IR(0,numActive) );
+        auto activeX    = X(    IR(0,n), IR(0,numActive) );
+        auto activeXNew = XNew( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            activePreimage = preimage( IR(0,numActive), IR(0,1) );
         HDiagList.resize( numActive );
         HSubdiagList.resize( numActive );
 
@@ -478,14 +478,14 @@ Lanczos
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        auto activeXOld = View( XOld, 0, 0, n, numActive );
-        auto activeX    = View( X,    0, 0, n, numActive );
-        auto activeXNew = View( XNew, 0, 0, n, numActive );
+        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
+        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
+        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeXOld = XOld( IR(0,n), IR(0,numActive) );
+        auto activeX    = X(    IR(0,n), IR(0,numActive) );
+        auto activeXNew = XNew( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            activePreimage = preimage( IR(0,numActive), IR(0,1) );
         HDiagList.resize( activeX.LocalWidth() );
         HSubdiagList.resize( activeX.LocalWidth() );
 

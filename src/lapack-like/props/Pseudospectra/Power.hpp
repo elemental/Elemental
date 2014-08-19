@@ -260,12 +260,12 @@ Power
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        auto activeX = View( X, 0, 0, n, numActive );
+        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
+        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
+        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeX = X( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            activePreimage = preimage( IR(0,numActive), IR(0,1) );
 
         if( progress )
             timer.Start(); 
@@ -397,12 +397,12 @@ Power
     while( true )
     {
         const Int numActive = ( deflate ? numShifts-numDone : numShifts );
-        auto activeShifts = View( pivShifts, 0, 0, numActive, 1 );
-        auto activeEsts = View( estimates, 0, 0, numActive, 1 );
-        auto activeItCounts = View( itCounts, 0, 0, numActive, 1 );
-        auto activeX = View( X, 0, 0, n, numActive );
+        auto activeShifts = pivShifts( IR(0,numActive), IR(0,1) );
+        auto activeEsts = estimates( IR(0,numActive), IR(0,1) );
+        auto activeItCounts = itCounts( IR(0,numActive), IR(0,1) );
+        auto activeX = X( IR(0,n), IR(0,numActive) );
         if( deflate )
-            activePreimage = View( preimage, 0, 0, numActive, 1 );
+            activePreimage = preimage( IR(0,numActive), IR(0,1) );
 
         if( progress && g.Rank() == 0 )
             timer.Start();

@@ -30,7 +30,7 @@ void PermuteRows
     // TODO: Optimize this routine
 
     // Make a copy of the first b rows
-    auto ARowPanView = LockedView( A, 0, 0, b, n );
+    auto ARowPanView = A( IR(0,b), IR(0,n) );
     auto ARowPanCopy( ARowPanView );
 
     // Make a copy of the preimage rows

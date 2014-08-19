@@ -58,11 +58,16 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto U01 = ViewRange( U, 0,    k,    k,    k+nb );
-        auto U02 = ViewRange( U, 0,    k+nb, k,    n    );
-        auto U11 = ViewRange( U, k,    k,    k+nb, k+nb );
-        auto U12 = ViewRange( U, k,    k+nb, k+nb, n    );
-        auto U22 = ViewRange( U, k+nb, k+nb, n,    n    );
+
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
+
+        auto U01 = U( ind0, ind1 );
+        auto U02 = U( ind0, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
+        auto U22 = U( ind2, ind2 );
 
         Trsm( RIGHT, UPPER, NORMAL, diag, F(-1), U11, U01 );
         Gemm( NORMAL, NORMAL, F(1), U01, U12, F(1), U02 );
@@ -93,11 +98,16 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto U01 = ViewRange( U, 0,    k,    k,    k+nb );
-        auto U02 = ViewRange( U, 0,    k+nb, k,    n    );
-        auto U11 = ViewRange( U, k,    k,    k+nb, k+nb );
-        auto U12 = ViewRange( U, k,    k+nb, k+nb, n    );
-        auto U22 = ViewRange( U, k+nb, k+nb, n,    n    );
+
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
+
+        auto U01 = U( ind0, ind1 );
+        auto U02 = U( ind0, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
+        auto U22 = U( ind2, ind2 );
 
         U01_VC_STAR = U01;
         U11_STAR_STAR = U11;

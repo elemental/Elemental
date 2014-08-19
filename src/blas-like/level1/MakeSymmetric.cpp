@@ -55,7 +55,8 @@ void MakeSymmetric
         MakeTrapezoidal( LOWER, *ATrans, -1 );
     }
     Axpy( T(1), *ATrans, A );
-    A.MakeDiagonalReal();
+    if( conjugate )
+        A.MakeDiagonalReal();
 }
 
 #define PROTO(F) \

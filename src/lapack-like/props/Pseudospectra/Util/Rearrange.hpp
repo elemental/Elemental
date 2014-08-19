@@ -21,8 +21,8 @@ ReshapeIntoGrid( Int realSize, Int imagSize, const Matrix<T>& x, Matrix<T>& X )
     X.Resize( imagSize, realSize );
     for( Int j=0; j<realSize; ++j )
     {
-        auto XSub = View( X, 0, j, imagSize, 1 );
-        auto xSub = LockedView( x, j*imagSize, 0, imagSize, 1 );
+        auto XSub = X( IR(0,imagSize), IR(j,j+1) );
+        auto xSub = x( IR(j*imagSize,(j+1)*imagSize), IR(0,1) );
         XSub = xSub;
     }
 #else
@@ -41,8 +41,8 @@ ReshapeIntoGrid
     X.Resize( imagSize, realSize );
     for( Int j=0; j<realSize; ++j )
     {
-        auto XSub = View( X, 0, j, imagSize, 1 );
-        auto xSub = LockedView( x, j*imagSize, 0, imagSize, 1 );
+        auto XSub = X( IR(0,imagSize), IR(j,j+1) );
+        auto xSub = x( IR(j*imagSize,(j+1)*imagSize), IR(0,1) );
         XSub = xSub;
     }
 }

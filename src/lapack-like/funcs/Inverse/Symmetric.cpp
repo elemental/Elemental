@@ -18,18 +18,18 @@ void SymmetricInverse
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
-        Matrix<Int> pPerm;
+        Matrix<Int> p;
         Matrix<F> dSub;
-        LDL( A, dSub, pPerm, conjugate, pivotType );
+        LDL( A, dSub, p, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
         // NOTE: Fill in both triangles of the inverse
-        Matrix<Int> pInvPerm;
-        InvertPermutation( pPerm, pInvPerm );
+        Matrix<Int> pInv;
+        InvertPermutation( p, pInv );
         MakeSymmetric( LOWER, A, conjugate );
-        PermuteRows( A, pInvPerm, pPerm );
-        PermuteCols( A, pInvPerm, pPerm ); 
+        PermuteRows( A, pInv, p );
+        PermuteCols( A, pInv, p ); 
     }
     else
         LogicError("This option is not yet supported");
@@ -42,18 +42,19 @@ void SymmetricInverse
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
     if( uplo == LOWER )
     {
-        DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
+        DistMatrix<Int,VC,STAR> p( A.Grid() );
         DistMatrix<F,MD,STAR> dSub( A.Grid() );
-        LDL( A, dSub, pPerm, conjugate, pivotType );
+
+        LDL( A, dSub, p, conjugate, pivotType );
         TriangularInverse( LOWER, UNIT, A ); 
         Trdtrmm( LOWER, A, dSub, conjugate );
 
         // NOTE: Fill in both triangles of the inverse
-        DistMatrix<Int,VC,STAR> pInvPerm(pPerm.Grid());
-        InvertPermutation( pPerm, pInvPerm );
+        DistMatrix<Int,VC,STAR> pInv(p.Grid());
+        InvertPermutation( p, pInv );
         MakeSymmetric( LOWER, A, conjugate );
-        PermuteRows( A, pInvPerm, pPerm );
-        PermuteCols( A, pInvPerm, pPerm );
+        PermuteRows( A, pInv, p );
+        PermuteCols( A, pInv, p );
     }
     else
         LogicError("This option is not yet supported");

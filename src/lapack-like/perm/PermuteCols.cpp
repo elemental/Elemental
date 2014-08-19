@@ -30,7 +30,7 @@ void PermuteCols
     // TODO: Optimize this routine
 
     // Make a copy of the first b columns
-    auto AColPanView = LockedView( A, 0, 0, m, b );
+    auto AColPanView = A( IR(0,m), IR(0,b) );
     auto AColPanCopy( AColPanView );
 
     // Make a copy of the preimage columns

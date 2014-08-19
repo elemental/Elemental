@@ -57,10 +57,15 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto L10 = ViewRange( L, k,    0, k+nb, k    );
-        auto L11 = ViewRange( L, k,    k, k+nb, k+nb );
-        auto L20 = ViewRange( L, k+nb, 0, n,    k    );
-        auto L21 = ViewRange( L, k+nb, k, n,    k+nb );
+        
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
+
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
+        auto L20 = L( ind2, ind0 );
+        auto L21 = L( ind2, ind1 );
 
         Trsm( LEFT, LOWER, NORMAL, diag, F(-1), L11, L10 );
         Gemm( NORMAL, NORMAL, F(1), L21, L10, F(1), L20 );
@@ -90,10 +95,15 @@ LVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto L10 = ViewRange( L, k,    0, k+nb, k    );
-        auto L11 = ViewRange( L, k,    k, k+nb, k+nb );
-        auto L20 = ViewRange( L, k+nb, 0, n,    k    );
-        auto L21 = ViewRange( L, k+nb, k, n,    k+nb );
+
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
+
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
+        auto L20 = L( ind2, ind0 );
+        auto L21 = L( ind2, ind1 );
 
         L10_STAR_VR = L10;
         L11_STAR_STAR = L11;
