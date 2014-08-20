@@ -33,10 +33,14 @@ void U( Matrix<F>& A, Matrix<F>& t )
     Matrix<F> w01;
     for( Int k=n-1; k>0; --k )
     {
-        auto A00      = ViewRange( A, 0,   0, k,   k   );
-        auto a01      = ViewRange( A, 0,   k, k,   k+1 );
-        auto a01T     = ViewRange( A, 0,   k, k-1, k+1 );
-        auto alpha01B = ViewRange( A, k-1, k, k,   k+1 );
+        const Range<Int> ind0( 0, k   ),
+                         ind1( k, k+1 );
+
+        auto A00      = A( ind0, ind0 );
+        auto a01      = A( ind0, ind1 );
+
+        auto a01T     = A( IR(0,k-1), ind1 ); 
+        auto alpha01B = A( IR(k-1,k), ind1 );
 
         const F tau = LeftReflector( alpha01B, a01T );
         const Base<F> epsilon1 = alpha01B.GetRealPart(0,0);
@@ -83,14 +87,19 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     for( Int k=kLast; k>=0; k-=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto A00 = ViewRange( A, 0, 0, k,    k    );
-        auto A01 = ViewRange( A, 0, k, k,    k+nb );
-        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
-        auto ATL = ViewRange( A, 0, 0, k+nb, k+nb );
+
+        const Range<Int> ind0( 0, k    ),
+                         indT( 0, k+nb ), indL( 0, k+nb ),
+                         ind1( k, k+nb );
+
+        auto A00 = A( ind0, ind0 );
+        auto A01 = A( ind0, ind1 );
+        auto A11 = A( ind1, ind1 );
+        auto ATL = A( indT, indL );
         
         if( k > 0 )
         {
-            auto t1 = View( tDiag, k-1, 0, nb, 1 );
+            auto t1 = tDiag( IR(k-1,k+nb-1), IR(0,1) );
             WPan.AlignWith( A01 );
             WPan.Resize( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
@@ -107,10 +116,10 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR );
 
-            auto A01_MC_STAR = LockedViewRange( APan_MC_STAR, 0, 0, k, nb );
-            auto A01_MR_STAR = LockedViewRange( APan_MR_STAR, 0, 0, k, nb );
-            auto W01_MC_STAR = LockedViewRange( WPan_MC_STAR, 0, 0, k, nb );
-            auto W01_MR_STAR = LockedViewRange( WPan_MR_STAR, 0, 0, k, nb );
+            auto A01_MC_STAR = APan_MC_STAR( ind0, ind1-k );
+            auto A01_MR_STAR = APan_MR_STAR( ind0, ind1-k );
+            auto W01_MC_STAR = WPan_MC_STAR( ind0, ind1-k );
+            auto W01_MR_STAR = WPan_MR_STAR( ind0, ind1-k );
 
             LocalTrr2k
             ( UPPER, ADJOINT, ADJOINT,
@@ -120,7 +129,7 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         }
         else
         {
-            auto t1 = View( tDiag, 0, 0, nb-1, 1 );
+            auto t1 = tDiag( IR(0,nb-1), IR(0,1) );
             A11_STAR_STAR = A11;
             t1_STAR_STAR.Resize( nb-1, 1 );
             HermitianTridiag

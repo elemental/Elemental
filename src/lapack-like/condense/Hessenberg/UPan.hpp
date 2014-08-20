@@ -49,23 +49,28 @@ inline void UPan
 
     for( Int k=0; k<nU; ++k )
     {
-        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
-        auto a1       = ViewRange( A, 0,   k,   n,   k+1 );
-        auto A2       = ViewRange( A, 0,   k+1, n,   n   );
+        const Range<Int> ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         ind2( k+1, n   );
 
-        auto U0  = ViewRange( U, 0,   0, n,   k   );
-        auto u10 = ViewRange( U, k,   0, k+1, k );
-        auto u21 = ViewRange( U, k+1, k, n,   k+1 );
-        auto U20 = ViewRange( U, k+1, 0, n,   k   );
+        auto a21 = A( ind2,    ind1 );
+        auto a1  = A( IR(0,n), ind1 );
+        auto A2  = A( IR(0,n), ind2 );
 
-        auto V0 = ViewRange( V, 0, 0, n, k   );
-        auto v1 = ViewRange( V, 0, k, n, k+1 );
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,n),   ind1 );
 
-        auto G00     = ViewRange( G, 0, 0, k,   k   );
-        auto g10     = ViewRange( G, k, 0, k+1, k   );
-        auto gamma11 = ViewRange( G, k, k, k+1, k+1 );
+        auto U0  = U( IR(0,n), ind0 );
+        auto u10 = U( ind1,    ind0 );
+        auto u21 = U( ind2,    ind1 );
+        auto U20 = U( ind2,    ind0 );
+
+        auto V0 = V( IR(0,n), ind0 );
+        auto v1 = V( IR(0,n), ind1 );
+
+        auto G00     = G( ind0, ind0 );
+        auto g10     = G( ind1, ind0 );
+        auto gamma11 = G( ind1, ind1 );
 
         // a1 := (I - U0 inv(G00) U0^H) (a1 - V0 inv(G00)^H u10^H)
         // -------------------------------------------------------
@@ -146,24 +151,29 @@ inline void UPan
 
     for( Int k=0; k<nU; ++k )
     {
-        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
-        auto a1       = ViewRange( A, 0,   k,   n,   k+1 );
-        auto A2       = ViewRange( A, 0,   k+1, n,   n   );
+        const Range<Int> ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         ind2( k+1, n   );
 
-        auto U0_MC_STAR  = ViewRange( U_MC_STAR, 0,   0, n,   k   );
-        auto u10_MC_STAR = ViewRange( U_MC_STAR, k,   0, k+1, k   );
-        auto u21_MC_STAR = ViewRange( U_MC_STAR, k+1, k, n,   k+1 );
-        auto u21_MR_STAR = ViewRange( U_MR_STAR, k+1, k, n,   k+1 );
-        auto U20_MR_STAR = ViewRange( U_MR_STAR, k+1, 0, n,   k   );
+        auto a21 = A( ind2,    ind1 );
+        auto a1  = A( IR(0,n), ind1 );
+        auto A2  = A( IR(0,n), ind2 );
 
-        auto V0_MC_STAR = ViewRange( V_MC_STAR, 0, 0, n, k   );
-        auto v1_MC_STAR = ViewRange( V_MC_STAR, 0, k, n, k+1 );
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,n),   ind1 );
 
-        auto G00_STAR_STAR     = ViewRange( G_STAR_STAR, 0, 0, k,   k   );
-        auto g10_STAR_STAR     = ViewRange( G_STAR_STAR, k, 0, k+1, k   );
-        auto gamma11_STAR_STAR = ViewRange( G_STAR_STAR, k, k, k+1, k+1 );
+        auto U0_MC_STAR  = U_MC_STAR( IR(0,n), ind0 );
+        auto u10_MC_STAR = U_MC_STAR( ind1,    ind0 );
+        auto u21_MC_STAR = U_MC_STAR( ind2,    ind1 );
+        auto u21_MR_STAR = U_MR_STAR( ind2,    ind1 );
+        auto U20_MR_STAR = U_MR_STAR( ind2,    ind0 );
+
+        auto V0_MC_STAR = V_MC_STAR( IR(0,n), ind0 );
+        auto v1_MC_STAR = V_MC_STAR( IR(0,n), ind1 );
+
+        auto G00_STAR_STAR     = G_STAR_STAR( ind0, ind0 );
+        auto g10_STAR_STAR     = G_STAR_STAR( ind1, ind0 );
+        auto gamma11_STAR_STAR = G_STAR_STAR( ind1, ind1 );
 
         // a1 := (I - U0 inv(G00) U0^H) (a1 - V0 inv(G00)^H u10^H)
         // -------------------------------------------------------

@@ -34,10 +34,14 @@ void L( Matrix<F>& A, Matrix<F>& t )
     Matrix<F> w21;
     for( Int k=0; k<n-1; ++k )
     {
-        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
-        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
+        const Range<Int> ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
+
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,n),   ind1 );
 
         const F tau = LeftReflector( alpha21T, a21B );
         const Base<F> epsilon1 = alpha21T.GetRealPart(0,0);
@@ -83,12 +87,18 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k); 
-        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
-        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
-        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
-        auto ABR = ViewRange( A, k,    k,    n,    n    );
+
+        const Range<Int> ind1( k,    k+nb ),
+                         indB( k,    n    ), indR( k, n ),
+                         ind2( k+nb, n    );
+
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
+        auto ABR = A( indB, indR );
+
         const Int nbt = Min(bsize,(n-1)-k);
-        auto t1 = View( tDiag, k, 0, nbt, 1 );
+        auto t1 = tDiag( IR(k,k+nbt), IR(0,1) );
 
         if( A22.Height() > 0 )
         {
@@ -108,10 +118,10 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
               APan_MC_STAR, APan_MR_STAR, 
               WPan_MC_STAR, WPan_MR_STAR );
 
-            auto A21_MC_STAR = LockedViewRange( APan_MC_STAR, nb, 0, n-k, nb );
-            auto A21_MR_STAR = LockedViewRange( APan_MR_STAR, nb, 0, n-k, nb );
-            auto W21_MC_STAR = LockedViewRange( WPan_MC_STAR, nb, 0, n-k, nb );
-            auto W21_MR_STAR = LockedViewRange( WPan_MR_STAR, nb, 0, n-k, nb );
+            auto A21_MC_STAR = APan_MC_STAR( ind2-k, ind1-k );
+            auto A21_MR_STAR = APan_MR_STAR( ind2-k, ind1-k );
+            auto W21_MC_STAR = WPan_MC_STAR( ind2-k, ind1-k );
+            auto W21_MR_STAR = WPan_MR_STAR( ind2-k, ind1-k );
 
             LocalTrr2k
             ( LOWER, ADJOINT, ADJOINT,

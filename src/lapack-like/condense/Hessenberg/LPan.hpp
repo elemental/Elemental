@@ -48,24 +48,29 @@ inline void LPan
 
     for( Int k=0; k<nU; ++k )
     {
-        auto a12      = ViewRange( A, k,   k+1, k+1, n   );
-        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+2 );
-        auto a12R     = ViewRange( A, k,   k+2, k+1, n   );
-        auto a1       = ViewRange( A, k,   0,   k+1, n   );
-        auto A2       = ViewRange( A, k+1, 0,   n,   n   ); 
+        const Range<Int> ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a12 = A( ind1, ind2    );
+        auto a1  = A( ind1, IR(0,n) );
+        auto A2  = A( ind2, IR(0,n) );
+
+        auto alpha12L = A( ind1, IR(k+1,k+2) );
+        auto a12R     = A( ind1, IR(k+2,n)   ); 
 
         // NOTE: Transposes of the horizontal Householder vectors
-        auto U0  = ViewRange( U, 0,   0, n,   k   );
-        auto u10 = ViewRange( U, k,   0, k+1, k );
-        auto u21 = ViewRange( U, k+1, k, n,   k+1 );
-        auto U20 = ViewRange( U, k+1, 0, n,   k   );
+        auto U0  = U( IR(0,n), ind0 );
+        auto u10 = U( ind1,    ind0 );
+        auto u21 = U( ind2,    ind1 );
+        auto U20 = U( ind2,    ind0 );
 
-        auto V0 = ViewRange( V, 0, 0, n, k   );
-        auto v1 = ViewRange( V, 0, k, n, k+1 );
+        auto V0 = V( IR(0,n), ind0 );
+        auto v1 = V( IR(0,n), ind1 );
 
-        auto G00     = ViewRange( G, 0, 0, k, k   );
-        auto g01     = ViewRange( G, 0, k, k, k+1 );
-        auto gamma11 = ViewRange( G, k, k, k+1, k+1 );
+        auto G00     = G( ind0, ind0 );
+        auto g01     = G( ind0, ind1 );
+        auto gamma11 = G( ind1, ind1 );
 
         // a1 := (a1 - u10 inv(G00)^H V0^H) (I - U0 inv(G00) U0^H)
         // -------------------------------------------------------
@@ -150,25 +155,32 @@ inline void LPan
 
     for( Int k=0; k<nU; ++k )
     {
-        auto a12      = ViewRange( A, k,   k+1, k+1, n   );
-        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+2 );
-        auto a12R     = ViewRange( A, k,   k+2, k+1, n   );
-        auto a1       = ViewRange( A, k,   0,   k+1, n   );
-        auto A2       = ViewRange( A, k+1, 0,   n,   n   );
+        const Range<Int> ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a12 = A( ind1, ind2    );
+        auto a1  = A( ind1, IR(0,n) );
+        auto A2  = A( ind2, IR(0,n) );
+
+        auto alpha12L = A( ind1, IR(k+1,k+2) );
+        auto a12R     = A( ind1, IR(k+2,n)   );
 
         // NOTE: Transposes of the horizontal Householder vectors
-        auto U0_MR_STAR  = ViewRange( U_MR_STAR, 0,   0, n,   k   );
-        auto u10_MR_STAR = ViewRange( U_MR_STAR, k,   0, k+1, k   );
-        auto u21_MC_STAR = ViewRange( U_MC_STAR, k+1, k, n,   k+1 );
-        auto u21_MR_STAR = ViewRange( U_MR_STAR, k+1, k, n,   k+1 );
-        auto U20_MC_STAR = ViewRange( U_MC_STAR, k+1, 0, n,   k   );
 
-        auto V0_MR_STAR = ViewRange( V_MR_STAR, 0, 0, n, k   );
-        auto v1_MR_STAR = ViewRange( V_MR_STAR, 0, k, n, k+1 );
+        auto U20_MC_STAR = U_MC_STAR( ind2, ind0 );
+        auto u21_MC_STAR = U_MC_STAR( ind2, ind1 );
 
-        auto G00_STAR_STAR     = ViewRange( G_STAR_STAR, 0, 0, k, k   );
-        auto g01_STAR_STAR     = ViewRange( G_STAR_STAR, 0, k, k, k+1 );
-        auto gamma11_STAR_STAR = ViewRange( G_STAR_STAR, k, k, k+1, k+1 );
+        auto U0_MR_STAR  = U_MR_STAR( IR(0,n), ind0 );
+        auto u10_MR_STAR = U_MR_STAR( ind1,    ind0 );
+        auto u21_MR_STAR = U_MR_STAR( ind2,    ind1 );
+
+        auto V0_MR_STAR = V_MR_STAR( IR(0,n), ind0 ); 
+        auto v1_MR_STAR = V_MR_STAR( IR(0,n), ind1 );
+
+        auto G00_STAR_STAR     = G_STAR_STAR( ind0, ind0 );
+        auto g01_STAR_STAR     = G_STAR_STAR( ind0, ind1 );
+        auto gamma11_STAR_STAR = G_STAR_STAR( ind1, ind1 );
 
         // a1 := (a1 - u10 inv(G00)^H V0^H) (I - U0 inv(G00) U0^H)
         // -------------------------------------------------------

@@ -34,19 +34,25 @@ inline void U( Matrix<F>& A, Matrix<F>& t )
     for( Int k=0; k<n-1; k+=bsize )
     {
         const Int nb = Min(bsize,n-1-k);
-        auto ABR = ViewRange( A, k,    k,    n, n );
-        auto A22 = ViewRange( A, k+nb, k+nb, n, n );
 
-        auto t1 = View( t, k, 0, nb, 1 );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         indB( k,    n    ), indR( k, n ),
+                         ind2( k+nb, n    );
+
+        auto ABR = A( indB, indR );
+        auto A22 = A( ind2, ind2 );
+
+        auto t1 = t( ind1, IR(0,1) );
         UB1.Resize( n-k, nb );
         VB1.Resize( n-k, nb );
         G11.Resize( nb,  nb );
         hessenberg::UPan( ABR, t1, UB1, VB1, G11 );
 
-        auto A0R = ViewRange( A,   0,  k,    k,   n  );
-        auto AB2 = ViewRange( A,   k,  k+nb, n,   n  );
-        auto U21 = ViewRange( UB1, nb, 0,    n-k, nb );
-        auto V21 = ViewRange( VB1, nb, 0,    n-k, nb );
+        auto A0R = A( ind0, indR );
+        auto AB2 = A( indB, ind2 );
+        auto U21 = UB1( IR(nb,n-k), IR(0,nb) );
+        auto V21 = VB1( IR(nb,n-k), IR(0,nb) );
 
         // A0R := A0R - ((A0R UB1) inv(G11)^H) UB1^H
         // -----------------------------------------
@@ -91,10 +97,16 @@ inline void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     for( Int k=0; k<n-1; k+=bsize )
     {
         const Int nb = Min(bsize,n-1-k);
-        auto ABR = ViewRange( A, k,    k,    n, n );
-        auto A22 = ViewRange( A, k+nb, k+nb, n, n );
 
-        auto t1 = View( t, k, 0, nb, 1 );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         indB( k,    n    ), indR( k, n ),
+                         ind2( k+nb, n    );
+
+        auto ABR = A( indB, indR );
+        auto A22 = A( ind2, ind2 );
+
+        auto t1 = t( ind1, IR(0,1) );
         UB1_MC_STAR.AlignWith( ABR );
         UB1_MR_STAR.AlignWith( ABR );
         VB1_MC_STAR.AlignWith( ABR );
@@ -105,10 +117,10 @@ inline void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         hessenberg::UPan
         ( ABR, t1, UB1_MC_STAR, UB1_MR_STAR, VB1_MC_STAR, G11_STAR_STAR );
 
-        auto A0R = ViewRange( A,   0,  k,    k,   n  );
-        auto AB2 = ViewRange( A,   k,  k+nb, n,   n  );
+        auto A0R = A( ind0, indR );
+        auto AB2 = A( indB, ind2 );
 
-        auto U21_MR_STAR = LockedViewRange( UB1_MR_STAR, nb, 0, n-k, nb );
+        auto U21_MR_STAR = UB1_MR_STAR( IR(nb,n-k), IR(0,nb) );
 
         // A0R := A0R - ((A0R UB1) inv(G11)^H) UB1^H
         // -----------------------------------------

@@ -133,17 +133,13 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 
         if( A22.Height() > 0 )
         {
-            auto A11 = A( ind1,     ind1     );
-            auto A12 = A( ind1,     ind2Horz );
-            auto A21 = A( ind2Vert, ind1     );
-
-            X.AlignWith( A11 );
-            Y.AlignWith( A11 );
+            X.AlignWith( ABR );
+            Y.AlignWith( ABR );
             X.Resize( m-k, nb  );
             Y.Resize( nb,  n-k );
 
-            AB1_MC_STAR.AlignWith( A11 );
-            A1R_STAR_MR.AlignWith( A11 );
+            AB1_MC_STAR.AlignWith( ABR );
+            A1R_STAR_MR.AlignWith( ABR );
             AB1_MC_STAR.Resize( m-k, nb  );
             A1R_STAR_MR.Resize( nb,  n-k );
 
@@ -152,8 +148,8 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 
             auto X21 = X( IR(nb,m-k), IR(0,nb)   );
             auto Y12 = Y( IR(0,nb),   IR(nb,n-k) );
-            X21_MC_STAR.AlignWith( A21 );
-            Y12Adj_MR_STAR.AlignWith( A12 );
+            X21_MC_STAR.AlignWith( A22 );
+            Y12Adj_MR_STAR.AlignWith( A22 );
             X21_MC_STAR = X21;
             Y12.AdjointColAllGather( Y12Adj_MR_STAR );
 

@@ -26,11 +26,15 @@ inline void UUnb( Matrix<F>& A, Matrix<F>& t )
 
     for( Int k=0; k<n-1; ++k )
     {
-        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
-        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
-        auto A2       = ViewRange( A, 0,   k+1, n,   n   );
+        const Range<Int> ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a21 = A( ind2,    ind1 );
+        auto A22 = A( ind2,    ind2 );
+        auto A2  = A( IR(0,n), ind2 );
+
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,n),   ind1 );
 
         // Find tau and v such that
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |
@@ -85,11 +89,15 @@ inline void UUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 
     for( Int k=0; k<n-1; ++k )
     {
-        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
-        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
-        auto A2       = ViewRange( A, 0,   k+1, n,   n   );
+        const Range<Int> ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a21 = A( ind2,    ind1 );
+        auto A22 = A( ind2,    ind2 );
+        auto A2  = A( IR(0,n), ind2 );
+
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,n),   ind1 );
 
         // Find tau and v such that
         //  / I - tau | 1 | | 1, v^H | \ | alpha21T | = | beta |

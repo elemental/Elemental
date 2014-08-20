@@ -25,11 +25,15 @@ inline void LUnb( Matrix<F>& A, Matrix<F>& t )
 
     for( Int k=0; k<n-1; ++k )
     {
-        auto a12      = ViewRange( A, k,   k+1, k+1, n   );
-        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+2 );
-        auto a12R     = ViewRange( A, k,   k+2, k+1, n   );
-        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
-        auto A2       = ViewRange( A, k+1, 0,   n,   n   );
+        const Range<Int> ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a12 = A( ind1, ind2    );
+        auto A22 = A( ind2, ind2    );
+        auto A2  = A( ind2, IR(0,n) );
+
+        auto alpha12L = A( ind1, IR(k+1,k+2) );
+        auto a12R     = A( ind1, IR(k+2,n)   );
 
         // Find tau and v such that
         //  |alpha12L a12R| /I - tauP | 1   | | 1 conj(v) |\ = |beta 0|
@@ -83,11 +87,15 @@ inline void LUnb( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 
     for( Int k=0; k<n-1; ++k )
     {
-        auto a12      = ViewRange( A, k,   k+1, k+1, n   );
-        auto alpha12L = ViewRange( A, k,   k+1, k+1, k+2 );
-        auto a12R     = ViewRange( A, k,   k+2, k+1, n   );
-        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
-        auto A2       = ViewRange( A, k+1, 0,   n,   n   );
+        const Range<Int> ind1( k,   k+1 ),
+                         ind2( k+1, n   );
+
+        auto a12 = A( ind1, ind2    );
+        auto A22 = A( ind2, ind2    );
+        auto A2  = A( ind2, IR(0,n) );
+
+        auto alpha12L = A( ind1, IR(k+1,k+2) );
+        auto a12R     = A( ind1, IR(k+2,n)   );
 
         // Find tau and v such that
         //  |alpha12L a12R| /I - tauP | 1   | | 1 conj(v) |\ = |beta 0|

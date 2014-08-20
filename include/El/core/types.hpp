@@ -33,9 +33,14 @@ struct Range
     T beg, end;
     Range() : beg(0), end(0) { }
     Range( T begArg, T endArg ) : beg(begArg), end(endArg) { }
+
+    Range<T> operator+( T shift ) const 
+    { return Range<T>(beg+shift,end+shift); }
+
+    Range<T> operator-( T shift ) const 
+    { return Range<T>(beg-shift,end-shift); }
 };
-inline Range<Int> IR( Int beg, Int end )
-{ return Range<Int>(beg,end); }
+typedef Range<Int> IR;
 
 template<typename Real>
 struct ValueInt

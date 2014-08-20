@@ -78,28 +78,29 @@ void LPanSquare
     F w21LastFirstEntry = 0;
     for( Int k=0; k<nW; ++k )
     {
-        if( k > 0 )
-        {
-            a21Last_MC_STAR = ViewRange( APan_MC_STAR, k, k-1, n, k );
-            a21Last_MR_STAR = ViewRange( APan_MR_STAR, k, k-1, n, k );
-            w21Last         = ViewRange( W,            k, k-1, n, k );
-        }
-            
-        auto A00      = ViewRange( A, 0,   0,   k,   k   );
-        auto W00      = ViewRange( W, 0,   0,   k,   k   );
-        auto alpha11  = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
-        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
-        auto W22      = ViewRange( W, k+1, k+1, n,   nW  );
-        auto ACol     = ViewRange( A, k,   k,   n,   k+1 );
-        auto WCol     = ViewRange( W, k,   k,   n,   k+1 );
-        auto A20B     = ViewRange( A, nW,  0,   n,   k   );
-        auto W20B     = ViewRange( W, nW,  0,   n,   k   );
-        auto ABR      = ViewRange( A, k,   k,   n,   n   );
-        auto tau1     = View( t, k, 0, 1, 1 );
-        auto epsilon1 = View( e, k, 0, 1, 1 );
+        const Range<Int> ind0( 0,   k   ),
+                         ind1( k,   k+1 ),
+                         indB( k,   n   ), indR( k, n ),
+                         ind2( k+1, n   );
+           
+        auto A00     = A( ind0, ind0 );
+        auto alpha11 = A( ind1, ind1 );
+        auto aB1     = A( indB, ind1 );
+        auto ABR     = A( indB, indR );
+        auto a21     = A( ind2, ind1 );
+        auto A22     = A( ind2, ind2 );
+
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto A20B     = A( IR(nW,n),    ind0 );
+        auto a21B     = A( IR(k+2,n),   ind1 );
+
+        auto W00 = W( ind0, ind0       );
+        auto W22 = W( ind2, IR(k+1,nW) );
+
+        auto W20B = W( IR(nW,n), ind0 );
+
+        auto tau1     = t( ind1, IR(0,1) );
+        auto epsilon1 = e( ind1, IR(0,1) );
 
         a21_MC_STAR.AlignWith( A22 );
         a21_MR_STAR.AlignWith( A22 );
@@ -112,20 +113,27 @@ void LPanSquare
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
-        auto a21B_MC_STAR = View( a21_MC_STAR, nW-(k+1), 0, n-nW, 1 );
-        auto p21B_MC_STAR = View( p21_MC_STAR, nW-(k+1), 0, n-nW, 1 );
+        auto a21B_MC_STAR = a21_MC_STAR( IR(nW-(k+1),n-(k+1)), IR(0,1) );
+        auto p21B_MC_STAR = p21_MC_STAR( IR(nW-(k+1),n-(k+1)), IR(0,1) );
 
+        if( k > 0 )
+        {
+            a21Last_MC_STAR = APan_MC_STAR( indB, ind1-1 ); 
+            a21Last_MR_STAR = APan_MR_STAR( indB, ind1-1 );
+            w21Last         = W(            indB, ind1-1 );
+        }
+ 
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
         if( thisIsMyCol )
         {
             if( k > 0 )
             {
                 // Finish updating the current column with two axpy's
-                const Int AColLocalHeight = ACol.LocalHeight();
-                F* AColBuffer = ACol.Buffer();
+                const Int aB1LocalHeight = aB1.LocalHeight();
+                F* aB1Buffer = aB1.Buffer();
                 const F* a21Last_MC_STAR_Buffer = a21Last_MC_STAR.Buffer();
-                for( Int i=0; i<AColLocalHeight; ++i )
-                    AColBuffer[i] -=
+                for( Int i=0; i<aB1LocalHeight; ++i )
+                    aB1Buffer[i] -=
                         w21LastBuffer[i] + 
                         a21Last_MC_STAR_Buffer[i]*Conj(w21LastFirstEntry);
             }
@@ -199,7 +207,7 @@ void LPanSquare
         else
         {
             const Int a21LocalHeight = a21.LocalHeight();
-            const Int w21LastLocalHeight = ACol.LocalHeight();
+            const Int w21LastLocalHeight = aB1.LocalHeight();
             std::vector<F> 
                 rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
             if( thisIsMyCol ) 
@@ -309,14 +317,10 @@ void LPanSquare
             // entries. We trash the upper triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            auto a21Last_MC_STAR_Bottom =
-                ViewRange( a21Last_MC_STAR, 1, 0, n-k, 1 );
-            auto w21Last_MC_STAR_Bottom =
-                ViewRange( w21Last_MC_STAR, 1, 0, n-k, 1 );
-            auto a21Last_MR_STAR_Bottom =
-                ViewRange( a21Last_MR_STAR, 1, 0, n-k, 1 );
-            auto w21Last_MR_STAR_Bottom =
-                ViewRange( w21Last_MR_STAR, 1, 0, n-k, 1 );
+            auto a21Last_MC_STAR_Bottom = a21Last_MC_STAR( IR(1,n-k), IR(0,1) );
+            auto w21Last_MC_STAR_Bottom = w21Last_MC_STAR( IR(1,n-k), IR(0,1) );
+            auto a21Last_MR_STAR_Bottom = a21Last_MR_STAR( IR(1,n-k), IR(0,1) );
+            auto w21Last_MR_STAR_Bottom = w21Last_MR_STAR( IR(1,n-k), IR(0,1) );
             const F* a21_MC_STAR_Buffer = a21Last_MC_STAR_Bottom.Buffer();
             const F* w21_MC_STAR_Buffer = w21Last_MC_STAR_Bottom.Buffer();
             const F* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.Buffer();
@@ -547,8 +551,8 @@ void LPanSquare
             const F dotProduct = mpi::AllReduce( myDotProduct, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
-            auto w21_MC_STAR = ViewRange( W_MC_STAR, k+1, k, n, k+1 );
-            auto w21_MR_STAR = ViewRange( W_MR_STAR, k+1, k, n, k+1 );
+            auto w21_MC_STAR = W_MC_STAR( ind2, ind1 );
+            auto w21_MR_STAR = W_MR_STAR( ind2, ind1 );
 
             // Store w21[MC,* ]
             F scale = dotProduct*tau / F(2);
@@ -577,7 +581,7 @@ void LPanSquare
     }
 
     // View the portion of A that e is the subdiagonal of, then place e into it
-    auto expandedATL = View( A, 0, 0, nW+1, nW+1 );
+    auto expandedATL = A( IR(0,nW+1), IR(0,nW+1) );
     expandedATL.SetRealPartOfDiagonal( e, -1 );
 }
 

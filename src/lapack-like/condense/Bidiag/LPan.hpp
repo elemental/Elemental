@@ -47,30 +47,37 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
 
     for( Int k=0; k<nX; ++k )
     {
-        auto a01      = ViewRange( A, 0,   k,   k,   k+1 );
-        auto AT2      = ViewRange( A, 0,   k+1, k+1, nA  );
-        auto A0R      = ViewRange( A, 0,   k,   k,   nA  );
-        auto a10      = ViewRange( A, k,   0,   k+1, k   );
-        auto alpha11  = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a1R      = ViewRange( A, k,   k,   k+1, nA  );
-        auto a12      = ViewRange( A, k,   k+1, k+1, nA  );
-        auto a21      = ViewRange( A, k+1, k,   mA,  k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   mA,  k+1 );
-        auto A20      = ViewRange( A, k+1, 0,   mA,  k   );
-        auto A2R      = ViewRange( A, k+1, k,   mA,  nA  );
-        auto A22      = ViewRange( A, k+1, k+1, mA,  nA  );
+        const Range<Int> ind0( 0, k ),
+                         indT( 0, k+1 ), indL( 0, k+1 ),
+                         ind1( k, k+1 ),
+                         indB( k, mA ), indR( k, nA ),
+                         ind2Vert( k+1, mA ), ind2Horz( k+1, nA );
 
-        auto x10 = ViewRange( X, k,   0,   k+1, k   );
-        auto XB0 = ViewRange( X, k,   0,   mA,  k   );
-        auto X20 = ViewRange( X, k+1, 0,   mA,  k   );
-        auto X2L = ViewRange( X, k+1, 0,   mA,  k+1 );
-        auto x21 = ViewRange( X, k+1, k,   mA,  k+1 );
+        auto a01      = A( ind0,     ind1     );
+        auto AT2      = A( indT,     ind2Horz );
+        auto A0R      = A( ind0,     indR     );
+        auto a10      = A( ind1,     ind0     );
+        auto alpha11  = A( ind1,     ind1     );
+        auto a1R      = A( ind1,     indR     );
+        auto a12      = A( ind1,     ind2Horz );
+        auto a21      = A( ind2Vert, ind1     );
+        auto A20      = A( ind2Vert, ind0     );
+        auto A2R      = A( ind2Vert, indR     );
+        auto A22      = A( ind2Vert, ind2Horz );
 
-        auto y01 = ViewRange( Y, 0, k,   k,   k+1 );
-        auto Y0R = ViewRange( Y, 0, k,   k,   nA  );
-        auto Y02 = ViewRange( Y, 0, k+1, k,   nA  );
-        auto y12 = ViewRange( Y, k, k+1, k+1, nA  );
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,mA),  ind1 );
+
+        auto x10 = X( ind1,     ind0 );
+        auto XB0 = X( indB,     ind0 );
+        auto X20 = X( ind2Vert, ind0 );
+        auto X2L = X( ind2Vert, indL );
+        auto x21 = X( ind2Vert, ind1 );
+
+        auto y01 = Y( ind0, ind1     );
+        auto Y0R = Y( ind0, indR     );
+        auto Y02 = Y( ind0, ind2Horz );
+        auto y12 = Y( ind1, ind2Horz );
 
         // Apply all previous reflectors to a1R:    
         //   a1R := a1R - a10 Y0R         - x10 conj(A0R)
@@ -147,8 +154,8 @@ LPan( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ, Matrix<F>& X, Matrix<F>& Y )
     }
 
     // Put back d and e
-    auto ATL = View( A, 0, 0, nX, nX );
-    auto ATLExpanded = View( A, 0, 0, nX+1, nX );
+    auto ATL = A( IR(0,nX), IR(0,nX) );
+    auto ATLExpanded = A( IR(0,nX+1), IR(0,nX) );
     ATL.SetRealPartOfDiagonal( d, 0 );
     ATLExpanded.SetRealPartOfDiagonal( e, -1 );
 }
@@ -216,36 +223,43 @@ LPan
 
     for( Int k=0; k<nX; ++k )
     {
-        auto a01      = ViewRange( A, 0,   k,   k,   k+1 );
-        auto AT2      = ViewRange( A, 0,   k+1, k+1, nA  );
-        auto A0R      = ViewRange( A, 0,   k,   k,   nA  );
-        auto a10      = ViewRange( A, k,   0,   k+1, k   );
-        auto alpha11  = ViewRange( A, k,   k,   k+1, k+1 );
-        auto a1R      = ViewRange( A, k,   k,   k+1, nA  );
-        auto a12      = ViewRange( A, k,   k+1, k+1, nA  );
-        auto a21      = ViewRange( A, k+1, k,   mA,  k+1 );
-        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
-        auto a21B     = ViewRange( A, k+2, k,   mA,  k+1 );
-        auto A20      = ViewRange( A, k+1, 0,   mA,  k   );
-        auto A2R      = ViewRange( A, k+1, k,   mA,  nA  );
-        auto A22      = ViewRange( A, k+1, k+1, mA,  nA  );
+        const Range<Int> ind0( 0, k ),
+                         indT( 0, k+1 ), indL( 0, k+1 ),
+                         ind1( k, k+1 ),
+                         indB( k, mA ), indR( k, nA ),
+                         ind2Vert( k+1, mA ), ind2Horz( k+1, nA );
 
-        auto a1R_STAR_MR = ViewRange( AT_STAR_MR, k,   k, k+1, nA  );
-        auto a21_MC_STAR = ViewRange( AL_MC_STAR, k+1, k, mA,  k+1 ); 
+        auto a01      = A( ind0,     ind1     );
+        auto AT2      = A( indT,     ind2Horz );
+        auto A0R      = A( ind0,     indR     );
+        auto a10      = A( ind1,     ind0     );
+        auto alpha11  = A( ind1,     ind1     );
+        auto a1R      = A( ind1,     indR     );
+        auto a12      = A( ind1,     ind2Horz );
+        auto a21      = A( ind2Vert, ind1     );
+        auto A20      = A( ind2Vert, ind0     );
+        auto A2R      = A( ind2Vert, indR     );
+        auto A22      = A( ind2Vert, ind2Horz );
 
-        auto x10 = ViewRange( X, k,   0,   k+1, k   );
-        auto XB0 = ViewRange( X, k,   0,   mA,  k   );
-        auto X20 = ViewRange( X, k+1, 0,   mA,  k   );
-        auto X2L = ViewRange( X, k+1, 0,   mA,  k+1 );
-        auto x21 = ViewRange( X, k+1, k,   mA,  k+1 );
+        auto alpha21T = A( IR(k+1,k+2), ind1 );
+        auto a21B     = A( IR(k+2,mA),  ind1 );
 
-        auto y01 = ViewRange( Y, 0, k,   k,   k+1 );
-        auto Y0R = ViewRange( Y, 0, k,   k,   nA  );
-        auto Y02 = ViewRange( Y, 0, k+1, k,   nA  );
-        auto y12 = ViewRange( Y, k, k+1, k+1, nA  );
+        auto x10 = X( ind1,     ind0 );
+        auto XB0 = X( indB,     ind0 );
+        auto X20 = X( ind2Vert, ind0 );
+        auto X2L = X( ind2Vert, indL );
+        auto x21 = X( ind2Vert, ind1 );
 
-        auto delta1   = View( d,  k, 0, 1, 1 );
-        auto epsilon1 = View( e,  k, 0, 1, 1 );
+        auto y01 = Y( ind0, ind1     );
+        auto Y0R = Y( ind0, indR     );
+        auto Y02 = Y( ind0, ind2Horz );
+        auto y12 = Y( ind1, ind2Horz );
+
+        auto a1R_STAR_MR = AT_STAR_MR( IR(k,k+1), IR(k,nA) );
+        auto a21_MC_STAR = AL_MC_STAR( IR(k+1,mA), IR(k,k+1) ); 
+
+        auto delta1   = d( IR(k,k+1), IR(0,1) );
+        auto epsilon1 = e( IR(k,k+1), IR(0,1) );
 
         // Apply all previous reflectors to a1R:    
         //   a1R := a1R - a10 Y0R         - x10 conj(A0R)
@@ -399,8 +413,8 @@ LPan
     }
 
     // Put back d and e
-    auto ATL = View( A, 0, 0, nX, nX );
-    auto ATLExpanded = View( A, 0, 0, nX+1, nX );
+    auto ATL = A( IR(0,nX), IR(0,nX) );
+    auto ATLExpanded = A( IR(0,nX+1), IR(0,nX) );
     ATL.SetRealPartOfDiagonal( d, 0 );
     ATLExpanded.SetRealPartOfDiagonal( e, -1 );
 }
