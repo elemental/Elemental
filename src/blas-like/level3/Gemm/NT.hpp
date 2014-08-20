@@ -62,7 +62,6 @@ SUMMA_NTA
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Transpose Gemm that avoids communicating the matrix B
@@ -121,7 +120,6 @@ SUMMA_NTB
         D1_MR_MC.ColSumScatterFrom( D1_STAR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Transpose Gemm that avoids communicating the matrix C
@@ -180,7 +178,6 @@ SUMMA_NTC
         LocalGemm
         ( NORMAL, NORMAL, alpha, A1_MC_STAR, B1Trans_STAR_MR, T(1), C );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 template<typename T>

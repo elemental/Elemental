@@ -186,7 +186,6 @@ LVar3( AbstractDistMatrix<F>& APre )
 
         A21.TransposeRowFilterFrom( A21Trans_STAR_MC );
     }
-    RestoreReadWriteProxy( APtr, APre );
 } 
 
 template<typename F>
@@ -241,7 +240,6 @@ ReverseLVar3( AbstractDistMatrix<F>& APre )
 
         A10 = A10_STAR_MR;
     }
-    RestoreReadWriteProxy( APtr, APre );
 }
 
 } // namespace cholesky

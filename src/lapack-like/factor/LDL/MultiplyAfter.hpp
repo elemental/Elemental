@@ -115,8 +115,6 @@ void MultiplyAfter
     QuasiDiagonalScale( LEFT, LOWER, d, dSub, B, conjugated );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
     PermuteRows( B, pInv, p );
-
-    RestoreReadWriteProxy( BPtr, BPre );
 }
 
 } // namespace ldl

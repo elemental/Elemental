@@ -178,7 +178,6 @@ UVar3( AbstractDistMatrix<F>& APre )
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
     }
-    RestoreReadWriteProxy( APtr, APre );
 }
 
 template<typename F> 
@@ -234,7 +233,6 @@ ReverseUVar3( AbstractDistMatrix<F>& APre )
           F(-1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );
         A01.TransposeRowFilterFrom( A01Trans_STAR_MC );
     }
-    RestoreReadWriteProxy( APtr, APre );
 }
 
 } // namespace cholesky

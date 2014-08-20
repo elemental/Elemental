@@ -99,6 +99,43 @@ struct ProxyCtrl
 template<typename T,Dist U=MC,Dist V=MR>
 std::shared_ptr<const DistMatrix<T,U,V>> 
 ReadProxy( const AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+template<typename T,Dist U=MC,Dist V=MR>
+std::shared_ptr<DistMatrix<T,U,V>> 
+ReadProxy( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
+
+template<typename Real>
+std::shared_ptr<const Matrix<Complex<Real>>> 
+ComplexReadProxy( const Matrix<Real>* A );
+template<typename Real>
+std::shared_ptr<const Matrix<Complex<Real>>> 
+ComplexReadProxy( const Matrix<Complex<Real>>* A  );
+template<typename Real>
+std::shared_ptr<Matrix<Complex<Real>>> 
+ComplexReadProxy( Matrix<Real>* A );
+template<typename Real>
+std::shared_ptr<Matrix<Complex<Real>>> 
+ComplexReadProxy( Matrix<Complex<Real>>* A  );
+
+template<typename Real,Dist U=MC,Dist V=MR>
+std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> 
+ComplexReadProxy
+( const AbstractDistMatrix<Real>* A, 
+  const ProxyCtrl& ctrl=ProxyCtrl() );
+template<typename Real,Dist U=MC,Dist V=MR>
+std::shared_ptr<const DistMatrix<Complex<Real>,U,V>> 
+ComplexReadProxy
+( const AbstractDistMatrix<Complex<Real>>* A, 
+  const ProxyCtrl& ctrl=ProxyCtrl() );
+template<typename Real,Dist U=MC,Dist V=MR>
+std::shared_ptr<DistMatrix<Complex<Real>,U,V>> 
+ComplexReadProxy
+( AbstractDistMatrix<Real>* A, 
+  const ProxyCtrl& ctrl=ProxyCtrl() );
+template<typename Real,Dist U=MC,Dist V=MR>
+std::shared_ptr<DistMatrix<Complex<Real>,U,V>> 
+ComplexReadProxy
+( AbstractDistMatrix<Complex<Real>>* A, 
+  const ProxyCtrl& ctrl=ProxyCtrl() );
 
 template<typename T,Dist U=MC,Dist V=MR>
 std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
@@ -107,14 +144,6 @@ std::shared_ptr<DistMatrix<T,U,V>> ReadWriteProxy
 template<typename T,Dist U=MC,Dist V=MR>
 std::shared_ptr<DistMatrix<T,U,V>> WriteProxy
 ( AbstractDistMatrix<T>* A, const ProxyCtrl& ctrl=ProxyCtrl() );
-
-template<typename T,Dist U,Dist V>
-void RestoreReadWriteProxy
-( std::shared_ptr<DistMatrix<T,U,V>>& AProx, AbstractDistMatrix<T>& A );
-
-template<typename T,Dist U,Dist V>
-void RestoreWriteProxy
-( std::shared_ptr<DistMatrix<T,U,V>>& AProx, AbstractDistMatrix<T>& A );
 
 } // namespace El
 

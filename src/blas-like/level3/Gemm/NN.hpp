@@ -92,7 +92,6 @@ Cannon_NN
             ( pkgB.Buffer(), pkgSizeB, aboveRow, belowRow, colComm );
         }
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix A
@@ -146,7 +145,6 @@ SUMMA_NNA
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix B
@@ -197,7 +195,6 @@ SUMMA_NNB
 
         C1.TransposeColSumScatterUpdate( T(1), D1Trans_MR_STAR );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm that avoids communicating the matrix C
@@ -248,7 +245,6 @@ SUMMA_NNC
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Normal Normal Gemm for panel-panel dot products
@@ -346,7 +342,6 @@ SUMMA_NNDot
             }
         }
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 template<typename T>

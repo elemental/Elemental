@@ -66,7 +66,6 @@ SUMMA_TTA
         D1_MR_MC.RowSumScatterFrom( D1_MR_STAR );
         Axpy( T(1), D1_MR_MC, C1 );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Transpose Transpose Gemm that avoids communicating the matrix B
@@ -128,7 +127,6 @@ SUMMA_TTB
         D1_MR_MC.ColSumScatterFrom( D1_STAR_MC );
         Axpy( T(1), D1_MR_MC, C1 );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 // Transpose Transpose Gemm that avoids communicating the matrix C
@@ -188,7 +186,6 @@ SUMMA_TTC
         ( orientationOfA, NORMAL, 
           alpha, A1_STAR_MC, B1Trans_STAR_MR, T(1), C );
     }
-    RestoreReadWriteProxy( CPtr, CPre );
 }
 
 template<typename T>

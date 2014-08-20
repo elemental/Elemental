@@ -127,21 +127,23 @@ void PermuteCols( AbstractDistMatrix<T>& A, const PermutationMeta& oldMeta )
 template<typename T,Dist U,Dist V>
 void PermuteCols
 ( DistMatrix<T,U,V>& A, 
-  const AbstractDistMatrix<Int>& perm, 
-  const AbstractDistMatrix<Int>& invPerm )
+  const AbstractDistMatrix<Int>& permPre, 
+  const AbstractDistMatrix<Int>& invPermPre )
 {
     DEBUG_ONLY(CallStackEntry cse("PermuteCols"))
 
-    const Grid& g = A.Grid();
-    DistMatrix<Int,V,GatheredDist<U>()> perm_V_UGath(g), invPerm_V_UGath(g);
-    perm_V_UGath.AlignWith( A );
-    invPerm_V_UGath.AlignWith( A );
-    Copy( perm,    perm_V_UGath,    READ_PROXY );
-    Copy( invPerm, invPerm_V_UGath, READ_PROXY );
+    ProxyCtrl ctrl;
+    ctrl.rootConstrain = true;
+    ctrl.colConstrain = true;
+    ctrl.root = A.Root();
+    ctrl.colAlign = A.RowAlign();
+
+    auto permPtr    = ReadProxy<Int,V,GatheredDist<U>()>( &permPre,    ctrl );
+    auto invPermPtr = ReadProxy<Int,V,GatheredDist<U>()>( &invPermPre, ctrl );
 
     if( A.Participating() )
     {
-        PermutationMeta meta( perm_V_UGath, invPerm_V_UGath );
+        PermutationMeta meta( *permPtr, *invPermPtr );
         PermuteCols( A, meta );
     }
 }

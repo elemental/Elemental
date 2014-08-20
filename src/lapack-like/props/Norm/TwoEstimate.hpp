@@ -53,13 +53,12 @@ Base<F> TwoNormEstimate
     DEBUG_ONLY(CallStackEntry cse("TwoNormEstimate"))
     typedef Base<F> Real;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_PROXY );
-
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
     const Int m = A.Height();
     const Int n = A.Width();
 
+    const Grid& g = APre.Grid();
     DistMatrix<F> x(g), y(g);
     Gaussian( y, n, 1 );
     
@@ -129,12 +128,11 @@ Base<F> HermitianTwoNormEstimate
     DEBUG_ONLY(CallStackEntry cse("HermitianTwoNormEstimate"))
     typedef Base<F> Real;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_PROXY );
-
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
     const Int n = A.Height();
 
+    const Grid& g = APre.Grid();
     DistMatrix<F> x(g), y(g);
     Zeros( x, n, 1 );
     Gaussian( y, n, 1 );
@@ -207,12 +205,11 @@ Base<F> SymmetricTwoNormEstimate
     DEBUG_ONLY(CallStackEntry cse("SymmetricTwoNormEstimate"))
     typedef Base<F> Real;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g); 
-    Copy( APre, A, READ_PROXY );
-
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
     const Int n = A.Height();
 
+    const Grid& g = APre.Grid();
     DistMatrix<F> x(g), y(g);
     Zeros( x, n, 1 );
     Gaussian( y, n, 1 );

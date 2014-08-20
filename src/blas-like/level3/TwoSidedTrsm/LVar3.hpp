@@ -106,9 +106,8 @@ LVar3
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g), L(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( LPre, L, READ_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), L11_STAR_STAR(g), 
@@ -208,8 +207,6 @@ LVar3
         LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, Z21_MC_STAR );
         Y21.RowSumScatterUpdate( F(1), Z21_MC_STAR );
     }
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrsm
