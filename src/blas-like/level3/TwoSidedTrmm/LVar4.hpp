@@ -41,18 +41,18 @@ LVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A00 =       View( A, ind0, ind0 );
-        auto A10 =       View( A, ind1, ind0 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A20 =       View( A, ind2, ind0 );
-        auto A21 =       View( A, ind2, ind1 );
+        auto A00 = A( ind0, ind0 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A20 = A( ind2, ind0 );
+        auto A21 = A( ind2, ind1 );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
         // Y10 := A11 L10
         Zeros( Y10, nb, k );
@@ -117,18 +117,18 @@ LVar4
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A00 =       View( A, ind0, ind0 );
-        auto A10 =       View( A, ind1, ind0 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A20 =       View( A, ind2, ind0 );
-        auto A21 =       View( A, ind2, ind1 );
+        auto A00 = A( ind0, ind0 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A20 = A( ind2, ind0 );
+        auto A21 = A( ind2, ind1 );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
         // Y10 := A11 L10
         A11_STAR_STAR = A11;

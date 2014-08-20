@@ -36,17 +36,17 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
     {
         const Int nb = Min(bsize,n-k);
  
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A11 =       View( A, ind1, ind1 );
-        auto A12 =       View( A, ind1, ind2 );
-        auto A22 =       View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
 
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
-        auto U22 = LockedView( U, ind2, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
+        auto U22 = U( ind2, ind2 );
 
         // A11 := inv(U11)' A11 inv(U11)
         twotrsm::UUnb( diag, A11, U11 );
@@ -107,17 +107,17 @@ UVar5
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A11 =       View( A, ind1, ind1 );
-        auto A12 =       View( A, ind1, ind2 );
-        auto A22 =       View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
+        auto A22 = A( ind2, ind2 );
 
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
-        auto U22 = LockedView( U, ind2, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
+        auto U22 = U( ind2, ind2 );
 
         // A11 := inv(U11)' A11 inv(U11)
         U11_STAR_STAR = U11;

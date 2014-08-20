@@ -38,17 +38,17 @@ LVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A10 =       View( A, ind1, ind0 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A21 =       View( A, ind2, ind1 );
-        auto A22 = LockedView( A, ind2, ind2 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
         // A10 := L11' A10
         Trmm( LEFT, LOWER, ADJOINT, diag, F(1), L11, A10 );
@@ -116,17 +116,17 @@ LVar2
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A10 =       View( A, ind1, ind0 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A21 =       View( A, ind2, ind1 );
-        auto A22 = LockedView( A, ind2, ind2 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
         // A10 := L11' A10
         L11_STAR_STAR = L11;

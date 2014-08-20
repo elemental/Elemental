@@ -38,16 +38,16 @@ LVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A11 =       View( A, ind1, ind1 );
-        auto A21 =       View( A, ind2, ind1 );
-        auto A22 =       View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
-        auto L22 = LockedView( L, ind2, ind2 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
+        auto L22 = L( ind2, ind2 );
 
         // Y21 := A22 L21
         Zeros( Y21, A21.Height(), nb );
@@ -110,16 +110,16 @@ LVar1
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A11 =       View( A, ind1, ind1 );
-        auto A21 =       View( A, ind2, ind1 );
-        auto A22 =       View( A, ind2, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
+        auto A22 = A( ind2, ind2 );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
-        auto L22 = LockedView( L, ind2, ind2 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
+        auto L22 = L( ind2, ind2 );
 
         // Y21 := A22 L21
         L21_MC_STAR.AlignWith( A22 );

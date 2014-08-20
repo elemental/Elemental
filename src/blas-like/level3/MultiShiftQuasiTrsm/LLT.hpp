@@ -120,14 +120,14 @@ LLT
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         LLTUnb( false, L11, shifts, X1 );
         Gemm( TRANSPOSE, NORMAL, F(-1), L10, X1, F(1), X0 );
@@ -182,14 +182,14 @@ LLTLarge
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -259,14 +259,14 @@ LLTMedium
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         // X1[* ,MR] <- X1[MC,MR]
@@ -336,11 +336,14 @@ LLTSmall
             --k;
         const Int nb = kOld-k;
 
-        auto L11 = LockedViewRange( L, k,    k, k+nb, k+nb );
-        auto L21 = LockedViewRange( L, k+nb, k, m,    k+nb );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto X1 = ViewRange( X, k,    0, k+nb, n );
-        auto X2 = ViewRange( X, k+nb, 0, m,    n );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
+
+        auto X1 = X( ind1, IR(0,n) );
+        auto X2 = X( ind2, IR(0,n) );
 
         // X1 -= L21' X2
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
@@ -399,14 +402,14 @@ LLTSmall
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[* ,VR]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]

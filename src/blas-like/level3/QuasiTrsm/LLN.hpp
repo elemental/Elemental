@@ -119,14 +119,14 @@ LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         LLNUnb( L11, X1, checkIfSingular );
         Gemm( NORMAL, NORMAL, F(-1), L21, X1, F(1), X2 );
@@ -162,14 +162,14 @@ LLNLarge
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
         L11_STAR_STAR = L11; 
@@ -218,14 +218,14 @@ LLNMedium
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         L11_STAR_STAR = L11; // L11[* ,* ] <- L11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X2 );
@@ -274,14 +274,14 @@ LLNSmall
         const bool in2x2 = ( k+nbProp<m && L.Get(k+nbProp-1,k+nbProp) != F(0) );
         const Int nb = ( in2x2 ? nbProp+1 : nbProp );
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
         L11_STAR_STAR = L11; 

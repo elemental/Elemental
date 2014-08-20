@@ -26,12 +26,12 @@ UVar1( Matrix<T>& U, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U00 = View( U, ind0, ind0 );
-        auto U01 = View( U, ind0, ind1 );
-        auto U11 = View( U, ind1, ind1 );
+        auto U00 = U( ind0, ind0 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
         Trrk( UPPER, NORMAL, orientation, T(1), U01, U01, T(1), U00 );
         Trmm( RIGHT, UPPER, orientation, NON_UNIT, T(1), U11, U01 );
@@ -72,12 +72,12 @@ UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U00 = View( U, ind0, ind0 );
-        auto U01 = View( U, ind0, ind1 );
-        auto U11 = View( U, ind1, ind1 );
+        auto U00 = U( ind0, ind0 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
         U01_MC_STAR = U01;
         U01_VC_STAR = U01_MC_STAR;

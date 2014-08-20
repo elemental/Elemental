@@ -13,6 +13,8 @@
 namespace El {
 namespace expand_packed_reflectors {
 
+// TODO: Greatly simplify the implementation of these routines
+
 //
 // Since applying Householder transforms from vectors stored right-to-left
 // implies that we will be forming a generalization of
@@ -45,73 +47,50 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
     // to all ones. We can also ensure that H is not wider than it is tall.
     const Int m = H.Height();
     const Int n = Min(m,H.Width());
-    const Int diff = m-n;
+    const Int mRem = m-n;
+    const Int bsize = Blocksize();
     H.Resize( m, n );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
 
-    Matrix<F>
-        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy, HPanT,
-        HBL, HBR,  H10, H11, H12,                  HPanB,
-                   H20, H21, H22;
-    Matrix<F> HEffected, 
-              HEffectedNew, HEffectedOld, 
-              HEffectedOldT,
-              HEffectedOldB;
-    Matrix<F>
-        tT,  t0,
-        tB,  t1,
-             t2;
+    Matrix<F> HPanT, HPanB,
+              HEffectedNew, HEffectedOld,
+              HEffectedOldT, HEffectedOldB;
 
-    Matrix<F> SInv, Z, ZNew, ZOld;
+    Matrix<F> HPanCopy, SInv, Z, ZNew, ZOld;
 
-    LockedPartitionUpDiagonal
-    ( H, HTL, HTR,
-         HBL, HBR, 0 );
-    LockedPartitionUp
-    ( t, tT,
-         tB, 0 );
-    Int oldEffectedHeight=diff;
+    Int oldEffectedHeight=mRem;
 
-    while( HBR.Height() < m && HBR.Width() < n )
+    const Int tOff = ( offset>=0 ? offset : 0 );
+
+    const Int kLast = LastOffset( n, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+        const Int nb = Min(bsize,n-k);
 
-        const Int HPanHeight = H11.Height() + H21.Height();
+        const Int HPanHeight = m-k;
         const Int effectedHeight = Max( HPanHeight+offset, 0 );
-        const Int HPanWidth = Min( H11.Width(), effectedHeight );
+        const Int HPanWidth = Min( nb, effectedHeight );
 
-        const Int effectedWidth = effectedHeight - diff;
-        const Int oldEffectedWidth = oldEffectedHeight - diff;
+        const Int effectedWidth = effectedHeight - mRem;
+        const Int oldEffectedWidth = oldEffectedHeight - mRem;
         const Int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        auto HPan = H( IR(k,m), IR(k,k+HPanWidth) );
         LockedPartitionDown
         ( HPan, HPanT,
                 HPanB, newEffectedWidth /* to match ZNew */ );
 
-        View
-        ( HEffected, H, m-effectedHeight, n-effectedWidth, 
-          effectedHeight, effectedWidth ); 
+        auto HEffected = H( IR(m-effectedHeight,m), IR(n-effectedWidth,n) );
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
         PartitionUp
-        ( HEffectedOld, HEffectedOldT,
-                        HEffectedOldB, oldEffectedHeight );
+        ( HEffectedOld, HEffectedOldT, HEffectedOldB, oldEffectedHeight );
 
-        LockedRepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2, HPanWidth );
+        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), IR(0,1) );
 
         Z.Resize( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
-        //--------------------------------------------------------------------//
         Herk( UPPER, ADJOINT, F(1), HPan, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
@@ -124,31 +103,14 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
         HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
         Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), HEffected );
-        //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;
-
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
-         /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
-
-        SlideLockedPartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
     }
 
     // Take care of any untouched columns on the left side of H
-    const Int oldEffectedWidth = oldEffectedHeight - diff;
-    if( oldEffectedWidth < n )
-    {
-        View( HEffectedNew, H, 0, 0, m, n-oldEffectedWidth );
-        Zero( HEffectedNew );
-        SetDiagonal( HEffectedNew, F(1) );
-    }
+    const Int oldEffectedWidth = oldEffectedHeight - mRem;
+    HEffectedNew = H( IR(0,m), IR(0,n-oldEffectedWidth) );
+    MakeIdentity( HEffectedNew );
 }
 
 template<typename F>
@@ -171,24 +133,16 @@ LV
     // to all ones. We can also ensure that H is not wider than it is tall.
     const Int m = H.Height();
     const Int n = Min(m,H.Width());
-    const Int diff = m-n;
+    const Int mRem = m-n;
+    const Int bsize = Blocksize();
     H.Resize( m, n );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
 
     const Grid& g = H.Grid();
-    DistMatrix<F>
-        HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g),
-        HBL(g), HBR(g),  H10(g), H11(g), H12(g),  
-                         H20(g), H21(g), H22(g);
-    DistMatrix<F> HEffected(g),
+    DistMatrix<F> HPanT(g), HPanB(g),
                   HEffectedNew(g), HEffectedOld(g),
-                  HEffectedOldT(g),
-                  HEffectedOldB(g);
-    DistMatrix<F,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  t1(g),
-                t2(g);
+                  HEffectedOldT(g), HEffectedOldB(g);
 
     DistMatrix<F,VC,STAR> HPan_VC_STAR(g);
     DistMatrix<F,MC,STAR> HPan_MC_STAR(g), HPanT_MC_STAR(g),
@@ -198,59 +152,46 @@ LV
                           ZNew_STAR_MR(g), ZOld_STAR_MR(g);
     DistMatrix<F,STAR,VR> Z_STAR_VR(g),
                           ZNew_STAR_VR(g), ZOld_STAR_VR(g);
-    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> SInv_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g), SInv_STAR_STAR(g);
 
-    LockedPartitionUpDiagonal
-    ( H, HTL, HTR,
-         HBL, HBR, 0 );
-    LockedPartitionUp
-    ( t, tT,
-         tB, 0 );
-    Int oldEffectedHeight=diff;
-    while( HBR.Height() < m && HBR.Width() < n )
+    Int oldEffectedHeight=mRem;
+
+    const Int tOff = ( offset>=0 ? offset : 0 );
+
+    const Int kLast = LastOffset( n, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+        const Int nb = Min(bsize,n-k);
 
-        const Int HPanHeight = H11.Height() + H21.Height();
+        const Int HPanHeight = m-k;
         const Int effectedHeight = Max( HPanHeight+offset, 0 );
-        const Int HPanWidth = Min( H11.Width(), effectedHeight );
+        const Int HPanWidth = Min( nb, effectedHeight );
 
-        const Int effectedWidth = effectedHeight - diff;
-        const Int oldEffectedWidth = oldEffectedHeight - diff;
+        const Int effectedWidth = effectedHeight - mRem;
+        const Int oldEffectedWidth = oldEffectedHeight - mRem;
         const Int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        auto HPan = H( IR(k,m), IR(k,k+HPanWidth) );
 
-        View
-        ( HEffected, H, m-effectedHeight, n-effectedWidth, 
-          effectedHeight, effectedWidth ); 
+        auto HEffected = H( IR(m-effectedHeight,m), IR(n-effectedWidth,n) );
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
         PartitionUp
         ( HEffectedOld, HEffectedOldT,
                         HEffectedOldB, oldEffectedHeight );
 
-        LockedRepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2, HPanWidth );
+        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), IR(0,1) );
 
-        HPan_MC_STAR.AlignWith( HEffected );
-        Z_STAR_VR.AlignWith( HEffected );
         Z_STAR_MR.AlignWith( HEffected );
         Z_STAR_MR.Resize( HPanWidth, effectedWidth );
-        Z_STAR_VR.Resize( HPanWidth, effectedWidth );
         PartitionLeft
         ( Z_STAR_MR, ZNew_STAR_MR, ZOld_STAR_MR, oldEffectedWidth );
+
+        Z_STAR_VR.AlignWith( HEffected );
+        Z_STAR_VR.Resize( HPanWidth, effectedWidth );
         PartitionLeft
         ( Z_STAR_VR, ZNew_STAR_VR, ZOld_STAR_VR, oldEffectedWidth );
-        //--------------------------------------------------------------------//
+
         HPan_VC_STAR = HPan;
         Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         Herk
@@ -261,6 +202,7 @@ LV
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
+        HPan_MC_STAR.AlignWith( HEffected );
         HPan_MC_STAR = HPan;
         LockedPartitionDown
         ( HPan_MC_STAR, HPanT_MC_STAR,
@@ -281,31 +223,14 @@ LV
         MakeIdentity( HEffectedNew );
         LocalGemm
         ( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), HEffected );
-        //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;
-
-        SlideLockedPartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
-
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
-         /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
     }
 
     // Take care of any untouched columns on the left side of H
-    const Int oldEffectedWidth = oldEffectedHeight - diff;
-    if( oldEffectedWidth < n )
-    {
-        View( HEffectedNew, H, 0, 0, m, n-oldEffectedWidth );
-        Zero( HEffectedNew );
-        SetDiagonal( HEffectedNew, F(1) );
-    }
+    const Int oldEffectedWidth = oldEffectedHeight - mRem;
+    HEffectedNew = H( IR(0,m), IR(0,n-oldEffectedWidth) );
+    MakeIdentity( HEffectedNew );
 }
 
 } // namespace expand_packed_reflectors

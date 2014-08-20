@@ -56,18 +56,21 @@ void LocalAccumulateRL
     {
         const Int nb = Min(bsize,n-k);
 
-        auto A11 = LockedViewRange( A, k,    k, k+nb, k+nb );
-        auto A21 = LockedViewRange( A, k+nb, k, n,    k+nb );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto B1_STAR_MC = LockedViewRange( B_STAR_MC, 0, k,    m, k+nb );
-        auto B2_STAR_MC = LockedViewRange( B_STAR_MC, 0, k+nb, m, n    );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
 
-        auto B1Trans_MR_STAR = LockedViewRange( BTrans_MR_STAR, k, 0, k+nb, m );
+        auto B1_STAR_MC = B_STAR_MC( IR(0,m), ind1 );
+        auto B2_STAR_MC = B_STAR_MC( IR(0,m), ind2 );
 
-        auto Z1Trans_MC_STAR = ViewRange( ZTrans_MC_STAR, k,    0, k+nb, m );
-        auto Z2Trans_MC_STAR = ViewRange( ZTrans_MC_STAR, k+nb, 0, m,    m );
+        auto B1Trans_MR_STAR = BTrans_MR_STAR( ind1, IR(0,m) );
 
-        auto Z1Trans_MR_STAR = ViewRange( ZTrans_MR_STAR, k, 0, k+nb, m );
+        auto Z1Trans_MC_STAR = ZTrans_MC_STAR( ind1, IR(0,m) ); 
+        auto Z2Trans_MC_STAR = ZTrans_MC_STAR( ind2, IR(0,m) );
+   
+        auto Z1Trans_MR_STAR = ZTrans_MR_STAR( ind1, IR(0,m) );
 
         D11.AlignWith( A11 );
         D11 = A11;
@@ -130,9 +133,8 @@ RLA
     for( Int k=0; k<m; k+=bsize )
     {
         const Int nb = Min(bsize,m-k);
-
-        auto B1 = LockedView( B, k, 0, nb, n );
-        auto C1 =       View( C, k, 0, nb, n );
+        auto B1 = B( IR(k,k+nb), IR(0,n) );
+        auto C1 = C( IR(k,k+nb), IR(0,n) );
 
         Z1Trans_MR_MC.AlignWith( C1 );
         B1.TransposeColAllGather( B1Trans_MR_STAR, conjugate );
@@ -188,31 +190,33 @@ RLC
     {
         const Int nb = Min(bsize,n-k);
 
-        auto A1L = LockedViewRange( A, k, 0, k+nb, k+nb );
-        auto AB1 = LockedViewRange( A, k, k, n,    k+nb );
+        const Range<Int> indL( 0, k+nb ),
+                         ind1( k, k+nb ),
+                         indB( k, n    ), indR( k, n );
 
-        auto B1 = LockedViewRange( B, 0, k, m, k+nb );
+        auto A1L = A( ind1, indL );
+        auto AB1 = A( indB, ind1 );
 
-        auto CLeft  = ViewRange( C, 0, 0, m, k+nb );
-        auto CRight = ViewRange( C, 0, k, m, n    );
+        auto B1 = B( IR(0,m), ind1 );
 
-        A1LTrans_MR_STAR.AlignWith( CLeft );
+        auto CL = C( IR(0,m), indL );
+        auto CR = C( IR(0,m), indR );
+
+        A1LTrans_MR_STAR.AlignWith( CL );
         A1L.TransposeColAllGather( A1LTrans_MR_STAR );
-        AB1_VR_STAR.AlignWith( CRight );
+        AB1_VR_STAR.AlignWith( CR );
         AB1_VR_STAR = AB1;
-        AB1Trans_STAR_MR.AlignWith( CRight );
+        AB1Trans_STAR_MR.AlignWith( CR );
         AB1_VR_STAR.TransposePartialColAllGather( AB1Trans_STAR_MR, conjugate );
         MakeTrapezoidal( UPPER, A1LTrans_MR_STAR, -k );
         MakeTrapezoidal( UPPER, AB1Trans_STAR_MR, 1 );
 
         B1_MC_STAR = B1;
         LocalGemm
-        ( NORMAL, TRANSPOSE, 
-          alpha, B1_MC_STAR, A1LTrans_MR_STAR, T(1), CLeft );
+        ( NORMAL, TRANSPOSE, alpha, B1_MC_STAR, A1LTrans_MR_STAR, T(1), CL );
 
         LocalGemm
-        ( NORMAL, NORMAL, 
-          alpha, B1_MC_STAR, AB1Trans_STAR_MR, T(1), CRight );
+        ( NORMAL, NORMAL, alpha, B1_MC_STAR, AB1Trans_STAR_MR, T(1), CR );
     }
 
     Copy( C, CPre, RESTORE_READ_WRITE_PROXY );

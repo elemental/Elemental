@@ -29,14 +29,14 @@ LUT
     {
         const Int nb = Min(bsize,m-k);
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto U11 =       View( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         LeftUnb( UPPER, orientation, F(1), U11, shifts, X1 );
         Gemm( orientation, NORMAL, F(-1), U12, X1, F(1), X2 );
@@ -75,14 +75,14 @@ LUT
     {
         const Int nb = Min(bsize,m-k);
 
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto X1 = View( X, ind1, outerInd );
-        auto X2 = View( X, ind2, outerInd );
+        auto X1 = X( ind1, outerInd );
+        auto X2 = X( ind2, outerInd );
 
         // X1[* ,VR] := U11^-'[*,*] X1[* ,VR]
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]

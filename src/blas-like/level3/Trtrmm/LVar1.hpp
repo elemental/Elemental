@@ -26,12 +26,12 @@ LVar1( Matrix<T>& L, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);  
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L00 = View( L, ind0, ind0 );
-        auto L10 = View( L, ind1, ind0 );
-        auto L11 = View( L, ind1, ind1 );
+        auto L00 = L( ind0, ind0 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
         Trrk( LOWER, orientation, NORMAL, T(1), L10, L10, T(1), L00 );
         Trmm( LEFT, LOWER, orientation, NON_UNIT, T(1), L11, L10 );
@@ -72,12 +72,12 @@ LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto L00 = View( L, ind0, ind0 );
-        auto L10 = View( L, ind1, ind0 );
-        auto L11 = View( L, ind1, ind1 );
+        auto L00 = L( ind0, ind0 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
 
         L10_STAR_VR = L10;
         L10_STAR_VC = L10_STAR_VR;

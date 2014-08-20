@@ -38,22 +38,22 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A01 =       View( A, ind0, ind1 );
-        auto A02 = LockedView( A, ind0, ind2 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A12 =       View( A, ind1, ind2 );
+        auto A01 = A( ind0, ind1 );
+        auto A02 = A( ind0, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto Y01 = LockedView( Y, ind0, ind1 );
-        auto Y02 =       View( Y, ind0, ind2 );
-        auto Y12 =       View( Y, ind1, ind2 );
+        auto Y01 = Y( ind0, ind1 );
+        auto Y02 = Y( ind0, ind2 );
+        auto Y12 = Y( ind1, ind2 );
  
         // A01 := A01 - 1/2 Y01
         Axpy( F(-1)/F(2), Y01, A01 );
@@ -129,22 +129,22 @@ UVar3
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A01 =       View( A, ind0, ind1 );
-        auto A02 = LockedView( A, ind0, ind2 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A12 =       View( A, ind1, ind2 );
+        auto A01 = A( ind0, ind1 );
+        auto A02 = A( ind0, ind2 );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
-        auto U12 = LockedView( U, ind1, ind2 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
+        auto U12 = U( ind1, ind2 );
 
-        auto Y01 = LockedView( Y, ind0, ind1 );
-        auto Y02 =       View( Y, ind0, ind2 );
-        auto Y12 =       View( Y, ind1, ind2 );
+        auto Y01 = Y( ind0, ind1 );
+        auto Y02 = Y( ind0, ind2 );
+        auto Y12 = Y( ind1, ind2 );
 
         // A01 := A01 - 1/2 Y01
         Axpy( F(-1)/F(2), Y01, A01 );

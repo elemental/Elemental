@@ -66,17 +66,17 @@ LLN
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X10 =       View( X, ind1, ind0 );
-        auto X11 =       View( X, ind1, ind1 );
-        auto X20 =       View( X, ind2, ind0 );
-        auto X21 =       View( X, ind2, ind1 );
+        auto X10 = X( ind1, ind0 );
+        auto X11 = X( ind1, ind1 );
+        auto X20 = X( ind2, ind0 );
+        auto X21 = X( ind2, ind1 );
 
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), L11, X10, checkIfSingular );
         trstrm::LLNUnb( diag, F(1), L11, X11 );
@@ -114,17 +114,17 @@ LLN
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto X10 =       View( X, ind1, ind0 );
-        auto X11 =       View( X, ind1, ind1 );
-        auto X20 =       View( X, ind2, ind0 );
-        auto X21 =       View( X, ind2, ind1 );
+        auto X10 = X( ind1, ind0 );
+        auto X11 = X( ind1, ind1 );
+        auto X20 = X( ind2, ind0 );
+        auto X21 = X( ind2, ind1 );
 
         L11_STAR_STAR = L11; 
         X11_STAR_STAR = X11; 

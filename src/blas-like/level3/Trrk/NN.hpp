@@ -49,8 +49,8 @@ void TrrkNN
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = LockedView( A, outerInd, ind1     );
-        auto B1 = LockedView( B, ind1,     outerInd );
+        auto A1 = A( outerInd, ind1     );
+        auto B1 = B( ind1,     outerInd );
 
         A1_MC_STAR = A1;
         B1.TransposeColAllGather( B1Trans_MR_STAR );

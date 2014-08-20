@@ -49,14 +49,14 @@ RUT
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0 = View( X, outerInd, ind0 );
-        auto X1 = View( X, outerInd, ind1 );
+        auto X0 = X( outerInd, ind0 );
+        auto X1 = X( outerInd, ind1 );
 
         U11_STAR_STAR = U11;
         X1_VC_STAR.AlignWith( X0 );

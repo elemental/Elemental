@@ -38,22 +38,22 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A10 =       View( A, ind1, ind0 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A20 = LockedView( A, ind2, ind0 );
-        auto A21 =       View( A, ind2, ind1 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A20 = A( ind2, ind0 );
+        auto A21 = A( ind2, ind1 );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto Y10 = LockedView( Y, ind1, ind0 );
-        auto Y20 =       View( Y, ind2, ind0 );
-        auto Y21 =       View( Y, ind2, ind1 );
+        auto Y10 = Y( ind1, ind0 );
+        auto Y20 = Y( ind2, ind0 );
+        auto Y21 = Y( ind2, ind1 );
 
         // A10 := A10 - 1/2 Y10
         Axpy( F(-1)/F(2), Y10, A10 );
@@ -128,22 +128,22 @@ LVar3
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0,    k    );
-        const Range<Int> ind1( k,    k+nb );
-        const Range<Int> ind2( k+nb, n    );
+        const Range<Int> ind0( 0,    k    ),
+                         ind1( k,    k+nb ),
+                         ind2( k+nb, n    );
 
-        auto A10 =       View( A, ind1, ind0 );
-        auto A11 =       View( A, ind1, ind1 );
-        auto A20 = LockedView( A, ind2, ind0 );
-        auto A21 =       View( A, ind2, ind1 );
+        auto A10 = A( ind1, ind0 );
+        auto A11 = A( ind1, ind1 );
+        auto A20 = A( ind2, ind0 );
+        auto A21 = A( ind2, ind1 );
 
-        auto L10 = LockedView( L, ind1, ind0 );
-        auto L11 = LockedView( L, ind1, ind1 );
-        auto L21 = LockedView( L, ind2, ind1 );
+        auto L10 = L( ind1, ind0 );
+        auto L11 = L( ind1, ind1 );
+        auto L21 = L( ind2, ind1 );
 
-        auto Y10 = LockedView( Y, ind1, ind0 );
-        auto Y20 =       View( Y, ind2, ind0 );
-        auto Y21 =       View( Y, ind2, ind1 );
+        auto Y10 = Y( ind1, ind0 );
+        auto Y20 = Y( ind2, ind0 );
+        auto Y21 = Y( ind2, ind1 );
 
         // A10 := A10 - 1/2 Y10
         Axpy( F(-1)/F(2), Y10, A10 );

@@ -38,16 +38,16 @@ UVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto A00 =       View( A, ind0, ind0 );
-        auto A01 =       View( A, ind0, ind1 );
-        auto A11 =       View( A, ind1, ind1 );
+        auto A00 = A( ind0, ind0 );
+        auto A01 = A( ind0, ind1 );
+        auto A11 = A( ind1, ind1 );
 
-        auto U00 = LockedView( U, ind0, ind0 );
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U00 = U( ind0, ind0 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
         // Y01 := U01 A11
         Zeros( Y01, k, nb );
@@ -107,16 +107,16 @@ UVar5
     {
         const Int nb = Min(bsize,n-k);
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto A00 =       View( A, ind0, ind0 );
-        auto A01 =       View( A, ind0, ind1 );
-        auto A11 =       View( A, ind1, ind1 );
+        auto A00 = A( ind0, ind0 );
+        auto A01 = A( ind0, ind1 );
+        auto A11 = A( ind1, ind1 );
 
-        auto U00 = LockedView( U, ind0, ind0 );
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U00 = U( ind0, ind0 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
         // Y01 := U01 A11
         A11_STAR_STAR = A11;

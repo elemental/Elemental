@@ -46,7 +46,7 @@ UN
     for( Int k=0; k<r; k+=bsize )
     {
         const Int nb = Min(bsize,r-k);
-        auto A1 = LockedView( A, 0, k, n, nb );
+        auto A1 = A( IR(0,n), IR(k,k+nb) );
 
         A1_VR_STAR = A1_MC_STAR = A1;
         A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );

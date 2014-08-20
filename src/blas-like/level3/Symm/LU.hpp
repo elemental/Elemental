@@ -55,20 +55,21 @@ void LocalAccumulateLU
     {
         const Int nb = Min(bsize,m-k);
 
-        auto A11 = LockedViewRange( A, k, k,    k+nb, k+nb );
-        auto A12 = LockedViewRange( A, k, k+nb, k+nb, m    );
+        const Range<Int> ind1( k,    k+nb ),
+                         ind2( k+nb, m    );
 
-        auto B1_MC_STAR = LockedViewRange( B_MC_STAR, k, 0, k+nb, n );
+        auto A11 = A( ind1, ind1 );
+        auto A12 = A( ind1, ind2 );
 
-        auto B1Trans_STAR_MR = 
-            LockedViewRange( BTrans_STAR_MR, 0, k,    n, k+nb );
-        auto B2Trans_STAR_MR = 
-            LockedViewRange( BTrans_STAR_MR, 0, k+nb, n, m    );
+        auto B1_MC_STAR = B_MC_STAR( ind1, IR(0,n) );
 
-        auto Z1_MC_STAR = ViewRange( Z_MC_STAR, k,    0, k+nb, n );
+        auto B1Trans_STAR_MR = BTrans_STAR_MR( IR(0,n), ind1 );
+        auto B2Trans_STAR_MR = BTrans_STAR_MR( IR(0,n), ind2 );
 
-        auto Z1_MR_STAR = ViewRange( Z_MR_STAR, k,    0, k+nb, n );
-        auto Z2_MR_STAR = ViewRange( Z_MR_STAR, k+nb, 0, m,    n );
+        auto Z1_MC_STAR = Z_MC_STAR( ind1, IR(0,n) );
+
+        auto Z1_MR_STAR = Z_MR_STAR( ind1, IR(0,n) );
+        auto Z2_MR_STAR = Z_MR_STAR( ind2, IR(0,n) );
 
         D11.AlignWith( A11 );
         D11 = A11;
@@ -129,9 +130,8 @@ LUA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-
-        auto B1 = LockedView( B, 0, k, m, nb );
-        auto C1 = LockedView( C, 0, k, m, nb );
+        auto B1 = B( IR(0,m), IR(k,k+nb) );
+        auto C1 = C( IR(0,m), IR(k,k+nb) );
 
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
@@ -187,16 +187,20 @@ LUC
     {
         const Int nb = Min(bsize,m-k);
 
-        auto A1R = LockedViewRange( A, k, k, k+nb, m    );
-        auto AT1 = LockedViewRange( A, 0, k, k+nb, k+nb );
+        const Range<Int> indT( 0, k+nb ),
+                         ind1( k, k+nb ),
+                         indB( k, m    ), indR( k, m );
 
-        auto B1 = LockedViewRange( B, k, 0, k+nb, n );
+        auto A1R = A( ind1, indR );
+        auto AT1 = A( indT, ind1 );
 
-        auto CAbove = ViewRange( C, 0, 0, k+nb, n );
-        auto CBelow = ViewRange( C, k, 0, m,    n );
+        auto B1 = B( ind1, IR(0,n) );
 
-        AT1_MC_STAR.AlignWith( CAbove );
-        A1R_STAR_MC.AlignWith( CBelow );
+        auto CT = C( indT, IR(0,n) );
+        auto CB = C( indB, IR(0,n) );
+
+        AT1_MC_STAR.AlignWith( CT );
+        A1R_STAR_MC.AlignWith( CB );
         AT1_MC_STAR = AT1;
         A1R_STAR_MC = A1R;
         MakeTrapezoidal( UPPER, AT1_MC_STAR, -k );
@@ -206,11 +210,11 @@ LUC
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 
-          alpha, AT1_MC_STAR, B1Trans_MR_STAR, T(1), CAbove );
+          alpha, AT1_MC_STAR, B1Trans_MR_STAR, T(1), CT );
 
         LocalGemm
         ( orientation, TRANSPOSE, 
-          alpha, A1R_STAR_MC, B1Trans_MR_STAR, T(1), CBelow );
+          alpha, A1R_STAR_MC, B1Trans_MR_STAR, T(1), CB );
     }
 
     Copy( C, CPre, RESTORE_READ_WRITE_PROXY );

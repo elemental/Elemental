@@ -220,14 +220,14 @@ LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         LUNUnb( U11, shifts, X1 );
         Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
@@ -261,16 +261,16 @@ LUN
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0Real = View( XReal, ind0, outerInd );
-        auto X0Imag = View( XImag, ind0, outerInd );
-        auto X1Real = View( XReal, ind1, outerInd );
-        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X0Real = XReal( ind0, outerInd );
+        auto X0Imag = XImag( ind0, outerInd );
+        auto X1Real = XReal( ind1, outerInd );
+        auto X1Imag = XImag( ind1, outerInd );
 
         LUNUnb( U11, shifts, X1Real, X1Imag );
         Gemm( NORMAL, NORMAL, Real(-1), U01, X1Real, Real(1), X0Real );
@@ -317,14 +317,14 @@ LUNLarge
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1_STAR_VR.AlignWith( shifts );
@@ -390,16 +390,16 @@ LUNLarge
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0Real = View( XReal, ind0, outerInd );
-        auto X0Imag = View( XImag, ind0, outerInd );
-        auto X1Real = View( XReal, ind1, outerInd );
-        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X0Real = XReal( ind0, outerInd );
+        auto X0Imag = XImag( ind0, outerInd );
+        auto X1Real = XReal( ind1, outerInd );
+        auto X1Imag = XImag( ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Real_STAR_VR.AlignWith( shifts );
@@ -474,14 +474,14 @@ LUNMedium
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1Trans_MR_STAR.AlignWith( X0 );
@@ -553,16 +553,16 @@ LUNMedium
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0Real = View( XReal, ind0, outerInd );
-        auto X0Imag = View( XImag, ind0, outerInd );
-        auto X1Real = View( XReal, ind1, outerInd );
-        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X0Real = XReal( ind0, outerInd );
+        auto X0Imag = XImag( ind0, outerInd );
+        auto X1Real = XReal( ind1, outerInd );
+        auto X1Imag = XImag( ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[MC,MR]
         X1RealTrans_MR_STAR.AlignWith( X0Real );
@@ -638,14 +638,14 @@ LUNSmall
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0 = View( X, ind0, outerInd );
-        auto X1 = View( X, ind1, outerInd );
+        auto X0 = X( ind0, outerInd );
+        auto X1 = X( ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
@@ -710,16 +710,16 @@ LUNSmall
             --k;
         const Int nb = kOld-k;
 
-        const Range<Int> ind0( 0, k    );
-        const Range<Int> ind1( k, k+nb );
+        const Range<Int> ind0( 0, k    ),
+                         ind1( k, k+nb );
 
-        auto U01 = LockedView( U, ind0, ind1 );
-        auto U11 = LockedView( U, ind1, ind1 );
+        auto U01 = U( ind0, ind1 );
+        auto U11 = U( ind1, ind1 );
 
-        auto X0Real = View( XReal, ind0, outerInd );
-        auto X0Imag = View( XImag, ind0, outerInd );
-        auto X1Real = View( XReal, ind1, outerInd );
-        auto X1Imag = View( XImag, ind1, outerInd );
+        auto X0Real = XReal( ind0, outerInd );
+        auto X0Imag = XImag( ind0, outerInd );
+        auto X1Real = XReal( ind1, outerInd );
+        auto X1Imag = XImag( ind1, outerInd );
 
         U11_STAR_STAR = U11; // U11[* ,* ] <- U11[VC,* ]
         X1Real_STAR_STAR = X1Real; 

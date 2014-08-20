@@ -54,8 +54,8 @@ void TrrkTT
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = LockedView( A, ind1,     outerInd );
-        auto B1 = LockedView( B, outerInd, ind1     );
+        auto A1 = A( ind1,     outerInd );
+        auto B1 = B( outerInd, ind1     );
 
         A1_STAR_MC = A1;
         B1_VR_STAR = B1;

@@ -60,10 +60,10 @@ void Trr2kTTTT
 
         const Range<Int> ind1( k, k+nb );
 
-        auto A1 = LockedView( A, ind1,     outerInd );
-        auto B1 = LockedView( B, outerInd, ind1     );
-        auto C1 = LockedView( C, ind1,     outerInd );
-        auto D1 = LockedView( D, outerInd, ind1     );
+        auto A1 = A( ind1,     outerInd );
+        auto B1 = B( outerInd, ind1     );
+        auto C1 = C( ind1,     outerInd );
+        auto D1 = D( outerInd, ind1     );
 
         A1_STAR_MC = A1;
         C1_STAR_MC = C1;

@@ -54,8 +54,8 @@ UT
     {
         const Int nb = Min(bsize,r-k);
 
-        auto A1 = LockedView( A, k, 0, nb, n );
-        auto B1 = LockedView( B, k, 0, nb, n );
+        auto A1 = A( IR(k,k+nb), IR(0,n) );
+        auto B1 = B( IR(k,k+nb), IR(0,n) );
 
         A1.TransposeColAllGather( A1Trans_MR_STAR );
         A1_STAR_VR.TransposePartialRowFilterFrom( A1Trans_MR_STAR );

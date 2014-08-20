@@ -55,18 +55,21 @@ void LocalAccumulateLL
     {
         const Int nb = Min(bsize,m-k);
 
-        auto A11 = LockedViewRange( A, k,    k, k+nb, k+nb );
-        auto A21 = LockedViewRange( A, k+nb, k, m,    k+nb );
+        const Range<Int> ind1( k, k+nb ),
+                         ind2( k+nb, m );
 
-        auto B1_MC_STAR = LockedViewRange( B_MC_STAR, k,    0, k+nb, n );
-        auto B2_MC_STAR = LockedViewRange( B_MC_STAR, k+nb, 0, m,    n );
+        auto A11 = A( ind1, ind1 );
+        auto A21 = A( ind2, ind1 );
 
-        auto B1Trans_STAR_MR = LockedViewRange( BTrans_STAR_MR, 0, k, n, k+nb );
+        auto B1_MC_STAR = B_MC_STAR( ind1, IR(0,n) );
+        auto B2_MC_STAR = B_MC_STAR( ind2, IR(0,n) );
 
-        auto Z1_MC_STAR = ViewRange( Z_MC_STAR, k,    0, k+nb, n );
-        auto Z2_MC_STAR = ViewRange( Z_MC_STAR, k+nb, 0, m,    n );
+        auto B1Trans_STAR_MR = BTrans_STAR_MR( IR(0,n), ind1 );
 
-        auto Z1_MR_STAR = ViewRange( Z_MR_STAR, k,    0, k+nb, n );
+        auto Z1_MC_STAR = Z_MC_STAR( ind1, IR(0,n) );
+        auto Z2_MC_STAR = Z_MC_STAR( ind2, IR(0,n) );
+
+        auto Z1_MR_STAR = Z_MR_STAR( ind1, IR(0,n) );
 
         D11.AlignWith( A11 );
         D11 = A11;
@@ -128,8 +131,8 @@ LLA
     for( Int k=0; k<n; k+=bsize )
     {
         const Int nb = Min(bsize,n-k);
-        auto B1 = LockedView( B, 0, k, m, nb );
-        auto C1 =       View( C, 0, k, m, nb );
+        auto B1 = B( IR(0,m), IR(k,k+nb) );
+        auto C1 = C( IR(0,m), IR(k,k+nb) );
 
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
@@ -185,16 +188,20 @@ LLC
     {
         const Int nb = Min(bsize,m-k);
 
-        auto A1L = LockedViewRange( A, k, 0, k+nb, k+nb );
-        auto AB1 = LockedViewRange( A, k, k, m,    k+nb );
+        const Range<Int> indL( 0, k+nb ), indT( 0, k+nb ),
+                         ind1( k, k+nb ),
+                         indB( k, m    );
 
-        auto B1 = LockedViewRange( B, k, 0, k+nb, n );
+        auto A1L = A( ind1, indL );
+        auto AB1 = A( indB, ind1 );
 
-        auto CAbove = ViewRange( C, 0, 0, k+nb, n );
-        auto CBelow = ViewRange( C, k, 0, m,    n );
+        auto B1 = B( ind1, IR(0,n) );
 
-        AB1_MC_STAR.AlignWith( CBelow );
-        A1L_STAR_MC.AlignWith( CAbove );
+        auto CT = C( indT, IR(0,n) );
+        auto CB = C( indB, IR(0,n) );
+
+        AB1_MC_STAR.AlignWith( CB );
+        A1L_STAR_MC.AlignWith( CT );
         AB1_MC_STAR = AB1;
         A1L_STAR_MC = A1L;
         MakeTriangular( LOWER, AB1_MC_STAR );
@@ -204,11 +211,11 @@ LLC
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 
-          alpha, AB1_MC_STAR, B1Trans_MR_STAR, T(1), CBelow );
+          alpha, AB1_MC_STAR, B1Trans_MR_STAR, T(1), CB );
 
         LocalGemm
         ( orientation, TRANSPOSE, 
-          alpha, A1L_STAR_MC, B1Trans_MR_STAR, T(1), CAbove );
+          alpha, A1L_STAR_MC, B1Trans_MR_STAR, T(1), CT );
     }
 
     Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
