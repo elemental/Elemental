@@ -210,17 +210,26 @@ void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
 }
 
 template<typename F>
-void Sign( DistMatrix<F>& A, const SignCtrl<Base<F>> ctrl )
+void Sign( AbstractDistMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     sign::Newton( A, ctrl );
 }
 
 template<typename F>
 void Sign
-( DistMatrix<F>& A, DistMatrix<F>& N, const SignCtrl<Base<F>> ctrl )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre, 
+  const SignCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Sign"))
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto NPtr = WriteProxy( &NPre );     auto& N = *NPtr;
+
     DistMatrix<F> ACopy( A );
     sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
@@ -300,12 +309,16 @@ void HermitianSign
 
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
-    typedef Base<F> Real;
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Get the EVD of A
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
@@ -328,13 +341,16 @@ void HermitianSign
 
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N,
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& NPre,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSign"))
-    typedef Base<F> Real;
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto NPtr = WriteProxy( &NPre );     auto& N = *NPtr;
 
     // Get the EVD of A
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
@@ -372,22 +388,23 @@ void HermitianSign
   template void Sign \
   ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
-  ( DistMatrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
   ( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
   template void Sign \
-  ( DistMatrix<F>& A, DistMatrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, \
+    const SignCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, DistMatrix<F>& A, \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, \
     const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N, \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, \
     const HermitianEigCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO

@@ -228,7 +228,6 @@ ElError ElSign_d( ElMatrix_d A );
 ElError ElSign_c( ElMatrix_c A );
 ElError ElSign_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElSignDist_s( ElDistMatrix_s A );
 ElError ElSignDist_d( ElDistMatrix_d A );
 ElError ElSignDist_c( ElDistMatrix_c A );
@@ -241,7 +240,6 @@ ElError ElSignDecomp_d( ElMatrix_d A, ElMatrix_d N );
 ElError ElSignDecomp_c( ElMatrix_c A, ElMatrix_c N );
 ElError ElSignDecomp_z( ElMatrix_z A, ElMatrix_z N );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElSignDecompDist_s( ElDistMatrix_s A, ElDistMatrix_s N );
 ElError ElSignDecompDist_d( ElDistMatrix_d A, ElDistMatrix_d N );
 ElError ElSignDecompDist_c( ElDistMatrix_c A, ElDistMatrix_c N );
@@ -256,7 +254,6 @@ ElError ElHermitianSign_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHermitianSign_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHermitianSign_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianSignDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHermitianSignDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHermitianSignDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -273,7 +270,6 @@ ElError ElHermitianSignDecomp_c
 ElError ElHermitianSignDecomp_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z N );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianSignDecompDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s N );
 ElError ElHermitianSignDecompDist_d

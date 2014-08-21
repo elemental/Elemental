@@ -53,9 +53,14 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 
 template<typename Real>
 void RealToComplex
-( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real>>& U )
+( const AbstractDistMatrix<        Real >& UQuasiPre, 
+        AbstractDistMatrix<Complex<Real>>& UPre )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RealToComplex"))
+
+    auto UQuasiPtr = ReadProxy( &UQuasiPre ); auto& UQuasi = *UQuasiPtr;
+    auto UPtr      = WriteProxy( &UPre );     auto& U      = *UPtr;
+
     DEBUG_ONLY(CheckRealSchur(UQuasi))
     typedef Complex<Real> C;
 

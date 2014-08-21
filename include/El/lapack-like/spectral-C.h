@@ -664,7 +664,6 @@ ElError ElPolar_d( ElMatrix_d A );
 ElError ElPolar_c( ElMatrix_c A );
 ElError ElPolar_z( ElMatrix_z A );
 
-/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
 ElError ElPolarDist_s( ElDistMatrix_s A );
 ElError ElPolarDist_d( ElDistMatrix_d A );
 ElError ElPolarDist_c( ElDistMatrix_c A );
@@ -675,7 +674,6 @@ ElError ElHermitianPolar_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHermitianPolar_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHermitianPolar_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
 ElError ElHermitianPolarDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHermitianPolarDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHermitianPolarDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -688,7 +686,6 @@ ElError ElPolarDecomp_d( ElMatrix_d A, ElMatrix_d P );
 ElError ElPolarDecomp_c( ElMatrix_c A, ElMatrix_c P );
 ElError ElPolarDecomp_z( ElMatrix_z A, ElMatrix_z P );
 
-/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
 ElError ElPolarDecompDist_s( ElDistMatrix_s A, ElDistMatrix_s P );
 ElError ElPolarDecompDist_d( ElDistMatrix_d A, ElDistMatrix_d P );
 ElError ElPolarDecompDist_c( ElDistMatrix_c A, ElDistMatrix_c P );
@@ -703,7 +700,6 @@ ElError ElHermitianPolarDecomp_c
 ElError ElHermitianPolarDecomp_z
 ( ElUpperOrLower uplo, ElMatrix_z A, ElMatrix_z P );
 
-/* NOTE: 'A' and 'P' must be in [MC,MR] distributions */
 ElError ElHermitianPolarDecompDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, ElDistMatrix_s P );
 ElError ElHermitianPolarDecompDist_d
@@ -725,8 +721,6 @@ ElError ElSchur_d( ElMatrix_d A, ElMatrix_z w, bool fullTriangle );
 ElError ElSchur_c( ElMatrix_c A, ElMatrix_c w, bool fullTriangle );
 ElError ElSchur_z( ElMatrix_z A, ElMatrix_z w, bool fullTriangle );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         'w' must be in a [VR,STAR] distribution  */
 ElError ElSchurDist_s( ElDistMatrix_s A, ElDistMatrix_c w, bool fullTriangle );
 ElError ElSchurDist_d( ElDistMatrix_d A, ElDistMatrix_z w, bool fullTriangle );
 ElError ElSchurDist_c( ElDistMatrix_c A, ElDistMatrix_c w, bool fullTriangle );
@@ -743,8 +737,6 @@ ElError ElSchurDecomp_c
 ElError ElSchurDecomp_z
 ( ElMatrix_z A, ElMatrix_z w, ElMatrix_z Q, bool fullTriangle );
 
-/* NOTE: 'A' and 'Q' must be in [MC,MR] distributions, while
-         'w' must be in a [VR,STAR] distribution  */
 ElError ElSchurDecompDist_s
 ( ElDistMatrix_s A, ElDistMatrix_c w, ElDistMatrix_s Q, bool fullTriangle );
 ElError ElSchurDecompDist_d

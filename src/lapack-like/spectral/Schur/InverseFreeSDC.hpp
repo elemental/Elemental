@@ -92,9 +92,13 @@ InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 
 template<typename F>
 inline int
-InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, Base<F> tau=0 )
+InverseFreeSign( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSign"))
+
+    auto XPtr = ReadWriteProxy( &XPre );
+    auto& X = *XPtr;
+
     typedef Base<F> Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();
@@ -203,9 +207,13 @@ InverseFreeSignDivide( Matrix<F>& X )
 
 template<typename F>
 inline ValueInt<Base<F>>
-InverseFreeSignDivide( DistMatrix<F>& X )
+InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::InverseFreeSignDivide"))
+
+    auto XPtr = ReadWriteProxy( &XPre );
+    auto& X = *XPtr;
+
     typedef Base<F> Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();

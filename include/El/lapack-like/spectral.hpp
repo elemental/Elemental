@@ -246,26 +246,28 @@ void Sort
 template<typename F>
 void Polar( Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
-void Polar( DistMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
+void Polar( AbstractDistMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
 template<typename F>
 void Polar
 ( Matrix<F>& A, Matrix<F>& P, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
 void Polar
-( DistMatrix<F>& A, DistMatrix<F>& P, const PolarCtrl& ctrl=PolarCtrl() ); 
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, 
+  const PolarCtrl& ctrl=PolarCtrl() ); 
 template<typename F>
 void HermitianPolar
 ( UpperOrLower uplo, Matrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
 void HermitianPolar
-( UpperOrLower uplo, DistMatrix<F>& A, const PolarCtrl& ctrl=PolarCtrl() ); 
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+  const PolarCtrl& ctrl=PolarCtrl() ); 
 template<typename F>
 void HermitianPolar
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, 
   const PolarCtrl& ctrl=PolarCtrl() );
 template<typename F>
 void HermitianPolar
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P, 
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& P, 
   const PolarCtrl& ctrl=PolarCtrl() ); 
 
 // Schur decomposition
@@ -276,11 +278,11 @@ void Schur
   bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
   bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
+( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
   bool fullTriangle=false, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 
 template<typename F>
@@ -289,20 +291,22 @@ void Schur
   bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q,
-  bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w, 
+  AbstractDistMatrix<F>& Q, bool fullTriangle=true, 
+  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 template<typename F>
 void Schur
-( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, 
-  BlockDistMatrix<F>& Q,
-  bool fullTriangle=true, const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
+( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w, 
+  BlockDistMatrix<F>& Q, bool fullTriangle=true, 
+  const SchurCtrl<Base<F>> ctrl=SchurCtrl<Base<F>>() );
 
 namespace schur {
 
 template<typename Real>
 void CheckRealSchur( const Matrix<Real>& U, bool standardForm=false );
 template<typename Real>
-void CheckRealSchur( const DistMatrix<Real>& U, bool standardForm=false );
+void CheckRealSchur
+( const AbstractDistMatrix<Real>& U, bool standardForm=false );
 
 // NOTE: These will always throw an error
 template<typename Real>
@@ -310,7 +314,7 @@ void CheckRealSchur
 ( const Matrix<Complex<Real>>& U, bool standardForm=false );
 template<typename Real>
 void CheckRealSchur
-( const DistMatrix<Complex<Real>>& U, bool standardForm=false );
+( const AbstractDistMatrix<Complex<Real>>& U, bool standardForm=false );
 
 template<typename F>
 void QuasiTriangEig
@@ -319,21 +323,23 @@ void QuasiTriangEig
 
 template<typename F>
 void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w );
-template<typename F,Dist colDist,Dist rowDist>
+template<typename F>
 void QuasiTriangEig
-( const DistMatrix<F>& U, DistMatrix<Complex<Base<F>>,colDist,rowDist>& w );
+( const AbstractDistMatrix<F>& U, AbstractDistMatrix<Complex<Base<F>>>& w );
 
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U );
 template<typename F>
-DistMatrix<Complex<Base<F>>,VR,STAR> QuasiTriangEig( const DistMatrix<F>& U );
+DistMatrix<Complex<Base<F>>,VR,STAR> 
+QuasiTriangEig( const AbstractDistMatrix<F>& U );
 
 template<typename Real>
 void RealToComplex
 ( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U );
 template<typename Real>
 void RealToComplex
-( const DistMatrix<Real>& UQuasi, DistMatrix<Complex<Real>>& U );
+( const AbstractDistMatrix<Real>& UQuasi, 
+        AbstractDistMatrix<Complex<Real>>& U );
 
 } // namespace schur
 

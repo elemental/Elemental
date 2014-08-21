@@ -53,9 +53,13 @@ SVD( Matrix<F>& A, Matrix<F>& P )
 
 template<typename F>
 inline void
-SVD( DistMatrix<F>& A )
+SVD( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     // Get the SVD of A
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -70,9 +74,13 @@ SVD( DistMatrix<F>& A )
 
 template<typename F>
 inline void
-SVD( DistMatrix<F>& A, DistMatrix<F>& P )
+SVD( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& PPre )
 {
     DEBUG_ONLY(CallStackEntry cse("polar::SVD"))
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto PPtr = WriteProxy( &PPre );     auto& P = *PPtr;
+
     // Get the SVD of A
     typedef Base<F> Real;
     const Grid& g = A.Grid();

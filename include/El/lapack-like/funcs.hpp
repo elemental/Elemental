@@ -143,7 +143,7 @@ void Sign
 ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sign
-( DistMatrix<F>& A, const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
+( AbstractDistMatrix<F>& A, const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
 void Sign
@@ -151,7 +151,7 @@ void Sign
   const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 template<typename F>
 void Sign
-( DistMatrix<F>& A, DistMatrix<F>& N, 
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, 
   const SignCtrl<Base<F>> ctrl=SignCtrl<Base<F>>() );
 
 template<typename F>
@@ -160,7 +160,7 @@ void HermitianSign
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, DistMatrix<F>& A, 
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 template<typename F>
@@ -169,7 +169,7 @@ void HermitianSign
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HermitianSign
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N, 
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& N, 
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 // SquareRoot

@@ -54,7 +54,7 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
+( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
   bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
@@ -95,7 +95,7 @@ QR
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, 
       ctrl.distAed );
-    w = w_STAR_STAR;
+    Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
@@ -116,7 +116,7 @@ QR
 template<typename F>
 inline void
 QR
-( BlockDistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w,
+( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
   BlockDistMatrix<F>& Q, bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
@@ -175,7 +175,7 @@ QR
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
       Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAed );
-    w = w_STAR_STAR;
+    Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
     blacs::FreeHandle( bhandle );
@@ -196,10 +196,12 @@ QR
 template<typename F>
 inline void
 QR
-( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, 
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
   bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 #ifdef EL_HAVE_SCALAPACK
     // Reduce the matrix to upper-Hessenberg form in an elemental form
     DistMatrix<F,STAR,STAR> t( A.Grid() );
@@ -252,10 +254,12 @@ QR
 template<typename F>
 inline void
 QR
-( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q,
-  bool fullTriangle, const HessQrCtrl& ctrl )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
+  AbstractDistMatrix<F>& QPre, bool fullTriangle, const HessQrCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto QPtr = WriteProxy( &QPre );     auto& Q = *QPtr;
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
     // Reduce A to upper-Hessenberg form in an element-wise distribution

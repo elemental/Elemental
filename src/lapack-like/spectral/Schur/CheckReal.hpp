@@ -60,15 +60,19 @@ void CheckRealSchur( const Matrix<Complex<Real>>& U, bool standardForm )
 }
 
 template<typename Real>
-void CheckRealSchur( const DistMatrix<Real>& U, bool standardForm )
+void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
-    const Int n = U.Height();
+
+    auto UPtr = ReadProxy( &UPre );
+    auto& U = *UPtr;
 
     auto uMain = U.GetDiagonal();
     auto uSub = U.GetDiagonal( -1 );
     DistMatrix<Real,STAR,STAR> uMain_STAR_STAR( uMain ),
                                uSub_STAR_STAR( uSub );
+
+    const Int n = U.Height();
     if( standardForm )
     {
         auto uSup = U.GetDiagonal( +1 );
@@ -102,7 +106,8 @@ void CheckRealSchur( const DistMatrix<Real>& U, bool standardForm )
 }
 
 template<typename Real>
-void CheckRealSchur( const DistMatrix<Complex<Real>>& U, bool standardForm )
+void CheckRealSchur
+( const AbstractDistMatrix<Complex<Real>>& U, bool standardForm )
 {
     DEBUG_ONLY(CallStackEntry cse("CheckRealSchur")) 
     LogicError("ChceckRealSchur called for complex matrix");

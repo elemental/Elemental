@@ -10,34 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define DM_CAST(T,A) dynamic_cast<DistMatrix<T>&>(*CReflect(A))
-#define DM_CAST_CONST(T,A) dynamic_cast<const DistMatrix<T>&>(*CReflect(A))
-
-#define DM_MD_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,MD,STAR>&>(*CReflect(A))
-#define DM_MD_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,MD,STAR>&>(*CReflect(A))
-
-#define DM_STAR_VR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,VR>&>(*CReflect(A))
-#define DM_STAR_VR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,VR>&>(*CReflect(A))
-
-#define DM_STAR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,STAR>&>(*CReflect(A))
-#define DM_STAR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,STAR>&>(*CReflect(A))
-
-#define DM_VC_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VC,STAR>&>(*CReflect(A))
-#define DM_VC_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VC,STAR>&>(*CReflect(A))
-
-#define DM_VR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VR,STAR>&>(*CReflect(A))
-#define DM_VR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VR,STAR>&>(*CReflect(A))
-
 extern "C" {
 
 /* HermitianSdcCtrl */
@@ -352,26 +324,26 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElPolar_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Polar( *CReflect(A) ) ) } \
   ElError ElPolarDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Polar( DM_CAST(F,A) ) ) } \
+  { EL_TRY( Polar( *CReflect(A) ) ) } \
    ElError ElHermitianPolar_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianPolarDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HermitianPolar( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A) ) ) } \
   /* Compute the entire polar decomposition
      -------------------------------------- */ \
   ElError ElPolarDecomp_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG P ) \
   { EL_TRY( Polar( *CReflect(A), *CReflect(P) ) ) } \
   ElError ElPolarDecompDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P ) \
-  { EL_TRY( Polar( DM_CAST(F,A), DM_CAST(F,P) ) ) } \
+  { EL_TRY( Polar( *CReflect(A), *CReflect(P) ) ) } \
   ElError ElHermitianPolarDecomp_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIG P ) \
   { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A), *CReflect(P) ) ) } \
   ElError ElHermitianPolarDecompDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG P ) \
-  { EL_TRY( HermitianPolar( CReflect(uplo), DM_CAST(F,A), DM_CAST(F,P) ) ) } \
+  { EL_TRY( HermitianPolar( CReflect(uplo), *CReflect(A), *CReflect(P) ) ) } \
   /* Singular Value Decomposition
      ============================ */ \
   /* Compute the singular values
@@ -381,7 +353,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   { EL_TRY( SVD( *CReflect(A), *CReflect(s) ) ) } \
   ElError ElSingularValuesDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s ) \
-  { EL_TRY( SVD( DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,s) ) ) } \
+  { EL_TRY( SVD( *CReflect(A), *CReflect(s) ) ) } \
   /* Compute the full SVD
      -------------------- */ \
   ElError ElSVD_ ## SIG \
@@ -390,7 +362,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElSVDDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE s, \
     ElDistMatrix_ ## SIG V ) \
-  { EL_TRY( SVD( DM_CAST(F,A), DM_VR_STAR_CAST(Base<F>,s), DM_CAST(F,V) ) ) }
+  { EL_TRY( SVD( *CReflect(A), *CReflect(s), *CReflect(V) ) ) }
 
 #define C_PROTO_COMPLEX_ONLY(SIG,SIGBASE,F) \
   /* Schur decomposition
@@ -402,14 +374,13 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
   ElError ElSchurDist_ ## SIGBASE \
   ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      DM_CAST(Base<F>,A), DM_VR_STAR_CAST(F,w), fullTriangle ) ) } \
+  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
   ElError ElSchur_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, bool fullTriangle ) \
   { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
   ElError ElSchurDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( DM_CAST(F,A), DM_VR_STAR_CAST(F,w), fullTriangle ) ) } \
+  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
   /* Compute the eigvalues and Schur vectors (and possibly Schur factor)
      ------------------------------------------------------------------- */ \
   ElError ElSchurDecomp_ ## SIGBASE \
@@ -421,8 +392,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIGBASE Q, bool fullTriangle ) \
   { EL_TRY( Schur( \
-      DM_CAST(Base<F>,A), DM_VR_STAR_CAST(F,w), DM_CAST(Base<F>,Q), \
-      fullTriangle ) ) } \
+      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
   ElError ElSchurDecomp_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, \
     ElMatrix_ ## SIG Q, bool fullTriangle ) \
@@ -431,8 +401,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
   ElError ElSchurDecompDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIG Q, bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      DM_CAST(F,A), DM_VR_STAR_CAST(F,w), DM_CAST(F,Q), fullTriangle ) ) }
+  { EL_TRY( Schur( *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) }
 
 #define C_PROTO_DOUBLE_ONLY(SIG,SIGBASE,F) \
   /* HermitianTridiagEig

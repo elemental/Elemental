@@ -1169,13 +1169,19 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, 
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& wPre, 
   const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("schur::SDC");
-        AssertSameGrids( A, w );
+        AssertSameGrids( APre, wPre );
     )
+    typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    auto APtr = ReadWriteProxy( &APre );        auto& A = *APtr;
+    auto wPtr = WriteProxy<C,VR,STAR>( &wPre ); auto& w = *wPtr;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -1338,14 +1344,21 @@ inline void PullSubproblems
 template<typename F>
 inline void
 SDC
-( DistMatrix<F>& A, DistMatrix<Complex<Base<F>>,VR,STAR>& w, DistMatrix<F>& Q, 
-  bool fullTriangle=true, const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& wPre, 
+  AbstractDistMatrix<F>& QPre, bool fullTriangle=true, 
+  const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("schur::SDC");
-        AssertSameGrids( A, w, Q );
+        AssertSameGrids( APre, wPre, QPre );
     )
     typedef Base<F> Real;
+    typedef Complex<Real> C;
+
+    auto APtr = ReadWriteProxy( &APre );        auto& A = *APtr;
+    auto wPtr = WriteProxy<C,VR,STAR>( &wPre ); auto& w = *wPtr;
+    auto QPtr = WriteProxy( &QPre );            auto& Q = *QPtr;
+
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.Resize( n, 1 );

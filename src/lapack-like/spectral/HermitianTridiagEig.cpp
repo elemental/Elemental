@@ -62,7 +62,7 @@ inline void Helper
         if( psiAbs == Real(0) )
             yLast = 1;
         else
-            yLast = Polar(Real(1),Arg(psi*yLast));
+            yLast = ComplexFromPolar(Real(1),Arg(psi*yLast));
         eReal.Set( j, 0, psiAbs );
     }
     HermitianTridiagEig( d, eReal, w, sort, subset );
@@ -156,7 +156,7 @@ inline void Helper
         if( psiAbs == Real(0) )
             yLast = 1;
         else
-            yLast = Polar(Real(1),Arg(psi*yLast));
+            yLast = ComplexFromPolar(Real(1),Arg(psi*yLast));
         eReal.SetLocal( j, 0, psiAbs );
     }
 
@@ -259,7 +259,7 @@ inline void Helper
         if( psiAbs == Real(0) )
             y.Set( j+1, 0, 1 );
         else
-            y.Set( j+1, 0, Polar(Real(1),Arg(psi*y.Get(j,0))) );
+            y.Set( j+1, 0, ComplexFromPolar(Real(1),Arg(psi*y.Get(j,0))) );
         eReal.Set( j, 0, psiAbs );
     }
     Matrix<Real> ZReal;
@@ -380,7 +380,8 @@ inline void Helper
         if( psiAbs == Real(0) )
             y.SetLocal( j+1, 0, 1 );
         else
-            y.SetLocal( j+1, 0, Polar(Real(1),Arg(psi*y.GetLocal(j,0))) );
+            y.SetLocal
+            ( j+1, 0, ComplexFromPolar(Real(1),Arg(psi*y.GetLocal(j,0))) );
         eReal.SetLocal( j, 0, psiAbs );
     }
 

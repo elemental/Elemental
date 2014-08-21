@@ -62,11 +62,15 @@ Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
     return w;
 }
 
-template<typename F,Dist colDist,Dist rowDist>
+template<typename F>
 void QuasiTriangEig
-( const DistMatrix<F>& U, DistMatrix<Complex<Base<F>>,colDist,rowDist>& w )
+( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<Complex<Base<F>>>& w )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
+
+    auto UPtr = ReadProxy( &UPre );
+    auto& U = *UPtr;
+
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> dMain(g), dSub(g), dSup(g);
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR(g);
@@ -76,11 +80,12 @@ void QuasiTriangEig
     w_STAR_STAR.Resize( U.Height(), 1 );
     QuasiTriangEig
     ( dMain.Matrix(), dSub.Matrix(), dSup.Matrix(), w_STAR_STAR.Matrix() );
-    w = w_STAR_STAR;
+    Copy( w_STAR_STAR, w );
 }
 
 template<typename F>
-DistMatrix<Complex<Base<F>>,VR,STAR> QuasiTriangEig( const DistMatrix<F>& U )
+DistMatrix<Complex<Base<F>>,VR,STAR> 
+QuasiTriangEig( const AbstractDistMatrix<F>& U )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::QuasiTriangEig"))
     DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());

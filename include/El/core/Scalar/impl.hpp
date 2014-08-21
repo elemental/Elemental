@@ -76,7 +76,7 @@ inline Base<F> Arg( const F& alpha )
 { return Atan2( ImagPart(alpha), RealPart(alpha) ); }
 
 template<typename Real>
-inline Complex<Real> Polar( const Real& r, const Real& theta )
+inline Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
 // Size measurements

@@ -140,7 +140,7 @@ Base<F> Arg( const F& alpha );
 
 // Convert polar coordinates to the complex number
 template<typename Real>
-Complex<Real> Polar( const Real& r, const Real& theta=0 );
+Complex<Real> ComplexFromPolar( const Real& r, const Real& theta=0 );
 
 // Exponential
 template<typename F>

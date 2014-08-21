@@ -90,7 +90,7 @@ extern "C" {
   { EL_TRY( *alphaConj = CReflect(Conj(CReflect(alpha))) ) } \
   ElError ElComplexFromPolar_ ## SIG \
   ( Base<F> r, Base<F> theta, CREFLECT(F)* alpha ) \
-  { EL_TRY( *alpha = CReflect(Polar(r,theta)) ) } \
+  { EL_TRY( *alpha = CReflect(ComplexFromPolar(r,theta)) ) } \
   /* Size measurement
      ================ */ \
   ElError ElSafeAbs_ ## SIG ( CREFLECT(F) alpha, Base<F>* alphaAbs ) \

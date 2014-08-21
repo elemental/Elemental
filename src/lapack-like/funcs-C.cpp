@@ -138,25 +138,25 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElSign_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Sign( *CReflect(A) ) ) } \
   ElError ElSignDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Sign( DM_CAST(F,A) ) ) } \
+  { EL_TRY( Sign( *CReflect(A) ) ) } \
   ElError ElSignDecomp_ ## SIG ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG N ) \
   { EL_TRY( Sign( *CReflect(A), *CReflect(N) ) ) } \
   ElError ElSignDecompDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG N ) \
-  { EL_TRY( Sign( DM_CAST(F,A), DM_CAST(F,N) ) ) } \
+  { EL_TRY( Sign( *CReflect(A), *CReflect(N) ) ) } \
   /* Hermitian */ \
   ElError ElHermitianSign_ ## SIG ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HermitianSign( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianSignDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HermitianSign( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( HermitianSign( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianSignDecomp_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A, ElMatrix_ ## SIG N ) \
   { EL_TRY( HermitianSign( \
       CReflect(uplo), *CReflect(A), *CReflect(N) ) ) } \
   ElError ElHermitianSignDecompDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG N ) \
-  { EL_TRY( HermitianSign( CReflect(uplo), DM_CAST(F,A), DM_CAST(F,N) ) ) } \
+  { EL_TRY( HermitianSign( CReflect(uplo), *CReflect(A), *CReflect(N) ) ) } \
   /* Square-root
      ----------- */ \
   /* General */ \
