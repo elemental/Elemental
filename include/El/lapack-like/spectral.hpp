@@ -380,13 +380,14 @@ template<typename F>
 void SVD( Matrix<F>& A, Matrix<Base<F>>& s );
 template<typename F>
 void SVD
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  double heightRatio=1.2 );
 
 template<typename F>
 void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s );
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s );
 
 // Compute the full SVD
 // --------------------
@@ -394,8 +395,8 @@ template<typename F>
 void SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR=false );
 template<typename F>
 void SVD
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  double heightRatio=1.5 );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, double heightRatio=1.5 );
 
 template<typename F>
 void HermitianSVD
@@ -403,8 +404,9 @@ void HermitianSVD
   Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V );
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, DistMatrix<F>& A,
-  DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, 
+  AbstractDistMatrix<F>& V );
 
 namespace svd {
 
@@ -414,15 +416,14 @@ void Thresholded
   Base<F> tol=0, bool relative=false );
 template<typename F>
 void Thresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol=0, bool relative=false );
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, Base<F> tol=0, bool relative=false );
 
 template<typename F>
 void TallThresholded
-( DistMatrix<F,VC,STAR>& A,
-  DistMatrix<Base<F>,STAR,STAR>& s,
-  DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol=0, bool relative=false );
+( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s,
+  AbstractDistMatrix<F>& V, Base<F> tol=0, bool relative=false );
+
 // NOTE: [* ,VR] WideThresholded would produce U with different distribution
 //       than A. It makes more sense to overwrite A with V'.
 

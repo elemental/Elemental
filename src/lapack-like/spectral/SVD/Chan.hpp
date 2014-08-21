@@ -18,16 +18,21 @@ namespace svd {
 template<typename F>
 inline void
 ChanUpper
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  double heightRatio=1.5 )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::ChanUpper");
-        if( A.Height() < A.Width() )
+        AssertSameGrids( APre, s, VPre );
+        if( APre.Height() < APre.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( heightRatio <= 1.0 )
             LogicError("Nonsensical switchpoint for SVD");
     )
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr; 
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -54,13 +59,19 @@ ChanUpper
 template<typename F>
 inline void
 ChanUpper
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  double heightRatio=1.2 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::ChanUpper");    
+        AssertSameGrids( APre, s );
         if( heightRatio <= 1.0 )
             LogicError("Nonsensical switchpoint");
     )
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -86,14 +97,19 @@ ChanUpper
 template<typename F>
 inline void
 Chan
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  double heightRatio=1.5 )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre, double heightRatio=1.5 )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::Chan");
+        AssertSameGrids( APre, s, VPre );
         if( heightRatio <= 1.0 )
             LogicError("Nonsensical switchpoint for SVD");
     )
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );
@@ -125,9 +141,15 @@ Chan
 
 template<typename F>
 inline void
-Chan( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio=1.2 )
+Chan
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  double heightRatio=1.2 )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Chan"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
     bool needRescaling = svd::CheckScale( A, scale );

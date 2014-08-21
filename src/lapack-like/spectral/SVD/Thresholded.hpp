@@ -146,18 +146,22 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
-        if( A.Height() < A.Width() )
+        AssertSameGrids( APre, s, VPre );
+        if( APre.Height() < APre.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( tol < 0 )
             LogicError("negative threshold does not make sense");
     )
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;    
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -175,6 +179,7 @@ TallAbsoluteThresholded
     }
 
     // C := A^H A
+    const Grid& g = A.Grid();
     DistMatrix<F> C(g);
     Herk( LOWER, ADJOINT, F(1), A, C );
 
@@ -219,26 +224,31 @@ TallAbsoluteThresholded
 template<typename F>
 inline void
 TallRelativeThresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> relTol )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallRelativeThresholded");
-        if( A.Height() < A.Width() )
+        AssertSameGrids( APre, s, VPre );
+        if( APre.Height() < APre.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( relTol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     const Int n = A.Width();
 
     // C := A^H A
+    const Grid& g = A.Grid();
     DistMatrix<F> C(g);
     Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C)
     HermitianEig( LOWER, C, s, V, DESCENDING );
+    typedef Base<F> Real;
     const Real twoNorm = Sqrt(MaxNorm(s));
 
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -255,7 +265,7 @@ TallRelativeThresholded
         else
             s_STAR_STAR.SetLocal( i, 0, sigma );
     }
-    s = s_STAR_STAR;
+    Copy( s_STAR_STAR, s );
 
     // Y := A V
     DistMatrix<F> Y(g);
@@ -283,8 +293,8 @@ TallRelativeThresholded
 
 template<typename F>
 inline void TallThresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol, bool relative )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -296,22 +306,25 @@ inline void TallThresholded
 template<typename F>
 inline void
 TallAbsoluteThresholded
-( DistMatrix<F,VC,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& s, 
-  DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol )
+( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& sPre, 
+  AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallAbsoluteThresholded");
+        AssertSameGrids( A, sPre, VPre );
         if( A.Height() < A.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( tol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
+    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
+
+    typedef Base<F> Real;
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
@@ -327,6 +340,7 @@ TallAbsoluteThresholded
     }
 
     // C := A^H A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, F(1), A.LockedMatrix(), F(0), C.Matrix() );
@@ -369,24 +383,26 @@ TallAbsoluteThresholded
 template<typename F>
 inline void
 TallRelativeThresholded
-( DistMatrix<F,VC,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& s, 
-  DistMatrix<F,STAR,STAR>& V,
-  Base<F> relTol )
+( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& sPre, 
+  AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::TallRelativeThresholded");
+        AssertSameGrids( A, sPre, VPre );
         if( A.Height() < A.Width() )
             LogicError("A must be at least as tall as it is wide");
         if( relTol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    auto sPtr = WriteProxy<Base<F>,STAR,STAR>( &sPre ); auto& s = *sPtr;
+    auto VPtr = WriteProxy<F,STAR,STAR>( &VPre );       auto& V = *VPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
 
     // C := A^H A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, F(1), A.LockedMatrix(), F(0), C.Matrix() );
@@ -394,6 +410,7 @@ TallRelativeThresholded
 
     // [V,Sigma^2] := eig(C)
     HermitianEig( LOWER, C, s, V, DESCENDING );
+    typedef Base<F> Real;
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
@@ -435,10 +452,8 @@ TallRelativeThresholded
 
 template<typename F>
 void TallThresholded
-( DistMatrix<F,VC,STAR>& A, 
-  DistMatrix<Base<F>,STAR,STAR>& s, 
-  DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol, bool relative )
+( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::TallThresholded"))
     if( relative )
@@ -580,20 +595,24 @@ inline void WideThresholded
 template<typename F>
 inline void
 WideAbsoluteThresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre, Base<F> tol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideAbsoluteThresholded");
-        if( A.Width() < A.Height() )
+        if( APre.Width() < APre.Height() )
             LogicError("A must be at least as wide as it is tall");
         if( tol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
+
+    typedef Base<F> Real;
     const Real frobNorm = FrobeniusNorm( A );
     if( tol == Real(0) )
     {
@@ -609,6 +628,7 @@ WideAbsoluteThresholded
     }
 
     // C := A A^H
+    const Grid& g = A.Grid();
     DistMatrix<F> C( g );
     Herk( LOWER, NORMAL, F(1), A, C );
 
@@ -653,27 +673,32 @@ WideAbsoluteThresholded
 template<typename F>
 inline void
 WideRelativeThresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> relTol )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre, Base<F> relTol )
 {
     DEBUG_ONLY(
         CallStackEntry cse("svd::WideRelativeThresholded");
-        if( A.Width() < A.Height() )
+        AssertSameGrids( APre, s, VPre );
+        if( APre.Width() < APre.Height() )
             LogicError("A must be at least as wide as it is tall");
         if( relTol < 0 )
             LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     const Int m = A.Height();
 
     // C := A A^H
+    const Grid& g = A.Grid();
     DistMatrix<F> C( g );
     Herk( LOWER, NORMAL, F(1), A, C );
 
     // [U,Sigma^2] := eig(C)
     DistMatrix<F> U(g);
     HermitianEig( LOWER, C, s, U, DESCENDING );
+    typedef Base<F> Real;
     const Real twoNorm = Sqrt(MaxNorm(s));
     
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
@@ -690,7 +715,7 @@ WideRelativeThresholded
         else
             s_STAR_STAR.SetLocal( i, 0, sigma );
     }
-    s = s_STAR_STAR;
+    Copy( s_STAR_STAR, s );
 
     // (Sigma V) := A^H U
     Gemm( ADJOINT, NORMAL, F(1), A, U, V );
@@ -717,8 +742,8 @@ WideRelativeThresholded
 
 template<typename F>
 inline void WideThresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol, bool relative )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::WideThresholded"))
     if( relative )
@@ -744,8 +769,8 @@ void Thresholded
 
 template<typename F>
 void Thresholded
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  Base<F> tol, bool relative )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, Base<F> tol, bool relative )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::Thresholded"))
     if( A.Height() >= A.Width() )

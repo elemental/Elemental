@@ -767,8 +767,6 @@ ElError ElSingularValues_d( ElMatrix_d A, ElMatrix_d s );
 ElError ElSingularValues_c( ElMatrix_c A, ElMatrix_s s );
 ElError ElSingularValues_z( ElMatrix_z A, ElMatrix_d s );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while
-         's' must be in a [VR,STAR] distribution */
 ElError ElSingularValuesDist_s( ElDistMatrix_s A, ElDistMatrix_s s );
 ElError ElSingularValuesDist_d( ElDistMatrix_d A, ElDistMatrix_d s );
 ElError ElSingularValuesDist_c( ElDistMatrix_c A, ElDistMatrix_s s );
@@ -781,8 +779,6 @@ ElError ElSVD_d( ElMatrix_d A, ElMatrix_d s, ElMatrix_d V );
 ElError ElSVD_c( ElMatrix_c A, ElMatrix_s s, ElMatrix_c V );
 ElError ElSVD_z( ElMatrix_z A, ElMatrix_d s, ElMatrix_z V );
 
-/* NOTE: 'A' and 'V' must be in [MC,MR] distributions, while
-         's' must be in a [VR,STAR] distribution */
 ElError ElSVDDist_s( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
 ElError ElSVDDist_d( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
 ElError ElSVDDist_c( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );

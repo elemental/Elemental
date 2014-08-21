@@ -18,19 +18,24 @@ namespace svd {
 template<typename F>
 inline void
 GolubReinsch
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
-    typedef Base<F> Real;
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
-    const Grid& g = A.Grid();
+
 
     // Bidiagonalize A
-    DistMatrix<F,STAR,STAR> tP( g ), tQ( g );
+    const Grid& g = A.Grid();
+    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
@@ -38,6 +43,7 @@ GolubReinsch
     auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
 
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    typedef Base<F> Real;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                eHat_STAR_STAR( k, 1, g );
     auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), IR(0,1) );
@@ -88,24 +94,28 @@ GolubReinsch
     bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
 
     // Copy out the appropriate subset of the singular values
-    s = d_STAR_STAR;
+    Copy( d_STAR_STAR, s );
 }
 
 #ifdef EL_HAVE_FLA_BSVD
 template<typename F>
 inline void
 GolubReinschFlame
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V )
+( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& VPre )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinschFlame"))
-    typedef Base<F> Real;
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto VPtr = WriteProxy( &VPre );     auto& V = *VPtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
-    const Grid& g = A.Grid();
 
     // Bidiagonalize A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
     Bidiag( A, tP, tQ );
 
@@ -115,6 +125,7 @@ GolubReinschFlame
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
+    typedef Base<F> Real;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                e_STAR_STAR( e_MD_STAR );
 
@@ -171,13 +182,14 @@ GolubReinschFlame
     bidiag::ApplyP( LEFT, NORMAL, B, tP, V );
 
     // Copy out the appropriate subset of the singular values
-    s = d_STAR_STAR;
+    Copy( d_STAR_STAR, s );
 }
 
 template<>
 inline void
 GolubReinsch
-( DistMatrix<double>& A, DistMatrix<double,VR,STAR>& s, DistMatrix<double>& V )
+( AbstractDistMatrix<double>& A, AbstractDistMatrix<double>& s, 
+  AbstractDistMatrix<double>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
@@ -186,8 +198,8 @@ GolubReinsch
 template<>
 inline void
 GolubReinsch
-( DistMatrix<Complex<double>>& A, 
-  DistMatrix<double,VR,STAR>& s, DistMatrix<Complex<double>>& V )
+( AbstractDistMatrix<Complex<double>>& A, AbstractDistMatrix<double>& s, 
+  AbstractDistMatrix<Complex<double>>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
     GolubReinschFlame( A, s, V );
@@ -196,17 +208,20 @@ GolubReinsch
 
 template<typename F>
 inline void
-GolubReinsch( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
+GolubReinsch( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("svd::GolubReinsch"))
-    typedef Base<F> Real;
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
-    const Grid& g = A.Grid();
 
     // Bidiagonalize A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> tP(g), tQ(g);
     Bidiag( A, tP, tQ );
 
@@ -218,6 +233,7 @@ GolubReinsch( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
     // on each process
     //
     // NOTE: lapack::BidiagDQDS expects e to be of length k
+    typedef Base<F> Real;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                eHat_STAR_STAR( k, 1, g );
     auto e_STAR_STAR = eHat_STAR_STAR( IR(0,k-1), IR(0,1) );
@@ -227,7 +243,7 @@ GolubReinsch( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
     lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
 
     // Copy out the appropriate subset of the singular values
-    s = d_STAR_STAR;
+    Copy( d_STAR_STAR, s );
 }
 
 } // namespace svd

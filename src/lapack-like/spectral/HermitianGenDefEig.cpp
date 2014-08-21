@@ -20,9 +20,11 @@ void HermitianGenDefEig
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
-    if( A.Height() != A.Width() || B.Height() != B.Width() )
-        LogicError("Hermitian matrices must be square.");
+    DEBUG_ONLY(
+        CallStackEntry cse("HermitianGenDefEig");
+        if( A.Height() != A.Width() || B.Height() != B.Width() )
+            LogicError("Hermitian matrices must be square.");
+    )
 
     Cholesky( uplo, B );
     if( pencil == AXBX )
@@ -35,14 +37,20 @@ void HermitianGenDefEig
 template<typename F>
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
+  AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre,
   AbstractDistMatrix<Base<F>>& w, SortType sort,
   const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
-    if( A.Height() != A.Width() || B.Height() != B.Width() )
-        LogicError("Hermitian matrices must be square.");
+    DEBUG_ONLY(
+        CallStackEntry cse("HermitianGenDefEig");
+        AssertSameGrids( APre, BPre, w );
+        if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
+            LogicError("Hermitian matrices must be square.");
+    )
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
 
     Cholesky( uplo, B );
     if( pencil == AXBX )
@@ -62,9 +70,11 @@ void HermitianGenDefEig
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
-    if( A.Height() != A.Width() || B.Height() != B.Width() )
-        LogicError("Hermitian matrices must be square.");
+    DEBUG_ONLY(
+        CallStackEntry cse("HermitianGenDefEig");
+        if( A.Height() != A.Width() || B.Height() != B.Width() )
+            LogicError("Hermitian matrices must be square.");
+    )
 
     Cholesky( uplo, B );
     if( pencil == AXBX )
@@ -87,14 +97,21 @@ void HermitianGenDefEig
 template<typename F> 
 void HermitianGenDefEig
 ( Pencil pencil, UpperOrLower uplo, 
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
-  AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& X,
+  AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre,
+  AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& XPre,
   SortType sort, const HermitianEigSubset<Base<F>> subset,
   const HermitianEigCtrl<Base<F>> ctrl )
 {
-    DEBUG_ONLY(CallStackEntry cse("HermitianGenDefEig"))
-    if( A.Height() != A.Width() || B.Height() != B.Width() )
-        LogicError("Hermitian matrices must be square.");
+    DEBUG_ONLY(
+        CallStackEntry cse("HermitianGenDefEig");
+        AssertSameGrids( APre, BPre, w, XPre );
+        if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
+            LogicError("Hermitian matrices must be square.");
+    )
+
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+    auto XPtr = WriteProxy( &XPre );     auto& X = *XPtr;
 
     Cholesky( uplo, B );
     if( pencil == AXBX )

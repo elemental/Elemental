@@ -68,8 +68,8 @@ void HermitianSVD
 
 template<typename F>
 void SVD
-( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V,
-  double heightRatio )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& V, double heightRatio )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
@@ -78,17 +78,17 @@ void SVD
 
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, DistMatrix<F>& A, 
-  DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  AbstractDistMatrix<F>& U, AbstractDistMatrix<F>& V )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
-    typedef Base<F> Real;
 
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
 
     // Copy V into U (flipping the sign as necessary)
     Copy( U, V );
+    typedef Base<F> Real;
     DistMatrix<Real,VR,STAR> sSgn( s );
     auto sgnLambda = []( Real sigma )
                      { return ( sigma >= 0 ? Real(1) : Real(-1) ); };
@@ -136,7 +136,8 @@ void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 }
 
 template<typename F>
-void SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio )
+void SVD
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, double heightRatio )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
@@ -145,15 +146,15 @@ void SVD( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio )
 
 template<typename F>
 void HermitianSVD
-( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianSVD"))
-    typedef Base<F> Real;
 
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
 
     // Set the singular values to the absolute value of the eigenvalues
+    typedef Base<F> Real;
     auto absLambda = []( Real sigma ) { return Abs(sigma); };
     EntrywiseMap( s, std::function<Real(Real)>(absLambda) );
 
@@ -164,32 +165,34 @@ void HermitianSVD
   template void SVD \
   ( Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void SVD \
-  ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, double heightRatio ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
+    double heightRatio ); \
   template void SVD \
   ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR ); \
   template void SVD \
-  ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V, \
-    double heightRatio ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
+    AbstractDistMatrix<F>& V, double heightRatio ); \
   template void HermitianSVD \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void HermitianSVD \
-  ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Base<F>>& s ); \
   template void HermitianSVD \
   ( UpperOrLower uplo, Matrix<F>& A, \
     Matrix<Base<F>>& s, Matrix<F>& U, Matrix<F>& V ); \
   template void HermitianSVD \
-  ( UpperOrLower uplo, DistMatrix<F>& A, \
-    DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, \
+    AbstractDistMatrix<F>& V ); \
   template void svd::Thresholded \
   ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, \
     Base<F> tol, bool relative ); \
   template void svd::Thresholded \
-  ( DistMatrix<F>& A, DistMatrix<Base<F>,VR,STAR>& s, DistMatrix<F>& V, \
-    Base<F> tol, bool relative ); \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
+    AbstractDistMatrix<F>& V, Base<F> tol, bool relative ); \
   template void svd::TallThresholded \
-  ( DistMatrix<F,VC,STAR>& A, \
-    DistMatrix<Base<F>,STAR,STAR>& s, \
-    DistMatrix<F,STAR,STAR>& V, Base<F> tol, bool relative );
+  ( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s, \
+    AbstractDistMatrix<F>& V, Base<F> tol, bool relative );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"
