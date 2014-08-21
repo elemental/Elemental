@@ -34,8 +34,8 @@ void Explicit( AbstractDistMatrix<F>& APre )
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
@@ -77,8 +77,8 @@ void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
     DEBUG_ONLY(CallStackEntry cse("lq::Explicit"))
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);

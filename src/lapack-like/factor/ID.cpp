@@ -69,15 +69,10 @@ PseudoTrsm
 {
     DEBUG_ONLY(CallStackEntry cse("id::PseudoTrsm"))
 
-    const Grid& g = RLPre.Grid();
-    DistMatrix<F,STAR,STAR> RL(g);
-    DistMatrix<F,VR,  STAR> RR(g);
-    Copy( RLPre, RL, READ_PROXY );
-    Copy( RRPre, RR, READ_WRITE_PROXY );
+    auto RLPtr = ReadProxy<F,STAR,STAR>( &RLPre );    auto& RL = *RLPtr;
+    auto RRPtr = ReadWriteProxy<F,VR,STAR>( &RRPre ); auto& RR = *RRPtr;
 
-    PseudoTrsm( RL.Matrix(), RR.Matrix(), tol );
-
-    Copy( RR, RRPre, RESTORE_READ_WRITE_PROXY );
+    PseudoTrsm( RL.LockedMatrix(), RR.Matrix(), tol );
 }
 
 // On output, the matrix Z contains the non-trivial portion of the interpolation
@@ -116,15 +111,13 @@ BusingerGolub
     DEBUG_ONLY(CallStackEntry cse("id::BusingerGolub"))
     typedef Base<F> Real;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-
-    const Int n = A.Width();
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Perform the pivoted QR factorization
     const Int numSteps = QR( A, p, ctrl );
 
+    const Int n = A.Width();
     const Real eps = lapack::MachineEpsilon<Real>();
     const Real pinvTol = ( ctrl.adaptive ? ctrl.tol : numSteps*eps );
 
@@ -133,8 +126,6 @@ BusingerGolub
     auto RR = A( IR(0,numSteps), IR(numSteps,n) );
     Copy( RR, Z );
     PseudoTrsm( RL, Z, pinvTol );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace id

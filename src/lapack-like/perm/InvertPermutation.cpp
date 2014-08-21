@@ -49,10 +49,11 @@ void InvertPermutation
     if( n == 0 )
         return;
 
-    const Grid& g = permPre.Grid();
-    DistMatrix<Int,VC,STAR> perm(g), invPerm(g);
-    Copy( permPre,    perm,    READ_PROXY  );
-    Copy( invPermPre, invPerm, WRITE_PROXY );
+    auto permPtr = ReadProxy<Int,VC,STAR>( &permPre ); 
+    auto& perm = *permPtr;
+
+    auto invPermPtr = WriteProxy<Int,VC,STAR>( &invPermPre ); 
+    auto& invPerm = *invPermPtr;
 
     DEBUG_ONLY(
         // This is obviously necessary but not sufficient for 'perm' to contain
@@ -117,8 +118,6 @@ void InvertPermutation
         const Int iDestLoc = invPerm.LocalRow(iDest);
         invPerm.SetLocal( iDestLoc, 0, i );
     }
-
-    Copy( invPerm, invPermPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace El

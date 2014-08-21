@@ -59,8 +59,8 @@ UVar2( AbstractDistMatrix<F>& APre )
     )
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
@@ -113,7 +113,6 @@ UVar2( AbstractDistMatrix<F>& APre )
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

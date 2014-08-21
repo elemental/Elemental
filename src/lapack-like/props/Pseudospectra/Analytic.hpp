@@ -58,33 +58,33 @@ template<typename Real>
 inline void
 Analytic
 ( const AbstractDistMatrix<Complex<Real>>& w, 
-  const AbstractDistMatrix<Complex<Real>>& shifts, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre,
         DistMatrix<Real,VR,STAR>& invNorms,
         SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
     using namespace pspec;
     typedef Complex<Real> C;
+
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
+
     const Int n = w.Height();
     const Int numShifts = shifts.Height();
     const Real normCap = NormCap<Real>();
     const Grid& g = w.Grid();
 
-    // Force 'shifts' to be in a [VR,STAR] distribution
-    DistMatrix<Complex<Real>,VR,STAR> shifts_VR_STAR(g);
-    Copy( shifts, shifts_VR_STAR, READ_PROXY );
-
-    invNorms.AlignWith( shifts_VR_STAR );
+    invNorms.AlignWith( shifts );
     Zeros( invNorms, numShifts, 1 );
     if( n == 0 )
         return;
 
     DistMatrix<C,STAR,STAR> w_STAR_STAR( w );
 
-    const Int numLocShifts = shifts_VR_STAR.LocalHeight();
+    const Int numLocShifts = shifts.LocalHeight();
     for( Int jLoc=0; jLoc<numLocShifts; ++jLoc )
     {
-        const C shift = shifts_VR_STAR.GetLocal(jLoc,0);
+        const C shift = shifts.GetLocal(jLoc,0);
         Real minDist = Abs(shift-w_STAR_STAR.GetLocal(0,0));
         for( Int k=1; k<n; ++k )
         {

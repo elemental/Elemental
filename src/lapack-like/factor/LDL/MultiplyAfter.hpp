@@ -45,10 +45,10 @@ void MultiplyAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_PROXY );
-
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
     const auto d = A.GetDiagonal();
+
     Trmm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     DiagonalScale( LEFT, NORMAL, d, B );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );

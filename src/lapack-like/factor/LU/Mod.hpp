@@ -280,8 +280,8 @@ void LUMod
     const Grid& g = APre.Grid();
     typedef Base<F> Real;
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -523,7 +523,6 @@ void LUMod
             Axpy( -gamma, uiR, uip1R );
         }
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace El

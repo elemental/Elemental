@@ -852,8 +852,8 @@ UnblockedPivoted
     Zeros( dSub, n-1, 1 );
     p.Resize( n, 1 );
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Initialize the permutation to the identity
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
@@ -925,7 +925,6 @@ UnblockedPivoted
             k += 2;
         }
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
@@ -1281,13 +1280,9 @@ BlockedPivoted
     }
     dSubPre.Resize( n-1, 1 );
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    DistMatrix<F,MC,STAR> dSub(g);
-    DistMatrix<Int,VC,STAR> p(g);
-    Copy( APre,    A,    READ_WRITE_PROXY );
-    Copy( dSubPre, dSub, WRITE_PROXY      );
-    Copy( pPre,    p,    WRITE_PROXY      );
+    auto APtr    = ReadWriteProxy( &APre );           auto& A    = *APtr;
+    auto dSubPtr = WriteProxy<F,MC,STAR>( &dSubPre ); auto& dSub = *dSubPtr;
+    auto pPtr    = WriteProxy<Int,VC,STAR>( &pPre );  auto& p    = *pPtr;
 
     Zero( dSub );
 
@@ -1296,6 +1291,7 @@ BlockedPivoted
         for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
             p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
+    const Grid& g = APre.Grid();
     DistMatrix<F,MC,STAR> XB1(g);
     DistMatrix<F,MR,STAR> YB1(g);
     const Int bsize = Blocksize();
@@ -1321,9 +1317,6 @@ BlockedPivoted
 
         k += nb;
     }
-    Copy( A,    APre,    RESTORE_READ_WRITE_PROXY );
-    Copy( dSub, dSubPre, RESTORE_WRITE_PROXY      );
-    Copy( p,    pPre,    RESTORE_WRITE_PROXY      );
 }
 
 template<typename F>

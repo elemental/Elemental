@@ -76,10 +76,9 @@ Full
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Initialize the permutations P and Q
     p.Resize( m, 1 );
@@ -122,7 +121,6 @@ Full
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace lu

@@ -37,23 +37,14 @@ void Cholesky( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& RPre )
     if( m > n )
         LogicError("A A^H will be singular");
 
-    // Proxies cannot be resized since they might be views
-    RPre.Resize( m, m );
+    auto APtr = ReadWriteProxy<F,VR,STAR>( &APre ); auto& A = *APtr;
+    auto RPtr = WriteProxy<F,STAR,STAR>( &RPre );   auto& R = *RPtr;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F,VR,STAR> A(g);
-    DistMatrix<F,STAR,STAR> R(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( RPre, R, WRITE_PROXY );
-
-    Zero( R );
+    Zeros( R, m, m );
     Herk( UPPER, NORMAL, F(1), A.Matrix(), F(0), R.Matrix() );
     R.SumOver( A.RowComm() );
     El::ReverseCholesky( UPPER, R.Matrix() );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( R, RPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace rq

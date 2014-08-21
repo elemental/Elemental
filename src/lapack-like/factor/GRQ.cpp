@@ -27,20 +27,16 @@ void GRQ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GRQ"))
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tA(g);
     DistMatrix<Base<F>,MD,STAR> dA(g);
     RQ( A, tA, dA );
     rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
     MakeTrapezoidal( UPPER, A, Min(A.Height(),A.Width()) );
     QR( B );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F> 
@@ -63,17 +59,12 @@ void GRQ
 {
     DEBUG_ONLY(CallStackEntry cse("GRQ"))
     
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g); 
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
 
     RQ( A, tA, dA );
     rq::ApplyQ( RIGHT, ADJOINT, A, tA, dA, B );
     QR( B, tB, dB );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(F) \

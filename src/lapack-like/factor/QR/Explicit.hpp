@@ -32,11 +32,11 @@ template<typename F>
 void Explicit( AbstractDistMatrix<F>& APre, bool colPiv )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<Int,VR,STAR> p(g);
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
@@ -47,8 +47,6 @@ void Explicit( AbstractDistMatrix<F>& APre, bool colPiv )
 
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -79,11 +77,11 @@ void Explicit
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& R, bool colPiv )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> p(g);
@@ -101,8 +99,6 @@ void Explicit
 
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -130,11 +126,11 @@ void Explicit
   AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("qr::Explicit"))
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Base<F>,MD,STAR> d(g);
     QR( A, t, d, p );
@@ -148,8 +144,6 @@ void Explicit
 
     ExpandPackedReflectors( LOWER, VERTICAL, CONJUGATED, 0, A, t );
     DiagonalScale( RIGHT, NORMAL, d, A );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace qr

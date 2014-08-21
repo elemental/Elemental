@@ -58,10 +58,10 @@ LVar2( AbstractDistMatrix<F>& APre )
             LogicError("Can only compute Cholesky factor of square matrices");
     )
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<F,MR,  STAR> A10Adj_MR_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
@@ -102,7 +102,6 @@ LVar2( AbstractDistMatrix<F>& APre )
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

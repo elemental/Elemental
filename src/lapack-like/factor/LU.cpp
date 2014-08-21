@@ -50,11 +50,11 @@ template<typename F>
 void LU( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("LU"))
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
@@ -99,7 +99,6 @@ void LU( AbstractDistMatrix<F>& APre )
         LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Performs LU factorization with partial pivoting
@@ -170,19 +169,11 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         CallStackEntry cse("LU");
         AssertSameGrids( APre, pPre );
     )
-    const Int m = APre.Height();
-    const Int n = APre.Width();
-    const Int minDim = Min(m,n);
-    const Int bsize = Blocksize();
-    const Grid& g = APre.Grid();
 
-    pPre.Resize( m, 1 );
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
 
-    DistMatrix<F> A(g);
-    DistMatrix<Int,VC,STAR> p(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( pPre, p, WRITE_PROXY      );
-
+    const Grid& g = A.Grid();
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
@@ -190,6 +181,10 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
     DistMatrix<Int,STAR,STAR> p1Piv_STAR_STAR(g);
 
     // Initialize the permutation to the identity
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    p.Resize( m, 1 );
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
         p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
@@ -197,6 +192,7 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
 
     const Range<Int> outerInd( 0, n );
 
+    const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
         const Int nb = Min(bsize,minDim-k);
@@ -240,8 +236,6 @@ void LU( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         A12 = A12_STAR_MR;
         A21 = A21_MC_STAR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( p, pPre, RESTORE_WRITE_PROXY      );
 }
 
 template<typename F> 

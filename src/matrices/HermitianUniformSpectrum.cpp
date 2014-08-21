@@ -47,8 +47,8 @@ void HermitianUniformSpectrum
     typedef Base<F> Real;
 
     // Switch to [MC,MR] so that qr::ApplyQ is fast
-    DistMatrix<F> A(grid);
-    Copy( APre, A, WRITE_PROXY );
+    auto APtr = WriteProxy( &APre );
+    auto& A = *APtr;
 
     // Form d and D
     std::vector<F> d( n );
@@ -70,8 +70,6 @@ void HermitianUniformSpectrum
 
     // Force the diagonal to be real-valued
     A.MakeDiagonalReal();
-
-    Copy( A, APre, RESTORE_WRITE_PROXY );
 }
 
 #define PROTO(F) \

@@ -80,14 +80,13 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
             LogicError("V is the wrong height");
         AssertSameGrids( LPre, VPre );
     )
-    const Int m = VPre.Height();
-    const Int n = VPre.Width();
 
-    const Grid& g = LPre.Grid();
-    DistMatrix<F> L(g), V(g);
-    Copy( LPre, L, READ_WRITE_PROXY );
-    Copy( VPre, V, READ_WRITE_PROXY );
+    auto LPtr = ReadWriteProxy( &LPre ); auto& L = *LPtr;
+    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
 
+    const Int m = V.Height();
+    const Int n = V.Width();
+    const Grid& g = L.Grid();
     DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
@@ -129,8 +128,6 @@ LUpdate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         Scale( F(-1), V2 );
         LocalGer( tau, z21_MC_STAR, v1_STAR_MR, V2 );
     }
-    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
-    Copy( V, VPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -199,14 +196,13 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
             LogicError("V is the wrong height");
         AssertSameGrids( LPre, VPre );
     )
-    const Int m = VPre.Height();
-    const Int n = VPre.Width();
 
-    const Grid& g = LPre.Grid();
-    DistMatrix<F> L(g), V(g);
-    Copy( LPre, L, READ_WRITE_PROXY );
-    Copy( VPre, V, READ_WRITE_PROXY );
+    auto LPtr = ReadWriteProxy( &LPre ); auto& L = *LPtr;
+    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
 
+    const Int m = V.Height();
+    const Int n = V.Width();
+    const Grid& g = L.Grid();
     DistMatrix<F,MC,STAR> z21_MC_STAR(g), b21_MC_STAR(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
@@ -251,8 +247,6 @@ LDowndate( AbstractDistMatrix<F>& LPre, AbstractDistMatrix<F>& VPre )
         Axpy( F(1)/tau, z21_MC_STAR, l21 );
         LocalGer( F(1)/tau, z21_MC_STAR, v1_STAR_MR, V2 );
     }
-    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
-    Copy( V, VPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mod

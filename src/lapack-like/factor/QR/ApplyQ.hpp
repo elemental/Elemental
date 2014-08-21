@@ -78,14 +78,16 @@ void ApplyQ
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation =  ( normal ? CONJUGATED : UNCONJUGATED );
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g);
-    DistMatrix<F,MD,STAR> t(g);
-    Copy( APre, A, READ_PROXY );
-    t.SetRoot( A.DiagonalRoot() );
-    t.AlignCols( A.DiagonalAlign() );
-    Copy( tPre, t, READ_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+
+    ProxyCtrl tCtrl;
+    tCtrl.rootConstrain = true;
+    tCtrl.colConstrain = true;
+    tCtrl.root = A.DiagonalRoot();
+    tCtrl.colAlign = A.DiagonalAlign();
+    auto tPtr = ReadProxy<F,MD,STAR>( &tPre, tCtrl );
+    auto& t = *tPtr;
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -120,7 +122,6 @@ void ApplyQ
             DiagonalScale( side, orientation, d, BLeft );
         }
     }
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace qr

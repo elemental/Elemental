@@ -156,13 +156,12 @@ LUnblockedPivoted
             LogicError("A must be square");
         AssertSameGrids( APre, p );
     )
-    const Int n = APre.Height();
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Initialize the permutation to the identity
+    const Int n = A.Height();
     p.Resize( n, 1 );
     if( p.IsLocalCol(0) )
         for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
@@ -196,7 +195,6 @@ LUnblockedPivoted
         // A22 -= a21 a21'
         Her( LOWER, F(-1), a21, A22 );
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 // We must use a lazy algorithm so that the symmetric pivoting does not move
@@ -379,20 +377,17 @@ LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         if( APre.Height() != APre.Width() )
             LogicError("A must be square");
     )
-    const Int n = APre.Height();
-    const Grid& g = APre.Grid();
 
-    pPre.Resize( n, 1 );
-
-    DistMatrix<F> A(g);
-    DistMatrix<Int,VC,STAR> p(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( pPre, p, WRITE_PROXY      );
+    auto APtr = ReadWriteProxy( &APre );          auto& A = *APtr;
+    auto pPtr = WriteProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
 
     // Initialize the permutation to the identity
+    const Int n = A.Height();
+    p.Resize( n, 1 );
     for( Int iLoc=0; iLoc<p.LocalHeight(); ++iLoc )
         p.SetLocal( iLoc, 0, p.GlobalRow(iLoc) );
 
+    const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> XB1(g);
     DistMatrix<F,MR,STAR> YB1(g);
     const Int bsize = Blocksize();
@@ -413,8 +408,6 @@ LVar3( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Int>& pPre )
         auto Y21 = YB1( ind2Pan, ind1Pan );
         LocalTrrk( LOWER, TRANSPOSE, F(-1), X21, Y21, F(1), A22 );
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( p, pPre, RESTORE_WRITE_PROXY      );
 }
 
 } // namespace cholesky

@@ -322,10 +322,10 @@ void HermitianEig
     }
 
     const char uploChar = UpperOrLowerToChar( uplo );
+    w.Resize( n, 1 );
     if( subset.indexSubset )
     {
         const Int numEigs = subset.upperIndex-subset.lowerIndex+1;
-        w.Resize( n, 1 );
         Z.Resize( n, numEigs );
         lapack::HermitianEig
         ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
@@ -334,7 +334,6 @@ void HermitianEig
     }
     else if( subset.rangeSubset )
     {
-        w.Resize( n, 1 );
         Z.Resize( n, n );
         const Int numEigs = lapack::HermitianEig
           ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
@@ -344,7 +343,6 @@ void HermitianEig
     }
     else
     {
-        w.Resize( n, 1 );
         Z.Resize( n, n );
         lapack::HermitianEig
         ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );
@@ -383,10 +381,10 @@ void HermitianEig
     }
 
     const char uploChar = UpperOrLowerToChar( uplo );
+    w.Resize( n, 1 );
     if( subset.indexSubset )
     {
         const Int numEigs = subset.upperIndex-subset.lowerIndex+1;
-        w.Resize( n, 1 );
         Z.Resize( n, numEigs );
         lapack::HermitianEig
         ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
@@ -395,7 +393,6 @@ void HermitianEig
     }
     else if( subset.rangeSubset )
     {
-        w.Resize( n, 1 );
         Z.Resize( n, n );
         const Int numEigs = lapack::HermitianEig
           ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim(),
@@ -405,7 +402,6 @@ void HermitianEig
     }
     else
     {
-        w.Resize( n, 1 );
         Z.Resize( n, n );
         lapack::HermitianEig
         ( uploChar, n, A.Buffer(), A.LDim(), w.Buffer(), Z.Buffer(), Z.LDim() );

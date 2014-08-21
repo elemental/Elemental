@@ -89,14 +89,13 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
             LogicError("V is the wrong height");
         AssertSameGrids( UPre, VPre );
     )
-    const Int m = VPre.Height();
-    const Int n = VPre.Width();
-    const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), V(g);
-    Copy( UPre, U, READ_WRITE_PROXY );
-    Copy( VPre, V, READ_WRITE_PROXY );
+    auto UPtr = ReadWriteProxy( &UPre ); auto& U = *UPtr;
+    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
 
+    const Int m = V.Height();
+    const Int n = V.Width();
+    const Grid& g = U.Grid();
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
@@ -150,8 +149,6 @@ UUpdate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         Scale( F(-1), u12 );
         Axpy( tau, z12_STAR_MC, u12 );
     }
-    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
-    Copy( V, VPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -226,14 +223,13 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
             LogicError("V is the wrong height");
         AssertSameGrids( UPre, VPre );
     )
-    const Int m = VPre.Height();
-    const Int n = VPre.Width();
-    const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), V(g);
-    Copy( UPre, U, READ_WRITE_PROXY );
-    Copy( VPre, V, READ_WRITE_PROXY );
+    auto UPtr = ReadWriteProxy( &UPre ); auto& U = *UPtr;
+    auto VPtr = ReadWriteProxy( &VPre ); auto& V = *VPtr;
 
+    const Int m = V.Height();
+    const Int n = V.Width();
+    const Grid& g = U.Grid();
     DistMatrix<F,STAR,MC> z12_STAR_MC(g), b12_STAR_MC(g);
     DistMatrix<F,STAR,MR> v1_STAR_MR(g);
 
@@ -287,8 +283,6 @@ UDowndate( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
         Conjugate( z12_STAR_MC );
         Axpy( F(1)/tau, z12_STAR_MC, u12 );
     }
-    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
-    Copy( V, VPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mod

@@ -541,10 +541,8 @@ void SDC
         return;
     }
 
-    DistMatrix<F> A(g);
-    DistMatrix<Base<F>,VR,STAR> w(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( wPre, w, WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );           auto& A = *APtr;
+    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, ctrl );
@@ -570,9 +568,6 @@ void SDC
     if( ABR.Participating() )
         SDC( uplo, ABRSub, wBSub, ctrl );
     PullSubproblems( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( w, wPre, RESTORE_WRITE_PROXY );
 }
 
 template<typename F>
@@ -600,11 +595,9 @@ void SDC
         return;
     }
 
-    DistMatrix<F> A(g), Q(g);
-    DistMatrix<Base<F>,VR,STAR> w(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( wPre, w, WRITE_PROXY );
-    Copy( QPre, Q, WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );           auto& A = *APtr;
+    auto QPtr = WriteProxy( &QPre );               auto& Q = *QPtr;
+    auto wPtr = WriteProxy<Real,VR,STAR>( &wPre ); auto& w = *wPtr;
 
     // Perform this level's split
     const auto part = SpectralDivide( uplo, A, Q, ctrl );
@@ -643,10 +636,6 @@ void SDC
     Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( w, wPre, RESTORE_WRITE_PROXY );
-    Copy( Q, QPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace herm_eig

@@ -27,20 +27,16 @@ void GQR( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
     DEBUG_ONLY(CallStackEntry cse("GQR"))
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
 
+    const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tA(g);
     DistMatrix<Base<F>,MD,STAR> dA(g);
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     MakeTriangular( UPPER, A );
     RQ( B );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F> 
@@ -62,18 +58,13 @@ void GQR
   AbstractDistMatrix<F>& tB, AbstractDistMatrix<Base<F>>& dB )
 {
     DEBUG_ONLY(CallStackEntry cse("GQR"))
-
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+  
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
 
     QR( A, tA, dA );
     qr::ApplyQ( LEFT, ADJOINT, A, tA, dA, B );
     RQ( B, tB, dB );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(F) \

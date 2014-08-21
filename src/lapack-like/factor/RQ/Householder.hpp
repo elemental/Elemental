@@ -82,20 +82,18 @@ Householder
     const Int iOff = m-minDim;
     const Int jOff = n-minDim;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
-    tPre.Resize( minDim, 1 );
-    dPre.Resize( minDim, 1 );
-    DistMatrix<F,      MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    t.SetRoot( A.DiagonalRoot(offset) );
-    d.SetRoot( A.DiagonalRoot(offset) );
-    t.AlignCols( A.DiagonalAlign(offset) );
-    d.AlignCols( A.DiagonalAlign(offset) );
-    Copy( tPre, t, WRITE_PROXY );
-    Copy( dPre, d, WRITE_PROXY );
+    ProxyCtrl diagCtrl;
+    diagCtrl.rootConstrain = true;
+    diagCtrl.colConstrain = true;
+    diagCtrl.root = A.DiagonalRoot(offset);
+    diagCtrl.colAlign = A.DiagonalAlign(offset);
+    auto tPtr = WriteProxy<F,      MD,STAR>( &tPre ); auto& t = *tPtr;
+    auto dPtr = WriteProxy<Base<F>,MD,STAR>( &dPre ); auto& d = *dPtr;
+    t.Resize( minDim, 1 );
+    d.Resize( minDim, 1 );
 
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( minDim, bsize );
@@ -119,9 +117,6 @@ Householder
         PanelHouseholder( A1L, t1, d1 );
         ApplyQ( RIGHT, ADJOINT, A1L, t1, d1, A0L );
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( t, tPre, RESTORE_WRITE_PROXY      );
-    Copy( d, dPre, RESTORE_WRITE_PROXY      );
 }
 
 template<typename F> 

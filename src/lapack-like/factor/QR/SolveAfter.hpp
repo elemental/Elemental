@@ -86,13 +86,10 @@ void SolveAfter
     if( m < n )
         LogicError("Must have full column rank");
 
-    // Proxies cannot be resized since they might be views
+    auto APtr = ReadProxy( &APre );  auto& A = *APtr;
+    auto XPtr = WriteProxy( &XPre ); auto& X = *XPtr;
+
     XPre.Resize( m, B.Width() );
-
-    DistMatrix<F> A(g), X(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( XPre, X, WRITE_PROXY );
-
     // TODO: Add scaling
 
     auto AT = A( IR(0,n), IR(0,n) );
@@ -139,7 +136,6 @@ void SolveAfter
         if( orientation == TRANSPOSE )
             Conjugate( X );
     }
-    Copy( X, XPre, RESTORE_WRITE_PROXY );
 }
 
 } // namespace qr

@@ -26,12 +26,12 @@ UVar3Square( AbstractDistMatrix<F>& APre )
         if( APre.Grid().Height() != APre.Grid().Width() )
             LogicError("CholeskyUVar3Square assumes a square process grid.");
     )
-    const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Find the process holding our transposed data
+    const Grid& g = A.Grid();
     const Int transposeRank =
         A.RowOwner(A.RowShift()) + A.ColStride()*A.ColOwner(A.ColShift());
     const bool onDiagonal = ( transposeRank == g.VCRank() );
@@ -91,7 +91,6 @@ UVar3Square( AbstractDistMatrix<F>& APre )
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace cholesky

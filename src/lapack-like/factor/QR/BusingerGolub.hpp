@@ -334,9 +334,8 @@ inline Int BusingerGolub
     )
     typedef Base<F> Real;
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -356,6 +355,7 @@ inline Int BusingerGolub
     std::vector<Int> inaccurateNorms;
 
     // Initialize the inverse permutation to the identity
+    const Grid& g = A.Grid();
     DistMatrix<Int,VC,STAR> pInv(g);
     pInv.Resize( n, 1 );
     for( Int jLoc=0; jLoc<pInv.LocalHeight(); ++jLoc ) 
@@ -493,7 +493,6 @@ inline Int BusingerGolub
     EntrywiseMap( d, std::function<Real(Real)>(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, d, R );
 
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
     return k;
 }
 

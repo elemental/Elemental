@@ -179,8 +179,8 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
     DEBUG_ONLY(CallStackEntry cse("HPSDCholesky"))
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
-    DistMatrix<F> A(APre.Grid());
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -195,9 +195,6 @@ void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
         QR( A );
         MakeTriangular( UPPER, A );
     }
-
-    // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(F) \

@@ -80,14 +80,16 @@ void ApplyQ
     const Int offset = APre.Width()-APre.Height();
     const Int minDim = Min(APre.Height(),APre.Width());
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g); 
-    DistMatrix<F,MD,STAR> t(g);
-    Copy( APre, A, READ_PROXY );
-    t.SetRoot( A.DiagonalRoot(offset) );
-    t.AlignCols( A.DiagonalAlign(offset) );
-    Copy( tPre, t, READ_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadWriteProxy( &BPre ); auto& B = *BPtr;
+
+    ProxyCtrl tCtrl;
+    tCtrl.rootConstrain = true;
+    tCtrl.colConstrain = true;
+    tCtrl.root = A.DiagonalRoot(offset);
+    tCtrl.colAlign = A.DiagonalAlign(offset);
+    auto tPtr = ReadProxy<F,MD,STAR>( &tPre, tCtrl ); 
+    auto& t = *tPtr;
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -122,7 +124,6 @@ void ApplyQ
             DiagonalScale( side, orientation, d, BRight );
         }
     }
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace rq

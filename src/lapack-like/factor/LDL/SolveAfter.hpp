@@ -46,9 +46,8 @@ void SolveAfter
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
     const bool checkIfSingular = false;
 
-    DistMatrix<F> A(APre.Grid());
-    Copy( APre, A, READ_PROXY );
-
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
     const auto d = A.GetDiagonal();
 
     Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
@@ -103,10 +102,11 @@ void SolveAfter
     )
     const Orientation orientation = ( conjugated ? ADJOINT : TRANSPOSE );
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g), B(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
+
+    auto BPtr = ReadWriteProxy( &BPre );
+    auto& B = *BPtr;
 
     const auto d = A.GetDiagonal();
 
@@ -118,8 +118,6 @@ void SolveAfter
     QuasiDiagonalSolve( LEFT, LOWER, d, dSub, B, conjugated );
     Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     PermuteRows( B, pInv, p );
-
-    Copy( B, BPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace ldl

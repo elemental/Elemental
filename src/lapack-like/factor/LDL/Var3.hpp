@@ -111,8 +111,8 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
     )
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -159,7 +159,6 @@ Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
 
         A21 = A21_VC_STAR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace ldl
