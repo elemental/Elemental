@@ -31,10 +31,9 @@ inline void Normal
     )
     const Grid& g = APre.Grid();
 
-    DistMatrix<T> A(g), x(g), y(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( xPre, x, READ_PROXY );
-    Copy( yPre, y, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
+    auto yPtr = ReadWriteProxy( &yPre ); auto& y = *yPtr;
 
     Scale( beta, y );
     if( x.Width() == 1 && y.Width() == 1 )
@@ -96,7 +95,6 @@ inline void Normal
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
     }
-    Copy( y, yPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>

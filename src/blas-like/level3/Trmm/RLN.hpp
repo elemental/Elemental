@@ -85,9 +85,8 @@ RLNA
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<T> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,VC  > X1_STAR_VC(g);
     DistMatrix<T,STAR,MC  > X1_STAR_MC(g);
@@ -115,8 +114,6 @@ RLNA
         Z1Trans_MR_MC.RowSumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -137,9 +134,8 @@ RLNCOld
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
  
-    DistMatrix<T> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> L21_MR_STAR(g);
@@ -168,8 +164,6 @@ RLNCOld
         LocalGemm( NORMAL, NORMAL, T(1), X2, L21_MR_STAR, D1_MC_STAR );
         X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -190,9 +184,8 @@ RLNC
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<T> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> L10Trans_MR_STAR(g);
@@ -223,8 +216,6 @@ RLNC
         ( RIGHT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Right Lower Normal (Non)Unit Trmm

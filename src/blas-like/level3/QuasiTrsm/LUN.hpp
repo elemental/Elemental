@@ -148,9 +148,8 @@ LUNLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -199,7 +198,6 @@ LUNLarge
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -214,9 +212,8 @@ LUNMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -265,7 +262,6 @@ LUNMedium
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F,Dist colDist>

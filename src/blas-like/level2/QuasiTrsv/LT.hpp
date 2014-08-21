@@ -193,9 +193,8 @@ LT
     if( conjugate )
         Conjugate( xPre );
 
-    DistMatrix<F> L(g), x(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( xPre, x, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
 
     const Range<Int> outerInd( 0, 1 );
 
@@ -307,7 +306,6 @@ LT
     }
     if( conjugate )
         Conjugate( x );
-    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace quasitrsv

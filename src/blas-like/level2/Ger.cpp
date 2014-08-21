@@ -55,10 +55,9 @@ void Ger
     )
     const Grid& g = APre.Grid();
 
-    DistMatrix<T> A(g), x(g), y(g);
-    Copy( xPre, x, READ_PROXY );
-    Copy( yPre, y, READ_PROXY );
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
+    auto yPtr = ReadProxy( &yPre );      auto& y = *yPtr;
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
@@ -120,7 +119,6 @@ void Ger
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \

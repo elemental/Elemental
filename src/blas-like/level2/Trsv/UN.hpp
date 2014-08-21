@@ -33,9 +33,8 @@ UN
     const Int kLast = LastOffset( m, bsize );
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), x(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( xPre, x, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
 
     // Matrix views
     DistMatrix<F> U01(g), U11(g), x1(g);
@@ -123,8 +122,6 @@ UN
             LocalGemv( NORMAL, F(-1), U01, x1_STAR_MR, F(1), z0_STAR_MC );
         }
     }
-
-    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

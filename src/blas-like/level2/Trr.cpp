@@ -68,12 +68,11 @@ void Trr
             LogicError("x and y must be of width 1");
     )
 
-    const Grid& g = APre.Grid();
-    DistMatrix<T> x(g), y(g), A(g);
-    Copy( xPre, x, READ_PROXY );
-    Copy( yPre, y, READ_PROXY );
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
+    auto yPtr = ReadProxy( &yPre );      auto& y = *yPtr;
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     DEBUG_ONLY(
@@ -123,7 +122,6 @@ void Trr
                 A.MakeReal( j, j );
         }
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \

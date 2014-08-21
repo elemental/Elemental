@@ -29,10 +29,8 @@ LT
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Force 'A" and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), C(g); 
-    Copy( APre, A, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);
@@ -56,8 +54,6 @@ LT
         ( LOWER, orientation, TRANSPOSE, 
           alpha, A1_STAR_MC, A1Trans_MR_STAR, T(1), C );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace syrk

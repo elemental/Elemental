@@ -33,12 +33,11 @@ void Trr2kNNNN
     const Int bsize = Blocksize();
     const Grid& g = EPre.Grid();
 
-    DistMatrix<T> A(g), B(g), C(g), D(g), E(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_PROXY );
-    Copy( DPre, D, READ_PROXY );
-    Copy( EPre, E, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadProxy( &CPre );      auto& C = *CPtr;
+    auto DPtr = ReadProxy( &DPre );      auto& D = *DPtr;
+    auto EPtr = ReadWriteProxy( &EPre ); auto& E = *EPtr;
 
     DistMatrix<T,MC,STAR> A1_MC_STAR(g), C1_MC_STAR(g);
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g), D1Trans_MR_STAR(g);
@@ -69,7 +68,6 @@ void Trr2kNNNN
           alpha, A1_MC_STAR, B1Trans_MR_STAR, 
                  C1_MC_STAR, D1Trans_MR_STAR, beta, E );
     }
-    Copy( E, EPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trr2k

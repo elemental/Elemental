@@ -88,9 +88,8 @@ LUNA
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,VR,  STAR> X1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
@@ -114,8 +113,6 @@ LUNA
 
         X1.RowSumScatterFrom( Z1_MC_STAR );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -136,9 +133,8 @@ LUNCOld
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
@@ -175,8 +171,6 @@ LUNCOld
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -197,9 +191,8 @@ LUNC
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
@@ -229,8 +222,6 @@ LUNC
         LocalTrmm( LEFT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Upper Normal (Non)Unit Trmm

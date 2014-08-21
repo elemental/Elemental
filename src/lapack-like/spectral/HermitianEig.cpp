@@ -252,9 +252,8 @@ void HermitianEig
         return;
     }
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g);
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); 
+    auto& A = *APtr;
 
     // Check if we need to rescale the matrix, and do so if necessary
     Base<F> scale;
@@ -274,8 +273,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
         Scale( 1/scale, w );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<>
@@ -446,9 +443,8 @@ void HermitianEig
         return; 
     }
 
-    const Grid& g = APre.Grid();
-    DistMatrix<F> A(g); 
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); 
+    auto& A = *APtr;
 
     // Check if we need to rescale the matrix, and do so if necessary
     Real scale;
@@ -457,6 +453,7 @@ void HermitianEig
         ScaleTrapezoid( F(scale), uplo, A );
 
     // Tridiagonalize A
+    const Grid& g = A.Grid();
     DistMatrix<F,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t, ctrl.tridiagCtrl );
 
@@ -484,11 +481,14 @@ void HermitianEig
     // do so, we must pad Z's dimensions slightly.
     const Int N = MaxLength(n,g.Height())*g.Height();
     const Int K = MaxLength(kEst,g.Size())*g.Size(); 
-    // TODO: Handle the case where Z is a view with a buffer that is too small
-    ZPre.Align( 0, 0 );
-    ZPre.Resize( N, K );
-    DistMatrix<F> Z(g);
-    Copy( ZPre, Z, WRITE_PROXY );
+    ProxyCtrl proxCtrl;
+    proxCtrl.colConstrain = true;
+    proxCtrl.rowConstrain = true;
+    proxCtrl.colAlign = 0;
+    proxCtrl.rowAlign = 0;
+    auto ZPtr = WriteProxy( &ZPre, proxCtrl );
+    auto& Z = *ZPtr;
+    Z.Resize( N, K );
     DistMatrix<Real,STAR,VR> Z_STAR_VR(g);
     {
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
@@ -551,9 +551,6 @@ void HermitianEig
         Scale( 1/scale, w );
 
     herm_eig::Sort( w, Z, sort );
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
-    Copy( Z, ZPre, RESTORE_WRITE_PROXY );
 }
 
 template<>

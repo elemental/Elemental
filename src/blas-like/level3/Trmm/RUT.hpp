@@ -85,9 +85,8 @@ RUTA
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
     DistMatrix<T,MC,  STAR> Z1Trans_MC_STAR(g);
@@ -113,8 +112,6 @@ RUTA
         Z1Trans_MR_MC = Z1Trans;
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix(), conjugate );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -138,9 +135,8 @@ RUTC
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<T,MR,  STAR> U12Trans_MR_STAR(g);
@@ -169,8 +165,6 @@ RUTC
         LocalGemm( NORMAL, NORMAL, T(1), X2, U12Trans_MR_STAR, D1_MC_STAR );
         X1.RowSumScatterUpdate( T(1), D1_MC_STAR );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Right Upper Adjoint/Transpose (Non)Unit Trmm

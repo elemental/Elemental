@@ -92,9 +92,8 @@ LVar1
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g), L(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( LPre, L, READ_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
 
     // Temporary distributions
     DistMatrix<F,STAR,MR  > L21Adj_STAR_MR(g), Z21_MR_STAR(g);
@@ -174,8 +173,6 @@ LVar1
         // A21 := L22' A21
         Trmm( LEFT, LOWER, ADJOINT, diag, F(1), L22, A21 );
     }
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrmm

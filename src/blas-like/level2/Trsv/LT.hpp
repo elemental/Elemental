@@ -37,9 +37,8 @@ LT
     const Int kLast = LastOffset( m, bsize );
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), x(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( xPre, x, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> L10(g), L11(g), x1(g);
@@ -127,8 +126,6 @@ LT
             LocalGemv( orientation, F(-1), L10, x1_STAR_MC, F(1), z0_STAR_MR );
         }
     }
-
-    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

@@ -92,9 +92,8 @@ UVar5
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g), U(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( UPre, U, READ_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), U11_STAR_STAR(g);
@@ -167,7 +166,6 @@ UVar5
         LocalTwoSidedTrmm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrmm

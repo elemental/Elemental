@@ -34,10 +34,9 @@ void TrrkNT
     const Int bsize = Blocksize();
     const Grid& g = CPre.Grid();
 
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
@@ -63,7 +62,6 @@ void TrrkNT
         ( B1Trans_STAR_MR, (orientationOfB==ADJOINT) );
         LocalTrrk( uplo, alpha, A1_MC_STAR, B1Trans_STAR_MR, beta, C );
     }
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trrk

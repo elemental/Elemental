@@ -197,9 +197,8 @@ UT
     if( conjugate )
         Conjugate( xPre );
 
-    DistMatrix<F> U(g), x(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( xPre, x, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);
@@ -309,7 +308,6 @@ UT
     }
     if( conjugate )
         Conjugate( x );
-    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace quasitrsv

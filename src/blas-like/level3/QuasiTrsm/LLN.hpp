@@ -146,9 +146,8 @@ LLNLarge
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
@@ -187,7 +186,6 @@ LLNLarge
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
@@ -203,9 +201,8 @@ LLNMedium
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
@@ -245,7 +242,6 @@ LLNMedium
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), L21_MC_STAR, X1Trans_MR_STAR, F(1), X2 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // For small numbers of RHS's, e.g., width(X) < p

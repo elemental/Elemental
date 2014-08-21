@@ -86,9 +86,8 @@ LUTA
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
@@ -111,8 +110,6 @@ LUTA
         Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -136,9 +133,8 @@ LUTCOld
     const Grid& g = UPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g); 
@@ -176,8 +172,6 @@ LUTCOld
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -200,9 +194,8 @@ LUTC
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<T> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
@@ -235,8 +228,6 @@ LUTC
         ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Upper (Conjugate)Transpose (Non)Unit Trmm

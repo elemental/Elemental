@@ -98,8 +98,8 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    DistMatrix<F> L(g);
-    Copy( LPre, L, READ_WRITE_PROXY );
+    auto LPtr = ReadWriteProxy( &LPre );
+    auto& L = *LPtr;
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
@@ -140,7 +140,6 @@ LVar1( AbstractDistMatrix<F>& LPre, bool conjugate=false )
         LocalTrdtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
     }
-    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -159,10 +158,8 @@ LVar1
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    DistMatrix<F> L(g);
-    DistMatrix<F,MD,STAR> dSub(g);
-    Copy( LPre, L, READ_WRITE_PROXY );
-    Copy( dSubPre, dSub, READ_PROXY );
+    auto LPtr    = ReadWriteProxy( &LPre );          auto& L = *LPtr;
+    auto dSubPtr = ReadProxy<F,MD,STAR>( &dSubPre ); auto& dSub = *dSubPtr;
 
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,VC  > S10_STAR_VC(g);
@@ -217,7 +214,6 @@ LVar1
 
         k += nb;
     }
-    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trdtrmm

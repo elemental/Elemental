@@ -107,11 +107,9 @@ RLA
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
     DistMatrix<T,VC,  STAR> B1Trans_VC_STAR(g);
@@ -152,8 +150,6 @@ RLA
         Transpose( Z1Trans_MR_MC.LockedMatrix(), Z1Local, conjugate );
         Axpy( T(1), Z1Local, C1.Matrix() );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -171,11 +167,9 @@ RLC
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
@@ -218,8 +212,6 @@ RLC
         LocalGemm
         ( NORMAL, NORMAL, alpha, B1_MC_STAR, AB1Trans_STAR_MR, T(1), CR );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>

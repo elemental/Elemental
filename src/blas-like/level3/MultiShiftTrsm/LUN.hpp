@@ -83,15 +83,15 @@ LUN
 {
     DEBUG_ONLY(CallStackEntry cse("mstrsm::LUN"))
 
-    const Grid& g = UPre.Grid();
-    DistMatrix<F> U(g), X(g);
-    DistMatrix<F,VR,STAR> shifts(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( shiftsPre, shifts, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+
+    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre ); 
+    auto& shifts = *shiftsPtr;
 
     Scale( alpha, X );
 
+    const Grid& g = U.Grid();
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
@@ -134,7 +134,6 @@ LUN
         U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mstrsm

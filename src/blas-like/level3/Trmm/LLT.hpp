@@ -85,9 +85,8 @@ LLTA
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<T> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
@@ -110,8 +109,6 @@ LLTA
         Z1_MR_MC.RowSumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
    
 template<typename T>
@@ -135,9 +132,8 @@ LLTCOld
     const Grid& g = LPre.Grid();
     const bool conjugate = ( orientation == ADJOINT );
 
-    DistMatrix<T> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,MC,  STAR> L21_MC_STAR(g);
@@ -174,8 +170,6 @@ LLTCOld
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -198,9 +192,8 @@ LLTC
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<T> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
@@ -232,8 +225,6 @@ LLTC
         ( LEFT, LOWER, orientation, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
     }
-
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // Left Lower (Conjugate)Transpose (Non)Unit Trmm

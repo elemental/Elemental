@@ -34,9 +34,8 @@ LUTLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -77,7 +76,6 @@ LUTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) ~= p
@@ -98,9 +96,8 @@ LUTMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
@@ -142,7 +139,6 @@ LUTMedium
         ( orientation, orientation, 
           F(-1), U12_STAR_MC, X1Trans_MR_STAR, F(1), X2 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) << p

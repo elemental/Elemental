@@ -53,8 +53,8 @@ LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
     const Grid& g = LPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    DistMatrix<T> L(g);
-    Copy( LPre, L, READ_WRITE_PROXY );
+    auto LPtr = ReadWriteProxy( &LPre ); 
+    auto& L = *LPtr;
 
     // Temporary distributions
     DistMatrix<T,STAR,VR  > L10_STAR_VR(g);
@@ -95,7 +95,6 @@ LVar1( AbstractDistMatrix<T>& LPre, bool conjugate=false )
         LocalTrtrmm( LOWER, L11_STAR_STAR, conjugate );
         L11 = L11_STAR_STAR;
     }
-    Copy( L, LPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trtrmm

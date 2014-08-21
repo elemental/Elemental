@@ -52,24 +52,30 @@ void DiagonalScale
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& X )
+  const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& X )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScale"))
     if( side == LEFT )
     {
-        DistMatrix<TDiag,U,GatheredDist<V>()> d_U_VGath( X.Grid() );
-        d_U_VGath.AlignWith( X );
-        Copy( d, d_U_VGath, READ_PROXY );
-        DiagonalScale
-        ( LEFT, orientation, d_U_VGath.LockedMatrix(), X.Matrix() );
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = dPre.Root();
+        ctrl.colAlign = dPre.ColAlign();
+        auto dPtr = ReadProxy<TDiag,U,GatheredDist<V>()>( &dPre, ctrl );
+        auto& d = *dPtr;
+        DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
     }
     else
     {
-        DistMatrix<TDiag,V,GatheredDist<U>()> d_V_UGath( X.Grid() );
-        d_V_UGath.AlignWith( X );
-        Copy( d, d_V_UGath, READ_PROXY );
-        DiagonalScale
-        ( RIGHT, orientation, d_V_UGath.LockedMatrix(), X.Matrix() );
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = dPre.Root();
+        ctrl.colAlign = dPre.RowAlign();
+        auto dPtr = ReadProxy<TDiag,V,GatheredDist<U>()>( &dPre, ctrl );
+        auto& d = *dPtr;
+        DiagonalScale( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
     }
 }
 

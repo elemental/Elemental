@@ -91,9 +91,8 @@ UVar5
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    DistMatrix<F> A(g), U(g);
-    Copy( APre, A, READ_WRITE_PROXY );
-    Copy( UPre, U, READ_PROXY );
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), U11_STAR_STAR(g);
@@ -175,8 +174,6 @@ UVar5
         // This is the bottleneck because A12 only has blocksize rows
         Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U22, A12 );
     }
-
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace twotrsm

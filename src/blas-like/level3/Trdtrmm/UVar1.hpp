@@ -60,8 +60,8 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
     const Grid& g = UPre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    DistMatrix<F> U(g);
-    Copy( UPre, U, READ_WRITE_PROXY );
+    auto UPtr = ReadWriteProxy( &UPre ); 
+    auto& U = *UPtr;
 
     DistMatrix<F,MC,  STAR> S01_MC_STAR(g);
     DistMatrix<F,VC,  STAR> S01_VC_STAR(g);
@@ -102,7 +102,6 @@ UVar1( AbstractDistMatrix<F>& UPre, bool conjugate=false )
         LocalTrdtrmm( UPPER, U11_STAR_STAR, conjugate );
         U11 = U11_STAR_STAR;
     }
-    Copy( U, UPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trdtrmm

@@ -168,9 +168,8 @@ LLTLarge
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -220,7 +219,6 @@ LLTLarge
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) ~= p
@@ -241,9 +239,8 @@ LLTMedium
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -295,7 +292,6 @@ LLTMedium
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 // width(X) << p

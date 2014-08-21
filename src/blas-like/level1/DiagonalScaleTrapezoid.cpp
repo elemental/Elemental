@@ -83,7 +83,7 @@ void DiagonalScaleTrapezoid
 template<typename TDiag,typename T,Dist U,Dist V>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<TDiag>& d, DistMatrix<T,U,V>& A, Int offset )
+  const AbstractDistMatrix<TDiag>& dPre, DistMatrix<T,U,V>& A, Int offset )
 {
     DEBUG_ONLY(CallStackEntry cse("DiagonalScaleTrapezoid"))
     const Int m = A.Height();
@@ -101,9 +101,13 @@ void DiagonalScaleTrapezoid
 
     if( side == LEFT )
     {
-        DistMatrix<TDiag,U,GatheredDist<V>()> d_U_VGath( A.Grid() );
-        d_U_VGath.AlignWith( A );
-        Copy( d, d_U_VGath, READ_PROXY );
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = dPre.Root();
+        ctrl.colAlign = dPre.ColAlign();
+        auto dPtr = ReadProxy<TDiag,U,GatheredDist<V>()>( &dPre, ctrl );
+        auto& d = *dPtr;
 
         if( uplo == LOWER )
         {
@@ -118,8 +122,8 @@ void DiagonalScaleTrapezoid
                     const Int width = Min(j+1,n);
                     const Int localWidth = A.LocalColOffset(width);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_U_VGath.GetLocal(iLoc,0))
-                                    : d_U_VGath.GetLocal(iLoc,0) );
+                        ( conjugate ? Conj(d.GetLocal(iLoc,0))
+                                    :      d.GetLocal(iLoc,0) );
                     blas::Scal( localWidth, alpha, &ABuf[iLoc], ldim );
                 }
             }
@@ -137,8 +141,8 @@ void DiagonalScaleTrapezoid
                     const Int jLeft = Max(j,0);
                     const Int jLeftLoc = A.LocalColOffset(jLeft);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_U_VGath.GetLocal(iLoc,0))
-                                    : d_U_VGath.GetLocal(iLoc,0) );
+                        ( conjugate ? Conj(d.GetLocal(iLoc,0))
+                                    :      d.GetLocal(iLoc,0) );
                     blas::Scal
                     ( nLoc-jLeftLoc, alpha, &ABuf[iLoc+jLeftLoc*ldim], ldim );
                 }
@@ -147,9 +151,13 @@ void DiagonalScaleTrapezoid
     }
     else
     {
-        DistMatrix<TDiag,V,GatheredDist<U>()> d_V_UGath( A.Grid() );
-        d_V_UGath.AlignWith( A );
-        Copy( d, d_V_UGath, READ_PROXY );
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = dPre.Root();
+        ctrl.colAlign = dPre.RowAlign();
+        auto dPtr = ReadProxy<TDiag,V,GatheredDist<U>()>( &dPre, ctrl );
+        auto& d = *dPtr;
 
         if( uplo == LOWER )
         {
@@ -164,8 +172,8 @@ void DiagonalScaleTrapezoid
                     const Int iTop = Max(i,0);
                     const Int iTopLoc = A.LocalRowOffset(iTop);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_V_UGath.GetLocal(jLoc,0))
-                                    : d_V_UGath.GetLocal(jLoc,0) );
+                        ( conjugate ? Conj(d.GetLocal(jLoc,0))
+                                    :      d.GetLocal(jLoc,0) );
                     blas::Scal
                     ( mLoc-iTopLoc, alpha, &ABuf[iTopLoc+jLoc*ldim], 1 );
                 }
@@ -184,8 +192,8 @@ void DiagonalScaleTrapezoid
                     const Int height = Min(i+1,m);
                     const Int localHeight = A.LocalRowOffset(height);
                     const TDiag alpha = 
-                        ( conjugate ? Conj(d_V_UGath.GetLocal(jLoc,0))
-                                    : d_V_UGath.GetLocal(jLoc,0) );
+                        ( conjugate ? Conj(d.GetLocal(jLoc,0))
+                                    :      d.GetLocal(jLoc,0) );
                     blas::Scal( localHeight, alpha, &ABuf[jLoc*ldim], 1 );
                 }
             }

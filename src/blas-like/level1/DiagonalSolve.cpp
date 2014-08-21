@@ -60,30 +60,36 @@ template<typename FDiag,typename F,Dist U,Dist V>
 inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const AbstractDistMatrix<FDiag>& d, 
+  const AbstractDistMatrix<FDiag>& dPre, 
         DistMatrix<F,U,V>& X, bool checkIfSingular )
 {
     DEBUG_ONLY(
         CallStackEntry cse("DiagonalSolve");
-        AssertSameGrids( d, X );
+        AssertSameGrids( dPre, X );
     )
     if( side == LEFT )
     {
-        DistMatrix<FDiag,U,GatheredDist<V>()> d_U_VGath( X.Grid() );
-        d_U_VGath.AlignWith( X );
-        Copy( d, d_U_VGath, READ_PROXY );
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = dPre.Root();
+        ctrl.colAlign = dPre.ColAlign();
+        auto dPtr = ReadProxy<FDiag,U,GatheredDist<V>()>( &dPre, ctrl );
+        auto& d = *dPtr;
         DiagonalSolve
-        ( LEFT, orientation,
-          d_U_VGath.LockedMatrix(), X.Matrix(), checkIfSingular );
+        ( LEFT, orientation, d.LockedMatrix(), X.Matrix(), checkIfSingular );
     }
     else
     {
-        DistMatrix<FDiag,V,GatheredDist<U>()> d_V_UGath( X.Grid() );
-        d_V_UGath.AlignWith( X );
-        Copy( d, d_V_UGath, READ_PROXY );
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = dPre.Root();
+        ctrl.colAlign = dPre.RowAlign();
+        auto dPtr = ReadProxy<FDiag,V,GatheredDist<U>()>( &dPre, ctrl );
+        auto& d = *dPtr;
         DiagonalSolve
-        ( RIGHT, orientation,
-          d_V_UGath.LockedMatrix(), X.Matrix(), checkIfSingular );
+        ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(), checkIfSingular );
     }
 }
 

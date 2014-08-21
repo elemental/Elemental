@@ -28,10 +28,8 @@ UN
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
 
-    // Force 'A' and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
@@ -52,8 +50,6 @@ UN
         A1_VR_STAR.TransposePartialColAllGather( A1Trans_STAR_MR, conjugate );
         LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C ); 
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace syrk

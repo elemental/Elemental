@@ -295,11 +295,11 @@ LUNLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    DistMatrix<F,VR,STAR> shifts(g);
-    Copy( UPre,      U,      READ_PROXY );
-    Copy( shiftsPre, shifts, READ_PROXY );
-    Copy( XPre,      X,      READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+
+    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -348,7 +348,6 @@ LUNLarge
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename Real>
@@ -367,12 +366,12 @@ LUNLarge
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<Real> U(g), XReal(g), XImag(g);
-    DistMatrix<Complex<Real>,VR,STAR> shifts(g);
-    Copy( UPre,      U,      READ_PROXY );
-    Copy( shiftsPre, shifts, READ_PROXY );
-    Copy( XRealPre,  XReal,  READ_WRITE_PROXY );
-    Copy( XImagPre,  XImag,  READ_WRITE_PROXY );
+    auto UPtr     = ReadProxy( &UPre );          auto& U = *UPtr;
+    auto XRealPtr = ReadWriteProxy( &XRealPre ); auto& XReal = *XRealPtr;
+    auto XImagPtr = ReadWriteProxy( &XImagPre ); auto& XImag = *XImagPtr;
+
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
 
     DistMatrix<Real,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g);
@@ -434,8 +433,6 @@ LUNLarge
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( XReal, XRealPre, RESTORE_READ_WRITE_PROXY );
-    Copy( XImag, XImagPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F>
@@ -450,11 +447,11 @@ LUNMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    DistMatrix<F,VR,STAR> shifts(g);
-    Copy( UPre,      U,      READ_PROXY );
-    Copy( shiftsPre, shifts, READ_PROXY );
-    Copy( XPre,      X,      READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
+
+    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
 
     DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
@@ -508,7 +505,6 @@ LUNMedium
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename Real>
@@ -527,12 +523,12 @@ LUNMedium
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<Real> U(g), XReal(g), XImag(g);
-    DistMatrix<Complex<Real>,VR,STAR> shifts(g);
-    Copy( UPre,      U,      READ_PROXY );
-    Copy( shiftsPre, shifts, READ_PROXY );
-    Copy( XRealPre,  XReal,  READ_WRITE_PROXY );
-    Copy( XImagPre,  XImag,  READ_WRITE_PROXY );
+    auto UPtr     = ReadProxy( &UPre );          auto& U = *UPtr;
+    auto XRealPtr = ReadWriteProxy( &XRealPre ); auto& XReal = *XRealPtr;
+    auto XImagPtr = ReadWriteProxy( &XImagPre ); auto& XImag = *XImagPtr;
+
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
 
     DistMatrix<Real,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<Real,STAR,STAR> U11_STAR_STAR(g);
@@ -597,8 +593,6 @@ LUNMedium
         kOld = k;
         k -= Min(bsize,k);
     }
-    Copy( XReal, XRealPre, RESTORE_READ_WRITE_PROXY );
-    Copy( XImag, XImagPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename F,Dist colDist,Dist shiftColDist,Dist shiftRowDist>

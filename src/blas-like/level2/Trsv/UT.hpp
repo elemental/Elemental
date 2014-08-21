@@ -34,9 +34,8 @@ UT
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), x(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( xPre, x, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> U11(g), U12(g), x1(g);
@@ -124,8 +123,6 @@ UT
             LocalGemv( orientation, F(-1), U12, x1_STAR_MC, F(1), z2_STAR_MR );
         }
     }
-
-    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsv

@@ -32,9 +32,8 @@ RUT
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
 
-    DistMatrix<F> U(g), X(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
     DistMatrix<F,STAR,MR  > U01Trans_STAR_MR(g);
@@ -81,7 +80,6 @@ RUT
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, U01Trans_STAR_MR, F(1), X0 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsm

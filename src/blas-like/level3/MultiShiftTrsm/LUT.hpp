@@ -51,15 +51,16 @@ LUT
         AbstractDistMatrix<F>& XPre ) 
 {
     DEBUG_ONLY(CallStackEntry cse("mstrsm::LUT"))
-    Scale( alpha, XPre );
 
-    const Grid& g = UPre.Grid();
-    DistMatrix<F> U(g), X(g);
-    DistMatrix<F,VR,STAR> shifts(g);
-    Copy( UPre, U, READ_PROXY );
-    Copy( shiftsPre, shifts, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto UPtr = ReadProxy( &UPre );      auto& U = *UPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
+    auto shiftsPtr = ReadProxy<F,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
+
+    Scale( alpha, X );
+
+    const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,MC  > U12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
@@ -103,7 +104,6 @@ LUT
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace mstrsm

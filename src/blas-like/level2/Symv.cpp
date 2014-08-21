@@ -75,10 +75,9 @@ void Symv
     )
     const Grid& g = APre.Grid();
 
-    DistMatrix<T> A(g), x(g), y(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( xPre, x, READ_PROXY );
-    Copy( yPre, y, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
+    auto yPtr = ReadWriteProxy( &yPre ); auto& y = *yPtr;
 
     Scale( beta, y );
 
@@ -235,7 +234,6 @@ void Symv
         z.ColSumScatterUpdate( T(1), z_STAR_MR );
         Axpy( T(1), z, y );
     }
-    Copy( y, yPre, RESTORE_READ_WRITE_PROXY );
 }
 
 namespace symv {

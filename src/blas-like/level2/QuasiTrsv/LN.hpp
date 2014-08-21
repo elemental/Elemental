@@ -171,9 +171,8 @@ LN
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), x(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( xPre, x, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto xPtr = ReadWriteProxy( &xPre ); auto& x = *xPtr;
 
     // Matrix views 
     DistMatrix<F> L11(g), L21(g), x1(g);
@@ -278,7 +277,6 @@ LN
             k += nb;
         }
     }
-    Copy( x, xPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace quasitrsv

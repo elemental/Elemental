@@ -57,12 +57,11 @@ void Syr
             ("A must conform with x: \n",DimsString(APre,"A"),"\n",
              DimsString(xPre,"x"));
     )
-    const Grid& g = APre.Grid();
 
-    DistMatrix<T> A(g), x(g);
-    Copy( xPre, x, READ_PROXY );
-    Copy( APre, A, READ_WRITE_PROXY );
+    auto xPtr = ReadProxy( &xPre );      auto& x = *xPtr;
+    auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
 
+    const Grid& g = A.Grid();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
 
@@ -147,7 +146,6 @@ void Syr
             }
         }
     }
-    Copy( A, APre, RESTORE_READ_WRITE_PROXY );
 }
 
 #define PROTO(T) \

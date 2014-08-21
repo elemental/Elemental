@@ -106,11 +106,9 @@ LLA
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> B1_MC_STAR(g);
@@ -149,8 +147,6 @@ LLA
         Z1.RowSumScatterUpdate( T(1), Z1_MC_STAR );
         Axpy( T(1), Z1, C1 );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>
@@ -170,11 +166,9 @@ LLC
     const Grid& g = APre.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
-    // Force 'A', 'B', and 'C' to be in [MC,MR] distributions
-    DistMatrix<T> A(g), B(g), C(g);
-    Copy( APre, A, READ_PROXY );
-    Copy( BPre, B, READ_PROXY );
-    Copy( CPre, C, READ_WRITE_PROXY );
+    auto APtr = ReadProxy( &APre );      auto& A = *APtr;
+    auto BPtr = ReadProxy( &BPre );      auto& B = *BPtr;
+    auto CPtr = ReadWriteProxy( &CPre ); auto& C = *CPtr;
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> AB1_MC_STAR(g);
@@ -217,8 +211,6 @@ LLC
         ( orientation, TRANSPOSE, 
           alpha, A1L_STAR_MC, B1Trans_MR_STAR, T(1), CT );
     }
-
-    Copy( C, CPre, RESTORE_READ_WRITE_PROXY );
 }
 
 template<typename T>

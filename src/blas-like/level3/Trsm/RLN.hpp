@@ -29,9 +29,8 @@ RLN
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
 
-    DistMatrix<F> L(g), X(g);
-    Copy( LPre, L, READ_PROXY );
-    Copy( XPre, X, READ_WRITE_PROXY );
+    auto LPtr = ReadProxy( &LPre );      auto& L = *LPtr;
+    auto XPtr = ReadWriteProxy( &XPre ); auto& X = *XPtr;
 
     DistMatrix<F,MR,  STAR> L10Trans_MR_STAR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -71,7 +70,6 @@ RLN
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );
     }
-    Copy( X, XPre, RESTORE_READ_WRITE_PROXY );
 }
 
 } // namespace trsm
