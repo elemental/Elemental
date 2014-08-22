@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
 
         HermitianEigSubset<Real> subset;
         HermitianEigCtrl<Real> ctrl;
-        ctrl.useSdc = true;
+        ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
         ctrl.sdcCtrl.maxOuterIts = maxOuterIts;

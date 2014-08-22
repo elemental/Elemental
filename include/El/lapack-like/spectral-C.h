@@ -23,15 +23,15 @@ typedef enum {
   EL_BAX=3
 } ElPencil;
 
-/* HermitianSdcCtrl */
+/* HermitianSDCCtrl */
 typedef struct {
   ElInt cutoff;
   ElInt maxInnerIts, maxOuterIts;
   float tol;
   float spreadFactor;
   bool progress;
-} ElHermitianSdcCtrl_s;
-ElError ElHermitianSdcCtrlDefault_s( ElHermitianSdcCtrl_s* ctrl );
+} ElHermitianSDCCtrl_s;
+ElError ElHermitianSDCCtrlDefault_s( ElHermitianSDCCtrl_s* ctrl );
 
 typedef struct {
   ElInt cutoff;
@@ -39,8 +39,8 @@ typedef struct {
   double tol;
   double spreadFactor;
   bool progress;
-} ElHermitianSdcCtrl_d;
-ElError ElHermitianSdcCtrlDefault_d( ElHermitianSdcCtrl_d* ctrl );
+} ElHermitianSDCCtrl_d;
+ElError ElHermitianSDCCtrlDefault_d( ElHermitianSDCCtrl_d* ctrl );
 
 /* HermitianEigSubset */
 typedef struct {
@@ -64,15 +64,15 @@ ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset );
 /* HermitianEigCtrl */
 typedef struct {
   ElHermitianTridiagCtrl tridiagCtrl;
-  ElHermitianSdcCtrl_s sdcCtrl;
-  bool useSdc;
+  ElHermitianSDCCtrl_s sdcCtrl;
+  bool useSDC;
 } ElHermitianEigCtrl_s;
 ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl );
 
 typedef struct {
   ElHermitianTridiagCtrl tridiagCtrl;
-  ElHermitianSdcCtrl_d sdcCtrl;
-  bool useSdc;
+  ElHermitianSDCCtrl_d sdcCtrl;
+  bool useSDC;
 } ElHermitianEigCtrl_d;
 ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl );
 
@@ -85,14 +85,35 @@ typedef struct {
 } ElPolarCtrl;
 ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl );
 
-/* HessQrCtrl */
+/* SVDCtrl */
 typedef struct {
-  bool distAed;
-  ElInt blockHeight, blockWidth;
-} ElHessQrCtrl;
-ElError ElHessQrCtrlDefault( ElHessQrCtrl* ctrl );
+  bool seqQR;
+  double valChanRatio;
+  double fullChanRatio;
+  bool thresholded;
+  bool relative;
+  float tol;
+} ElSVDCtrl_s;
+ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl );
 
-/* SdcCtrl */
+typedef struct {
+  bool seqQR;
+  double valChanRatio;
+  double fullChanRatio;
+  bool thresholded;
+  bool relative;
+  double tol;
+} ElSVDCtrl_d;
+ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl );
+
+/* HessQRCtrl */
+typedef struct {
+  bool distAED;
+  ElInt blockHeight, blockWidth;
+} ElHessQRCtrl;
+ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
+
+/* SDCCtrl */
 typedef struct {
   ElInt cutoff;
   ElInt maxInnerIts, maxOuterIts;
@@ -101,8 +122,8 @@ typedef struct {
   bool random;
   bool progress;
   ElSignCtrl_s signCtrl;
-} ElSdcCtrl_s;
-ElError ElSdcCtrlDefault_s( ElSdcCtrl_s* ctrl );
+} ElSDCCtrl_s;
+ElError ElSDCCtrlDefault_s( ElSDCCtrl_s* ctrl );
 
 typedef struct {
   ElInt cutoff;
@@ -112,21 +133,21 @@ typedef struct {
   bool random;
   bool progress;
   ElSignCtrl_d signCtrl;
-} ElSdcCtrl_d;
-ElError ElSdcCtrlDefault_d( ElSdcCtrl_d* ctrl );
+} ElSDCCtrl_d;
+ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
 
 /* SchurCtrl */
 typedef struct {
-  bool useSdc;
-  ElHessQrCtrl qrCtrl;
-  ElSdcCtrl_s sdcCtrl;
+  bool useSDC;
+  ElHessQRCtrl qrCtrl;
+  ElSDCCtrl_s sdcCtrl;
 } ElSchurCtrl_s;
 ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
 
 typedef struct {
-  bool useSdc;
-  ElHessQrCtrl qrCtrl;
-  ElSdcCtrl_d sdcCtrl;
+  bool useSDC;
+  ElHessQRCtrl qrCtrl;
+  ElSDCCtrl_d sdcCtrl;
 } ElSchurCtrl_d;
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl );
 
@@ -764,6 +785,8 @@ ElError ElSingularValuesDist_d( ElDistMatrix_d A, ElDistMatrix_d s );
 ElError ElSingularValuesDist_c( ElDistMatrix_c A, ElDistMatrix_s s );
 ElError ElSingularValuesDist_z( ElDistMatrix_z A, ElDistMatrix_d s );
 
+/* TODO: Expert versions */
+
 /* Compute the full SVD
    -------------------- */
 ElError ElSVD_s( ElMatrix_s A, ElMatrix_s s, ElMatrix_s V );
@@ -775,6 +798,8 @@ ElError ElSVDDist_s( ElDistMatrix_s A, ElDistMatrix_s s, ElDistMatrix_s V );
 ElError ElSVDDist_d( ElDistMatrix_d A, ElDistMatrix_d s, ElDistMatrix_d V );
 ElError ElSVDDist_c( ElDistMatrix_c A, ElDistMatrix_s s, ElDistMatrix_c V );
 ElError ElSVDDist_z( ElDistMatrix_z A, ElDistMatrix_d s, ElDistMatrix_z V );
+
+/* TODO: Expert versions */
 
 #ifdef __cplusplus
 } // extern "C"

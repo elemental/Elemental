@@ -31,12 +31,14 @@ main( int argc, char* argv[] )
         Matrix<C> A, U, V;
         Matrix<Real> s;
 
+        SVDCtrl<Real> ctrl;
         for( Int test=0; test<16; ++test )
         {
             Int n;
             const TestType testType = TestType(test/2);
             const bool useQR = test % 2;
             const std::string qrString = ( useQR ? "with QR:" : "with D&C:" );
+            ctrl.seqQR = useQR;
             switch( testType )
             {
             case FOURIER:     
@@ -92,7 +94,7 @@ main( int argc, char* argv[] )
 
             // Make a copy of A and then perform the SVD
             U = A;
-            SVD( U, s, V, useQR );
+            SVD( U, s, V, ctrl );
 
             const Real twoNormOfA = MaxNorm( s );
             const Real maxNormOfA = MaxNorm( A );

@@ -134,7 +134,7 @@ ComputePartition( DistMatrix<F>& A )
 template<typename F>
 inline ValueInt<Base<F>>
 SignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<Base<F>>& ctrl )
+( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
 
@@ -176,7 +176,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 SignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
-  const SdcCtrl<Base<F>>& ctrl )
+  const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SignDivide"))
     const Grid& g = A.Grid();
@@ -218,7 +218,7 @@ SignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
-( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SdcCtrl<Base<F>>& ctrl )
+( Matrix<F>& A, Matrix<F>& G, bool returnQ, const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -280,7 +280,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ,
-  const SdcCtrl<Base<F>>& ctrl )
+  const SDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::RandomizedSignDivide"))
     typedef Base<F> Real;
@@ -342,7 +342,7 @@ RandomizedSignDivide
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( Matrix<Real>& A, const SdcCtrl<Real>& ctrl )
+SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -411,7 +411,7 @@ SpectralDivide( Matrix<Real>& A, const SdcCtrl<Real>& ctrl )
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Complex<Real>>& A, const SdcCtrl<Real>& ctrl )
+( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -485,7 +485,7 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( Matrix<Real>& A, Matrix<Real>& Q, const SdcCtrl<Real>& ctrl )
+( Matrix<Real>& A, Matrix<Real>& Q, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -555,7 +555,7 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real>>& A, Matrix<Complex<Real>>& Q, 
-  const SdcCtrl<Real>& ctrl )
+  const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -628,7 +628,7 @@ SpectralDivide
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( DistMatrix<Real>& A, const SdcCtrl<Real>& ctrl )
+SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -699,7 +699,7 @@ SpectralDivide( DistMatrix<Real>& A, const SdcCtrl<Real>& ctrl )
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Complex<Real>>& A, const SdcCtrl<Real>& ctrl )
+( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -776,7 +776,7 @@ SpectralDivide
 template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
-( DistMatrix<Real>& A, DistMatrix<Real>& Q, const SdcCtrl<Real>& ctrl )
+( DistMatrix<Real>& A, DistMatrix<Real>& Q, const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     const Int n = A.Height();
@@ -849,7 +849,7 @@ template<typename Real>
 inline ValueInt<Real>
 SpectralDivide
 ( DistMatrix<Complex<Real>>& A, DistMatrix<Complex<Real>>& Q,
-  const SdcCtrl<Real>& ctrl )
+  const SDCCtrl<Real>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SpectralDivide"))
     typedef Complex<Real> F;
@@ -927,7 +927,7 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, 
-  const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
+  const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -969,7 +969,7 @@ template<typename F>
 inline void
 SDC
 ( Matrix<F>& A, Matrix<Complex<Base<F>>>& w, Matrix<F>& Q, 
-  bool fullTriangle=true, const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
+  bool fullTriangle=true, const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::SDC"))
     const Int n = A.Height();
@@ -1170,7 +1170,7 @@ template<typename F>
 inline void
 SDC
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& wPre, 
-  const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
+  const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("schur::SDC");
@@ -1346,7 +1346,7 @@ inline void
 SDC
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& wPre, 
   AbstractDistMatrix<F>& QPre, bool fullTriangle=true, 
-  const SdcCtrl<Base<F>> ctrl=SdcCtrl<Base<F>>() )
+  const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     DEBUG_ONLY(
         CallStackEntry cse("schur::SDC");

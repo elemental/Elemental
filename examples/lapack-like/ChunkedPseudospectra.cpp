@@ -230,7 +230,7 @@ main( int argc, char* argv[] )
         ctrl.qrCtrl.blockWidth = nbDist;
         ctrl.qrCtrl.distAed = false;
 #else
-        ctrl.useSdc = true;
+        ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
         ctrl.sdcCtrl.maxOuterIts = maxOuterIts;

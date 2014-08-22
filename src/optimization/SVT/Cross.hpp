@@ -23,7 +23,12 @@ Int Cross( Matrix<F>& A, Base<F> tau, bool relative )
     Matrix<Real> s;
     Matrix<F> V;
 
-    svd::Thresholded( U, s, V, tau, relative );
+    SVDCtrl<Real> ctrl;
+    ctrl.thresholded = true;
+    ctrl.tol = tau;
+    ctrl.relative = relative;
+    SVD( U, s, V, ctrl );
+
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
@@ -40,7 +45,12 @@ Int Cross( DistMatrix<F>& A, Base<F> tau, bool relative )
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     DistMatrix<F> V( A.Grid() );
 
-    svd::Thresholded( U, s, V, tau, relative );
+    SVDCtrl<Real> ctrl;
+    ctrl.thresholded = true;
+    ctrl.tol = tau;
+    ctrl.relative = relative;
+    SVD( U, s, V, ctrl );
+
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
@@ -49,15 +59,20 @@ Int Cross( DistMatrix<F>& A, Base<F> tau, bool relative )
 }
 
 template<typename F>
-Int TallCross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
+Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative )
 {
-    DEBUG_ONLY(CallStackEntry cse("svt::TallCross"))
+    DEBUG_ONLY(CallStackEntry cse("svt::Cross"))
     typedef Base<F> Real;
     DistMatrix<F,VC,STAR> U( A );
     DistMatrix<Real,STAR,STAR> s( A.Grid() );
     DistMatrix<F,STAR,STAR> V( A.Grid() );
 
-    svd::TallThresholded( U, s, V, tau, relative );
+    SVDCtrl<Real> ctrl;
+    ctrl.thresholded = true;
+    ctrl.tol = tau;
+    ctrl.relative = relative;
+    SVD( U, s, V, ctrl );
+
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     LocalGemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );

@@ -12,8 +12,8 @@ using namespace El;
 
 extern "C" {
 
-/* HermitianSdcCtrl */
-ElError ElHermitianSdcCtrlDefault_s( ElHermitianSdcCtrl_s* ctrl )
+/* HermitianSDCCtrl */
+ElError ElHermitianSDCCtrlDefault_s( ElHermitianSDCCtrl_s* ctrl )
 {
     ctrl->cutoff = 256;
     ctrl->maxInnerIts = 2;
@@ -23,7 +23,7 @@ ElError ElHermitianSdcCtrlDefault_s( ElHermitianSdcCtrl_s* ctrl )
     ctrl->progress = false;
     return EL_SUCCESS;
 }
-ElError ElHermitianSdcCtrlDefault_d( ElHermitianSdcCtrl_d* ctrl )
+ElError ElHermitianSDCCtrlDefault_d( ElHermitianSDCCtrl_d* ctrl )
 {
     ctrl->cutoff = 256;
     ctrl->maxInnerIts = 2;
@@ -60,15 +60,15 @@ ElError ElHermitianEigSubsetDefault_d( ElHermitianEigSubset_d* subset )
 ElError ElHermitianEigCtrlDefault_s( ElHermitianEigCtrl_s* ctrl )
 {
     ElHermitianTridiagCtrlDefault( &ctrl->tridiagCtrl );
-    ElHermitianSdcCtrlDefault_s( &ctrl->sdcCtrl );
-    ctrl->useSdc = false;
+    ElHermitianSDCCtrlDefault_s( &ctrl->sdcCtrl );
+    ctrl->useSDC = false;
     return EL_SUCCESS;
 }
 ElError ElHermitianEigCtrlDefault_d( ElHermitianEigCtrl_d* ctrl )
 {
     ElHermitianTridiagCtrlDefault( &ctrl->tridiagCtrl );
-    ElHermitianSdcCtrlDefault_d( &ctrl->sdcCtrl );
-    ctrl->useSdc = false;
+    ElHermitianSDCCtrlDefault_d( &ctrl->sdcCtrl );
+    ctrl->useSDC = false;
     return EL_SUCCESS;
 }
 
@@ -82,17 +82,39 @@ ElError ElPolarCtrlDefault( ElPolarCtrl* ctrl )
     return EL_SUCCESS;
 }
 
-/* HessQrCtrl */
-ElError ElHessQrCtrlDefault( ElHessQrCtrl* ctrl )
+/* SVDCtrl */
+ElError ElSVDCtrlDefault_s( ElSVDCtrl_s* ctrl )
 {
-    ctrl->distAed = false;
+    ctrl->seqQR = false;
+    ctrl->valChanRatio = 1.2;
+    ctrl->fullChanRatio = 1.5;
+    ctrl->thresholded = false;
+    ctrl->relative = true;
+    ctrl->tol = 0;
+    return EL_SUCCESS;
+}
+ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
+{
+    ctrl->seqQR = false;
+    ctrl->valChanRatio = 1.2;
+    ctrl->fullChanRatio = 1.5;
+    ctrl->thresholded = false;
+    ctrl->relative = true;
+    ctrl->tol = 0;
+    return EL_SUCCESS;
+}
+
+/* HessQRCtrl */
+ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl )
+{
+    ctrl->distAED = false;
     ctrl->blockHeight = DefaultBlockHeight();
     ctrl->blockWidth = DefaultBlockWidth();
     return EL_SUCCESS;
 }
 
-/* SdcCtrl */
-ElError ElSdcCtrlDefault_s( ElSdcCtrl_s* ctrl )
+/* SDCCtrl */
+ElError ElSDCCtrlDefault_s( ElSDCCtrl_s* ctrl )
 {
     ctrl->cutoff = 256;
     ctrl->maxInnerIts = 2;
@@ -104,7 +126,7 @@ ElError ElSdcCtrlDefault_s( ElSdcCtrl_s* ctrl )
     ElSignCtrlDefault_s( &ctrl->signCtrl );
     return EL_SUCCESS;
 }
-ElError ElSdcCtrlDefault_d( ElSdcCtrl_d* ctrl )
+ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl )
 {
     ctrl->cutoff = 256;
     ctrl->maxInnerIts = 2;
@@ -120,16 +142,16 @@ ElError ElSdcCtrlDefault_d( ElSdcCtrl_d* ctrl )
 /* SchurCtrl */
 ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
 {
-    ctrl->useSdc = false;
-    ElHessQrCtrlDefault( &ctrl->qrCtrl );
-    ElSdcCtrlDefault_s( &ctrl->sdcCtrl );
+    ctrl->useSDC = false;
+    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElSDCCtrlDefault_s( &ctrl->sdcCtrl );
     return EL_SUCCESS; 
 }
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
 {
-    ctrl->useSdc = false;
-    ElHessQrCtrlDefault( &ctrl->qrCtrl );
-    ElSdcCtrlDefault_d( &ctrl->sdcCtrl );
+    ctrl->useSDC = false;
+    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElSDCCtrlDefault_d( &ctrl->sdcCtrl );
     return EL_SUCCESS; 
 }
 

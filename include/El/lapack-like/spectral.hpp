@@ -23,7 +23,7 @@ enum Pencil
 using namespace PencilNS;
 
 template<typename Real>
-struct HermitianSdcCtrl {
+struct HermitianSDCCtrl {
     Int cutoff;
     Int maxInnerIts;
     Int maxOuterIts;
@@ -31,7 +31,7 @@ struct HermitianSdcCtrl {
     Real spreadFactor;
     bool progress;
 
-    HermitianSdcCtrl()
+    HermitianSDCCtrl()
     : cutoff(256), maxInnerIts(2), maxOuterIts(10),
       tol(0), spreadFactor(1e-6),
       progress(false)
@@ -56,11 +56,11 @@ template<typename Real>
 struct HermitianEigCtrl
 {
     HermitianTridiagCtrl tridiagCtrl;
-    HermitianSdcCtrl<Real> sdcCtrl;
-    bool useSdc;
+    HermitianSDCCtrl<Real> sdcCtrl;
+    bool useSDC;
 
     HermitianEigCtrl()
-    : tridiagCtrl(), sdcCtrl(), useSdc(false)
+    : tridiagCtrl(), sdcCtrl(), useSDC(false)
     { }
 };
 
@@ -73,21 +73,58 @@ struct PolarCtrl {
     PolarCtrl() : qdwh(false), colPiv(false), maxIts(20), numIts(0) { }
 };
 
-struct HessQrCtrl {
-    bool distAed;
-    Int blockHeight, blockWidth;
+template<typename Real>
+struct SVDCtrl {
+    // Bidiagonal SVD options
+    // ----------------------
 
-    HessQrCtrl() 
-    : distAed(false), 
-      blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()) 
-    { }
+    // Whether or not sequential implementations should use the QR algorithm
+    // instead of (Cuppen's) Divide and Conquer when computing singular
+    // vectors. When only singular values are requested, a bidiagonal DQDS
+    // algorithm is always run.
+    bool seqQR;
+
+    // Chan's algorithm
+    // ----------------
+
+    // The minimum height/width ratio before preprocessing with a QR 
+    // decomposition when only computing singular values
+    double valChanRatio;
+
+    // The minimum height/width ratio before preprocessing with a QR
+    // decomposition when computing a full SVD
+    double fullChanRatio;
+
+    // Thresholding
+    // ------------
+    // NOTE: Currently only supported when computing both singular values
+    //       and vectors
+
+    // If the sufficiently small singular triplets should be thrown away.
+    // When thresholded, a cross-product algorithm is used. This is often
+    // advantageous since tridiagonal eigensolvers tend to have faster 
+    // parallel implementations than bidiagonal SVD's.
+    bool thresholded;
+
+    // If the tolerance should be relative to the largest singular value
+    bool relative;
+
+    // The numerical tolerance for the thresholding. If this value is kept at
+    // zero, then a value is automatically chosen based upon the matrix
+    Real tol; 
+
+    // Default constructor
+    // -------------------
+    SVDCtrl()
+    : seqQR(false), valChanRatio(1.2), fullChanRatio(1.5),
+      thresholded(false), relative(true), tol(0) { }
 };
 
 // Forward declaration
 template<typename Real> struct SignCtrl;
 
 template<typename Real>
-struct SdcCtrl {
+struct SDCCtrl {
     Int cutoff;
     Int maxInnerIts;
     Int maxOuterIts;
@@ -98,20 +135,30 @@ struct SdcCtrl {
 
     SignCtrl<Real> signCtrl;
 
-    SdcCtrl()
+    SDCCtrl()
     : cutoff(256), maxInnerIts(2), maxOuterIts(10),
       tol(0), spreadFactor(1e-6),
       random(true), progress(false), signCtrl()
     { }
 };
 
+struct HessQRCtrl {
+    bool distAED;
+    Int blockHeight, blockWidth;
+
+    HessQRCtrl() 
+    : distAED(false), 
+      blockHeight(DefaultBlockHeight()), blockWidth(DefaultBlockWidth()) 
+    { }
+};
+
 template<typename Real>
 struct SchurCtrl {
-    bool useSdc;
-    HessQrCtrl qrCtrl;
-    SdcCtrl<Real> sdcCtrl;    
+    bool useSDC;
+    HessQRCtrl qrCtrl;
+    SDCCtrl<Real> sdcCtrl;    
 
-    SchurCtrl() : useSdc(false), qrCtrl(), sdcCtrl() { }
+    SchurCtrl() : useSDC(false), qrCtrl(), sdcCtrl() { }
 };
 
 // Hermitian eigenvalue solvers
@@ -387,7 +434,7 @@ void SVD( Matrix<F>& A, Matrix<Base<F>>& s );
 template<typename F>
 void SVD
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  double heightRatio=1.2 );
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
 void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s );
@@ -398,11 +445,13 @@ void HermitianSVD
 // Compute the full SVD
 // --------------------
 template<typename F>
-void SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR=false );
+void SVD
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, 
+  const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 template<typename F>
 void SVD
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, double heightRatio=1.5 );
+  AbstractDistMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl=SVDCtrl<Base<F>>() );
 
 template<typename F>
 void HermitianSVD
@@ -413,27 +462,6 @@ void HermitianSVD
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A,
   AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, 
   AbstractDistMatrix<F>& V );
-
-namespace svd {
-
-template<typename F>
-void Thresholded
-( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V,
-  Base<F> tol=0, bool relative=false );
-template<typename F>
-void Thresholded
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, Base<F> tol=0, bool relative=false );
-
-template<typename F>
-void TallThresholded
-( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s,
-  AbstractDistMatrix<F>& V, Base<F> tol=0, bool relative=false );
-
-// NOTE: [* ,VR] WideThresholded would produce U with different distribution
-//       than A. It makes more sense to overwrite A with V'.
-
-} // namespace svd
 
 } // namespace El
 

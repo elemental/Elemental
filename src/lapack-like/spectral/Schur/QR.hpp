@@ -55,7 +55,7 @@ template<typename F>
 inline void
 QR
 ( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
-  bool fullTriangle, const HessQrCtrl& ctrl )
+  bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef EL_HAVE_SCALAPACK
@@ -94,7 +94,7 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), fullTriangle, 
-      ctrl.distAed );
+      ctrl.distAED );
     Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
@@ -117,7 +117,7 @@ template<typename F>
 inline void
 QR
 ( BlockDistMatrix<F>& A, AbstractDistMatrix<Complex<Base<F>>>& w,
-  BlockDistMatrix<F>& Q, bool fullTriangle, const HessQrCtrl& ctrl )
+  BlockDistMatrix<F>& Q, bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
 #ifdef EL_HAVE_SCALAPACK
@@ -174,7 +174,7 @@ QR
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, A.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAed );
+      Q.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAED );
     Copy( w_STAR_STAR, w );
 
     blacs::FreeGrid( context );
@@ -197,7 +197,7 @@ template<typename F>
 inline void
 QR
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
-  bool fullTriangle, const HessQrCtrl& ctrl )
+  bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     auto APtr = ReadWriteProxy( &APre );
@@ -232,7 +232,7 @@ QR
     DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR( n, 1, A.Grid() );
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      fullTriangle, ctrl.distAed );
+      fullTriangle, ctrl.distAED );
     A = ABlock;
     w = w_STAR_STAR;
 
@@ -255,7 +255,7 @@ template<typename F>
 inline void
 QR
 ( AbstractDistMatrix<F>& APre, AbstractDistMatrix<Complex<Base<F>>>& w, 
-  AbstractDistMatrix<F>& QPre, bool fullTriangle, const HessQrCtrl& ctrl )
+  AbstractDistMatrix<F>& QPre, bool fullTriangle, const HessQRCtrl& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("schur::qr"))
     auto APtr = ReadWriteProxy( &APre ); auto& A = *APtr;
@@ -304,7 +304,7 @@ QR
     const bool multiplyQ = true;
     scalapack::HessenbergSchur
     ( n, ABlock.Buffer(), desca.data(), w_STAR_STAR.Buffer(), 
-      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAed );
+      QBlock.Buffer(), descq.data(), fullTriangle, multiplyQ, ctrl.distAED );
     A = ABlock;
     w = w_STAR_STAR;
     Q = QBlock;

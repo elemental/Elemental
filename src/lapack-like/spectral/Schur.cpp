@@ -23,7 +23,7 @@ void Schur
   const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         if( fullTriangle )
         {
@@ -43,7 +43,7 @@ void Schur
   const SchurCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
         schur::QR( A, w, Q, fullTriangle );
@@ -56,7 +56,7 @@ void Schur
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         if( fullTriangle )
         {
@@ -99,7 +99,7 @@ void Schur
 {
     DEBUG_ONLY(CallStackEntry cse("Schur"))
 #ifdef EL_HAVE_SCALAPACK
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
     else
         schur::QR( A, w, Q, fullTriangle, ctrl.qrCtrl );

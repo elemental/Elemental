@@ -55,7 +55,7 @@ main( int argc, char* argv[] )
         ctrl.qrCtrl.distAed = aed;
         // TODO: distribution block size
 #else
-        ctrl.useSdc = true;
+        ctrl.useSDC = true;
         ctrl.sdcCtrl.cutoff = cutoff;
         ctrl.sdcCtrl.maxInnerIts = maxInnerIts;
         ctrl.sdcCtrl.maxOuterIts = maxOuterIts;

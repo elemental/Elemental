@@ -119,7 +119,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ, 
-  const HermitianSdcCtrl<Base<F>>& ctrl )
+  const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::RandomizedSignDivide"))
 
@@ -185,7 +185,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 RandomizedSignDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ, 
-  const HermitianSdcCtrl<Base<F>>& ctrl )
+  const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::RandomizedSignDivide"))
 
@@ -252,7 +252,7 @@ RandomizedSignDivide
 template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
-( UpperOrLower uplo, Matrix<F>& A, const HermitianSdcCtrl<Base<F>>& ctrl )
+( UpperOrLower uplo, Matrix<F>& A, const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -299,7 +299,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& Q, 
-  const HermitianSdcCtrl<Base<F>>& ctrl )
+  const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -346,7 +346,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, 
-  const HermitianSdcCtrl<Base<F>>& ctrl )
+  const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -394,7 +394,7 @@ template<typename F>
 inline ValueInt<Base<F>>
 SpectralDivide
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& Q, 
-  const HermitianSdcCtrl<Base<F>>& ctrl )
+  const HermitianSDCCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SpectralDivide"))
 
@@ -441,7 +441,7 @@ SpectralDivide
 template<typename F>
 void SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, 
-  const HermitianSdcCtrl<Base<F>> ctrl )
+  const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
@@ -476,7 +476,7 @@ void SDC
 template<typename F>
 void SDC
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, Matrix<F>& Q, 
-  const HermitianSdcCtrl<Base<F>> ctrl )
+  const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
@@ -522,7 +522,7 @@ template<typename F>
 void SDC
 ( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
   AbstractDistMatrix<Base<F>>& wPre, 
-  const HermitianSdcCtrl<Base<F>> ctrl )
+  const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 
@@ -575,7 +575,7 @@ void SDC
 ( UpperOrLower uplo, 
   AbstractDistMatrix<F>& APre, AbstractDistMatrix<Base<F>>& wPre, 
   AbstractDistMatrix<F>& QPre, 
-  const HermitianSdcCtrl<Base<F>> ctrl )
+  const HermitianSDCCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("herm_eig::SDC"))
 

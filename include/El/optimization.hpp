@@ -289,7 +289,7 @@ Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
 Int Cross( DistMatrix<F>& A, Base<F> rho, bool relative=false );
 template<typename F>
-Int TallCross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
+Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
 
 template<typename F>
 Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );

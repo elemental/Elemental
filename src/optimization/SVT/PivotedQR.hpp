@@ -29,16 +29,22 @@ Int PivotedQR( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     Matrix<F> ACopy( A ), t;
     Matrix<Real> d;
     Matrix<Int> pPerm;
-    QRCtrl<Base<F>> ctrl;
-    ctrl.boundRank = true;
-    ctrl.maxRank = numSteps;
-    QR( ACopy, t, d, pPerm, ctrl );
+    QRCtrl<Base<F>> qrCtrl;
+    qrCtrl.boundRank = true;
+    qrCtrl.maxRank = numSteps;
+    QR( ACopy, t, d, pPerm, qrCtrl );
     auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
     Matrix<F> U( ACopyUpper ), V;
     Matrix<Real> s;
     MakeTriangular( UPPER, U );
-    svd::Thresholded( U, s, V, tau, relative );
+
+    SVDCtrl<Real> svdCtrl;
+    svdCtrl.thresholded = true;
+    svdCtrl.tol = tau;
+    svdCtrl.relative = relative;
+    SVD( U, s, V, svdCtrl );
+
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     InversePermuteRows( V, pPerm );
@@ -69,16 +75,22 @@ Int PivotedQR( DistMatrix<F>& A, Base<F> tau, Int numSteps, bool relative )
     DistMatrix<F,MD,STAR> t(g);
     DistMatrix<Real,MD,STAR> d(g);
     DistMatrix<Int,VR,STAR> pPerm(g);
-    QRCtrl<Base<F>> ctrl;
-    ctrl.boundRank = true;
-    ctrl.maxRank = numSteps;
-    QR( ACopy, t, d, pPerm, ctrl );
+    QRCtrl<Base<F>> qrCtrl;
+    qrCtrl.boundRank = true;
+    qrCtrl.maxRank = numSteps;
+    QR( ACopy, t, d, pPerm, qrCtrl );
     auto ACopyUpper = ACopy( IR(0,numSteps), IR(0,n) );
 
     DistMatrix<F> U( ACopyUpper ), V(g);
     DistMatrix<Real,VR,STAR> s(g);
     MakeTriangular( UPPER, U );
-    svd::Thresholded( U, s, V, tau, relative );
+
+    SVDCtrl<Real> svdCtrl;
+    svdCtrl.thresholded = true;
+    svdCtrl.tol = tau;
+    svdCtrl.relative = relative;
+    SVD( U, s, V, svdCtrl );
+
     SoftThreshold( s, tau, relative );
     DiagonalScale( RIGHT, NORMAL, s, U );
     InversePermuteRows( V, pPerm );

@@ -18,13 +18,21 @@ namespace El {
 // NOTE: On exit, A is overwritten with U
 
 template<typename F>
-void SVD( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR )
+void SVD
+( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
-    if( useQR )
-        svd::QRSVD( A, s, V );
+    if( ctrl.thresholded )
+    {
+        svd::Thresholded( A, s, V, ctrl.tol, ctrl.relative );
+    }
     else
-        svd::DivideAndConquerSVD( A, s, V );
+    {
+        if( ctrl.seqQR )
+            svd::QRSVD( A, s, V );
+        else
+            svd::DivideAndConquerSVD( A, s, V );
+    }
 }
 
 template<typename F>
@@ -69,11 +77,21 @@ void HermitianSVD
 template<typename F>
 void SVD
 ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
-  AbstractDistMatrix<F>& V, double heightRatio )
+  AbstractDistMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
-    // TODO: Add more options
-    svd::Chan( A, s, V, heightRatio );
+    if( ctrl.thresholded )
+    {
+        if( A.ColDist() == VC && A.RowDist() == STAR )
+        {
+            auto& ACast = dynamic_cast<DistMatrix<F,VC,STAR>&>( A );
+            svd::Thresholded( ACast, s, V, ctrl.tol, ctrl.relative );
+        }
+        else
+            svd::Thresholded( A, s, V, ctrl.tol, ctrl.relative );
+    }
+    else
+        svd::Chan( A, s, V, ctrl.fullChanRatio );
 }
 
 template<typename F>
@@ -137,11 +155,12 @@ void HermitianSVD( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s )
 
 template<typename F>
 void SVD
-( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, double heightRatio )
+( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, 
+  const SVDCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SVD"))
     // TODO: Add more options
-    svd::Chan( A, s, heightRatio );
+    svd::Chan( A, s, ctrl.valChanRatio );
 }
 
 template<typename F>
@@ -162,16 +181,16 @@ void HermitianSVD
 }
 
 #define PROTO(F) \
-  template void SVD \
-  ( Matrix<F>& A, Matrix<Base<F>>& s ); \
-  template void SVD \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
-    double heightRatio ); \
-  template void SVD \
-  ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, bool useQR ); \
+  template void SVD( Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void SVD \
   ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
-    AbstractDistMatrix<F>& V, double heightRatio ); \
+    const SVDCtrl<Base<F>>& ctrl ); \
+  template void SVD \
+  ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, \
+    const SVDCtrl<Base<F>>& ctrl ); \
+  template void SVD \
+  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
+    AbstractDistMatrix<F>& V, const SVDCtrl<Base<F>>& ctrl ); \
   template void HermitianSVD \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& s ); \
   template void HermitianSVD \
@@ -183,16 +202,7 @@ void HermitianSVD
   template void HermitianSVD \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     AbstractDistMatrix<Base<F>>& s, AbstractDistMatrix<F>& U, \
-    AbstractDistMatrix<F>& V ); \
-  template void svd::Thresholded \
-  ( Matrix<F>& A, Matrix<Base<F>>& s, Matrix<F>& V, \
-    Base<F> tol, bool relative ); \
-  template void svd::Thresholded \
-  ( AbstractDistMatrix<F>& A, AbstractDistMatrix<Base<F>>& s, \
-    AbstractDistMatrix<F>& V, Base<F> tol, bool relative ); \
-  template void svd::TallThresholded \
-  ( DistMatrix<F,VC,STAR>& A, AbstractDistMatrix<Base<F>>& s, \
-    AbstractDistMatrix<F>& V, Base<F> tol, bool relative );
+    AbstractDistMatrix<F>& V );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

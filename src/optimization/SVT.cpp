@@ -69,7 +69,7 @@ Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
   ( Matrix<F>& A, Base<F> tau, bool relative ); \
   template Int svt::Cross \
   ( DistMatrix<F>& A, Base<F> tau, bool relative ); \
-  template Int svt::TallCross \
+  template Int svt::Cross \
   ( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative ); \
   template Int svt::PivotedQR \
   ( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative ); \

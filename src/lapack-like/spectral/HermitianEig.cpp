@@ -140,7 +140,7 @@ void HermitianEig
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         herm_eig::SDC( uplo, A, w, ctrl.sdcCtrl );
         return;
@@ -188,7 +188,7 @@ void HermitianEig
     const Int n = A.Height();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         w.SetGrid( A.Grid() );
         w.Resize( n, 1 );
@@ -237,7 +237,7 @@ void HermitianEig
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
 
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         herm_eig::SDC( uplo, APre, w, ctrl.sdcCtrl );
         return;
@@ -303,7 +303,7 @@ void HermitianEig
     DEBUG_ONLY(CallStackEntry cse("HermitianEig"))
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         herm_eig::SDC( uplo, A, w, Z, ctrl.sdcCtrl );
         herm_eig::Sort( w, Z, sort );
@@ -361,7 +361,7 @@ void HermitianEig
     const Int n = A.Height();
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         w.Resize(n,1);
         Z.Resize(n,n);
@@ -422,7 +422,7 @@ void HermitianEig
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
 
-    if( ctrl.useSdc )
+    if( ctrl.useSDC )
     {
         herm_eig::SDC( uplo, APre, w, ZPre, ctrl.sdcCtrl );
         herm_eig::Sort( w, ZPre, sort );
@@ -600,17 +600,17 @@ void HermitianEig<Complex<float>>
 #define SDC_PROTO(F) \
   template void herm_eig::SDC \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
-    const HermitianSdcCtrl<Base<F>> ctrl ); \
+    const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<Base<F>>& w, const HermitianSdcCtrl<Base<F>> ctrl ); \
+    AbstractDistMatrix<Base<F>>& w, const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
   ( UpperOrLower uplo, Matrix<F>& A, Matrix<Base<F>>& w, \
-    Matrix<F>& Q, const HermitianSdcCtrl<Base<F>> ctrl ); \
+    Matrix<F>& Q, const HermitianSDCCtrl<Base<F>> ctrl ); \
   template void herm_eig::SDC \
   ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     AbstractDistMatrix<Base<F>>& w, AbstractDistMatrix<F>& Q, \
-    const HermitianSdcCtrl<Base<F>> ctrl );
+    const HermitianSDCCtrl<Base<F>> ctrl );
 
 #define PROTO(F) \
   EIGVAL_PROTO(F) \

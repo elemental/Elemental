@@ -517,10 +517,10 @@ inline ElPencil CReflect( Pencil pencil )
 inline Pencil CReflect( ElPencil pencil )
 { return static_cast<Pencil>(pencil); }
 
-/* HermitianSdcCtrl */
-inline ElHermitianSdcCtrl_s CReflect( const HermitianSdcCtrl<float>& ctrl )
+/* HermitianSDCCtrl */
+inline ElHermitianSDCCtrl_s CReflect( const HermitianSDCCtrl<float>& ctrl )
 {
-    ElHermitianSdcCtrl_s ctrlC;
+    ElHermitianSDCCtrl_s ctrlC;
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.maxInnerIts = ctrl.maxInnerIts;
     ctrlC.maxOuterIts = ctrl.maxOuterIts;
@@ -529,9 +529,9 @@ inline ElHermitianSdcCtrl_s CReflect( const HermitianSdcCtrl<float>& ctrl )
     ctrlC.progress = ctrl.progress;
     return ctrlC;
 }
-inline ElHermitianSdcCtrl_d CReflect( const HermitianSdcCtrl<double>& ctrl )
+inline ElHermitianSDCCtrl_d CReflect( const HermitianSDCCtrl<double>& ctrl )
 {
-    ElHermitianSdcCtrl_d ctrlC;
+    ElHermitianSDCCtrl_d ctrlC;
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.maxInnerIts = ctrl.maxInnerIts;
     ctrlC.maxOuterIts = ctrl.maxOuterIts;
@@ -541,9 +541,9 @@ inline ElHermitianSdcCtrl_d CReflect( const HermitianSdcCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline HermitianSdcCtrl<float> CReflect( const ElHermitianSdcCtrl_s& ctrlC )
+inline HermitianSDCCtrl<float> CReflect( const ElHermitianSDCCtrl_s& ctrlC )
 {
-    HermitianSdcCtrl<float> ctrl;
+    HermitianSDCCtrl<float> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
     ctrl.maxInnerIts = ctrlC.maxInnerIts;
     ctrl.maxOuterIts = ctrlC.maxOuterIts;
@@ -552,9 +552,9 @@ inline HermitianSdcCtrl<float> CReflect( const ElHermitianSdcCtrl_s& ctrlC )
     ctrl.progress = ctrlC.progress;
     return ctrl;
 }
-inline HermitianSdcCtrl<double> CReflect( const ElHermitianSdcCtrl_d& ctrlC )
+inline HermitianSDCCtrl<double> CReflect( const ElHermitianSDCCtrl_d& ctrlC )
 {
-    HermitianSdcCtrl<double> ctrl;
+    HermitianSDCCtrl<double> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
     ctrl.maxInnerIts = ctrlC.maxInnerIts;
     ctrl.maxOuterIts = ctrlC.maxOuterIts;
@@ -621,7 +621,7 @@ inline ElHermitianEigCtrl_s CReflect( const HermitianEigCtrl<float>& ctrl )
     ElHermitianEigCtrl_s ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
-    ctrlC.useSdc = ctrl.useSdc;
+    ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
 }
 inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
@@ -629,7 +629,7 @@ inline ElHermitianEigCtrl_d CReflect( const HermitianEigCtrl<double>& ctrl )
     ElHermitianEigCtrl_d ctrlC;
     ctrlC.tridiagCtrl = CReflect( ctrl.tridiagCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
-    ctrlC.useSdc = ctrl.useSdc;
+    ctrlC.useSDC = ctrl.useSDC;
     return ctrlC;
 }
 
@@ -638,7 +638,7 @@ inline HermitianEigCtrl<float> CReflect( const ElHermitianEigCtrl_s& ctrlC )
     HermitianEigCtrl<float> ctrl;
     ctrl.tridiagCtrl = CReflect( ctrlC.tridiagCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
-    ctrl.useSdc = ctrlC.useSdc;
+    ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
 }
 inline HermitianEigCtrl<double> CReflect( const ElHermitianEigCtrl_d& ctrlC )
@@ -646,7 +646,7 @@ inline HermitianEigCtrl<double> CReflect( const ElHermitianEigCtrl_d& ctrlC )
     HermitianEigCtrl<double> ctrl;
     ctrl.tridiagCtrl = CReflect( ctrlC.tridiagCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
-    ctrl.useSdc = ctrlC.useSdc;
+    ctrl.useSDC = ctrlC.useSDC;
     return ctrl;
 }
 
@@ -671,29 +671,78 @@ inline PolarCtrl CReflect( const ElPolarCtrl& ctrlC )
     return ctrl;
 }
 
-/* HessQrCtrl */
-inline ElHessQrCtrl CReflect( const HessQrCtrl& ctrl )
+/* SVDCtrl */
+inline SVDCtrl<float> CReflect( const ElSVDCtrl_s& ctrlC )
 {
-    ElHessQrCtrl ctrlC;
-    ctrlC.distAed = ctrl.distAed;
+    SVDCtrl<float> ctrl;
+    ctrl.seqQR = ctrlC.seqQR;
+    ctrl.valChanRatio = ctrlC.valChanRatio;
+    ctrl.fullChanRatio = ctrlC.fullChanRatio;
+    ctrl.thresholded = ctrlC.thresholded;
+    ctrl.relative = ctrlC.relative;
+    ctrl.tol = ctrlC.tol;
+    return ctrl;
+}
+
+inline SVDCtrl<double> CReflect( const ElSVDCtrl_d& ctrlC )
+{
+    SVDCtrl<double> ctrl;
+    ctrl.seqQR = ctrlC.seqQR;
+    ctrl.valChanRatio = ctrlC.valChanRatio;
+    ctrl.fullChanRatio = ctrlC.fullChanRatio;
+    ctrl.thresholded = ctrlC.thresholded;
+    ctrl.relative = ctrlC.relative;
+    ctrl.tol = ctrlC.tol;
+    return ctrl;
+}
+
+inline ElSVDCtrl_s CReflect( const SVDCtrl<float>& ctrl )
+{
+    ElSVDCtrl_s ctrlC;
+    ctrlC.seqQR = ctrl.seqQR;
+    ctrlC.valChanRatio = ctrl.valChanRatio;
+    ctrlC.fullChanRatio = ctrl.fullChanRatio;
+    ctrlC.thresholded = ctrl.thresholded;
+    ctrlC.relative = ctrl.relative;
+    ctrlC.tol = ctrl.tol;
+    return ctrlC;
+}
+
+inline ElSVDCtrl_d CReflect( const SVDCtrl<double>& ctrl )
+{
+    ElSVDCtrl_d ctrlC;
+    ctrlC.seqQR = ctrl.seqQR;
+    ctrlC.valChanRatio = ctrl.valChanRatio;
+    ctrlC.fullChanRatio = ctrl.fullChanRatio;
+    ctrlC.thresholded = ctrl.thresholded;
+    ctrlC.relative = ctrl.relative;
+    ctrlC.tol = ctrl.tol;
+    return ctrlC;
+}
+
+/* HessQRCtrl */
+inline ElHessQRCtrl CReflect( const HessQRCtrl& ctrl )
+{
+    ElHessQRCtrl ctrlC;
+    ctrlC.distAED = ctrl.distAED;
     ctrlC.blockHeight = ctrl.blockHeight;
     ctrlC.blockWidth = ctrl.blockWidth;
     return ctrlC;
 }
 
-inline HessQrCtrl CReflect( const ElHessQrCtrl& ctrlC )
+inline HessQRCtrl CReflect( const ElHessQRCtrl& ctrlC )
 {
-    HessQrCtrl ctrl;
-    ctrl.distAed = ctrlC.distAed;
+    HessQRCtrl ctrl;
+    ctrl.distAED = ctrlC.distAED;
     ctrl.blockHeight = ctrlC.blockHeight;
     ctrl.blockWidth = ctrlC.blockWidth;
     return ctrl;
 }
 
-/* SdcCtrl */
-inline ElSdcCtrl_s CReflect( const SdcCtrl<float>& ctrl )
+/* SDCCtrl */
+inline ElSDCCtrl_s CReflect( const SDCCtrl<float>& ctrl )
 {
-    ElSdcCtrl_s ctrlC;    
+    ElSDCCtrl_s ctrlC;    
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.maxInnerIts = ctrl.maxInnerIts;
     ctrlC.maxOuterIts = ctrl.maxOuterIts;
@@ -703,9 +752,9 @@ inline ElSdcCtrl_s CReflect( const SdcCtrl<float>& ctrl )
     ctrlC.progress = ctrl.progress;
     return ctrlC;
 }
-inline ElSdcCtrl_d CReflect( const SdcCtrl<double>& ctrl )
+inline ElSDCCtrl_d CReflect( const SDCCtrl<double>& ctrl )
 {
-    ElSdcCtrl_d ctrlC;    
+    ElSDCCtrl_d ctrlC;    
     ctrlC.cutoff = ctrl.cutoff;
     ctrlC.maxInnerIts = ctrl.maxInnerIts;
     ctrlC.maxOuterIts = ctrl.maxOuterIts;
@@ -716,9 +765,9 @@ inline ElSdcCtrl_d CReflect( const SdcCtrl<double>& ctrl )
     return ctrlC;
 }
 
-inline SdcCtrl<float> CReflect( const ElSdcCtrl_s& ctrlC )
+inline SDCCtrl<float> CReflect( const ElSDCCtrl_s& ctrlC )
 {
-    SdcCtrl<float> ctrl;
+    SDCCtrl<float> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
     ctrl.maxInnerIts = ctrlC.maxInnerIts;
     ctrl.maxOuterIts = ctrlC.maxOuterIts;
@@ -728,9 +777,9 @@ inline SdcCtrl<float> CReflect( const ElSdcCtrl_s& ctrlC )
     ctrl.progress = ctrlC.progress;
     return ctrl;
 }
-inline SdcCtrl<double> CReflect( const ElSdcCtrl_d& ctrlC )
+inline SDCCtrl<double> CReflect( const ElSDCCtrl_d& ctrlC )
 {
-    SdcCtrl<double> ctrl;
+    SDCCtrl<double> ctrl;
     ctrl.cutoff = ctrlC.cutoff;
     ctrl.maxInnerIts = ctrlC.maxInnerIts;
     ctrl.maxOuterIts = ctrlC.maxOuterIts;
@@ -745,7 +794,7 @@ inline SdcCtrl<double> CReflect( const ElSdcCtrl_d& ctrlC )
 inline ElSchurCtrl_s CReflect( const SchurCtrl<float>& ctrl )
 {
     ElSchurCtrl_s ctrlC;
-    ctrlC.useSdc = ctrl.useSdc;
+    ctrlC.useSDC = ctrl.useSDC;
     ctrlC.qrCtrl = CReflect( ctrl.qrCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     return ctrlC;
@@ -753,7 +802,7 @@ inline ElSchurCtrl_s CReflect( const SchurCtrl<float>& ctrl )
 inline ElSchurCtrl_d CReflect( const SchurCtrl<double>& ctrl )
 {
     ElSchurCtrl_d ctrlC;
-    ctrlC.useSdc = ctrl.useSdc;
+    ctrlC.useSDC = ctrl.useSDC;
     ctrlC.qrCtrl = CReflect( ctrl.qrCtrl );
     ctrlC.sdcCtrl = CReflect( ctrl.sdcCtrl );
     return ctrlC;
@@ -762,7 +811,7 @@ inline ElSchurCtrl_d CReflect( const SchurCtrl<double>& ctrl )
 inline SchurCtrl<float> CReflect( const ElSchurCtrl_s& ctrlC )
 {
     SchurCtrl<float> ctrl;
-    ctrl.useSdc = ctrlC.useSdc;
+    ctrl.useSDC = ctrlC.useSDC;
     ctrl.qrCtrl = CReflect( ctrlC.qrCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     return ctrl;
@@ -770,7 +819,7 @@ inline SchurCtrl<float> CReflect( const ElSchurCtrl_s& ctrlC )
 inline SchurCtrl<double> CReflect( const ElSchurCtrl_d& ctrlC )
 {
     SchurCtrl<double> ctrl;
-    ctrl.useSdc = ctrlC.useSdc;
+    ctrl.useSDC = ctrlC.useSDC;
     ctrl.qrCtrl = CReflect( ctrlC.qrCtrl );
     ctrl.sdcCtrl = CReflect( ctrlC.sdcCtrl );
     return ctrl;
