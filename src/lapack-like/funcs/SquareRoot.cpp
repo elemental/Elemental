@@ -98,9 +98,13 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
 
 template<typename F>
 inline int
-Newton( DistMatrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
+Newton( AbstractDistMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("square_root::Newton"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F> B(A), C(g), XTmp(g);
@@ -147,7 +151,7 @@ void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 }
 
 template<typename F>
-void SquareRoot( DistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
+void SquareRoot( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("SquareRoot"))
     square_root::Newton( A, ctrl );
@@ -205,12 +209,16 @@ void HPSDSquareRoot
 
 template<typename F>
 void HPSDSquareRoot
-( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, 
+  const HermitianEigCtrl<Base<F>> ctrl )
 {
     DEBUG_ONLY(CallStackEntry cse("HPSDSquareRoot"))
-    typedef Base<F> Real;
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Get the EVD of A
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
@@ -257,11 +265,12 @@ void HPSDSquareRoot
   template void SquareRoot \
   ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void SquareRoot \
-  ( DistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
   template void HPSDSquareRoot \
   ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl ); \
   template void HPSDSquareRoot \
-  ( UpperOrLower uplo, DistMatrix<F>& A, const HermitianEigCtrl<Base<F>> ctrl );
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
+    const HermitianEigCtrl<Base<F>> ctrl );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

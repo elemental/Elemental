@@ -37,9 +37,14 @@ void SymmetricInverse
 
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate, LDLPivotType pivotType )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, bool conjugate, 
+  LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("SymmetricInverse"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     if( uplo == LOWER )
     {
         DistMatrix<Int,VC,STAR> p( A.Grid() );
@@ -74,7 +79,7 @@ void LocalSymmetricInverse
   ( UpperOrLower uplo, Matrix<F>& A, bool conjugate, \
     LDLPivotType pivotType ); \
   template void SymmetricInverse \
-  ( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate, \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate, \
     LDLPivotType pivotType ); \
   template void LocalSymmetricInverse \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, bool conjugate, \

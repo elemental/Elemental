@@ -82,9 +82,14 @@ LUPartialPiv( Matrix<F>& A )
 }
 
 template<typename F> 
-void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
+void AfterLUPartialPiv
+( AbstractDistMatrix<F>& APre, const AbstractDistMatrix<Int>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::AfterLUPartialPiv"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     if( A.Height() != p.Height() )
@@ -149,7 +154,7 @@ void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
 
 template<typename F> 
 inline void
-LUPartialPiv( DistMatrix<F>& A )
+LUPartialPiv( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("inverse::LUPartialPiv"))
     if( A.Height() != A.Width() )

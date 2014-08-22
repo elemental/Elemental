@@ -56,7 +56,8 @@ void HermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, std::function<Base<F>(Base<F>)> func );
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, DistMatrix<F>& A, std::function<Base<F>(Base<F>)> func );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+  std::function<Base<F>(Base<F>)> func );
 
 template<typename Real>
 void HermitianFunction
@@ -64,7 +65,7 @@ void HermitianFunction
   std::function<Complex<Real>(Real)> func );
 template<typename Real>
 void HermitianFunction
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& A,
+( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& A,
   std::function<Complex<Real>(Real)> func );
 
 // Inverse
@@ -72,20 +73,21 @@ void HermitianFunction
 template<typename F>
 void Inverse( Matrix<F>& A );
 template<typename F>
-void Inverse( DistMatrix<F>& A );
+void Inverse( AbstractDistMatrix<F>& A );
 template<typename F>
 void LocalInverse( DistMatrix<F,STAR,STAR>& A );
 namespace inverse {
 template<typename F>
 void AfterLUPartialPiv( Matrix<F>& A, const Matrix<Int>& p );
 template<typename F>
-void AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p );
+void AfterLUPartialPiv
+( AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p );
 } // namespace inverse
 
 template<typename F>
 void HPDInverse( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
-void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A );
+void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<F>& A );
 template<typename F>
 void LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
@@ -94,7 +96,8 @@ void HermitianInverse
 ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 template<typename F>
 void HermitianInverse
-( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType=BUNCH_KAUFMAN_A );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 template<typename F>
 void LocalHermitianInverse
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A,
@@ -106,7 +109,7 @@ void SymmetricInverse
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 template<typename F>
 void SymmetricInverse
-( UpperOrLower uplo, DistMatrix<F>& A, bool conjugate=false, 
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate=false, 
   LDLPivotType pivotType=BUNCH_KAUFMAN_A );
 template<typename F>
 void LocalSymmetricInverse
@@ -117,7 +120,7 @@ template<typename F>
 void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A );
 template<typename F>
 void TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  );
+( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<F>& A  );
 template<typename F>
 void LocalTriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
@@ -127,14 +130,14 @@ void LocalTriangularInverse
 template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance=0 );
 template<typename F>
-void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance=0 );
+void Pseudoinverse( AbstractDistMatrix<F>& A, Base<F> tolerance=0 );
 
 template<typename F>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance=0 );
 template<typename F>
 void HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance=0 );
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, Base<F> tolerance=0 );
 
 // Sign
 // ====
@@ -180,7 +183,7 @@ void SquareRoot
   const SquareRootCtrl<Base<F>> ctrl=SquareRootCtrl<Base<F>>() );
 template<typename F>
 void SquareRoot
-( DistMatrix<F>& A,
+( AbstractDistMatrix<F>& A,
   const SquareRootCtrl<Base<F>> ctrl=SquareRootCtrl<Base<F>>() );
 
 template<typename F>
@@ -189,7 +192,7 @@ void HPSDSquareRoot
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 template<typename F>
 void HPSDSquareRoot
-( UpperOrLower uplo, DistMatrix<F>& A,
+( UpperOrLower uplo, AbstractDistMatrix<F>& A,
   const HermitianEigCtrl<Base<F>> ctrl=HermitianEigCtrl<Base<F>>() );
 
 } // namespace El

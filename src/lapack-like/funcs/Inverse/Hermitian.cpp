@@ -19,7 +19,7 @@ void HermitianInverse( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType )
 
 template<typename F>
 void HermitianInverse
-( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianInverse"))
     SymmetricInverse( uplo, A, true, pivotType );
@@ -37,7 +37,7 @@ void LocalHermitianInverse
   template void HermitianInverse \
   ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType ); \
   template void HermitianInverse \
-  ( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, LDLPivotType pivotType ); \
   template void LocalHermitianInverse \
   ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A, LDLPivotType pivotType );
 

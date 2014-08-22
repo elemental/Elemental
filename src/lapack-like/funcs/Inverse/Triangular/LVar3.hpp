@@ -76,13 +76,17 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 
 template<typename F>
 inline void
-LVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
+LVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& LPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("triang_inv::LVar3");
-        if( L.Height() != L.Width() )
+        if( LPre.Height() != LPre.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
+
+    auto LPtr = ReadWriteProxy( &LPre );
+    auto& L = *LPtr;
+
     const Grid& g = L.Grid();
     DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);

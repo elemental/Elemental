@@ -20,7 +20,7 @@ void Inverse( Matrix<F>& A )
 }
 
 template<typename F> 
-void Inverse( DistMatrix<F>& A )
+void Inverse( AbstractDistMatrix<F>& A )
 {
     DEBUG_ONLY(CallStackEntry cse("Inverse"))
     inverse::LUPartialPiv( A );
@@ -35,12 +35,12 @@ void LocalInverse( DistMatrix<F,STAR,STAR>& A )
 
 #define PROTO(F) \
   template void Inverse( Matrix<F>& A ); \
-  template void Inverse( DistMatrix<F>& A ); \
+  template void Inverse( AbstractDistMatrix<F>& A ); \
   template void LocalInverse( DistMatrix<F,STAR,STAR>& A ); \
   template void inverse::AfterLUPartialPiv \
-  ( Matrix<F>& A, const Matrix<Int>& pPerm ); \
+  ( Matrix<F>& A, const Matrix<Int>& p ); \
   template void inverse::AfterLUPartialPiv \
-  ( DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm ); 
+  ( AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p ); 
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

@@ -36,9 +36,14 @@ void HermitianFunction
 
 template<typename F>
 void HermitianFunction
-( UpperOrLower uplo, DistMatrix<F>& A, std::function<Base<F>(Base<F>)> func )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre,
+  std::function<Base<F>(Base<F>)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Real]"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<F> Real;
@@ -91,10 +96,14 @@ void HermitianFunction
 
 template<typename Real>
 void HermitianFunction
-( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, 
+( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& APre, 
   std::function<Complex<Real>(Real)> func )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianFunction [Complex]"))
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
+
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -125,7 +134,7 @@ void HermitianFunction
   ( UpperOrLower uplo, Matrix<F>& A, \
     std::function<Base<F>(Base<F>)> func ); \
   template void HermitianFunction \
-  ( UpperOrLower uplo, DistMatrix<F>& A, \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, \
     std::function<Base<F>(Base<F>)> func );
 
 #define PROTO_REAL(Real) \
@@ -134,7 +143,7 @@ void HermitianFunction
   ( UpperOrLower uplo, Matrix<Complex<Real>>& A, \
     std::function<Complex<Real>(Real)> func ); \
   template void HermitianFunction \
-  ( UpperOrLower uplo, DistMatrix<Complex<Real>>& A, \
+  ( UpperOrLower uplo, AbstractDistMatrix<Complex<Real>>& A, \
     std::function<Complex<Real>(Real)> func );
 
 #define EL_NO_INT_PROTO

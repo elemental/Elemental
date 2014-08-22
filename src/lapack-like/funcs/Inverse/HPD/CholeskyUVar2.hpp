@@ -67,16 +67,19 @@ CholeskyUVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-CholeskyUVar2( DistMatrix<F>& A )
+CholeskyUVar2( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("hpd_inv::CholeskyUVar2");
-        if( A.Height() != A.Width() )
+        if( APre.Height() != APre.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
-    const Grid& g = A.Grid();
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Matrix views
+    const Grid& g = A.Grid();
     DistMatrix<F> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),

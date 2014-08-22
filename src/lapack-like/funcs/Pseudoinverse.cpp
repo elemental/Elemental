@@ -19,13 +19,9 @@ template<typename F>
 void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
-    typedef Base<F> Real;
-
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = Max( m, n );
 
     // Get the SVD of A
+    typedef Base<F> Real;
     Matrix<Real> s;
     Matrix<F> U, V;
     U = A;
@@ -34,6 +30,7 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to k ||A||_2 eps
+        const Int k = Max( A.Height(), A.Width() );
         const Real eps = lapack::MachineEpsilon<Real>();
         const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
@@ -55,10 +52,9 @@ void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
-    typedef Base<F> Real;
-    const Int n = A.Height();
 
     // Get the EVD of A
+    typedef Base<F> Real;
     Matrix<Real> w;
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
@@ -66,6 +62,7 @@ void HermitianPseudoinverse
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to n ||A||_2 eps
+        const Int n = A.Height();
         const Real eps = lapack::MachineEpsilon<Real>();
         const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
@@ -80,17 +77,16 @@ void HermitianPseudoinverse
 }
 
 template<typename F>
-void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
+void Pseudoinverse( AbstractDistMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("Pseudoinverse"))
-    typedef Base<F> Real;
 
-    const Grid& g = A.Grid();
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Int k = Max( m, n );
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Get the SVD of A
+    typedef Base<F> Real;
+    const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
     U = A;
@@ -99,6 +95,7 @@ void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to k ||A||_2 eps
+        const Int k = Max( A.Height(), A.Width() );
         const Real eps = lapack::MachineEpsilon<Real>();
         const Real twoNorm = MaxNorm( s );
         tolerance = k*twoNorm*eps;
@@ -117,13 +114,15 @@ void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance )
 
 template<typename F>
 void HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, Base<F> tolerance )
 {
     DEBUG_ONLY(CallStackEntry cse("HermitianPseudoinverse"))
-    typedef Base<F> Real;
-    const Int n = A.Height();
+
+    auto APtr = ReadWriteProxy( &APre );
+    auto& A = *APtr;
 
     // Get the EVD of A
+    typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
@@ -132,6 +131,7 @@ void HermitianPseudoinverse
     if( tolerance == Real(0) )
     {
         // Set the tolerance equal to n ||A||_2 eps
+        const Int n = A.Height();
         const Real eps = lapack::MachineEpsilon<Real>();
         const Real twoNorm = MaxNorm( w );
         tolerance = n*twoNorm*eps;
@@ -147,11 +147,11 @@ void HermitianPseudoinverse
 
 #define PROTO(F) \
   template void Pseudoinverse( Matrix<F>& A, Base<F> tolerance ); \
-  template void Pseudoinverse( DistMatrix<F>& A, Base<F> tolerance ); \
+  template void Pseudoinverse( AbstractDistMatrix<F>& A, Base<F> tolerance ); \
   template void HermitianPseudoinverse \
   ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance ); \
   template void HermitianPseudoinverse \
-  ( UpperOrLower uplo, DistMatrix<F>& A, Base<F> tolerance );
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, Base<F> tolerance );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

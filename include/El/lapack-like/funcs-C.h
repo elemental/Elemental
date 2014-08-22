@@ -70,7 +70,6 @@ ElError ElRealHermitianFunction_c
 ElError ElRealHermitianFunction_z
 ( ElUpperOrLower uplo, ElMatrix_z A, double (*func)(double) );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElRealHermitianFunctionDist_s
 ( ElUpperOrLower uplo, ElDistMatrix_s A, float (*func)(float) );
 ElError ElRealHermitianFunctionDist_d
@@ -87,7 +86,6 @@ ElError ElComplexHermitianFunction_c
 ElError ElComplexHermitianFunction_z
 ( ElUpperOrLower uplo, ElMatrix_z A, complex_double (*func)(double) );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElComplexHermitianFunctionDist_c
 ( ElUpperOrLower uplo, ElDistMatrix_c A, complex_float (*func)(float) );
 ElError ElComplexHermitianFunctionDist_z
@@ -103,7 +101,6 @@ ElError ElInverse_d( ElMatrix_d A );
 ElError ElInverse_c( ElMatrix_c A );
 ElError ElInverse_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElInverseDist_s( ElDistMatrix_s A );
 ElError ElInverseDist_d( ElDistMatrix_d A );
 ElError ElInverseDist_c( ElDistMatrix_c A );
@@ -116,8 +113,6 @@ ElError ElInverseAfterLUPartialPiv_d( ElMatrix_d A, ElConstMatrix_i p );
 ElError ElInverseAfterLUPartialPiv_c( ElMatrix_c A, ElConstMatrix_i p );
 ElError ElInverseAfterLUPartialPiv_z( ElMatrix_z A, ElConstMatrix_i p );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution, while 
-         'p' must be in a [VC,STAR] distribution */
 ElError ElInverseAfterLUPartialPivDist_s
 ( ElDistMatrix_s A, ElConstDistMatrix_i p );
 ElError ElInverseAfterLUPartialPivDist_d
@@ -134,7 +129,6 @@ ElError ElHPDInverse_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHPDInverse_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHPDInverse_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHPDInverseDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHPDInverseDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHPDInverseDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -145,7 +139,6 @@ ElError ElHPDInverseDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 ElError ElHermitianInverse_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHermitianInverse_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianInverseDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
 ElError ElHermitianInverseDist_z( ElUpperOrLower uplo, ElDistMatrix_z A );
 
@@ -158,7 +151,6 @@ ElError ElSymmetricInverse_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElSymmetricInverse_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElSymmetricInverse_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElSymmetricInverseDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElSymmetricInverseDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElSymmetricInverseDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -177,7 +169,6 @@ ElError ElTriangularInverse_c
 ElError ElTriangularInverse_z
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElTriangularInverseDist_s
 ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElDistMatrix_s A );
 ElError ElTriangularInverseDist_d
@@ -197,7 +188,6 @@ ElError ElPseudoinverse_d( ElMatrix_d A );
 ElError ElPseudoinverse_c( ElMatrix_c A );
 ElError ElPseudoinverse_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElPseudoinverseDist_s( ElDistMatrix_s A );
 ElError ElPseudoinverseDist_d( ElDistMatrix_d A );
 ElError ElPseudoinverseDist_c( ElDistMatrix_c A );
@@ -212,7 +202,6 @@ ElError ElHermitianPseudoinverse_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHermitianPseudoinverse_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHermitianPseudoinverse_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHermitianPseudoinverseDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHermitianPseudoinverseDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHermitianPseudoinverseDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );
@@ -291,7 +280,6 @@ ElError ElSquareRoot_d( ElMatrix_d A );
 ElError ElSquareRoot_c( ElMatrix_c A );
 ElError ElSquareRoot_z( ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElSquareRootDist_s( ElDistMatrix_s A );
 ElError ElSquareRootDist_d( ElDistMatrix_d A );
 ElError ElSquareRootDist_c( ElDistMatrix_c A );
@@ -306,7 +294,6 @@ ElError ElHPSDSquareRoot_d( ElUpperOrLower uplo, ElMatrix_d A );
 ElError ElHPSDSquareRoot_c( ElUpperOrLower uplo, ElMatrix_c A );
 ElError ElHPSDSquareRoot_z( ElUpperOrLower uplo, ElMatrix_z A );
 
-/* NOTE: 'A' must be in a [MC,MR] distribution */
 ElError ElHPSDSquareRootDist_s( ElUpperOrLower uplo, ElDistMatrix_s A );
 ElError ElHPSDSquareRootDist_d( ElUpperOrLower uplo, ElDistMatrix_d A );
 ElError ElHPSDSquareRootDist_c( ElUpperOrLower uplo, ElDistMatrix_c A );

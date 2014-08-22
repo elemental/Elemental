@@ -78,13 +78,17 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 
 template<typename F>
 inline void
-UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
+UVar3( UnitOrNonUnit diag, AbstractDistMatrix<F>& UPre )
 {
     DEBUG_ONLY(
         CallStackEntry cse("triang_inv::UVar3");
-        if( U.Height() != U.Width() )
+        if( UPre.Height() != UPre.Width() )
             LogicError("Nonsquare matrices cannot be triangular");
     )
+
+    auto UPtr = ReadWriteProxy( &UPre );
+    auto& U = *UPtr;
+
     const Grid& g = U.Grid();
     DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);

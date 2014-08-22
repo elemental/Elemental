@@ -27,7 +27,7 @@ Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
 
 template<typename F>
 inline void
-Var3( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
+Var3( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<F>& A  )
 {
     DEBUG_ONLY(CallStackEntry cse("triang_inv::Var3"))
     if( uplo == LOWER )
@@ -47,7 +47,7 @@ void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
 
 template<typename F>
 void TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
+( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<F>& A  )
 {
     DEBUG_ONLY(CallStackEntry cse("TriangularInverse"))
     triang_inv::Var3( uplo, diag, A );
@@ -65,7 +65,7 @@ void LocalTriangularInverse
   template void TriangularInverse \
   ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A ); \
   template void TriangularInverse \
-  ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A ); \
+  ( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<F>& A ); \
   template void LocalTriangularInverse \
   ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
 

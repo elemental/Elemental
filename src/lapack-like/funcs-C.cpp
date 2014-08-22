@@ -10,24 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define DM_CAST(T,A) dynamic_cast<DistMatrix<T>&>(*CReflect(A))
-#define DM_CAST_CONST(T,A) dynamic_cast<const DistMatrix<T>&>(*CReflect(A))
-
-#define DM_STAR_VR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,VR>&>(*CReflect(A))
-#define DM_STAR_VR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,VR>&>(*CReflect(A))
-
-#define DM_VC_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VC,STAR>&>(*CReflect(A))
-#define DM_VC_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VC,STAR>&>(*CReflect(A))
-
-#define DM_VR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VR,STAR>&>(*CReflect(A))
-#define DM_VR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VR,STAR>&>(*CReflect(A))
-
 extern "C" {
 
 ElError ElSignCtrlDefault_s( ElSignCtrl_s* ctrl )
@@ -79,7 +61,7 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, Base<F> (*funcC)(Base<F>) ) \
   { try { \
       std::function<Base<F>(Base<F>)> func( funcC ); \
-      HermitianFunction( CReflect(uplo), DM_CAST(F,A), func ); \
+      HermitianFunction( CReflect(uplo), *CReflect(A), func ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Inverse
      ------- */ \
@@ -87,28 +69,27 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElInverse_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Inverse( *CReflect(A) ) ) } \
   ElError ElInverseDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Inverse( DM_CAST(F,A) ) ) } \
+  { EL_TRY( Inverse( *CReflect(A) ) ) } \
   ElError ElInverseAfterLUPartialPiv_ ## SIG \
   ( ElMatrix_ ## SIG A, ElConstMatrix_i p ) \
   { EL_TRY( inverse::AfterLUPartialPiv( *CReflect(A), *CReflect(p) ) ) } \
   ElError ElInverseAfterLUPartialPivDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElConstDistMatrix_i p ) \
-  { EL_TRY( inverse::AfterLUPartialPiv \
-            ( DM_CAST(F,A), DM_VC_STAR_CAST_CONST(Int,p) ) ) } \
+  { EL_TRY( inverse::AfterLUPartialPiv( *CReflect(A), *CReflect(p) ) ) } \
   /* HPD */ \
   ElError ElHPDInverse_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HPDInverse( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHPDInverseDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HPDInverse( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( HPDInverse( CReflect(uplo), *CReflect(A) ) ) } \
   /* Symmetric */ \
   ElError ElSymmetricInverse_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( SymmetricInverse( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElSymmetricInverseDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( SymmetricInverse( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( SymmetricInverse( CReflect(uplo), *CReflect(A) ) ) } \
   /* Triangular */ \
   ElError ElTriangularInverse_ ## SIG \
   ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElMatrix_ ## SIG A ) \
@@ -117,21 +98,21 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElTriangularInverseDist_ ## SIG \
   ( ElUpperOrLower uplo, ElUnitOrNonUnit diag, ElDistMatrix_ ## SIG A ) \
   { EL_TRY( TriangularInverse \
-            ( CReflect(uplo), CReflect(diag), DM_CAST(F,A) ) ) } \
+            ( CReflect(uplo), CReflect(diag), *CReflect(A) ) ) } \
   /* Pseudoinverse
      ------------- */ \
   /* General */ \
   ElError ElPseudoinverse_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( Pseudoinverse( *CReflect(A) ) ) } \
   ElError ElPseudoinverseDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( Pseudoinverse( DM_CAST(F,A) ) ) } \
+  { EL_TRY( Pseudoinverse( *CReflect(A) ) ) } \
   /* Hermitian */ \
   ElError ElHermitianPseudoinverse_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HermitianPseudoinverse( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianPseudoinverseDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HermitianPseudoinverse( CReflect(uplo), DM_CAST(F,A) ) ) } \
+  { EL_TRY( HermitianPseudoinverse( CReflect(uplo), *CReflect(A) ) ) } \
   /* Sign
      ---- */ \
   /* General */ \
@@ -163,14 +144,14 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   ElError ElSquareRoot_ ## SIG ( ElMatrix_ ## SIG A ) \
   { EL_TRY( SquareRoot( *CReflect(A) ) ) } \
   ElError ElSquareRootDist_ ## SIG ( ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( SquareRoot( DM_CAST(F,A) ) ) } \
+  { EL_TRY( SquareRoot( *CReflect(A) ) ) } \
   /* HPSD */ \
   ElError ElHPSDSquareRoot_ ## SIG \
   ( ElUpperOrLower uplo, ElMatrix_ ## SIG A ) \
   { EL_TRY( HPSDSquareRoot( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElSHPSDquareRootDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HPSDSquareRoot( CReflect(uplo), DM_CAST(F,A) ) ) }
+  { EL_TRY( HPSDSquareRoot( CReflect(uplo), *CReflect(A) ) ) }
 
 #define C_PROTO_REAL(SIG,F) \
   C_PROTO_FIELD(SIG,SIG,F)
@@ -194,7 +175,7 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
       auto funcLambda = \
         [&]( Base<F> alpha ) { return CReflect(funcC(alpha)); }; \
       std::function<F(Base<F>)> func( funcLambda ); \
-      HermitianFunction( CReflect(uplo), DM_CAST(F,A), func ); \
+      HermitianFunction( CReflect(uplo), *CReflect(A), func ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Hermitian */ \
   ElError ElHermitianInverse_ ## SIG \
@@ -202,7 +183,7 @@ ElError ElSquareRootCtrlDefault_d( ElSquareRootCtrl_d* ctrl )
   { EL_TRY( HermitianInverse( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElHermitianInverseDist_ ## SIG \
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A ) \
-  { EL_TRY( HermitianInverse( CReflect(uplo), DM_CAST(F,A) ) ) }
+  { EL_TRY( HermitianInverse( CReflect(uplo), *CReflect(A) ) ) }
 
 #define EL_NO_INT_PROTO
 #include "El/macros/CInstantiate.h"
