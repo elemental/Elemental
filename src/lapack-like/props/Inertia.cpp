@@ -25,11 +25,15 @@ InertiaType Inertia
 
 template<typename F>
 InertiaType Inertia
-( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType )
+( UpperOrLower uplo, AbstractDistMatrix<F>& APre, LDLPivotType pivotType )
 {
     DEBUG_ONLY(CallStackEntry cse("Inertia"))
     if( uplo == UPPER )
         LogicError("This option not yet supported");
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
+
     DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
     DistMatrix<F,MD,STAR> dSub( A.Grid() );
     LDL( A, dSub, pPerm, true, pivotType );
@@ -40,7 +44,7 @@ InertiaType Inertia
   template InertiaType Inertia \
   ( UpperOrLower uplo, Matrix<F>& A, LDLPivotType pivotType ); \
   template InertiaType Inertia \
-  ( UpperOrLower uplo, DistMatrix<F>& A, LDLPivotType pivotType );
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, LDLPivotType pivotType );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

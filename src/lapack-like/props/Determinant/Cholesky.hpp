@@ -56,9 +56,14 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 }
 
 template<typename F> 
-SafeProduct<Base<F>> AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
+SafeProduct<Base<F>> AfterCholesky
+( UpperOrLower uplo, const AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::AfterCholesky"))
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
+
     typedef Base<F> Real;
     const Int n = A.Height();
     const Grid& g = A.Grid();
@@ -85,9 +90,13 @@ SafeProduct<Base<F>> AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<Base<F>> 
-Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
+Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("hpd_det::Cholesky"))
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
+
     SafeProduct<Base<F>> det( A.Height() );
     try
     {

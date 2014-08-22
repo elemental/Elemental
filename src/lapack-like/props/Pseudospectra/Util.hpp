@@ -10,8 +10,6 @@
 #ifndef EL_PSEUDOSPECTRUM_UTIL_HPP
 #define EL_PSEUDOSPECTRUM_UTIL_HPP
 
-
-
 #include "./Util/Rearrange.hpp"
 #include "./Util/BasicMath.hpp"
 #include "./Util/Snapshot.hpp"

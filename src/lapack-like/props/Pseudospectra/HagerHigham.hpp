@@ -516,14 +516,24 @@ HagerHigham
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 HagerHigham
-( const DistMatrix<Complex<Real>        >& U, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real,         VR,STAR>& invNorms, 
+( const AbstractDistMatrix<Complex<Real>>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
-    using namespace pspec;
     typedef Complex<Real> C;
+
+    auto UPtr = ReadProxy( &UPre ); 
+    auto& U = *UPtr;
+
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
+
+    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
+    auto& invNorms = *invNormsPtr;
+
+    using namespace pspec;
     const Int n = U.Height();
     const Int nLoc = U.LocalHeight();
     const Int numShifts = shifts.Height();
@@ -705,15 +715,28 @@ HagerHigham
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 HagerHigham
-( const DistMatrix<Complex<Real>        >& U, 
-  const DistMatrix<Complex<Real>        >& Q,
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real,         VR,STAR>& invNorms, 
+( const AbstractDistMatrix<Complex<Real>>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& QPre,
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::HagerHigham"))
     using namespace pspec;
     typedef Complex<Real> C;
+
+    auto UPtr = ReadProxy( &UPre );
+    auto& U = *UPtr;
+
+    auto QPtr = ReadProxy( &QPre );
+    auto& Q = *QPtr;
+
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
+
+    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
+    auto& invNorms = *invNormsPtr;
+
     const Int n = U.Height();
     const Int nLoc = U.LocalHeight();
     const Int numShifts = shifts.Height();

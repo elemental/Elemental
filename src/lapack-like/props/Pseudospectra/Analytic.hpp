@@ -59,7 +59,7 @@ inline void
 Analytic
 ( const AbstractDistMatrix<Complex<Real>>& w, 
   const AbstractDistMatrix<Complex<Real>>& shiftsPre,
-        DistMatrix<Real,VR,STAR>& invNorms,
+        AbstractDistMatrix<Real>& invNormsPre,
         SnapshotCtrl& snapCtrl )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::Analytic"))
@@ -68,6 +68,12 @@ Analytic
 
     auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
     auto& shifts = *shiftsPtr;
+
+    ProxyCtrl ctrl;
+    ctrl.colConstrain = true;
+    ctrl.colAlign = shifts.ColAlign();
+    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre, ctrl );
+    auto& invNorms = *invNormsPtr;
 
     const Int n = w.Height();
     const Int numShifts = shifts.Height();

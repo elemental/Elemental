@@ -35,15 +35,20 @@ ReshapeIntoGrid( Int realSize, Int imagSize, const Matrix<T>& x, Matrix<T>& X )
 template<typename T>
 inline void
 ReshapeIntoGrid
-( Int realSize, Int imagSize, const DistMatrix<T,VR,STAR>& x, DistMatrix<T>& X )
+( Int realSize, Int imagSize, 
+  const AbstractDistMatrix<T>& x, AbstractDistMatrix<T>& X )
 {
     X.SetGrid( x.Grid() );
     X.Resize( imagSize, realSize );
+
+    auto xSub = std::unique_ptr<AbstractDistMatrix<T>>( x.Construct() );
+    auto XSub = std::unique_ptr<AbstractDistMatrix<T>>( X.Construct() );
+
     for( Int j=0; j<realSize; ++j )
     {
-        auto XSub = X( IR(0,imagSize), IR(j,j+1) );
-        auto xSub = x( IR(j*imagSize,(j+1)*imagSize), IR(0,1) );
-        XSub = xSub;
+              View( *XSub, X, IR(0,imagSize),                IR(j,j+1) );
+        LockedView( *xSub, x, IR(j*imagSize,(j+1)*imagSize), IR(0,1)   );
+        Copy( *xSub, *XSub );
     }
 }
 
@@ -64,8 +69,7 @@ RestoreOrdering
 
 template<typename T1,typename T2>
 inline void
-RestoreOrdering
-( const Matrix<Int>& preimage, Matrix<T1>& x, Matrix<T2>& y )
+RestoreOrdering( const Matrix<Int>& preimage, Matrix<T1>& x, Matrix<T2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
     auto xCopy = x;
@@ -82,8 +86,8 @@ RestoreOrdering
 template<typename T>
 inline void
 RestoreOrdering
-( const DistMatrix<Int,VR,STAR>& preimage,
-        DistMatrix<T,  VR,STAR>& x )
+( const AbstractDistMatrix<Int>& preimage,
+        AbstractDistMatrix<T>& x )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );
@@ -99,9 +103,9 @@ RestoreOrdering
 template<typename T1,typename T2>
 inline void
 RestoreOrdering
-( const DistMatrix<Int,VR,STAR>& preimage,
-        DistMatrix<T1, VR,STAR>& x,
-        DistMatrix<T2, VR,STAR>& y )
+( const AbstractDistMatrix<Int>& preimage,
+        AbstractDistMatrix<T1>& x,
+        AbstractDistMatrix<T2>& y )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::RestoreOrdering"))
     DistMatrix<Int,STAR,STAR> preimageCopy( preimage );

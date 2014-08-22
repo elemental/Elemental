@@ -54,22 +54,29 @@ SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite )
     DEBUG_ONLY(CallStackEntry cse("SafeDeterminant"))
     Matrix<F> B;
     if( canOverwrite )
-        View( B, A );
+    {
+        return det::LUPartialPiv( A ); 
+    }
     else
-        B = A;
-    return det::LUPartialPiv( B ); 
+    {
+        Matrix<F> B( A );
+        return det::LUPartialPiv( B ); 
+    }
 }
 
 template<typename F>
-SafeProduct<F> SafeDeterminant( DistMatrix<F>& A, bool canOverwrite )
+SafeProduct<F> SafeDeterminant( AbstractDistMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeDeterminant"))
-    DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
-        View( B, A );
+    {
+        return det::LUPartialPiv( A ); 
+    }
     else
-        B = A;
-    return det::LUPartialPiv( B ); 
+    {
+        DistMatrix<F> B( A );
+        return det::LUPartialPiv( B ); 
+    }
 }
 
 template<typename F>
@@ -77,25 +84,31 @@ SafeProduct<Base<F>> SafeHPDDeterminant
 ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
-    Matrix<F> B;
     if( canOverwrite )
-        View( B, A );
+    {
+        return hpd_det::Cholesky( uplo, A ); 
+    }
     else
-        B = A;
-    return hpd_det::Cholesky( uplo, B ); 
+    {
+        Matrix<F> B( A );
+        return hpd_det::Cholesky( uplo, B ); 
+    }
 }
 
 template<typename F>
 SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("SafeHPDDeterminant"))
-    DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
-        View( B, A );
+    {
+        return hpd_det::Cholesky( uplo, A ); 
+    }
     else
-        B = A;
-    return hpd_det::Cholesky( uplo, B ); 
+    {
+        DistMatrix<F> B( A );
+        return hpd_det::Cholesky( uplo, B ); 
+    }
 }
 
 template<typename F>
@@ -139,7 +152,7 @@ F Determinant( Matrix<F>& A, bool canOverwrite )
 }
 
 template<typename F>
-F Determinant( DistMatrix<F>& A, bool canOverwrite )
+F Determinant( AbstractDistMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("Determinant"))
     SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
@@ -157,7 +170,7 @@ Base<F> HPDDeterminant
 
 template<typename F>
 Base<F> HPDDeterminant
-( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
+( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite )
 {
     DEBUG_ONLY(CallStackEntry cse("HPDDeterminant"))
     SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
@@ -170,7 +183,7 @@ Base<F> HPDDeterminant
   template SafeProduct<F> SafeDeterminant \
   ( Matrix<F>& A, bool canOverwrite ); \
   template SafeProduct<F> SafeDeterminant \
-  ( DistMatrix<F>& A, bool canOverwrite ); \
+  ( AbstractDistMatrix<F>& A, bool canOverwrite ); \
   \
   template SafeProduct<Base<F>> SafeHPDDeterminant \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
@@ -179,12 +192,12 @@ Base<F> HPDDeterminant
   template SafeProduct<Base<F>> SafeHPDDeterminant \
   ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
   template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite ); \
   \
   template F Determinant( const Matrix<F>& A ); \
   template F Determinant( const AbstractDistMatrix<F>& A ); \
   template F Determinant( Matrix<F>& A, bool canOverwrite ); \
-  template F Determinant( DistMatrix<F>& A, bool canOverwrite ); \
+  template F Determinant( AbstractDistMatrix<F>& A, bool canOverwrite ); \
   \
   template Base<F> HPDDeterminant \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
@@ -193,26 +206,16 @@ Base<F> HPDDeterminant
   template Base<F> HPDDeterminant \
   ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
   template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool canOverwrite ); \
   \
   template SafeProduct<Base<F>> hpd_det::AfterCholesky \
   ( UpperOrLower uplo, const Matrix<F>& A ); \
   template SafeProduct<Base<F>> hpd_det::AfterCholesky \
-  ( UpperOrLower uplo, const DistMatrix<F>& A ); \
+  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
   ( const Matrix<F>& A, const Matrix<Int>& pPerm ); \
   template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const DistMatrix<F>& A, const DistMatrix<Int,MC,STAR>& pPerm ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const DistMatrix<F>& A, const DistMatrix<Int,MD,STAR>& pPerm ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const DistMatrix<F>& A, const DistMatrix<Int,MR,STAR>& pPerm ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const DistMatrix<F>& A, const DistMatrix<Int,STAR,STAR>& pPerm ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& pPerm ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const DistMatrix<F>& A, const DistMatrix<Int,VR,STAR>& pPerm );
+  ( const AbstractDistMatrix<F>& A, const AbstractDistMatrix<Int>& p );
 
 #define EL_NO_INT_PROTO
 #include "El/macros/Instantiate.h"

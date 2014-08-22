@@ -358,14 +358,24 @@ IRL
 template<typename Real>
 inline DistMatrix<Int,VR,STAR>
 IRL
-( const DistMatrix<Complex<Real>        >& U, 
-  const DistMatrix<Complex<Real>,VR,STAR>& shifts, 
-        DistMatrix<Real,         VR,STAR>& invNorms, 
+( const AbstractDistMatrix<Complex<Real>>& UPre, 
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre, 
+        AbstractDistMatrix<Real>& invNormsPre, 
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
     DEBUG_ONLY(CallStackEntry cse("pspec::IRL"))
     using namespace pspec;
     typedef Complex<Real> C;
+
+    auto UPtr = ReadProxy( &UPre );
+    auto& U = *UPtr;
+
+    auto shiftsPtr = ReadProxy<C,VR,STAR>( &shiftsPre );
+    auto& shifts = *shiftsPtr;
+
+    auto invNormsPtr = WriteProxy<Real,VR,STAR>( &invNormsPre );
+    auto& invNorms = *invNormsPtr;
+
     const Int n = U.Height();
     const Int numShifts = shifts.Height();
     const Grid& g = U.Grid();

@@ -10,34 +10,6 @@
 #include "El-C.h"
 using namespace El;
 
-#define DM_CAST(T,A) dynamic_cast<DistMatrix<T>&>(*CReflect(A))
-#define DM_CAST_CONST(T,A) dynamic_cast<const DistMatrix<T>&>(*CReflect(A))
-
-#define DM_MD_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,MD,STAR>&>(*CReflect(A))
-#define DM_MD_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,MD,STAR>&>(*CReflect(A))
-
-#define DM_STAR_VR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,VR>&>(*CReflect(A))
-#define DM_STAR_VR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,VR>&>(*CReflect(A))
-
-#define DM_STAR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,STAR,STAR>&>(*CReflect(A))
-#define DM_STAR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,STAR,STAR>&>(*CReflect(A))
-
-#define DM_VC_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VC,STAR>&>(*CReflect(A))
-#define DM_VC_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VC,STAR>&>(*CReflect(A))
-
-#define DM_VR_STAR_CAST(T,A) \
-  dynamic_cast<DistMatrix<T,VR,STAR>&>(*CReflect(A))
-#define DM_VR_STAR_CAST_CONST(T,A) \
-  dynamic_cast<const DistMatrix<T,VR,STAR>&>(*CReflect(A))
-
 extern "C" {
 
 ElError ElSnapshotCtrlDefault( ElSnapshotCtrl* ctrl )
@@ -220,7 +192,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElUpperOrLower uplo, ElDistMatrix_ ## SIG A, ElLDLPivotType pivotType, \
     ElInertiaType* inertia ) \
   { EL_TRY( *inertia = \
-      CReflect(Inertia(CReflect(uplo), DM_CAST(F,A), CReflect(pivotType))) ) } \
+      CReflect(Inertia(CReflect(uplo), *CReflect(A), CReflect(pivotType))) ) } \
   /* Norm
      ==== */ \
   ElError ElNorm_ ## SIG \
@@ -560,12 +532,12 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), realSize, imagSize ) ) } \
+      *CReflect(A), *CReflect(invNormMap), realSize, imagSize ) ) } \
   ElError ElPseudospectralWindowAutoDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), realSize, imagSize ) ) } \
+      *CReflect(A), *CReflect(invNormMap), realSize, imagSize ) ) } \
   /* Expert version */ \
   ElError ElPseudospectralWindowAutoX_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
@@ -583,13 +555,13 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), realSize, imagSize, \
+      *CReflect(A), *CReflect(invNormMap), realSize, imagSize, \
       CReflect(ctrl) ) ) } \
   ElError ElPseudospectralWindowAutoXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), realSize, imagSize, \
+      *CReflect(A), *CReflect(invNormMap), realSize, imagSize, \
       CReflect(ctrl) ) ) } \
   /* Manual window
      ------------- */ \
@@ -599,32 +571,28 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), \
-      CReflect(center), realWidth, imagWidth, \
-      realSize, imagSize ) ) } \
+      CReflect(center), realWidth, imagWidth, realSize, imagSize ) ) } \
   ElError ElPseudospectralWindow_ ## SIG \
   ( ElConstMatrix_ ## SIG A, ElMatrix_ ## SIGBASE invNormMap, \
     CREFLECT(F) center, Base<F> realWidth, Base<F> imagWidth, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
       *CReflect(A), *CReflect(invNormMap), \
-      CReflect(center), realWidth, imagWidth, \
-      realSize, imagSize ) ) } \
+      CReflect(center), realWidth, imagWidth, realSize, imagSize ) ) } \
   ElError ElPseudospectralWindowDist_ ## SIGBASE \
   ( ElConstDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIGBASE invNormMap, \
     CREFLECT(F) center, Base<F> realWidth, Base<F> imagWidth, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), \
-      CReflect(center), realWidth, imagWidth, \
-      realSize, imagSize ) ) } \
+      *CReflect(A), *CReflect(invNormMap), \
+      CReflect(center), realWidth, imagWidth, realSize, imagSize ) ) } \
   ElError ElPseudospectralWindowDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElDistMatrix_ ## SIGBASE invNormMap, \
     CREFLECT(F) center, Base<F> realWidth, Base<F> imagWidth, \
     ElInt realSize, ElInt imagSize ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), \
-      CReflect(center), realWidth, imagWidth, \
-      realSize, imagSize ) ) } \
+      *CReflect(A), *CReflect(invNormMap), \
+      CReflect(center), realWidth, imagWidth, realSize, imagSize ) ) } \
   /* Expert version */ \
   ElError ElPseudospectralWindowX_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
@@ -647,7 +615,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     CREFLECT(F) center, Base<F> realWidth, Base<F> imagWidth, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), \
+      *CReflect(A), *CReflect(invNormMap), \
       CReflect(center), realWidth, imagWidth, \
       realSize, imagSize, CReflect(ctrl) ) ) } \
   ElError ElPseudospectralWindowXDist_ ## SIG \
@@ -655,7 +623,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
     CREFLECT(F) center, Base<F> realWidth, Base<F> imagWidth, \
     ElInt realSize, ElInt imagSize, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), DM_CAST(Base<F>,invNormMap), \
+      *CReflect(A), *CReflect(invNormMap), \
       CReflect(center), realWidth, imagWidth, \
       realSize, imagSize, CReflect(ctrl) ) ) } \
   /* Point cloud
@@ -674,12 +642,12 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIGBASE A, ElConstDistMatrix_ ## SIG shifts, \
     ElDistMatrix_ ## SIGBASE invNorms ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), *CReflect(shifts), DM_VR_STAR_CAST(Base<F>,invNorms) ) ) } \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms) ) ) } \
   ElError ElPseudospectralCloudDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG shifts, \
     ElDistMatrix_ ## SIGBASE invNorms ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), *CReflect(shifts), DM_VR_STAR_CAST(Base<F>,invNorms) ) ) } \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms) ) ) } \
   /* Expert version */ \
   ElError ElPseudospectralCloudX_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElConstMatrix_ ## SIG shifts, \
@@ -697,14 +665,14 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   ( ElConstDistMatrix_ ## SIGBASE A, ElConstDistMatrix_ ## SIG shifts, \
     ElDistMatrix_ ## SIGBASE invNorms, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), *CReflect(shifts), \
-      DM_VR_STAR_CAST(Base<F>,invNorms), CReflect(ctrl) ) ) } \
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms), \
+      CReflect(ctrl) ) ) } \
   ElError ElPseudospectralCloudXDist_ ## SIG \
   ( ElConstDistMatrix_ ## SIG A, ElConstDistMatrix_ ## SIG shifts, \
     ElDistMatrix_ ## SIGBASE invNorms, ElPseudospecCtrl_ ## SIGBASE ctrl ) \
   { EL_TRY( Pseudospectra( \
-      *CReflect(A), *CReflect(shifts), \
-      DM_VR_STAR_CAST(Base<F>,invNorms), CReflect(ctrl) ) ) }
+      *CReflect(A), *CReflect(shifts), *CReflect(invNorms), \
+      CReflect(ctrl) ) ) } 
 
 #define C_PROTO_INT(SIG,T) C_PROTO_BASE(SIG,SIG,T)
 

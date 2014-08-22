@@ -26,8 +26,11 @@ TriangIsNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-TriangIsNormal( const DistMatrix<F>& U, Base<F> tol )
+TriangIsNormal( const AbstractDistMatrix<F>& UPre, Base<F> tol )
 {
+    auto UPtr = ReadProxy( &UPre );
+    auto& U = *UPtr;
+
     auto w = U.GetDiagonal();
     const Base<F> diagFrob = FrobeniusNorm( w );
     const Base<F> upperFrob = FrobeniusNorm( U );
@@ -48,7 +51,7 @@ QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
 
 template<typename F>
 inline bool
-QuasiTriangIsNormal( const DistMatrix<F>& U, Base<F> tol )
+QuasiTriangIsNormal( const AbstractDistMatrix<F>& U, Base<F> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
     const Base<F> eigFrob = FrobeniusNorm( w );

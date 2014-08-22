@@ -15,12 +15,12 @@ namespace det {
 
 template<typename F>
 SafeProduct<F> AfterLUPartialPiv
-( const Matrix<F>& A, const Matrix<Int>& pPerm )
+( const Matrix<F>& A, const Matrix<Int>& p )
 {
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    if( A.Height() != pPerm.Height() )
+    if( A.Height() != p.Height() )
         LogicError("Permutation vector is incorrect length");
 
     typedef Base<F> R;
@@ -37,7 +37,7 @@ SafeProduct<F> AfterLUPartialPiv
         det.rho *= delta/alpha;
         det.kappa += Log(alpha)/scale;
     }
-    const bool isOdd = PermutationParity( pPerm );
+    const bool isOdd = PermutationParity( p );
     if( isOdd )
         det.rho = -det.rho;
 
@@ -53,9 +53,9 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
     SafeProduct<F> det( A.Height() );
     try 
     {
-        Matrix<Int> pPerm;
-        El::LU( A, pPerm ); 
-        det = det::AfterLUPartialPiv( A, pPerm );
+        Matrix<Int> p;
+        El::LU( A, p ); 
+        det = det::AfterLUPartialPiv( A, p );
     } 
     catch( SingularMatrixException& e )
     {
@@ -65,23 +65,25 @@ inline SafeProduct<F> LUPartialPiv( Matrix<F>& A )
     return det;
 }
 
-template<typename F,Dist UPerm> 
+template<typename F> 
 SafeProduct<F> AfterLUPartialPiv
-( const DistMatrix<F>& A, const DistMatrix<Int,UPerm,STAR>& pPerm )
+( const AbstractDistMatrix<F>& APre, const AbstractDistMatrix<Int>& pPre )
 {
     DEBUG_ONLY(CallStackEntry cse("det::AfterLUPartialPiv"))
-    if( A.Height() != A.Width() )
+    if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
-    AssertSameGrids( A, pPerm );
-    if( A.Height() != pPerm.Height() )
+    AssertSameGrids( APre, pPre );
+    if( APre.Height() != pPre.Height() )
         LogicError("Permutation vector is incorrect length");
+
+    auto APtr = ReadProxy( &APre );              auto& A = *APtr;
+    auto pPtr = ReadProxy<Int,VC,STAR>( &pPre ); auto& p = *pPtr;
 
     typedef Base<F> R;
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
-    DistMatrix<F,MD,STAR> d(g);
-    A.GetDiagonal( d );
+    auto d = A.GetDiagonal();
     F localRho = 1;
     R localKappa = 0; 
     if( d.Participating() )
@@ -100,7 +102,7 @@ SafeProduct<F> AfterLUPartialPiv
     det.rho = mpi::AllReduce( localRho, mpi::PROD, g.VCComm() );
     det.kappa = mpi::AllReduce( localKappa, mpi::SUM, g.VCComm() );
 
-    const bool isOdd = PermutationParity( pPerm );
+    const bool isOdd = PermutationParity( p );
     if( isOdd )
         det.rho = -det.rho;
 
@@ -109,17 +111,21 @@ SafeProduct<F> AfterLUPartialPiv
 
 template<typename F> 
 inline SafeProduct<F> 
-LUPartialPiv( DistMatrix<F>& A )
+LUPartialPiv( AbstractDistMatrix<F>& APre )
 {
     DEBUG_ONLY(CallStackEntry cse("det::LUPartialPiv"))
-    if( A.Height() != A.Width() )
+    if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
+
+    auto APtr = ReadProxy( &APre );
+    auto& A = *APtr;
+
     SafeProduct<F> det( A.Height() );
     try 
     {
-        DistMatrix<Int,VC,STAR> pPerm( A.Grid() );
-        El::LU( A, pPerm );
-        det = det::AfterLUPartialPiv( A, pPerm );
+        DistMatrix<Int,VC,STAR> p( A.Grid() );
+        El::LU( A, p );
+        det = det::AfterLUPartialPiv( A, p );
     }
     catch( SingularMatrixException& e ) 
     {
